@@ -294,10 +294,7 @@ int main(int argc, char *argv[])
             }
             else {
 #ifdef BDE_BUILD_TARGET_EXC
-                using bsls::AssertFailureHandlerGuard;
-                using bsls::AssertTest;
-                AssertFailureHandlerGuard g(AssertTest::failTestDriver);
-                (void)g;
+                bsls::AssertTestHandlerGuard g; (void)g;
 
                 const bdlb::IndexSpan X(k_POS, k_LEN);
 

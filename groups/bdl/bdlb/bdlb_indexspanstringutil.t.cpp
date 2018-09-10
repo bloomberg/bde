@@ -1,6 +1,8 @@
 // bdlb_indexspanstringutil.t.cpp                                     -*-C++-*-
 #include <bdlb_indexspanstringutil.h>
 
+#include <bdlb_stringrefutil.h>
+
 #include <bslim_testutil.h>
 
 #include <bsls_asserttest.h>
@@ -123,6 +125,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
+
         if (verbose) cout << "\nUSAGE EXAMPLE"
                              "\n=============\n";
 
@@ -211,27 +214,42 @@ int main(int argc, char *argv[])
     ASSERT(bdlb::IndexSpanStringUtil::bind(full, last) == "Kirk");
 //..
       } break;
+
       case 3: {
         // --------------------------------------------------------------------
         // TESTING CREATE
         //
         // Concerns:
         //: 1 It creates the expected 'IndexSpan'.
+        //:
         //: 2 Bad arguments assert in the proper build mode.
+        //:
         //: 3 All functions are callable with 'bsl::string' objects.
         //
         // Plan:
         //: 1 Use table based testing with both good and bad calls.
+        //:
         //: 2 Test all overloads for all rows of the table.
+        //:
         //: 3 Test both wide and narrow character versions.
+        //:
+        //: 4 Separately verify that too low 'begin' for 'create' with
+        //:   'StringRef' input asserts.  It is not possible to portably test
+        //:   this situation with 'bsl::string' input as we cannot create a
+        //:   'bsl::string::iterator' or a 'StringRef' that points into the
+        //:   same allocated area (as required by the C++ standard) and has a
+        //:   lower begin value than 'bslString.begin()'.
         //
         // Testing:
         //   IndexSpan create(string, substring);
         // --------------------------------------------------------------------
+
         if (verbose) cout << "\nTESTING CREATE"
                              "\n==============\n";
 
         typedef bdlb::IndexSpan::size_type size_type;
+
+        if (verbose) cout << "Testing narrow string overloads.\n";
 
         static struct TestData {
             long long         d_line;
@@ -332,10 +350,7 @@ int main(int argc, char *argv[])
             }
             else {
 #ifdef BDE_BUILD_TARGET_EXC
-                using bsls::AssertFailureHandlerGuard;
-                using bsls::AssertTest;
-                AssertFailureHandlerGuard g(AssertTest::failTestDriver);
-                (void)g;
+                bsls::AssertTestHandlerGuard g; (void)g;
 
                 ASSERT_FAIL(Util::createFromPositions(k_STR,
                                                       k_BEGIN_POS,
@@ -371,6 +386,8 @@ int main(int argc, char *argv[])
 #endif
             }
         }
+
+        if (verbose) cout << "Testing wide string overloads.\n";
 
         static struct TestDataWide {
             long long             d_line;
@@ -472,10 +489,7 @@ int main(int argc, char *argv[])
             }
             else {
 #ifdef BDE_BUILD_TARGET_EXC
-                using bsls::AssertFailureHandlerGuard;
-                using bsls::AssertTest;
-                AssertFailureHandlerGuard g(AssertTest::failTestDriver);
-                (void)g;
+                bsls::AssertTestHandlerGuard g; (void)g;
 
                 ASSERT_FAIL(Util::createFromPositions(k_STR,
                                                       k_BEGIN_POS,
@@ -511,7 +525,50 @@ int main(int argc, char *argv[])
 #endif
             }
         }
+
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) {
+            cout << "Testing assertions with too low 'begin'.\n";
+        }
+
+        {
+
+            bslstl::StringRef string("0123456789");
+            bslstl::StringRef input = bdlb::StringRefUtil::substr(string, 1);
+
+            bsls::AssertTestHandlerGuard g; (void)g;
+
+            ASSERT_FAIL(Util::create(input, string.begin(), (bsl::size_t)0));
+            ASSERT_PASS(Util::create(input, input.begin(), (bsl::size_t)0));
+
+            ASSERT_FAIL(Util::create(input, string.begin(), input.end()));
+            ASSERT_PASS(Util::create(input, input.begin(), input.end()));
+
+            ASSERT_FAIL(Util::create(input, string));
+            ASSERT_PASS(Util::create(input, input));
+        }
+
+        {
+
+            using bslstl::StringRefWide;
+
+            StringRefWide string(L"0123456789");
+            StringRefWide input = StringRefWide(string.data() + 1, 1u);
+
+            bsls::AssertTestHandlerGuard g; (void)g;
+
+            ASSERT_FAIL(Util::create(input, string.begin(), (bsl::size_t)0));
+            ASSERT_PASS(Util::create(input, input.begin(), (bsl::size_t)0));
+
+            ASSERT_FAIL(Util::create(input, string.begin(), input.end()));
+            ASSERT_PASS(Util::create(input, input.begin(), input.end()));
+
+            ASSERT_FAIL(Util::create(input, string));
+            ASSERT_PASS(Util::create(input, input));
+        }
+#endif
       } break;
+
       case 2: {
         // --------------------------------------------------------------------
         // TESTING BIND
@@ -537,6 +594,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   bslstl::StringRef bind(string, span);
         // --------------------------------------------------------------------
+
         if (verbose) cout << "\nTESTING BIND"
                              "\n============\n";
 
@@ -595,10 +653,7 @@ int main(int argc, char *argv[])
             }
             else {
 #ifdef BDE_BUILD_TARGET_EXC
-                using bsls::AssertFailureHandlerGuard;
-                using bsls::AssertTest;
-                AssertFailureHandlerGuard g(AssertTest::failTestDriver);
-                (void)g;
+                bsls::AssertTestHandlerGuard g; (void)g;
 
                 ASSERT_FAIL(Util::bind(k_STR,    k_SPAN));
                 ASSERT_FAIL(Util::bind(k_BSLSTR, k_SPAN));
@@ -659,10 +714,7 @@ int main(int argc, char *argv[])
             }
             else {
 #ifdef BDE_BUILD_TARGET_EXC
-                using bsls::AssertFailureHandlerGuard;
-                using bsls::AssertTest;
-                AssertFailureHandlerGuard g(AssertTest::failTestDriver);
-                (void)g;
+                bsls::AssertTestHandlerGuard g; (void)g;
 
                 ASSERT_FAIL(Util::bind(k_STR,    k_SPAN));
                 ASSERT_FAIL(Util::bind(k_BSLSTR, k_SPAN));
@@ -670,6 +722,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -685,6 +738,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
+
         if (verbose) cout << "\nBREATHING TEST"
                              "\n==============\n";
 
@@ -695,6 +749,7 @@ int main(int argc, char *argv[])
         ASSERT("89abc" == Util::bind(str, bdlb::IndexSpan(8, 5)));
 
       } break;
+
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

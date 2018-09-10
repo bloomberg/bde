@@ -160,7 +160,7 @@ struct IndexSpanStringUtil {
         // Return an 'IndexSpan' describing the substring of the specified
         // 'string' as starting at the specified 'begin' and having the
         // specified 'length'.  The behavior is undefined unless
-        // 'begin <= string.length()' and 'length <= string.length()'.
+        // 'begin <= string.length()' and 'begin + length <= string.length()'.
 
     template <class CHAR_TYPE>
     static IndexSpan createImp(
@@ -172,7 +172,7 @@ struct IndexSpanStringUtil {
         // 'subString.begin() <= string.end()',
         // 'subString.end() <= string.end()',
         // 'subString.begin() >= string.begin()', and
-        // 'subString.end() <= string.begin()'.
+        // 'subString.end() <= string.end()'.
 
     template <class CHAR_TYPE>
     static IndexSpan createImp(
@@ -192,6 +192,7 @@ struct IndexSpanStringUtil {
         // Return an 'IndexSpan' describing the substring of the specified
         // 'string' starting at the specified 'begin' and ending (not
         // including) the specified 'end'.  The behavior is undefined unless
+        // 'begin >= string.begin()', 'end >= string.begin()',
         // 'begin <= string.end()', 'end <= string.end()', and 'begin <= end'.
 
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
@@ -203,8 +204,9 @@ struct IndexSpanStringUtil {
                 IndexSpan::size_type                                   length);
         // Return an 'IndexSpan' describing the substring of the specified
         // 'string' starting at the specified 'begin' and having the specified
-        // 'length'.  The behavior is undefined unless 'begin <= string.end()'
-        // and 'begin + length <= string.end()'.
+        // 'length'.  The behavior is undefined unless
+        // 'begin >= string.begin()', 'begin <= string.end()', and
+        // 'begin + length <= string.end()'.
 
     template <class CHAR_TYPE, class TRAITS, class ALLOCATOR>
     static IndexSpan createImp(
@@ -218,7 +220,8 @@ struct IndexSpanStringUtil {
         // Return an 'IndexSpan' describing the substring of the specified
         // 'string' starting at the specified 'begin' and ending (not
         // including) the specified 'end'.  The behavior is undefined unless
-        // 'begin <= string.end()', 'end <= string.end()', and 'begin <= end'.
+        // 'begin >= string.begin()', 'begin <= string.end()',
+        // 'end <= string.end()', and 'begin <= end'.
 
   public:
     // CLASS METHODS
@@ -281,8 +284,9 @@ struct IndexSpanStringUtil {
                             IndexSpan::size_type                       length);
         // Return an 'IndexSpan' describing the substring of the specified
         // 'string' starting at the specified 'begin' and having the specified
-        // 'length'.  The behavior is undefined unless 'begin <= string.end()'
-        // and 'begin + length <= string.end()'.
+        // 'length'.  The behavior is undefined unless
+        // 'begin >= string.begin()', 'begin <= string.end()', and
+        // 'begin + length <= string.end()'.
 
     static IndexSpan create(const bslstl::StringRef&              string,
                             bslstl::StringRef::const_iterator     begin,
@@ -299,7 +303,8 @@ struct IndexSpanStringUtil {
         // Return an 'IndexSpan' describing the substring of the specified
         // 'string' starting at the specified 'begin' and ending (not
         // including) the specified 'end'.  The behavior is undefined unless
-        // 'begin <= string.end()', 'end <= string.end()', and 'begin <= end'.
+        // 'begin >= string.begin()', 'begin <= string.end()',
+        // 'end <= string.end()', and 'begin <= end'.
 };
 
 // ============================================================================
@@ -374,6 +379,7 @@ IndexSpanStringUtil::createImp(
               typename bslstl::StringRefImp<CHAR_TYPE>::const_iterator begin,
               IndexSpan::size_type                                     length)
 {
+    BSLS_ASSERT(begin          >= string.begin());
     BSLS_ASSERT(begin          <= string.end());
     BSLS_ASSERT(begin + length <= string.end());
 
@@ -388,6 +394,7 @@ IndexSpanStringUtil::createImp(
                typename bslstl::StringRefImp<CHAR_TYPE>::const_iterator begin,
                typename bslstl::StringRefImp<CHAR_TYPE>::const_iterator end)
 {
+    BSLS_ASSERT(begin >= string.begin());
     BSLS_ASSERT(begin <= end);
     BSLS_ASSERT(begin <= string.end());
     BSLS_ASSERT(end   <= string.end());
@@ -405,6 +412,7 @@ IndexSpanStringUtil::createImp(
                                              ALLOCATOR>::const_iterator begin,
                  IndexSpan::size_type                                   length)
 {
+    BSLS_ASSERT(begin          >= string.begin());
     BSLS_ASSERT(begin          <= string.end());
     BSLS_ASSERT(begin + length <= string.end());
 
@@ -423,6 +431,7 @@ IndexSpanStringUtil::createImp(
                                              TRAITS,
                                              ALLOCATOR>::const_iterator end)
 {
+    BSLS_ASSERT(begin >= string.begin());
     BSLS_ASSERT(begin <= end);
     BSLS_ASSERT(begin <= string.end());
     BSLS_ASSERT(end   <= string.end());

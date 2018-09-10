@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // 7th character of the string) and the length 8 ("Tiberius is 8 characters
 // long).
 //
-// Note that the sum of the two attributes my be representable by the
+// Note that the sum of the two attributes must be representable by the
 // 'bsl::size_t' type.
 //
 ///Usage
@@ -176,7 +176,7 @@ BSLS_IDENT("$Id: $")
 //  bslstl::StringRef bindSpan(const bslstl::StringRef& full,
 //                             const bdlb::IndexSpan&   part)
 //      // Return a string reference to the substring of the specified 'full'
-//      // thing defined by the specified 'part'.
+//      // string defined by the specified 'part'.
 //  {
 //      BSLS_ASSERT(part.position() <= full.length());
 //      BSLS_ASSERT(part.position() + part.length() <= full.length());
@@ -240,6 +240,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlb_printmethods.h>
 
+#include <bslh_hash.h>
+
+#include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
@@ -247,7 +250,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cstddef.h>
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>
-#include <bslmf_istriviallycopyable.h>
 
 namespace BloombergLP {
 namespace bdlb {
@@ -258,7 +260,7 @@ namespace bdlb {
 
 class IndexSpan {
     // A constrained attribute type that represents a position and a length.
-    // The constrains is that the sum of the position and length attributes
+    // The constraint is that the sum of the position and length attributes
     // must be representable by the 'bsl::size_t' type.
 
   public:
@@ -428,8 +430,9 @@ void bdlb::hashAppend(HASH_ALGORITHM& hashAlgorithm, const IndexSpan& object)
     const IndexSpan::size_type pos = object.position();
     const IndexSpan::size_type len = object.length();
 
-    hashAlgorithm(&pos, sizeof pos);
-    hashAlgorithm(&len, sizeof len);
+    using bslh::hashAppend;
+    hashAppend(hashAlgorithm, pos);
+    hashAppend(hashAlgorithm, len);
 }
 
 }  // close enterprise namespace

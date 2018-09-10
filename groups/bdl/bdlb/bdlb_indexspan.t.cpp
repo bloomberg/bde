@@ -248,15 +248,15 @@ typedef bdlb::IndexSpan Obj;
     {
     }
 //..
-//  Next, to make the accessors simple (and readable), we implement a helper
+//  Then, to make the accessors simple (and readable), we implement a helper
 //  function that creates a 'StringRef' from a 'StringRef' and an 'IndexSpan'.
-//  (Don't do this in real code, use 'IndexSpanStringUtil::bind' that is
-//  levelized above this component - so we cannot use it here.)
+//  (In practice we would use the higher level utility function
+//  'IndexSpanStringUtil::bind'.)
 //..
     bslstl::StringRef bindSpan(const bslstl::StringRef& full,
                                const bdlb::IndexSpan&   part)
         // Return a string reference to the substring of the specified 'full'
-        // thing defined by the specified 'part'.
+        // string defined by the specified 'part'.
     {
         BSLS_ASSERT(part.position() <= full.length());
         BSLS_ASSERT(part.position() + part.length() <= full.length());
@@ -264,7 +264,7 @@ typedef bdlb::IndexSpan Obj;
         return bslstl::StringRef(full.data() + part.position(), part.length());
     }
 //..
-//  Then we implement the accessors:
+//  Next, we implement the accessors:
 //..
     // ACCESSORS
     bslstl::StringRef ParsedPath::base() const
@@ -320,6 +320,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
+
         if (verbose) cout << "\nUSAGE EXAMPLE"
                              "\n=============\n";
 
@@ -354,6 +355,7 @@ int main(int argc, char *argv[])
                                   aPath.full().data() + aPath.full().length());
 //..
       } break;
+
       case 9: {
         // --------------------------------------------------------------------
         // TESTING HASH FUNCTION
@@ -382,6 +384,7 @@ int main(int argc, char *argv[])
         //   bsl::hash<IndexSpan>
         //   bslh::Hash<>
         // --------------------------------------------------------------------
+
         if (verbose) cout << "\nTESTING HASH FUNCTION"
                              "\n=====================\n";
 
@@ -414,6 +417,7 @@ int main(int argc, char *argv[])
         }
         ASSERT(hashResults.size() == k_NUM_TESTS);
       } break;
+
       case 8: {
         // --------------------------------------------------------------------
         // TESTING TRAITS
@@ -431,6 +435,7 @@ int main(int argc, char *argv[])
         //   bsl::is_trivially_copyable
         //   bdlb::HasPrintMethod
         // --------------------------------------------------------------------
+
         if (verbose) cout << "\nTESTING TRAITS"
                              "\n==============\n";
 
@@ -438,6 +443,7 @@ int main(int argc, char *argv[])
         ASSERT(bsl::is_trivially_copyable<Obj>::value);
         ASSERT(bdlb::HasPrintMethod<Obj>::value);
       } break;
+
       case 7: {
         // --------------------------------------------------------------------
         // TESTING THE PRINT METHOD
@@ -528,6 +534,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+
       case 6: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR
@@ -560,6 +567,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   IndexSpan& operator=(const IndexSpan& rhs);
         // --------------------------------------------------------------------
+
         if (verbose) cout << "\nTESTING ASSIGNMENT OPERATOR"
                              "\n===========================\n";
 
@@ -673,6 +681,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+
       case 5: {
         // --------------------------------------------------------------------
         // TESTING COPY CONSTRUCTOR
@@ -750,6 +759,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+
       case 4: {
         // --------------------------------------------------------------------
         // TESTING EQUALITY OPERATORS
@@ -828,6 +838,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+
       case 3: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT (<<) OPERATOR
@@ -845,6 +856,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   ostream& operator<<(ostream& stream, const IndexSpan& object);
         // --------------------------------------------------------------------
+
         if (verbose) cout << "\nTESTING OUTPUT (<<) OPERATOR"
                              "\n============================\n";
 
@@ -888,6 +900,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+
       case 2: {
         // --------------------------------------------------------------------
         // CONSTRUCTORS / ACCESSORS TEST
@@ -914,6 +927,7 @@ int main(int argc, char *argv[])
         //   IndexSpan::size_type length() const;
         //   IndexSpan::size_type position() const;
         // --------------------------------------------------------------------
+
         if (verbose) cout << "\nCONSTRUCTORS / ACCESSORS TEST"
                              "\n=============================\n";
 
@@ -953,6 +967,7 @@ int main(int argc, char *argv[])
             ASSERTV(k_LINE, k_LEN, X.length(),   k_LEN == X.length());
         }
       } break;
+
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -969,6 +984,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
+
         if (verbose) cout << "\nBREATHING TEST"
                              "\n==============\n";
 
@@ -988,6 +1004,7 @@ int main(int argc, char *argv[])
         ASSERT(42 == X.position());
         ASSERT(12 == X.length());
       } break;
+
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND.\n";
         testStatus = -1;
