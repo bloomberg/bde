@@ -13,6 +13,9 @@ bdlb_functionoutputiterator
 bdlb_guid
 bdlb_guidutil
 bdlb_hashutil
+bdlb_indexspan
+bdlb_indexspanstringutil
+bdlb_indexspanutil
 bdlb_nullableallocatedvalue
 bdlb_nullablevalue
 bdlb_nulloutputiterator

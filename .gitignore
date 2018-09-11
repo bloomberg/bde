@@ -49,3 +49,4 @@ TAGS
 *.VC.db-shm
 *.VC.db-wal
 *.ipch
+.vs/
