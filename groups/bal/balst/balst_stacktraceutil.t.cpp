@@ -1571,7 +1571,7 @@ void bottom(bslma::Allocator *alloc)
 //..
     void traceExample3();    // forward declaration
 
-    static void recurseExample3(int *depth)
+    void recurseExample3(int *depth)
         // Recurse the specified 'depth' number of times, then call
         // 'traceExample3', which will print a stack-trace.
     {
@@ -1633,24 +1633,31 @@ void bottom(bslma::Allocator *alloc)
 // First, we define a routine 'recurseExample2' which will recurse the
 // specified 'depth' times, then call 'traceExample2'.
 //..
-    void traceExample2();    // forward declaration
+    int traceExample2();    // forward declaration
 
-    static void recurseExample2(int *depth)
+    int recurseExample2(int *depth)
         // Recurse the specified 'depth' number of times, then call
         // 'traceExample2', which will print a stack-trace.
     {
+        int rc;
+
         if (--*depth > 0) {
-            recurseExample2(depth);
+            rc = recurseExample2(depth);
         }
         else {
-            traceExample2();
+            rc = traceExample2();
+        }
+
+        if (rc) {
+            return rc;                                                // RETURN
         }
 
         ++*depth;   // Prevent compiler from optimizing tail recursion as a
                     // loop.
+        return 0;
     }
 
-    void traceExample2()
+    int traceExample2()
     {
 //..
 // Then, within 'traceExample2', we create a stack-trace object and an array
@@ -1678,7 +1685,10 @@ void bottom(bslma::Allocator *alloc)
                                                                  &stackTrace,
                                                                  addresses,
                                                                  numAddresses);
-        ASSERT(0 == rc);  // Error handling is omitted.
+
+        if (rc) {  // Error handling is omitted.
+            return rc;                                                // RETURN
+        }
 //..
 // Finally, we can print out the stack-trace object using 'printFormatted', or
 // iterate through the stack-trace frames, printing them out one by one.  In
@@ -1696,6 +1706,8 @@ void bottom(bslma::Allocator *alloc)
                                : "--unknown__";
             *out_p << '(' << i << "): " << symbol << endl;
         }
+
+        return 0;
     }
 //..
 // Running this example would produce the following output:
@@ -1719,26 +1731,33 @@ void bottom(bslma::Allocator *alloc)
 // We start by defining a routine, 'recurseExample1', that will recurse the
 // specified 'depth' times, then call 'traceExample1':
 //..
-    void traceExample1();    // forward declaration
+    int traceExample1();    // forward declaration
 
-    void recurseExample1(int *depth)
+    int recurseExample1(int *depth)
         // Recurse the specified 'depth' number of times, then call
         // 'traceExample1'.
     {
+        int rc;
+
         if (--*depth > 0) {
-            recurseExample1(depth);
+            rc = recurseExample1(depth);
         }
         else {
-            traceExample1();
+            rc = traceExample1();
+        }
+
+        if (rc) {
+            return rc;                                                // RETURN
         }
 
         ++*depth;   // Prevent compiler from optimizing tail recursion as a
                     // loop.
+        return 0;
     }
 //..
 // Then, we define the function 'traceExample1', that will print a stack-trace:
 //..
-    void traceExample1()
+    int traceExample1()
     {
 //..
 // Now, we create a 'balst::StackTrace' object and call
@@ -1756,12 +1775,16 @@ void bottom(bslma::Allocator *alloc)
 //..
         balst::StackTrace stackTrace;
         int rc = balst::StackTraceUtil::loadStackTraceFromStack(&stackTrace);
-        ASSERT(0 == rc);  // Error handling is omitted.
+
+        if (rc) {  // Error handling is omitted.
+            return rc;                                                // RETURN
+        }
 //..
 // Finally, we use 'printFormatted' to stream out the stack-trace, one frame
 // per line, in a concise, human-readable format.
 //..
         balst::StackTraceUtil::printFormatted(*out_p, stackTrace);
+        return 0;
     }
 //..
 // The output from the preceding example on Solaris is as follows:
@@ -1874,8 +1897,9 @@ int main(int argc, char *argv[])
         // trace.
 
         int depth = 5;
-        recurseExample2(&depth);
-        ASSERT(5 == depth);
+        int rc = recurseExample2(&depth);
+        ASSERTV(rc, 0 == rc);
+        ASSERTV(depth, 5 == depth);
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -1900,8 +1924,9 @@ int main(int argc, char *argv[])
         // trace.
 
         int depth = 5;
-        recurseExample1(&depth);
-        ASSERT(5 == depth);
+        int rc = recurseExample1(&depth);
+        ASSERTV(rc, 0 == rc);
+        ASSERTV(depth, 5 == depth);
       } break;
       case 14: {
         // --------------------------------------------------------------------
