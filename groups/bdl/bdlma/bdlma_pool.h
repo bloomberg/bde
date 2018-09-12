@@ -419,6 +419,13 @@ class Pool {
         // Return the size (in bytes) of the memory blocks allocated from this
         // pool object.  Note that all blocks dispensed by this pool have the
         // same size.
+
+    // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by 'Pool' to allocate memory.  Note that
+        // this allocator can't be used to deallocate memory allocated through
+        // the pool.
 };
 
 }  // close package namespace
@@ -554,6 +561,14 @@ inline
 bsls::Types::size_type Pool::blockSize() const
 {
     return d_blockSize;
+}
+
+// Aspects
+
+inline
+bslma::Allocator* Pool::allocator() const
+{
+    return d_blockList.allocator();
 }
 
 }  // close package namespace
