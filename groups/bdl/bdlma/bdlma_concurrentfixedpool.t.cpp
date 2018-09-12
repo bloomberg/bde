@@ -490,8 +490,11 @@ int main(int argc, char *argv[]) {
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    bslma::TestAllocator defaultAllocator("default", veryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // Testing dataOffset and nodeSize calculations
         // --------------------------------------------------------------------
@@ -505,6 +508,52 @@ int main(int argc, char *argv[]) {
             char *mem = (char *)mX.allocate();
             memset(mem, 0xFF, i);
             mX.deallocate(mem);
+        }
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // ALLOCATOR ACCESSOR TEST
+        //
+        // Concerns:
+        //: 1. 'allocator()' accessor returns the expected value.
+        //:
+        //: 2. 'allocator()' accessor is declared const.
+        //
+        // Plan:
+        //: 1 To test 'allocator', create object with various allocators and
+        //:   ensure the returned value matches the supplied allocator.  (C-1)
+        //:
+        //: 2 Directly test that 'allocator()', invoked on a 'const' object,
+        //:   returns the expected value.  (C-1..2)
+        //
+        // Testing:
+        //   bslma::Allocator *allocator() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "ALLOCATOR ACCESSOR TEST" << endl
+                                  << "=======================" << endl;
+
+        const int BLOCK_SIZE = 5;
+        const int POOL_SIZE  = 100;
+
+        if (verbose) cout << "\nTesting 'allocator'." << endl;
+        {
+            Obj mX(BLOCK_SIZE, POOL_SIZE);  const Obj& X = mX;
+            ASSERT(&defaultAllocator == X.allocator());
+        }
+        {
+            Obj mX(BLOCK_SIZE,
+                   POOL_SIZE,
+                   reinterpret_cast<bslma::TestAllocator *>(0));
+
+            const Obj& X = mX;
+            ASSERT(&defaultAllocator == X.allocator());
+        }
+        {
+            bslma::TestAllocator sa("supplied", veryVeryVerbose);
+
+            Obj mX(BLOCK_SIZE, POOL_SIZE, &sa);  const Obj& X = mX;
+            ASSERT(&sa == X.allocator());
         }
       } break;
       case 10: {

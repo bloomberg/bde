@@ -247,6 +247,11 @@ class BlockList {
     void release();
         // Deallocate all memory blocks currently managed by this object,
         // returning it to its default-constructed state.
+
+    // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by 'BlockList' to allocate memory.
 };
 
 // ============================================================================
@@ -263,6 +268,14 @@ BlockList::BlockList(bslma::Allocator *basicAllocator)
 : d_head_p(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
+}
+
+// Aspects
+
+inline
+bslma::Allocator* BlockList::allocator() const
+{
+    return d_allocator_p;
 }
 
 }  // close package namespace

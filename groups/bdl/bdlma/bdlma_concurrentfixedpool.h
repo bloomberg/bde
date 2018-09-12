@@ -205,9 +205,6 @@ class ConcurrentFixedPool {
     int                  d_backoffLevel;    // determines amount of spinning
                                             // when under contention
 
-    bslma::Allocator    *d_allocator_p;     // memory allocator (held, not
-                                            // owned)
-
     // NOT IMPLEMENTED
     ConcurrentFixedPool(const ConcurrentFixedPool&);
     ConcurrentFixedPool& operator=(const ConcurrentFixedPool&);
@@ -318,6 +315,13 @@ class ConcurrentFixedPool {
 
     int poolSize() const;
         // Return the maximum size of this pool.
+
+    // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by 'ConcurrentFixedPool' to allocate
+        // memory.  Note that this allocator can't be used to deallocate memory
+        // allocated through the pool.
 };
 
 }  // close package namespace
@@ -426,6 +430,14 @@ inline
 int ConcurrentFixedPool::poolSize() const
 {
     return static_cast<int>(d_nodes.size());
+}
+
+// Aspects
+
+inline
+bslma::Allocator* ConcurrentFixedPool::allocator() const
+{
+    return d_nodePool.allocator();
 }
 
 }  // close package namespace
