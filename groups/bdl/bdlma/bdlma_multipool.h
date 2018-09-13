@@ -707,6 +707,13 @@ class Multipool {
         //..
         // where 'numPools' is either specified at construction, or an
         // implementation-defined value.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to allocate memory.  Note
+        // that this allocator can not be used to deallocate memory
+        // allocated through this pool.
 };
 
 // ============================================================================
@@ -743,6 +750,14 @@ inline
 bsls::Types::size_type Multipool::maxPooledBlockSize() const
 {
     return d_maxBlockSize;
+}
+
+// Aspects
+
+inline
+bslma::Allocator *Multipool::allocator() const
+{
+    return d_allocator_p;
 }
 
 }  // close package namespace
