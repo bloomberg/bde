@@ -197,17 +197,6 @@ BSLS_IDENT("$Id: $")
 
 #define BSLMT_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME, INITIAL_VALUE) \
 static BSLMT_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
-    // This macro should *not* be used by clients outside of the 'bce'
-    //
-    // On IBM, the introduction of thread-local storage causes static
-    // initializers for shared objects to stop running.  This problem is
-    // described in DRQS 16438026.  Therefore, even though thread-local storage
-    // is supported by xlC10, it is explicitly not used here.
-    //
-    // On Windows/MSVC, compiler-based thread-local storage may cause a crash
-    // at runtime when used from a DLL on Windows versions below Vista.
-    // Therefore, it is explicitly not used here.
-    //
     // Define, at function or namespace scope, a thread-local 'static' variable
     // having the specified 'VARIABLE_NAME' of the specified 'BASIC_TYPE',
     // initialized with the specified 'INITIAL_VALUE'.  If 'VARIABLE_NAME' is
@@ -225,7 +214,7 @@ static BSLMT_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
