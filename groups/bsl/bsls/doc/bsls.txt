@@ -20,7 +20,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 68 components having 13 levels of physical
+ The 'bsls' package currently has 70 components having 13 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -99,12 +99,14 @@
 
    2. bsls_asserttestexception
       bsls_blockgrowth
+      bsls_bsldeprecationinformation
       bsls_macroincrement
       bsls_macrorepeat
       bsls_platform
       bsls_protocoltest
 
-   1. bsls_ident
+   1. bsls_deprecate
+      bsls_ident
 ..
 
 /Component Synopsis
@@ -196,6 +198,9 @@
 : 'bsls_blockgrowth':
 :      Provide a namespace for memory block growth strategies.
 :
+: 'bsls_bsldeprecationinformation':
+:      Provide a macro to control 'bsl' deprecations by release version.
+:
 : 'bsls_bslexceptionutil':
 :      Provide functions for use in 'bsl' that throw standard exceptions.
 :
@@ -231,6 +236,9 @@
 :
 : 'bsls_exceptionutil':
 :      Provide simplified exception constructs for non-exception builds.
+:
+: 'bsls_deprecate':
+:      Provide machinery to deprecate interfaces on a per-version basis.
 :
 : 'bsls_ident':
 :      Provide macros for inserting SCM Ids into source files.
@@ -320,8 +328,8 @@
 
 /'bsls_alignedbuffer'
 / - - - - - - - - - -
- The {'bsls_alignedbuffer'} component provides a templated buffer type with a
- user-specified compile-time size and user-specified alignment.  Typically,
+ The {'bsls_alignedbuffer'} component provides a parameterized buffer type with
+ a user-specified compile-time size and user-specified alignment.  Typically,
  such a type is used in situations where it is desirable to allocate a block of
  properly-aligned raw memory from somewhere other than the heap, e.g., on the
  stack or within an aggregate object, including within a union.  It is a
@@ -341,7 +349,7 @@
 /'bsls_alignmentfromtype'
 / - - - - - - - - - - - -
  The {'bsls_alignmentfromtype'} component provides a meta-function that
- provides the alignment for the parameterized 'TYPE'.
+ provides the alignment for a 'TYPE' template parameter.
 
 /'bsls_alignmentimp'
 /- - - - - - - - - -
@@ -351,8 +359,8 @@
 
 /'bsls_alignmenttotype'
 / - - - - - - - - - - -
- The {'bsls_alignmenttotype'} component provides a meta-function that provides
- a primitive type with an alignment matching the parameterized 'ALLIGNMENT'.
+ The {'bsls_alignmenttotype'} component provides a meta-function that defines
+ a primitive type with an alignment matching a 'ALIGNMENT' template parameter.
 
 /'bsls_alignmentutil'
 / - - - - - - - - - -
@@ -427,6 +435,12 @@
  macros to identify compiler-specific support of language features that may not
  be available on all compilers in use across an organization.
 
+/'bsls_deprecate'
+/ - - - - - - - -
+ The {'bsls_deprecate'} component provides a suite of macros to control (on a
+ per-version, per-UOR basis) the deprecation of functions, user-defined types,
+ and 'typedef's.
+
 /'bsls_exceptionutil'
 / - - - - - - - - - -
  The {'bsls_exceptionutil'} component provides macros to replace 'try', 'throw'
@@ -459,7 +473,7 @@
 
 /'bsls_objectbuffer'
 /- - - - - - - - - -
- The {'bsls_objectbuffer'} component provides a templated buffer type,
+ The {'bsls_objectbuffer'} component provides a parameterized buffer type,
  'bsls_ObjectBuffer', which is compile-time sized and aligned to hold a
  specified object type.  Defining a 'bsls_ObjectBuffer<T>' object does not
  cause the constructor for 'T' to be called.  Similarly, destroying the object

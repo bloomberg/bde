@@ -8,13 +8,16 @@ bdlt_date
 bdlt_datetime
 bdlt_datetimeimputil
 bdlt_datetimeinterval
+bdlt_datetimeintervalutil
 bdlt_datetimetz
 bdlt_datetimeutil
 bdlt_datetz
 bdlt_dateutil
 bdlt_dayofweek
 bdlt_dayofweekset
+bdlt_dayofweekutil
 bdlt_defaultcalendarcache
+bdlt_defaulttimetablecache
 bdlt_epochutil
 bdlt_fixutil
 bdlt_fixutilconfiguration
@@ -28,6 +31,9 @@ bdlt_posixdateimputil
 bdlt_prolepticdateimputil
 bdlt_serialdateimputil
 bdlt_time
+bdlt_timetable
+bdlt_timetablecache
+bdlt_timetableloader
 bdlt_timetz
 bdlt_timeunitratio
 bdlt_timeutil

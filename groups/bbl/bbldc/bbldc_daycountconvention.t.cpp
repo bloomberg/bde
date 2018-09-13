@@ -807,7 +807,11 @@ int main(int argc, char *argv[])
                         cout << endl;
                     }
 
-                    Enum mY;  const Enum& Y = mY;
+                    Enum mY = VALUE != Obj::e_NL_365
+                            ? Obj::e_NL_365
+                            : Obj::e_ACTUAL_360;
+
+                    const Enum& Y = mY;
 
                     bslx::ByteInStream  in(out.data(), out.length());
                     bslx::ByteInStream& rvIn = Obj::bdexStreamIn(in,
@@ -846,7 +850,11 @@ int main(int argc, char *argv[])
                         cout << endl;
                     }
 
-                    Enum mY;  const Enum& Y = mY;
+                    Enum mY = VALUE != Obj::e_NL_365
+                            ? Obj::e_NL_365
+                            : Obj::e_ACTUAL_360;
+
+                    const Enum& Y = mY;
 
                     using bslx::InStreamFunctions::bdexStreamIn;
 

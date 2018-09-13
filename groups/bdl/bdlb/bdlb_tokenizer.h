@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLB_TOKENIZER
 #define INCLUDED_BDLB_TOKENIZER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide access to user-described tokens via string references.
@@ -128,7 +126,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      const char softDelimiters[] = " \t\n";  // whitespace
 //
-//      for (bslstl::StringRef token : bdlb_Tokenizer(input, softDelimiters)) {
+//      for (bslstl::StringRef token : bdlb::Tokenizer(input, softDelimiters)) {
 //          bsl::cout << "| " << token << bsl::endl;
 //      }
 //  }
@@ -158,25 +156,26 @@ BSLS_IDENT("$Id: $")
 // to the previous and current (trailing) delimiters as well as the current
 // token:
 //..
-//  void parse_2(bsl::outstream, const char *input)
+//  void parse_2(bsl::ostream& output, const char *input)
 //      // Print, to the specified 'output' stream the leader of the specified
 //      // 'input', on a singly line, followed by subsequent current token and
 //      // (trailing) delimiter pairs on successive lines, each line beginning
 //      // with a vertical bar ('|') followed by a tab ('\t') character.
 //  {
 //      const char softDelimiters[] = " ";
-//      const char hardDelimiters[] = ":/"
+//      const char hardDelimiters[] = ":/";
 //
-//      bdlb_Tokenizer it(input, softDelimiters, hardDelimiters);
-//      bsl::cout << "| " << '"' << it.previousDelimiter() << '"' << bsl::endl;
+//      bdlb::Tokenizer it(input, softDelimiters, hardDelimiters);
+//      output << "| " << '"' << it.previousDelimiter() << '"' << "\n";
 //
-//      for (; it; ++it) {
-//          bsl::cout << "|\t"
-//                    << '"' << it.token() << '"'
-//                    << "\t"
-//                    << '"' << it.delimiter() '"'
-//                    << bsl::endl;
+//      for (; it.isValid(); ++it) {
+//          output << "|\t"
+//                 << '"' << it.token() << '"'
+//                 << "\t"
+//                 << '"' << it.trailingDelimiter() << '"'
+//                 << "\n";
 //      }
+//  }
 //..
 // The parse_2 function above produces the *leader* on the first line,
 // followed by each *token* along with its current (trailing) delimiter on
@@ -508,21 +507,14 @@ BSLS_IDENT("$Id: $")
 //  assert(EXPECTED3 == result3);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
+#include <bsls_platform.h>
 
-#ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
 
 namespace BloombergLP {
 
@@ -603,7 +595,7 @@ class Tokenizer_Proxy {
     // 'TokernizerIterator' object, allowing correct return of 'operator->'.
 
     // DATA
-	bslstl::StringRef d_obj; // The object
+    bslstl::StringRef d_obj; // The object
 
   private:
     // NOT IMPLEMENTED
@@ -631,7 +623,17 @@ class Tokenizer_Proxy {
                         // class TokenizerIterator
                         // =======================
 
-class TokenizerIterator {
+class TokenizerIterator
+#if defined(BSLS_PLATFORM_CMP_SUN)
+    : public bsl::iterator<bsl::input_iterator_tag,
+                           bslstl::StringRef,
+                           int,
+                           Tokenizer_Proxy,
+                           const bslstl::StringRef>
+    // On Solaris/SunOS just to keep studio compilers happy, since algorithms
+    // take only iterators inheriting from 'std::iterator'.
+#endif  // BSLS_PLATFORM_CMP_SUN
+{
     // This class provides a C++-standards-conforming input iterator over the
     // tokens in the input string suppled at construction (along with the
     // designation of *soft* and *hard* delimiter characters) to a 'Tokenizer'

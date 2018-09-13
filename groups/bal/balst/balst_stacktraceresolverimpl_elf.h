@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALST_STACKTRACERESOLVERIMPL_ELF
 #define INCLUDED_BALST_STACKTRACERESOLVERIMPL_ELF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility to resolve ELF symbols in a stack trace.
@@ -42,43 +40,22 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALST_OBJECTFILEFORMAT
 #include <balst_objectfileformat.h>
-#endif
 
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF)
-
-#ifndef INCLUDED_BALST_STACKTRACE
 #include <balst_stacktrace.h>
-#endif
-
-#ifndef INCLUDED_BALST_STACKTRACEFRAME
 #include <balst_stacktraceframe.h>
-#endif
-
-#ifndef INCLUDED_BALST_STACKTRACERESOLVER_FILEHELPER
 #include <balst_stacktraceresolver_filehelper.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_HEAPBYPASSALLOCATOR
 #include <bdlma_heapbypassallocator.h>
-#endif
 
-#ifndef INCLUDED_BDLS_FILESYSTEMUTIL
 #include <bdls_filesystemutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace balst {
@@ -102,6 +79,8 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
     // TYPES
     typedef bsls::Types::UintPtr UintPtr;   // 32 bit unsigned on 32 bit, 64
                                             // bit unsigned on 64 bit.
+    typedef bsls::Types::IntPtr  IntPtr;    // 32 bit signed on 32 bit, 64
+                                            // bit signed on 64 bit.
 
     typedef bdls::FilesystemUtil::Offset
                                  Offset;    // Usually used for relative
@@ -193,10 +172,12 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
         // occur.  The behavior is undefined unless all the 'address' field in
         // '*stackTrace' are valid and other fields are invalid.
 
-    static void test();
+    static int test();
         // This function is just there to test how code deals with inline
         // functions in an include file.  It does not provide any otherwise
-        // useful functionality.
+        // useful functionality.  Return a line number near the beginning of
+        // the function in the low-order 14 bits of the result.  Other bits of
+        // the result are to be considered garbage.
 
     // MANIPULATOR
     int processLoadedImage(const char *fileName,
@@ -224,12 +205,15 @@ class StackTraceResolverImpl<ObjectFileFormat::Elf> {
 };
 
 inline
-void StackTraceResolverImpl<ObjectFileFormat::Elf>::test()
+int StackTraceResolverImpl<ObjectFileFormat::Elf>::test()
 {
+
     StackTrace st;
+
+    int ret = __LINE__;
     StackTraceResolverImpl<ObjectFileFormat::Elf> resolver(&st, true);
 
-    (void) resolver.numUnmatchedFrames();
+    return (resolver.numUnmatchedFrames() << 14) | ret;
 }
 
 }  // close package namespace

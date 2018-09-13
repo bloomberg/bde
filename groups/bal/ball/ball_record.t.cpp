@@ -494,7 +494,7 @@ int main(int argc, char *argv[])
                     Obj v;  const Obj& V = v;
                     v.setFixedFields(REC_ATTRS[j]);
                     v.setCustomFields(*VALUES_DATA[j]);
-                    int isSame = i == j;
+                    bool isSame = i == j;
                     if (veryVerbose) { T_;  P_(i);  P_(j);  P_(U);  P(V); }
                     LOOP2_ASSERT(i, j,  isSame == (U == V));
                     LOOP2_ASSERT(i, j, !isSame == (U != V));

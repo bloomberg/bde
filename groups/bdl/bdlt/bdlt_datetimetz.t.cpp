@@ -7,7 +7,10 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bslmf_istriviallycopyable.h>
 
@@ -254,13 +257,14 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     // CONCERN: In no case does memory come from the global allocator.
-    // CONCERN: In case 5 only does memory come from the default allocator.
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
+    // CONCERN: In case 5 only does memory come from the default allocator.
+
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
       case 16: {
@@ -2343,6 +2347,9 @@ if (verbose) {
         //: 7 The output 'operator<<' signature and return type are standard.
         //:
         //: 8 The output 'operator<<' returns the supplied 'ostream'.
+        //:
+        //: 9 QoI: Neither the 'print' method nor 'operator<<' allocate from
+        //:   the default allocator.
         //
         // Plan:
         //: 1 Use the addresses of the 'print' member function and 'operator<<'
@@ -2374,6 +2381,9 @@ if (verbose) {
         //:     stream.  (C-8)
         //:
         //:   3 Verify that the output string has the expected value.  (C-3)
+        //:
+        //: 4 Use a 'bslma::TestAllocatorMonitor' to verify that 'print' and
+        //:   'operator<<' do not allocate from the default allocator.  (C-9)
         //
         // Testing:
         //   bsl::ostream& print(bsl::ostream& stream, int l, int spl) const;
@@ -2451,7 +2461,11 @@ if (verbose) {
                 bdlt::Datetime datetime(1, 1, 1); // 01JAN0001_00:00:00.000
                 const Obj      X(datetime, OFF);
 
-                ostringstream os;
+                bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+                ostringstream os(&scratch);
+
+                bslma::TestAllocatorMonitor oam(&defaultAllocator);
 
                 // Verify supplied stream is returned by reference.
 
@@ -2476,7 +2490,14 @@ if (verbose) {
                     if (veryVeryVerbose) { T_ T_ Q(print) }
                 }
 
-                // Verify output is formatted as expected.
+                // Verify no allocation from the default allocator.
+
+                ASSERT(oam.isTotalSame());
+
+                // Verify output is formatted as expected.  Note that each
+                // 'os.str()' below incurs an allocation from the default
+                // allocator, which is accounted for in the final 'ASSERTV' in
+                // this test driver.
 
                 if (veryVeryVerbose) { P(os.str()) }
 
@@ -2886,13 +2907,14 @@ if (verbose) {
     }
 
     // CONCERN: In no case does memory come from the global allocator.
+
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
+
     // CONCERN: In case 5 only does memory come from the default allocator.
 
-    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
-                0 == globalAllocator.numBlocksTotal());
-
-    LOOP_ASSERT(defaultAllocator.numBlocksTotal(),
-                5 == test || 0 == defaultAllocator.numBlocksTotal());
+    ASSERTV(defaultAllocator.numBlocksTotal(),
+            5 == test || 0 == defaultAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

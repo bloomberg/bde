@@ -1,10 +1,10 @@
 # BSL capabilities
 
-*                       _    OPTS_FILE = bsl.cap
+*			_	OPTS_FILE = bsl.cap
 
 #==============================================================================
 
 # bsl builds on everything, in every way
-*			_	CAPABILITY	= ALWAYS
+!! *			_	CAPABILITY	= ALWAYS
 
 #==============================================================================

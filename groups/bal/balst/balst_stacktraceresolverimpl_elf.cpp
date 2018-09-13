@@ -16,7 +16,6 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #ifdef BALST_OBJECTFILEFORMAT_RESOLVER_ELF
 
-#include <balst_stacktraceresolver_dwarfreader.h>
 #include <balst_stacktraceresolver_filehelper.h>
 
 #include <bdlb_string.h>
@@ -45,8 +44,8 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #undef u_DWARF
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_DWARF)
+#include <balst_stacktraceresolver_dwarfreader.h>
 # define u_DWARF 1
-# include <dwarf.h>
 #endif
 
 #if defined(BSLS_PLATFORM_OS_HPUX)
@@ -57,6 +56,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 #elif defined(BSLS_PLATFORM_OS_LINUX)
 
 # include <cxxabi.h>
+
 # include <dlfcn.h>
 # include <execinfo.h>
 # include <link.h>
@@ -435,12 +435,11 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // all, is present in other formats.  On Linux, that information is in the
 // DWARF format.
 //
-// The DWARF document is at: http://www.dwarfstd.org/Download.php and various
-// enums are provided in the file '/usr/include/dwarf.h'.  Note that on the
-// platform this was developed on, the include file was version 3, but the
-// executables this was developed with was were DWARF version 4.  Thus some
-// symbols had to be added in the enum type
-// 'StackTraceResolver_DwarfReader::Dwarf4Enums'.
+// The DWARF document is at: http://www.dwarfstd.org/Download.php.
+//
+// The specs define a lot of 'enum's named 'DW_*'.  We define enums with
+// exactly the same names and values, prefixed by 'e_', according to BDE
+// convention.
 //
 // In general, the spec is 255 pages long and not very well organized.  It
 // sometimes only vaguely implies necessary assumptions, in other cases it
@@ -458,17 +457,13 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // So the DWARF code was written on the assumption that we already have a
 // pretty good stack trace based on ELF information, and if, while decoding
 // DWARF information, we encounter something unexpected or strange, we should
-// just abandon decoding the DWARF inforation (or decoding a subset of the
+// just abandon decoding the DWARF inforation (or decoding that subset of the
 // DWARF information) and continue delivering the rest of the information we
 // have.  A core dump would be highly inappropriate.  We use 'u_ASSERT_BAIL' to
 // check things, which just returns a failure code if the check fails, and
 // depending on 'u_TRACES', may print out a message and possibly exit.
 // 'u_TRACES' will always be 0 in production, in which case 'u_ASSERT_BAIL'
 // will just return -1 without printing any error messages or exiting.
-//
-// '/usr/include/dwarf.h' defines only 'enum' constant values, no 'class'es,
-// 'struct's or 'union's.  The organization of the data is described only by
-// prose in the spec.
 //..
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The DWARF information is in 6 sections:
@@ -517,27 +512,87 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // The .debug_abbrev section contains pairs of enums that indicate how the
 // information in the .debug_info that follows the compilation unit header is
 // to be interpreted.  The .debug_abbrev information for the compile unit will
-// start with a 'tag' which should be 'DW_TAG_compilation_unit' or
-// 'DW_TAG_partial_unit', followed by a boolean byte to indicate whether the
+// start with a 'tag' which should be 'e_DW_TAG_compile_unit' or
+// 'e_DW_TAG_partial_unit', followed by a boolean byte to indicate whether the
 // tag has any children.  We are not interested in the children byte.
 //
 // Following the '(tag, hasChildren)' pair is a null-terminated sequence of
-// '(attr, form)' pairs where the 'attr' is an enum of type 'DW_AT_*' and the
-// form is an enum of the type 'DW_FORM_*'.  There are many 'DW_AT_*'s defined,
-// but only a few of them will appear in the compile unit section.  The 'attr'
-// specifies the attribute, which is the kind of information being stored, and
-// the 'form' specifies the way in which the information is stored.  For
-// example, an 'attr' or 'DW_AT_name' indicates that the information is a
+// '(attr, form)' pairs where the 'attr' is an enum of type 'e_DW_AT_*' and the
+// form is an enum of the type 'e_DW_FORM_*'.  There are many 'e_DW_AT_*'s
+// defined, but only a few of them will appear in the compile unit section.
+// The 'attr' specifies the attribute, which is the kind of information being
+// stored, and the 'form' specifies the way in which the information is stored.
+// For example, an 'attr' or 'e_DW_AT_name' indicates that the information is a
 // string indicating the base name of the source file.  In that case, the form
-// can be of two types -- a 'DW_FORM_string', in which case the name is a null
-// terminated string stored in the .debug_info section, or a 'DW_FORM_strp',
-// which indicates the .debug_info section contains a section offset into
-// the .debug_str section where the null terminated string resides.
+// can be of two types -- a 'e_DW_FORM_string', in which case the name is a
+// null terminated string stored in the .debug_info section, or a
+// 'e_DW_FORM_strp', which indicates the .debug_info section contains a section
+// offset into the .debug_str section where the null terminated string resides.
 //
-// One piece of information we are interested in is the offset
-// in .debug_line where our line number information and most of the file name
-// information is located.  This will be found where 'DW_AT_stmt_list == attr',
-// and we use 'form' to interpret how to read that offset.
+// One piece of information we are interested in is the offset in .debug_line
+// where our line number information and most of the file name information is
+// located.  This will be found where 'e_DW_AT_stmt_list == attr', and we use
+// 'form' to interpret how to read that offset.
+//
+// According to Figure 48 in Appendix D of the spec:
+//
+// The information in the abbrev section is a number of units of the following
+// form:
+//..
+//=====================================================================
+// ULEB128: Abbrev index
+//---------------------------------------------------------------------
+// ULEB128: Tag
+//---------------------------------------------------------------------
+// Byte: Has Children: 1 for yes, 0 for no
+//---------------------------------------------------------------------
+// { ULEB128: DW_AT_?, ULEB: DW_FORM_? }
+// { ULEB128: DW_AT_?, ULEB: DW_FORM_? }
+// { ULEB128: DW_AT_?, ULEB: DW_FORM_? }
+// { ULEB128: DW_AT_?, ULEB: DW_FORM_? }
+//
+// A number of pairs of { 'DW_AT_*', 'DW_FORM_*' }.  Note that no value of
+// 'DW_AT_*' or 'DW_FORM_*' are 0.  Both are read as ULEB, though I am aware of
+// no 'DW_FORM_*' id greater than 0x7f.
+//---------------------------------------------------------------------
+// A terminating pair of 0's.
+//=====================================================================
+//..
+// I strongly suspect there are some tags that can be followed by zero
+// '{ DW_AT_?, DW_FORM_? }' pairs, which means that if they have no children,
+// there can be three 0's in a row.  For that reason we parse the has children
+// byte, and then we know there will be no 0's until the terminating { 0, 0 }.
+//
+// The data read via the 'DW_FORM_*' directives are always in other sections,
+// never in the abbrev section.
+//
+// I don't know if some 'DW_AT_*' values would have greater than or less than
+// one 'DW_FORM_*' following them.
+//
+// The highest value of 'DW_FORM_?' is 0x20, so they'll always be single byte,
+// but there's no harm in reading them as ULEB.
+//
+// '0x3fff' is 'DW_AT_hi_user', stored in ULEB as '{ 0xff, 0xff, 0 }' which if
+// it's defined as having no 'DW_FORM_?' argument and is the last 'DW_AT_?'
+// before the end, can result in 3 0's in a row.  So when we're searching for
+// 0's, we read the the 'DW_AT_?' and 'DW_FORM_?' as ULEB so if we get two 0's,
+// we know we're at the end of the section.
+//
+// The abbrev indexes of the sections start at 1 and increment with each
+// section.
+//
+// Before gcc-7.1.0, the compile unit section, which is the only one we're
+// interested in, was always the first one.  In that version, the 'infoTagIdx'
+// that we read from the 'd_infoReader' was always 1.  In later version, the
+// 'infoTagIdx' value is often much higher, and that's the index of the unit we
+// want.
+//
+// During experimentation, it was observed that sometimes the abbrev indexes
+// are erratic and/or that the compile unit tag would appear at the wrong
+// index, but this seems not to be the case in the final version.  Nonetheless,
+// we have decided to make the termination condition a matter of finding the
+// compile unit tag, and only pay attention to the abbrev index in the case
+// where the tag is a partial unit.
 //
 //                              // .debug_line
 //
@@ -562,26 +617,26 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 //: o A current line number, which may increase or decrease.
 //: o A current address, which always increases.
 //: o A current source file name.
-// If '1 <= opcode < opcodeBase', 'opcode' is one of the 'DW_LNS_*' identifiers
-// described in 'dwarf.h', and it's meaning and what arguments it has is
-// described in the DWARF doc.  If 'opcode >= opcodeBase', then it will modify
-// the value of the current line number and the current address in a complex
-// formula described in the doc (and in the code).
+// If '1 <= opcode < opcodeBase', 'opcode' is one of the 'e_DW_LNS_*'
+// identifiers described in the spec, and it's meaning and what arguments it
+// has is described in the DWARF doc.  If 'opcode >= opcodeBase', then it will
+// modify the value of the current line number and the current address in a
+// complex formula described in the doc (and in the code).
 //
 // If '0 == opcode', it is followed by an extended opcode of the form
-// 'DW_LNE_*' defined in dwarf.h and in the DWARF doc.  Often the 0 is followed
-// by a 5 or a 9 which has no meaning and is to be skipped (and which is not
-// described in the spec).
+// 'e_DW_LNE_*' defined in the DWARF doc.  Often the 0 is followed by a 5 or a
+// 9 which has no meaning and is to be skipped (and which is not described in
+// the spec).
 //
 // Once the address is greater than the address from the stack trace, then the
 // current line number is the line number to be reported for the stack frame,
 // and the current file name is the source file name to be reported.
 //
-//            // Subset of DWARF Doc to Read to Parse DWARF for g++
+// // Subset of DWARF Doc to Read to Parse DWARF for g++
 //
-// The DWARF 4 doc is 311 pages wrong.  A key part of tackling this task was
-// determining the subset of it necessary to deliver line number and source
-// file name information.
+// The DWARF 4 doc is 311 pages l, and sometimes wrong.  A key part of tackling
+// this task was determining the subset of it necessary to deliver line number
+// and source file name information.
 //
 // To understand how to find the compilation unit based on the stack address
 // from the .debug_aranges section, read chapter 6.1.2, which is not very long.
@@ -603,16 +658,16 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // explains how the .debug_info and .debug_abbrev sections are read together to
 // describe a compilation unit.  This figure mentions a few things not
 // mentioned in the prose in other parts of the doc.  Chapter 3.1.1 explains
-// some of how to parse the .debug_info information, explaining which 'DW_AT_*'
-// identifiers will be encountered while parsing a compile unit.  Note that
-// since we don't want to parse information about types or variables, the
-// number of 'DW_AT_*' id's we will have to understand is a very small subset
-// of the total number described in 'dwarf.h'.
+// some of how to parse the .debug_info information, explaining which
+// 'e_DW_AT_*' identifiers will be encountered while parsing a compile unit.
+// Note that since we don't want to parse information about types or variables,
+// the number of 'e_DW_AT_*' id's we will have to understand is a very small
+// subset of the total number described in the spec.
 //
 // Once we get to the line number information in .debug_line, we simply follow
 // the directions in chapter 6.2, which must be read in its entirety, but it's
-// only about 15 pages.  The .debug_line entry begins with a header
-// described in 6.2.4.
+// only about 15 pages.  The .debug_line entry begins with a header described
+// in 6.2.4.
 //
 //                          // Clang Support For DWARF
 //
@@ -651,6 +706,11 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 #define u_TRACES 0  // 0 == debugging traces off, eprintf and zprint do nothing
                     // 1 == debugging traces on, eprintf is like zprintf
                     // 2 == debugging traces on, eprintf exits
+
+// Note that the local variables 'compileTraces', 'debugInfoTraces', and
+// 'lineTraces' are driven by 'u_TRACES' to enable/disable traces in specific
+// parts of resolving.  Search for '= u_TRACES ' to find all instances of
+// variables like this.
 
 // If the .debug_aranges section is present, the code guarded by
 // '#ifdef u_DWARF_CHECK_ADDRESSES' is not necessary.  But plan to eventually
@@ -712,7 +772,7 @@ static const char u_assertBailString[] = {
 static bool u_warnPrint(const char *name, const void *value)
     // Print out the specified 'value' and the specified 'name', which is the
     // name of the expression have value 'value'.  This function is intended
-    // only to be called by the macro 'PH'.  Return 'false'.
+    // only to be called by the macro 'u_PH'.  Return 'false'.
 {
     u_zprintf("%s = %p\n", name, value);
 
@@ -727,9 +787,20 @@ static bool u_warnPrint(const char                       *name,
                         BloombergLP::bsls::Types::Uint64  value)
     // Print out the specified 'value' and the specified 'name', which is the
     // name of the expression have value 'value'.  This function is intended
-    // only to be called by the macro 'P'.  Return 'false'.
+    // only to be called by the macro 'u_P'.  Return 'false'.
 {
     u_zprintf("%s = %llu\n", name, value);
+
+    return false;
+}
+
+static bool u_warnPrint(const char *name,
+                        const char *value)
+    // Print out the specified string 'value' and the specified 'name', which
+    // is the name of the expression have value 'value'.  This function is
+    // intended only to be called by the macro 'u_P'.  Return 'false'.
+{
+    u_zprintf("%s = \"%s\"\n", name, value);
 
     return false;
 }
@@ -738,7 +809,7 @@ static bool u_warnPrintHex(const char                        *expr,
                            BloombergLP::bsls::Types::Uint64   value)
     // Print out the specified 'value' and the specified 'name', which is the
     // name of the expression have value 'value'.  This function is intended
-    // only to be called by the macro 'PH'.  Return 'false'.
+    // only to be called by the macro 'u_PH'.  Return 'false'.
 {
     u_zprintf("%s = 0x%llx\n", expr, value);
 
@@ -893,30 +964,6 @@ enum { e_IS_BIG_ENDIAN = 0,
        e_IS_LITTLE_ENDIAN = 1 };
 #else
 # error endianness is undefined
-#endif
-
-#ifdef u_DWARF
-enum Dwarf4Enums {
-    // DWARF 4 flags not necessarily defined in our dwarf.h.
-
-    e_DW_TAG_type_unit             = u::Reader::e_DW_TAG_type_unit,
-    e_DW_TAG_rvalue_reference_type = u::Reader::e_DW_TAG_rvalue_reference_type,
-    e_DW_TAG_template_alias        = u::Reader::e_DW_TAG_template_alias,
-
-    e_DW_AT_signature              = u::Reader::e_DW_AT_signature,
-    e_DW_AT_main_subprogram        = u::Reader::e_DW_AT_main_subprogram,
-    e_DW_AT_data_bit_offset        = u::Reader::e_DW_AT_data_bit_offset,
-    e_DW_AT_const_expr             = u::Reader::e_DW_AT_const_expr,
-    e_DW_AT_enum_class             = u::Reader::e_DW_AT_enum_class,
-    e_DW_AT_linkage_name           = u::Reader::e_DW_AT_linkage_name,
-
-    e_DW_FORM_sec_offset           = u::Reader::e_DW_FORM_sec_offset,
-    e_DW_FORM_exprloc              = u::Reader::e_DW_FORM_exprloc,
-    e_DW_FORM_flag_present         = u::Reader::e_DW_FORM_flag_present,
-    e_DW_FORM_ref_sig8             = u::Reader::e_DW_FORM_ref_sig8,
-
-    e_DW_LNE_set_discriminator     = u::Reader::e_DW_LNE_set_discriminator
-};
 #endif
 
                                    // ---------
@@ -1243,6 +1290,7 @@ struct AddressRange {
         // count as an overlap.
 };
 
+#if defined(u_DWARF)
                                 // ------------
                                 // AddressRange
                                 // ------------
@@ -1265,6 +1313,7 @@ bool u::AddressRange::overlaps(const AddressRange& other) const
            ? d_address + d_size > other.d_address
            : other.d_address + other.d_size > d_address;
 }
+#endif
 
                               // ===============
                               // class FreeGuard
@@ -1448,7 +1497,233 @@ struct u::StackTraceResolver::HiddenRec {
     // balst_stacktraceresolver_dwarfreader.h' in the .h, and we can use types
     // that are locally defined in this imp file.
 
-    // DATA
+#ifdef u_DWARF
+    // PUBLIC TYPES
+    typedef u::Reader  Reader;
+    typedef u::Section Section;
+
+    // These enums would have been *MUCH* easier to forward if the coding
+    // standard had allowed them to be declared directly in a namespace rather
+    // than in a class so they could've just been forwarded into this class
+    // with a one-line 'using' statement.
+
+    enum Dwarf3Enums {
+        e_DW_AT_sibling                 = Reader::e_DW_AT_sibling,
+        e_DW_AT_location                = Reader::e_DW_AT_location,
+        e_DW_AT_name                    = Reader::e_DW_AT_name,
+        e_DW_AT_ordering                = Reader::e_DW_AT_ordering,
+        e_DW_AT_byte_size               = Reader::e_DW_AT_byte_size,
+        e_DW_AT_bit_offset              = Reader::e_DW_AT_bit_offset,
+        e_DW_AT_bit_size                = Reader::e_DW_AT_bit_size,
+        e_DW_AT_stmt_list               = Reader::e_DW_AT_stmt_list,
+        e_DW_AT_low_pc                  = Reader::e_DW_AT_low_pc,
+        e_DW_AT_high_pc                 = Reader::e_DW_AT_high_pc,
+        e_DW_AT_language                = Reader::e_DW_AT_language,
+        e_DW_AT_discr                   = Reader::e_DW_AT_discr,
+        e_DW_AT_discr_value             = Reader::e_DW_AT_discr_value,
+        e_DW_AT_visibility              = Reader::e_DW_AT_visibility,
+        e_DW_AT_import                  = Reader::e_DW_AT_import,
+        e_DW_AT_string_length           = Reader::e_DW_AT_string_length,
+        e_DW_AT_common_reference        = Reader::e_DW_AT_common_reference,
+        e_DW_AT_comp_dir                = Reader::e_DW_AT_comp_dir,
+        e_DW_AT_const_value             = Reader::e_DW_AT_const_value,
+        e_DW_AT_containing_type         = Reader::e_DW_AT_containing_type,
+        e_DW_AT_default_value           = Reader::e_DW_AT_default_value,
+        e_DW_AT_inline                  = Reader::e_DW_AT_inline,
+        e_DW_AT_is_optional             = Reader::e_DW_AT_is_optional,
+        e_DW_AT_lower_bound             = Reader::e_DW_AT_lower_bound,
+        e_DW_AT_producer                = Reader::e_DW_AT_producer,
+        e_DW_AT_prototyped              = Reader::e_DW_AT_prototyped,
+        e_DW_AT_return_addr             = Reader::e_DW_AT_return_addr,
+        e_DW_AT_start_scope             = Reader::e_DW_AT_start_scope,
+        e_DW_AT_bit_stride              = Reader::e_DW_AT_bit_stride,
+        e_DW_AT_upper_bound             = Reader::e_DW_AT_upper_bound,
+        e_DW_AT_abstract_origin         = Reader::e_DW_AT_abstract_origin,
+        e_DW_AT_accessibility           = Reader::e_DW_AT_accessibility,
+        e_DW_AT_address_class           = Reader::e_DW_AT_address_class,
+        e_DW_AT_artificial              = Reader::e_DW_AT_artificial,
+        e_DW_AT_base_types              = Reader::e_DW_AT_base_types,
+        e_DW_AT_calling_convention      = Reader::e_DW_AT_calling_convention,
+        e_DW_AT_count                   = Reader::e_DW_AT_count,
+        e_DW_AT_data_member_location    = Reader::e_DW_AT_data_member_location,
+        e_DW_AT_decl_column             = Reader::e_DW_AT_decl_column,
+        e_DW_AT_decl_file               = Reader::e_DW_AT_decl_file,
+        e_DW_AT_decl_line               = Reader::e_DW_AT_decl_line,
+        e_DW_AT_declaration             = Reader::e_DW_AT_declaration,
+        e_DW_AT_discr_list              = Reader::e_DW_AT_discr_list,
+        e_DW_AT_encoding                = Reader::e_DW_AT_encoding,
+        e_DW_AT_external                = Reader::e_DW_AT_external,
+        e_DW_AT_frame_base              = Reader::e_DW_AT_frame_base,
+        e_DW_AT_friend                  = Reader::e_DW_AT_friend,
+        e_DW_AT_identifier_case         = Reader::e_DW_AT_identifier_case,
+        e_DW_AT_macro_info              = Reader::e_DW_AT_macro_info,
+        e_DW_AT_namelist_item           = Reader::e_DW_AT_namelist_item,
+        e_DW_AT_priority                = Reader::e_DW_AT_priority,
+        e_DW_AT_segment                 = Reader::e_DW_AT_segment,
+        e_DW_AT_specification           = Reader::e_DW_AT_specification,
+        e_DW_AT_static_link             = Reader::e_DW_AT_static_link,
+        e_DW_AT_type                    = Reader::e_DW_AT_type,
+        e_DW_AT_use_location            = Reader::e_DW_AT_use_location,
+        e_DW_AT_variable_parameter      = Reader::e_DW_AT_variable_parameter,
+        e_DW_AT_virtuality              = Reader::e_DW_AT_virtuality,
+        e_DW_AT_vtable_elem_location    = Reader::e_DW_AT_vtable_elem_location,
+        e_DW_AT_allocated               = Reader::e_DW_AT_allocated,
+        e_DW_AT_associated              = Reader::e_DW_AT_associated,
+        e_DW_AT_data_location           = Reader::e_DW_AT_data_location,
+        e_DW_AT_byte_stride             = Reader::e_DW_AT_byte_stride,
+        e_DW_AT_entry_pc                = Reader::e_DW_AT_entry_pc,
+        e_DW_AT_use_UTF8                = Reader::e_DW_AT_use_UTF8,
+        e_DW_AT_extension               = Reader::e_DW_AT_extension,
+        e_DW_AT_ranges                  = Reader::e_DW_AT_ranges,
+        e_DW_AT_trampoline              = Reader::e_DW_AT_trampoline,
+        e_DW_AT_call_column             = Reader::e_DW_AT_call_column,
+        e_DW_AT_call_file               = Reader::e_DW_AT_call_file,
+        e_DW_AT_call_line               = Reader::e_DW_AT_call_line,
+        e_DW_AT_description             = Reader::e_DW_AT_description,
+        e_DW_AT_binary_scale            = Reader::e_DW_AT_binary_scale,
+        e_DW_AT_decimal_scale           = Reader::e_DW_AT_decimal_scale,
+        e_DW_AT_small                   = Reader::e_DW_AT_small,
+        e_DW_AT_decimal_sign            = Reader::e_DW_AT_decimal_sign,
+        e_DW_AT_digit_count             = Reader::e_DW_AT_digit_count,
+        e_DW_AT_picture_string          = Reader::e_DW_AT_picture_string,
+        e_DW_AT_mutable                 = Reader::e_DW_AT_mutable,
+        e_DW_AT_threads_scaled          = Reader::e_DW_AT_threads_scaled,
+        e_DW_AT_explicit                = Reader::e_DW_AT_explicit,
+        e_DW_AT_object_pointer          = Reader::e_DW_AT_object_pointer,
+        e_DW_AT_endianity               = Reader::e_DW_AT_endianity,
+        e_DW_AT_elemental               = Reader::e_DW_AT_elemental,
+        e_DW_AT_pure                    = Reader::e_DW_AT_pure,
+        e_DW_AT_recursive               = Reader::e_DW_AT_recursive,
+
+        e_DW_CHILDREN_no                = Reader::e_DW_CHILDREN_no,
+        e_DW_CHILDREN_yes               = Reader::e_DW_CHILDREN_yes,
+
+        e_DW_FORM_addr                  = Reader::e_DW_FORM_addr,
+        e_DW_FORM_block2                = Reader::e_DW_FORM_block2,
+        e_DW_FORM_block4                = Reader::e_DW_FORM_block4,
+        e_DW_FORM_data2                 = Reader::e_DW_FORM_data2,
+        e_DW_FORM_data4                 = Reader::e_DW_FORM_data4,
+        e_DW_FORM_data8                 = Reader::e_DW_FORM_data8,
+        e_DW_FORM_string                = Reader::e_DW_FORM_string,
+        e_DW_FORM_block                 = Reader::e_DW_FORM_block,
+        e_DW_FORM_block1                = Reader::e_DW_FORM_block1,
+        e_DW_FORM_data1                 = Reader::e_DW_FORM_data1,
+        e_DW_FORM_flag                  = Reader::e_DW_FORM_flag,
+        e_DW_FORM_sdata                 = Reader::e_DW_FORM_sdata,
+        e_DW_FORM_strp                  = Reader::e_DW_FORM_strp,
+        e_DW_FORM_udata                 = Reader::e_DW_FORM_udata,
+        e_DW_FORM_ref_addr              = Reader::e_DW_FORM_ref_addr,
+        e_DW_FORM_ref1                  = Reader::e_DW_FORM_ref1,
+        e_DW_FORM_ref2                  = Reader::e_DW_FORM_ref2,
+        e_DW_FORM_ref4                  = Reader::e_DW_FORM_ref4,
+        e_DW_FORM_ref8                  = Reader::e_DW_FORM_ref8,
+        e_DW_FORM_ref_udata             = Reader::e_DW_FORM_ref_udata,
+        e_DW_FORM_indirect              = Reader::e_DW_FORM_indirect,
+
+        e_DW_LNE_end_sequence           = Reader::e_DW_LNE_end_sequence,
+        e_DW_LNE_set_address            = Reader::e_DW_LNE_set_address,
+        e_DW_LNE_define_file            = Reader::e_DW_LNE_define_file,
+
+        e_DW_LNS_copy                   = Reader::e_DW_LNS_copy,
+        e_DW_LNS_advance_pc             = Reader::e_DW_LNS_advance_pc,
+        e_DW_LNS_advance_line           = Reader::e_DW_LNS_advance_line,
+        e_DW_LNS_set_file               = Reader::e_DW_LNS_set_file,
+        e_DW_LNS_set_column             = Reader::e_DW_LNS_set_column,
+        e_DW_LNS_negate_stmt            = Reader::e_DW_LNS_negate_stmt,
+        e_DW_LNS_set_basic_block        = Reader::e_DW_LNS_set_basic_block,
+        e_DW_LNS_const_add_pc           = Reader::e_DW_LNS_const_add_pc,
+        e_DW_LNS_fixed_advance_pc       = Reader::e_DW_LNS_fixed_advance_pc,
+        e_DW_LNS_set_prologue_end       = Reader::e_DW_LNS_set_prologue_end,
+        e_DW_LNS_set_epilogue_begin     = Reader::e_DW_LNS_set_epilogue_begin,
+        e_DW_LNS_set_isa                = Reader::e_DW_LNS_set_isa,
+
+        e_DW_TAG_array_type             = Reader::e_DW_TAG_array_type,
+        e_DW_TAG_class_type             = Reader::e_DW_TAG_class_type,
+        e_DW_TAG_entry_point            = Reader::e_DW_TAG_entry_point,
+        e_DW_TAG_enumeration_type       = Reader::e_DW_TAG_enumeration_type,
+        e_DW_TAG_formal_parameter       = Reader::e_DW_TAG_formal_parameter,
+        e_DW_TAG_imported_declaration   =Reader::e_DW_TAG_imported_declaration,
+        e_DW_TAG_label                  = Reader::e_DW_TAG_label,
+        e_DW_TAG_lexical_block          = Reader::e_DW_TAG_lexical_block,
+        e_DW_TAG_member                 = Reader::e_DW_TAG_member,
+        e_DW_TAG_pointer_type           = Reader::e_DW_TAG_pointer_type,
+        e_DW_TAG_reference_type         = Reader::e_DW_TAG_reference_type,
+        e_DW_TAG_compile_unit           = Reader::e_DW_TAG_compile_unit,
+        e_DW_TAG_string_type            = Reader::e_DW_TAG_string_type,
+        e_DW_TAG_structure_type         = Reader::e_DW_TAG_structure_type,
+        e_DW_TAG_subroutine_type        = Reader::e_DW_TAG_subroutine_type,
+        e_DW_TAG_typedef                = Reader::e_DW_TAG_typedef,
+        e_DW_TAG_union_type             = Reader::e_DW_TAG_union_type,
+        e_DW_TAG_unspecified_parameters =
+                                       Reader::e_DW_TAG_unspecified_parameters,
+        e_DW_TAG_variant                = Reader::e_DW_TAG_variant,
+        e_DW_TAG_common_block           = Reader::e_DW_TAG_common_block,
+        e_DW_TAG_common_inclusion       = Reader::e_DW_TAG_common_inclusion,
+        e_DW_TAG_inheritance            = Reader::e_DW_TAG_inheritance,
+        e_DW_TAG_inlined_subroutine     = Reader::e_DW_TAG_inlined_subroutine,
+        e_DW_TAG_module                 = Reader::e_DW_TAG_module,
+        e_DW_TAG_ptr_to_member_type     = Reader::e_DW_TAG_ptr_to_member_type,
+        e_DW_TAG_set_type               = Reader::e_DW_TAG_set_type,
+        e_DW_TAG_subrange_type          = Reader::e_DW_TAG_subrange_type,
+        e_DW_TAG_with_stmt              = Reader::e_DW_TAG_with_stmt,
+        e_DW_TAG_access_declaration     = Reader::e_DW_TAG_access_declaration,
+        e_DW_TAG_base_type              = Reader::e_DW_TAG_base_type,
+        e_DW_TAG_catch_block            = Reader::e_DW_TAG_catch_block,
+        e_DW_TAG_const_type             = Reader::e_DW_TAG_const_type,
+        e_DW_TAG_constant               = Reader::e_DW_TAG_constant,
+        e_DW_TAG_enumerator             = Reader::e_DW_TAG_enumerator,
+        e_DW_TAG_file_type              = Reader::e_DW_TAG_file_type,
+        e_DW_TAG_friend                 = Reader::e_DW_TAG_friend,
+        e_DW_TAG_namelist               = Reader::e_DW_TAG_namelist,
+        e_DW_TAG_namelist_item          = Reader::e_DW_TAG_namelist_item,
+        e_DW_TAG_packed_type            = Reader::e_DW_TAG_packed_type,
+        e_DW_TAG_subprogram             = Reader::e_DW_TAG_subprogram,
+        e_DW_TAG_template_type_parameter =
+                                     Reader::e_DW_TAG_template_type_parameter,
+        e_DW_TAG_template_value_parameter =
+                                     Reader::e_DW_TAG_template_value_parameter,
+        e_DW_TAG_thrown_type             = Reader::e_DW_TAG_thrown_type,
+        e_DW_TAG_try_block               = Reader::e_DW_TAG_try_block,
+        e_DW_TAG_variant_part            = Reader::e_DW_TAG_variant_part,
+        e_DW_TAG_variable                = Reader::e_DW_TAG_variable,
+        e_DW_TAG_volatile_type           = Reader::e_DW_TAG_volatile_type,
+        e_DW_TAG_dwarf_procedure         = Reader::e_DW_TAG_dwarf_procedure,
+        e_DW_TAG_restrict_type           = Reader::e_DW_TAG_restrict_type,
+        e_DW_TAG_interface_type          = Reader::e_DW_TAG_interface_type,
+        e_DW_TAG_namespace               = Reader::e_DW_TAG_namespace,
+        e_DW_TAG_imported_module         = Reader::e_DW_TAG_imported_module,
+        e_DW_TAG_unspecified_type        = Reader::e_DW_TAG_unspecified_type,
+        e_DW_TAG_partial_unit            = Reader::e_DW_TAG_partial_unit,
+        e_DW_TAG_imported_unit           = Reader::e_DW_TAG_imported_unit,
+        e_DW_TAG_condition               = Reader::e_DW_TAG_condition,
+        e_DW_TAG_shared_type             = Reader::e_DW_TAG_shared_type,
+        e_DW_TAG_lo_user                 = Reader::e_DW_TAG_lo_user,
+        e_DW_TAG_hi_user                 = Reader::e_DW_TAG_hi_user
+    };
+
+    enum Dwarf4Enums {
+        e_DW_AT_signature                = Reader::e_DW_AT_signature,
+        e_DW_AT_main_subprogram          = Reader::e_DW_AT_main_subprogram,
+        e_DW_AT_data_bit_offset          = Reader::e_DW_AT_data_bit_offset,
+        e_DW_AT_const_expr               = Reader::e_DW_AT_const_expr,
+        e_DW_AT_enum_class               = Reader::e_DW_AT_enum_class,
+        e_DW_AT_linkage_name             = Reader::e_DW_AT_linkage_name,
+
+        e_DW_FORM_sec_offset             = Reader::e_DW_FORM_sec_offset,
+        e_DW_FORM_exprloc                = Reader::e_DW_FORM_exprloc,
+        e_DW_FORM_flag_present           = Reader::e_DW_FORM_flag_present,
+        e_DW_FORM_ref_sig8               = Reader::e_DW_FORM_ref_sig8,
+
+        e_DW_LNE_set_discriminator       = Reader::e_DW_LNE_set_discriminator,
+
+        e_DW_TAG_type_unit               = Reader::e_DW_TAG_type_unit,
+        e_DW_TAG_rvalue_reference_type   =
+                                        Reader::e_DW_TAG_rvalue_reference_type,
+        e_DW_TAG_template_alias          = Reader::e_DW_TAG_template_alias
+    };
+#endif
+
+    // PUBLIC DATA
     StackTraceResolver_FileHelper
                     *d_helper_p;           // file helper associated with
                                            // current segment
@@ -1489,44 +1764,44 @@ struct u::StackTraceResolver::HiddenRec {
     u::Offset          d_stringTableSize;  // beginning of the file
 
 #ifdef u_DWARF
-    u::Section         d_abbrevSec;        // .debug_abbrev section
-    u::Reader          d_abbrevReader;     // reader for that section
+    Section            d_abbrevSec;        // .debug_abbrev section
+    Reader             d_abbrevReader;     // reader for that section
 
-    u::Section         d_arangesSec;       // .debug_aranges section
-    u::Reader          d_arangesReader;    // reader for that section
+    Section            d_arangesSec;       // .debug_aranges section
+    Reader             d_arangesReader;    // reader for that section
 
-    u::Section         d_infoSec;          // .debug_info section
-    u::Reader          d_infoReader;       // reader for that section
+    Section            d_infoSec;          // .debug_info section
+    Reader             d_infoReader;       // reader for that section
 
-    u::Section         d_lineSec;          // .debug_line section
-    u::Reader          d_lineReader;       // reader for that section
+    Section            d_lineSec;          // .debug_line section
+    Reader             d_lineReader;       // reader for that section
 
-    u::Section         d_rangesSec;        // .debug_ranges section
-    u::Reader          d_rangesReader;     // reader for that section
+    Section            d_rangesSec;        // .debug_ranges section
+    Reader             d_rangesReader;     // reader for that section
 
-    u::Section         d_strSec;           // .debug_str section
-    u::Reader          d_strReader;        // reader for that section
+    Section            d_strSec;           // .debug_str section
+    Reader             d_strReader;        // reader for that section
 #endif
 
     u::Offset          d_libraryFileSize;  // size of the current library or
                                            // executable file
 
-    char             *d_scratchBufA_p;     // crratch buffer A (from resolver)
+    char              *d_scratchBufA_p;    // crratch buffer A (from resolver)
 
-    char             *d_scratchBufB_p;     // scratch buffer B (from resolver)
+    char              *d_scratchBufB_p;    // scratch buffer B (from resolver)
 #ifdef u_DWARF
-    char             *d_scratchBufC_p;     // scratch buffer C (from resolver)
+    char              *d_scratchBufC_p;    // scratch buffer C (from resolver)
 
-    char             *d_scratchBufD_p;     // scratch buffer D (from resolver)
+    char              *d_scratchBufD_p;    // scratch buffer D (from resolver)
 #endif
-    int               d_numTotalUnmatched; // Total number of unmatched frames
+    int                d_numTotalUnmatched;// Total number of unmatched frames
                                            // remaining in this resolve.
 
-    bool              d_isMainExecutable;  // 'true' if in main executable
+    bool               d_isMainExecutable; // 'true' if in main executable
                                            // segment, as opposed to a shared
                                            // library
 
-    bslma::Allocator *d_allocator_p;       // The resolver's heap bypass
+    bslma::Allocator  *d_allocator_p;      // The resolver's heap bypass
                                            // allocator.
 
   private:
@@ -1565,8 +1840,8 @@ struct u::StackTraceResolver::HiddenRec {
         // info, and 'd_abbrevReader' is positioned right after the tag index,
         // and at the first attribute.  Set the specified '*addressMatched', to
         // 'true' if the section matched the frame record and 'false'
-        // otherwise, except if 'u_CHECK_ADDRESSES' is 'false', in which case
-        // '*addressMatched' is always to be set to 'true'.
+        // otherwise, except if 'u_DWARF_CHECK_ADDRESSES' is 'false', in which
+        // case '*addressMatched' is always to be set to 'true'.
 
     int dwarfReadDebugInfo();
         // Read the .debug_info and .debug_abbrev sections.
@@ -1894,10 +2169,12 @@ int u::StackTraceResolver::HiddenRec::dwarfReadAranges()
                                   addressRange.contains(it->address()); ++it) {
                 const bool isRedundant =
                                        u::maxOffset != it->compileUnitOffset();
-                u_TRACES && u_zprintf("%s%s range (0x%lx, 0x%lx) matches"
-                                     " frame %d, address: %p, offset 0x%llx\n",
+                u_TRACES && u_zprintf("%s%s range [0x%lx, 0x%lx) size 0x%lx"
+                             " matches frame %d, address: %p, offset 0x%llx\n",
                                            rn, isRedundant ? " redundant" : "",
-                       u::l(addressRange.d_address), u::l(addressRange.d_size),
+                            u::l(addressRange.d_address),
+                            u::l(addressRange.d_address + addressRange.d_size),
+                                                     u::l(addressRange.d_size),
                                                                    it->index(),
                                         it->address(), u::ll(debugInfoOffset));
                 if (isRedundant) {
@@ -1932,6 +2209,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
     static const char rn[] = { "HiddenRec::dwarfReadCompileOrPartialUnit:" };
 
     int rc;
+
+    static const bool compileTraces = u_TRACES && 0;
 
     enum ObtainedFlags {
         k_OBTAINED_ADDRESS_MATCH = 0x1,
@@ -1971,67 +2250,68 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
         if (0 == attr) {
             u_ASSERT_BAIL(0 == form);
 
-            u_TRACES && u_zprintf("%s 0 0 encountered, section done\n", rn);
+            compileTraces && u_zprintf("%s 0 0 encountered, section done\n",
+                                                                           rn);
 
             break;
         }
 
-        u_TRACES && u_zprintf("%s %s %s\n", rn, u::Reader::stringForAt(attr),
-                                               u::Reader::stringForForm(form));
+        compileTraces && u_zprintf("%s %s %s\n", rn, Reader::stringForAt(attr),
+                                                  Reader::stringForForm(form));
 
         switch (attr) {
 #if u_DWARF_CHECK_ADDRESSES
-          case DW_AT_low_pc: {                            // DWARF doc 3.1.1.1
+          case e_DW_AT_low_pc: {                           // DWARF doc 3.1.1.1
             u_ASSERT_BAIL(u::minusOne == loPtr);
 
             rc = d_infoReader.readAddress(&loPtr, form);
             u_ASSERT_BAIL(0 == rc);
 
-            if (DW_FORM_addr != form) {
+            if (e_DW_FORM_addr != form) {
                 // this was not in the doc
 
                 loPtr += d_adjustment;
             }
 
-            u_TRACES && u_zprintf("%s loPtr: 0x%llx\n", rn, u::ll(loPtr));
+            compileTraces && u_zprintf("%s loPtr: 0x%llx\n", rn, u::ll(loPtr));
 
             if (0 != hiPtr) {
                 if (loPtr <= addressToMatch && addressToMatch < hiPtr) {
-                    u_TRACES && u_zprintf("%s loHiMatch on lo\n", rn);
+                    compileTraces && u_zprintf("%s loHiMatch on lo\n", rn);
                     obtained |= k_OBTAINED_ADDRESS_MATCH;
                 }
                 else {
-                    u_TRACES && u_zprintf("%s loHi failed to match on lo\n",
-                                                                           rn);
+                    compileTraces && u_zprintf(
+                                        "%s loHi failed to match on lo\n", rn);
                 }
             }
           } break;
-          case DW_AT_high_pc: {                           // DWARF doc 3.1.1.1
+          case e_DW_AT_high_pc: {                          // DWARF doc 3.1.1.1
             u_ASSERT_BAIL(0 == hiPtr);
 
             rc = d_infoReader.readAddress(&hiPtr, form);
             u_ASSERT_BAIL(0 == rc);
 
-            if (DW_FORM_addr != form) {
+            if (e_DW_FORM_addr != form) {
                 // this was not in the doc, just guessing
 
                 hiPtr += u::minusOne != loPtr ? loPtr : d_adjustment;
             }
 
-            u_TRACES && u_zprintf("%s hiPtr: 0x%llx\n", rn, u::ll(hiPtr));
+            compileTraces && u_zprintf("%s hiPtr: 0x%llx\n", rn, u::ll(hiPtr));
 
             if (u::minusOne != loPtr) {
                 if (loPtr <= addressToMatch && addressToMatch < hiPtr) {
-                    u_TRACES && u_zprintf("%s loHiMatch on hi\n", rn);
+                    compileTraces && u_zprintf("%s loHiMatch on hi\n", rn);
                     obtained |= k_OBTAINED_ADDRESS_MATCH;
                 }
                 else {
-                    u_TRACES && u_zprintf("%s loHi failed to match on hi\n",
-                                                                           rn);
+                    compileTraces && u_zprintf(
+                                        "%s loHi failed to match on hi\n", rn);
                 }
             }
           } break;
-          case DW_AT_ranges: {                            // DWARF doc 3.1.1.1
+          case e_DW_AT_ranges: {                           // DWARF doc 3.1.1.1
             u::Offset rangesOffset;
             rc = d_infoReader.readOffsetFromForm(&rangesOffset, form);
             u_ASSERT_BAIL(0 == rc && "trouble reading ranges offset");
@@ -2045,12 +2325,12 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
             u_ASSERT_BAIL(0 == rc && "dwarfCheckRanges failed");
 
             if (isMatch) {
-                u_TRACES && u_zprintf("%s ranges match\n", rn);
+                compileTraces && u_zprintf("%s ranges match\n", rn);
                 obtained |= k_OBTAINED_ADDRESS_MATCH;
             }
           } break;
 #endif
-          case DW_AT_name: {                              // DWARF doc 3.1.1.2
+          case e_DW_AT_name: {                             // DWARF doc 3.1.1.2
             u_ASSERT_BAIL(0 == (obtained & k_OBTAINED_BASE_NAME));
             u_ASSERT_BAIL(baseName.empty());
 
@@ -2059,7 +2339,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
             u_ASSERT_BAIL(0 == rc);
 
             if (!baseName.empty()) {
-                u_TRACES && u_zprintf("%s baseName \"%s\" found\n",
+                compileTraces && u_zprintf("%s baseName \"%s\" found\n",
                                                          rn, baseName.c_str());
 
                 obtained |= k_OBTAINED_BASE_NAME |
@@ -2067,17 +2347,17 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
                                                           : 0);
             }
           } break;
-          case DW_AT_stmt_list: {                         // DWARF doc 3.1.1.4
+          case e_DW_AT_stmt_list: {                        // DWARF doc 3.1.1.4
             u_ASSERT_BAIL(0 == (obtained & k_OBTAINED_LINE_OFFSET));
 
             rc = d_infoReader.readOffsetFromForm(&lineNumberInfoOffset, form);
             u_ASSERT_BAIL(0 == rc && "trouble reading line offset");
-            u_TRACES && u_zprintf("%s found line offset %lld\n",
+            compileTraces && u_zprintf("%s found line offset %lld\n",
                                               rn, u::ll(lineNumberInfoOffset));
 
             obtained |= k_OBTAINED_LINE_OFFSET;
           } break;
-          case DW_AT_comp_dir: {                          // DWARF doc 3.1.1.6
+          case e_DW_AT_comp_dir: {                         // DWARF doc 3.1.1.6
             rc = d_infoReader.readStringFromForm(&dirName, &d_strReader, form);
             u_ASSERT_BAIL(0 == rc);
 
@@ -2086,28 +2366,28 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
                     dirName += '/';
                 }
 
-                u_TRACES && u_zprintf("%s dirName \"%s\" found\n",
+                compileTraces && u_zprintf("%s dirName \"%s\" found\n",
                                                           rn, dirName.c_str());
 
                 obtained |= k_OBTAINED_DIR_NAME;
             }
           } break;
 #if 0 == u_DWARF_CHECK_ADDRESSES
-          case DW_AT_low_pc:                              // DWARF doc 3.1.1.1
-          case DW_AT_high_pc:                             // DWARF doc 3.1.1.1
-          case DW_AT_ranges:                              // DWARF doc 3.1.1.1
+          case e_DW_AT_low_pc:                            // DWARF doc 3.1.1.1
+          case e_DW_AT_high_pc:                           // DWARF doc 3.1.1.1
+          case e_DW_AT_ranges:                            // DWARF doc 3.1.1.1
 #endif
-          case DW_AT_language:                            // DWARF doc 3.1.1.3
-          case DW_AT_macro_info:                          // DWARF doc 3.1.1.5
-          case DW_AT_producer:                            // DWARF doc 3.1.1.7
-          case DW_AT_identifier_case:                     // DWARF doc 3.1.1.8
-          case DW_AT_base_types:                          // DWARF doc 3.1.1.9
-          case DW_AT_use_UTF8:                            // DWARF doc 3.1.1.10
-          case u::e_DW_AT_main_subprogram:                // DWARF doc 3.1.1.11
-          case DW_AT_entry_pc:                            // not in doc, but
+          case e_DW_AT_language:                          // DWARF doc 3.1.1.3
+          case e_DW_AT_macro_info:                        // DWARF doc 3.1.1.5
+          case e_DW_AT_producer:                          // DWARF doc 3.1.1.7
+          case e_DW_AT_identifier_case:                   // DWARF doc 3.1.1.8
+          case e_DW_AT_base_types:                        // DWARF doc 3.1.1.9
+          case e_DW_AT_use_UTF8:                          // DWARF doc 3.1.1.10
+          case e_DW_AT_main_subprogram:                   // DWARF doc 3.1.1.11
+          case e_DW_AT_entry_pc:                          // not in doc, but
                                                           // crops up
-          case DW_AT_description:
-          case DW_AT_segment: {
+          case e_DW_AT_description:
+          case e_DW_AT_segment: {
             rc = d_infoReader.skipForm(form);
             u_ASSERT_BAIL((0 == rc && "problem skipping") || u_PH(attr) ||
                                                                    u_PH(form));
@@ -2118,12 +2398,13 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
           }
         }
 
-        // If 'u_TRACES' is set, continue until we hit the terminating '0's to
-        // verify that our code is handling everything in compile units.  If
-        // 'u_TRACES' is not set, quit once we have the info we want.
-    } while (u_TRACES || k_OBTAINED_ALL != obtained);
+        // If 'compileTraces' is set, continue until we hit the terminating
+        // '0's to verify that our code is handling everything in compile
+        // units.  If 'compileTraces' is not set, quit once we have the info we
+        // want.
+    } while (compileTraces || k_OBTAINED_ALL != obtained);
 
-    if (u_TRACES) {
+    if (compileTraces) {
         u_zprintf("%s (attr, form) loop terminated, all%s obtained\n", rn,
                 (k_OBTAINED_ALL == obtained) ? "" : " not");
         u_zprintf("%s base name %s, dir name %s, line # offset %s\n", rn,
@@ -2198,6 +2479,10 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
     static const char rn[] = { "HiddenRec::dwarfDebugInfoFrameRec:" };
     (void) rn;
 
+    static const int debugInfoTraces = u_TRACES ? 0 : 0;
+        // A value of 1 means some traces, a value of 2 means display all the
+        // tags we're skipping over.
+
     int rc;
     const int index = frameRec->index(); (void) index;
 
@@ -2233,6 +2518,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
         rc = d_infoReader.skipTo(nextCompileUnitOffset);
         u_ASSERT_BAIL(0 == rc && "skipTo failed");
 
+        // This is the compilation unit headers as outlined in 7.5.1.1
+
         {
             u::Offset compileUnitLength;
             rc = d_infoReader.readInitialLength(&compileUnitLength);
@@ -2246,9 +2533,9 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
             rc = d_infoReader.readValue(&version);
             u_ASSERT_BAIL(0 == rc && "read version failed");
             u_ASSERT_BAIL((2 <= version && version <= 4) || u_P(version));
-        }
 
-        // This is the compilation unit headers as outlined in 7.5.1.1
+            u_TRACES && u_zprintf("%s DWARF version: %u\n", rn, version);
+        }
 
         {
             u::Offset abbrevOffset;
@@ -2264,51 +2551,108 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugInfoFrameRec(
 
         d_rangesReader.setAddressSize(d_infoReader.addressSize());
 
-        {
-            u::Offset readTagIdx;
+        unsigned int infoTagIdx;
+        rc = d_infoReader.readULEB128(&infoTagIdx);
+        u_ASSERT_BAIL(0 == rc);
+        u_TRACES && u_zprintf("%s .debug_info tag idx 0x%llx\n",
+                                                        rn, u::ll(infoTagIdx));
 
-            // These tag indexes were barely, vaguely mentioned by the doc,
-            // with some implication that they'd be '1' before the first tag we
-            // encounter.  If they turn out not to be '1' in production it's
-            // certainly not worth abandoning DWARF decoding over.
-
-            rc = d_infoReader.readULEB128(&readTagIdx);
+        bool firstTime = true;
+        unsigned int tag;
+        for (unsigned int expectedIdx = 1; true; ++expectedIdx) {
+            unsigned int abbrevTagIdx;
+            rc = d_abbrevReader.readULEB128(&abbrevTagIdx);
             u_ASSERT_BAIL(0 == rc);
-            (1 != readTagIdx && u_TRACES) && u_eprintf( // we don't care much
-                                       "%s strange .debug_info tag idx %llx\n",
-                                                        rn, u::ll(readTagIdx));
+            if (firstTime) {
+                firstTime = false;
+                u_ASSERT_BAIL(0 != abbrevTagIdx);
+            }
+            else {
+                // 3 0's in a row, end of abbrev section without having found
+                // the compile unit.
 
-            rc = d_abbrevReader.readULEB128(&readTagIdx);
+#if 0 == u_DWARF_CHECK_ADDRESSES
+                u_ASSERT_BAIL(0 != abbrevTagIdx);
+#else
+                continue;
+#endif
+            }
+            if (debugInfoTraces && expectedIdx != abbrevTagIdx) {
+                if (expectedIdx + 1 == abbrevTagIdx) {
+                    u_zprintf("%s strange abbrev idx 0x%x one ahead, expected"
+                                     " 0x%x\n", rn, abbrevTagIdx, expectedIdx);
+                }
+                else {
+                    u_zprintf("%s strange abbrev idx 0x%x, expected"
+                                     " 0x%x\n", rn, abbrevTagIdx, expectedIdx);
+                }
+            }
+
+            rc = d_abbrevReader.readULEB128(&tag);
             u_ASSERT_BAIL(0 == rc);
-            (1 != readTagIdx && u_TRACES) && u_eprintf( // we don't care much
-                                     "%s strange .debug_abbrev tag idx %llx\n",
-                                                        rn, u::ll(readTagIdx));
+            u_ASSERT_BAIL(0 < tag);
+            u_ASSERT_BAIL_SAFE(tag <= e_DW_TAG_template_alias ||
+                        (e_DW_TAG_lo_user <= tag && tag <= e_DW_TAG_hi_user) ||
+                                                                    u_PH(tag));
+
+            BSLMF_ASSERT(0 == e_DW_CHILDREN_no && 1 == e_DW_CHILDREN_yes);
+            unsigned char hasChildren;
+            rc = d_abbrevReader.readValue(&hasChildren);
+            u_ASSERT_BAIL(0 == rc);
+            u_ASSERT_BAIL(hasChildren <= 1);  // other than that, we don't care
+
+            if (e_DW_TAG_compile_unit == tag ||
+                (infoTagIdx == abbrevTagIdx && e_DW_TAG_partial_unit == tag)) {
+                if (debugInfoTraces) {
+                    if (infoTagIdx != abbrevTagIdx ||
+                                                   infoTagIdx != expectedIdx) {
+                        u_zprintf("%s strange found tag at unexpected idx\n",
+                                                                           rn);
+                    }
+
+                    u_zprintf(
+                        "%s idx(expect: 0x%x, abbrev: 0x%x) tag: 0x%x %s %s\n",
+                                            rn, expectedIdx, abbrevTagIdx, tag,
+                         Reader::stringForTag(tag), hasChildren ? "yc" : "nc");
+                }
+                break;
+            }
+            else {
+                1 < debugInfoTraces && u_zprintf(
+                                     "%s   abbrev idx: 0x%x tag: 0x%x %s %s\n",
+                              rn, abbrevTagIdx, tag, Reader::stringForTag(tag),
+                                                    hasChildren ? "yc" : "nc");
+            }
+
+            // Scan for the next 2 consequetive 0's to terminate the tag.
+
+            for (unsigned int numZeroes = 0, wantZero; numZeroes < 2;
+                               numZeroes = 0 != wantZero ? 0 : numZeroes + 1) {
+                rc = d_abbrevReader.readULEB128(&wantZero);
+                u_ASSERT_BAIL(0 == rc);
+            }
         }
 
-        unsigned int tag;
-        rc = d_abbrevReader.readULEB128(&tag);
-        u_ASSERT_BAIL(0 == rc);
-
-        u_ASSERT_BAIL(DW_TAG_compile_unit == tag ||
-                                      DW_TAG_partial_unit == tag || u_PH(tag));
-
-        BSLMF_ASSERT(0 == DW_CHILDREN_no && 1 == DW_CHILDREN_yes);
-        unsigned int hasChildren;
-        rc = d_abbrevReader.readULEB128(&hasChildren);
-        u_ASSERT_BAIL(0 == rc);
-        u_ASSERT_BAIL(hasChildren <= 1);    // other than that, we don't care
+        u_ASSERT_BAIL(e_DW_TAG_compile_unit == tag ||
+                                   e_DW_TAG_partial_unit == tag || u_PH(tag) ||
+                                               u_P(Reader::stringForTag(tag)));
 
         rc = dwarfReadCompileOrPartialUnit(frameRec, &addressMatched);
         u_ASSERT_BAIL(0 == rc);
-        u_ASSERT_BAIL(!d_arangesSec.d_size || addressMatched);
-    } while (!d_arangesSec.d_size && !addressMatched &&
+
+#if 0 == u_DWARF_CHECK_ADDRESSES
+        rc = false;
+#else
+        rc = !d_arangesSec.d_size && !addressMatched &&
                 nextCompileUnitOffset < d_infoSec.d_offset + d_infoSec.d_size);
+#endif
+    } while (rc);
 
     if (u_TRACES && !addressMatched) {
         // Sometimes there's a frame, like the routine that calls 'main', for
         // which no debug info is available.  This will also happen if a file
-        // was compiled with the debug switch on.  A disappointment, but not an
-        // error.
+        // was compiled without the debug switch on.  A disappointment, but not
+        // an error.
 
         u_zprintf("%s failed to match address for symbol \"%s\"\n", rn,
                                        frameRec->frame().symbolName().c_str());
@@ -2326,6 +2670,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLine()
 {
     static const char rn[] = { "HiddenRec::dwarfDebugLine:" };    (void) rn;
 
+    
     const u::FrameRecVecIt end = d_frameRecsEnd;
     for (u::FrameRecVecIt it = d_frameRecsBegin, prev = end; it < end;
                                                              prev = it, ++it) {
@@ -2364,13 +2709,17 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
     static const char rn[] = { "HiddenRec:dwarfDebugLineFrameRec:" };
     (void) rn;
 
+    static const int lineTraces = u_TRACES ? 0 : 0;
+        // A value of 1 means do most traces, a value of 2 means dump out all
+        // the directories and filenames.
+
     int rc;
 
     rc = d_lineReader.init(d_helper_p, d_scratchBufA_p, d_lineSec,
                                                             d_libraryFileSize);
     u_ASSERT_BAIL(0 == rc);
 
-    u_TRACES && u_zprintf(
+    lineTraces && u_zprintf(
                          "%s Symbol: %s, frame %d, lineNumberOffset: 0x%llx\n",
                                     rn, frameRec->frame().symbolName().c_str(),
                                                              frameRec->index(),
@@ -2403,7 +2752,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
         rc = d_lineReader.readSectionOffset(&endOfHeader);
         u_ASSERT_BAIL(0 == rc);
 
-        u_TRACES && u_zprintf("%s version: %u, header len: %llu\n",
+        lineTraces && u_zprintf("%s line version: %u, header len: %llu\n",
                                               rn, version, u::ll(endOfHeader));
 
         endOfHeader += d_lineReader.offset();
@@ -2417,12 +2766,13 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
     rc = d_lineReader.readValue(&maxOperationsPerInsruction);
     u_ASSERT_BAIL(0 == rc);
 
-    u_TRACES && u_zprintf("%s debugLineLength: %lld minInst: %u maxOp: %u\n",
+    lineTraces && u_zprintf("%s debugLineLength: %lld minInst: %u maxOp: %u\n",
                                                     rn, u::ll(debugLineLength),
                              minInstructionLength, maxOperationsPerInsruction);
 
     0 && u::dumpBinary(&d_lineReader, 8);
 
+    bool defaultIsStatement;
 #if 0
     // In section 6.2.4.5, the DWARF docs (versions 2, 3 and 4) say this field
     // should be there, but it's not in the binary.
@@ -2432,7 +2782,10 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
         rc = d_lineReader.readValue(&isStmt);
         u_ASSERT_BAIL(0 == rc);
         u_ASSERT_BAIL(isStmt <= 1 || u_P(isStmt));
+        defaultIsStatement = false;
     }
+#else
+    defaultIsStatement = false;
 #endif
 
     int lineBase;
@@ -2477,18 +2830,18 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
         u_ASSERT_BAIL(id >= opcodeBase || argCount == opcodeLengths[id]);
 
         CHECK_ARG_COUNT(0, 0);
-        CHECK_ARG_COUNT(0, DW_LNS_copy);
-        CHECK_ARG_COUNT(1, DW_LNS_advance_pc);
-        CHECK_ARG_COUNT(1, DW_LNS_advance_line);
-        CHECK_ARG_COUNT(1, DW_LNS_set_file);
-        CHECK_ARG_COUNT(1, DW_LNS_set_column);
-        CHECK_ARG_COUNT(0, DW_LNS_negate_stmt);
-        CHECK_ARG_COUNT(0, DW_LNS_set_basic_block);
-        CHECK_ARG_COUNT(0, DW_LNS_const_add_pc);
-        CHECK_ARG_COUNT(1, DW_LNS_fixed_advance_pc);
-        CHECK_ARG_COUNT(0, DW_LNS_set_prologue_end);
-        CHECK_ARG_COUNT(0, DW_LNS_set_epilogue_begin);
-        CHECK_ARG_COUNT(1, DW_LNS_set_isa);
+        CHECK_ARG_COUNT(0, e_DW_LNS_copy);
+        CHECK_ARG_COUNT(1, e_DW_LNS_advance_pc);
+        CHECK_ARG_COUNT(1, e_DW_LNS_advance_line);
+        CHECK_ARG_COUNT(1, e_DW_LNS_set_file);
+        CHECK_ARG_COUNT(1, e_DW_LNS_set_column);
+        CHECK_ARG_COUNT(0, e_DW_LNS_negate_stmt);
+        CHECK_ARG_COUNT(0, e_DW_LNS_set_basic_block);
+        CHECK_ARG_COUNT(0, e_DW_LNS_const_add_pc);
+        CHECK_ARG_COUNT(1, e_DW_LNS_fixed_advance_pc);
+        CHECK_ARG_COUNT(0, e_DW_LNS_set_prologue_end);
+        CHECK_ARG_COUNT(0, e_DW_LNS_set_epilogue_begin);
+        CHECK_ARG_COUNT(1, e_DW_LNS_set_isa);
 
 #undef CHECK_ARG_COUNT
     }
@@ -2514,10 +2867,13 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
             dirPaths.push_back(dir);
         }
 
-        if (0 && u_TRACES) {
+        if (lineTraces) {
             for (unsigned int ii = 0; ii < dirPaths.size(); ++ii) {
                 u_zprintf("%s dirPaths[%u]: %s\n",
                                                  rn, ii, dirPaths[ii].c_str());
+                if (1 == lineTraces) {
+                    break;    // only print out first directory for now
+                }
             }
         }
     }
@@ -2527,44 +2883,45 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
     bsl::deque<unsigned int> dirIndexes(d_allocator_p);
     dirIndexes.push_back(0);
 
-    for (unsigned int ii = 1;; ++ii) {
-        fileNames.push_back(nullString);
+    for (unsigned int ii = 0;; ++ii) {
+        if (ii) {
+            fileNames.push_back(nullString);
 
-        BSLS_ASSERT_SAFE(ii + 1 == fileNames.size());
+            BSLS_ASSERT_SAFE(ii + 1 == fileNames.size());
 
-        rc = d_lineReader.readString(&fileNames[ii]);
-        u_ASSERT_BAIL(0 == rc);
+            rc = d_lineReader.readString(&fileNames[ii]);
+            u_ASSERT_BAIL(0 == rc);
 
-        if (fileNames[ii].empty()) {
-            break;
+            if (fileNames[ii].empty()) {
+                break;
+            }
+
+            dirIndexes.push_back(-1);
+
+            BSLS_ASSERT_SAFE(dirIndexes.size() == fileNames.size());
+
+            rc = d_lineReader.readULEB128(&dirIndexes[ii]);
+            u_ASSERT_BAIL(0 == rc);
+            u_ASSERT_BAIL(dirIndexes[ii] < dirPaths.size());
+
+            rc = d_lineReader.skipULEB128();    // mod time, ignored
+            u_ASSERT_BAIL(0 == rc);
+
+            rc = d_lineReader.skipULEB128();    // file length, ignored
+            u_ASSERT_BAIL(0 == rc);
         }
 
-
-        dirIndexes.push_back(-1);
-
-        BSLS_ASSERT_SAFE(dirIndexes.size() == fileNames.size());
-
-        rc = d_lineReader.readULEB128(&dirIndexes[ii]);
-        u_ASSERT_BAIL(0 == rc);
-        u_ASSERT_BAIL(dirIndexes[ii] < dirPaths.size());
-
-        if (0 && u_TRACES) {
+        if (lineTraces && (1 < lineTraces || 0 == ii)) {
             u_zprintf("%s fileNames[%u]: %s dirIdx %lld:\n", rn, ii,
                                  fileNames[ii].c_str(), u::ll(dirIndexes[ii]));
         }
-
-        rc = d_lineReader.skipULEB128();    // mod time, ignored
-        u_ASSERT_BAIL(0 == rc);
-
-        rc = d_lineReader.skipULEB128();    // file length, ignored
-        u_ASSERT_BAIL(0 == rc);
     }
     u_ASSERT_BAIL(2 <= fileNames.size());
     fileNames.resize(fileNames.size() - 1);    // chomp empty entry
     BSLS_ASSERT_SAFE(dirIndexes.size() == fileNames.size());
 
     bsl::string  definedFile(d_allocator_p);     // in case a file is defined
-    unsigned int definedDirIndex;                // by the DW_LNE_define_file
+    unsigned int definedDirIndex;                // by the e_DW_LNE_define_file
                                                  // cmd, in which case
                                                  // 'fileIdx' will be -1.
 
@@ -2579,15 +2936,15 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
     {
         u::Offset toSkip = endOfHeader - d_lineReader.offset();
-        u_TRACES && u_zprintf("%s Symbol %s, %ld dirs, %ld files, skip: %lld,"
-                               " addrToMatch: 0x%lx, minLength: %u, maxOps: %u"
+        lineTraces && u_zprintf("%s Symbol %s, %ld dirs, %ld files,"
+                   " skip: %lld, addrToMatch: 0x%lx, minLength: %u, maxOps: %u"
                                  " lineBase: %d, lineRange: %d, initLen: %lld,"
-                                                               " opBase: %u\n",
+                                                 " opBase: %u, toSkip: %llu\n",
              rn, frameRec->frame().symbolName().c_str(), u::l(dirPaths.size()),
                    u::l(fileNames.size()), u::ll(toSkip), u::l(addressToMatch),
                               minInstructionLength, maxOperationsPerInsruction,
                                    lineBase, lineRange, u::ll(debugLineLength),
-                                                                   opcodeBase);
+                                                    opcodeBase, u::ll(toSkip));
 
         u_ASSERT_BAIL(0 <= toSkip);
         d_lineReader.skipBytes(toSkip);
@@ -2597,9 +2954,10 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
     bool nullPrevStatement = true;
     bool endOfSequence = false;
-    int statementsSinceSetFile = 100;
+    int statementsSinceSetFile = 100, statementsSinceEndSeq = 0;
 
-    for (; !d_lineReader.atEndOfSection(); ++statementsSinceSetFile) {
+    for (; !d_lineReader.atEndOfSection(); ++statementsSinceSetFile,
+                                                     ++statementsSinceEndSeq) {
         unsigned char opcode;
         rc = d_lineReader.readValue(&opcode);
         u_ASSERT_BAIL(0 == rc);
@@ -2611,19 +2969,20 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
             const int          opAdjust = opcode - opcodeBase;
             const unsigned int opAdvance = opAdjust / lineRange;
-            const u::UintPtr    addressAdvance = minInstructionLength *
+            const u::UintPtr   addressAdvance = minInstructionLength *
                           ((opIndex + opAdvance) / maxOperationsPerInsruction);
             const int          lineAdvance = lineBase + opAdjust % lineRange;
 
-            u_TRACES && u_zprintf("%s special opcode %u, opAdj: %u, opAdv: %u,"
-                                            " addrAdv: %lu, lineAdv: %d\n", rn,
-                                                   opcode, opAdjust, opAdvance,
+            opIndex = (opIndex + opAdvance) % maxOperationsPerInsruction;
+
+            lineTraces && u_zprintf("%s special opcode %u, opAdj: %u,"
+                      " opAdv: %u, opIdx: %u, addrAdv: %lu, lineAdv: %d\n", rn,
+                                          opcode, opAdjust, opAdvance, opIndex,
                                             u::l(addressAdvance), lineAdvance);
 
             statement = true;
 
             address += addressAdvance;
-            opIndex = (opIndex + opAdvance) % maxOperationsPerInsruction;
             line += lineAdvance;
 
             u_ASSERT_BAIL(line >= 0);
@@ -2631,19 +2990,24 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
         else if (0 < opcode) {
             // standard opcode          // DWARF doc 6.2.5.2
 
-            if (opcode <= DW_LNS_set_isa) {
-                u_zprintf("%s standard opcode %s\n", rn,
-                                              u::Reader::stringForLNS(opcode));
-            }
-            else {
-                u_zprintf("%s unrecognized standard opcode %u\n", rn, opcode);
+            if (lineTraces) {
+                if (opcode <= e_DW_LNS_set_isa) {
+                    if (e_DW_LNS_negate_stmt != opcode) {
+                        u_zprintf("%s standard opcode %s\n", rn,
+                                                 Reader::stringForLNS(opcode));
+                    }
+                }
+                else {
+                    u_eprintf("%s unrecognized standard opcode %u\n", rn,
+                                                                       opcode);
+                }
             }
 
             switch (opcode) {
-              case DW_LNS_copy: {    // 1
+              case e_DW_LNS_copy: {    // 1
                 statement = true;
               } break;
-              case DW_LNS_advance_pc: {    // 2
+              case e_DW_LNS_advance_pc: {    // 2
                 u::UintPtr opAdvance;
                 rc = d_lineReader.readULEB128(&opAdvance);
                 u_ASSERT_BAIL(0 == rc);
@@ -2651,7 +3015,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 u::UintPtr advanceBy = minInstructionLength *
                           ((opIndex + opAdvance) / maxOperationsPerInsruction);
 
-                u_TRACES && u_zprintf("%s advance@By: %lu\n",
+                lineTraces && u_zprintf("%s advance@By: 0x%lx\n",
                                                           rn, u::l(advanceBy));
 
                 statement = true;
@@ -2659,50 +3023,54 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 opIndex = static_cast<unsigned int>(
                            (opIndex + opAdvance) % maxOperationsPerInsruction);
               } break;
-              case DW_LNS_advance_line: {    // 3
+              case e_DW_LNS_advance_line: {    // 3
                 int lineAdvance;
 
                 rc = d_lineReader.readLEB128(&lineAdvance);
                 u_ASSERT_BAIL(0 == rc);
                 u_ASSERT_BAIL(u::approxAbs(lineAdvance) <  10 * 1000 * 1000);
 
-                u_TRACES && u_zprintf("%s advanceLnBy: %d\n", rn, lineAdvance);
+                lineTraces && u_zprintf("%s advanceLnBy: %d\n", rn,
+                                                                  lineAdvance);
 
                 line += lineAdvance;
 
                 u_ASSERT_BAIL(line >= 0);
               } break;
-              case DW_LNS_set_file: {    // 4
+              case e_DW_LNS_set_file: {    // 4
                 rc = d_lineReader.readULEB128(&fileIdx);
                 u_ASSERT_BAIL(0 == rc);
                 u_ASSERT_BAIL(0 <= fileIdx);
-                u_ASSERT_BAIL(     fileIdx <
-                                           static_cast<int>(fileNames.size()));
+                u_ASSERT_BAIL(fileIdx < static_cast<int>(fileNames.size()) ||
+                                        u_P(fileIdx) || u_P(fileNames.size()));
 
                 nullPrevStatement = true;
                 statementsSinceSetFile = 0;
 
-                u_TRACES && u_zprintf("%s set file to %u %s%s\n", rn, fileIdx,
-                                         dirPaths[dirIndexes[fileIdx]].c_str(),
+                lineTraces && u_zprintf("%s set file to %u %s%s\n", rn,
+                                fileIdx, dirPaths[dirIndexes[fileIdx]].c_str(),
                                                    fileNames[fileIdx].c_str());
               } break;
-              case DW_LNS_set_column: {    // 5
+              case e_DW_LNS_set_column: {    // 5
                 rc = d_lineReader.skipULEB128();    // ignored
                 u_ASSERT_BAIL(0 == rc);
               } break;
-              case DW_LNS_negate_stmt: {    // 6
+              case e_DW_LNS_negate_stmt: {    // 6
+                defaultIsStatement = !defaultIsStatement;
+                lineTraces && u_zprintf(
+                                     "%s e_DW_LNS_negate_stmt: default = %s\n",
+                                  rn, (defaultIsStatement ? "true" : "false"));
+              } break;
+              case e_DW_LNS_set_basic_block: {    // 7
                 ;    // no args, ignored
               } break;
-              case DW_LNS_set_basic_block: {    // 7
-                ;    // no args, ignored
-              } break;
-              case DW_LNS_const_add_pc: {    // 8
+              case e_DW_LNS_const_add_pc: {    // 8
                 unsigned int opAdvance = (255 - opcodeBase) / lineRange;
                 address += minInstructionLength *
                           ((opIndex + opAdvance) / maxOperationsPerInsruction);
                 opIndex = (opIndex + opAdvance) % maxOperationsPerInsruction;
               } break;
-              case DW_LNS_fixed_advance_pc: {    // 9
+              case e_DW_LNS_fixed_advance_pc: {    // 9
                 unsigned short advance;
                 rc = d_lineReader.readValue(&advance);
                 u_ASSERT_BAIL(0 == rc);
@@ -2710,19 +3078,20 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                 address += advance;
                 opIndex = 0;
               } break;
-              case DW_LNS_set_prologue_end: {    // 10
+              case e_DW_LNS_set_prologue_end: {    // 10
                 statement = true;
               } break;
-              case DW_LNS_set_epilogue_begin: {    // 11
+              case e_DW_LNS_set_epilogue_begin: {    // 11
                 statement = true;
               } break;
-              case DW_LNS_set_isa: {    // 12
+              case e_DW_LNS_set_isa: {    // 12
                 rc = d_lineReader.skipULEB128();    // ignored
                 u_ASSERT_BAIL(0 == rc);
               } break;
               default: {
-                u_ASSERT_BAIL(DW_LNS_set_isa < opcode);
-                u_ASSERT_BAIL(                 opcode < opcodeLengths.size());
+                u_ASSERT_BAIL(e_DW_LNS_set_isa < opcode);
+                u_ASSERT_BAIL(                   opcode <
+                                                         opcodeLengths.size());
 
                 // use 'opcodeLengths' to skip and ignore any arguments
 
@@ -2750,45 +3119,80 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 #else
             if (5 == opcode) {                // Not in spec
 #endif
+                lineTraces && u_zprintf("%s glitch: %u -- ignored\n", rn,
+                                                                       opcode);
+
                 rc = d_lineReader.readValue(&opcode);
                 u_ASSERT_BAIL(0 == rc);
             }
 
-            u_zprintf("%s extended opcode %s\n",
-                                          rn, u::Reader::stringForLNE(opcode));
+            if (e_DW_LNE_set_address == opcode &&
+                     statementsSinceSetFile > 1 && statementsSinceEndSeq > 1) {
+                // We were getting non-spec 'e_DW_LNE_set_address' opcodes
+                // inserted into the state machine stream, but the address arg
+                // following them didn't make sense.
+                //
+                // That opcode makes sense after a 'e_DW_LNS_set_file', or
+                // immediately after a 'e_DW_LNE_end_sequence', but the ones in
+                // other contexts did not make sense, and when ignored in those
+                // other contexts, DWARF resolution worked.
+                //
+                // None of this was described in the spec.  I don't understand
+                // what these useless bytes are doing in the state machine
+                // instruction stream, it's just wasted data.
+
+                lineTraces && u_zprintf("%s glitch: e_DW_LNE_set_address"
+                                                          " -- ignored\n", rn);
+
+                rc = d_lineReader.readValue(&opcode);
+                u_ASSERT_BAIL(0 == rc);
+
+                // Apparently, this phenomenon always precedes a
+                // 'e_DW_LNE_set_discriminator' opcode.
+
+                // u_ASSERT_BAIL(e_DW_LNE_set_discriminator == opcode);
+
+                lineTraces && e_DW_LNE_set_discriminator != opcode &&
+                              u_eprintf("%s unexpected opcode %u after strange"
+                                     " e_DW_LNE_set_address\n", rn, opcode);
+            }
+
+            if (lineTraces && e_DW_LNE_set_address != opcode) {
+                u_zprintf("%s extended opcode %s\n",
+                                             rn, Reader::stringForLNE(opcode));
+            }
 
             switch (opcode) {
-              case DW_LNE_end_sequence: {    // 1
-                0 && u::dumpBinary(&d_lineReader, 8);
-
+              case e_DW_LNE_end_sequence: {    // 1
                 // There was an extra byte there in the example, but it's not
                 // described in the spec, so its function is unknown.
 
                 unsigned char uc;
                 rc = d_lineReader.readValue(&uc);
-                u_ASSERT_BAIL(!u_TRACES || 0 == rc);
-                u_ASSERT_BAIL(!u_TRACES || 1 == uc); // it always seems to be 1
-                                                     // only complain if it's
-                                                     // not if traces are on
+                u_ASSERT_BAIL(!lineTraces || 0 == rc);
+                u_ASSERT_BAIL(!lineTraces || 1 == uc);  // it always seems to
+                                                        // be 1 only complain
+                                                        // if it's not if
+                                                        // traces are on
 
                 endOfSequence = true;
                 statement = true;
               } break;
-              case DW_LNE_set_address: {    // 2
+              case e_DW_LNE_set_address: {    // 2
                 rc = d_lineReader.readValue(&address);
-                u_ASSERT_BAIL(0 == rc);
                 address += d_adjustment;
-                opIndex = 0;
-                if (statementsSinceSetFile <= 1) {
-                    // Apparently, if this statement immediately follows a
-                    // 'set file', we are to reset the line #, otherwise leave
-                    // it alone.
+                u_ASSERT_BAIL(0 == rc);
+                u_ASSERT_BAIL(statementsSinceSetFile <= 1 ||
+                                                   statementsSinceEndSeq <= 1);
 
-                    line = prevLine = 1;
-                }
+                lineTraces && u_zprintf("%s e_DW_LNE_set_address: addr:"
+                                                " 0x%lx\n", rn, u::l(address));
+                line = prevLine = 1;
+
                 nullPrevStatement = true;
+                opIndex = 0;
               } break;
-              case DW_LNE_define_file: {    // 3
+              case e_DW_LNE_define_file: {    // 3
                 rc = d_lineReader.readString(&definedFile);
                 u_ASSERT_BAIL(0 == rc);
 
@@ -2804,9 +3208,12 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
                 fileIdx = -1;
 
+                statementsSinceSetFile = 0;
+                nullPrevStatement = true;
+                opIndex = 0;
                 line = prevLine = 1;
               } break;
-              case u::e_DW_LNE_set_discriminator: {
+              case e_DW_LNE_set_discriminator: {
                 rc = d_lineReader.skipULEB128();    // ignored
                 u_ASSERT_BAIL(0 == rc);
               } break;
@@ -2821,13 +3228,13 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
         }
 
         if (statement) {
-            u_TRACES && u_zprintf("%s stmt: addr: 0x%lx, line: %u\n",
+            lineTraces && u_zprintf("%s stmt: addr: 0x%lx, line: %u\n",
                                                       rn, u::l(address), line);
 
             if (!nullPrevStatement &&
                    addressToMatch <= address && prevAddress < addressToMatch) {
 
-                u_TRACES && u_zprintf(
+                lineTraces && u_zprintf(
                                      "%s stmt match: @'s(0x%lx, 0x%lx, 0x%lx),"
                                                              " line(%d, %d)\n",
                                    rn, u::l(prevAddress), u::l(addressToMatch),
@@ -2858,7 +3265,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                     frameRec->frame().setSourceFileName(sfn);
                 }
 
-                u_TRACES && u_zprintf("%s stmt MATCH %s %s:%d\n", rn,
+                lineTraces && u_zprintf("%s stmt MATCH %s %s:%d\n", rn,
                                         frameRec->frame().symbolName().c_str(),
                                     frameRec->frame().sourceFileName().c_str(),
                                                frameRec->frame().lineNumber());
@@ -2871,13 +3278,16 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
             if (endOfSequence) {
                 endOfSequence = false;
-                u_TRACES && u_zprintf("%s ----------------------------\n", rn);
+                lineTraces && u_zprintf("%s ----------------------------\n",
+                                                                           rn);
 
                 address = 0, prevAddress = 0;
                 opIndex = 0;
                 fileIdx = 0;
                 line = 1, prevLine = 1;
                 nullPrevStatement = true;
+                defaultIsStatement = false;
+                statementsSinceEndSeq = 0;
             }
             else {
                 prevLine    = line;
@@ -2925,8 +3335,8 @@ void u::StackTraceResolver::HiddenRec::reset()
 }
 
      // -----------------------------------------------------------------
-     // class balst::u::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>
-     //                 == class U::u::StackTraceResolver
+     // class balst::StackTraceResolverImpl<balst::ObjectFileFormat::Elf>
+     //                 == class u::StackTraceResolver
      // -----------------------------------------------------------------
 
 // PRIVATE CREATORS
@@ -3146,7 +3556,12 @@ int u::StackTraceResolver::processLoadedImage(const char *fileName,
                                  static_cast<int>(d_hidden.d_isMainExecutable),
                          numProgramHeaders, u::l(d_hidden.d_frameRecs.size()));
 
-    balst::StackTraceResolver_FileHelper helper(name);
+    balst::StackTraceResolver_FileHelper helper;
+    int rc = helper.initialize(name);
+    if (rc) {
+        return -1;                                                    // RETURN
+    }
+
     d_hidden.d_helper_p = &helper;
 
     for (int i = 0; i < numProgramHeaders; ++i) {
@@ -3175,10 +3590,10 @@ int u::StackTraceResolver::processLoadedImage(const char *fileName,
 
             // 'resolveSegment' trashes scratch buffers A and B
 
-            int rc = resolveSegment(baseAddress,    // base address
-                                    textSegPtr,     // seg ptr
-                                    ph->p_memsz,    // seg size
-                                    name);          // file name
+            rc = resolveSegment(baseAddress,    // base address
+                                textSegPtr,     // seg ptr
+                                ph->p_memsz,    // seg size
+                                name);          // file name
             if (rc) {
                 return -1;                                            // RETURN
             }
@@ -3646,7 +4061,9 @@ int u::StackTraceResolver::resolve(
 
             // note this will be opened twice, here and in 'processLoadedImage'
 
-            balst::StackTraceResolver_FileHelper helper(desc.filename);
+            balst::StackTraceResolver_FileHelper helper;
+            rc = helper.initialize(desc.filename);
+            u_ASSERT_BAIL(0 == rc);
 
             rc = helper.readExact(&elfHeader, sizeof(elfHeader), 0);
             u_ASSERT_BAIL(0 == rc);

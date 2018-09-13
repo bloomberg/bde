@@ -14,6 +14,7 @@ BSLS_IDENT_RCSID(ball_categorymanager_cpp,"$Id$ $CSID$")
 #include <bslmt_writelockguard.h>
 
 #include <bsls_assert.h>
+#include <bsls_atomicoperations.h>
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
@@ -31,6 +32,13 @@ namespace ball {
 
 namespace {
 
+typedef bsls::AtomicOperations AtomicOps;
+
+static
+AtomicOps::AtomicTypes::Int64 categoryManagerSequenceNumber = { -1 };
+    // This object is used for assigning a unique initial rule set sequence
+    // number to each category manager that is created.
+
                     // =====================
                     // class CategoryProctor
                     // =====================
@@ -38,9 +46,6 @@ namespace {
 class CategoryProctor {
     // This class facilitates exception neutrality by proctoring memory
     // management for 'Category' objects.
-    //
-    // This class should *not* be used directly by client code.  It is an
-    // implementation detail of the 'ball' logging system.
 
     // PRIVATE TYPES
     typedef bsl::vector<ball::Category *> CategoryVector;
@@ -138,8 +143,7 @@ Category *CategoryManager::addNewCategory(const char *categoryName,
                                           int         triggerLevel,
                                           int         triggerAllLevel)
 {
-    // Create a new category and add it to the collection of categories
-    // and the category registry.
+    // Create a new category and add it to the category registry.
 
     Category *category = new (*d_allocator_p) Category(categoryName,
                                                        recordLevel,
@@ -147,8 +151,7 @@ Category *CategoryManager::addNewCategory(const char *categoryName,
                                                        triggerLevel,
                                                        triggerAllLevel,
                                                        d_allocator_p);
-    // rollback on failure
-    CategoryProctor proctor(category, d_allocator_p);
+    CategoryProctor proctor(category, d_allocator_p);  // rollback on exception
 
     d_categories.push_back(category);
     proctor.setCategories(&d_categories);
@@ -161,6 +164,16 @@ Category *CategoryManager::addNewCategory(const char *categoryName,
 }
 
 // CREATORS
+CategoryManager::CategoryManager(bslma::Allocator *basicAllocator)
+: d_registry(bdlb::CStringLess(), basicAllocator)
+, d_ruleSetSequenceNumber(
+             AtomicOps::incrementInt64Nv(&categoryManagerSequenceNumber) << 48)
+, d_ruleSet(bslma::Default::allocator(basicAllocator))
+, d_categories(basicAllocator)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
 CategoryManager::~CategoryManager()
 {
     BSLS_ASSERT(d_allocator_p);
@@ -241,8 +254,10 @@ Category *CategoryManager::addCategory(CategoryHolder *categoryHolder,
                 }
             }
         }
-        // We have a 'writeLock' on 'd_registryLock' so the supplied category
-        // holder is the only category holder for the created category.
+
+        // We have a write lock on 'd_registryLock', so the supplied category
+        // holder is the only holder for the created category.
+
         if (categoryHolder) {
             categoryHolder->setThreshold(bsl::max(category->threshold(),
                                                   category->ruleThreshold()));
@@ -360,12 +375,13 @@ Category *CategoryManager::setThresholdLevels(const char *categoryName,
 int CategoryManager::addRule(const Rule& value)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
-    int ruleId = d_ruleSet.addRule(value);
+
+    const int ruleId = d_ruleSet.addRule(value);
     if (ruleId < 0) {
         return 0;                                                     // RETURN
     }
 
-    ++d_ruleSequenceNum;
+    ++d_ruleSetSequenceNumber;
 
     const Rule *rule = d_ruleSet.getRuleById(ruleId);
 
@@ -402,12 +418,13 @@ int CategoryManager::addRules(const RuleSet& ruleSet)
 int CategoryManager::removeRule(const Rule& value)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
-    int ruleId = d_ruleSet.ruleId(value);
+
+    const int ruleId = d_ruleSet.ruleId(value);
     if (ruleId < 0) {
         return 0;                                                     // RETURN
     }
 
-    ++d_ruleSequenceNum;
+    ++d_ruleSetSequenceNumber;
 
     const Rule *rule = d_ruleSet.getRuleById(ruleId);
 
@@ -419,11 +436,10 @@ int CategoryManager::removeRule(const Rule& value)
 
             RuleSet::MaskType relevantRuleMask = category->relevantRuleMask();
 
-            int j = 0;
-            int numBits = bdlb::BitUtil::sizeInBits(relevantRuleMask);
-            BSLS_ASSERT(numBits == RuleSet::maxNumRules());
+            int j;
+
             while ((j = bdlb::BitUtil::numTrailingUnsetBits(relevantRuleMask))
-                                                                  != numBits) {
+                                                 != RuleSet::e_MAX_NUM_RULES) {
                 relevantRuleMask =
                     bdlb::BitUtil::withBitCleared(relevantRuleMask, j);
 
@@ -461,7 +477,9 @@ int CategoryManager::removeRules(const RuleSet& ruleSet)
 void CategoryManager::removeAllRules()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_ruleSetMutex);
-    ++d_ruleSequenceNum;
+
+    ++d_ruleSetSequenceNumber;
+
     for (int i = 0; i < length(); ++i) {
         if (d_categories[i]->relevantRuleMask()) {
             CategoryManagerImpUtil::setRelevantRuleMask(d_categories[i], 0);

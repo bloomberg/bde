@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALBER_BERENCODER
 #define INCLUDED_BALBER_BERENCODER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a BER encoder class.
@@ -172,93 +170,37 @@ BSLS_IDENT("$Id: $")
 //  assert(osb.length() == static_cast<bsl::size_t>(accumNumBytesConsumed));
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALBER_BERCONSTANTS
 #include <balber_berconstants.h>
-#endif
-
-#ifndef INCLUDED_BALBER_BERENCODEROPTIONS
 #include <balber_berencoderoptions.h>
-#endif
-
-#ifndef INCLUDED_BALBER_BERUNIVERSALTAGNUMBER
 #include <balber_beruniversaltagnumber.h>
-#endif
-
-#ifndef INCLUDED_BALBER_BERUTIL
 #include <balber_berutil.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_ARRAYFUNCTIONS
 #include <bdlat_arrayfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
 #include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_CHOICEFUNCTIONS
 #include <bdlat_choicefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 #include <bdlat_customizedtypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ENUMFUNCTIONS
 #include <bdlat_enumfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_FORMATTINGMODE
 #include <bdlat_formattingmode.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_NULLABLEVALUEFUNCTIONS
 #include <bdlat_nullablevaluefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_SEQUENCEFUNCTIONS
 #include <bdlat_sequencefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPECATEGORY
 #include <bdlat_typecategory.h>
-#endif
+#include <bdlat_typename.h>
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
-#ifndef INCLUDED_BDLSB_MEMOUTSTREAMBUF
 #include <bdlsb_memoutstreambuf.h>
-#endif
 
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
-#endif
 
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSL_TYPEINFO
 #include <bsl_typeinfo.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace balber {
@@ -299,7 +241,7 @@ class BerEncoder {
       public:
         // CREATORS
         MemOutStream(bslma::Allocator *basicAllocator = 0);
-            // Create a 'MemOutStream' object Optionally specify a
+            // Create a 'MemOutStream' object.  Optionally specify a
             // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
             // 0, the currently installed default allocator is used.
 
@@ -449,7 +391,7 @@ class BerEncoder {
     // CREATORS
     BerEncoder(const BerEncoderOptions *options        = 0,
                bslma::Allocator        *basicAllocator = 0);
-        // Construct a encoder object.  Optionally specify decoder 'options'.
+        // Construct an encoder object.  Optionally specify encoder 'options'.
         // If 'options' is 0, 'BerEncoderOptions()' is used.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -827,6 +769,17 @@ int BerEncoder::encodeImpl(const TYPE&                value,
             return k_FAILURE;                                         // RETURN
         }
     }
+    else {
+
+         if (d_options->disableUnselectedChoiceEncoding()) {
+
+            this->logError(tagClass,
+                           tagNumber);
+
+            return k_FAILURE;                                         // RETURN
+         }
+
+    }
 
     if (!isUntagged) {
         // According to X.694 (clause 20.4), an XML choice (not anonymous)
@@ -1140,9 +1093,7 @@ int BerEncoder_UniversalElementVisitor::operator()(const TYPE& value)
                               d_formattingMode,
                               TypeCategory())) {
         d_encoder->logError(BerConstants::e_UNIVERSAL,
-                            tagNumber,
-                            0  // bdlat_TypeName::name(value)
-                           );
+                            tagNumber);
         return k_FAILURE;
     }
 

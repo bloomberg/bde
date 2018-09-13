@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_DAYOFWEEK
 #define INCLUDED_BDLT_DAYOFWEEK
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an enumeration of the set of days of the week.
@@ -59,13 +57,9 @@ BSLS_IDENT("$Id: $")
 //  MON
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

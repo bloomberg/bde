@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_ATTRIBUTECONTAINERLIST
 #define INCLUDED_BALL_ATTRIBUTECONTAINERLIST
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a list of attribute container addresses.
@@ -39,6 +37,10 @@ BSLS_IDENT("$Id: $")
 // defines a class 'ball::AttributeContainerListIterator' (as well as the alias
 // 'ball::AttributeContainerList::iterator)' that provides an STL-style
 // iterator over the addresses in a 'ball::AttributeContainer'.
+//
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
 //
 ///Thread Safety
 ///-------------
@@ -98,29 +100,15 @@ BSLS_IDENT("$Id: $")
 // Note that the output shows the values in 's2' (i.e., '("Set2", 2)') and
 // then the values in 's1' (i.e., '("Set1", 1)').
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

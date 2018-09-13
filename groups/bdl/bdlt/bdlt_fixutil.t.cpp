@@ -176,7 +176,7 @@ const int k_DATE_MAX_PRECISION       = 3;
 const int k_DATETZ_MAX_PRECISION     = 3;
 const int k_DATETIME_MAX_PRECISION   = 6;
 const int k_DATETIMETZ_MAX_PRECISION = 6;
-const int k_TIME_MAX_PRECISION       = 3;
+const int k_TIME_MAX_PRECISION       = 6;
 
 const int k_TIMETZ_MAX_PRECISION     = 0;  // ensures a fractional second is
                                            // never generated
@@ -857,7 +857,7 @@ if (veryVerbose)
         //:   this component for 'Datetime' and 'DatetimeTz' values are
         //:   rejected (i.e., parsing fails).
         //:
-        //: 7 If parsing fails, the result object is uneffected and a non-zero
+        //: 7 If parsing fails, the result object is unaffected and a non-zero
         //:   value is returned.
         //:
         //: 8 The entire extent of the input string is parsed.
@@ -1627,8 +1627,8 @@ if (veryVerbose)
 
             if (veryVerbose) cout << "\t'Invalid result'" << endl;
             {
-                bdlt::Datetime   *bad   = 0;
-                bdlt::DatetimeTz *badTz = 0;
+                bdlt::Datetime   *bad   = 0;  (void)bad;
+                bdlt::DatetimeTz *badTz = 0;  (void)badTz;
 
                 ASSERT_PASS(Util::parse(  &result, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parse(      bad, INPUT, LENGTH));
@@ -1696,7 +1696,7 @@ if (veryVerbose)
         //:   this component for 'Time' and 'TimeTz' values are rejected (i.e.,
         //:   parsing fails).
         //:
-        //: 7 If parsing fails, the result object is uneffected and a non-zero
+        //: 7 If parsing fails, the result object is unaffected and a non-zero
         //:   value is returned.
         //:
         //: 8 The entire extent of the input string is parsed.
@@ -2088,40 +2088,52 @@ if (veryVerbose)
                 int         d_min;
                 int         d_sec;
                 int         d_msec;
+                int         d_usec;
                 int         d_offset;
             } DATA[] = {
+                // line, input,             hour, min, sec, msec, usec, offset
                 // optional seconds
-                { L_, "00:00",           00, 00, 00, 000,   0 },
-                { L_, "00:01",           00, 01, 00, 000,   0 },
-                { L_, "01:00",           01, 00, 00, 000,   0 },
-                { L_, "01:01",           01, 01, 00, 000,   0 },
+                { L_,    "00:00",              0,   0,   0,    0,    0,   0 },
+                { L_,    "00:01",              0,   1,   0,    0,    0,   0 },
+                { L_,    "01:00",              1,   0,   0,    0,    0,   0 },
+                { L_,    "01:01",              1,   1,   0,    0,    0,   0 },
+
+                // Test all possible number of digits
+                { L_,    "12:34:56",           12,  34,  56,    0,    0,   0 },
+                { L_,    "12:34:56.7",         12,  34,  56,  700,    0,   0 },
+                { L_,    "12:34:56.78",        12,  34,  56,  780,    0,   0 },
+                { L_,    "12:34:56.789",       12,  34,  56,  789,    0,   0 },
+                { L_,    "12:34:56.7898",      12,  34,  56,  789,  800,   0 },
+                { L_,    "12:34:56.78987",     12,  34,  56,  789,  870,   0 },
+                { L_,    "12:34:56.789876",    12,  34,  56,  789,  876,   0 },
 
                 // leap seconds
-                { L_, "00:00:60.000",    00, 01, 00, 000,   0 },
-                { L_, "22:59:60.999",    23, 00, 00, 999,   0 },
-                { L_, "23:59:60.999",    00, 00, 00, 999,   0 },
+                { L_,    "00:00:60.000",       0,   1,   0,    0,    0,   0 },
+                { L_,    "22:59:60.999",      23,   0,   0,  999,    0,   0 },
+                { L_,    "23:59:60.999",       0,   0,   0,  999,    0,   0 },
 
                 // fractional seconds
-                { L_, "00:00:00.0001",   00, 00, 00, 000,   0 },
-                { L_, "00:00:00.0009",   00, 00, 00, 001,   0 },
-                { L_, "00:00:00.00001",  00, 00, 00, 000,   0 },
-                { L_, "00:00:00.00049",  00, 00, 00, 000,   0 },
-                { L_, "00:00:00.00050",  00, 00, 00, 001,   0 },
-                { L_, "00:00:00.00099",  00, 00, 00, 001,   0 },
-                { L_, "00:00:00.9994",   00, 00, 00, 999,   0 },
-                { L_, "00:00:00.9995",   00, 00, 01, 000,   0 },
-                { L_, "00:00:00.9999",   00, 00, 01, 000,   0 },
-                { L_, "00:00:59.9999",   00, 01, 00, 000,   0 },
-                { L_, "22:59:60.9999",   23, 00, 01, 000,   0 },
+                { L_,    "00:00:00.0000001",   0,   0,   0,    0,    0,   0 },
+                { L_,    "00:00:00.0000009",   0,   0,   0,    0,    1,   0 },
+                { L_,    "00:00:00.00000001",  0,   0,   0,    0,    0,   0 },
+                { L_,    "00:00:00.00000049",  0,   0,   0,    0,    0,   0 },
+                { L_,    "00:00:00.00000050",  0,   0,   0,    0,    1,   0 },
+                { L_,    "00:00:00.00000099",  0,   0,   0,    0,    1,   0 },
+                { L_,    "00:00:00.9999994",   0,   0,   0,  999,  999,   0 },
+                { L_,    "00:00:00.9999995",   0,   0,   1,    0,    0,   0 },
+                { L_,    "00:00:00.9999999",   0,   0,   1,    0,    0,   0 },
+                { L_,    "00:00:59.9999999",   0,   1,   0,    0,    0,   0 },
+                { L_,    "22:59:60.9999999",  23,   0,   1,    0,    0,   0 },
+                { L_,    "23:59:60.9999999",   0,   0,   1,    0,    0,   0 },
 
                 // omit fractional seconds
-                { L_, "00:00:60",        00, 01, 00, 000,   0 },
-                { L_, "12:34:45",        12, 34, 45, 000,   0 },
-                { L_, "12:34:45Z",       12, 34, 45, 000,   0 },
-                { L_, "12:34:45+00:30",  12, 34, 45, 000,  30 },
-                { L_, "00:00:00+00:30",  00, 00, 00, 000,  30 },
-                { L_, "12:34:45-01:30",  12, 34, 45, 000, -90 },
-                { L_, "23:59:59-01:30",  23, 59, 59, 000, -90 },
+                { L_,    "00:00:60",           0,   1,   0,    0,    0,   0 },
+                { L_,    "12:34:45",          12,  34,  45,    0,    0,   0 },
+                { L_,    "12:34:45Z",         12,  34,  45,    0,    0,   0 },
+                { L_,    "12:34:45+00:30",    12,  34,  45,    0,    0,  30 },
+                { L_,    "00:00:00+00:30",     0,   0,   0,    0,    0,  30 },
+                { L_,    "12:34:45-01:30",    12,  34,  45,    0,    0, -90 },
+                { L_,    "23:59:59-01:30",    23,  59,  59,    0,    0, -90 },
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
@@ -2133,6 +2145,7 @@ if (veryVerbose)
                 const int   MIN    = DATA[ti].d_min;
                 const int   SEC    = DATA[ti].d_sec;
                 const int   MSEC   = DATA[ti].d_msec;
+                const int   USEC   = DATA[ti].d_usec;
                 const int   OFFSET = DATA[ti].d_offset;
 
                 if (veryVerbose) { T_ P_(LINE) P(INPUT) }
@@ -2140,7 +2153,7 @@ if (veryVerbose)
                 bdlt::Time   mX(XX);  const bdlt::Time&   X = mX;
                 bdlt::TimeTz mZ(ZZ);  const bdlt::TimeTz& Z = mZ;
 
-                bdlt::TimeTz EXPECTED(bdlt::Time(HOUR, MIN, SEC, MSEC),
+                bdlt::TimeTz EXPECTED(bdlt::Time(HOUR, MIN, SEC, MSEC, USEC),
                                       OFFSET);
 
                 ASSERTV(LINE, INPUT, LENGTH,
@@ -2180,8 +2193,8 @@ if (veryVerbose)
 
             if (veryVerbose) cout << "\t'Invalid result'" << endl;
             {
-                bdlt::Time   *bad   = 0;
-                bdlt::TimeTz *badTz = 0;
+                bdlt::Time   *bad   = 0;  (void)bad;
+                bdlt::TimeTz *badTz = 0;  (void)badTz;
 
                 ASSERT_PASS(Util::parse(  &result, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parse(      bad, INPUT, LENGTH));
@@ -2250,7 +2263,7 @@ if (veryVerbose)
         //:   this component for 'Date' and 'DateTz' values are rejected (i.e.,
         //:   parsing fails).
         //:
-        //: 7 If parsing fails, the result object is uneffected and a non-zero
+        //: 7 If parsing fails, the result object is unaffected and a non-zero
         //:   value is returned.
         //:
         //: 8 The entire extent of the input string is parsed.
@@ -2569,8 +2582,8 @@ if (veryVerbose)
 
             if (veryVerbose) cout << "\t'Invalid result'" << endl;
             {
-                bdlt::Date   *bad   = 0;
-                bdlt::DateTz *badTz = 0;
+                bdlt::Date   *bad   = 0;  (void)bad;
+                bdlt::DateTz *badTz = 0;  (void)badTz;
 
                 ASSERT_PASS(Util::parse(  &result, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parse(      bad, INPUT, LENGTH));
@@ -3094,9 +3107,10 @@ if (veryVerbose)
             const int   MIN     = TIME_DATA[ti].d_min;
             const int   SEC     = TIME_DATA[ti].d_sec;
             const int   MSEC    = TIME_DATA[ti].d_msec;
+            const int   USEC    = TIME_DATA[ti].d_usec;
             const char *FIX = TIME_DATA[ti].d_fix;
 
-            const bdlt::Time  TIME(HOUR, MIN, SEC, MSEC);
+            const bdlt::Time  TIME(HOUR, MIN, SEC, MSEC, USEC);
             const bsl::string EXPECTED_TIME(FIX);
 
             for (int tj = 0; tj < NUM_ZONE_DATA; ++tj) {
@@ -4169,9 +4183,10 @@ if (veryVerbose)
             const int   MIN     = TIME_DATA[ti].d_min;
             const int   SEC     = TIME_DATA[ti].d_sec;
             const int   MSEC    = TIME_DATA[ti].d_msec;
-            const char *FIX = TIME_DATA[ti].d_fix;
+            const int   USEC    = TIME_DATA[ti].d_usec;
+            const char *FIX     = TIME_DATA[ti].d_fix;
 
-            const TYPE        X(HOUR, MIN, SEC, MSEC);
+            const TYPE        X(HOUR, MIN, SEC, MSEC, USEC);
             const bsl::string BASE_EXPECTED(FIX);
 
             if (veryVerbose) { T_ P_(ILINE) P_(X) P(BASE_EXPECTED) }

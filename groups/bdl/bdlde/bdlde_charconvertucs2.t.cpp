@@ -10,17 +10,21 @@
 
 #include <bdlde_charconvertucs2.h>
 
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
+
 #include <bsl_iostream.h>
 #include <bsl_iomanip.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 
-#include <bsls_stopwatch.h>
-
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
-
 
 //=============================================================================
 //                                TEST PLAN
@@ -102,6 +106,8 @@ static void aSsErT(int c, const char *s, int i)
 //                           CUSTOM TEST APPARATUS
 // ----------------------------------------------------------------------------
 
+bslma::Allocator& ta = bslma::NewDeleteAllocator::singleton();
+
 // 'ArrayPrinter(pointer, length)' simplifies printing out array values from
 // LOOP_ASSERT failures.
 
@@ -127,7 +133,7 @@ template <class T>
 ostream &operator <<(ostream &os, const ArrayPrinter<T> &t)
 {
     os << "[";
-    for(int i = 0; i < t.d_size; ++i) {
+    for (size_t i = 0; i < t.d_size; ++i) {
         os << " "
            << bsl::hex << bsl::showbase
            << bsl::setw(6) << bsl::setfill('0')
@@ -291,7 +297,7 @@ void functionRequiringUcs2(const unsigned short *str, bsl::size_t strLen)
 {
     // Would probably do something more reasonable here.
 
-    ASSERT(wideStrlen(str) + 1 == strLen);
+    ASSERT(wideStrlen(str) + 1 == static_cast<int>(strLen));
 }
 //..
 // Finally, we can take some UTF-8 as an input and call
@@ -343,7 +349,7 @@ void loadUCS2Hello(bsl::vector<unsigned short> *result)
 //..
 void checkCppRoundTrip()
 {
-    bsl::vector<unsigned short> result;
+    bsl::vector<unsigned short> result(&ta);
 
     // "&Eacute;cole", the French word for School.  '&Eacute;' is the HTML
     // entity corresponding to "Unicode-E WITH ACUTE, LATIN CAPITAL LETTER"
@@ -360,7 +366,7 @@ void checkCppRoundTrip()
     ASSERT( 0   == result[5]);
     ASSERT( 6   == result.size());
 
-    bsl::string    result2;
+    bsl::string    result2(&ta);
     bsl::size_t    charsWritten = 0;
 
     // Reversing the conversion returns the original string:
@@ -382,17 +388,11 @@ void checkCppRoundTrip()
 //..
 // In this example, a UTF-8 input string is converted then returned.
 //..
-bsl::vector<unsigned short> processUtf8(const bsl::string &strU8)
+void processUtf8(bsl::vector<unsigned short> *result, const bsl::string &strU8)
+
 {
-    bsl::vector<unsigned short>   result;
-
-    int retCode =
-              BloombergLP::bdlde::CharConvertUcs2::utf8ToUcs2(&result,
-                                                             strU8.c_str());
-
-    return result;
+    BloombergLP::bdlde::CharConvertUcs2::utf8ToUcs2(result, strU8.c_str());
 }
-
 
 
 // Enumeration of the return codes expected from the functions being tested.
@@ -492,6 +492,8 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                                              int             verbose,
                                              int             veryVerbose)
 {
+    (void)verbose;
+
     int retVal;
 
     if (veryVerbose) {
@@ -513,7 +515,7 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
         return;                                                       // RETURN
     }
 
-    for(int bufSize = 0; bufSize < totalOutputLength; ++bufSize) {
+    for (bsl::size_t bufSize = 0; bufSize < totalOutputLength; ++bufSize) {
         char outputBuffer[256] = { 0 };
         bsl::size_t bytesWritten = 0;
         bsl::size_t charsWritten = 0;
@@ -558,7 +560,7 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
                      makeArrayPrinter(expected_output, bytesWritten),
                      0 == strcmp(outputBuffer, expected_output));
 
-    bsl::string  cppOutput;
+    bsl::string  cppOutput(&ta);
     bsl::size_t  cppCharsWritten = 0;
 
     retVal = bdlde::CharConvertUcs2::ucs2ToUtf8(
@@ -588,7 +590,7 @@ void checkForExpectedConversionResultsU2ToU8(unsigned short *input,
 // the respective buffers where this level of the recursion will operate.  The
 // recursion terminates once 'depth <= 0'.
 
-void buildUpAndTestStringsU2ToU8(int             idx,
+void buildUpAndTestStringsU2ToU8(bsl::size_t     idx,
                                  int             depth,
                                  unsigned short *inputBuffer,
                                  char           *outputBuffer,
@@ -629,9 +631,10 @@ void buildUpAndTestStringsU2ToU8(int             idx,
     outputCursor         += d.d_utf8CharacterLength;
     totalOutputLength    += d.d_utf8CharacterLength;
 
-    characterSizes[characterCount++] = d.d_utf8CharacterLength;
+    characterSizes[characterCount++] =
+                          static_cast<unsigned short>(d.d_utf8CharacterLength);
 
-    for(int i = 0; i < precomputedDataCount; ++i) {
+    for (bsl::size_t i = 0; i < precomputedDataCount; ++i) {
         buildUpAndTestStringsU2ToU8(i,
                                     depth - 1,
                                     inputBuffer,
@@ -671,6 +674,10 @@ void testSingleOctetPerturbation(const char             *input,
                                  int                     verbose,
                                  int                     veryVerbose)
 {
+    (void)totalInputLength;
+    (void)characterSizes;
+    (void)verbose;
+
     char           inputBuffer[256];
 
     strcpy(inputBuffer, input);
@@ -679,7 +686,7 @@ void testSingleOctetPerturbation(const char             *input,
 
     int before = perturb.d_extraInvalidBefore;
     int after  = perturb.d_extraInvalidAfter;
-    int pos    = perturbationChar;
+    int pos    = static_cast<int>(perturbationChar);
 
     // Increment characterCount to account for additional error characters
     // before and after 'pos' and for the null terminator.
@@ -743,7 +750,7 @@ void testSingleOctetPerturbation(const char             *input,
 
     pos += before;
 
-    for (int i = 0; i < characterCount; ++i) {
+    for (int i = 0; i < static_cast<int>(characterCount); ++i) {
         if (i < pos - before) {
             LOOP3_ASSERT(i, outputBuffer[i],   origExpectedOutput[i],
                             outputBuffer[i] == origExpectedOutput[i]);
@@ -790,8 +797,6 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                                            int             verbose,
                                            int             veryVerbose)
 {
-    int retVal;
-
     if (veryVerbose) {
         cout << "perturbUtf8AndCheckConversionFailures("
              <<  "\n\tinput             =";
@@ -864,9 +869,11 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
     //    |          |           | 4-octet octet 1   |          ? |   1   0 |
     //    +----------+-----------+-------------------+------------+---------+
 
-    for (int currentChar = 0; currentChar < characterCount; ++currentChar) {
+    for (bsl::size_t currentChar = 0;
+         currentChar < characterCount;
+         ++currentChar) {
         int currentCharStart = 0;
-        for (int i=0; i < currentChar; ++i) {
+        for (bsl::size_t i=0; i < currentChar; ++i) {
             currentCharStart += characterSizes[i];
         }
 
@@ -884,7 +891,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
             bsl::size_t testCount = sizeof oneOctetCharOctetOne /
                                     sizeof *oneOctetCharOctetOne;
 
-            for (int i = 0; i < testCount; ++i) {
+            for (bsl::size_t i = 0; i < testCount; ++i) {
                 testSingleOctetPerturbation(input,
                                             currentCharStart,
                                             currentChar,
@@ -913,7 +920,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof twoOctetCharOctetOne
                                       / sizeof *twoOctetCharOctetOne;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (bsl::size_t i = 0; i < testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart,
                                                 currentChar,
@@ -941,7 +948,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof twoOctetCharOctetTwo
                                       / sizeof *twoOctetCharOctetTwo;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (bsl::size_t i = 0; i < testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart + 1,
                                                 currentChar,
@@ -970,7 +977,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof threeOctetCharOctetOne /
                                         sizeof *threeOctetCharOctetOne;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (bsl::size_t i = 0; i < testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart,
                                                 currentChar,
@@ -986,8 +993,9 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 // Changing this byte to a "2-octet char 1" can't be
                 // data-driven since we must compute the resulting character.
 
-                const unsigned short newChar = ((0xc2 & 0x1f) << 6 )
-                                          | (input[currentCharStart+1] & 0x3f);
+                const unsigned short newChar =  static_cast<unsigned short>(
+                                           ((0xc2 & 0x1f) << 6 )
+                                         | (input[currentCharStart+1] & 0x3f));
                 const PerturbationDesc perturb =
                                              { 0xc2,  true, newChar, 0, 1 };
 
@@ -1015,7 +1023,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof threeOctetCharOctetTwo /
                                         sizeof *threeOctetCharOctetTwo;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (bsl::size_t i = 0; i < testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart + 1,
                                                 currentChar,
@@ -1031,8 +1039,9 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 // Changing this byte to a "2-octet char 1" can't be
                 // data-driven since we must compute the resulting character.
                 const
-                unsigned short newChar = ((0xc2 & 0x1f) << 6 )
-                                       | (input[currentCharStart+2] & 0x3f);
+                unsigned short newChar = static_cast<unsigned short>(
+                                           ((0xc2 & 0x1f) << 6 )
+                                         | (input[currentCharStart+2] & 0x3f));
                 const
                 PerturbationDesc perturb = { 0xc2,  true, newChar, 1, 0 };
 
@@ -1062,7 +1071,7 @@ void perturbUtf8AndCheckConversionFailures(const char     *input,
                 bsl::size_t testCount = sizeof threeOctetCharOctetThree
                                       / sizeof *threeOctetCharOctetThree;
 
-                for (int i = 0; i < testCount; ++i) {
+                for (bsl::size_t i = 0; i < testCount; ++i) {
                     testSingleOctetPerturbation(input,
                                                 currentCharStart + 2,
                                                 currentChar,
@@ -1125,7 +1134,7 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
                                           verbose,
                                           veryVerbose);
 
-    for(int bufSize = 0; bufSize < characterCount; ++bufSize) {
+    for (bsl::size_t bufSize = 0; bufSize < characterCount; ++bufSize) {
         unsigned short outputBuffer[256] = { 0 };
         bsl::size_t charsWritten = 0;
 
@@ -1163,7 +1172,7 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
                                  expected_output,
                                  charsWritten * sizeof *outputBuffer));
 
-    bsl::vector<unsigned short> cppOutput;
+    bsl::vector<unsigned short> cppOutput(&ta);
     retVal = bdlde::CharConvertUcs2::utf8ToUcs2(&cppOutput,
                                                input);
     bsl::size_t cppCharsWritten = cppOutput.size();
@@ -1189,7 +1198,7 @@ void checkForExpectedConversionResultsU8ToU2(const char     *input,
 // the respective buffers where this level of the recursion will operate.  The
 // recursion terminates once 'depth <= 0'.
 
-void buildUpAndTestStringsU8ToU2(int             idx,
+void buildUpAndTestStringsU8ToU2(bsl::size_t     idx,
                                  int             depth,
                                  char           *inputBuffer,
                                  unsigned short *outputBuffer,
@@ -1228,9 +1237,10 @@ void buildUpAndTestStringsU8ToU2(int             idx,
 
     totalOutputLength += d.d_utf8CharacterLength;
 
-    characterSizes[characterCount++] = d.d_utf8CharacterLength;
+    characterSizes[characterCount++] =
+                          static_cast<unsigned short>(d.d_utf8CharacterLength);
 
-    for(int i = 0; i < precomputedDataCount; ++i) {
+    for (bsl::size_t i = 0; i < precomputedDataCount; ++i) {
         buildUpAndTestStringsU8ToU2(i,
                                     depth - 1,
                                     inputBuffer,
@@ -2461,8 +2471,8 @@ int runPlainTextPerformanceTest(void)
     delete [] utf8Buffer_p;
     delete [] ucs2Buffer_p;
 
-    bsl::string                 cppPrideUtf8;
-    bsl::vector<unsigned short> cppPrideUcs2;
+    bsl::string                 cppPrideUtf8(&ta);
+    bsl::vector<unsigned short> cppPrideUcs2(&ta);
 
     s.reset();
     s.start();
@@ -2517,12 +2527,16 @@ int runPlainTextPerformanceTest(void)
 
 int main(int argc, char**argv)
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int                test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int             verbose = argc > 2;
+    int         veryVerbose = argc > 3;
+    int     veryVeryVerbose = argc > 4;    (void) veryVeryVerbose;
+    int veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 7: {
@@ -2539,7 +2553,7 @@ int main(int argc, char**argv)
         //   USAGE EXAMPLE 3
         // --------------------------------------------------------------------
 
-        bsl::vector<unsigned short> result;
+        bsl::vector<unsigned short> result(&ta);
         loadUCS2Hello(&result);
         ASSERT('H' == result[0]);
         ASSERT('e' == result[1]);
@@ -2550,8 +2564,8 @@ int main(int argc, char**argv)
 
         checkCppRoundTrip();
 
-        bsl::string source ="\xc3\x89" "cole";
-        result = processUtf8(source);
+        bsl::string source("\xc3\x89" "cole", &ta);
+        processUtf8(&result, source);
         ASSERT(0xc9 == result[0]); // Unicode-E WITH ACUTE, LATIN CAPITAL
                                    // LETTER
         ASSERT('c'  == result[1]);
@@ -2576,7 +2590,11 @@ int main(int argc, char**argv)
         // --------------------------------------------------------------------
 
         testCFunction2();
+
+        bsl::string str(&ta);
+
         processUtf8("");
+        str.clear();
         processUtf8("\x01\x20\x7f\xc3\xbf\xdf\xbf\xe0\xa0\x80\xef\xbf\xbf");
       } break;
 
@@ -2747,7 +2765,6 @@ int main(int argc, char**argv)
                 const int             RETURN        = DATA[i].d_expectedResult;
 
                 char           results[256] = { 0 };
-                bsl::size_t    resultLen = sizeof results / sizeof *results;
                 bsl::size_t    charsWritten = -1;
                 bsl::size_t    bytesWritten = -1;
 
@@ -2769,11 +2786,11 @@ int main(int argc, char**argv)
                     printStr(SPEC);
                     printf("\n");
                     printf("    : EXPECTEDCHARS = %d charsWritten = %d\n",
-                                  EXPECTEDCHARS,
-                                  charsWritten);
+                                  static_cast<int>(EXPECTEDCHARS),
+                                  static_cast<int>(charsWritten));
                     printf("    : EXPECTEDBYTES = %d bytesWritten = %d\n",
-                                  EXPECTEDBYTES,
-                                  bytesWritten);
+                                  static_cast<int>(EXPECTEDBYTES),
+                                  static_cast<int>(bytesWritten));
                     printf("    : RETURN        = %d retVal       = %d\n",
                                   RETURN,
                                   retVal);
@@ -2788,7 +2805,7 @@ int main(int argc, char**argv)
                 }
 
                 if (OK == RETURN) {
-                    bsl::string cppResult;
+                    bsl::string cppResult(&ta);
 
                     int retVal = bdlde::CharConvertUcs2::ucs2ToUtf8(
                                           &cppResult,
@@ -2863,7 +2880,7 @@ int main(int argc, char**argv)
         //     short output buffers.
 
         {
-            for(int i = 0; i < precomputedDataCount; ++i) {
+            for (bsl::size_t i = 0; i < precomputedDataCount; ++i) {
                 unsigned short inputBuffer[256]    = { 0 };
                 char           outputBuffer[256]   = { 0 };
                 unsigned short characterSizes[256] = { 0 };
@@ -3171,14 +3188,12 @@ int main(int argc, char**argv)
                 const char           *SPEC     = DATA[i].d_spec_p;
                 const unsigned short *OUTPUT   = DATA[i].d_output_p;
                 const bsl::size_t     BUFSIZE  = DATA[i].d_bufsize;
-                const int             EXPECTED = DATA[i].d_expectedCount;
+                const bsl::size_t     EXPECTED = DATA[i].d_expectedCount;
                 const int             RETURN   = DATA[i].d_expectedResult;
 
                 unsigned short              results[256] = {0};
-                bsl::size_t                 resultLen
-                                            = sizeof results / sizeof *results;
                 bsl::size_t                 charsWritten = -1;
-                bsl::vector<unsigned short> cppResult;
+                bsl::vector<unsigned short> cppResult(&ta);
 
                 int retVal = bdlde::CharConvertUcs2::utf8ToUcs2(
                                       results,
@@ -3227,8 +3242,8 @@ int main(int argc, char**argv)
                     printStr(SPEC);
                     printf("\n");
                     printf("    : EXPECTED = %d, charsWritten = %d\n",
-                                  EXPECTED,
-                                  charsWritten);
+                                  static_cast<int>(EXPECTED),
+                                  static_cast<int>(charsWritten));
                     printf("    : RETURN   = %d retVal        = %d\n",
                                   RETURN,
                                   retVal);
@@ -3263,7 +3278,7 @@ int main(int argc, char**argv)
                     { L_, 0x1234, 1}
                 };
 
-                for(int i=0; i<sizeof DATA/sizeof *DATA; ++i) {
+                for (bsl::size_t i=0; i < sizeof DATA/sizeof *DATA; ++i) {
                     const int            LINE   = DATA[i].d_lineNum;
                     const unsigned short PLACEHOLDER
                                                 = DATA[i].d_placeholder;
@@ -3274,7 +3289,7 @@ int main(int argc, char**argv)
                                         = sizeof results / sizeof *results;
                     bsl::size_t   charsWritten = -1;
 
-                    bsl::vector<unsigned short> cppResult;
+                    bsl::vector<unsigned short> cppResult(&ta);
 
                     int           expectedRetVal = INVALID_INPUT_CHARACTER;
 
@@ -3309,9 +3324,11 @@ int main(int argc, char**argv)
                                            0 == cppResult[1]);
                     }
                     LOOP3_ASSERT(LINE, 1 + WIDTH,   charsWritten,
-                                       1 + WIDTH == charsWritten);
+                                 static_cast<bsl::size_t>(1 + WIDTH)
+                                                              == charsWritten);
                     LOOP3_ASSERT(LINE, 1 + WIDTH,   cppCharsWritten,
-                                       1 + WIDTH == cppCharsWritten);
+                                 static_cast<bsl::size_t>(1 + WIDTH)
+                                                           == cppCharsWritten);
                 }
             }
 
@@ -3342,7 +3359,7 @@ int main(int argc, char**argv)
             //     correctly for short output buffers.
 
             {
-                for(int i = 0; i < precomputedDataCount; ++i) {
+                for (bsl::size_t i = 0; i < precomputedDataCount; ++i) {
                     char           inputBuffer[256]    = { 0 };
                     unsigned short outputBuffer[256]   = { 0 };
                     unsigned short characterSizes[256] = { 0 };
@@ -3451,6 +3468,14 @@ int main(int argc, char**argv)
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;
       }
+    }
+
+    bsls::Types::Int64 numAllocations = da.numAllocations();
+    LOOP_ASSERT(numAllocations, 0 == numAllocations);
+
+    if (testStatus > 0) {
+        bsl::cerr << "Error, non-zero test status = " << testStatus << "."
+                  << bsl::endl;
     }
 
     return testStatus;

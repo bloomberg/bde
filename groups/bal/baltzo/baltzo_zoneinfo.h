@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_ZONEINFO
 #define INCLUDED_BALTZO_ZONEINFO
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a value type to represent a time zone.
@@ -237,76 +235,38 @@ BSLS_IDENT("$Id: $")
 //  assert(expectedTime == nyDatetime.localDatetime());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALTZO_LOCALTIMEDESCRIPTOR
 #include <baltzo_localtimedescriptor.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_EPOCHUTIL
 #include <bdlt_epochutil.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslalg_swaputil.h>
+
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
-#include <bsl_algorithm.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_SET
 #include <bsl_set.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsl_algorithm.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace baltzo {
+
                           // ========================
                           // class ZoneinfoTransition
                           // ========================
@@ -317,14 +277,6 @@ class ZoneinfoTransition {
     // changes.  The salient attributes of this type are the 'utcTime'
     // (representing seconds from UTC), and 'descriptor' representing the local
     // time value after the transition.
-    //
-    // This class:
-    //: o supports a complete set of *value* *semantic* operations
-    //:   o except for 'bdex' serialization
-    //: o is *exception-neutral*
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology: see 'bsldoc_glossary'.
 
     // DATA
     bdlt::EpochUtil::TimeT64   d_utcTime;       // UTC time (representing in
@@ -419,14 +371,6 @@ class Zoneinfo {
     // database for a *single* locale (e.g., "America/New_York").  The salient
     // attributes of this type are the string identifier and the ordered
     // sequence of 'ZoneinfoTransition' objects.
-    //
-    // This class:
-    //: o supports a complete set of *value* *semantic* operations
-    //:   o except for 'bdex' serialization
-    //: o is *exception-neutral*
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology: 'see bsldoc_glossary'.
 
     // PRIVATE TYPES
     class DescriptorLess {
@@ -571,7 +515,7 @@ class Zoneinfo {
         // Return an iterator providing non-modifiable access to the transition
         // that holds the local-time descriptor associated with the specified
         // 'utcTime'.  The behavior is undefined unless 'numTransitions() > 0'
-        // and 'utcTime' is later than the transition returned by
+        // and 'utcTime' is at or after the transition returned by
         // 'firstTransition'.
 
     const ZoneinfoTransition& firstTransition() const;
@@ -649,12 +593,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Zoneinfo& object);
 
 // FREE FUNCTIONS
 void swap(Zoneinfo& a, Zoneinfo& b);
-    // Swap the value of the specified 'a' object with the value of the
-    // specified 'b' object.  This method provides the no-throw guarantee.  The
-    // behavior is undefined if the two objects being swapped have non-equal
-    // allocators.
-
-}  // close package namespace
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                            INLINE DEFINITIONS
@@ -666,9 +607,8 @@ void swap(Zoneinfo& a, Zoneinfo& b);
 
 // PRIVATE CREATORS
 inline
-baltzo::ZoneinfoTransition::ZoneinfoTransition(
-                                         bdlt::EpochUtil::TimeT64   utcTime,
-                                         const LocalTimeDescriptor *descriptor)
+ZoneinfoTransition::ZoneinfoTransition(bdlt::EpochUtil::TimeT64   utcTime,
+                                       const LocalTimeDescriptor *descriptor)
 : d_utcTime(utcTime)
 , d_descriptor_p(descriptor)
 {
@@ -677,24 +617,25 @@ baltzo::ZoneinfoTransition::ZoneinfoTransition(
 
 // CREATORS
 inline
-baltzo::ZoneinfoTransition::~ZoneinfoTransition()
+ZoneinfoTransition::~ZoneinfoTransition()
 {
     BSLS_ASSERT_SAFE(d_descriptor_p);
 }
 
 // ACCESSORS
 inline
-const baltzo::LocalTimeDescriptor&
-baltzo::ZoneinfoTransition::descriptor() const
+const LocalTimeDescriptor& ZoneinfoTransition::descriptor() const
 {
     return *d_descriptor_p;
 }
 
 inline
-bdlt::EpochUtil::TimeT64 baltzo::ZoneinfoTransition::utcTime() const
+bdlt::EpochUtil::TimeT64 ZoneinfoTransition::utcTime() const
 {
     return d_utcTime;
 }
+
+}  // close package namespace
 
 // FREE OPERATORS
 inline
@@ -719,13 +660,15 @@ bool baltzo::operator<(const ZoneinfoTransition& lhs,
     return lhs.utcTime() < rhs.utcTime();
 }
 
+namespace baltzo {
+
                                // --------------
                                // class Zoneinfo
                                // --------------
 
 // CREATORS
 inline
-baltzo::Zoneinfo::Zoneinfo(bslma::Allocator *basicAllocator)
+Zoneinfo::Zoneinfo(bslma::Allocator *basicAllocator)
 : d_identifier(basicAllocator)
 , d_descriptors(basicAllocator)
 , d_transitions(basicAllocator)
@@ -736,14 +679,14 @@ baltzo::Zoneinfo::Zoneinfo(bslma::Allocator *basicAllocator)
 
 // MANIPULATORS
 inline
-baltzo::Zoneinfo& baltzo::Zoneinfo::operator=(const Zoneinfo& rhs)
+Zoneinfo& Zoneinfo::operator=(const Zoneinfo& rhs)
 {
     Zoneinfo(rhs, d_allocator_p).swap(*this);
     return *this;
 }
 
 inline
-void baltzo::Zoneinfo::setIdentifier(const bslstl::StringRef& value)
+void Zoneinfo::setIdentifier(const bslstl::StringRef& value)
 {
     BSLS_ASSERT_SAFE(0 != value.data());
 
@@ -751,7 +694,7 @@ void baltzo::Zoneinfo::setIdentifier(const bslstl::StringRef& value)
 }
 
 inline
-void baltzo::Zoneinfo::setIdentifier(const char *value)
+void Zoneinfo::setIdentifier(const char *value)
 {
     BSLS_ASSERT_SAFE(value);
 
@@ -759,8 +702,7 @@ void baltzo::Zoneinfo::setIdentifier(const char *value)
 }
 
 inline
-void baltzo::Zoneinfo::setPosixExtendedRangeDescription(
-                                                const bslstl::StringRef& value)
+void Zoneinfo::setPosixExtendedRangeDescription(const bslstl::StringRef& value)
 {
     BSLS_ASSERT_SAFE(0 != value.data());
 
@@ -768,7 +710,7 @@ void baltzo::Zoneinfo::setPosixExtendedRangeDescription(
 }
 
 inline
-void baltzo::Zoneinfo::setPosixExtendedRangeDescription(const char *value)
+void Zoneinfo::setPosixExtendedRangeDescription(const char *value)
 {
     BSLS_ASSERT_SAFE(value);
 
@@ -776,26 +718,26 @@ void baltzo::Zoneinfo::setPosixExtendedRangeDescription(const char *value)
 }
 
 inline
-void baltzo::Zoneinfo::swap(Zoneinfo& other)
+void Zoneinfo::swap(Zoneinfo& other)
 {
     BSLS_ASSERT_SAFE(allocator() == other.allocator());
 
-    bsl::swap(d_identifier,  other.d_identifier);
-    bsl::swap(d_descriptors, other.d_descriptors);
-    bsl::swap(d_transitions, other.d_transitions);
-    bsl::swap(d_posixExtendedRangeDescription,
-              other.d_posixExtendedRangeDescription);
+    bslalg::SwapUtil::swap(&d_identifier,  &other.d_identifier);
+    bslalg::SwapUtil::swap(&d_descriptors, &other.d_descriptors);
+    bslalg::SwapUtil::swap(&d_transitions, &other.d_transitions);
+    bslalg::SwapUtil::swap(&d_posixExtendedRangeDescription,
+                           &other.d_posixExtendedRangeDescription);
 }
 
 // ACCESSORS
 inline
-bslma::Allocator *baltzo::Zoneinfo::allocator() const
+bslma::Allocator *Zoneinfo::allocator() const
 {
     return d_allocator_p;
 }
 
 inline
-const baltzo::ZoneinfoTransition& baltzo::Zoneinfo::firstTransition() const
+const ZoneinfoTransition& Zoneinfo::firstTransition() const
 {
     BSLS_ASSERT_SAFE(numTransitions() > 0);
 
@@ -803,36 +745,36 @@ const baltzo::ZoneinfoTransition& baltzo::Zoneinfo::firstTransition() const
 }
 
 inline
-const bsl::string& baltzo::Zoneinfo::identifier() const
+const bsl::string& Zoneinfo::identifier() const
 {
     return d_identifier;
 }
 
 inline
-const bsl::string& baltzo::Zoneinfo::posixExtendedRangeDescription() const
+const bsl::string& Zoneinfo::posixExtendedRangeDescription() const
 {
     return d_posixExtendedRangeDescription;
 }
 
 inline
-bsl::size_t baltzo::Zoneinfo::numTransitions() const
+bsl::size_t Zoneinfo::numTransitions() const
 {
     return d_transitions.size();
 }
 
 inline
-baltzo::Zoneinfo::TransitionConstIterator
-baltzo::Zoneinfo::beginTransitions() const
+Zoneinfo::TransitionConstIterator Zoneinfo::beginTransitions() const
 {
     return d_transitions.begin();
 }
 
 inline
-baltzo::Zoneinfo::TransitionConstIterator
-baltzo::Zoneinfo::endTransitions() const
+Zoneinfo::TransitionConstIterator Zoneinfo::endTransitions() const
 {
     return d_transitions.end();
 }
+
+}  // close package namespace
 
 // FREE OPERATORS
 inline
@@ -853,20 +795,12 @@ bool baltzo::operator!=(const Zoneinfo& lhs, const Zoneinfo& rhs)
     return !(lhs == rhs);
 }
 
-// FREE FUNCTIONS
-inline
-void baltzo::swap(Zoneinfo& a, Zoneinfo& b)
-{
-    a.swap(b);
-}
-
 }  // close enterprise namespace
-
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLD_MANAGEDDATUM
 #define INCLUDED_BDLD_MANAGEDDATUM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide a smart-pointer like manager for a 'Datum' object.
@@ -189,41 +187,20 @@ BSLS_IDENT("$Id$ $CSID$")
 //  Datum::destroy(internalObj, obj.allocator());
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLD_DATUM
 #include <bdld_datum.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace bdld {

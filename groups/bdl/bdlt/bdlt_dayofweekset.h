@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_DAYOFWEEKSET
 #define INCLUDED_BDLT_DAYOFWEEKSET
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an ordered set of (unique) 'bdlt::DayOfWeek::Enum' values.
@@ -214,41 +212,21 @@ BSLS_IDENT("$Id: $")
 //  MON
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DAYOFWEEK
 #include <bdlt_dayofweek.h>
-#endif
 
-#ifndef INCLUDED_BDLB_BITUTIL
 #include <bdlb_bitutil.h>
-#endif
 
-#ifndef INCLUDED_BSLH_HASH
 #include <bslh_hash.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

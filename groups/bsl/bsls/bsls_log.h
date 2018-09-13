@@ -62,7 +62,7 @@ BSLS_IDENT("$Id: $")
 //     complete text "bsls::LogSeverity::e_" being needed each time a message
 //     is logged with 'BSLS_LOG'.
 //
-//  BSLS_LOG_SIMPLE(severity, msg)		
+//  BSLS_LOG_SIMPLE(severity, msg)
 //     If the specified 'severity' is at least as severe as
 //     'Log::severityThreshold', write a message having 'severity' and the
 //     specified 'msg' to the currently installed log message handler, with the
@@ -145,7 +145,7 @@ BSLS_IDENT("$Id: $")
 ///Log Severity and the Severity Threshold
 /// - - - - - - - - - - - - - - - - - - -
 // Clients submitting a message to 'bsls::Log' (either through a function or
-// one of the macros) either implicity or explicitly provide a severity level
+// one of the macros) either implicitly or explicitly provide a severity level
 // describing the relative importance of that message to clients.  The possible
 // severity levels are FATAL, ERROR, WARNING, INFO, DEBUG, and TRACE (these are
 // enumerated in 'bsls_logseverity').
@@ -356,8 +356,8 @@ class Log {
 #define BSLS_LOG(severity, ...)                                               \
   do {                                                                        \
     if (severity <= BloombergLP::bsls::Log::severityThreshold()) {            \
-      BloombergLP::bsls::Log::logFormattedMessage((severity),		      \
-						  __FILE__,		      \
+      BloombergLP::bsls::Log::logFormattedMessage((severity),             \
+                          __FILE__,           \
                                                   __LINE__,                   \
                                                   __VA_ARGS__);               \
     }                                                                         \

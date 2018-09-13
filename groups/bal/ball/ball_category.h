@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALL_CATEGORY
 #define INCLUDED_BALL_CATEGORY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a container for a name and associated thresholds.
@@ -13,10 +11,10 @@ BSLS_IDENT("$Id: $")
 //  ball::Category: container for a name and associated threshold levels
 //  ball::CategoryHolder: *private* holder of a category and its maximum level
 //  ball::CategoryManagerImpUtil: *private* used in creating a category manager
-
-//@AUTHOR: Henry Verschell (hversche)
 //
 //@SEE_ALSO: ball_categorymanager
+//
+//@AUTHOR: Henry Verschell (hversche)
 //
 //@DESCRIPTION: This component primarily provides a class, 'ball::Category',
 // used to describe the properties of a logging category.  A 'ball::Category'
@@ -98,45 +96,21 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_RULESET
 #include <ball_ruleset.h>
-#endif
-
-#ifndef INCLUDED_BALL_THRESHOLDAGGREGATE
 #include <ball_thresholdaggregate.h>
-#endif
 
-#ifndef INCLUDED_BDLB_BITUTIL
 #include <bdlb_bitutil.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {
@@ -331,10 +305,10 @@ class CategoryHolder {
         e_UNINITIALIZED_CATEGORY = 256, // indicates no logger manager
         e_DYNAMIC_CATEGORY       = 257  // corresponding category is dynamic
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BALL_UNINITIALIZED_CATEGORY = e_UNINITIALIZED_CATEGORY
-      , BALL_DYNAMIC_CATEGORY = e_DYNAMIC_CATEGORY
-      , UNINITIALIZED_CATEGORY = e_UNINITIALIZED_CATEGORY
-      , DYNAMIC_CATEGORY       = e_DYNAMIC_CATEGORY
+      , BAEL_UNINITIALIZED_CATEGORY = e_UNINITIALIZED_CATEGORY
+      , BAEL_DYNAMIC_CATEGORY       = e_DYNAMIC_CATEGORY
+      , UNINITIALIZED_CATEGORY      = e_UNINITIALIZED_CATEGORY
+      , DYNAMIC_CATEGORY            = e_DYNAMIC_CATEGORY
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
         // This enumeration defines distinguished values for category holder
@@ -437,11 +411,30 @@ class CategoryManagerImpUtil {
                         // class Category
                         // --------------
 
+// CLASS METHODS
+inline
+bool Category::areValidThresholdLevels(int recordLevel,
+                                       int passLevel,
+                                       int triggerLevel,
+                                       int triggerAllLevel)
+{
+    enum { k_BITS_PER_CHAR = 8 };
+
+    return !((recordLevel | passLevel | triggerLevel | triggerAllLevel)
+             >> k_BITS_PER_CHAR);
+}
+
 // ACCESSORS
 inline
 const char *Category::categoryName() const
 {
     return d_categoryName.c_str();
+}
+
+inline
+bool Category::isEnabled(int level) const
+{
+    return d_threshold >= level;
 }
 
 inline

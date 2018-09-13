@@ -8,15 +8,6 @@ This repository contains the BDE libraries, currently BSL (BDE Standard Library)
 * [Online Library Documentation](http://bloomberg.github.com/bde)
 * [BDE Mission Statement](http://github.com/bloomberg/bde/wiki/Mission-Statement)
 
-What's New
-==========
-
-**October 2015** 
-
-BDE 3.0 is now available.  This  major release introduces important subsystems including calendar types, time-zone utilities, logging facilities, event schedulers, thread-pools, and more. 
-
-See: [BDE 3.0 Open-Source Release](https://github.com/bloomberg/bde/wiki/BDE-3.0-Release)
-
 Basic Build Instructions
 ========================
 
@@ -61,7 +52,7 @@ For more details on building the BDE repository, please see the
 
 For more details on the waf-based build system for building BDE-style
 repositories, please see
-[its wiki page](https://github.com/bloomberg/bde-tools/wiki/Waf-Build).
+[its build instructions page](http://bloomberg.github.io/bde-tools/tutorials.html#use-waf-to-build-bde).
 
 License
 -------

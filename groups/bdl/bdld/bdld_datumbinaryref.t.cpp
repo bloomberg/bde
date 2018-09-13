@@ -311,7 +311,7 @@ int main(int argc, char **argv)
                 ostringstream out;
                 B.print(out, 0, -1);
 
-                ASSERTV(out.str(), EXPECTED == out.str());
+                ASSERTV(EXPECTED, out.str(), EXPECTED == out.str());
             }
 
             if (veryVerbose) cout << "\tSingle line, indent = [1, -4]" << endl;
@@ -325,7 +325,7 @@ int main(int argc, char **argv)
                 ostringstream out;
                 B.print(out, 1, -4);
 
-                ASSERTV(out.str(), EXPECTED == out.str());
+                ASSERTV(EXPECTED, out.str(), EXPECTED == out.str());
             }
 
             if (veryVerbose) cout << "\tMulti line,  indent = [-1, 2]" << endl;
@@ -341,7 +341,7 @@ int main(int argc, char **argv)
                 ostringstream out;
                 B.print(out, -1, 2);
 
-                ASSERTV(out.str(), EXPECTED == out.str());
+                ASSERTV(EXPECTED, out.str(), EXPECTED == out.str());
             }
 
             if (veryVerbose) cout << "\tMulti line,  indent = [1,  2]" << endl;
@@ -357,7 +357,7 @@ int main(int argc, char **argv)
                 ostringstream out;
                 B.print(out, 1, 2);
 
-                ASSERTV(out.str(), EXPECTED == out.str());
+                ASSERTV(EXPECTED, out.str(), EXPECTED == out.str());
             }
         }
         if (veryVerbose) cout << "\nTesting 'operator<<'" << endl;
@@ -370,7 +370,7 @@ int main(int argc, char **argv)
             ostringstream out;
             out << B;
 
-            ASSERTV(out.str(), EXPECTED == out.str());
+            ASSERTV(EXPECTED, out.str(), EXPECTED == out.str());
         }
       } break;
       case 4: {

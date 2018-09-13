@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALM_METRICSMANAGER
 #define INCLUDED_BALM_METRICSMANAGER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a manager for recording and publishing metric data.
@@ -382,57 +380,25 @@ BSLS_IDENT("$Id: $")
 //         MyCategory.eventFailures [count = 0, total = 0, ... ]
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALM_COLLECTORREPOSITORY
 #include <balm_collectorrepository.h>
-#endif
-
-#ifndef INCLUDED_BALM_METRICREGISTRY
 #include <balm_metricregistry.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_RWMUTEX
 #include <bslmt_rwmutex.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_MANAGEDPTR
 #include <bslma_managedptr.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
-
-#ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
-
-#ifndef INCLUDED_BSL_SET
 #include <bsl_set.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 

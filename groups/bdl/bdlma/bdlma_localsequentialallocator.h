@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLMA_LOCALSEQUENTIALALLOCATOR
 #define INCLUDED_BDLMA_LOCALSEQUENTIALALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an efficient managed allocator using a local buffer.
@@ -164,13 +162,9 @@ BSLS_IDENT("$Id: $")
 // Finally, we re-profile our code to determine whether the addition of a
 // 'LocalSequentialAllocator' helped.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_BUFFEREDSEQUENTIALALLOCATOR
 #include <bdlma_bufferedsequentialallocator.h>
-#endif
 
 namespace BloombergLP {
 namespace bslma { class Allocator; }

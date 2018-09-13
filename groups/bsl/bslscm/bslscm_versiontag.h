@@ -49,17 +49,15 @@ BSLS_IDENT("$Id: $")
 //..
 
 #ifndef INCLUDED_BSLS_BSLDEPRECATIONINFORMATION
-#include <bsls_bsldeprecationinformation.h>  // For 'BSL_VERSION_DEPRECATE_*'
-                                             // macro definitions that would
-                                             // have been provided by this
-                                             // component if 'bsl' were a
-                                             // conforming package group.
+#include <bsls_bsldeprecationinformation.h>
+    // For 'BSL_VERSION_DEPRECATION_THRESHOLD' macro definition that would have
+    // been provided by this component if 'bsl' was a conforming package group.
 #endif  // INCLUDED_BSLS_BSLDEPRECATIONINFORMATION
 
 #define BSL_VERSION_MAJOR    3
     // Provide the major version number of the current (latest) BSL release.
 
-#define BSL_VERSION_MINOR    2
+#define BSL_VERSION_MINOR    11
     // Provide the minor version number of the current (latest) BSL release.
 
 #define BSL_MAKE_VERSION(major, minor) ((major) * 10000 \

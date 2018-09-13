@@ -127,6 +127,19 @@ constexpr OracleMiscompile::OracleMiscompile()
 : d_data()
 {
 }
+
+template <class TYPE>
+struct aggregate_base {};
+
+template <class TYPE>
+struct aggregate_derived : aggregate_base<TYPE> {};
+
+void test_dependent_constexpr_aggregate() {
+    // The following line is a regression that will not compile with Oracle
+    // CC 12.5/6, and is a significant problem for type traits.
+    constexpr aggregate_derived<bool> X{};
+}
+
 #endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
@@ -179,16 +192,16 @@ struct ClassWithDefaultOps {
 namespace {
 typedef decltype(nullptr) nullptr_t;  // avoids dependencies
 
-template <class Element>
+template <class ELEMENT>
 struct Meta {
-    typedef Element type;
+    typedef ELEMENT type;
 };
 
-template <class Element>
+template <class ELEMENT>
 struct SmartPtrWithSfinaeConstructor {
     // CREATORS
-    template <class AnyType, typename Meta<AnyType>::type * = nullptr>
-    SmartPtrWithSfinaeConstructor(AnyType *ptr);
+    template <class ANY_TYPE, typename Meta<ANY_TYPE>::type * = nullptr>
+    SmartPtrWithSfinaeConstructor(ANY_TYPE *ptr);
 
     SmartPtrWithSfinaeConstructor(nullptr_t) {}
 };
@@ -199,7 +212,7 @@ void test_default_template_args() {
     (void)test_default_template_args;
 }
 
-}
+}  // close unnamed namespace
 #endif  //BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
 
 
@@ -269,7 +282,7 @@ struct coupling {
     void use(std::initializer_list<value_type>) {}
 };
 
-}  // close unnamed namespace
+}  // close namespace initializer_feature_test
 #endif
 
 
@@ -345,10 +358,10 @@ typename my_remove_reference<T>::type&& my_move(T&& t)
     return static_cast<typename my_remove_reference<T>::type&&>(t);
 }
 
-template <class T, class Arg>
-T my_factory(Arg&& arg)
+template <class T, class ARG>
+T my_factory(ARG&& arg)
 {
-    return my_move(T(my_forward<Arg>(arg)));
+    return my_move(T(my_forward<ARG>(arg)));
 }
 
 struct RvalueArg {};
@@ -454,6 +467,31 @@ struct Wrapper {
     }
 };
 
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+// The next test exposes a bug specific to the CC 12.6 beta compiler, when
+// reference-collapsing lvalue-references with rvalue-refences provided in a
+// non-deducing context.  This test also relies on alias templates to set up
+// the error condition, but it prevents us migrating code from C++03 -> C++11
+// with our move-emulation library.
+
+template <class TYPE>
+struct RValueType { using type = TYPE &&; };
+
+template <class TYPE>
+using RValueeRef = typename RValueType<TYPE>::type;
+
+template <class>
+struct AClassTemplate {};
+
+void showRefCollapsingBug()
+{
+    AClassTemplate< RValueeRef<int>& > X;
+    (void)X;
+}
+
+#endif
+
 }  // close unnamed namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -462,16 +500,16 @@ struct Wrapper {
 
 namespace {
 
-template <class... Types>
+template <class... TYPES>
 struct PackSize;
 
-template <class Head, class... Tail>
-struct PackSize<Head, Tail...> {
-    enum { VALUE = 1 + PackSize<Tail...>::VALUE };
+template <class HEAD, class... TAIL>
+struct PackSize<HEAD, TAIL...> {
+    enum { VALUE = 1 + PackSize<TAIL...>::VALUE };
 };
 
-template <class T>
-struct PackSize<T> {
+template <class TYPE>
+struct PackSize<TYPE> {
     enum { VALUE = 1 };
 };
 

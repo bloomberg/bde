@@ -1291,8 +1291,8 @@ int main(int argc, char *argv[])
         //   For a sequence of independent test values use 'addCategory' and
         //   'addId' to add metric categories.  For each added category,
         //   disable the category, verify the category is disabled and no
-        //   other categories were effected, then re-enabled the category, and
-        //   verify no other categories are effected.
+        //   other categories were affected, then re-enabled the category, and
+        //   verify no other categories are affected.
         //
         // Testing:
         //   void setCategoryEnabled(const balm::Category* , bool );

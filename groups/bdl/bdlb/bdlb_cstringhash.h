@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLB_CSTRINGHASH
 #define INCLUDED_BDLB_CSTRINGHASH
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a functor enabling C-strings as unordered-container keys.
@@ -164,37 +162,18 @@ BSLS_IDENT("$Id: $")
 //  assert(securities.end() == it);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHM
 #include <bslh_spookyhashalgorithm.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 #include <bslmf_istriviallydefaultconstructible.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlb {

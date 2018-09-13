@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLB_GUIDUTIL
 #define INCLUDED_BDLB_GUIDUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functions that produce Universally Unique Identifiers.
@@ -154,29 +152,15 @@ BSLS_IDENT("$Id: $")
 //      assert(e1 < e3 || e3 < e1);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLB_GUID
 #include <bdlb_guid.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlb {

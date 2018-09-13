@@ -30290,7 +30290,7 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose = argc > 4;
 
     (void)veryVerbose;
-    
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
@@ -32627,7 +32627,7 @@ int main(int argc, char *argv[])
             ASSERTV(0 == encoder.encode(oss, bob, mO));
             ASSERTV(oss.str() == jsonTextPretty);
             if (verbose) {
-                P(oss.str()); P(jsonTextPretty);
+                P(oss.str()); P(bsl::string(jsonTextPretty));
             }
         }
         {
@@ -32637,7 +32637,7 @@ int main(int argc, char *argv[])
             ASSERTV(0 == encoder.encode(oss, bob, &mO));
             ASSERTV(oss.str() == jsonTextPretty);
             if (verbose) {
-                P(oss.str()); P(jsonTextPretty);
+                P(oss.str()); P(bsl::string(jsonTextPretty));
             }
         }
       } break;

@@ -412,6 +412,22 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISEMPTY
+#include <bslmf_isempty.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
+#include <bslmf_isfundamental.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
+#include <bslmf_ismemberpointer.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTER
+#include <bslmf_ispointer.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
 #endif
@@ -4176,8 +4192,8 @@ ConstructionUtil_Imp::construct(
               bsl::integral_constant<int, e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS> *)
 {
     if (bsl::is_fundamental<TARGET_TYPE>::value
-     || bsl::is_pointer<TARGET_TYPE>::value) {
-
+     || bsl::is_pointer<TARGET_TYPE>::value
+     || bsl::is_member_pointer<TARGET_TYPE>::value) {
         ::new (voidify(address)) TARGET_TYPE();
         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
     }
@@ -4205,7 +4221,8 @@ void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
                                      const TARGET_TYPE& original)
 {
     if (bsl::is_fundamental<TARGET_TYPE>::value
-     || bsl::is_pointer<TARGET_TYPE>::value) {
+     || bsl::is_pointer<TARGET_TYPE>::value
+     || bsl::is_empty<TARGET_TYPE>::value) {
 
         ::new (voidify(address)) TARGET_TYPE(original);
         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;

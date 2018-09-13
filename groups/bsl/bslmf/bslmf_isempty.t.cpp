@@ -2,8 +2,9 @@
 
 #include <bslmf_isempty.h>
 
-#include <bsls_platform.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -73,7 +74,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 // This test driver intentional creates types with unusual use of cv-qualifiers
 // in order to confirm that there are no strange corners of the type system
-// that are not addressed by this traits component.  Consquently, we disable
+// that are not addressed by this traits component.  Consequently, we disable
 // certain warnings from common compilers.
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
@@ -86,8 +87,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-struct EmptyStruct {
-};
+struct EmptyStruct
+{};
 
 class EmptyClassWithMembers
 {
@@ -151,6 +152,23 @@ union TinyUnionType
 enum EnumType { ENUMERATOR };
 
 typedef void function_type();
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
+struct EmptyFinalStruct final
+    // This empty final struct is used to test compatibility of 'is_empty' with
+    // final classes.
+{};
+
+struct NonEmptyFinalStruct final
+    // This non-empty final struct is used to test compatibility of 'is_empty'
+    // with final classes.
+{
+    // DATA
+    char d_data;
+};
+
+#endif
 
 //=============================================================================
 //                             USAGE EXAMPLES
@@ -284,6 +302,7 @@ int main(int argc, char *argv[])
         //:   a virtual member function, or a class with a virtual base class.
         //: 4 'is_empty<cvq T>::value == is_empty<T>::value' for any cv
         //:   qualifier, 'cvq'.
+        //: 5 'is_empty<T>' is able to detect emptiness of final classes.
         //
         // Plan:
         //: 1 For concern 1, instantiate 'is_empty' with various types of
@@ -296,6 +315,9 @@ int main(int argc, char *argv[])
         //: 4 For concern 4, perform all of steps 1-3 using a macro that tests
         //:   every combination of const and volatile qualifiers on the type
         //:   being tested.
+        //: 5 For concern 5, instantiate 'is_empty' with empty and non-empty
+        //:   final classes and verify that the 'value' member is true for
+        //:   empty class and false for the other.
         //
         // Testing:
         //     is_empty<TYPE>::value
@@ -346,6 +368,10 @@ int main(int argc, char *argv[])
         TEST_IS_EMPTY(ClassWithVirtualBase, false);
         TEST_IS_EMPTY(ClassWithNonEmptyBase, false);
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        TEST_IS_EMPTY(   EmptyFinalStruct, true );
+        TEST_IS_EMPTY(NonEmptyFinalStruct, false);
+#endif
       } break;
 
       case 1: {

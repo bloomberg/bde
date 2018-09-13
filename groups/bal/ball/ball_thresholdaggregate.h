@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_THRESHOLDAGGREGATE
 #define INCLUDED_BALL_THRESHOLDAGGREGATE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an aggregate of the four logging threshold levels.
@@ -48,13 +46,9 @@ BSLS_IDENT("$Id: $")
 //    assert( 64 == levels.triggerAllLevel());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {
@@ -80,7 +74,8 @@ class ThresholdAggregate {
     static int hash(const ThresholdAggregate& aggregate, int size);
         // Return a hash value calculated from the specified threshold
         // 'aggregate' using the specified 'size' as the number of slots.  The
-        // hash value is guaranteed to be in the range '[0, size)'.
+        // hash value is guaranteed to be in the range '[0, size - 1]'.  The
+        // behavior is undefined unless '0 < size'.
 
     static bool areValidThresholdLevels(int recordLevel,
                                         int passLevel,

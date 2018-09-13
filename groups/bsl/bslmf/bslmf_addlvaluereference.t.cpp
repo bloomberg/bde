@@ -55,7 +55,7 @@ void aSsErT(bool condition, const char *message, int line)
 }  // close unnamed namespace
 
 // ============================================================================
-//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+//              STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -77,7 +77,19 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//              COMPILER DEFECT MACROS TO GUIDE TESTING
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+# define BSLMF_ADDLVALUEREFERENCE_DO_NOT_TEST_CV_FUNCTIONS 1
+    // IBM xlC compiler does not correctly ignore applying cv-qualifiers to
+    // function types.  Note that this is different to testing "abominable"
+    // function types, which have a cv-(ref-)qualifier denoting qualifiers on
+    // the dereferenced 'this' pointer for a member function.
+#endif
+
+//=============================================================================
+//              GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
 namespace {
@@ -294,12 +306,17 @@ int main(int argc, char *argv[])
         ASSERT_ADD_LVALUE_REF_CVQ(Incomplete , Incomplete &);
         ASSERT_ADD_LVALUE_REF_CVQ(Incomplete*, Incomplete*&);
 
-#ifndef BSLS_PLATFORM_CMP_IBM
+        typedef int F(int);
+
+#ifndef BSLMF_ADDLVALUEREFERENCE_DO_NOT_TEST_CV_FUNCTIONS
         // Some cv-qualified function types are not compilable on AIX.
 
-        typedef int F(int);
         ASSERT_ADD_LVALUE_REF_CVQ(F , F &);
         ASSERT_ADD_LVALUE_REF_CVQ(F*, F*&);
+#else
+        ASSERT((bsl::is_same<bsl::add_lvalue_reference<F>::type, F&>::value));
+        ASSERT((bsl::is_same<bsl::add_lvalue_reference<F *>::type,
+                                                       F *&>::value));
 #endif
 
         // C-2
@@ -352,11 +369,15 @@ int main(int argc, char *argv[])
         ASSERT_ADD_LVALUE_REF_CVQ(Incomplete &, Incomplete &);
         ASSERT_ADD_LVALUE_REF_CVQ(Incomplete*&, Incomplete*&);
 
-#ifndef BSLS_PLATFORM_CMP_IBM
+#ifndef BSLMF_ADDLVALUEREFERENCE_DO_NOT_TEST_CV_FUNCTIONS
         // Some cv-qualified function types are not compilable on AIX.
 
         ASSERT_ADD_LVALUE_REF_CVQ(F &, F &);
         ASSERT_ADD_LVALUE_REF_CVQ(F*&, F*&);
+#else
+        ASSERT((bsl::is_same<bsl::add_lvalue_reference<F&>::type, F&>::value));
+        ASSERT((bsl::is_same<bsl::add_lvalue_reference<F *&>::type,
+                                                       F *&>::value));
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
@@ -410,11 +431,16 @@ int main(int argc, char *argv[])
         ASSERT_ADD_LVALUE_REF_CVQ(Incomplete &&, Incomplete &);
         ASSERT_ADD_LVALUE_REF_CVQ(Incomplete*&&, Incomplete*&);
 
-#ifndef BSLS_PLATFORM_CMP_IBM
+#ifndef BSLMF_ADDLVALUEREFERENCE_DO_NOT_TEST_CV_FUNCTIONS
         // Some cv-qualified function types are not compilable on AIX.
 
         ASSERT_ADD_LVALUE_REF_CVQ(F &&, F &);
         ASSERT_ADD_LVALUE_REF_CVQ(F*&&, F*&);
+#else
+        ASSERT((bsl::is_same<bsl::add_lvalue_reference<F&&>::type
+                                                     , F&>::value));
+        ASSERT((bsl::is_same<bsl::add_lvalue_reference<F *&&>::type,
+                                                       F *&>::value));
 #endif
 
 #endif

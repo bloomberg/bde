@@ -560,7 +560,7 @@ DEFINE_TEST_CASE(17) {
                   bdlf::BindUtil::bind(FUNC,BWM_ARGS(FIRST,LAST)))));         \
         ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(                        \
             bdlf::BindUtil::bindR<RET>(FUNC,BWM_ARGS(FIRST,LAST)))));         \
-//        ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(                      
+//        ASSERT(!EXPECT == !(TU::isBitwiseMoveableType(
 //            bdlf::BindUtil::bindA(&alloc0,FUNC,BWM_ARGS(FIRST,LAST)))));
 
         if (veryVerbose) printf("Testing BindUtil::bind[RA]\n");

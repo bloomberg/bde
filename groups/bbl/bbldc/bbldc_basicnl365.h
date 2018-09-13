@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLDC_BASICNL365
 #define INCLUDED_BBLDC_BASICNL365
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide stateless functions for the NL/365 convention.
@@ -57,13 +55,11 @@ BSLS_IDENT("$Id: $")
 //  assert(1.0 == yearsDiff);
 //..
 
-#ifndef INCLUDED_BBLSCM_VERSION
 #include <bblscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
+
+#include <bsls_platform.h>
 
 namespace BloombergLP {
 namespace bbldc {
@@ -109,7 +105,17 @@ inline
 double BasicNl365::yearsDiff(const bdlt::Date& beginDate,
                              const bdlt::Date& endDate)
 {
-    return daysDiff(beginDate, endDate) / 365.0;
+#if defined(BSLS_PLATFORM_CMP_GNU) && (BSLS_PLATFORM_CMP_VERSION >= 50301)
+    // Storing the result value in a 'volatile double' removes extra-precision
+    // available in floating-point registers.
+
+    const volatile double rv =
+#else
+    const double rv =
+#endif
+                      daysDiff(beginDate, endDate) / 365.0;
+
+    return rv;
 }
 
 }  // close package namespace
@@ -118,7 +124,7 @@ double BasicNl365::yearsDiff(const bdlt::Date& beginDate,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

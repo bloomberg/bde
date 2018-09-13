@@ -3,7 +3,7 @@
 
 #include <bsls_bsltestutil.h>
 
-
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -13,14 +13,6 @@
 #else
 #include <unistd.h>    // sleep
 #include <sys/time.h>  // gettimeofday
-#include <stdint.h>    // int64_t
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1600
-// stdint.h is only available starting is VS2010.
-typedef unsigned long long int64_t;
-#else
-#include <stdint.h>
 #endif
 
 using namespace BloombergLP;

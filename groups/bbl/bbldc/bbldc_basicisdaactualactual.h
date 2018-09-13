@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLDC_BASICISDAACTUALACTUAL
 #define INCLUDED_BBLDC_BASICISDAACTUALACTUAL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide stateless functions for the ISDA Actual/Actual convention.
@@ -46,13 +44,9 @@ BSLS_IDENT("$Id: $")
 //  assert(yearsDiff > 0.1999 && yearsDiff < 0.2001);
 //..
 
-#ifndef INCLUDED_BBLSCM_VERSION
 #include <bblscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
 
 namespace BloombergLP {
 namespace bbldc {

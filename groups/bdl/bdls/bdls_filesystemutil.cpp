@@ -221,6 +221,18 @@ int bloombergLP_bdls_FileSystemUtil_isNotFilePermissionsError(
     // open one of the files, which may manifest as one of the following 3
     // values.
 
+#ifdef BSLS_PLATFORM_OS_SOLARIS
+
+    // The Solaris 'glob' function sometimes tries to treat files as
+    // directories, which normally aborts the traversal.  So on Solaris we
+    // treat 'ENOTDIR' as an error that can be safely and completely ignored
+    // (not even reported).
+
+    if (ENOTDIR == errorNum) {
+        return 0;                                                     // RETURN
+    }
+#endif
+
     return EPERM != errorNum && EACCES != errorNum && ENOENT != errorNum;
 }
 
@@ -285,18 +297,30 @@ bool wideToNarrow(bsl::string *result, const bsl::wstring& path)
 
 static inline
 int makeDirectory(const char *path, bool)
-    // Create a directory.  Return 0 on success and a non-zero value otherwise.
+    // Create a directory.  Return 0 on success, 'k_ERROR_PATH_NOT_FOUND' if a
+    // component used as a directory in the specified 'path' either does not
+    // exist or is not a directory, 'k_ERROR_ALREADY_EXISTS' if the file system
+    // entry (not necessarily a directory) with the name 'path' already exists,
+    // and a negative value for any other kind of error.
 {
     BSLS_ASSERT_SAFE(path);
 
     bsl::wstring wide;
-    BOOL         succeeded = 0;
 
     if (narrowToWide(&wide, path)) {
-        succeeded = CreateDirectoryW(wide.c_str(), 0);
+        if (CreateDirectoryW(wide.c_str(), 0)) {
+            return 0;                                                 // RETURN
+        }
+
+        switch (GetLastError()) {
+          case ERROR_ALREADY_EXISTS:
+            return bdls::FilesystemUtil::k_ERROR_ALREADY_EXISTS;      // RETURN
+          case ERROR_PATH_NOT_FOUND:
+            return bdls::FilesystemUtil::k_ERROR_PATH_NOT_FOUND;      // RETURN
+        }
     }
 
-    return succeeded ? 0 : -1;
+    return -1;
 }
 
 static inline
@@ -440,7 +464,11 @@ bool isDotOrDots(const char *path)
 
 static inline
 int makeDirectory(const char *path, bool isPrivate)
-    // Create a directory
+    // Create a directory.  Return 0 on success, 'k_ERROR_PATH_NOT_FOUND' if a
+    // component used as a directory in the specified 'path' either does not
+    // exist or is not a directory, 'k_ERROR_ALREADY_EXISTS' if the file system
+    // entry (not necessarily a directory) with the name 'path' already exists,
+    // and a negative value for any other kind of error.
 {
     BSLS_ASSERT_SAFE(path);
 
@@ -452,7 +480,20 @@ int makeDirectory(const char *path, bool isPrivate)
 
         (S_IRUSR | S_IWUSR | S_IXUSR)  // only user rwx
     };
-    return mkdir(path, PERMS[isPrivate]);
+    if (mkdir(path, PERMS[isPrivate])) {
+        switch (errno) {
+          case EEXIST:
+            return bdls::FilesystemUtil::k_ERROR_ALREADY_EXISTS;      // RETURN
+          case ENOTDIR:
+          case ENOENT:
+            return bdls::FilesystemUtil::k_ERROR_PATH_NOT_FOUND;      // RETURN
+          default:
+            return -1;                                                // RETURN
+        }
+    }
+    else {
+        return 0;                                                     // RETURN
+    }
 }
 
 static inline
@@ -669,11 +710,10 @@ int FilesystemUtil::write(FileDescriptor  descriptor,
 int FilesystemUtil::map(FileDescriptor   descriptor,
                         void           **address,
                         Offset           offset,
-                        int              len,
+                        bsl::size_t      len,
                         int              mode)
 {
     BSLS_ASSERT(address);
-    BSLS_ASSERT(0 <= len);
 
     HANDLE hMap;
 
@@ -718,14 +758,14 @@ int FilesystemUtil::map(FileDescriptor   descriptor,
     return 0;
 }
 
-int FilesystemUtil::unmap(void *address, int)
+int FilesystemUtil::unmap(void *address, bsl::size_t)
 {
     BSLS_ASSERT(address);
 
     return UnmapViewOfFile(address) ? 0 : -1;
 }
 
-int FilesystemUtil::sync(char *address, int numBytes, bool)
+int FilesystemUtil::sync(char *address, bsl::size_t numBytes, bool)
                                                              // 3rd arg is sync
 {
     BSLS_ASSERT(0 != address);
@@ -1549,11 +1589,10 @@ int FilesystemUtil::write(FileDescriptor  descriptor,
 int FilesystemUtil::map(FileDescriptor   descriptor,
                         void           **address,
                         Offset           offset,
-                        int              size,
+                        bsl::size_t      size,
                         int              mode)
 {
     BSLS_ASSERT(address);
-    BSLS_ASSERT(0 <= size);
 
     int protect = 0;
     if (mode & MemoryUtil::k_ACCESS_READ) {
@@ -1582,19 +1621,17 @@ int FilesystemUtil::map(FileDescriptor   descriptor,
     }
 }
 
-int  FilesystemUtil::unmap(void *address, int size)
+int  FilesystemUtil::unmap(void *address, bsl::size_t size)
 {
     BSLS_ASSERT(address);
-    BSLS_ASSERT(0 <= size);
 
     int rc = munmap(static_cast<char *>(address), size);
     return rc;
 }
 
-int FilesystemUtil::sync(char *address, int numBytes, bool syncFlag)
+int FilesystemUtil::sync(char *address, bsl::size_t numBytes, bool syncFlag)
 {
     BSLS_ASSERT(0 != address);
-    BSLS_ASSERT(0 <= numBytes);
     BSLS_ASSERT(0 == numBytes % MemoryUtil::pageSize());
     BSLS_ASSERT(0 == reinterpret_cast<bsls::Types::UintPtr>(address) %
                      MemoryUtil::pageSize());
@@ -2078,11 +2115,17 @@ int FilesystemUtil::createDirectories(const char *path,
     }
 
     while (!directoryStack.empty()) {
-        PathUtil::appendRaw(&workingPath, directoryStack.back().c_str(),
-                             static_cast<int>(directoryStack.back().length()));
-        if (0 != makeDirectory(workingPath.c_str(), false)) {
-            if (!isDirectory(workingPath, true)) {
-                return -1;                                            // RETURN
+        PathUtil::appendRaw(&workingPath,
+                            directoryStack.back().c_str(),
+                            static_cast<int>(directoryStack.back().length()));
+        if (int rc = makeDirectory(workingPath.c_str(), false)) {
+            if (rc == k_ERROR_ALREADY_EXISTS) {
+                if (!isDirectory(workingPath, true)) {
+                    return k_ERROR_PATH_NOT_FOUND;                    // RETURN
+                }
+            }
+            else {
+                return rc;                                            // RETURN
             }
         }
         directoryStack.pop_back();
@@ -2093,11 +2136,7 @@ int FilesystemUtil::createDirectories(const char *path,
 int FilesystemUtil::createPrivateDirectory(const bslstl::StringRef& path)
 {
     bsl::string workingPath = path;  // need NUL termination
-    if (0 != makeDirectory(workingPath.c_str(), true)) {
-        return -1;                                                    // RETURN
-    }
-
-    return 0;
+    return makeDirectory(workingPath.c_str(), true);
 }
 
 int FilesystemUtil::findMatchingPaths(bsl::vector<bsl::string> *result,

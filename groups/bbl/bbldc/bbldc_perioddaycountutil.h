@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLDC_PERIODDAYCOUNTUTIL
 #define INCLUDED_BBLDC_PERIODDAYCOUNTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Support for day-count calculations of 'enum'-specified conventions.
@@ -64,17 +62,11 @@ BSLS_IDENT("$Id: $")
 //  assert(yearsDiff > 0.1983 && yearsDiff < 0.1985);
 //..
 
-#ifndef INCLUDED_BBLSCM_VERSION
 #include <bblscm_version.h>
-#endif
 
-#ifndef INCLUDED_BBLDC_DAYCOUNTCONVENTION
 #include <bbldc_daycountconvention.h>
-#endif
 
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt { class Date; }

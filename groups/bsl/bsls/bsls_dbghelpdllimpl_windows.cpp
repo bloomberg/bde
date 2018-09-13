@@ -1,4 +1,4 @@
-// bsls_dbghelpdllimpl_windows.cpp                                   -*-C++-*-
+// bsls_dbghelpdllimpl_windows.cpp                                    -*-C++-*-
 
 // ----------------------------------------------------------------------------
 //                                   NOTICE
@@ -313,7 +313,13 @@ bool DbghelpDllImpl_Windows::isLoaded()
 
 DWORD DbghelpDllImpl_Windows::symSetOptions(DWORD symOptions)
 {
-    int rc = dbghelp_util.init();
+    // Sometimes, under multithreaded conditions, 'init' spuriously fails and
+    // returns non-zero.  In that case, try again a few more times.
+
+    int rc = 1;
+    for (int ii = 0; rc && ii < 10; ++ii) {
+        rc = dbghelp_util.init();
+    }
     assert(0 == rc);
 
     return (*dbghelp_util.d_symSetOptions)(symOptions);

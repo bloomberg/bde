@@ -2,7 +2,7 @@
 
 @PURPOSE: Provide thread-safe collection and publishing of metrics.
 
-@MNEMONIC: Basic Application Environment Metrics (balm)
+@MNEMONIC: Basic Application Library Metrics (balm)
 
 @AUTHOR: Henry Verschell (hverschell)
 
@@ -213,14 +213,14 @@
   {
 ..
  Increment the count of the number of calls to 'processLine()' and use the
- 'BAEM_METRICS_TIME_BLOCK' macro (see 'balm_metrics') to collect the elapsed
+ 'BALM_METRICS_TIME_BLOCK' macro (see 'balm_metrics') to collect the elapsed
  time of this function call.  Note that all the metrics recorded by this
  function belong to the (arbitrarily chosen) category "Example".
 ..
-      BAEM_METRICS_INCREMENT("Example", "processLineCount");
-      BAEM_METRICS_TIME_BLOCK("Example",
+      BALM_METRICS_INCREMENT("Example", "processLineCount");
+      BALM_METRICS_TIME_BLOCK("Example",
                               "processLineElapsedTime",
-                              balm_StopwatchScopedGuard::BAEM_SECONDS);
+                              balm_StopwatchScopedGuard::BALM_SECONDS);
 
       int                   wordCount  = 0;
       bdl::set<bdl::string> words;
@@ -240,8 +240,8 @@
  Once we've "processed" the 'line', update the character count and word count
  metrics.
 ..
-      BAEM_METRICS_UPDATE("Example", "characterCount", line.size());
-      BAEM_METRICS_UPDATE("Example", "wordCount", wordCount);
+      BALM_METRICS_UPDATE("Example", "characterCount", line.size());
+      BALM_METRICS_UPDATE("Example", "wordCount", wordCount);
   }
 ..
  We've now created our example application.  A typical session with this
@@ -318,7 +318,7 @@
  'balm_metrics' components provide the same basic functionality.  Clients may
  find the 'balm_Metric' or 'balm_IntegerMetric' classes better suited to
  collecting metrics associated with a particular instance of a stateful object,
- while the 'BAEM_METRICS_*' macros are better suited to collecting metrics
+ while the 'BALM_METRICS_*' macros are better suited to collecting metrics
  associated with a particular code path (rather than an object instance).  In
  most instances, however, choosing between the two is a matter of taste.
 

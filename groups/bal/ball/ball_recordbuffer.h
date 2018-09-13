@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_RECORDBUFFER
 #define INCLUDED_BALL_RECORDBUFFER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for managing log record handles.
@@ -237,13 +235,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

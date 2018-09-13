@@ -1,4 +1,4 @@
-// bslmf_nthparameter.h                  -*-C++-*-
+// bslmf_nthparameter.h                                               -*-C++-*-
 #ifndef INCLUDED_BSLMF_NTHPARAMETER
 #define INCLUDED_BSLMF_NTHPARAMETER
 
@@ -15,14 +15,14 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component contains a metafunction that treates a
+//@DESCRIPTION: This component contains a metafunction that treats a
 // parameter pack of types as compile-time array of types, returning the Nth
 // type (counting from zero).  It is useful for implementing types like
 // 'tuple' that need access to a specific element of a parameter pack.
 //
 ///Usage
 ///-----
-// We wish to implement a 'tuple'-like class that holds a heterogenous
+// We wish to implement a 'tuple'-like class that holds a heterogeneous
 // collection of elements, each of which might have a different type.  The
 // metafunction, 'my_tuple_element<I, my_tuple<ELEMS...>>::Type' would be type
 // of the 'I'th element in the tuple (where 'I' is zero-based).
@@ -89,8 +89,8 @@ namespace bslmf {
 template <std::size_t N, class... PARAMS>
 struct NthParameter {
     using Type = typename NthParameter<N - 1, PARAMS...>::Type;
-        // The type of the Nth parameter, computed by recursively stripping
-        // off the first parameter until N == 0.
+        // The type of the Nth parameter, computed by recursively stripping off
+        // the first parameter until 'N == 0'.
 };
 
 template <class FIRST_PARAM, class... PARAMS>
@@ -103,8 +103,8 @@ struct NthParameter<0, FIRST_PARAM, PARAMS...> {
 
 template <std::size_t N>
 struct NthParameter<N> {
-    // Specialization of 'NthParameter' for when 'N' excedes the actual
-    // number of parameters.
+    // Specialization of 'NthParameter' for when 'N' exceeds the actual number
+    // of parameters.
 
     // No 'Type' member is defined, so that failure by specifying too large a
     // value for 'N' fails in a SFINAE-friendly manner.
@@ -118,7 +118,7 @@ struct NthParameter_Sentinel;  // Declared but not defined
 template <std::size_t N, class FIRST_PARAM = NthParameter_Sentinel,
           class... PARAMS>
 struct NthParameter {
-    // Metafunction to compute the specified 'N'th element of the spcified
+    // Metafunction to compute the specified 'N'th element of the specified
     // 'PARAMS' template parameter pack.  The 'Type' nested typedef will match
     // the 'N'th element of 'PARAMS', where 'N' is zero-based (so that an 'N'
     // of zero corresponds to the first parameter.
@@ -128,9 +128,9 @@ struct NthParameter {
         // off the first parameter until N == 0.
 };
 
-// ===========================================================================
-//                      IMPLEMENTATION
-// ===========================================================================
+// ============================================================================
+//                              IMPLEMENTATION
+// ============================================================================
 
 template <class FIRST_PARAM, class... PARAMS>
 struct NthParameter<0, FIRST_PARAM, PARAMS...> {
@@ -907,18 +907,18 @@ struct NthParameter<0, FIRST_PARAM, PARAMS...> {
 
 template <>
 struct NthParameter<0, NthParameter_Sentinel> {
-    // Specialization of 'NthParameter' for when 'N' excedes the actual
-    // number of parameters.
+    // Specialization of 'NthParameter' for when 'N' exceeds the actual number
+    // of parameters.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
     // No 'Type' member is defined.
 #else
-    // Because this is a full specialization, there are no dependent
-    // parameters.  When used in another simulated variadic template, the
-    // compiler may attempt to evaluate the 'Type' member even when that
-    // client is not actually instantiated.  To avoid a spurious compilation
-    // error, we must therefore make sure that 'Type' is defined, even if it
-    // is defined as an incomplete class.
+    // There are no dependent parameters because this is a full specialization.
+    // When used in another simulated variadic template, the compiler may
+    // attempt to evaluate the 'Type' member even when that client is not
+    // actually instantiated.  To avoid a spurious compilation error, we must
+    // therefore make sure that 'Type' is defined, even if it is defined as an
+    // incomplete class.
     typedef NthParameter_Sentinel Type;
 #endif
 };

@@ -277,7 +277,14 @@ int main(int argc, char *argv[])
                                << "\n================================"
                                << bsl::endl;
         {
+#define DEC(X) BDLDFP_DECIMAL_DD(X)
+
             typedef bdldfp::Decimal64 Type;
+
+            const Type NAN_P = bsl::numeric_limits<Type>::quiet_NaN();
+            const Type NAN_N = -NAN_P;
+            const Type INF_P = bsl::numeric_limits<Type>::infinity();
+            const Type INF_N = -INF_P;
 
             const Type ERROR_VALUE = BDLDFP_DECIMAL_DD(999.0);
 
@@ -287,85 +294,88 @@ int main(int argc, char *argv[])
                 Type        d_exp;     // exp unsigned value
                 bool        d_isValid; // isValid flag
             } DATA[] = {
-                // line       input   exp           isValid
-                // ----       -----   ---           -------
-                {  L_,         "0",   BDLDFP_DECIMAL_DD(0.0),  true },
-                {  L_,        "-0",   BDLDFP_DECIMAL_DD(0.0),  true },
-                {  L_,        "0.0",  BDLDFP_DECIMAL_DD(0.0),  true },
-                {  L_,        "-0.0", BDLDFP_DECIMAL_DD(0.0),  true },
-                {  L_,         "1",   BDLDFP_DECIMAL_DD(1.0),  true },
-                {  L_,        "-1",   BDLDFP_DECIMAL_DD(-1.0), true },
-                {  L_,   "-9.876543210987654e307",
-                   BDLDFP_DECIMAL_DD(-9.876543210987654e307),  true },
-                {  L_,      "-0.1",   BDLDFP_DECIMAL_DD(-0.1), true },
-
-                {  L_,    "\"NaN\"", bsl::numeric_limits<Type>::quiet_NaN(),
-                                                                true    },
-
-                {  L_,    "\"nan\"",  bsl::numeric_limits<Type>::quiet_NaN(),
-                                                                true    },
-
-                {  L_,    "\"NAN\"",  bsl::numeric_limits<Type>::quiet_NaN(),
-                                                                true    },
-
-                {  L_,    "\"+NaN\"", bsl::numeric_limits<Type>::quiet_NaN(),
-                                                                true    },
-
-                {  L_,    "\"+nan\"",  bsl::numeric_limits<Type>::quiet_NaN(),
-                                                                true    },
-
-                {  L_,    "\"+NAN\"",  bsl::numeric_limits<Type>::quiet_NaN(),
-                                                                true    },
-
-                {  L_,    "\"-NaN\"", -bsl::numeric_limits<Type>::quiet_NaN(),
-                                                                true    },
-
-                {  L_,    "\"-nan\"", -bsl::numeric_limits<Type>::quiet_NaN(),
-                                                                true    },
-
-                {  L_,    "\"-NAN\"", -bsl::numeric_limits<Type>::quiet_NaN(),
-                                                                true    },
-
-                {  L_,    "\"INF\"",  bsl::numeric_limits<Type>::infinity(),
-                                                                true    },
-
-                {  L_,    "\"inf\"",  bsl::numeric_limits<Type>::infinity(),
-                                                                true    },
-
-                {  L_,    "\"infinity\"",
-                                      bsl::numeric_limits<Type>::infinity(),
-                                                                true    },
-
-                {  L_,    "\"+INF\"", bsl::numeric_limits<Type>::infinity(),
-                                                                true    },
-
-                {  L_,    "\"+inf\"", bsl::numeric_limits<Type>::infinity(),
-                                                                true    },
-
-                {  L_,    "\"+infinity\"",
-                                      bsl::numeric_limits<Type>::infinity(),
-                                                                true    },
-
-                {  L_,    "\"-INF\"", -bsl::numeric_limits<Type>::infinity(),
-                                                                true    },
-
-                {  L_,    "\"-inf\"", -bsl::numeric_limits<Type>::infinity(),
-                                                                true    },
-
-                {  L_,    "\"-infinity\"",
-                                      -bsl::numeric_limits<Type>::infinity(),
-                                                                true    },
-
-                {  L_,         "-",   ERROR_VALUE,  false },
-                {  L_,       "E-1",   ERROR_VALUE,  false },
-
-                {  L_,  "Z34.56e1",   ERROR_VALUE,  false },
-                {  L_,  "3Z4.56e1",   ERROR_VALUE,  false },
-                {  L_,      "1.1}",   ERROR_VALUE,  false },
-                {  L_,     "1.1\n",   ERROR_VALUE,  false },
-                {  L_,   "1.10xFF",   ERROR_VALUE,  false },
-                {  L_,  "DEADBEEF",   ERROR_VALUE,  false },
-                {  L_,      "JUNK",   ERROR_VALUE,  false },
+     // line  input                       exp                         isValid
+     // ----  -----                       ---                         -------
+     {  L_,    "0",                       DEC(0.0),                    true  },
+     {  L_,   "-0",                       DEC(0.0),                    true  },
+     {  L_,    "0.0",                     DEC(0.0),                    true  },
+     {  L_,   "-0.0",                     DEC(0.0),                    true  },
+     {  L_,    "1",                       DEC(1.0),                    true  },
+     {  L_,   "-1",                       DEC(-1.0),                   true  },
+     {  L_,    "1.2",                     DEC(1.2),                    true  },
+     {  L_,    "1.23",                    DEC(1.23),                   true  },
+     {  L_,    "1.234",                   DEC(1.234),                  true  },
+     {  L_,   "12.34",                    DEC(12.34),                  true  },
+     {  L_,  "123.4",                     DEC(123.4),                  true  },
+     {  L_,   "-1.2",                     DEC(-1.2),                   true  },
+     {  L_,   "-1.23",                    DEC(-1.23),                  true  },
+     {  L_,   "-1.234",                   DEC(-1.234),                 true  },
+     {  L_,  "-12.34",                    DEC(-12.34),                 true  },
+     {  L_, "-123.4",                     DEC(-123.4),                 true  },
+     {  L_,   "+1.2",                     DEC(1.2),                    true  },
+     {  L_,   "+1.23",                    DEC(1.23),                   true  },
+     {  L_,   "+1.234",                   DEC(1.234),                  true  },
+     {  L_,  "+12.34",                    DEC(12.34),                  true  },
+     {  L_, "+123.4",                     DEC(123.4),                  true  },
+     {  L_,   "-9.876543210987654e307",   DEC(-9.876543210987654e307), true  },
+     {  L_, "\"-0.1\"",                   DEC(-0.1),                   true  },
+     {  L_,  "\"0\"",                     DEC(0.0),                    true  },
+     {  L_, "\"-0\"",                     DEC(0.0),                    true  },
+     {  L_,  "\"0.0\"",                   DEC(0.0),                    true  },
+     {  L_, "\"-0.0\"",                   DEC(0.0),                    true  },
+     {  L_,  "\"1\"",                     DEC(1.0),                    true  },
+     {  L_, "\"-1\"",                     DEC(-1.0),                   true  },
+     {  L_,  "\"1.2\"",                   DEC(1.2),                    true  },
+     {  L_,  "\"1.23\"",                  DEC(1.23),                   true  },
+     {  L_,  "\"1.234\"",                 DEC(1.234),                  true  },
+     {  L_, "\"12.34\"",                  DEC(12.34),                  true  },
+     {  L_, "\"123.4\"",                  DEC(123.4),                  true  },
+     {  L_, "\"-1.2\"",                   DEC(-1.2),                   true  },
+     {  L_, "\"-1.23\"",                  DEC(-1.23),                  true  },
+     {  L_, "\"-1.234\"",                 DEC(-1.234),                 true  },
+     {  L_, "\"-12.34\"",                 DEC(-12.34),                 true  },
+     {  L_, "\"-123.4\"",                 DEC(-123.4),                 true  },
+     {  L_, "\"+1.2\"",                   DEC(1.2),                    true  },
+     {  L_, "\"+1.23\"",                  DEC(1.23),                   true  },
+     {  L_, "\"+1.234\"",                 DEC(1.234),                  true  },
+     {  L_, "\"+12.34\"",                 DEC(12.34),                  true  },
+     {  L_, "\"+123.4\"",                 DEC(123.4),                  true  },
+     {  L_, "\"-9.876543210987654e307\"", DEC(-9.876543210987654e307), true  },
+     {  L_,   "-0.1",                     DEC(-0.1),                   true  },
+     {  L_,  "\"NaN\"",                   NAN_P,                       true  },
+     {  L_,  "\"nan\"",                   NAN_P,                       true  },
+     {  L_,  "\"NAN\"",                   NAN_P,                       true  },
+     {  L_, "\"+NaN\"",                   NAN_P,                       true  },
+     {  L_, "\"+nan\"",                   NAN_P,                       true  },
+     {  L_, "\"+NAN\"",                   NAN_P,                       true  },
+     {  L_, "\"-NaN\"",                   NAN_N,                       true  },
+     {  L_, "\"-nan\"",                   NAN_N,                       true  },
+     {  L_, "\"-NAN\"",                   NAN_N,                       true  },
+     {  L_,  "\"INF\"",                   INF_P,                       true  },
+     {  L_,  "\"inf\"",                   INF_P,                       true  },
+     {  L_,  "\"infinity\"",              INF_P,                       true  },
+     {  L_, "\"+INF\"",                   INF_P,                       true  },
+     {  L_, "\"+inf\"",                   INF_P,                       true  },
+     {  L_, "\"+infinity\"",              INF_P,                       true  },
+     {  L_, "\"-INF\"",                   INF_N,                       true  },
+     {  L_, "\"-inf\"",                   INF_N,                       true  },
+     {  L_, "\"-infinity\"",              INF_N,                       true  },
+     {  L_,         "-",                  ERROR_VALUE,                 false },
+     {  L_,       "E-1",                  ERROR_VALUE,                 false },
+     {  L_,  "Z34.56e1",                  ERROR_VALUE,                 false },
+     {  L_,  "3Z4.56e1",                  ERROR_VALUE,                 false },
+     {  L_,      "1.1}",                  ERROR_VALUE,                 false },
+     {  L_,     "1.1\n",                  ERROR_VALUE,                 false },
+     {  L_,   "1.10xFF",                  ERROR_VALUE,                 false },
+     {  L_,  "DEADBEEF",                  ERROR_VALUE,                 false },
+     {  L_,      "JUNK",                  ERROR_VALUE,                 false },
+     {  L_,     "\"0\"",                  DEC(0.0),                    true  },
+     {  L_,       "0\"",                  ERROR_VALUE,                 false },
+     {  L_,       "\"0",                  ERROR_VALUE,                 false },
+     {  L_,        "\"",                  ERROR_VALUE,                 false },
+     {  L_,      "\"\"",                  ERROR_VALUE,                 false },
+     {  L_,     "\"X\"",                  ERROR_VALUE,                 false },
+     {  L_,  "\" NaN\"",                  ERROR_VALUE,                 false },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -389,7 +399,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE, rc, rc);
                 }
 
-                if (bdldfp::DecimalUtil::isNan(EXP)) {
+                if (IS_VALID && bdldfp::DecimalUtil::isNan(EXP)) {
                     LOOP_ASSERT(LINE, bdldfp::DecimalUtil::isNan(value));
                 }
                 else {
@@ -398,6 +408,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
             }
+#undef DEC
         }
       } break;
       case 20: {
@@ -2092,6 +2103,30 @@ int main(int argc, char *argv[])
                 {  L_,     "\"\\UDea7\"",    ERROR_VALUE,             false  },
                 {  L_,     "\"\\UDF03\"",    ERROR_VALUE,             false  },
                 {  L_,     "\"\\UDFFF\"",    ERROR_VALUE,             false  },
+
+                // Supplementary plane characters.
+
+                { L_,      "\"\\ud800\\udbff\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\udbad\\udbff\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\udbff\\udbff\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\ud800\\udc00\"", "\xF0\x90\x80\x80",  true   },
+                { L_,      "\"\\ud83d\\ude42\"", "\xF0\x9F\x99\x82",  true   },
+                { L_,      "\"\\udbff\\udfff\"", "\xF4\x8F\xBF\xBF",  true   },
+                { L_,      "\"\\ud800\\ue000\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\udbad\\ue000\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\udbff\\ue000\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude4\"",  ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude4",    ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude\"",   ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude",     ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ud\"",    ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ud",      ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\u\"",     ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\u",       ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\\"",      ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\",        ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude4`\"", ERROR_VALUE,         false  },
+                { L_,      "\"\\ud83d\\ude4g\"", ERROR_VALUE,         false  },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 

@@ -25,7 +25,15 @@ bsl::ostream& UserFields::print(bsl::ostream& stream,
     }
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
-    printer.printValue(begin(), end());
+    printer.start();
+
+    const int numFields = length();
+    for (int i = 0; i < numFields; ++i) {
+        printer.printValue(value(i));
+    }
+
+    printer.end();
+
     return stream;
 }
 

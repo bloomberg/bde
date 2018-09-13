@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLB_RANDOMDEVICE
 #define INCLUDED_BDLB_RANDOMDEVICE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a common interface to a system's random number generator.
@@ -76,13 +74,9 @@ BSLS_IDENT("$Id: $")
 //  assert(unseededR2 != rand());
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlb {

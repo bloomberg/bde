@@ -104,7 +104,7 @@ namespace bsls {
                         // class BslOnce
                         // =============
 
-#define BSLS_BSLONCE_INITIALIZER { 0xdead }
+#define BSLS_BSLONCE_INITIALIZER { { 0xdead } }
     // Use this macro to initialize an object of type 'bsls::Once'.  E.g.:
     //..
     //  bsls::Once once = BSLS_BSLONCE_INITIALIZER;

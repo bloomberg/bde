@@ -23,7 +23,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-#include <bslstl_forwarditerator.h>   // for testing only
+#include <bslstl_iterator.h>   // for testing only
 
 #include <string.h>  // for 'memcpy'
 
@@ -38,7 +38,7 @@ struct Vector_Base {
     // This 'struct' must have the same layout as 'bsl::Vector_ImpBase'
     // (defined in the .h file).
 
-    // DATA
+    // PUBLIC DATA
     void        *d_dataBegin_p;
     void        *d_dataEnd_p;
     std::size_t  d_capacity;
@@ -98,8 +98,8 @@ template class bsl::Vector_ImpBase<unsigned long long>;
 template class bsl::Vector_ImpBase<float>;
 template class bsl::Vector_ImpBase<double>;
 template class bsl::Vector_ImpBase<long double>;
-template class bsl::Vector_ImpBase<void *>;  // common base for all
-                                             // vectors of pointers
+template class bsl::Vector_ImpBase<void *>;
+template class bsl::Vector_ImpBase<const void *>;
 
 template class bsl::Vector_Imp<bool>;
 template class bsl::Vector_Imp<char>;
@@ -116,8 +116,8 @@ template class bsl::Vector_Imp<unsigned long long>;
 template class bsl::Vector_Imp<float>;
 template class bsl::Vector_Imp<double>;
 template class bsl::Vector_Imp<long double>;
-template class bsl::Vector_Imp<void *>;  // common base for all
-                                         // vectors of pointers
+template class bsl::Vector_Imp<void *>;
+template class bsl::Vector_Imp<const void *>;
 
 template class bsl::vector<bool>;
 template class bsl::vector<char>;
@@ -135,10 +135,11 @@ template class bsl::vector<float>;
 template class bsl::vector<double>;
 template class bsl::vector<long double>;
 template class bsl::vector<void *>;
+template class bsl::vector<const void *>;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_DATETZ
 #define INCLUDED_BDLT_DATETZ
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a representation of a date with time zone offset.
@@ -96,33 +94,17 @@ BSLS_IDENT("$Id: $")
 //  assert(dateTz2.utcStartTime() < dateTz3.utcStartTime());
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

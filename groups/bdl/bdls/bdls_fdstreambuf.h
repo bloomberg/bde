@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLS_FDSTREAMBUF
 #define INCLUDED_BDLS_FDSTREAMBUF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a stream buffer initialized with a file descriptor.
@@ -355,63 +353,29 @@ BSLS_IDENT("$Id: $")
 //  bdls::FilesystemUtil::remove(fileNameBuffer);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLS_FILESYSTEMUTIL
 #include <bdls_filesystemutil.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOS
+#include <bsl_cstring.h>    // 'size_t'
 #include <bsl_ios.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_LOCALE
 #include <bsl_locale.h>
-#endif
-
-#ifndef INCLUDED_BSL_STREAMBUF
-#include <bsl_streambuf.h>  // char_type, int_type, pos_type, off_type,
-                            // traits_type are within the 'bsl::streambuf'
+#include <bsl_streambuf.h>  // 'char_type', 'int_type', 'pos_type', 'off_type',
+                            // 'traits_type' are within the 'bsl::streambuf'
                             // class
-#endif
-
-#ifndef INCLUDED_BSL_CSTRING
-#include <bsl_cstring.h>          // size_t
-#endif
 
 namespace BloombergLP {
-
 namespace bdls {
+
                     // ====================================
                     // helper class FdStreamBuf_FileHandler
                     // ====================================
@@ -1199,8 +1163,8 @@ bool FdStreamBuf::willCloseOnReset() const
 {
     return d_fileHandler.willCloseOnReset();
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

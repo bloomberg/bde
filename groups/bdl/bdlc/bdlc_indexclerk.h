@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLC_INDEXCLERK
 #define INCLUDED_BDLC_INDEXCLERK
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a manager of reusable, non-negative integer indices.
@@ -124,56 +122,29 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
 #include <bslx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
 #include <bslx_outstreamfunctions.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bdlc {
+
                             // ====================
                             // class IndexClerkIter
                             // ====================
@@ -436,8 +407,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, const IndexClerk& rhs);
     // in some single-line (human-readable) format, and return a reference to
     // the modifiable 'stream'.
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -448,34 +417,34 @@ bsl::ostream& operator<<(bsl::ostream& stream, const IndexClerk& rhs);
 
 // CREATORS
 inline
-bdlc::IndexClerkIter::IndexClerkIter()
+IndexClerkIter::IndexClerkIter()
 : d_index_p(0)
 {
 }
 
 inline
-bdlc::IndexClerkIter::IndexClerkIter(const int *index)
+IndexClerkIter::IndexClerkIter(const int *index)
 : d_index_p(index)
 {
 }
 
 inline
-bdlc::IndexClerkIter::IndexClerkIter(const IndexClerkIter& original)
+IndexClerkIter::IndexClerkIter(const IndexClerkIter& original)
 : d_index_p(original.d_index_p)
 {
 }
 
 // MANIPULATORS
 inline
-bdlc::IndexClerkIter&
-bdlc::IndexClerkIter::operator=(const IndexClerkIter& rhs)
+IndexClerkIter&
+IndexClerkIter::operator=(const IndexClerkIter& rhs)
 {
     d_index_p = rhs.d_index_p;
     return *this;
 }
 
 inline
-bdlc::IndexClerkIter& bdlc::IndexClerkIter::operator++()
+IndexClerkIter& IndexClerkIter::operator++()
 {
     BSLS_ASSERT_SAFE(0 != d_index_p.base());
 
@@ -484,7 +453,7 @@ bdlc::IndexClerkIter& bdlc::IndexClerkIter::operator++()
 }
 
 inline
-bdlc::IndexClerkIter& bdlc::IndexClerkIter::operator--()
+IndexClerkIter& IndexClerkIter::operator--()
 {
     BSLS_ASSERT_SAFE(0 != d_index_p.base());
 
@@ -494,12 +463,14 @@ bdlc::IndexClerkIter& bdlc::IndexClerkIter::operator--()
 
 // ACCESSORS
 inline
-int bdlc::IndexClerkIter::operator*() const
+int IndexClerkIter::operator*() const
 {
     BSLS_ASSERT_SAFE(0 != d_index_p.base());
 
     return *d_index_p;
 }
+
+}  // close package namespace
 
 // FREE OPERATORS
 inline
@@ -514,35 +485,37 @@ bool bdlc::operator!=(const IndexClerkIter& lhs, const IndexClerkIter& rhs)
     return lhs.d_index_p != rhs.d_index_p;
 }
 
+namespace bdlc {
+
                               // ----------------
                               // class IndexClerk
                               // ----------------
 
 // CREATORS
 inline
-bdlc::IndexClerk::IndexClerk(bslma::Allocator *basicAllocator)
+IndexClerk::IndexClerk(bslma::Allocator *basicAllocator)
 : d_unusedStack(basicAllocator)
 , d_nextNewIndex(0)
 {
 }
 
 inline
-bdlc::IndexClerk::IndexClerk(const IndexClerk&  original,
-                             bslma::Allocator  *basicAllocator)
+IndexClerk::IndexClerk(const IndexClerk&  original,
+                       bslma::Allocator  *basicAllocator)
 : d_unusedStack(original.d_unusedStack, basicAllocator)
 , d_nextNewIndex(original.d_nextNewIndex)
 {
 }
 
 inline
-bdlc::IndexClerk::~IndexClerk()
+IndexClerk::~IndexClerk()
 {
     BSLS_ASSERT_SAFE(areInvariantsPreserved(d_unusedStack, d_nextNewIndex));
 }
 
 // MANIPULATORS
 inline
-int bdlc::IndexClerk::getIndex()
+int IndexClerk::getIndex()
 {
     if (d_unusedStack.empty()) {
         return d_nextNewIndex++;                                      // RETURN
@@ -555,7 +528,7 @@ int bdlc::IndexClerk::getIndex()
 }
 
 inline
-void bdlc::IndexClerk::putIndex(int index)
+void IndexClerk::putIndex(int index)
 {
     BSLS_ASSERT_SAFE(0 <= index);
     BSLS_ASSERT_SAFE(     index < d_nextNewIndex);
@@ -565,7 +538,7 @@ void bdlc::IndexClerk::putIndex(int index)
 }
 
 inline
-void bdlc::IndexClerk::removeAll()
+void IndexClerk::removeAll()
 {
     d_unusedStack.clear();
     d_nextNewIndex = 0;
@@ -574,7 +547,7 @@ void bdlc::IndexClerk::removeAll()
 // Note: Order changed from declaration to make use of inlined 'removeAll'.
 
 template <class STREAM>
-STREAM& bdlc::IndexClerk::bdexStreamIn(STREAM& stream, int version)
+STREAM& IndexClerk::bdexStreamIn(STREAM& stream, int version)
 {
     switch (version) {
       case 1: {
@@ -609,7 +582,7 @@ STREAM& bdlc::IndexClerk::bdexStreamIn(STREAM& stream, int version)
 // ACCESSORS
 template <class STREAM>
 inline
-STREAM& bdlc::IndexClerk::bdexStreamOut(STREAM& stream, int version) const
+STREAM& IndexClerk::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) { // switch on the schema version
@@ -627,37 +600,37 @@ STREAM& bdlc::IndexClerk::bdexStreamOut(STREAM& stream, int version) const
 }
 
 inline
-int bdlc::IndexClerk::numCommissionedIndices() const
+int IndexClerk::numCommissionedIndices() const
 {
     return d_nextNewIndex - static_cast<int>(d_unusedStack.size());
 }
 
 inline
-bdlc::IndexClerkIter bdlc::IndexClerk::begin() const
+IndexClerkIter IndexClerk::begin() const
 {
     return IndexClerkIter(d_unusedStack.begin() + d_unusedStack.size());
 }
 
 inline
-bdlc::IndexClerkIter bdlc::IndexClerk::end() const
+IndexClerkIter IndexClerk::end() const
 {
     return IndexClerkIter(d_unusedStack.begin());
 }
 
 inline
-int bdlc::IndexClerk::numDecommissionedIndices() const
+int IndexClerk::numDecommissionedIndices() const
 {
     return static_cast<int>(d_unusedStack.size());
 }
 
 inline
-int bdlc::IndexClerk::nextNewIndex() const
+int IndexClerk::nextNewIndex() const
 {
     return d_nextNewIndex;
 }
 
 inline
-int bdlc::IndexClerk::maxSupportedBdexVersion(int /* versionSelector */)
+int IndexClerk::maxSupportedBdexVersion(int /* versionSelector */)
 {
     return 1;
 }
@@ -666,12 +639,14 @@ int bdlc::IndexClerk::maxSupportedBdexVersion(int /* versionSelector */)
 
 // DEPRECATED METHODS
 inline
-int bdlc::IndexClerk::maxSupportedBdexVersion()
+int IndexClerk::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED -- pending deprecation
+
+}  // close package namespace
 
 // FREE OPERATORS
 inline
@@ -699,7 +674,7 @@ bsl::ostream& bdlc::operator<<(bsl::ostream& stream, const IndexClerk& rhs)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

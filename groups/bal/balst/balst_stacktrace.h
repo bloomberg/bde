@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALST_STACKTRACE
 #define INCLUDED_BALST_STACKTRACE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a description of a function-call stack.
@@ -139,53 +137,30 @@ BSLS_IDENT("$Id: $")
 //  ]
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALST_STACKTRACEFRAME
 #include <balst_stacktraceframe.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_HEAPBYPASSALLOCATOR
 #include <bdlma_heapbypassallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
-#include <bsl_algorithm.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsl_algorithm.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
-
 namespace balst {
+
                               // ================
                               // class StackTrace
                               // ================
@@ -196,27 +171,18 @@ class StackTrace {
     // which represents one function call on the stack.  Note that if no
     // allocator is supplied at construction, an owned
     // 'bdlma::HeapBypassAllocator' object is used to supply memory.
-    //
-    // This class:
-    //: o supports a complete set of *value* *semantic* operations
-    //:   o except for 'bdex' serialization
-    //: o is *exception-neutral*
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology see 'bsldoc_glossary'.
 
     // DATA
-    bdlma::HeapBypassAllocator    d_hbpAlloc;  // Used if no allocator is
+    bdlma::HeapBypassAllocator   d_hbpAlloc;  // Used if no allocator is
                                               // supplied at construction.
                                               // Note this member must be
                                               // declared and constructed prior
                                               // to 'd_frames'.
 
-    bsl::vector<StackTraceFrame>
-                                 d_frames;    // sequence of stack-trace frames
+    bsl::vector<StackTraceFrame> d_frames;    // sequence of stack-trace frames
 
-    friend bool operator==(const StackTrace&,
-                           const StackTrace&);
+    // FRIENDS
+    friend bool operator==(const StackTrace&, const StackTrace&);
 
   public:
     // TRAITS
@@ -234,7 +200,7 @@ class StackTrace {
         // corrupted.
 
     StackTrace(const StackTrace&  original,
-                     bslma::Allocator        *basicAllocator = 0);
+               bslma::Allocator  *basicAllocator = 0);
         // Create a 'StackTrace' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, then an owned
@@ -323,9 +289,7 @@ bool operator!=(const StackTrace& lhs, const StackTrace& rhs);
     // not have the same value if they do not have the same length, or any of
     // their corresponding stack-trace frames do not have the same value.
 
-
-bsl::ostream& operator<<(bsl::ostream&           stream,
-                         const StackTrace& object);
+bsl::ostream& operator<<(bsl::ostream& stream, const StackTrace& object);
     // Write the value of the specified 'object' to the specified output
     // 'stream' in a single-line format, and return a reference to 'stream'.
     // If 'stream' is not valid on entry, this operation has no effect.  Note
@@ -335,10 +299,9 @@ bsl::ostream& operator<<(bsl::ostream&           stream,
 
 // FREE FUNCTIONS
 void swap(StackTrace& a, StackTrace& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This function provides the no-throw exception-safety guarantee.  The
-    // behavior is undefined unless the two objects were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -347,10 +310,6 @@ void swap(StackTrace& a, StackTrace& b);
                               // ----------------
                               // class StackTrace
                               // ----------------
-
-                            // -----------------
-                            // Level 0 Functions
-                            // -----------------
 
 // ACCESSORS
 inline
@@ -369,7 +328,7 @@ StackTrace::StackTrace(bslma::Allocator *basicAllocator)
 
 inline
 StackTrace::StackTrace(const StackTrace&  original,
-                       bslma::Allocator        *basicAllocator)
+                       bslma::Allocator  *basicAllocator)
 : d_hbpAlloc()
 , d_frames(original.d_frames,
            basicAllocator ? basicAllocator : &d_hbpAlloc)
@@ -440,44 +399,35 @@ int StackTrace::length() const
     return (int) d_frames.size();
 }
 
-// FREE FUNCTIONS
-inline
-void swap(StackTrace& a, StackTrace& b)
-{
-    a.swap(b);
-}
+}  // close package namespace
 
 // FREE OPERATORS
 inline
-bool operator==(const StackTrace& lhs, const StackTrace& rhs)
+bool balst::operator==(const StackTrace& lhs, const StackTrace& rhs)
 {
     return lhs.d_frames == rhs.d_frames;
 }
 
 inline
-bool operator!=(const StackTrace& lhs,
-                const StackTrace& rhs)
+bool balst::operator!=(const StackTrace& lhs, const StackTrace& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& operator<<(bsl::ostream&     stream,
-                         const StackTrace& object)
+bsl::ostream& balst::operator<<(bsl::ostream& stream, const StackTrace& object)
 {
     object.print(stream, 0, -1);
 
     return stream;
 }
 
-}  // close package namespace
-
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

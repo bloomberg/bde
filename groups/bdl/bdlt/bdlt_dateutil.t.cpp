@@ -35,6 +35,7 @@ using namespace bsl;
 // [ 2] Date convertFromYYYYMMDDRaw(int yyyymmddValue);
 // [ 4] int convertToYYYYMMDD(const Date& date);
 // [ 1] bool isValidYYYYMMDD(int yyyymmddValue);
+// [17] Date lastDayInMonth(year, month);
 // [10] Date lastDayOfWeekInMonth(year, month, dayOfWeek);
 // [ 5] Date nextDayOfWeek(dayOfWeek, date);
 // [ 6] Date nextDayOfWeekInclusive(dayOfWeek, date);
@@ -42,7 +43,7 @@ using namespace bsl;
 // [ 7] Date previousDayOfWeek(dayOfWeek, date);
 // [ 8] Date previousDayOfWeekInclusive(dayOfWeek, date);
 // ----------------------------------------------------------------------------
-// [17] USAGE EXAMPLE
+// [18] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -130,7 +131,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -158,7 +159,7 @@ int main(int argc, char *argv[])
 //
 ///Example 1: Schedule Generation
 /// - - - - - - - - - - - - - - -
-// Suppose that given a starting date in the 'YYYYMMDD' format, we want to
+// Suppose that given a starting date in the "YYYYMMDD" format, we want to
 // generate a schedule for an event that occurs on the same day of the month
 // for 12 months.
 //
@@ -209,6 +210,83 @@ if (veryVerbose)
 // Notice that the dates have been adjusted to the end of the month.  If we had
 // used 'addMonthsNoEom' instead of 'addMonthsEom', this adjustment would not
 // have occurred.
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING 'lastDayInMonth'
+        //
+        // Concerns:
+        //: 1 The function returns the last day in 'month' and 'year'.
+        //:
+        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        //: 1 Using the table-driven approach, define a representative set of
+        //:   valid inputs.  Verify that the function returns the correct
+        //:   value.  Note that we do not need to do a very exhaustive test,
+        //:   because most of the work is handled by the already tested
+        //:   function 'bdlt::SerialDateImpUtil::lastDayOfMonth'.  (C-1)
+        //:
+        //: 2 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered for invalid attribute values, but not triggered for
+        //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
+        //:   (C-2)
+        //
+        // Testing:
+        //   Date lastDayInMonth(year, month);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING 'lastDayInMonth'" << endl
+                          << "========================" << endl;
+
+        static const struct {
+            int                   d_line;   // source line number
+            int                   d_year;   // year
+            int                   d_month;  // month
+            bdlt::Date            d_exp;    // expected result
+        } DATA[] = {
+            //LN  YEAR  MONTH     EXP
+            //--  ----  -----  -----------------------
+            { L_, 1900,     2, bdlt::Date(1900, 2, 28) },
+            { L_, 1999,     1, bdlt::Date(1999, 1, 31) },
+            { L_, 2000,     1, bdlt::Date(2000, 1, 31) },
+            { L_, 2000,     2, bdlt::Date(2000, 2, 29) },
+            { L_, 2001,     4, bdlt::Date(2001, 4, 30) },
+            { L_, 2003,     2, bdlt::Date(2003, 2, 28) },
+            { L_, 2004,     2, bdlt::Date(2004, 2, 29) }
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int        LINE  = DATA[i].d_line;
+            const int        YEAR  = DATA[i].d_year;
+            const int        MONTH = DATA[i].d_month;
+            const bdlt::Date EXP   = DATA[i].d_exp;
+
+            if (veryVerbose) {
+                T_ P_(LINE) P_(YEAR) P_(MONTH) P(EXP);
+            }
+
+            const bdlt::Date result = Util::lastDayInMonth(YEAR, MONTH);
+            ASSERTV(LINE, EXP, result, EXP == result);
+        }
+
+        {
+            // Test assertions
+            bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+            ASSERT_SAFE_PASS(Util::lastDayInMonth(    1,  1));
+            ASSERT_SAFE_PASS(Util::lastDayInMonth( 9999,  1));
+            ASSERT_SAFE_FAIL(Util::lastDayInMonth(    0,  1));
+            ASSERT_SAFE_FAIL(Util::lastDayInMonth(10000,  1));
+
+            ASSERT_SAFE_PASS(Util::lastDayInMonth(    1, 12));
+            ASSERT_SAFE_FAIL(Util::lastDayInMonth(    1,  0));
+            ASSERT_SAFE_FAIL(Util::lastDayInMonth(    1, 13));
+        }
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -1652,7 +1730,7 @@ if (veryVerbose)
         //
         // Concerns:
         //: 1 The function applies the correct formula to convert a 'Date'
-        //:   to an integral value in the 'YYYYMMDD' format.
+        //:   to an integral value in the "YYYYMMDD" format.
         //
         // Plan:
         //: 1 Use the table-driven approach to define a representative set of
@@ -1676,7 +1754,7 @@ if (veryVerbose)
         static const struct {
             int        d_lineNum;   // source line number
             bdlt::Date d_date;      // date value
-            int        d_expected;  // expected result ('YYYYMMDD' format)
+            int        d_expected;  // expected result ("YYYYMMDD" format)
         } DATA[] = {
             //LINE DATE                       EXP
             //---- ----                       ---
@@ -1806,7 +1884,7 @@ if (veryVerbose)
 
         static const struct {
             int        d_lineNum;        // source line number
-            int        d_yyyymmddValue;  // date value ('YYYYMMDD' format)
+            int        d_yyyymmddValue;  // date value ("YYYYMMDD" format)
             bdlt::Date d_exp;            // expected result
 
         } DATA[] = {
@@ -1873,7 +1951,7 @@ if (veryVerbose)
 
         static const struct {
             int  d_lineNum;        // source line number
-            int  d_yyyymmddValue;  // date value ('YYYYMMDD' format)
+            int  d_yyyymmddValue;  // date value ("YYYYMMDD" format)
             bool d_exp;            // expected result
 
         } DATA[] = {

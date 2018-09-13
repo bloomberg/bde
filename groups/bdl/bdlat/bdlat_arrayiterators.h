@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLAT_ARRAYITERATORS
 #define INCLUDED_BDLAT_ARRAYITERATORS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide iterator support for bdlat_ArrayFunction-conformant types.
@@ -137,25 +135,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_ARRAYFUNCTIONS
 #include <bdlat_arrayfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
 #include <bdlat_bdeatoverrides.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
 #include <bdlat_valuetypefunctions.h>
-#endif
 
-#ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
 
 
 namespace BloombergLP {

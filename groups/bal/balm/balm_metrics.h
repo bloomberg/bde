@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALM_METRICS
 #define INCLUDED_BALM_METRICS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a suite of operations for recording metric values.
@@ -491,57 +489,21 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALM_CATEGORY
 #include <balm_category.h>
-#endif
-
-#ifndef INCLUDED_BALM_COLLECTOR
 #include <balm_collector.h>
-#endif
-
-#ifndef INCLUDED_BALM_COLLECTORREPOSITORY
 #include <balm_collectorrepository.h>
-#endif
-
-#ifndef INCLUDED_BALM_DEFAULTMETRICSMANAGER
 #include <balm_defaultmetricsmanager.h>
-#endif
-
-#ifndef INCLUDED_BALM_INTEGERCOLLECTOR
 #include <balm_integercollector.h>
-#endif
-
-#ifndef INCLUDED_BALM_METRICID
 #include <balm_metricid.h>
-#endif
-
-#ifndef INCLUDED_BALM_METRICREGISTRY
 #include <balm_metricregistry.h>
-#endif
-
-#ifndef INCLUDED_BALM_METRICSMANAGER
 #include <balm_metricsmanager.h>
-#endif
-
-#ifndef INCLUDED_BALM_PUBLICATIONTYPE
 #include <balm_publicationtype.h>
-#endif
-
-#ifndef INCLUDED_BALM_STOPWATCHSCOPEDGUARD
 #include <balm_stopwatchscopedguard.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
                         // ================================
                         // BALM_METRICS_IF_CATEGORY_ENABLED

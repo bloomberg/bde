@@ -2,7 +2,7 @@
 
 @PURPOSE: Provide thread-safe logging toolkit suitable for all platforms.
 
-@MNEMONIC: Basic Application Environment Logging (ball)
+@MNEMONIC: Basic Application Library Logging (ball)
 
 @AUTHOR Tom Marshall (tmarshal)
 
@@ -19,7 +19,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'ball' package currently has 43 components having 16 levels of physical
+ The 'ball' package currently has 47 components having 16 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -27,8 +27,10 @@
   16. ball_asyncfileobserver
 
   15. ball_fileobserver
+      ball_logfilecleanerutil
 
   14. ball_fileobserver2
+      ball_logthrottle
 
   13. ball_log
 
@@ -45,12 +47,14 @@
 
    8. ball_categorymanager
 
-   7. ball_category
-      ball_multiplexobserver
+   7. ball_broadcastobserver
+      ball_category
+      ball_filteringobserver
+      ball_multiplexobserver                             !DEPRECATED!
 
-   6. ball_defaultobserver
-      ball_observeradapter
+   6. ball_observeradapter
       ball_ruleset
+      ball_streamobserver
       ball_testobserver
 
    5. ball_fixedsizerecordbuffer
@@ -104,6 +108,9 @@
 : 'ball_attributecontext':
 :      Provide a container for storing attributes and caching results.
 :
+: 'ball_broadcastobserver':
+:      Provide a broadcast observer that forwards to other observers.
+:
 : 'ball_category':
 :      Provide a container for a name and associated thresholds.
 :
@@ -119,14 +126,14 @@
 : 'ball_defaultattributecontainer':
 :      Provide a default container for storing attribute name/value pairs.
 :
-: 'ball_defaultobserver':
-:      Provide a default observer that emits log records to 'stdout'.
-:
 : 'ball_fileobserver':
 :      Provide a thread-safe observer that logs to a file and to 'stdout'.
 :
 : 'ball_fileobserver2':
 :      Provide a thread-safe observer that emits log records to a file.
+:
+: 'ball_filteringobserver':
+:      Provide an observer that filters log records.
 :
 : 'ball_fixedsizerecordbuffer':
 :      Provide a thread-safe fixed-size buffer of record handles.
@@ -134,11 +141,14 @@
 : 'ball_log':
 :      Provide macros and utility functions to facilitate logging.
 :
+: 'ball_logfilecleanerutil':
+:      Provide a utility class for removing log files.
+:
 : 'ball_loggercategoryutil':
 :      Provide a suite of utility functions for category management.
 :
 : 'ball_loggerfunctorpayloads':
-:      Provide a suite of useful logger manager functor payloads.
+:      Provide a suite of logger manager singleton functor payloads.
 :
 : 'ball_loggermanager':
 :      Provide a manager of core logging functionality.
@@ -149,7 +159,10 @@
 : 'ball_loggermanagerdefaults':
 :      Provide constrained default attributes for the logger manager.
 :
-: 'ball_multiplexobserver':
+: 'ball_logthrottle':
+:      Provide throttling equivalents of some of the 'ball_log' macros.
+:
+: 'ball_multiplexobserver':                             !DEPRECATED!
 :      Provide a multiplexing observer that forwards to other observers.
 :
 : 'ball_observer':
@@ -196,6 +209,9 @@
 :
 : 'ball_severityutil':
 :      Provide a suite of utility functions on 'ball::Severity' levels.
+:
+: 'ball_streamobserver':
+:      Provide an observer that emits log records to a stream.
 :
 : 'ball_testobserver':
 :      Provide an instrumented observer for testing.
@@ -252,14 +268,19 @@
 :
 : o User can always configure logger to publish every message, if desired
 :
-: o User defines and registers an "observer", which in turn defines the
-:   behavior of the "publish" operation (e.g., write to file, write to console,
-:   process message and take specific action, etc.)
+: o User defines and registers one or more "observers", each of which in turn
+:   defines the behavior of the "publish" operation (e.g., write to file, write
+:   to console, process message and take specific action, etc.)
 :
 : o Convenient logging macros simplify usage for the most common operations
 :
 : o Optional functors and other parameters allow customized logging behavior
 :   (e.g., default threshold levels, category name filtering)
+:
+: o The ability to configure thread-context dependent rules for logging (e.g.,
+:   configuring more verbose logging for threads processing a request for
+:   a particular user id).  See {'Rule-Based Logging'} below.
+
 
  The 'ball' package provides a flexible logging toolkit that supports several
  standard and non-standard features.  Perhaps most notable among the
@@ -291,10 +312,10 @@
  information removed and/or added), process the message (complete with Category
  and Severity information) and take specific responsive actions, or any
  combination of these or other behaviors.  In particular, 'ball' provides a
- "multiplexing observer", so that the one observer registered with the logger
- can forward messages to any number of observers that are separately registered
- with the multiplexing observer (and are therefore unknown to the logger
- proper).
+ "broadcast observer", 'ball::BroadcastObserver', that forwards log records to
+ any number of observers registered with the broadcast observer.  Note that
+ 'ball::LoggerManager' contains an integrated broadcast observer and all
+ observers registered with the logger manager will receive log records.
 
 /Severity Levels and Categories: a Brief Overview
 /------------------------------------------------
@@ -316,7 +337,7 @@
 
  For convenient reference only, the 'ball::Severity::Level' 'enum'
  implementation is presented below.  Note that this implementation and the
- specific numerical values may not be relied upon.  Note also that the
+ specific numerical values may not be relied upon.  Also note that the
  enumerator 'NONE' is deprecated, since its name has proven to be confusing.
  As an argument to 'logMessage', it would satisfy "none" of the thresholds, but
  when provided as a threshold value itself, it would enable "all" of the
@@ -339,10 +360,10 @@
 
 /Messages, Records, and other 'ball' Terminology
 /-----------------------------------------------
- The entity that the logger logs is called in 'ball' a "log record", which
- consists of a number of fixed and user-defined fields; one of the fixed fields
- is called a "log message" (or "message" for short).  In casual usage, we use
- "record" and "message" interchangeably, but note that they are distinct
+ The entity that the logger logs is called a "log record" in 'ball'.  A log
+ record consists of a number of fixed and user-defined fields; one of the fixed
+ fields is called a "log message" (or "message" for short).  In casual usage,
+ we use "record" and "message" interchangeably, but note that they are distinct
  concepts.  The set of fixed fields that constitute a log record are defined in
  the 'ball_recordattributes' component.  A brief description of the fixed
  fields (or "record attributes") is given in the following table.
@@ -351,7 +372,7 @@
    ----------   --------------  ------------------------------   -------
    timestamp    bdlt::Datetime  creation date and time           (*Note*)
    processID    int             process id of creator              0
-   threadID     int             thread id of creator               0
+   threadID     Uint64          thread id of creator               0
    fileName     bsl::string     file where created  (__FILE__)     ""
    lineNumber   int             line number in file (__LINE__)     0
    category     bsl::string     category of logged record          ""
@@ -446,22 +467,27 @@
 
 /'ball::LoggerManager'
 /- - - - - - - - - - -
- 'ball::LoggerManager' is a singleton that must be constructed with an observer
- (see below), a configuration object (see below), and an optional 'bslma'
- allocator before any true logging operations can be performed.  The logger
- manager's main tasks are to administer categories and to "allocate" loggers.
- If the user has *not* allocated and installed any logger instances, then the
- 'getLogger' method will return the "default logger", which is a specific
- instance of 'ball::Logger' that is owned and managed by the logger manager.
- This default logger is suitable for single-threaded and multi-threaded use,
- and is used "transparently" by users willing to accept default-logger
- behavior.  See {Usage} below.
+ 'ball::LoggerManager' is a singleton that must be constructed with a
+ configuration object (see below) and an optional 'bslma' allocator before any
+ true logging operations can be performed.  The logger manager's main tasks are
+ to administer categories and to "allocate" loggers.  If the user has *not*
+ allocated and installed any logger instances, then the 'getLogger' method will
+ return the "default logger" that is a specific instance of 'ball::Logger'
+ owned and managed by the logger manager.  This default logger is suitable for
+ single-threaded and multi-threaded use, and is used "transparently" by users
+ willing to accept default-logger behavior.  See {Usage} below.
 
- The logger manager provides the 'allocateLogger' and 'setLogger' methods,
- which allocate arbitrarily many loggers and install (at most) one logger per
- thread, respectively.  Any thread in which the 'setLogger' method was not
- called will use the default logger.  See {Example 6} and {Example 7} below for
- a discussion of how and why to allocate multiple loggers.
+ The logger manager maintains an internal broadcast observer (see below) and
+ provides the 'registerObserver', 'deregisterObserver', and 'findObserver'
+ methods that register, deregister, and find observers, respectively.  The
+ internal broadcast observer forwards all log records that it receives to all
+ registered observers.
+
+ The logger manager provides the 'allocateLogger' and 'setLogger' methods that
+ allocate arbitrarily many loggers and install (at most) one logger per thread,
+ respectively.  Any thread in which the 'setLogger' method was not called will
+ use the default logger.  See {Example 6} and {Example 7} below for a
+ discussion of how and why to allocate multiple loggers.
 
 /'ball::Logger'
 /- - - - - - -
@@ -520,17 +546,18 @@
 
   logOrder              log message publication order on "trigger" events
 ..
- Note that the configuration object is not value-semantic, because its three
+ Note that the configuration object is not value-semantic because its three
  functor attributes are not value-semantic.  For this reason, the single
- "defaults" attribute, which is a value-semantic constrained-attributes type,
- was factored out from the configuration type.  The defaults object, which
- holds six numerical attributes, is described in the next sub-section below.
+ "defaults" attribute, a value-semantic simply-constrained attribute type, was
+ factored out from the configuration type.  The defaults object holds six
+ numerical attributes and is described next.
 
 /'ball::LoggerManagerDefaults'
 /- - - - - - - - - - - - - - -
- 'ball::LoggerManagerDefaults' is a value-semantic constrained-attributes type
- that is itself an attribute of the above "configuration" object.  The
- "defaults" object contains the following six constrained attributes.
+ 'ball::LoggerManagerDefaults' is a value-semantic simply-constrained
+ attribute type that is itself an attribute of the above "configuration"
+ object.  The "defaults" object contains the following six constrained
+ attributes.
 ..
   TYPE          NAME                DESCRIPTION
   -----------   ----------------    -------------------------------------
@@ -578,10 +605,9 @@
  user must supply a concrete implementation (separately written or chosen from
  existing 'ball' observers).  The observer provides a 'publish' method that
  defines the behavior of the logical concept of "publication" of a message used
- throughout this document.  Note that, although only one observer may be
- registered with the logger manager, 'ball' provides a multiplexing observer
- ('ball::MultiplexObserver'), which in turn accepts registry of multiple
- observers.
+ throughout this document.  Note that multiple observers may be registered with
+ the logger manager and each registered observer will receive "published" log
+ messages.
 
 /Logging Macros
 /- - - - - - -
@@ -596,9 +622,11 @@
 
  The user should note the following two facts about macro usage:
 
-: 1 The 'BALL_LOG_SET_CATEGORY' macro is not only convenient, it is *required*
-:   for macro use, since it defines symbols that the other macros expect to
-:   see.
+: 1 The 'BALL_LOG_SET_CATEGORY' macro is not only convenient, it is most often
+:   *required* for macro use, since it defines symbols that the other macros
+:   expect to see.  (Alternatively, either the 'BALL_LOG_SET_DYNAMIC_CATEGORY'
+:   or 'BALL_LOG_SET_CLASS_CATEGORY' macro may be used instead; see the
+:   'ball_log' component for details.)
 :
 : 2 There are two styles of logging macros, C++ stream style and 'printf'
 :   style.  The 'printf'-style logging macros write to an intermediate
@@ -640,8 +668,8 @@
  to supply threshold levels to categories added by 'setCategory(const char *)'.
  Otherwise, default threshold levels maintained by the logger manager for that
  purpose are used.  At initialization, these default threshold levels are given
- the same "factory-supplied" settings as those for the *Default* *Category*,
- which again may be explicitly overridden at construction.
+ the same "factory-supplied" settings as those for the *Default* *Category*
+ that, again, may be explicitly overridden at construction.
 
  The default threshold levels can be adjusted ('setDefaultThresholdLevels') and
  reset to their original values ('resetDefaultThresholdLevels').  Note that if
@@ -665,6 +693,55 @@
  "equity.market.nyse" would be mapped to the same category internally by the
  presumed 'toLower' functor.
 
+/Rule-Based Logging
+/------------------
+The 'ball' logging toolkit provides a set of components that collectively
+allow clients to define rules to modify logging severity levels depending
+on attributes associated with the current thread.  The canonical example of
+rule-based logging is to enable verbose logging when processing requests
+for a particular user in a service.
+
+A usage example can be found in {'Example 8: Rule-Based Logging'}.
+
+To enable rule-based logging clients must do two things:
+: 1. Configure a set of (process-wide) rules to set logging thresholds based on
+:    'ball::Attribute' values.
+:
+: 2. Associate (on a per-thread basis) 'ball::Attribute' values with the
+:    current thread.
+
+The configuration of process-wide rules is accomplished by creating rules
+(see {'ball_rule'}) that set a logging category's thresholds if a set of
+predicates are all 'true' (see {'ball_predicate'}).   For example, a
+'ball::Rule' might express: set the logging threshold for any logging
+category starting with the prefix "DATABASE" to 'TRACE' if the "userid" is
+123456 and the "requesttype" is "trade" (where "userid" and "requesttype" are
+names of attributes that will be associated with a processing thread).
+Clients can then call 'ball::LoggerManager::addRule' to add this rule to the
+logger manager.
+
+To associate an attribute (like "userid" and "requesttype") with a particular
+thread, clients must add a 'ball::AttributeContainer' holding the
+attribute to the 'ball::AttributeContext' (note that an attribute context
+is a thread-local object).  The simplest means for doing this is to create a
+'ball::ScopedAttribute' object as a local variable, which adds an attribute
+container (holding a single attribute) that exists for the lifetime of the
+scoped-attribute object.  A 'ball::ScopedAttribute' appends a container having
+a single attribute to a list of containers, which is easy and efficient if
+there are only a small number of attributes.  Clients with a large number of
+attributes could use a 'ball::DefaultAttributeContainer', which provides an
+efficient container for a large number of attributes.  However, clients *must*
+take care to remove the container from the 'ball::AttributeContext' before the
+object goes out of scope and is destroyed.  See 'ball_scopedattributes'
+(plural) for an example.  Finally, clients may also provide their own
+implementations of 'ball::AttributeContainer' customized for their needs
+(e.g., by creating a simple, efficient 'ball::AttributeContainer' specifically
+for the "userid" and "requesttype" attributes); see 'ball_attributecontainer'
+for an example.
+
+{'Example 8: Rule-Based Logging'} below demonstrates creating a simple logging
+rule, and associating attributes with a processing thread.
+
 /A Note on Multi-Threaded Logging Usage
 /--------------------------------------
  The 'ball' logging toolkit may be used in single-threaded and multi-threaded
@@ -679,7 +756,7 @@
 
  Differences in logger usage, or, more precisely, additional options for the
  multi-threaded user, arise when the user wishes to allocate one or more
- loggers beyond the default logger, which is owned by the singleton logger
+ loggers beyond the default logger that is owned by the singleton logger
  manager.  If a user does *not* explicitly allocate a logger (via the logger
  manager instance method 'allocateLogger') and install that logger for a given
  thread (via the manager instance method 'setLogger'), then all records from
@@ -703,12 +780,12 @@
 /--------------------------------------------
  The recommended way to initialize the logger manager singleton is to create a
  'ball::LoggerManagerScopedGuard' object in 'main' (*before* creating any
- threads).  The logger manager scoped guard constructor takes an observer, a
- configuration object (an instance of 'ball::LoggerManagerConfiguration'), and
- an optional allocator.  The logger manager singleton is created as a
- side-effect of creating the scoped guard object.  When the guard object goes
- out of scope (i.e., on program exit), the logger manager singleton is
- automatically destroyed.
+ threads).  The logger manager scoped guard constructor takes a configuration
+ object (an instance of 'ball::LoggerManagerConfiguration') and an optional
+ allocator.  The logger manager singleton is created as a side-effect of
+ creating the scoped guard object.  When the guard object goes out of scope
+ (i.e., on program exit), the logger manager singleton is automatically
+ destroyed.
 
  As an alternative to using the logger manager scoped guard, the 'static'
  'ball::LoggerManager::initSingleton' method that takes the same arguments as
@@ -746,11 +823,11 @@
  single translation unit containing a 'main' function and essentially nothing
  else.  Among the points of usage that we illustrate are:
 
-: o Instantiating a 'ball::DefaultObserver' and passing it to the logger
-:    manager scoped guard constructor.
-:
 : o Instantiating a 'ball::LoggerManagerConfiguration' and passing it to the
 :   logger manager scoped guard constructor.
+:
+: o Instantiating a 'ball::StreamObserver' and registering it with the logger
+:   manager singleton.
 :
 : o Invoking the 'BALL_LOG_SET_CATEGORY' macro to set a category (named "main
 :   category" in this example); records logged from a scope where the effects
@@ -761,27 +838,30 @@
 :   severity; messages at 'e_INFO' severity are ignored by default.
 :
 : o Depending upon a command-line argument, a message is logged at 'e_ERROR'
-:   severity, which will be published as a "pass-through".  If the command-line
+:   severity that will be published as a "pass-through".  If the command-line
 :   argument is absent, the program will succeed with no messages published.
 :   This is the intended behavior.
 
  Note that, when logging using the macros, the 'BALL_LOG_SET_CATEGORY' macro is
- not only extremely convenient, it is required, since it in turn defines
- symbols that the logging macros expect to see.  Note also that
- 'BALL_LOG_SET_CATEGORY' must be used at function scope.  Finally, note that
- 'BALL_LOG_SET_CATEGORY' can be used only once within a scope, although it can
- be nested in inner scopes.
+ not only extremely convenient, it is typically required, since it in turn
+ defines symbols that the logging macros expect to see.  Also note that
+ 'BALL_LOG_SET_CATEGORY' must be used at function scope, and can be used only
+ once within a scope, although it can be nested in inner scopes.
 
  The entire program file is as follows.
 ..
   // logging.m.cpp                                                    -*-C++-*-
 
-  #include <ball_defaultobserver.h>
   #include <ball_log.h>
   #include <ball_loggermanager.h>
   #include <ball_loggermanagerconfiguration.h>
+  #include <ball_streamobserver.h>
+
+  #include <bslma_allocator.h>
+  #include <bslma_default.h>
 
   #include <bsl_iostream.h>
+  #include <bsl_memory.h>
 
   using namespace BloombergLP;
 
@@ -790,25 +870,35 @@
       int verbose = argc > 1;
           // Enable command-line control of program behavior.
 
-      ball::DefaultObserver observer(bsl::cout);
-          // Simplest observer; writes to 'stdout'.
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
 
       ball::LoggerManagerConfiguration configuration;
       configuration.setDefaultThresholdLevelsIfValid(ball::Severity::e_WARN);
           // Configure the minimum threshold at which records are published to
           // the observer to 'e_WARN'.
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
+
+      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                new(*alloc_p) ball::StreamObserver(&bsl::cout),
+                                alloc_p);
+          // Create simple observer; writes to 'stdout'.
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
 
       BALL_LOG_SET_CATEGORY("main category");
           // Set a category -- an arbitrary name.
 
-      BALL_LOG_INFO << "Hello world!" << BALL_LOG_END;
+      BALL_LOG_INFO << "Hello world!";
           // With default settings, this line has no effect.
 
       if (verbose) {  // 'if' to allow command-line activation
-          BALL_LOG_ERROR << "Good-bye world!" << BALL_LOG_END;
+          BALL_LOG_ERROR << "Good-bye world!";
               // Log 'message' at 'ball::Severity::e_ERROR' severity level.
       }
       else {
@@ -838,6 +928,12 @@
   27SEP2007_13:26:46.322 6152 1 ERROR logging.m.cpp 33 main category
   Good-bye world!
 ..
+ Note that any number of observers can be registered with a logger manager.
+ Also note that concrete observers that can be configured after their creation
+ (e.g., as to whether log records are published in UTC or local time)
+ generally can have their configuration adjusted at any time, either before
+ or after being registered.  For an example of such an observer, see
+ 'ball_asyncfileobserver'.
 
 /Example 2: Hello World! With Modified Defaults
 / - - - - - - - - - - - - - - - - - - - - - - -
@@ -847,13 +943,13 @@
  {Example 1}, except that attributes of 'ball::LoggerManagerConfiguration' are
  changed from their defaults (in a single line, in this case).
 
- The 'ball::LoggerManagerConfiguration' 'setDefaultThresholdLevelsIfValid'
- method, which we will use to change the default configuration, takes four
- arguments, each in the range '[0 .. 255]'.  The method returns a status, and
- will fail (with no effect) if any argument is not a valid threshold level.
- Note that any 'ball::Severity::Level' enumerator value is valid, and it is
- good practice to limit arguments to one of those enumerators.  The one line
- that effects our change is:
+ The 'setDefaultThresholdLevelsIfValid' method of
+ 'ball::LoggerManagerConfiguration' that we will use to change the default
+ configuration takes four arguments, each in the range '[0 .. 255]'.  The
+ method returns a status, and will fail (with no effect) if any argument is not
+ a valid threshold level.  Note that any 'ball::Severity::Level' enumerator
+ value is valid, and it is good practice to limit arguments to one of those
+ enumerators.  The one line that effects our change is:
 ..
   configuration.setDefaultThresholdLevelsIfValid(
                                ball::Severity::e_TRACE,   // record level
@@ -861,8 +957,8 @@
                                ball::Severity::e_ERROR,   // trigger level
                                ball::Severity::e_FATAL);  // trigger-all level
 ..
- This method call sets the four severity threshold levels as indicated, which
- has the following effect on logging behavior.
+ This method call sets the four severity threshold levels as indicated and has
+ the following effect on logging behavior.
 
 : 1 Any record logged with a severity that is at least that of 'e_TRACE' is
 :   written to the record buffer, but not necessarily published.
@@ -879,7 +975,7 @@
 :   This behavior, among other things, guarantees that the 'e_ERROR' record
 :   will be published twice.  Although this might seem like a bug, it is the
 :   intended behavior.  Each published record is sent to the observer with a
-:   publication cause (a 'ball::Transmission::Cause' value), which the observer
+:   publication cause (a 'ball::Transmission::Cause' value) that the observer
 :   is free to use in filtering and re-routing published records.  Future
 :   examples will illustrate various filtering techniques.
 :
@@ -895,13 +991,17 @@
 ..
   // logging.m.cpp                                                    -*-C++-*-
 
-  #include <ball_defaultobserver.h>
   #include <ball_log.h>
   #include <ball_loggermanager.h>
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
+  #include <ball_streamobserver.h>
+
+  #include <bslma_allocator.h>
+  #include <bslma_default.h>
 
   #include <bsl_iostream.h>
+  #include <bsl_memory.h>
 
   using namespace BloombergLP;
 
@@ -910,8 +1010,8 @@
       int verbose = argc > 1;
           // Enable command-line control of program behavior.
 
-      ball::DefaultObserver observer(bsl::cout);
-          // simplest observer; writes to 'stdout'
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
 
       ball::LoggerManagerConfiguration configuration;
           // Instantiate the default configuration.
@@ -924,17 +1024,27 @@
           // Set the four severity threshold levels; note that this method can
           // fail, and therefore returns a status.
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
+
+      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                new(*alloc_p) ball::StreamObserver(&bsl::cout),
+                                alloc_p);
+          // Create simple observer; writes to 'stdout'.
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
 
       BALL_LOG_SET_CATEGORY("main category");
           // Set a category -- an arbitrary name.
 
-      BALL_LOG_INFO << "Hello world!" << BALL_LOG_END;
+      BALL_LOG_INFO << "Hello world!";
           // With default settings, this line has no effect.
 
       if (verbose) {  // 'if' to allow command-line activation
-          BALL_LOG_ERROR << "Good-bye world!" << BALL_LOG_END;
+          BALL_LOG_ERROR << "Good-bye world!";
               // Log 'message' at 'ball::Severity::e_ERROR' severity level
               // *and* trigger the publication of the record buffer
               // "trace-back".
@@ -994,31 +1104,35 @@
  uses the singleton logger manager instance to obtain the default logger
  instance, and with that logger instance invokes the 'publish' method.  Note
  that the logger's "manual" 'publish' method should not be confused with the
- 'ball::Observer' 'publish' method, which is invoked by all "manual" and
- "automatic" logger "publishing" operations.  Note also that should the
+ 'ball::Observer' 'publish' method that is invoked by all "manual" and
+ "automatic" logger "publishing" operations.  Also note that should the
  'manager' instance for some reason not be visible, the class method
  'ball::LoggerManager::singleton()' can be used to obtain a reference to that
  instance.  The full program file appears as follows.
 ..
   // logging.m.cpp                                                    -*-C++-*-
 
-  #include <ball_defaultobserver.h>
   #include <ball_log.h>
   #include <ball_loggermanager.h>
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
+  #include <ball_streamobserver.h>
+
+  #include <bslma_allocator.h>
+  #include <bslma_default.h>
 
   #include <bsl_iostream.h>
+  #include <bsl_memory.h>
 
   using namespace BloombergLP;
 
   int main()
   {
-      ball::DefaultObserver observer(bsl::cout);
-          // Simplest observer; writes to 'stdout'.
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
 
       ball::LoggerManagerConfiguration configuration;
-          // default configuration
+          // Create default configuration.
 
       configuration.setDefaultThresholdLevelsIfValid(
                                ball::Severity::e_TRACE,   // record level
@@ -1028,20 +1142,29 @@
           // Set the four severity threshold levels; note that this method can
           // fail, and therefore returns a status.
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
+
+      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                new(*alloc_p) ball::StreamObserver(&bsl::cout),
+                                alloc_p);
+          // Create simple observer; writes to 'stdout'.
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
 
       BALL_LOG_SET_CATEGORY("main category");
           // Set a category -- an arbitrary name.
 
-      BALL_LOG_INFO << "Hello world!" << BALL_LOG_END;
+      BALL_LOG_INFO << "Hello world!";
 
-      BALL_LOG_INFO << "Hello again, world!" << BALL_LOG_END;
+      BALL_LOG_INFO << "Hello again, world!";
 
       bsl::cout << "We're almost ready to exit."     " "
                    "Let's publish the buffer first:" "\n";
 
-      ball::LoggerManager& manager = ball::LoggerManager::singleton();
       manager.getLogger().publish();
           // This chain of calls insures that all messages that are still held
           // in the logger's in-memory buffer are published before the program
@@ -1069,7 +1192,7 @@
  {Example 2}.  First of all, in addition to the file defining 'main', we
  introduce a separate translation unit 'f_log.cpp' that defines a function
  'logThisInfoMsg'.  The 'f_log.cpp' file defines its own category, "function
- category", which is distinct from the "main category" defined in 'main'.  When
+ category", that is distinct from the "main category" defined in 'main'.  When
  'logThisInfoMsg' is invoked, the resulting message is logged to "function
  category".  Note, however, that when the now-familiar logging macros are used
  from 'main' directly, those messages are logged to "main category".
@@ -1088,10 +1211,10 @@
 ..
  The above call has an effect that differs subtly from the configuration
  object's 'setDefaultThresholdLevelsIfValid' method.  The latter sets the
- permanent "factory defaults" as well as the "instantaneous defaults", which
- may be altered as often as desired using the above call.  If, after the above
- call is made, the 'setCategoryThresholdsToFactoryDefaults' method is called,
- the effects of 'setDefaultThresholdLevels' are erased.  This distinction is
+ permanent "factory defaults", as well as the "instantaneous defaults" that may
+ be altered as often as desired using the above call.  If, after the above call
+ is made, the 'setCategoryThresholdsToFactoryDefaults' method is called, the
+ effects of 'setDefaultThresholdLevels' are erased.  This distinction is
  important for more advanced administration, but is not central to this
  example; we offer the alternative to illustrate logger functionality.
 
@@ -1131,30 +1254,32 @@
 
   void logThisInfoMsg(const char *message)
   {
-      // Implementation Note: The uppercase symbols are macros and not
-      // functions.  They do not need the terminal ';', which is provided for
-      // readability only.
+      // Note that the uppercase symbols are macros defined in 'ball_log'.
 
       BALL_LOG_SET_CATEGORY("function category");
           // Set a category -- arbitrary and may be changed.
 
-      BALL_LOG_INFO << message << BALL_LOG_END;
+      BALL_LOG_INFO << message;
           // Log 'message' at 'ball::Severity::e_INFO' severity level.
   }
 
   }  // close enterprise namespace
 ..
- Finally, the 'logging.m.cpp' file, which defines 'main':
+ Finally, the 'logging.m.cpp' file that defines 'main':
 ..
   // logging.m.cpp                                                    -*-C++-*-
 
-  #include <ball_defaultobserver.h>
   #include <ball_log.h>
   #include <ball_loggermanager.h>
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
+  #include <ball_streamobserver.h>
+
+  #include <bslma_allocator.h>
+  #include <bslma_default.h>
 
   #include <bsl_iostream.h>
+  #include <bsl_memory.h>
 
   #include <f_log.h>
 
@@ -1165,27 +1290,36 @@
       int verbose = argc > 1;
           // Enable command-line control of program behavior.
 
-      ball::DefaultObserver observer(bsl::cout);
-          // simplest observer; writes to 'stdout'
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
 
       ball::LoggerManagerConfiguration configuration;
           // Instantiate the default configuration.
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
 
       ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
       manager.setDefaultThresholdLevels(
                     ball::Severity::e_TRACE,   // sets "Record" threshold
                     ball::Severity::e_INFO,    // sets "Pass-Through" threshold
                     ball::Severity::e_ERROR,   // sets "Trigger" threshold
                     ball::Severity::e_FATAL);  // sets "Trigger-All" threshold
 
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                new(*alloc_p) ball::StreamObserver(&bsl::cout),
+                                alloc_p);
+          // Create simple observer; writes to 'stdout'.
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
+
       BALL_LOG_SET_CATEGORY("main category");
           // Set a category -- note that this will *not* affect the category
           // set in 'logThisInfoMsg'.
 
-      BALL_LOG_INFO << "Called directly from 'main'" << BALL_LOG_END;
+      BALL_LOG_INFO << "Called directly from 'main'";
           // Logged to "main category".
 
       if (verbose) {  // 'if' to allow command-line activation
@@ -1196,7 +1330,7 @@
           }
       }
 
-      BALL_LOG_INFO << "Called again directly from 'main'" << BALL_LOG_END;
+      BALL_LOG_INFO << "Called again directly from 'main'";
           // Logged to "main category".
 
       return 0;
@@ -1215,7 +1349,7 @@
  Note that this sequence is not in LIFO order since this output is not from the
  message buffer, but rather is direct "Pass-Through" output.
 
- If we provide a command-line argument, which will cause the 'for' loop to
+ If we provide a command-line argument that will cause the 'for' loop to
  execute, we then get the following output (with formats and timestamps altered
  as is now familiar in these examples).
 ..
@@ -1237,6 +1371,8 @@
   27SEP2007_13:39:07.152 8249 1 INFO logging.m.cpp 51 main category
   Called again directly from 'main'
 ..
+
+
 
 /Example 5: Logging in Two Threads
 /- - - - - - - - - - - - - - - - -
@@ -1273,17 +1409,21 @@
 ..
   // logging.m.cpp                                                    -*-C++-*-
 
-  #include <ball_defaultobserver.h>
   #include <ball_log.h>
   #include <ball_loggermanager.h>
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
+  #include <ball_streamobserver.h>
+
+  #include <bslma_allocator.h>
+  #include <bslma_default.h>
 
   #include <bslmt_threadutil.h>
 
   #include <bsls_timeinterval.h>
 
   #include <bsl_iostream.h>
+  #include <bsl_memory.h>
 
   using namespace BloombergLP;
 
@@ -1292,7 +1432,7 @@
       // severity.
   {
       BALL_LOG_SET_CATEGORY("Function 1");
-      BALL_LOG_INFO << message << BALL_LOG_END;
+      BALL_LOG_INFO << message;
   }
 
   void f2(const char *message)
@@ -1300,7 +1440,7 @@
       // severity.
   {
       BALL_LOG_SET_CATEGORY("Function 2");
-      BALL_LOG_WARN << message << BALL_LOG_END;
+      BALL_LOG_WARN << message;
   }
 
   extern "C" void *threadFunction1(void *)
@@ -1338,7 +1478,9 @@
       int verbose = argc > 1;  // allows user to control output from command
                                // line
 
-      ball::DefaultObserver observer(bsl::cout);        // writes to 'stdout'
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
+
       ball::LoggerManagerConfiguration configuration;
       configuration.setDefaultThresholdLevelsIfValid(
                                     ball::Severity::e_TRACE,  // "Record"
@@ -1346,8 +1488,18 @@
                                     ball::Severity::e_ERROR,  // "Trigger"
                                     ball::Severity::e_FATAL); // "Trigger-All"
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
+
+      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                new(*alloc_p) ball::StreamObserver(&bsl::cout),
+                                alloc_p);
+          // Create simple observer; writes to 'stdout'.
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
 
       BALL_LOG_SET_CATEGORY("main");
 
@@ -1362,7 +1514,7 @@
       bslmt::ThreadUtil::join(handle2);
 
       if (verbose) {  // 'if' to allow command-line activation
-          BALL_LOG_ERROR << "Force publication." << BALL_LOG_END;
+          BALL_LOG_ERROR << "Force publication.";
       }
       return 0;
   }
@@ -1415,9 +1567,9 @@
  Nevertheless, as we use more of the logger's features, we need to become more
  familiar with the details of logger operation.  In this example, we install a
  distinct logger instance (i.e., not the default logger) for one of the
- threads.  (The other thread continues to use the default logger, which is
- shared with 'main', to make clear that the "one-logger-per-thread" usage
- pattern applies on a thread-by-thread basis, and is not "all-or-nothing".)  By
+ threads.  (The other thread continues to use the default logger that is shared
+ with 'main', to make clear that the "one-logger-per-thread" usage pattern
+ applies on a thread-by-thread basis, and is not "all-or-nothing".)  By
  choosing this more sophisticated usage, however, we need to address the
  question of logger resource management and lifetime -- a question that is
  completely avoided by using the default logger.  As is often the case in
@@ -1427,12 +1579,12 @@
  Installing a distinct logger instance in 'threadFunction1' is simple enough to
  do, but a question arises immediately: who should own the logger resources?
  Before we discuss this question, let's look at the specific solution that we
- have chosen, which will clarify the question of what resources a logger needs.
+ have chosen to clarify the question of what resources a logger needs.
 
- We've modified 'threadFunction1' to take as an argument a logger (which is
- passed as a 'void*') and to use the logger manager's 'setLogger' function to
- install the logger as the active logger for that thread.  The code to do this
- in 'threadFunction1' is straightforward:
+ We've modified 'threadFunction1' to take a logger as an argument (passed as a
+ 'void *') and to use the logger manager's 'setLogger' function to install the
+ logger as the active logger for that thread.  The code to do this in
+ 'threadFunction1' is straightforward:
 ..
   extern "C" void *threadFunction1(void *logger)
       // ...
@@ -1459,12 +1611,12 @@
  needs a (concrete) 'ball::RecordBuffer', and the preferred record buffer,
  'ball::FixedSizeRecordBuffer', in turn needs a size for the record buffer
  ('LOGBUF_SIZE').  We also provide an explicit 'bslma::Allocator' to supply
- memory; the default allocator returned by 'bslma::Default::defaultAllocator()'
+ memory; the global allocator returned by 'bslma::Default::globalAllocator()'
  is sufficient here.  Assuming that 32k bytes is a good size for the buffer,
  the following eight lines will appear in 'main'.
 ..
   enum { LOGBUF_SIZE = 32 * 1024 };
-  bslma::Allocator            *alloc_p = bslma::Default::defaultAllocator();
+  bslma::Allocator            *alloc_p = bslma::Default::globalAllocator();
   ball::FixedSizeRecordBuffer  rb(LOGBUF_SIZE, alloc_p);
   ball::LoggerManager&         manager = ball::LoggerManager::singleton();
   ball::Logger                *logger  = manager.allocateLogger(&rb);
@@ -1502,15 +1654,23 @@
  published) when the thread function returned.
 
  In this example we also made a trivial change that has nothing to do with
- threading, but illustrates a useful feature of 'ball::DefaultObserver', namely
+ threading, but illustrates a useful feature of 'ball::StreamObserver', namely
  that an instance can write to a file as easily as to 'stdout'.  The three
  lines in 'main':
 ..
+  ball::LoggerManagerScopedGuard scopedGuard(configuration);
+      // Instantiate the logger manager singleton.
+
   bsl::ofstream outFile("outFile");
-  ball::DefaultObserver observer(outFile);  // writes to "outFile"
-  // ...
-  ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
-                                           // instantiate
+  bsl::shared_ptr<ball::StreamObserver> observer(
+                                  new(*alloc_p) ball::StreamObserver(&outFile),
+                                  alloc_p);
+      // Create simple observer; writes to 'outFile".
+
+  ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+  manager.registerObserver(observer, "default");
+      // Register the observer under (arbitrary) name "default".
 ..
  install a "file observer" that will write to "outFile", creating the file if
  it doesn't exist and overwriting it if it does.  Clearly, this is just taking
@@ -1521,18 +1681,22 @@
 ..
   // logging.m.cpp                                                    -*-C++-*-
 
-  #include <ball_defaultobserver.h>
   #include <ball_fixedsizerecordbuffer.h>
   #include <ball_log.h>
   #include <ball_loggermanager.h>
   #include <ball_loggermanagerconfiguration.h>
   #include <ball_severity.h>
+  #include <ball_streamobserver.h>
+
+  #include <bslma_allocator.h>
+  #include <bslma_default.h>
 
   #include <bslmt_threadutil.h>
 
   #include <bsls_timeinterval.h>
 
   #include <bsl_fstream.h>
+  #include <bsl_memory.h>
 
   using namespace BloombergLP;
 
@@ -1541,7 +1705,7 @@
       // severity.
   {
       BALL_LOG_SET_CATEGORY("Function 1");
-      BALL_LOG_INFO << message << BALL_LOG_END;
+      BALL_LOG_INFO << message;
   }
 
   void f2(const char *message)
@@ -1549,7 +1713,7 @@
       // severity.
   {
       BALL_LOG_SET_CATEGORY("Function 2");
-      BALL_LOG_WARN << message << BALL_LOG_END;
+      BALL_LOG_WARN << message;
   }
 
   extern "C" void *threadFunction1(void *logger)
@@ -1590,8 +1754,9 @@
       int verbose = argc > 1; // allows user to control output from command
                               // line
 
-      bsl::ofstream outFile("outFile");
-      ball::DefaultObserver observer(outFile);          // writes to "outFile"
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
+
       ball::LoggerManagerConfiguration configuration;
       configuration.setDefaultThresholdLevelsIfValid(
                                    ball::Severity::e_TRACE,   // "Record"
@@ -1599,8 +1764,19 @@
                                    ball::Severity::e_ERROR,   // "Trigger"
                                    ball::Severity::e_FATAL);  // "Trigger-All"
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
+
+      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+      bsl::ofstream outFile("outFile");
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                  new(*alloc_p) ball::StreamObserver(&outFile),
+                                  alloc_p);
+          // Create simple observer; writes to 'outFile".
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
 
       BALL_LOG_SET_CATEGORY("main");
 
@@ -1609,10 +1785,7 @@
       // lifetimes.
 
       enum { LOGBUF_SIZE = 32 * 1024 };
-      bslma::Allocator            *alloc_p =
-                                            bslma::Default::defaultAllocator();
       ball::FixedSizeRecordBuffer  rb(LOGBUF_SIZE, alloc_p);
-      ball::LoggerManager&         manager = ball::LoggerManager::singleton();
       ball::Logger                *logger  = manager.allocateLogger(&rb);
 
       bslmt::ThreadAttributes   attributes;
@@ -1627,7 +1800,7 @@
       bslmt::ThreadUtil::join(handle2);
 
       if (verbose) {  // 'if' to allow command-line activation
-          BALL_LOG_FATAL << "Force publication." << BALL_LOG_END;
+          BALL_LOG_FATAL << "Force publication.";
       }
 
       manager.deallocateLogger(logger);  // free resources
@@ -1635,8 +1808,8 @@
   }
 ..
  Running the above program with no extra command-line argument produces the
- output shown below, which in this example is written to 'outFile'.  Note that,
- except for the timestamps, process id, and file name, the output is the same
+ output shown below that in this example is written to 'outFile'.  Note that,
+ except for the timestamps, process id, and filename, the output is the same
  as for {Example 5} above: only the 'e_WARN' records (from thread 3) are
  published and they are in chronological order.
 ..
@@ -1649,9 +1822,9 @@
  When we supply an additional command-line argument, causing the logging macro
  in 'main' (now 'BALL_LOG_FATAL') to execute, the *initial* output is similar
  to {Example 5}.  Specifically, the three 'e_WARN' records are published in
- chronological order as "Pass-Through" records, as is the 'e_FATAL' record,
- (which now replaces the 'e_ERROR' record).  From here on, however, the
- sequence of events is a bit different.
+ chronological order as "Pass-Through" records, as is the 'e_FATAL' record
+ (that now replaces the 'e_ERROR' record).  From here on, however, the sequence
+ of events is a bit different.
 
  Recall that in this example 'e_FATAL' is the "Trigger-All" threshold level.
  For a "Trigger-All", each record buffer is published in turn.  *Within* a
@@ -1688,8 +1861,8 @@
 /Example 7: A Thread that Owns its Own Logger Resources
 /- - - - - - - - - - - - - - - - - - - - - - - - - - -
  This example is almost identical to {Example 6} above, except that the eight
- lines (as highlighted above) that are needed to manage resources are moved
- from 'main' to 'threadFunction1', which no longer needs an argument.
+ lines (as highlighted above) needed to manage resources are moved from 'main'
+ to 'threadFunction1', so that the latter function no longer needs an argument.
  Therefore, we show only 'threadFunction1' and 'main' explicitly in this
  example.  Refer to the discussion of {Example 6} for details.
 ..
@@ -1704,13 +1877,12 @@
       // lifetimes.
 
       enum { LOGBUF_SIZE = 32 * 1024 };
-      bslma::Allocator            *alloc_p =
-                                            bslma::Default::defaultAllocator();
+      bslma::Allocator            *alloc_p = bslma::Default::globalAllocator();
       ball::FixedSizeRecordBuffer  rb(LOGBUF_SIZE, alloc_p);
       ball::LoggerManager&         manager = ball::LoggerManager::singleton();
       ball::Logger                *logger  = manager.allocateLogger(&rb);
 
-      ball::LoggerManager::singleton().setLogger((ball::Logger*)logger);
+      manager.setLogger((ball::Logger*)logger);
           // Install a local logger for this thread.
 
       char               buf[10] = "Message n";
@@ -1733,8 +1905,9 @@
       int verbose = argc > 1; // allows user to control output from command
                               // line
 
-      bsl::ofstream outFile("outFile");
-      ball::DefaultObserver observer(outFile);         // writes to "outFile"
+      bslma::Allocator *alloc_p = bslma::Default::globalAllocator();
+          // Get global allocator.
+
       ball::LoggerManagerConfiguration configuration;  // default configuration
       configuration.setDefaultThresholdLevelsIfValid(
                                    ball::Severity::e_TRACE,   // "Record"
@@ -1742,8 +1915,19 @@
                                    ball::Severity::e_ERROR,   // "Trigger"
                                    ball::Severity::e_FATAL);  // "Trigger-All"
 
-      ball::LoggerManagerScopedGuard scopedGuard(&observer, configuration);
+      ball::LoggerManagerScopedGuard scopedGuard(configuration);
           // Instantiate the logger manager singleton.
+
+      ball::LoggerManager& manager = ball::LoggerManager::singleton();
+
+      bsl::ofstream outFile("outFile");
+      bsl::shared_ptr<ball::StreamObserver> observer(
+                                  new(*alloc_p) ball::StreamObserver(&outFile),
+                                  alloc_p);
+          // Create simple observer; writes to 'outFile".
+
+      manager.registerObserver(observer, "default");
+          // Register the observer under (arbitrary) name "default".
 
       BALL_LOG_SET_CATEGORY("main");
 
@@ -1759,7 +1943,7 @@
       bslmt::ThreadUtil::join(handle2);
 
       if (verbose) {  // 'if' to allow command-line activation
-          BALL_LOG_FATAL << "Force publication." << BALL_LOG_END;
+          BALL_LOG_FATAL << "Force publication.";
       }
       return 0;
   }
@@ -1786,9 +1970,117 @@
   27SEP2007_14:09:31.197 1615 3 WARN logging.m.cpp 29 Function 2 Message 0
 ..
 
+/Example 8: Rule-Based Logging
+/- - - - - - - - - - - - - - -
+ The following example demonstrates the use of attributes and rules to
+ conditionally enable logging.
+
+ We start by defining a function, 'processData', that is passed data in a
+ 'vector<char>' and information about the user who sent the data.  This
+ example function performs no actual processing, but does log a single
+ message at the 'ball::Severity::e_DEBUG' threshold level.  The 'processData'
+ function also adds the user information passed to this function to the
+ thread's attribute context.  We will use these attributes later, to create a
+ logging rule that enables verbose logging only for a particular user.
+..
+  void processData(int                      uuid,
+                   int                      luw,
+                   int                      terminalNumber,
+                   const bsl::vector<char>& data)
+      // Process the specified 'data' associated with the specified Bloomberg
+      // 'uuid', 'luw', and 'terminalNumber'.
+  {
+      (void)data;  // suppress "unused" warning
+..
+ We add our attributes using 'ball::ScopedAttribute', which adds an attribute
+ container with one attribute to a list of containers.  This is easy and
+ efficient if the number of attributes is small, but should not be used if
+ there are a large number of attributes.  If motivated, we could use
+ 'ball::DefaultAttributeContainer', which provides an efficient container for
+ a large number of attributes, or even create a more efficient attribute
+ container implementation specifically for these three attributes (uuid, luw,
+ and terminalNumber).  See {'ball_scopedattributes'} (plural) for an example
+ of using a different attribute container, and {'ball_attributecontainer'}
+ for an example of creating a custom attribute container.
+..
+      // We use 'ball::ScopedAttribute' here because the number of
+      // attributes is relatively small.
+
+      ball::ScopedAttribute uuidAttribute("uuid", uuid);
+      ball::ScopedAttribute luwAttribute("luw", luw);
+      ball::ScopedAttribute termNumAttribute("terminalNumber",
+                                             terminalNumber);
+..
+ In this simplified example we perform no actual processing, and simply log
+ a message at the 'ball::Severity::e_DEBUG' level.
+..
+      BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
+
+      BALL_LOG_DEBUG << "An example message";
+..
+ Notice that if we were not using a "scoped" attribute container like that
+ provided automatically by 'ball::ScopedAttribute' (e.g., if we were using a
+ local 'ball::DefaultAttributeContainer' instead), then the container
+ **must** be removed from the 'ball::AttributeContext' before it is
+ destroyed!  See 'ball_scopedattributes' (plural) for an example.
+..
+  }
+..
+ Next we demonstrate how to create a logging rule that sets the pass-through
+ logging threshold to 'ball::Severity::e_TRACE' (i.e., enables verbose logging)
+ for a particular user when calling the 'processData' function defined
+ above.
+
+ We start by creating the singleton logger manager that we configure with
+ the stream observer and a default configuration.  We then call the
+ 'processData' function: This first call to 'processData' will not result in
+ any logged messages because 'processData' logs its message at the
+ 'ball::Severity::e_DEBUG' level, which is below the default configured logging
+ threshold.
+..
+  ball::StreamObserver observer(&bsl::cout);
+  ball::LoggerManagerConfiguration configuration;
+  ball::LoggerManagerScopedGuard lmg(&observer, configuration);
+
+  BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
+
+  bsl::vector<char> message;
+
+  BALL_LOG_ERROR << "Processing the first message.";
+  processData(3938908, 2, 9001, message);
+..
+ Now we add a logging rule, setting the pass-through threshold to be
+ 'ball::Severity::e_TRACE' (i.e., enabling verbose logging) if the thread's
+ context contains a "uuid" of 3938908.  Note that we use the wild-card
+ value '*' for the category so that the 'ball::Rule' rule will apply to all
+ categories.
+..
+  ball::Rule rule("*", 0, ball::Severity::e_TRACE, 0, 0);
+  rule.addPredicate(ball::Predicate("uuid", 3938908));
+  ball::LoggerManager::singleton().addRule(rule);
+
+  BALL_LOG_ERROR << "Processing the second message.";
+  processData(3938908, 2, 9001, message);
+..
+ The final call to the 'processData' function below, passes a "uuid" of
+ 2171395 (not 3938908) so the logging rule we defined will *not* apply and
+ no message will be logged.
+..
+  BALL_LOG_ERROR << "Processing the third message.";
+  processData(2171395, 2, 9001, message);
+..
+ The resulting logged output for this example looks like the following:
+..
+ ERROR example.cpp:105 EXAMPLE.CATEGORY Processing the first message.
+ ERROR example.cpp:117 EXAMPLE.CATEGORY Processing the second message.
+ DEBUG example.cpp:35 EXAMPLE.CATEGORY An example message
+ ERROR example.cpp:129 EXAMPLE.CATEGORY Processing the third message.
+..
+
 /Appendix: Macro Reference
 /-------------------------
- This section documents the preprocessor macros defined in 'ball_log'.
+ This section documents the preprocessor macros defined in 'ball_log' that are
+ most commonly used.
 
  The following two macros establish the logging context required by the other
  macros.  A use of one of these two macros must be visible from within the
@@ -1814,69 +2106,37 @@
 :   (e.g., UUID).
 
  The seven macros based on C++ streams, 'BALL_LOG_TRACE', 'BALL_LOG_DEBUG',
- 'BALL_LOG_INFO', 'BALL_LOG_WARN', 'BALL_LOG_ERROR', 'BALL_LOG_FATAL', and
- 'BALL_LOG_END', have the following usage pattern:
+ 'BALL_LOG_INFO', 'BALL_LOG_WARN', 'BALL_LOG_ERROR', and 'BALL_LOG_FATAL',
+ have the following usage pattern:
 ..
-  BALL_LOG_TRACE << X << Y ... << BALL_LOG_END
-  BALL_LOG_DEBUG << X << Y ... << BALL_LOG_END
-  BALL_LOG_INFO  << X << Y ... << BALL_LOG_END
-  BALL_LOG_WARN  << X << Y ... << BALL_LOG_END
-  BALL_LOG_ERROR << X << Y ... << BALL_LOG_END
-  BALL_LOG_FATAL << X << Y ... << BALL_LOG_END
-      where X, Y, ... represents any sequence of values for which
-      'operator<<' is defined.  The resulting formatted message string is
-      logged with the severity indicated by the name of the initial macro
-      (e.g., 'BALL_LOG_TRACE' ... 'BALL_LOG_END' logs with severity
-      'ball::Severity::e_TRACE').  Note that the formatted string includes the
-      category and filename as established by the 'BALL_LOG_SET_CATEGORY' (or
+  BALL_LOG_TRACE << X << Y ...;
+  BALL_LOG_DEBUG << X << Y ...;
+  BALL_LOG_INFO  << X << Y ...;
+  BALL_LOG_WARN  << X << Y ...;
+  BALL_LOG_ERROR << X << Y ...;
+  BALL_LOG_FATAL << X << Y ...;
+      where X, Y, ... represents any sequence of values for which 'operator<<'
+      is defined.  The resulting formatted message string is logged with the
+      severity indicated by the name of the initial macro (e.g.,
+      'BALL_LOG_TRACE' logs with severity 'ball::Severity::e_TRACE').  Note
+      that the formatted string includes the category and filename as
+      established by the 'BALL_LOG_SET_CATEGORY' (or
       'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
 ..
  The remaining macros are based on 'printf'-style format specifications:
 ..
-  BALL_LOG0_TRACE(MSG)
-  BALL_LOG0_DEBUG(MSG)
-  BALL_LOG0_INFO (MSG)
-  BALL_LOG0_WARN (MSG)
-  BALL_LOG0_ERROR(MSG)
-  BALL_LOG0_FATAL(MSG)
-      Log the specified 'MSG' (assumed to be of type convertible to
-      'const char *') with the severity indicated by the name of the macro
-      (e.g., 'BALL_LOG0_DEBUG' logs with severity 'ball::Severity::e_DEBUG').
-      Note that the formatted message string includes the category and
-      filename as established by the 'BALL_LOG_SET_CATEGORY' (or
-      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
-
-  BALL_LOG1_TRACE(MSG, ARG1)
-  BALL_LOG1_DEBUG(MSG, ARG1)
-  BALL_LOG1_INFO (MSG, ARG1)
-  BALL_LOG1_WARN (MSG, ARG1)
-  BALL_LOG1_ERROR(MSG, ARG1)
-  BALL_LOG1_FATAL(MSG, ARG1)
-      Format the specified 'ARG1' according to the 'printf'-style format
-      specification in the specified 'MSG' (assumed to be of type convertible
-      to 'const char *') and log the resulting formatted message string with
-      the severity indicated by the name of the macro (e.g., 'BALL_LOG1_WARN'
-      logs with severity 'ball::Severity::e_WARN').  Note that the formatted
-      string includes the category and filename as established by the
-      'BALL_LOG_SET_CATEGORY' (or 'BALL_LOG_SET_DYNAMIC_CATEGORY') and
-      '__FILE__' macros, respectively.  The behavior is undefined unless
-      'ARG1' is compatible with its corresponding format specification in
-      'MSG'.
-
-  BALL_LOGn_TRACE(MSG, ARG1, ARG2, ..., ARGn)     2 <= n <= 9
-  BALL_LOGn_DEBUG(MSG, ARG1, ARG2, ..., ARGn)
-  BALL_LOGn_INFO (MSG, ARG1, ARG2, ..., ARGn)
-  BALL_LOGn_WARN (MSG, ARG1, ARG2, ..., ARGn)
-  BALL_LOGn_ERROR(MSG, ARG1, ARG2, ..., ARGn)
-  BALL_LOGn_FATAL(MSG, ARG1, ARG2, ..., ARGn)
-      Format the specified 'ARG1', 'ARG2', ..., 'ARGn' (2 <= n <= 9)
-      according to the 'printf'-style format specification in the specified
-      'MSG' (assumed to be of type convertible to 'const char *') and log the
-      resulting formatted message string with the severity indicated by the
-      name of the macro (e.g., 'BALL_LOG8_FATAL' logs with severity
-      'ball::Severity::e_FATAL').  Note that the formatted string includes the
-      category and filename as established by the 'BALL_LOG_SET_CATEGORY' (or
-      'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
-      The behavior is undefined unless each 'ARGn' is compatible with its
-      corresponding format specification in 'MSG'.
+  BALL_LOGVA_TRACE(MSG, ...);
+  BALL_LOGVA_DEBUG(MSG, ...);
+  BALL_LOGVA_INFO( MSG, ...);
+  BALL_LOGVA_WARN( MSG, ...);
+  BALL_LOGVA_ERROR(MSG, ...);
+  BALL_LOGVA_FATAL(MSG, ...);
+      Format the specified '...' optional arguments, if any, according to the
+      'printf'-style format specification in the specified 'MSG' (assumed to be
+      of type convertible to 'const char *') and log the resulting formatted
+      message string with the severity indicated by the name of the macro
+      (e.g., 'BALL_LOGVA_INFO' logs with severity 'ball::Severity::e_INFO').
+      The behavior is undefined unless the number and types of optional
+      arguments are compatible with the format specification in 'MSG'.  Note
+      that each use of these macros must be terminated by a ';'.
 ..

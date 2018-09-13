@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALST_OBJECTFILEFORMAT
 #define INCLUDED_BALST_OBJECTFILEFORMAT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide platform-dependent object file format trait definitions.
@@ -34,6 +32,34 @@ BSLS_IDENT("$Id: $")
 // based on the prevalent system's characteristics.  #defines are also
 // provided by this component to facilitate conditional compilation depending
 // upon object file formats.
+//
+///DWARF Information
+///-----------------
+// DWARF is a format for detailed debugging information.  It is not a complete
+// format, but is used within other formats.  It is used within ELF on Linux,
+// but not (yet) on Solaris at Bloomberg (currently the ELF format on Solaris
+// still uses STABS).  It is used within the Mach-O format (also known as the
+// 'Dladdr' format in this file) used on Darwin.  It is also used by the Clang
+// compiler (which uses ELF).
+//
+// For all these platforms, parsing the DWARF information is necessary for the
+// stack trace to get source file names and line numbers (the ELF format gives
+// source file names, but only in the case of file-scope static functions).
+//
+// DWARF is implemented for g++ versions earlier than 7.1.0 on Linux.
+//
+///Implementation Note
+///- - - - - - - - - -
+// Linux g++ 7.1.0 uses DWARF version 4, while g++ 5.4.0 and before use DWARF
+// version 3.  At the moment the required system header, 'dwarf.h', is not
+// available in the Bloomberg production build 'chroot' environment, so
+// support for dwarf formats is disabled.
+//
+// DWARF support on Clang is problematic and not currrently implemented, see
+// the long comment in balst_stacktraceresolverimpl_elf.cpp, which explains
+// exactly how it could be implemented when that becomes a priority.
+//
+// We have not yet investigated implementing DWARF for Dladdr (Darwin).
 //
 ///Usage
 ///-----
@@ -92,13 +118,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 
@@ -130,17 +152,8 @@ struct ObjectFileFormat {
     typedef Elf Policy;
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_ELF 1
 
-# if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)        \
-    && BSLS_PLATFORM_CMP_VERSION != 40802
-    // DWARF support on clang is problematic and not currrently implemented,
-    // see comment in balst_stacktraceresolverimpl_elf.cpp. g++ 4.8.2 is using
-    // some user-extended 'DW_LNE_*' opcode that is not defined in 'dwarf.h'
-    // and that we don't know how to interpret.
-
+# if defined(BSLS_PLATFORM_OS_LINUX) && defined(BSLS_PLATFORM_CMP_GNU)
 #   define BALST_OBJECTFILEFORMAT_RESOLVER_DWARF 1
-        // DWARF is not a complete object file format, it is a format for
-        // information embedded within ELF files to give source file name and
-        // line number information.
 # endif
 
 #elif defined(BSLS_PLATFORM_OS_AIX)

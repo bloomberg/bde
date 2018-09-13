@@ -843,23 +843,28 @@ int main(int argc, char *argv[])
         //: 2 The common object allocator address held by both objects is
         //:   unchanged.
         //:
-        //: 3 Neither function allocates memory from any allocator.
+        //: 3 The member function does not allocate memory from any allocator;
+        //:   nor does the free function when the two objects being swapped use
+        //:   the same allocator.
         //:
-        //: 4 Both functions have standard signatures and return types.
+        //: 4 The free function can be called with two objects that use
+        //:   different allocators.
         //:
-        //: 5 Using either function to swap an object with itself does not
+        //: 5 Both functions have standard signatures and return types.
+        //:
+        //: 6 Using either function to swap an object with itself does not
         //:   affect the value of the object (alias-safety).
         //:
-        //: 6 The free 'swap' function is discoverable through ADL (Argument
+        //: 7 The free 'swap' function is discoverable through ADL (Argument
         //:   Dependent Lookup).
         //:
-        //: 7 QoI: Asserted precondition violations are detected when enabled.
+        //: 8 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Use the addresses of the 'swap' member and free functions defined
         //:   in this component to initialize, respectively, member-function
         //:   and free-function pointers having the appropriate signatures and
-        //:   return types.  (C-4)
+        //:   return types.  (C-5)
         //:
         //: 2 Create a 'bslma::TestAllocator' object, and install it as the
         //:   default allocator (note that a ubiquitous test allocator is
@@ -879,7 +884,7 @@ int main(int argc, char *argv[])
         //:     implementations of individual attribute types: ('Y') "Yes",
         //:     ('N') "No", or ('?') "implementation-dependent".
         //:
-        //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 5)
+        //: 4 For each row 'R1' in the table of P-3:  (C-1..2, 6)
         //:
         //:   1 Create a 'bslma::TestAllocator' object, 'oa'.
         //:
@@ -889,9 +894,9 @@ int main(int argc, char *argv[])
         //:     'Obj' 'XX' from 'mW'.
         //:
         //:   3 Use the member and free 'swap' functions to swap the value of
-        //:     'mW' with itself; verify, after each swap, that:  (C-5)
+        //:     'mW' with itself; verify, after each swap, that:  (C-6)
         //:
-        //:     1 The value is unchanged.  (C-5)
+        //:     1 The value is unchanged.  (C-6)
         //:
         //:     2 The allocator address held by the object is unchanged.
         //:
@@ -919,7 +924,7 @@ int main(int argc, char *argv[])
         //:       3 There was no additional object memory allocation.
         //:
         //: 5 Verify that the free 'swap' function is discoverable through ADL:
-        //:   (C-6)
+        //:   (C-7)
         //:
         //:   1 Create a set of attribute values, 'A', distinct from the values
         //:     corresponding to the default-constructed object, choosing
@@ -937,21 +942,25 @@ int main(int argc, char *argv[])
         //:     use the copy constructor and a "scratch" allocator to create a
         //:     'const' 'Obj' 'YY' from 'mY'.
         //:
-        //:   5 Use the 'bslalg_SwapUtil' helper function template to swap the
+        //:   5 Use the 'bslalg::SwapUtil' helper function template to swap the
         //:     values of 'mX' and 'mY', using the free 'swap' function defined
-        //:     in this component, then verify that:  (C-6)
+        //:     in this component, then verify that:  (C-7)
         //:
         //:     1 The values have been exchanged.
         //:
-        //:     2 There was no additional object memory allocation.  (C-6)
+        //:     2 There was no additional object memory allocation.  (C-7)
         //:
-        //: 6 Use the test allocator from P-2 to verify that no memory is ever
+        //: 6 Use the test allocator from P-2 to verify that no memory was
         //:   allocated from the default allocator.  (C-3)
         //:
-        //: 7 Verify that, in appropriate build modes, defensive checks are
-        //:   triggered when an attempt is made to swap objects that do not
-        //:   refer to the same allocator, but not when the allocators are the
-        //:   same (using the 'BSLS_ASSERTTEST_*' macros).  (C-7)
+        //: 7 Verify that free 'swap' exchanges the values of any two objects
+        //:   that use different allocators.  (C-4)
+        //:
+        //: 8 Verify that, in appropriate build modes, defensive checks are
+        //:   triggered when, using the member 'swap' function, an attempt is
+        //:   made to swap objects that do not refer to the same allocator, but
+        //:   not when the allocators are the same (using the
+        //:   'BSLS_ASSERTTEST_*' macros).  (C-8)
         //
         // Testing:
         //   void swap(baltzo::LocalTimeDescriptor& other);
@@ -1071,7 +1080,7 @@ int main(int argc, char *argv[])
                     LOOP2_ASSERT(LINE1, LINE2, oam.isTotalSame());
                 }
 
-                // free function 'swap'
+                // free function 'swap', same allocator
                 {
                     bslma::TestAllocatorMonitor oam(&oa);
 
@@ -1113,7 +1122,7 @@ int main(int argc, char *argv[])
                   Obj mY(A1, A2, A3, &oa);  const Obj& Y = mY;
             const Obj YY(Y, &scratch);
 
-            if (veryVerbose) { T_ P_(X) P(Y) }
+            if (veryVeryVerbose) { T_ P_(X) P(Y) }
 
             bslma::TestAllocatorMonitor oam(&oa);
 
@@ -1123,19 +1132,61 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(XX, Y, XX == Y);
             ASSERT(oam.isTotalSame());
 
-            if (veryVerbose) { T_ P_(X) P(Y) }
+            if (veryVeryVerbose) { T_ P_(X) P(Y) }
         }
 
         // Verify no memory is allocated from the default allocator.
 
         LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 
+        if (verbose) cout <<
+                   "\nFree 'swap' function with different allocators." << endl;
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int         LINE1   = DATA[ti].d_line;
+            const char        MEM1    = DATA[ti].d_mem;
+            const int         OFFSET1 = DATA[ti].d_utcOffsetInSeconds;
+            const bool        FLAG1   = DATA[ti].d_dstInEffectFlag;
+            const char *const DESC1   = DATA[ti].d_description;
+
+            bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator     oa2("object2", veryVeryVeryVerbose);
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            const Obj XX(OFFSET1, FLAG1, DESC1, &scratch);
+
+            if (veryVerbose) { T_ P_(LINE1) P(XX) }
+
+            for (int tj = 0; tj < NUM_DATA; ++tj) {
+                const int         LINE2   = DATA[tj].d_line;
+                const int         OFFSET2 = DATA[tj].d_utcOffsetInSeconds;
+                const bool        FLAG2   = DATA[tj].d_dstInEffectFlag;
+                const char *const DESC2   = DATA[tj].d_description;
+
+                      Obj mX(XX, &oa);  const Obj& X = mX;
+
+                      Obj mY(OFFSET2, FLAG2, DESC2, &oa2);  const Obj& Y = mY;
+                const Obj YY(Y, &scratch);
+
+                if (veryVerbose) { T_ P_(LINE2) P_(X) P_(Y) P(YY) }
+
+                // free function 'swap', different allocators
+                {
+                    swap(mX, mY);
+
+                    LOOP4_ASSERT(LINE1, LINE2, YY, X, YY == X);
+                    LOOP4_ASSERT(LINE1, LINE2, XX, Y, XX == Y);
+                    LOOP2_ASSERT(LINE1, LINE2, &oa  == X.allocator());
+                    LOOP2_ASSERT(LINE1, LINE2, &oa2 == Y.allocator());
+                }
+            }
+        }
+
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            if (veryVerbose) cout << "\t'swap' member function" << endl;
+            if (verbose) cout << "\t'swap' member function" << endl;
             {
                 bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
                 bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
@@ -1146,19 +1197,8 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mA.swap(mB));
                 ASSERT_SAFE_FAIL(mA.swap(mZ));
             }
-
-            if (veryVerbose) cout << "\t'swap' free function" << endl;
-            {
-                bslma::TestAllocator oa1("object1", veryVeryVeryVerbose);
-                bslma::TestAllocator oa2("object2", veryVeryVeryVerbose);
-
-                Obj mA(&oa1);  Obj mB(&oa1);
-                Obj mZ(&oa2);
-
-                ASSERT_SAFE_PASS(swap(mA, mB));
-                ASSERT_SAFE_FAIL(swap(mA, mZ));
-            }
         }
+
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -2145,7 +2185,7 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nApply primary manipulators and verify expected values." << endl;
 
-        if (veryVerbose) { T_ Q(utcOffsetInSeconds) }
+        if (verbose) { T_ Q(utcOffsetInSeconds) }
         {
             mX.setUtcOffsetInSeconds(A1);
 
@@ -2157,7 +2197,7 @@ int main(int argc, char *argv[])
             ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
 
-        if (veryVerbose) { T_ Q(dstInEffectFlag) }
+        if (verbose) { T_ Q(dstInEffectFlag) }
         {
             mX.setDstInEffectFlag(A2);
 
@@ -2169,7 +2209,7 @@ int main(int argc, char *argv[])
             ASSERT(oam.isTotalSame());  ASSERT(dam.isTotalSame());
         }
 
-        if (veryVerbose) { T_ Q(description) }
+        if (verbose) { T_ Q(description) }
         {
             mX.setDescription(A3);
 
@@ -2517,23 +2557,16 @@ int main(int argc, char *argv[])
             bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-            const int  UTC    = 5 * 60 * 60;
             const bool FLAG   = true;
             const char DESC[] = "EST";
 
-            if (veryVerbose) cout << "\t'utcOffsetInSeconds'" << endl;
+            if (verbose) cout << "\t'utcOffsetInSeconds'" << endl;
             {
                 ASSERT_SAFE_FAIL(Obj(UTC_MIN - 1, FLAG, DESC));
                 ASSERT_SAFE_PASS(Obj(UTC_MIN    , FLAG, DESC));
 
                 ASSERT_SAFE_PASS(Obj(UTC_MAX    , FLAG, DESC));
                 ASSERT_SAFE_FAIL(Obj(UTC_MAX + 1, FLAG, DESC));
-            }
-
-            if (veryVerbose) cout << "\t'description'" << endl;
-            {
-                ASSERT_SAFE_PASS(Obj(UTC, FLAG, ""));
-                ASSERT_SAFE_FAIL(Obj(UTC, FLAG, 0 ));
             }
         }
       } break;
@@ -2890,19 +2923,13 @@ int main(int argc, char *argv[])
 
             Obj obj;
 
-            if (veryVerbose) cout << "\tutcOffsetInSeconds" << endl;
+            if (verbose) cout << "\tutcOffsetInSeconds" << endl;
             {
                 ASSERT_SAFE_FAIL(obj.setUtcOffsetInSeconds(UTC_MIN - 1));
                 ASSERT_SAFE_PASS(obj.setUtcOffsetInSeconds(UTC_MIN    ));
 
                 ASSERT_SAFE_PASS(obj.setUtcOffsetInSeconds(UTC_MAX    ));
                 ASSERT_SAFE_FAIL(obj.setUtcOffsetInSeconds(UTC_MAX + 1));
-            }
-
-            if (veryVerbose) cout << "\tdescription" << endl;
-            {
-                ASSERT_SAFE_PASS(obj.setDescription(""));
-                ASSERT_SAFE_FAIL(obj.setDescription( 0));
             }
         }
       } break;
@@ -2962,14 +2989,14 @@ int main(int argc, char *argv[])
 
         Obj mW;  const Obj& W = mW;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'w'." << endl;
+        if (verbose) cout << "\ta. Check initial value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.utcOffsetInSeconds());
         ASSERT(D2 == W.dstInEffectFlag());
         ASSERT(D3 == W.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
                   "\tb. Try equality operators: 'w' <op> 'w'." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
@@ -2981,14 +3008,14 @@ int main(int argc, char *argv[])
 
         Obj mX(W);  const Obj& X = mX;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'x'." << endl;
+        if (verbose) cout << "\ta. Check initial value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(D1 == X.utcOffsetInSeconds());
         ASSERT(D2 == X.dstInEffectFlag());
         ASSERT(D3 == X.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
                    "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
 
         ASSERT(1 == (X == W));        ASSERT(0 == (X != W));
@@ -3003,14 +3030,14 @@ int main(int argc, char *argv[])
         mX.setDstInEffectFlag(A2);
         mX.setDescription(A3);
 
-        if (veryVerbose) cout << "\ta. Check new value of 'x'." << endl;
+        if (verbose) cout << "\ta. Check new value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.utcOffsetInSeconds());
         ASSERT(A2 == X.dstInEffectFlag());
         ASSERT(A3 == X.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
              "\tb. Try equality operators: 'x' <op> 'w', 'x'." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));
@@ -3023,14 +3050,14 @@ int main(int argc, char *argv[])
 
         Obj mY(A1, A2, A3);  const Obj& Y = mY;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'y'." << endl;
+        if (verbose) cout << "\ta. Check initial value of 'y'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
 
         ASSERT(A1 == Y.utcOffsetInSeconds());
         ASSERT(A2 == Y.dstInEffectFlag());
         ASSERT(A3 == Y.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
              "\tb. Try equality operators: 'y' <op> 'w', 'x', 'y'" << endl;
 
         ASSERT(0 == (Y == W));        ASSERT(1 == (Y != W));
@@ -3044,14 +3071,14 @@ int main(int argc, char *argv[])
 
         Obj mZ(Y);  const Obj& Z = mZ;
 
-        if (veryVerbose) cout << "\ta. Check initial value of 'z'." << endl;
+        if (verbose) cout << "\ta. Check initial value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(A1 == Z.utcOffsetInSeconds());
         ASSERT(A2 == Z.dstInEffectFlag());
         ASSERT(A3 == Z.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
 
         ASSERT(0 == (Z == W));        ASSERT(1 == (Z != W));
@@ -3068,14 +3095,14 @@ int main(int argc, char *argv[])
         mZ.setDstInEffectFlag(D2);
         mZ.setDescription(D3);
 
-        if (veryVerbose) cout << "\ta. Check new value of 'z'." << endl;
+        if (verbose) cout << "\ta. Check new value of 'z'." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
 
         ASSERT(D1 == Z.utcOffsetInSeconds());
         ASSERT(D2 == Z.dstInEffectFlag());
         ASSERT(D3 == Z.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
            "\tb. Try equality operators: 'z' <op> 'w', 'x', 'y', 'z'." << endl;
 
         ASSERT(1 == (Z == W));        ASSERT(0 == (Z != W));
@@ -3089,14 +3116,14 @@ int main(int argc, char *argv[])
                              "\t\t\t\t{ w:A x:A y:A z:D }" << endl;
         mW = X;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (verbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(A1 == W.utcOffsetInSeconds());
         ASSERT(A2 == W.dstInEffectFlag());
         ASSERT(A3 == W.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
            "\tb. Try equality operators: 'w' <op> 'w', 'x', 'y', 'z'." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
@@ -3110,14 +3137,14 @@ int main(int argc, char *argv[])
                              "\t\t\t\t{ w:D x:A y:A z:D }" << endl;
         mW = Z;
 
-        if (veryVerbose) cout << "\ta. Check new value of 'w'." << endl;
+        if (verbose) cout << "\ta. Check new value of 'w'." << endl;
         if (veryVeryVerbose) { T_ T_ P(W) }
 
         ASSERT(D1 == W.utcOffsetInSeconds());
         ASSERT(D2 == W.dstInEffectFlag());
         ASSERT(D3 == W.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
 
         ASSERT(1 == (W == W));        ASSERT(0 == (W != W));
@@ -3131,14 +3158,14 @@ int main(int argc, char *argv[])
                              "\t\t\t{ w:D x:A y:A z:D }" << endl;
         mX = X;
 
-        if (veryVerbose) cout << "\ta. Check (same) value of 'x'." << endl;
+        if (verbose) cout << "\ta. Check (same) value of 'x'." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
 
         ASSERT(A1 == X.utcOffsetInSeconds());
         ASSERT(A2 == X.dstInEffectFlag());
         ASSERT(A3 == X.description());
 
-        if (veryVerbose) cout <<
+        if (verbose) cout <<
            "\tb. Try equality operators: 'x' <op> 'w', 'x', 'y', 'z'." << endl;
 
         ASSERT(0 == (X == W));        ASSERT(1 == (X != W));

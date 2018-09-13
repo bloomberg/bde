@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLMT_TIMEREVENTSCHEDULER
 #define INCLUDED_BDLMT_TIMEREVENTSCHEDULER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a thread-safe recurring and non-recurring event scheduler.
@@ -109,6 +107,10 @@ BSLS_IDENT("$Id: $")
 // (which matches the epoch used in
 // 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
+// The current epoch time for a particular 'bdlmt::TimerEventScheduler'
+// instance according to the correct clock is available via the
+// 'bdlmt::TimerEventScheduler::now' accessor.
+//
 ///Event Clock Substitution
 ///------------------------
 // For testing purposes, a class 'bdlmt::TimerEventSchedulerTestTimeSource' is
@@ -128,7 +130,9 @@ BSLS_IDENT("$Id: $")
 // when explicitly instructed to do so by a call to
 // 'bdlt::TimerEventSchedulerTestTimeSource::advanceTime'.  The current value
 // of the internal clock can be accessed by calling
-// 'bdlt::TimerEventSchedulerTestTimeSource::now'.
+// 'bdlt::TimerEventSchedulerTestTimeSource::now', or
+// 'bdlmt::TimerEventScheduler::now' on the instance supplied to the
+// 'bdlmt::TimerEventSchedulerTestTimeSource'.
 //
 // Note that the initial value of
 // 'bdlt::TimerEventSchedulerTestTimeSource::now' is intentionally not
@@ -224,7 +228,7 @@ BSLS_IDENT("$Id: $")
 //
 //     // setup the timeout for data arrival
 //     connection->d_timerId = d_scheduler.scheduleEvent(
-//        bdlt::CurrentTime::now() + d_ioTimeout,
+//        d_scheduler.now() + d_ioTimeout,
 //        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //
@@ -247,7 +251,7 @@ BSLS_IDENT("$Id: $")
 //
 //     // setup the timeout for data arrival
 //     connection->d_timerId = d_scheduler.scheduleEvent(
-//        bdlt::CurrentTime::now() + d_ioTimeout,
+//        d_scheduler.now() + d_ioTimeout,
 //        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //..
@@ -309,73 +313,30 @@ BSLS_IDENT("$Id: $")
 // Note that this feature should be used only for testing purposes, never in
 // production code.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLCC_OBJECTCATALOG
 #include <bdlcc_objectcatalog.h>
-#endif
-
-#ifndef INCLUDED_BDLCC_TIMEQUEUE
 #include <bdlcc_timequeue.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_CONCURRENTPOOL
 #include <bdlma_concurrentpool.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_CONDITION
 #include <bslmt_condition.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
 #include <bslmt_threadattributes.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 
@@ -797,6 +758,12 @@ class TimerEventScheduler {
         // Return the value of the clock type that this object was created
         // with.
 
+    bsls::TimeInterval now() const;
+        // Return the current epoch time, an absolute time represented as an
+        // interval from some epoch, which is determined by the clock indicated
+        // at construction (see {Supported Clock-Types} in the component
+        // documentation).
+
     int numClocks() const;
         // Return a *snapshot* of the number of registered clocks with this
         // scheduler.
@@ -889,6 +856,12 @@ inline
 bsls::SystemClockType::Enum TimerEventScheduler::clockType() const
 {
     return d_clockType;
+}
+
+inline
+bsls::TimeInterval TimerEventScheduler::now() const
+{
+    return d_currentTimeFunctor();
 }
 
 inline

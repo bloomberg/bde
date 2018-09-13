@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLAT_FORMATTINGMODE
 #define INCLUDED_BDLAT_FORMATTINGMODE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide formatting mode constants.
@@ -66,13 +64,9 @@ BSLS_IDENT("$Id: $")
 // Due to the low-level nature of this component, a usage example is not
 // necessary.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
 #include <bdlat_bdeatoverrides.h>
-#endif
 
 namespace BloombergLP {
 

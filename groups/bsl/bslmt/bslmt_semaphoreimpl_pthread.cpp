@@ -32,7 +32,7 @@ bslmt::SemaphoreImpl<bslmt::Platform::PosixSemaphore>::SemaphoreImpl(int count)
     int result = ::sem_init(&d_sem, 0, count);
 
     (void) result;
-    BSLS_ASSERT(result == 0);
+    BSLS_ASSERT(result != -1);
 }
 
 // MANIPULATORS

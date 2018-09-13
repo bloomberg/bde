@@ -198,7 +198,6 @@ BSLS_IDENT("$Id: $")
 #define BSLMT_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME, INITIAL_VALUE) \
 static BSLMT_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
     // This macro should *not* be used by clients outside of the 'bce'
-    // package-group at this time.
     //
     // On IBM, the introduction of thread-local storage causes static
     // initializers for shared objects to stop running.  This problem is

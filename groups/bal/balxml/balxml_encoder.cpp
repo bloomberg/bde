@@ -12,11 +12,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balxml_encoder_cpp,"$Id$ $CSID$")
 
-#ifdef TEST
-#include <balxml_decoder.h>     // for testing only
-#include <balxml_minireader.h>  // for testing only
-#endif
-
 #include <bdlat_formattingmode.h>
 
 #include <bsl_string.h>
@@ -32,9 +27,11 @@ balxml::Encoder::MemOutStream::~MemOutStream()
 {
 }
 
-namespace balxml {                       // --------------------
+namespace balxml {
+
+                       // -------------
                        // class Encoder
-                       // --------------------
+                       // -------------
 
 Encoder::Encoder(const EncoderOptions *options,
                  bslma::Allocator     *basicAllocator)

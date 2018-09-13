@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALST_STACKTRACETESTALLOCATOR
 #define INCLUDED_BALST_STACKTRACETESTALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a test allocator that reports the call stack for leaks.
@@ -469,37 +467,21 @@ BSLS_IDENT("$Id: $")
 // of the code shows that we neglected to free 'd_cook' in the destructor and
 // we can now easily fix our leak.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_MANAGEDALLOCATOR
 #include <bdlma_managedallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
-
 namespace balst {
+
                        // =============================
                        // class StackTraceTestAllocator
                        // =============================
@@ -617,7 +599,7 @@ class StackTraceTestAllocator : public bdlma::ManagedAllocator {
     StackTraceTestAllocator(bslma::Allocator *basicAllocator = 0);
     explicit
     StackTraceTestAllocator(int               numRecordedFrames,
-                                  bslma::Allocator *basicAllocator = 0);
+                            bslma::Allocator *basicAllocator = 0);
         // Create a test allocator.  Optionally specify 'numRecordedFrames',
         // the number of stack trace frame pointers to be saved for every
         // allocation.  Specifying a larger value of 'numRecordedFrames' means
@@ -724,8 +706,8 @@ bsl::size_t StackTraceTestAllocator::numBlocksInUse() const
 {
     return d_numBlocksInUse;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

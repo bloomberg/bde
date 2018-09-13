@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_TESTLOADER
 #define INCLUDED_BALTZO_TESTLOADER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a test implementation of the 'baltzo::Loader' protocol.
@@ -30,8 +28,8 @@ BSLS_IDENT("$Id: $")
 //    ,--------------.
 //   ( baltzo::Loader )
 //    `--------------'
-//                 dtor
-//                 loadTimeZone
+//                   dtor
+//                   loadTimeZone
 //..
 // This test implementation maintains a mapping of time-zone identifiers to
 // 'baltzo::Zoneinfo' objects.  Clients can associate a time-zone object with a
@@ -126,49 +124,28 @@ BSLS_IDENT("$Id: $")
 //  assert(newYorkTimeZone == resultNewYork);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALTZO_LOADER
 #include <baltzo_loader.h>
-#endif
-
-#ifndef INCLUDED_BALTZO_ZONEINFO
 #include <baltzo_zoneinfo.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace baltzo {
+
                               // ================
                               // class TestLoader
                               // ================
 
-class TestLoader : public Loader {
+class TestLoader: public Loader {
     // This class provides a concrete test implementation of the 'Loader'
     // protocol (an abstract interface) for obtaining a time zone.  This test
     // implementation maintains a mapping of time-zone identifiers to
@@ -266,8 +243,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestLoader& loader);
     //  print(stream, 0, -1);
     //..
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -278,10 +253,12 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TestLoader& loader);
 
 // CREATORS
 inline
-baltzo::TestLoader::TestLoader(bslma::Allocator *basicAllocator)
+TestLoader::TestLoader(bslma::Allocator *basicAllocator)
 : d_timeZones(basicAllocator)
 {
 }
+
+}  // close package namespace
 
 // FREE FUNCTIONS
 inline
@@ -296,7 +273,7 @@ bsl::ostream& baltzo::operator<<(bsl::ostream&     stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

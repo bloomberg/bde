@@ -742,7 +742,7 @@ struct LogVerbosityGuard {
     bool                    d_verbose;             // verbose mode does not
                                                    // disable logging
 
-    bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough 
+    bsls::LogSeverity::Enum d_defaultPassthrough;  // default passthrough
                                                    // log level
 
     explicit LogVerbosityGuard(bool verbose = false)
@@ -1708,10 +1708,7 @@ int main(int argc, char *argv[])
 
             LOOP2_ASSERT(CONFIG,
                          noa.numBlocksTotal(),
-                         'c' != CONFIG
-                         ? 0 == noa.numBlocksTotal()
-                         : 0 != noa.numBlocksTotal() // tmp from "default"
-                         );
+                         0 == noa.numBlocksTotal());
 
             // ------------------------------------------------
             // Reclaim dynamically allocated object under test.

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLDE_MD5
 #define INCLUDED_BDLDE_MD5
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a value-semantic type encoding a message in an MD5 digest.
@@ -61,7 +59,7 @@ BSLS_IDENT("$Id: $")
 //      bsl::string message = "This is a test message.";
 //
 //      // Generate a digest for 'message'.
-//      bdlde::Md5 digest(message.data(), message.length());
+//      bdlde::Md5 digest(message.data(), static_cast<int>(message.length()));
 //
 //      // Write the message to 'output'.
 //      output << message;
@@ -92,7 +90,7 @@ BSLS_IDENT("$Id: $")
 //
 //      // Locally compute the digest of the received 'message'.
 //      bdlde::Md5 digestLocal;
-//      digestLocal.update(message.data(), message.length());
+//      digestLocal.update(message.data(), static_cast<int>(message.length()));
 //
 //      // Verify that the received and locally-computed digests match.
 //      assert(digestLocal == digest);
@@ -105,25 +103,13 @@ BSLS_IDENT("$Id: $")
 // Data Security, Inc. MD5 Message-Digest Algorithm that was published in the
 // aforementioned RFC 1321.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNEDBUFFER
 #include <bsls_alignedbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlde {
@@ -369,37 +355,35 @@ STREAM& Md5::bdexStreamOut(STREAM& stream, int version) const
     return stream;
 }
 
-// FREE OPERATORS
-inline
-bool operator!=(const Md5& lhs, const Md5& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Md5& digest)
-{
-    return digest.print(stream);
-}
-
 #ifndef BDE_OMIT_DEPRECATED
-
-// ACCESSORS
 inline
 int Md5::maxSupportedBdexVersion()
 {
     return maxSupportedBdexVersion(0);
 }
-
 #endif
 
 }  // close package namespace
+
+// FREE OPERATORS
+inline
+bool bdlde::operator!=(const Md5& lhs, const Md5& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream& bdlde::operator<<(bsl::ostream& stream, const Md5& digest)
+{
+    return digest.print(stream);
+}
+
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

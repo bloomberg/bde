@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALBER_BERUNIVERSALTAGNUMBER
 #define INCLUDED_BALBER_BERUNIVERSALTAGNUMBER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Enumerate the set of BER universal tag numbers.
@@ -119,57 +117,26 @@ BSLS_IDENT("$Id: $")
 //  INT
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALBER_BERENCODEROPTIONS
 #include <balber_berencoderoptions.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 #include <bdlat_customizedtypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_FORMATTINGMODE
 #include <bdlat_formattingmode.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_NULLABLEVALUEFUNCTIONS
 #include <bdlat_nullablevaluefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPECATEGORY
 #include <bdlat_typecategory.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
-#endif
 
-#ifndef INCLUDED_BDLB_VARIANT
 #include <bdlb_variant.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace balber {

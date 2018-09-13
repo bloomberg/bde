@@ -2,7 +2,7 @@
 
 @PURPOSE: Provide components for encoding/decoding in the JSON format.
 
-@MNEMONIC: Basic Application Environment JSoN (baljsn)
+@MNEMONIC: Basic Application Library JSoN (baljsn)
 
 @AUTHOR: Rohan Bhindwale (rbhindwa)
 
@@ -60,6 +60,7 @@ The following table provides a mapping between an element's 'bdem' elem type
 (as specified in 'bdem_elemtype'), its XSD type, its C++ type, its
 corresponding JSON type, and the encoding used.
 
+..
 BDEM type         XSD type      C++ Type        JSON type       Format
 ---------         --------      --------        ---------       ------
 BDEM_VOID         N/A           N/A             null            Encoding error
@@ -90,7 +91,7 @@ BDEM_DOUBLE       decimal       double          number/string   <DOUBLE>
 
                   double        double          number/string   <DOUBLE>
 
-BDEM_STRING       string        bsl::string     string          <STRING>  
+BDEM_STRING       string        bsl::string     string          <STRING>
 
 BDEM_DATETIME     dateTime      bdet_Datetime   string          "<DATETIME>"
 
@@ -121,7 +122,7 @@ BDEM_CHOICE_ARRAY maxOccurs > 1 bcem_Aggregate  array of objs   <CHOICE_ARRAY>
 BDEM_INT/STRING   enumeration   C++ enumeration string          <STRING>
 
 BDEM_*            minOccurs = 0 NullableValue   null            <NULL_VALUE>
-
+..
 * The exact syntax of the format is specified below.
 
 * BDEM_TYPE_ARRAY refers to all the types supported by bdem (such as
@@ -136,13 +137,14 @@ The format grammar specified below uses the Extended BNF notation (except that
 ',' is not used for concatenation to enhance readability). A quick reference
 of EBNF is provided below (refer here for more details):
 
+..
 |       is used to select between alternate options
 [ ... ] (square brackets) are used to specify an optional item
 { ... } (curly brackets) are used to specify an item that can be repeated zero
          or more times
 ( ... ) (parenthesis) are used to group elements
 
-<VOID>            Results in an encoding error 
+<VOID>            Results in an encoding error
 
 <BOOLEAN>         'true' | 'false';
 
@@ -215,6 +217,7 @@ of EBNF is provided below (refer here for more details):
 <MILLISEC>        '.' <DIGIT> { <DIGIT> };
 
 <TZ>              <SIGN><HOUR>':'<MINUTES> | 'Z' | 'z';
+..
 
 (1) Double types (float, decimal, and double) are encoded in the number format
 by default with the values NaN, +INF and -INF resulting in an encoding error.

@@ -23,6 +23,10 @@
 // serves as a scoped guard for 'ball::Attribute' objects.  It defines a single
 // attribute for the current thread while it is in scope.
 //
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
+//
 ///Usage
 ///-----
 // Suppose that service requests for a fictional service with id '999' are
@@ -36,7 +40,7 @@
 //
 //     ball::ScopedAttribute attribute("request", request.selectionName());
 //
-//     BALL_LOG_TRACE << "Handling request: " << request << BALL_LOG_END;
+//     BALL_LOG_TRACE << "Handling request: " << request;
 //
 //     // handle request here
 //  }
@@ -44,41 +48,19 @@
 // Attribute "request" will be set in the calling thread and will affect
 // publication of any BALL messages for the lifetime of 'attribute'.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_ATTRIBUTE
 #include <ball_attribute.h>
-#endif
-
-#ifndef INCLUDED_BALL_ATTRIBUTECONTAINER
 #include <ball_attributecontainer.h>
-#endif
-
-#ifndef INCLUDED_BALL_ATTRIBUTECONTAINERLIST
 #include <ball_attributecontainerlist.h>
-#endif
-
-#ifndef INCLUDED_BALL_ATTRIBUTECONTEXT
 #include <ball_attributecontext.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

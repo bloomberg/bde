@@ -20,14 +20,16 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 33 components having 9 levels of physical
+ The 'bdlt' package currently has 39 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   9. bdlt_defaultcalendarcache
+     bdlt_defaulttimetablecache
 
   8. bdlt_calendarcache
+     bdlt_timetablecache
 
   7. bdlt_currenttime
      bdlt_fixutil
@@ -42,6 +44,8 @@
      bdlt_datetimeutil
      bdlt_datetz
      bdlt_epochutil
+     bdlt_timetable
+     bdlt_timetableloader
 
   4. bdlt_datetime
      bdlt_dateutil
@@ -50,12 +54,14 @@
      bdlt_timeutil
 
   3. bdlt_date
+     bdlt_datetimeintervalutil
      bdlt_intervalconversionutil
      bdlt_time
 
   2. bdlt_datetimeimputil
      bdlt_datetimeinterval
      bdlt_dayofweekset
+     bdlt_dayofweekutil
      bdlt_serialdateimputil
 
   1. bdlt_calendarreverseiteratoradapter
@@ -100,6 +106,9 @@
 : 'bdlt_datetimeinterval':
 :      Provide a representation of an interval of time.
 :
+: 'bdlt_datetimeintervalutil':
+:      Provide convenience factories for 'bdlt::DatetimeInterval' objects.
+:
 : 'bdlt_datetimetz':
 :      Provide a representation of a date and time with time zone offset.
 :
@@ -118,8 +127,14 @@
 : 'bdlt_dayofweekset':
 :      Provide an ordered set of (unique) 'bdlt::DayOfWeek::Enum' values.
 :
+: 'bdlt_dayofweekutil':
+:      Provide common non-primitive operations on 'bdlt::DayOfWeek::Enum'.
+:
 : 'bdlt_defaultcalendarcache':
 :      Provide a process-wide default 'bdlt::CalendarCache' object.
+:
+: 'bdlt_defaulttimetablecache':
+:      Provide a process-wide default 'bdlt::TimetableCache' object.
 :
 : 'bdlt_epochutil':
 :      Conversion between absolute/relative time with respect to epoch.
@@ -159,6 +174,15 @@
 :
 : 'bdlt_time':
 :      Provide a value-semantic type representing time-of-day.
+:
+: 'bdlt_timetable':
+:      Provide a repository for accessing timetable information.
+:
+: 'bdlt_timetablecache':
+:      Provide an efficient cache for read-only 'bdlt::Timetable' objects.
+:
+: 'bdlt_timetableloader':
+:      Provide a protocol (or pure interface) for loading timetables.
 :
 : 'bdlt_timetz':
 :      Provide a representation of a time with time zone offset.

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLMT_EVENTSCHEDULER
 #define INCLUDED_BDLMT_EVENTSCHEDULER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a thread-safe recurring and one-time event scheduler.
@@ -38,7 +36,10 @@ BSLS_IDENT("$Id: $")
 // 'bdlmt::EventSchedulerRecurringEventHandle' objects, which clean up after
 // themselves when they go out of scope, or by 'Event' and 'RecurringEvent'
 // pointers, which must be released using 'releaseEventRaw'.  Such pointers are
-// used in the "Raw" API of this class and must be used carefully.
+// used in the "Raw" API of this class and must be used carefully.  Note that
+// the Handle objects have an implicit conversion to the corresponding 'Event'
+// or 'RecurringEvent' pointer types, effectively providing extra overloads
+// for methods which take a 'const Event*' to also take a 'const EventHandle&'.
 //
 ///Comparison to 'bdlmt::TimerEventScheduler'
 /// - - - - - - - - - - - - - - - - - - - - -
@@ -125,6 +126,10 @@ BSLS_IDENT("$Id: $")
 // (which matches the epoch used in
 // 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
+// The current epoch time for a particular 'bdlmt::EventScheduler' instance
+// according to the correct clock is available via the
+// 'bdlmt::EventScheduler::now' accessor.
+//
 ///Event Clock Substitution
 ///------------------------
 // For testing purposes, a class 'bdlmt::EventSchedulerTestTimeSource' is
@@ -143,7 +148,8 @@ BSLS_IDENT("$Id: $")
 // value on construction, and will advance only when explicitly instructed to
 // do so by a call to 'bdlt::EventSchedulerTestTimeSource::advanceTime'.  The
 // current value of the internal clock can be accessed by calling
-// 'bdlt::EventSchedulerTestTimeSource::now'.
+// 'bdlt::EventSchedulerTestTimeSource::now', or 'bdlmt::EventScheduler::now'
+// on the instance supplied to the 'bdlmt::EventSchedulerTestTimeSource'.
 //
 // Note that the initial value of 'bdlt::EventSchedulerTestTimeSource::now' is
 // intentionally not synchronized with 'bdlt::CurrentTime::now'.  All test
@@ -288,7 +294,7 @@ BSLS_IDENT("$Id: $")
 //     // setup the timeout for data arrival
 //     d_scheduler.scheduleEvent(
 //        &connection->d_timerId,
-//        bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
+//        d_scheduler.now() + d_ioTimeout,
 //        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //
@@ -312,7 +318,7 @@ BSLS_IDENT("$Id: $")
 //     // setup the timeout for data arrival
 //     d_scheduler.scheduleEvent(
 //        &connection->d_timerId,
-//        bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
+//        d_scheduler.now() + d_ioTimeout,
 //        bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 // }
 //..
@@ -374,65 +380,29 @@ BSLS_IDENT("$Id: $")
 // Note that this feature should be used only for testing purposes, never in
 // production code.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLCC_SKIPLIST
 #include <bdlcc_skiplist.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_CONDITION
 #include <bslmt_condition.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
 #include <bslmt_threadattributes.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
-
-#ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
-#endif
 
 namespace BloombergLP {
 
@@ -508,7 +478,7 @@ class EventScheduler {
 
     bslmt::Mutex          d_dispatcherMutex;    // serialize starting/stopping
                                                 // dispatcher thread
-    
+
     bslmt::Mutex          d_mutex;              // synchronizes access to
                                                 // condition variables
 
@@ -635,6 +605,15 @@ class EventScheduler {
         // Cancel the event having the specified 'handle'.  Return 0 on
         // successful cancellation, and a non-zero value if the 'handle' is
         // invalid *or* if the event has already been dispatched or canceled.
+        // Note that due to the implicit conversion from Handle types, these
+        // methods also match the following:
+        //..
+        //  int cancelEvent(const EventHandle&          handle);
+        //  int cancelEvent(const RecurringEventHandle& handle);
+        //..
+        // Compared to the version taking a pointer to Handle, the managed
+        // reference to the event is not released until the Handle goes out of
+        // scope.
 
     int cancelEvent(EventHandle          *handle);
     int cancelEvent(RecurringEventHandle *handle);
@@ -708,7 +687,7 @@ class EventScheduler {
                        const bsl::function<void()>&  callback);
         // Schedule the specified 'callback' to be dispatched at the specified
         // 'epochTime'.  Load into the optionally specified 'event' a handle
-        // that can be used to cancel the event (by invoking 'cancelEvent'). 
+        // that can be used to cancel the event (by invoking 'cancelEvent').
         // The 'epochTime' is an absolute time represented as an interval from
         // some epoch, which is determined by the clock indicated at
         // construction (see {Supported Clock-Types} in the component
@@ -824,6 +803,12 @@ class EventScheduler {
     bsls::SystemClockType::Enum clockType() const;
         // Return the value of the clock type that this object was created
         // with.
+
+    bsls::TimeInterval now() const;
+        // Return the current epoch time, an absolute time represented as an
+        // interval from some epoch, which is determined by the clock indicated
+        // at construction (see {Supported Clock-Types} in the component
+        // documentation).
 
     int numEvents() const;
         // Return the number of pending one-time events in this scheduler.
@@ -1178,6 +1163,12 @@ inline
 bsls::SystemClockType::Enum EventScheduler::clockType() const
 {
     return d_clockType;
+}
+
+inline
+bsls::TimeInterval EventScheduler::now() const
+{
+    return d_currentTimeFunctor();
 }
 
 inline

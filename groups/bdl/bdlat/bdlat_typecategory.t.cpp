@@ -585,7 +585,11 @@ struct MyAccessor {
         }
 
         ASSERT(0);
-        return static_cast<bdlat_TypeCategory::Value>(-1);
+
+        // Note that this 'return' is never reached and hence the returned
+        // value is immaterial.
+
+        return bdlat_TypeCategory::e_SIMPLE_CATEGORY;
     }
 
     template <class MANIPULATOR>
@@ -697,6 +701,8 @@ struct MyAccessor {
 
         ret = bdlat_TypeCategoryUtil::accessByCategory(object, accessor);
         ASSERT("Simple = World" == oss.str());
+
+        (void)ret;
     }
 //..
 

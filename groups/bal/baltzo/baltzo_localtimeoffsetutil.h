@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_LOCALTIMEOFFSETUTIL
 #define INCLUDED_BALTZO_LOCALTIMEOFFSETUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities for a 'bdlt_localtimeoffset' local time callback.
@@ -123,44 +121,24 @@ BSLS_IDENT("$Id: $")
 //  ASSERT(previousCallback == &baltzo::LocalTimeOffsetUtil::localTimeOffset);
 //..
 
-#ifndef INCLUDED_BALTZO_LOCALTIMEPERIOD
 #include <baltzo_localtimeperiod.h>
-#endif
-
-#ifndef INCLUDED_BALTZO_TIMEZONEUTIL
 #include <baltzo_timezoneutil.h>
-#endif
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_CURRENTTIME
 #include <bdlt_currenttime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_LOCALTIMEOFFSET
 #include <bdlt_localtimeoffset.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_RWMUTEX
 #include <bslmt_rwmutex.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
 namespace BloombergLP {
 namespace baltzo {
+
                          // ==========================
                          // struct LocalTimeOffsetUtil
                          // ==========================
@@ -279,8 +257,6 @@ struct LocalTimeOffsetUtil {
         // *is* thread-safe.
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -295,7 +271,7 @@ struct LocalTimeOffsetUtil {
 
 inline
 bdlt::LocalTimeOffset::LocalTimeOffsetCallback
-baltzo::LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback()
+LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback()
 {
     return bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
                                         &LocalTimeOffsetUtil::localTimeOffset);
@@ -304,18 +280,18 @@ baltzo::LocalTimeOffsetUtil::setLoadLocalTimeOffsetCallback()
                         // *** accessor methods ***
 
 inline
-int baltzo::LocalTimeOffsetUtil::updateCount()
+int LocalTimeOffsetUtil::updateCount()
 {
     return s_updateCount;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
-
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

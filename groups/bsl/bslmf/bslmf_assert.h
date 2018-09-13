@@ -199,13 +199,6 @@ struct AssertTest {
     enum { BSLMF_ASSERT_CAT(bslmf_Assert_Check_, __LINE__)         \
            = sizeof(BSLMF_ASSERT_CAT(bslmf_Assert_, __LINE__)) }   \
 
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-// MSVC: __LINE__ macro breaks when /ZI is used (see Q199057 or KB199057)
-
-#define BSLMF_ASSERT(expr) \
-typedef BloombergLP::bslmf::AssertTest< \
-        sizeof(BloombergLP::BSLMF_COMPILE_TIME_ASSERTION_FAILURE<!!(expr)>)> \
-                bslmf_Assert_MSVC_ZI_BUG
 #else
 
 #define BSLMF_ASSERT(expr) \

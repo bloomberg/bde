@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLAT_NULLABLEVALUEFUNCTIONS
 #define INCLUDED_BDLAT_NULLABLEVALUEFUNCTIONS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a namespace defining nullable value functions.
@@ -267,33 +265,18 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
 #include <bdlat_bdeatoverrides.h>
-#endif
 
-#ifndef INCLUDED_BDLB_NULLABLEVALUE
 #include <bdlb_nullablevalue.h>
-#endif
-
-#ifndef INCLUDED_BDLB_NULLABLEALLOCATEDVALUE
 #include <bdlb_nullableallocatedvalue.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
-#endif
 
 
 namespace BloombergLP {

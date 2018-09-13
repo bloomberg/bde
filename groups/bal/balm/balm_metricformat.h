@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALM_METRICFORMAT
 #define INCLUDED_BALM_METRICFORMAT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 
 //@PURPOSE: Provide a formatting specification for a metric.
@@ -113,33 +111,17 @@ BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //  5.50%
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALM_PUBLICATIONTYPE
 #include <balm_publicationtype.h>
-#endif
 
-#ifndef INCLUDED_BDLB_NULLABLEVALUE
 #include <bdlb_nullablevalue.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>       // for 'bsl::strcmp'
-#endif
 
 namespace BloombergLP {
 
@@ -225,9 +207,18 @@ class MetricFormatSpec {
         // Return the address of the null-terminated string containing the
         // 'printf'-style format that may be used to format values.
 
-    bsl::ostream& print(bsl::ostream& stream) const;
-        // Write a description of this format spec to the specified 'stream',
-        // and return a reference to the modifiable 'stream'.
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = -1) const;
+        // Format this object to the specified output 'stream' at the (absolute
+        // value of) the optionally specified indentation 'level' and return a
+        // reference to 'stream'.  If 'level' is specified, optionally specify
+        // 'spacesPerLevel', the number of spaces per indentation level for
+        // this and all of its nested objects.  If 'level' is negative,
+        // suppress indentation of the first line.  If 'spacesPerLevel' is
+        // negative, format the entire output on one line, suppressing all but
+        // the initial indentation (as governed by 'level').  If 'stream' is
+        // not valid on entry, this operation has no effect.
 };
 
 // ============================================================================
@@ -462,7 +453,7 @@ inline
 bsl::ostream& balm::operator<<(bsl::ostream&           stream,
                                const MetricFormatSpec& rhs)
 {
-    return rhs.print(stream);
+    return rhs.print(stream, 0, -1);
 }
 
 namespace balm {

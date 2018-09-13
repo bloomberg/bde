@@ -102,7 +102,7 @@ BSLS_IDENT("$Id: $")
 // and 'x.second' are not available.  Instead, a reference to the pair needs to
 // be obtained which could be done using 'static_cast<bsl::pair<A, B >&>(x)' or
 // by using a named variable.  To unify the notation between the C++03 and
-// C++11 implementation, simultanously simplifying the C++03 use
+// C++11 implementation, simultaneously simplifying the C++03 use
 // 'MovableRefUtil::access(x)' can be used.
 //
 ///Template Deduction and Argument Forwarding
@@ -651,7 +651,7 @@ struct MovableRefUtil {
         // is used.
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         return static_cast<typename bsl::remove_reference<TYPE>::type&&>(
-								       lvalue);
+                                       lvalue);
 #else
         return MovableRef<TYPE>(bsls::Util::addressOf(lvalue));
 #endif

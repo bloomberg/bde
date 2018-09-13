@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLB_NULLABLEVALUE
 #define INCLUDED_BDLB_NULLABLEVALUE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a template for nullable (in-place) objects.
@@ -77,104 +75,40 @@ BSLS_IDENT("$Id: $")
 //  assert( nullableInt.isNull());
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLB_PRINTMETHODS
 #include <bdlb_printmethods.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_CONSTRUCTIONUTIL
 #include <bslma_constructionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_IF
 #include <bslmf_if.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
+#include <bsls_deprecate.h>
 #include <bsls_objectbuffer.h>
-#endif
 
-#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
 #include <bslx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
 #include <bslx_outstreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BSLX_VERSIONFUNCTIONS
 #include <bslx_versionfunctions.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_NEW
 #include <bsl_new.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -199,11 +133,12 @@ class NullableValue {
     // operations, conversions between comparable underlying value types is
     // also supported.  Two nullable objects with different underlying types
     // compare equal if their underlying types are comparable and either (1)
-    // both objects are null or (2) the non-null values compare equal.
-    // Attempts to copy construct, copy assign, or compare incompatible values
-    // types will fail to compile.  The 'NullableValue' template cannot be
-    // instantiated on an incomplete type or on a type that overloads
-    // 'operator&'.
+    // both objects are null or (2) the non-null values compare equal.  A null
+    // nullable object is considered ordered before any non-null nullable
+    // object.  Attempts to copy construct, copy assign, or compare
+    // incompatible values types will fail to compile.  The 'NullableValue'
+    // template cannot be instantiated on an incomplete type or on a type that
+    // overloads 'operator&'.
 
     // PRIVATE TYPES
     typedef typename
@@ -284,14 +219,17 @@ class NullableValue {
     template <class BDE_OTHER_TYPE>
     NullableValue(BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value,
                   typename bsl::enable_if<
-                      bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
+                      bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value
+                      &&
+                      !bsl::is_convertible<BDE_OTHER_TYPE,
+                                           bslma::Allocator *>::value,
                       void>::type * = 0);                           // IMPLICIT
         // Create a nullable object having the specified 'value' (of
         // 'BDE_OTHER_TYPE') converted to 'TYPE'.  If 'TYPE' takes an optional
         // allocator at construction, use the currently installed default
         // allocator to supply memory.  Note that this constructor does not
         // participate in overload resolution unless 'BDE_OTHER_TYPE' is
-        // convertible to 'TYPE'.
+        // convertible to 'TYPE' and not convertible to 'bslma::Allocator *'.
 
     template <class BDE_OTHER_TYPE>
     NullableValue(
@@ -524,22 +462,34 @@ class NullableValue {
 
     const TYPE& value() const;
         // Return a reference providing non-modifiable access to the underlying
-        // 'TYPE' object.  The behavior is undefined unless this object is
-        // non-null.
+        // object of a (template parameter) 'TYPE'.  The behavior is undefined
+        // unless this object is non-null.
 
     TYPE valueOr(const TYPE& value) const;
-        // Return the value of the underlying 'TYPE' object if this object is
-        // non-null, and the specified 'value' otherwise.  Note that this
-        // method returns *by* *value*, so may be inefficient in some contexts.
+        // Return the value of the underlying object of a (template parameter)
+        // 'TYPE' if this object is non-null, and the specified 'value'
+        // otherwise.  Note that this method returns *by* *value*, so may be
+        // inefficient in some contexts.
 
+    #if BSLS_DEPRECATE_IS_ACTIVE(BDL, 3, 5)
+    BSLS_DEPRECATE
+    #endif
     const TYPE *valueOr(const TYPE *value) const;
+        // !DEPRECATED!: Use 'addressOr' instead.
+        //
         // Return an address providing non-modifiable access to the underlying
-        // 'TYPE' object if this object is non-null, and the specified 'value'
-        // otherwise.
+        // object of a (template parameter) 'TYPE' if this object is non-null,
+        // and the specified 'value' otherwise.
+
+    const TYPE *addressOr(const TYPE *address) const;
+        // Return an address providing non-modifiable access to the underlying
+        // object of a (template parameter) 'TYPE' if this object is non-null,
+        // and the specified 'address' otherwise.
 
     const TYPE *valueOrNull() const;
         // Return an address providing non-modifiable access to the underlying
-        // 'TYPE' object if this object is non-null, and 0 otherwise.
+        // object of a (template parameter) 'TYPE' if this object is non-null,
+        // and 0 otherwise.
 };
 
 // FREE OPERATORS
@@ -584,6 +534,107 @@ bool operator!=(const TYPE&                lhs,
     // underlying 'TYPE' do not have the same value if either the nullable
     // object is null, or its underlying value does not compare equal to the
     // other value.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<(const NullableValue<LHS_TYPE>& lhs,
+               const NullableValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered before
+    // the specified 'rhs' nullable object, and 'false' otherwise.  'lhs' is
+    // ordered before 'rhs' if 'lhs' is null and 'rhs' is non-null or if both
+    // are non-null and 'lhs.value()' is ordered before 'rhs.value()'.  Note
+    // that this function will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are
+    // not compatible.
+
+template <class TYPE>
+bool operator<(const NullableValue<TYPE>& lhs,
+               const TYPE&                rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered before
+    // the specified 'rhs', and 'false' otherwise.  'lhs' is ordered before
+    // 'rhs' if 'lhs' is null or 'lhs.value()' is ordered before 'rhs'.
+
+template <class TYPE>
+bool operator<(const TYPE&                lhs,
+               const NullableValue<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' is ordered before the specified
+    // 'rhs' nullable object, and 'false' otherwise.  'lhs' is ordered before
+    // 'rhs' if 'rhs' is not null and 'lhs' is ordered before 'rhs.value()'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>(const NullableValue<LHS_TYPE>& lhs,
+               const NullableValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered after
+    // the specified 'rhs' nullable object, and 'false' otherwise.  'lhs' is
+    // ordered after 'rhs' if 'lhs' is non-null and 'rhs' is null or if both
+    // are non-null and 'lhs.value()' is ordered after 'rhs.value()'.  Note
+    // that this operator returns 'rhs < lhs'.  Also note that this function
+    // will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
+
+template <class TYPE>
+bool operator>(const NullableValue<TYPE>& lhs,
+               const TYPE&                rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered after
+    // the specified 'rhs', and 'false' otherwise.  'lhs' is ordered after
+    // 'rhs' if 'lhs' is not null and 'lhs.value()' is ordered after 'rhs'.
+    // Note that this operator returns 'rhs < lhs'.
+
+template <class TYPE>
+bool operator>(const TYPE&                lhs,
+               const NullableValue<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' is ordered after the specified
+    // 'rhs' nullable object, and 'false' otherwise.  'lhs' is ordered after
+    // 'rhs' if 'rhs' is null or 'lhs' is ordered after 'rhs.value()'.  Note
+    // that this operator returns 'rhs < lhs'.
+
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator<=(const NullableValue<LHS_TYPE>& lhs,
+                const NullableValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered before
+    // the specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
+    // value, and 'false' otherwise.  (See 'operator<' and 'operator=='.)  Note
+    // that this operator returns '!(rhs < lhs)'.  Also note that this function
+    // will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
+
+template <class TYPE>
+bool operator<=(const NullableValue<TYPE>& lhs,
+                const TYPE&                rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered before
+    // the specified 'rhs' or 'lhs' and 'rhs' have the same value, and 'false'
+    // otherwise.  (See 'operator<' and 'operator=='.)  Note that this operator
+    // returns '!(rhs < lhs)'.
+
+template <class TYPE>
+bool operator<=(const TYPE&                lhs,
+                const NullableValue<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' is ordered before the specified
+    // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
+    // 'false' otherwise.  (See 'operator<' and 'operator=='.)  Note that this
+    // operator returns '!(rhs < lhs)'.
+
+template <class LHS_TYPE, class RHS_TYPE>
+bool operator>=(const NullableValue<LHS_TYPE>& lhs,
+                const NullableValue<RHS_TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered after
+    // the specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
+    // value, and 'false' otherwise.  (See 'operator>' and 'operator=='.)  Note
+    // that this operator returns '!(lhs < rhs)'.  Also note that this function
+    // will fail to compile if 'LHS_TYPE' and 'RHS_TYPE' are not compatible.
+
+template <class TYPE>
+bool operator>=(const NullableValue<TYPE>& lhs,
+                const TYPE&                rhs);
+    // Return 'true' if the specified 'lhs' nullable object is ordered after
+    // the specified 'rhs' or 'lhs' and 'rhs' have the same value, and 'false'
+    // otherwise.  (See 'operator>' and 'operator=='.)  Note that this operator
+    // returns '!(lhs < rhs)'.
+
+template <class TYPE>
+bool operator>=(const TYPE&                lhs,
+                const NullableValue<TYPE>& rhs);
+    // Return 'true' if the specified 'lhs' is ordered after the specified
+    // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
+    // 'false' otherwise.  (See 'operator>' and 'operator=='.)  Note that this
+    // operator returns '!(lhs < rhs)'.
 
 template <class TYPE>
 bsl::ostream& operator<<(bsl::ostream&              stream,
@@ -1006,7 +1057,10 @@ template <class BDE_OTHER_TYPE>
 inline
 NullableValue<TYPE>::NullableValue(
     BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) value,
-    typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value,
+    typename bsl::enable_if<bsl::is_convertible<BDE_OTHER_TYPE, TYPE>::value
+                            &&
+                            !bsl::is_convertible<BDE_OTHER_TYPE,
+                                                 bslma::Allocator *>::value,
                             void>::type *)
 {
     d_imp.makeValueRaw(BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, value));
@@ -1394,6 +1448,13 @@ const TYPE *NullableValue<TYPE>::valueOr(const TYPE *value) const
     return d_imp.isNull() ? value : &d_imp.value();
 }
 
+template <class TYPE>
+inline
+const TYPE *NullableValue<TYPE>::addressOr(const TYPE *value) const
+{
+    return d_imp.isNull() ? value : &d_imp.value();
+}
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -1451,6 +1512,106 @@ bool bdlb::operator!=(const TYPE&                lhs,
                       const NullableValue<TYPE>& rhs)
 {
     return rhs.isNull() || rhs.value() != lhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<(const NullableValue<LHS_TYPE>& lhs,
+                     const NullableValue<RHS_TYPE>& rhs)
+{
+    if (rhs.isNull()) {
+        return false;                                                 // RETURN
+    }
+
+    return lhs.isNull() || lhs.value() < rhs.value();
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator<(const NullableValue<TYPE>& lhs,
+                     const TYPE&                rhs)
+{
+    return lhs.isNull() || lhs.value() < rhs;
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator<(const TYPE&                lhs,
+                     const NullableValue<TYPE>& rhs)
+{
+    return !rhs.isNull() && lhs < rhs.value();
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>(const NullableValue<LHS_TYPE>& lhs,
+                     const NullableValue<RHS_TYPE>& rhs)
+{
+    return rhs < lhs;
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator>(const NullableValue<TYPE>& lhs,
+                     const TYPE&                rhs)
+{
+    return rhs < lhs;
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator>(const TYPE&                lhs,
+                     const NullableValue<TYPE>& rhs)
+{
+    return rhs < lhs;
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator<=(const NullableValue<LHS_TYPE>& lhs,
+                      const NullableValue<RHS_TYPE>& rhs)
+{
+    return !(rhs < lhs);
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator<=(const NullableValue<TYPE>& lhs,
+                      const TYPE&                rhs)
+{
+    return !(rhs < lhs);
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator<=(const TYPE&                lhs,
+                      const NullableValue<TYPE>& rhs)
+{
+    return !(rhs < lhs);
+}
+
+template <class LHS_TYPE, class RHS_TYPE>
+inline
+bool bdlb::operator>=(const NullableValue<LHS_TYPE>& lhs,
+                      const NullableValue<RHS_TYPE>& rhs)
+{
+    return !(lhs < rhs);
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator>=(const NullableValue<TYPE>& lhs,
+                      const TYPE&                rhs)
+{
+    return !(lhs < rhs);
+}
+
+template <class TYPE>
+inline
+bool bdlb::operator>=(const TYPE&                lhs,
+                      const NullableValue<TYPE>& rhs)
+{
+    return !(lhs < rhs);
 }
 
 template <class TYPE>

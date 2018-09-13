@@ -111,6 +111,9 @@ BSLS_IDENT("$Id$ $CSID$")
 //  defaultConstruct(TARGET_TYPE *begin, ...);
 //..
 
+#include <bslalg_arraydestructionprimitives.h>          // for testing only
+#include <bslalg_scalarprimitives.h>                    // for testing only
+
 #include <bslmf_assert.h>
 
 #include <bsls_alignmentutil.h>
@@ -120,7 +123,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <cstring>
 
 namespace BloombergLP {
-
 namespace bslalg {
 
 // CLASS METHODS

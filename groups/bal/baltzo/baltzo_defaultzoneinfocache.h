@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_DEFAULTZONEINFOCACHE
 #define INCLUDED_BALTZO_DEFAULTZONEINFOCACHE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide facilities to manage a default Zoneinfo cache object.
@@ -208,16 +206,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALTZO_ZONEINFOCACHE
 #include <baltzo_zoneinfocache.h>
-#endif
 
 namespace BloombergLP {
 namespace baltzo {
+
                          // ==========================
                          // class DefaultZoneinfoCache
                          // ==========================
@@ -227,7 +222,6 @@ struct DefaultZoneinfoCache {
     // the default time-zone data cache.
 
   private:
-
     // PRIVATE CLASS METHODS
     static ZoneinfoCache *instance();
         // Return the address of the currently configured modifiable default
@@ -312,8 +306,6 @@ class DefaultZoneinfoCacheScopedGuard {
         // scoped guard was created, and destroy this guard.
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -324,8 +316,7 @@ class DefaultZoneinfoCacheScopedGuard {
 
 // CLASS METHODS
 inline
-baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::defaultCache(
-                                                          ZoneinfoCache *cache)
+ZoneinfoCache *baltzo::DefaultZoneinfoCache::defaultCache(ZoneinfoCache *cache)
 {
     return cache ? cache : instance();
 }
@@ -336,24 +327,25 @@ baltzo::ZoneinfoCache *baltzo::DefaultZoneinfoCache::defaultCache(
 
 // CREATORS
 inline
-baltzo::DefaultZoneinfoCacheScopedGuard::DefaultZoneinfoCacheScopedGuard(
+DefaultZoneinfoCacheScopedGuard::DefaultZoneinfoCacheScopedGuard(
                                                           ZoneinfoCache *cache)
 : d_previousCache_p(DefaultZoneinfoCache::setDefaultCache(cache))
 {
 }
 
 inline
-baltzo::DefaultZoneinfoCacheScopedGuard::~DefaultZoneinfoCacheScopedGuard()
+DefaultZoneinfoCacheScopedGuard::~DefaultZoneinfoCacheScopedGuard()
 {
     DefaultZoneinfoCache::setDefaultCache(d_previousCache_p);
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

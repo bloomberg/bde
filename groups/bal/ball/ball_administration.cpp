@@ -8,7 +8,7 @@ BSLS_IDENT_RCSID(ball_administration_cpp,"$Id$ $CSID$")
 #include <ball_loggercategoryutil.h>
 #include <ball_loggermanager.h>
 
-#include <ball_defaultobserver.h>         // for testing only
+#include <ball_streamobserver.h>          // for testing only
 #include <ball_testobserver.h>            // for testing only
 
 #include <bsls_assert.h>
@@ -73,14 +73,14 @@ int Administration::setDefaultThresholdLevels(int recordLevel,
                                                               triggerAllLevel);
 }
 
-int Administration::setThresholdLevels(const char *regularExpression,
+int Administration::setThresholdLevels(const char *pattern,
                                        int         recordLevel,
                                        int         passLevel,
                                        int         triggerLevel,
                                        int         triggerAllLevel)
 {
     return LoggerCategoryUtil::setThresholdLevels(&LoggerManager::singleton(),
-                                                  regularExpression,
+                                                  pattern,
                                                   recordLevel,
                                                   passLevel,
                                                   triggerLevel,

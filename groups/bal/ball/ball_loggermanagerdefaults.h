@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_LOGGERMANAGERDEFAULTS
 #define INCLUDED_BALL_LOGGERMANAGERDEFAULTS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide constrained default attributes for the logger manager.
@@ -24,14 +22,15 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_loggermanagerconfiguration
 //
-//@DESCRIPTION:  This component provides a constrained-attribute class that
-// contains a set of attributes (objects and parameters) of particular use to
-// logger managers.  The constraints are actively maintained by the class.  In
-// particular, the "set" methods for constrained values will fail if their
-// arguments are not consistent with the constraints.  Also, the constructor
-// does not take any constrained arguments, but rather sets those values to
-// valid defaults unconditionally.  This behavior avoids "silent failures",
-// since the constructor cannot explicitly return a status value.
+//@DESCRIPTION: This component provides a simply-constrained attribute class,
+// 'ball::LoggerManagerDefaults', that contains a set of attributes (objects
+// and parameters) of particular use to logger managers.  The constraints are
+// actively maintained by the class.  In particular, the "set" methods for
+// constrained values will fail if their arguments are not consistent with the
+// constraints.  Also, the constructor does not take any constrained arguments,
+// but rather sets those values to valid defaults unconditionally.  This
+// behavior avoids "silent failures", since the constructor cannot explicitly
+// return a status value.
 //
 // The attributes contained by a 'ball::LoggerManagerDefaults' object and
 // the attribute constraints are given, respectively, in two tables below.
@@ -44,7 +43,7 @@ BSLS_IDENT("$Id: $")
 //   int           loggerBufferSize    default size in bytes of *each*
 //                                     logger's "scratch" buffer (for macros)
 //   char          recordLevel         default record severity level
-//   char          passLevel           default passthrough severity level
+//   char          passLevel           default pass-through severity level
 //   char          triggerLevel        default trigger severity level
 //   char          triggerAllLevel     default triggerAll severity level
 //..
@@ -137,13 +136,9 @@ BSLS_IDENT("$Id: $")
 // ]
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {
@@ -261,7 +256,7 @@ class LoggerManagerDefaults {
         // otherwise.
 
     int setDefaultThresholdLevelsIfValid(int passLevel);
-        // Set the passthrough severity threshold level attribute of the
+        // Set the pass-through severity threshold level attribute of the
         // 'LoggerManagerDefaults' attribute of this object to the
         // specified 'passLevel', if it is in the range '[0 .. 255]', and set
         // all the other threshold levels (recordLevel, triggerLevel,

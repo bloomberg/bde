@@ -20,32 +20,32 @@ BSLS_IDENT_RCSID(baltzo_testloader_cpp,"$Id$ $CSID$")
 #include <bsl_utility.h>
 
 namespace BloombergLP {
+namespace baltzo {
 
                               // ----------------
                               // class TestLoader
                               // ----------------
 
 // CREATORS
-baltzo::TestLoader::~TestLoader()
+TestLoader::~TestLoader()
 {
 }
 
 // MANIPULATORS
-void baltzo::TestLoader::setTimeZone(const Zoneinfo& timeZone)
+void TestLoader::setTimeZone(const Zoneinfo& timeZone)
 {
     TimeZoneMap::iterator it = d_timeZones.find(timeZone.identifier());
     if (it == d_timeZones.end()) {
-        d_timeZones.insert(bsl::make_pair(timeZone.identifier(),
-                                          timeZone));
+        d_timeZones.emplace(timeZone.identifier(), timeZone);
     }
     else {
         it->second = timeZone;
     }
 }
 
-int baltzo::TestLoader::setTimeZone(const char *timeZoneId,
-                                    const char *timeZoneData,
-                                    int         timeZoneDataNumBytes)
+int TestLoader::setTimeZone(const char *timeZoneId,
+                            const char *timeZoneData,
+                            int         timeZoneDataNumBytes)
 {
     BSLS_ASSERT(0 != timeZoneId);
     BSLS_ASSERT(0 != timeZoneData);
@@ -66,7 +66,7 @@ int baltzo::TestLoader::setTimeZone(const char *timeZoneId,
     return 0;
 }
 
-int baltzo::TestLoader::loadTimeZone(Zoneinfo *result, const char *timeZoneId)
+int TestLoader::loadTimeZone(Zoneinfo *result, const char *timeZoneId)
 {
     BSLS_ASSERT(0 != result);
     BSLS_ASSERT(0 != timeZoneId);
@@ -81,9 +81,9 @@ int baltzo::TestLoader::loadTimeZone(Zoneinfo *result, const char *timeZoneId)
     return 0;
 }
 
-bsl::ostream& baltzo::TestLoader::print(bsl::ostream& stream,
-                                        int           level,
-                                        int           spacesPerLevel) const
+bsl::ostream& TestLoader::print(bsl::ostream& stream,
+                                int           level,
+                                int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -101,10 +101,11 @@ bsl::ostream& baltzo::TestLoader::print(bsl::ostream& stream,
     return stream;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

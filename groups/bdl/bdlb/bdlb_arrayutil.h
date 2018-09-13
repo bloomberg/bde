@@ -1,10 +1,7 @@
 // bdlb_arrayutil.h                                                   -*-C++-*-
 #ifndef INCLUDED_BDLB_ARRAYUTIL
 #define INCLUDED_BDLB_ARRAYUTIL
-
-#ifndef INCLUDED_BSLS_IDENT
 #  include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities to determine properties of fixed-sized arrays.
@@ -174,17 +171,10 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
 
 #define BDLB_ARRAYUTIL_SIZE(a) sizeof(BloombergLP::bdlb::ArrayUtil::sizer(a))
     // Return the number of elements in the passed array 'a' as a constant

@@ -10,55 +10,32 @@
 #ifndef INCLUDED_BALBER_BERDECODEROPTIONS
 #define INCLUDED_BALBER_BERDECODEROPTIONS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an attribute class for specifying BER decoding options.
 //
 //@CLASSES:
-//  bdem::balber::BerDecoderOptions: options for decoding objects in BDE format
+//  balber::BerDecoderOptions: options for decoding objects in BDE format
 //
 //@AUTHOR: Alexander Libman (alibman1@bloomberg.net)
 //
-//@DESCRIPTION: Schema of options records for 'bdem' codecs
+//@DESCRIPTION: Schema of options records for 'balber' codecs
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
 #include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
 #include <bdlat_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
 #include <bdlat_valuetypefunctions.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
 #include <bslx_instreamfunctions.h>
-#endif
-
-#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
 #include <bslx_outstreamfunctions.h>
-#endif
 
-#ifndef INCLUDED_BDLB_PRINTMETHODS
 #include <bdlb_printmethods.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace balber {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLC_BITARRAY
 #define INCLUDED_BDLC_BITARRAY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a space-efficient, sequential container of boolean values.
@@ -431,73 +429,32 @@ BSLS_IDENT("$Id: $")
 //  assert(false   == ARRAY.isAnyElementNull());
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLB_BITMASKUTIL
 #include <bdlb_bitmaskutil.h>
-#endif
-
-#ifndef INCLUDED_BDLB_BITSTRINGUTIL
 #include <bdlb_bitstringutil.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
-#include <bsl_algorithm.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDINT
 #include <bsl_cstdint.h>
-#endif
-
-#ifndef INCLUDED_BSL_CLIMITS
 #include <bsl_climits.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsl_algorithm.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bdlc {
@@ -1119,10 +1076,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BitArray& rhs);
 
 // FREE FUNCTIONS
 void swap(BitArray& a, BitArray& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This function provides the no-throw exception-safety guarantee.  The
-    // behavior is undefined unless the two objects were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                              INLINE DEFINITIONS
@@ -1872,9 +1828,11 @@ int BitArray::maxSupportedBdexVersion()
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 
+}  // close package namespace
+
 // FREE OPERATORS
 inline
-bool operator==(const BitArray& lhs, const BitArray& rhs)
+bool bdlc::operator==(const BitArray& lhs, const BitArray& rhs)
 {
     if (lhs.d_length != rhs.d_length) {
         return false;                                                 // RETURN
@@ -1886,13 +1844,13 @@ bool operator==(const BitArray& lhs, const BitArray& rhs)
 }
 
 inline
-bool operator!=(const BitArray& lhs, const BitArray& rhs)
+bool bdlc::operator!=(const BitArray& lhs, const BitArray& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-BitArray operator~(const BitArray& array)
+bdlc::BitArray bdlc::operator~(const BitArray& array)
 {
     BitArray tmp(array);
     tmp.toggleAll();
@@ -1900,7 +1858,7 @@ BitArray operator~(const BitArray& array)
 }
 
 inline
-BitArray operator&(const BitArray& lhs, const BitArray& rhs)
+bdlc::BitArray bdlc::operator&(const BitArray& lhs, const BitArray& rhs)
 {
     BitArray tmp(lhs);
     tmp &= rhs;
@@ -1908,7 +1866,7 @@ BitArray operator&(const BitArray& lhs, const BitArray& rhs)
 }
 
 inline
-BitArray operator|(const BitArray& lhs, const BitArray& rhs)
+bdlc::BitArray bdlc::operator|(const BitArray& lhs, const BitArray& rhs)
 {
     BitArray tmp(lhs);
     tmp |= rhs;
@@ -1916,7 +1874,7 @@ BitArray operator|(const BitArray& lhs, const BitArray& rhs)
 }
 
 inline
-BitArray operator^(const BitArray& lhs, const BitArray& rhs)
+bdlc::BitArray bdlc::operator^(const BitArray& lhs, const BitArray& rhs)
 {
     BitArray tmp(lhs);
     tmp ^= rhs;
@@ -1924,7 +1882,7 @@ BitArray operator^(const BitArray& lhs, const BitArray& rhs)
 }
 
 inline
-BitArray operator-(const BitArray& lhs, const BitArray& rhs)
+bdlc::BitArray bdlc::operator-(const BitArray& lhs, const BitArray& rhs)
 {
     BitArray tmp(lhs);
     tmp -= rhs;
@@ -1932,7 +1890,7 @@ BitArray operator-(const BitArray& lhs, const BitArray& rhs)
 }
 
 inline
-BitArray operator<<(const BitArray& array, bsl::size_t numBits)
+bdlc::BitArray bdlc::operator<<(const BitArray& array, bsl::size_t numBits)
 {
     BSLS_ASSERT_SAFE(numBits <= array.length());
 
@@ -1942,7 +1900,7 @@ BitArray operator<<(const BitArray& array, bsl::size_t numBits)
 }
 
 inline
-BitArray operator>>(const BitArray& array, bsl::size_t numBits)
+bdlc::BitArray bdlc::operator>>(const BitArray& array, bsl::size_t numBits)
 {
     BSLS_ASSERT_SAFE(numBits <= array.length());
 
@@ -1952,19 +1910,10 @@ BitArray operator>>(const BitArray& array, bsl::size_t numBits)
 }
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const BitArray& rhs)
+bsl::ostream& bdlc::operator<<(bsl::ostream& stream, const BitArray& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
-
-// FREE FUNCTIONS
-inline
-void swap(BitArray& a, BitArray& b)
-{
-    a.swap(b);
-}
-
-}  // close package namespace
 
 namespace bslmf {
 
@@ -1972,8 +1921,8 @@ template <>
 struct IsBitwiseMoveable<bdlc::BitArray> :
                         public IsBitwiseMoveable<bsl::vector<bsl::uint64_t> > {
     // This template specialization for 'IsBitwiseMoveable' indicates that
-    // 'BitArray' is a bitwise moveable type if 'vector<uint64_t>' is a bitwise
-    // moveable type.
+    // 'BitArray' is a bitwise movable type if 'vector<uint64_t>' is a bitwise
+    // movable type.
 };
 
 }  // close namespace bslmf
@@ -1993,7 +1942,7 @@ struct UsesBslmaAllocator<bdlc::BitArray> : bsl::true_type {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

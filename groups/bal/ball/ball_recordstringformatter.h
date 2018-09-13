@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_RECORDSTRINGFORMATTER
 #define INCLUDED_BALL_RECORDSTRINGFORMATTER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a record formatter that uses a 'printf'-style format spec.
@@ -60,6 +58,7 @@ BSLS_IDENT("$Id: $")
 //                                     fields)
 //  %p - process Id
 //  %t - thread Id
+//  %T - thread Id in hex
 //  %s - severity
 //  %f - filename (as provided by '__FILE__')
 //  %F - filename abbreviated (basename of '__FILE__' only)
@@ -130,40 +129,20 @@ BSLS_IDENT("$Id: $")
 //  6: Hello, World!
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATETIMEINTERVAL
 #include <bdlt_datetimeinterval.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -229,8 +208,6 @@ class RecordStringFormatter {
     explicit RecordStringFormatter(
                             const bdlt::DatetimeInterval&  offset,
                             bslma::Allocator              *basicAllocator = 0);
-        // !DEPRECATED!: Use a CTOR specifying 'publishInLocalTime' instead.
-        //
         // Create a record formatter having a default format specification and
         // the specified timestamp 'offset'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
@@ -239,6 +216,8 @@ class RecordStringFormatter {
         //..
         //  "\n%d %p:%t %s %f:%l %c %m %u\n"
         //..
+        //
+        // !DEPRECATED!: Use a constructor taking 'publishInLocalTime' instead.
 
     explicit RecordStringFormatter(bool              publishInLocalTime,
                                    bslma::Allocator *basicAllocator = 0);
@@ -259,13 +238,13 @@ class RecordStringFormatter {
     RecordStringFormatter(const char                    *format,
                           const bdlt::DatetimeInterval&  offset,
                           bslma::Allocator              *basicAllocator = 0);
-        // !DEPRECATED!: Use a CTOR specifying 'publishInLocalTime' instead.
-        //
         // Create a record formatter having the specified 'format'
         // specification and the specified timestamp 'offset'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
+        //
+        // !DEPRECATED!: Use a constructor taking 'publishInLocalTime' instead.
 
     RecordStringFormatter(const char       *format,
                           bool              publishInLocalTime,
@@ -310,10 +289,10 @@ class RecordStringFormatter {
         // specified 'format'.
 
     void setTimestampOffset(const bdlt::DatetimeInterval& offset);
-        // !DEPRECATED!: Use 'enablePublishInLocalTime' instead.
-        //
         // Set the timestamp offset of this record formatter to the specified
         // 'offset'.
+        //
+        // !DEPRECATED!: Use 'enablePublishInLocalTime' instead.
 
     // ACCESSORS
     void operator()(bsl::ostream& stream, const Record& record) const;
@@ -330,10 +309,10 @@ class RecordStringFormatter {
         // the current local time, and 'false' otherwise.
 
     const bdlt::DatetimeInterval& timestampOffset() const;
-        // !DEPRECATED!: Use the 'isPublishInLocalTimeEnabled' method instead.
-        //
         // Return a reference to the non-modifiable timestamp offset of this
         // record formatter.
+        //
+        // !DEPRECATED!: Use 'isPublishInLocalTimeEnabled' instead.
 };
 
 // FREE OPERATORS

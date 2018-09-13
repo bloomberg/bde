@@ -1,8 +1,8 @@
  bdlb.txt
 
-@PURPOSE: Provide utilities on basic types.
+@PURPOSE: Provide basic types and utilities.
 
-@MNEMONIC: Basic Development Library Basics (bdlb)
+@MNEMONIC: Basic Development Library Basis (bdlb)
 
 @DESCRIPTION: The 'bdlb' package provides utility 'struct's in the broad areas
  of bit manipulation, string handling, random number generations, hashing,
@@ -26,6 +26,7 @@
 
   2. bdlb_bitmaskutil
      bdlb_guidutil
+     bdlb_numericparseutil
      bdlb_printmethods
 
   1. bdlb_arrayutil
@@ -47,6 +48,8 @@
      bdlb_stringrefutil
      bdlb_testinputiterator
      bdlb_tokenizer
+     bdlb_topologicalsortutil
+     bdlb_transformiterator
 ..
 
 /Component Synopsis
@@ -108,6 +111,9 @@
 : 'bdlb_nulloutputiterator':
 :      Provide an output iterator type that discards output.
 :
+: 'bdlb_numericparseutil':
+:      Provide utility methods for parsing text as numbers.
+:
 : 'bdlb_print':
 :      Provide platform-independent stream utilities.
 :
@@ -131,6 +137,12 @@
 :
 : 'bdlb_tokenizer':
 :      Provide access to user-described tokens via string references.
+:
+: 'bdlb_topologicalsortutil':
+:      Provide utility functions to order a sequence given a relation.
+:
+: 'bdlb_transformiterator':
+:      Privide an iterator adapter that invokes a functor upon dereference.
 :
 : 'bdlb_variant':
 :      Provide a variant (discriminated 'union'-like) type.

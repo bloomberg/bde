@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLB_PRINTMETHODS
 #define INCLUDED_BDLB_PRINTMETHODS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide methods for uniform printing of value-semantic types.
@@ -53,7 +51,7 @@ BSLS_IDENT("$Id: $")
 // Since a class may declare multiple traits (see the component-level
 // documentation of {'bslalg_nestedtraitdeclaration'} for information about
 // declaring traits), the relative precedence of the traits is shown above.
-// The next sub-sections describe these traits and their affects on printing.
+// The next sub-sections describe these traits and their effects on printing.
 //
 ///Effect of 'bdlb::TypeTraitHasPrintMethod' Trait
 ///- - - - - - - - - - - - - - - - - - - - - - - -
@@ -219,48 +217,22 @@ BSLS_IDENT("$Id: $")
 // See the {'bslmf_nestedtraitdeclaration'} component for more information
 // about declaring traits for user-defined classes.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLB_PRINT
 #include <bdlb_print.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_HASSTLITERATORS
 #include <bslalg_hasstliterators.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISPAIR
 #include <bslmf_ispair.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_SELECTTRAIT
 #include <bslmf_selecttrait.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOMANIP
 #include <bsl_iomanip.h>
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITPAIR
 #include <bslalg_typetraitpair.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {

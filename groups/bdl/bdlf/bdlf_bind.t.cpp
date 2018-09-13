@@ -1739,7 +1739,7 @@ DEFINE_TEST_CASE(7) {
         // ------------------------------------------------------------------
 
         (void)veryVerbose;
-        
+
         if (verbose)
             printf("\nTesting Usage Example from Other Test Drivers"
                    "\n=============================================\n");
@@ -1848,7 +1848,7 @@ DEFINE_TEST_CASE(6) {
         // ------------------------------------------------------------------
 
         (void)veryVerbose;
-        
+
         if (verbose) printf("\nTesting Usage Examples"
                             "\n======================\n");
 
@@ -1921,7 +1921,7 @@ DEFINE_TEST_CASE(5) {
         // ------------------------------------------------------------------
 
         (void)veryVerbose;
-        
+
         if (verbose)
             printf("\nTESTING RESPECTING THE SIGNATURE OF THE INVOCABLE"
                    "\n=================================================\n");
@@ -2621,7 +2621,7 @@ DEFINE_TEST_CASE(3) {
         // ------------------------------------------------------------------
 
         (void)veryVerbose;
-        
+
         if (verbose) printf("\nMIXING BOUND ARGUMENTS AND PLACEHOLDERS"
                             "\n=======================================\n");
 
@@ -3409,7 +3409,7 @@ DEFINE_TEST_CASE(2) {
         // ------------------------------------------------------------------
 
         (void)veryVerbose;
-        
+
         if (verbose) printf("\nTESTING TRAITS"
                             "\n==============\n");
 
@@ -3446,7 +3446,7 @@ DEFINE_TEST_CASE(1) {
         // ------------------------------------------------------------------
 
         (void)veryVerbose;
-        
+
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 

@@ -526,15 +526,6 @@ BSLS_IDENT("$Id$ $CSID$")
 // the management of the object and will use the deleter from the original
 // 'BloombergLP::bslma::ManagedPtr' to destroy the managed object when all the
 // references to that shared object are released.
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-//
-///Storing a 'shared_ptr' in an Invokable in a 'bdef_Function' Object
-///------------------------------------------------------------------
-// In addition to the guarantees already made in the 'bdef_function' component,
-// 'bsl::shared_ptr' also guarantees that storing a shared pointer to an
-// invokable object in a 'bdef_Function' object will be "in-place", i.e., it
-// will not trigger memory allocation.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 //
 ///Weak Pointers using "in-place" or Pooled Shared Pointer Representations
 ///-----------------------------------------------------------------------
@@ -1622,7 +1613,7 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_STDDEF_H
 #endif
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
         // Here and throughout the file wherever 'auto_ptr' is used, suspend
         // GCC reporting of deprecated declarations since the use of 'auto_ptr'
         // in this standard interface is required.
@@ -1873,29 +1864,11 @@ class shared_ptr {
         // representation that does not refer to any object and has no
         // deleter.
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    explicit shared_ptr(BloombergLP::bslma::SharedPtrRep *rep);
-        // Create a shared pointer taking ownership of the specified 'rep' and
-        // pointing to the object stored in the 'rep'.  The behavior is
-        // undefined unless 'rep->originalPtr()' points to an object of type
-        // 'ELEMENT_TYPE'.  Note that this method *DOES* *NOT* increment the
-        // number of references to 'rep'.
-        //
-        // DEPRECATED This constructor will be made inaccessible in the next
-        // BDE release, as the undefined behavior is too easily triggered and
-        // offers no simple way to guard against misuse.  Instead, call the
-        // constructor taking an additional 'ELEMENT_TYPE *' initial argument:
-        //..
-        //  shared_ptr(ELEMENT_TYPE *p, BloombergLP::bslma::SharedPtrRep *rep);
-        //..
-#else
     BSLS_CPP11_CONSTEXPR
     shared_ptr(bsl::nullptr_t) BSLS_CPP11_NOEXCEPT;                 // IMPLICIT
         // Create an empty shared pointer, i.e., a shared pointer with no
         // representation that does not refer to any object and has no
         // deleter.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-
 
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
@@ -2201,10 +2174,10 @@ class shared_ptr {
                       typename native_std::unique_ptr<COMPATIBLE_TYPE,
                                                       UNIQUE_DELETER>::pointer,
                       ELEMENT_TYPE *>::value>::type * = nullptr>
-    explicit shared_ptr(
-                 native_std::unique_ptr<COMPATIBLE_TYPE,
-                                        UNIQUE_DELETER>&&  adoptee,
-                 BloombergLP::bslma::Allocator            *basicAllocator = 0);
+     shared_ptr(native_std::unique_ptr<COMPATIBLE_TYPE,
+                                       UNIQUE_DELETER>&&  adoptee,
+                BloombergLP::bslma::Allocator            *basicAllocator = 0);
+                                                                     // IMPLICT
         // Create a shared pointer that takes over the management of the
         // modifiable object previously managed by the specified 'adoptee' to
         // the (template parameter) type 'COMPATIBLE_TYPE', and that refers to
@@ -2221,17 +2194,16 @@ class shared_ptr {
         // C++ standard.
 # else
     template <class COMPATIBLE_TYPE, class UNIQUE_DELETER>
-    explicit shared_ptr(
-                 native_std::unique_ptr<COMPATIBLE_TYPE,
-                                        UNIQUE_DELETER>&&  adoptee,
-                 BloombergLP::bslma::Allocator            *basicAllocator = 0,
-                 typename enable_if<is_convertible<
-                      typename
-                          native_std::unique_ptr<COMPATIBLE_TYPE,
+    shared_ptr(native_std::unique_ptr<COMPATIBLE_TYPE,
+                                      UNIQUE_DELETER>&&  adoptee,
+               BloombergLP::bslma::Allocator            *basicAllocator = 0,
+               typename enable_if<is_convertible<
+                      typename native_std::unique_ptr<COMPATIBLE_TYPE,
                                                       UNIQUE_DELETER>::pointer,
-                          ELEMENT_TYPE *>::value,
+                      ELEMENT_TYPE *>::value,
                       BloombergLP::bslstl::SharedPtr_ImpUtil>::type =
                                       BloombergLP::bslstl::SharedPtr_ImpUtil())
+                                                                     // IMPLICT
         // Create a shared pointer that takes over the management of the
         // modifiable object previously managed by the specified 'adoptee' to
         // the (template parameter) type 'COMPATIBLE_TYPE', and that refers to
@@ -4686,7 +4658,8 @@ struct SharedPtrUtil {
         // newly-created uninitialized buffer of the specified 'bufferSize' (in
         // bytes).  Optionally specify a 'basicAllocator' used to supply
         // memory.  If 'basicAllocator' is 0, the currently installed default
-        // allocator is used.
+        // allocator is used.  The behavior is undefined unless
+        // '0 < bufferSize'.
 
     // CASTING FUNCTIONS
     template <class TARGET, class SOURCE>
@@ -4971,7 +4944,34 @@ template <class RESULT, class PARAM>
 struct SharedPtr_TestIsCallable<RESULT(&)(PARAM)>
     :  SharedPtr_TestIsCallable<RESULT(PARAM)> {
 };
-#endif
+
+#if BSLS_PLATFORM_CMP_VERSION >= 1910
+// MSVC 2017 expression-SFINAE has a regression that is failing in two
+// additional cases:
+//  1) for pointers to object types
+//  2) where '0' is used for a null pointer literal, deducing as 'int'.
+// We resolve those issues with a couple more specializations below.
+
+template <class TYPE>
+struct SharedPtr_TestIsCallable<TYPE *> {
+    struct TrueType  { char d_padding; };
+    struct FalseType { char d_padding[17]; };
+
+    template <class ARG>
+    static FalseType test(...);
+};
+
+template <>
+struct SharedPtr_TestIsCallable<int> {
+    struct TrueType  { char d_padding; };
+    struct FalseType { char d_padding[17]; };
+
+    template <class ARG>
+    static FalseType test(...);
+};
+#endif  // MSVC 2017
+
+#endif  // BSLS_PLATFORM_CMP_MSVC
 
 template <class FUNCTOR, class ARG>
 struct SharedPtr_IsCallable {
@@ -5183,15 +5183,6 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr() BSLS_CPP11_NOEXCEPT
 {
 }
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-template <class ELEMENT_TYPE>
-inline
-shared_ptr<ELEMENT_TYPE>::shared_ptr(BloombergLP::bslma::SharedPtrRep *rep)
-: d_ptr_p(rep ? reinterpret_cast<ELEMENT_TYPE *>(rep->originalPtr()) : 0)
-, d_rep_p(rep)
-{
-}
-#else
 template <class ELEMENT_TYPE>
 inline
 BSLS_CPP11_CONSTEXPR
@@ -5200,7 +5191,6 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(bsl::nullptr_t) BSLS_CPP11_NOEXCEPT
 , d_rep_p(0)
 {
 }
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE
@@ -9401,7 +9391,7 @@ struct IsBitwiseMoveable< ::bsl::weak_ptr<ELEMENT_TYPE> >
 
 }  // close enterprise namespace
 
-#ifdef BSLS_PLATFORM_CMP_GNU
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 # pragma GCC diagnostic pop
 #endif
 

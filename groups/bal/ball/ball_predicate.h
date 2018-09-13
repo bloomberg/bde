@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_PREDICATE
 #define INCLUDED_BALL_PREDICATE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a predicate object that consists of a name/value pair.
@@ -28,6 +26,10 @@ BSLS_IDENT("$Id: $")
 // 'ball::Predicate', that consists of a name and a value.  The value can be an
 // 'int', a 64-bit integer, or a 'bsl::string'.  Both the name and value are
 // managed by this object.
+//
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
 //
 ///Usage
 ///-----
@@ -71,37 +73,21 @@ BSLS_IDENT("$Id: $")
 //    assert(p4 == p1);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_ATTRIBUTE
 #include <ball_attribute.h>
-#endif
 
-#ifndef INCLUDED_BDLB_VARIANT
 #include <bdlb_variant.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
+#include <bsls_assert.h>
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {
@@ -137,7 +123,8 @@ class Predicate {
     static int hash(const Predicate& predicate, int size);
         // Return a hash value calculated from the specified 'predicate' using
         // the specified 'size' as the number of slots.  The hash value is
-        // guaranteed to be in the range '[0 .. size - 1]'.
+        // guaranteed to be in the range '[0 .. size - 1]'.  The behavior is
+        // undefined unless '0 < size'.
 
     // CREATORS
     Predicate(const bslstl::StringRef&  name,
@@ -250,6 +237,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Predicate& predicate);
 inline
 int Predicate::hash(const Predicate& predicate, int size)
 {
+    BSLS_ASSERT_SAFE(0 < size);
+
     return Attribute::hash(predicate.d_attribute, size);
 }
 

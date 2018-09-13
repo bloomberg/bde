@@ -5,6 +5,7 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -71,6 +72,29 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+
+//=============================================================================
+//                  COMPILER DEFECT MACROS TO GUIDE TESTING
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_SUN)                                            \
+ ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+# define BSLMF_ADDPOINTER_CREATES_ABOMINABLE_POINTERS 1
+// Some compilers erroneously support pointers to "abominable" function types.
+// This macro indicates that they are expected to produce the wrong result.
+
+typedef int AbominableFunction() const volatile;
+typedef AbominableFunction* BadFunctionPointer;
+
+    // Test to confirm that this compiler supports the buggy syntax.
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
+# define BSLMF_ADDPOINTER_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND 1
+// Old microsoft compilers do not support references to arrays of unknown
+// bound.
+#endif
+
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -161,6 +185,18 @@ int main(int argc, char *argv[])
         //:
         //: 2 'bsl::add_pointer' transforms a reference type to a pointer
         //:   type pointing to the type referred to by the reference type.
+        //:
+        //: 3 'bsl::add_pointer' does not decay arrays.
+        //:
+        //: 4 'bsl::add_pointer' produces function-pointers from function types
+        //:   and function-reference-types.
+        //:
+        //: 5 'bsl::add_pointer' does not change the type of an "abominable"
+        //:   function type (with a trailing cv-qualifier) as there is no legal
+        //:   pointer type to transform into.  Note that some compilers are
+        //:   known to have bugs, and we should test that this trait produces
+        //:   the corresponding (illegal) type on such compilers, rather than
+        //:   failing to compile at all.
         //
         // Plan:
         //   Verify that 'bsl::add_pointer::type' has the correct type for
@@ -174,8 +210,10 @@ int main(int argc, char *argv[])
                             "\n========================\n");
 
         // C-1
+        ASSERT((is_same<add_pointer<void>::type, void *>::value));
+        ASSERT((is_same<add_pointer<const void>::type, const void *>::value));
         ASSERT((is_same<add_pointer<int>::type, int *>::value));
-        ASSERT((is_same<add_pointer<int const>::type, int const *>::value));
+        ASSERT((is_same<add_pointer<const int>::type, const int *>::value));
         ASSERT((is_same<add_pointer<int *>::type, int **>::value));
         ASSERT((is_same<add_pointer<TestType>::type, TestType *>::value));
 
@@ -188,6 +226,54 @@ int main(int argc, char *argv[])
         ASSERT((is_same<add_pointer<int &&>::type, int *>::value));
         ASSERT((is_same<add_pointer<int const &&>::type, int const *>::value));
 #endif
+
+        // C-3
+        typedef int   IntArray    [];
+        typedef int (*IntArrayPtr)[];
+#if !BSLMF_ADDPOINTER_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND
+        typedef int (&IntArrayRef)[];
+#endif
+
+        typedef int   IntArray5    [5];
+        typedef int (*IntArrayPtr5)[5];
+        typedef int (&IntArrayRef5)[5];
+
+        ASSERT((is_same<add_pointer<IntArray>::type,    IntArrayPtr >::value));
+#if !BSLMF_ADDPOINTER_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND
+        ASSERT((is_same<add_pointer<IntArrayRef>::type, IntArrayPtr >::value));
+#endif
+        ASSERT((is_same<add_pointer<IntArrayPtr>::type, IntArrayPtr*>::value));
+
+        ASSERT((is_same<add_pointer<IntArray5>::type, IntArrayPtr5>::value));
+        ASSERT((is_same<add_pointer<IntArrayRef5>::type,
+                        IntArrayPtr5>::value));
+        ASSERT((is_same<add_pointer<IntArrayPtr5>::type,
+                        IntArrayPtr5*>::value));
+
+        // C-4
+        typedef int   Function    (...);
+        typedef int (&FunctionRef)(...);
+        typedef int (*FunctionPtr)(...);
+
+        ASSERT((is_same<add_pointer<Function>::type,    FunctionPtr >::value));
+        ASSERT((is_same<add_pointer<FunctionRef>::type, FunctionPtr >::value));
+        ASSERT((is_same<add_pointer<FunctionPtr>::type, FunctionPtr*>::value));
+
+        // C-5
+        typedef int AbominableFn() const volatile;
+
+#if defined(BSLMF_ADDPOINTER_CREATES_ABOMINABLE_POINTERS)
+        ASSERT((is_same<add_pointer<AbominableFn>::type,
+                        AbominableFn *>::value));
+#elif (!defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION >= 40900)
+        // gcc prior to v4.9 would produce the pointer-to-abominable type, but
+        // reject parsing that pointer type explicitly, making the result type
+        // impossible to test.
+
+        ASSERT((is_same<add_pointer<AbominableFn>::type,
+                        AbominableFn>::value));
+#endif
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -203,7 +289,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

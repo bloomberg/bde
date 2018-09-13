@@ -14,7 +14,8 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  2. bdlc_packedintarrayutil
+  2. bdlc_compactedarray
+     bdlc_packedintarrayutil
 
   1. bdlc_bitarray
      bdlc_hashtable
@@ -27,6 +28,9 @@
 /------------------
 : 'bdlc_bitarray':
 :      Provide a space-efficient, sequential container of boolean values.
+:
+: 'bdlc_compactedarray':
+:      Provide a compacted array of 'const' user-defined objects.
 :
 : 'bdlc_hashtable':
 :      Provide a double-hashed table with utility.

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLMT_FIXEDTHREADPOOL
 #define INCLUDED_BDLMT_FIXEDTHREADPOOL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide portable implementation for a fixed-size pool of threads.
@@ -298,57 +296,27 @@ BSLS_IDENT("$Id: $")
 //   }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLCC_FIXEDQUEUE
 #include <bdlcc_fixedqueue.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
+#include <bslmf_movableref.h>
+
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_SEMAPHORE
 #include <bslmt_semaphore.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
 #include <bslmt_threadattributes.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_CONDITION
 #include <bslmt_condition.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADGROUP
 #include <bslmt_threadgroup.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
-#ifndef INCLUDED_BDLF_BIND
 #include <bdlf_bind.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDLIB
 #include <bsl_cstdlib.h>
-#endif
-
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
 
 namespace BloombergLP {
 
@@ -521,6 +489,7 @@ class FixedThreadPool {
         // Enable queuing into this pool.
 
     int enqueueJob(const Job& functor);
+    int enqueueJob(bslmf::MovableRef<Job> functor);
         // Enqueue the specified 'functor' to be executed by the next available
         // thread.  Return 0 if enqueued successfully, and a non-zero value if
         // queuing is currently disabled.  Note that this function can block if
@@ -536,6 +505,7 @@ class FixedThreadPool {
         // successfully, and a non-zero value if queuing is currently disabled.
 
     int tryEnqueueJob(const Job& functor);
+    int tryEnqueueJob(bslmf::MovableRef<Job> functor);
         // Attempt to enqueue the specified 'functor' to be executed by the
         // next available thread.  Return 0 if enqueued successfully, and a
         // nonzero value if queuing is currently disabled or the queue is full.
@@ -582,7 +552,7 @@ class FixedThreadPool {
         // processing a job for this threadpool.
 
     int numPendingJobs() const;
-        // Return a snapshot of the number of threads currently enqueued to be
+        // Return a snapshot of the number of jobs currently enqueued to be
         // processed by thread pool.
 
     int numThreads() const;

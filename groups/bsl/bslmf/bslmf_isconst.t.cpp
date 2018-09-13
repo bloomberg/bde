@@ -78,10 +78,7 @@ void aSsErT(bool condition, const char *message, int line)
 //# define BSLMF_ISCONST_SHOW_COMPILER_ERRORS 1
 #if !defined(BSLMF_ISCONST_SHOW_COMPILER_ERRORS)
 
-# if defined(BSLS_PLATFORM_CMP_IBM)                                           \
-  || defined(BSLS_PLATFORM_CMP_SUN)                                           \
-  ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION <= 40400)   \
-  ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900)
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
 // The xlC and Sun CC compilers mistakenly detect function types with trailing
 // cv-qualifiers as being cv-qualified themselves.  However, in such cases the
 // cv-qualifier applies to the (hidden) 'this' pointer, as these function types
@@ -92,7 +89,21 @@ void aSsErT(bool condition, const char *message, int line)
 // Note that we could obtain the correct answer by deriving 'is_const' from
 // (the negation of) 'is_function', but that simply exposes that our current
 // implementation of 'is_function' does not detect such types either.
-#   define BSLMF_CONST_COMPILER_MISREPORTS_ABOMINABLE_FUNCTION_TYPES
+#   define BSLMF_ISCONST_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES
+# endif
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+// The xlC and Sun CC compilers mistakenly detect function types with trailing
+// cv-qualifiers as being cv-qualified themselves.  However, in such cases the
+// cv-qualifier applies to the (hidden) 'this' pointer, as these function types
+// exist only to be the result-type of a pointer-to-member type.  By definition
+// no function type can ever be cv-qualified.  The Microsoft compiler cannot
+// parse such types at all.
+//
+// Note that we could obtain the correct answer by deriving 'is_const' from
+// (the negation of) 'is_function', but that simply exposes that our current
+// implementation of 'is_function' does not detect such types either.
+#   define BSLMF_ISCONST_COMPILER_CANNOT_QUALIFY_ABOMINABLE_FUNCTION_TYPES
 # endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800
@@ -123,7 +134,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 // This test driver intentional creates types with unusual use of cv-qualifiers
 // in order to confirm that there are no strange corners of the type system
-// that are not addressed by this traits component.  Consquently, we disable
+// that are not addressed by this traits component.  Consequently, we disable
 // certain warnings from common compilers.
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
@@ -198,6 +209,36 @@ bool testCVOverload(const DEDUCED_TYPE &)
     return bsl::is_const<DEDUCED_TYPE>::value;
 }
 
+
+
+template <class TYPE>
+bool testIsConst()
+{
+    return bsl::is_const<TYPE>::value;
+}
+
+template <class TYPE>
+bool testIsNotConstable()
+{
+    return !testIsConst<TYPE const>();
+}
+
+
+template <class MEMBER, class HOST>
+void testNoConstOnMemberFunction(MEMBER HOST::*)
+    // Call this function with a pointer-to-member pointing specifically to a
+    // cv-qualfied member function.  This will allow validation that a
+    // cv-qualfied "abominable" function does not carry a 'const' qualifier,
+    // even on platforms that do not allow us to enter the type directly.
+{
+    ASSERT(!testIsConst<MEMBER>());
+}
+
+struct ClassWithCvFunctions {
+    void constQualified() const {}
+    void cvQualified() const volatile {}
+};
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -219,7 +260,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -261,6 +302,94 @@ int main(int argc, char *argv[])
     ASSERT(true  == bsl::is_const<MyConstType>::value);
 //..
 
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING NON-QUALIFYABLE TYPES
+        //   Reference type and function types do not support cv-qualification,
+        //   although "abominable" function types have a syntax that looks like
+        //   they do.  Confirm that there are no surprising compiler bugs when
+        //   a template tries to specialize for const-qualified version of such
+        //   a type.
+        //
+        // Concerns:
+        //: 1 'is_const<TYPE>::value' has the value expected for the type
+        //:   deduced for a single function template, with no overloads, that
+        //:   deduces the complete type, including cv-qualifiers, from its
+        //:   argument passed by reference.
+        //:
+        //: 2 'is_const<TYPE>::value' is always 'false' for a type deduced from
+        //:   a pair of function template overloads taking their arguments by
+        //:   reference, and by const-reference.
+        //:
+        //: 3 Given the specific information that some platforms require a
+        //:   special implementation for arrays, multidimensional arrays should
+        //:   have the same result as this trait applied to an array of a
+        //:   single dimension with the same (potentially cv-qualified) element
+        //:   type.
+        //
+        // Plan:
+        //: 1 Verify that 'bsl::is_const<TYPE>::value' has the correct value
+        //:   for each concern.
+        //
+        // Testing:
+        //   CONCERN: not all types support cv-qualifiers
+        // --------------------------------------------------------------------
+
+        if (verbose)
+             printf("\nTESTING NON-QUALIFYABLE TYPES"
+                    "\n=============================\n");
+
+        // First check there are no high level surprises
+        ASSERT(!testIsConst<int &>());
+        ASSERT(!testIsConst<const int &>());
+        ASSERT(!testIsConst<int()>());
+        ASSERT(!testIsConst<const int()>());
+#if !defined(BSLMF_ISCONST_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
+        ASSERT(!testIsConst<const int() const>());
+#endif
+
+        // Test again through a function that will try to const-qualify the
+        // supplied template parameter
+
+        ASSERT(testIsNotConstable<int &>());
+        ASSERT(testIsNotConstable<const int &>());
+#if !defined(BSLMF_ISCONST_COMPILER_CANNOT_QUALIFY_ABOMINABLE_FUNCTION_TYPES)
+        ASSERT(testIsNotConstable<int()>());
+        ASSERT(testIsNotConstable<const int()>());
+# if !defined(BSLMF_ISCONST_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
+        ASSERT(testIsNotConstable<const int() const>());
+# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
+        ASSERT(testIsNotConstable<int &&>());
+        ASSERT(testIsNotConstable<const int &&>());
+        ASSERT(testIsNotConstable<int() &>());
+        ASSERT(testIsNotConstable<const int() &>());
+        ASSERT(testIsNotConstable<const int() const &>());
+        ASSERT(testIsNotConstable<int() const &>());
+        ASSERT(testIsNotConstable<const int() const &>());
+        ASSERT(testIsNotConstable<const int() const volatile &>());
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+        ASSERT(testIsNotConstable<int() noexcept>());
+        ASSERT(testIsNotConstable<const int() noexcept>());
+        ASSERT(testIsNotConstable<const int() const noexcept>());
+
+        ASSERT(testIsNotConstable<int() & noexcept>());
+        ASSERT(testIsNotConstable<const int() & noexcept>());
+        ASSERT(testIsNotConstable<const int() const & noexept>());
+        ASSERT(testIsNotConstable<int() const & noexcept>());
+        ASSERT(testIsNotConstable<const int() const & noexcept>());
+        ASSERT(testIsNotConstable<const int() const volatile & noexcept>());
+#endif
+
+#if !defined(BSLMF_ISCONST_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
+        testNoConstOnMemberFunction(&ClassWithCvFunctions::constQualified);
+        testNoConstOnMemberFunction(&ClassWithCvFunctions::cvQualified);
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -361,38 +490,26 @@ int main(int argc, char *argv[])
         ASSERT(false == testCVOverload(constVolatileData));
 
         ASSERT(false == testCVOverload(array));
+        ASSERT(false == testCVOverload(arrayUB));
+        ASSERT(false == testCVOverload(array2D));
+        ASSERT(false == testCVOverload(arrayUB2D));
+
+        ASSERT(false == testCVOverload(volatileArray));
+        ASSERT(false == testCVOverload(volatileArrayUB));
+        ASSERT(false == testCVOverload(volatileArray2D));
+        ASSERT(false == testCVOverload(volatileArrayUB2D));
+
 #if !defined(BSLMF_ISCONST_COMPILER_DEDUCES_BAD_CV_QUAL_FOR_ARRAYS)
         ASSERT(false == testCVOverload(constArray));
-#endif
-        ASSERT(false == testCVOverload(volatileArray));
-#if !defined(BSLMF_ISCONST_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY)
-        ASSERT(false == testCVOverload(constVolatileArray));
-#endif
-
-        ASSERT(false == testCVOverload(arrayUB));
-#if !defined(BSLMF_ISCONST_COMPILER_DEDUCES_BAD_CV_QUAL_FOR_ARRAYS)
         ASSERT(false == testCVOverload(constArrayUB));
 #endif
-        ASSERT(false == testCVOverload(volatileArrayUB));
-#if !defined(BSLMF_ISCONST_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY)
-        ASSERT(false == testCVOverload(constVolatileArrayUB));
-#endif
-
-        ASSERT(false == testCVOverload(array2D));
 #if !defined(BSLMF_ISCONST_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY)
         ASSERT(false == testCVOverload(constArray2D));
-#endif
-        ASSERT(false == testCVOverload(volatileArray2D));
-#if !defined(BSLMF_ISCONST_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY)
-        ASSERT(false == testCVOverload(constVolatileArray2D));
-#endif
-
-        ASSERT(false == testCVOverload(arrayUB2D));
-#if !defined(BSLMF_ISCONST_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY)
         ASSERT(false == testCVOverload(constArrayUB2D));
-#endif
-        ASSERT(false == testCVOverload(volatileArrayUB2D));
-#if !defined(BSLMF_ISCONST_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY)
+
+        ASSERT(false == testCVOverload(constVolatileArray));
+        ASSERT(false == testCVOverload(constVolatileArrayUB));
+        ASSERT(false == testCVOverload(constVolatileArray2D));
         ASSERT(false == testCVOverload(constVolatileArrayUB2D));
 #endif
       } break;
@@ -461,10 +578,10 @@ int main(int argc, char *argv[])
         ASSERT(false == eval(bsl::is_const<const int(&)()>()));
         ASSERT(false == eval(bsl::is_const<const int(*)()>()));
 
-#if !defined(BSLMF_CONST_COMPILER_MISREPORTS_ABOMINABLE_FUNCTION_TYPES)
+#if !defined(BSLMF_ISCONST_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
         // Additional tests for abominable function types
         ASSERT(false == eval(bsl::is_const<const int() const>()));
-        ASSERT(false == eval(bsl::is_const<const int() const volatile>()));
+        ASSERT(false == eval(bsl::is_const<const int(...) const volatile>()));
 #endif
 
         ASSERT(false == eval(bsl::is_const<int[4]>()));

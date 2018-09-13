@@ -57,6 +57,20 @@ using namespace BloombergLP;
 
 namespace {
 
+bool isEqual(double a, double b)
+    // Return 'true' if the specified 'a' equals the specified 'b', and 'false'
+    // otherwise.  Note that comparing two floating-point values on GCC x86
+    // platforms due to extended precision of x87 unit may lead to some strange
+    // result when two the same floating-point values are not equal.  We can
+    // workaround this problem by always explicitly storing the values to
+    // memory to force the round-down using 'volatile' intermediate variables.
+    // See https://gcc.gnu.org/wiki/x87note for details.
+{
+    volatile double va = a;
+    volatile double vb = b;
+    return va == vb;
+}
+
 int testStatus = 0;
 
 void aSsErT(bool b, const char *s, int i)
@@ -334,9 +348,9 @@ int main(int argc, char *argv[])
         const double t1w = s.accumulatedWallTime();    ASSERT(0.0 <= t1w);
 
         s.stop();
-        const double t2s = s.accumulatedSystemTime();  ASSERT(t1s == t2s);
-        const double t2u = s.accumulatedUserTime();    ASSERT(t1u == t2u);
-        const double t2w = s.accumulatedWallTime();    ASSERT(t1w <= t2w);
+        const double t2s = s.accumulatedSystemTime();ASSERT(isEqual(t1s, t2s));
+        const double t2u = s.accumulatedUserTime();  ASSERT(isEqual(t1u, t2u));
+        const double t2w = s.accumulatedWallTime();  ASSERT(t1w <= t2w);
 
         s.start(true);
         const double t3s = s.accumulatedSystemTime();  ASSERT(t2s <= t3s);
@@ -515,9 +529,9 @@ int main(int argc, char *argv[])
         double ut4 = pt.accumulatedUserTime();
         double wt4 = pt.accumulatedWallTime();
 
-        ASSERT(st3 == st4);
-        ASSERT(ut3 == ut4);
-        ASSERT(wt3 == wt4);
+        ASSERT(isEqual(st3, st4));
+        ASSERT(isEqual(ut3, ut4));
+        ASSERT(isEqual(wt3, wt4));
 
         if (verbose) {
             P_(st3) P_(ut3) P(wt3)
@@ -692,8 +706,8 @@ int main(int argc, char *argv[])
 
                 if (veryVerbose) { T_;  P_(t1);  P_(t2);  P(t3); }
                 LOOP_ASSERT(t,  0 <  t1);
-                LOOP_ASSERT(t, t1 == t2);
-                LOOP_ASSERT(t, t2 == t3);
+                LOOP_ASSERT(t, isEqual(t1, t2));
+                LOOP_ASSERT(t, isEqual(t2, t3));
             }
         }
 

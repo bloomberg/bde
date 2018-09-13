@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLB_STRING
 #define INCLUDED_BDLB_STRING
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utility functions on C-style and 'STL' strings.
@@ -64,30 +62,23 @@ BSLS_IDENT("$Id: $")
 //  toFixedLength(...)            fixed-length copy with padding character
 //  pad(...)                      append padding char.  up to specified length
 //..
+//
+///UTF-8
+///------
+// Note that functions involving case and classification deal with base ASCII
+// characters *only*. So, for example, for UTF-8 encoding they will behave as
+// expected for the ASCII subset of UTF-8 but will *not* provide full unicode
+// support.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlb {

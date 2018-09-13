@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALM_INTEGERMETRIC
 #define INCLUDED_BALM_INTEGERMETRIC
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide helper classes for recording int metric values.
@@ -178,37 +176,16 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALM_COLLECTORREPOSITORY
 #include <balm_collectorrepository.h>
-#endif
-
-#ifndef INCLUDED_BALM_DEFAULTMETRICSMANAGER
 #include <balm_defaultmetricsmanager.h>
-#endif
-
-#ifndef INCLUDED_BALM_INTEGERCOLLECTOR
 #include <balm_integercollector.h>
-#endif
-
-#ifndef INCLUDED_BALM_METRICID
 #include <balm_metricid.h>
-#endif
-
-#ifndef INCLUDED_BALM_METRICSMANAGER
 #include <balm_metricsmanager.h>
-#endif
-
-#ifndef INCLUDED_BALM_PUBLICATIONTYPE
 #include <balm_publicationtype.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
 namespace BloombergLP {
 

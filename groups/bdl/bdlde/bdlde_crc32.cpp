@@ -169,8 +169,8 @@ void Crc32::update(const void *data, bsl::size_t length)
     // The following is a Duff's Device-based implementation of a common
     // algorithm (see end of RFC 1952).
 
-    register const unsigned char *d = (const unsigned char *)data;
-    register unsigned int tmp = d_crc;
+    const unsigned char *d   = (const unsigned char *)data;
+    unsigned int         tmp = d_crc;
 
     // The "FALL THROUGH" comments here are necessary to avoid the
     // implicit-fallthrough warnings that GCC 7 introduces.  We could

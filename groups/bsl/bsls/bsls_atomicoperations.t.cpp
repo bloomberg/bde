@@ -672,7 +672,7 @@ static void* case8ThreadU(void* ptr)
         unsigned int newValue = Obj::addUintNvRelaxed(args->d_value_p, 1);
         LOOP2_ASSERT(value, newValue,
                     newValue > value &&
-					newValue <= static_cast<unsigned>(args->d_m * args->d_n));
+                    newValue <= static_cast<unsigned>(args->d_m * args->d_n));
     }
     return ptr;
 }
@@ -861,8 +861,8 @@ static void* decrementUint64TestThread(void *ptr)
     Uint64TestThreadArgs *args=(Uint64TestThreadArgs*)ptr;
 
     args->d_mutex.lock();
-    args->d_startSig.signal();
     args->d_countStarted++;
+    args->d_startSig.signal();
     args->d_mutex.unlock();
 
     args->d_barrier.wait();
@@ -4482,10 +4482,10 @@ int main(int argc, char *argv[]) {
         //   getUint64Relaxed(AtomicTypes::Uint64 const *aUint);
         //   setUintRelaxed(AtomicTypes::Uint *aInt, unsigned int value);
         //   setUint64Relaxed(AtomicTypes::Uint64 *aInt, Types::Uint64 value);
-      	//   incrementIntNvRelaxed(AtomicTypes::Int const *aInt);
-      	//   incrementInt64NvRelaxed(AtomicTypes::Int64 const *aInt);
-      	//   incrementUintNvRelaxed(AtomicTypes::Uint const *aUint);
-      	//   incrementUint64NvRelaxed(AtomicTypes::Uint64 const *aUint);
+        //   incrementIntNvRelaxed(AtomicTypes::Int const *aInt);
+        //   incrementInt64NvRelaxed(AtomicTypes::Int64 const *aInt);
+        //   incrementUintNvRelaxed(AtomicTypes::Uint const *aUint);
+        //   incrementUint64NvRelaxed(AtomicTypes::Uint64 const *aUint);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Relaxed Methods"
@@ -8158,11 +8158,11 @@ int main(int argc, char *argv[]) {
         //   set its value.  Verify the value using the respective direct
         //   accessor (i.e.,'getInt', 'getInt64', 'getUint', 'getUint64',
         //   'getPtr').
-    	//
+        //
         // Testing:
         //   initInt(Obj::Int *aInt, int initialValue);
         //   initInt64(Obj::Int64 *aInt);
-   	    //   initUint(unsigned int *aInt);
+        //   initUint(unsigned int *aInt);
         //   initUint64(Uint64 *aInt);
         //   initPointer(Obj::Pointer *aPointer);
         //   setInt(Obj::Int *aInt, int value);

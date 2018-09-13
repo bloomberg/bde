@@ -10,49 +10,27 @@
 #ifndef INCLUDED_BALXML_ENCODINGSTYLE
 #define INCLUDED_BALXML_ENCODINGSTYLE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT_RCSID(baexml_encodingstyle_h,"$Id$ $CSID$ $CCId$")
 BSLS_IDENT_PRAGMA_ONCE
 
-//@PURPOSE: Provide value-semantic attribute classes
+//@PURPOSE: Provide value-semantic attribute classes.
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwale@bloomberg.net)
 //
 //@DESCRIPTION: Value-semantic attribute classes.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
 #include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ENUMERATORINFO
 #include <bdlat_enumeratorinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
 #include <bdlat_typetraits.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 

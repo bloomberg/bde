@@ -92,8 +92,7 @@ void aSsErT(bool condition, const char *message, int line)
     // reference or pointer.
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_IBM)                                            \
- ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1600)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 # define BSLMF_ISCONVERTIBLE_NO_ARRAY_OF_UNKNOWN_BOUND_AS_TEMPLATE_PARAMETER
     // The IBM compiler has a bigger problem, where it rejects arrays of
     // unknown bound as template type-parameter arguments.  Older Microsoft
@@ -126,6 +125,13 @@ void aSsErT(bool condition, const char *message, int line)
 #define CV(TYPE) const volatile TYPE
     // Macros to provide simple cv-qualifier decorations for types, enabling a
     // more table-like presentation of a sequence of test cases.
+
+#if BSLS_PLATFORM_CMP_VERSION >= 1910 && BSLS_PLATFORM_CMP_VERSION <= 1914
+# define BSLMF_ISCONVERTIBLE_MSVC_VOLATILE_BUG
+    // Microsoft Visual Studio 2017 has a bug in its 'is_convertible'
+    // implementation when it is used with 'volatile' qualified non-fundamental
+    // types.  This macro is defined when that bug is present.
+#endif
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1352,13 +1358,17 @@ int main(int argc, char *argv[])
 
         ASSERT_IS_CONVERTIBLE(0, V_(my_Class),     my_Class &);
         ASSERT_IS_CONVERTIBLE(0, V_(my_Class),  C_(my_Class)&);
+#ifndef BSLMF_ISCONVERTIBLE_MSVC_VOLATILE_BUG
         ASSERT_IS_CONVERTIBLE(0, V_(my_Class),  V_(my_Class)&);
         ASSERT_IS_CONVERTIBLE(0, V_(my_Class),  CV(my_Class)&);
+#endif
 
         ASSERT_IS_CONVERTIBLE(0, CV(my_Class),     my_Class &);
         ASSERT_IS_CONVERTIBLE(0, CV(my_Class),  C_(my_Class)&);
         ASSERT_IS_CONVERTIBLE(0, CV(my_Class),  V_(my_Class)&);
+#ifndef BSLMF_ISCONVERTIBLE_MSVC_VOLATILE_BUG
         ASSERT_IS_CONVERTIBLE(0, CV(my_Class),  CV(my_Class)&);
+#endif
 
         ASSERT_IS_CONVERTIBLE(1,    my_Class &,    my_Class  );
         ASSERT_IS_CONVERTIBLE(1,    my_Class &, C_(my_Class) );
@@ -1895,13 +1905,17 @@ int main(int argc, char *argv[])
 
         ASSERT_IS_CONVERTIBLE(false, V_(my_Class),     my_Class &);
         ASSERT_IS_CONVERTIBLE(false, V_(my_Class),  C_(my_Class)&);
+#ifndef BSLMF_ISCONVERTIBLE_MSVC_VOLATILE_BUG
         ASSERT_IS_CONVERTIBLE(false, V_(my_Class),  V_(my_Class)&);
         ASSERT_IS_CONVERTIBLE(false, V_(my_Class),  CV(my_Class)&);
+#endif
 
         ASSERT_IS_CONVERTIBLE(false, CV(my_Class),     my_Class &);
         ASSERT_IS_CONVERTIBLE(false, CV(my_Class),  C_(my_Class)&);
         ASSERT_IS_CONVERTIBLE(false, CV(my_Class),  V_(my_Class)&);
+#ifndef BSLMF_ISCONVERTIBLE_MSVC_VOLATILE_BUG
         ASSERT_IS_CONVERTIBLE(false, CV(my_Class),  CV(my_Class)&);
+#endif
 
         ASSERT_IS_CONVERTIBLE(true,     my_Class &,    my_Class  );
         ASSERT_IS_CONVERTIBLE(true,     my_Class &, C_(my_Class) );

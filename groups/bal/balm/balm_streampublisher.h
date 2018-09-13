@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALM_STREAMPUBLISHER
 #define INCLUDED_BALM_STREAMPUBLISHER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a 'balm::Publisher' implementation that writes to a stream.
@@ -86,17 +84,11 @@ BSLS_IDENT("$Id: $")
 //         MyCategory.MetricB [ count = 2, total = 7, min = 3, max = 11 ]
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALM_PUBLISHER
 #include <balm_publisher.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 

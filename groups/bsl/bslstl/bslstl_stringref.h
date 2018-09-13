@@ -14,6 +14,8 @@ BSLS_IDENT("$Id: $")
 //      bslstl::StringRef: reference wrapper for a 'char' string
 //  bslstl::StringRefWide: reference wrapper for a 'wchar_t' string
 //
+//@SEE_ALSO: bdlb_stringrefutil
+//
 //@AUTHOR: Vladimir Kliatchko (vkliatch), Anthony Comerico (acomeric)
 //
 //@DESCRIPTION: This component defines two classes, 'bslstl::StringRef' and
@@ -68,6 +70,19 @@ BSLS_IDENT("$Id: $")
 // The 'bsl::hash' template class is specialized for 'bslstl::StringRef' to
 // enable the use of 'bslstl::StringRef' with STL hash containers (e.g.,
 // 'bsl::unordered_set' and 'bsl::unordered_map').
+//
+///How to include 'bslstl::StringRef'
+///----------------------------------
+// To include 'bslstl::StringRef' use '#include <bsl_string.h>' (*not*
+// '#include <bslstl_stringref.h>').
+//
+// This is unfortunate and confusing, and would be redesigned if it could be
+// done without breaking existing clients.  The explanation is that we disallow
+// directly including all types in the 'bslstl' package because of the
+// 'BSL_OVERRIDES_STD' mechanism.  In retrospect, we should have located the
+// 'bslstl::StringRef' in a higher level package so it could be included
+// directly.  In the future, if we remove the 'BSL_OVERRIDES_STD' mechanism,
+// this unfortunate restriction will go away.
 //
 ///Efficiency and Usage Considerations
 ///-----------------------------------
@@ -263,6 +278,18 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isintegral.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NIL
+#include <bslmf_nil.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -352,6 +379,9 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // Standard Library general container requirements.
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StringRefImp, bsl::is_trivially_copyable);
+
     // CREATORS
     StringRefImp();
         // Create an object representing an empty 'std::string' value that is
@@ -366,7 +396,7 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     StringRefImp(const CHAR_TYPE *data,
                  INT_TYPE         length,
                  typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
-                                         INT_TYPE>::type = 0);
+                                         bslmf::Nil>::type = bslmf::Nil());
     StringRefImp(const CHAR_TYPE *data, size_type length);
         // Create a string-reference object having a valid 'std::string' value,
         // whose external representation begins at the specified 'data' address
@@ -440,7 +470,7 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     template <class INT_TYPE>
     void assign(const CHAR_TYPE *data, INT_TYPE length,
                  typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
-                                         INT_TYPE>::type = 0);
+                                         bslmf::Nil>::type = bslmf::Nil());
     void assign(const CHAR_TYPE *data, size_type length);
         // Bind this string reference to the string at the specified 'data'
         // address and extending for the specified 'length' characters.  The
@@ -802,7 +832,8 @@ inline
 StringRefImp<CHAR_TYPE>::StringRefImp(
     const CHAR_TYPE *data,
     INT_TYPE         length,
-    typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value, INT_TYPE>::type)
+    typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
+                            bslmf::Nil>::type)
 : Base(data, data + length)
 {
     BSLS_ASSERT_SAFE(0 <= length);
@@ -829,7 +860,7 @@ StringRefImp<CHAR_TYPE>::StringRefImp(const_iterator begin, const_iterator end)
 template <class CHAR_TYPE>
 inline
 StringRefImp<CHAR_TYPE>::StringRefImp(const CHAR_TYPE *data)
-: Base(data, data + native_std::char_traits<CHAR_TYPE>::length(data))
+: Base(data, data + Base::cStringLength(data))
 {
     BSLS_ASSERT_SAFE(data);
 }
@@ -878,7 +909,7 @@ template <class INT_TYPE>
 inline
 void StringRefImp<CHAR_TYPE>::assign(const CHAR_TYPE *data, INT_TYPE length,
                  typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
-                                         INT_TYPE>::type)
+                                         bslmf::Nil>::type)
 {
     BSLS_ASSERT_SAFE(data || 0 == length);
 

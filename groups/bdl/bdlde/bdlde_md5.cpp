@@ -282,13 +282,13 @@ static unsigned int Decode(const unsigned char *input)
 
 static void append(unsigned int *state, const unsigned char *data)
 {
-    register unsigned int a = state[0];
-    register unsigned int b = state[1];
-    register unsigned int c = state[2];
-    register unsigned int d = state[3];
+    unsigned int a = state[0];
+    unsigned int b = state[1];
+    unsigned int c = state[2];
+    unsigned int d = state[3];
 
-    unsigned int xArray[16];
-    register unsigned int *const x = xArray;
+    unsigned int        xArray[16];
+    unsigned int *const x = xArray;
 
     // Round 1
     //
@@ -641,8 +641,10 @@ bsl::ostream& Md5::print(bsl::ostream& stream) const
     return stream;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
-bool operator==(const Md5& lhs, const Md5& rhs)
+bool bdlde::operator==(const Md5& lhs, const Md5& rhs)
 {
     if (lhs.d_length != rhs.d_length
      || 0 != bsl::memcmp(lhs.d_state, rhs.d_state, sizeof lhs.d_state)) {
@@ -657,11 +659,10 @@ bool operator==(const Md5& lhs, const Md5& rhs)
                             (sizeof *lhs.d_buffer) * inUse);
 }
 
-}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -11,11 +11,13 @@ BSLS_IDENT_RCSID(bdldfp_decimal_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
 #include <bsl_istream.h>
+#include <bsl_iterator.h>
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 
 #include <bslim_printer.h>
+#include <bslma_deallocatorguard.h>
 #include <bslmf_assert.h>
 
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
@@ -56,9 +58,9 @@ namespace {
 template <class CHARTYPE>
 class NotIsSpace {
     // Helper function object type used to skip spaces in strings
-    const bsl::ctype<CHARTYPE>& d_ctype;
+    const bsl::ctype<CHARTYPE> *d_ctype;
   public:
-    explicit NotIsSpace(const bsl::ctype<CHARTYPE>& ctype);
+    explicit NotIsSpace(const bsl::ctype<CHARTYPE> *ctype);
         // Construct a 'NotIsSpace' object, using the specified 'ctype'.
     bool operator()(CHARTYPE character) const;
         // Return 'true' if the specified 'character' is a space (according to
@@ -70,7 +72,7 @@ class NotIsSpace {
                     // ----------------
 
 template <class CHARTYPE>
-NotIsSpace<CHARTYPE>::NotIsSpace(const bsl::ctype<CHARTYPE>& ctype)
+NotIsSpace<CHARTYPE>::NotIsSpace(const bsl::ctype<CHARTYPE> *ctype)
 : d_ctype(ctype)
 {
 }
@@ -79,7 +81,7 @@ template <class CHARTYPE>
 bool
 NotIsSpace<CHARTYPE>::operator()(CHARTYPE character) const
 {
-    return !this->d_ctype.is(bsl::ctype_base::space, character);
+    return !this->d_ctype->is(bsl::ctype_base::space, character);
 }
 
                          // Print helper function
@@ -139,7 +141,6 @@ read(bsl::basic_istream<CHARTYPE, TRAITS>& in,
     return in;
 }
 
-
 template <class ITER_TYPE, class CHAR_TYPE>
 ITER_TYPE fillN(ITER_TYPE iter, int numCharacters, CHAR_TYPE character)
     // Assign to the specified output 'iter' the specified 'character' the
@@ -155,107 +156,6 @@ ITER_TYPE fillN(ITER_TYPE iter, int numCharacters, CHAR_TYPE character)
     --numCharacters;
   }
   return iter;
-}
-
-template <class ITER_TYPE, class CHAR_TYPE>
-ITER_TYPE
-doPutCommon(ITER_TYPE       out,
-            bsl::ios_base&  format,
-            CHAR_TYPE       fillCharacter,
-            char           *buffer)
-    // Widen the specified 'buffer' into a string of the specified 'CHAR_TYPE',
-    // and output the represented decimal number to the specified 'out',
-    // adjusting for the formatting flags in the specified 'format' and using
-    // the specified 'fillCharacter'.  Currently, formatting for the
-    // formatting flags of justification, width, uppercase, and showpos are
-    // supported.
-{
-    const int size = static_cast<int>(bsl::strlen(buffer));
-    char *end = buffer + size;
-
-    // Widen the buffer.
-    CHAR_TYPE wbuffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-
-    bsl::use_facet<std::ctype<CHAR_TYPE> >(
-                                  format.getloc()).widen(buffer, end, wbuffer);
-
-    const int  width   = static_cast<int>(format.width());
-    const bool showPos = format.flags() & bsl::ios_base::showpos;
-    const bool hasSign = wbuffer[0] == bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
-                                                 format.getloc()).widen('-') ||
-                         wbuffer[0] == bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
-                                                 format.getloc()).widen('+');
-    const bool addPlusSign = showPos & !hasSign;  // Do we need to add '+'?
-
-    int surplus = bsl::max(0, width - size);  // Emit this many fillers.
-    if (addPlusSign) {
-        // Need to add a '+' character.
-        --surplus;
-    }
-
-    CHAR_TYPE *wend       = wbuffer + size;
-    CHAR_TYPE *wbufferPos = wbuffer;
-
-
-    // Make use of the 'uppercase' flag to fix the capitalization of the
-    // alphabets in the number.
-
-    if (format.flags() & bsl::ios_base::uppercase) {
-        bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
-                                       format.getloc()).toupper(wbuffer, wend);
-    }
-    else {
-        bsl::use_facet<bsl::ctype<CHAR_TYPE> >(
-                                       format.getloc()).tolower(wbuffer, wend);
-    }
-
-    switch (format.flags() & bsl::ios_base::adjustfield) {
-      case bsl::ios_base::left: {
-
-          // Left justify. Pad characters to the right.
-
-          if (addPlusSign) {
-              *out++ = '+';
-          }
-
-          out = bsl::copy(wbufferPos, wend, out);
-          out = fillN(out, surplus, fillCharacter);
-          break;
-      }
-
-      case bsl::ios_base::internal: {
-
-          // Internal justify. Pad characters after sign.
-
-          if (hasSign) {
-              *out++ = *wbufferPos++;
-          }
-          else if (addPlusSign) {
-              *out++ = '+';
-          }
-
-          out = fillN(out, surplus, fillCharacter);
-          out = bsl::copy(wbufferPos, wend, out);
-          break;
-      }
-
-      case bsl::ios_base::right:
-      default: {
-
-          // Right justify. Pad characters to the left.
-
-          out = fillN(out, surplus, fillCharacter);
-
-          if (addPlusSign) {
-              *out++ = '+';
-          }
-
-          out = bsl::copy(wbufferPos, wend, out);
-          break;
-      }
-    }
-
-    return out;
 }
 
 template <class CHAR_TYPE, class ITER_TYPE>
@@ -287,7 +187,7 @@ doGetCommon(ITER_TYPE                    begin,
         }
     }
     // spaces between sign and value
-    begin = bsl::find_if(begin, end, NotIsSpace<CHAR_TYPE>(ctype));
+    begin = bsl::find_if(begin, end, NotIsSpace<CHAR_TYPE>(&ctype));
     // non-fractional part
     while (begin != end && to != toEnd
              && (ctype.is(bsl::ctype_base::digit, *begin)
@@ -369,6 +269,39 @@ doGetCommon(ITER_TYPE                    begin,
     return begin;
 }
 
+inline
+bool isNegative(const Decimal32& x)
+    // Return 'true' if the specified 'x' is negative and 'false' otherwise.
+{
+    enum { k_SIGN_MASK = 0x80000000ul };
+
+    return x.value().d_raw & k_SIGN_MASK;
+}
+
+inline
+bool isNegative(const Decimal64& x)
+    // Return 'true' if the specified 'x' is negative and 'false' otherwise.
+{
+    const bsls::Types::Uint64 k_SIGN_MASK = 0x8000000000000000ull;
+
+    return x.value().d_raw & k_SIGN_MASK;
+}
+
+
+inline
+bool isNegative(const Decimal128& x)
+    // Return 'true' if the specified 'x' is negative and 'false' otherwise.
+{
+    const bsls::Types::Uint64 k_SIGN_MASK = 0x8000000000000000ull;
+
+#ifdef BSLS_PLATFORM_IS_BIG_ENDIAN
+    bsls::Types::Uint64 xH = x.value().d_raw.w[0];
+#elif defined(BSLS_PLATFORM_IS_LITTLE_ENDIAN)
+    bsls::Types::Uint64 xH = x.value().d_raw.w[1];
+#endif
+
+    return xH & k_SIGN_MASK;
+}
 }  // close unnamed namespace
 
 
@@ -608,24 +541,134 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::put(iter_type      out,
 }
 
 template <class CHARTYPE, class OUTPUTITERATOR>
+template <class DECIMAL>
+typename DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::iter_type
+DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put_impl(
+                                                    iter_type      out,
+                                                    bsl::ios_base& format,
+                                                    char_type      fill,
+                                                    DECIMAL        value) const
+{
+    typedef bsl::numeric_limits<DECIMAL> Limits;
+
+    const bsl::streamsize precision =
+                  bsl::min(static_cast<bsl::streamsize>(Limits::max_precision),
+                           format.precision());
+
+    const int trailingZeros = static_cast<int>(format.precision() - precision);
+    const int width         = static_cast<int>(format.width());
+
+    DecimalFormatConfig cfg(static_cast<int>(precision));
+
+    if (format.flags() & bsl::ios::fixed) {
+        cfg.setStyle(DecimalFormatConfig::e_FIXED);
+    }
+
+    if (format.flags() & bsl::ios::scientific) {
+        cfg.setStyle(DecimalFormatConfig::e_SCIENTIFIC);
+    }
+
+    if (format.flags() & bsl::ios::showpos) {
+        cfg.setSign(DecimalFormatConfig::e_ALWAYS);
+    }
+
+    if (format.flags() & bsl::ios_base::uppercase) {
+        cfg.setInfinity("INF");
+        cfg.setNan     ("NAN");
+        cfg.setSNan    ("SNAN");
+        cfg.setExponent('E');
+    }
+
+    const int k_BUFFER_SIZE = 1                          // sign
+                            + 1 + Limits::max_exponent10 // integer part
+                            + 1                          // decimal point
+                            + Limits::max_precision;     // partial part
+        // The size of the buffer sufficient to store max 'DECIMAL' value in
+        // fixed notation with the max precision supported by 'DECIMAL' type.
+
+    bslma::Allocator *allocator = bslma::Default::allocator();
+    char             *buffer    = (char *)allocator->allocate(k_BUFFER_SIZE);
+
+    bslma::DeallocatorGuard<bslma::Allocator> guard(buffer, allocator);
+
+    const int len = DecimalImpUtil::format(buffer,
+                                           k_BUFFER_SIZE,
+                                           *value.data(),
+                                           cfg);
+    BSLS_ASSERT(len <= k_BUFFER_SIZE);
+
+    typedef DecimalNumPut_WideBufferWrapper<CHARTYPE,
+                                            sizeof(char) == sizeof(wchar_t)>
+        WBuffer;
+    WBuffer         wbuffer(buffer, len, format.getloc());
+    const CHARTYPE *wbufferPos = wbuffer.begin();
+    const CHARTYPE *wend       = wbuffer.end();
+
+    // Emit this many fillers.
+    const int surplus = bsl::max(0, width - (len + trailingZeros));
+
+    if (0 == surplus && 0 == trailingZeros) {
+        return bsl::copy(wbufferPos, wend, out);                      // RETURN
+    }
+
+    const CHARTYPE *wexp = wend;
+
+    if (trailingZeros && (format.flags() & bsl::ios::scientific)) {
+        // find the exponent position
+        const CHARTYPE expChar = bsl::use_facet<bsl::ctype<CHARTYPE> >(
+                                        format.getloc()).widen(cfg.exponent());
+        wexp = bsl::find(wbufferPos, wend, expChar);
+        BSLS_ASSERT(wexp != wend);
+    }
+
+    const bool addSign = isNegative(value) ||
+                         cfg.sign() == DecimalFormatConfig::e_ALWAYS;
+
+    const bsl::ios_base::fmtflags adjustfield =
+                                   format.flags() & bsl::ios_base::adjustfield;
+
+    if (adjustfield == bsl::ios_base::internal && addSign) {
+        // output the sign
+        *out++ = *wbufferPos++;
+    }
+
+    if (surplus && adjustfield != bsl::ios_base::left) {
+        // output the fillers
+        out = fillN(out, surplus, fill);
+    }
+
+    // output decimal integer and partial parts
+    out = bsl::copy(wbufferPos, wexp, out);
+    if (trailingZeros) {
+        // output trailing zeros
+        const CHARTYPE k_ZERO = bsl::use_facet<bsl::ctype<CHARTYPE> >(
+                                                   format.getloc()).widen('0');
+        out = fillN(out, trailingZeros, k_ZERO);
+        if (format.flags() & bsl::ios::scientific) {
+            // output the exponent
+            out = bsl::copy(wexp, wend, out);
+        }
+    }
+
+    if (surplus && adjustfield == bsl::ios_base::left) {
+        // output the fillers
+        out = fillN(out, surplus, fill);
+    }
+
+    return out;
+}
+
+template <class CHARTYPE, class OUTPUTITERATOR>
 typename DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::iter_type
 DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 bsl::ios_base& ios_format,
                                                 char_type      fill,
                                                 Decimal32      value) const
 {
-    char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-
-    DenselyPackedDecimalImpUtil::StorageType32 dpdStorage;
-    dpdStorage = DecimalImpUtil::convertToDPD(*value.data());
-
-    DecimalImpUtil_DecNumber::ValueType32 dpdValue;
-    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
-
-    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
-
-    return doPutCommon(out, ios_format, fill, &buffer[0]);
+    return do_put_impl<Decimal32>(out, ios_format, fill, value);
 }
+
+
 template <class CHARTYPE, class OUTPUTITERATOR>
 typename DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::iter_type
 DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
@@ -633,17 +676,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 char_type      fill,
                                                 Decimal64      value) const
 {
-    char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-
-    DenselyPackedDecimalImpUtil::StorageType64 dpdStorage;
-    dpdStorage = DecimalImpUtil::convertToDPD(*value.data());
-
-    DecimalImpUtil_DecNumber::ValueType64 dpdValue;
-    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
-
-    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
-
-    return doPutCommon(out, ios_format, fill, &buffer[0]);
+    return do_put_impl<Decimal64>(out, ios_format, fill, value);
 }
 template <class CHARTYPE, class OUTPUTITERATOR>
 typename DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::iter_type
@@ -652,17 +685,7 @@ DecimalNumPut<CHARTYPE, OUTPUTITERATOR>::do_put(iter_type      out,
                                                 char_type      fill,
                                                 Decimal128     value) const
 {
-    char  buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
-
-    DenselyPackedDecimalImpUtil::StorageType128 dpdStorage;
-    dpdStorage = DecimalImpUtil::convertToDPD(*value.data());
-
-    DecimalImpUtil_DecNumber::ValueType128 dpdValue;
-    bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
-
-    DecimalImpUtil_DecNumber::format(dpdValue, buffer);
-
-    return doPutCommon(out, ios_format, fill, &buffer[0]);
+    return do_put_impl<Decimal128>(out, ios_format, fill, value);
 }
 
                        // Explicit instantiations
@@ -814,56 +837,56 @@ bdldfp::operator<< <wchar_t, bsl::char_traits<wchar_t> >(
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::min()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::min32();
 }
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::max()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::max32();
 }
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::epsilon()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::epsilon32();
 }
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::round_error()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::roundError32();
 }
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::infinity()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::infinity32();
 }
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::quiet_NaN()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::quietNaN32();
 }
 
 BloombergLP::bdldfp::Decimal32
    std::numeric_limits<BloombergLP::bdldfp::Decimal32>::signaling_NaN()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::signalingNaN32();
 }
 
 BloombergLP::bdldfp::Decimal32
     std::numeric_limits<BloombergLP::bdldfp::Decimal32>::denorm_min()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::denormMin32();
 }
@@ -874,56 +897,56 @@ BloombergLP::bdldfp::Decimal32
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::min()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::min64();
 }
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::max()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::max64();
 }
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::epsilon()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::epsilon64();
 }
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::round_error()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::roundError64();
 }
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::infinity()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::infinity64();
 }
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::quiet_NaN()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::quietNaN64();
 }
 
 BloombergLP::bdldfp::Decimal64
    std::numeric_limits<BloombergLP::bdldfp::Decimal64>::signaling_NaN()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::signalingNaN64();
 }
 
 BloombergLP::bdldfp::Decimal64
     std::numeric_limits<BloombergLP::bdldfp::Decimal64>::denorm_min()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::denormMin64();
 }
@@ -934,56 +957,56 @@ BloombergLP::bdldfp::Decimal64
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::min()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::min128();
 }
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::max()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::max128();
 }
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::epsilon()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::epsilon128();
 }
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::round_error()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::roundError128();
 }
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::infinity()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::infinity128();
 }
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::quiet_NaN()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::quietNaN128();
 }
 
 BloombergLP::bdldfp::Decimal128
    std::numeric_limits<BloombergLP::bdldfp::Decimal128>::signaling_NaN()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::signalingNaN128();
 }
 
 BloombergLP::bdldfp::Decimal128
     std::numeric_limits<BloombergLP::bdldfp::Decimal128>::denorm_min()
-    BSLS_NOTHROW_SPEC
+    BSLS_CPP11_NOEXCEPT
 {
     return BloombergLP::bdldfp::DecimalImpUtil::denormMin128();
 }

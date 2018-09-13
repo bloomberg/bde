@@ -1,4 +1,4 @@
-// bslmt_entrypointfunctoradapter.t.cpp
+// bslmt_entrypointfunctoradapter.t.cpp                               -*-C++-*-
 #include <bslmt_entrypointfunctoradapter.h>
 
 #include <bslma_usesbslmaallocator.h>
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 

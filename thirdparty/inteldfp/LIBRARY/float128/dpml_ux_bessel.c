@@ -999,7 +999,7 @@ UX_BESSEL( UX_FLOAT * unpacked_argument, WORD order, WORD kind,
 #endif
         }
 
-    if ( op = EXTR_BITS( EVEN_ODD_OP, eval_data) )
+    if ( (op = EXTR_BITS( EVEN_ODD_OP, eval_data)) )
         ADDSUB(unpacked_result, unpacked_result + 1, op - 1, unpacked_result);
 
     if ( eval_data & BESSEL_POST_MULTIPLY )

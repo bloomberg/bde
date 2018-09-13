@@ -565,6 +565,10 @@ BSLS_IDENT("$Id: $")
 #include <bsl_ostream.h>
 #endif
 
+#ifndef INCLUDED_BSL_MEMORY
+#include <bsl_memory.h>
+#endif
+
 #ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
 #endif
@@ -724,6 +728,26 @@ class Printer {
         // 'operator++', 'operator*', and 'operator=='.  This function will
         // call 'printValue' on each element in the range '[begin, end)'.
 
+    template <class ITERATOR, class PRINT_FUNCTOR>
+    void printAttribute(const char           *name,
+                        const ITERATOR&       begin,
+                        const ITERATOR&       end,
+                        const PRINT_FUNCTOR&  printFunctionObject) const;
+        // Print to the output stream supplied at construction the specified
+        // 'name', if name is not 0, and then call the specified
+        // 'printFunctionObject' with the the range of values starting at the
+        // specified 'begin' position and ending immediately before the
+        // specified 'end' position, the 'stream' supplied at construction,
+        // 'absLevel() + 1', and 'spacesPerLevel()'.  The parameterized
+        // 'PRINT_FUNCTOR' must be an invocable type whose arguments match the
+        // following function signature:
+        //..
+        //  bsl::ostream& (*)(bsl::ostream& stream,
+        //                    const TYPE&   data,
+        //                    int           level,
+        //                    int           spacesPerLevel)
+        //..
+
     void printEndIndentation() const;
         // Print to the output stream supplied at construction
         // 'absLevel() * spacesPerLevel()' blank spaces if
@@ -827,6 +851,25 @@ class Printer {
         // 'operator=='.  This function will call 'printValue' on each element
         // in the range '[begin, end)'.
 
+    template <class ITERATOR, class PRINT_FUNCTOR>
+    void printValue(const ITERATOR&       begin,
+                    const ITERATOR&       end,
+                    const PRINT_FUNCTOR&  printFunctionObject) const;
+        // Print to the output stream supplied at construction the specified
+        // 'name', if name is not 0, and then call the specified
+        // 'printFunctionObject' with the the range of values starting at the
+        // specified 'begin' position and ending immediately before the
+        // specified 'end' position, the 'stream' supplied at construction,
+        // 'absLevel() + 1', and 'spacesPerLevel()'. The parameterized
+        // 'PRINT_FUNCTOR' must be an invocable type whose arguments match the
+        // following function signature:
+        //..
+        //  bsl::ostream& (*)(bsl::ostream& stream,
+        //                    const TYPE&   data,
+        //                    int           level,
+        //                    int           spacesPerLevel)
+        //..
+
     int spacesPerLevel() const;
         // Return the number of whitespace characters to output for each level
         // of indentation.  The number of whitespace characters for each level
@@ -882,6 +925,21 @@ struct Printer_Helper {
         // nested objects, where 'ITERATOR' supports the operators '++' and '*'
         // to access the objects.  Individual objects are printed with
         // 'printValue'.
+
+    template <class ITERATOR, class PRINT_FUNCTOR>
+    static void print(bsl::ostream&        stream,
+                      const ITERATOR&      begin,
+                      const ITERATOR&      end,
+                      const PRINT_FUNCTOR& printFunctionObject,
+                      const int            level,
+                      const int            spacesPerLevel);
+        // Format the range of objects specified by '[ begin, end )' to the
+        // specified output 'stream' at the (absolute value of) the specified
+        // indentation 'level', using the specified 'spacesPerLevel', the
+        // number of spaces per indentation level for the objects and their
+        // nested objects, where 'ITERATOR' supports the operators '++' and '*'
+        // to access the objects, printing the individual objects with the 
+        // specified 'printFunctionObject'.
 
                       // Fundamental types
 
@@ -970,6 +1028,13 @@ struct Printer_Helper {
                          int                        level,
                          int                        spacesPerLevel,
                          bslmf::SelectTraitCase<>);
+    
+    template <class TYPE>
+    static void printRaw(bsl::ostream&                stream,
+                         const bsl::shared_ptr<TYPE>& data,
+                         int                          level,
+                         int                          spacesPerLevel,
+                         bslmf::SelectTraitCase<>);
 
     template <class TYPE>
     static void printRaw(bsl::ostream&              stream,
@@ -1039,6 +1104,26 @@ void Printer::printAttribute(const char      *name,
     Printer_Helper::print(*d_stream_p,
                           begin,
                           end,
+                          -d_levelPlusOne,
+                          d_spacesPerLevel);
+}
+
+template <class ITERATOR, class PRINT_FUNCTOR>
+void Printer::printAttribute(const char           *name,
+                             const ITERATOR&       begin,
+                             const ITERATOR&       end,
+                             const PRINT_FUNCTOR&  printFunctionObject) const
+{
+    BSLS_ASSERT_SAFE(0 != name);
+
+    printIndentation();
+
+    *d_stream_p << name << " = ";
+
+    Printer_Helper::print(*d_stream_p,
+                          begin,
+                          end,
+                          printFunctionObject,
                           -d_levelPlusOne,
                           d_spacesPerLevel);
 }
@@ -1134,6 +1219,19 @@ void Printer::printValue(const ITERATOR& begin,
                           d_spacesPerLevel);
 }
 
+template <class ITERATOR, class PRINT_FUNCTOR>
+void Printer::printValue(const ITERATOR&       begin,
+                         const ITERATOR&       end,
+                         const PRINT_FUNCTOR&  printFunctionObject) const
+{
+    Printer_Helper::print(*d_stream_p,
+                          begin,
+                          end,
+                          printFunctionObject,
+                          -d_levelPlusOne,
+                          d_spacesPerLevel);
+}
+
                             // ---------------------
                             // struct Printer_Helper
                             // ---------------------
@@ -1156,6 +1254,31 @@ void Printer_Helper::print(bsl::ostream&   stream,
     printer.start();
     for (ITERATOR it = begin; end != it; ++it) {
         printer.printValue(*it);
+    }
+    printer.end();
+}
+
+template <class ITERATOR, class PRINT_FUNCTOR>
+inline
+void Printer_Helper::print(bsl::ostream&        stream,
+                           const ITERATOR&      begin,
+                           const ITERATOR&      end,
+                           const PRINT_FUNCTOR& printFunctionObject,
+                           const int            level,
+                           const int            spacesPerLevel)
+{
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    for (ITERATOR it = begin; end != it; ++it) {
+        printer.printIndentation();
+
+        printFunctionObject(stream,
+                            *it,
+                            level,
+                            spacesPerLevel);
+        if (spacesPerLevel >= 0) {
+            stream << '\n';
+        }
     }
     printer.end();
 }
@@ -1292,6 +1415,28 @@ void Printer_Helper::printRaw(bsl::ostream&              stream,
     printer.printValue(data.first);
     printer.printValue(data.second);
     printer.end();
+}
+
+template <class TYPE>
+inline
+void Printer_Helper::printRaw(bsl::ostream&                stream,
+                              const bsl::shared_ptr<TYPE>& data,
+                              int                          level,
+                              int                          spacesPerLevel,
+                              bslmf::SelectTraitCase<>)
+{
+    printRaw(stream,
+             static_cast<const void *>(data.get()),
+             level,
+             -1,
+             bslmf::SelectTraitCase<bsl::is_pointer>());
+    if (data) {
+        stream << ' ';
+        Printer_Helper::print(stream, *data, level, spacesPerLevel);
+    }
+    else if (spacesPerLevel >= 0) {
+        stream << '\n';
+    }
 }
 
 template <class TYPE>

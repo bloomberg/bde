@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_COUNTINGALLOCATOR
 #define INCLUDED_BALL_COUNTINGALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a concrete allocator that keeps count of allocated bytes.
@@ -77,21 +75,12 @@ BSLS_IDENT("$Id: $")
 //              << countingAllocator.numBytesTotal() << bsl::endl;
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

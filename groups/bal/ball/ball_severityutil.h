@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_SEVERITYUTIL
 #define INCLUDED_BALL_SEVERITYUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a suite of utility functions on 'ball::Severity' levels.
@@ -81,13 +79,9 @@ BSLS_IDENT("$Id: $")
 //    assert(ball::Severity::e_FATAL == triggerAll);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_SEVERITY
 #include <ball_severity.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {
@@ -128,9 +122,9 @@ struct SeverityUtil {
         // (C-style) string.  Note that this procedure will fail unless
         // 'isValidName(name)' is 'true'.
         //
-        // DEPRECATED: Use 'fromAsciiCaseless'.  Note that this method
-        // provides backwards compatibility for clients of the deprecated
-        // 'baelu_Severity'.
+        // !DEPRECATED!: Use 'fromAsciiCaseless' instead.  Note that this
+        // method provides backward compatibility for clients of the deprecated
+        // 'baelu_severity' component.
 
     static bool isValidName(const char *name);
         // Return 'true' if the specified 'name' corresponds to an enumerator
@@ -139,9 +133,9 @@ struct SeverityUtil {
         // string.  Note that the names corresponding to 'Severity::Level'
         // enumerators are case *insensitive*.
         //
-        // DEPRECATED: Use 'isValidNameCaseless'.  Note that this method
-        // provides backwards compatibility for clients of the deprecated
-        // 'baelu_Severity'.
+        // !DEPRECATED!: Use 'isValidNameCaseless' instead.  Note that this
+        // method provides backward compatibility for clients of the deprecated
+        // 'baelu_severity' component.
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 };
 

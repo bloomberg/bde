@@ -26,9 +26,11 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS: init-list syntax
 //  BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT: flag for 'include_next'
 //  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: 'noexcept' operator
+//  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES: func-type includes 'noexcept'
 //  BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: flag for 'nullptr'
 //  BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT: 'explicit' operator
 //  BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: 'override' keyword
+//  BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS: flag for reference qualifiers
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
 //  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: has <type_traits> header
@@ -440,6 +442,7 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
 #define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+#define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
@@ -447,7 +450,17 @@ BSLS_IDENT("$Id: $")
 #endif
 #if BSLS_PLATFORM_CMP_VERSION >= 50000
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+// Note that while basic support is available in earlier versions of the
+// library, the full header is not implemented until gcc 5.0.
 #endif
+
+
+// Not yet enabling C++17 support, but pro-active test drivers may want to add
+// coverage.  Note that gcc 7.0 has a name-mangling bug with 'noexcept' on
+// abominable function types, so we would want at least the first patch release
+// before enabling.
+// # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+
 #endif
 
 // clang
@@ -513,12 +526,10 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // clang supports __attribute__((noreturn)) in earlier versions
 #endif
-// TBD: need help here - can we fix up to get the earliest version on darwin
-//      that supports <type_traits> header; what about non-darwin platforms?
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)
-#if __APPLE_CC__ >= 6000
+#if (__cplusplus >= 201103L ||                                                \
+    (defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)))           \
+    && __has_include(<type_traits>)
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-#endif
 #endif
 #endif
 
@@ -532,13 +543,11 @@ BSLS_IDENT("$Id: $")
 //: * extern template is not supported. It is documented as being
 //:   "supported" but behaves in a non-conforming manner.
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#if BSLS_PLATFORM_CMP_VERSION >= 1600  // Microsoft Visual Studio 2010
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-#endif
 #if BSLS_PLATFORM_CMP_VERSION >= 1700  // Microsoft Visual Studio 2012
 #define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
 #endif
@@ -568,6 +577,15 @@ BSLS_IDENT("$Id: $")
 //#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // (not yet supported in MSVC)
 //#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+
+
+// Not yet tested for support
+// # define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+
+// Not yet enabling C++17 support, but pro-active test drivers may want to add
+// coverage.
+// # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+
 #endif
 
 
@@ -618,13 +636,20 @@ BSLS_IDENT("$Id: $")
 // (not yet supported in xlC)
 //#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 //#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+
+// Not yet tested for support
+// # define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+
+// Not yet enabling C++17 support, but pro-active test drivers may want to add
+// coverage.
+// # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 #endif
 
 
 // Oracle Solaris Studio 12.4 claims C++11 support except for C++11
 // concurrency and atomic operations, and for user-defined literals
 // http://docs.oracle.com/cd/E37069_01/html/E37071/gncix.html#scrolltoc
-// No C++11 features are available by default. To use any C++11 features,
+// No C++11 features are available by default.  To use any C++11 features,
 // you must use the new -std=c++11 option with the CC compiler.
 // (__cplusplus >= 201103L when Oracle Solaris Studio CC -std=c++11 is invoked)
 // CC -std=c++11
@@ -647,14 +672,6 @@ BSLS_IDENT("$Id: $")
 # endif
 
 # if BSLS_PLATFORM_CMP_VERSION >= 0x5140
-#   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-    // CC 12.4 'constexpr' implementation almost satisfies our testing, but
-    // the compiler crashes when for some rare-but-reasonable data structures.
-
-#   define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
-    // CC 12.4 fails in a very specific way, that unfortuntely breaks for
-    // 'shared_ptr' in a way that is widely used.
-
 #   define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     // CC 12.4 will overly aggressively match an initializer list when it sees
     // brace initalization, leading to rejection of valid code when there is no
@@ -663,14 +680,41 @@ BSLS_IDENT("$Id: $")
 
 #   define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // CC 12.4 hits an awkward bug when performing deduction in some corner
-    // cases, that happen to be important to our vector implementation.
+    // cases, which happen to be important to our vector implementation.
+
+#  define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER 1
+    // The previous compiler ships with a mostly-complete version of the
+    // <type_traits> header, but we insist on a full implementation before
+    // defining this macro.
 
 #   define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
     // CC 12.4 has problems partially ordering template parameter packs that
     // typically result in failing to compile with ambiguity errors.
 # endif
 
-// # define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+# if BSLS_PLATFORM_CMP_VERSION == 0x5150
+#   undef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // CC 12.6 (beta) has a nasty bug with reference collapsing rvalue and
+    // lvalue references that crashes the compiler.
+#endif
+
+# if BSLS_PLATFORM_CMP_VERSION > 0x5150
+#   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+    // CC 12.4 'constexpr' implementation almost satisfies our testing, but
+    // the compiler crashes when for some rare-but-reasonable data structures.
+    // CC 12.5 has different corner cases, although we are still to track down
+    // a narrowed test case.  Both 12.5 and 12.6 have a regresion compared to
+    // 12.4 though with the (implicit) 'constexpr' constructors of aggregates
+    // that have dependent base classes, such as most type traits.
+
+#   define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
+    // CC 12.4, CC 12.5, and 12.6 all fail in a very specific way, which
+    // unfortuntely breaks for 'shared_ptr' in a way that is widely used.
+    // Note that the version check assumes the next revision of the compiler
+    // will have this fix, or the test driver will force us to update again.
+#endif
+
+//# define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #endif
 
 

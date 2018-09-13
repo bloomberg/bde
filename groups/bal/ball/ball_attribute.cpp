@@ -17,6 +17,7 @@ BSLS_IDENT_RCSID(ball_attribute_cpp,"$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
+#include <bsls_assert.h>
 #include <bsls_types.h>
 
 #include <bsl_cstring.h>
@@ -33,6 +34,8 @@ namespace ball {
 // CLASS METHODS
 int Attribute::hash(const Attribute& attribute, int size)
 {
+    BSLS_ASSERT(0 < size);
+
     if (attribute.d_hashValue < 0 || attribute.d_hashSize != size) {
 
         unsigned int hash = bdlb::HashUtil::hash1(attribute.d_name,

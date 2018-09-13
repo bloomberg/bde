@@ -1,11 +1,8 @@
 // bdlde_crc64.h                                                      -*-C++-*-
-
 #ifndef INCLUDED_BDLDE_CRC64
 #define INCLUDED_BDLDE_CRC64
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a mechanism for computing the CRC-64 checksum of a dataset.
@@ -81,21 +78,12 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlde {
@@ -332,32 +320,33 @@ bsls::Types::Uint64 Crc64::checksum() const
     return ~d_crc;
 }
 
+}  // close package namespace
+
 // FREE OPERATORS
 inline
-bool operator==(const Crc64& lhs, const Crc64& rhs)
+bool bdlde::operator==(const Crc64& lhs, const Crc64& rhs)
 {
     return lhs.d_crc == rhs.d_crc;
 }
 
 inline
-bool operator!=(const Crc64& lhs, const Crc64& rhs)
+bool bdlde::operator!=(const Crc64& lhs, const Crc64& rhs)
 {
     return !(lhs == rhs);
 }
 
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Crc64& checksum)
+bsl::ostream& bdlde::operator<<(bsl::ostream& stream, const Crc64& checksum)
 {
     return checksum.print(stream);
 }
 
-}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

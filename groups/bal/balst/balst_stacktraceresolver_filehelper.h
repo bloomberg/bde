@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALST_STACKTRACERESOLVER_FILEHELPER
 #define INCLUDED_BALST_STACKTRACERESOLVER_FILEHELPER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide platform-independent file input for stack trace resolvers.
@@ -121,32 +119,18 @@ BSLS_IDENT("$Id: $")
 //  bdls::FilesystemUtil::remove(fileNameBuffer);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALST_OBJECTFILEFORMAT
 #include <balst_objectfileformat.h>
-#endif
 
 #if defined(BALST_OBJECTFILEFORMAT_RESOLVER_ELF) || \
     defined(BALST_OBJECTFILEFORMAT_RESOLVER_XCOFF)
-
-#ifndef INCLUDED_BDLS_FILESYSTEMUTIL
 #include <bdls_filesystemutil.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 
@@ -164,34 +148,35 @@ class StackTraceResolver_FileHelper {
     // this object.
 
     // PRIVATE TYPES
-    typedef bdls::FilesystemUtil           FilesystemUtil;
-                                                // shorthand for class
-                                                // 'bdls::FilesystemUtil'
-    typedef FilesystemUtil::FileDescriptor FdType;    // shorthand for file
-                                                      // descriptor
-    typedef FilesystemUtil::Offset         Offset;
-    typedef bsls::Types::UintPtr           UintPtr;
-    typedef bsls::Types::IntPtr            IntPtr;
+    typedef bdls::FilesystemUtil    FilesystemUtil;
+    typedef FilesystemUtil::Offset  Offset;
+    typedef bsls::Types::UintPtr    UintPtr;
+    typedef bsls::Types::IntPtr     IntPtr;
 
     // DATA
-    FdType d_fd;  // file descriptor
+    FilesystemUtil::FileDescriptor d_fd;  // file descriptor
 
   private:
     // NOT IMPLEMENTED
-    StackTraceResolver_FileHelper(
-                                   const StackTraceResolver_FileHelper&);
+    StackTraceResolver_FileHelper(const StackTraceResolver_FileHelper&);
     StackTraceResolver_FileHelper& operator=(
-                                   const StackTraceResolver_FileHelper&);
+                                         const StackTraceResolver_FileHelper&);
   public:
     // CREATORS
     explicit
-    StackTraceResolver_FileHelper(const char *fileName);
-        // Open the file referred to by the specified 'fileName' for read-only
-        // access and set 'd_fd' to the file descriptor.  The behavior is
-        // undefined if the specified file does not exist or is unreadable.
+    StackTraceResolver_FileHelper();
+        // Create a file helper object in an invalid state.
 
     ~StackTraceResolver_FileHelper();
-        // Close the file indicated at construction and destroy this object.
+        // Close any file currently opened by this object and destroy it.
+
+    // MANIPULATOR
+    int initialize(const char *fileName);
+        // Open the file referred to by the specified 'fileName' for read-only
+        // access and set 'd_fd' to the file descriptor.  Return 0 on success
+        // and a non-zero value otherwise.  If this object already had a file
+        // descriptor open, close it before opening 'fileName'.  If the 'open'
+        // call fails, 'd_fd' will be set to 'FilesystemUtil::k_INVALID_FD'.
 
     // ACCESSORS
     char *loadString(Offset            offset,
@@ -249,7 +234,7 @@ int StackTraceResolver_FileHelper::readExact(void    *buf,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

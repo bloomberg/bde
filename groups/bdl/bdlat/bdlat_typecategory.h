@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLAT_TYPECATEGORY
 #define INCLUDED_BDLAT_TYPECATEGORY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide type category tags and a tag selection meta-function.
@@ -262,7 +260,11 @@ BSLS_IDENT("$Id: $")
 //      }
 //
 //      assert(0);
-//      return static_cast<bdlat_TypeCategory::Value>(-1);
+//
+//      // Note that this 'return' is never reached and hence the returned
+//      // value is immaterial.
+//
+//      return bdlat_TypeCategory::e_SIMPLE_CATEGORY;
 //  }
 //
 //  template <typename MANIPULATOR>
@@ -376,53 +378,21 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_ARRAYFUNCTIONS
 #include <bdlat_arrayfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
 #include <bdlat_bdeatoverrides.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_CHOICEFUNCTIONS
 #include <bdlat_choicefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ENUMFUNCTIONS
 #include <bdlat_enumfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_NULLABLEVALUEFUNCTIONS
 #include <bdlat_nullablevaluefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 #include <bdlat_customizedtypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_SEQUENCEFUNCTIONS
 #include <bdlat_sequencefunctions.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_SWITCH
 #include <bslmf_switch.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 
 namespace BloombergLP {

@@ -9,14 +9,14 @@
 
 #include <balxml_formatter.h>
 
-#include <bslim_testutil.h>
-
 #include <bdlsb_memoutstreambuf.h>
 #include <bdlt_datetime.h>
 #include <bdlt_date.h>
 #include <bdlt_time.h>
 
+#include <bslim_testutil.h>
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_iostream.h>
@@ -87,6 +87,16 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                   MACROS FOR TESTING WORKAROUNDS
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+    // 'snprintf' on older Windows libraries outputs an additional '0' in the
+    // exponent for scientific notation.
+# define BALXML_FORMATTER_EXTRA_ZERO_PADDING_FOR_EXPONENTS 1
+#endif
 
 namespace {
 // ============================================================================
@@ -750,7 +760,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.openElement("test");
                 ASSERT( ss.good());
@@ -761,7 +771,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.openElement("test");
                 ASSERT( ss.good());
@@ -772,7 +782,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.addAttribute("test", value);
                 ASSERT(!ss.good());
@@ -786,7 +796,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.openElement("test");
                 ASSERT( ss.good());
@@ -797,7 +807,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.openElement("test");
                 ASSERT( ss.good());
@@ -808,7 +818,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.addAttribute("test", value);
                 ASSERT(!ss.good());
@@ -822,7 +832,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.openElement("test");
                 ASSERT( ss.good());
@@ -833,7 +843,7 @@ int main(int argc, char *argv[])
 
             {
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.openElement("test");
                 ASSERT( ss.good());
@@ -846,7 +856,7 @@ int main(int argc, char *argv[])
                 int value = 1;
 
                 bsl::ostringstream ss;
-                Obj mX(ss);  const Obj& X = mX;
+                Obj mX(ss);
 
                 mX.addAttribute("test", value, mode);
                 ASSERT(!ss.good());
@@ -1416,7 +1426,7 @@ int main(int argc, char *argv[])
               { L_, 0, "Int64", (bsls::Types::Int64)LONG_MAX, 0 },
               { L_, 0, "Int64", (bsls::Types::Int64)LONG_MIN, 0 },
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BALXML_FORMATTER_EXTRA_ZERO_PADDING_FOR_EXPONENTS
               { L_, 0, "Float", (float)0.000000000314159, "3.14159e-010" },
               { L_, 0, "Float", (float)3.14159e100, "+INF" },
               { L_, 0, "Double", (double)0.0000000000000000314, "3.14e-017"  },

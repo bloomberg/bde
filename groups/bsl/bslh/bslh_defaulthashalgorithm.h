@@ -341,7 +341,7 @@ class DefaultHashAlgorithm {
         // function.  Input where 'numBytes' is 0 will have no effect on the
         // internal state of the algorithm.  The behaviour is undefined unless
         // 'data' points to a valid memory location with at least 'numBytes'
-        // bytes of initialized memory.
+        // bytes of initialized memory or 'numBytes' is zero.
 
 
     result_type computeHash();
@@ -368,7 +368,7 @@ DefaultHashAlgorithm::DefaultHashAlgorithm()
 inline
 void DefaultHashAlgorithm::operator()(const void *data, size_t numBytes)
 {
-    BSLS_ASSERT(data);
+    BSLS_ASSERT(0 != data || 0 == numBytes);
     d_state(data, numBytes);
 }
 

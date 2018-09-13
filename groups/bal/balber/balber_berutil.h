@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALBER_BERUTIL
 #define INCLUDED_BALBER_BERUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functions to encode and decode simple types in BER format.
@@ -100,57 +98,26 @@ BSLS_IDENT("$Id: $")
 //  assert(tagNumber == tagNumberIn);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALBER_BERCONSTANTS
 #include <balber_berconstants.h>
-#endif
-
-#ifndef INCLUDED_BALBER_BERCONSTANTS
 #include <balber_berconstants.h>
-#endif
-
-#ifndef INCLUDED_BALBER_BERENCODEROPTIONS
 #include <balber_berencoderoptions.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
-#endif
 
-#ifndef INCLUDED_BDLT_ISO8601UTIL
 #include <bdlt_iso8601util.h>
-#endif
 
-#ifndef INCLUDED_BDLB_VARIANT
 #include <bdlb_variant.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 
@@ -786,7 +753,9 @@ int BerUtil_Imp::getIntegerValue(bsl::streambuf *streamBuf,
             return k_FAILURE;                                         // RETURN
         }
 
-        *value = (TYPE)(*value << e_BITS_PER_OCTET);
+        const unsigned long long mask =
+                         (1ull << ((sizeof(TYPE) - 1) * e_BITS_PER_OCTET)) - 1;
+        *value = (TYPE)((*value & mask) << e_BITS_PER_OCTET);
         *value = (TYPE)(*value | (unsigned char)nextOctet);
     }
 
@@ -830,7 +799,18 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    if (1 != length) {
+    switch (length) {
+      case 1:
+        break;
+      case 2:
+        if (0 != streamBuf->sbumpc()) {
+            // see 'getIntegerValue', if this 'char' had been encoded as
+            // 'unsigned' there might be a leading 0 which is acceptable,
+            // but any other value for the first byte is invalid
+            return k_FAILURE;                                         // RETURN
+        }
+        break;
+      default:
         return k_FAILURE;                                             // RETURN
     }
 

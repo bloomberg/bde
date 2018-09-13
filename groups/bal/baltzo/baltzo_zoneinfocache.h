@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_ZONEINFOCACHE
 #define INCLUDED_BALTZO_ZONEINFOCACHE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a cache for time-zone information.
@@ -148,59 +146,32 @@ BSLS_IDENT("$Id: $")
 //  assert(baltzo::ErrorCode::k_UNSUPPORTED_ID == rc);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALTZO_LOADER
 #include <baltzo_loader.h>
-#endif
-
-#ifndef INCLUDED_BALTZO_ZONEINFO
 #include <baltzo_zoneinfo.h>
-#endif
 
-#ifndef INCLUDED_BDLB_CSTRINGLESS
 #include <bdlb_cstringless.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_RWMUTEX
 #include <bslmt_rwmutex.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
 
 namespace BloombergLP {
 
 namespace bslma { class Allocator; }
 
 namespace baltzo {
+
                             // ===================
                             // class ZoneinfoCache
                             // ===================
@@ -288,8 +259,6 @@ class ZoneinfoCache {
         // returned value), and remain valid for the lifetime of this object.
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -300,8 +269,7 @@ class ZoneinfoCache {
 
 // CREATORS
 inline
-baltzo::ZoneinfoCache::ZoneinfoCache(Loader           *loader,
-                                     bslma::Allocator *basicAllocator)
+ZoneinfoCache::ZoneinfoCache(Loader *loader, bslma::Allocator *basicAllocator)
 : d_cache(basicAllocator)
 , d_loader_p(loader)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
@@ -311,8 +279,7 @@ baltzo::ZoneinfoCache::ZoneinfoCache(Loader           *loader,
 
 // MANIPULATORS
 inline
-const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
-                                                        const char *timeZoneId)
+const Zoneinfo *ZoneinfoCache::getZoneinfo(const char *timeZoneId)
 {
     BSLS_ASSERT_SAFE(0 != timeZoneId);
 
@@ -320,12 +287,13 @@ const baltzo::Zoneinfo *baltzo::ZoneinfoCache::getZoneinfo(
     return getZoneinfo(&rc, timeZoneId);
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

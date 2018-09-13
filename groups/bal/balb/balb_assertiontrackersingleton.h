@@ -3,9 +3,7 @@
 #ifndef INCLUDED_BALB_ASSERTIONTRACKERSINGLETON
 #define INCLUDED_BALB_ASSERTIONTRACKERSINGLETON
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 
 //@PURPOSE: Provide a means to install an assertion tracker singleton.
 //
@@ -15,6 +13,14 @@
 //@DESCRIPTION: The 'balb::AssertionTrackerSingleton' component creates and
 // provides access to a singleton object that is responsible for accumulating
 // and reporting on a sequence of failed assertions.
+//
+// ********************************* WARNING *********************************
+// IT IS CORPORATE POLICY THAT IN PRODUCTION CODE, ASSERTION FAILURE HANDLERS
+// MUST NOT RETURN TO THEIR CALLERS.  THIS COMPONENT EXISTS IN CONTRAVENTION OF
+// THAT POLICY, AND IS MEANT TO BE USED ONLY WITH SPECIAL PERMISSION OF
+// MANAGEMENT, FOR THE PURPOSE OF ASCERTAINING THE CORRECTNESS OF FRESHLY
+// WRITTEN OR ENABLED ASSERTIONS THAT ARE FAILING.
+// ********************************* WARNING *********************************
 //
 // The singleton object will generally, and by default, be an object of type
 // 'balb::AssertionTracker' but a different type may be used, as shown in the
@@ -122,41 +128,20 @@
 //  assert(ac_p->getAssertionCount() == 2);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALB_ASSERTIONTRACKER
 #include <balb_assertiontracker.h>
-#endif
 
-#ifndef INCLUDED_BDLF_BIND
 #include <bdlf_bind.h>
-#endif
-
-#ifndef INCLUDED_BDLF_PLACEHOLDER
 #include <bdlf_placeholder.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_ONCE
 #include <bslmt_once.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
 namespace BloombergLP {
 namespace balb {
@@ -181,11 +166,12 @@ template <class TRACKER = AssertionTracker>
 class AssertionTrackerSingleton {
     // This class template implements the management of a 'TRACKER' singleton
     // object that is used to monitor and report assertion failures.  Note that
-    // this is meant to be used in an environment that has freshly inserted or
-    // exposed assertions that are not yet known to be assuredly correct and
-    // triggered only on "real" errors.  In such a case, using an assertion
-    // monitor prevents programs from dying on triggered assertions while data
-    // about them is being gathered.
+    // this class template is meant to be used in an environment that has
+    // freshly created or enabled assertions that are not yet known to be
+    // assuredly correct and triggered only on "real" errors.  In such a case,
+    // using an assertion monitor prevents programs from dying on triggered
+    // assertions while data about them is being gathered.  See the warning
+    // above about obtaining permission to use this component in production.
     //
     // For most purposes, 'TRACKER' should be 'balb::AssertionTracker'.  The
     // requirements on the 'TRACKER" class are
@@ -282,9 +268,11 @@ class AssertionTrackerSingleton {
         // pointers 'text' and 'file' exceeds that of the singleton.  (In
         // normal usage those pointers will be string literals, trivially
         // satisfying this.)  This function is intended to be installed as the
-        // assertion-handler function for 'bsls::Assert'.  Note that unlike
-        // proper handlers, this handler returns to its caller and may trigger
-        // warnings on such behavior within 'bsls::Assert'.
+        // assertion-handler function for 'bsls::Assert'.  Note that this
+        // handler, unlike proper handlers, returns to its caller, potentially
+        // triggering warnings within 'bsls::Assert'.  Such a handler may be
+        // used in production code only with management permission; see the
+        // warning above.
 
     static TRACKER *singleton();
         // Return a pointer to the 'TRACKER' singleton object that will be used

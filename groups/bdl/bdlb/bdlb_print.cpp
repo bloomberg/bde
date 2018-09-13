@@ -409,7 +409,7 @@ void Print::printPtr(bsl::ostream& stream, const void *value)
     #else
         // 64 bit pointer
     #if defined(BSLS_PLATFORM_CMP_MSVC)
-        bsl::sprintf(buf, "%I64x", value);
+        bsl::sprintf(buf, "%I64x", reinterpret_cast<unsigned long long>(value));
     #else
         bsl::sprintf(buf, "%llx", reinterpret_cast<unsigned long long>(value));
     #endif

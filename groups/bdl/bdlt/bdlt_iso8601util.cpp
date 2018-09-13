@@ -23,6 +23,46 @@ namespace {
 // STATIC HELPER FUNCTIONS
 
 static
+int asciiPrefixToInt64(const char         **nextPos,
+                       bsls::Types::Int64  *result,
+                       const char          *begin,
+                       const char          *end)
+    // Convert the (unsigned) ASCII decimal integer starting at the specified
+    // 'begin' and ending anywhere before the specified 'end' into its
+    // corresponding 'int' value, load the value into the specified 'result',
+    // and set the specified '*nextPos' to the address immediately after the
+    // last digit parsed.  Return 0 if there was at least one digit parsed, and
+    // a non-zero value (with no effect) otherwise.  The behavior is undefined
+    // unless 'begin < end' and the parsed value does not exceed the maximum
+    // value allowed in a value of type 'bsls::Types::Int64'.
+{
+    BSLS_ASSERT(nextPos);
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(begin);
+    BSLS_ASSERT(end);
+    BSLS_ASSERT(begin < end);
+
+    bsls::Types::Int64  tmp      = 0;
+    const char         *position = begin;
+
+    while (position < end && isdigit(*position)) {
+        tmp *= 10;
+        tmp += *position - '0';
+
+        ++position;
+    }
+
+    if (position == begin) {
+        return -1;                                                    // RETURN
+    }
+
+    *result  = tmp;
+    *nextPos = position;
+
+    return 0;
+}
+
+static
 int asciiToInt(const char **nextPos,
                int         *result,
                const char  *begin,
@@ -41,20 +81,15 @@ int asciiToInt(const char **nextPos,
     BSLS_ASSERT(end);
     BSLS_ASSERT(begin < end);
 
-    int tmp = 0;
+    const char         *tmpNext = 0;
+    bsls::Types::Int64  tmp     = 0;
 
-    while (begin < end) {
-        if (!isdigit(*begin)) {
-            return -1;                                                // RETURN
-        }
-
-        tmp *= 10;
-        tmp += *begin - '0';
-
-        ++begin;
+    if (0 != asciiPrefixToInt64(&tmpNext, &tmp, begin, end)
+        || tmpNext != end) {
+        return -1;                                                    // RETURN
     }
 
-    *result  = tmp;
+    *result  = static_cast<int>(tmp);
     *nextPos = end;
 
     return 0;
@@ -119,29 +154,29 @@ int parseDate(const char **nextPos,
 
 static
 int parseFractionalSecond(const char         **nextPos,
-                          bsls::Types::Int64  *microsecond,
+                          bsls::Types::Int64  *nanosecond,
                           const char          *begin,
                           const char          *end,
-                          int                  roundMicroseconds)
+                          int                  roundNanoseconds)
     // Parse the fractional second starting at the specified 'begin' and ending
-    // before the specified 'end', load into the specified 'microsecond' the
-    // parsed value (in microseconds) rounded to the closest multiple of the
-    // specified 'roundMicroseconds', and set the specified '*nextPos' to the
+    // before the specified 'end', load into the specified 'nanosecond' the
+    // parsed value (in nanoseconds) rounded to the closest multiple of the
+    // specified 'roundNanoseconds', and set the specified '*nextPos' to the
     // location one past the last parsed character (necessarily a decimal
     // digit).  Return 0 on success, and a non-zero value (with no effect)
-    // otherwise.  There must be at least one digit, only the first 7 digits
-    // are significant, and all digits beyond the first 7 are parsed but
+    // otherwise.  There must be at least one digit, only the first ten digits
+    // are significant, and all digits beyond the first ten are parsed but
     // ignored.  The behavior is undefined unless 'begin <= end' and
-    // '0 <= roundMicroseconds < 1000000'.  Note that successfully parsing a
+    // '0 <= roundNanoseconds < 1000000000'.  Note that successfully parsing a
     // fractional second before 'end' is reached is not an error.
 {
     BSLS_ASSERT(nextPos);
-    BSLS_ASSERT(microsecond);
+    BSLS_ASSERT(nanosecond);
     BSLS_ASSERT(begin);
     BSLS_ASSERT(end);
     BSLS_ASSERT(begin <= end);
-    BSLS_ASSERT(0     <= roundMicroseconds);
-    BSLS_ASSERT(         roundMicroseconds < 1000000);
+    BSLS_ASSERT(0     <= roundNanoseconds);
+    BSLS_ASSERT(         roundNanoseconds < 1000000000);
 
     const char *p = begin;
 
@@ -151,13 +186,11 @@ int parseFractionalSecond(const char         **nextPos,
         return -1;                                                    // RETURN
     }
 
-    // Only the first 7 digits are significant.
+    const char *endSignificant = bsl::min(end, p + 10);
 
-    const char *endSignificant = bsl::min(end, p + 7);
-
-    bsls::Types::Int64 tmp = 0;
-    int                factor = 10000000;
-                            // Since the result is in microseconds, we have to
+    bsls::Types::Int64 tmp    = 0;
+    bsls::Types::Int64 factor = 10000000000LL;
+                            // Since the result is in nanoseconds, we have to
                             // adjust it according to how many digits are
                             // present.
 
@@ -167,21 +200,21 @@ int parseFractionalSecond(const char         **nextPos,
         factor /= 10;
     } while (++p < endSignificant && isdigit(*p));
 
-    tmp = tmp * factor;
+    tmp *= factor;
 
     // round
 
-    tmp = (tmp + roundMicroseconds * 5) / (roundMicroseconds * 10)
-                                                           * roundMicroseconds;
+    tmp = (tmp + roundNanoseconds * 5) / (roundNanoseconds * 10)
+                                                           * roundNanoseconds;
 
-    // Skip and ignore all digits beyond the first 7, if any.
+    // Skip and ignore all digits beyond the first 10, if any.
 
     while (p < end && isdigit(*p)) {
         ++p;
     }
 
     *nextPos     = p;
-    *microsecond = tmp;
+    *nanosecond = tmp;
 
     return 0;
 }
@@ -258,13 +291,15 @@ int parseTime(const char         **nextPos,
 
         ++p;  // skip '.' or ','
 
+        bsls::Types::Int64 nanosecond;
         if (0 != parseFractionalSecond(&p,
-                                       microsecond,
+                                       &nanosecond,
                                        p,
                                        end,
-                                       roundMicroseconds)) {
+                                       roundMicroseconds * 1000)) {
             return -1;                                                // RETURN
         }
+        *microsecond = nanosecond / 1000;
         *millisecond = static_cast<int>(*microsecond / 1000);
         *microsecond %= 1000;
     }
@@ -364,6 +399,49 @@ int parseZoneDesignator(const char **nextPos,
     *nextPos = p;
 
     return 0;
+}
+
+static
+int generateUnpaddedInt(char *buffer, bsls::Types::Int64 value)
+    // Write, to the specified 'buffer', the decimal string representation of
+    // the specified 'value' and return the number of bytes written.  'buffer'
+    // is NOT null-terminated.  The behavior is undefined unless '0 <= value'
+    // and 'buffer' has sufficient capacity.
+{
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= value);
+
+    char *current = buffer;
+
+    while (value != 0) {
+        *current = static_cast<char>('0' + value % 10);
+        value /= 10;
+        ++current;
+    }
+    bsl::reverse(buffer, current);
+
+    return static_cast<int>(current - buffer);
+}
+
+static
+int generateUnpaddedInt(char *buffer, bsls::Types::Int64 value, char separator)
+    // Write, to the specified 'buffer', the decimal string representation of
+    // the specified 'value' followed by the specified 'separator' character,
+    // and return the number of bytes written.  'buffer' is NOT null-
+    // terminated.  The behavior is undefined unless '0 <= value' and 'buffer'
+    // has sufficient capacity.
+{
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= value);
+
+    int separatorOffset = generateUnpaddedInt(buffer, value);
+
+    if (0 != separatorOffset) {
+        buffer[separatorOffset] = separator;
+        ++separatorOffset;
+    }
+
+    return separatorOffset;
 }
 
 static
@@ -615,6 +693,37 @@ void copyBuf(char *dst, int dstLen, const char *src, int srcLen)
 // CLASS METHODS
 int Iso8601Util::generate(char                            *buffer,
                           int                              bufferLength,
+                          const bsls::TimeInterval&        object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= bufferLength);
+
+    int outLen;
+
+    if (bufferLength >= k_TIMEINTERVAL_STRLEN + 1) {
+        outLen = generateRaw(buffer, object, configuration);
+        BSLS_ASSERT(outLen <= k_TIMEINTERVAL_STRLEN);
+
+        buffer[outLen] = '\0';
+    }
+    else {
+        char outBuf[k_TIMEINTERVAL_STRLEN];
+
+        outLen = generateRaw(outBuf, object, configuration);
+        BSLS_ASSERT(outLen <= k_TIMEINTERVAL_STRLEN);
+
+        bsl::memcpy(buffer, outBuf, bufferLength);
+        if (outLen < bufferLength) {
+            buffer[outLen] = '\0';
+        }
+    }
+
+    return outLen;
+}
+
+int Iso8601Util::generate(char                            *buffer,
+                          int                              bufferLength,
                           const Date&                      object,
                           const Iso8601UtilConfiguration&  configuration)
 {
@@ -810,6 +919,22 @@ int Iso8601Util::generate(char                            *buffer,
 }
 
 int Iso8601Util::generate(bsl::string                     *string,
+                          const bsls::TimeInterval&        object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(string);
+
+    string->resize(k_TIMEINTERVAL_STRLEN);
+
+    const int len = generateRaw(&string->front(), object, configuration);
+    BSLS_ASSERT(k_TIMEINTERVAL_STRLEN >= len);
+
+    string->resize(len);
+
+    return len;
+}
+
+int Iso8601Util::generate(bsl::string                     *string,
                           const Date&                      object,
                           const Iso8601UtilConfiguration&  configuration)
 {
@@ -908,6 +1033,73 @@ int Iso8601Util::generate(bsl::string                     *string,
     string->resize(len);
 
     return len;
+}
+
+int Iso8601Util::generateRaw(
+                          char                            *buffer,
+                          const bsls::TimeInterval&        object,
+                          const Iso8601UtilConfiguration&  configuration)
+{
+    BSLS_ASSERT(buffer);
+
+    char *p = buffer;
+
+    bsls::Types::Int64 seconds = object.seconds();
+    bsls::Types::Int64 minutes = seconds / 60;
+    seconds %= 60;
+    bsls::Types::Int64 hours   = minutes / 60;
+    minutes %= 60;
+    bsls::Types::Int64 days    = hours / 24;
+    hours %= 24;
+    bsls::Types::Int64 weeks   = days / 7;
+    days %= 7;
+
+    *p = 'P';
+    ++p;
+
+    p += generateUnpaddedInt(p, weeks, 'W');
+    p += generateUnpaddedInt(p, days,  'D');
+
+    *p = 'T';
+    ++p;
+
+    p += generateUnpaddedInt(p, hours,   'H');
+    p += generateUnpaddedInt(p, minutes, 'M');
+
+    // We always include the "seconds" portion of the time to indicate that
+    // this is not a reduced-precision representation.
+    if (0 == seconds) {
+        *p = '0';
+        ++p;
+    }
+    else {
+        p += generateUnpaddedInt(p, seconds);
+    }
+
+    const char decimalSign = configuration.useCommaForDecimalSign()
+                             ? ','
+                             : '.';
+
+    int precision = configuration.fractionalSecondPrecision();
+
+    if (precision) {
+        *p = decimalSign;
+        ++p;
+
+        int value = object.nanoseconds();
+
+        for (int i = 9; i > precision; --i) {
+            value /= 10;
+        }
+
+        p += generateInt(p, value, precision, 'S');
+    }
+    else {
+        *p = 'S';
+        ++p;
+    }
+
+    return static_cast<int>(p - buffer);
 }
 
 int Iso8601Util::generateRaw(
@@ -1048,6 +1240,176 @@ int Iso8601Util::generateRaw(char                            *buffer,
                                                    configuration);
 
     return datetimeLen + zoneLen;
+}
+
+static
+int parseIntervalImpl(bsls::Types::Int64 *weeks,
+                      bsls::Types::Int64 *days,
+                      bsls::Types::Int64 *hours,
+                      bsls::Types::Int64 *minutes,
+                      bsls::Types::Int64 *seconds,
+                      bsls::Types::Int64 *nanoseconds,
+                      const char         *string,
+                      int                length)
+    // Parse the specified initial 'length' characters of the specified ISO
+    // 8601 'string' and load the values into the specified 'weeks', 'days',
+    // 'hours', 'minutes', 'seconds', and 'nanoseconds'.  Nothing is written
+    // into a value which does not have a corresponding component in 'string'.
+    // Return 0 on success, and a non-zero value (with no effect) otherwise.
+    // 'string' is assumed to be of the form:
+    //..
+    //  P{w+W}{d+D}{T{h+H}{m+M}s+(.|,)s+S}
+    //..
+    // *Exactly* 'length' characters are parsed; parsing will fail if a
+    // proper prefix of 'string' matches the expected format, but the
+    // entire 'length' characters do not.  If an optional fractional second
+    // having more than nine digits is present in 'string', it is rounded
+    // to the nearest value in nanoseconds.  The behavior is undefined
+    // unless '0 <= length'.
+{
+    BSLS_ASSERT(weeks);
+    BSLS_ASSERT(days);
+    BSLS_ASSERT(hours);
+    BSLS_ASSERT(minutes);
+    BSLS_ASSERT(seconds);
+    BSLS_ASSERT(nanoseconds);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
+
+    enum { k_MINIMUM_LENGTH = sizeof "P0Y" - 1 };
+
+    if (length < k_MINIMUM_LENGTH) {
+        return -1;                                                    // RETURN
+    }
+
+    const char *p   = string;
+    const char *end = string + length;
+
+    if ('P' != *p) {
+        return -1;                                                    // RETURN
+    }
+    ++p;
+
+    const struct {
+        char                d_terminator;
+        bsls::Types::Int64 *d_value;
+    } states[] = {
+        { 'W', weeks },
+        { 'D', days },
+        { 'H', hours },
+        { 'M', minutes },
+        { 'S', seconds }
+    };
+    const int timeIndex = 2;
+    const int stateSize = static_cast<int>(sizeof states / sizeof *states);
+
+    bool               foundT       = false;
+    bool               foundDecimal = false;
+    bsls::Types::Int64 value        = -1;
+
+    for (int index = 0; index != stateSize; ++index) {
+        if (-1 == value && foundDecimal) {
+            return -1;                                                // RETURN
+        }
+
+        if ('T' == *p) {
+            if (foundT) {
+                return -1;                                            // RETURN
+            }
+
+            foundT = true;
+            ++p;
+
+            if (index < timeIndex) {
+                index = timeIndex;
+            }
+        }
+        else if (index == timeIndex && !foundT) {
+            return -1;                                                // RETURN
+        }
+
+        if (-1 == value) {
+            if (0 != asciiPrefixToInt64(&p, &value, p, end)) {
+                return -1;                                            // RETURN
+            }
+        }
+
+        if ('.' == *p || ',' == *p) {
+            ++p;
+            if (0 != parseFractionalSecond(&p, nanoseconds, p, end, 1)) {
+                return -1;                                            // RETURN
+            }
+            foundDecimal = true;
+        }
+
+        if (states[index].d_terminator == *p) {
+            if (foundDecimal && 'S' != *p) {
+                return -1;                                            // RETURN
+            }
+            *states[index].d_value = value;
+            ++p;
+
+            if (p == end) {
+                return 0;                                             // RETURN
+            }
+
+            value = -1;
+        }
+
+        if (p == end) {
+            // If 'value' still contains information we have not yet consumed,
+            // it means we never found the corresponding character to say what
+            // type of datum this is. This occurs for strings like "PT1".
+            return value == -1 ? 0 : 1;                               // RETURN
+        }
+    }
+
+    // If we have gotten to this point, there are still characters left over to
+    // parse, even though we have processed everything we can.
+    return -1;
+}
+
+int Iso8601Util::parse(bsls::TimeInterval *result,
+                       const char         *string,
+                       int                length)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(string);
+    BSLS_ASSERT(0 <= length);
+
+    // Sample ISO 8601 duration: "P3Y6M4DT12H30M5.35S"
+    //
+    // All components are optional except the leading "P" (for "Period"). If
+    // there is any time component, then the "T" is also mandatory.  At least
+    // one component must be present, and if the "T" is present, at least one
+    // component must appear after the "T".
+
+    bsls::Types::Int64 weeks       = 0;
+    bsls::Types::Int64 days        = 0;
+    bsls::Types::Int64 hours       = 0;
+    bsls::Types::Int64 minutes     = 0;
+    bsls::Types::Int64 seconds     = 0;
+    bsls::Types::Int64 nanoseconds = 0;
+
+    if (0 != parseIntervalImpl(&weeks,
+                               &days,
+                               &hours,
+                               &minutes,
+                               &seconds,
+                               &nanoseconds,
+                               string,
+                               length)) {
+        return -1;                                                    // RETURN
+    }
+
+    result->setTotalDays(weeks * 7);
+    result->addDays(days);
+    result->addHours(hours);
+    result->addMinutes(minutes);
+    result->addSeconds(seconds);
+    result->addNanoseconds(nanoseconds);
+
+    return 0;
 }
 
 int Iso8601Util::parse(Date *result, const char *string, int length)

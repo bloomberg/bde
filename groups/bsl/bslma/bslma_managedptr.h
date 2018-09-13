@@ -59,8 +59,8 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'cookie'.  Note that there are no methods taking just a deleter, as the user
 // must always supply a 'cookie' to be passed when the deleter is actually
 // invoked.
-//
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+//
 // Note that this component still supports (deprecated) legacy deleters that
 // expect to be passed pointers to the specific 'cookie' and managed object
 // types in use.  This latter form of deleter was deprecated as it relies on
@@ -138,7 +138,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // implementing an abstract protocol.
 //
 // First we define our protocol, 'Shape', a type of object that knows how to
-// compute its 'area'.  Note that for expository reasons only, we do *nor* give
+// compute its 'area'.  Note that for expository reasons only, we do *not* give
 // 'Shape' a virtual destructor.
 //..
 //  struct Shape {
@@ -228,7 +228,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //  }
 //..
 // Then, we can use our function to create shapes of different kinds, and check
-// that they report the correct area.  Note that are using a radius of '1.0'
+// that they report the correct area.  Note that we are using a radius of '1.0'
 // for the 'Circle' and integral side-length for the 'Square' to support an
 // accurate 'operator==' with floating-point quantities.  Also note that,
 // despite the destructor for 'Shape' being non-virtual, the correct destructor
@@ -373,7 +373,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      assert(1 == ta.numBlocksInUse());
 //      if (g_verbose) bsl::cout << "Found quote: " << *result << bsl::endl;
 //..
-// Next, We also print the preceding 5 quotes in last-to-first order:
+// Next, we also print the preceding 5 quotes in last-to-first order:
 //..
 //      if (g_verbose) bsl::cout << "Preceded by:";
 //      int i;

@@ -3,6 +3,7 @@ baljsn_decoderoptions
 baljsn_encoder
 baljsn_encoderoptions
 baljsn_encodingstyle
+baljsn_formatter
 baljsn_parserutil
 baljsn_printutil
 baljsn_tokenizer

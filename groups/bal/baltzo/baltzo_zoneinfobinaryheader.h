@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_ZONEINFOBINARYHEADER
 #define INCLUDED_BALTZO_ZONEINFOBINARYHEADER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an attribute class for Zoneinfo binary-file header data.
@@ -158,24 +156,16 @@ BSLS_IDENT("$Id: $")
 //  assert( 50  == header.abbrevDataSize());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace baltzo {
+
                          // ==========================
                          // class ZoneinfoBinaryHeader
                          // ==========================
@@ -398,8 +388,6 @@ void swap(baltzo::ZoneinfoBinaryHeader& a, baltzo::ZoneinfoBinaryHeader& b);
     // Efficiently exchange the values of the specified 'a' and 'b' objects.
     // This function provides the no-throw exception-safety guarantee.
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -410,50 +398,50 @@ void swap(baltzo::ZoneinfoBinaryHeader& a, baltzo::ZoneinfoBinaryHeader& b);
 
 // CLASS METHODS
 inline
-bool baltzo::ZoneinfoBinaryHeader::isValidVersion(char value)
+bool ZoneinfoBinaryHeader::isValidVersion(char value)
 {
     return '\0' == value || '2' == value || '3' == value;
 }
 
 inline
-bool baltzo::ZoneinfoBinaryHeader::isValidNumIsGmt(int value)
+bool ZoneinfoBinaryHeader::isValidNumIsGmt(int value)
 {
     return value >= 0;
 }
 
 inline
-bool baltzo::ZoneinfoBinaryHeader::isValidNumIsStd(int value)
+bool ZoneinfoBinaryHeader::isValidNumIsStd(int value)
 {
     return value >= 0;
 }
 
 inline
-bool baltzo::ZoneinfoBinaryHeader::isValidNumLeaps(int value)
+bool ZoneinfoBinaryHeader::isValidNumLeaps(int value)
 {
     return value == 0;
 }
 
 inline
-bool baltzo::ZoneinfoBinaryHeader::isValidNumTransitions(int value)
+bool ZoneinfoBinaryHeader::isValidNumTransitions(int value)
 {
     return value >= 0;
 }
 
 inline
-bool baltzo::ZoneinfoBinaryHeader::isValidNumLocalTimeTypes(int value)
+bool ZoneinfoBinaryHeader::isValidNumLocalTimeTypes(int value)
 {
     return value >= 1;
 }
 
 inline
-bool baltzo::ZoneinfoBinaryHeader::isValidAbbrevDataSize(int value)
+bool ZoneinfoBinaryHeader::isValidAbbrevDataSize(int value)
 {
     return value >= 1;
 }
 
 // CREATORS
 inline
-baltzo::ZoneinfoBinaryHeader::ZoneinfoBinaryHeader()
+ZoneinfoBinaryHeader::ZoneinfoBinaryHeader()
 : d_version(0)
 , d_numIsGmt(0)
 , d_numIsStd(0)
@@ -465,13 +453,13 @@ baltzo::ZoneinfoBinaryHeader::ZoneinfoBinaryHeader()
 }
 
 inline
-baltzo::ZoneinfoBinaryHeader::ZoneinfoBinaryHeader(char version,
-                                                   int  numIsGmt,
-                                                   int  numIsStd,
-                                                   int  numLeaps,
-                                                   int  numTransitions,
-                                                   int  numLocalTimeTypes,
-                                                   int  abbrevDataSize)
+ZoneinfoBinaryHeader::ZoneinfoBinaryHeader(char version,
+                                           int  numIsGmt,
+                                           int  numIsStd,
+                                           int  numLeaps,
+                                           int  numTransitions,
+                                           int  numLocalTimeTypes,
+                                           int  abbrevDataSize)
 : d_version(version)
 , d_numIsGmt(numIsGmt)
 , d_numIsStd(numIsStd)
@@ -490,7 +478,7 @@ baltzo::ZoneinfoBinaryHeader::ZoneinfoBinaryHeader(char version,
 }
 
 inline
-baltzo::ZoneinfoBinaryHeader::~ZoneinfoBinaryHeader()
+ZoneinfoBinaryHeader::~ZoneinfoBinaryHeader()
 {
     BSLS_ASSERT_SAFE(isValidVersion(d_version));
     BSLS_ASSERT_SAFE(isValidNumIsGmt(d_numIsGmt));
@@ -503,7 +491,7 @@ baltzo::ZoneinfoBinaryHeader::~ZoneinfoBinaryHeader()
 
 // MANIPULATORS
 inline
-baltzo::ZoneinfoBinaryHeader& baltzo::ZoneinfoBinaryHeader::operator=(
+ZoneinfoBinaryHeader& baltzo::ZoneinfoBinaryHeader::operator=(
                                                const ZoneinfoBinaryHeader& rhs)
 {
     d_version           = rhs.d_version;
@@ -516,7 +504,7 @@ baltzo::ZoneinfoBinaryHeader& baltzo::ZoneinfoBinaryHeader::operator=(
     return *this;
 }
 inline
-void baltzo::ZoneinfoBinaryHeader::setVersion(char value)
+void ZoneinfoBinaryHeader::setVersion(char value)
 {
     BSLS_ASSERT_SAFE(isValidVersion(value));
 
@@ -524,7 +512,7 @@ void baltzo::ZoneinfoBinaryHeader::setVersion(char value)
 }
 
 inline
-void baltzo::ZoneinfoBinaryHeader::setNumIsGmt(int value)
+void ZoneinfoBinaryHeader::setNumIsGmt(int value)
 {
     BSLS_ASSERT_SAFE(isValidNumIsGmt(value));
 
@@ -532,7 +520,7 @@ void baltzo::ZoneinfoBinaryHeader::setNumIsGmt(int value)
 }
 
 inline
-void baltzo::ZoneinfoBinaryHeader::setNumIsStd(int value)
+void ZoneinfoBinaryHeader::setNumIsStd(int value)
 {
     BSLS_ASSERT_SAFE(isValidNumIsStd(value));
 
@@ -540,7 +528,7 @@ void baltzo::ZoneinfoBinaryHeader::setNumIsStd(int value)
 }
 
 inline
-void baltzo::ZoneinfoBinaryHeader::setNumLeaps(int value)
+void ZoneinfoBinaryHeader::setNumLeaps(int value)
 {
     BSLS_ASSERT_SAFE(isValidNumLeaps(value));
 
@@ -548,7 +536,7 @@ void baltzo::ZoneinfoBinaryHeader::setNumLeaps(int value)
 }
 
 inline
-void baltzo::ZoneinfoBinaryHeader::setNumTransitions(int value)
+void ZoneinfoBinaryHeader::setNumTransitions(int value)
 {
     BSLS_ASSERT_SAFE(isValidNumTransitions(value));
 
@@ -556,7 +544,7 @@ void baltzo::ZoneinfoBinaryHeader::setNumTransitions(int value)
 }
 
 inline
-void baltzo::ZoneinfoBinaryHeader::setNumLocalTimeTypes(int value)
+void ZoneinfoBinaryHeader::setNumLocalTimeTypes(int value)
 {
     BSLS_ASSERT_SAFE(isValidNumLocalTimeTypes(value));
 
@@ -564,7 +552,7 @@ void baltzo::ZoneinfoBinaryHeader::setNumLocalTimeTypes(int value)
 }
 
 inline
-void baltzo::ZoneinfoBinaryHeader::setAbbrevDataSize(int value)
+void ZoneinfoBinaryHeader::setAbbrevDataSize(int value)
 {
     BSLS_ASSERT_SAFE(isValidAbbrevDataSize(value));
 
@@ -572,7 +560,7 @@ void baltzo::ZoneinfoBinaryHeader::setAbbrevDataSize(int value)
 }
 
 inline
-void baltzo::ZoneinfoBinaryHeader::swap(ZoneinfoBinaryHeader& other)
+void ZoneinfoBinaryHeader::swap(ZoneinfoBinaryHeader& other)
 {
     bsl::swap(d_version,           other.d_version);
     bsl::swap(d_numIsGmt,          other.d_numIsGmt);
@@ -585,46 +573,48 @@ void baltzo::ZoneinfoBinaryHeader::swap(ZoneinfoBinaryHeader& other)
 
 // ACCESSORS
 inline
-char baltzo::ZoneinfoBinaryHeader::version() const
+char ZoneinfoBinaryHeader::version() const
 {
     return d_version;
 }
 
 inline
-int baltzo::ZoneinfoBinaryHeader::numIsGmt() const
+int ZoneinfoBinaryHeader::numIsGmt() const
 {
     return d_numIsGmt;
 }
 
 inline
-int baltzo::ZoneinfoBinaryHeader::numIsStd() const
+int ZoneinfoBinaryHeader::numIsStd() const
 {
     return d_numIsStd;
 }
 
 inline
-int baltzo::ZoneinfoBinaryHeader::numLeaps() const
+int ZoneinfoBinaryHeader::numLeaps() const
 {
     return d_numLeaps;
 }
 
 inline
-int baltzo::ZoneinfoBinaryHeader::numTransitions() const
+int ZoneinfoBinaryHeader::numTransitions() const
 {
     return d_numTransitions;
 }
 
 inline
-int baltzo::ZoneinfoBinaryHeader::numLocalTimeTypes() const
+int ZoneinfoBinaryHeader::numLocalTimeTypes() const
 {
     return d_numLocalTimeTypes;
 }
 
 inline
-int baltzo::ZoneinfoBinaryHeader::abbrevDataSize() const
+int ZoneinfoBinaryHeader::abbrevDataSize() const
 {
     return d_abbrevDataSize;
 }
+
+}  // close package namespace
 
 // FREE OPERATORS
 inline
@@ -668,7 +658,7 @@ void baltzo::swap(ZoneinfoBinaryHeader& a, ZoneinfoBinaryHeader& b)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

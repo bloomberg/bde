@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_ERRORCODE
 #define INCLUDED_BALTZO_ERRORCODE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Enumerate the set of named errors for the 'baltzo' package.
@@ -58,13 +56,9 @@ BSLS_IDENT("$Id: $")
 //  UNSUPPORTED_ID
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace baltzo {

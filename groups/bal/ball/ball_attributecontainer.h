@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_ATTRIBUTECONTAINER
 #define INCLUDED_BALL_ATTRIBUTECONTAINER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for containers holding logging attributes.
@@ -29,6 +27,10 @@ BSLS_IDENT("$Id: $")
 // 'ball::AttributeContainer' protocol primarily provides a 'hasValue()'
 // method, allowing clients to determine if a given attribute value is held by
 // the container.
+//
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
 //
 ///Usage
 ///-----
@@ -235,8 +237,7 @@ BSLS_IDENT("$Id: $")
 //          // and return a reference to 'stream'.
 //  };
 //..
-// The 'ball::AttributeContainer' methods are simple wrappers around 'bsl::set'
-// methods:
+// The 'AttributeSet' methods are simple wrappers around 'bsl::set' methods:
 //..
 //  inline
 //  AttributeSet::AttributeSet(bslma::Allocator *basicAllocator)
@@ -318,13 +319,9 @@ BSLS_IDENT("$Id: $")
 // [ [ uuid = 3938908 ] [ luw = 1 ] [ firmNumber = 9001 ] ]
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

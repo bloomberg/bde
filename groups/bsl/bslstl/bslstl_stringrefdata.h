@@ -26,9 +26,9 @@ BSLS_IDENT("$Id: $")
 // diagram:
 //..
 //            +-----------------------+
-//            |  ,----------------.  3|
+//            |  ,-----------------. 3|
 //            | ( bslstl::StringRef ) |
-//            |  `o-------|-------'   |
+//            |  `o-------|--------'  |
 //            +--/--------|-----------+
 //              /         |
 //  +----------/-+        |
@@ -38,9 +38,9 @@ BSLS_IDENT("$Id: $")
 //  +-------\----+        |
 //           \            |
 //       +----\-----------V----------+
-//       |  ,--------------------.  1|
+//       |  ,---------------------. 1|
 //       | ( bslstl::StringRefData ) |
-//       |  `--------------------'   |
+//       |  `---------------------'  |
 //       +---------------------------+
 //..
 //
@@ -161,8 +161,20 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
+#include <bslmf_nestedtraitdeclaration.h>
+#endif
+
 #ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
+#endif
+
+#ifndef INCLUDED_BSLS_NATIVESTD
+#include <bsls_nativestd.h>
 #endif
 
 namespace BloombergLP {
@@ -196,6 +208,15 @@ class StringRefData {
                                 // or 0 if 'd_begin_p==0'
 
   public:
+    // CLASS METHODS
+    static native_std::size_t cStringLength(const CHAR_TYPE *data);
+        // Return the number of 'CHAR_TYPE' characters in the specified
+        // null-terminated 'data' string, up to but not including the terminal
+        // null value.
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(StringRefData, bsl::is_trivially_copyable);
+
     // CREATORS
     StringRefData();
         // Create a 'StringRefData' object having default attribute values:
@@ -232,6 +253,17 @@ class StringRefData {
                          // -------------------
                          // class StringRefData
                          // -------------------
+
+// CLASS METHODS
+template <class CHAR_TYPE>
+inline
+native_std::size_t StringRefData<CHAR_TYPE>::cStringLength(
+                                                         const CHAR_TYPE *data)
+{
+    BSLS_ASSERT_SAFE(data);
+
+    return native_std::char_traits<CHAR_TYPE>::length(data);
+}
 
 // CREATORS
 template <class CHAR_TYPE>

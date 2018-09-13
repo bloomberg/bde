@@ -197,7 +197,8 @@ int main(int argc, char *argv[])
         const int      NUM_TRIALS                       = 10;
         int            cnt                              = 0;
         unsigned char  buffer[NUM_ITERATIONS * 4]       = { };
-        unsigned char  prev_buffer[NUM_ITERATIONS * 4]  = { };
+        unsigned char  or_buffer[NUM_ITERATIONS * 4]    = { };
+        unsigned char  and_buffer[NUM_ITERATIONS * 4]   = { };
         const unsigned NUM_BYTES                        = sizeof buffer;
 
         if (verbose)
@@ -210,29 +211,36 @@ int main(int argc, char *argv[])
             cout << "\nTesting the number of bytes set." << endl;
         }
         for (unsigned i = 0; i < 5; ++i) {
-            memset(buffer, 0, NUM_BYTES);
+            memset(buffer,       0, NUM_BYTES);
+            memset(or_buffer,    0, NUM_BYTES);
+            memset(and_buffer, 0xf, NUM_BYTES);
             // Repeat the accession of random bytes 'NUM_TRIALS' times to
             // prevent false negatives
             for (int j = 0; j < NUM_TRIALS; ++j) {
                 if (veryVerbose) { P(j) }
                 ASSERT(0 == Util::getRandomBytesNonBlocking(buffer, i));
-                // sum the bytes
-                for (unsigned k = 0; k < NUM_BYTES; ++k) {
-                    buffer[k] =  static_cast<unsigned char>(buffer[k] +
-                                                            prev_buffer[k]);
+                // '|' and '&' the bytes
+                for (unsigned k = 0; k < i; ++k) {
+                    or_buffer[k]  |= buffer[k];
+                    and_buffer[k] &= buffer[k];
                 }
-                // copy the buffer
-                memcpy(prev_buffer, buffer, sizeof buffer);
             }
-            int sum = 0;
-            // check that the bytes set are non-zero
-            unsigned j;
-            for (j = 0; j < i; ++j)    {
-                sum += static_cast<int>(buffer[j]) ;
+            // Check that the bytes set are non-zero and non-0xf.  Since
+            // 'NUM_TRIALS > 4', the is less than a 2^(-32) chance of these
+            // tests failing due to randomness.  They are much more likely to
+            // fail on '1 == i' than later.
+
+            if (0 < i) {
+                int or_sum = 0, and_sum = 0;
+                for (unsigned j = 0; j < i; ++j)    {
+                    or_sum  += or_buffer[j];
+                    and_sum += ~and_buffer[j];
+                }
+                LOOP2_ASSERT(i, or_sum,  0 != or_sum);
+                LOOP2_ASSERT(i, and_sum, 0 != and_sum);
             }
-            LOOP2_ASSERT(i, sum, 0 == i || 0 != sum);
             // check that remaining bytes are still unset.
-            for (; j < NUM_BYTES; ++j) {
+            for (unsigned j = i; j < NUM_BYTES; ++j) {
                 LOOP3_ASSERT(i, j, int(buffer[j]), 0 == buffer[j]);
             }
         }
@@ -262,8 +270,8 @@ int main(int argc, char *argv[])
             }
         }
         double expected = (NUM_ITERATIONS * 15) / 2;
-        ASSERT(cnt < (expected * 1.2));
-        ASSERT(cnt > (expected * 0.8));
+        ASSERT(cnt < (expected * 1.3));
+        ASSERT(cnt > (expected * 0.7));
       } break;
       case 1: {
         // --------------------------------------------------------------------

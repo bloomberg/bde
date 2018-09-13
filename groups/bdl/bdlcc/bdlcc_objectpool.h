@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLCC_OBJECTPOOL
 #define INCLUDED_BDLCC_OBJECTPOOL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a thread-safe object pool.
@@ -191,7 +189,7 @@ BSLS_IDENT("$Id: $")
 // a *new* database connection, calls its 'executeQuery' method to execute the
 // query and finally closes the connection.
 //..
-//  void queryHandler1(Query *query)
+//  extern "C" void queryHandler1(Query *query)
 //      // Handle the specified 'query' without using an objectpool.
 //  {
 //      bsls::Types::Int64 t1 = bsls::TimeUtil::getTimer();
@@ -312,96 +310,37 @@ BSLS_IDENT("$Id: $")
 // totalResponseTime2 = 100354490480
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_FACTORY
 #include <bdlma_factory.h>
-#endif
-
-#ifndef INCLUDED_BDLMA_INFREQUENTDELETEBLOCKLIST
 #include <bdlma_infrequentdeleteblocklist.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
-#include <bslalg_scalardestructionprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_destructionutil.h>
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_LOCKGUARD
 #include <bslmt_lockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
 
-#ifndef INCLUDED_BSL_CLIMITS
 #include <bsl_climits.h>
-#endif
-
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -1434,7 +1373,7 @@ inline
 ObjectPool_GeneralProxy<TYPE>
 ::~ObjectPool_GeneralProxy()
 {
-    bslalg::ScalarDestructionPrimitives::destroy(&d_object.object());
+    bslma::DestructionUtil::destroy(&d_object.object());
 }
 
 template <class TYPE>
@@ -1481,63 +1420,62 @@ ObjectPool_DefaultProxy<TYPE>
 {
     return d_object;
 }
-}  // close package namespace
 
-                     // --------------------------------
-                     // bdlcc::ObjectPoolFunctors::Reset
-                     // --------------------------------
+                     // -------------------------
+                     // ObjectPoolFunctors::Reset
+                     // -------------------------
 
 // ACCESSORS
 template <class TYPE>
 inline
-void bdlcc::ObjectPoolFunctors::Reset<TYPE>::operator()(TYPE *object) const
+void ObjectPoolFunctors::Reset<TYPE>::operator()(TYPE *object) const
 {
    object->reset();
 }
 
-                      // ------------------------------
-                      // bdlcc::ObjectPoolFunctors::Nil
-                      // ------------------------------
+                      // -----------------------
+                      // ObjectPoolFunctors::Nil
+                      // -----------------------
 
 // ACCESSORS
 template <class TYPE>
 inline
-void bdlcc::ObjectPoolFunctors::Nil<TYPE>::operator()(TYPE *) const
+void ObjectPoolFunctors::Nil<TYPE>::operator()(TYPE *) const
 {
 }
 
-                     // --------------------------------
-                     // bdlcc::ObjectPoolFunctors::Clear
-                     // --------------------------------
+                     // -------------------------
+                     // ObjectPoolFunctors::Clear
+                     // -------------------------
 
 // ACCESSORS
 template <class TYPE>
 inline
-void bdlcc::ObjectPoolFunctors::Clear<TYPE>::operator()(TYPE *object) const
+void ObjectPoolFunctors::Clear<TYPE>::operator()(TYPE *object) const
 {
    object->clear();
 }
 
-                   // ------------------------------------
-                   // bdlcc::ObjectPoolFunctors::RemoveAll
-                   // ------------------------------------
+                   // -----------------------------
+                   // ObjectPoolFunctors::RemoveAll
+                   // -----------------------------
 
 // ACCESSORS
 template <class TYPE>
 inline
-void bdlcc::ObjectPoolFunctors::RemoveAll<TYPE>::operator()(TYPE *object) const
+void ObjectPoolFunctors::RemoveAll<TYPE>::operator()(TYPE *object) const
 {
    object->removeAll();
 }
 
-                      // -----------------------------
-                      // bdlcc::ObjectPool_AutoCleanup
-                      // -----------------------------
+                      // ----------------------
+                      // ObjectPool_AutoCleanup
+                      // ----------------------
 
 // CREATORS
 template <class TYPE, class CREATOR, class RESETTER>
 inline
-bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::AutoCleanup(
+ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::AutoCleanup(
                                    BlockNode                        *block,
                                    ObjectNode                       *head,
                                    bdlma::InfrequentDeleteBlockList *allocator,
@@ -1550,11 +1488,11 @@ bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::AutoCleanup(
 }
 
 template <class TYPE, class CREATOR, class RESETTER>
-bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::~AutoCleanup()
+ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::~AutoCleanup()
 {
     enum {
         k_NUM_OBJECTS_PER_FRAME =
-           bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::k_NUM_OBJECTS_PER_FRAME
+           ObjectPool<TYPE, CREATOR, RESETTER>::k_NUM_OBJECTS_PER_FRAME
     };
     if (d_head_p) {
         for (++d_head_p; d_numNodes > 0; --d_numNodes) {
@@ -1568,8 +1506,8 @@ bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::~AutoCleanup()
 // MANIPULATORS
 template <class TYPE, class CREATOR, class RESETTER>
 inline
-typename bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup&
-bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::operator++()
+typename ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup&
+ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::operator++()
 {
     ++d_numNodes;
     return *this;
@@ -1577,18 +1515,19 @@ bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::operator++()
 
 template <class TYPE, class CREATOR, class RESETTER>
 inline
-void bdlcc::ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::release()
+void ObjectPool<TYPE, CREATOR, RESETTER>::AutoCleanup::release()
 {
     d_block_p = 0;
     d_head_p = 0;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

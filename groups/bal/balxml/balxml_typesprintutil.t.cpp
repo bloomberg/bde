@@ -9,20 +9,24 @@
 
 #include <balxml_typesprintutil.h>
 
-#include <bslim_testutil.h>
-
 #include <bdlat_enumeratorinfo.h>
 #include <bdlat_enumfunctions.h>
 #include <bdlat_typetraits.h>
 #include <bdlat_valuetypefunctions.h>
-
 #include <bdlb_chartype.h>
 #include <bdlb_float.h>
 #include <bdlb_nullablevalue.h>
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
 
+
 #include <bdlt_datetime.h>
+#include <bslalg_typetraits.h>
+#include <bslim_testutil.h>
+#include <bslma_allocator.h>
+#include <bsls_assert.h>
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -35,13 +39,6 @@
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
-#include <bslalg_typetraits.h>
-
-#include <bslma_allocator.h>
-
-#include <bsls_assert.h>
-#include <bsls_platform.h>
-#include <bsls_types.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -96,6 +93,16 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
+
+// ============================================================================
+//                   MACROS FOR TESTING WORKAROUNDS
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+    // 'snprintf' on older Windows libraries outputs an additional '0' in the
+    // exponent for scientific notation.
+# define BALXML_TYPESPRINTUTIL_EXTRA_ZERO_PADDING_FOR_EXPONENTS 1
+#endif
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1019,8 +1026,8 @@ int main(int argc, char *argv[])
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING USAGE EXAMPLES"
-                          << "\n======================" << endl;
+        if (verbose) cout << "\nTESTING USAGE EXAMPLE"
+                          << "\n=====================" << endl;
 
         usageExample1();
 
@@ -1037,7 +1044,7 @@ int main(int argc, char *argv[])
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'print' Function"
+        if (verbose) cout << "\nTESTING 'print' FUNCTION"
                           << "\n========================" << endl;
 
         if (verbose) cout << "\nUsing 'BASE64'." << endl;
@@ -1293,7 +1300,7 @@ int main(int argc, char *argv[])
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'printDefault' Functions"
+        if (verbose) cout << "\nTESTING 'printDefault' FUNCTIONS"
                           << "\n================================" << endl;
 
         if (verbose) cout << "\nUsing 'bool'." << endl;
@@ -1637,7 +1644,7 @@ int main(int argc, char *argv[])
         {
             typedef float Type;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#if defined(BALXML_TYPESPRINTUTIL_EXTRA_ZERO_PADDING_FOR_EXPONENTS)
 #define ZERO   "0"
 #else
 #define ZERO
@@ -1723,44 +1730,65 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing 'Decimal64'." << endl;
         {
-            typedef bdldfp::Decimal64 Type;
+            typedef bdldfp::Decimal64         Type;
+            typedef bsl::numeric_limits<Type> Limits;
+
+#define DFP(X) BDLDFP_DECIMAL_DD(X)
 
             const struct {
                 int         d_lineNum;
                 Type        d_input;
+                char        d_style;
+                int         d_precision;
                 const char *d_result;
             } DATA[] = {
-                //LINE  VALUE  RESULT
-                //----  -----  ------
+//---------------------------------------------------------------------------
+// LN |           VALUE           | STYLE | PRS |          RESULT
+//---------------------------------------------------------------------------
+{ L_,  DFP(0.0),                    'N',     0,  "0.0",                    },
+{ L_,  DFP(15.13),                  'N',     0,  "15.13",                  },
+{ L_,  DFP(-9.876543210987654e307), 'N',     0,  "-9.876543210987654e+307" },
+{ L_,  Limits::infinity(),          'N',     0,   "INF",                   },
+{ L_, -Limits::infinity(),          'N',     0,  "-INF",                   },
+{ L_,  Limits::signaling_NaN(),     'N',     0,   "NaN",                   },
+{ L_,  Limits::quiet_NaN(),         'N',     0,   "NaN",                   },
 
-                { L_,   BDLDFP_DECIMAL_DD(0.0),   "0.0" },
-                { L_,   BDLDFP_DECIMAL_DD(1.13),  "1.13" },
-                { L_,   BDLDFP_DECIMAL_DD(-9.876543210987654e307),
-                  "-9.876543210987654e+307" },
-                { L_,   bsl::numeric_limits<bdldfp::Decimal64>::infinity(),
-                  "INF" },
-                { L_,  -bsl::numeric_limits<bdldfp::Decimal64>::infinity(),
-                  "-INF" },
-                { L_,  bsl::numeric_limits<bdldfp::Decimal64>::signaling_NaN(),
-                  "NaN" },
-                { L_,  bsl::numeric_limits<bdldfp::Decimal64>::quiet_NaN(),
-                  "NaN" },
+{ L_,  DFP(0.0),                    'F',     2,  "0.00",                   },
+{ L_,  DFP(15.13),                  'F',     2,  "15.13",                  },
+{ L_,  DFP(-9876543210987654.0),    'F',     0,  "-9876543210987654"       },
+{ L_,  Limits::infinity(),          'F',     0,   "INF",                   },
+{ L_, -Limits::infinity(),          'F',     0,  "-INF",                   },
+{ L_,  Limits::signaling_NaN(),     'F',     0,   "NaN",                   },
+{ L_,  Limits::quiet_NaN(),         'F',     0,   "NaN",                   },
 
+{ L_,  DFP(0.1),                    'S',     0,  "1e-1"                    },
+{ L_,  DFP(15.13),                  'S',     3,  "1.513e+1",               },
+{ L_,  DFP(-9.876543210987654e307), 'S',    11,  "-9.87654321099e+307"     },
+{ L_,  Limits::infinity(),          'S',     0,   "INF",                   },
+{ L_, -Limits::infinity(),          'S',     0,  "-INF",                   },
+{ L_,  Limits::signaling_NaN(),     'S',     0,   "NaN",                   },
+{ L_,  Limits::quiet_NaN(),         'S',     0,   "NaN",                   },
             };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE   = DATA[i].d_lineNum;
-                const Type  INPUT  = DATA[i].d_input;
-                const char *RESULT = DATA[i].d_result;
+                const int   LINE      = DATA[i].d_lineNum;
+                const Type  INPUT     = DATA[i].d_input;
+                const char  STYLE     = DATA[i].d_style;
+                const char *RESULT    = DATA[i].d_result;
+                const int   PRECISION = DATA[i].d_precision;
 
                 bsl::stringstream ss;
+                ss.precision(PRECISION);
+                if ('F' == STYLE) { ss << bsl::fixed;      }
+                if ('S' == STYLE) { ss << bsl::scientific; }
 
                 Util::printDefault(ss, INPUT);
 
                 LOOP2_ASSERT(LINE, ss.str(), RESULT == ss.str());
             }
+#undef DFP
         }
 
         // TBD: Currently this test case is commented out till the
@@ -3205,7 +3233,7 @@ int main(int argc, char *argv[])
         //   and other string types will call the same method.
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'printText' Functions"
+        if (verbose) cout << "\nTESTING 'printText' FUNCTIONS"
                           << "\n=============================" << endl;
 
         if (verbose) cout << "\nUsing 'bool'." << endl;
@@ -4528,7 +4556,7 @@ int main(int argc, char *argv[])
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'printList' Functions"
+        if (verbose) cout << "\nTESTING 'printList' FUNCTIONS"
                           << "\n=============================" << endl;
 
         if (verbose) cout << "\nUsing 'bsl::vector<int>'." << endl;
@@ -4580,7 +4608,7 @@ int main(int argc, char *argv[])
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'printHex' Functions"
+        if (verbose) cout << "\nTESTING 'printHex' FUNCTIONS"
                           << "\n============================" << endl;
 
         static const struct {
@@ -4685,7 +4713,7 @@ int main(int argc, char *argv[])
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'printDecimal' Functions"
+        if (verbose) cout << "\nTESTING 'printDecimal' FUNCTIONS"
                           << "\n================================" << endl;
 
         if (verbose) cout << "\nUsing 'bool'." << endl;
@@ -5487,7 +5515,7 @@ int main(int argc, char *argv[])
         // Plan:
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting 'printBase64' Functions"
+        if (verbose) cout << "\nTESTING 'printBase64' FUNCTIONS"
                           << "\n===============================" << endl;
 
         static const struct {
@@ -5591,53 +5619,54 @@ int main(int argc, char *argv[])
         //
         // Plan:
         // --------------------------------------------------------------------
-          if (verbose) {
-              bsl::cout << "\nBREATHING TEST\n" << bsl::endl;
-          }
+        if (verbose) bsl::cout << "\nBREATHING TEST"
+                               << "\n==============" << bsl::endl;
 
-          {
-              bsl::stringstream ss;
+        {
+            bsl::stringstream ss;
 
-              balxml::TypesPrintUtil::print(ss, TestEnum::VALUE2,
-                                    bdlat_FormattingMode::e_DEFAULT);
-              LOOP_ASSERT(ss.str(), "VALUE2" == ss.str());
-          }
+            balxml::TypesPrintUtil::print(ss,
+                                          TestEnum::VALUE2,
+                                          bdlat_FormattingMode::e_DEFAULT);
+            LOOP_ASSERT(ss.str(), "VALUE2" == ss.str());
+        }
 
-          {
-              bsl::stringstream ss;
+        {
+            bsl::stringstream ss;
 
-              balxml::TypesPrintUtil::print(ss, TestEnum::VALUE2,
-                                    bdlat_FormattingMode::e_DEC);
-              LOOP_ASSERT(ss.str(), "2" == ss.str());
-          }
+            balxml::TypesPrintUtil::print(ss,
+                                          TestEnum::VALUE2,
+                                          bdlat_FormattingMode::e_DEC);
+            LOOP_ASSERT(ss.str(), "2" == ss.str());
+        }
 
-          {
-              bsl::vector<char> vec;
-              bsl::stringstream ss;
+        {
+            bsl::vector<char> vec;
+            bsl::stringstream ss;
 
-              vec.push_back('a');
-              vec.push_back('b');
-              vec.push_back('c');
-              vec.push_back('d');
+            vec.push_back('a');
+            vec.push_back('b');
+            vec.push_back('c');
+            vec.push_back('d');
 
-              balxml::TypesPrintUtil::printBase64(ss, vec);
+            balxml::TypesPrintUtil::printBase64(ss, vec);
 
-              LOOP_ASSERT(ss.str(), "YWJjZA==" == ss.str());
-          }
+            LOOP_ASSERT(ss.str(), "YWJjZA==" == ss.str());
+        }
 
-          {
-              bsl::vector<char> vec;
-              bsl::stringstream ss;
+        {
+            bsl::vector<char> vec;
+            bsl::stringstream ss;
 
-              vec.push_back('a');
-              vec.push_back('b');
-              vec.push_back('c');
-              vec.push_back('d');
+            vec.push_back('a');
+            vec.push_back('b');
+            vec.push_back('c');
+            vec.push_back('d');
 
-              balxml::TypesPrintUtil::printHex(ss, vec);
+            balxml::TypesPrintUtil::printHex(ss, vec);
 
-              LOOP_ASSERT(ss.str(), "61626364" == ss.str());
-          }
+            LOOP_ASSERT(ss.str(), "61626364" == ss.str());
+        }
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;

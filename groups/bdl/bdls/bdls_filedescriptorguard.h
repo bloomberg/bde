@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLS_FILEDESCRIPTORGUARD
 #define INCLUDED_BDLS_FILEDESCRIPTORGUARD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a RAII guard class used to close files.
@@ -95,17 +93,11 @@ BSLS_IDENT("$Id: $")
 //  assert(-1 == off);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLS_FILESYSTEMUTIL
 #include <bdls_filesystemutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 

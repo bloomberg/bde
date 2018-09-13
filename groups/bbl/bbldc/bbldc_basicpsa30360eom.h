@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BBLDC_BASICPSA30360EOM
 #define INCLUDED_BBLDC_BASICPSA30360EOM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide stateless functions for PSA 30/360 end-of-month convention.
@@ -67,9 +65,7 @@ BSLS_IDENT("$Id: $")
 //  assert(0.25 == yearsDiff);
 //..
 
-#ifndef INCLUDED_BBLSCM_VERSION
 #include <bblscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

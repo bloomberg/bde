@@ -65,6 +65,7 @@ using namespace bsl;  // automatically added by script
 // [ 3] bdlmt::FixedThreadPool(const bslmt::Attributes&, int, int, int);
 // [ 3] ~bdlmt::FixedThreadPool();
 // [ 3] int enqueueJob(const bsl::function<void()>& );
+// [15] int enqueueJob(bslmf::MovableRef<Job>);
 // [ 3] int numThreads() const;
 // [ 4] int enqueueJob(FixedThreadPoolJobFunc, void *);
 // [ 4] void start();
@@ -168,7 +169,7 @@ struct TestJobFunctionArgs1 {
 extern "C" {
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
-void TestSynchronousSignals(void *ptr)
+void TestSynchronousSignals(void *)
 {
     sigset_t blockedSet;
     sigemptyset(&blockedSet);
@@ -254,7 +255,7 @@ void testJobFunction3(void *ptr)
 
 }
 
-int testJobFunction4(const int N)
+double testJobFunction4(const int N)
     // This function is used to simulate a thread pool job.  It accepts an int
     // which controls the time taken by that job.  We let the job compute some
     // quantity (the actually job does not matter, only the time it takes).
@@ -492,6 +493,97 @@ void ConcurrencyTest::runTest()
 }  // close namespace FIXEDTHREADPOOL_CASE_14
 
 // ============================================================================
+//                         CASE 15 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace FIXEDTHREADPOOL_CASE_15 {
+
+                            // ===================
+                            // CopyCountingFunctor
+                            // ===================
+
+class CopyCountingFunctor {
+  private:
+    // DATA
+    int *d_counter_p; // Pointer to the counter of copy-constructions
+
+  public:
+    // CREATORS
+    explicit CopyCountingFunctor(int *counter);
+        // Create a new 'CopyCountingFunctor' object that has the specified
+        // 'counter', and set the counter to 0.
+
+    CopyCountingFunctor(const CopyCountingFunctor& other);
+        // Create a new 'CopyCountingFunctor' object that has the same counter
+        // as the specified 'other'; and also increase the counter by one.
+
+    CopyCountingFunctor(bslmf::MovableRef<CopyCountingFunctor> other);
+        // Create a new 'CopyCountingFunctor' object that has the same counter
+        // as the specified 'other'.
+
+    // MANIPULATORS
+    CopyCountingFunctor& operator=(const CopyCountingFunctor& other);
+        // Overwrite this object that has the same counter as the specified
+        // 'other'; and also increase that counter by one.
+
+    CopyCountingFunctor& operator=(
+                                 bslmf::MovableRef<CopyCountingFunctor> other);
+        // Overwrite this object that has the same counter as the specified
+        // 'other'.
+
+    // ACCESSORS
+    void operator()();
+        // Do noting.
+};
+
+                            // -------------------
+                            // CopyCountingFunctor
+                            // -------------------
+
+// CREATORS
+CopyCountingFunctor::CopyCountingFunctor(int *counter)
+: d_counter_p(counter)
+{
+    *d_counter_p = 0;
+}
+
+CopyCountingFunctor::CopyCountingFunctor(const CopyCountingFunctor& other)
+: d_counter_p(other.d_counter_p)
+{
+    ++*d_counter_p;
+}
+
+CopyCountingFunctor::CopyCountingFunctor(
+                                  bslmf::MovableRef<CopyCountingFunctor> other)
+: d_counter_p(static_cast<CopyCountingFunctor&>(other).d_counter_p)
+{
+}
+
+// MANIPULATORS
+CopyCountingFunctor& CopyCountingFunctor::operator=(
+                                              const CopyCountingFunctor& other)
+{
+    d_counter_p = other.d_counter_p;
+    ++*d_counter_p;
+    return *this;
+}
+
+CopyCountingFunctor& CopyCountingFunctor::operator=(
+                                  bslmf::MovableRef<CopyCountingFunctor> other)
+{
+    d_counter_p = static_cast<CopyCountingFunctor&>(other).d_counter_p;
+    return *this;
+}
+
+// ACCESSORS
+void CopyCountingFunctor::operator()()
+{
+}
+
+}  // close namespace FIXEDTHREADPOOL_CASE_15
+
+
+// ============================================================================
 //                         CASE 11 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
@@ -599,17 +691,6 @@ extern "C" {
 }
 
 // ============================================================================
-//                          CASE 9 RELATED ENTITIES
-// ----------------------------------------------------------------------------
-
-static void counter(int *result, int num) {
-    while(num > 0) {
-        *result += 1;
-        --num;
-    }
-}
-
-// ============================================================================
 //                          CASE 6 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 enum {
@@ -626,7 +707,7 @@ bsls::AtomicInt depthCounter;
 
 extern "C" {
 
-void testJobFunction5(void *ptr)
+void testJobFunction5(void *)
     // This function is used to simulate a thread pool job.  It enqueues itself
     // in the pool if the depth limit is not reached.
 {
@@ -671,6 +752,78 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // case 0 is always the first case
+      case 15: {
+        // --------------------------------------------------------------------
+        // TESTING MOVING ENQUEUEJOB
+        //
+        // Concerns:
+        //: 1 Explicit move moves
+        //: 2 rvalue/temporary is moved from in C++11 mode
+        //
+        // Plan:
+        //: 1 Create a thread pool of size 3.
+        //: 2 enqueue one job using explicit move
+        //: 3 tryEnqueue one job using explicit move
+        //: 4 enqueue an implicit rvalue reference (temporary) in C++11 mode
+        //: 5 tryEnqueue an implicit rvalue reference (temporary) in C++11 mode
+        // --------------------------------------------------------------------
+        if (verbose) cout << "TESTING MOVING ENQUEUEJOB\n"
+                          << "=========================" << endl ;
+
+        enum {
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+            NUM_THREADS = 4
+#else
+            NUM_THREADS = 2
+#endif
+        };
+
+        bdlmt::FixedThreadPool mX(NUM_THREADS, NUM_THREADS);
+        mX.enable();
+
+        using namespace FIXEDTHREADPOOL_CASE_15;
+
+        int counter = 0;
+
+        CopyCountingFunctor f(&counter);
+
+        LOOP_ASSERT(counter, 0 == counter);
+
+        Obj::Job job(f);
+
+        LOOP_ASSERT(counter, counter > 0);
+
+        const int buildCopyCounter = counter;
+        (void)buildCopyCounter;
+
+        counter = 0;
+
+        ASSERT(0 == mX.enqueueJob(bslmf::MovableRefUtil::move(job)));
+
+        LOOP_ASSERT(counter, 0 == counter);
+
+        Obj::Job job2(f);
+        counter = 0;
+
+        ASSERT(0 == mX.tryEnqueueJob(bslmf::MovableRefUtil::move(job2)));
+
+        LOOP_ASSERT(counter, 0 == counter);
+
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+        // Moving of rvalues are only supported in C++11 mode.
+
+        ASSERT(0 == mX.enqueueJob(Obj::Job(f)));
+
+        LOOP2_ASSERT(buildCopyCounter, counter,
+                     buildCopyCounter == counter);
+        counter = 0;
+
+        ASSERT(0 == mX.tryEnqueueJob(Obj::Job(f)));
+
+        LOOP2_ASSERT(buildCopyCounter, counter,
+                     buildCopyCounter == counter);
+#endif
+      } break;
       case 14: {
         // --------------------------------------------------------------------
         // TEST CASE FOR WINDOWS TEST FAILURE

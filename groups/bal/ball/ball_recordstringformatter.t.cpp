@@ -13,19 +13,20 @@
 #include <ball_recordattributes.h>
 #include <ball_severity.h>
 #include <ball_userfields.h>
-#include <bslmt_threadutil.h>
 
 #include <bdlt_currenttime.h>
-#include <bslim_testutil.h>
-
 #include <bdlt_datetime.h>
 #include <bdlt_iso8601util.h>
 #include <bdlt_localtimeoffset.h>
+
+#include <bslim_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+
+#include <bslmt_threadutil.h>
 
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -45,13 +46,17 @@
 
 using namespace BloombergLP;
 
-using bsl::cout;
 using bsl::cerr;
+using bsl::cout;
+using bsl::dec;
 using bsl::endl;
 using bsl::flush;
-using bsl::strcmp;
+using bsl::hex;
+using bsl::nouppercase;
 using bsl::ostringstream;
+using bsl::strcmp;
 using bsl::string;
+using bsl::uppercase;
 
 // ============================================================================
 //                                   TEST PLAN
@@ -797,6 +802,17 @@ int main(int argc, char *argv[])
             ASSERT(oss1.str() == oss2.str());
         }
 
+        if (verbose) cout << "\n  Testing \"%T\"." << endl;
+        {
+            oss1.str("");
+            oss2.str("");
+            mX.setFormat("%T");
+            X(oss1, record);
+            oss2 << uppercase << hex << threadID << nouppercase << dec;
+            if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+            ASSERT(oss1.str() == oss2.str());
+        }
+
         if (verbose) cout << "\n  Testing \"%s\"." << endl;
         {
             oss1.str("");
@@ -1449,7 +1465,7 @@ int main(int argc, char *argv[])
                                                      TVALUES[j2].d_secs,
                                                      TVALUES[j2].d_msecs));
 
-                        int isSame = (i1 == j1) && (i2 == j2);
+                        bool isSame = (i1 == j1) && (i2 == j2);
                         LOOP4_ASSERT(FVALUES[i1].d_lineNum,
                                      TVALUES[i2].d_lineNum,
                                      FVALUES[j1].d_lineNum,

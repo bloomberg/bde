@@ -10,7 +10,7 @@
 #include <balber_berdecoder.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balber_berdecoder_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balber_berdecoder_cpp, "$Id$ $CSID$")
 
 #include <balber_berencoder.h>          // for testing only
 #include <bdlsb_fixedmeminstreambuf.h>  // for testing only
@@ -35,14 +35,14 @@ namespace balber {
 // CREATORS
 BerDecoder::BerDecoder(const BerDecoderOptions *options,
                        bslma::Allocator        *basicAllocator)
-: d_options                  (options)
-, d_allocator                (bslma::Default::allocator(basicAllocator))
-, d_logStream                (0)
-, d_severity                 (e_BER_SUCCESS)
-, d_streamBuf                (0)
-, d_currentDepth             (0)
+: d_options(options)
+, d_allocator(bslma::Default::allocator(basicAllocator))
+, d_logStream(0)
+, d_severity(e_BER_SUCCESS)
+, d_streamBuf(0)
+, d_currentDepth(0)
 , d_numUnknownElementsSkipped(0)
-, d_topNode                  (0)
+, d_topNode(0)
 {
 }
 
@@ -56,7 +56,7 @@ BerDecoder::~BerDecoder()
 // MANIPULATORS
 void BerDecoder::logErrorImp(const char *msg)
 {
-    if ((int) d_severity < (int) e_BER_ERROR) {
+    if ((int)d_severity < (int)e_BER_ERROR) {
         d_severity = e_BER_ERROR;
     }
     logMsg("ERROR", msg);
@@ -83,27 +83,24 @@ BerDecoder::ErrorSeverity BerDecoder::logMsg(const char *prefix,
                        // -----------------------------
 
 // ACCESSORS
-int
-BerDecoder_Node::startPos() const
+int BerDecoder_Node::startPos() const
 {
     int ret = 0;
 
     BerDecoder_Node *node = d_parent;
 
     for (; node != 0; node = node->d_parent) {
-        ret += node->d_consumedHeaderBytes
-            +  node->d_consumedBodyBytes;
+        ret += node->d_consumedHeaderBytes + node->d_consumedBodyBytes;
     }
     return ret;
 }
 
-void
-BerDecoder_Node::printStack(bsl::ostream& out) const
+void BerDecoder_Node::printStack(bsl::ostream& out) const
 {
     int depth = d_decoder->d_currentDepth;
 
-    for (const BerDecoder_Node *node = this;
-         node != 0; node = node->parent()) {
+    for (const BerDecoder_Node *node = this; node != 0;
+         node                        = node->parent()) {
         node->print(out, depth--, 0, " within ");
     }
 }
@@ -113,11 +110,11 @@ void BerDecoder_Node::print(bsl::ostream&  out,
                             int            spacePerLevel,
                             const char    *prefixText) const
 {
-    static const char indentLine [] =
+    static const char indentLine[] =
         "                                        ";
     // "1234567890123456789012345678901234567890" 1 2 3 4
 
-    static const int  maxSpaces = sizeof(indentLine) - 1;
+    static const int maxSpaces = sizeof(indentLine) - 1;
 
     if (spacePerLevel != 0) {
         int numSpaces = depth * spacePerLevel;
@@ -132,38 +129,46 @@ void BerDecoder_Node::print(bsl::ostream&  out,
     }
 
     int startPos = this->startPos();
-    int endPos = startPos
-               + this->d_consumedHeaderBytes
-               + this->d_consumedBodyBytes
-               + this->d_consumedTailBytes;
+    int endPos   = startPos + this->d_consumedHeaderBytes +
+                 this->d_consumedBodyBytes + this->d_consumedTailBytes;
 
-    out << " depth="
-        << depth
-        << " pos=("
-        << startPos
-        << ','
-        << endPos
+    out << " depth=" << depth << " pos=(" << startPos << ',' << endPos
         << ") tag=(";
 
     BerUniversalTagNumber::Value  eTagNum;
-    const char *strTagNum = 0;
+    const char                   *strTagNum = 0;
 
-    switch(d_tagClass) {
-      case BerConstants::e_UNIVERSAL:        out << "UNV-";
+    switch (d_tagClass) {
+      case BerConstants::e_UNIVERSAL:
+        out << "UNV-";
         if (0 == BerUniversalTagNumber::fromInt(&eTagNum, d_tagNumber)) {
             strTagNum = BerUniversalTagNumber::toString(eTagNum);
         }
-                                                            break;
-      case BerConstants::e_CONTEXT_SPECIFIC: out << "CTX-"; break;
-      case BerConstants::e_APPLICATION:      out << "APP-"; break;
-      case BerConstants::e_PRIVATE:          out << "PRV-"; break;
-      default:                               out << "***-"; break;
+        break;
+      case BerConstants::e_CONTEXT_SPECIFIC:
+        out << "CTX-";
+        break;
+      case BerConstants::e_APPLICATION:
+        out << "APP-";
+        break;
+      case BerConstants::e_PRIVATE:
+        out << "PRV-";
+        break;
+      default:
+        out << "***-";
+        break;
     }
 
-    switch(d_tagType) {
-      case BerConstants::e_CONSTRUCTED:       out << "C-";  break;
-      case BerConstants::e_PRIMITIVE:         out << "P-";  break;
-      default:                                out << "*-";  break;
+    switch (d_tagType) {
+      case BerConstants::e_CONSTRUCTED:
+        out << "C-";
+        break;
+      case BerConstants::e_PRIMITIVE:
+        out << "P-";
+        break;
+      default:
+        out << "*-";
+        break;
     }
 
     if (!strTagNum) {
@@ -192,21 +197,37 @@ int BerDecoder_Node::logError(const char *msg)
     return rc;
 }
 
-int BerDecoder_Node::decode(bsl::vector<char> *variable,
-                            bdlat_TypeCategory::Array)
+int BerDecoder_Node::decode(bsl::vector<char>         *variable,
+                            bdlat_TypeCategory::Array  )
 {
-    switch(d_formattingMode & bdlat_FormattingMode::e_TYPE_MASK) {
-      case bdlat_FormattingMode::e_DEFAULT:
-      case bdlat_FormattingMode::e_BASE64:
-      case bdlat_FormattingMode::e_HEX:
-      case bdlat_FormattingMode::e_TEXT:
-        return this->readVectorChar(variable);                        // RETURN
-
+    switch (d_tagType) {
+      case BerConstants::e_PRIMITIVE:
+          // 'BerEncoder' will encode 'vector<char>' this way if and only if
+          // '(d_formattingMode & bdlat_FormattingMode::e_TYPE_MASK)'
+          // is one of '_FormattingMode::e_DEFAULT', 'e_BASE64', 'e_HEX'
+          // or 'e_TEXT'
+        return this->readVectorChar(variable); // RETURN
+      case BerConstants::e_CONSTRUCTED:
+        return this->decodeArray(variable); // RETURN
       default:
-        break;
+        return logError("Expected PRIMITIVE or CONSTRUCTED tag class"
+                        " for vector<char>");                         // RETURN
     }
+}
 
-    return this->decodeArray(variable);
+int BerDecoder_Node::decode(bsl::vector<unsigned char> *variable,
+                            bdlat_TypeCategory::Array   )
+{
+    switch (d_tagType) {
+      case BerConstants::e_PRIMITIVE:
+        return this->readVectorUnsignedChar(variable); //RETURN
+      case BerConstants::e_CONSTRUCTED:
+          // 'BerEncoder' will always encode 'vector<unsigned char>' this way.
+        return this->decodeArray(variable); //RETURN
+      default:
+        return logError("Expected PRIMITIVE or CONSTRUCTED tag "
+                        "class for vector<unsigned char>");           // RETURN
+    }
 }
 
 int BerDecoder_Node::readTagHeader()
@@ -216,21 +237,20 @@ int BerDecoder_Node::readTagHeader()
     }
 
     if (0 != BerUtil::getIdentifierOctets(d_decoder->d_streamBuf,
-                                               &d_tagClass,
-                                               &d_tagType,
-                                               &d_tagNumber,
-                                               &d_consumedHeaderBytes)) {
-        return logError("Error reading BER tag");
+                                          &d_tagClass,
+                                          &d_tagType,
+                                          &d_tagNumber,
+                                          &d_consumedHeaderBytes)) {
+        return logError("Error reading BER tag");                     // RETURN
     }
 
     if (0 != BerUtil::getLength(d_decoder->d_streamBuf,
-                                     &d_expectedLength,
-                                     &d_consumedHeaderBytes)) {
+                                &d_expectedLength,
+                                &d_consumedHeaderBytes)) {
         return logError("Error reading BER length");                  // RETURN
     }
 
     if (d_decoder->decoderOptions()->traceLevel() > 0) {
-
         bsl::ostream& out = d_decoder->logStream();
         this->print(out, d_decoder->d_currentDepth, 2, "Enter ");
     }
@@ -241,10 +261,8 @@ int BerDecoder_Node::readTagHeader()
 int BerDecoder_Node::readTagTrailer()
 {
     if (BerUtil::e_INDEFINITE_LENGTH == d_expectedLength) {
-
-        if (0 != BerUtil::getEndOfContentOctets(
-                                            d_decoder->d_streamBuf,
-                                            &d_consumedTailBytes)) {
+        if (0 != BerUtil::getEndOfContentOctets(d_decoder->d_streamBuf,
+                                                &d_consumedTailBytes)) {
             return logError("Error reading end-of-contents octets");  // RETURN
         }
     }
@@ -256,7 +274,6 @@ int BerDecoder_Node::readTagTrailer()
     if (d_decoder->decoderOptions()->traceLevel() > 0) {
         bsl::ostream& out = d_decoder->logStream();
         this->print(out, d_decoder->d_currentDepth, 2, "Leave ");
-
     }
 
     return BerDecoder::e_BER_SUCCESS;
@@ -269,8 +286,7 @@ int BerDecoder_Node::skipField()
                                                                       // RETURN
     }
 
-    if (BerUtil::e_INDEFINITE_LENGTH != d_expectedLength ) {
-
+    if (BerUtil::e_INDEFINITE_LENGTH != d_expectedLength) {
         // We would do this, but not every streambuf is seekable:
         //..
         //  d_decoder->d_streamBuf->pubseekoff(d_expectedLength,
@@ -281,9 +297,9 @@ int BerDecoder_Node::skipField()
         int  remainLength = d_expectedLength;
 
         while (remainLength > 0) {
-
-            int numRead = remainLength < (int) sizeof(buffer)
-                        ? remainLength : (int) sizeof(buffer);
+            int numRead = remainLength < (int)sizeof(buffer)
+                              ? remainLength
+                              : (int)sizeof(buffer);
 
             if (numRead != d_decoder->d_streamBuf->sgetn(buffer, numRead)) {
                 return logError("Error reading stream while skipping field");
@@ -304,8 +320,7 @@ int BerDecoder_Node::skipField()
                                                                       // RETURN
     }
 
-    while (hasMore())  {
-
+    while (hasMore()) {
         BerDecoder_Node innerNode(d_decoder);
 
         int rc = innerNode.readTagHeader();
@@ -356,9 +371,48 @@ int BerDecoder_Node::readVectorChar(bsl::vector<char> *variable)
     variable->resize(d_expectedLength);
 
     if (0 != d_expectedLength &&
-        d_expectedLength != d_decoder->d_streamBuf->sgetn(&(*variable)[0],
-                                                          d_expectedLength)) {
+        d_expectedLength !=
+            d_decoder->d_streamBuf->sgetn(&(*variable)[0], d_expectedLength)) {
         return logError("Stream error while reading 'vector<char>'");
+                                                                      // RETURN
+    }
+
+    d_consumedBodyBytes += d_expectedLength;
+
+    return BerDecoder::e_BER_SUCCESS;
+}
+
+int BerDecoder_Node::readVectorUnsignedChar(
+                                          bsl::vector<unsigned char> *variable)
+{
+    if (d_tagType != BerConstants::e_PRIMITIVE) {
+        return logError(
+            "Expected PRIMITIVE tag type for 'vector<unsigned char>'");
+                                                                      // RETURN
+    }
+
+    if (d_expectedLength < 0) {
+        return logError("'vector<unsigned char>' with indefinite "
+                        "length is not supported at this time");      // RETURN
+
+        // TBD X.690 has a formula for transmitting string types in chunks,
+        // where each chunk has pre-defined length but the overall string has
+        // indefinite length.  We should implement this algorithm.
+    }
+
+    int maxSize = d_decoder->decoderOptions()->maxSequenceSize();
+    if (d_expectedLength > maxSize) {
+        return logError("'vector<unsigned char>' length more then limit");
+                                                                      // RETURN
+    }
+
+    variable->resize(d_expectedLength);
+
+    char *variabledata = reinterpret_cast<char *>(&(*variable)[0]);
+    if (0 != d_expectedLength &&
+        d_expectedLength !=
+            d_decoder->d_streamBuf->sgetn(variabledata, d_expectedLength)) {
+        return logError("Stream error while reading 'vector<unsigned char>'");
                                                                       // RETURN
     }
 

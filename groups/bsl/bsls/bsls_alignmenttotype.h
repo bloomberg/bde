@@ -270,6 +270,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_alignmentimp.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 namespace BloombergLP {
 
 namespace bsls {
@@ -280,8 +284,28 @@ namespace bsls {
 
 template <int ALIGNMENT>
 struct AlignmentToType {
-    // This 'struct' provides a 'typedef', 'Type', that aliases a primitive
-    // type having the specified 'ALIGNMENT' requirement.
+    // This 'struct' provides a 'typedef', 'Type', that aliases a type having
+    // the specified 'ALIGNMENT' requirement.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS) && \
+    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1900)
+
+        // Do not use 'alignas' with MSVC 2015 as it creates a "hard" alignment
+        // requirement that may inhibit the resulting type from being used as a
+        // by-value function-parameter.  See compiler error C2719:
+        // https://msdn.microsoft.com/en-us/library/373ak2y1.aspx The
+        // documentation talks about '__declspec(align(N))' but the same
+        // applies to 'alignas'.
+
+#define BSLS_ALIGNMENTTOTYPE_USES_ALIGNAS
+#endif
+
+#ifdef BSLS_ALIGNMENTTOTYPE_USES_ALIGNAS
+
+    // TYPES
+    class alignas(ALIGNMENT) Type { char d_c[ALIGNMENT]; };
+
+#else
 
   private:
     // PRIVATE TYPES
@@ -302,6 +326,7 @@ struct AlignmentToType {
     typedef typename AlignmentImpPriorityToType<PRIORITY>::Type Type;
         // Alias for a primitive type that has the specified 'ALIGNMENT'
         // requirement.
+#endif
 };
 
 }  // close package namespace

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALST_STACKTRACEPRINTUTIL
 #define INCLUDED_BALST_STACKTRACEPRINTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a single function to perform and print a stack trace.
@@ -110,29 +108,14 @@ BSLS_IDENT("$Id: $")
 // been manually edited to wrap and have every line be less than 80 columns.
 // Also note the program name is truncated to 32 characters in length.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULTALLOCATORGUARD
 #include <bslma_defaultallocatorguard.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_SSTREAM
 #include <bsl_sstream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 

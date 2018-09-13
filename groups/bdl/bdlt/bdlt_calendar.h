@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_CALENDAR
 #define INCLUDED_BDLT_CALENDAR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide fast repository for accessing weekend/holiday information.
@@ -459,65 +457,29 @@ BSLS_IDENT("$Id: $")
 //                       MyCalendarUtil::modifiedFollowing(31, 7, 2015, cal2));
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_CALENDARREVERSEITERATORADAPTER
 #include <bdlt_calendarreverseiteratoradapter.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DAYOFWEEK
 #include <bdlt_dayofweek.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DAYOFWEEKSET
 #include <bdlt_dayofweekset.h>
-#endif
-
-#ifndef INCLUDED_BDLT_PACKEDCALENDAR
 #include <bdlt_packedcalendar.h>
-#endif
 
-#ifndef INCLUDED_BDLC_BITARRAY
 #include <bdlc_bitarray.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
-#endif
 
-#ifndef INCLUDED_BSLH_HASH
 #include <bslh_hash.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {
@@ -845,7 +807,7 @@ class Calendar {
         // operation has no effect.  If 'stream' becomes invalid during this
         // operation or if 'version' is not supported, this object is
         // unaltered.  Note that no version is read from 'stream'.  See the
-        // 'bdex' package-level documentation for more information on 'bdex'
+        // 'bslx' package-level documentation for more information on BDEX
         // streaming of value-semantic types and containers.
 
     void swap(Calendar& other);
@@ -1068,7 +1030,7 @@ class Calendar {
     int numHolidayCodes(const Date& date) const;
         // Return the number of (unique) holiday codes associated with the
         // specified 'date' in this calendar if 'date' is a holiday in this
-        // calender, and 0 otherwise.  The behavior is undefined unless 'date'
+        // calendar, and 0 otherwise.  The behavior is undefined unless 'date'
         // is within the valid range of this calendar.
 
     int numHolidayCodesTotal() const;
@@ -1218,8 +1180,8 @@ class Calendar {
         // Write this value to the specified output 'stream' using the
         // specified 'version' format and return a reference to the modifiable
         // 'stream'.  If 'version' is not supported, 'stream' is unmodified.
-        // Note that 'version' is not written to 'stream'.  See the 'bdex'
-        // package-level documentation for more information on 'bdex' streaming
+        // Note that 'version' is not written to 'stream'.  See the 'bslx'
+        // package-level documentation for more information on BDEX streaming
         // of value-semantic types and containers.
 
     bsl::ostream& print(bsl::ostream& stream,
@@ -1298,10 +1260,9 @@ void hashAppend(HASHALG& hashAlg, const Calendar& object);
     // provides a 'bsl::hash' specialization for 'Calendar'.
 
 void swap(Calendar& a, Calendar& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This function provides the no-throw exception-safety guarantee.  The
-    // behavior is undefined unless the two objects were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
                     // ===================================
                     // class Calendar_BusinessDayConstIter
@@ -2044,12 +2005,6 @@ void bdlt::hashAppend(HASHALG& hashAlg, const Calendar& object)
     hashAppend(hashAlg, object.d_packedCalendar);
 }
 
-inline
-void bdlt::swap(Calendar& a, Calendar& b)
-{
-    a.swap(b);
-}
-
 namespace bdlt {
 
                    // -----------------------------------
@@ -2178,7 +2133,7 @@ struct UsesBslmaAllocator<bdlt::Calendar> : bsl::true_type {};
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

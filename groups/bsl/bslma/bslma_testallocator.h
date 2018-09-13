@@ -59,8 +59,8 @@ BSLS_IDENT("$Id: $")
 //
 // By default this allocator gets its memory from the C Standard Library
 // functions 'malloc' and 'free', but can be overridden to take memory from any
-// thread-safe allocator (supplied at construction) that implements the
-// 'bslma::Allocator' protocol.  Note that allocation and deallocation using a
+// allocator (supplied at construction) that implements the 'bslma::Allocator'
+// protocol.  Note that allocation and deallocation using a
 // 'bslma::TestAllocator' object is explicitly incompatible with 'malloc' and
 // 'free' (or any other allocation mechanism).  Attempting to use 'free' to
 // deallocate memory allocated from a 'bslma::TestAllocator' -- even when
@@ -145,9 +145,8 @@ BSLS_IDENT("$Id: $")
 ///Thread Safety
 ///-------------
 // The 'bslma::TestAllocator' class is fully thread-safe (see
-// 'bsldoc_glossary') provided that the allocator supplied at construction (if
-// any) is fully thread-safe.  Note that the 'bslma::MallocFreeAllocator'
-// singleton (the allocator used by the test allocator if none is supplied at
+// 'bsldoc_glossary').  Note that the 'bslma::MallocFreeAllocator' singleton
+// (the allocator used by the test allocator if none is supplied at
 // construction) is fully thread-safe.
 //
 ///Usage
@@ -336,8 +335,7 @@ class TestAllocator : public Allocator {
     // instead -- by default -- uses the 'MallocFreeAllocator' singleton, which
     // in turn calls the C Standard Library functions 'malloc' and 'free' as
     // needed.  Clients may, however, override this allocator by supplying (at
-    // construction) any other allocator implementing the 'Allocator' protocol
-    // provided that it is fully thread-safe.
+    // construction) any other allocator implementing the 'Allocator' protocol.
 
     // DATA
 
@@ -692,15 +690,6 @@ class TestAllocator : public Allocator {
                // macro BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN
                // ==============================================
 
-// The following is a workaround for an intermittent Visual Studio 2005
-// exception-handling failure.
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1500
-#define BSLMA_EXCEPTION_TEST_WORKAROUND try {} catch (...) {}
-#else
-#define BSLMA_EXCEPTION_TEST_WORKAROUND
-#endif
-
 #ifdef BDE_BUILD_TARGET_EXC
 
 namespace bslma {
@@ -763,7 +752,6 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
 
 #ifndef BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(BSLMA_TESTALLOCATOR) {     \
-    BSLMA_EXCEPTION_TEST_WORKAROUND                                         \
     {                                                                       \
         static int firstTime = 1;                                           \
         if (veryVerbose && firstTime) {                                     \
@@ -775,8 +763,9 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
         std::puts("\t\tBegin bslma exception test.");                       \
     }                                                                       \
     int bslmaExceptionCounter = 0;                                          \
-    const bslma::TestAllocator_ProxyBase& bslmaExceptionTestAllocator =     \
-                       bslma::TestAllocator_getProxy(&BSLMA_TESTALLOCATOR); \
+    const BloombergLP::bslma::TestAllocator_ProxyBase&                      \
+        bslmaExceptionTestAllocator =                                       \
+          BloombergLP::bslma::TestAllocator_getProxy(&BSLMA_TESTALLOCATOR); \
     bslmaExceptionTestAllocator.setAllocationLimit(bslmaExceptionCounter);  \
     do {                                                                    \
         try {
@@ -805,7 +794,7 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
 
 #ifndef BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 #define BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END                              \
-        } catch (bslma::TestAllocatorException& e) {                        \
+        } catch (BloombergLP::bslma::TestAllocatorException& e) {           \
             if (veryVeryVerbose) {                                          \
                 std::printf("\t*** BSLMA_EXCEPTION: "                       \
                             "alloc limit = %d, last alloc size = %d ***\n", \
@@ -822,7 +811,6 @@ TestAllocator_getProxy(BSLMA_ALLOC_TYPE *allocator)
     if (veryVeryVerbose) {                                                  \
         std::puts("\t\tEnd bslma exception test.");                         \
     }                                                                       \
-    BSLMA_EXCEPTION_TEST_WORKAROUND                                         \
 }
 
 #endif  // BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END

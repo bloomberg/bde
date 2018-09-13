@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALJSN_PRINTUTIL
 #define INCLUDED_BALJSN_PRINTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility for encoding simple types in the JSON format.
@@ -81,61 +79,27 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALJSN_ENCODEROPTIONS
 #include <baljsn_encoderoptions.h>
-#endif
 
-#ifndef INCLUDED_BDLT_ISO8601UTIL
-#include <bdlt_iso8601util.h>
-#endif
-
-#ifndef INCLUDED_BDLB_FLOAT
 #include <bdlb_float.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALCONVERTUTIL
 #include <bdldfp_decimalconvertutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOMANIP
-#include <bsl_iomanip.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOS
-#include <bsl_ios.h>
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
-#include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
-#include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_LIMITS
-#include <bsl_limits.h>
-#endif
-
-#ifndef INCLUDED_BSL_C_STDIO
-#include <bsl_c_stdio.h>
-#endif
-
-#ifndef INCLUDED_BDLDFP_DECIMALUTIL
 #include <bdldfp_decimalutil.h>
-#endif
+
+#include <bdlt_iso8601util.h>
+
+#include <bsls_types.h>
+
+#include <bsl_c_stdio.h>
+#include <bsl_cmath.h>
+#include <bsl_iomanip.h>
+#include <bsl_ios.h>
+#include <bsl_limits.h>
+#include <bsl_ostream.h>
+#include <bsl_string.h>
 
 namespace BloombergLP {
 namespace baljsn {
@@ -471,7 +435,14 @@ int PrintUtil::printValue(bsl::ostream&         stream,
         }
       } break;
       default: {
-        stream << value;
+        if (options && options->encodeQuotedDecimal64()) {
+            stream.put('"');
+            stream << value;
+            stream.put('"');
+        }
+        else {
+            stream << value;
+        }
         if (stream.bad()) {
             return -1;                                                // RETURN
         }
@@ -496,6 +467,15 @@ int PrintUtil::printValue(bsl::ostream& stream,
     signed char tmp(value);  // Note that 'char' is unsigned on IBM.
 
     stream << static_cast<int>(tmp);
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream& stream,
+                          signed char   value,
+                          const EncoderOptions *)
+{
+    stream << static_cast<int>(value);
     return 0;
 }
 

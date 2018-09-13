@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALL_USERFIELDTYPE
 #define INCLUDED_BALL_USERFIELDTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Enumerate the set of data types for a user supplied attribute.
@@ -60,13 +58,9 @@ BSLS_IDENT("$Id: $")
 //  STRING
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

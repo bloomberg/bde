@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_FIXEDSIZERECORDBUFFER
 #define INCLUDED_BALL_FIXEDSIZERECORDBUFFER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a thread-safe fixed-size buffer of record handles.
@@ -25,10 +23,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Ujjwal Bhoota (ubhoota)
 //
 //@DESCRIPTION: This component provides a concrete thread-safe implementation
-// of the 'ball::RecordBuffer' protocol.  The sum of sizes of all records
-// contained in a 'ball::FixedSizeRecordBuffer' object *plus* the amount of
-// memory allocated by the 'ball::FixedSizeRecordBuffer' object itself is
-// guaranteed to be less than or equal to an upper bound specified at creation.
+// of the 'ball::RecordBuffer' protocol, 'ball::FixedSizeRecordBuffer':
 //..
 //              ( ball::FixedSizeRecordBuffer )
 //                            |              ctor
@@ -79,7 +74,7 @@ BSLS_IDENT("$Id: $")
 //..
 // First we create a record buffer.
 //..
-//    bdlmca::DefaultDeleter<ball::Record> recordDeleter(basicAllocator);
+//    bdlma::DefaultDeleter<ball::Record> recordDeleter(basicAllocator);
 //    ball::FixedSizeRecordBuffer recordBuffer(MAX_TOTAL_SIZE, basicAllocator);
 //..
 // Note that since the record buffer will contain shared pointers to the
@@ -130,49 +125,22 @@ BSLS_IDENT("$Id: $")
 //    }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_COUNTINGALLOCATOR
 #include <ball_countingallocator.h>
-#endif
-
-#ifndef INCLUDED_BALL_RECORD
 #include <ball_record.h>
-#endif
-
-#ifndef INCLUDED_BALL_RECORDBUFFER
 #include <ball_recordbuffer.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_LOCKGUARD
 #include <bslmt_lockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_RECURSIVEMUTEX
 #include <bslmt_recursivemutex.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

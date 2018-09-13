@@ -105,7 +105,7 @@ static const struct {
     int         d_line;         // line number
     const char *d_inputString;  // input string
     const char *d_pattern;      // pattern
-    int         d_isValid;      // valid flag
+    bool        d_isValid;      // valid flag
     bool        d_value;        // expected value
 } DATA[] = {
     // Rows marked with 'ADD' indicate test data that added in order for every

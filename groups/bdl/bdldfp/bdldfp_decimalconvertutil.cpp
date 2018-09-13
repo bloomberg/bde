@@ -31,6 +31,7 @@ BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_cpp,"$Id$ $CSID$")
 #include <ctype.h>
 #include <bsl_cmath.h>
 #include <bsl_cfloat.h>
+#include <bsl_c_stdio.h>    // for 'snprintf'
 #include <bdlb_float.h>
 
 #include <math.h>

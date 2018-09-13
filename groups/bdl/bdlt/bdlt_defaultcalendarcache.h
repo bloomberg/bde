@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_DEFAULTCALENDARCACHE
 #define INCLUDED_BDLT_DEFAULTCALENDARCACHE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a process-wide default 'bdlt::CalendarCache' object.
@@ -116,13 +114,9 @@ BSLS_IDENT("$Id: $")
 // Note that destruction of the default cache would typically be done in 'main'
 // just prior to program termination.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
 namespace BloombergLP {
 
@@ -177,7 +171,7 @@ struct DefaultCalendarCache {
         // this method has no effect.  Return 0 on success, and a non-zero
         // value otherwise.  The behavior is undefined unless 'loader' and
         // 'allocator' remain valid until a subsequent call to 'destroy', and
-        // 'bsls::TimeInterval(0) <= timeout <= bsls::TimeInterval(INT_MAX)'.
+        // 'bsls::TimeInterval() <= timeout <= bsls::TimeInterval(INT_MAX, 0)'.
         // Note that a 'timeout' value of 0 indicates that a calendar will be
         // loaded into the default cache by *each* (successful) call to
         // 'CalendarCache::getCalendar' on the cache returned by 'instance'.
@@ -201,7 +195,7 @@ struct DefaultCalendarCache {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

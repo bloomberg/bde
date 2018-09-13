@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_CURRENTTIME
 #define INCLUDED_BDLT_CURRENTTIME
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities to retrieve the current time.
@@ -134,48 +132,20 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIMETZ
 #include <bdlt_datetimetz.h>
-#endif
-
-#ifndef INCLUDED_BDLT_EPOCHUTIL
 #include <bdlt_epochutil.h>
-#endif
-
-#ifndef INCLUDED_BDLT_LOCALTIMEOFFSET
 #include <bdlt_localtimeoffset.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BDLT_INTERVALCONVERSIONUTIL
 #include <bdlt_intervalconversionutil.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {

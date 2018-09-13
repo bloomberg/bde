@@ -2097,7 +2097,6 @@ int main(int argc, char *argv[])
             ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
 
             advanceN(reader, 3);  // XML declaration --> <Node0>
-            //advanceN(reader, 3);  // XML declaration --> <Node0>
 
             LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == 0);  // SKIP
 
@@ -2114,6 +2113,68 @@ int main(int argc, char *argv[])
                                       balxml::Reader::e_NODE_TYPE_END_ELEMENT);
             LOOP_ASSERT(reader.nodeName(),
                         !bsl::strcmp(reader.nodeName(), "xs:schema"));
+
+            reader.close();
+        }
+
+        if (veryVerbose) {
+            bsl::cout << "\nDRQS 118964602 - Failure due to attributes"
+                         "\n - - - - - - - - - - - - - - - - - - - - -"
+                      << bsl::endl;
+        }
+        {
+            static const char xmlStr[] =
+              "<aaa><bbb attr=\"1\"><bbb attr=\"2\"></bbb></bbb></aaa>";
+
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            advanceN(reader, 2);  // aaa --> first bbb
+
+            LOOP_ASSERT(reader.nodeType(),
+                        reader.nodeType() ==
+                                          balxml::Reader::e_NODE_TYPE_ELEMENT);
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "bbb"));
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == 0);  // SKIP
+
+            LOOP_ASSERT(reader.nodeType(),
+                        reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "bbb"));
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToNextNode()) == 0); // to /aaa
+
+            LOOP_ASSERT(reader.nodeType(),
+                        reader.nodeType() ==
+                                      balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "aaa"));
+
+            reader.close();
+        }
+        { // Bad xml, second bbb has attribute but no closing '>'
+            static const char xmlStr[] =
+                                        "<aaa><bbb attr=\"1\"><bbb attr=\"2\"";
+
+            int rc = reader.open(xmlStr, bsl::strlen(xmlStr));
+            ASSERT(-1 < rc);
+            ASSERT(reader.isOpen());
+            ASSERT(reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+
+            advanceN(reader, 2);  // aaa --> first bbb
+
+            LOOP_ASSERT(reader.nodeType(),
+                        reader.nodeType() ==
+                                          balxml::Reader::e_NODE_TYPE_ELEMENT);
+            LOOP_ASSERT(reader.nodeName(),
+                        !bsl::strcmp(reader.nodeName(), "bbb"));
+
+            LOOP_ASSERT(rc, (rc = reader.advanceToEndNodeRaw()) == -2);
 
             reader.close();
         }
@@ -4066,8 +4127,7 @@ int main(int argc, char *argv[])
       }
     }
 
-    if (testStatus > 0)
-    {
+    if (testStatus > 0) {
         bsl::cerr << "Error, non-zero test status = " << testStatus << "."
                   << bsl::endl;
     }

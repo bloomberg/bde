@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALM_METRICDESCRIPTION
 #define INCLUDED_BALM_METRICDESCRIPTION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a description for a metric.
@@ -84,33 +82,17 @@ BSLS_IDENT("$Id: $")
 //  metricC: MyCategory.C
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALM_PUBLICATIONTYPE
 #include <balm_publicationtype.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_LOCKGUARD
 #include <bslmt_lockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
 
 namespace BloombergLP {
 

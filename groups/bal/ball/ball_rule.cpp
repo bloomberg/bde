@@ -8,9 +8,13 @@ BSLS_IDENT_RCSID(ball_rule_cpp,"$Id$ $CSID$")
 #include <ball_defaultattributecontainer.h>     // for testing only
 
 #include <bdlb_hashutil.h>
+
 #include <bslim_printer.h>
 
-#include <bsl_iostream.h>
+#include <bsls_assert.h>
+
+#include <bsl_climits.h>
+#include <bsl_ostream.h>
 
 namespace BloombergLP {
 namespace ball {
@@ -22,12 +26,14 @@ namespace ball {
 // CLASS METHODS
 int Rule::hash(const Rule& rule, int size)
 {
+    BSLS_ASSERT(0 < size);
+
     if (rule.d_hashValue < 0 || rule.d_hashSize != size) {
         rule.d_hashValue = PredicateSet::hash(rule.d_predicateSet, size)
                       + ThresholdAggregate::hash(rule.d_thresholds, size)
                       + bdlb::HashUtil::hash0(rule.d_pattern.c_str(), size);
+        rule.d_hashValue &= INT_MAX;  // clear sign bit
         rule.d_hashValue %= size;
-        rule.d_hashValue &= ~(1 << (sizeof(int) * 8 - 1));  // clear sign bit
         rule.d_hashSize = size;
     }
     return rule.d_hashValue;

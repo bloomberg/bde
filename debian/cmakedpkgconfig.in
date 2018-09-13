@@ -1,0 +1,170 @@
+{
+    "bdemeta": "bsl-internal",
+    "platforms": {
+        "amd64": [
+            {
+                "ufids": [ "opt_exc_mt", "opt_exc_mt_64" ],
+                "targets": [ "all" ],
+                "install": {
+                    "libbal-dev": [ "bal", "bal-symlinks",
+                                    "bal-headers", "bal-meta",
+                                    "bal-release-symlink", "bal-pkgconfig" ],
+                    "libbbl-dev": [ "bbl", "bbl-symlinks",
+                                    "bbl-headers", "bbl-meta",
+                                    "bbl-release-symlink", "bbl-pkgconfig" ],
+                    "libbdl-dev": [ "bdl", "bdl-symlinks",
+                                    "bdl-headers", "bdl-meta",
+                                    "bdl-release-symlink", "bdl-pkgconfig" ],
+                    "libbsl-dev": [ "bsl", "bsl-symlinks",
+                                    "bsl-headers", "bsl-meta",
+                                    "bsl-release-symlink", "bsl-pkgconfig" ],
+                    "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks",
+                                          "inteldfp-headers", "inteldfp-meta",
+                                          "inteldfp-release-symlink",
+                                          "inteldfp-pkgconfig" ],
+                    "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
+                                          "pcre2-headers", "pcre2-meta",
+                                          "pcre2-release-symlink",
+                                          "pcre2-pkgconfig" ],
+                    "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
+                                          "decnumber-headers", "decnumber-meta",
+                                          "decnumber-release-symlink",
+                                          "decnumber-pkgconfig" ]
+                }
+            },
+            {
+                "ufids": [ "opt_dbg_exc_mt", "opt_dbg_exc_mt_64",
+                           "opt_exc_mt_pic",
+                           "dbg_exc_mt", "dbg_exc_mt_64",
+                           "dbg_exc_mt_safe", "dbg_exc_mt_64_safe"],
+                "targets": [ "all" ],
+                "install": {
+                    "libbal-dev": [ "bal", "bal-symlinks" ],
+                    "libbbl-dev": [ "bbl", "bbl-symlinks" ],
+                    "libbdl-dev": [ "bdl", "bdl-symlinks" ],
+                    "libbsl-dev": [ "bsl", "bsl-symlinks" ],
+                    "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks" ],
+                    "libpcre2-dev":     [ "pcre2", "pcre2-symlinks" ],
+                    "libdecnumber-dev": [ "decnumber", "decnumber-symlinks" ]
+                }
+            },
+            {
+                "ufids": [ "opt_exc_mt_shr", "opt_exc_mt_64_shr" ],
+                "targets": [ "bsl" ],
+                "install": {
+                    "libbsl-rs${shlib:RSSUITE}": [ "bsl" ]
+                }
+            }
+        ],
+        "aix6_powerpc": [
+            {
+                "ufids": [ "opt_exc_mt", "opt_exc_mt_64" ],
+                "targets": [ "all" ],
+                "install": {
+                    "libbal-dev": [ "bal", "bal-symlinks",
+                                    "bal-headers", "bal-meta",
+                                    "bal-release-symlink", "bal-pkgconfig" ],
+                    "libbbl-dev": [ "bbl", "bbl-symlinks",
+                                    "bbl-headers", "bbl-meta",
+                                    "bbl-release-symlink", "bbl-pkgconfig" ],
+                    "libbdl-dev": [ "bdl", "bdl-symlinks",
+                                    "bdl-headers", "bdl-meta",
+                                    "bdl-release-symlink", "bdl-pkgconfig" ],
+                    "libbsl-dev": [ "bsl", "bsl-symlinks",
+                                    "bsl-headers", "bsl-meta",
+                                    "bsl-release-symlink", "bsl-pkgconfig" ],
+                    "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks",
+                                          "inteldfp-headers", "inteldfp-meta",
+                                          "inteldfp-release-symlink",
+                                          "inteldfp-pkgconfig" ],
+                    "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
+                                          "pcre2-headers", "pcre2-meta",
+                                          "pcre2-release-symlink",
+                                          "pcre2-pkgconfig" ],
+                    "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
+                                          "decnumber-headers", "decnumber-meta",
+                                          "decnumber-release-symlink",
+                                          "decnumber-pkgconfig" ]
+                }
+            },
+            {
+                "ufids": [ "opt_dbg_exc_mt", "opt_dbg_exc_mt_64",
+                           "opt_exc_mt_pic",
+                           "dbg_exc_mt", "dbg_exc_mt_64",
+                           "dbg_exc_mt_safe", "dbg_exc_mt_64_safe"],
+                "targets": [ "all" ],
+                "install": {
+                    "libbal-dev": [ "bal", "bal-symlinks" ],
+                    "libbbl-dev": [ "bbl", "bbl-symlinks" ],
+                    "libbdl-dev": [ "bdl", "bdl-symlinks" ],
+                    "libbsl-dev": [ "bsl", "bsl-symlinks" ],
+                    "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks" ],
+                    "libpcre2-dev":     [ "pcre2", "pcre2-symlinks" ],
+                    "libdecnumber-dev": [ "decnumber", "decnumber-symlinks" ]
+                }
+            },
+            {
+                "ufids": [ "opt_exc_mt_shr", "opt_exc_mt_64_shr" ],
+                "targets": [ "bsl" ],
+                "install": {
+                    "libbsl-rs${shlib:RSSUITE}": [ "bsl" ]
+                }
+            }
+        ],
+        "solaris10_sparc": [
+            {
+                "ufids": [ "opt_exc_mt", "opt_exc_mt_64" ],
+                "targets": [ "all" ],
+                "install": {
+                    "libbal-dev": [ "bal", "bal-symlinks",
+                                    "bal-headers", "bal-meta",
+                                    "bal-release-symlink", "bal-pkgconfig" ],
+                    "libbbl-dev": [ "bbl", "bbl-symlinks",
+                                    "bbl-headers", "bbl-meta",
+                                    "bbl-release-symlink", "bbl-pkgconfig" ],
+                    "libbdl-dev": [ "bdl", "bdl-symlinks",
+                                    "bdl-headers", "bdl-meta",
+                                    "bdl-release-symlink", "bdl-pkgconfig" ],
+                    "libbsl-dev": [ "bsl", "bsl-symlinks",
+                                    "bsl-headers", "bsl-meta",
+                                    "bsl-release-symlink", "bsl-pkgconfig" ],
+                    "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks",
+                                          "inteldfp-headers", "inteldfp-meta",
+                                          "inteldfp-release-symlink",
+                                          "inteldfp-pkgconfig" ],
+                    "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
+                                          "pcre2-headers", "pcre2-meta",
+                                          "pcre2-release-symlink",
+                                          "pcre2-pkgconfig" ],
+                    "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
+                                          "decnumber-headers", "decnumber-meta",
+                                          "decnumber-release-symlink",
+                                          "decnumber-pkgconfig" ]
+                }
+            },
+            {
+                "ufids": [ "opt_dbg_exc_mt", "opt_dbg_exc_mt_64",
+                           "opt_exc_mt_pic",
+                           "dbg_exc_mt", "dbg_exc_mt_64",
+                           "dbg_exc_mt_safe", "dbg_exc_mt_64_safe"],
+                "targets": [ "all" ],
+                "install": {
+                    "libbal-dev": [ "bal", "bal-symlinks" ],
+                    "libbbl-dev": [ "bbl", "bbl-symlinks" ],
+                    "libbdl-dev": [ "bdl", "bdl-symlinks" ],
+                    "libbsl-dev": [ "bsl", "bsl-symlinks" ],
+                    "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks" ],
+                    "libpcre2-dev":     [ "pcre2", "pcre2-symlinks" ],
+                    "libdecnumber-dev": [ "decnumber", "decnumber-symlinks" ]
+                }
+            },
+            {
+                "ufids": [ "opt_exc_mt_shr", "opt_exc_mt_64_shr" ],
+                "targets": [ "bsl" ],
+                "install": {
+                    "libbsl-rs${shlib:RSSUITE}": [ "bsl" ]
+                }
+            }
+        ]
+    }
+}

@@ -276,13 +276,15 @@ BSLMF_ASSERT(numWindowsToZoneinfoIds == numZoneinfoToWindowsIds);
 
 }  // close unnamed namespace
 
+namespace baltzo {
+
                          // --------------------------
                          // struct WindowsTimeZoneUtil
                          // --------------------------
 
 // CLASS METHODS
-int baltzo::WindowsTimeZoneUtil::getZoneinfoId(const char **result,
-                                               const char  *windowsTimeZoneId)
+int WindowsTimeZoneUtil::getZoneinfoId(const char **result,
+                                       const char  *windowsTimeZoneId)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(windowsTimeZoneId);
@@ -301,8 +303,8 @@ int baltzo::WindowsTimeZoneUtil::getZoneinfoId(const char **result,
     return 0;
 }
 
-int baltzo::WindowsTimeZoneUtil::getWindowsTimeZoneId(const char **result,
-                                                      const char  *zoneinfoId)
+int WindowsTimeZoneUtil::getWindowsTimeZoneId(const char **result,
+                                              const char  *zoneinfoId)
 {
     BSLS_ASSERT(result);
     BSLS_ASSERT(zoneinfoId);
@@ -321,10 +323,11 @@ int baltzo::WindowsTimeZoneUtil::getWindowsTimeZoneId(const char **result,
     return 0;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

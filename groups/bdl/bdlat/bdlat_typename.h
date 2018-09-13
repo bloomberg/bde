@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLAT_TYPENAME
 #define INCLUDED_BDLAT_TYPENAME
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide string representations for data type names.
@@ -239,81 +237,32 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_BDEATOVERRIDES
 #include <bdlat_bdeatoverrides.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_FORMATTINGMODE
 #include <bdlat_formattingmode.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPETRAITS
 #include <bdlat_typetraits.h>
-#endif
 
-#ifndef INCLUDED_BDLDFP_DECIMAL
 #include <bdldfp_decimal.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIMETZ
 #include <bdlt_datetimetz.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETZ
 #include <bdlt_datetz.h>
-#endif
-
-#ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
-#endif
-
-#ifndef INCLUDED_BDLT_TIMETZ
 #include <bdlt_timetz.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
 #include <bslalg_hastrait.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_SWITCH
 #include <bslmf_switch.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSL_TYPEINFO
 #include <bsl_typeinfo.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
 
 
 
@@ -771,15 +720,20 @@ const char *bdlat_TypeName_Imp::name(const bsl::vector<TYPE> *)
     static const int MAX_LEN = 100;
     static char name[MAX_LEN + 1];
     static bool initialized = false;
+    static TYPE * volatile pointer;
 
     if (! initialized) {
         // This is thread-safe because even if two threads execute this code
         // simultaneously, the same values will be written on top of each
-        // other (i.e., the operations are idempotent).
+        // other (i.e., the operations are idempotent).  Note that the object
+        // obtained by dereferencing 'pointer' does not exist, since 'pointer'
+        // is null, but since it's just used for static type dispatching, it's
+        // harmless.  This code used to have the more straightforward
+        // '*(TYPE*)0' until compilers started noticing.
 
         const char *segments[3] = {
             (const char*)BDLAT_NAME_VECTOR_BEGIN,
-            bdlat_TypeName::name(*(TYPE*)0),
+            bdlat_TypeName::name(*pointer),
             (const char*)BDLAT_NAME_VECTOR_END,
         };
 

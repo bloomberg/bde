@@ -10,14 +10,10 @@
 #ifndef INCLUDED_BALXML_HEXPARSER
 #define INCLUDED_BALXML_HEXPARSER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide push parser for hex types.
-//
-//@DEPRECATED: This functionality will be moved to bdede w/ a new interface.
 //
 //@CLASSES:
 //   balxml::HexParser: push parser for hex types
@@ -32,6 +28,10 @@ BSLS_IDENT("$Id: $")
 // component can be used to parse Hex characters into one of the supported Hex
 // types, which are 'bsl::vector<char>' and 'bsl::string'.  The 'TYPE'
 // parameter can be one of these two types.
+//
+// Note that if you need a way to encode binary data into ASCII, the
+// 'bdlde_base64encoder' and 'bdlde_base64decoder' components are likely a more
+// efficient solution.
 //
 // This class template is a model of the 'PushParser' concept, which contains
 // the following methods:
@@ -113,21 +113,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
 #include <bdlat_valuetypefunctions.h>
-#endif
 
-#ifndef INCLUDED_BDLB_CHARTYPE
 #include <bdlb_chartype.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 

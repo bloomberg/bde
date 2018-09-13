@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALJSN_DECODER
 #define INCLUDED_BALJSN_DECODER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a JSON decoder for 'bdeat' compatible types.
@@ -127,93 +125,35 @@ BSLS_IDENT("$Id: $")
 //  assert(21              == employee.age());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALJSN_DECODEROPTIONS
 #include <baljsn_decoderoptions.h>
-#endif
-
-#ifndef INCLUDED_BALJSN_PARSERUTIL
 #include <baljsn_parserutil.h>
-#endif
-
-#ifndef INCLUDED_BALJSN_TOKENIZER
 #include <baljsn_tokenizer.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
 #include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_CHOICEFUNCTIONS
 #include <bdlat_choicefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 #include <bdlat_customizedtypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ENUMFUNCTIONS
 #include <bdlat_enumfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_FORMATTINGMODE
 #include <bdlat_formattingmode.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_SELECTIONINFO
 #include <bdlat_selectioninfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_SEQUENCEFUNCTIONS
 #include <bdlat_sequencefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPECATEGORY
 #include <bdlat_typecategory.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
 #include <bdlat_valuetypefunctions.h>
-#endif
 
-#ifndef INCLUDED_BDLB_PRINTMETHODS
 #include <bdlb_printmethods.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_LOCALSEQUENTIALALLOCATOR
 #include <bdlma_localsequentialallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSTREAM
 #include <bsl_iostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_SSTREAM
 #include <bsl_sstream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace baljsn {

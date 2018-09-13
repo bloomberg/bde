@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALBER_BERDECODER
 #define INCLUDED_BALBER_BERDECODER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a BER decoder class.
@@ -93,97 +91,37 @@ BSLS_IDENT("$Id: $")
 //  assert(bob.salary() == obj.salary());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALBER_BERCONSTANTS
 #include <balber_berconstants.h>
-#endif
-
-#ifndef INCLUDED_BALBER_BERDECODEROPTIONS
 #include <balber_berdecoderoptions.h>
-#endif
-
-#ifndef INCLUDED_BALBER_BERUNIVERSALTAGNUMBER
 #include <balber_beruniversaltagnumber.h>
-#endif
-
-#ifndef INCLUDED_BALBER_BERUTIL
 #include <balber_berutil.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_ARRAYFUNCTIONS
 #include <bdlat_arrayfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_CHOICEFUNCTIONS
 #include <bdlat_choicefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 #include <bdlat_customizedtypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ENUMFUNCTIONS
 #include <bdlat_enumfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_FORMATTINGMODE
 #include <bdlat_formattingmode.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_NULLABLEVALUEFUNCTIONS
 #include <bdlat_nullablevaluefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_SEQUENCEFUNCTIONS
 #include <bdlat_sequencefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPECATEGORY
 #include <bdlat_typecategory.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
 #include <bdlat_valuetypefunctions.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
-#ifndef INCLUDED_BDLB_VARIANT
 #include <bdlb_variant.h>
-#endif
 
-#ifndef INCLUDED_BDLSB_MEMOUTSTREAMBUF
 #include <bdlsb_memoutstreambuf.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
-#endif
 
-#ifndef INCLUDED_BSL_ISTREAM
 #include <bsl_istream.h>
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace balber {
@@ -393,6 +331,8 @@ class BerDecoder_Node {
   private:
     // PRIVATE MANIPULATORS
     int decode(bsl::vector<char> *variable, bdlat_TypeCategory::Array);
+    int decode(bsl::vector<unsigned char> *variable,
+               bdlat_TypeCategory::Array);
     template <typename TYPE>
     int decode(TYPE *variable, bdlat_TypeCategory::Array);
     template <typename TYPE>
@@ -489,7 +429,11 @@ class BerDecoder_Node {
         // positioned at the first byte of the body field.
 
     int readVectorChar(bsl::vector<char> *variable);
-        // Read the node body content into specified 'variable'.  Return zero
+        // Load the node body content into the specified 'variable'.  Return 0
+        // on success, and a non-zero value otherwise.
+
+    int readVectorUnsignedChar(bsl::vector<unsigned char> *variable);
+        // Load the node body content into the specified 'variable'.  Return 0
         // on success, and a non-zero value otherwise.
 
     // ACCESSORS
@@ -1022,6 +966,9 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::CustomizedType)
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wuninitialized"
+#ifndef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 #endif
 
     BaseType base;
@@ -1137,7 +1084,8 @@ template <typename TYPE>
 inline
 int BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Array)
 {
-    // Note: 'bsl::vector<char>' is handled as a special case in the CPP file.
+    // Note: 'bsl::vector<char>' and 'bsl::vector<unsigned char>' are
+    // handled as special cases in the CPP file.
 
     return this->decodeArray(variable);
 }

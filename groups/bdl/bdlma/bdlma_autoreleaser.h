@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLMA_AUTORELEASER
 #define INCLUDED_BDLMA_AUTORELEASER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Release memory to a managed allocator or pool at destruction.
@@ -230,9 +228,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlma {

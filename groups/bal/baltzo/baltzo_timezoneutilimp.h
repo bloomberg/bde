@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_TIMEZONEUTILIMP
 #define INCLUDED_BALTZO_TIMEZONEUTILIMP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Implement utilities for converting times between time zones.
@@ -137,33 +135,16 @@ BSLS_IDENT("$Id: $")
 //  assert(-5 * 60                         == localNYTime.offset());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALTZO_DSTPOLICY
 #include <baltzo_dstpolicy.h>
-#endif
-
-#ifndef INCLUDED_BALTZO_LOCALTIMEVALIDITY
 #include <baltzo_localtimevalidity.h>
-#endif
-
-#ifndef INCLUDED_BALTZO_ZONEINFO
 #include <baltzo_zoneinfo.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIMETZ
 #include <bdlt_datetimetz.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace baltzo {

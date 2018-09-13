@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_DATETIMEIMPUTIL
 #define INCLUDED_BDLT_DATETIMEIMPUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide constants useful for encoding datetimes.
@@ -36,13 +34,9 @@ BSLS_IDENT("$Id: $")
 //               &bdlt::DatetimeImpUtil::k_0001_01_01_VALUE) == firstDatetime);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

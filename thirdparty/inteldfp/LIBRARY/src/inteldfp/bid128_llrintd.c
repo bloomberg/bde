@@ -54,7 +54,7 @@ bid128_llrint (long long int *pres, BID_UINT128 *px
   unsigned int rnd_mode = *prnd_mode;
 #endif
 #else
-RES_WRAPFN_DFP(long long int, bid128_llrint, 128);    
+RES_WRAPFN_DFP(long long int, bid128_llrint, 128)
 long long int
 bid128_llrint (BID_UINT128 x _RND_MODE_PARAM _EXC_FLAGS_PARAM
     _EXC_MASKS_PARAM _EXC_INFO_PARAM) {

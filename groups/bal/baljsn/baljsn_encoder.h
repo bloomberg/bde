@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALJSN_ENCODER
 #define INCLUDED_BALJSN_ENCODER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a JSON encoder for 'bdeat' compatible types.
@@ -39,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // bulky to transmit.  It is more efficient to use a binary encoding (such as
 // BER) if the encoding format is under your control (see 'balber_berencoder').
 //
-// Refer to the details of the JSON encoding format supported by this decoder
+// Refer to the details of the JSON encoding format supported by this encoder
 // in the package documentation file (doc/baljsn.txt).
 //
 ///Usage
@@ -134,85 +132,32 @@ BSLS_IDENT("$Id: $")
 //  assert(EXP_OUTPUT == os.str());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALJSN_ENCODEROPTIONS
 #include <baljsn_encoderoptions.h>
-#endif
-
-#ifndef INCLUDED_BALJSN_PRINTUTIL
+#include <baljsn_formatter.h>
 #include <baljsn_printutil.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_ATTRIBUTEINFO
 #include <bdlat_attributeinfo.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_CHOICEFUNCTIONS
 #include <bdlat_choicefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 #include <bdlat_customizedtypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_CUSTOMIZEDTYPEFUNCTIONS
 #include <bdlat_customizedtypefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_ENUMFUNCTIONS
 #include <bdlat_enumfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_FORMATTINGMODE
 #include <bdlat_formattingmode.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_SEQUENCEFUNCTIONS
 #include <bdlat_sequencefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPECATEGORY
 #include <bdlat_typecategory.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_VALUETYPEFUNCTIONS
 #include <bdlat_valuetypefunctions.h>
-#endif
 
-#ifndef INCLUDED_BDLB_PRINT
 #include <bdlb_print.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSTREAM
 #include <bsl_iostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_SSTREAM
 #include <bsl_sstream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace baljsn {
@@ -317,94 +262,6 @@ class Encoder {
         // log is reset each time 'encode' is called.
 };
 
-                          // =======================
-                          // class Encoder_Formatter
-                          // =======================
-
-class Encoder_Formatter {
-    // This class implements a formatter providing operations for rending JSON
-    // text elements to an output stream (supplied at construction) according
-    // to a set of formatting options (also supplied at construction).  This is
-    // a component-private class and should not be used outside of this
-    // component.
-
-    // DATA
-    bsl::ostream& d_outputStream;     // stream for output (held, not owned)
-    bool          d_usePrettyStyle;   // encoding style
-    int           d_indentLevel;      // initial indent level
-    int           d_spacesPerLevel;   // spaces per level
-    bool          d_isArrayElement;   // is current element part of an array
-
-  public:
-    // CREATORS
-    Encoder_Formatter(bsl::ostream& stream, const EncoderOptions& options);
-        // Create a 'Encoder_Formatter' object using the specified 'stream' and
-        // 'options'.
-
-    //! ~Encoder_Formatter() = default;
-        // Destroy this object.
-
-    // MANIPULATORS
-    void openObject();
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an object.
-
-    void closeObject();
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of an object.
-
-    void openArray(bool formatAsEmptyArrayFlag = false);
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an array.  Optionally specify
-        // 'formatAsEmptyArrayFlag' denoting if the array being opened should
-        // be formatted as an empty array.  If 'formatAsEmptyArrayFlag' is not
-        // specified then the array being opened is formatted as an array
-        // having elements.  Note that the formatting (and as a consequence the
-        // 'formatAsEmptyArrayFlag') is relevant only if this formatter encodes
-        // in the pretty style and is ignored otherwise.
-
-    void closeArray(bool formatAsEmptyArrayFlag = false);
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of an array.  Optionally specify
-        // 'formatAsEmptyArrayFlag' denoting if the array being closed should
-        // be formatted as an empty array.  If 'formatAsEmptyArrayFlag' is not
-        // specified then the array being closed is formatted as an array
-        // having elements.  Note that the formatting (and as a consequence the
-        // 'formatAsEmptyArrayFlag') is relevant only if this formatter encodes
-        // in the pretty style and is ignored otherwise.
-
-    void indent();
-        // Print onto the stream supplied at construction the sequence of
-        // whitespace characters for the proper indentation of an element given
-        // the encoding options supplied at construction.
-
-    int openElement(const bsl::string& name);
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of an element having the specified
-        // 'name'.  Return 0 on success and a non-zero value otherwise.
-
-    void closeElement();
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of an element.
-
-    void openDocument();
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the start of the document.
-
-    void closeDocument();
-        // Print onto the stream supplied at construction the sequence of
-        // characters designating the end of the document.
-
-    void setIsArrayElement(bool isArrayElement);
-        // Set the flag denoting if the current element refers to an array
-        // element to the specified 'isArrayElement'.
-
-    // ACCESSORS
-    bool isArrayElement() const;
-        // Return the value of the flag denoting if the current element refers
-        // to an array element.
-};
-
                           // ========================
                           // class Encoder_EncodeImpl
                           // ========================
@@ -416,16 +273,16 @@ class Encoder_EncodeImpl {
 
     // DATA
     Encoder                       *d_encoder_p;         // encoder
-                                                               // (held, not
-                                                               // owned)
+                                                        // (held, not
+                                                        // owned)
 
-    bsl::ostream                          d_outputStream;      // stream for
-                                                               // output
+    bsl::ostream                   d_outputStream;      // stream for
+                                                        // output
 
-    Encoder_Formatter              d_formatter;         // formatter
+    Formatter                      d_formatter;         // formatter
 
     const EncoderOptions          *d_encoderOptions_p;  // encoder
-                                                               // options
+                                                        // options
 
     // FRIENDS
     friend struct Encoder_DynamicTypeDispatcher;
@@ -736,23 +593,6 @@ bsl::string Encoder::loggedMessages() const
     return d_logStream.str();
 }
 
-                        // ------------------------------
-                        // class Encoder_Formatter
-                        // ------------------------------
-// MANIPULATORS
-inline
-void Encoder_Formatter::setIsArrayElement(bool isArrayElement)
-{
-    d_isArrayElement = isArrayElement;
-}
-
-// ACCESSORS
-inline
-bool Encoder_Formatter::isArrayElement() const
-{
-    return d_isArrayElement;
-}
-
                           // ------------------------
                           // class Encoder_EncodeImpl
                           // ------------------------
@@ -801,8 +641,7 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&                value,
                                   int,
                                   bdlat_TypeCategory::Simple)
 {
-    d_formatter.indent();
-    return PrintUtil::printValue(d_outputStream, value, d_encoderOptions_p);
+    return d_formatter.putValue(value, d_encoderOptions_p);
 }
 
 template <class TYPE>
@@ -816,16 +655,10 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&                  value,
 
     Encoder_SequenceVisitor visitor(this);
 
-    const bool isArrayElement = d_formatter.isArrayElement();
-
-    d_formatter.setIsArrayElement(false);
-
     const int rc = bdlat_SequenceFunctions::accessAttributes(value, visitor);
     if (rc) {
         return rc;                                                    // RETURN
     }
-
-    d_formatter.setIsArrayElement(isArrayElement);
 
     if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
         d_formatter.closeObject();
@@ -847,16 +680,10 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&                value,
 
         Encoder_ElementVisitor visitor = { this, mode };
 
-        const bool isArrayElement = d_formatter.isArrayElement();
-
-        d_formatter.setIsArrayElement(false);
-
         const int rc = bdlat_ChoiceFunctions::accessSelection(value, visitor);
         if (rc) {
             return rc;                                                // RETURN
         }
-
-        d_formatter.setIsArrayElement(isArrayElement);
 
         if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
             d_formatter.closeObject();
@@ -880,22 +707,18 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&               value,
 
         Encoder_ElementVisitor visitor = { this, mode };
 
-        d_formatter.setIsArrayElement(true);
-
         int rc = bdlat_ArrayFunctions::accessElement(value, visitor, 0);
         if (rc) {
             return rc;                                                // RETURN
         }
 
         for (int i = 1; i < size; ++i) {
-            d_formatter.closeElement();
+            d_formatter.closeMember();
             rc = bdlat_ArrayFunctions::accessElement(value, visitor, i);
             if (rc) {
                 return rc;                                            // RETURN
             }
         }
-
-        d_formatter.setIsArrayElement(false);
 
         d_formatter.closeArray();
     }
@@ -913,8 +736,7 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&                       value,
                                   bdlat_TypeCategory::NullableValue)
 {
     if (bdlat_NullableValueFunctions::isNull(value)) {
-        d_formatter.indent();
-        d_outputStream << "null";
+        d_formatter.putNullValue();
         return 0;                                                     // RETURN
     }
 
@@ -937,7 +759,10 @@ Encoder_EncodeImpl::Encoder_EncodeImpl(Encoder               *encoder,
                                        const EncoderOptions&  options)
 : d_encoder_p(encoder)
 , d_outputStream(streambuf)
-, d_formatter(d_outputStream, options)
+, d_formatter(d_outputStream,
+              baljsn::EncoderOptions::e_PRETTY == options.encodingStyle(),
+              options.initialIndentLevel(),
+              options.spacesPerLevel())
 , d_encoderOptions_p(&options)
 {
 }
@@ -945,13 +770,21 @@ Encoder_EncodeImpl::Encoder_EncodeImpl(Encoder               *encoder,
 inline
 void Encoder_EncodeImpl::openDocument()
 {
-    d_formatter.openDocument();
+    if (baljsn::EncoderOptions::e_PRETTY ==
+                                         d_encoderOptions_p->encodingStyle()) {
+        bdlb::Print::indent(d_outputStream,
+                            d_encoderOptions_p->initialIndentLevel(),
+                            d_encoderOptions_p->spacesPerLevel());
+    }
 }
 
 inline
 void Encoder_EncodeImpl::closeDocument()
 {
-    d_formatter.closeDocument();
+    if (baljsn::EncoderOptions::e_PRETTY ==
+                                         d_encoderOptions_p->encodingStyle()) {
+        d_outputStream << '\n';
+    }
 }
 
 // ACCESSORS
@@ -1045,7 +878,7 @@ int Encoder_SequenceVisitor::operator()(const TYPE& value, const INFO& info)
     }
 
     if (!d_isFirstElement) {
-        d_encoder_p->d_formatter.closeElement();
+        d_encoder_p->d_formatter.closeMember();
     }
 
     d_isFirstElement = false;
@@ -1074,7 +907,7 @@ int Encoder_ElementVisitor::operator()(const TYPE& value, const INFO& info)
     const int mode = info.formattingMode();
     if (!(bdlat_FormattingMode::e_UNTAGGED & mode)) {
 
-        const int rc = d_encoder_p->d_formatter.openElement(info.name());
+        const int rc = d_encoder_p->d_formatter.openMember(info.name());
         if (rc) {
             d_encoder_p->logStream() << "Unable to encode element named: '"
                                      << info.name() << "'." << bsl::endl;
@@ -1113,6 +946,121 @@ int Encoder_DynamicTypeDispatcher::operator()(const TYPE&  value,
 {
     return d_encoder_p->encodeImp(value, d_mode, category);
 }
+
+// The 'Encoder_Formatter' 'class' has been replaced by the 'baljsn::Formatter'
+// 'class' in the 'baljsn_formatter' component.  Clients should use that
+// 'class' instead.  The following 'class' definition is provided for
+// backwards-compatibility for users that have written code using this
+// component-private 'class'.
+
+                          // =======================
+                          // class Encoder_Formatter
+                          // =======================
+
+class Encoder_Formatter {
+    // This class implements a formatter providing operations for rending JSON
+    // text elements to an output stream (supplied at construction) according
+    // to a set of formatting options (also supplied at construction).  This is
+    // a component-private class and should not be used outside of this
+    // component.
+    //
+    // DEPRECATED: Use 'baljsn::Formatter' instead.
+
+    // DATA
+    bsl::ostream& d_outputStream;     // stream for output (held, not owned)
+    bool          d_usePrettyStyle;   // encoding style
+    int           d_indentLevel;      // initial indent level
+    int           d_spacesPerLevel;   // spaces per level
+    bool          d_isArrayElement;   // is current element part of an array
+
+  public:
+    // CREATORS
+    Encoder_Formatter(bsl::ostream& stream, const EncoderOptions& options);
+        // Create a 'Encoder_Formatter' object using the specified 'stream' and
+        // 'options'.
+
+    //! ~Encoder_Formatter() = default;
+        // Destroy this object.
+
+    // MANIPULATORS
+    void openObject();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the start of an object.
+
+    void closeObject();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the end of an object.
+
+    void openArray(bool formatAsEmptyArrayFlag = false);
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the start of an array.  Optionally specify
+        // 'formatAsEmptyArrayFlag' denoting if the array being opened should
+        // be formatted as an empty array.  If 'formatAsEmptyArrayFlag' is not
+        // specified then the array being opened is formatted as an array
+        // having elements.  Note that the formatting (and as a consequence the
+        // 'formatAsEmptyArrayFlag') is relevant only if this formatter encodes
+        // in the pretty style and is ignored otherwise.
+
+    void closeArray(bool formatAsEmptyArrayFlag = false);
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the end of an array.  Optionally specify
+        // 'formatAsEmptyArrayFlag' denoting if the array being closed should
+        // be formatted as an empty array.  If 'formatAsEmptyArrayFlag' is not
+        // specified then the array being closed is formatted as an array
+        // having elements.  Note that the formatting (and as a consequence the
+        // 'formatAsEmptyArrayFlag') is relevant only if this formatter encodes
+        // in the pretty style and is ignored otherwise.
+
+    void indent();
+        // Print onto the stream supplied at construction the sequence of
+        // whitespace characters for the proper indentation of an element given
+        // the encoding options supplied at construction.
+
+    int openElement(const bsl::string& name);
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the start of an element having the specified
+        // 'name'.  Return 0 on success and a non-zero value otherwise.
+
+    void closeElement();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the end of an element.
+
+    void openDocument();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the start of the document.
+
+    void closeDocument();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating the end of the document.
+
+    void setIsArrayElement(bool isArrayElement);
+        // Set the flag denoting if the current element refers to an array
+        // element to the specified 'isArrayElement'.
+
+    // ACCESSORS
+    bool isArrayElement() const;
+        // Return the value of the flag denoting if the current element refers
+        // to an array element.
+};
+
+                        // -----------------------
+                        // class Encoder_Formatter
+                        // -----------------------
+
+// MANIPULATORS
+inline
+void Encoder_Formatter::setIsArrayElement(bool isArrayElement)
+{
+    d_isArrayElement = isArrayElement;
+}
+
+// ACCESSORS
+inline
+bool Encoder_Formatter::isArrayElement() const
+{
+    return d_isArrayElement;
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace

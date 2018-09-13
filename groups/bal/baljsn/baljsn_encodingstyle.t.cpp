@@ -1,4 +1,4 @@
-// baljsn_encodingstyle.t.cpp                                     -*-C++-*-
+// baljsn_encodingstyle.t.cpp                                         -*-C++-*-
 
 #include <baljsn_encodingstyle.h>
 
@@ -119,11 +119,11 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose = argc > 4;
 
     (void)veryVerbose;
-    
+
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bslma::TestAllocator defaultAllocator(veryVeryVerbose);
-    bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     bslma::TestAllocator globalAllocator(veryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

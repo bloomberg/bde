@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLD_DATUMMAPBUILDER
 #define INCLUDED_BDLD_DATUMMAPBUILDER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide a utility to build a 'Datum' object holding a map.
@@ -104,21 +102,13 @@ BSLS_IDENT("$Id$ $CSID$")
 //  assert(0 == ta.numBytesInUse());
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLD_DATUM
 #include <bdld_datum.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 

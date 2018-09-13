@@ -6,6 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslalg_bidirectionallinklistutil.h>
 #include <bslalg_hashtableanchor.h>
+#include <bslalg_scalarprimitives.h>            // for testing only
 
 #include <bsls_types.h>
 

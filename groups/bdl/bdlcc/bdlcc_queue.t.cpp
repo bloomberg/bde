@@ -174,9 +174,6 @@ typedef bdlcc::Queue<Element> Obj;
 static const double DECI_SEC      = 0.1;
                                      // 1 decisecond (i.e., 1/10th of a second)
 
-static const int MICRO_SEC_IN_SEC = 100000;
-                                         // number of micro seconds in a second
-
 static const int MICRO_DECI_SEC =    10000;
                                        // number of micro seconds in .1 seconds
 
@@ -3394,7 +3391,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_ T_ P_(ti); P(V[ti]); }
             }
 
-            Obj x(&ta);    const Obj& X = x;
+            Obj x(&ta);
 
             if (verbose) cout << "\t\t'pushBack' && 'length'\n";
             {

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALB_PERFORMANCEMONITOR
 #define INCLUDED_BALB_PERFORMANCEMONITOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a mechanism to collect process performance measures.
@@ -167,77 +165,36 @@ BSLS_IDENT("$Id: $")
 //  scheduler.stop();
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_READLOCKGUARD
 #include <bslmt_readlockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_RWMUTEX
 #include <bslmt_rwmutex.h>
-#endif
 
-#ifndef INCLUDED_BDLMT_TIMEREVENTSCHEDULER
 #include <bdlmt_timereventscheduler.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
-
-#ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
-
 namespace balb {
+
                           // ========================
                           // class PerformanceMonitor
                           // ========================
@@ -649,27 +606,26 @@ typedef bsls::Platform::OsHpUx OsType;
     int numRegisteredPids() const;
         // Return the number of processes registered for statistics collection.
 };
-}  // close package namespace
 
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
 
-               // ---------------------------------------------
-               // class balb::PerformanceMonitor::ConstIterator
-               // ---------------------------------------------
+               // ---------------------------------------
+               // class PerformanceMonitor::ConstIterator
+               // ---------------------------------------
 
 // CREATORS
 inline
-balb::PerformanceMonitor::ConstIterator::ConstIterator()
+PerformanceMonitor::ConstIterator::ConstIterator()
 : d_it()
 {
 }
 
 inline
-balb::PerformanceMonitor::ConstIterator::ConstIterator(
-               balb::PerformanceMonitor::PidMap::const_iterator  it,
-               bslmt::RWMutex                                   *mapGuard)
+PerformanceMonitor::ConstIterator::ConstIterator(
+                          PerformanceMonitor::PidMap::const_iterator  it,
+                          bslmt::RWMutex                             *mapGuard)
 : d_it(it)
 , d_mapGuard_p(mapGuard)
 {
@@ -677,16 +633,16 @@ balb::PerformanceMonitor::ConstIterator::ConstIterator(
 
 // ACCESSORS
 inline
-balb::PerformanceMonitor::ConstIterator::reference
-balb::PerformanceMonitor::ConstIterator::operator*() const
+PerformanceMonitor::ConstIterator::reference
+PerformanceMonitor::ConstIterator::operator*() const
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(d_mapGuard_p);
     return *d_it->second.first;
 }
 
 inline
-balb::PerformanceMonitor::ConstIterator::pointer
-balb::PerformanceMonitor::ConstIterator::operator->() const
+PerformanceMonitor::ConstIterator::pointer
+PerformanceMonitor::ConstIterator::operator->() const
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(d_mapGuard_p);
     return d_it->second.first.get();
@@ -694,8 +650,8 @@ balb::PerformanceMonitor::ConstIterator::operator->() const
 
 // MANIPULATORS
 inline
-balb::PerformanceMonitor::ConstIterator&
-balb::PerformanceMonitor::ConstIterator::operator++()
+PerformanceMonitor::ConstIterator&
+PerformanceMonitor::ConstIterator::operator++()
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(d_mapGuard_p);
     ++d_it;
@@ -703,36 +659,36 @@ balb::PerformanceMonitor::ConstIterator::operator++()
 }
 
 inline
-balb::PerformanceMonitor::ConstIterator
-balb::PerformanceMonitor::ConstIterator::operator++(int)
+PerformanceMonitor::ConstIterator
+PerformanceMonitor::ConstIterator::operator++(int)
 {
-    balb::PerformanceMonitor::ConstIterator temp = *this;
+    PerformanceMonitor::ConstIterator temp = *this;
     ++*this;
     return temp;
 }
 
 // ACCESSORS
 inline
-bool balb::PerformanceMonitor::ConstIterator::operator==(
+bool PerformanceMonitor::ConstIterator::operator==(
                                                 const ConstIterator& rhs) const
 {
     return d_it == rhs.d_it;
 }
 
 inline
-bool balb::PerformanceMonitor::ConstIterator::operator!=(
+bool PerformanceMonitor::ConstIterator::operator!=(
                                                 const ConstIterator& rhs) const
 {
     return d_it != rhs.d_it;
 }
 
-                 // ------------------------------------------
-                 // class balb::PerformanceMonitor::Statistics
-                 // ------------------------------------------
+                 // ------------------------------------
+                 // class PerformanceMonitor::Statistics
+                 // ------------------------------------
 
 // ACCESSORS
 inline
-double balb::PerformanceMonitor::Statistics::latestValue(Measure measure) const
+double PerformanceMonitor::Statistics::latestValue(Measure measure) const
 {
     BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
 
@@ -741,7 +697,7 @@ double balb::PerformanceMonitor::Statistics::latestValue(Measure measure) const
 }
 
 inline
-double balb::PerformanceMonitor::Statistics::minValue(Measure measure) const
+double PerformanceMonitor::Statistics::minValue(Measure measure) const
 {
     BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
 
@@ -750,7 +706,7 @@ double balb::PerformanceMonitor::Statistics::minValue(Measure measure) const
 }
 
 inline
-double balb::PerformanceMonitor::Statistics::maxValue(Measure measure) const
+double PerformanceMonitor::Statistics::maxValue(Measure measure) const
 {
     BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
 
@@ -759,7 +715,7 @@ double balb::PerformanceMonitor::Statistics::maxValue(Measure measure) const
 }
 
 inline
-double balb::PerformanceMonitor::Statistics::avgValue(Measure measure) const
+double PerformanceMonitor::Statistics::avgValue(Measure measure) const
 {
     BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
 
@@ -768,31 +724,30 @@ double balb::PerformanceMonitor::Statistics::avgValue(Measure measure) const
 }
 
 inline
-int balb::PerformanceMonitor::Statistics::pid() const
+int PerformanceMonitor::Statistics::pid() const
 {
     return d_pid;
 }
 
 inline
-const bsl::string& balb::PerformanceMonitor::Statistics::description() const
+const bsl::string& PerformanceMonitor::Statistics::description() const
 {
     return d_description;
 }
 
 inline
-double balb::PerformanceMonitor::Statistics::elapsedTime() const
+double PerformanceMonitor::Statistics::elapsedTime() const
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_guard);
     return d_elapsedTime;
 }
 
 inline
-const bdlt::Datetime& balb::PerformanceMonitor::Statistics::startupTime() const
+const bdlt::Datetime& PerformanceMonitor::Statistics::startupTime() const
 {
     return d_startTimeUtc;
 }
 
-namespace balb {
                           // ------------------------
                           // class PerformanceMonitor
                           // ------------------------
@@ -829,14 +784,14 @@ PerformanceMonitor::numRegisteredPids() const
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
     return static_cast<int>(d_pidMap.size());
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

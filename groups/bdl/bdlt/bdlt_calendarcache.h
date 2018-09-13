@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_CALENDARCACHE
 #define INCLUDED_BDLT_CALENDARCACHE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an efficient cache for read-only 'bdlt::Calendar' objects.
@@ -188,7 +186,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 2: A Calendar Cache with a Timeout
 /// - - - - - - - - - - - - - - - - - - - - -
-// This second example shows the affects on a 'bdlt::CalendarCache' object that
+// This second example shows the effects on a 'bdlt::CalendarCache' object that
 // is constructed to have a timeout value.  Note that the following snippets of
 // code assume a platform-independent 'sleepSeconds' method that sleeps for the
 // specified number of seconds.
@@ -196,11 +194,11 @@ BSLS_IDENT("$Id: $")
 // First, we create a calendar loader and a calendar cache.  The cache is
 // constructed to have a timeout of 3 seconds.  Of course, such a short timeout
 // is inappropriate for production use, but it is necessary for illustrating
-// the affects of a timeout in this example.  As in example 1 (above), we again
+// the effects of a timeout in this example.  As in example 1 (above), we again
 // let the cache use the default allocator:
 //..
 //  MyCalendarLoader           loader;
-//  bdlt::CalendarCache        cache(&loader, bsls::TimeInterval(3));
+//  bdlt::CalendarCache        cache(&loader, bsls::TimeInterval(3, 0));
 //  const bdlt::CalendarCache& readonlyCache = cache;
 //..
 // Next, we retrieve the calendar identified by "DE" from the cache:
@@ -248,64 +246,28 @@ BSLS_IDENT("$Id: $")
 //                            assert(!frC.get());
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_CALENDAR
 #include <bdlt_calendar.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIMEINTERVAL
 #include <bdlt_datetimeinterval.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
 
-#ifndef INCLUDED_BSLS_BSLLOCK
-#include <bsls_bsllock.h>
-#endif
+#include <bslmt_mutex.h>
 
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
-#ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>  // 'bsl::shared_ptr'
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
 #include <bslalg_typetraitusesbslmaallocator.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -320,7 +282,7 @@ class CalendarCache_Entry;
 
 // IMPLEMENTATION NOTE: The Sun Studio 12.3 compiler does not support 'map's
 // holding types that are incomplete at the point of declaration of a data
-// member.  Other compilers allow us to complete 'CalendarChache_Entry' at a
+// member.  Other compilers allow us to complete 'CalendarCache_Entry' at a
 // later point in the code, but before any operation (such as 'insert') that
 // would require the type to be complete.  If we did not have to support this
 // compiler, this whole class could be defined in the .cpp file; as it stands,
@@ -330,7 +292,7 @@ class CalendarCache_Entry {
     // This class defines the type of objects that are inserted into the
     // calendar cache.  Each entry contains a shared pointer to a read-only
     // calendar and the time at which that calendar was loaded.  Note that an
-    // explicit allocator is *required* to create a entry object.
+    // explicit allocator is *required* to create an entry object.
 
     // DATA
     bsl::shared_ptr<const Calendar> d_ptr;       // shared pointer to
@@ -346,7 +308,7 @@ class CalendarCache_Entry {
         // is never actually inserted into the cache.
 
     CalendarCache_Entry(Calendar         *calendar,
-                        Datetime          loadTime,
+                        const Datetime&   loadTime,
                         bslma::Allocator *allocator);
         // Create a cache entry object for managing the specified 'calendar'
         // that was loaded at the specified 'loadTime' using the specified
@@ -361,7 +323,7 @@ class CalendarCache_Entry {
         // Destroy this cache entry object.
 
     // MANIPULATORS
-    CalendarCache_Entry& operator=(const CalendarCache_Entry&);
+    CalendarCache_Entry& operator=(const CalendarCache_Entry& rhs);
         // Assign to this cache entry object the value of the specified 'rhs'
         // object, and return a reference providing modifiable access to this
         // object.
@@ -414,7 +376,7 @@ class CalendarCache {
                                                // timeout value and 'false'
                                                // otherwise
 
-    mutable bsls::BslLock   d_lock;            // guard access to cache
+    mutable bslmt::Mutex    d_lock;            // guard access to cache
 
     bslma::Allocator       *d_allocator_p;     // memory allocator (held, not
                                                // owned)
@@ -443,8 +405,8 @@ class CalendarCache {
         // into this cache remain valid for retrieval until they have been
         // explicitly invalidated (via either the 'invalidate' or
         // 'invalidateAll' methods), or until this object is destroyed.  The
-        // behavior is undefined unless 'loader' and the indicated allocator
-        // remain valid throughout the lifetime of this cache.
+        // behavior is undefined unless 'loader' remains valid throughout the
+        // lifetime of this cache.
 
     CalendarCache(CalendarLoader            *loader,
                   const bsls::TimeInterval&  timeout,
@@ -455,12 +417,12 @@ class CalendarCache {
         // subsequent retrieval from the cache after they have been loaded.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless 'loader' and the indicated
-        // allocator remain valid throughout the lifetime of this cache, and
-        // 'bsls::TimeInterval(0) <= timeout <= bsls::TimeInterval(INT_MAX)'.
+        // used.  The behavior is undefined unless
+        // 'bsls::TimeInterval() <= timeout <= bsls::TimeInterval(INT_MAX, 0)',
+        // and 'loader' remains valid throughout the lifetime of this cache.
         // Note that a 'timeout' value of 0 indicates that a calendar will be
         // loaded into the cache by *each* (successful) call to the
-        // 'getCalendar' manipulator.
+        // 'getCalendar' method.
 
     ~CalendarCache();
         // Destroy this object.
@@ -532,7 +494,7 @@ struct UsesBslmaAllocator<bdlt::CalendarCache> : bsl::true_type {};
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

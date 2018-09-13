@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLCC_DEQUE
 #define INCLUDED_BDLCC_DEQUE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a fully thread-safe deque container.
@@ -112,7 +110,8 @@ BSLS_IDENT("$Id: $")
 // the underlying 'bsl::deque' contained in the 'bdlcc::Deque'.  When a proctor
 // object is created, it acquires the container's mutex, and allows the client
 // to use the overloaded '->' and '*' operators on the proctor object to access
-// the underlying 'bsl::deque'.  Because the mutex is locked, manipulators of
+// the underlying 'bsl::deque'.  'operator[]' is also provided for direct
+// random access to that deque.  Because the mutex is locked, manipulators of
 // 'bdlcc::Deque' called by other threads will block, thus allowing safe access
 // to the underlying thread-unsafe container.  When the proctor is destroyed
 // (or released via the 'release' method), the proctor signals the thread-aware
@@ -168,7 +167,7 @@ BSLS_IDENT("$Id: $")
 //      // Dummy implementation of 'getWorkData' function required by the usage
 //      // example.
 //  {
-//      static int i = 1;
+//      static bsls::AtomicInt i(1);
 //      return ++i < 1000;
 //  }
 //..
@@ -419,65 +418,26 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == myDeque.length());
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_CONDITION
 #include <bslmt_condition.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_LOCKGUARD
 #include <bslmt_lockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>
-#endif
-
-#ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSL_LIMITS
 #include <bsl_limits.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDIO
 #include <bsl_cstdio.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -920,13 +880,13 @@ class Deque<TYPE>::Proctor {
     // object locks the mutex of the 'Deque', and destruction unlocks it.
 
     // PRIVATE TYPES
-    typedef bsl::deque<TYPE>       MonoDeque;
+    typedef bsl::deque<TYPE>              MonoDeque;
+    typedef typename MonoDeque::size_type size_type;
 
     // DATA
-    Deque<TYPE>                   *d_container_p;
-    typename MonoDeque::size_type  d_startLength;  // If '!d_container_p', this
-                                                   // field may be left
-                                                   // uninitialized.
+    Deque<TYPE>    *d_container_p;
+    size_type       d_startLength;      // If '!d_container_p', this field may
+                                        // be left uninitialized.
 
   private:
     // NOT IMPLEMENTED
@@ -972,6 +932,12 @@ class Deque<TYPE>::Proctor {
         // object.  The behavior is undefined if this 'Proctor' has been
         // released.
 
+    TYPE& operator[](typename MonoDeque::size_type position) const;
+        // Return a reference providing modifiable access to the element at the
+        // specified 'position' in the 'bsl::deque' held by this proctor.  The
+        // behavior is undefined unless 'position < size' where 'size' is the
+        // the number of elements in that deque.
+
     bool isNull() const;
         // Return 'true' if this object is not associated with a 'Deque'
         // object.
@@ -987,13 +953,13 @@ class Deque<TYPE>::ConstProctor {
     // the underlying 'bsl::deque' contained in a 'Deque'.
 
     // PRIVATE TYPES
-    typedef bsl::deque<TYPE>       MonoDeque;
+    typedef bsl::deque<TYPE>              MonoDeque;
+    typedef typename MonoDeque::size_type size_type;
 
     // DATA
-    const Deque<TYPE>             *d_container_p;
-    typename MonoDeque::size_type  d_startLength;  // If '!d_container_p', this
-                                                   // field may be left
-                                                   // uninitialized.
+    const Deque<TYPE>  *d_container_p;
+    size_type           d_startLength;  // If '!d_container_p', this field may
+                                        // be left uninitialized.
 
   private:
     // NOT IMPLEMENTED
@@ -1037,6 +1003,12 @@ class Deque<TYPE>::ConstProctor {
         // Return a reference to the 'bsl::deque' managed by this 'Proctor'
         // object.  The behavior is undefined if this 'ConstProctor' has been
         // released.
+
+    const TYPE& operator[](size_type position) const;
+        // Return a reference providing non-modifiable access to the element at
+        // the specified 'position' in the 'bsl::deque' held by this proctor.
+        // The behavior is undefined unless 'position < size' where 'size' is
+        // the the number of elements in that deque.
 
     bool isNull() const;
         // Return 'true' if this object is not associated with a 'Deque'
@@ -1096,6 +1068,9 @@ void Deque<TYPE>::Proctor::release()
 
     const size_type sz = d_container_p->d_monoDeque.size();
     size_type       ii = d_startLength;
+
+    d_container_p->d_mutex.unlock();
+
     if (ii < sz) {
         do {
             d_container_p->d_notEmptyCondition.signal();
@@ -1110,9 +1085,7 @@ void Deque<TYPE>::Proctor::release()
         }
     }
 
-    bslmt::Mutex *mutex = &d_container_p->d_mutex;
     d_container_p = 0;
-    mutex->unlock();
 }
 
 // ACCESSORS
@@ -1132,6 +1105,15 @@ bsl::deque<TYPE>& Deque<TYPE>::Proctor::operator*() const
     BSLS_ASSERT_SAFE(d_container_p);
 
     return d_container_p->d_monoDeque;
+}
+
+template <class TYPE>
+inline
+TYPE& Deque<TYPE>::Proctor::operator[](size_type position) const
+{
+    BSLS_ASSERT_SAFE(position < d_container_p->d_monoDeque.size());
+
+    return d_container_p->d_monoDeque[position];
 }
 
 template <class TYPE>
@@ -1219,6 +1201,15 @@ const bsl::deque<TYPE>& Deque<TYPE>::ConstProctor::operator*() const
     BSLS_ASSERT_SAFE(d_container_p);
 
     return d_container_p->d_monoDeque;
+}
+
+template <class TYPE>
+inline
+const TYPE& Deque<TYPE>::ConstProctor::operator[](size_type position) const
+{
+    BSLS_ASSERT_SAFE(position < d_container_p->d_monoDeque.size());
+
+    return d_container_p->d_monoDeque[position];
 }
 
 template <class TYPE>
@@ -1504,9 +1495,11 @@ template <class TYPE>
 inline
 void Deque<TYPE>::forcePushBack(const TYPE& item)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    d_monoDeque.push_back(item);
+        d_monoDeque.push_back(item);
+    }
 
     d_notEmptyCondition.signal();
 }
@@ -1517,28 +1510,33 @@ inline
 void Deque<TYPE>::forcePushBack(INPUT_ITER begin,
                                 INPUT_ITER end)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    size_type growth;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    DequeThrowGuard tg(&d_monoDeque);
+        DequeThrowGuard tg(&d_monoDeque);
 
-    const size_type initialSize = d_monoDeque.size();
-    d_monoDeque.insert(d_monoDeque.end(), begin, end);
-    size_type growth = d_monoDeque.size() - initialSize;
+        const size_type initialSize = d_monoDeque.size();
+        d_monoDeque.insert(d_monoDeque.end(), begin, end);
+        growth = d_monoDeque.size() - initialSize;
+
+        tg.release();
+    }
 
     for (; growth > 0; --growth) {
         d_notEmptyCondition.signal();
     }
-
-    tg.release();
 }
 
 template <class TYPE>
 inline
 void Deque<TYPE>::forcePushFront(const TYPE& item)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    d_monoDeque.push_front(item);
+        d_monoDeque.push_front(item);
+    }
 
     d_notEmptyCondition.signal();
 }
@@ -1549,21 +1547,24 @@ inline
 void Deque<TYPE>::forcePushFront(INPUT_ITER begin,
                                  INPUT_ITER end)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    size_type growth;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    DequeThrowGuard tg(&d_monoDeque);
+        DequeThrowGuard tg(&d_monoDeque);
 
-    const size_type initialSize = d_monoDeque.size();
-    for (; end != begin; ++begin) {
-        d_monoDeque.push_front(*begin);
+        const size_type initialSize = d_monoDeque.size();
+        for (; end != begin; ++begin) {
+            d_monoDeque.push_front(*begin);
+        }
+        growth = d_monoDeque.size() - initialSize;
+
+        tg.release();
     }
-    size_type growth = d_monoDeque.size() - initialSize;
 
     for (; growth > 0; --growth) {
         d_notEmptyCondition.signal();
     }
-
-    tg.release();
 }
 
 template <class TYPE>
@@ -1577,7 +1578,10 @@ TYPE Deque<TYPE>::popBack()
     TYPE ret(d_monoDeque.back());
     d_monoDeque.pop_back();
 
-    if (d_monoDeque.size() < d_highWaterMark) {
+    const bool shouldSignal = d_monoDeque.size() < d_highWaterMark;
+    lock.release()->unlock();
+
+    if (shouldSignal) {
         d_notFullCondition.signal();
     }
 
@@ -1587,15 +1591,20 @@ TYPE Deque<TYPE>::popBack()
 template <class TYPE>
 void Deque<TYPE>::popBack(TYPE *item)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    bool shouldSignal;
 
-    while (d_monoDeque.empty()) {
-        d_notEmptyCondition.wait(&d_mutex);
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        while (d_monoDeque.empty()) {
+            d_notEmptyCondition.wait(&d_mutex);
+        }
+        *item = d_monoDeque.back();
+        d_monoDeque.pop_back();
+        shouldSignal = d_monoDeque.size() < d_highWaterMark;
     }
-    *item = d_monoDeque.back();
-    d_monoDeque.pop_back();
 
-    if (d_monoDeque.size() < d_highWaterMark) {
+    if (shouldSignal) {
         d_notFullCondition.signal();
     }
 }
@@ -1611,7 +1620,10 @@ TYPE Deque<TYPE>::popFront()
     TYPE ret(d_monoDeque.front());
     d_monoDeque.pop_front();
 
-    if (d_monoDeque.size() < d_highWaterMark) {
+    const bool shouldSignal = d_monoDeque.size() < d_highWaterMark;
+    lock.release()->unlock();
+
+    if (shouldSignal) {
         d_notFullCondition.signal();
     }
 
@@ -1621,15 +1633,20 @@ TYPE Deque<TYPE>::popFront()
 template <class TYPE>
 void Deque<TYPE>::popFront(TYPE *item)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    bool shouldSignal;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    while (d_monoDeque.empty()) {
-        d_notEmptyCondition.wait(&d_mutex);
+        while (d_monoDeque.empty()) {
+            d_notEmptyCondition.wait(&d_mutex);
+        }
+        *item = d_monoDeque.front();
+        d_monoDeque.pop_front();
+
+        shouldSignal = d_monoDeque.size() < d_highWaterMark;
     }
-    *item = d_monoDeque.front();
-    d_monoDeque.pop_front();
 
-    if (d_monoDeque.size() < d_highWaterMark) {
+    if (shouldSignal) {
         d_notFullCondition.signal();
     }
 }
@@ -1637,12 +1654,14 @@ void Deque<TYPE>::popFront(TYPE *item)
 template <class TYPE>
 void Deque<TYPE>::pushBack(const TYPE& item)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    while (d_monoDeque.size() >= d_highWaterMark) {
-        d_notFullCondition.wait(&d_mutex);
+        while (d_monoDeque.size() >= d_highWaterMark) {
+            d_notFullCondition.wait(&d_mutex);
+        }
+        d_monoDeque.push_back(item);
     }
-    d_monoDeque.push_back(item);
 
     d_notEmptyCondition.signal();
 }
@@ -1650,12 +1669,14 @@ void Deque<TYPE>::pushBack(const TYPE& item)
 template <class TYPE>
 void Deque<TYPE>::pushFront(const TYPE& item)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    while (d_monoDeque.size() >= d_highWaterMark) {
-        d_notFullCondition.wait(&d_mutex);
+        while (d_monoDeque.size() >= d_highWaterMark) {
+            d_notFullCondition.wait(&d_mutex);
+        }
+        d_monoDeque.push_front(item);
     }
-    d_monoDeque.push_front(item);
 
     d_notEmptyCondition.signal();
 }
@@ -1682,17 +1703,22 @@ template <class TYPE>
 int Deque<TYPE>::timedPopBack(TYPE                      *item,
                               const bsls::TimeInterval&  timeout)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    bool shouldSignal;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    while (d_monoDeque.empty()) {
-        if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
-            return 1;                                                 // RETURN
+        while (d_monoDeque.empty()) {
+            if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
         }
-    }
-    *item = d_monoDeque.back();
-    d_monoDeque.pop_back();
+        *item = d_monoDeque.back();
+        d_monoDeque.pop_back();
 
-    if (d_monoDeque.size() < d_highWaterMark) {
+        shouldSignal = d_monoDeque.size() < d_highWaterMark;
+    }
+
+    if (shouldSignal) {
         d_notFullCondition.signal();
     }
 
@@ -1703,17 +1729,22 @@ template <class TYPE>
 int Deque<TYPE>::timedPopFront(TYPE                      *item,
                                const bsls::TimeInterval&  timeout)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    bool shouldSignal;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    while (d_monoDeque.empty()) {
-        if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
-            return 1;                                                 // RETURN
+        while (d_monoDeque.empty()) {
+            if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
         }
-    }
-    *item = d_monoDeque.front();
-    d_monoDeque.pop_front();
+        *item = d_monoDeque.front();
+        d_monoDeque.pop_front();
 
-    if (d_monoDeque.size() < d_highWaterMark) {
+        shouldSignal = d_monoDeque.size() < d_highWaterMark;
+    }
+
+    if (shouldSignal) {
         d_notFullCondition.signal();
     }
 
@@ -1724,14 +1755,16 @@ template <class TYPE>
 int Deque<TYPE>::timedPushBack(const TYPE&               item,
                                const bsls::TimeInterval& timeout)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    while (d_monoDeque.size() >= d_highWaterMark) {
-        if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
-            return 1;                                                 // RETURN
+        while (d_monoDeque.size() >= d_highWaterMark) {
+            if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
         }
+        d_monoDeque.push_back(item);
     }
-    d_monoDeque.push_back(item);
 
     d_notEmptyCondition.signal();
 
@@ -1742,14 +1775,16 @@ template <class TYPE>
 int Deque<TYPE>::timedPushFront(const TYPE&               item,
                                 const bsls::TimeInterval &timeout)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    while (d_monoDeque.size() >= d_highWaterMark) {
-        if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
-            return 1;                                                 // RETURN
+        while (d_monoDeque.size() >= d_highWaterMark) {
+            if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
         }
+        d_monoDeque.push_front(item);
     }
-    d_monoDeque.push_front(item);
 
     d_notEmptyCondition.signal();
 
@@ -1759,15 +1794,20 @@ int Deque<TYPE>::timedPushFront(const TYPE&               item,
 template <class TYPE>
 int Deque<TYPE>::tryPopBack(TYPE *item)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    bool shouldSignal;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    if (d_monoDeque.empty()) {
-        return 1;                                                     // RETURN
+        if (d_monoDeque.empty()) {
+            return 1;                                                 // RETURN
+        }
+        *item = d_monoDeque.back();
+        d_monoDeque.pop_back();
+
+        shouldSignal = d_monoDeque.size() < d_highWaterMark;
     }
-    *item = d_monoDeque.back();
-    d_monoDeque.pop_back();
 
-    if (d_monoDeque.size() < d_highWaterMark) {
+    if (shouldSignal) {
         d_notFullCondition.signal();
     }
 
@@ -1802,15 +1842,20 @@ void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
 template <class TYPE>
 int Deque<TYPE>::tryPopFront(TYPE *item)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    bool shouldSignal;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    if (d_monoDeque.empty()) {
-        return 1;                                                     // RETURN
+        if (d_monoDeque.empty()) {
+            return 1;                                                 // RETURN
+        }
+        *item = d_monoDeque.front();
+        d_monoDeque.pop_front();
+
+        shouldSignal = d_monoDeque.size() < d_highWaterMark;
     }
-    *item = d_monoDeque.front();
-    d_monoDeque.pop_front();
 
-    if (d_monoDeque.size() < d_highWaterMark) {
+    if (shouldSignal) {
         d_notFullCondition.signal();
     }
 
@@ -1847,13 +1892,15 @@ void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
 template <class TYPE>
 int Deque<TYPE>::tryPushBack(const TYPE& item)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    if (d_monoDeque.size() >= d_highWaterMark) {
-        return 1;                                                     // RETURN
+        if (d_monoDeque.size() >= d_highWaterMark) {
+            return 1;                                                 // RETURN
+        }
+
+        d_monoDeque.push_back(item);
     }
-
-    d_monoDeque.push_back(item);
 
     d_notEmptyCondition.signal();
 
@@ -1866,20 +1913,24 @@ typename Deque<TYPE>::size_type
 Deque<TYPE>::tryPushBack(INPUT_ITER begin,
                          INPUT_ITER end)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    size_type growth;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    DequeThrowGuard tg(&d_monoDeque);
+        DequeThrowGuard tg(&d_monoDeque);
 
-    const size_type startLength = d_monoDeque.size();
-    size_type       length = startLength;
+        const size_type startLength = d_monoDeque.size();
+        size_type       length      = startLength;
 
-    for (; length < d_highWaterMark && end != begin; ++length, ++begin) {
-        d_monoDeque.push_back(*begin);
+        for (; length < d_highWaterMark && end != begin; ++length, ++begin) {
+            d_monoDeque.push_back(*begin);
+        }
+
+        tg.release();
+
+        growth = length - startLength;
     }
 
-    tg.release();
-
-    const size_type growth = length - startLength;
     for (size_type ii = 0; ii < growth; ++ii) {
         d_notEmptyCondition.signal();
     }
@@ -1890,13 +1941,15 @@ Deque<TYPE>::tryPushBack(INPUT_ITER begin,
 template <class TYPE>
 int Deque<TYPE>::tryPushFront(const TYPE& item)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    if (d_monoDeque.size() >= d_highWaterMark) {
-        return 1;                                                     // RETURN
+        if (d_monoDeque.size() >= d_highWaterMark) {
+            return 1;                                                 // RETURN
+        }
+
+        d_monoDeque.push_front(item);
     }
-
-    d_monoDeque.push_front(item);
 
     d_notEmptyCondition.signal();
 
@@ -1909,20 +1962,24 @@ typename Deque<TYPE>::size_type
 Deque<TYPE>::tryPushFront(INPUT_ITER begin,
                           INPUT_ITER end)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    size_type growth;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    DequeThrowGuard tg(&d_monoDeque);
+        DequeThrowGuard tg(&d_monoDeque);
 
-    const size_type startLength = d_monoDeque.size();
-    size_type       length = startLength;
+        const size_type startLength = d_monoDeque.size();
+        size_type       length      = startLength;
 
-    for (; length < d_highWaterMark && end != begin; ++length, ++begin) {
-        d_monoDeque.push_front(*begin);
+        for (; length < d_highWaterMark && end != begin; ++length, ++begin) {
+            d_monoDeque.push_front(*begin);
+        }
+
+        tg.release();
+
+        growth = length - startLength;
     }
 
-    tg.release();
-
-    const size_type growth = length - startLength;
     for (size_type ii = 0; ii < growth; ++ii) {
         d_notEmptyCondition.signal();
     }
@@ -1949,8 +2006,8 @@ template <class TYPE>
 inline
 typename Deque<TYPE>::size_type Deque<TYPE>::highWaterMark() const
 {
-    // This mutex lock is unnecessary since we decided to make the high water
-    // mark into a non-malleable property of this container.
+    // A mutex lock is unnecessary since we decided to make the high water mark
+    // into a non-malleable property of this container.
     //
     // bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
@@ -1986,16 +2043,22 @@ struct UsesBslmaAllocator<bdlcc::Deque<TYPE> > : bsl::true_type
 {};
 
 }  // close namespace bslma
-
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2014
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2018 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

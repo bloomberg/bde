@@ -17,8 +17,8 @@ BSLS_IDENT_RCSID(balst_stacktraceframe_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace balst {
+
                            // ---------------------
                            // class StackTraceFrame
                            // ---------------------
@@ -46,9 +46,27 @@ bsl::ostream& StackTraceFrame::print(bsl::ostream& stream,
     return stream;
 }
 
+// MANIPULATORS
+void StackTraceFrame::swap(StackTraceFrame& other)
+{
+    // 'swap' is undefined for objects with non-equal allocators.
+
+    BSLS_ASSERT(allocator() == other.allocator());
+
+    bslalg::SwapUtil::swap(&d_address,           &other.d_address);
+    bslalg::SwapUtil::swap(&d_libraryFileName,   &other.d_libraryFileName);
+    bslalg::SwapUtil::swap(&d_lineNumber,        &other.d_lineNumber);
+    bslalg::SwapUtil::swap(&d_mangledSymbolName, &other.d_mangledSymbolName);
+    bslalg::SwapUtil::swap(&d_offsetFromSymbol,  &other.d_offsetFromSymbol);
+    bslalg::SwapUtil::swap(&d_sourceFileName,    &other.d_sourceFileName);
+    bslalg::SwapUtil::swap(&d_symbolName,        &other.d_symbolName);
+}
+
+}  // close package namespace
+
 // FREE OPERATORS
-bsl::ostream& operator<<(bsl::ostream&          stream,
-                         const StackTraceFrame& object)
+bsl::ostream& balst::operator<<(bsl::ostream&          stream,
+                                const StackTraceFrame& object)
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -68,12 +86,26 @@ bsl::ostream& operator<<(bsl::ostream&          stream,
     return stream;
 }
 
-}  // close package namespace
+// FREE FUNCTIONS
+void balst::swap(StackTraceFrame& a, StackTraceFrame& b)
+{
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    StackTraceFrame futureA(b, a.allocator());
+    StackTraceFrame futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
+}
 
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

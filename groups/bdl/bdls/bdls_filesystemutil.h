@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLS_FILESYSTEMUTIL
 #define INCLUDED_BDLS_FILESYSTEMUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide methods for filesystem access with multi-language names.
@@ -280,42 +278,21 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
 
-#ifndef INCLUDED_SYS_TYPES
 #include <sys/types.h>
-#define INCLUDED_SYS_TYPES
-#endif
 
 namespace BloombergLP {
 
@@ -406,6 +383,16 @@ struct FilesystemUtil {
         k_ERROR_LOCKING_INTERRUPTED =  2,  // value representing a failure to
                                            // obtain a lock on a file due to
                                            // interruption by a signal
+
+        k_ERROR_ALREADY_EXISTS      =  3,  // value representing a failure to
+                                           // create a directory due to a file
+                                           // system entry already existing
+
+        k_ERROR_PATH_NOT_FOUND      =  4,  // value representing a failure to
+                                           // create a directory due to one ore
+                                           // more components of the path
+                                           // either not existing or not being
+                                           // a directory
 
         k_BAD_FILE_DESCRIPTOR       = -1   // value indicating a bad file
                                            // descriptor was supplied
@@ -527,7 +514,10 @@ struct FilesystemUtil {
     static bool exists(const bsl::string&  path);
     static bool exists(const char         *path);
         // Return 'true' if there currently exists a file or directory at the
-        // specified 'path', and 'false' otherwise.
+        // specified 'path', and 'false' otherwise.  If 'path' is a symlink,
+        // the result of this function is platform dependent. On POSIX/Unix
+        // platforms this method dereferences symlinks, while on Windows it
+        // does not.
 
     static bool isRegularFile(const bsl::string&  path,
                               bool                followLinksFlag = false);
@@ -575,17 +565,20 @@ struct FilesystemUtil {
         // If the optionally specified 'isLeafDirectoryFlag' is 'true', treat
         // the final name component in 'path' as a directory name, and create
         // it.  Otherwise, create only the directories leading up to the final
-        // name component.  Return 0 on success, and a non-zero value if any
-        // needed directories in 'path' could not be created.
+        // name component.  Return 0 on success, 'k_ERROR_PATH_NOT_FOUND' if a
+        // component used as a directory in 'path' exists but is not a
+        // directory, and a negative value for any other kind of error.
 
     static int createPrivateDirectory(const bslstl::StringRef& path);
         // Create a private directory with the specified 'path'.  Return 0 on
-        // success, and a non-zero value if the directory could not be created.
-        // The directory is created with permissions restricting access, as
-        // closely as possible, to the caller's userid only.  If the directory
-        // already exists, the function reports success but the directory's
-        // permissions are not changed.  Note that directories created on
-        // Microsoft Windows may receive default, not restricted permissions.
+        // success, 'k_ERROR_PATH_NOT_FOUND' if a component used as a directory
+        // in 'path' either does not exist or is not a directory,
+        // 'k_ERROR_ALREADY_EXISTS' if the file system entry (not necessarily a
+        // directory) with the name 'path' already exists, and a negative value
+        // for any other kind of error.  The directory is created with
+        // permissions restricting access, as closely as possible, to the
+        // caller's userid only.  Note that directories created on Microsoft
+        // Windows may receive default, not restricted permissions.
 
     static FileDescriptor createTemporaryFile(bsl::string             *outPath,
                                               const bslstl::StringRef& prefix);
@@ -638,7 +631,7 @@ struct FilesystemUtil {
                         const bsl::function<void(const char *path)>&  visitor);
         // Call the specified 'visitor' function object for each path in the
         // filesystem matching the specified 'pattern'.  Return the number of
-        // paths visited on success, , and a negative value otherwise.  Note
+        // paths visited on success, and a negative value otherwise.  Note
         // that if 'visitor' deletes files or directories during the search,
         // 'visitor' may subsequently be called with paths which have already
         // been deleted, so must be prepared for this event.  Also note that
@@ -783,7 +776,7 @@ struct FilesystemUtil {
     static int map(FileDescriptor   descriptor,
                    void           **address,
                    Offset           offset,
-                   int              size,
+                   bsl::size_t      size,
                    int              mode);
         // Map the region of the specified 'size' bytes, starting at the
         // specified 'offset' bytes into the file with the specified
@@ -799,13 +792,13 @@ struct FilesystemUtil {
         // file will result in undefined behavior (i.e., this function does not
         // grow the file to guarantee it can accommodate the mapped region).
 
-    static int unmap(void *address, int size);
+    static int unmap(void *address, bsl::size_t size);
         // Unmap the memory mapping with the specified base 'address' and
         // specified 'size'.  Return 0 on success, and a non-zero value
         // otherwise.  The behavior is undefined unless this area with
         // 'address' and 'size' was previously mapped with a 'map' call.
 
-    static int sync(char *address, int numBytes, bool syncFlag);
+    static int sync(char *address, bsl::size_t numBytes, bool syncFlag);
         // Synchronize the contents of the specified 'numBytes' of mapped
         // memory beginning at the specified 'address' with the underlying file
         // on disk.  If the specified 'syncFlag' is true, block until all
@@ -847,15 +840,16 @@ struct FilesystemUtil {
         // refers to a directory and the optionally specified 'recursiveFlag'
         // is 'true', recursively remove all files and directories within the
         // specified directory before removing the directory itself.  Return 0
-        // on success and a non-zero value otherwise.  Note that if 'path' is a
-        // directory, and the directory is not empty, and recursive is 'false',
-        // this method will fail.  Also note that if the function fails when
-        // 'recursive' is 'true', it may or may not have removed *some* files
-        // or directories before failing.
+        // on success and a non-zero value otherwise.  If 'path' refers to a
+        // symbolic link, the symbolic link will be removed, not the target of
+        // the link.  Note that if 'path' is a directory, and the directory is
+        // not empty, and recursive is 'false', this method will fail.  Also
+        // note that if the function fails when 'recursive' is 'true', it may
+        // or may not have removed *some* files or directories before failing.
         //
         // IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
         // implementation of the system 'glob' function can temporarily change
-        // the working directory of the entire program, casuing attempts in
+        // the working directory of the entire program, causing attempts in
         // other threads to open files with relative path names to fail.
 
     static int rollFileChain(const bsl::string& path, int maxSuffix);
@@ -873,10 +867,15 @@ struct FilesystemUtil {
         // it will be removed and replaced.  In that case, 'newPath' must refer
         // to the same type of filesystem item as 'oldPath' - that is, they
         // must both be directories or both be files.  Return 0 on success, and
-        // a non-zero value otherwise.  Note that this operation is carried out
-        // via library/system facilities ('rename' in UNIX and 'MoveFile' in
-        // Windows) that usually cannot move files between file systems or
-        // volumes.
+        // a non-zero value otherwise.  If 'oldPath' is a symbolic link, the
+        // link will be renamed.  If a symbolic link already exists at
+        // 'newPath', the resulting behavior is platform dependent.  Note that
+        // this operation is carried out via library/system facilities
+        // ('rename' in UNIX and 'MoveFile' in Windows) that usually cannot
+        // move files between file systems or volumes.  Note that a symbolic
+        // link already exists at 'newPath' POSIX/Unix systems will overwrite
+        // that existing symbolic link, while Windows will return an error
+        // status ('GetLastError' will report 'ERROR_ALREADY_EXISTS').
 
     static int write(FileDescriptor  descriptor,
                      const void     *buffer,

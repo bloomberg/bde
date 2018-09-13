@@ -1,18 +1,19 @@
 // bslma_destructionutil.t.cpp                                        -*-C++-*-
 #include <bslma_destructionutil.h>
 
-#include <bslma_usesbslmaallocator.h>            // for testing only
-#include <bslmf_istriviallycopyable.h>           // for testing only
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
 
-#include <bslma_allocator.h>                     // for testing only
-#include <bslma_default.h>                       // for testing only
-#include <bslma_testallocator.h>                 // for testing only
-#include <bsls_alignmentutil.h>                  // for testing only
-#include <bsls_assert.h>                         // for testing only
-#include <bsls_asserttest.h>                     // for testing only
+#include <bslmf_istriviallycopyable.h>
+
+#include <bsls_alignmentutil.h>
+#include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
-#include <bsls_objectbuffer.h>                   // for testing only
-#include <bsls_types.h>                          // for testing only
+#include <bsls_objectbuffer.h>
+#include <bsls_types.h>
 
 #include <ctype.h>      // 'isalpha'
 #include <stdio.h>
@@ -42,6 +43,7 @@ using namespace BloombergLP;
 // [ 2] void destroy(T *dst);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 3] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION

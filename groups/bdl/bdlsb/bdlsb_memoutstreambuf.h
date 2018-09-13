@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLSB_MEMOUTSTREAMBUF
 #define INCLUDED_BDLSB_MEMOUTSTREAMBUF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an output 'basic_streambuf' using managed memory.
@@ -138,49 +136,21 @@ BSLS_IDENT("$Id: $")
 //                            streamBuffer.length()));
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDLIB
 #include <bsl_cstdlib.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOS
 #include <bsl_ios.h>
-#endif
-
-#ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>  // (char|int|pos|off|traits)_type
-#endif
 
 namespace BloombergLP {
 namespace bdlsb {
@@ -227,10 +197,6 @@ class MemOutStreamBuf : public bsl::streambuf {
         // new length, but with a final size not less than
         // 'k_INITIAL_BUFFER_SIZE'.  This method has no effect if 'newLength <=
         // capacity()' holds before the call.
-
-    // PRIVATE ACCESSORS
-    bsl::size_t capacity() const;
-        // Return the current buffer capacity.
 
   protected:
     // PROTECTED MANIPULATORS
@@ -309,6 +275,10 @@ class MemOutStreamBuf : public bsl::streambuf {
         // to this method.
 
     // ACCESSORS
+    bsl::size_t capacity() const;
+        // Return the current capacity of the buffer managed by this stream
+        // buffer.
+
     const char *data() const;
         // Return the address of the non-modifiable character buffer managed by
         // this stream buffer.
@@ -324,13 +294,6 @@ class MemOutStreamBuf : public bsl::streambuf {
                          // ---------------------
                          // class MemOutStreamBuf
                          // ---------------------
-
-// PRIVATE ACCESSORS
-inline
-bsl::size_t MemOutStreamBuf::capacity() const
-{
-    return epptr() - pbase();
-}
 
 // CREATORS
 inline
@@ -366,6 +329,12 @@ void MemOutStreamBuf::reset()
 }
 
 // ACCESSORS
+inline
+bsl::size_t MemOutStreamBuf::capacity() const
+{
+    return epptr() - pbase();
+}
+
 inline
 const char *MemOutStreamBuf::data() const
 {

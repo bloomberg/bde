@@ -45,8 +45,8 @@ BSLS_IDENT("$Id: $")
 //:     compiler as deprecated (if the code has been updated to use
 //:     'bsls_deprecate').  New uses of this macro are not supported; use
 //:     'bsls_deprecate' instead.
-//
 #ifndef BDE_OPENSOURCE_PUBLICATION  // internal code management
+//
 // In addition to 'BDE_OMIT_DEPRECATED', there are two other macros that also
 // determine whether deprecated interfaces are available to programs built on
 // BDE:

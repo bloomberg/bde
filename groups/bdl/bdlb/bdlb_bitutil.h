@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLB_BITUTIL
 #define INCLUDED_BDLB_BITUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide efficient bit-manipulation of 'uint32_t'/'uint64_t' values.
@@ -89,35 +87,17 @@ BSLS_IDENT("$Id: $")
 //  +------------------------------------------------------------------------*/
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_CLIMITS
 #include <bsl_climits.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDINT
 #include <bsl_cstdint.h>
-#endif
 
 #ifdef BSLS_PLATFORM_CMP_IBM
-#ifndef INCLUDED_BUILTINS
 #include <builtins.h>
-#define INCLUDED_BUILTINS
-#endif
 #endif
 
 namespace BloombergLP {

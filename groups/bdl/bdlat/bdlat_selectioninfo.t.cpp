@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST" << endl
                           << "==============" << endl;
 
-        Obj mMI = { 2, "foo", 3, "desc" };  const Obj& MI = mMI;
+        Obj mMI = { 2, "foo", 3, "desc", 0 };  const Obj& MI = mMI;
 
         ASSERT(2 == MI.id());
         ASSERT(0 == bsl::strcmp(MI.name(), "foo"));
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
         ASSERT(4  == MI.nameLength());
         ASSERT(0  == bsl::strcmp(MI.annotation(), "csed"));
 
-        Obj mMI2 = { 2, "foo", 3, "desc" };  const Obj& MI2 = mMI2;
+        Obj mMI2 = { 2, "foo", 3, "desc", 0 };  const Obj& MI2 = mMI2;
 
         ASSERT(0 == (mMI == mMI2));
         ASSERT(1 == (mMI != mMI2));

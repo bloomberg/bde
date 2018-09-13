@@ -122,7 +122,8 @@ void displayTime(const bdlt::DatetimeInterval& timeSinceEpoch)
 namespace {
 
 // The maximum number of random round-trip tests that will be done case 2 is
-// the number of possible 'bdlt::Datetime' values.
+// the number of possible 'bdlt::Datetime' values.  Note that 'INT_MAX' times
+// 'microseconds per day' is too big to fit in a 64-bit value.
 
 const bsls::Types::Uint64 maxTestCycles = (1ULL << 32) * 24 * 60 * 60 * 999;
 
@@ -233,6 +234,19 @@ void ConfigParser<INTEGER_TYPE>::parse(vector<INTEGER_TYPE> *result,
     }
 }
 
+int expNanoseconds(int nanoseconds)
+{
+    bool sign = false;
+
+    if ((sign = nanoseconds < 0)) {
+        nanoseconds = -nanoseconds;
+    }
+
+    nanoseconds -= nanoseconds % 1000;
+
+    return (sign ? -1 : +1) * nanoseconds;
+}
+
 }  // close unnamed namespace
 
 // ============================================================================
@@ -243,12 +257,10 @@ void ConfigParser<INTEGER_TYPE>::parse(vector<INTEGER_TYPE> *result,
 int main(int argc, char *argv[])
 {
     const int                 test = argc > 1 ? atoi(argv[1]) : 0;
-    const bool             verbose = argc > 2;
-    const bool         veryVerbose = argc > 3;
-    const bool     veryVeryVerbose = argc > 4;
-    const bool veryVeryVeryVerbose = argc > 5;
-
-    (void) veryVeryVeryVerbose;
+    const bool             verbose = argc > 2;  (void)             verbose;
+    const bool         veryVerbose = argc > 3;  (void)         veryVerbose;
+    const bool     veryVeryVerbose = argc > 4;  (void)     veryVeryVerbose;
+    const bool veryVeryVeryVerbose = argc > 5;  (void) veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -414,65 +426,84 @@ int main(int argc, char *argv[])
                 bsls::Types::Int64 d_expHours;  // expected hours value
                 bsls::Types::Int64 d_expMins;   // expected minutes value
                 bsls::Types::Int64 d_expSecs;   // expected seconds value
-                bsls::Types::Int64 d_expMSecs;  // expected milliseconds value
+                bsls::Types::Int64 d_expMlSecs; // expected milliseconds value
+                bsls::Types::Int64 d_expMcSecs; // expected microseconds value
             } DATA[] = {
     //|<--------^
-      //   INPUT               INPUT       EXPECTED     EXP  EXP  EXP  EXC
-      //LN SECONDS             NSECS       DAYS         HRS  MIN  SEC  MSEC
-      //-- ------------------  ----------  -----------  ---  ---  ---  ----
-      {L_,                0LL,          0,           0,   0,   0,   0,    0},
+      //   INPUT               INPUT     EXP  EXP  EXP  EXP EXC    EXP
+      //LN SECONDS             NSECS    DAYS  HRS  MIN  SEC MLSEC  MCSEC
+      //-- -------------  ----------  ------  ---  ---  --- -----  -----
+      {L_,           0LL,          0,      0,   0,   0,   0,    0,     0},
 
-                      // Millisecond/microsecond boundary
-      {L_,                0LL,     999999,           0,   0,   0,   0,    0},
-      {L_,                0LL,    1000000,           0,   0,   0,   0,    1},
-      {L_,                0LL,    1000001,           0,   0,   0,   0,    1},
-      {L_,                0LL,    -999999,           0,   0,   0,   0,    0},
-      {L_,                0LL,   -1000000,           0,   0,   0,   0,   -1},
-      {L_,                0LL,   -1000001,           0,   0,   0,   0,   -1},
+                 // Millisecond/microsecond boundary
+      {L_,           0LL,     999999,      0,   0,   0,   0,    0,   999},
+      {L_,           0LL,    1000999,      0,   0,   0,   0,    0,  1000},
+      {L_,           0LL,    1001999,      0,   0,   0,   0,    0,  1001},
+      {L_,           0LL,    1000000,      0,   0,   0,   0,    1,     0},
+      {L_,           0LL,    1000001,      0,   0,   0,   0,    1,     0},
+      {L_,           0LL,    -999999,      0,   0,   0,   0,    0,  -999},
+      {L_,           0LL,   -1000999,      0,   0,   0,   0,    0, -1000},
+      {L_,           0LL,   -1001999,      0,   0,   0,   0,    0, -1001},
+      {L_,           0LL,   -1000000,      0,   0,   0,   0,   -1,     0},
+      {L_,           0LL,   -1000001,      0,   0,   0,   0,   -1,     0},
 
-                          // Second/fraction boundary
-      {L_,                0LL,  999999999,           0,   0,   0,   0,  999},
-      {L_,                1LL,          0,           0,   0,   0,   1,    0},
-      {L_,                1LL,          1,           0,   0,   0,   1,    0},
-      {L_,                0LL, -999999999,           0,   0,   0,   0, -999},
-      {L_,               -1LL,          0,           0,   0,   0,  -1,    0},
-      {L_,               -1LL,         -1,           0,   0,   0,  -1,    0},
+                     // Second/fraction boundary
+      {L_,           0LL,  999999999,      0,   0,   0,   0,  999,   999},
+      {L_,           1LL,          0,      0,   0,   0,   0,  999,  1000},
+      {L_,           1LL,       1999,      0,   0,   0,   0,  999,  1001},
+      {L_,           1LL,          0,      0,   0,   0,   1,    0,     0},
+      {L_,           1LL,          1,      0,   0,   0,   1,    0,     0},
+      {L_,           0LL, -999999999,      0,   0,   0,   0, -999,  -999},
+      {L_,          -1LL,       -999,      0,   0,   0,   0, -999, -1000},
+      {L_,          -1LL,      -1999,      0,   0,   0,   0, -999, -1001},
+      {L_,          -1LL,          0,      0,   0,   0,  -1,    0,     0},
+      {L_,          -1LL,         -1,      0,   0,   0,  -1,    0,     0},
 
-         // Arbitrary values that express all DatetimeInterval fields
-      {L_,       3000000011LL,    9999998,       34722,   5,  20,  11,    9},
-      {L_,       3000000011LL,    9999999,       34722,   5,  20,  11,    9},
-      {L_,       3000000011LL,   10000000,       34722,   5,  20,  11,   10},
-      {L_,       3000000011LL,   10000001,       34722,   5,  20,  11,   10},
-      {L_,      -3000000011LL,   -9999999,      -34722,  -5, -20, -11,   -9},
-      {L_,      -3000000011LL,   -9999998,      -34722,  -5, -20, -11,   -9},
-      {L_,      -3000000011LL,   -9999999,      -34722,  -5, -20, -11,   -9},
-      {L_,      -3000000011LL,  -10000000,      -34722,  -5, -20, -11,  -10},
-      {L_,      -3000000011LL,  -10000001,      -34722,  -5, -20, -11,  -10},
+           // Arbitrary values that express all DatetimeInterval fields
+      {L_,  3000000011LL,    9999998,  34722,   5,  20,  11,    9,   999},
+      {L_,  3000000011LL,    9999999,  34722,   5,  20,  11,    9,   999},
+      {L_,  3000000011LL,   10000999,  34722,   5,  20,  11,    9,  1000},
+      {L_,  3000000011LL,   10001500,  34722,   5,  20,  11,    9,  1001},
+      {L_,  3000000011LL,   10000000,  34722,   5,  20,  11,   10,     0},
+      {L_,  3000000011LL,   10000001,  34722,   5,  20,  11,   10,     0},
+      {L_, -3000000011LL,   -9999999, -34722,  -5, -20, -11,   -9,  -999},
+      {L_, -3000000011LL,  -10000999, -34722,  -5, -20, -11,   -9, -1000},
+      {L_, -3000000011LL,  -10001999, -34722,  -5, -20, -11,   -9, -1001},
+      {L_, -3000000011LL,   -9999998, -34722,  -5, -20, -11,   -9,  -999},
+      {L_, -3000000011LL,  -10000000, -34722,  -5, -20, -11,  -10,     0},
+      {L_, -3000000011LL,  -10000001, -34722,  -5, -20, -11,  -10,     0},
 
                                    // Limits
 
-      {L_, INT_MAX * Ratio::k_SECONDS_PER_DAY
-                   + Ratio::k_SECONDS_PER_DAY,
-                               -1 * Ratio::k_NANOSECONDS_PER_MILLISECOND,
-                                               INT_MAX,  23,  59,  59,  999},
+      {L_, INT_MAX * Ratio::k_SECONDS_PER_DAY + Ratio::k_SECONDS_PER_DAY,
+                           -1 * Ratio::k_NANOSECONDS_PER_MILLISECOND,
+                                      INT_MAX, 23,  59,  59,  999,    0},
 
-      {L_, INT_MIN * Ratio::k_SECONDS_PER_DAY
-                   - Ratio::k_SECONDS_PER_DAY,
-                               Ratio::k_NANOSECONDS_PER_MILLISECOND,
-                                               INT_MIN, -23, -59, -59, -999},
+      {L_, INT_MIN * Ratio::k_SECONDS_PER_DAY - Ratio::k_SECONDS_PER_DAY,
+                           Ratio::k_NANOSECONDS_PER_MILLISECOND,
+                                      INT_MIN,-23, -59, -59,-999,     0},
+
+      {L_, INT_MAX * Ratio::k_SECONDS_PER_DAY + Ratio::k_SECONDS_PER_DAY,
+                           -1 * Ratio::k_NANOSECONDS_PER_MICROSECOND,
+                                      INT_MAX, 23,  59,  59,  999,  999},
+
+      {L_, INT_MIN * Ratio::k_SECONDS_PER_DAY - Ratio::k_SECONDS_PER_DAY,
+                           Ratio::k_NANOSECONDS_PER_MICROSECOND,
+                                      INT_MIN,-23, -59, -59,-999,  -999},
     //^-------->|
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                LINE      = DATA[i].d_lineNum;
-                const bsls::Types::Int64 SECS      = DATA[i].d_seconds;
-                const int                NSECS     = DATA[i].d_nsecs;
-                const int                EXP_DAYS  = DATA[i].d_expDays;
-                const bsls::Types::Int64 EXP_HOURS = DATA[i].d_expHours;
-                const bsls::Types::Int64 EXP_MINS  = DATA[i].d_expMins;
-                const bsls::Types::Int64 EXP_SECS  = DATA[i].d_expSecs;
-                const bsls::Types::Int64 EXP_MSECS = DATA[i].d_expMSecs;
+                const int                LINE       = DATA[i].d_lineNum;
+                const bsls::Types::Int64 SECS       = DATA[i].d_seconds;
+                const int                NSECS      = DATA[i].d_nsecs;
+                const int                EXP_DAYS   = DATA[i].d_expDays;
+                const bsls::Types::Int64 EXP_HOURS  = DATA[i].d_expHours;
+                const bsls::Types::Int64 EXP_MINS   = DATA[i].d_expMins;
+                const bsls::Types::Int64 EXP_SECS   = DATA[i].d_expSecs;
+                const bsls::Types::Int64 EXP_MLSECS = DATA[i].d_expMlSecs;
+                const bsls::Types::Int64 EXP_MCSECS = DATA[i].d_expMcSecs;
 
                 bsls::TimeInterval ti(SECS, NSECS);
 
@@ -480,7 +511,8 @@ int main(int argc, char *argv[])
                                                 EXP_HOURS,
                                                 EXP_MINS,
                                                 EXP_SECS,
-                                                EXP_MSECS);
+                                                EXP_MLSECS,
+                                                EXP_MCSECS);
 
                 if (veryVerbose) {
                     T_ P_(LINE) P_(ti) P(expected)
@@ -490,6 +522,15 @@ int main(int argc, char *argv[])
                                            Util::convertToDatetimeInterval(ti);
 
                 ASSERTV(LINE, expected, dti, expected == dti);
+
+                int expNs = expNanoseconds(NSECS);
+
+                bsls::TimeInterval expTi(SECS, expNs);
+
+                bsls::TimeInterval convertedTi =
+                                         Util::convertToTimeInterval(expected);
+
+                ASSERTV(LINE, expTi, convertedTi, expTi == convertedTi);
             }
         }
 
@@ -501,58 +542,97 @@ int main(int argc, char *argv[])
                 bsls::Types::Int64 d_hours;  // hours value
                 bsls::Types::Int64 d_mins;   // minutes value
                 bsls::Types::Int64 d_secs;   // seconds value
-                bsls::Types::Int64 d_mSecs;  // milliseconds value
+                bsls::Types::Int64 d_mlSecs; // milliseconds value
+                bsls::Types::Int64 d_mcSecs; // microseconds value
             } DATA[] = {
-                //LN DAYS         HRS  MIN  SEC  MSEC
-                //-- -----------  ---  ---  ---  ----
-                {L_,           0,   0,   0,   0,    0},
+                //LN DAYS         HRS  MIN  SEC  MLSEC MCSEC
+                //-- -----------  ---  ---  ---  ----- -----
+                {L_,           0,   0,   0,   0,    0,     0},
 
                 // Millisecond/microsecond boundary
-                {L_,           0,   0,   0,   0,    0},
-                {L_,           0,   0,   0,   0,    1},
-                {L_,           0,   0,   0,   0,    1},
-                {L_,           0,   0,   0,   0,    0},
-                {L_,           0,   0,   0,   0,   -1},
-                {L_,           0,   0,   0,   0,   -1},
+                {L_,           0,   0,   0,   0,    0,     0},
+                {L_,           0,   0,   0,   0,    1,     0},
+                {L_,           0,   0,   0,   0,    0,     0},
+                {L_,           0,   0,   0,   0,   -1,     0},
+
+                {L_,           0,   0,   0,   0,    0,     1},
+                {L_,           0,   0,   0,   0,    1,     1},
+                {L_,           0,   0,   0,   0,    0,     1},
+                {L_,           0,   0,   0,   0,   -1,    -1},
+
+                {L_,           0,   0,   0,   0,    0,     0},
+                {L_,           0,   0,   0,   0,    1,   999},
+                {L_,           0,   0,   0,   0,    0,     0},
+                {L_,           0,   0,   0,   0,   -1,  -999},
 
                 // Second/fraction boundary
-                {L_,           0,   0,   0,   0,  999},
-                {L_,           0,   0,   0,   1,    0},
-                {L_,           0,   0,   0,   1,    0},
-                {L_,           0,   0,   0,   0, -999},
-                {L_,           0,   0,   0,  -1,    0},
-                {L_,           0,   0,   0,  -1,    0},
+                {L_,           0,   0,   0,   0,  999,     0},
+                {L_,           0,   0,   0,   1,    0,     0},
+                {L_,           0,   0,   0,   0, -999,     0},
+                {L_,           0,   0,   0,  -1,    0,     0},
+
+                {L_,           0,   0,   0,   0,  999,     1},
+                {L_,           0,   0,   0,   1,    0,     1},
+                {L_,           0,   0,   0,   0, -999,    -1},
+                {L_,           0,   0,   0,  -1,    0,    -1},
+
+                {L_,           0,   0,   0,   0,  999,   999},
+                {L_,           0,   0,   0,   1,    0,   999},
+                {L_,           0,   0,   0,   0, -999,  -999},
+                {L_,           0,   0,   0,  -1,    0,  -999},
 
                 // Arbitrary values that express all DatetimeInterval fields
-                {L_,       34722,   5,  20,  11,    9},
-                {L_,       34722,   5,  20,  11,    9},
-                {L_,       34722,   5,  20,  11,   10},
-                {L_,       34722,   5,  20,  11,   10},
-                {L_,      -34722,  -5, -20, -11,   -9},
-                {L_,      -34722,  -5, -20, -11,   -9},
-                {L_,      -34722,  -5, -20, -11,   -9},
-                {L_,      -34722,  -5, -20, -11,  -10},
-                {L_,      -34722,  -5, -20, -11,  -10},
+                {L_,       34722,   5,  20,  11,    9,     0},
+                {L_,       34722,   5,  20,  11,    9,     0},
+                {L_,       34722,   5,  20,  11,   10,     0},
+                {L_,       34722,   5,  20,  11,   10,     0},
+                {L_,      -34722,  -5, -20, -11,   -9,     0},
+                {L_,      -34722,  -5, -20, -11,   -9,     0},
+                {L_,      -34722,  -5, -20, -11,   -9,     0},
+                {L_,      -34722,  -5, -20, -11,  -10,     0},
+                {L_,      -34722,  -5, -20, -11,  -10,     0},
+
+                {L_,       34722,   5,  20,  11,    9,     1},
+                {L_,       34722,   5,  20,  11,    9,     1},
+                {L_,       34722,   5,  20,  11,   10,     1},
+                {L_,       34722,   5,  20,  11,   10,     1},
+                {L_,      -34722,  -5, -20, -11,   -9,    -1},
+                {L_,      -34722,  -5, -20, -11,   -9,    -1},
+                {L_,      -34722,  -5, -20, -11,   -9,    -1},
+                {L_,      -34722,  -5, -20, -11,  -10,    -1},
+                {L_,      -34722,  -5, -20, -11,  -10,    -1},
+
+                {L_,       34722,   5,  20,  11,    9,   999},
+                {L_,       34722,   5,  20,  11,    9,   999},
+                {L_,       34722,   5,  20,  11,   10,   999},
+                {L_,       34722,   5,  20,  11,   10,   999},
+                {L_,      -34722,  -5, -20, -11,   -9,  -999},
+                {L_,      -34722,  -5, -20, -11,   -9,  -999},
+                {L_,      -34722,  -5, -20, -11,   -9,  -999},
+                {L_,      -34722,  -5, -20, -11,  -10,  -999},
+                {L_,      -34722,  -5, -20, -11,  -10,  -999},
 
                 // Limits
-                {L_,     INT_MAX,  23,  59,  59,  999},
-                {L_,     INT_MIN, -23, -59, -59, -999},
+                {L_,     INT_MAX,  23,  59,  59,  999,   999},
+                {L_,     INT_MIN, -23, -59, -59, -999,  -999},
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                LINE  = DATA[i].d_line;
-                const int                DAYS  = DATA[i].d_days;
-                const bsls::Types::Int64 HOURS = DATA[i].d_hours;
-                const bsls::Types::Int64 MINS  = DATA[i].d_mins;
-                const bsls::Types::Int64 SECS  = DATA[i].d_secs;
-                const bsls::Types::Int64 MSECS = DATA[i].d_mSecs;
+                const int                LINE   = DATA[i].d_line;
+                const int                DAYS   = DATA[i].d_days;
+                const bsls::Types::Int64 HOURS  = DATA[i].d_hours;
+                const bsls::Types::Int64 MINS   = DATA[i].d_mins;
+                const bsls::Types::Int64 SECS   = DATA[i].d_secs;
+                const bsls::Types::Int64 MLSECS = DATA[i].d_mlSecs;
+                const bsls::Types::Int64 MCSECS = DATA[i].d_mcSecs;
 
                 bdlt::DatetimeInterval originalValue(DAYS,
                                                      HOURS,
                                                      MINS,
                                                      SECS,
-                                                     MSECS);
+                                                     MLSECS,
+                                                     MCSECS);
 
                 if (veryVerbose) {
                     T_ P_(LINE) P(originalValue)
@@ -613,12 +693,18 @@ int main(int argc, char *argv[])
 
                 seed = random(seed);
 
+                // Extract milliseconds.
+
+                bsls::Types::Int64 MCSECS = seed % 1000;
+
+                seed = random(seed);
+
                 bsls::Types::Int64 source =
                      static_cast<bsls::Types::Int64>(seed) - maxTestCycles / 2;
 
                 // Extract milliseconds.
 
-                bsls::Types::Int64 MSECS = source % 1000;
+                bsls::Types::Int64 MLSECS = source % 1000;
                 source /= 1000;
 
                 // Extract seconds.
@@ -643,7 +729,8 @@ int main(int argc, char *argv[])
                 // Now continue with a normal test.
 
                 if (veryVerbose) {
-                    T_ P_(i) P_(DAYS) P_(HOURS) P_(MINS) P_(SECS) P(MSECS)
+                    T_ P_(i) P_(DAYS) P_(HOURS) P_(MINS) P_(SECS) P_(MLSECS)
+                    P(MCSECS);
                 }
 
                 if (veryVeryVerbose) {
@@ -654,7 +741,8 @@ int main(int argc, char *argv[])
                                                      HOURS,
                                                      MINS,
                                                      SECS,
-                                                     MSECS);
+                                                     MLSECS,
+                                                     MCSECS);
 
                 bsls::TimeInterval timeInterval =
                                     Util::convertToTimeInterval(originalValue);
@@ -681,6 +769,8 @@ int main(int argc, char *argv[])
 
             bdlt::DatetimeInterval maximalDtI(INT_MAX,  23,  59,  59,  999);
             bdlt::DatetimeInterval minimalDtI(INT_MIN, -23, -59, -59, -999);
+            maximalDtI.addMicroseconds( 999);
+            minimalDtI.addMicroseconds(-999);
 
             bsls::TimeInterval maximalTI =
                                        Util::convertToTimeInterval(maximalDtI);
@@ -734,66 +824,67 @@ int main(int argc, char *argv[])
                 bsls::Types::Int64 d_hours;
                 bsls::Types::Int64 d_minutes;
                 bsls::Types::Int64 d_seconds;
-                bsls::Types::Int64 d_msecs;
+                bsls::Types::Int64 d_mlsecs;
+                bsls::Types::Int64 d_mcsecs;
             } DATA[] = {
-                //LINE  DAYS    HOURS  MINUTES  SECONDS  MSECS
+                //LINE  DAYS    HOURS  MINUTES  SECONDS  MLSEC MCSEC
                 //----  ------  -----  -------  -------  ---------------
-                { L_,        0,     0,       0,       0,               0},
-                { L_,       -1,    -1,      -1,      -1,              -1},
-                { L_,        0,     0,       0,       0,             999},
-                { L_,        0,     0,       0,       0,            -999},
-                { L_,        0,     0,       0,      59,               0},
-                { L_,        0,     0,       0,     -59,               0},
-                { L_,        0,     0,      59,       0,               0},
-                { L_,        0,     0,     -59,       0,               0},
-                { L_,        0,    23,       0,       0,               0},
-                { L_,        0,   -23,       0,       0,               0},
-                { L_,       45,     0,       0,       0,               0},
-                { L_,      -45,     0,       0,       0,               0},
-                { L_,       45,    23,      59,      59,             999},
-                { L_,      -45,   -23,     -59,     -59,            -999},
-                { L_,       45,    23,      22,      21,             206},
-                { L_,       45,    23,      22,      21,             207},
-                { L_,       45,    23,      22,      21,             208},
-                { L_,    10000,    23,      22,      21,             206},
-                { L_,   -10000,   -23,     -22,     -21,            -206},
+                { L_,        0,     0,       0,       0,     0,    0},
+                { L_,       -1,    -1,      -1,      -1,    -1,   -1},
+                { L_,        0,     0,       0,       0,   999,    0},
+                { L_,        0,     0,       0,       0,   999,  999},
+                { L_,        0,     0,       0,       0,  -999,    0},
+                { L_,        0,     0,       0,       0,  -999, -999},
+                { L_,        0,     0,       0,      59,     0,    0},
+                { L_,        0,     0,       0,     -59,     0,    0},
+                { L_,        0,     0,      59,       0,     0,    0},
+                { L_,        0,     0,     -59,       0,     0,    0},
+                { L_,        0,    23,       0,       0,     0,    0},
+                { L_,        0,   -23,       0,       0,     0,    0},
+                { L_,       45,     0,       0,       0,     0,    0},
+                { L_,      -45,     0,       0,       0,     0,    0},
+                { L_,       45,    23,      59,      59,   999,    0},
+                { L_,       45,    23,      59,      59,   999,  999},
+                { L_,      -45,   -23,     -59,     -59,  -999,    0},
+                { L_,      -45,   -23,     -59,     -59,  -999, -999},
+                { L_,       45,    23,      22,      21,   206,    0},
+                { L_,       45,    23,      22,      21,   206,    1},
+                { L_,       45,    23,      22,      21,   207,    0},
+                { L_,       45,    23,      22,      21,   207,  999},
+                { L_,       45,    23,      22,      21,   208,    0},
+                { L_,       45,    23,      22,      21,   208,  999},
+                { L_,    10000,    23,      22,      21,   206,    0},
+                { L_,    10000,    23,      22,      21,   206,  999},
+                { L_,   -10000,   -23,     -22,     -21,  -206,    0},
+                { L_,   -10000,   -23,     -22,     -21,  -206, -999},
 
                 // Maximum and minimum possible values
-                { L_,  INT_MAX,    23,      59,      59,             999},
-                { L_,  INT_MIN,   -23,     -59,     -59,            -999},
-
-                /*
-                // As confirmation that the values listed above are the minimum
-                // and maximum possible values, note that the following values
-                // are all invalid, and would trigger assertions if used to
-                // construct a 'bdlt::DatetimeInterval'.
-
-                { L_,  INT_MAX,    24,      59,      59,             999},
-                { L_,  INT_MIN,   -24,     -59,     -59,            -999},
-                { L_,  INT_MAX,    23,      60,      59,             999},
-                { L_,  INT_MIN,   -23,     -60,     -59,            -999},
-                { L_,  INT_MAX,    23,      59,      60,             999},
-                { L_,  INT_MIN,   -23,     -59,     -60,            -999},
-                { L_,  INT_MAX,    23,      59,      59,            1000},
-                { L_,  INT_MIN,   -23,     -59,     -59,           -1000},
-                */
+                { L_,  INT_MAX,    23,      59,      59,   999,  999},
+                { L_,  INT_MIN,   -23,     -59,     -59,  -999,  999},
             };
 
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int LINE                 = DATA[i].d_line;
-                const int DAYS                 = DATA[i].d_days;
-                const bsls::Types::Int64 HOURS = DATA[i].d_hours;
-                const bsls::Types::Int64 MINS  = DATA[i].d_minutes;
-                const bsls::Types::Int64 SECS  = DATA[i].d_seconds;
-                const bsls::Types::Int64 MSECS = DATA[i].d_msecs;
+                const int LINE                  = DATA[i].d_line;
+                const int DAYS                  = DATA[i].d_days;
+                const bsls::Types::Int64 HOURS  = DATA[i].d_hours;
+                const bsls::Types::Int64 MINS   = DATA[i].d_minutes;
+                const bsls::Types::Int64 SECS   = DATA[i].d_seconds;
+                const bsls::Types::Int64 MLSECS = DATA[i].d_mlsecs;
+                const bsls::Types::Int64 MCSECS = DATA[i].d_mcsecs;
 
-                bdlt::DatetimeInterval dti(DAYS, HOURS, MINS, SECS, MSECS);
+                bdlt::DatetimeInterval dti(DAYS,
+                                           HOURS,
+                                           MINS,
+                                           SECS,
+                                           MLSECS,
+                                           MCSECS);
 
                 if (veryVerbose) {
                     T_ P_(LINE) P_(i) T_ P(dti)
-                    T_ P_(DAYS) P_(HOURS) P_(MINS) P_(SECS) P(MSECS)
+                    T_ P_(DAYS) P_(HOURS) P_(MINS) P_(SECS) P_(MLSECS)
+                    P(MCSECS);
                 }
 
                 bsls::TimeInterval ti = Util::convertToTimeInterval(dti);
@@ -801,6 +892,11 @@ int main(int argc, char *argv[])
                         ti,
                         dti,
                         ti.totalMilliseconds() == dti.totalMilliseconds());
+                ASSERTV(LINE,
+                        ti,
+                        dti,
+                        ti.nanoseconds() == 1000 * 1000 * dti.milliseconds() +
+                                                   1000 * dti.microseconds());
             }
         }
       } break;

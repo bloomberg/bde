@@ -89,23 +89,54 @@ int main(int argc, char *argv[]) {
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         bsl::string compare("\\\\.\\pipe\\foo.bar");
+        bsl::string name;
+        ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&name, "FOO.Bar"));
+        LOOP2_ASSERT(name, compare, name == compare);
+        if (verbose) { P(name) }
 #else
         bsl::string compare;
-           const char* tmpdirPtr;
-           if (0 != (tmpdirPtr = bsl::getenv("TMPDIR"))) {
-               compare = tmpdirPtr;
-           }
-           else {
-               bdls::FilesystemUtil::getWorkingDirectory(&compare);
-           }
+        const char  *tmpdirPtr;
+        if (0 != (tmpdirPtr = bsl::getenv("SOCKDIR"))) {
+            compare = tmpdirPtr;
+        }
+        else if (0 != (tmpdirPtr = bsl::getenv("TMPDIR"))) {
+            compare = tmpdirPtr;
+        }
+        else {
+            bdls::FilesystemUtil::getWorkingDirectory(&compare);
+        }
 
-           ASSERT(0 == bdls::PathUtil::appendIfValid(&compare, "foo.bar"));
+        ASSERT(0 == bdls::PathUtil::appendIfValid(&compare, "foo.bar"));
+
+        bsl::string name;
+        ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&name, "FOO.Bar"));
+        LOOP2_ASSERT(name, compare, name == compare);
+        if (verbose) { P(name) }
+
+        if (0 == bsl::getenv("SOCKDIR")) {
+            // 'SOCKDIR' is not set.  Set it and retest.
+            static char sockdir[] = "SOCKDIR=bozonono";
+            ::putenv(sockdir);
+            compare = bsl::getenv("SOCKDIR");
+            ASSERT(0 == bdls::PathUtil::appendIfValid(&compare, "xy.ab"));
+            ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&name, "XY.Ab"));
+            LOOP2_ASSERT(name, compare, name == compare);
+            if (verbose) { P(name) }
+        }
+        else if (0 != bsl::getenv("TMPDIR")) {
+            // Both 'SOCKDIR' and 'TMPDIR' are set.  If 'SOCKDIR' can be
+            // removed, retest 'TMPDIR'.
+            static char sockdir[] = "SOCKDIR";
+            ::putenv(sockdir);
+            if (0 == bsl::getenv("SOCKDIR")) {
+                compare = bsl::getenv("TMPDIR");
+                ASSERT(0 == bdls::PathUtil::appendIfValid(&compare, "xy.ab"));
+                ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&name, "XY.Ab"));
+                LOOP2_ASSERT(name, compare, name == compare);
+                if (verbose) { P(name) }
+            }
+        }
 #endif
-
-           bsl::string name;
-           ASSERT(0 == bdls::PipeUtil::makeCanonicalName(&name, "FOO.Bar"));
-           LOOP2_ASSERT(name, compare, name == compare);
-           if (verbose) { P(name) }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_ATTRIBUTE
 #define INCLUDED_BALL_ATTRIBUTE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a representation of (literal) name/value pairs.
@@ -29,6 +27,10 @@ BSLS_IDENT("$Id: $")
 // attribute that consists of a (literal) name (held but not owned), and an
 // associated value (owned) that can be an 'int', a 64-bit integer, or a
 // 'bsl::string'.
+//
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
 //
 // IMPORTANT: The attribute name, whose type is 'const char *', must therefore
 // remain valid throughout the life time of the 'ball::Attribute' object and
@@ -84,37 +86,19 @@ BSLS_IDENT("$Id: $")
 //    assert(a5 == a1);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLB_VARIANT
 #include <bdlb_variant.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {
@@ -139,10 +123,10 @@ class Attribute {
 
     Value        d_value;      // attribute value
 
-    mutable int  d_hashValue;  // hash value (-1 means unset)
+    mutable int  d_hashValue;  // hash value (-1 indicates it is unset)
 
     mutable int  d_hashSize;   // hash size from which the hash value was
-                               // calculated
+                               // calculated (0 indicates hash value is unset)
 
     // FRIENDS
     friend bool operator==(const Attribute&, const Attribute&);
@@ -158,7 +142,7 @@ class Attribute {
         // Return a hash value calculated from the specified 'attribute' using
         // the specified 'size' as the number of slots.  The hash value is
         // guaranteed to be in the range '[0 .. size - 1]'.  The behavior is
-        // undefined unless '0 <= size'.
+        // undefined unless '0 < size'.
 
     // CREATORS
     Attribute(const char       *name,
@@ -283,6 +267,7 @@ Attribute::Attribute(const char       *name,
 : d_name(name)
 , d_value(basicAllocator)
 , d_hashValue(-1)
+, d_hashSize(0)
 {
     d_value.assign<int>(value);
 }
@@ -294,6 +279,7 @@ Attribute::Attribute(const char         *name,
 : d_name(name)
 , d_value(basicAllocator)
 , d_hashValue(-1)
+, d_hashSize(0)
 {
     d_value.assign<bsls::Types::Int64>(value);
 }
@@ -305,6 +291,7 @@ Attribute::Attribute(const char               *name,
 : d_name(name)
 , d_value(basicAllocator)
 , d_hashValue(-1)
+, d_hashSize(0)
 {
     d_value.assign<bsl::string>(bsl::string(value.data(), value.length()));
 }
@@ -316,6 +303,7 @@ Attribute::Attribute(const char       *name,
 : d_name(name)
 , d_value(value, basicAllocator)
 , d_hashValue(-1)
+, d_hashSize(0)
 {
 }
 

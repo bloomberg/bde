@@ -15,6 +15,7 @@
 #include <bdlf_placeholder.h>
 #include <bdlt_currenttime.h>
 #include <bdlt_datetime.h>
+#include <bdlt_timeunitratio.h>
 
 #include <bslim_testutil.h>
 #include <bslma_defaultallocatorguard.h>
@@ -108,13 +109,14 @@ using namespace bsl;  // automatically added by script
 //
 // ACCESSORS
 // [21] bsls::SystemClockType::Enum clockType() const;
+// [23] bsls::TimeInterval now() const;
 //-----------------------------------------------------------------------------
 // [01] BREATHING TEST
 // [07] TESTING METHODS INVOCATIONS FROM THE DISPATCHER THREAD
 // [10] TESTING CONCURRENT SCHEDULING AND CANCELLING
 // [11] TESTING CONCURRENT SCHEDULING AND CANCELLING-ALL
 // [22] CLOCK REPLACEMENT BREATHING TEST
-// [23] USAGE EXAMPLE
+// [24] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -220,7 +222,7 @@ typedef Obj::RecurringEventHandle          RecurringEventHandle;
 // only assert when we *know* that the condition could not have happened (by
 // measuring elapsed times).
 
-static const float DECI_SEC = 1.0/10;    // 1 deci-second (a tenth of a second)
+static const float DECI_SEC = 0.1f;      // 1 deci-second (a tenth of a second)
 
 static const int   DECI_SEC_IN_MICRO_SEC = 100000;
                                // number of microseconds in a tenth of a second
@@ -786,7 +788,7 @@ void my_Server::newConnection(my_Server::Connection *connection)
     // setup the timeout for data arrival
     d_scheduler.scheduleEvent(
           &connection->d_timerId,
-          bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
+          d_scheduler.now() + d_ioTimeout,
           bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
@@ -810,7 +812,7 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
     // setup the timeout for data arrival
     d_scheduler.scheduleEvent(
           &connection->d_timerId,
-          bsls::SystemTime::nowMonotonicClock() + d_ioTimeout,
+          d_scheduler.now() + d_ioTimeout,
           bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
 
@@ -1248,7 +1250,7 @@ void postSema(bslmt::TimedSemaphore *sema)
 {
     sema->post();
 }
-    
+
 void waitStopAndSignal(bslmt::Barrier        *barrier,
                        Obj                   *mX,
                        bslmt::TimedSemaphore *sema)
@@ -1267,7 +1269,7 @@ void waitStopAndSignal(bslmt::Barrier        *barrier,
 }
 
 void waitAndStart(Obj *mX, bslmt::Barrier *barrier)
-  // Wait on the specified 'barrier', then invoke 'mX->start()'. 
+  // Wait on the specified 'barrier', then invoke 'mX->start()'.
 {
     barrier->wait();
     if (veryVerbose) {
@@ -1278,7 +1280,7 @@ void waitAndStart(Obj *mX, bslmt::Barrier *barrier)
         ET("Started");
     }
 }
-    
+
 void startStopConcurrencyTest()
 {
     // This test tries to expose a vulnerability in a particular implementation
@@ -1322,19 +1324,19 @@ void startStopConcurrencyTest()
 
     // Ensure that the 'start' thread has launched
     syncBarrier.wait();
-    
+
     // Release the scheduled event so that the dispatcher thread can complete
     if (veryVerbose) {
         ET("Releasing dispatcher");
     }
     sema.post();
-    
+
     // Finish 'start'ing
     bslmt::ThreadUtil::join(startThread);
 
     // 'stop' should be able to finish without any problem now. If it takes
     // anything approaching a second, it's deadlocked.
-    
+
     int rc = stopSema.timedWait(
                           bsls::SystemTime::nowMonotonicClock().addSeconds(1));
     ASSERT(0 == rc);
@@ -1347,11 +1349,11 @@ void startStopConcurrencyTest()
     // Job should have been executed
     rc = jobSema.timedWait(bsls::SystemTime::nowMonotonicClock().addSeconds(1));
     ASSERT(0 == rc);
-    
+
     // all done; cleanup
     x.stop();
     bslmt::ThreadUtil::join(stopThread);
-}    
+}
 
 }  // close namespace EVENTSCHEDULER_TEST_CASE_9
 
@@ -1945,9 +1947,9 @@ namespace EVENTSCHEDULER_TEST_CASE_2 {
 
 struct TestCase2Data {
     int               d_line;
-    int               d_startTime;         // in 1/10th of a sec.
+    float             d_startTime;         // in 1/10th of a sec.
     bool              d_isClock;
-    int               d_periodicInterval;  // in 1/10th of a sec.
+    float             d_periodicInterval;  // in 1/10th of a sec.
     int               d_executionTime;     // in 1/10th of a sec.
     bool              d_delayed;
 };
@@ -1969,11 +1971,11 @@ bool testCallbacks(int                  *failures,
     // the thinking here is that this loop, scheduling the events, will take
     // insignificant time
     for (int i = 0; i < NUM_DATA; ++i) {
-        const int  LINE             = DATA[i].d_line;
-        const int  STARTTIME        = DATA[i].d_startTime;
-        const bool ISCLOCK          = DATA[i].d_isClock;
-        const int  PERIODICINTERVAL = DATA[i].d_periodicInterval;
-        const int  EXECUTIONTIME    = DATA[i].d_executionTime;
+        const int   LINE             = DATA[i].d_line;
+        const float STARTTIME        = DATA[i].d_startTime;
+        const bool  ISCLOCK          = DATA[i].d_isClock;
+        const float PERIODICINTERVAL = DATA[i].d_periodicInterval;
+        const int   EXECUTIONTIME    = DATA[i].d_executionTime;
 
         if (ISCLOCK) {
             testObjects[i] = new TestClass(
@@ -2005,7 +2007,7 @@ bool testCallbacks(int                  *failures,
 
     x.start();
     float delta = .5;
-    microSleep((totalTime + delta) * DECI_SEC_IN_MICRO_SEC, 0);
+    microSleep(static_cast<int>(totalTime + delta) * DECI_SEC_IN_MICRO_SEC, 0);
     x.stop();
     double finishTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
     finishTime = (finishTime - now.totalSecondsAsDouble()) * 10 - delta;
@@ -2015,11 +2017,11 @@ bool testCallbacks(int                  *failures,
 
     bool result = true;
     for (int i = 0; i < NUM_DATA; ++i) {
-        const int  LINE             = DATA[i].d_line;
-        const int  STARTTIME        = DATA[i].d_startTime;
-        const bool ISCLOCK          = DATA[i].d_isClock;
-        const int  PERIODICINTERVAL = DATA[i].d_periodicInterval;
-        const bool DELAYED          = DATA[i].d_delayed;
+        const int   LINE             = DATA[i].d_line;
+        const float STARTTIME        = DATA[i].d_startTime;
+        const bool  ISCLOCK          = DATA[i].d_isClock;
+        const float PERIODICINTERVAL = DATA[i].d_periodicInterval;
+        const bool  DELAYED          = DATA[i].d_delayed;
 
         if (veryVerbose) {
             cout << *testObjects[i] << endl;
@@ -2038,7 +2040,8 @@ bool testCallbacks(int                  *failures,
         }
         if (ISCLOCK) {
             if (!testObjects[i]->delayed()) {
-                int n1 = (finishTime - STARTTIME) / PERIODICINTERVAL + 1;
+                int n1 = static_cast<int>((finishTime - STARTTIME)
+                                                       / PERIODICINTERVAL) + 1;
                     // this formula is bogus in general but works for the data
                     // and relies on totalTime being a float
                 int n2 = testObjects[i]->numExecuted();
@@ -2222,7 +2225,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLES:
         //
@@ -2276,6 +2279,81 @@ int main(int argc, char *argv[])
 
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING NOW ACCESSOR
+        //
+        // Concern:
+        //   That the 'now' accessor correctly returns the current time
+        //   according to the clock the object was constructed with, or a test
+        //   time source.
+        //
+        // Plan:
+        //   Create objects with all values of 'clockType', and verify that the
+        //   value returned by the 'now' accessor is as expected.  Then create
+        //   a test time source and verify that the value returned by the 'now'
+        //   accessor matches that of the test time source.
+        //
+        // Testing:
+        //   bsls::TimeInterval now() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING NOW ACCESSOR\n"
+                             "====================\n";
+
+        const bsls::SystemClockType::Enum realTime =
+                                            bsls::SystemClockType::e_REALTIME;
+        const bsls::SystemClockType::Enum monotonic =
+                                            bsls::SystemClockType::e_MONOTONIC;
+
+        ASSERT(realTime != monotonic);
+
+        bslma::TestAllocator ta(veryVeryVerbose);
+
+        if (verbose) cout << "Realtime clock\n";
+        {
+            Obj x(realTime, &ta);    const Obj& X = x;
+
+            ASSERT(realTime == X.clockType());
+
+            bsls::TimeInterval xnow = X.now();
+            bsls::TimeInterval cnow = bsls::SystemTime::now(X.clockType());
+            ASSERT(xnow <= cnow);
+
+            cnow = bsls::SystemTime::now(X.clockType());
+            xnow = X.now();
+            ASSERT(cnow <= xnow);
+        }
+
+        if (verbose) cout << "Monotonic clock\n";
+        {
+            Obj x(monotonic, &ta);    const Obj& X = x;
+
+            ASSERT(monotonic == X.clockType());
+
+            bsls::TimeInterval xnow = X.now();
+            bsls::TimeInterval cnow = bsls::SystemTime::now(X.clockType());
+            ASSERT(xnow <= cnow);
+
+            cnow = bsls::SystemTime::now(X.clockType());
+            xnow = X.now();
+            ASSERT(cnow <= xnow);
+        }
+
+        if (verbose) cout << "Test time source\n";
+        {
+            Obj x(&ta);    const Obj& X = x;
+
+            bdlmt::EventSchedulerTestTimeSource timeSource(&x);
+
+            ASSERT(X.now() == timeSource.now());
+
+            timeSource.advanceTime(bsls::TimeInterval(
+                                              bdlt::TimeUnitRatio::k_S_PER_D));
+            ASSERT(X.now() == timeSource.now());
+        }
+
       } break;
       case 22: {
         // --------------------------------------------------------------------
@@ -4291,7 +4369,7 @@ int main(int argc, char *argv[])
 
                 bsls::TimeInterval       T (1 * DECI_SEC);
                 const bsls::TimeInterval T2(2 * DECI_SEC);
-                const int TI = DECI_SEC;
+                const int TI  =      DECI_SEC_IN_MICRO_SEC;
                 const int T3  =  3 * DECI_SEC_IN_MICRO_SEC;
                 const int T10 = 10 * DECI_SEC_IN_MICRO_SEC;
                 const int T13 = 13 * DECI_SEC_IN_MICRO_SEC;

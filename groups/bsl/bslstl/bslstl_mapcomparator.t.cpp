@@ -189,8 +189,8 @@ class LessThanFunctor {
     bool operator() (const TYPE& lhs, const TYPE& rhs) const
     {
         ++d_numCalls;
-        return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-            < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+        return bsltf::TemplateTestFacility::getIdentifier(lhs)
+             < bsltf::TemplateTestFacility::getIdentifier(rhs);
     }
 
     int numCalls() const
@@ -240,8 +240,8 @@ class LessThanFunctorNonConst {
     bool operator() (const TYPE& lhs, const TYPE& rhs)
     {
         ++d_numCalls;
-        return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-            < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+        return bsltf::TemplateTestFacility::getIdentifier(lhs)
+             < bsltf::TemplateTestFacility::getIdentifier(rhs);
     }
 
     int numCalls() const
@@ -274,8 +274,8 @@ template <class TYPE>
 bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
 {
     ++numFunctionComp;
-    return bsltf::TemplateTestFacility::getIdentifier<TYPE>(lhs)
-        < bsltf::TemplateTestFacility::getIdentifier<TYPE>(rhs);
+    return bsltf::TemplateTestFacility::getIdentifier(lhs)
+         < bsltf::TemplateTestFacility::getIdentifier(rhs);
 }
 
 template <class TYPE>
@@ -795,7 +795,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&ga);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&da);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&da));
 
     bslma::TestAllocatorMonitor gam(&ga), dam(&da);
 

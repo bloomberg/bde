@@ -128,7 +128,7 @@ int breathingTest()
                              , IsFloat> Selection_B;
 
     ASSERT(! (RESULT_A && RESULT_B));
-    ASSERT(RESULT == RESULT_A ? RESULT_A : 2 + RESULT_B);
+    ASSERT(RESULT == (RESULT_A ? RESULT_A : 2 + RESULT_B));
 
     ASSERT(RESULT   == whichTrait(Selection()));
     ASSERT(RESULT_A == whichTrait(Selection_A()));

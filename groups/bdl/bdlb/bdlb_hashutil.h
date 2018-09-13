@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLB_HASHUTIL
 #define INCLUDED_BDLB_HASHUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility of hash functions.
@@ -704,17 +702,10 @@ BSLS_IDENT("$Id: $")
 //  Vector  :       0.05(2)  0.19(5) 0.58(9)  1.20(15) 2.4(64)
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlb {

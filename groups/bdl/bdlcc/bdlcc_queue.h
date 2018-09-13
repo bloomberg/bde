@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLCC_QUEUE
 #define INCLUDED_BDLCC_QUEUE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a thread-enabled queue of items of parameterized 'TYPE'.
@@ -384,49 +382,23 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLC_QUEUE
 #include <bdlc_queue.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_CONDITION
 #include <bslmt_condition.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_LOCKGUARD
 #include <bslmt_lockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -448,35 +420,35 @@ class Queue {
 
     // PRIVATE TYPES
     typedef typename bdlc::Queue<TYPE>::InitialCapacity QueueCapacity;
-                                          // We need this typedef to work
-                                          // around a bug in Sun WorkShop 6
-                                          // update 1: if the typedef is
-                                          // replaced by its actual definition
-                                          // in the two constructors
-                                          // initialization list, the compiler
-                                          // erroneously reports a syntax error
-                                          // ("Expected an expression").
+                                           // We need this typedef to work
+                                           // around a bug in Sun WorkShop 6
+                                           // update 1: if the typedef is
+                                           // replaced by its actual definition
+                                           // in the two constructors
+                                           // initialization list, the compiler
+                                           // erroneously reports a syntax
+                                           // error ("Expected an expression").
 
     // DATA
     mutable
     bslmt::Mutex      d_mutex;             // mutex object used to synchronize
-                                          // access to this queue
+                                           // access to this queue
 
     bslmt::Condition  d_notEmptyCondition; // condition variable used to signal
-                                          // that new data is available in the
-                                          // queue
+                                           // that new data is available in the
+                                           // queue
 
     bslmt::Condition  d_notFullCondition;  // condition variable used to signal
-                                          // when there is room available to
-                                          // add new data to the queue
+                                           // when there is room available to
+                                           // add new data to the queue
 
     bdlc::Queue<TYPE> d_queue;             // the queue, with allocator as last
-                                          // data member
+                                           // data member
 
-    int              d_highWaterMark;     // positive maximum number of items
-                                          // that can be queued before
-                                          // insertions will be blocked, or
-                                          // -1 if unlimited
+    const int         d_highWaterMark;     // positive maximum number of items
+                                           // that can be queued before
+                                           // insertions will be blocked, or
+                                           // -1 if unlimited
 
   private:
     // NOT IMPLEMENTED
@@ -549,7 +521,7 @@ class Queue {
         // 'highWaterMark != 0'.
 
     Queue(const bdlc::Queue<TYPE>&  srcQueue,
-          bslma::Allocator         *basicAllocator = 0);        // IMPLICIT
+          bslma::Allocator         *basicAllocator = 0);            // IMPLICIT
         // Create a queue of objects of parameterized 'TYPE' containing the
         // sequence of 'TYPE' values from the specified 'srcQueue'.  Optionally
         // specify a 'basicAllocator' used to supply memory.  If
@@ -807,15 +779,16 @@ template <class TYPE>
 void Queue<TYPE>::popBack(TYPE *buffer)
 {
     unsigned int length;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-
-    while (0 == (length = d_queue.length())) {
-        d_notEmptyCondition.wait(&d_mutex);
+        while (0 == (length = d_queue.length())) {
+            d_notEmptyCondition.wait(&d_mutex);
+        }
+        *buffer = d_queue.back();
+        d_queue.popBack();
+        --length;
     }
-    *buffer = d_queue.back();
-    d_queue.popBack();
-    --length;
 
     if (length < (unsigned) d_highWaterMark) {
         d_notFullCondition.signal();
@@ -839,6 +812,8 @@ TYPE Queue<TYPE>::popBack()
     d_queue.popBack();
     --length;
 
+    lock.release()->unlock();
+
     if (length < (unsigned) d_highWaterMark) {
         d_notFullCondition.signal();
     }
@@ -849,17 +824,18 @@ template <class TYPE>
 int Queue<TYPE>::timedPopBack(TYPE *buffer, const bsls::TimeInterval& timeout)
 {
     unsigned int length;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-
-    while (0 == (length = d_queue.length())) {
-        if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
-            return 1;                                                 // RETURN
+        while (0 == (length = d_queue.length())) {
+            if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
         }
+        *buffer = d_queue.back();
+        d_queue.popBack();
+        --length;
     }
-    *buffer = d_queue.back();
-    d_queue.popBack();
-    --length;
 
     if (length < (unsigned) d_highWaterMark) {
         d_notFullCondition.signal();
@@ -871,15 +847,16 @@ template <class TYPE>
 void Queue<TYPE>::popFront(TYPE *buffer)
 {
     unsigned int length;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-
-    while (0 == (length = d_queue.length())) {
-        d_notEmptyCondition.wait(&d_mutex);
+        while (0 == (length = d_queue.length())) {
+            d_notEmptyCondition.wait(&d_mutex);
+        }
+        *buffer = d_queue.front();
+        d_queue.popFront();
+        --length;
     }
-    *buffer = d_queue.front();
-    d_queue.popFront();
-    --length;
 
     if (length < (unsigned) d_highWaterMark) {
         d_notFullCondition.signal();
@@ -903,6 +880,8 @@ TYPE Queue<TYPE>::popFront()
     d_queue.popFront();
     --length;
 
+    lock.release()->unlock();
+
     if (length < (unsigned) d_highWaterMark) {
         d_notFullCondition.signal();
     }
@@ -913,17 +892,18 @@ template <class TYPE>
 int Queue<TYPE>::timedPopFront(TYPE *buffer, const bsls::TimeInterval& timeout)
 {
     unsigned int length;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-
-    while (0 == (length = d_queue.length())) {
-        if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
-            return 1;                                                 // RETURN
+        while (0 == (length = d_queue.length())) {
+            if (d_notEmptyCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
         }
+        *buffer = d_queue.front();
+        d_queue.popFront();
+        --length;
     }
-    *buffer = d_queue.front();
-    d_queue.popFront();
-    --length;
 
     if (length < (unsigned) d_highWaterMark) {
         d_notFullCondition.signal();
@@ -935,15 +915,16 @@ template <class TYPE>
 int Queue<TYPE>::tryPopFront(TYPE *buffer)
 {
     unsigned int length;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-
-    if (0 == (length = d_queue.length())) {
-        return 1;                                                     // RETURN
+        if (0 == (length = d_queue.length())) {
+            return 1;                                                 // RETURN
+        }
+        *buffer = d_queue.front();
+        d_queue.popFront();
+        --length;
     }
-    *buffer = d_queue.front();
-    d_queue.popFront();
-    --length;
 
     if (length < (unsigned) d_highWaterMark) {
         d_notFullCondition.signal();
@@ -954,20 +935,28 @@ int Queue<TYPE>::tryPopFront(TYPE *buffer)
 template <class TYPE>
 void Queue<TYPE>::tryPopFront(int maxNumItems, bsl::vector<TYPE> *buffer)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    int numSignal = 0;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    int        length  = d_queue.length();
-    const bool wasFull = d_highWaterMark > 0 && length >= d_highWaterMark;
+        int        length  = d_queue.length();
+        const bool wasFull = d_highWaterMark > 0 && length >= d_highWaterMark;
 
-    for (; d_queue.length() > 0 && maxNumItems > 0; --maxNumItems) {
-        if (buffer) {
-            buffer->push_back(d_queue.front());
+        for (; d_queue.length() > 0 && maxNumItems > 0; --maxNumItems) {
+            if (buffer) {
+                buffer->push_back(d_queue.front());
+            }
+            d_queue.popFront();
+            --length;
         }
-        d_queue.popFront();
-        --length;
+
         if (wasFull && length < d_highWaterMark) {
-            d_notFullCondition.signal();
+            numSignal = d_highWaterMark - length;
         }
+    }
+
+    for (; 0 < numSignal; --numSignal) {
+        d_notFullCondition.signal();
     }
 }
 
@@ -975,15 +964,16 @@ template <class TYPE>
 int Queue<TYPE>::tryPopBack(TYPE *buffer)
 {
     unsigned int length;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-
-    if (0 == (length = d_queue.length())) {
-        return 1;                                                     // RETURN
+        if (0 == (length = d_queue.length())) {
+            return 1;                                                 // RETURN
+        }
+        *buffer = d_queue.back();
+        d_queue.popBack();
+        --length;
     }
-    *buffer = d_queue.back();
-    d_queue.popBack();
-    --length;
 
     if (length < (unsigned) d_highWaterMark) {
         d_notFullCondition.signal();
@@ -994,20 +984,28 @@ int Queue<TYPE>::tryPopBack(TYPE *buffer)
 template <class TYPE>
 void Queue<TYPE>::tryPopBack(int maxNumItems, bsl::vector<TYPE> *buffer)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    int numSignal = 0;
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-    int        length  = d_queue.length();
-    const bool wasFull = d_highWaterMark > 0 && length >= d_highWaterMark;
+        int        length  = d_queue.length();
+        const bool wasFull = d_highWaterMark > 0 && length >= d_highWaterMark;
 
-    for (; d_queue.length() > 0 && maxNumItems > 0; --maxNumItems) {
-        if (buffer) {
-            buffer->push_back(d_queue.back());
+        for (; d_queue.length() > 0 && maxNumItems > 0; --maxNumItems) {
+            if (buffer) {
+                buffer->push_back(d_queue.back());
+            }
+            d_queue.popBack();
+            --length;
         }
-        d_queue.popBack();
-        --length;
+
         if (wasFull && length < d_highWaterMark) {
-            d_notFullCondition.signal();
+            numSignal = d_highWaterMark - length;
         }
+    }
+
+    for (; 0 < numSignal; --numSignal) {
+        d_notFullCondition.signal();
     }
 }
 
@@ -1017,6 +1015,9 @@ void Queue<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     bool wasFull = d_highWaterMark > 0 && d_queue.length() >= d_highWaterMark;
     d_queue.removeAll(buffer);
+
+    lock.release()->unlock();
+
     if (wasFull) {
         for (int i = 0; d_highWaterMark > i; ++i) {
             d_notFullCondition.signal();
@@ -1027,26 +1028,32 @@ void Queue<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 template <class TYPE>
 void Queue<TYPE>::pushBack(const TYPE& item)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    if (d_highWaterMark >= 0) {
-        while (d_queue.length() >= d_highWaterMark) {
-            d_notFullCondition.wait(&d_mutex);
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        if (d_highWaterMark >= 0) {
+            while (d_queue.length() >= d_highWaterMark) {
+                d_notFullCondition.wait(&d_mutex);
+            }
         }
+        d_queue.pushBack(item);
     }
-    d_queue.pushBack(item);
+
     d_notEmptyCondition.signal();
 }
 
 template <class TYPE>
 void Queue<TYPE>::pushFront(const TYPE& item)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    if (d_highWaterMark >= 0) {
-        while (d_queue.length() >= d_highWaterMark) {
-            d_notFullCondition.wait(&d_mutex);
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        if (d_highWaterMark >= 0) {
+            while (d_queue.length() >= d_highWaterMark) {
+                d_notFullCondition.wait(&d_mutex);
+            }
         }
+        d_queue.pushFront(item);
     }
-    d_queue.pushFront(item);
+
     d_notEmptyCondition.signal();
 }
 
@@ -1054,15 +1061,18 @@ template <class TYPE>
 int Queue<TYPE>::timedPushBack(const TYPE&               item,
                                const bsls::TimeInterval& timeout)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    if (d_highWaterMark >= 0) {
-        while (d_queue.length() >= d_highWaterMark) {
-            if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
-                return 1;                                             // RETURN
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        if (d_highWaterMark >= 0) {
+            while (d_queue.length() >= d_highWaterMark) {
+                if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
+                    return 1;                                         // RETURN
+                }
             }
         }
+        d_queue.pushBack(item);
     }
-    d_queue.pushBack(item);
+
     d_notEmptyCondition.signal();
     return 0;
 }
@@ -1071,15 +1081,18 @@ template <class TYPE>
 int Queue<TYPE>::timedPushFront(const TYPE&               item,
                                 const bsls::TimeInterval& timeout)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    if (d_highWaterMark >= 0) {
-        while (d_queue.length() >= d_highWaterMark) {
-            if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
-                return 1;                                             // RETURN
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        if (d_highWaterMark >= 0) {
+            while (d_queue.length() >= d_highWaterMark) {
+                if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
+                    return 1;                                         // RETURN
+                }
             }
         }
+        d_queue.pushFront(item);
     }
-    d_queue.pushFront(item);
+
     d_notEmptyCondition.signal();
     return 0;
 }
@@ -1088,8 +1101,10 @@ template <class TYPE>
 inline
 void Queue<TYPE>::forcePushFront(const TYPE& item)
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
-    d_queue.pushFront(item);
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        d_queue.pushFront(item);
+    }
     d_notEmptyCondition.signal();
 }
 

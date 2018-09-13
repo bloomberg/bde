@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_CONTEXT
 #define INCLUDED_BALL_CONTEXT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a container for the context of a transmitted log record.
@@ -207,33 +205,18 @@ BSLS_IDENT("$Id: $")
 // message (severity 'ERROR') was logged, it triggered a dump of the complete
 // message archive (in reverse order).
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_TRANSMISSION
 #include <ball_transmission.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #if defined(BSLS_PLATFORM_CMP_MSVC) && defined(PASSTHROUGH)

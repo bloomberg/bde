@@ -24,6 +24,7 @@
 #include <bslmf_assert.h>
 #include <bslmf_isbitwisemoveable.h>
 
+#include <bsls_asserttest.h>
 #include <bsls_atomic.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
@@ -218,6 +219,17 @@ void aSsErT(bool condition, const char *message, int line)
 #define PP(X) (cout << #X " = " << (X) << endl, false) // Print identifier and
                                          // value, return false, as expression.
 
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
 //=============================================================================
 //                                    GLOBALS
 //-----------------------------------------------------------------------------
@@ -242,14 +254,12 @@ typedef bsl::size_t            size_t;
 typedef Obj::Proctor           Proctor;
 typedef Obj::ConstProctor      ConstProctor;
 typedef bsls::Types::Int64     Int64;
+typedef bsls::Types::IntPtr    IntPtr;
 
 static const bsl::size_t      maxSizeT = ~static_cast<bsl::size_t>(0);
 
 static const double DECI_SEC      = 0.1;
                                     // 1 deci second (i.e., 1/10th of a second)
-
-static const int MICRO_SEC_IN_SEC = 100000;
-                                         // number of micro seconds in a second
 
 static const int MICRO_100TH_SEC =    10000;
                                        // number of micro seconds in .1 seconds
@@ -757,7 +767,7 @@ namespace USAGE_EXAMPLE_1 {
         // Dummy implementation of 'getWorkData' function required by the usage
         // example.
     {
-        static int i = 1;
+        static bsls::AtomicInt i(1);
         return ++i < 1000;
     }
 //..
@@ -1068,7 +1078,6 @@ typedef bdlcc::Deque<unsigned> Container;
 
 bslmt::Barrier barrier(5);
 
-const unsigned idMask       = 3 << 30;
 const unsigned startEndMask = 1 << 29;
 const unsigned sequenceMask = 0xffff;
 
@@ -2795,11 +2804,20 @@ int main(int argc, char *argv[])
 
         int ii = 0, jj = 0;
         ASSERT(ii++ == Obj::ConstProctor(&mX)->front());
-        ASSERT(ii++ == (*Obj::ConstProctor(&mX))[++jj]);
-        ASSERT(ii++ == (*Obj::ConstProctor(&mX))[++jj]);
-        ASSERT(ii++ == (*Obj::ConstProctor(&mX))[++jj]);
-        ASSERT(ii++ == (*Obj::ConstProctor(&mX))[++jj]);
+        ASSERT(ii++ == Obj::ConstProctor(&mX)[++jj]);
+        ASSERT(ii++ == Obj::ConstProctor(&mX)[++jj]);
+        ASSERT(ii++ == Obj::ConstProctor(&mX)[++jj]);
+        ASSERT(ii++ == Obj::ConstProctor(&mX)[++jj]);
         ASSERT(ii++ == Obj::ConstProctor(&mX)->back());
+
+        ASSERT(--ii == Obj::Proctor(&mX)->back());
+        ASSERT(--ii == Obj::Proctor(&mX)[jj--]);
+        ASSERT(--ii == Obj::Proctor(&mX)[jj--]);
+        ASSERT(--ii == Obj::Proctor(&mX)[jj--]);
+        ASSERT(--ii == Obj::Proctor(&mX)[jj--]);
+        ASSERT(--ii == Obj::Proctor(&mX)->front());
+        ASSERTV(ii, 0 == ii);
+        ASSERTV(jj, 0 == jj);
       } break;
       case 23: {
         // --------------------------------------------------------------------
@@ -3222,8 +3240,8 @@ int main(int argc, char *argv[])
             BEGIN_EXCEP_TEST_AOBJ(mX) {
                 mX.forcePushBack(e);
             } END_EXCEP_TEST_AOBJ
-            ASSERT(ii + 1 == X.length());
-            ASSERT(u::myBack(X) == e);
+            ASSERTV(ii, X.length(), ii + 1 == X.length());
+            ASSERTV(X, u::myBack(X) == e);
         }
 
         bsl::vector<AElement> v(&ta);
@@ -3231,9 +3249,9 @@ int main(int argc, char *argv[])
             mX.removeAll(&v);
         } END_EXCEP_TEST_AOBJ_AVEC
 
-        ASSERT(10 == v.size());
+        ASSERTV(v.size(), 10 == v.size());
         for (int ii = 0; ii < 10; ++ii) {
-            ASSERT('A' + ii == v[ii].data());
+            ASSERTV(ii, v[ii].data(), 'A' + ii == v[ii].data());
         }
         v.clear();
 
@@ -3242,17 +3260,17 @@ int main(int argc, char *argv[])
             BEGIN_EXCEP_TEST_AOBJ(mX) {
                 mX.forcePushFront(e);
             } END_EXCEP_TEST_AOBJ
-            ASSERT(11 - ii == X.length());
-            ASSERT(u::myFront(X) == e);
+            ASSERTV(ii, X.length(), 11 - ii == X.length());
+            ASSERTV(X, u::myFront(X) == e);
         }
 
         BEGIN_EXCEP_TEST_AOBJ_AVEC(mX, v) {
             mX.removeAll(&v);
         } END_EXCEP_TEST_AOBJ_AVEC
 
-        ASSERT(10 == v.size());
+        ASSERTV(v.size(), 10 == v.size());
         for (int ii = 0; ii < 10; ++ii) {
-            ASSERT('A' + ii + 1 == v[ii].data());
+            ASSERTV(ii, v[ii].data(), 'A' + ii + 1 == v[ii].data());
         }
       } break;
       case 18: {
@@ -4605,6 +4623,16 @@ int main(int argc, char *argv[])
                 ASSERT(3 == PRB->end()  - PRB->begin());
                 ASSERT(3 == PRB->rend() - PRB->rbegin());
 
+                // Negative testing
+
+                bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+                ASSERT_SAFE_PASS(prB[2]);
+                ASSERT_SAFE_FAIL(prB[3]);
+                ASSERT_SAFE_FAIL(prB[1000 * 1000]);
+                ASSERT_SAFE_FAIL(prB[-1]);
+
                 const Obj::ConstProctor PRC(&Y);
 
                 pdy = &*PRC;
@@ -4621,6 +4649,13 @@ int main(int argc, char *argv[])
 
                 ASSERT(3 == PRC->end()  - PRC->begin());
                 ASSERT(3 == PRC->rend() - PRC->rbegin());
+
+                // Negative testing
+
+                ASSERT_SAFE_PASS(PRC[2]);
+                ASSERT_SAFE_FAIL(PRC[3]);
+                ASSERT_SAFE_FAIL(PRC[1000 * 1000]);
+                ASSERT_SAFE_FAIL(PRC[-1]);
             }
 
             if (verbose) cout << "Single-Threaded Proctor Testing\n";
@@ -4726,6 +4761,21 @@ int main(int argc, char *argv[])
                 ASSERT(3 == PR->end()  - PR->begin());
                 ASSERT(3 == PR->rend() - PR->rbegin());
 
+                // Negative testing
+
+                bsls::AssertFailureHandlerGuard hG(
+                                             bsls::AssertTest::failTestDriver);
+
+                ASSERT_SAFE_PASS(pr[2]);
+                ASSERT_SAFE_FAIL(pr[3]);
+                ASSERT_SAFE_FAIL(pr[1000 * 1000]);
+                ASSERT_SAFE_FAIL(pr[-1]);
+
+                ASSERT_SAFE_PASS(PR[2]);
+                ASSERT_SAFE_FAIL(PR[3]);
+                ASSERT_SAFE_FAIL(PR[1000 * 1000]);
+                ASSERT_SAFE_FAIL(PR[-1]);
+
                 Proctor prB;
                 prB.load(&mX);
                 ASSERT(&*prB == pdx);
@@ -4829,6 +4879,11 @@ int main(int argc, char *argv[])
         //:
         //: 2 Inject exceptions into the calls of each of the manipulators
         //:   under test to verify that they provide the strong guarantee.
+        //:
+        //: 3 Do a separate, single-threaded test of 'timedPop{Front,Back}'
+        //:   with exceptions injected.  This can't be done in the main
+        //:   multithreaded test because exceptions get injected into the
+        //:   wrong threads where they are not caught.
         //
         // Testing:
         //   int timedPopBack( TYPE *, const bsls::TimeInterval&);
@@ -4948,10 +5003,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             ret.setData(VC.data());
-            BEGIN_EXCEP_TEST_AOBJ(x) {
-                ASSERT(0 == x.timedPopBack(&ret,
-                                           bdlt::CurrentTime::now()+T10));
-            } END_EXCEP_TEST_AOBJ
+            ASSERT(0 == x.timedPopBack(&ret, bdlt::CurrentTime::now()+T10));
             ASSERT(VA == ret);
 
             sw.stop();
@@ -4972,10 +5024,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             ret.setData(VC.data());
-            BEGIN_EXCEP_TEST_AOBJ(x) {
-                ASSERT(0 == x.timedPopBack(&ret,
-                                           bdlt::CurrentTime::now()+T10));
-            } END_EXCEP_TEST_AOBJ
+            ASSERT(0 == x.timedPopBack(&ret, bdlt::CurrentTime::now()+T10));
             ASSERT(VB == ret);
 
             sw.stop();
@@ -5069,10 +5118,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             ret.setData(VC.data());
-            BEGIN_EXCEP_TEST_AOBJ(x) {
-                ASSERT(0 == x.timedPopFront(&ret,
-                                            bdlt::CurrentTime::now()+T10));
-            } END_EXCEP_TEST_AOBJ
+            ASSERT(0 == x.timedPopFront(&ret, bdlt::CurrentTime::now()+T10));
             ASSERT(VA == ret);
 
             sw.stop();
@@ -5093,10 +5139,7 @@ int main(int argc, char *argv[])
             sw.start(true);
 
             ret.setData(VC.data());
-            BEGIN_EXCEP_TEST_AOBJ(x) {
-                ASSERT(0 == x.timedPopFront(&ret,
-                                            bdlt::CurrentTime::now()+T10));
-            } END_EXCEP_TEST_AOBJ
+            ASSERT(0 == x.timedPopFront(&ret, bdlt::CurrentTime::now()+T10));
             ASSERT(VB == ret);
 
             sw.stop();
@@ -5109,6 +5152,99 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::join(thread);
             TC::waitingFlag = 0;
+        }
+
+        if (verbose) cout <<
+                    "Single-threaded 'timedPop{Front,Back}' with exceptions\n";
+        for (int ti = 0; ti < 2; ++ti) {
+            bool doFront = ti;
+
+            enum { k_NUM_ELEMENTS = 20 };
+
+            AObj x(&ta);
+            bsl::vector<AElement> v(&ta);
+            v.insert(v.end(), k_NUM_ELEMENTS, VC);
+
+            {
+                AObj::Proctor p(&x);
+                p->insert(p->end(), k_NUM_ELEMENTS, VA);
+            }
+
+            sw.reset();
+            sw.start(true);
+            double lastTime = sw.accumulatedWallTime();
+            for (int ii = 20 - 1; 0 <= ii; --ii) {
+                int pass = 0;
+                BEGIN_EXCEP_TEST_AOBJ(x) {
+                    ++pass;
+
+                    for (int jj = 0; jj < k_NUM_ELEMENTS; ++jj) {
+                        const AElement& EXP = jj <= ii ? VC : VA;
+                        ASSERTV(VA, VC, jj, ii, v[jj], EXP, EXP == v[jj]);
+                    }
+
+                    ASSERTV(ii, x.length(), ii + 1 == (IntPtr) x.length());
+                    for (int jj = 0; jj <= ii; ++jj) {
+                        const AObj::Proctor p(&x);
+                        const bsl::deque<AElement>& d = *p;
+                        ASSERTV(VA, jj, d.size(), d[jj], VA == d[jj]);
+                    }
+
+                    ASSERT(sw.accumulatedWallTime() - lastTime < 0.05);
+                    lastTime = sw.accumulatedWallTime();
+
+                    if (doFront) {
+                        bsl::deque<AElement>::iterator it;
+                        {
+                            AObj::Proctor p(&x);
+                            it = p->end();
+                        }
+
+                        ASSERT(0 == x.timedPopFront(
+                                                &v[ii],
+                                                bdlt::CurrentTime::now()+T10));
+                        {
+                            AObj::Proctor p(&x);
+                            ASSERT(p->end() == it);
+                        }
+                    }
+                    else {
+                        bsl::deque<AElement>::iterator it;
+                        {
+                            AObj::Proctor p(&x);
+                            it = p->begin();
+                        }
+
+                        ASSERT(0 == x.timedPopBack(
+                                                &v[ii],
+                                                bdlt::CurrentTime::now()+T10));
+                        {
+                            AObj::Proctor p(&x);
+                            ASSERT(p->begin() == it);
+                        }
+                    }
+
+                    ASSERT(sw.accumulatedWallTime() - lastTime < 0.05);
+                    ASSERTV(ii, pass, PLAT_EXC, (PLAT_EXC ? 1 : 0) < pass);
+
+                    ASSERT(VA == v[ii]);
+
+                    ASSERTV(ii, x.length(), ii == (IntPtr) x.length());
+                    for (int jj = 0; jj < ii; ++jj) {
+                        const AObj::Proctor p(&x);
+                        const bsl::deque<AElement>& d = *p;
+                        ASSERTV(VA, jj, d.size(), d[jj], VA == d[jj]);
+                    }
+
+                    for (int jj = 0; jj < k_NUM_ELEMENTS; ++jj) {
+                        const AElement& EXP = jj < ii ? VC : VA;
+                        ASSERTV(VA, VC, jj, ii, v[jj], EXP, EXP == v[jj]);
+                    }
+
+                    lastTime = sw.accumulatedWallTime();
+                } END_EXCEP_TEST_AOBJ
+            }
+            sw.stop();
         }
 
         ASSERT(0 == ta.numBytesInUse());
@@ -6100,6 +6236,9 @@ int main(int argc, char *argv[])
                 ASSERT(VA == (*cpr)[0]);
                 ASSERT(VB == (*cpr)[1]);
                 ASSERT(VC == (*cpr)[2]);
+                ASSERT(VA == cpr[0]);
+                ASSERT(VB == cpr[1]);
+                ASSERT(VC == cpr[2]);
                 ASSERT(VA == cpr->front());
                 ASSERT(VC == cpr->back());
                 ASSERT(VA == *cpr->begin());
@@ -6115,6 +6254,9 @@ int main(int argc, char *argv[])
                 ASSERT(VA == (*pr)[0]);
                 ASSERT(VB == (*pr)[1]);
                 ASSERT(VC == (*pr)[2]);
+                ASSERT(VA == pr[0]);
+                ASSERT(VB == pr[1]);
+                ASSERT(VC == pr[2]);
                 ASSERT(VA == pr->front());
                 ASSERT(VC == pr->back());
                 ASSERT(VA == *pr->begin());
@@ -6128,7 +6270,7 @@ int main(int argc, char *argv[])
                 ASSERT(VB == (*pr)[1]);
                 ASSERT(VA == pr->back());
 
-                (*pr)[1] = VA;
+                pr[1] = VA;
                 ASSERT(VA == (*pr)[1]);
 
                 pr->front() = VB;
@@ -6310,10 +6452,17 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// NOTICE:
-//      Copyright (C) Bloomberg L.P., 2014
-//      All Rights Reserved.
-//      Property of Bloomberg L.P. (BLP)
-//      This software is made available solely pursuant to the
-//      terms of a BLP license agreement which governs its use.
+// Copyright 2018 Bloomberg Finance L.P.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------

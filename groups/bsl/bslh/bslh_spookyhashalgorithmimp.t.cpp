@@ -202,9 +202,10 @@ const int NUM_DATA = sizeof DATA / sizeof *DATA;
         CheckedData(const char *data, size_t length);
             // Creates an instance of this class having the specified 'length'
             // bytes of 'data'.  The behaviour is undefined unless 'data' is
-            // initialized with at least 'length' bytes, and remains valid for
-            // the lifetime of this object.  Note that only a pointer to the
-            // data will be maintained, it will not be copied.
+            // initialized with at least 'length' bytes or 'length' is zero,
+            // and remains valid for the lifetime of this object.  Note that
+            // only a pointer to the data will be maintained, it will not be
+            // copied.
 
         const char *getData();
             // Return a pointer to the data being tracked by this class.
@@ -225,7 +226,7 @@ const int NUM_DATA = sizeof DATA / sizeof *DATA;
     , d_checksum1(0)
     , d_checksum2(0)
     {
-        BSLS_ASSERT(data);
+        BSLS_ASSERT(0 != data || 0 == length);
 
         SpookyHashAlgorithmImp hashAlg(1, 2);
 
@@ -361,7 +362,8 @@ int main(int argc, char *argv[])
         //: 2 Hashes returned match the data produced by the canonical
         //:   implementation of SpookyHash.
         //:
-        //: 3 Both function do a BSLS_ASSERT for null pointers.
+        //: 3 Both functions do a BSLS_ASSERT for null pointers and non-zero
+        //:   length, and not for null pointers and zero length.
         //
         // Plan:
         //: 1 Check the values returned against the expected results from a
@@ -459,8 +461,10 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(Obj::hash64(   0, 5, h64));
+            ASSERT_PASS(Obj::hash64(   0, 0, h64));
             ASSERT_PASS(Obj::hash64(data, 5, h64));
             ASSERT_FAIL(Obj::hash32(   0, 5, h32));
+            ASSERT_PASS(Obj::hash32(   0, 0, h32));
             ASSERT_PASS(Obj::hash32(data, 5, h32));
         }
 
@@ -479,7 +483,8 @@ int main(int argc, char *argv[])
         //: 2 Hashes returned via 'h1' and 'h2' match the data produced by the
         //:   canonical implementation of SpookyHash.
         //:
-        //: 3 'hash128' does a BSLS_ASSERT for null pointers.
+        //: 3 'hash128' does a BSLS_ASSERT for null pointers and non-zero
+        //:   length, and not for null pointers and zero length.
         //
         // Plan:
         //: 1 Check the values returned in 'h1' and 'h2' against the expected
@@ -527,6 +532,7 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(Obj::hash128(   0, 5, &h1, &h2));
+            ASSERT_PASS(Obj::hash128(   0, 0, &h1, &h2));
             ASSERT_FAIL(Obj::hash128(data, 5,   0, &h2));
             ASSERT_FAIL(Obj::hash128(data, 5, &h1,   0));
             ASSERT_PASS(Obj::hash128(data, 5, &h1, &h2));
@@ -559,7 +565,8 @@ int main(int argc, char *argv[])
         //:  'finalize' matches the data produced by the canonical
         //:  implementation of SpookyHash.
         //:
-        //: 5 'update' does a BSLS_ASSERT for null pointers.
+        //: 5 'update' does a BSLS_ASSERT for null pointers and non-zero
+        //:   length, and not for null pointers and zero length.
         //
         // Plan:
         //: 1 Insert various lengths of c-strings into the algorithm both all
@@ -670,6 +677,7 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(hash.update(0, 5));
+            ASSERT_PASS(hash.update(0, 0));
             ASSERT_PASS(hash.update(data, 5));
 
         }
@@ -701,7 +709,7 @@ int main(int argc, char *argv[])
         //: 4 'finalize' can be called multiple times and does not modify the
         //:   state of the algorithm or return different results.
         //:
-        //: 5 'update' does a BSLS_ASSERT for null pointers.
+        //: 5 'finalize' does a BSLS_ASSERT for null pointers.
         //
         // Plan:
         //: 1 Initialize the algorithm with various seeds test that permuting

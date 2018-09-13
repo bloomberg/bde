@@ -129,7 +129,7 @@ class AssignValue {
     // This visitor assigns 'd_value' to the visited member.
 
     // PRIVATE DATA MEMBERS
-    const RVALUE_TYPE& d_value;  // held, not owned
+    RVALUE_TYPE d_value;
 
   public:
     // CREATORS

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLMT_THREADPOOL
 #define INCLUDED_BDLMT_THREADPOOL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide portable implementation for a dynamic pool of threads.
@@ -166,7 +164,7 @@ BSLS_IDENT("$Id: $")
 //       if (file) {
 //           char  buffer[1024];
 //           size_t nread;
-//           int wordLen = job->d_word->length();
+//           size_t wordLen = job->d_word->length();
 //           const char *word = job->d_word->c_str();
 //
 //           nread = fread(buffer, 1, sizeof(buffer) - 1, file);
@@ -276,7 +274,7 @@ BSLS_IDENT("$Id: $")
 //      if (file) {
 //          char  buffer[1024];
 //          size_t nread;
-//          int wordLen = job->d_word->length();
+//          size_t wordLen = job->d_word->length();
 //          const char *word = job->d_word->c_str();
 //
 //          nread = fread(buffer, 1, sizeof(buffer) - 1, file);
@@ -346,70 +344,35 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
 #include <bslmt_threadattributes.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_CONDITION
 #include <bslmt_condition.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
-#endif
+#include <bslmf_movableref.h>
 
-#ifndef INCLUDED_BDLF_BIND
 #include <bdlf_bind.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSL_DEQUE
 #include <bsl_deque.h>
-#endif
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
-    #ifndef INCLUDED_BSL_CSIGNAL
     #include <bsl_csignal.h>              // sigfillset
-    #endif
 #endif
-
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -517,9 +480,18 @@ class ThreadPool {
 
     // PRIVATE MANIPULATORS
     void doEnqueueJob(const Job& job);
+    void doEnqueueJob(bslmf::MovableRef<Job> job);
         // Internal method used to push the specified 'job' onto 'd_queue' and
         // signal the next waiting thread if any.  Note that this method must
         // be called with 'd_mutex' locked.
+
+    void wakeThreadIfNeeded();
+        // Signal this thread and pop the current thread from the wait list.
+
+    int startThreadIfNeeded();
+        // Start a new thread if needed and the maximum number of threads are
+        // not yet running.  Return 0 if at least one thread is running, and a
+        // non-zero value otherwise.
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
     void initBlockSet();
@@ -567,6 +539,7 @@ class ThreadPool {
         // complete.  Use 'start' to re-enable queuing.
 
     int enqueueJob(const Job& functor);
+    int enqueueJob(bslmf::MovableRef<Job> functor);
         // Enqueue the specified 'functor' to be executed by the next available
         // thread.  Return 0 if enqueued successfully, and a non-zero value if
         // queuing is currently disabled.  The behavior is undefined unless

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_SEVERITY
 #define INCLUDED_BALL_SEVERITY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Enumerate a set of logging severity levels.
@@ -98,17 +96,11 @@ BSLS_IDENT("$Id: $")
 // Setting the global threshold to 'ALL' causes all messages to be published;
 // setting it to 'OFF' disables logging.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #if BSLS_PLATFORM_HAS_MACRO_PUSH_POP
@@ -163,14 +155,31 @@ struct Severity {
       , BAEL_TRACE = e_TRACE
       , BAEL_NONE  = 224
 
+#ifndef OFF
       , OFF   = e_OFF
+#endif
+#ifndef FATAL
       , FATAL = e_FATAL
+#endif
+#ifndef ERROR
       , ERROR = e_ERROR
+#endif
+#ifndef WARN
       , WARN  = e_WARN
+#endif
+#ifndef INFO
       , INFO  = e_INFO
+#endif
+#ifndef DEBUG
       , DEBUG = e_DEBUG
+#endif
+#ifndef TRACE
       , TRACE = e_TRACE
+#endif
+#ifndef NONE
       , NONE  = BAEL_NONE
+#endif
+
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 

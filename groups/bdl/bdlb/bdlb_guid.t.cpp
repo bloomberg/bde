@@ -799,7 +799,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl
                           << "TESTING STREAMING FUNCTIONALITY" << endl
                           << "===============================" << endl;
-        cout << "NOT IMPLEMENTED" << endl;
+        if (verbose) cout << "NOT IMPLEMENTED" << endl;
       } break;
       case 9 : {
         // --------------------------------------------------------------------

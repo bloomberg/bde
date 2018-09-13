@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALTZO_WINDOWSTIMEZONEUTIL
 #define INCLUDED_BALTZO_WINDOWSTIMEZONEUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities to map Zoneinfo identifiers to other systems.
@@ -254,9 +252,7 @@ BSLS_IDENT("$Id: $")
 //  assert("Asia/Riyadh" == localDatetime.timeZoneId());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace baltzo {

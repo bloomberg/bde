@@ -37,6 +37,10 @@ BSLS_IDENT("$Id: $")
 // package.  These overloads are required for test drivers above the 'bsl'
 // package group in order to print objects of the 'bsltf' types to 'bsl::cout'.
 //
+// This component also defines a pair of methods, 'setFunc' and 'callFunc',
+// that allow a test driver to set and call a function by going through another
+// compilation unit to preclude the optimizer from inlining the function call.
+
 // Note that the 'bsltf' package resides below 'bsl+bslhdrs', in which
 // 'bsl::cout' is defined; therefore, the components in 'bsltf' cannot directly
 // define the overloads of the insertion operator to support printing the test
@@ -179,45 +183,45 @@ BSLS_IDENT("$Id: $")
     BSLIM_TESTUTIL_ASSERT
 
 #define BSLIM_TESTUTIL_LOOP_ASSERT(I,X)                                       \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\n";                         \
+    if (!(X)) { bsl::cout << #I << ": " << (I) << "\n";                       \
                 aSsErT(1, #X, __LINE__); }
 
 #define BSLIM_TESTUTIL_LOOP1_ASSERT                                           \
     BSLIM_TESTUTIL_LOOP_ASSERT
 
 #define BSLIM_TESTUTIL_LOOP2_ASSERT(I,J,X)                                    \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
-                          << #J << ": " << J << "\n";                         \
+    if (!(X)) { bsl::cout << #I << ": " << (I) << "\t"                        \
+                          << #J << ": " << (J) << "\n";                       \
                 aSsErT(1, #X, __LINE__); }
 
 #define BSLIM_TESTUTIL_LOOP3_ASSERT(I,J,K,X)                                  \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
-                          << #J << ": " << J << "\t"                          \
-                          << #K << ": " << K << "\n";                         \
+    if (!(X)) { bsl::cout << #I << ": " << (I) << "\t"                        \
+                          << #J << ": " << (J) << "\t"                        \
+                          << #K << ": " << (K) << "\n";                       \
                 aSsErT(1, #X, __LINE__); }
 
 #define BSLIM_TESTUTIL_LOOP4_ASSERT(I,J,K,L,X)                                \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
-                          << #J << ": " << J << "\t"                          \
-                          << #K << ": " << K << "\t"                          \
-                          << #L << ": " << L << "\n";                         \
+    if (!(X)) { bsl::cout << #I << ": " << (I) << "\t"                        \
+                          << #J << ": " << (J) << "\t"                        \
+                          << #K << ": " << (K) << "\t"                        \
+                          << #L << ": " << (L) << "\n";                       \
                 aSsErT(1, #X, __LINE__); }
 
 #define BSLIM_TESTUTIL_LOOP5_ASSERT(I,J,K,L,M,X)                              \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
-                          << #J << ": " << J << "\t"                          \
-                          << #K << ": " << K << "\t"                          \
-                          << #L << ": " << L << "\t"                          \
-                          << #M << ": " << M << "\n";                         \
+    if (!(X)) { bsl::cout << #I << ": " << (I) << "\t"                        \
+                          << #J << ": " << (J) << "\t"                        \
+                          << #K << ": " << (K) << "\t"                        \
+                          << #L << ": " << (L) << "\t"                        \
+                          << #M << ": " << (M) << "\n";                       \
                aSsErT(1, #X, __LINE__); }
 
 #define BSLIM_TESTUTIL_LOOP6_ASSERT(I,J,K,L,M,N,X)                            \
-    if (!(X)) { bsl::cout << #I << ": " << I << "\t"                          \
-                          << #J << ": " << J << "\t"                          \
-                          << #K << ": " << K << "\t"                          \
-                          << #L << ": " << L << "\t"                          \
-                          << #M << ": " << M << "\t"                          \
-                          << #N << ": " << N << "\n";                         \
+    if (!(X)) { bsl::cout << #I << ": " << (I) << "\t"                        \
+                          << #J << ": " << (J) << "\t"                        \
+                          << #K << ": " << (K) << "\t"                        \
+                          << #L << ": " << (L) << "\t"                        \
+                          << #M << ": " << (M) << "\t"                        \
+                          << #N << ": " << (N) << "\n";                       \
                aSsErT(1, #X, __LINE__); }
 
 // The 'BSLIM_TESTUTIL_EXPAND' macro is required to work around a preprocessor
@@ -275,7 +279,24 @@ struct TestUtil {
     // This 'struct' provides a namespace for a suite of utility functions that
     // facilitate the creation of BDE-style test drivers.
 
+    // PUBLIC TYPES
+    typedef void *(*Func)(void *);
+        // 'Func' is the type of a user-supplied callback functor that can be
+        // called by external code and will not be inlined by a compiler.
+
+  private:
+    // CLASS DATA
+    static Func s_func;   // user-supplied functor
+
+  public:
     // CLASS METHODS
+    static void *callFunc(void *arg);
+        // Call the function whose address was passed to the most recent call
+        // to 'setFunc', passing it the specified 'arg', and return its
+        // returned value.  The behavior is undefined unless 'setFunc' has been
+        // called, and the most recent call was passed a non-null function
+        // pointer.
+
     static bool compareText(bslstl::StringRef lhs,
                             bslstl::StringRef rhs,
                             bsl::ostream&     errorStream = bsl::cout);
@@ -284,6 +305,9 @@ struct TestUtil {
         // 'errorStream' on which, if 'lhs' and 'rhs' are not the same', a
         // description of how the two strings differ will be written.  If
         // 'errorStream' is not supplied, 'stdout' is used.
+
+    static void setFunc(Func func);
+        // Set the function to be called by 'callFunc' to the specified 'func'.
 };
 
 }  // close package namespace

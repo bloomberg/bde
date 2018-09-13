@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALSCM_VERSIONTAG
 #define INCLUDED_BALSCM_VERSIONTAG
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide versioning information for the 'bal' package group.
@@ -51,14 +49,14 @@ BSLS_IDENT("$Id: $")
 //  #endif
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSIONTAG
 #include <bslscm_versiontag.h>
-#endif
 
-#define BAL_VERSION_MAJOR BSL_VERSION_MAJOR
+// For the 3.12.x release series, 'bal' is being versioned independently of
+// 'bsl'.
+#define BAL_VERSION_MAJOR 3
     // BAL release major version
 
-#define BAL_VERSION_MINOR BSL_VERSION_MINOR
+#define BAL_VERSION_MINOR 12
     // BAL release major version
 
 #define BAL_VERSION BSL_MAKE_VERSION(BAL_VERSION_MAJOR, \
@@ -69,6 +67,14 @@ BSLS_IDENT("$Id: $")
     // the current (latest) BAL release.  Note that the patch version number is
     // intentionally not included.  For example, 'BAL_VERSION' produces 10300
     // (decimal) for BAL version 1.3.1.
+
+#define BAL_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(3, 1)
+    // Declare that deprecations for this UOR introduced in the specified
+    // version or earlier will be "active" by default -- i.e.,
+    // 'BSLS_DEPRECATE_IS_ACTIVE' will be 'true' (which typically enables
+    // deprecation warnings).  Note that we define this macro in the version
+    // component, so that it is available at the lowest level in the component
+    // hierarchy of this UOR.
 
 #endif
 

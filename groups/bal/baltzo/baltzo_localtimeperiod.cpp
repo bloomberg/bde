@@ -9,6 +9,7 @@ BSLS_IDENT_RCSID(baltzo_localtimeperiod_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
+namespace baltzo {
 
                            // ---------------------
                            // class LocalTimePeriod
@@ -17,10 +18,9 @@ namespace BloombergLP {
                         // Aspects
 
 // ACCESSORS
-bsl::ostream& baltzo::LocalTimePeriod::print(
-                                            bsl::ostream& stream,
-                                            int           level,
-                                            int           spacesPerLevel) const
+bsl::ostream& LocalTimePeriod::print(bsl::ostream& stream,
+                                     int           level,
+                                     int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -36,10 +36,28 @@ bsl::ostream& baltzo::LocalTimePeriod::print(
     return stream;
 }
 
+}  // close package namespace
+
+// FREE FUNCTIONS
+void baltzo::swap(LocalTimePeriod& a, LocalTimePeriod& b)
+{
+    if (a.allocator() == b.allocator()) {
+        a.swap(b);
+
+        return;                                                       // RETURN
+    }
+
+    LocalTimePeriod futureA(b, a.allocator());
+    LocalTimePeriod futureB(a, b.allocator());
+
+    futureA.swap(a);
+    futureB.swap(b);
+}
+
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

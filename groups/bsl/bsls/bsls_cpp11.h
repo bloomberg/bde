@@ -25,9 +25,9 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides definitions to use C++11 features in
 // both C++03 and C++11 without using conditional compilation where the
-// features are used. The goal is to allow implementation of components such
+// features are used.  The goal is to allow implementation of components such
 // that they can take advantage of some C++11 features when compiled with C++11
-// mode enabled while also correctly compiling in C++03 mode. The
+// mode enabled while also correctly compiling in C++03 mode.  The
 // functionality of the respective features won't be available in C++03 mode.
 //
 ///Macro Summary
@@ -88,8 +88,8 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Preparing C++03 Code for C++11 Features
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // To use these macros, simply insert them where the corresponding C++11
-// keyword would go. When compiling with C++03 mode there will be no effect but
-// when compiling with C++11 mode additional restrictions will apply. When
+// keyword would go.  When compiling with C++03 mode there will be no effect
+// but when compiling with C++11 mode additional restrictions will apply.  When
 // compiling with C++11 mode the restriction will be checked providing some
 // additional checking over what is done with C++11.
 //
@@ -101,7 +101,7 @@ BSLS_IDENT("$Id: $")
 // 'explicit' keyword with conversion operators to avoid its use for implicit
 // conversions.  The macro 'BSLS_CPP11_EXPLICIT' can be used to mark
 // conversions as explicit conversions which will be checked when compiling
-// with C++11 mode. For example, an 'Optional' type may have an explicit
+// with C++11 mode.  For example, an 'Optional' type may have an explicit
 // conversion to 'bool' to indicate that the value is set (note the conversion
 // operator):
 //..
@@ -140,7 +140,7 @@ BSLS_IDENT("$Id: $")
 // the 'final' keyword after the class name in the class definition to label
 // classes which are not intended to be derived from. The macro
 // 'BSLS_CPP11_FINAL' is replaced by 'final' when compiling with C++11 causing
-// the compiler to enforce that a class can't be further derived. The code
+// the compiler to enforce that a class can't be further derived.  The code
 // below defines a class which can't be derived from:
 //..
 // class FinalClass BSLS_CPP11_FINAL
@@ -166,7 +166,7 @@ BSLS_IDENT("$Id: $")
 // The code will compile successfully when using C++03 mode.
 //
 // Sometime it is useful to declare that an overriding function is the final
-// overriding function and further derived classes won't be allowed to furhter
+// overriding function and further derived classes won't be allowed to further
 // override the function.  One use of this feature could be informing the
 // compiler that it won't need to use virtual dispatch when calling this
 // function on a pointer or a reference of the corresponding type.  C++11

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_EPOCHUTIL
 #define INCLUDED_BDLT_EPOCHUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Conversion between absolute/relative time with respect to epoch.
@@ -129,41 +127,18 @@ BSLS_IDENT("$Id: $")
 //  assert(inputDatetimeInterval == outputDatetimeInterval);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIMEIMPUTIL
 #include <bdlt_datetimeimputil.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATETIMEINTERVAL
 #include <bdlt_datetimeinterval.h>
-#endif
-
-#ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>        // 'Int64', 'Uint64'
-#endif
 
-#ifndef INCLUDED_BSL_CTIME
 #include <bsl_ctime.h>         // 'bsl::time_t'
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

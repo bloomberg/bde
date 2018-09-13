@@ -7,13 +7,17 @@ BSLS_IDENT_RCSID(bdlt_datetimetz_cpp,"$Id$ $CSID$")
 #include <bdlt_date.h>  // for testing only
 #include <bdlt_time.h>  // for testing only
 
+#include <bdlsb_fixedmemoutstreambuf.h>
+
 #include <bslim_printer.h>
 
 #include <bslmf_assert.h>
 
+#include <bsls_alignedbuffer.h>
+
 #include <bsl_cstdio.h>    // 'sprintf'
+#include <bsl_ios.h>       // 'bsl::streamsize'
 #include <bsl_ostream.h>
-#include <bsl_sstream.h>
 
 namespace BloombergLP {
 namespace bdlt {
@@ -43,12 +47,20 @@ bsl::ostream& DatetimeTz::print(bsl::ostream& stream,
     //..
     //  os << bsl::setw(20) << myDatetimeTz;
     //..
-    // The user-specified width will be effective when 'buffer' is written to
-    // 'stream' (below).
+    // The user-specified width will be effective when 'streamBuf.data()' is
+    // written to 'stream' (below).
 
-    bsl::ostringstream oss;
+    const int k_SIZE = 64;  // 32 is sufficient, but just barely.  64 allows
+                            // for possible future expansion.
 
-    oss << localDatetime();
+    bsls::AlignedBuffer<k_SIZE> alignedBuffer;
+    bdlsb::FixedMemOutStreamBuf streamBuf(
+                                         alignedBuffer.buffer(),
+                                         static_cast<bsl::streamsize>(k_SIZE));
+
+    bsl::ostream os(&streamBuf);
+
+    os << localDatetime();
 
     const char sign    = d_offset < 0 ? '-' : '+';
     const int  minutes = '-' == sign ? -d_offset : d_offset;
@@ -66,11 +78,11 @@ bsl::ostream& DatetimeTz::print(bsl::ostream& stream,
         bsl::sprintf(offsetBuffer, "%cXX%02d", sign, minutes % 60);
     }
 
-    oss << offsetBuffer;
+    os << offsetBuffer << bsl::ends;
 
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start(true);  // 'true' -> suppress '['
-    stream << oss.str();
+    stream << streamBuf.data();
     printer.end(true);    // 'true' -> suppress ']'
 
     return stream;

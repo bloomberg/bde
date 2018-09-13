@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_CALENDARREVERSEITERATORADAPTER
 #define INCLUDED_BDLT_CALENDARREVERSEITERATORADAPTER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide reverse iterator adapter for calendar iterators.
@@ -230,9 +228,7 @@ BSLS_IDENT("$Id: $")
 //  assert(stream.str() == "{ D, 9 }, { C, 7 }, { B, 5 }, { A, 3 }");
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

@@ -1,4 +1,4 @@
-// bsltf_movabletesttype.cpp                                     -*-C++-*-
+// bsltf_movabletesttype.cpp                                          -*-C++-*-
 #include <bsltf_movabletesttype.h>
 
 #include <bsls_ident.h>

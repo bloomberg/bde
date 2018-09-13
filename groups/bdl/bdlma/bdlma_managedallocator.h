@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLMA_MANAGEDALLOCATOR
 #define INCLUDED_BDLMA_MANAGEDALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for memory allocators that support 'release'.
@@ -332,13 +330,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlma {

@@ -716,20 +716,24 @@ class u_Base64Decoder_Test {
                                                   // encoding characters to the
                                                   // corresponding 6-bit number
 
-    // INSTANCE DATA
-    const bool *const d_ignorable_p; // Selected table of ignorable characters
-                                     // based on specified error-reporting mode
+    // DATA
+    const bool *const d_ignorable_p;   // Selected table of ignorable
+                                       // characters based on specified
+                                       // error-reporting mode
 
-    signed char d_state;  // -1 = error state
-                          //  0 = general input state
-                          //  1 = need another '='
-                          //  2 = soft done state - allow only ignorable input
-                          //  3 = done state - no more input allowed
+    signed char       d_state;         // -1 = error state
+                                       //  0 = general input state
+                                       //  1 = need another '='
+                                       //  2 = soft done state - allow only
+                                       //      ignorable input
+                                       //  3 = done state - no more input
+                                       //      allowed
 
-    int         d_outputLength;          // total number of output characters
+    int               d_outputLength;  // total number of output characters
 
-    int         d_stack;
-    int         d_bitsInStack;
+    unsigned int      d_stack;         // storage of non-emitted input
+
+    int               d_bitsInStack;   // number of bits in 'd_stack'
 
   public:
     explicit
@@ -859,6 +863,7 @@ u_Base64Decoder_Test::u_Base64Decoder_Test(bool unrecognizedIsErrorFlag)
                                         : s_ignorableRelaxed_p)
 , d_state(e_INPUT_STATE)
 , d_outputLength(0)
+, d_stack(0)
 , d_bitsInStack(0)
 {
 }
@@ -1053,9 +1058,13 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
             int numOut;
             int numIn;
 
-            int status = converter.convert(output, &numOut, &numIn,
-                                           input,   inputEnd,
-                                           outputEnd - output);
+            int status = converter.convert(
+                                         output,
+                                         &numOut,
+                                         &numIn,
+                                         input,
+                                         inputEnd,
+                                         static_cast<int>(outputEnd - output));
             if (status < 0) {
                 return e_ENCODE_ERROR;                                // RETURN
             }
@@ -1077,7 +1086,9 @@ int streamEncoder(bsl::ostream& os, bsl::istream& is)
 
         int numOut;
 
-        int more = converter.endConvert(output, &numOut, outputEnd - output);
+        int more = converter.endConvert(output,
+                                        &numOut,
+                                        static_cast<int>(outputEnd - output));
         if (more < 0) {
             return e_ENCODE_ERROR;                                    // RETURN
         }
@@ -1135,9 +1146,13 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
 
         while (input < inputEnd) { // input encoding not complete
 
-            int status = converter.convert(output, &numOut, &numIn,
-                                           input,   inputEnd,
-                                           outputEnd - output);
+            int status = converter.convert(
+                                         output,
+                                         &numOut,
+                                         &numIn,
+                                         input,
+                                         inputEnd,
+                                         static_cast<int>(outputEnd - output));
             if (status < 0) {
                 return e_DECODE_ERROR;                                // RETURN
             }
@@ -1157,7 +1172,9 @@ int streamDecoder(bsl::ostream& os, bsl::istream& is)
 
     while (1) {
 
-        int more = converter.endConvert(output, &numOut, outputEnd-output);
+        int more = converter.endConvert(output,
+                                        &numOut,
+                                        static_cast<int>(outputEnd - output));
         if (more < 0) {
             return e_DECODE_ERROR;                                    // RETURN
         }
@@ -1441,7 +1458,7 @@ int main(int argc, char *argv[])
             bdlde::Base64Encoder encoder(maxLineLength);
             u_Base64Decoder_Test decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1495,7 +1512,7 @@ int main(int argc, char *argv[])
             bdlde::Base64Encoder encoder(maxLineLength);
             u_Base64Decoder_Test decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1550,7 +1567,7 @@ int main(int argc, char *argv[])
             bdlde::Base64Encoder encoder(maxLineLength);
             u_Base64Decoder_Test decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1605,7 +1622,7 @@ int main(int argc, char *argv[])
             bdlde::Base64Encoder encoder(maxLineLength);
             u_Base64Decoder_Test decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1660,7 +1677,7 @@ int main(int argc, char *argv[])
             bdlde::Base64Encoder encoder(maxLineLength);
             u_Base64Decoder_Test decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1714,7 +1731,7 @@ int main(int argc, char *argv[])
             bdlde::Base64Encoder encoder(maxLineLength);
             u_Base64Decoder_Test decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1768,7 +1785,7 @@ int main(int argc, char *argv[])
             bdlde::Base64Encoder encoder(maxLineLength);
             u_Base64Decoder_Test decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1825,7 +1842,7 @@ int main(int argc, char *argv[])
             bdlde::Base64Encoder encoder(maxLineLength);
             u_Base64Decoder_Test decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -1878,7 +1895,7 @@ int main(int argc, char *argv[])
             bdlde::Base64Encoder encoder;
             u_Base64Decoder_Test decoder(true);
 
-            int   origSize = strlen(sample);
+            int   origSize = static_cast<int>(strlen(sample));
             int   encodedLen = encoder.encodedLength(origSize, maxLineLength);
             char *encoded = new char[encodedLen];
             int   maxDecodedLen = decoder.maxDecodedLength(encodedLen);
@@ -2528,7 +2545,7 @@ int main(int argc, char *argv[])
 
                     if (veryVeryVeryVerbose) {
                         cout << "\t\t\t\t\t" << "Input 1: ";
-                        printCharN(cout, B, M - B) << endl;
+                        printCharN(cout, B, static_cast<int>(M - B)) << endl;
                     }
 
                     int res1 = localObj.convert(lb, &localNumOut, &localNumIn,
@@ -2542,7 +2559,7 @@ int main(int argc, char *argv[])
 
                     if (veryVeryVeryVerbose) {
                         cout << "\t\t\t\t\t" << "Input 2: ";
-                        printCharN(cout, M, E - M) << endl;
+                        printCharN(cout, M, static_cast<int>(E - M)) << endl;
                     }
 
                     int res2 = localObj.convert(lb, &localNumOut, &localNumIn,

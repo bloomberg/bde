@@ -152,6 +152,22 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecvq.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ENABLEIF
+#include <bslmf_enableif.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
+#include <bslmf_isconvertible.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISSAME
+#include <bslmf_issame.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
+#include <bslmf_istriviallycopyable.h>
+#endif
+
 #ifndef INCLUDE_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -196,7 +212,7 @@ class TreeIterator
     // a 'bslstl::TreeNode' object).
 
     // PRIVATE TYPES
-    typedef typename bsl::remove_cv<VALUE>::type          NcType;
+    typedef typename bsl::remove_cv<VALUE>::type        NcType;
     typedef TreeIterator<NcType, NODE, DIFFERENCE_TYPE> NcIter;
 
     // DATA
@@ -233,10 +249,32 @@ class TreeIterator
         // derived from 'bslalg::RbTreeNode.  Note that this constructor is an
         // implementation detail and is not part of the C++ standard.
 
-    TreeIterator(const NcIter& original);
+#ifndef BSLS_PLATFORM_CMP_SUN
+    template <class NON_CONST_ITERATOR>
+    TreeIterator(
+           const NON_CONST_ITERATOR& original,
+           typename bsl::enable_if<bsl::is_convertible<NON_CONST_ITERATOR,
+                                                       NcIter>::value,
+                                   int>::type = 0)
         // Create an iterator at the same position as the specified 'original'
         // iterator.  Note that this constructor enables converting from
         // modifiable to const iterator types.
+        : d_node_p(static_cast<const NcIter&>(original).d_node_p)
+        {
+            // This constructor template must be defined inline inside the
+            // class definition, as Microsoft Visual C++ does not recognize the
+            // definition as matching this signature when placed out-of-line.
+        }
+#else
+    TreeIterator(const NcIter& original)
+        // Create an iterator at the same position as the specified 'original'
+        // iterator.  Note that this constructor enables converting from
+        // modifiable to const iterator types.
+        : d_node_p(original.d_node_p)
+        {
+        }
+
+#endif
 
     //! TreeIterator(const TreeIterator& original) = default;
         // Create an iterator having the same value as the specified
@@ -344,14 +382,6 @@ TreeIterator(const bslalg::RbTreeNode *node)
 {
 }
 
-template <class VALUE, class NODE, class DIFFERENCE_TYPE>
-inline
-TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>::
-TreeIterator(const NcIter& original)
-: d_node_p(original.d_node_p)
-{
-}
-
 // MANIPULATORS
 template <class VALUE, class NODE, class DIFFERENCE_TYPE>
 inline
@@ -439,6 +469,22 @@ operator--(TreeIterator<VALUE, NODE, DIFFERENCE_TYPE>& iter, int)
 
 }  // close package namespace
 }  // close enterprise namespace
+
+#ifndef BSLS_PLATFORM_CMP_SUN
+
+#ifndef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
+namespace bsl {
+
+template <class VALUE, class NODE, class DIFFERENCE_TYPE>
+struct is_trivially_copyable<
+              BloombergLP::bslstl::TreeIterator<VALUE, NODE, DIFFERENCE_TYPE> >
+    : bsl::true_type {
+};
+
+}  // close namespace bsl
+#endif // BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
+
+#endif // BSLS_PLATFORM_OS_SOLARIS
 
 #endif
 

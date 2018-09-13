@@ -21,6 +21,7 @@
 #include <bsls_systemtime.h>
 
 #include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -41,6 +42,8 @@
 
 #ifdef BSLMT_PLATFORM_POSIX_THREADS
 #include <pthread.h>
+#include <sys/wait.h>  // wait
+#include <unistd.h>    // fork
 
 # ifdef BSLS_PLATFORM_OS_SOLARIS
 #   include <sys/utsname.h>
@@ -50,6 +53,10 @@
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
 #include <alloca.h>
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <thread>
 #endif
 
 using namespace BloombergLP;
@@ -511,9 +518,6 @@ extern "C" void *mySmallStackThreadFunction(void *threadArg)
     return 0;
 }
 
-}  // close unnamed namespace
-
-static
 void createSmallStackSizeThread()
     // Create a detached thread with the small stack size and perform some work
 {
@@ -531,7 +535,6 @@ void createSmallStackSizeThread()
                              &initValue);
 }
 
-static
 const char *policyToString(Attr::SchedulingPolicy policy)
 {
     if      (Attr::e_SCHED_OTHER   == policy) {
@@ -552,23 +555,88 @@ const char *policyToString(Attr::SchedulingPolicy policy)
     }
 }
 
-static
-bsl::ostream& operator<<(bsl::ostream&             stream,
-                         const bsl::multiset<int>& thisSet)
+void printNumberOfLogicalProcessorsFromCommandLine()
 {
-    typedef bsl::multiset<int>::const_iterator CI;
+    if (verbose) cout << "Data received from the command line:"
+                      << endl;
 
-    const CI b = thisSet.begin();
-    const CI e = thisSet.end();
+    int ret = 0;
 
-    const char *sep = "";
-    for (CI it = b; e != it; ++it) {
-        stream << sep << *it;
-        sep = ", ";
+#ifdef BSLS_PLATFORM_OS_LINUX
+    ret = execl("/bin/grep", "grep", "-c", "^processor", "/proc/cpuinfo", 0);
+    if (-1 == ret) {
+        if (verbose) cout << "Failed to launch process for grep" << endl;
     }
 
-    return stream;
+#elif defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_SOLARIS)
+
+    int pipefd[2];
+
+    // get a pipe (buffer and fd pair) from the OS
+
+    if (pipe(pipefd)) {
+        if (verbose) cout << "Failed to open pipe" << endl;
+    } else {
+        // We are the child process, but since we have TWO commands to exec we
+        // need to have two disposable processes, so fork again.
+
+        switch (fork()) {
+          case -1: {
+            // fork failure
+
+            if (verbose) cout << "Failed to fork third process." << endl;
+          } break;
+          case 0: {
+            // child process
+            // Do redirections and close the wrong side of the pipe.
+
+            close(pipefd[0]);    // the other side of the pipe
+            dup2(pipefd[1], 1);  // automatically closes previous fd 1
+            close(pipefd[1]);    // cleanup
+
+    #if defined(BSLS_PLATFORM_OS_AIX)
+            ret = execl("/bin/lparstat", "lparstat", (char *)NULL);
+    #elif defined(BSLS_PLATFORM_OS_SOLARIS)
+            ret = execl("/bin/psrinfo", "psrinfo", (char *)NULL);
+    #endif
+
+            if (-1 == ret) {
+                if (verbose) {
+                    cout << "Failed to launch process for the first command"
+                         << endl;
+                }
+            }
+          } break;
+          default: {
+            // parent process
+
+            close(pipefd[1]);    // the other side of the pipe
+            dup2(pipefd[0], 0);  // automatically closes previous fd 0
+            close(pipefd[0]);    // cleanup
+
+    #if defined(BSLS_PLATFORM_OS_AIX)
+            ret = execl("/bin/grep", "grep", "lcpu", (char *)NULL);
+    #elif defined(BSLS_PLATFORM_OS_SOLARIS)
+            ret = execl("/bin/wc", "wc", "-l", (char *)NULL);
+    #endif
+
+            if (-1 == ret) {
+                if (verbose) {
+                    cout << "Failed to launch process for the second command"
+                         << endl;
+                }
+            }
+          }
+        }
+    }
+#else
+    if (verbose) cout << "Test is not supported on this platform. "
+                      << "Only Linux, AIX and Solaris are supported."
+                          << endl;
+#endif
 }
+
+}  // close unnamed namespace
 
 //-----------------------------------------------------------------------------
 //                    Multipriority Effectiveness Test Case
@@ -605,7 +673,7 @@ extern "C" void *priorityEffectivenessTest(void *arg)
 
     for (int i = 0; i < k_ITER; ++i) {
         s_priorityEffectivenessTest_mutex.lock();
-        bslmt::ThreadUtil::yield();
+        bslmt::ThreadUtil::microSleep(200);
         s_priorityEffectivenessTest_mutex.unlock();
     }
 
@@ -889,9 +957,10 @@ template <int BUFFER_SIZE>
 struct Func {
     void operator()()
     {
-        char *buffer = new char[BUFFER_SIZE == 0 ? 1 : BUFFER_SIZE];
+        size_t  bufferSize = BUFFER_SIZE == 0 ? 1 : BUFFER_SIZE;
+        char   *buffer     = new char[bufferSize];
 
-        bsl::memset(buffer, 'a', sizeof(buffer));
+        bsl::memset(buffer, 'a', bufferSize);
 
         delete [] buffer;
     }
@@ -1288,6 +1357,47 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING 'hardwareConcurrency'
+        //   As there is no universal alternative function to get number of
+        //   logical processors (and so available threads), we will recon on
+        //   C++11 realisation on supporting platforms.  And perform formal
+        //   check for AIX and Solaris, which compilers do not support C++11
+        //   standard.  Negative manual test '-7' can be used for supplementary
+        //   check on these platforms.
+        //
+        // Concerns:
+        //: 1 The 'hardwareConcurrency' returns number of logical processors.
+        //
+        // Plan:
+        //: 1 Compare value returned by the 'hardwareConcurrency' function with
+        //:   the result returned by 'std::thread:hardware_concurrency'
+        //:   function on platworms supporting C++11, and perform formal check
+        //:   on the other platforms.
+        //
+        // Testing:
+        //   unsigned int hardwareConcurrency();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING 'hardwareConcurrency'\n"
+                             "=============================\n";
+
+        unsigned int threadsNum = Obj::hardwareConcurrency();
+
+        if (veryVerbose) cout << "Number of available threads: "
+                              << threadsNum
+                              << endl;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        unsigned int modelValue = std::thread::hardware_concurrency();
+
+        LOOP2_ASSERT(modelValue, threadsNum, modelValue == threadsNum);
+#else
+        LOOP_ASSERT(threadsNum, (1 <= threadsNum) && (2048 >= threadsNum));
+#endif
+
+      } break;
       case 16: {
         // --------------------------------------------------------------------
         // ALL THREAD CREATE TEST
@@ -1350,7 +1460,8 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ga;
         bslma::TestAllocator ta;
 
-        bslma::Default::setDefaultAllocator(&da);
+        bslma::DefaultAllocatorGuard dag(&da);
+
         bslma::Default::setGlobalAllocator(&ga);
 
         // Only Linux and Darwin support thread names.  On Linux, the default
@@ -1578,7 +1689,8 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ga;
         bslma::TestAllocator ta;
 
-        bslma::Default::setDefaultAllocator(&da);
+        bslma::DefaultAllocatorGuard dag(&da);
+
         bslma::Default::setGlobalAllocator(&ga);
 
         bslmt::ThreadAttributes attr;
@@ -2795,6 +2907,47 @@ int main(int argc, char *argv[])
 
         TC::priorityEffectivenessTest();
       }  break;
+      case -7: {
+        // --------------------------------------------------------------------
+        // 'hardwareConcurrency' MANUAL TEST
+        //
+        // Concerns:
+        //: 1 The 'hardwareConcurrency' test cannot be run nightly on AIX and
+        //:   Solaris since it uses C++11 code to verify values, so we give an
+        //:   opportunity to veify them manually as a negative test case here.
+        //
+        // Testing
+        //: unsigned int hardwareConcurrency();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "'hardwareConcurrency' MANUAL TEST\n"
+                             "=================================\n";
+#ifdef BSLS_PLATFORM_OS_UNIX
+
+        pid_t pid = fork();
+        if (0 == pid) {                                  // child process
+            printNumberOfLogicalProcessorsFromCommandLine();
+        } else if (pid < 0) {                            // process run failure
+            if (verbose) cout << "Failed to fork second process." << endl;
+        } else {                                         // parent process
+            int status;
+            waitpid(pid, &status, 0);
+
+            if (verbose) cout << endl
+                              << "Value received from the function under test:"
+                              << endl;
+
+            if (verbose) cout << "Number of available threads: "
+                              << bslmt::ThreadUtil::hardwareConcurrency()
+                              << endl << endl;
+        }
+
+#else
+        if (verbose) cout << "\tTest is not supported on this platform."
+                          << endl;
+#endif
+
+      } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
         testStatus = -1;

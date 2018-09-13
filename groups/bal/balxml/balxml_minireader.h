@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALXML_MINIREADER
 #define INCLUDED_BALXML_MINIREADER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide light-weight implementation of 'balxml::Reader' protocol.
@@ -32,6 +30,18 @@ BSLS_IDENT("$Id: $")
 // function repeatedly to progress to each node in sequence in document order.
 // This provides a far more standard, easy to use and powerful API than the
 // existing SAX.
+//
+// Data Validation
+// - - - - - - - -
+// The 'balxml::MiniReader' 'class' is not a validating reader
+// ('balxml::ValidatingReader').  As a result while parsing data it does not
+// make an attempt to ensure the correctness of either the data or the
+// structure of the incoming XML.  The 'class' accepts characters as element
+// data that the XML standard considers invalid.  For example the '&' and '<'
+// characters in element data will parse without error.  Similarly, it does not
+// return an error if the read data does not conform to its specified schema.
+// To get stricter data validation, clients should use a concrete
+// implementation of a validating reader (such as 'a_xercesc::Reader') instead.
 //
 ///Usage
 ///-----
@@ -267,53 +277,21 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALXML_READER
 #include <balxml_reader.h>
-#endif
-
-#ifndef INCLUDED_BALXML_ELEMENTATTRIBUTE
 #include <balxml_elementattribute.h>
-#endif
-
-#ifndef INCLUDED_BALXML_NAMESPACEREGISTRY
 #include <balxml_namespaceregistry.h>
-#endif
-
-#ifndef INCLUDED_BALXML_PREFIXSTACK
 #include <balxml_prefixstack.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSL_FSTREAM
 #include <bsl_fstream.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDLIB
 #include <bsl_cstdlib.h>
-#endif
 
 namespace BloombergLP  {
 
@@ -601,7 +579,7 @@ class MiniReader :  public Reader {
         // The XML resource resolver is used by the 'balxml_reader' to find and
         // open an external resources (See the 'XmlResolverFunctor' typedef for
         // more details).  The XML resource resolver remains valid; it is not
-        // effected by a call to 'close' and should be available until the
+        // affected by a call to 'close' and should be available until the
         // reader is destroyed.  The behavior is undefined if this method is
         // called after calling 'open' and before calling 'close'.
 

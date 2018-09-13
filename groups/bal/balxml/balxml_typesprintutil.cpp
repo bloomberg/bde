@@ -1006,36 +1006,41 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
                                              const EncoderOptions       *,
                                              bdlat_TypeCategory::Simple)
 {
-    if (bdldfp::DecimalUtil::isInf(object)) {
-        if (object < bdldfp::Decimal64()) {
-            stream << "-";
-        }
-        stream << "INF";
+    typedef bsl::numeric_limits<bdldfp::Decimal64> Limits;
+    typedef bdldfp::DecimalFormatConfig Config;
+
+    Config cfg;
+    if (stream.flags() & bsl::ios::floatfield) {
+        const bsl::streamsize precision =
+                  bsl::min(static_cast<bsl::streamsize>(Limits::max_precision),
+                           stream.precision());
+
+        cfg.setPrecision(static_cast<int>(precision));
+        cfg.setStyle((stream.flags() & bsl::ios::scientific)
+                     ? Config::e_SCIENTIFIC
+                     : Config::e_FIXED);
     }
-    else if (bdldfp::DecimalUtil::isNan(object)) {
-        stream << "NaN";
-    }
-    else {
-        char buffer[BDLDFP_DECIMALPLATFORM_SNPRINTF_BUFFER_SIZE];
+    cfg.setInfinity("INF");
+    cfg.setNan("NaN");
+    cfg.setSNan("NaN");
 
-        bdldfp::DenselyPackedDecimalImpUtil::StorageType64 dpdStorage;
-        dpdStorage = bdldfp::DecimalImpUtil::convertToDPD(*object.data());
+    const int k_BUFFER_SIZE = 1                          // sign
+                            + 1 + Limits::max_exponent10 // integer part
+                            + 1                          // decimal point
+                            + Limits::max_precision;     // partial part
+        // The size of the buffer sufficient to store max 'bdldfp::Decimal64'
+        // value in fixed notation with the max precision supported by
+        // 'bdldfp::Decimal64' type.
 
-        bdldfp::DecimalImpUtil_DecNumber::ValueType64 dpdValue;
-        bsl::memcpy(&dpdValue, &dpdStorage, sizeof(dpdValue));
+    char buffer[k_BUFFER_SIZE + 1];
+    int  len = bdldfp::DecimalUtil::format(buffer,
+                                           k_BUFFER_SIZE,
+                                           object,
+                                           cfg);
+    BSLS_ASSERT(len <= k_BUFFER_SIZE);
+    buffer[len] = 0;
+    stream << buffer;
 
-        bdldfp::DecimalImpUtil_DecNumber::format(dpdValue, buffer);
-
-        int (*tolower) (int) = &bsl::tolower;
-
-        // The string output provided by decnumber uses capital "E" by default.
-        bsl::transform(buffer,
-                       buffer + bsl::strlen(buffer),
-                       buffer,
-                       tolower);
-
-        stream << buffer;
-    }
     return stream;
 }
 

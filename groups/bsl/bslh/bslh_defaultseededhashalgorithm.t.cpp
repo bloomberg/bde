@@ -488,7 +488,8 @@ int main(int argc, char *argv[])
                             " the value defined by 'bslh::SpookyHashAlgorithm."
                             " (C-1,2)\n");
         {
-            ASSERT(SpookyHashAlgorithm::k_SEED_LENGTH == Obj::k_SEED_LENGTH);
+            ASSERT(int(SpookyHashAlgorithm::k_SEED_LENGTH) ==
+                   int(Obj::k_SEED_LENGTH));
         }
 
       } break;
@@ -555,7 +556,8 @@ int main(int argc, char *argv[])
         //: 3 The output of calling 'operator()' and then 'computeHash()'
         //:   matches the output of the underlying hashing algorithm.
         //:
-        //: 4 'operator()' does a BSLS_ASSERT for null pointers.
+        //: 4 'operator()' does a BSLS_ASSERT for null pointers and non-zero
+        //:   length, and not for null pointers and zero length.
         //
         // Plan:
         //: 1 Hash a number of values with 'bslh::DefaultSeededHashAlgorithm'
@@ -643,6 +645,7 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard guard;
 
             ASSERT_FAIL(Obj(globalSeed).operator()(   0, 5));
+            ASSERT_PASS(Obj(globalSeed).operator()(   0, 0));
             ASSERT_PASS(Obj(globalSeed).operator()(data, 5));
         }
 

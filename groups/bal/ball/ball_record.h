@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_RECORD
 #define INCLUDED_BALL_RECORD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a container for all fields of a log record.
@@ -73,52 +71,24 @@ BSLS_IDENT("$Id: $")
 //  output << record << bsl::endl;
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_COUNTINGALLOCATOR
 #include <ball_countingallocator.h>
-#endif
-
-#ifndef INCLUDED_BALL_RECORDATTRIBUTES
 #include <ball_recordattributes.h>
-#endif
-
-#ifndef INCLUDED_BALL_USERFIELDS
 #include <ball_userfields.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENT
 #include <bsls_alignment.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -199,6 +169,11 @@ class Record {
     Record& operator=(const Record& rhs);
         // Assign to this log record the value of the specified 'rhs' log
         // record and return the reference to this modifiable record.
+
+    void clear();
+        // Clear this log record by removing the custom fields and clearing the
+        // fixed field's message buffer.  Note that this method is tailored for
+        // efficient memory use within the 'ball' logging system.
 
     RecordAttributes& fixedFields();
         // Return the modifiable fixed fields of this log record.
@@ -314,6 +289,13 @@ Record& Record::operator=(const Record& rhs)
         d_customFields = rhs.d_customFields;
     }
     return *this;
+}
+
+inline
+void Record::clear()
+{
+    customFields().removeAll();
+    fixedFields().clearMessage();
 }
 
 inline

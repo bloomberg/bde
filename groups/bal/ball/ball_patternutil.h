@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_PATTERNUTIL
 #define INCLUDED_BALL_PATTERNUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility class for string pattern matching.
@@ -25,6 +23,10 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component defines a namespace, 'ball::PatternUtil', that
 // provides utility functions for matching input strings to a given pattern
 // based on wild-card and simple escape sequences.
+//
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
 //
 ///Usage
 ///-----
@@ -69,9 +71,7 @@ BSLS_IDENT("$Id: $")
 //     assert(false == ball::PatternUtil::isMatch("ETQ", "E*Q"));
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {

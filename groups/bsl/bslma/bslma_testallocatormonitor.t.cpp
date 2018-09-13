@@ -267,7 +267,7 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the default allocator.
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
       case 5: {
@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocatorMonitor dam(&da);
 
         bslma::Default::setGlobalAllocator(&ga);
-        bslma::Default::setDefaultAllocatorRaw(&da);
+        ASSERT(0 == bslma::Default::setDefaultAllocator(&da));
 //..
 // Then, we default construct a test object using the object allocator, and
 // then, immediately destroy it.  The object allocator monitor, 'oam', shows
@@ -1119,7 +1119,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

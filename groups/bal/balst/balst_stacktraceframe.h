@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALST_STACKTRACEFRAME
 #define INCLUDED_BALST_STACKTRACEFRAME
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an attribute class describing an execution stack frame.
@@ -149,53 +147,30 @@ BSLS_IDENT("$Id: $")
 //  assert(a == b);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
+#include <bslalg_swaputil.h>
+
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
-#include <bsl_algorithm.h>    // bsl::swap
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>      // bsl::size_t
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
 
+#include <bsl_algorithm.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
-
 namespace balst {
+
                            // =====================
                            // class StackTraceFrame
                            // =====================
@@ -208,14 +183,6 @@ class StackTraceFrame {
     // section under @DESCRIPTION in the component-level documentation.  Note
     // that the class invariants are identically the constraints on the
     // individual attributes.
-    //
-    // This class:
-    //: o supports a complete set of *value* *semantic* operations
-    //:   o except for 'bdex' serialization
-    //: o is *exception-neutral*
-    //: o is *alias-safe*
-    //: o is 'const' *thread-safe*
-    // For terminology see 'bsldoc_glossary'.
 
   private:
     // DATA
@@ -461,10 +428,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const StackTraceFrame& object);
 
 // FREE FUNCTIONS
 void swap(StackTraceFrame& a, StackTraceFrame& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This function provides the no-throw exception-safety guarantee.  The
-    // behavior is undefined unless the two objects were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -601,23 +567,6 @@ void StackTraceFrame::setSymbolName(const bslstl::StringRef& value)
     d_symbolName.assign(value.begin(), value.end());
 }
 
-inline
-void StackTraceFrame::swap(StackTraceFrame& other)
-{
-    // 'swap' is undefined for objects with non-equal allocators.
-
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
-
-    using bsl::swap;
-    swap(d_address,           other.d_address);
-    swap(d_libraryFileName,   other.d_libraryFileName);
-    swap(d_lineNumber,        other.d_lineNumber);
-    swap(d_mangledSymbolName, other.d_mangledSymbolName);
-    swap(d_offsetFromSymbol,  other.d_offsetFromSymbol);
-    swap(d_sourceFileName,    other.d_sourceFileName);
-    swap(d_symbolName,        other.d_symbolName);
-}
-
 // ACCESSORS
 inline
 const void *StackTraceFrame::address() const
@@ -712,13 +661,6 @@ bslma::Allocator *StackTraceFrame::allocator() const
     return d_symbolName.get_allocator().mechanism();
 }
 
-// FREE FUNCTIONS
-inline
-void swap(StackTraceFrame& a, StackTraceFrame& b)
-{
-    a.swap(b);
-}
-
 }  // close package namespace
 
 // FREE OPERATORS
@@ -747,10 +689,11 @@ bool balst::operator!=(const StackTraceFrame& lhs, const StackTraceFrame& rhs)
 }
 
 }  // close enterprise namespace
+
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLC_HASHTABLE
 #define INCLUDED_BDLC_HASHTABLE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a double-hashed table with utility.
@@ -559,92 +557,37 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLB_HASHUTIL
 #include <bdlb_hashutil.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
 #include <bslalg_constructorproxy.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_IF
 #include <bslmf_if.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 #include <bslmf_istriviallydefaultconstructible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
 #include <bsl_algorithm.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>
-#endif
-
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
+namespace bdlc {
 
 // FORWARD DECLARATIONS
-
-
-namespace bdlc {
 struct HashTableDefaultTraits;
 struct HashTableDefaultHash1;
 struct HashTableDefaultHash2;
@@ -994,8 +937,6 @@ struct HashTable_ImpUtil {
         // Return the hash size based on the specified 'hint'.
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -1007,15 +948,14 @@ struct HashTable_ImpUtil {
 // PRIVATE CLASS METHODS
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline const KEY&
-bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::keyFromBucket(
-                                                             const KEY& bucket)
+HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::keyFromBucket(const KEY& bucket)
 {
     return bucket;
 }
 
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline const KEY&
-bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::keyFromBucket(
+HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::keyFromBucket(
                                            const bsl::pair<KEY, VALUE>& bucket)
 {
     return bucket.first;
@@ -1023,7 +963,7 @@ bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::keyFromBucket(
 
 // PRIVATE MANIPULATORS
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
-void bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::loadElementAt(
+void HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::loadElementAt(
                                                Handle             *handle,
                                                bsls::Types::Int64  index,
                                                const Bucket&       element,
@@ -1044,7 +984,7 @@ void bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::loadElementAt(
 }
 
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
-bool bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insertElement(
+bool HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insertElement(
                                                         Handle        *handle,
                                                         const Bucket&  element)
 {
@@ -1078,7 +1018,7 @@ bool bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insertElement(
 
 // PRIVATE ACCESSORS
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
-void bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::findImp(
+void HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::findImp(
                                               bool               *isKeyFound,
                                               bsls::Types::Int64 *index,
                                               bsls::Types::Int64 *chainLength,
@@ -1147,7 +1087,7 @@ void bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::findImp(
 
 // CREATORS
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
-bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::HashTable(
+HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::HashTable(
                                             bsls::Types::Int64  capacityHint,
                                             bslma::Allocator   *basicAllocator)
 : d_buckets(HashTable_ImpUtil::hashSize(capacityHint),
@@ -1171,7 +1111,7 @@ bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::HashTable(
 }
 
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
-bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::HashTable(
+HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::HashTable(
                                             bsls::Types::Int64  capacityHint,
                                             const HASH1&        hashFunctor1,
                                             const HASH2&        hashFunctor2,
@@ -1198,16 +1138,15 @@ bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::HashTable(
 
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
-bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::~HashTable()
+HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::~HashTable()
 {
 }
 
 // MANIPULATORS
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
-bool bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(
-                                                            Handle     *handle,
-                                                            const KEY&  key)
+bool HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(Handle     *handle,
+                                                         const KEY&  key)
 {
     BSLS_ASSERT_SAFE(handle);
 
@@ -1218,10 +1157,9 @@ bool bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(
 
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
-bool bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(
-                                                          Handle       *handle,
-                                                          const KEY&    key,
-                                                          const VALUE&  value)
+bool HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(Handle       *handle,
+                                                         const KEY&    key,
+                                                         const VALUE&  value)
 {
     BSLS_ASSERT_SAFE(handle);
 
@@ -1232,8 +1170,7 @@ bool bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(
 
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
-void bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::remove(
-                                                          const Handle& handle)
+void HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::remove(const Handle& handle)
 {
     typedef typename bsl::vector<Bucket>::size_type size_type;
 
@@ -1246,8 +1183,7 @@ void bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::remove(
 
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
-VALUE& bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
-                                                          const Handle& handle)
+VALUE& HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::value(const Handle& handle)
 {
     typedef typename bsl::vector<Bucket>::size_type size_type;
     BSLMF_ASSERT((!bslmf::IsSame<bslmf::Nil, VALUE>::VALUE));
@@ -1262,7 +1198,7 @@ VALUE& bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
 bsls::Types::Int64
-bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::capacity() const
+HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::capacity() const
 {
     return d_buckets.size();
 }
@@ -1270,16 +1206,15 @@ bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::capacity() const
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
 bsls::Types::Int64
-bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::capacityHint() const
+HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::capacityHint() const
 {
     return d_capacityHint;
 }
 
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
-bool bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::find(
-                                                         Handle     *handle,
-                                                         const KEY&  key) const
+bool HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::find(Handle     *handle,
+                                                       const KEY&  key) const
 {
     BSLS_ASSERT_SAFE(handle);
 
@@ -1293,7 +1228,7 @@ bool bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::find(
 
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
-const KEY& bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::key(
+const KEY& HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::key(
                                                     const Handle& handle) const
 {
     typedef typename bsl::vector<Bucket>::size_type size_type;
@@ -1306,7 +1241,7 @@ const KEY& bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::key(
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
 bsls::Types::Int64
-bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::maxChain() const
+HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::maxChain() const
 {
     return d_maxChain;
 }
@@ -1314,7 +1249,7 @@ bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::maxChain() const
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
 bsls::Types::Int64
-bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::numCollisions() const
+HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::numCollisions() const
 {
     return d_numCollisions;
 }
@@ -1322,7 +1257,7 @@ bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::numCollisions() const
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
 bsls::Types::Int64
-bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::size() const
+HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::size() const
 {
     return d_numElements;
 }
@@ -1330,14 +1265,14 @@ bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::size() const
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
 bsls::Types::Int64
-bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::totalChain() const
+HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::totalChain() const
 {
     return d_totalChain;
 }
 
 template <class KEY, class VALUE, class TRAITS, class HASH1, class HASH2>
 inline
-const VALUE& bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
+const VALUE& HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
                                                     const Handle& handle) const
 {
     typedef typename bsl::vector<Bucket>::size_type size_type;
@@ -1355,8 +1290,7 @@ const VALUE& bdlc::HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
 
 template <class BUCKET>
 inline
-void bdlc::HashTableDefaultTraits::load(BUCKET        *dstBucket,
-                                        const BUCKET&  srcBucket)
+void HashTableDefaultTraits::load(BUCKET *dstBucket, const BUCKET& srcBucket)
 {
     BSLS_ASSERT_SAFE(dstBucket);
 
@@ -1365,14 +1299,14 @@ void bdlc::HashTableDefaultTraits::load(BUCKET        *dstBucket,
 
 template <class KEY>
 inline
-bool bdlc::HashTableDefaultTraits::areEqual(const KEY& key1, const KEY& key2)
+bool HashTableDefaultTraits::areEqual(const KEY& key1, const KEY& key2)
 {
     return key1 == key2;
 }
 
 inline
-bool bdlc::HashTableDefaultTraits::areEqual(const ConstCharPtr& key1,
-                                            const ConstCharPtr& key2)
+bool HashTableDefaultTraits::areEqual(const ConstCharPtr& key1,
+                                      const ConstCharPtr& key2)
 {
     BSLS_ASSERT_SAFE(key1);
     BSLS_ASSERT_SAFE(key2);
@@ -1382,7 +1316,7 @@ bool bdlc::HashTableDefaultTraits::areEqual(const ConstCharPtr& key1,
 
 template <class BUCKET>
 inline
-bool bdlc::HashTableDefaultTraits::isNull(const BUCKET& bucket)
+bool HashTableDefaultTraits::isNull(const BUCKET& bucket)
 {
     enum {
         k_IS_POD = bsl::is_trivially_default_constructible<BUCKET>::value
@@ -1399,27 +1333,27 @@ bool bdlc::HashTableDefaultTraits::isNull(const BUCKET& bucket)
 }
 
 inline
-bool bdlc::HashTableDefaultTraits::isNull(const bsl::string& bucket)
+bool HashTableDefaultTraits::isNull(const bsl::string& bucket)
 {
     return 0 == bucket.length();
 }
 
 inline
-bool bdlc::HashTableDefaultTraits::isNull(const ConstCharPtr& bucket)
+bool HashTableDefaultTraits::isNull(const ConstCharPtr& bucket)
 {
     return 0 == bucket;
 }
 
 template <class KEY, class VALUE>
 inline
-bool bdlc::HashTableDefaultTraits::isNull(const bsl::pair<KEY, VALUE>& bucket)
+bool HashTableDefaultTraits::isNull(const bsl::pair<KEY, VALUE>& bucket)
 {
     return isNull(bucket.first) && isNull(bucket.second);
 }
 
 template <class BUCKET>
 inline
-void bdlc::HashTableDefaultTraits::setToNull(BUCKET *bucket)
+void HashTableDefaultTraits::setToNull(BUCKET *bucket)
 {
     BSLS_ASSERT_SAFE(bucket);
 
@@ -1436,7 +1370,7 @@ void bdlc::HashTableDefaultTraits::setToNull(BUCKET *bucket)
 }
 
 inline
-void bdlc::HashTableDefaultTraits::setToNull(bsl::string *bucket)
+void HashTableDefaultTraits::setToNull(bsl::string *bucket)
 {
     BSLS_ASSERT_SAFE(bucket);
 
@@ -1444,7 +1378,7 @@ void bdlc::HashTableDefaultTraits::setToNull(bsl::string *bucket)
 }
 
 inline
-void bdlc::HashTableDefaultTraits::setToNull(ConstCharPtr *bucket)
+void HashTableDefaultTraits::setToNull(ConstCharPtr *bucket)
 {
     BSLS_ASSERT_SAFE(bucket);
 
@@ -1453,7 +1387,7 @@ void bdlc::HashTableDefaultTraits::setToNull(ConstCharPtr *bucket)
 
 template <class KEY, class VALUE>
 inline
-void bdlc::HashTableDefaultTraits::setToNull(bsl::pair<KEY, VALUE> *bucket)
+void HashTableDefaultTraits::setToNull(bsl::pair<KEY, VALUE> *bucket)
 {
     BSLS_ASSERT_SAFE(bucket);
 
@@ -1463,7 +1397,7 @@ void bdlc::HashTableDefaultTraits::setToNull(bsl::pair<KEY, VALUE> *bucket)
 
 template <class BUCKET>
 inline
-bool bdlc::HashTableDefaultTraits::isRemoved(const BUCKET& bucket)
+bool HashTableDefaultTraits::isRemoved(const BUCKET& bucket)
 {
     enum {
         k_IS_POD = bsl::is_trivially_default_constructible<BUCKET>::value
@@ -1481,13 +1415,13 @@ bool bdlc::HashTableDefaultTraits::isRemoved(const BUCKET& bucket)
 }
 
 inline
-bool bdlc::HashTableDefaultTraits::isRemoved(const bsl::string& bucket)
+bool HashTableDefaultTraits::isRemoved(const bsl::string& bucket)
 {
     return 0 == bsl::strcmp(bucket.c_str(), REMOVED_KEYWORD);
 }
 
 inline
-bool bdlc::HashTableDefaultTraits::isRemoved(const ConstCharPtr& bucket)
+bool HashTableDefaultTraits::isRemoved(const ConstCharPtr& bucket)
 {
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
     const char *removed = reinterpret_cast<const char *>(0xFFFFFFFF);
@@ -1500,15 +1434,14 @@ bool bdlc::HashTableDefaultTraits::isRemoved(const ConstCharPtr& bucket)
 
 template <class KEY, class VALUE>
 inline
-bool bdlc::HashTableDefaultTraits::isRemoved(
-                                           const bsl::pair<KEY, VALUE>& bucket)
+bool HashTableDefaultTraits::isRemoved(const bsl::pair<KEY, VALUE>& bucket)
 {
     return isRemoved(bucket.first) && isRemoved(bucket.second);
 }
 
 template <class BUCKET>
 inline
-void bdlc::HashTableDefaultTraits::setToRemoved(BUCKET *bucket)
+void HashTableDefaultTraits::setToRemoved(BUCKET *bucket)
 {
     BSLS_ASSERT_SAFE(bucket);
 
@@ -1525,7 +1458,7 @@ void bdlc::HashTableDefaultTraits::setToRemoved(BUCKET *bucket)
 }
 
 inline
-void bdlc::HashTableDefaultTraits::setToRemoved(bsl::string *bucket)
+void HashTableDefaultTraits::setToRemoved(bsl::string *bucket)
 {
     BSLS_ASSERT_SAFE(bucket);
 
@@ -1533,7 +1466,7 @@ void bdlc::HashTableDefaultTraits::setToRemoved(bsl::string *bucket)
 }
 
 inline
-void bdlc::HashTableDefaultTraits::setToRemoved(ConstCharPtr *bucket)
+void HashTableDefaultTraits::setToRemoved(ConstCharPtr *bucket)
 {
     BSLS_ASSERT_SAFE(bucket);
 
@@ -1548,7 +1481,7 @@ void bdlc::HashTableDefaultTraits::setToRemoved(ConstCharPtr *bucket)
 
 template <class KEY, class VALUE>
 inline
-void bdlc::HashTableDefaultTraits::setToRemoved(bsl::pair<KEY, VALUE> *bucket)
+void HashTableDefaultTraits::setToRemoved(bsl::pair<KEY, VALUE> *bucket)
 {
     BSLS_ASSERT_SAFE(bucket);
 
@@ -1562,7 +1495,7 @@ void bdlc::HashTableDefaultTraits::setToRemoved(bsl::pair<KEY, VALUE> *bucket)
 
 template <class KEY>
 inline
-unsigned int bdlc::HashTableDefaultHash1::operator()(const KEY& key) const
+unsigned int HashTableDefaultHash1::operator()(const KEY& key) const
 {
     const char *keyData   = reinterpret_cast<const char *>(&key);
     int         keyLength = sizeof key;
@@ -1571,8 +1504,7 @@ unsigned int bdlc::HashTableDefaultHash1::operator()(const KEY& key) const
 }
 
 inline
-unsigned int bdlc::HashTableDefaultHash1::operator()(
-                                                 const ConstCharPtr& key) const
+unsigned int HashTableDefaultHash1::operator()(const ConstCharPtr& key) const
 {
     const char *keyData   = key;
     int         keyLength = static_cast<int>(bsl::strlen(key));
@@ -1581,8 +1513,7 @@ unsigned int bdlc::HashTableDefaultHash1::operator()(
 }
 
 inline
-unsigned int bdlc::HashTableDefaultHash1::operator()(
-                                                  const bsl::string& key) const
+unsigned int HashTableDefaultHash1::operator()(const bsl::string& key) const
 {
     const char *keyData   = key.data();
     int         keyLength = static_cast<int>(key.length());
@@ -1596,7 +1527,7 @@ unsigned int bdlc::HashTableDefaultHash1::operator()(
 
 template <class KEY>
 inline
-unsigned int bdlc::HashTableDefaultHash2::operator()(const KEY& key) const
+unsigned int HashTableDefaultHash2::operator()(const KEY& key) const
 {
     const char *keyData   = reinterpret_cast<const char *>(&key);
     int         keyLength = sizeof key;
@@ -1605,8 +1536,7 @@ unsigned int bdlc::HashTableDefaultHash2::operator()(const KEY& key) const
 }
 
 inline
-unsigned int bdlc::HashTableDefaultHash2::operator()(
-                                                 const ConstCharPtr& key) const
+unsigned int HashTableDefaultHash2::operator()(const ConstCharPtr& key) const
 {
     const char *keyData   = key;
     int         keyLength = static_cast<int>(bsl::strlen(key));
@@ -1615,8 +1545,7 @@ unsigned int bdlc::HashTableDefaultHash2::operator()(
 }
 
 inline
-unsigned int bdlc::HashTableDefaultHash2::operator()(
-                                                  const bsl::string& key) const
+unsigned int HashTableDefaultHash2::operator()(const bsl::string& key) const
 {
     const char *keyData   = key.data();
     int         keyLength = static_cast<int>(key.length());
@@ -1624,12 +1553,13 @@ unsigned int bdlc::HashTableDefaultHash2::operator()(
     return bdlb::HashUtil::hash2(keyData, keyLength);
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

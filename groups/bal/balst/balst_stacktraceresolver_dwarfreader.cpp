@@ -18,16 +18,6 @@ BSLS_IDENT_RCSID(balst_stacktraceresolver_dwarfreader_cpp,"$Id$ $CSID$")
 #include <bsl_climits.h>
 #include <bsl_cstdarg.h>
 
-#include <dwarf.h>
-
-// Implementation note: 'dwarf.h' defines no type, just a lot of enumerated
-// values (and not even any enumeration types).  The organiztion of the data
-// in the file is all described in prose in the 300 page spec, and often things
-// are organized such that fixed-length 'structs' can't represent the data.
-//
-// One benefit of this is that it's not necessary for any of the include files
-// in balst to include 'dwarf.h', it can just be included in the .cpp files.
-
 // ============================================================================
 //              Debugging trace macros: 'u_eprintf' and 'u_zprintf'
 // ============================================================================
@@ -241,105 +231,112 @@ const char *StackTraceResolver_DwarfReader::stringForAt(unsigned id)
 {
     static const char rn[] = { "dwarfStringForAt:" };
 
+    const char *pc = 0;
+
 #undef CASE
-#define CASE(x)    case x: return #x
+#define CASE(x)    case x: pc = #x; break
 
     switch (id) {
-      CASE(DW_AT_sibling);
-      CASE(DW_AT_location);
-      CASE(DW_AT_name);
-      CASE(DW_AT_ordering);
-      CASE(DW_AT_subscr_data);
-      CASE(DW_AT_byte_size);
-      CASE(DW_AT_bit_offset);
-      CASE(DW_AT_bit_size);
-      CASE(DW_AT_element_list);
-      CASE(DW_AT_stmt_list);
-      CASE(DW_AT_low_pc);
-      CASE(DW_AT_high_pc);
-      CASE(DW_AT_language);
-      CASE(DW_AT_member);
-      CASE(DW_AT_discr);
-      CASE(DW_AT_discr_value);
-      CASE(DW_AT_visibility);
-      CASE(DW_AT_import);
-      CASE(DW_AT_string_length);
-      CASE(DW_AT_common_reference);
-      CASE(DW_AT_comp_dir);
-      CASE(DW_AT_const_value);
-      CASE(DW_AT_containing_type);
-      CASE(DW_AT_default_value);
-      CASE(DW_AT_inline);
-      CASE(DW_AT_is_optional);
-      CASE(DW_AT_lower_bound);
-      CASE(DW_AT_producer);
-      CASE(DW_AT_prototyped);
-      CASE(DW_AT_return_addr);
-      CASE(DW_AT_start_scope);
-      CASE(DW_AT_bit_stride);
-      CASE(DW_AT_upper_bound);
-      CASE(DW_AT_abstract_origin);
-      CASE(DW_AT_accessibility);
-      CASE(DW_AT_address_class);
-      CASE(DW_AT_artificial);
-      CASE(DW_AT_base_types);
-      CASE(DW_AT_calling_convention);
-      CASE(DW_AT_count);
-      CASE(DW_AT_data_member_location);
-      CASE(DW_AT_decl_column);
-      CASE(DW_AT_decl_file);
-      CASE(DW_AT_decl_line);
-      CASE(DW_AT_declaration);
-      CASE(DW_AT_discr_list);
-      CASE(DW_AT_encoding);
-      CASE(DW_AT_external);
-      CASE(DW_AT_frame_base);
-      CASE(DW_AT_friend);
-      CASE(DW_AT_identifier_case);
-      CASE(DW_AT_macro_info);
-      CASE(DW_AT_namelist_item);
-      CASE(DW_AT_priority);
-      CASE(DW_AT_segment);
-      CASE(DW_AT_specification);
-      CASE(DW_AT_static_link);
-      CASE(DW_AT_type);
-      CASE(DW_AT_use_location);
-      CASE(DW_AT_variable_parameter);
-      CASE(DW_AT_virtuality);
-      CASE(DW_AT_vtable_elem_location);
-      CASE(DW_AT_allocated);
-      CASE(DW_AT_associated);
-      CASE(DW_AT_data_location);
-      CASE(DW_AT_byte_stride);
-      CASE(DW_AT_entry_pc);
-      CASE(DW_AT_use_UTF8);
-      CASE(DW_AT_extension);
-      CASE(DW_AT_ranges);
-      CASE(DW_AT_trampoline);
-      CASE(DW_AT_call_column);
-      CASE(DW_AT_call_file);
-      CASE(DW_AT_call_line);
-      CASE(DW_AT_description);
-      CASE(DW_AT_binary_scale);
-      CASE(DW_AT_decimal_scale);
-      CASE(DW_AT_small);
-      CASE(DW_AT_decimal_sign);
-      CASE(DW_AT_digit_count);
-      CASE(DW_AT_picture_string);
-      CASE(DW_AT_mutable);
-      CASE(DW_AT_threads_scaled);
-      CASE(DW_AT_explicit);
-      CASE(DW_AT_object_pointer);
-      CASE(DW_AT_endianity);
-      CASE(DW_AT_elemental);
-      CASE(DW_AT_pure);
-      CASE(DW_AT_recursive);
+      // Dwarf 3
+
+      CASE(e_DW_AT_sibling);
+      CASE(e_DW_AT_location);
+      CASE(e_DW_AT_name);
+      CASE(e_DW_AT_ordering);
+      CASE(e_DW_AT_byte_size);
+      CASE(e_DW_AT_bit_offset);
+      CASE(e_DW_AT_bit_size);
+      CASE(e_DW_AT_stmt_list);
+      CASE(e_DW_AT_low_pc);
+      CASE(e_DW_AT_high_pc);
+      CASE(e_DW_AT_language);
+      CASE(e_DW_AT_discr);
+      CASE(e_DW_AT_discr_value);
+      CASE(e_DW_AT_visibility);
+      CASE(e_DW_AT_import);
+      CASE(e_DW_AT_string_length);
+      CASE(e_DW_AT_common_reference);
+      CASE(e_DW_AT_comp_dir);
+      CASE(e_DW_AT_const_value);
+      CASE(e_DW_AT_containing_type);
+      CASE(e_DW_AT_default_value);
+      CASE(e_DW_AT_inline);
+      CASE(e_DW_AT_is_optional);
+      CASE(e_DW_AT_lower_bound);
+      CASE(e_DW_AT_producer);
+      CASE(e_DW_AT_prototyped);
+      CASE(e_DW_AT_return_addr);
+      CASE(e_DW_AT_start_scope);
+      CASE(e_DW_AT_bit_stride);
+      CASE(e_DW_AT_upper_bound);
+      CASE(e_DW_AT_abstract_origin);
+      CASE(e_DW_AT_accessibility);
+      CASE(e_DW_AT_address_class);
+      CASE(e_DW_AT_artificial);
+      CASE(e_DW_AT_base_types);
+      CASE(e_DW_AT_calling_convention);
+      CASE(e_DW_AT_count);
+      CASE(e_DW_AT_data_member_location);
+      CASE(e_DW_AT_decl_column);
+      CASE(e_DW_AT_decl_file);
+      CASE(e_DW_AT_decl_line);
+      CASE(e_DW_AT_declaration);
+      CASE(e_DW_AT_discr_list);
+      CASE(e_DW_AT_encoding);
+      CASE(e_DW_AT_external);
+      CASE(e_DW_AT_frame_base);
+      CASE(e_DW_AT_friend);
+      CASE(e_DW_AT_identifier_case);
+      CASE(e_DW_AT_macro_info);
+      CASE(e_DW_AT_namelist_item);
+      CASE(e_DW_AT_priority);
+      CASE(e_DW_AT_segment);
+      CASE(e_DW_AT_specification);
+      CASE(e_DW_AT_static_link);
+      CASE(e_DW_AT_type);
+      CASE(e_DW_AT_use_location);
+      CASE(e_DW_AT_variable_parameter);
+      CASE(e_DW_AT_virtuality);
+      CASE(e_DW_AT_vtable_elem_location);
+      CASE(e_DW_AT_allocated);
+      CASE(e_DW_AT_associated);
+      CASE(e_DW_AT_data_location);
+      CASE(e_DW_AT_byte_stride);
+      CASE(e_DW_AT_entry_pc);
+      CASE(e_DW_AT_use_UTF8);
+      CASE(e_DW_AT_extension);
+      CASE(e_DW_AT_ranges);
+      CASE(e_DW_AT_trampoline);
+      CASE(e_DW_AT_call_column);
+      CASE(e_DW_AT_call_file);
+      CASE(e_DW_AT_call_line);
+      CASE(e_DW_AT_description);
+      CASE(e_DW_AT_binary_scale);
+      CASE(e_DW_AT_decimal_scale);
+      CASE(e_DW_AT_small);
+      CASE(e_DW_AT_decimal_sign);
+      CASE(e_DW_AT_digit_count);
+      CASE(e_DW_AT_picture_string);
+      CASE(e_DW_AT_mutable);
+      CASE(e_DW_AT_threads_scaled);
+      CASE(e_DW_AT_explicit);
+      CASE(e_DW_AT_object_pointer);
+      CASE(e_DW_AT_endianity);
+      CASE(e_DW_AT_elemental);
+      CASE(e_DW_AT_pure);
+      CASE(e_DW_AT_recursive);
+
+      // Dwarf 4
+
       CASE(e_DW_AT_signature);
       CASE(e_DW_AT_main_subprogram);
       CASE(e_DW_AT_data_bit_offset);
       CASE(e_DW_AT_const_expr);
       CASE(e_DW_AT_enum_class);
       CASE(e_DW_AT_linkage_name);
+      CASE(e_DW_AT_lo_user);
+      CASE(e_DW_AT_hi_user);
+
       default: {
         u_eprintf("%s unrecognized 'DW_AT_? value = 0x%x\n", rn, id);
 
@@ -347,6 +344,10 @@ const char *StackTraceResolver_DwarfReader::stringForAt(unsigned id)
       }
     }
 #undef CASE
+
+
+    BSLS_ASSERT_OPT(pc);
+    return pc + 2;
 }
 
 const char *StackTraceResolver_DwarfReader::stringForForm(
@@ -354,31 +355,38 @@ const char *StackTraceResolver_DwarfReader::stringForForm(
 {
     static const char rn[] = { "dwarfStringForForm:" };
 
+    const char *pc = 0;
+
 #undef CASE
-#define CASE(x)    case x: return #x
+#define CASE(x)    case x: pc = #x; break
 
     switch (id) {
-      CASE(DW_FORM_addr);
-      CASE(DW_FORM_block2);
-      CASE(DW_FORM_block4);
-      CASE(DW_FORM_data2);
-      CASE(DW_FORM_data4);
-      CASE(DW_FORM_data8);
-      CASE(DW_FORM_string);
-      CASE(DW_FORM_block);
-      CASE(DW_FORM_block1);
-      CASE(DW_FORM_data1);
-      CASE(DW_FORM_flag);
-      CASE(DW_FORM_sdata);
-      CASE(DW_FORM_strp);
-      CASE(DW_FORM_udata);
-      CASE(DW_FORM_ref_addr);
-      CASE(DW_FORM_ref1);
-      CASE(DW_FORM_ref2);
-      CASE(DW_FORM_ref4);
-      CASE(DW_FORM_ref8);
-      CASE(DW_FORM_ref_udata);
-      CASE(DW_FORM_indirect);
+      // DWARF version 3
+
+      CASE(e_DW_FORM_addr);
+      CASE(e_DW_FORM_block2);
+      CASE(e_DW_FORM_block4);
+      CASE(e_DW_FORM_data2);
+      CASE(e_DW_FORM_data4);
+      CASE(e_DW_FORM_data8);
+      CASE(e_DW_FORM_string);
+      CASE(e_DW_FORM_block);
+      CASE(e_DW_FORM_block1);
+      CASE(e_DW_FORM_data1);
+      CASE(e_DW_FORM_flag);
+      CASE(e_DW_FORM_sdata);
+      CASE(e_DW_FORM_strp);
+      CASE(e_DW_FORM_udata);
+      CASE(e_DW_FORM_ref_addr);
+      CASE(e_DW_FORM_ref1);
+      CASE(e_DW_FORM_ref2);
+      CASE(e_DW_FORM_ref4);
+      CASE(e_DW_FORM_ref8);
+      CASE(e_DW_FORM_ref_udata);
+      CASE(e_DW_FORM_indirect);
+
+      // DWARF version 4
+
       CASE(e_DW_FORM_sec_offset);
       CASE(e_DW_FORM_exprloc);
       CASE(e_DW_FORM_flag_present);
@@ -390,6 +398,9 @@ const char *StackTraceResolver_DwarfReader::stringForForm(
       }
     }
 #undef CASE
+
+    BSLS_ASSERT_OPT(pc);
+    return pc + 2;
 }
 
 const char *StackTraceResolver_DwarfReader::stringForInlineState(
@@ -397,14 +408,13 @@ const char *StackTraceResolver_DwarfReader::stringForInlineState(
 {
     static const char rn[] = { "dwarfStringForInlineState:" };
 
+    const char *pc = 0;
+
 #undef CASE
-#define CASE(x)    case x: return #x
+#define CASE(x)    case x: pc = #x; break
 
     switch (inlineState) {
-      CASE(DW_INL_not_inlined);
-      CASE(DW_INL_inlined);
-      CASE(DW_INL_declared_not_inlined);
-      CASE(DW_INL_declared_inlined);
+      CASE(e_DW_INL_declared_inlined);
       default: {
         u_eprintf("%s unrecognized 'DW_INL_?' value = 0x%x\n", rn,
                                                                   inlineState);
@@ -413,19 +423,29 @@ const char *StackTraceResolver_DwarfReader::stringForInlineState(
       }
     }
 #undef CASE
+
+    BSLS_ASSERT_OPT(pc);
+    return pc + 2;
 }
 
 const char *StackTraceResolver_DwarfReader::stringForLNE(unsigned id)
 {
     static const char rn[] = { "dwarfStringForLNE:" };
 
+    const char *pc = 0;
+
 #undef CASE
-#define CASE(x)    case x: return #x
+#define CASE(x)    case x: pc = #x; break
 
     switch (id) {
-      CASE(DW_LNE_end_sequence);
-      CASE(DW_LNE_set_address);
-      CASE(DW_LNE_define_file);
+      // version 3 values
+
+      CASE(e_DW_LNE_end_sequence);
+      CASE(e_DW_LNE_set_address);
+      CASE(e_DW_LNE_define_file);
+
+      // version 4 values
+
       CASE(e_DW_LNE_set_discriminator);
       default: {
         u_eprintf("%s unrecognized 'DW_LNE_?' value = %u\n", rn, id);
@@ -434,28 +454,33 @@ const char *StackTraceResolver_DwarfReader::stringForLNE(unsigned id)
       }
     }
 #undef CASE
+
+    BSLS_ASSERT_OPT(pc);
+    return pc + 2;
 }
 
 const char *StackTraceResolver_DwarfReader::stringForLNS(unsigned id)
 {
     static const char rn[] = { "dwarfStringForLNS:" };
 
+    const char *pc = 0;
+
 #undef CASE
-#define CASE(x)    case x: return #x
+#define CASE(x)    case x: pc = #x; break
 
     switch (id) {
-      CASE(DW_LNS_copy);
-      CASE(DW_LNS_advance_pc);
-      CASE(DW_LNS_advance_line);
-      CASE(DW_LNS_set_file);
-      CASE(DW_LNS_set_column);
-      CASE(DW_LNS_negate_stmt);
-      CASE(DW_LNS_set_basic_block);
-      CASE(DW_LNS_const_add_pc);
-      CASE(DW_LNS_fixed_advance_pc);
-      CASE(DW_LNS_set_prologue_end);
-      CASE(DW_LNS_set_epilogue_begin);
-      CASE(DW_LNS_set_isa);
+      CASE(e_DW_LNS_copy);
+      CASE(e_DW_LNS_advance_pc);
+      CASE(e_DW_LNS_advance_line);
+      CASE(e_DW_LNS_set_file);
+      CASE(e_DW_LNS_set_column);
+      CASE(e_DW_LNS_negate_stmt);
+      CASE(e_DW_LNS_set_basic_block);
+      CASE(e_DW_LNS_const_add_pc);
+      CASE(e_DW_LNS_fixed_advance_pc);
+      CASE(e_DW_LNS_set_prologue_end);
+      CASE(e_DW_LNS_set_epilogue_begin);
+      CASE(e_DW_LNS_set_isa);
       default: {
         u_eprintf("%s unrecognized 'DW_LNS_?' value = %u\n", rn, id);
 
@@ -463,103 +488,106 @@ const char *StackTraceResolver_DwarfReader::stringForLNS(unsigned id)
       }
     }
 #undef CASE
+
+    BSLS_ASSERT_OPT(pc);
+    return pc + 2;
 }
 
 const char *StackTraceResolver_DwarfReader::stringForTag(unsigned tag)
 {
     static const char rn[] = { "dwarfStringForTag:" };
 
+    const char *pc = 0;
+
 #undef CASE
-#define CASE(x)    case x: return #x
+#define CASE(x)    case x: pc = #x; break
 
     switch (tag) {
-      CASE(DW_TAG_array_type);
-      CASE(DW_TAG_class_type);
-      CASE(DW_TAG_entry_point);
-      CASE(DW_TAG_enumeration_type);
-      CASE(DW_TAG_formal_parameter);
-      CASE(DW_TAG_imported_declaration);
-      CASE(DW_TAG_label);
-      CASE(DW_TAG_lexical_block);
-      CASE(DW_TAG_member);
-      CASE(DW_TAG_pointer_type);
-      CASE(DW_TAG_reference_type);
-      CASE(DW_TAG_compile_unit);
-      CASE(DW_TAG_string_type);
-      CASE(DW_TAG_structure_type);
-      CASE(DW_TAG_subroutine_type);
-      CASE(DW_TAG_typedef);
-      CASE(DW_TAG_union_type);
-      CASE(DW_TAG_unspecified_parameters);
-      CASE(DW_TAG_variant);
-      CASE(DW_TAG_common_block);
-      CASE(DW_TAG_common_inclusion);
-      CASE(DW_TAG_inheritance);
-      CASE(DW_TAG_inlined_subroutine);
-      CASE(DW_TAG_module);
-      CASE(DW_TAG_ptr_to_member_type);
-      CASE(DW_TAG_set_type);
-      CASE(DW_TAG_subrange_type);
-      CASE(DW_TAG_with_stmt);
-      CASE(DW_TAG_access_declaration);
-      CASE(DW_TAG_base_type);
-      CASE(DW_TAG_catch_block);
-      CASE(DW_TAG_const_type);
-      CASE(DW_TAG_constant);
-      CASE(DW_TAG_enumerator);
-      CASE(DW_TAG_file_type);
-      CASE(DW_TAG_friend);
-      CASE(DW_TAG_namelist);
-      CASE(DW_TAG_namelist_item);
-      CASE(DW_TAG_packed_type);
-      CASE(DW_TAG_subprogram);
-      CASE(DW_TAG_template_type_parameter);
-      CASE(DW_TAG_template_value_parameter);
-      CASE(DW_TAG_thrown_type);
-      CASE(DW_TAG_try_block);
-      CASE(DW_TAG_variant_part);
-      CASE(DW_TAG_variable);
-      CASE(DW_TAG_volatile_type);
-      CASE(DW_TAG_dwarf_procedure);
-      CASE(DW_TAG_restrict_type);
-      CASE(DW_TAG_interface_type);
-      CASE(DW_TAG_namespace);
-      CASE(DW_TAG_imported_module);
-      CASE(DW_TAG_unspecified_type);
-      CASE(DW_TAG_partial_unit);
-      CASE(DW_TAG_imported_unit);
+      // version 3 values
+
+      CASE(e_DW_TAG_array_type);
+      CASE(e_DW_TAG_class_type);
+      CASE(e_DW_TAG_entry_point);
+      CASE(e_DW_TAG_enumeration_type);
+      CASE(e_DW_TAG_formal_parameter);
+      CASE(e_DW_TAG_imported_declaration);
+      CASE(e_DW_TAG_label);
+      CASE(e_DW_TAG_lexical_block);
+      CASE(e_DW_TAG_member);
+      CASE(e_DW_TAG_pointer_type);
+      CASE(e_DW_TAG_reference_type);
+      CASE(e_DW_TAG_compile_unit);
+      CASE(e_DW_TAG_string_type);
+      CASE(e_DW_TAG_structure_type);
+      CASE(e_DW_TAG_subroutine_type);
+      CASE(e_DW_TAG_typedef);
+      CASE(e_DW_TAG_union_type);
+      CASE(e_DW_TAG_unspecified_parameters);
+      CASE(e_DW_TAG_variant);
+      CASE(e_DW_TAG_common_block);
+      CASE(e_DW_TAG_common_inclusion);
+      CASE(e_DW_TAG_inheritance);
+      CASE(e_DW_TAG_inlined_subroutine);
+      CASE(e_DW_TAG_module);
+      CASE(e_DW_TAG_ptr_to_member_type);
+      CASE(e_DW_TAG_set_type);
+      CASE(e_DW_TAG_subrange_type);
+      CASE(e_DW_TAG_with_stmt);
+      CASE(e_DW_TAG_access_declaration);
+      CASE(e_DW_TAG_base_type);
+      CASE(e_DW_TAG_catch_block);
+      CASE(e_DW_TAG_const_type);
+      CASE(e_DW_TAG_constant);
+      CASE(e_DW_TAG_enumerator);
+      CASE(e_DW_TAG_file_type);
+      CASE(e_DW_TAG_friend);
+      CASE(e_DW_TAG_namelist);
+      CASE(e_DW_TAG_namelist_item);
+      CASE(e_DW_TAG_packed_type);
+      CASE(e_DW_TAG_subprogram);
+      CASE(e_DW_TAG_template_type_parameter);
+      CASE(e_DW_TAG_template_value_parameter);
+      CASE(e_DW_TAG_thrown_type);
+      CASE(e_DW_TAG_try_block);
+      CASE(e_DW_TAG_variant_part);
+      CASE(e_DW_TAG_variable);
+      CASE(e_DW_TAG_volatile_type);
+      CASE(e_DW_TAG_dwarf_procedure);
+      CASE(e_DW_TAG_restrict_type);
+      CASE(e_DW_TAG_interface_type);
+      CASE(e_DW_TAG_namespace);
+      CASE(e_DW_TAG_imported_module);
+      CASE(e_DW_TAG_unspecified_type);
+      CASE(e_DW_TAG_partial_unit);
+      CASE(e_DW_TAG_imported_unit);
+      CASE(e_DW_TAG_condition);
+      CASE(e_DW_TAG_shared_type);
+      CASE(e_DW_TAG_lo_user);
+      CASE(e_DW_TAG_hi_user);
+
+      // version 4 values
+
       CASE(e_DW_TAG_mutable_type);
-      CASE(DW_TAG_condition);
-      CASE(DW_TAG_shared_type);
       CASE(e_DW_TAG_type_unit);
       CASE(e_DW_TAG_rvalue_reference_type);
       CASE(e_DW_TAG_template_alias);
 
-      CASE(DW_TAG_lo_user);
-
-      // The values between 'DW_TAG_lo_user' and 'DW_TAG_hi_user' are not
-      // important, if we port somewhere where they aren't in 'dwarf.h',
-      // those entries can be removed.
-
-      CASE(DW_TAG_MIPS_loop);
-      CASE(DW_TAG_format_label);
-      CASE(DW_TAG_function_template);
-      CASE(DW_TAG_class_template);
-
-      CASE(DW_TAG_hi_user);
       default: {
-        if (tag < DW_TAG_lo_user || tag > DW_TAG_hi_user) {
-            u_eprintf("%s unrecognized 'DW_TAG_?' value = 0x%x\n", rn, tag);
+        if (e_DW_TAG_lo_user <= tag && tag <= e_DW_TAG_hi_user) {
+            u_eprintf("%s unrecognized user-defined 'e_DW_TAG_?'"
+                                                   " value = 0x%x\n", rn, tag);
         }
         else {
-            u_eprintf("%s unrecognized user-defined 'DW_TAG_?' value = 0x%x\n",
-                                                                      rn, tag);
+            u_eprintf("%s unrecognized 'DW_TAG_?' value = 0x%x\n", rn, tag);
         }
 
         return "DW_TAG_????";                                         // RETURN
       }
     }
 #undef CASE
+
+    BSLS_ASSERT_OPT(pc);
+    return pc + 2;
 }
 
 // CREATORS
@@ -645,14 +673,14 @@ int StackTraceResolver_DwarfReader::readAddress(UintPtr *dst, unsigned form)
 
     unsigned addressSize;
     switch (form) {
-      case DW_FORM_addr: {
+      case e_DW_FORM_addr: {
         u_ASSERT_BAIL_SAFE(d_addressSize > 0);
         addressSize = d_addressSize;
       } break;
-      case DW_FORM_data1: { addressSize = 1; } break;
-      case DW_FORM_data2: { addressSize = 2; } break;
-      case DW_FORM_data4: { addressSize = 4; } break;
-      case DW_FORM_data8: {
+      case e_DW_FORM_data1: { addressSize = 1; } break;
+      case e_DW_FORM_data2: { addressSize = 2; } break;
+      case e_DW_FORM_data4: { addressSize = 4; } break;
+      case e_DW_FORM_data8: {
         u_ASSERT_BAIL(8 == sizeof(*dst));
         addressSize = 8;
       } break;
@@ -755,27 +783,27 @@ int StackTraceResolver_DwarfReader::readOffsetFromForm(Offset   *dst,
       case e_DW_FORM_flag_present: {
         ; // do nothing
       } break;
-      case DW_FORM_flag:
-      case DW_FORM_data1:
-      case DW_FORM_ref1: {
+      case e_DW_FORM_flag:
+      case e_DW_FORM_data1:
+      case e_DW_FORM_ref1: {
         rc = readOffset(dst, 1);
         u_ASSERT_BAIL((0 == rc && "trouble reading 1 byte value") ||
                                                                    u_PH(form));
       } break;
-      case DW_FORM_data2:
-      case DW_FORM_ref2: {
+      case e_DW_FORM_data2:
+      case e_DW_FORM_ref2: {
         rc = readOffset(dst, 2);
         u_ASSERT_BAIL((0 == rc && "trouble reading 2 byte value") ||
                                                                    u_PH(form));
       } break;
-      case DW_FORM_data4:
-      case DW_FORM_ref4: {
+      case e_DW_FORM_data4:
+      case e_DW_FORM_ref4: {
         rc = readOffset(dst, 4);
         u_ASSERT_BAIL((0 == rc && "trouble reading 4 byte value") ||
                                                                    u_PH(form));
       } break;
-      case DW_FORM_data8:
-      case DW_FORM_ref8: {
+      case e_DW_FORM_data8:
+      case e_DW_FORM_ref8: {
         rc = readOffset(dst, 8);
         u_ASSERT_BAIL((0 == rc && "trouble reading 8 byte value") ||
                                                                    u_PH(form));
@@ -784,19 +812,19 @@ int StackTraceResolver_DwarfReader::readOffsetFromForm(Offset   *dst,
         rc = readSectionOffset(dst);
         u_ASSERT_BAIL(0 == rc && "failure to read section offset");
       } break;
-      case DW_FORM_sdata: {
+      case e_DW_FORM_sdata: {
         rc = readLEB128(dst);
         u_ASSERT_BAIL(0 == rc && "failure to read sdata");
       } break;
-      case DW_FORM_udata: {
+      case e_DW_FORM_udata: {
         rc = readULEB128(dst);
         u_ASSERT_BAIL(0 == rc && "failure to read udata");
       } break;
-      case DW_FORM_indirect: {
+      case e_DW_FORM_indirect: {
         unsigned iForm;
         rc = readULEB128(&iForm);
         u_ASSERT_BAIL(0 == rc && "trouble reading indirect form");
-        u_ASSERT_BAIL(DW_FORM_indirect != iForm);
+        u_ASSERT_BAIL(e_DW_FORM_indirect != iForm);
         rc = readOffsetFromForm(dst, iForm);
         u_ASSERT_BAIL((0 == rc && "trouble recursing on indirect offset") ||
                                                                   u_PH(iForm));
@@ -937,11 +965,11 @@ int StackTraceResolver_DwarfReader::readStringFromForm(
 
     int rc;
 
-    if      (DW_FORM_string == form) {
+    if      (e_DW_FORM_string == form) {
         rc = readString(dst);
         u_ASSERT_BAIL(0 == rc);
     }
-    else if (DW_FORM_strp   == form) {
+    else if (e_DW_FORM_strp   == form) {
         Offset offset;
         rc = readSectionOffset(&offset);
         u_ASSERT_BAIL(0 == rc);
@@ -985,9 +1013,9 @@ int StackTraceResolver_DwarfReader::setEndOffset(Offset newOffset)
 
 int StackTraceResolver_DwarfReader::skipForm(unsigned form)
 {
-    // The values of the 'DW_FORM_*' identifiers are described in Figure 21 of
-    // the DWARF version 4 document.  The meanings of the different values
-    // 'DW_FORM_*' are described in section 7.5.4.
+    // The values of the 'e_DW_FORM_*' identifiers are described in Figure 21
+    // of the DWARF version 4 document.  The meanings of the different values
+    // 'e_DW_FORM_*' are described in section 7.5.4.
 
     static const char rn[] = { "Reader::skipForm:" };    (void) rn;
 
@@ -998,75 +1026,75 @@ int StackTraceResolver_DwarfReader::skipForm(unsigned form)
       case e_DW_FORM_flag_present: {
         ;    // Do nothing
       } break;
-      case DW_FORM_flag:
-      case DW_FORM_data1:
-      case DW_FORM_ref1: {
+      case e_DW_FORM_flag:
+      case e_DW_FORM_data1:
+      case e_DW_FORM_ref1: {
         toSkip = 1;
       } break;
-      case DW_FORM_data2:
-      case DW_FORM_ref2: {
+      case e_DW_FORM_data2:
+      case e_DW_FORM_ref2: {
         toSkip = 2;
       } break;
-      case DW_FORM_data4:
-      case DW_FORM_ref4: {
+      case e_DW_FORM_data4:
+      case e_DW_FORM_ref4: {
         toSkip = 4;
       } break;
-      case DW_FORM_data8:
-      case DW_FORM_ref8:
+      case e_DW_FORM_data8:
+      case e_DW_FORM_ref8:
       case e_DW_FORM_ref_sig8: {
         toSkip = 8;
       } break;
-      case DW_FORM_sdata:
-      case DW_FORM_udata:
-      case DW_FORM_ref_udata: {
+      case e_DW_FORM_sdata:
+      case e_DW_FORM_udata:
+      case e_DW_FORM_ref_udata: {
         rc = skipULEB128();
         u_ASSERT_BAIL(0 == rc || u_PH(form));
       } break;
-      case DW_FORM_string: {
+      case e_DW_FORM_string: {
         do {
             rc = needBytes(1);
             u_ASSERT_BAIL(0 == rc);
         } while (*d_readPtr++);
       } break;
-      case DW_FORM_strp:
+      case e_DW_FORM_strp:
       case e_DW_FORM_sec_offset: {
         u_ASSERT_BAIL_SAFE(d_offsetSize > 0);
         toSkip = d_offsetSize;
       } break;
-      case DW_FORM_addr:
-      case DW_FORM_ref_addr: {
+      case e_DW_FORM_addr:
+      case e_DW_FORM_ref_addr: {
         u_ASSERT_BAIL_SAFE(d_addressSize > 0);
         toSkip = d_addressSize;
       } break;
-      case DW_FORM_indirect: {
+      case e_DW_FORM_indirect: {
         unsigned iForm;
         rc = readULEB128(&iForm);
         u_ASSERT_BAIL((0 == rc && "trouble skipping indirect form") ||
                                                                   u_PH(iForm));
-        u_ASSERT_BAIL(DW_FORM_indirect != iForm);
+        u_ASSERT_BAIL(e_DW_FORM_indirect != iForm);
         rc = skipForm(iForm);
         u_ASSERT_BAIL((0 == rc &&
               "trouble recursing skipping on indirect offset") || u_PH(iForm));
       } break;
-      case DW_FORM_block1: {
+      case e_DW_FORM_block1: {
         unsigned char len;
         rc = readValue(&len);
         u_ASSERT_BAIL(0 == rc);
         toSkip = len;
       } break;
-      case DW_FORM_block2: {
+      case e_DW_FORM_block2: {
         unsigned short len;
         rc = readValue(&len);
         u_ASSERT_BAIL(0 == rc);
         toSkip = len;
       } break;
-      case DW_FORM_block4: {
+      case e_DW_FORM_block4: {
         unsigned len;
         rc = readValue(&len);
         u_ASSERT_BAIL(0 == rc);
         toSkip = len;
       } break;
-      case DW_FORM_block:
+      case e_DW_FORM_block:
       case e_DW_FORM_exprloc: {
         rc = readULEB128(&toSkip);
         u_ASSERT_BAIL(0 == rc);

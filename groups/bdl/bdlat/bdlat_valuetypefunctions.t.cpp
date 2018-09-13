@@ -233,7 +233,7 @@ void usageExample()
     using namespace BloombergLP;
 
     int               intVal    = 123;
-    float             floatVal  = 34.56;
+    float             floatVal  = 34.56f;
     bsl::string       stringVal = "Hello";
     bsl::vector<char> vecVal, vecVal2, vecVal3;
 

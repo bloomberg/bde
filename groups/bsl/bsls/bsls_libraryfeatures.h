@@ -22,11 +22,12 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API: GC support provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES: misc utils provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR: use "piecewise"
-//  BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS: bitwidth atomics
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION: "program exit" provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE: 'tuple' provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR: 'unique_ptr' provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: !NOT DEFINED! see below
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS: optional atomics
+//  BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS: library has a bug
 //
 //@SEE_ALSO: bsls_platform, bsls_compilerfeatures, bsls_nativestd
 //
@@ -207,7 +208,7 @@ BSLS_IDENT("$Id: $")
 // headers available in earlier standards and implemented by all vendors of
 // platform/compiler combination that supported C++11 features.  This macro is
 // used to import symbols introduced in C++11 and defined in those headers into
-// the 'bsl' namesapce via aliases to the native library implementation.  This
+// the 'bsl' namespace via aliases to the native library implementation.  This
 // macro is defined if *both* of the listed conditions are true:
 //
 //: o The compiler supports C++11 language features.
@@ -409,10 +410,9 @@ BSLS_IDENT("$Id: $")
 ///'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS'
 ///---------------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' macro is
-// defined if *both* of the listed conditions are true:
-// defined if the '<atomic>' header provided by the native standard library
-// provides type aliases for all of the following precise bit-width atomic
-// types:
+// defined if *both* of the listed conditions are true: defined if the
+// '<atomic>' header provided by the native standard library provides type
+// aliases for all of the following precise bit-width atomic types:
 //
 //: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro is defined.
 //:
@@ -435,7 +435,7 @@ BSLS_IDENT("$Id: $")
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
 ///----------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION' is defined if
-// if *both* of the listed conditions are true:
+// *both* of the listed conditions are true:
 //
 //: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro is defined.
 //:
@@ -501,6 +501,18 @@ BSLS_IDENT("$Id: $")
 // future BDE release.  Given this new direction, the need for a macro for the
 // native type is obviated so 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT' is
 // being removed.
+//
+///'BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
+///----------------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS' macro is
+// defined for early implementations of the gnu standard library, which leaks
+// temporary objects constructed trying to initialize a 'std::initializer_list'
+// object in the event that one of the elements of the list throws from its
+// constructor.  This is known to affect gcc libraries as recently as the 5.x
+// series, and the Sun CC compiler in C++11 mode, which also used the
+// problematic gnu library.  This would often reveal itself as a spurious
+// memory leak in exception-safety tests for 'initializer_list' constructors,
+// so rises to the level of a generally supported defect-detection macro.
 //
 ///Usage
 ///-----
@@ -568,7 +580,7 @@ BSLS_IDENT("$Id: $")
 
 #if __cplusplus < 201402L
 # define BSLS_LIBRARYFEATURES_HAS_C90_GETS
-    // Set unconditionally for compilers supporting an earler standard than
+    // Set unconditionally for compilers supporting an earlier standard than
     // C++14; this feature macro will be undefined for those platforms with
     // partial support for C++14, implementing the removal of this dangerous
     // function.
@@ -617,6 +629,10 @@ BSLS_IDENT("$Id: $")
         #if BSLS_PLATFORM_CMP_VERSION >= 60000
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
         #endif
+
+        #if BSLS_PLATFORM_CMP_VERSION < 60000
+            #define BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
+        #endif
     #endif
 
     // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
@@ -631,13 +647,19 @@ BSLS_IDENT("$Id: $")
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_SUN) && _cplusplus >= 201103L
+#if defined(BSLS_PLATFORM_CMP_SUN) && __cplusplus >= 201103L
+    // It would be simpler if we could simply identify as the corresping gcc
+    // library version:
+    // CC       CMP_VERSION     libstdc++ version
+    // 12.4     0x5130          4.8.4
+    // 12.5     0x5140          5.1.0
+    // 12.6     0x5150          5.4.0
 
     #if BSLS_PLATFORM_CMP_VERSION >= 0x5130
         #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
@@ -650,10 +672,27 @@ BSLS_IDENT("$Id: $")
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
     #endif
 
+    #if BSLS_PLATFORM_CMP_VERSION >= 0x5140
+         #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+    #endif
+
+    #if BSLS_PLATFORM_CMP_VERSION >= 0x5150
+        // Currently have an issue with rvalue-references on the CC 12.6(beta)
+        // compiler, so undefining library feature macros that rely on that
+        // language feature being marked as available
+        #undef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+        #undef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+        #undef BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
+    #endif
+
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
+
+    #if BSLS_PLATFORM_CMP_VERSION < 0x5160
+        #define BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
+    #endif
+
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
@@ -673,12 +712,24 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
         #endif
+
+    #elif BSLS_PLATFORM_CMP_VERSION >= 30000
+
+        #if defined(__GXX_EXPERIMENTAL_CXX0X__)
+            #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+            #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
+        #endif
     #endif
 
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -691,8 +742,8 @@ BSLS_IDENT("$Id: $")
         #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-        #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
+        #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
             // Note that 'unique_ptr' appears as early as version 1600 (MSVC
             // 2010) 'BSLS_COMPILER_FEATURES_HAS_RVALUE_REFERENCES', also
             // required for this macro, is not defined until version 1800 (MSVC

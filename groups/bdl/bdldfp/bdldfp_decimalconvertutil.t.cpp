@@ -4,8 +4,11 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_default.h>
+
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
 
@@ -57,21 +60,6 @@ using namespace bsl;
 // [ 6] Decimal32 decimal32FromFloat(float, int);
 // [ 6] Decimal64 decimal64FromFloat(float, int);
 // [ 6] Decimal128 decimal128FromFloat(float, int);
-// [  ] decimal32ToBID(uc*, Decimal32);
-// [  ] decimal64ToBID(uc*, Decimal64);
-// [  ] decimal128ToBID(uc*, Decimal128);
-// [  ] decimalToBID(uc*, Decimal32);
-// [  ] decimalToBID(uc*, Decimal64);
-// [  ] decimalToBID(uc*, Decimal128);
-// [  ] Decimal32 decimal32FromBID(cuc*);
-// [  ] Decimal64 decimal64FromBID(cuc*);
-// [  ] Decimal128 decimal128FromBID(cuc*);
-// [  ] decimal32FromBID(Decimal32*, cuc*);
-// [  ] decimal64FromBID(Decimal64*, cuc*);
-// [  ] decimal128FromBID(Decimal128*, cuc*);
-// [  ] decimalFromBID(Decimal32*, cuc*);
-// [  ] decimalFromBID(Decimal64*, cuc*);
-// [  ] decimalFromBID(Decimal128*, cuc*);
 // [  ] decimal32ToDPD(uc*, Decimal32);
 // [  ] decimal64ToDPD(uc*, Decimal64);
 // [  ] decimal128ToDPD(uc*, Decimal128);
@@ -102,12 +90,14 @@ using namespace bsl;
 // [ 2] size_type decimal64ToMultiWidthEncoding(uc*, Decimal64);
 // [ 2] size_type decimal64ToMultiWidthEncodingRaw(uc*, Decimal64);
 // [ 3] Decimal64 decimal64FromMultiWidthEncodingRaw(cuc*, size_type);
+// [ 3] int decimal64FromMultiWidthEncodingIfValid(Decimal64*, cuc*, size_t);
 // [ 3] Decimal64 decimal64FromMultiWidthEncoding(cuc*, size_type);
 // [ 4] uc* decimal64ToVariableWidthEncoding(uc*, Decimal64);
 // [ 4] cuc* decimal64FromVariableWidthEncoding(Decimal64*, cuc*);
+// [ 7] bool isValidMultiWidthsize(uc);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
 // [-1] CONVERSION TEST
 // [-2] ROUND TRIP CONVERSION TEST
 // ----------------------------------------------------------------------------
@@ -530,7 +520,7 @@ unsigned char *decimal64ToBinaryIntegralNetwork(unsigned char *buffer,
     // integer to the specified 'buffer'.
 {
     bsls::Types::Uint64 encoded;
-    Util::decimal64ToBID(reinterpret_cast<unsigned char *>(&encoded), decimal);
+    bsl::memcpy(&encoded, &decimal, sizeof(encoded));
 
     encoded = BSLS_BYTEORDER_HTONLL(encoded);
 
@@ -549,11 +539,13 @@ int main(int argc, char* argv[])
     int         veryVerbose = argc > 3;
     int     veryVeryVerbose = argc > 4;
 
-    bslma::TestAllocator defaultAllocator("default");
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    bslma::TestAllocator defaultAllocator("default", veryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+    bslma::TestAllocatorMonitor dam(&defaultAllocator);
 
-    bslma::TestAllocator globalAllocator("global");
+    bslma::TestAllocator globalAllocator("global", veryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocatorMonitor gam(&globalAllocator);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
     typedef BDEC::DecimalConvertUtil Util;
@@ -561,7 +553,7 @@ int main(int argc, char* argv[])
     cout.precision(35);
 
     switch (test) { case 0:
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -654,6 +646,67 @@ int main(int argc, char* argv[])
             ASSERT(number == restored);
         }
         //..
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // IS VALID MULTI-WIDTH SIZE TEST
+        //
+        // Concerns:
+        //: 1 That 'isValidMultiWidthSize' returns 'true' for all valid
+        //:   encoding sizes in the *multi-width encoding* format.
+        //
+        // Plan:
+        //: 1 Using table-driven technique, specify a set of valid encoding
+        //:   size values and expected function result values.  Also specify a
+        //:   set of arbitrary invalid size encoding values and expected
+        //:   function result values.  Ensure that 'isValidMultiWidthSize'
+        //:   returns expected result for each item in the table.  (C-1)
+        //
+        // Testing:
+        //   bool isValidMultiWidthSize(unsigned char size);
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nIS VALID MULTI-WIDTH SIZE"
+                             "\n=========================\n";
+
+        static const struct {
+            int                     d_line;
+            bsls::Types::size_type  d_size;
+            bool                    d_expected;
+        } DATA[] = {
+           //----------------------------------------
+           // Line |          Size         | Expected
+           //----------------------------------------
+            { L_,                     0,      false },
+            { L_,                     1,       true },
+            { L_,                     2,       true },
+            { L_,                     3,       true },
+            { L_,                     4,       true },
+            { L_,                     5,       true },
+            { L_,                     6,      false },
+            { L_,                     7,      false },
+            { L_,                     8,       true },
+            { L_,                     9,      false },
+            { L_,                  0xFF,      false },
+            { L_,                 0x100,      false },
+            { L_,                0xFFFF,      false },
+            { L_,               0x10000,      false },
+            { L_,              0xFFFFFF,      false },
+            { L_,             0x1000000,      false },
+            { L_,            0xFFFFFFFF,      false },
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti != NUM_DATA; ++ti) {
+            const int                    LINE =     DATA[ti].d_line;
+            const bsls::Types::size_type SIZE =     DATA[ti].d_size;
+            const bool                   EXPECTED = DATA[ti].d_expected;
+
+            const bool RESULT = Util::isValidMultiWidthSize(SIZE);
+
+            LOOP3_ASSERT(LINE, RESULT, EXPECTED, RESULT == EXPECTED);
+        }
+
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -7072,29 +7125,41 @@ int main(int argc, char* argv[])
         // MULTI-WIDTH DECODE
         //
         // Concerns:
-        //: 1 'decimal64FromMultiWidthEncoding' and
+        //: 1 'decimal64FromMultiWidthEncoding',
+        //:   'decimal64FromMultiWidthEncodingIfValid' and
         //:   'decimal64FromMultiWidthEncodingRaw' correctly decode values in
         //:   the supported formats.
         //:
-        //: 2 QoI: Asserted precondition violations are detected when enabled.
+        //: 2 That 'decimal64FromMultiWidthEncodingIfValid' returns non-zero
+        //:   value if the specified buffer size is not a valid size of a
+        //:   decimal value encoded in the *multi-width encoding* format.
+        //:
+        //: 3 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using the table-driven technique, specify a set of decimal
         //:   values, and their encoded values. Ensure that the set contains
         //:   boundary values in all supported widths of the decoder. Use
-        //:   'decimal64FromMultiWidthEncoding' and
+        //:   'decimal64FromMultiWidthEncoding',
+        //:   'decimal64FromMultiWidthEncodingIfValid' and
         //:   'decimal64FromMultiWidthEncodingRaw' to decode the encoded
         //:   values. Verify that the decoded decimal values matches the
-        //:   original values. (C-1)
+        //:   original values.  (C-1)
         //:
-        //: 2 Verify that, in appropriate build modes, defensive checks are
+        //: 2 Verify that 'decimal64FromMultiWidthEncodingIfValid' returns
+        //:   non-zero value if the specified buffer size is not a valid size
+        //:   of a decimal value encoded in the *multi-width encoding* format.
+        //:   (C-2)
+        //:
+        //: 3 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid attribute values, but not triggered for
         //:   adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).
-        //:   (C-2)
+        //:   (C-3)
         //
         // Testing:
         //   Decimal64 decimal64FromMultiWidthEncoding(cuc*, size_type);
         //   Decimal64 decimal64FromMultiWidthEncodingRaw(cuc*, size_type);
+        //   int decimal64FromMultiWidthEncodingIfValid(d64*, cuc*, size_t);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -7222,6 +7287,28 @@ int main(int argc, char* argv[])
                 }
             }
 
+            // Test 'decimal64FromMultiWidthEncodingIfValid'.
+            {
+                Decimal64 actualDecodedValue;
+                int RESULT = Util::decimal64FromMultiWidthEncodingIfValid(
+                               &actualDecodedValue,
+                               const_cast<const unsigned char*>(encodedBuffer),
+                               encodedSize);
+                ASSERTV(0 == RESULT);
+                if (veryVerbose) {
+                    P(actualDecodedValue);
+                }
+
+                if (DecimalUtil::isNan(DECODED_VALUE)) {
+                    ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                            DecimalUtil::isNan(actualDecodedValue));
+                }
+                else {
+                    ASSERTV(LINE, DECODED_VALUE, actualDecodedValue,
+                            DECODED_VALUE == actualDecodedValue);
+                }
+            }
+
             // Test 'decimal64FromMultiWidthEncodingRaw'.
             if (!useFullEncodingFlag) {
                 Decimal64 actualDecodedValue =
@@ -7293,6 +7380,48 @@ int main(int argc, char* argv[])
                    Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 8));
             ASSERT_SAFE_FAIL(
                    Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 9));
+
+            Decimal64 decimal;
+            ASSERTV(0 !=
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 0));
+            ASSERTV(0 ==
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 1));
+            ASSERTV(0 ==
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 2));
+            ASSERTV(0 ==
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 3));
+            ASSERTV(0 ==
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 4));
+            ASSERTV(0 ==
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 5));
+            ASSERTV(0 !=
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 6));
+            ASSERTV(0 !=
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 7));
+            ASSERTV(0 ==
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 8));
+            ASSERTV(0 !=
+                    Util::decimal64FromMultiWidthEncodingIfValid(&decimal,
+                                                                 encodedBuffer,
+                                                                 9));
         }
       } break;
       case 2: {
@@ -8474,10 +8603,11 @@ int main(int argc, char* argv[])
 
     // CONCERN: No memory came from the global or default allocator.
 
-    LOOP2_ASSERT(test, globalAllocator.numBlocksTotal(),
-                 0 == globalAllocator.numBlocksTotal());
-    LOOP2_ASSERT(test, defaultAllocator.numBlocksTotal(),
-                 0 == defaultAllocator.numBlocksTotal());
+    if (!veryVerbose){
+        ASSERT(dam.isTotalSame());
+    }
+    ASSERT(gam.isTotalSame());
+
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;

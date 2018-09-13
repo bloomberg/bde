@@ -73,10 +73,12 @@ using namespace std;    // still using iostream
 // [ 3] constexpr bitset(unsigned long) noexcept;
 // [ 4] bitset(native_std::basic_string, size_type, size_type, char, char);
 // [ 4] bitset(bsl::basic_string, size_type, size_type, char, char);
+// [  ] bitset(const bitset&) noexcept;
 // [ 2] ~bitset();
 //
 // MANIPULATORS:
 // [ 2] reference operator[](std::size_t pos);
+// [  ] bitset& operator=(const bitset&) noexcept;
 // [  ] bitset& operator&=(const bitset &lhs);
 // [  ] bitset& operator|=(const bitset &lhs);
 // [  ] bitset& operator^=(const bitset &lhs);
@@ -93,16 +95,16 @@ using namespace std;    // still using iostream
 // [  ] bitset operator<<(std::size_t pos) const
 // [  ] bitset operator>>(std::size_t pos) const
 // [  ] bitset operator~() const
-// [ 4] bsl::string to_string(char, char) const;
 // [ 3] constexpr bool operator[](std::size_t pos) const;
-// [  ] bool operator==(std::size_t pos) const noexcept;
-// [  ] bool operator!=(std::size_t pos) const noexcept;
+// [  ] bool operator==(const bitset& pos) const noexcept;
+// [  ] bool operator!=(const bitset& pos) const noexcept;
 // [ 2] bool all() const noexcept;
 // [ 2] bool any() const noexcept;
 // [ 2] bool none() const noexcept;
-// [ 2] constexpr std::size_t size() const noexcept;
 // [ 2] std::size_t count() const noexcept;
+// [ 2] constexpr std::size_t size() const noexcept;
 // [  ] bool test(std::size_t) const;
+// [ 4] bsl::string to_string(char, char) const;
 // [  ] unsigned long to_ulong() const noexcept;
 //
 //
@@ -114,8 +116,8 @@ using namespace std;    // still using iostream
 // [  ] operator<<(std::ostream &os, const bitset<N>& x);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [12] USAGE EXAMPLE
-// [13] CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
+// [13] USAGE EXAMPLE
+// [12] CONCERN: Methods qualified 'noexcept' in standard are so defined.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -214,7 +216,7 @@ void debugprint(const bitset<N>& rhs) {
         }
     }
 }
-}
+}  // close namespace bsl
 
 template <class StringType>
 void changeBitString(StringType* str, char zeroChar, char oneChar)
@@ -234,7 +236,7 @@ bool verifyBitset(const bsl::bitset<N> obj, const char *expected)
     // corresponds to a set bit, and return false otherwise.  The behavior is
     // undefined unless 'expected' has at least 'N' characters.
 {
-    for (unsigned int i = 0; i < N; ++i) {
+    for (size_t i = 0; i != N; ++i) {
         ASSERT(expected[i] == '1' || expected[i] == '0');
         if ((expected[i] == '1') != obj[N - i - 1]) {
             return false;                                             // RETURN
@@ -248,10 +250,12 @@ bool verifyBitset(const bsl::bitset<N> obj,
                   size_t               expected,
                   bool                 verbose)
 {
-    for (size_t bitIndex = 0; bitIndex < N; ++bitIndex) {
+    (void)verbose;  // not clear why this is passed but not used
+
+    for (size_t bitIndex = 0; bitIndex != N; ++bitIndex) {
         size_t expectedBit = 0;
 
-        if (bitIndex < sizeof(unsigned long) * CHAR_BIT) {
+        if (bitIndex < sizeof(size_t) * CHAR_BIT) {
             expectedBit = ((expected >> bitIndex) & 1);
         }
 
@@ -336,7 +340,7 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
         ASSERT(0 == TESTSIZE || !v.all());
 
         if (0 == TESTSIZE) {
-            return;
+            return;                                                   // RETURN
         }
 
         v[0] = 1;
@@ -367,7 +371,7 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
         ASSERT(!v.any());
         ASSERT(0 == TESTSIZE || !v.all());
 
-        for (int i = 0; i < TESTSIZE; ++i) {
+        for (size_t i = 0; i != TESTSIZE; ++i) {
             v[i] = 1;
             ASSERT(i + 1 == v.count());
         }
@@ -375,7 +379,7 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
         ASSERT(v.all());
         ASSERT(TESTSIZE == v.count());
 
-        for (int i = 1; i < TESTSIZE; ++i) {
+        for (size_t i = 1; i != TESTSIZE; ++i) {
             LOOP2_ASSERT(i, TESTSIZE, v.all());
             v[i] = 0;
             LOOP2_ASSERT(i, TESTSIZE, !v.all());
@@ -385,7 +389,7 @@ void testCase2(bool verbose, bool veryVerbose, bool veryVeryVerbose)
     }
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
     {   // constexpr test
-        constexpr bsl::bitset<TESTSIZE> v;
+        constexpr bsl::bitset<TESTSIZE> v{};
         ASSERT(TESTSIZE == v.size());
         ASSERT(v.none());
         ASSERT(!v.any());
@@ -435,193 +439,6 @@ void testCase3(bool verbose, bool veryVerbose, bool /* veryVeryVerbose */)
     testCase3Imp<L_, TESTSIZE,   0x8765432187654321 >(verbose, veryVerbose);
 #endif
 
-}
-
-void testCase13()
-{
-    // ------------------------------------------------------------------------
-    // 'noexcept' SPECIFICATION
-    //
-    // Concerns:
-    //: 1 The 'noexcept' specification has been applied to all class interfaces
-    //:   required by the standard.
-    //
-    // Plan:
-    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
-    //:   appearing in the standard and confirm that calculated boolean value
-    //:   matches the expected value.
-    //:
-    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
-    //:   of the container, we need test for just one general type and any
-    //:   'TYPE' specializations.
-    //
-    // Testing:
-    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
-    // ------------------------------------------------------------------------
-
-    // N4594: 20.8 Class template bitset
-
-    // page 556: 20.8.4 bitset operators
-    //..
-    //  template <size_t N>
-    //          bitset<N> operator&(const bitset<N>&, const bitset<N>&)
-    //                                                                noexcept;
-    //  template <size_t N>
-    //          bitset<N> operator|(const bitset<N>&, const bitset<N>&)
-    //                                                                noexcept;
-    //  template <size_t N>
-    //          bitset<N> operator^(const bitset<N>&, const bitset<N>&)
-    //                                                                noexcept;
-    //..
-    {
-        bsl::bitset<32> lhs;
-        bsl::bitset<32> rhs;
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs & rhs));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs | rhs));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs ^ rhs));
-    }
-
-    // page 557
-    //..
-    //  class reference {
-    //    friend class bitset;
-    //    reference() noexcept;
-    //  public:
-    //    ~reference() noexcept;
-    //    reference& operator=(bool x) noexcept;           // for b[i] = x;
-    //    reference& operator=(const reference&) noexcept; // for b[i] = b[j];
-    //    bool operator~() const noexcept;                 // flips the bit
-    //    operator bool() const noexcept;                  // for x = b[i];
-    //    reference& flip() noexcept;                      // for b[i].flip();
-    //  }
-    //..
-    {
-        bsl::bitset<32> b;
-        size_t          i = 0;
-        size_t          j = 0;
-        bool            x = true;
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i]));
-                                                     // 'reference()' (private)
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(~b[i]));
-                                                              // '~reference()'
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i] = x   ));
-                                                           // 'operator=(bool)'
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i] = b[j]));
-                                               // 'operator=(const reference&)'
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(~b));       // 'operator~'
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x = b[i])); // 'operator()'
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b[i].flip())); // 'flip()'
-    }
-
-    // page 557: 20.8.1 constructors:
-    //..
-    //  constexpr bitset() noexcept;
-    //  constexpr bitset(unsigned long long val) noexcept;
-    //..
-    {
-        unsigned long long val = 1;
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>(val)));
-    }
-
-    // page 557: 20.8.2 bitset operations:
-    //..
-    //  bitset<N>& operator&=(const bitset<N>& rhs) noexcept;
-    //  bitset<N>& operator|=(const bitset<N>& rhs) noexcept;
-    //  bitset<N>& operator^=(const bitset<N>& rhs) noexcept;
-    //  bitset<N>& operator<<=(size_t pos) noexcept;
-    //  bitset<N>& operator>>=(size_t pos) noexcept;
-    //  bitset<N>& set() noexcept;
-    //  bitset<N>& reset() noexcept;
-    //  bitset<N> operator~() const noexcept;
-    //  bitset<N>& flip() noexcept;
-    //..
-    {
-        bsl::bitset<32> b;
-        bsl::bitset<32> rhs;
-        size_t          pos;
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator&=(rhs)));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator|=(rhs)));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator^=(rhs)));
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<=(pos)));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>=(pos)));
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.set()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.reset()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator~()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.flip()));
-    }
-
-    // page 557-558: element access:
-    //..
-    // size_t count() const noexcept;
-    // constexpr size_t size() const noexcept;
-    //
-    // bool operator==(const bitset<N>& rhs) const noexcept;
-    // bool operator!=(const bitset<N>& rhs) const noexcept;
-    // bool all() const noexcept;
-    // bool any() const noexcept;
-    // bool none() const noexcept;
-    // bitset<N> operator<<(size_t pos) const noexcept;
-    // bitset<N> operator>>(size_t pos) const noexcept;
-    //..
-    {
-        bsl::bitset<32> b;
-        bsl::bitset<32> rhs;
-        size_t          pos;
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.count()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.size()));
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator==(rhs)));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator!=(rhs)));
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.all()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.any()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.none()));
-
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<(pos)));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>(pos)));
-    }
 }
 
 }  // close unnamed namespace
@@ -744,7 +561,7 @@ int main(int argc, char *argv[])
     ASSERT(&globalAllocator == bslma::Default::globalAllocator());
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     // Confirm no static initialization locked the default allocator
     ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
@@ -752,86 +569,272 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator ta("general", veryVeryVeryVerbose);
 
-    bsls::Types::Int64 numDeallocations;
-    bsls::Types::Int64 numAllocations;
-    bsls::Types::Int64 numDeletes = 0;
-
-    bsls::Types::Int64 numDefaultDeallocations =
-                                           defaultAllocator.numDeallocations();
-    bsls::Types::Int64 numDefaultAllocations =
-                                             defaultAllocator.numAllocations();
     switch (test) { case 0:  // Zero is always the leading case.
-      case 34: {
+      case 13: {
         // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
-                                 "========================" "\n");
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
-        testCase13();
+// Finally, we can exercise our 'isPrime' function with an upper bound of
+// 10,000:
+//..
+    enum { UPPER_BOUND = 10000 };
 
+    ASSERT(1 == isPrime<UPPER_BOUND>(2));
+    ASSERT(1 == isPrime<UPPER_BOUND>(3));
+    ASSERT(0 == isPrime<UPPER_BOUND>(4));
+    ASSERT(1 == isPrime<UPPER_BOUND>(5));
+    ASSERT(0 == isPrime<UPPER_BOUND>(6));
+    ASSERT(1 == isPrime<UPPER_BOUND>(7));
+    ASSERT(0 == isPrime<UPPER_BOUND>(8));
+    ASSERT(0 == isPrime<UPPER_BOUND>(9));
+    ASSERT(0 == isPrime<UPPER_BOUND>(10));
+    // ...
+    ASSERT(1 == isPrime<UPPER_BOUND>(9973));
+    ASSERT(0 == isPrime<UPPER_BOUND>(9975));
+    ASSERT(0 == isPrime<UPPER_BOUND>(10000));
+//..
       } break;
-    case 12: {
-      // --------------------------------------------------------------------
-      // USAGE EXAMPLE TEST
-      //
-      // Finally, we can exercise our 'isPrime' function:
-      // --------------------------------------------------------------------
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'noexcept' SPECIFICATION
+        //
+        // Concerns:
+        //: 1 The 'noexcept' specification has been applied to all class
+        //:   interfaces required by the standard.
+        //
+        // Plan:
+        //: 1 Apply the unary 'noexcept' operator to expressions that mimic
+        //:   those appearing in the standard and confirm that calculated
+        //:   boolean value matches the expected value.
+        //:
+        //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+        //:   of the container, we need test for just one general type and any
+        //:   'TYPE' specializations.
+        //
+        // Testing:
+        //   CONCERN: Methods qualified 'noexcept' in standard are so defined.
+        // --------------------------------------------------------------------
 
-      // Finally, we can exercise our 'isPrime' function with an upper bound
-      // of 10,000:
-      //..
-      enum { UPPER_BOUND = 10000 };
 
-      ASSERT(1 == isPrime<UPPER_BOUND>(2));
-      ASSERT(1 == isPrime<UPPER_BOUND>(3));
-      ASSERT(0 == isPrime<UPPER_BOUND>(4));
-      ASSERT(1 == isPrime<UPPER_BOUND>(5));
-      ASSERT(0 == isPrime<UPPER_BOUND>(6));
-      ASSERT(1 == isPrime<UPPER_BOUND>(7));
-      ASSERT(0 == isPrime<UPPER_BOUND>(8));
-      ASSERT(0 == isPrime<UPPER_BOUND>(9));
-      ASSERT(0 == isPrime<UPPER_BOUND>(10));
-      // ...
-      ASSERT(1 == isPrime<UPPER_BOUND>(9973));
-      ASSERT(0 == isPrime<UPPER_BOUND>(9975));
-      ASSERT(0 == isPrime<UPPER_BOUND>(10000));
-      //..
-    } break;
+        if (verbose) printf("\nTESTING 'noexcept' SPECIFICATION"
+                            "\n================================\n");
 
-    case 11: {
-      // --------------------------------------------------------------------
-      // TESTING SHIFT OPERATORS
-      //
-      // Concerns:
-      //   1. That a bitset can be shifted across word boundaries.
-      //
-      //   2. That a bitset get filled by 0s for the most significant 'pos'
-      //      bits if shifted right, or the least significant 'pos' bits if
-      //      shifted left.
-      //
-      // Plan:
-      //   Using the table-driven technique, construct a bitset.  Then shift
-      //   the bitset and verify the value is as expected.
-      //
-      // Testing:
-      //   bitset& operator<<=(std::size_t pos);
-      //   bitset& operator>>=(std::size_t pos);
-      // --------------------------------------------------------------------
+        // N4594: 20.8 Class template bitset
 
-      if (verbose) printf("\nTESTING SHIFT OPERATORS"
-                          "\n=======================\n");
+        // page 556: 20.8.4 bitset operators
+        //..
+        //  template <size_t N>
+        //    bitset<N> operator&(const bitset<N>&, const bitset<N>&) noexcept;
+        //  template <size_t N>
+        //    bitset<N> operator|(const bitset<N>&, const bitset<N>&) noexcept;
+        //  template <size_t N>
+        //    bitset<N> operator^(const bitset<N>&, const bitset<N>&) noexcept;
+        //..
+        {
+            bsl::bitset<32> lhs;
+            bsl::bitset<32> rhs;
 
-      {
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs & rhs));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs | rhs));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs ^ rhs));
+        }
 
-      static const struct {
-          unsigned int d_lineNum;    // source line number
-          const char*  d_string;     // bitset string
-          size_t       d_pos;        // amount to shift by
-          const char*  d_shiftlexp;  // expected string after left shift
-          const char*  d_shiftrexp;  // expected string after right shift
-      } DATA[] = {
+        // page 557
+        //..
+        //  class reference {
+        //    friend class bitset;
+        //  public:
+        //    ~reference() noexcept;
+        //    reference& operator=(bool x) noexcept;
+        //    reference& operator=(const reference&) noexcept;
+        //    bool operator~() const noexcept;
+        //    operator bool() const noexcept;
+        //    reference& flip() noexcept;
+        //  }
+        //..
+        {
+            bsl::bitset<32> b;
+            size_t          i = 0;
+            size_t          j = 0;
+            bool            x = true;
+
+            // The only public way to construct 'reference' objects is to call
+            // 'operator[]' on a bitset, which is not 'noexcept' itself.
+            // Therefore, we must construct 'reference' objects outside the
+            // expressions tested with the 'noexcept' operator.
+
+            bsl::bitset<32>::reference       ref = b[i];
+            const bsl::bitset<32>::reference REF = b[j];
+
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(
+                                             bsl::bitset<32>::reference(REF)));
+                                    // copy constructor (also tests destructor)
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(ref.~reference()));
+                                                                  // destructor
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(ref = x)); // 'operator=(bool)'
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(ref = REF));
+                                               // 'operator=(const reference&)'
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(~REF));          // 'operator~'
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(x = REF)); // 'operator bool()'
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(ref.flip()));       // 'flip()'
+        }
+
+        // page 557: 20.8.1 constructors:
+        //..
+        //  constexpr bitset() noexcept;
+        //  constexpr bitset(unsigned long long val) noexcept;
+        //..
+        {
+            unsigned long long val = 1;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>()));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>(val)));
+        }
+
+        // page 557: 20.8.2 bitset operations:
+        //..
+        //  bitset<N>& operator&=(const bitset<N>& rhs) noexcept;
+        //  bitset<N>& operator|=(const bitset<N>& rhs) noexcept;
+        //  bitset<N>& operator^=(const bitset<N>& rhs) noexcept;
+        //  bitset<N>& operator<<=(size_t pos) noexcept;
+        //  bitset<N>& operator>>=(size_t pos) noexcept;
+        //  bitset<N>& set() noexcept;
+        //  bitset<N>& reset() noexcept;
+        //  bitset<N> operator~() const noexcept;
+        //  bitset<N>& flip() noexcept;
+        //..
+        {
+            bsl::bitset<32> b;
+            bsl::bitset<32> rhs;
+            size_t          pos;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator&=(rhs)));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator|=(rhs)));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator^=(rhs)));
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<=(pos)));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>=(pos)));
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.set()));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.reset()));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator~()));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.flip()));
+        }
+
+        // page 557-558: element access:
+        //..
+        // size_t count() const noexcept;
+        // constexpr size_t size() const noexcept;
+        //
+        // bool operator==(const bitset<N>& rhs) const noexcept;
+        // bool operator!=(const bitset<N>& rhs) const noexcept;
+        // bool all() const noexcept;
+        // bool any() const noexcept;
+        // bool none() const noexcept;
+        // bitset<N> operator<<(size_t pos) const noexcept;
+        // bitset<N> operator>>(size_t pos) const noexcept;
+        //..
+        {
+            bsl::bitset<32> b;
+            bsl::bitset<32> rhs;
+            size_t          pos;
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.count()));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.size()));
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator==(rhs)));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator!=(rhs)));
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.all()));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.any()));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.none()));
+
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<(pos)));
+            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>(pos)));
+        }
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING SHIFT OPERATORS
+        //
+        // Concerns:
+        //: 1 That a bitset can be shifted across word boundaries.
+        //:
+        //: 2 That a bitset get filled by 0s for the most significant 'pos'
+        //:   bits if shifted right, or the least significant 'pos' bits if
+        //:   shifted left.
+        //
+        // Plan:
+        //: 1 Using the table-driven technique, construct a bitset.  Then shift
+        //:   the bitset and verify the value is as expected.
+        //
+        // Testing:
+        //   bitset& operator<<=(std::size_t pos);
+        //   bitset& operator>>=(std::size_t pos);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING SHIFT OPERATORS"
+                            "\n=======================\n");
+
+        {
+
+        static const struct {
+            unsigned int d_lineNum;    // source line number
+            const char*  d_string;     // bitset string
+            size_t       d_pos;        // amount to shift by
+            const char*  d_shiftlexp;  // expected string after left shift
+            const char*  d_shiftrexp;  // expected string after right shift
+        } DATA[] = {
    //LINE  VALUE                POS SHIFTLEXP            SHIFTREXP
    //----  -------------------  --- -------------------  ------------------
    { L_,   "00000000000000000", 0,  "00000000000000000", "00000000000000000"},
@@ -861,62 +864,61 @@ int main(int argc, char *argv[])
    { L_,   "00001000000010000", 15, "00000000000000000", "00000000000000000"},
    { L_,   "00001000000010000", 16, "00000000000000000", "00000000000000000"},
    { L_,   "00001000000010000", 17, "00000000000000000", "00000000000000000"},
-      };
-      const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-      const int TESTSIZE = 17;  // num bits of char + 1
-      if (verbose) printf("\nTesting shift operators with bitset<%d>\n",
-                          TESTSIZE);
+        const int TESTSIZE = 17;  // num bits of char + 1
+        if (verbose) printf("\nTesting shift operators with bitset<%d>\n",
+                            TESTSIZE);
 
-      typedef bsl::bitset<TESTSIZE> Obj;
+        typedef bsl::bitset<TESTSIZE> Obj;
 
-      for (int ti = 0; ti < NUM_DATA; ++ti) {
-          const unsigned int  LINE      = DATA[ti].d_lineNum;
-          const char         *VALUE     = DATA[ti].d_string;
-          size_t              POS       = DATA[ti].d_pos;
-          const char         *SHIFTLEXP = DATA[ti].d_shiftlexp;
-          const char         *SHIFTREXP = DATA[ti].d_shiftrexp;
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const unsigned int  LINE      = DATA[ti].d_lineNum;
+            const char         *VALUE     = DATA[ti].d_string;
+            size_t              POS       = DATA[ti].d_pos;
+            const char         *SHIFTLEXP = DATA[ti].d_shiftlexp;
+            const char         *SHIFTREXP = DATA[ti].d_shiftrexp;
 
-          if (veryVerbose) {
-              T_ P_(LINE) P_(VALUE) P_(POS) P_(SHIFTLEXP) P(SHIFTREXP);
-          }
+            if (veryVerbose) {
+                T_ P_(LINE) P_(VALUE) P_(POS) P_(SHIFTLEXP) P(SHIFTREXP);
+            }
 
-          bsl::string value(VALUE);
-          bsl::string lexpected(SHIFTLEXP);
-          bsl::string rexpected(SHIFTREXP);
+            bsl::string value(VALUE);
+            bsl::string lexpected(SHIFTLEXP);
+            bsl::string rexpected(SHIFTREXP);
 
-          Obj mX1(value);    const Obj& X1 = mX1;  // shift left
-          Obj mX2(value);    const Obj& X2 = mX2;  // shift right
-          Obj mY(lexpected); const Obj& Y  = mY;
-          Obj mZ(rexpected); const Obj& Z  = mZ;
+            Obj mX1(value);    const Obj& X1 = mX1;  // shift left
+            Obj mX2(value);    const Obj& X2 = mX2;  // shift right
+            Obj mY(lexpected); const Obj& Y  = mY;
+            Obj mZ(rexpected); const Obj& Z  = mZ;
 
-          Obj mX3 = mX1 << POS; const Obj& X3 = mX3;
-          mX1 <<= POS;
+            Obj mX3 = mX1 << POS; const Obj& X3 = mX3;
+            mX1 <<= POS;
 
-          Obj mX4 = mX2 >> POS; const Obj& X4 = mX4;
-          mX2 >>= POS;
+            Obj mX4 = mX2 >> POS; const Obj& X4 = mX4;
+            mX2 >>= POS;
 
-          if (veryVeryVerbose) {
-              T_ T_ P_(X1) P_(X2) P_(X3) P_(X4) P_(Y) P(Z);
-          }
+            if (veryVeryVerbose) {
+                T_ T_ P_(X1) P_(X2) P_(X3) P_(X4) P_(Y) P(Z);
+            }
 
-          LOOP_ASSERT(LINE, X1 == Y);
-          LOOP_ASSERT(LINE, X3 == Y);
-          LOOP_ASSERT(LINE, X2 == Z);
-          LOOP_ASSERT(LINE, X4 == Z);
-      }
+            LOOP_ASSERT(LINE, X1 == Y);
+            LOOP_ASSERT(LINE, X3 == Y);
+            LOOP_ASSERT(LINE, X2 == Z);
+            LOOP_ASSERT(LINE, X4 == Z);
+        }
+        }
 
-      }
+        {
 
-      {
-
-      static const struct {
-          unsigned int d_lineNum;    // source line number
-          const char*  d_string;     // bitset string
-          size_t       d_pos;        // amount to shift by
-          const char*  d_shiftlexp;  // expected string after left shift
-          const char*  d_shiftrexp;  // expected string after right shift
-      } DATA[] = {
+        static const struct {
+            unsigned int d_lineNum;    // source line number
+            const char*  d_string;     // bitset string
+            size_t       d_pos;        // amount to shift by
+            const char*  d_shiftlexp;  // expected string after left shift
+            const char*  d_shiftrexp;  // expected string after right shift
+        } DATA[] = {
    //LINE  VALUE                                POS SHIFTLEXP     SHIFTREXP
    //----  -----------------------------------  --- ------------  ------------
    { L_,   "000000000000000000000000000000000", 0,
@@ -994,471 +996,482 @@ int main(int argc, char *argv[])
    { L_,   "000010000100000000000001000010000", 33,
                                           "000000000000000000000000000000000",
                                           "000000000000000000000000000000000"},
-      };
-      const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-      const int TESTSIZE = 33;  // num bits of char + 1
-      if (verbose) printf("\nTesting shift operators with bitset<%d>\n",
-                          TESTSIZE);
+        const int TESTSIZE = 33;  // num bits of char + 1
+        if (verbose) printf("\nTesting shift operators with bitset<%d>\n",
+                            TESTSIZE);
 
-      typedef bsl::bitset<TESTSIZE> Obj;
+        typedef bsl::bitset<TESTSIZE> Obj;
 
-      for (int ti = 0; ti < NUM_DATA; ++ti) {
-          const unsigned int  LINE      = DATA[ti].d_lineNum;
-          const char         *VALUE     = DATA[ti].d_string;
-          size_t              POS       = DATA[ti].d_pos;
-          const char         *SHIFTLEXP = DATA[ti].d_shiftlexp;
-          const char         *SHIFTREXP = DATA[ti].d_shiftrexp;
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const unsigned int  LINE      = DATA[ti].d_lineNum;
+            const char         *VALUE     = DATA[ti].d_string;
+            size_t              POS       = DATA[ti].d_pos;
+            const char         *SHIFTLEXP = DATA[ti].d_shiftlexp;
+            const char         *SHIFTREXP = DATA[ti].d_shiftrexp;
 
-          if (veryVerbose) {
-              T_ P_(LINE) P_(VALUE) P_(POS) P_(SHIFTLEXP) P(SHIFTREXP);
-          }
+            if (veryVerbose) {
+                T_ P_(LINE) P_(VALUE) P_(POS) P_(SHIFTLEXP) P(SHIFTREXP);
+            }
 
-          bsl::string value(VALUE);
-          bsl::string lexpected(SHIFTLEXP);
-          bsl::string rexpected(SHIFTREXP);
+            bsl::string value(VALUE);
+            bsl::string lexpected(SHIFTLEXP);
+            bsl::string rexpected(SHIFTREXP);
 
-          Obj mX1(value);    const Obj& X1 = mX1;  // shift left
-          Obj mX2(value);    const Obj& X2 = mX2;  // shift right
-          Obj mY(lexpected); const Obj& Y  = mY;
-          Obj mZ(rexpected); const Obj& Z  = mZ;
+            Obj mX1(value);    const Obj& X1 = mX1;  // shift left
+            Obj mX2(value);    const Obj& X2 = mX2;  // shift right
+            Obj mY(lexpected); const Obj& Y  = mY;
+            Obj mZ(rexpected); const Obj& Z  = mZ;
 
-          Obj mX3 = mX1 << POS; const Obj& X3 = mX3;
-          mX1 <<= POS;
+            Obj mX3 = mX1 << POS; const Obj& X3 = mX3;
+            mX1 <<= POS;
 
-          Obj mX4 = mX2 >> POS; const Obj& X4 = mX4;
-          mX2 >>= POS;
+            Obj mX4 = mX2 >> POS; const Obj& X4 = mX4;
+            mX2 >>= POS;
 
-          if (veryVeryVerbose) {
-              T_ T_ P_(X1) P_(X2) P_(X3) P_(X4) P_(Y) P(Z);
-          }
+            if (veryVeryVerbose) {
+                T_ T_ P_(X1) P_(X2) P_(X3) P_(X4) P_(Y) P(Z);
+            }
 
-          LOOP_ASSERT(LINE, X1 == Y);
-          LOOP_ASSERT(LINE, X3 == Y);
-          LOOP_ASSERT(LINE, X2 == Z);
-          LOOP_ASSERT(LINE, X4 == Z);
-      }
+            LOOP_ASSERT(LINE, X1 == Y);
+            LOOP_ASSERT(LINE, X3 == Y);
+            LOOP_ASSERT(LINE, X2 == Z);
+            LOOP_ASSERT(LINE, X4 == Z);
+        }
+        }
 
-      }
+      } break;
 
-    } break;
+      case 10: {
+      } break;
 
-    case 10: {
-    } break;
+      case 9: {
+      } break;
 
-    case 9: {
-    } break;
+      case 8: {
+      } break;
 
-    case 8: {
-    } break;
+      case 7: {
+      } break;
 
-    case 7: {
-    } break;
+      case 6: {
+      } break;
 
-    case 6: {
-    } break;
+      case 5: {
+      } break;
 
-    case 5: {
-    } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING STRING CONSTRUCTORS
+        //
+        // Concerns:
+        //   Ensure that a bitset can be constructed from both native strings
+        //   and bslstl strings.
+        //
+        // Plan:
+        //   Using the table-driven technique, construct a bitset, 'X', from
+        //   both native and bslstl strings.  Verify the value of the
+        //   constructed bitset is as expected. Then transform those strings so
+        //   that they use different characters to represent '0' and '1'. For
+        //   each transformed string construct a bitset 'Y' and verify its
+        //   value.
+        //
+        // Testing:
+        //  bitset(native_std::basic_string, size_type, size_type, char, char);
+        //  bitset(bsl::basic_string, size_type, size_type, char, char);
+        //  bsl::string to_string(char, char) const;
+        // --------------------------------------------------------------------
 
-    case 4: {
-      // --------------------------------------------------------------------
-      // TESTING STRING CONSTRUCTORS
-      //
-      // Concerns:
-      //   Ensure that a bitset can be constructed from both native strings
-      //   and bslstl strings.
-      //
-      // Plan:
-      //   Using the table-driven technique, construct a bitset, 'X', from both
-      //   native and bslstl strings.  Verify the value of the constructed
-      //   bitset is as expected. Then transform those strings so that they
-      //   use different characters to represent '0' and '1'. For each
-      //   transformed string construct a bitset 'Y' and verify its value.
-      //
-      // Testing:
-      //  bitset(native_std::basic_string, size_type, size_type, char, char);
-      //  bitset(bsl::basic_string, size_type, size_type, char, char);
-      //  bsl::string to_string(char, char) const;
-      // --------------------------------------------------------------------
+        if (verbose) printf("\nTESTING STRING CONSTRUCTORS"
+                            "\n===========================\n");
 
-      if (verbose) printf("\nTESTING STRING CONSTRUCTORS"
-                          "\n===========================\n");
+        const int TESTSIZE = 32;  // 'bitset' size.
+        typedef bsl::bitset<TESTSIZE> Obj;
 
-      const int TESTSIZE = 32;  // 'bitset' size.
-      typedef bsl::bitset<TESTSIZE> Obj;
+        static const struct {
+            unsigned int d_lineNum;  // source line number
+            unsigned int d_value;    // bitset value
+            const char*  d_string;   // bitset string
+        } DATA[] = {
+            //LINE  VALUE         STRING
+            //----  ----------    -----------------------------------
+            { L_,   0,            "00000000000000000000000000000000" },
+            { L_,   0x10101010,   "00010000000100000001000000010000" },
+            { L_,   0xabcdef01,   "10101011110011011110111100000001" },
+            { L_,   0x12345678,   "00010010001101000101011001111000" },
+            { L_,   0xffffffff,   "11111111111111111111111111111111" },
+            { L_,   0x87654321,   "10000111011001010100001100100001" },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-      static const struct {
-          unsigned int d_lineNum;  // source line number
-          unsigned int d_value;    // bitset value
-          const char*  d_string;   // bitset string
-      } DATA[] = {
-          //LINE  VALUE         STRING
-          //----  ----------    -----------------------------------
-          { L_,   0,            "00000000000000000000000000000000" },
-          { L_,   0x10101010,   "00010000000100000001000000010000" },
-          { L_,   0xabcdef01,   "10101011110011011110111100000001" },
-          { L_,   0x12345678,   "00010010001101000101011001111000" },
-          { L_,   0xffffffff,   "11111111111111111111111111111111" },
-          { L_,   0x87654321,   "10000111011001010100001100100001" },
-      };
-      const int NUM_DATA = sizeof DATA / sizeof *DATA;
-
-      static const struct {
-          unsigned int d_lineNum;
-          char d_zeroChar;
-          char d_oneChar;
-      } TRANSLATION_DATA[] = {
+        static const struct {
+            unsigned int d_lineNum;
+            char d_zeroChar;
+            char d_oneChar;
+        } TRANSLATION_DATA[] = {
             { L_, '0', '1'},
             { L_, '1', '0'},
             { L_, '!', 'A'}
-      };
-      const int NUM_TRANSLATION_DATA =
-              sizeof TRANSLATION_DATA / sizeof *TRANSLATION_DATA;
+        };
+        const int NUM_TRANSLATION_DATA =
+                            sizeof TRANSLATION_DATA / sizeof *TRANSLATION_DATA;
 
-      if (verbose) printf("\nTesting constructor with native string\n");
+        if (verbose) printf("\nTesting constructor with native string\n");
 
-      for (int ti = 0; ti < NUM_DATA; ++ti) {
-          const unsigned int LINE   = DATA[ti].d_lineNum;
-          const unsigned int VALUE  = DATA[ti].d_value;
-          const char *       STRING = DATA[ti].d_string;
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const unsigned int LINE   = DATA[ti].d_lineNum;
+            const unsigned int VALUE  = DATA[ti].d_value;
+            const char *       STRING = DATA[ti].d_string;
 
-          if (veryVerbose) { T_ P_(LINE) P_(VALUE) P(STRING) }
+            if (veryVerbose) { T_ P_(LINE) P_(VALUE) P(STRING) }
 
-          const native_std::string s(STRING);
-          Obj mX(s);
-          const Obj& X = mX;
-          if (veryVeryVerbose) { T_ T_ P(X) }
+            const native_std::string s(STRING);
+            Obj mX(s);
+            const Obj& X = mX;
+            if (veryVeryVerbose) { T_ T_ P(X) }
 
-          LOOP_ASSERT(LINE, verifyBitset(mX, STRING));
-          LOOP3_ASSERT(LINE, VALUE, X.to_ulong(), VALUE == X.to_ulong());
+            ASSERTV(LINE, verifyBitset(mX, STRING));
+            ASSERTV(LINE, VALUE, X.to_ulong(), VALUE == X.to_ulong());
 #if !defined(BSLSTL_BITSET_NO_REBIND_IN_NATIVE_ALLOCATOR)
-          LOOP_ASSERT(LINE, (X.to_string<char, native_std::char_traits<char>,
-                             native_std::allocator<char> >() == s));
+            ASSERTV(LINE, (X.to_string<char, native_std::char_traits<char>,
+                               native_std::allocator<char> >() == s));
 #endif
 
-          for (int ui = 0; ui < NUM_TRANSLATION_DATA; ++ui) {
-              const unsigned int LINE2     = TRANSLATION_DATA[ui].d_lineNum;
-              const char         ZERO_CHAR = TRANSLATION_DATA[ui].d_zeroChar;
-              const char         ONE_CHAR  = TRANSLATION_DATA[ui].d_oneChar;
+            for (int ui = 0; ui < NUM_TRANSLATION_DATA; ++ui) {
+                const unsigned int LINE2     = TRANSLATION_DATA[ui].d_lineNum;
+                const char         ZERO_CHAR = TRANSLATION_DATA[ui].d_zeroChar;
+                const char         ONE_CHAR  = TRANSLATION_DATA[ui].d_oneChar;
 
-              native_std::string sY(STRING);
-              changeBitString(&sY, ZERO_CHAR, ONE_CHAR);
-              Obj mY(sY, 0, native_std::string::npos, ZERO_CHAR, ONE_CHAR);
-              const Obj& Y = mY;
-              if (veryVeryVerbose) { T_ T_ P(Y) }
+                native_std::string sY(STRING);
+                changeBitString(&sY, ZERO_CHAR, ONE_CHAR);
+                Obj mY(sY, 0, native_std::string::npos, ZERO_CHAR, ONE_CHAR);
+                const Obj& Y = mY;
+                if (veryVeryVerbose) { T_ T_ P(Y) }
 
-              LOOP_ASSERT(LINE2, verifyBitset(mY, STRING));
-              LOOP3_ASSERT(LINE2, VALUE, Y.to_ulong(), VALUE == Y.to_ulong());
+                ASSERTV(LINE2, verifyBitset(mY, STRING));
+                ASSERTV(LINE2, VALUE, Y.to_ulong(), VALUE == Y.to_ulong());
 #if !defined(BSLSTL_BITSET_NO_REBIND_IN_NATIVE_ALLOCATOR)
-              LOOP_ASSERT(LINE2, (Y.to_string<char,
-                      native_std::string::traits_type,
-                      native_std::string::allocator_type>() == s));
-              LOOP_ASSERT(LINE2, (X.to_string<char,
-                      native_std::string::traits_type,
-                      native_std::string::allocator_type>(
-                          ZERO_CHAR, ONE_CHAR) == sY));
+                ASSERTV(LINE2, (Y.to_string<char,
+                        native_std::string::traits_type,
+                        native_std::string::allocator_type>() == s));
+                ASSERTV(LINE2, (X.to_string<char,
+                        native_std::string::traits_type,
+                        native_std::string::allocator_type>(
+                            ZERO_CHAR, ONE_CHAR) == sY));
 #endif
 
 #if __cplusplus >= 201103L
-              LOOP_ASSERT(LINE2, (X.to_string<>(ZERO_CHAR, ONE_CHAR) == sY));
+                LOOP_ASSERT(LINE2, (X.to_string<>(ZERO_CHAR, ONE_CHAR) == sY));
 #endif
-              LOOP2_ASSERT(LINE, LINE2, X == Y);
-          }
-      }
+                LOOP2_ASSERT(LINE, LINE2, X == Y);
+            }
+        }
 
-      if (verbose) printf("\nTesting constructor with bslstl string\n");
+        if (verbose) printf("\nTesting constructor with bslstl string\n");
 
-      for (int ti = 0; ti < NUM_DATA; ++ti) {
-          const unsigned int LINE   = DATA[ti].d_lineNum;
-          const unsigned int VALUE  = DATA[ti].d_value;
-          const char *       STRING = DATA[ti].d_string;
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const unsigned int LINE   = DATA[ti].d_lineNum;
+            const unsigned int VALUE  = DATA[ti].d_value;
+            const char *       STRING = DATA[ti].d_string;
 
-          const bsl::string s(STRING);
-          Obj mX(s);
-          const Obj& X = mX;
-          if (veryVeryVerbose) { T_ T_ P(X) }
+            const bsl::string s(STRING);
+            Obj mX(s);
+            const Obj& X = mX;
+            if (veryVeryVerbose) { T_ T_ P(X) }
 
-          // Shorten these type names so that an explicit call to 'to_string'
-          // can fit on a single 79-char line.
-          typedef bsl::string::traits_type    TraitsType;
-          typedef bsl::string::allocator_type AllocType;
+            // Shorten these type names so that an explicit call to 'to_string'
+            // can fit on a single 79-char line.
+            typedef bsl::string::traits_type    TraitsType;
+            typedef bsl::string::allocator_type AllocType;
 
-          LOOP_ASSERT(LINE, verifyBitset(mX, STRING));
-          LOOP3_ASSERT(LINE, VALUE, X.to_ulong(), VALUE == X.to_ulong());
-          LOOP_ASSERT(LINE, (X.to_string<char, TraitsType, AllocType>() == s));
+            ASSERTV(LINE, verifyBitset(mX, STRING));
+            ASSERTV(LINE, VALUE, X.to_ulong(), VALUE == X.to_ulong());
+            ASSERTV(LINE, (X.to_string<char, TraitsType, AllocType>() == s));
 
-          for (int ui = 0; ui < NUM_TRANSLATION_DATA; ++ui) {
-              const unsigned int LINE2     = TRANSLATION_DATA[ui].d_lineNum;
-              const char         ZERO_CHAR = TRANSLATION_DATA[ui].d_zeroChar;
-              const char         ONE_CHAR  = TRANSLATION_DATA[ui].d_oneChar;
+            for (int ui = 0; ui < NUM_TRANSLATION_DATA; ++ui) {
+                const unsigned int LINE2     = TRANSLATION_DATA[ui].d_lineNum;
+                const char         ZERO_CHAR = TRANSLATION_DATA[ui].d_zeroChar;
+                const char         ONE_CHAR  = TRANSLATION_DATA[ui].d_oneChar;
 
-              bsl::string sY(STRING);
-              changeBitString(&sY, ZERO_CHAR, ONE_CHAR);
-              Obj mY(sY, 0, bsl::string::npos, ZERO_CHAR, ONE_CHAR);
-              const Obj& Y = mY;
-              if (veryVeryVerbose) { T_ T_ P(Y) }
+                bsl::string sY(STRING);
+                changeBitString(&sY, ZERO_CHAR, ONE_CHAR);
+                Obj mY(sY, 0, bsl::string::npos, ZERO_CHAR, ONE_CHAR);
+                const Obj& Y = mY;
+                if (veryVeryVerbose) { T_ T_ P(Y) }
 
-              LOOP_ASSERT(LINE2, verifyBitset(mY, STRING));
-              LOOP3_ASSERT(LINE2, VALUE, Y.to_ulong(), VALUE == Y.to_ulong());
-              LOOP_ASSERT(LINE2, (Y.to_string<char, bsl::string::traits_type,
-                     bsl::string::allocator_type>() == s));
-              LOOP_ASSERT(LINE2, (X.to_string<char, bsl::string::traits_type,
-                     bsl::string::allocator_type>(ZERO_CHAR, ONE_CHAR) == sY));
+                ASSERTV(LINE2, verifyBitset(mY, STRING));
+                ASSERTV(LINE2, VALUE, Y.to_ulong(), VALUE == Y.to_ulong());
+                ASSERTV(LINE2, (Y.to_string<char,
+                                             bsl::string::traits_type,
+                                             bsl::string::allocator_type>()
+                                                                        == s));
+                ASSERTV(LINE2,
+                        (X.to_string<char,
+                                     bsl::string::traits_type,
+                                     bsl::string::allocator_type>(ZERO_CHAR,
+                                                                  ONE_CHAR)
+                                                                       == sY));
 #if __cplusplus >= 201103L
-              LOOP_ASSERT(LINE2, (X.to_string<>(ZERO_CHAR, ONE_CHAR) == sY));
+                ASSERTV(LINE2, (X.to_string<>(ZERO_CHAR, ONE_CHAR) == sY));
 #endif
-              LOOP2_ASSERT(LINE, LINE2, X == Y);
-          }
-      }
+                ASSERTV(LINE, LINE2, X == Y);
+            }
+        }
 
-    } break;
+      } break;
 
-    case 3: {
-      // --------------------------------------------------------------------
-      // TESTING UNSIGNED LONG CONSTRUCTOR
-      //   Ensure that the unsigned long constructor leaves the object in the
-      //   expected state for different initial sizes.
-      //
-      // Concerns:
-      //: 1 All 'N' bits in a 'bitset<N>(k)'-constructed bitset match the N
-      //:   low bits of 'k'.
-      //:
-      //: 2 'bitset<N>(k)' can be used in a constant expression. (C++11 only).
-      //
-      // Plan:
-      //   Construct bitsets of different sizes with different unsigned long
-      //   arguments 'k', and check that all 'N' bits in the bitset match the
-      //   'N' lowest bits of 'k'. Then repeat the same process except that
-      //   the construction and checks are done at compile time (C++11 only).
-      //
-      // Testing:
-      //  constexpr bitset(unsigned long) noexcept;
-      //  constexpr bool operator[](std::size_t pos) const;
-      //---------------------------------------------------------------------
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING UNSIGNED LONG CONSTRUCTOR
+        //   Ensure that the unsigned long constructor leaves the object in the
+        //   expected state for different initial sizes.
+        //
+        // Concerns:
+        //: 1 All 'N' bits in a 'bitset<N>(k)'-constructed bitset match the N
+        //:   low bits of 'k'.
+        //:
+        //: 2 (C++11 only) 'bitset<N>(k)' can be used in a constant expression.
+        //
+        // Plan:
+        //   Construct bitsets of different sizes with different unsigned long
+        //   arguments 'k', and check that all 'N' bits in the bitset match the
+        //   'N' lowest bits of 'k'. Then repeat the same process except that
+        //   the construction and checks are done at compile time (C++11 only).
+        //
+        // Testing:
+        //  constexpr bitset(unsigned long) noexcept;
+        //  constexpr bool operator[](std::size_t pos) const;
+        //---------------------------------------------------------------------
 
-      if (verbose) printf("\nTESTING UNSIGNED LONG CONSTRUCTOR"
-                          "\n=================================\n");
+        if (verbose) printf("\nTESTING UNSIGNED LONG CONSTRUCTOR"
+                            "\n=================================\n");
 
-      testCase3<1>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<2>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<3>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<4>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<7>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<8>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<9>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<15>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<16>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<17>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<23>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<24>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<25>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<31>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<32>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<33>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<63>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<64>(verbose, veryVerbose, veryVeryVerbose);
-      testCase3<65>(verbose, veryVerbose, veryVeryVerbose);
-    } break;
+//      testCase3<0>(verbose, veryVerbose, veryVeryVerbose);   // bad test code
+        testCase3<1>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<2>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<3>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<4>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<7>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<8>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<9>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<15>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<16>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<17>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<23>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<24>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<25>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<31>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<32>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<33>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<63>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<64>(verbose, veryVerbose, veryVeryVerbose);
+        testCase3<65>(verbose, veryVerbose, veryVeryVerbose);
+      } break;
 
-    case 2: {
-      // --------------------------------------------------------------------
-      // TESTING DEFAULT CONSTRUCTOR
-      //   Ensure that the default constructor leaves the object in the
-      //   expected state for different initial sizes.
-      //
-      // Concerns:
-      //: 1 All 'N' bits in a default-constructed 'bitset<N>' are initially 0.
-      //:
-      //: 2 'bitset<N>' implies 'N == size()'.
-      //:
-      //: 3 'bitset<N>' has a constexpr default constructor.
-      //
-      // Plan:
-      //   Default construct bitsets of different sizes and check 'size',
-      //   'none', and 'any', then modify the first and last bits back and
-      //   forth and make sure 'none' and 'any' report the expected results.
-      //   Also default construct the bitsets as constant expressions and use
-      //   the constexpr members 'size()' and 'operator[0]' to check the
-      //   invariants in a static_assert.
-      //
-      // Testing:
-      //  constexpr bitset() noexcept;
-      //  ~bitset();
-      //  reference operator[](std::size_t pos);
-      //  constexpr std::size_t size() const noexcept;
-      //  bool any() const noexcept;
-      //  bool none() const noexcept;
-      //---------------------------------------------------------------------
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING DEFAULT CONSTRUCTOR
+        //   Ensure that the default constructor leaves the object in the
+        //   expected state for different initial sizes.
+        //
+        // Concerns:
+        //: 1 All 'N' bits in a default-constructed 'bitset<N>' are initially
+        //:   0.
+        //:
+        //: 2 'bitset<N>' implies 'N == size()'.
+        //:
+        //: 3 'bitset<N>' has a constexpr default constructor.
+        //:
+        //: 4 'bitset<0>' is a valid type that satisfies all contracts.
+        //
+        // Plan:
+        //   Default construct bitsets of different sizes and check 'size',
+        //   'none', and 'any', then modify the first and last bits back and
+        //   forth and make sure 'none' and 'any' report the expected results.
+        //   Also default construct the bitsets as constant expressions and use
+        //   the constexpr members 'size()' and 'operator[0]' to check the
+        //   invariants in a static_assert.
+        //
+        // Testing:
+        //  constexpr bitset() noexcept;
+        //  ~bitset();
+        //  reference operator[](std::size_t pos);
+        //  constexpr std::size_t size() const noexcept;
+        //  bool all() const noexcept;
+        //  bool any() const noexcept;
+        //  bool none() const noexcept;
+        //  std::size_t count() const noexcept;
+        //---------------------------------------------------------------------
 
-      if (verbose) printf("\nTESTING DEFAULT CONSTRUCTOR"
-                          "\n===========================\n");
+        if (verbose) printf("\nTESTING DEFAULT CONSTRUCTOR"
+                            "\n===========================\n");
 
-      testCase2<0>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<1>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<2>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<3>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<4>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<7>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<8>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<9>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<15>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<16>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<17>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<23>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<24>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<25>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<31>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<32>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<33>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<63>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<64>(verbose, veryVerbose, veryVeryVerbose);
-      testCase2<65>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<0>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<1>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<2>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<3>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<4>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<7>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<8>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<9>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<15>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<16>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<17>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<23>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<24>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<25>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<31>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<32>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<33>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<63>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<64>(verbose, veryVerbose, veryVeryVerbose);
+        testCase2<65>(verbose, veryVerbose, veryVeryVerbose);
 
-    } break;
+      } break;
 
-    case 1: {
-      // --------------------------------------------------------------------
-      // BREATHING TEST
-      //
-      // Concerns:
-      //   We want to demonstrate a base-line level of correct operation of
-      //   the following methods and operators:
-      //     - default and value constructors.
-      //     - equality operators: 'operator==' and 'operator!='.
-      //     - primary manipulators: 'reset' and 'operator|='.
-      //     - basic accessors: 'operator[]'.
-      //
-      // Plan:
-      //   Create four test objects using the default, initializing, and copy
-      //   constructors.  Exercise the basic value-semantic methods and the
-      //   equality operators using the test objects.  Invoke the primary
-      //   manipulator [5, 6, 7].  Use the basic accessors to verify the
-      //   expected results.  Display object values frequently in verbose
-      //   mode.  Note that 'VA', 'VB' and 'VC' denote unique, but otherwise
-      //   arbitrary, object values, while 'U' denotes the valid, but
-      //   "unknown", default object value.
-      //
-      //    1. Create an object x1 (init to VA)   { x1:VA       }
-      //    3. Create an object x3 (default ctor) { x1:VA x3:U  }
-      //    5. Set x3 using 'update' (set to VB)  { x1:VA x3:VB }
-      //    6. Change x1 using 'reset'            { x1:U  x3:VB }
-      //    7. Change x1 ('update', set to VC)    { x1:VC x3:VB }
-      //
-      // Testing:
-      //   BREATHING TEST
-      // --------------------------------------------------------------------
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //
+        // Concerns:
+        //   We want to demonstrate a base-line level of correct operation of
+        //   the following methods and operators:
+        //     - default and value constructors.
+        //     - equality operators: 'operator==' and 'operator!='.
+        //     - primary manipulators: 'reset' and 'operator|='.
+        //     - basic accessors: 'operator[]'.
+        //
+        // Plan:
+        //   Create four test objects using the default, initializing, and copy
+        //   constructors.  Exercise the basic value-semantic methods and the
+        //   equality operators using the test objects.  Invoke the primary
+        //   manipulator [5, 6, 7].  Use the basic accessors to verify the
+        //   expected results.  Display object values frequently in verbose
+        //   mode.  Note that 'VA', 'VB' and 'VC' denote unique, but otherwise
+        //   arbitrary, object values, while 'U' denotes the valid, but
+        //   "unknown", default object value.
+        //
+        //    1. Create an object x1 (init to VA)   { x1:VA       }
+        //    3. Create an object x3 (default ctor) { x1:VA x3:U  }
+        //    5. Set x3 using 'update' (set to VB)  { x1:VA x3:VB }
+        //    6. Change x1 using 'reset'            { x1:U  x3:VB }
+        //    7. Change x1 ('update', set to VC)    { x1:VC x3:VB }
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
 
-      if (verbose) printf("\nBREATHING TEST"
-                          "\n==============\n");
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
-      const int TESTSIZE = 32;  // 'bitset' size.
-      typedef bsl::bitset<TESTSIZE> Obj;
+        const int TESTSIZE = 32;  // 'bitset' size.
+        typedef bsl::bitset<TESTSIZE> Obj;
 
-      static const struct {
-          int         d_lineNum;  // source line number
-          int         d_value;    // bitset value
-          const char* d_string;   // bitset string
-      } DATA[] = {
+        static const struct {
+            int         d_lineNum;  // source line number
+            int         d_value;    // bitset value
+            const char* d_string;   // bitset string
+        } DATA[] = {
           //LINE        VALUE         STRING
           //----        ----------    -----------------------------------
           { L_,         0,            "00000000000000000000000000000000" },
           { L_,         0x10101010,   "00010000000100000001000000010000" },
           { L_,   (int) 0xabcdef01,   "10101011110011011110111100000001" },
           { L_,         0x12345678,   "00010010001101000101011001111000" },
-      };
+        };
 
-      const int    SA = DATA[1].d_value,
-                   SB = DATA[2].d_value,
-                   SC = DATA[3].d_value;
-      const char  *VA = DATA[1].d_string,
-                  *VB = DATA[2].d_string,
-                  *VC = DATA[3].d_string,
-                  *VU = DATA[0].d_string;
+        const int    SA = DATA[1].d_value,
+                     SB = DATA[2].d_value,
+                     SC = DATA[3].d_value;
+        const char  *VA = DATA[1].d_string,
+                    *VB = DATA[2].d_string,
+                    *VC = DATA[3].d_string,
+                    *VU = DATA[0].d_string;
 
-      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (verbose) printf(
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf(
                      "\n 1. Create an object x1 (init to SA).\t\t{ x1:SA }\n");
-      Obj mX1(SA);
-      const Obj& X1 = mX1;
-      if (verbose) { T_ P(X1); }
+        Obj mX1(SA);
+        const Obj& X1 = mX1;
+        if (verbose) { T_ P(X1); }
 
-      if (verbose) printf("\ta. Check initial state of x1.\n");
-      ASSERT(verifyBitset(X1, VA));
+        if (verbose) printf("\ta. Check initial state of x1.\n");
+        ASSERT(verifyBitset(X1, VA));
 
-      if (verbose) printf("\tb. Try equality operators: x1 <op> x1.\n");
+        if (verbose) printf("\tb. Try equality operators: x1 <op> x1.\n");
 
-      ASSERT(1 == (X1 == X1));
-      ASSERT(0 == (X1 != X1));
+        ASSERT(1 == (X1 == X1));
+        ASSERT(0 == (X1 != X1));
 
-      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (verbose) printf("\n 3. Create an object x3 (default ctor)."
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf("\n 3. Create an object x3 (default ctor)."
                           "\t\t{ x1:SA x2:SA x3:U }\n");
-      Obj mX3;
-      const Obj& X3 = mX3;
-      if (verbose) { T_ P(X3); }
+        Obj mX3;
+        const Obj& X3 = mX3;
+        if (verbose) { T_ P(X3); }
 
-      if (verbose) printf("\ta. Check initial state of x3.\n");
-      ASSERT(verifyBitset(X3, VU));
+        if (verbose) printf("\ta. Check initial state of x3.\n");
+        ASSERT(verifyBitset(X3, VU));
 
-      if (verbose) printf("\tb. Try equality operators: "
-                          "x3 <op> x1, x2, x3.\n");
-      ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
-      ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
+        if (verbose) printf("\tb. Try equality operators: "
+                            "x3 <op> x1, x2, x3.\n");
+        ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
+        ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
 
-      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (verbose) printf("\n 5. Set x3 using primary manip (set to VB)."
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf("\n 5. Set x3 using primary manip (set to VB)."
                           "\t\t{ x1:SA x2:SA x3:SB x4:U }\n");
-      mX3.reset();
-      mX3 |= Obj(SB);
-      if (verbose) { T_ P(X3); }
+        mX3.reset();
+        mX3 |= Obj(SB);
+        if (verbose) { T_ P(X3); }
 
-      if (verbose) printf("\ta. Check new state of x3.\n");
-      ASSERT(verifyBitset(X3, VB));
+        if (verbose) printf("\ta. Check new state of x3.\n");
+        ASSERT(verifyBitset(X3, VB));
 
-      if (verbose) printf(
+        if (verbose) printf(
                      "\tb. Try equality operators: x3 <op> x1, x2, x3, x4.\n");
-      ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
-      ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
+        ASSERT(0 == (X3 == X1));        ASSERT(1 == (X3 != X1));
+        ASSERT(1 == (X3 == X3));        ASSERT(0 == (X3 != X3));
 
-      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (verbose) printf(
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf(
               "\n 6. Change x1 using 'reset'.\t\t{ x1:U x2:SA x3:SB x4:U }\n");
-      mX1.reset();
-      if (verbose) { T_ P(X1); }
+        mX1.reset();
+        if (verbose) { T_ P(X1); }
 
-      if (verbose) printf("\ta. Check new state of x1.\n");
-      ASSERT(verifyBitset(X1, VU));
+        if (verbose) printf("\ta. Check new state of x1.\n");
+        ASSERT(verifyBitset(X1, VU));
 
-      if (verbose) printf(
+        if (verbose) printf(
                      "\tb. Try equality operators: x1 <op> x1, x2, x3, x4.\n");
-      ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
-      ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
+        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
+        ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
 
-      // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-      if (verbose) printf("\n 7. Change x1 (primary manip, set to VC)."
-                          "\t\t{ x1:SC x2:SA x3:SB x4:U }\n");
-      mX1.reset();
-      mX1 |= Obj(SC);
-      if (verbose) { T_ P(X1); }
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf("\n 7. Change x1 (primary manip, set to VC)."
+                            "\t\t{ x1:SC x2:SA x3:SB x4:U }\n");
+        mX1.reset();
+        mX1 |= Obj(SC);
+        if (verbose) { T_ P(X1); }
 
-      if (verbose) printf("\ta. Check new state of x1.\n");
-      ASSERT(verifyBitset(X1, VC));
+        if (verbose) printf("\ta. Check new state of x1.\n");
+        ASSERT(verifyBitset(X1, VC));
 
-      if (verbose) printf(
+        if (verbose) printf(
                      "\tb. Try equality operators: x1 <op> x1, x2, x3, x4.\n");
-      ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
-      ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
+        ASSERT(1 == (X1 == X1));        ASSERT(0 == (X1 != X1));
+        ASSERT(0 == (X1 == X3));        ASSERT(1 == (X1 != X3));
 
+      } break;
 
-    } break;
-
-    case -1: {
+      case -1: {
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-        // This test case tends to break compilers, consuming too much virtual
-        // memory for a 32-build of the compiler
-        printf("2147483647 is prime? %s\n",
-               isPrime<2147483647>(2147483647) ? "true" : "false");
+          // This test case tends to break compilers, consuming too much
+          // virtual memory for a 32-build of the compiler
+          printf("2147483647 is prime? %s\n",
+                 isPrime<2147483647>(2147483647) ? "true" : "false");
 #endif
       } break;
       default: {

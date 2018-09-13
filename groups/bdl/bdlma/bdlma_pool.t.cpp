@@ -12,6 +12,8 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_blockgrowth.h>
+#include <bsls_buildtarget.h>
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdio.h>
@@ -983,8 +985,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX(8);
             char *p = (char *)mX.allocate();
@@ -993,7 +994,15 @@ int main(int argc, char *argv[])
             {
                 ASSERT_SAFE_PASS(operator delete(p, mX));
 
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION < 1900
+                // Strictly speaking, it has been undefined behavior to throw
+                // out of a delete function since C++11.  However, only MSVC
+                // (so far) displays problematic behavior, 'abort'ing when
+                // our test handler throws its exception.   This behavior is
+                // first seen with VC 2015.
+
                 ASSERT_SAFE_FAIL(operator delete(0, mX));
+#endif
             }
         }
 

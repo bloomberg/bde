@@ -87,7 +87,7 @@
 	/* 1, 1/ln2 and log2_lo/ln2 in unpacked format */
 	/* 304 */ POS, 0001, DATA_2x2( 0x00000000, 0x80000000, 0x00000000, 0x00000000 ),
 	/* 328 */ POS, 0002, DATA_2x2( 0x5c17f0bb, 0xb8aa3b29, 0x691d3e88, 0xbe87fed0 ),
-	/* 352 */ POS, 0-63, DATA_2x2( 0x9e45c2c0, 0x91a1e8f2, 0x505ad73a, 0xb3dc7e64 ),
+	/* 352 */ POS, -63u, DATA_2x2( 0x9e45c2c0, 0x91a1e8f2, 0x505ad73a, 0xb3dc7e64 ),
 
 	/* Fixed point coefficients for log2 evaluation */
 	/* 376 */ DATA_4( 0x9c3d3269, 0x846f0cdb, 0x00000116, 0x00000000 ),
@@ -108,7 +108,7 @@
 	/* 616 */ DATA_4( 0x7aa6f59b, 0x2932877a, 0x87a04e84, 0x01039501 ),
 	/* 632 */ DATA_4( 0x8c267804, 0x47a3ed39, 0xd62f144c, 0x0bd19a0f ),
 	/* 648 */ DATA_4( 0xdd11fee3, 0x5079024e, 0x641da382, 0xa3fe9ffd ),
-	/* 664 */ DATA_1x2( 0x000000-4, 0x00000000 ),
+	/* 664 */ DATA_1x2( -4u, 0x00000000 ),
 
 	/* Fixed point coefficients for 2^h evaluation */
 	/* 672 */ DATA_4( 0x151832ab, 0x00002b4c, 0x00000000, 0x00000000 ),

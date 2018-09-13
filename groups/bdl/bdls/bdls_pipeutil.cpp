@@ -54,7 +54,10 @@ void getPipeDir(bsl::string *dir)
 {
     BSLS_ASSERT(dir);
 
-    char *tmpdir = bsl::getenv("TMPDIR");
+    char *tmpdir = bsl::getenv("SOCKDIR");
+    if (0 == tmpdir) {
+        tmpdir = bsl::getenv("TMPDIR");
+    }
     if (0 != tmpdir) {
         dir->assign(tmpdir);
     }

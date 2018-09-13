@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLSCM_VERSIONTAG
 #define INCLUDED_BDLSCM_VERSIONTAG
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide versioning information for the 'bdl' package group.
@@ -41,19 +39,16 @@ BSLS_IDENT("$Id: $")
 //  #endif
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLSCM_VERSIONTAG
 #include <bslscm_versiontag.h>
-#endif
 
 
-#define BDL_VERSION_MAJOR     BSL_VERSION_MAJOR
+// For the 3.12.x release series, 'bdl' is being versioned independently of
+// 'bsl'.
+#define BDL_VERSION_MAJOR     3
     // Provide the major version number of the current (latest) BDL release.
 
-#define BDL_VERSION_MINOR     BSL_VERSION_MINOR
+#define BDL_VERSION_MINOR     12
     // Provide the minor version number of the current (latest) BDL release.
 
 #define BDL_VERSION BSL_MAKE_VERSION(BDL_VERSION_MAJOR, \
@@ -64,6 +59,14 @@ BSLS_IDENT("$Id: $")
     // the current (latest) BDL release.  Note that the patch version number is
     // intentionally not included.  For example, 'BDL_VERSION' produces 10300
     // (decimal) for BDL version 1.3.1.
+
+#define BDL_VERSION_DEPRECATION_THRESHOLD BSLS_DEPRECATE_MAKE_VER(3, 1)
+    // Declare that deprecations for this UOR introduced in the specified
+    // version or earlier will be "active" by default -- i.e.,
+    // 'BSLS_DEPRECATE_IS_ACTIVE' will be 'true' (which typically enables
+    // deprecation warnings).  Note that we define this macro in the version
+    // component, so that it is available at the lowest level in the component
+    // hierarchy of this UOR.
 
 #endif
 

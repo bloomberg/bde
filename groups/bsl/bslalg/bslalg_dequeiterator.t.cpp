@@ -1,8 +1,9 @@
 // bslalg_dequeiterator.t.cpp                                         -*-C++-*-
 
 #include <bslalg_dequeiterator.h>
-#include <bslalg_scalardestructionprimitives.h>
 #include <bslalg_scalarprimitives.h>
+
+#include <bslma_destructionutil.h>
 
 #include <bslmf_issame.h>
 
@@ -273,7 +274,7 @@ void TestDriver<VALUE_TYPE, BLOCK_LENGTH>::testCase1()
     if (verbose) printf("\n 3) Set x1 to the first iterator value."
                         "\t\t\t{ x1:A x2: }\n");
 
-    bslalg::ScalarDestructionPrimitives::destroy(&mX1);
+    bslma::DestructionUtil::destroy(&mX1);
     bslalg::ScalarPrimitives::construct(&mX1,
                                         VALUES[0].blockPtr(),
                                         VALUES[0].valuePtr());

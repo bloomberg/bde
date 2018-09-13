@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALXML_ENCODER
 #define INCLUDED_BALXML_ENCODER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an XML encoder utility.
@@ -128,93 +126,35 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALXML_ENCODEROPTIONS
 #include <balxml_encoderoptions.h>
-#endif
-
-#ifndef INCLUDED_BALXML_ENCODINGSTYLE
 #include <balxml_encodingstyle.h>
-#endif
-
-#ifndef INCLUDED_BALXML_ERRORINFO
 #include <balxml_errorinfo.h>      // for Severity
-#endif
-
-#ifndef INCLUDED_BALXML_FORMATTER
 #include <balxml_formatter.h>
-#endif
-
-#ifndef INCLUDED_BALXML_TYPESPRINTUTIL
 #include <balxml_typesprintutil.h>
-#endif
 
-#ifndef INCLUDED_BDLAT_ARRAYFUNCTIONS
 #include <bdlat_arrayfunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_CHOICEFUNCTIONS
 #include <bdlat_choicefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_NULLABLEVALUEFUNCTIONS
 #include <bdlat_nullablevaluefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_SEQUENCEFUNCTIONS
 #include <bdlat_sequencefunctions.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPECATEGORY
 #include <bdlat_typecategory.h>
-#endif
-
-#ifndef INCLUDED_BDLAT_TYPENAME
 #include <bdlat_typename.h>
-#endif
 
-#ifndef INCLUDED_BDLSB_MEMOUTSTREAMBUF
 #include <bdlsb_memoutstreambuf.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
-#endif
 
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace balxml {
@@ -1316,9 +1256,6 @@ int Encoder_EncodeValue::executeImp(
 
     if (0 != bdlat_SequenceFunctions::accessAttributes(object, firstPass)) {
         return k_FAILURE;                                             // RETURN
-    }
-
-    if (!firstPass.simpleContentId().isNull()) {
     }
 
     if (!firstPass.simpleContentId().isNull()) {

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLS_OSUTIL
 #define INCLUDED_BDLS_OSUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities related to the operating system.
@@ -69,9 +67,7 @@ BSLS_IDENT("$Id: $")
 //  Patch:   Service Pack 1
 //..
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 

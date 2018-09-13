@@ -70,17 +70,6 @@ void Category::resetCategoryHolders()
 }
 
 // CLASS METHODS
-bool Category::areValidThresholdLevels(int recordLevel,
-                                       int passLevel,
-                                       int triggerLevel,
-                                       int triggerAllLevel)
-{
-    enum { BITS_PER_CHAR = 8 };
-
-    return !((recordLevel | passLevel | triggerLevel | triggerAllLevel)
-             >> BITS_PER_CHAR);
-}
-
 void Category::updateThresholdForHolders()
 {
     if (d_categoryHolder) {
@@ -121,12 +110,6 @@ int Category::setLevels(int recordLevel,
     }
 
     return -1;
-}
-
-// ACCESSORS
-bool Category::isEnabled(int level) const
-{
-    return d_threshold >= level;
 }
 
                         // --------------------

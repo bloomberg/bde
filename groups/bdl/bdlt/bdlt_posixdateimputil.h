@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_POSIXDATEIMPUTIL
 #define INCLUDED_BDLT_POSIXDATEIMPUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide low-level support functions for date-value manipulation.
@@ -465,13 +463,9 @@ BSLS_IDENT("$Id: $")
 //  10JUL1776
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

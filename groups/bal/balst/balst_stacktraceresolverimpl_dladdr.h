@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALST_STACKTRACERESOLVERIMPL_DLADDR
 #define INCLUDED_BALST_STACKTRACERESOLVERIMPL_DLADDR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functions for resolving a stack trace using 'dladdr'.
@@ -50,29 +48,15 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALST_OBJECTFILEFORMAT
 #include <balst_objectfileformat.h>
-#endif
-
-#ifndef INCLUDED_BALST_STACKTRACE
 #include <balst_stacktrace.h>
-#endif
-
-#ifndef INCLUDED_BALST_STACKTRACEFRAME
 #include <balst_stacktraceframe.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 

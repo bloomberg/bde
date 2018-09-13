@@ -2,14 +2,14 @@
 
 @PURPOSE: Provide application-level support services.
 
-@MNEMONIC: Basic Application Environment (bal)
+@MNEMONIC: Basic Application Library (bal)
 
 @AUTHOR: Tom Marshall (tmarshal)
 
-@DESCRIPTION: The 'bal' ("Basic Applications Environment") package group
- contains packages that provide application-level support services in varied
- areas such as encoders/decoders, timezone support, command-line handling,
- metrics, and logging.
+@DESCRIPTION: The 'bal' ("Basic Applications Library") package group contains
+ packages that provide application-level support services in varied areas such
+ as encoders/decoders, timezone support, command-line handling, metrics, and
+ logging.
 
 /Hierarchical Synopsis
 /---------------------

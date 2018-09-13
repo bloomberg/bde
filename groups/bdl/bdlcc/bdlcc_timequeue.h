@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLCC_TIMEQUEUE
 #define INCLUDED_BDLCC_TIMEQUEUE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an efficient queue for time events.
@@ -247,7 +245,7 @@ BSLS_IDENT("$Id: $")
 //  };
 //..
 // The constructor is simple: it initializes the internal 'bdlcc::TimeQueue'
-// and sets the I/O timeout value.  The virtual destructor sets a shared 
+// and sets the I/O timeout value.  The virtual destructor sets a shared
 // completion flag to indicate completion, wakes up all waiting threads, and
 // waits for them to join.
 //..
@@ -594,80 +592,34 @@ BSLS_IDENT("$Id: $")
 //  17:10:42.000: Closing connection 0x00161880
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_CONCURRENTPOOLALLOCATOR
 #include <bdlma_concurrentpoolallocator.h>
-#endif
-
-#ifndef INCLUDED_BDLMA_POOL
 #include <bdlma_pool.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
-#include <bslalg_scalardestructionprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
+#include <bslma_destructionutil.h>
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_LOCKGUARD
 #include <bslmt_lockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENT
 #include <bsls_alignment.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
-#ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
+#include <bslalg_scalardestructionprimitives.h>
 #include <bslalg_typetraits.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -1735,7 +1687,7 @@ template <class DATA>
 TimeQueueItem<DATA>::TimeQueueItem(bslma::Allocator *basicAllocator)
 : d_key(0)
 {
-    bslalg::ScalarDestructionPrimitives::destroy(&d_data);
+    bslma::DestructionUtil::destroy(&d_data);
     bslalg::ScalarPrimitives::defaultConstruct(&d_data, basicAllocator);
 }
 
@@ -1748,7 +1700,7 @@ TimeQueueItem(TimeQueueItem<DATA> const&  original,
 , d_handle(original.d_handle)
 , d_key(original.d_key)
 {
-    bslalg::ScalarDestructionPrimitives::destroy(&d_data);
+    bslma::DestructionUtil::destroy(&d_data);
     bslalg::ScalarPrimitives::copyConstruct(&d_data,
                                             original.d_data,
                                             basicAllocator);
@@ -1765,7 +1717,7 @@ TimeQueueItem(const bsls::TimeInterval&  time,
 , d_handle(handle)
 , d_key(0)
 {
-    bslalg::ScalarDestructionPrimitives::destroy(&d_data);
+    bslma::DestructionUtil::destroy(&d_data);
     bslalg::ScalarPrimitives::copyConstruct(&d_data,
                                             data,
                                             basicAllocator);
@@ -1783,7 +1735,7 @@ TimeQueueItem(const bsls::TimeInterval&  time,
 , d_handle(handle)
 , d_key(key)
 {
-    bslalg::ScalarDestructionPrimitives::destroy(&d_data);
+    bslma::DestructionUtil::destroy(&d_data);
     bslalg::ScalarPrimitives::copyConstruct(&d_data,
                                             data,
                                             basicAllocator);

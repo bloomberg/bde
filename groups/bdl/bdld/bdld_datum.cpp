@@ -115,7 +115,7 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 //   directly retrieved as a 'double' value.
 //
 // * On 64-bit platforms, zero-initialized Datums are not a valid Datum value.
-//   This behaviour is implemented specifically to help identify the accidental
+//   This behavior is implemented specifically to help identify the accidental
 //   use of uninitialized datum values, which are often 0 initialized for
 //   static data.  A similar mechanism is not implemented for 32-bit platforms
 //   because of negative performance implications.
@@ -150,13 +150,14 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 #include <bsl_memory.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
+#include <bsl_utility.h>
 
 namespace BloombergLP {
 namespace bdld {
 
 namespace {
 
-static bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs);
+bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs);
     // Return 'true' if key in the specified 'lhs' is less than key in the
     // specified 'rhs' and 'false' otherwise.
 
@@ -166,6 +167,20 @@ static Datum copyArray(const DatumArrayRef&  array,
     // 'basicAllocator' to allocate memory (if needed).  Any dynamically
     // allocated memory inside the 'Datum' objects within 'array' is also deep-
     // copied.
+
+#if 0
+// A lot of functions related to 'int map' are unused, causing compiler
+// warnings.  They are '#if 0'ed out as part of a fast sweep to get all of bde
+// to compile with '-Werror' set, without enough intimate knowledge of this
+// component to know if this code may become useful in the future.
+
+static Datum copyIntMap(const DatumIntMapRef&  map,
+                        bslma::Allocator      *basicAllocator);
+    // Clone the elements in the specified int 'map'.  Use the specified
+    // 'basicAllocator' to allocate memory (if needed).  Any dynamically
+    // allocated memory inside the 'Datum' objects within 'map' is also
+    // deep-copied.
+#endif
 
 static Datum copyMapOwningKeys(const DatumMapRef&  map,
                                bslma::Allocator   *basicAllocator);
@@ -286,7 +301,7 @@ template <class ELEMENT>
 Datum_ArrayProctor<ELEMENT>::~Datum_ArrayProctor()
 {
     if (!d_released) {
-        // Proctor hasn't been released explicetely, so we need to destroy
+        // Proctor hasn't been released explicitly, so we need to destroy
         // managed objects and deallocate memory.
 
         destroy();
@@ -318,6 +333,20 @@ void Datum_ArrayProctor<DatumMapEntry>::destroy()
 
     d_allocator_p->deallocate(d_base_p);
 }
+
+#if 0
+template <>
+void Datum_ArrayProctor<DatumIntMapEntry>::destroy()
+{
+    BSLS_ASSERT(d_begin_p <= d_end_p);
+
+    for (DatumIntMapEntry *ptr = d_begin_p; ptr < d_end_p; ++ptr) {
+        Datum::destroy(ptr->value(), d_allocator_p);
+    }
+
+    d_allocator_p->deallocate(d_base_p);
+}
+#endif
 
 template <class ELEMENT>
 ELEMENT *Datum_ArrayProctor<ELEMENT>::moveEnd(bsl::ptrdiff_t offset)
@@ -408,6 +437,10 @@ class Datum_CopyVisitor {
         // into 'd_result_p'.
 
     void operator()(const DatumArrayRef& value);
+        // Create a 'Datum' object using the specified 'value' and copy it
+        // into 'd_result_p'.
+
+    void operator()(const DatumIntMapRef& value);
         // Create a 'Datum' object using the specified 'value' and copy it
         // into 'd_result_p'.
 
@@ -515,6 +548,13 @@ void Datum_CopyVisitor::operator()(const DatumMapRef& value)
 {
     *d_result_p = copyMapOwningKeys(value, d_allocator_p);
 }
+
+#if 0
+void Datum_CopyVisitor::operator()(const DatumIntMapRef& value)
+{
+    *d_result_p = copyIntMap(value, d_allocator_p);
+}
+#endif
 
 void Datum_CopyVisitor::operator()(const DatumBinaryRef& value)
 {
@@ -626,11 +666,17 @@ void Datum_StreamVisitor::operator()(const BDLD_TYPE& value) const
     }
 }
 
+bool compareIntLess(const DatumIntMapEntry& lhs, const DatumIntMapEntry& rhs)
+{
+    return lhs.key() < rhs.key();
+}
+
 bool compareLess(const DatumMapEntry& lhs, const DatumMapEntry& rhs)
 {
     return lhs.key() < rhs.key();
 }
 
+static
 Datum copyArray(const DatumArrayRef& array, bslma::Allocator *basicAllocator)
 {
     DatumMutableArrayRef ref;
@@ -656,6 +702,43 @@ Datum copyArray(const DatumArrayRef& array, bslma::Allocator *basicAllocator)
     return Datum::adoptArray(ref);
 }
 
+#if 0
+static
+Datum copyIntMap(const DatumIntMapRef&  map,
+                 bslma::Allocator      *basicAllocator)
+{
+    DatumMutableIntMapRef ref;
+
+    if (map.size()) {
+
+        Datum::createUninitializedIntMap(&ref,
+                                         map.size(),
+                                         basicAllocator);
+
+        // Track the allocated memory and destroy it if any of the allocations
+        // inside the for loop throws.
+        Datum_ArrayProctor<DatumIntMapEntry> proctor(ref.size(),
+                                                     ref.data(),
+                                                     ref.data(),
+                                                     basicAllocator);
+        // Copy the new elements.
+
+        for (DatumMapRef::SizeType i = 0; i < map.size(); ++i) {
+            ref.data()[i] =
+                       DatumIntMapEntry(map[i].key(),
+                                        map[i].value().clone(basicAllocator));
+            proctor.moveEnd();
+        }
+
+        *ref.size() += map.size();
+        proctor.release();
+    }
+
+    return Datum::adoptIntMap(ref);
+}
+#endif
+
+static
 Datum copyMapOwningKeys(const DatumMapRef&  map,
                         bslma::Allocator   *basicAllocator)
 {
@@ -675,9 +758,9 @@ Datum copyMapOwningKeys(const DatumMapRef&  map,
         // Track the allocated memory and destroy it if any of the allocations
         // inside the for loop throws.
         Datum_ArrayProctor<DatumMapEntry> proctor(ref.size(),
-                                          ref.data(),
-                                          ref.data(),
-                                          basicAllocator);
+                                                  ref.data(),
+                                                  ref.data(),
+                                                  basicAllocator);
 
         // Copy the new elements.
         char *nextKeyPos = ref.keys();
@@ -702,6 +785,33 @@ Datum copyMapOwningKeys(const DatumMapRef&  map,
     return Datum::adoptMap(ref);
 }
 
+static
+const Datum *findElementBinary(int key, const DatumIntMapRef& map)
+{
+    // NOTE: dummy 'Datum' value is used for search.
+    const DatumIntMapEntry *lower =
+                              bsl::lower_bound(map.data(),
+                                               map.data() + map.size(),
+                                               DatumIntMapEntry(key, Datum()),
+                                               compareIntLess);
+    if (lower != (map.data() + map.size()) && lower->key() == key) {
+        return &lower->value();                                       // RETURN
+    }
+    return 0;
+}
+
+static
+const Datum *findElementLinear(int key, const DatumIntMapRef& map)
+{
+    for (DatumIntMapRef::SizeType i = 0; i < map.size(); ++i) {
+        if (key == map[i].key()) {
+            return &map[i].value();                                   // RETURN
+        }
+    }
+    return 0;
+}
+
+static
 const Datum *findElementBinary(const bslstl::StringRef& key,
                                const DatumMapRef&       map)
 {
@@ -717,6 +827,7 @@ const Datum *findElementBinary(const bslstl::StringRef& key,
     return 0;
 }
 
+static
 const Datum *findElementLinear(const bslstl::StringRef& key,
                                const DatumMapRef&       map)
 {
@@ -967,6 +1078,7 @@ void Datum::createUninitializedMap(DatumMutableMapRef *result,
     BSLS_ASSERT(basicAllocator);
     BSLS_ASSERT(capacity < bsl::numeric_limits<SizeType>::max()/
                                                       sizeof(DatumMapEntry)-1);
+    BSLMF_ASSERT(sizeof(DatumMapEntry) >= sizeof(Datum_MapHeader));
 
     // Allocate extra elements to store size of the map and a flag to determine
     // if the map is sorted or not.
@@ -986,6 +1098,32 @@ void Datum::createUninitializedMap(DatumMutableMapRef *result,
                                  &header->d_sorted);
 }
 
+void Datum::createUninitializedIntMap(DatumMutableIntMapRef *result,
+                                      SizeType               capacity,
+                                      bslma::Allocator      *basicAllocator)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(basicAllocator);
+    BSLS_ASSERT(capacity < bsl::numeric_limits<SizeType>::max() /
+                                                 sizeof(DatumIntMapEntry) - 1);
+    BSLMF_ASSERT(sizeof(DatumIntMapEntry) >= sizeof(Datum_IntMapHeader));
+
+    // Allocate one extra element to store size of the map and a flag to
+    // determine if the map is sorted or not.
+    void * const mem = basicAllocator->allocate(
+                                    sizeof(DatumIntMapEntry) * (capacity + 1));
+
+    // Store map header in the front ( 1 DatumMapEntry ).
+    Datum_IntMapHeader *header = static_cast<Datum_IntMapHeader *>(mem);
+
+    header->d_size     = 0;
+    header->d_sorted   = false;
+
+    *result = DatumMutableIntMapRef(static_cast<DatumIntMapEntry *>(mem) + 1,
+                                    &header->d_size,
+                                    &header->d_sorted);
+}
+
 void Datum::createUninitializedMap(
                                   DatumMutableMapOwningKeysRef *result,
                                   SizeType                      capacity,
@@ -996,6 +1134,7 @@ void Datum::createUninitializedMap(
     BSLS_ASSERT(basicAllocator);
     BSLS_ASSERT(capacity < (bsl::numeric_limits<SizeType>::max()-keysCapacity)/
                                                       sizeof(DatumMapEntry)-1);
+    BSLMF_ASSERT(sizeof(DatumMapEntry) >= sizeof(Datum_MapHeader));
 
     // Allocate one extra element to store size of the map and a flag to
     // determine if the map is sorted or not.
@@ -1089,6 +1228,7 @@ const char *Datum::dataTypeToAscii(DataType type)
         CASE(USERDEFINED);
         CASE(ARRAY);
         CASE(MAP);
+        CASE(INT_MAP);
         CASE(BINARY);
         CASE(DECIMAL64);
         default: return "(* UNKNOWN *)";
@@ -1109,6 +1249,13 @@ void Datum::destroy(const Datum& value, bslma::Allocator *basicAllocator)
           case e_EXTENDED_INTERNAL_MAP          : // fall through
           case e_EXTENDED_INTERNAL_OWNED_MAP    : {
             DatumMapRef values = value.theMap();
+            for (SizeType i = 0; i < values.size(); ++i) {
+                destroy(values[i].value(), basicAllocator);
+            }
+            destroyMemory(value, basicAllocator);
+          } break;
+          case e_EXTENDED_INTERNAL_INT_MAP: {
+            DatumIntMapRef values = value.theIntMap();
             for (SizeType i = 0; i < values.size(); ++i) {
                 destroy(values[i].value(), basicAllocator);
             }
@@ -1148,6 +1295,13 @@ void Datum::destroy(const Datum& value, bslma::Allocator *basicAllocator)
       case e_INTERNAL_MAP      : // fall through
       case e_INTERNAL_OWNED_MAP: {
         DatumMapRef values = value.theMap();
+        for (SizeType i = 0; i < values.size(); ++i) {
+            destroy(values[i].value(), basicAllocator);
+        }
+        destroyMemory(value, basicAllocator);
+      } break;
+      case e_INTERNAL_INT_MAP: {
+        DatumIntMapRef values = value.theIntMap();
         for (SizeType i = 0; i < values.size(); ++i) {
             destroy(values[i].value(), basicAllocator);
         }
@@ -1257,6 +1411,31 @@ bsl::ostream& DatumArrayRef::print(bsl::ostream& stream,
     return stream << bsl::flush;
 }
 
+                          // ----------------------
+                          // class DatumIntMapEntry
+                          // ----------------------
+
+// ACCESSORS
+bsl::ostream& DatumIntMapEntry::print(bsl::ostream& stream,
+                                      int           level,
+                                      int           spacesPerLevel) const
+{
+    if (stream.bad()) {
+        return stream;                                                // RETURN
+    }
+
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+
+    bsl::ostringstream os;
+    os << d_key;
+
+    printer.printAttribute(os.str().c_str(), d_value);
+    printer.end();
+
+    return stream << bsl::flush;
+}
+
                             // -------------------
                             // class DatumMapEntry
                             // -------------------
@@ -1285,15 +1464,41 @@ bsl::ostream& DatumMapEntry::print(bsl::ostream& stream,
                           // class DatumMapRef
                           // -----------------
 // ACCESSORS
+const Datum *DatumIntMapRef::find(int key) const
+{
+    return d_sorted ? findElementBinary(key, *this) :
+                      findElementLinear(key, *this);
+}
+
 const Datum *DatumMapRef::find(const bslstl::StringRef& key) const
 {
-    return d_sorted ? findElementBinary(key, *this):
+    return d_sorted ? findElementBinary(key, *this) :
                       findElementLinear(key, *this);
 }
 
 bsl::ostream& DatumMapRef::print(bsl::ostream& stream,
                                  int           level,
                                  int           spacesPerLevel) const
+{
+    if (stream.bad()) {
+        return stream;                                                // RETURN
+    }
+
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+
+    for (bsls::Types::size_type i = 0; i < d_size; ++i) {
+        printer.printValue(d_data_p[i]);
+    }
+
+    printer.end();
+
+    return stream << bsl::flush;
+}
+
+bsl::ostream& DatumIntMapRef::print(bsl::ostream& stream,
+                                    int           level,
+                                    int           spacesPerLevel) const
 {
     if (stream.bad()) {
         return stream;                                                // RETURN
@@ -1368,6 +1573,8 @@ bool bdld::operator==(const Datum& lhs, const Datum& rhs)
         }
       case Datum::e_MAP:
         return (lhs.theMap() == rhs.theMap());                        // RETURN
+      case Datum::e_INT_MAP:
+        return (lhs.theIntMap() == rhs.theIntMap());                  // RETURN
       case Datum::e_USERDEFINED:
         return (lhs.theUdt() == rhs.theUdt());                        // RETURN
       default:
@@ -1398,6 +1605,19 @@ bool bdld::operator==(const DatumMapRef& lhs, const DatumMapRef& rhs)
 {
     if (lhs.size() == rhs.size()) {
         for (DatumMapRef::SizeType i = 0; i < lhs.size(); ++i) {
+            if (lhs[i] != rhs[i]) {
+                return false;                                         // RETURN
+            }
+        }
+        return true;                                                  // RETURN
+    }
+    return false;
+}
+
+bool bdld::operator==(const DatumIntMapRef& lhs, const DatumIntMapRef& rhs)
+{
+    if (lhs.size() == rhs.size()) {
+        for (DatumIntMapRef::SizeType i = 0; i < lhs.size(); ++i) {
             if (lhs[i] != rhs[i]) {
                 return false;                                         // RETURN
             }

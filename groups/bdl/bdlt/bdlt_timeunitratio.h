@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_TIMEUNITRATIO
 #define INCLUDED_BDLT_TIMEUNITRATIO
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide constants characterizing ratios between common time units.
@@ -147,13 +145,9 @@ BSLS_IDENT("$Id: $")
 // provided by some system utility, and not a constant as was shown here for
 // purposes of exposition.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

@@ -372,8 +372,8 @@ int usageExample(bslma::Allocator *allocator)
         MAX_QUEUESIZE = 20  // total number of pending jobs
     };
 
-    int maxProc =
-        bsl::max(1.0, ceil(double(NUM_THREADS) / (NUM_QUEUES - 1)) - 1);
+    int maxProc = static_cast<int>(
+              bsl::max(1.0, ceil(double(NUM_THREADS) / (NUM_QUEUES - 1)) - 1));
 
     bdlmt::FixedThreadPool tp(NUM_THREADS, MAX_QUEUESIZE, allocator);
     JobQueue               importantQueue(maxProc, &tp);
@@ -697,8 +697,8 @@ int main(int argc, char *argv[])
                 OTHER_JOBS     = 2
             };
 
-            int maxProc = bsl::max
-               (1.0, ceil(double(NUM_THREADS) / (NUM_QUEUES-1))-1);
+            int maxProc = static_cast<int>(bsl::max
+                          (1.0, ceil(double(NUM_THREADS) / (NUM_QUEUES-1))-1));
 
             bdlmt::FixedThreadPool tp(NUM_THREADS, MAX_QUEUESIZE, &ta);
             TestQueue importantQueue(maxProc, MAX_QUEUESIZE, &tp, &ta);

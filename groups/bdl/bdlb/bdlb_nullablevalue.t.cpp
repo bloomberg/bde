@@ -92,8 +92,9 @@ using namespace bsl;
 // [ 8] STREAM& bdexStreamIn(STREAM& stream, int version);
 // [10] void reset();
 // [10] TYPE& value();
-// [14] TYPE valueOr(const TYPE& ) const;
-// [15] const TYPE *valueOr(const TYPE *) const;
+// [14] TYPE valueOr(const TYPE& value) const;
+// [15] const TYPE *valueOr(const TYPE *value) const;
+// [26] const TYPE *addressOr(const TYPE *address) const;
 // [16] const TYPE *valueOrNull() const;
 //
 // ACCESSORS
@@ -108,7 +109,23 @@ using namespace bsl;
 //
 // FREE OPERATORS
 // [ 5] bool operator==(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator==(const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator==(const TYPE&, const NullableValue<TYPE>&);
 // [ 5] bool operator!=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator!=(const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator!=(const TYPE&, const NullableValue<TYPE>&);
+// [ 5] bool operator< (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator< (const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator< (const TYPE&, const NullableValue<TYPE>&);
+// [ 5] bool operator<=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator<=(const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator<=(const TYPE&, const NullableValue<TYPE>&);
+// [ 5] bool operator> (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator> (const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator> (const TYPE&, const NullableValue<TYPE>&);
+// [ 5] bool operator>=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator>=(const NullableValue<TYPE>&, const TYPE&);
+// [ 5] bool operator>=(const TYPE&, const NullableValue<TYPE>&);
 // [17] bool operator==(const NullableValue<TYPE>&, const TYPE&);
 // [17] bool operator==(const TYPE&, const NullableValue<TYPE>&);
 // [17] bool operator!=(const NullableValue<TYPE>&, const TYPE&);
@@ -118,7 +135,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST 1: Using 'bsl::string'
 // [ 2] BREATHING TEST 2: Using 'int'
-// [26] USAGE EXAMPLE
+// [27] USAGE EXAMPLE
 // [25] Concern: Types that are not copy-assignable can be used.
 // ----------------------------------------------------------------------------
 
@@ -244,6 +261,30 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 //      mX.makeValue(ParamUtil::L_SOME_STRING);
 //  ...
 //..
+
+//=============================================================================
+//                      GLOBAL HELPER FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+template <class LHS_TYPE, class RHS_TYPE>
+void testRelationalOperations(int             i,
+                              int             j,
+                              const LHS_TYPE& lhs,
+                              const RHS_TYPE& rhs)
+    // Test all the relational operations for the specified 'lhs' and 'rhs'.
+    // The relation between 'lhs' and 'rhs' is expected to be exactly the same
+    // as between the specified 'i' and 'j'.
+{
+    const bool isSame = (i == j);
+    const bool isILess = (i < j);
+    const bool isJLess = (j < i);
+    ASSERTV(lhs, rhs,  isSame  == (lhs == rhs));
+    ASSERTV(lhs, rhs, !isSame  == (lhs != rhs));
+    ASSERTV(lhs, rhs,  isILess == (lhs <  rhs));
+    ASSERTV(lhs, rhs, !isILess == (lhs >= rhs));
+    ASSERTV(lhs, rhs, !isJLess == (lhs <= rhs));
+    ASSERTV(lhs, rhs,  isJLess == (lhs >  rhs));
+}
 
 // ============================================================================
 //                      GLOBAL HELPER CLASSES FOR TESTING
@@ -1281,6 +1322,191 @@ class DeprecatedBdex {
 };
 #endif
 
+                   // ======================================
+                   // class ConvertibleFromAllocatorTestType
+                   // ======================================
+
+class ConvertibleFromAllocatorTestType {
+    // This unconstrained (value-semantic) attribute class uses a
+    // 'bslma::Allocator' to supply memory and defines the type trait
+    // 'bslma::UsesBslmaAllocator'.  Objects of this class are *implictly*
+    // constructible from a 'bslma::Allocator *'.  See DRQS 109738646.
+
+    // DATA
+    int              *d_data_p;       // pointer to the data value
+
+    bslma::Allocator *d_allocator_p;  // allocator used to supply memory (held,
+                                      // not owned)
+
+  public:
+    // CREATORS
+    ConvertibleFromAllocatorTestType(
+                            bslma::Allocator *basicAllocator = 0);  // IMPLICIT
+        // Create a 'ConvertibleFromAllocatorTestTypeAllocTestType' object
+        // having the (default) attribute values:
+        //..
+        //  data() == 0
+        //..
+        // Optionally specify a 'basicAllocator' used to supply memory.  If
+        // 'basicAllocator' is 0, the currently installed default allocator is
+        // used.  Note that 'ConvertibleFromAllocatorTestTypeAllocTestType' is
+        // *implicitly* convertible from 'bslma::Allocator *' by design.
+
+    explicit ConvertibleFromAllocatorTestType(
+                                         int               data,
+                                         bslma::Allocator *basicAllocator = 0);
+        // Create a 'ConvertibleFromAllocatorTestType' object having the
+        // specified 'data' attribute value.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+
+    ConvertibleFromAllocatorTestType(
+                  const ConvertibleFromAllocatorTestType&  original,
+                  bslma::Allocator                        *basicAllocator = 0);
+        // Create a 'ConvertibleFromAllocatorTestType' object having the same
+        // value as the specified 'original' object.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
+        // the currently installed default allocator is used.
+
+    ~ConvertibleFromAllocatorTestType();
+        // Destroy this object.
+
+    // MANIPULATORS
+    ConvertibleFromAllocatorTestType& operator=(
+                                  const ConvertibleFromAllocatorTestType& rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+
+    void setData(int value);
+        // Set the 'data' attribute of this object to the specified 'value'.
+
+    // ACCESSORS
+    int data() const;
+        // Return the value of the 'data' attribute of this object.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to supply memory.
+};
+
+// FREE OPERATORS
+bool operator==(const ConvertibleFromAllocatorTestType& lhs,
+                const ConvertibleFromAllocatorTestType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'ConvertibleFromAllocatorTestType'
+    // objects have the same if their 'data' attributes are the same.
+
+bool operator!=(const ConvertibleFromAllocatorTestType& lhs,
+                const ConvertibleFromAllocatorTestType& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two
+    // 'ConvertibleFromAllocatorTestType' objects do not have the same value if
+    // their 'data' attributes are not the same.
+
+                   // --------------------------------------
+                   // class ConvertibleFromAllocatorTestType
+                   // --------------------------------------
+
+// CREATORS
+inline
+ConvertibleFromAllocatorTestType::ConvertibleFromAllocatorTestType(
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_data_p  = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = 0;
+}
+
+inline
+ConvertibleFromAllocatorTestType::ConvertibleFromAllocatorTestType(
+                                              int               data,
+                                              bslma::Allocator *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_data_p  = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = data;
+}
+
+inline
+ConvertibleFromAllocatorTestType::ConvertibleFromAllocatorTestType(
+                       const ConvertibleFromAllocatorTestType&  original,
+                       bslma::Allocator                        *basicAllocator)
+: d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    d_data_p  = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = *original.d_data_p;
+}
+
+inline
+ConvertibleFromAllocatorTestType::~ConvertibleFromAllocatorTestType()
+{
+    d_allocator_p->deallocate(d_data_p);
+}
+
+// MANIPULATORS
+inline
+ConvertibleFromAllocatorTestType&
+ConvertibleFromAllocatorTestType::operator=(
+                                   const ConvertibleFromAllocatorTestType& rhs)
+{
+    if (&rhs != this) {
+        int *newData = reinterpret_cast<int *>(
+                                         d_allocator_p->allocate(sizeof(int)));
+        d_allocator_p->deallocate(d_data_p);
+        d_data_p  = newData;
+        *d_data_p = *rhs.d_data_p;
+    }
+    return *this;
+}
+
+inline
+void ConvertibleFromAllocatorTestType::setData(int value)
+{
+    *d_data_p = value;
+}
+
+// ACCESSORS
+inline
+int ConvertibleFromAllocatorTestType::data() const
+{
+    return *d_data_p;
+}
+
+                                  // Aspects
+
+inline
+bslma::Allocator *ConvertibleFromAllocatorTestType::allocator() const
+{
+    return d_allocator_p;
+}
+
+// FREE OPERATORS
+inline
+bool operator==(const ConvertibleFromAllocatorTestType& lhs,
+                const ConvertibleFromAllocatorTestType& rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool operator!=(const ConvertibleFromAllocatorTestType& lhs,
+                const ConvertibleFromAllocatorTestType& rhs)
+{
+    return lhs.data() != rhs.data();
+}
+
+// TRAITS
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<ConvertibleFromAllocatorTestType> : bsl::true_type {
+
+};
+}  // close namespace bslma
+}  // close enterprise namespace
+
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -1552,6 +1778,9 @@ class TestDriver {
     static void testCase24_withAllocator();
         // Test value move-assignment using a contained 'TYPE' that has the
         // 'bslma::UsesBslmaAllocator' trait.
+
+    static void testCase26();
+        // Test 'const T *addressOr(const T *)'.
 };
 
 // PRIVATE CLASS METHODS
@@ -2509,9 +2738,6 @@ void TestDriver<TEST_TYPE>::testCase22_withoutAllocator()
                 // Create target object.
                 Obj mX;  const Obj& X = gg(&mX, SPEC1);
 
-                // Alias source object to target object.
-                const Obj& Y = mX;
-
                 ASSERTV(SPEC1, X == Z);
 
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
@@ -2730,9 +2956,6 @@ void TestDriver<TEST_TYPE>::testCase22_withAllocator()
                 // Create target object.
                 Obj mX(&oa);  const Obj& X = gg(&mX,  SPEC1);
 
-                // Alias source object to target object.
-                const Obj& Y = mX;
-
                 ASSERTV(SPEC1, X == Z);
 
                 bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
@@ -2768,7 +2991,7 @@ void TestDriver<TEST_TYPE>::testCase22_withAllocator()
 
             // Create control object 'W' and alternate value 'Z'.
             Obj mW;  const Obj& W = gg(&mW, SPEC1);
-            Obj mZ;  const Obj& Z = gg(&mZ, "Z");
+            Obj mZ;  gg(&mZ, "Z");
 
             for (int tj = 0; tj < NUM_SPECS; ++tj) {
                 const char *const SPEC2 = SPECS[tj];
@@ -3584,7 +3807,7 @@ void TestDriver<TEST_TYPE>::testCase14()
     //:   (C-2, C-4)
     //
     // Testing:
-    //   TYPE valueOr(const TYPE&) const;
+    //   TYPE valueOr(const TYPE& value) const;
     // ------------------------------------------------------------------------
 
     const TestValues VALUES;
@@ -3691,7 +3914,7 @@ void TestDriver<TEST_TYPE>::testCase15()
     //:   the contained value.  (C-2, C-4)
     //
     // Testing:
-    //   const TYPE *valueOr(const TYPE *) const;
+    //   const TYPE *valueOr(const TYPE *value) const;
     // ------------------------------------------------------------------------
 
     const TestValues VALUES;
@@ -3978,6 +4201,126 @@ void TestDriver<TEST_TYPE>::testCase17()
     }
 }
 
+template <class TEST_TYPE>
+void TestDriver<TEST_TYPE>::testCase26()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'const T *addressOr(const T *)'
+    //
+    // Concerns:
+    //: 1 'addressOr' returns the supplied value if the nullable value is null.
+    //:
+    //: 2 'addressOr' returns the contained value if the nullable value is
+    //:   non-null.
+    //:
+    //: 3 'addressOr' returns an address.
+    //:
+    //: 4 'addressOr' can be called on a 'const' object.
+    //:
+    //: 5 No memory is requested of any allocator (global, default, this
+    //:   object, supplied object).
+    //
+    // Plan:
+    //: 1 Create a member-function pointer matching the expected signature,
+    //:   and assign 'addressOr' to the function.  (C-3)
+    //:
+    //: 2 Call 'addressOr' for a null nullable value and verify that it
+    //:   returns a reference to the supplied value.  (C-2)
+    //:
+    //: 3 For a series of test values, assign the nullable value to the test
+    //:   value, call 'addressOr', and verify the return value is a reference
+    //:   to the contained value.  (C-2, C-4)
+    //
+    // Testing:
+    //   const TYPE *addressOr(const TYPE *address) const;
+    // ------------------------------------------------------------------------
+
+    const TestValues VALUES;
+    const int        NUM_VALUES = static_cast<int>(VALUES.size());
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    if (veryVerbose) {
+        cout << "\tCompile-time verify the function returns an address.\n";
+    }
+    {
+        typedef const TEST_TYPE *
+                               (Obj::*MemberFunction)(const TEST_TYPE *) const;
+        MemberFunction memberFunction = &Obj::addressOr;
+        (void)&memberFunction;
+    }
+
+    if (veryVerbose) cout << "\tVerify null nullable values return 0.\n";
+    {
+        ObjWithAllocator object(&oa);
+        Obj&             x = object.object();
+        const Obj&       X = x;
+
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+
+            ASSERT(VALUES[i] == *x.addressOr(&VALUES[i]));
+            ASSERT(VALUES[i] == *X.addressOr(&VALUES[i]));
+
+            ASSERT(&VALUES[i] == x.addressOr(&VALUES[i]));
+            ASSERT(&VALUES[i] == X.addressOr(&VALUES[i]));
+
+            ASSERT(true == X.isNull());
+
+            ASSERT(0 == oa.numBlocksInUse());
+        }
+    }
+
+    if (veryVerbose) {
+        cout << "\tVerify non-null nullable values return underlying value.\n";
+    }
+    {
+        ObjWithAllocator object(&oa);
+        Obj&             x = object.object();
+        const Obj&       X = x;
+
+        for (int i = 0; i < NUM_VALUES; ++i) {
+            ASSERT(0 == oa.numBlocksInUse());
+            ASSERT(0 == da.numBlocksInUse());
+
+            ASSERT(VALUES[i] == *x.addressOr(&VALUES[i]));
+            ASSERT(VALUES[i] == *X.addressOr(&VALUES[i]));
+
+            ASSERT(&VALUES[i] == x.addressOr(&VALUES[i]));
+            ASSERT(&VALUES[i] == X.addressOr(&VALUES[i]));
+
+            x = VALUES[0];
+
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            ASSERT(VALUES[0] == *x.addressOr(&VALUES[i]));
+            ASSERT(VALUES[0] == *X.addressOr(&VALUES[i]));
+
+            ASSERT(i == 0 || VALUES[i] != *x.addressOr(&VALUES[i]));
+            ASSERT(i == 0 || VALUES[i] != *X.addressOr(&VALUES[i]));
+
+            ASSERT(&VALUES[i] != x.addressOr(&VALUES[i]));
+            ASSERT(&VALUES[i] != X.addressOr(&VALUES[i]));
+
+            ASSERT(&X.value() == x.addressOr(&VALUES[i]));
+            ASSERT(&X.value() == X.addressOr(&VALUES[i]));
+
+            ASSERT(oam.isInUseSame());
+            ASSERT(0 == da.numBlocksInUse());
+
+            x.reset();
+        }
+
+        ASSERT(0 == oa.numBlocksInUse());
+        ASSERT(0 == da.numBlocksInUse());
+    }
+}
+
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -3994,7 +4337,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocator(&defaultAllocator);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     // CONCERN: In no case does memory come from the global allocator.
 
@@ -4002,7 +4345,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -4045,6 +4388,16 @@ int main(int argc, char *argv[])
     ASSERT( nullableInt.isNull());
 //..
 
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // TESTING 'addressOr'
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'addressOr"
+                             "\n==================\n";
+
+        RUN_EACH_TYPE(TestDriver, testCase26, TEST_TYPES);
       } break;
       case 25: {
         // --------------------------------------------------------------------
@@ -5144,8 +5497,8 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nUsing 'double' and 'int'." << endl;
         {
-            typedef double ValueType1;
-            typedef int    ValueType2;
+            typedef int    ValueType1;
+            typedef double ValueType2;
 
             typedef bdlb::NullableValue<ValueType1> ObjType1;
             typedef bdlb::NullableValue<ValueType2> ObjType2;
@@ -5544,11 +5897,15 @@ int main(int argc, char *argv[])
         // TESTING CONVERSION CONSTRUCTORS
         //
         // Concerns:
-        //   - That convertible underlying types convert.
-        //   - That types for which there is no conversion do not compile
-        //     (we will do this test by hand for now, but could use template
-        //     magic later, perhaps, to ensure that non-compile is enforced
-        //     by the compiler).
+        //: 1 That convertible underlying types convert.
+        //:
+        //: 2 That types implicitly convertible from 'bslma::Allocator *' are
+        //:   handled correctly.
+        //:
+        //: 3 That types for which there is no conversion do not compile (we
+        //:   will do this test by hand for now, but could use template magic
+        //:   later, perhaps, to ensure that non-compilation is enforced by the
+        //:   compiler).
         //
         // Plan:
         //   Conduct the regular test using 'int' and 'double'.  Then try
@@ -5601,8 +5958,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tUsing 'double' and 'int'." << endl;
             {
-                typedef double                          ValueType1;
-                typedef int                             ValueType2;
+                typedef int                             ValueType1;
+                typedef double                          ValueType2;
 
                 typedef bdlb::NullableValue<ValueType2> ObjType2;
 
@@ -5684,6 +6041,19 @@ int main(int argc, char *argv[])
                 ASSERT(!Y.isNull());
 #endif
             }
+
+            if (verbose) cout <<
+              "\tTest w/type implicitly convertible from 'bslma::Allocator *'."
+                              << endl;
+            {
+                typedef ConvertibleFromAllocatorTestType ValueType;
+                typedef bdlb::NullableValue<ValueType>   ObjType;
+
+                bslma::TestAllocator oa("default", veryVeryVeryVerbose);
+
+                ObjType mX(&oa);  const ObjType& X = mX;
+                ASSERT(X.isNull());
+            }
         }
 
         if (verbose) cout << "\nConversion from 'NullableValue<OTHER_TYPE>'."
@@ -5730,8 +6100,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tUsing 'double' and 'int'." << endl;
             {
-                typedef double                          ValueType1;
-                typedef int                             ValueType2;
+                typedef int                             ValueType1;
+                typedef double                          ValueType2;
 
                 typedef bdlb::NullableValue<ValueType1> ObjType1;
                 typedef bdlb::NullableValue<ValueType2> ObjType2;
@@ -6554,7 +6924,7 @@ int main(int argc, char *argv[])
 
             Obj mX;  const Obj& X = mX;  mX.makeValue(N);
 
-            const Obj U(mX);
+            const Obj U(X);
             ASSERT(N == U.value());
 
             Obj& rmX = mX;
@@ -6571,7 +6941,7 @@ int main(int argc, char *argv[])
 
             Obj mX;  const Obj& X = mX;  mX.makeValue(S);
 
-            const Obj U(mX);
+            const Obj U(X);
             ASSERT(S == U.value());
 
             Obj& rmX = mX;
@@ -6598,12 +6968,34 @@ int main(int argc, char *argv[])
         // Plan:
         //   Use 'int' for 'TYPE'.  Construct a set of objects containing
         //   similar but different values.  Loop through the cross product of
-        //   the test data.  For each tuple, use the '==' and '!=' operators
-        //   and check their return value for correctness.
+        //   the test data.  For each tuple, check the correctness of the
+        //   return value of all relational operators (==, !=, <, >, <=, >=).
+        //   Then, use 'int' and 'double' as 'LHS_TYPE' and 'RHS_TYPE'.
+        //   Construct two sets of objects containing similar but different
+        //   values.  Loop through the cross product of the two sets.  For each
+        //   tuple and the tuple where left and right values are swapped, check
+        //   the correctness of the return value of all relational operators
+        //   (==, !=, <, >, <=, >=).
         //
         // Testing:
         //   bool operator==(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+        //   bool operator==(const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator==(const TYPE&, const NullableValue<TYPE>&);
         //   bool operator!=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+        //   bool operator!=(const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator!=(const TYPE&, const NullableValue<TYPE>&);
+        //   bool operator< (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+        //   bool operator< (const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator< (const TYPE&, const NullableValue<TYPE>&);
+        //   bool operator<=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+        //   bool operator<=(const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator<=(const TYPE&, const NullableValue<TYPE>&);
+        //   bool operator> (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+        //   bool operator> (const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator> (const TYPE&, const NullableValue<TYPE>&);
+        //   bool operator>=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+        //   bool operator>=(const NullableValue<TYPE>&, const TYPE&);
+        //   bool operator>=(const TYPE&, const NullableValue<TYPE>&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Equality Operators"
@@ -6629,119 +7021,39 @@ int main(int argc, char *argv[])
 
                 if (veryVeryVerbose) { T_ T_ P_(j) P(V) }
 
-                const bool isSame = (i == j);
-                ASSERTV(U, V,  isSame == (U == V));
-                ASSERTV(U, V, !isSame == (U != V));
+                testRelationalOperations(i, j, U, V);
+
+                if (!U.isNull()) {
+                    testRelationalOperations(i, j, U.value(), V);
+                }
+
+                if (!V.isNull()) {
+                    testRelationalOperations(i, j, U, V.value());
+                }
             }
         }
 
         {
-             const int    I1 = 1;
-             const double D1 = 1;
+            typedef bdlb::NullableValue<int>    Ni;
+            typedef bdlb::NullableValue<double> Nd;
 
-             const int    I2 = 2;
-             const double D2 = 2;
+            Ni niArray[NUM_VALUES] = { Ni(), Ni(1), Ni(2) };
+            Nd ndArray[NUM_VALUES] = { Nd(), Nd(1), Nd(2) };
 
-             typedef bdlb::NullableValue<int>    Ni;
-             typedef bdlb::NullableValue<double> Nd;
+            for (int i = 0; i < NUM_VALUES; ++i) {
+                const Ni& ni = niArray[i];
 
-             const Ni ni0;
-             const Ni ni1(I1);
-             const Ni ni2(I2);
+                if (veryVerbose) { T_ P_(i) P(ni) }
 
-             const Nd nd0;
-             const Nd nd1(D1);
-             const Ni nd2(D2);
+                for (int j = 0; j < NUM_VALUES; ++j) {
+                    const Nd& nd = ndArray[j];
 
-             ASSERT(1 == (ni0 == ni0));
-             ASSERT(0 == (ni0 != ni0));
-             ASSERT(1 == (ni0 == nd0));
-             ASSERT(0 == (ni0 != nd0));
+                    if (veryVeryVerbose) { T_ T_ P_(j) P(nd) }
 
-             ASSERT(0 == (ni0 == ni1));
-             ASSERT(1 == (ni0 != ni1));
-             ASSERT(0 == (ni0 == nd1));
-             ASSERT(1 == (ni0 != nd1));
-
-             ASSERT(0 == (ni0 == ni2));
-             ASSERT(1 == (ni0 != ni2));
-             ASSERT(0 == (ni0 == nd2));
-             ASSERT(1 == (ni0 != nd2));
-
-             ASSERT(0 == (ni1 == ni0));
-             ASSERT(1 == (ni1 != ni0));
-             ASSERT(0 == (ni1 == nd0));
-             ASSERT(1 == (ni1 != nd0));
-
-             ASSERT(1 == (ni1 == ni1));
-             ASSERT(0 == (ni1 != ni1));
-             ASSERT(1 == (ni1 == nd1));
-             ASSERT(0 == (ni1 != nd1));
-
-             ASSERT(0 == (ni1 == ni2));
-             ASSERT(1 == (ni1 != ni2));
-             ASSERT(0 == (ni1 == nd2));
-             ASSERT(1 == (ni1 != nd2));
-
-             ASSERT(0 == (ni2 == ni0));
-             ASSERT(1 == (ni2 != ni0));
-             ASSERT(0 == (ni2 == nd0));
-             ASSERT(1 == (ni2 != nd0));
-
-             ASSERT(0 == (ni2 == ni1));
-             ASSERT(1 == (ni2 != ni1));
-             ASSERT(0 == (ni2 == nd1));
-             ASSERT(1 == (ni2 != nd1));
-
-             ASSERT(1 == (ni2 == ni2));
-             ASSERT(0 == (ni2 != ni2));
-             ASSERT(1 == (ni2 == nd2));
-             ASSERT(0 == (ni2 != nd2));
-
-             ASSERT(1 == (nd0 == ni0));
-             ASSERT(0 == (nd0 != ni0));
-             ASSERT(1 == (nd0 == nd0));
-             ASSERT(0 == (nd0 != nd0));
-
-             ASSERT(0 == (nd0 == ni1));
-             ASSERT(1 == (nd0 != ni1));
-             ASSERT(0 == (nd0 == nd1));
-             ASSERT(1 == (nd0 != nd1));
-
-             ASSERT(0 == (nd0 == ni2));
-             ASSERT(1 == (nd0 != ni2));
-             ASSERT(0 == (nd0 == nd2));
-             ASSERT(1 == (nd0 != nd2));
-
-             ASSERT(0 == (nd1 == ni0));
-             ASSERT(1 == (nd1 != ni0));
-             ASSERT(0 == (nd1 == nd0));
-             ASSERT(1 == (nd1 != nd0));
-
-             ASSERT(1 == (nd1 == ni1));
-             ASSERT(0 == (nd1 != ni1));
-             ASSERT(1 == (nd1 == nd1));
-             ASSERT(0 == (nd1 != nd1));
-
-             ASSERT(0 == (nd1 == ni2));
-             ASSERT(1 == (nd1 != ni2));
-             ASSERT(0 == (nd1 == nd2));
-             ASSERT(1 == (nd1 != nd2));
-
-             ASSERT(0 == (nd2 == ni0));
-             ASSERT(1 == (nd2 != ni0));
-             ASSERT(0 == (nd2 == nd0));
-             ASSERT(1 == (nd2 != nd0));
-
-             ASSERT(0 == (nd2 == ni1));
-             ASSERT(1 == (nd2 != ni1));
-             ASSERT(0 == (nd2 == nd1));
-             ASSERT(1 == (nd2 != nd1));
-
-             ASSERT(1 == (nd2 == ni2));
-             ASSERT(0 == (nd2 != ni2));
-             ASSERT(1 == (nd2 == nd2));
-             ASSERT(0 == (nd2 != nd2));
+                    testRelationalOperations(i, j, ni, nd);
+                    testRelationalOperations(j, i, nd, ni);
+                }
+            }
         }
 
       } break;

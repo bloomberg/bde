@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLDE_CHARCONVERTSTATUS
 #define INCLUDED_BDLDE_CHARCONVERTSTATUS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide masks for interpreting status from charconvert functions.
@@ -73,13 +71,9 @@ BSLS_IDENT("$Id: $")
 // INVALID_INPUT_BIT
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlde {
@@ -158,7 +152,6 @@ struct CharConvertStatus {
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream&           stream,
                          CharConvertStatus::Enum value);
-}  // close package namespace
     // Write the string representation of the specified enumeration 'value' to
     // the specified output 'stream' in a single-line format, and return a
     // reference to 'stream'.  See 'toAscii' for what constitutes the string
@@ -167,6 +160,8 @@ bsl::ostream& operator<<(bsl::ostream&           stream,
     //..
     //  bdlde::CharConvertStatus::print(stream, value, 0, -1);
     //..
+
+}  // close package namespace
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
@@ -189,7 +184,7 @@ bsl::ostream& bdlde::operator<<(bsl::ostream&           stream,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

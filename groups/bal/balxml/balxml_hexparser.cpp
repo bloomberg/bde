@@ -13,8 +13,14 @@
 BSLS_IDENT_RCSID(balxml_hexparser_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
+namespace balxml {
 
-const char balxml::HexParser_Helper::s_hexValueTable[128] =
+                          // -----------------------
+                          // struct HexParser_Helper
+                          // -----------------------
+
+// CLASS DATA
+const char HexParser_Helper::s_hexValueTable[128] =
 {
     0  , //   0   0
     0  , //   1   1
@@ -146,10 +152,11 @@ const char balxml::HexParser_Helper::s_hexValueTable[128] =
     0    // 127  7f - DEL
 };
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

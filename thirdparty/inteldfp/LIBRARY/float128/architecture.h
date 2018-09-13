@@ -59,6 +59,7 @@
 #       undef  merced
 #       undef  amd64
 #	undef  sparc
+#       undef  powerpc
 
 #	define vax 1
 #	define ARCHITECTURE vax
@@ -116,6 +117,7 @@
 #       undef  merced
 #       undef  amd64
 #	undef  sparc
+#       undef  powerpc
 
 #	define mips 2
 #	define ARCHITECTURE mips
@@ -173,6 +175,7 @@
 #       undef  merced
 #       undef  amd64
 #	undef  sparc
+#       undef  powerpc
 
 #	define hp_pa 3
 #	define ARCHITECTURE hp_pa
@@ -230,6 +233,7 @@
 #       undef  merced
 #       undef  amd64
 #	undef  sparc
+#       undef  powerpc
 
 #	define cray 4
 #	define ARCHITECTURE cray
@@ -289,6 +293,7 @@
 #       undef  merced
 #       undef  amd64
 #	undef  sparc
+#       undef  powerpc
 
 #	define alpha 5
 #	define ARCHITECTURE alpha
@@ -375,6 +380,7 @@
 #       undef  merced
 #       undef  amd64
 #	undef  sparc
+#       undef  powerpc
 
 #	define ix86 6
 #	define ARCHITECTURE ix86
@@ -441,6 +447,7 @@
 #       undef  merced
 #       undef  amd64
 #	undef  sparc
+#       undef  powerpc
 
 #       define merced 7
 #       define ARCHITECTURE merced
@@ -505,6 +512,7 @@
 #       undef  merced
 #       undef  amd64
 #	undef  sparc
+#       undef  powerpc
 
 #	define sparc 9
 #	define ARCHITECTURE sparc
@@ -569,10 +577,81 @@
 #           define BITS_PER_HALF_WORD   32
 #       endif
 
+#elif (defined(__powerpc))
 
+#       undef  vax
+#       undef  mips
+#       undef  hp_pa
+#       undef  cray
+#       undef  alpha
+#       undef  ix86
+#       undef  merced
+#       undef  amd64
+#       undef  sparc
+#       undef  powerpc
 
+#	define powerpc 10
+#	define ARCHITECTURE powerpc
 
+#	define LOCAL_DATA 1
+#	undef  STATIC_ROUNDING_MODES
+#	define DYNAMIC_ROUNDING_MODES 1
+#	define DENORMS_EMULATED 1
+#	define SEPARATE_FLOAT_REGS 1
+#	undef  MULTIPLE_ISSUE
+#	undef  UNSIGNED_TO_FLOAT
+#	define UNSIGNED_MULTIPLY 1
+#	define ENDIANESS big_endian
+#	define SCALE_METHOD by_int
+#	define CVT_TO_HI_LO_METHOD by_flt
 
+#	define BITS_PER_CHAR    8
+#	define BITS_PER_SHORT  16
+#	define BITS_PER_INT    32
+#       define BITS_PER_LONG   32
+
+#       define BITS_PER_ADDRESS 32
+
+#	define BITS_PER_FLOAT  32
+#	define BITS_PER_DOUBLE 64
+#	define BITS_PER_LONG_DOUBLE 128
+#       define LONG_DOUBLE_128_TYPE	_Quad
+
+#	if ( COMPILER == gnu_cc )
+#	    define __INT_64 long long
+#       else
+#	    define __INT_64 __int64
+#       endif
+
+#	define INT_8  signed char
+#	define INT_16 signed short
+#	define INT_32 signed int
+#	define INT_64 signed __INT_64
+#	undef  INT_128
+#	define U_INT_8  unsigned char
+#	define U_INT_16 unsigned short
+#	define U_INT_32 unsigned int
+#	define U_INT_64 unsigned __INT_64
+#	undef  U_INT_128
+
+#       if 0
+            /* Setup for 32-bits */
+#           define WORD                 INT_32
+#           define U_WORD               U_INT_32
+#           define BITS_PER_WORD        32
+#           define HALF_WORD            INT_16
+#           define U_HALF_WORD          U_INT_16
+#           define BITS_PER_HALF_WORD   16
+#       else
+
+            /* Setup for 64 bits */
+#           define WORD                 INT_64
+#           define U_WORD               U_INT_64
+#           define BITS_PER_WORD        64
+#           define HALF_WORD            INT_32
+#           define U_HALF_WORD          U_INT_32
+#           define BITS_PER_HALF_WORD   32
+#       endif
 
 #elif (defined(_M_AMD64))
 
@@ -585,6 +664,7 @@
 #       undef  merced
 #       undef  amd64
 #	undef  sparc
+#       undef  powerpc
 
 #	define amd64 8
 #	define ARCHITECTURE amd64

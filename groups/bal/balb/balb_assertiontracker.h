@@ -3,9 +3,7 @@
 #ifndef INCLUDED_BALB_ASSERTIONTRACKER
 #define INCLUDED_BALB_ASSERTIONTRACKER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 
 //@PURPOSE: Provide a means to track where failed assertion occur.
 //
@@ -18,6 +16,14 @@
 // assertions and the stack traces leading to them.  It provides means by which
 // such collection can be limited so as not to overwhelm processes where
 // assertions fail frequently, and ways to examine the accumulated data.
+//
+// ********************************* WARNING *********************************
+// IT IS CORPORATE POLICY THAT IN PRODUCTION CODE, ASSERTION FAILURE HANDLERS
+// MUST NOT RETURN TO THEIR CALLERS.  THIS COMPONENT EXISTS IN CONTRAVENTION OF
+// THAT POLICY, AND IS MEANT TO BE USED ONLY WITH SPECIAL PERMISSION OF
+// MANAGEMENT, FOR THE PURPOSE OF ASCERTAINING THE CORRECTNESS OF FRESHLY
+// WRITTEN OR ENABLED ASSERTIONS THAT ARE FAILING.
+// ********************************* WARNING *********************************
 //
 // For purposes of this component, an assertion is considered to have a
 // location, represented by a triple of assertion text, source file name, and
@@ -138,7 +144,7 @@
 //..
 //  namespace {
 //  balb::AssertionTracker theTracker;
-//  #define TRACK_ASSERT(condition) do { if (!(condition)) { \{{ Remove This }}
+//  #define TRACK_ASSERT(condition) do { if (!(condition)) { \  /*Squash Warn*/
 //  theTracker.assertionDetected(#condition, __FILE__, __LINE__); } } while (0)
 //  }  // close unnamed namespace
 //..
@@ -182,61 +188,24 @@
 //   assert(report.npos != report.find("100 > percentage"));
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_LOG
 #include <bsls_log.h>
-#endif
-
-#ifndef INCLUDED_BSLS_LOGSEVERITY
 #include <bsls_logseverity.h>
-#endif
 
-#ifndef INCLUDED_BSL_FUNCTIONAL
 #include <bsl_functional.h>
-#endif
-
-#ifndef INCLUDED_BSL_MAP
 #include <bsl_map.h>
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
-#endif
-
-#ifndef INCLUDED_BSL_UNORDERED_MAP
 #include <bsl_unordered_map.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace balb {
@@ -265,7 +234,7 @@ class AssertionTracker {
                                // sequence of addresses
 
     // The following two types can use unordered_map instead of map once
-    // {DRQS 102622326} (compilation failure on AIX) is fixed.
+    // DRQS 102622326 (compilation failure on AIX) is fixed.
     typedef bsl::map<StackTrace, int> AssertionCounts;
                                // a type for keeping a count per stack trace
 

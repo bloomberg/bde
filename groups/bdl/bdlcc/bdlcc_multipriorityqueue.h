@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLCC_MULTIPRIORITYQUEUE
 #define INCLUDED_BDLCC_MULTIPRIORITYQUEUE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a thread-enabled parameterized multi-priority queue.
@@ -392,88 +390,36 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLB_BITUTIL
 #include <bdlb_bitutil.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_CONCURRENTPOOL
 #include <bdlma_concurrentpool.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
 #include <bslalg_constructorproxy.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
 #include <bslma_deallocatorproctor.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_MANAGEDPTR
 #include <bslma_managedptr.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_CONDITION
 #include <bslmt_condition.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_LOCKGUARD
 #include <bslmt_lockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_CLIMITS
 #include <bsl_climits.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDINT
 #include <bsl_cstdint.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -569,34 +515,33 @@ class MultipriorityQueue {
         // The type of the vectors of list head and tail pointers.
 
     // DATA
-    mutable bslmt::Mutex d_mutex;          // used to synchronize access
-                                          // (including 'const' access)
+    mutable bslmt::Mutex  d_mutex;         // used to synchronize access
+                                           // (including 'const' access)
 
-    bslmt::Condition     d_notEmptyCondition;
-                                          // signaled on each push
+    bslmt::Condition      d_notEmptyCondition;
+                                           // signaled on each push
 
-    NodePtrVector       d_heads;          // pointers to heads of linked lists
-                                          // -- one for each priority
+    NodePtrVector         d_heads;         // pointers to heads of linked lists
+                                           // -- one for each priority
 
-    NodePtrVector       d_tails;          // pointers to tails of linked lists
-                                          // -- one for each priority
+    NodePtrVector         d_tails;         // pointers to tails of linked lists
+                                           // -- one for each priority
 
-    volatile int        d_notEmptyFlags;  // bit mask indicating priorities for
-                                          // which there is data, where bit 0
-                                          // is the lowest order bit,
-                                          // representing most urgent priority
+    volatile int          d_notEmptyFlags; // bit mask indicating priorities
+                                           // for which there is data, where
+                                           // bit 0 is the lowest order bit,
+                                           // representing most urgent priority
 
-    bdlma::ConcurrentPool          d_pool;           // memory pool used for
-                                                     // node storage
+    bdlma::ConcurrentPool d_pool;          // memory pool used for node storage
 
-    volatile int        d_length;         // total number of items in this
-                                          // multipriority queue
+    volatile int          d_length;        // total number of items in this
+                                           // multipriority queue
 
-    bool                d_enabledFlag;    // enabled/disabled state of pushes
-                                          // to the multipriority queue (does
-                                          // not affect pops)
+    bool                  d_enabledFlag;   // enabled/disabled state of pushes
+                                           // to the multipriority queue (does
+                                           // not affect pops)
 
-    bslma::Allocator   *d_allocator_p;    // memory allocator (held)
+    bslma::Allocator     *d_allocator_p;   // memory allocator (held)
 
   private:
     // NOT IMPLEMENTED
@@ -837,7 +782,7 @@ int MultipriorityQueue<TYPE>::tryPopFrontImpl(TYPE *item,
         }
 
         --d_length;
-    }  // release mutex
+    }
 
     if (itemPriority) {
         *itemPriority = priority;
@@ -944,7 +889,7 @@ int MultipriorityQueue<TYPE>::pushBack(const TYPE& item, int itemPriority)
         d_tails[itemPriority] = newNode;
 
         ++d_length;
-    }  // release mutex
+    }
 
     d_notEmptyCondition.signal();
 
@@ -963,7 +908,7 @@ void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(const TYPE& item,
     {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-        for (int i = 0; i < numItems; ++i) {
+        for (int ii = 0; ii < numItems; ++ii) {
             Node *newNode = (Node *)d_pool.allocate();
             bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(
                                                              newNode, &d_pool);
@@ -984,10 +929,12 @@ void MultipriorityQueue<TYPE>::pushFrontMultipleRaw(const TYPE& item,
             head = newNode;
 
             ++d_length;
+        }
+    }
 
-            d_notEmptyCondition.signal();
-        } // for numItems i
-    }  // release mutex
+    for (int ii = 0; ii < numItems; ++ii) {
+        d_notEmptyCondition.signal();
+    }
 }
 
 template <class TYPE>
@@ -1002,7 +949,7 @@ void MultipriorityQueue<TYPE>::pushBackMultipleRaw(const TYPE& item,
     {
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
-        for (int i = 0; i < numItems; ++i) {
+        for (int ii = 0; ii < numItems; ++ii) {
             Node *newNode = (Node *)d_pool.allocate();
             bslma::DeallocatorProctor<bdlma::ConcurrentPool> deallocator(
                                                              newNode, &d_pool);
@@ -1024,10 +971,12 @@ void MultipriorityQueue<TYPE>::pushBackMultipleRaw(const TYPE& item,
             d_tails[itemPriority] = newNode;
 
             ++d_length;
+        }
+    }
 
-            d_notEmptyCondition.signal();
-        } // for numItems i
-    }  // release mutex
+    for (int ii = 0; ii < numItems; ++ii) {
+        d_notEmptyCondition.signal();
+    }
 }
 
 template <class TYPE>
@@ -1070,7 +1019,7 @@ void MultipriorityQueue<TYPE>::removeAll()
         BSLS_ASSERT(0 == d_notEmptyFlags);
 
         d_length = 0;
-    }  // release mutex
+    }
 
     Node *node = condemnedList;
     while (node) {

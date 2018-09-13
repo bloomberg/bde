@@ -2,17 +2,15 @@
 #ifndef INCLUDED_BALTZO_DATAFILELOADER
 #define INCLUDED_BALTZO_DATAFILELOADER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: provide a concrete 'baltzo::Loader' for Zoneinfo binary files.
+//@PURPOSE: Provide a concrete 'baltzo::Loader' for Zoneinfo binary files.
 //
 //@CLASSES:
 //  baltzo::DataFileLoader: concrete 'baltzo::Loader' for Zoneinfo binary data
 //
-//@SEE_ALSO: 'baltzo_zoneinfobinaryreader', 'baltzo_zoneinfoutil'
+//@SEE_ALSO: baltzo_zoneinfobinaryreader, baltzo_zoneinfoutil
 //
 //@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hvershell)
 //
@@ -35,8 +33,8 @@ BSLS_IDENT("$Id: $")
 //       ,--------------.
 //      ( baltzo::Loader )
 //       `--------------'
-//                 dtor
-//                 loadTimeZone
+//                     dtor
+//                     loadTimeZone
 //..
 // A 'baltzo::DataFileLoader' is supplied a file-system location using the
 // 'configureRootPath' method.  This location should correspond to the root
@@ -194,36 +192,19 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == rc);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALTZO_LOADER
 #include <baltzo_loader.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -321,25 +302,28 @@ class DataFileLoader : public Loader {
         // value returned by the 'rootPath' method.
 };
 
-}  // close package namespace
-
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
 
+                            // --------------------
+                            // class DataFileLoader
+                            // --------------------
+
 // ACCESSORS
 inline
-bool baltzo::DataFileLoader::isRootPathPlausible() const
+bool DataFileLoader::isRootPathPlausible() const
 {
     return isPlausibleZoneinfoRootPath(rootPath().c_str());
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

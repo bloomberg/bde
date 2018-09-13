@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_TIMEUTIL
 #define INCLUDED_BDLT_TIMEUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide common non-primitive operations on 'bdlt::Time'.
@@ -23,6 +21,14 @@ BSLS_IDENT("$Id: $")
 // 'convertToHHMMSSmmm'), and methods to validate such integral values (e.g.,
 // 'isValidHHMMSS') before passing them to the corresponding "convertFrom"
 // method.
+//
+///Converting from Seconds-from-Midnight to 'bdlt::Datetime'
+///---------------------------------------------------------
+// Seconds-from-midnight is a date-time representation used in some financial
+// applications.  Seconds-from-midnight is a lossy representation (using
+// heuristics to determine the date), and conversions for that representation
+// are provided in a higher-level package that is not part of the
+// BDE open-source libraries (see 'bsitzo_secondsfrommidnightutil').
 //
 ///Usage
 ///------
@@ -98,17 +104,11 @@ BSLS_IDENT("$Id: $")
 // Note that the millisecond and/or second fields of 'bdlt::Time' are ignored
 // depending on the conversion method that is called.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_TIME
 #include <bdlt_time.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlt {

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLDE_CHARCONVERTUCS2
 #define INCLUDED_BDLDE_CHARCONVERTUCS2
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 
 BSLS_IDENT("$Id: $")
 
@@ -170,7 +168,7 @@ BSLS_IDENT("$Id: $")
 // {
 //     // Would probably do something more reasonable here.
 //
-//     assert(wideStrlen(str) + 1 == strLen);
+//     assert(wideStrlen(str) + 1 == static_cast<int>(strLen));
 // }
 //..
 // Finally, we can take some UTF-8 as an input and call
@@ -265,33 +263,19 @@ BSLS_IDENT("$Id: $")
 // {
 //     bsl::vector<unsigned short> result;
 //
-//     int retCode =
-//               BloombergLP::bdlde::CharConvertUcs2::utf8ToUcs2(&result,
-//                                                              strU8.c_str());
+//     BloombergLP::bdlde::CharConvertUcs2::utf8ToUcs2(&result, strU8.c_str());
 //
 //     return result;
 // }
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLDE_CHARCONVERTSTATUS
 #include <bdlde_charconvertstatus.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>            // 'bsl::size_t'
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 

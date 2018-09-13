@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_RULE
 #define INCLUDED_BALL_RULE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an object having a pattern, thresholds, and predicates.
@@ -34,6 +32,10 @@ BSLS_IDENT("$Id: $")
 //
 // Note that multiple predicates with the same name are permitted so long as
 // they correspond to different values.
+//
+// This component participates in the implementation of "Rule-Based Logging".
+// For more information on how to use that feature, please see the package
+// level documentation and usage examples for "Rule-Based Logging".
 //
 ///Usage
 ///-----
@@ -101,37 +103,18 @@ BSLS_IDENT("$Id: $")
 //  assert(ball::Severity::INFO == rule.triggerAllLevel());
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_PATTERNUTIL
 #include <ball_patternutil.h>
-#endif
-
-#ifndef INCLUDED_BALL_PREDICATESET
 #include <ball_predicateset.h>
-#endif
-
-#ifndef INCLUDED_BALL_THRESHOLDAGGREGATE
 #include <ball_thresholdaggregate.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {
@@ -170,11 +153,12 @@ class Rule {
 
     PredicateSet       d_predicateSet;  // set of predicates
 
-    mutable int        d_hashValue;     // the cached hash value; < 0 means
-                                        // it's invalid
+    mutable int        d_hashValue;     // cached hash value; < 0 indicates it
+                                        // is invalid
 
-    mutable int        d_hashSize;      // the number of slots from which
-                                        // 'd_hashValue' was calculated
+    mutable int        d_hashSize;      // number of slots from which
+                                        // 'd_hashValue' was calculated; 0
+                                        // indicates it is invalid
 
     // FRIENDS
     friend bool operator==(const Rule&, const Rule&);
@@ -186,7 +170,8 @@ class Rule {
     static int hash(const Rule& rule, int size);
         // Return a hash value calculated from the specified 'rule' using the
         // specified 'size' as the number of slots.  The value returned is
-        // guaranteed to be in the range '[0 .. size - 1]'.
+        // guaranteed to be in the range '[0 .. size - 1]'.  The behavior is
+        // undefined unless '0 < size'.
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(Rule, bslma::UsesBslmaAllocator);
@@ -199,7 +184,6 @@ class Rule {
         // installed default allocator will be used.  Note that a newly created
         // 'Rule' object does not have any predicates.
 
-    // CREATORS
     Rule(const bslstl::StringRef&  pattern,
          int                       recordLevel,
          int                       passLevel,
@@ -368,7 +352,7 @@ Rule::Rule(const Rule& original, bslma::Allocator *basicAllocator)
 , d_thresholds(original.d_thresholds)
 , d_predicateSet(original.d_predicateSet, basicAllocator)
 , d_hashValue(original.d_hashValue)
-, d_hashSize(0)
+, d_hashSize(original.d_hashSize)
 {
 }
 

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLB_FLOAT
 #define INCLUDED_BDLB_FLOAT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide floating-point classification types and functions.
@@ -167,9 +165,7 @@ BSLS_IDENT("$Id: $")
 // classification bits, a single number belongs to only one classification and
 // the return value of 'classify' will have only one bit set at a time.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlb {

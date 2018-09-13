@@ -271,16 +271,11 @@ int CalendarUtil::shiftModifiedFollowingIfValid(
     }
 
     // go in reverse
-    int firstDay = 1;
     date = original;
     while (true) {
         if (calendar.isBusinessDay(date)) {
             *result = date;
             return e_SUCCESS;                                         // RETURN
-        }
-
-        if (date.day() == firstDay){
-            break;
         }
 
         if (date == calendar.firstDate()) {
@@ -331,18 +326,11 @@ int CalendarUtil::shiftModifiedPrecedingIfValid(
 
     // go in reverse
 
-    int lastDay = bdlt::SerialDateImpUtil::lastDayOfMonth(original.year(),
-                                                          original.month());
-
     date = original;
     while (true) {
         if (calendar.isBusinessDay(date)) {
             *result = date;
             return e_SUCCESS;                                         // RETURN
-        }
-
-        if (date.day() == lastDay) {
-            break;
         }
 
         if (date == calendar.lastDate()){
@@ -418,7 +406,7 @@ int CalendarUtil::subtractBusinessDaysIfValid(
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

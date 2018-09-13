@@ -299,6 +299,16 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_STDDEF_H
 #endif
 
+
+#if defined(BSLS_PLATFORM_CMP_IBM) &&                                         \
+    ((BSLS_PLATFORM_CMP_VERSION  < 0x0c10) ||                                 \
+     (BSLS_PLATFORM_CMP_VERSION == 0x0c10  && __xlC_ver__ < 0x00000013))
+# define BSLMF_FORWARDINGTYPE_NO_INLINE
+// THe IBM xlC compiler trips an ICE or infinite compile loop when certain
+// functions are inlined for optimized builds.  This is resolved by the August
+// 2017 PTF release, 12.1.0.19.
+#endif
+
 namespace BloombergLP {
 
 
@@ -421,7 +431,7 @@ struct ConstForwardingType : public ForwardingType<TYPE> {
 // BDE_VERIFY pragma: -CD01 // Member function defined in class definition
 
 template <class TYPE>
-#ifndef BSLS_PLATFORM_CMP_IBM
+#ifndef BSLMF_FORWARDINGTYPE_NO_INLINE
 inline  // Trips an ICE or infinite compile loop with xlC optimized builds.
 #endif
 typename ForwardingTypeUtil<TYPE>::TargetType
@@ -453,7 +463,11 @@ struct ForwardingType_Imp<UNREF_TYPE,
         // is a const reference, then the constness will be reinstated on
         // return.
 
-        return static_cast<TargetType>(const_cast<UNREF_TYPE&>(v));
+        // We split this cast up into two lines because Visual Studio 2015 and
+        // early versions of Visual Studio 2017 create a temporary in the
+        // one-liner.
+        UNREF_TYPE& result = const_cast<UNREF_TYPE&>(v);
+        return static_cast<TargetType>(result);
     }
 #endif
 };
@@ -544,7 +558,17 @@ struct ForwardingType_Imp<UNREF_TYPE,
         // is a const reference, then the constness will be reinstated on
         // return.
 
-        return static_cast<TargetType>(const_cast<UNREF_TYPE&>(v));
+# if defined(BSLS_PLATFORM_CMP_MSVC)
+        // We use a C-style cast because Visual Studio 2013, 2015, and early
+        // versions of Visual Studio 2017 create a temporary with various
+        // formulations using C++ casts.
+        return TargetType(v);
+# else
+        // However, other platforms are known to complain about casting away
+        // the 'const' qualifier in 'Type' (i.e., in 'const UNREF&') unless a
+        // 'const_cast' is explicitly used.
+        return const_cast<TargetType>(v);
+# endif
     }
 #else
     typedef const UNREF_TYPE& TargetType;

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BDLCC_OBJECTCATALOG
 #define INCLUDED_BDLCC_OBJECTCATALOG
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an efficient indexed, thread-safe object container.
@@ -265,76 +263,32 @@ BSLS_IDENT("$Id: $")
 // iterators after they are done using them.  One easy way is to use the
 // 'for (bdlcc::ObjectCatalogIter<MyType> it(catalog); ...' as above.
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_RWMUTEX
 #include <bslmt_rwmutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_READLOCKGUARD
 #include <bslmt_readlockguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_WRITELOCKGUARD
 #include <bslmt_writelockguard.h>
-#endif
 
-#ifndef INCLUDED_BDLMA_POOL
 #include <bdlma_pool.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -416,14 +370,15 @@ class ObjectCatalog {
 
     struct Node {
         // PUBLIC DATA
-        union {
+        typedef union {
             // PUBLIC DATA
             bsls::ObjectBuffer<TYPE>            d_value;
 
             Node                               *d_next_p; // when free, pointer
                                                           // to next free node
-        }    d_payload;
-        int  d_handle;
+        } Payload;
+        Payload d_payload;
+        int     d_handle;
     };
 
     // DATA

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALXML_UTIL
 #define INCLUDED_BALXML_UTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a suite of common XML utilities.
@@ -115,17 +113,10 @@ BSLS_IDENT("$Id: $")
 //  assert(!rc);
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP  {
 

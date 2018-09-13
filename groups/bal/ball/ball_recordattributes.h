@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_RECORDATTRIBUTES
 #define INCLUDED_BALL_RECORDATTRIBUTES
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a container for a fixed set of fields suitable for logging.
@@ -173,55 +171,28 @@ BSLS_IDENT("$Id: $")
 //    }
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLSB_MEMOUTSTREAMBUF
 #include <bdlsb_memoutstreambuf.h>
-#endif
 
-#ifndef INCLUDED_BDLT_DATETIME
 #include <bdlt_datetime.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_performancehint.h>
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
 
 #else
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
 #endif
-
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {
@@ -250,6 +221,13 @@ class RecordAttributes {
 
     // PRIVATE TYPES
     typedef bsls::Types::Uint64 Uint64;
+
+    // PRIVATE CONSTANTS
+    enum {
+        k_RESET_MESSAGE_STREAM_CAPACITY = 256  // maximum capacity above which
+                                               // the message stream is reset
+                                               // (and not rewound)
+    };
 
     // DATA
     bdlt::Datetime   d_timestamp;    // creation date and time
@@ -310,8 +288,8 @@ class RecordAttributes {
         // 'rhs' record attributes object.
 
     void clearMessage();
-        // Set the message attribute of this record attributes object to empty
-        // string.
+        // Set the message attribute of this record attributes object to the
+        // empty string.
 
     bdlsb::MemOutStreamBuf& messageStreamBuf();
         // Return a reference to the modifiable stream buffer associated with
@@ -431,7 +409,18 @@ bsl::ostream& operator<<(bsl::ostream& stream, const RecordAttributes& object);
 inline
 void RecordAttributes::clearMessage()
 {
-    d_messageStreamBuf.pubseekpos(0);
+    // Note that the stream buffer holding the message attribute has initial
+    // capacity of 256 bytes (by implementation).  Reset those stream buffers
+    // that are bigger than the default and "rewind" those that are smaller or
+    // equal.
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+            k_RESET_MESSAGE_STREAM_CAPACITY < d_messageStreamBuf.capacity())) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        d_messageStreamBuf.reset();
+    }
+    else {
+        d_messageStreamBuf.pubseekpos(0);
+    }
 }
 
 inline

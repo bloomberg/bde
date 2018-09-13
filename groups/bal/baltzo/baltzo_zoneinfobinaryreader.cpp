@@ -507,20 +507,21 @@ int readVersion2Or3FormatData(baltzo::Zoneinfo             *zoneinfoResult,
     return 0;
 }
 
+namespace baltzo {
+
                          // --------------------------
                          // class ZoneinfoBinaryReader
                          // --------------------------
 
-int baltzo::ZoneinfoBinaryReader::read(Zoneinfo      *zoneinfoResult,
-                                       bsl::istream&  stream)
+int ZoneinfoBinaryReader::read(Zoneinfo *zoneinfoResult, bsl::istream& stream)
 {
     ZoneinfoBinaryHeader description;
     return read(zoneinfoResult, &description, stream);
 }
 
-int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
-                                       ZoneinfoBinaryHeader *headerResult,
-                                       bsl::istream&         stream)
+int ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
+                               ZoneinfoBinaryHeader *headerResult,
+                               bsl::istream&         stream)
 {
     int rc = readHeader(headerResult, stream);
     if (0 != rc) {
@@ -640,10 +641,11 @@ int baltzo::ZoneinfoBinaryReader::read(Zoneinfo             *zoneinfoResult,
     return 0;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

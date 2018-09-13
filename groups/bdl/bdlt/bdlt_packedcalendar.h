@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLT_PACKEDCALENDAR
 #define INCLUDED_BDLT_PACKEDCALENDAR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compact repository for weekend/holiday information.
@@ -477,88 +475,37 @@ BSLS_IDENT("$Id: $")
 //                               "02NOV2010\n\n25NOV2010\nThanksgiving Day\n");
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BDLT_CALENDARREVERSEITERATORADAPTER
 #include <bdlt_calendarreverseiteratoradapter.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DATE
 #include <bdlt_date.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DAYOFWEEK
 #include <bdlt_dayofweek.h>
-#endif
-
-#ifndef INCLUDED_BDLT_DAYOFWEEKSET
 #include <bdlt_dayofweekset.h>
-#endif
 
-#ifndef INCLUDED_BDLC_PACKEDINTARRAY
 #include <bdlc_packedintarray.h>
-#endif
-
-#ifndef INCLUDED_BDLC_PACKEDINTARRAYUTIL
 #include <bdlc_packedintarrayutil.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
-#endif
 
-#ifndef INCLUDED_BSLH_HASH
 #include <bslh_hash.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_ALGORITHM
-#include <bsl_algorithm.h>
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_ITERATOR
 #include <bsl_iterator.h>
-#endif
-
-#ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>      // 'bsl::pair'
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
 
+#include <bsl_algorithm.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -981,7 +928,7 @@ class PackedCalendar {
         // operation has no effect.  If 'stream' becomes invalid during this
         // operation or if 'version' is not supported, this object is
         // unaltered.  Note that no version is read from 'stream'.  See the
-        // 'bdex' package-level documentation for more information on 'bdex'
+        // 'bslx' package-level documentation for more information on BDEX
         // streaming of value-semantic types and containers.
 
     void swap(PackedCalendar& other);
@@ -1204,7 +1151,7 @@ class PackedCalendar {
     int numHolidayCodes(const Date& date) const;
         // Return the number of (unique) holiday codes associated with the
         // specified 'date' in this calendar if 'date' is a holiday in this
-        // calender, and 0 otherwise.  The behavior is undefined unless 'date'
+        // calendar, and 0 otherwise.  The behavior is undefined unless 'date'
         // is within the valid range of this calendar.
 
     int numHolidayCodesTotal() const;
@@ -1349,8 +1296,8 @@ class PackedCalendar {
         // Write this value to the specified output 'stream' using the
         // specified 'version' format and return a reference to the modifiable
         // 'stream'.  If 'version' is not supported, 'stream' is unmodified.
-        // Note that 'version' is not written to 'stream'.  See the 'bdex'
-        // package-level documentation for more information on 'bdex' streaming
+        // Note that 'version' is not written to 'stream'.  See the 'bslx'
+        // package-level documentation for more information on BDEX streaming
         // of value-semantic types and containers.
 
     bsl::ostream& print(bsl::ostream& stream,
@@ -1408,10 +1355,9 @@ void hashAppend(HASHALG& hashAlg, const PackedCalendar& object);
     // provides a 'bsl::hash' specialization for 'PackedCalendar'.
 
 void swap(PackedCalendar& a, PackedCalendar& b);
-    // Efficiently exchange the values of the specified 'a' and 'b' objects.
-    // This function provides the no-throw exception-safety guarantee.  The
-    // behavior is undefined unless the two objects were created with the same
-    // allocator.
+    // Exchange the values of the specified 'a' and 'b' objects.  This function
+    // provides the no-throw exception-safety guarantee if the two objects were
+    // created with the same allocator and the basic guarantee otherwise.
 
                        // ==============================
                        // class PackedCalendar_DateProxy
@@ -3269,12 +3215,6 @@ void bdlt::hashAppend(HASHALG& hashAlg, const PackedCalendar& object)
     hashAppend(hashAlg, object.d_holidayCodes);
 }
 
-inline
-void bdlt::swap(PackedCalendar& a, PackedCalendar& b)
-{
-    a.swap(b);
-}
-
 }  // close enterprise namespace
 
 // TRAITS
@@ -3290,7 +3230,7 @@ struct UsesBslmaAllocator<bdlt::PackedCalendar> : bsl::true_type {};
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -2939,12 +2939,7 @@ int main(int argc, char *argv[]) {
             //--  --------      -------------------
             // test zero pattern and sign bit.
             { L_,   0.0,        "\x00\x00\x00\x00"                      },
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VER_MAJOR >= 1400
-    // Microsoft 2003 compiler does not support -0.0
             { L_,  -0.0,        "\x80\x00\x00\x00"                      },
-#else
-            { L_,  -0.0,        "\x00\x00\x00\x00"                      },
-#endif
             { L_,   ONES,       ONES_SPEC                               },
 
             // small integers
@@ -3186,12 +3181,7 @@ int main(int argc, char *argv[]) {
             //--  --------      -------------------
             // test zero pattern and sign bit.
             { L_,   0.0,        "\x00\x00\x00\x00\x00\x00\x00\x00"      },
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VER_MAJOR >= 1400
-    // Microsoft 2003 compiler does not support -0.0
             { L_,  -0.0,        "\x80\x00\x00\x00\x00\x00\x00\x00"      },
-#else
-            { L_,  -0.0,        "\x00\x00\x00\x00\x00\x00\x00\x00"      },
-#endif
             { L_,   ONES,       ONES_SPEC                               },
 
             // small integers
@@ -4652,12 +4642,7 @@ int main(int argc, char *argv[]) {
             //--  --------      -------------------
             // test zero pattern and sign bit.
             { L_,  0.0,             "\x00\x00\x00\x00"                 },
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VER_MAJOR >= 1400
-    // Microsoft 2003 compiler does not support -0.0
             { L_, -0.0,             "\x80\x00\x00\x00"                 },
-#else
-            { L_, -0.0,             "\x00\x00\x00\x00"                 },
-#endif
 
             // small integers
             { L_,  5.0,             "\x40\xA0\x00\x00"                 },
@@ -4796,12 +4781,7 @@ int main(int argc, char *argv[]) {
             //--  --------      -------------------
             // test zero pattern and sign bit.
             { L_,   0.0,        "\x00\x00\x00\x00\x00\x00\x00\x00"      },
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VER_MAJOR >= 1400
-    // Microsoft 2003 compiler does not support -0.0
             { L_,  -0.0,        "\x80\x00\x00\x00\x00\x00\x00\x00"      },
-#else
-            { L_,  -0.0,        "\x00\x00\x00\x00\x00\x00\x00\x00"      },
-#endif
 
             // small integers
             { L_,   5.00,       "\x40\x14\x00\x00\x00\x00\x00\x00"      },

@@ -161,9 +161,9 @@ bool Float::isNormal(float number)
 
 bool Float::isSubnormal(float number)
 {
-    register FloatRep_t numberRep = toRep(number);
-    FloatRep_t          numberExp = numberRep & floatExpMask;
-    FloatRep_t          numberMan = numberRep & floatManMask;
+    FloatRep_t numberRep = toRep(number);
+    FloatRep_t numberExp = numberRep & floatExpMask;
+    FloatRep_t numberMan = numberRep & floatManMask;
 
     return 0 == numberExp && 0 != numberMan;
 }
@@ -199,8 +199,8 @@ bool Float::isSignalingNan(float number)
 {
     static const FloatRep_t qmask = floatExpMask | floatHBitMask;
 
-    register FloatRep_t numberRep = toRep(number);
-    FloatRep_t          numberMan = numberRep & floatManMask;
+    FloatRep_t numberRep = toRep(number);
+    FloatRep_t numberMan = numberRep & floatManMask;
 
     return (numberRep & qmask) == floatExpMask && 0 != numberMan;
 }
@@ -300,9 +300,9 @@ bool Float::isNormal(double number)
 
 bool Float::isSubnormal(double number)
 {
-    register DoubleRep_t numberRep = toRep(number);
-    DoubleRep_t          numberExp = numberRep & doubleExpMask;
-    DoubleRep_t          numberMan = numberRep & doubleManMask;
+    DoubleRep_t numberRep = toRep(number);
+    DoubleRep_t numberExp = numberRep & doubleExpMask;
+    DoubleRep_t numberMan = numberRep & doubleManMask;
 
     return 0 == numberExp && 0 != numberMan;
 }
@@ -337,8 +337,8 @@ bool Float::isSignalingNan(double number)
 {
     static const DoubleRep_t qmask = doubleExpMask | doubleHBitMask;
 
-    register DoubleRep_t numberRep = toRep(number);
-    DoubleRep_t          numberMan = numberRep & doubleManMask;
+    DoubleRep_t numberRep = toRep(number);
+    DoubleRep_t numberMan = numberRep & doubleManMask;
     return (numberRep & qmask) == doubleExpMask && 0 != numberMan;
 }
 

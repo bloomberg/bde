@@ -208,7 +208,7 @@ FixedThreadPool::FixedThreadPool(
 , d_gateCount(0)
 , d_numThreadsReady(0)
 , d_threadGroup(basicAllocator)
-, d_threadAttributes(threadAttributes)
+, d_threadAttributes(threadAttributes, basicAllocator)
 , d_numThreads(numThreads)
 {
     BSLS_ASSERT_OPT(0 != d_numThreads);
@@ -228,6 +228,7 @@ FixedThreadPool::FixedThreadPool(int               numThreads,
 , d_gateCount(0)
 , d_numThreadsReady(0)
 , d_threadGroup(basicAllocator)
+, d_threadAttributes(basicAllocator)
 , d_numThreads(numThreads)
 {
     BSLS_ASSERT_OPT(0 != d_numThreads);
@@ -261,11 +262,40 @@ int FixedThreadPool::enqueueJob(const Job& functor)
     return ret;
 }
 
+int FixedThreadPool::enqueueJob(bslmf::MovableRef<Job> functor)
+{
+    BSLS_ASSERT(bslmf::MovableRefUtil::access(functor));
+
+    const int ret = d_queue.pushBack(bslmf::MovableRefUtil::move(functor));
+
+    if (0 == ret && d_numThreadsWaiting) {
+        // Wake up waiting threads.
+
+        d_queueSemaphore.post();
+    }
+
+    return ret;
+}
+
 int FixedThreadPool::tryEnqueueJob(const Job& functor)
 {
     BSLS_ASSERT(functor);
 
     const int ret = d_queue.tryPushBack(functor);
+
+    if (0 == ret && d_numThreadsWaiting) {
+        // Wake up waiting threads.
+
+        d_queueSemaphore.post();
+    }
+    return ret;
+}
+
+int FixedThreadPool::tryEnqueueJob(bslmf::MovableRef<Job> functor)
+{
+    BSLS_ASSERT(bslmf::MovableRefUtil::access(functor));
+
+    const int ret = d_queue.tryPushBack(bslmf::MovableRefUtil::move(functor));
 
     if (0 == ret && d_numThreadsWaiting) {
         // Wake up waiting threads.

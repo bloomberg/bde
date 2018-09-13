@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BALL_OBSERVER
 #define INCLUDED_BALL_OBSERVER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Define a protocol for receiving and processing log records.
@@ -187,13 +185,9 @@ BSLS_IDENT("$Id: $")
 //             Thread ID:  33
 //..
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
 
 namespace BloombergLP {
 namespace ball {
@@ -219,7 +213,7 @@ class Observer {
         // Process the specified log 'record' having the specified publishing
         // 'context'.
         //
-        // DEPRECATED: use the alternative 'publish' overload instead.
+        // !DEPRECATED!: Use the alternative 'publish' overload instead.
 
     virtual void publish(const bsl::shared_ptr<const Record>& record,
                          const Context&                       context);
@@ -230,10 +224,10 @@ class Observer {
         // distributed in a human or machine readable form.
 
     virtual void releaseRecords();
-        // Discard any shared reference to a 'Record' object that was supplied
-        // to the 'publish' method, and is held by this observer.  Note that
+        // Discard any shared references to 'Record' objects that were supplied
+        // to the 'publish' method, and are held by this observer.  Note that
         // this operation should be called if resources underlying the
-        // previously provided shared-pointers must be released.
+        // previously provided shared pointers must be released.
 };
 
 }  // close package namespace
