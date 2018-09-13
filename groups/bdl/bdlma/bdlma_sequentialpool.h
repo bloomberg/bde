@@ -592,6 +592,13 @@ class SequentialPool {
         // block at 'address' is 'originalSize', 'newSize <= originalSize', and
         // 'release' was not called after allocating the memory block at
         // 'address'.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to allocate memory.  Note
+        // that this allocator can not be used to deallocate memory
+        // allocated through this pool.
 };
 
 }  // close package namespace
@@ -729,6 +736,14 @@ bsls::Types::size_type SequentialPool::truncate(
     BSLS_ASSERT_SAFE(newSize <= originalSize);
 
     return d_bufferManager.truncate(address, originalSize, newSize);
+}
+
+// Aspects
+
+inline
+bslma::Allocator *SequentialPool::allocator() const
+{
+    return d_allocator_p;
 }
 
 }  // close package namespace

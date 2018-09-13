@@ -475,6 +475,13 @@ class BufferedSequentialPool {
         // The effect of subsequently - to this invokation of 'rewind' - using
         // a pointer obtained from this object prior to this call to 'rewind'
         // is undefined.
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to allocate memory.  Note
+        // that this allocator can not be used to deallocate memory
+        // allocated through this pool.
 };
 
 }  // close package namespace
@@ -612,6 +619,14 @@ void BufferedSequentialPool::rewind()
                                 // block.
 
     d_pool.rewind();
+}
+
+// Aspects
+
+inline
+bslma::Allocator *BufferedSequentialPool::allocator() const
+{
+    return d_pool.allocator();
 }
 
 }  // close package namespace
