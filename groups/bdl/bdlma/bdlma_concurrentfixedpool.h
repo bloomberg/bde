@@ -319,9 +319,9 @@ class ConcurrentFixedPool {
     // Aspects
 
     bslma::Allocator *allocator() const;
-        // Return the allocator used by 'ConcurrentFixedPool' to allocate
-        // memory.  Note that this allocator can't be used to deallocate memory
-        // allocated through the pool.
+        // Return the allocator used by this object to allocate memory.  Note
+        // that this allocator can not be used to deallocate memory
+        // allocated through this pool.
 };
 
 }  // close package namespace
@@ -435,7 +435,7 @@ int ConcurrentFixedPool::poolSize() const
 // Aspects
 
 inline
-bslma::Allocator* ConcurrentFixedPool::allocator() const
+bslma::Allocator *ConcurrentFixedPool::allocator() const
 {
     return d_nodePool.allocator();
 }

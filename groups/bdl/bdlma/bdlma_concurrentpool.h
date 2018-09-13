@@ -419,12 +419,12 @@ class ConcurrentPool {
         // pool object.  Note that all blocks dispensed by this pool have the
         // same size.
 
-    // Aspects
+                                  // Aspects
 
     bslma::Allocator *allocator() const;
-        // Return the allocator used by 'ConcurrentPool' to allocate memory.
-        // Note that this allocator can't be used to deallocate memory
-        // allocated through the pool.
+        // Return the allocator used by this object to allocate memory.  Note
+        // that this allocator can not be used to deallocate memory
+        // allocated through this pool.
 };
 
 }  // close package namespace
@@ -542,7 +542,7 @@ bsls::Types::size_type ConcurrentPool::blockSize() const
 // Aspects
 
 inline
-bslma::Allocator* ConcurrentPool::allocator() const
+bslma::Allocator *ConcurrentPool::allocator() const
 {
     return d_blockList.allocator();
 }
