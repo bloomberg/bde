@@ -216,7 +216,11 @@ static BSLMT_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
     // compile time error.  The behavior is undefined unless 'INITIAL_VALUE' is
     // a *compile* *time* constant value.
 
+#if defined( BSLS_PLATFORM_OS_WINDOWS )
+#define BSLMT_THREAD_LOCAL_KEYWORD __declspec(thread)
+#else
 #define BSLMT_THREAD_LOCAL_KEYWORD __thread
+#endif
 
 #endif
 
