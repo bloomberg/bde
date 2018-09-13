@@ -724,6 +724,15 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
         // undefined unless 'address' was allocated using this allocator and
         // has not already been deallocated.
 
+    void release();
+        // Relinquish all memory currently allocated through this pool
+        // allocator.
+
+    void reserveCapacity(int numObjects);
+        // Reserve memory from this pool allocator to satisfy memory requests
+        // for at least the specified 'numObjects' before the pool replenishes.
+        // The behavior is undefined unless '0 <= numObjects'.
+
     // ACCESSORS
     int blockSize() const;
         // Return the size (in bytes) of the memory blocks allocated from this
@@ -738,6 +747,19 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
                       // -----------------------------
                       // class ConcurrentPoolAllocator
                       // -----------------------------
+
+// MANIPULATORS
+inline
+void ConcurrentPoolAllocator::reserveCapacity(int numObjects)
+{
+    d_pool.object().reserveCapacity(numObjects);
+}
+
+inline
+void ConcurrentPoolAllocator::release()
+{
+    d_pool.object().release();
+}
 
 // ACCESSORS
 inline

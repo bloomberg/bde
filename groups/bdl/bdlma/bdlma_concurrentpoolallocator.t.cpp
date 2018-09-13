@@ -43,6 +43,8 @@ using namespace bsl;  // automatically added by script
 // MANIPULATORS
 // [ 4] void *allocate(bsls::Types::size_type size);
 // [ 4] void deallocate(void *address);
+// [ 5] void reserveCapacity(int numObjects);
+// [ 5] void release();
 //
 // ACCESSORS
 // [ 4] int blockSize() const;
@@ -50,7 +52,7 @@ using namespace bsl;  // automatically added by script
 // [ 1] BREATHING TEST
 // [ 2] CONCERN: 0-size allocation/deallocating 0 pointer
 // [ 3] CONCERN: thread-safety of the first allocation
-// [ 5] USAGE
+// [ 6] USAGE
 
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
@@ -172,6 +174,32 @@ extern "C" void *my3_down(void *arg)
     }
 
     return 0;
+}
+
+void stretch(Obj *object, int numElements)
+    // Using only primary manipulators, extend the capacity of the specified
+    // 'object' to (at least) the specified 'numElements'.  The behavior is
+    // undefined unless '0 <= numElements' and '0 <= objSize'.
+{
+    ASSERT(object);
+    ASSERT(0 <= numElements);
+
+    for (int i = 0; i < numElements; ++i) {
+        object->allocate(object->blockSize());
+    }
+}
+
+void stretchRemoveAll(Obj *object, int numElements)
+    // Using only primary manipulators, extend the capacity of the specified
+    // 'object' to (at least) the specified 'numElements', then remove all
+    // elements leaving 'object' empty.  The behavior is undefined unless
+    // '0 <= numElements' and '0 <= objSize'.
+{
+    ASSERT(object);
+    ASSERT(0 <= numElements);
+
+    stretch(object, numElements);
+    object->release();
 }
 
 //=============================================================================
@@ -652,7 +680,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -725,6 +753,83 @@ int main(int argc, char *argv[])
         ASSERT(0 == status);
     }
 //..
+
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING 'reserveCapacity' AND 'release'
+        //
+        // Testing:
+        //   void reserveCapacity(int numObjects);
+        //   void release();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'reserveCapacity' AND 'release'"
+                          << "\n=======================================\n";
+
+        const int RESERVED[] = {
+            0, 1, 2, 3, 4, 5, 15, 16, 17
+        };
+        const int NUM_RESERVED = sizeof RESERVED / sizeof *RESERVED;
+
+        const int EXTEND[] = {
+            0, 1, 4, 5, 7, 17, 23, 100
+        };
+        const int NUM_EXTEND = sizeof EXTEND / sizeof *EXTEND;
+
+        bsls::BlockGrowth::Strategy STRATEGIES[] = {
+            bsls::BlockGrowth::BSLS_CONSTANT,
+            bsls::BlockGrowth::BSLS_GEOMETRIC
+        };
+        const int NUM_STRATEGIES = sizeof STRATEGIES / sizeof *STRATEGIES;
+
+        static const int BLOCK_SIZES[] = {
+            bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT,
+            bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT * 2,
+            bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT * 3,
+            bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT * 4,
+        };
+        const int NUM_BLOCK_SIZES = sizeof BLOCK_SIZES / sizeof *BLOCK_SIZES;
+
+        bslma::TestAllocator a;    const bslma::TestAllocator& A = a;
+        for (int si = 0; si < NUM_STRATEGIES; ++si) {
+            for (int bsi = 0; bsi < NUM_BLOCK_SIZES; ++bsi) {
+                for (int ri = 0; ri < NUM_RESERVED; ++ri) {
+                    for (int ei = 0; ei < NUM_EXTEND; ++ei) {
+                        const int BLOCK_SIZE = BLOCK_SIZES[bsi];
+                        const int NUM_BLOCKS = RESERVED[ri];
+                        const int EXTEND_SZ  = EXTEND[ei];
+                        const bsls::BlockGrowth::Strategy STRATEGY =
+                                                                STRATEGIES[si];
+
+                        // Add 'EXTEND' elements to mX, and add 'EXTEND'
+                        // elements to mY and then remove those elements.
+                        Obj mX(BLOCK_SIZE, STRATEGY, &a);
+                        Obj mY(BLOCK_SIZE, STRATEGY, &a);
+
+                        stretch(&mX, EXTEND_SZ);
+                        stretchRemoveAll(&mX, EXTEND_SZ);
+
+                        mX.reserveCapacity(NUM_BLOCKS);
+                        mY.reserveCapacity(NUM_BLOCKS);
+                        const bsls::Types::Int64 ALLOC_BLOCKS =
+                                                            A.numBlocksTotal();
+                        const bsls::Types::Int64 ALLOC_BYTES  =
+                                                             A.numBytesInUse();
+
+                        for (int i = 0; i < NUM_BLOCKS; ++i) {
+                            mX.allocate(BLOCK_SIZE);
+                            mY.allocate(BLOCK_SIZE);
+                        }
+                        LOOP4_ASSERT(si, bsi, ri, ei,
+                                     ALLOC_BLOCKS == A.numBlocksTotal());
+                        LOOP4_ASSERT(si, bsi, ri, ei,
+                                 ALLOC_BYTES  == A.numBytesInUse());
+                    }
+                }
+            }
+        }
+        ASSERT(0 == A.numBytesInUse());
 
       } break;
       case 4: {
