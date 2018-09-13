@@ -24,13 +24,10 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Henry Verschell (hverschell)
 //
-//@DESCRIPTION: This component should *not* be used outside of the 'bslmt'
-// package at this time.
-//
-// This component defines a macro for declaring a 'static' thread-local
-// variable.  Where a normal static variable is located at the same memory
-// location for all threads within a process, a thread-local static variable
-// has a different memory location for each thread in the process:
+//@DESCRIPTION: This component defines a macro for declaring a 'static'
+// thread-local variable.  Where a normal static variable is located at the
+// same memory location for all threads within a process, a thread-local static
+// variable has a different memory location for each thread in the process:
 //..
 //  BSLMT_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME, INITIAL_VALUE)
 //      Declare, at function or namespace scope, a thread-local 'static'
@@ -57,35 +54,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Platform Notes
 ///--------------
-// Since the C++ standard does not define a thread-local storage specifier,
-// support varies between platforms and compilers.  Moreover, thread-local
-// variables are *not* supported on (1) Solaris with gcc or (2) Windows due to
-// compiler or runtime limitations.  See the following table for details.
+// Since the C++03 standard does not define a thread-local storage specifier,
+// support varies between platforms and compilers (this is fixed in C++11).
+// For example, in Windows XP thread local variables cause run-time errors when
+// used inside a dynamic-library (.dll) that is loaded at runtime using
+// 'LoadLibrary' or 'LoadLibraryEx' (this is resolved on Vista).  The problem
+// is noted here:
 //..
-// +----------+----------------------------------------------------------------
-// | Platform |  Note
-// |----------+----------------------------------------------------------------
-// |  AIX     |  o A bug in the AIX compiler prevents compiling translation
-// |          |    units with more than 10 thread-local variables with debug
-// |          |    symbols.  This has been fixed in xlC8 (internal ticket
-// |          |    DRQS 13819416), but has not yet been fixed for xlC10.
-// |          |
-// |          |  o xlC8 does not support class scoped thread-local variables.
-// |----------+----------------------------------------------------------------
-// | Solaris  |  o Thread local variables are not currently supported due to a
-// |  gcc     |    run-time failure (on thread-exit) for tasks using
-// |          |    thread-local variables.  Note that both the Solaris native
-// |          |    compiler, and gcc on Linux do support thread-local
-// |          |    variables.
-// +----------+----------------------------------------------------------------
-// | Windows/ |  o Thread local variables cause run-time errors when used
-// | MSVC     |    inside a dynamic-library (.dll) that is loaded at runtime
-// |          |    using 'LoadLibrary' or 'LoadLibraryEx' on versions of
-// |          |    Windows prior to Vista (e.g., XP).  The problem is noted
-// |          |    here:
-// |          |    http://support.microsoft.com/kb/118816
-// +----------+----------------------------------------------------------------
-//..
+// http://support.microsoft.com/kb/118816
 //
 ///Usage
 ///-----
@@ -219,23 +195,8 @@ BSLS_IDENT("$Id: $")
                             // Macro Definitions
                             // =================
 
-#if defined(BSLS_PLATFORM_CMP_SUN)                                            \
- || (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))   \
- || (defined(BSLS_PLATFORM_CMP_CLANG) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
 #define BSLMT_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME, INITIAL_VALUE) \
 static BSLMT_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
-    // This macro should *not* be used by clients outside of the 'bslmt'
-    // package at this time.
-    //
-    // On IBM, the introduction of thread-local storage causes static
-    // initializers for shared objects to stop running.  This problem is
-    // described in DRQS 16438026.  Therefore, even though thread-local storage
-    // is supported by xlC10, it is explicitly not used here.
-    //
-    // On Windows/MSVC, compiler-based thread-local storage may cause a crash
-    // at runtime when used from a DLL on Windows versions below Vista.
-    // Therefore, it is explicitly not used here.
-    //
     // Define, at function or namespace scope, a thread-local 'static' variable
     // having the specified 'VARIABLE_NAME' of the specified 'BASIC_TYPE',
     // initialized with the specified 'INITIAL_VALUE'.  If 'VARIABLE_NAME' is
@@ -243,18 +204,17 @@ static BSLMT_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
     // type 'BASIC_TYPE', the instantiation of this macro will result in a
     // compile time error.  The behavior is undefined unless 'INITIAL_VALUE' is
     // a *compile* *time* constant value.
-#endif
 
-#if defined(BSLS_PLATFORM_CMP_SUN)                                            \
- || (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))   \
- || (defined(BSLS_PLATFORM_CMP_CLANG) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
+#if defined( BSLS_PLATFORM_OS_WINDOWS )
+#define BSLMT_THREAD_LOCAL_KEYWORD __declspec(thread)
+#else
 #define BSLMT_THREAD_LOCAL_KEYWORD __thread
 #endif
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
