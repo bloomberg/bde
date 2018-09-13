@@ -750,15 +750,19 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
 
 // MANIPULATORS
 inline
-void ConcurrentPoolAllocator::reserveCapacity(int numObjects)
+void ConcurrentPoolAllocator::release()
 {
-    d_pool.object().reserveCapacity(numObjects);
+    if (d_initialized == k_INITIALIZED) {
+        d_pool.object().release();
+    }
 }
 
 inline
-void ConcurrentPoolAllocator::release()
+void ConcurrentPoolAllocator::reserveCapacity(int numObjects)
 {
-    d_pool.object().release();
+    if (d_initialized == k_INITIALIZED) {
+        d_pool.object().reserveCapacity(numObjects);
+    }
 }
 
 // ACCESSORS
