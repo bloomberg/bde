@@ -542,17 +542,14 @@ void *TestAllocator::allocate(size_type size)
         //  TestAllocator global [25]: Allocated 128 bytes at 0xc3a281a8.
         //..
 
-        std::printf("TestAllocator");
-
-        if (d_name_p) {
-            std::printf(" %s", d_name_p);
-        }
-
-        std::printf(" [%lld]: Allocated " ZU " byte%sat %p.\n",
-                    allocationIndex,
-                    size,
-                    1 == size ? " " : "s ",
-                    address);
+        std::printf(
+                   "TestAllocator%s%s [%lld]: Allocated " ZU " byte%sat %p.\n",
+                   d_name_p ? " " : "",
+                   d_name_p ? d_name_p : "",
+                   allocationIndex,
+                   size,
+                   1 == size ? " " : "s ",
+                   address);
 
         std::fflush(stdout);
     }
@@ -692,17 +689,14 @@ void TestAllocator::deallocate(void *address)
         //  TestAllocator local [245]: Deallocated 1 byte at 0x3c1b2740.
         //..
 
-        std::printf("TestAllocator");
-
-        if (d_name_p) {
-            std::printf(" %s", d_name_p);
-        }
-
-        std::printf(" [%lld]: Deallocated " ZU " byte%sat %p.\n",
-                    allocationIndex,
-                    size,
-                    1 == size ? " " : "s ",
-                    address);
+        std::printf(
+                 "TestAllocator%s%s [%lld]: Deallocated " ZU " byte%sat %p.\n",
+                 d_name_p ? " " : "",
+                 d_name_p ? d_name_p : "",
+                 allocationIndex,
+                 size,
+                 1 == size ? " " : "s ",
+                 address);
 
         std::fflush(stdout);
     }

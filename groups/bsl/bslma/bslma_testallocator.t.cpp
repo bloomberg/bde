@@ -9,6 +9,8 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 
+#include <string>
+
 #include <stdio.h>              // 'printf'
 #include <stdlib.h>             // 'atoi'
 #include <string.h>             // 'memset', 'strlen'
@@ -85,7 +87,8 @@ using namespace BloombergLP;
 // [12] void print() const;
 // [ 2] int status() const;
 //-----------------------------------------------------------------------------
-// [14] USAGE TEST
+// [15] USAGE TEST
+// [14] DRQS 129104858
 // [ 5] Ensure that exception is thrown after allocation limit is exceeded.
 // [ 1] Make sure that all counts are initialized to zero (placement new).
 // [ 1] Make sure that global operators new and delete are *not* called.
@@ -590,7 +593,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
 
     switch (test) { case 0:
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TEST USAGE
         //   Verify that the usage example for testing exception neutrality is
@@ -705,6 +708,91 @@ int main(int argc, char *argv[])
 //..
 // Note that the 'BDE_BUILD_TARGET_EXC' macro is defined at compile-time to
 // indicate whether or not exceptions are enabled.
+
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // DRQS 129104858
+        //   Ensure that the unification of the tracing strings do not change
+        //   the output in the case of single thread.
+        //
+        // Concerns:
+        //: 1 The changes in DRQS 129104858 do not change the output for a
+        //:   single thread run.
+        //
+        // Plan:
+        //: 1 Output the old code into a string.  Output the new code into a
+        //:   string.  Assert that both strings are equal.  (C-1)
+        //
+        // Testing:
+        //   DRQS 129104858
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nDRQS 129104858"
+                            "\n==============\n");
+
+        typedef std::string String;
+        typedef bslma::Allocator::size_type size_type;
+
+        struct {
+            int                 d_line;
+            String              d_name;
+            void               *d_address;
+            size_type           d_size;
+            bsls::Types::Int64  d_allocationIndex;
+        } DATA[] = {
+            { L_, "test1", (void*)0x234567, 2, 12 },
+            { L_, ""     , (void*)0x234568, 3, 15 }
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int                 LINE     = DATA[ti].d_line;
+            const char               *NAME     = DATA[ti].d_name == "" ?
+                                                NULL : DATA[ti].d_name.c_str();
+            const void               *ADDRESS  = DATA[ti].d_address;
+            const size_type           SIZE     = DATA[ti].d_size;
+            const bsls::Types::Int64  ALLOCIDX = DATA[ti].d_allocationIndex;
+
+            if (veryVerbose) {
+                T_ P_(LINE) P_(ti) P_(NAME) P_(ADDRESS) P_(SIZE) P(ALLOCIDX)
+            }
+
+            char preBuf1[80];
+            char preBuf2[80];
+            char preBuf3[80];
+            char postBuf[240];
+
+            std::snprintf(preBuf1, 80, "TestAllocator");
+
+            if (NAME) {
+                std::snprintf(preBuf2, 80, " %s", NAME);
+            }
+
+            std::snprintf(preBuf3,
+                          80,
+                          " [%lld]: Deallocated %zu byte%sat %p.\n",
+                          ALLOCIDX,
+                          SIZE,
+                          1 == SIZE ? " " : "s ", ADDRESS);
+            String preBufS = NAME ?
+                          String(preBuf1) + String(preBuf2) + String(preBuf3) :
+                          String(preBuf1) + String(preBuf3);
+
+            std::snprintf(
+                 postBuf,
+                 240,
+                 "TestAllocator%s%s [%lld]: Deallocated %zu byte%sat %p.\n",
+                 NAME ? " " : "",
+                 NAME ? NAME : "",
+                 ALLOCIDX,
+                 SIZE,
+                 1 == SIZE ? " " : "s ",
+                 ADDRESS);
+            String postBufS = String(postBuf);
+
+            LOOP1_ASSERT(ti, preBufS == postBufS);
+        }
 
       } break;
       case 13: {
