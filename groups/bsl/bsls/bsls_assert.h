@@ -1389,13 +1389,13 @@ class Assert {
     static void invokeHandler(const char *text, const char *file, int line);
         // Invoke the currently installed assertion-failure handler function
         // with the specified expression 'text', 'file' name, and 'line' number
-        // as its arguments.  The behavior is undefined unless the macro
-        // 'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is not defined, or
-        // the currently installed assertion-failure handler function does not
-        // return (i.e., it must 'abort', 'exit', 'terminate', 'throw', or
-        // hang).  Note that this function is intended for use by the (BSLS)
-        // "ASSERT" macros, but may also be called by clients directly as
-        // needed.  Also note that the configuration macro
+        // as its arguments.  The behavior is undefined if the macro
+        // 'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is defined, and the
+        // currently installed assertion-failure handler function returns to
+        // the caller (i.e., the assertion handler does *not* 'abort', 'exit',
+        // 'terminate', 'throw', or hang).  Note that this function is intended
+        // for use by the (BSLS) "ASSERT" macros, but may also be called by
+        // clients directly as needed.  Also note that the configuration macro
         // 'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is intended to
         // support static analysis tools, which require an annotation to see
         // that a failed "ASSERT" prevents further execution of a function with
