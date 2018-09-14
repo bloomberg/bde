@@ -722,7 +722,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 Output the old code into a string.  Output the new code into a
-        //:   string.  Assert that both strings are equal.
+        //:   string.  Assert that both strings are equal.  (C-1)
         //
         // Testing:
         //   DRQS 129104858
