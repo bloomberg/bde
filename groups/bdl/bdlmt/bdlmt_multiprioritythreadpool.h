@@ -586,7 +586,7 @@ class MultipriorityThreadPool {
         // new jobs will be allowed to become active.  This method has no
         // impact on the enabled/disabled or suspended/resumed states of this
         // thread pool.  Note that calling this function when this thread pool
-        // is not in the started state has no effect.  Also not that calling
+        // is not in the started state has no effect.  Also note that calling
         // this method from one of the threads belonging to this thread pool
         // will cause a deadlock.
 
