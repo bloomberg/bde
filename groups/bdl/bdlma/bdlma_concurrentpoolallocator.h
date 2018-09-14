@@ -731,7 +731,9 @@ class ConcurrentPoolAllocator : public bslma::Allocator {
     void reserveCapacity(int numObjects);
         // Reserve memory from this pool allocator to satisfy memory requests
         // for at least the specified 'numObjects' before the pool replenishes.
-        // The behavior is undefined unless '0 <= numObjects'.
+        // The behavior is undefined unless '0 <= numObjects'.  Note that this
+        // operation has no effect if block size was not supplied at
+        // construction, and 'allocate' was not called yet.
 
     // ACCESSORS
     int blockSize() const;
