@@ -731,6 +731,10 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nDRQS 129104858"
                             "\n==============\n");
 
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU  // An alias for a string that can be
+                                       // treated as the "%zu" format
+                                       // specifier (MSVC issue).
+
         typedef std::string String;
         typedef bslma::Allocator::size_type size_type;
 
@@ -770,17 +774,17 @@ int main(int argc, char *argv[])
             }
 
             std::sprintf(preBuf3,
-                          " [%lld]: Deallocated %zu byte%sat %p.\n",
-                          ALLOCIDX,
-                          SIZE,
-                          1 == SIZE ? " " : "s ", ADDRESS);
+                         " [%lld]: Deallocated " ZU " byte%sat %p.\n",
+                         ALLOCIDX,
+                         SIZE,
+                         1 == SIZE ? " " : "s ", ADDRESS);
             String preBufS = NAME ?
                           String(preBuf1) + String(preBuf2) + String(preBuf3) :
                           String(preBuf1) + String(preBuf3);
 
             std::sprintf(
                  postBuf,
-                 "TestAllocator%s%s [%lld]: Deallocated %zu byte%sat %p.\n",
+                 "TestAllocator%s%s [%lld]: Deallocated " ZU " byte%sat %p.\n",
                  NAME ? " " : "",
                  NAME ? NAME : "",
                  ALLOCIDX,
