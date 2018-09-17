@@ -37,9 +37,10 @@ using namespace bsl;
 // [ 2] void *allocate(bsls::Types::size_type size);
 // [ 4] void deallocate(void *address);
 // [ 3] void release();
+// [ 5] bslma::Allocator *allocator() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 // [ *] CONCERN: In no case does memory come from the global allocator.
 // [ *] CONCERN: There is no temporary allocation from any allocator.
 // [ 2] CONCERN: Precondition violations are detected when enabled.
@@ -292,8 +293,11 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator(veryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
+    bslma::TestAllocator defaultAllocator("default", veryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
     switch (test) { case 0:
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -336,6 +340,47 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == oa.numBlocksInUse());
 
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // ALLOCATOR ACCESSOR TEST
+        //
+        // Concerns:
+        //: 1. 'allocator()' accessor returns the expected value.
+        //:
+        //: 2. 'allocator()' accessor is declared const.
+        //
+        // Plan:
+        //: 1 To test 'allocator', create object with various allocators and
+        //:   ensure the returned value matches the supplied allocator.  (C-1)
+        //:
+        //: 2 Directly test that 'allocator()', invoked on a 'const' object,
+        //:   returns the expected value.  (C-1..2)
+        //
+        // Testing:
+        //   bslma::Allocator *allocator() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "ALLOCATOR ACCESSOR TEST" << endl
+                                  << "=======================" << endl;
+
+        if (verbose) cout << "\nTesting 'allocator'." << endl;
+        {
+            Obj mX;  const Obj& X = mX;
+            ASSERT(&defaultAllocator == X.allocator());
+        }
+        {
+            Obj mX(reinterpret_cast<bslma::TestAllocator *>(0));
+
+            const Obj& X = mX;
+            ASSERT(&defaultAllocator == X.allocator());
+        }
+        {
+            bslma::TestAllocator sa("supplied", veryVeryVerbose);
+
+            Obj mX(&sa);  const Obj& X = mX;
+            ASSERT(&sa == X.allocator());
+        }
       } break;
       case 4: {
         // --------------------------------------------------------------------

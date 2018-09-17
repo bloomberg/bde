@@ -100,7 +100,6 @@ ConcurrentFixedPool::ConcurrentFixedPool(int               objectSize,
 , d_numNodes(0)
 , d_objectSize(objectSize)
 , d_backoffLevel(k_DEFAULT_BACKOFF_LEVEL)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
     BSLS_ASSERT(0 < objectSize);
     BSLS_ASSERT(0 < poolSize);

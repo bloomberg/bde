@@ -67,8 +67,9 @@ using namespace bsl;
 // [ 2] bsls::Types::size_type blockSize() const;
 // [ 7] void *operator new(bsl::size_t size, bdlma::Pool& pool);
 // [ 8] void operator delete(void *address, bdlma::Pool& pool);
+// [12] bslma::Allocator *allocator() const;
 //-----------------------------------------------------------------------------
-// [12] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 // [ 2] 'allocate' returns memory of the correct block size.
 // [ 1] int blockSize(numBytes);
 // [ 1] int poolBlockSize(size);
@@ -499,8 +500,11 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator(veryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
+    bslma::TestAllocator defaultAllocator("default", veryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
     switch (test) { case 0:
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -555,6 +559,49 @@ int main(int argc, char *argv[])
             deleteMyType(&mX, t);
         }
 
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // ALLOCATOR ACCESSOR TEST
+        //
+        // Concerns:
+        //: 1. 'allocator()' accessor returns the expected value.
+        //:
+        //: 2. 'allocator()' accessor is declared const.
+        //
+        // Plan:
+        //: 1 To test 'allocator', create object with various allocators and
+        //:   ensure the returned value matches the supplied allocator.  (C-1)
+        //:
+        //: 2 Directly test that 'allocator()', invoked on a 'const' object,
+        //:   returns the expected value.  (C-1..2)
+        //
+        // Testing:
+        //   bslma::Allocator *allocator() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "ALLOCATOR ACCESSOR TEST" << endl
+                                  << "=======================" << endl;
+
+        const int BLOCK_SIZE = 5;
+
+        if (verbose) cout << "\nTesting 'allocator'." << endl;
+        {
+            Obj mX(BLOCK_SIZE);  const Obj& X = mX;
+            ASSERT(&defaultAllocator == X.allocator());
+        }
+        {
+            Obj mX(BLOCK_SIZE, reinterpret_cast<bslma::TestAllocator *>(0));
+
+            const Obj& X = mX;
+            ASSERT(&defaultAllocator == X.allocator());
+        }
+        {
+            bslma::TestAllocator sa("supplied", veryVeryVerbose);
+
+            Obj mX(BLOCK_SIZE, &sa);  const Obj& X = mX;
+            ASSERT(&sa == X.allocator());
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------

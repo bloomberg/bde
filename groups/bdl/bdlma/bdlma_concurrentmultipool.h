@@ -715,6 +715,13 @@ class ConcurrentMultipool {
         // where 'numPools' is either specified at construction, or an
         // implementation-defined value.
 
+
+                                  // Aspects
+
+    bslma::Allocator *allocator() const;
+        // Return the allocator used by this object to allocate memory.  Note
+        // that this allocator can not be used to deallocate memory
+        // allocated through this pool.
 };
 
 // ============================================================================
@@ -751,6 +758,14 @@ inline
 bsls::Types::size_type ConcurrentMultipool::maxPooledBlockSize() const
 {
     return d_maxBlockSize;
+}
+
+// Aspects
+
+inline
+bslma::Allocator *ConcurrentMultipool::allocator() const
+{
+    return d_blockList.allocator();
 }
 
 }  // close package namespace

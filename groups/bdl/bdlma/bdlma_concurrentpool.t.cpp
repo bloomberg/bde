@@ -79,11 +79,12 @@ using namespace bsl;  // automatically added by script
 // [ 7] void release();
 // [ 8] void reserveCapacity(int numObjects);
 // [ 9] template<typename TYPE> void deleteObject(TYPE *object)
+// [13] bslma::Allocator *allocator() const;
 //-----------------------------------------------------------------------------
-// [16] USAGE EXAMPLE
-// [15] ORIGINAL USAGE EXAMPLE
-// [14] PERFORMANCE TEST
-// [13] CONCURRENCY TEST
+// [17] USAGE EXAMPLE
+// [16] ORIGINAL USAGE EXAMPLE
+// [15] PERFORMANCE TEST
+// [14] CONCURRENCY TEST
 // [ 1] int blockSize(numBytes);
 // [ 1] int poolObjectSize(size);
 // [-1] MEMORY EXHAUSTION TEST
@@ -690,8 +691,11 @@ int main(int argc, char *argv[]) {
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    bslma::TestAllocator defaultAllocator("default", veryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
     switch (test) { case 0:
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Make sure main usage example compiles and works.
@@ -725,7 +729,7 @@ int main(int argc, char *argv[]) {
         array.removeAll();
         ASSERT(0 == array.length());
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // ORIGINAL USAGE EXAMPLE
         //
@@ -759,7 +763,7 @@ int main(int argc, char *argv[]) {
         array.removeAll();
         ASSERT(0 == array.length());
       } break;
-      case 14: {
+      case 15: {
         // ---------------------------------------------------------
         // BENCHMARK
         //
@@ -783,7 +787,7 @@ int main(int argc, char *argv[]) {
         }
 
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // CONCURRENCY TEST
         //
@@ -809,6 +813,49 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < k_NUM_THREADS; ++i) {
             int rc = bslmt::ThreadUtil::join(threads[i]);
             LOOP_ASSERT(i, 0 == rc);
+        }
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // ALLOCATOR ACCESSOR TEST
+        //
+        // Concerns:
+        //: 1. 'allocator()' accessor returns the expected value.
+        //:
+        //: 2. 'allocator()' accessor is declared const.
+        //
+        // Plan:
+        //: 1 To test 'allocator', create object with various allocators and
+        //:   ensure the returned value matches the supplied allocator.  (C-1)
+        //:
+        //: 2 Directly test that 'allocator()', invoked on a 'const' object,
+        //:   returns the expected value.  (C-1..2)
+        //
+        // Testing:
+        //   bslma::Allocator *allocator() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "ALLOCATOR ACCESSOR TEST" << endl
+                                  << "=======================" << endl;
+
+        const int BLOCK_SIZE = 5;
+
+        if (verbose) cout << "\nTesting 'allocator'." << endl;
+        {
+            Obj mX(BLOCK_SIZE);  const Obj& X = mX;
+            ASSERT(&defaultAllocator == X.allocator());
+        }
+        {
+            Obj mX(BLOCK_SIZE, reinterpret_cast<bslma::TestAllocator *>(0));
+
+            const Obj& X = mX;
+            ASSERT(&defaultAllocator == X.allocator());
+        }
+        {
+            bslma::TestAllocator sa("supplied", veryVeryVerbose);
+
+            Obj mX(BLOCK_SIZE, &sa);  const Obj& X = mX;
+            ASSERT(&sa == X.allocator());
         }
       } break;
       case 12: {
