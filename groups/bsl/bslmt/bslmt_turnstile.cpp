@@ -66,19 +66,10 @@ bsls::Types::Int64 bslmt::Turnstile::waitTurn(bool sleep)
         return waitTime;                                              // RETURN
     }
 
-    // Wait for waitTime, but split the logic between microSeconds only, and
-    // seconds + microseconds.
-    int waitInt = static_cast<int>(waitTime);
-    if (waitInt == waitTime) {
-        // This is only good up to 'waitTime == ~35 minutes'
-        ThreadUtil::microSleep(waitInt);
-    }
-    else {
-        // This will work so long as 'waitTime < ~68 years'
-        int waitSecs  = static_cast<int>((waitTime / k_MICROSECS_PER_SECOND));
-        int waitUSecs = static_cast<int>((waitTime % k_MICROSECS_PER_SECOND));
-        ThreadUtil::microSleep(waitUSecs, waitSecs);
-    }
+    // This will work so long as 'waitTime < ~68 years'
+    int waitSecs  = static_cast<int>((waitTime / k_MICROSECS_PER_SECOND));
+    int waitUSecs = static_cast<int>((waitTime % k_MICROSECS_PER_SECOND));
+    ThreadUtil::microSleep(waitUSecs, waitSecs);
 
     return waitTime;
 }
