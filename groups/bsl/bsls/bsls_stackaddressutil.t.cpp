@@ -17,6 +17,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cstring>
 
 #include <math.h>
 #include <stdio.h>
@@ -36,40 +37,70 @@ using namespace BloombergLP;
 //=============================================================================
 //                                  TEST PLAN
 //-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// This component provides 2 primary functions, the lower-level
+// 'getStackAddress' and the simple 'formatCheapStack' that builds on it.  Test
+// cases are broken up in these levels, first testing 'getStackAddress' fully,
+// then testing formatCheapStack and its usage example.
+//
+// ----------------------------------------------------------------------------
 // [ 3]  int getStackAddresses(void **buffer, int maxFrames);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 4] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE #1
+// [ 5] static void formatCheapStack(char*,int,char*);
+// [ 6] CHEAPSTACK: test truncation
+// [ 7] CHEAPSTACK: test stacks
+// [ 8] USAGE EXAMPLE #2
 // [ 2] getStackAddresses(0, 0)
 // [-1] Speed benchmark of getStackAddresses
 
-//=============================================================================
-//                  STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
 // NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
 // FUNCTIONS, INCLUDING IOSTREAMS.
-static int testStatus = 0;
 
-static void aSsErT(bool b, const char *s, int i)
+// ============================================================================
+//                     STANDARD BSL ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
-#define ASSERTV BSLS_BSLTESTUTIL_ASSERTV
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //               GLOBAL HELPER VARIABLES AND TYPES FOR TESTING
@@ -100,9 +131,70 @@ static std::string myHex(UintPtr up)
     return ss.str();
 }
 
-                                // ------
-                                // CASE 4
-                                // ------
+                                 // ------
+                                 // CASE 8
+                                 // ------
+
+namespace CASE_EIGHT {
+
+// In this example we demonstrate how to use 'formatCheapStack' to generate a
+// string containing the current stack trace and instructions on how to print
+// it out from showfunc.tsk
+//
+// First we define our function where we want to format the stack:
+//..
+struct MyTest {
+    static void printCheapStack()
+    {
+        char str[128];
+        bsls::StackAddressUtil::formatCheapStack(str, 128);
+        printf("%s", str);
+    }
+};
+//..
+// Calling this function will then result in something like this being printed
+// to standard output:
+//..
+//  Please run "/bb/bin/showfunc.tsk <binary_name_here> 403308 402641 ...
+//                                ... 3710C1ED1D 400F49" to see the stack trace
+//..
+// Then, if you had encountered this output running the binary "mybinary.tsk",
+// you could see your stack trace by running this command:
+//..
+//  /bb/bin/showfunc.tsk mybinary.tsk 403308 402641 3710C1ED1D 400F49
+//..
+// This will produce output like this:
+//..
+//  0x403308 _ZN6MyTest15printCheapStackEv + 30
+//  0x402641 main + 265
+//  0x3710c1ed1d ???
+//  0x400f49 ???
+//..
+// Telling you that 'MyTest::printCheapStack' was called directly from 'main'.
+// Note that if you had access to the binary name that was invoked then that
+// could be provided that as the optional last argument to 'printCheapStack' to
+// get a 'showfunc.tsk' command that can be more easily invoked, like this:
+//..
+struct MyTest2 {
+    static void printCheapStack()
+    {
+        char str[128];
+        bsls::StackAddressUtil::formatCheapStack(str, 128, "mybinary.tsk");
+        printf("%s", str);
+    }
+};
+//..
+// resulting in output that looks like this:
+//..
+//  Please run "/bb/bin/showfunc.tsk mybinary.tsk 403308 402641 3710C1ED1D ...
+//                                           ... 400F49" to see the stack trace
+//..
+
+}  // close namespace CASE_EIGHT
+
+                                 // ------
+                                 // CASE 4
+                                 // ------
 
 namespace CASE_FOUR {
 
@@ -121,15 +213,15 @@ struct AddressEntry {
     AddressEntry(void *funcAddress, int index)
     : d_funcAddress(funcAddress)
     , d_index(index)
-        // Create an 'AddressEntry' object and initialize it with the
-        // specified 'funcAddress' and 'index'.
+        // Create an 'AddressEntry' object and initialize it with the specified
+        // 'funcAddress' and 'index'.
     {}
 
     bool operator<(const AddressEntry& rhs) const
-        // Return 'true' if the address stored in the object is lower than
-        // the address stored in 'rhs' and 'false' otherwise.  Note that
-        // this is a member function for brevity, it only exists to
-        // facilitate sorting 'AddressEntry' objects in a vector.
+        // Return 'true' if the address stored in the object is lower than the
+        // address stored in 'rhs' and 'false' otherwise.  Note that this is a
+        // member function for brevity, it only exists to facilitate sorting
+        // 'AddressEntry' objects in a vector.
     {
 
         return d_funcAddress < rhs.d_funcAddress;
@@ -144,10 +236,10 @@ std::vector<AddressEntry> entries;
 // Next, we define 'findIndex':
 
 static int findIndex(const void *retAddress)
-    // Return the index of the address entry whose function uses an
-    // instruction located at specified 'retAddress'.  The behavior is
-    // undefined unless 'retAddress' is the address of an instruction in
-    // use by a function referred to by an address entry in 'entries'.
+    // Return the index of the address entry whose function uses an instruction
+    // located at specified 'retAddress'.  The behavior is undefined unless
+    // 'retAddress' is the address of an instruction in use by a function
+    // referred to by an address entry in 'entries'.
 {
     unsigned int u = 0;
     while (u < entries.size()-1 && retAddress >= entries[u+1].d_funcAddress) {
@@ -280,9 +372,9 @@ unsigned int func1()
     // 'buffer' and verify that each address corresponds to the routine we
     // expect it to.
 
-    // Note that on some, but not all, platforms there is an extra 'narcissic'
-    // frame describing 'getStackAddresses' itself at the beginning of
-    // 'buffer'.  By starting our iteration through 'buffer' at
+    // Note that on some, but not all, platforms there is an extra
+    // "narcissistic" frame describing 'getStackAddresses' itself at the
+    // beginning of 'buffer'.  By starting our iteration through 'buffer' at
     // 'k_IGNORE_FRAMES', we guarantee that the first address we examine will
     // be in 'func1' on all platforms.
 
@@ -313,9 +405,9 @@ unsigned int func1()
 
 }  // close namespace CASE_FOUR
 
-                                // ------
-                                // CASE 3
-                                // ------
+                                 // ------
+                                 // CASE 3
+                                 // ------
 
 namespace CASE_THREE {
 
@@ -389,7 +481,7 @@ void func0(int *pi)
 
     *pi += 2;
 
-    void *buffer[BUFFER_LENGTH];
+    void        *buffer[BUFFER_LENGTH];
     AddressEntry entries[BUFFER_LENGTH];
 
     UintPtr funcAddrs[] = { FUNC_ADDRESS_NUM(&func0),
@@ -447,9 +539,9 @@ void func0(int *pi)
 
 }  // close namespace CASE_THREE
 
-                                // ------
-                                // Case 1
-                                // ------
+                                 // ------
+                                 // Case 1
+                                 // ------
 
 namespace CASE_ONE {
 
@@ -467,7 +559,7 @@ void recurser(volatile int *depth)
     }
     else {
         void *buffer[BUFFER_LENGTH];
-        int numAddresses;
+        int   numAddresses;
 
         memset(buffer, 0, sizeof(buffer));
         numAddresses = bsls::StackAddressUtil::getStackAddresses(
@@ -498,14 +590,15 @@ void recurser(volatile int *depth)
 
 }  // close namespace CASE_ONE
 
-                            // ------------------
-                            // case -1: benchmark
-                            // ------------------
+                           // ------------------
+                           // case -1: benchmark
+                           // ------------------
 
 namespace CASE_MINUS_ONE {
 
 typedef int (*GetStackPointersFunc)(void **buffer,
                                     int    maxFrames);
+
 GetStackPointersFunc funcPtr;
 
 enum CustomValues {
@@ -549,9 +642,221 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 8: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE #2
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 The usage example is included above to be sure it compiles.
+        //: 2
+        //
+        // Testing:
+        //   USAGE EXAMPLE #2
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE #2"
+                            "\n================\n");
+
+        CASE_EIGHT::MyTest::printCheapStack();
+        CASE_EIGHT::MyTest2::printCheapStack();
+
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // CHEAPSTACK STACK TEST
+        //
+        // Concerns:
+        //: 1 'formatCheapStack' should produce the same output other than just
+        //:   one return point when called consecutively.
+        //:
+        // Plan:
+        //: 1 call 'formatCheapStack' twice.
+        //:
+        //: 2 Compare the outputs.
+        //
+        // Testing:
+        //   CHEAPSTACK: test stacks
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nCHEAPSTACK STACK TEST"
+                             "\n=====================\n" );
+
+        char res1[1024];
+        char res2[1024];
+
+        const char *taskName = "TaSkNaMe!";
+        std::size_t taskNameLen = std::strlen(taskName);
+
+        bsls::StackAddressUtil::formatCheapStack( res1, 1024, taskName );
+        bsls::StackAddressUtil::formatCheapStack( res2, 1024, taskName );
+
+        if (verbose) printf("\nCheapstack 1 output:%s", res1);
+        if (verbose) printf("\nCheapstack 2 output:%s", res2);
+
+        // the first return address after the task name should be the only
+        // difference between the two results.
+
+        const char *t1 = std::strstr(res1, taskName);
+        const char *t2 = std::strstr(res2, taskName);
+
+        ASSERT( t1 != NULL );
+        ASSERT( t2 != NULL );
+        if (t1 == NULL || t2 == NULL) { break; }
+
+        t1 += taskNameLen;
+        t2 += taskNameLen;
+
+        ASSERT( *t1 == ' ' );
+        ASSERT( *t2 == ' ' );
+
+        if (*t1 != ' ' || *t2 != ' ') { break; }
+
+        t1 += 1;
+        t2 += 1;
+
+        long headLen1 = (t1 - res1);
+        long headLen2 = (t2 - res2);
+
+        LOOP2_ASSERT( headLen1, headLen2, headLen1 == headLen2);
+
+        LOOP2_ASSERT( res1, res2, 0 == std::strncmp(res1, res2, headLen1) );
+
+        const char *u1 = std::strstr(t1, " ");
+        const char *u2 = std::strstr(t2, " ");
+
+        ASSERT(u1 != NULL);
+        ASSERT(u2 != NULL);
+        if (u1 == NULL || u2 == NULL) { break; }
+
+        LOOP2_ASSERT( u1, u2, 0 == std::strcmp(u1,u2) );
+
+        char ret1[1024];
+        std::memset(ret1,0,1024);
+        char ret2[1024];
+        std::memset(ret2,0,1024);
+
+        std::strncpy( ret1, t1, u1-t1 );
+        std::strncpy( ret2, t2, u2-t2 );
+
+        if (verbose) printf("\nVerifying that tops of stack traces are "
+                            "different (%s != %s)\n", ret1, ret2);
+
+        LOOP2_ASSERT( ret1, ret2, 0 != std::strcmp( ret1, ret2 ) );
+
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // CHEAPSTACK TRUNCATION TEST
+        //
+        // Concerns:
+        //: 1 'formatCheapStack' should work properly even when given buffers
+        //:   too small for its full output.
+        //
+        // Plan:
+        //: 1 Repeatedly call formatCheapStack from the same place in a loop.
+        //:
+        //: 2 Increase the buffer size given to formatCheapStack in in each
+        //:   iteration of the loop.
+        //:
+        //: 3 Verify that each consecutive call extends the output of the
+        //:   previous invocation.
+        //:
+        //: 4 Verify that the 0 case does not alter the buffer.
+        //
+        // Testing:
+        //   CHEAPSTACK: test truncation
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nCHEAPSTACK TRUNCATION TEST"
+                             "\n==========================\n" );
+
+        char prev[1024];
+        std::memset(prev,0,1024);
+        char next[1024];
+        std::memset(next,0,1024);
+
+
+        for (int i = 1; i < 1024; ++i)
+        {
+            // place a marker in next to be sure it gets written to or not
+            // appropriately.
+            next[0] = 'X';
+
+            bsls::StackAddressUtil::formatCheapStack(next,i);
+
+            if (veryVerbose) printf("\nCheapstack(%d) output: %s", i, next);
+
+            if (i == 0)
+            {
+                ASSERT(next[0] == 'X');
+            }
+            else
+            {
+                ASSERT(next[0] != 'X');
+
+                ASSERT( std::strlen(next) < static_cast<std::size_t>(i) );
+
+                if (i > 1)
+                {
+                    LOOP3_ASSERT( i, prev, next, 0 ==
+                                  std::strncmp( prev, next, i-2) );
+                }
+
+                std::memcpy( prev, next, 1024);
+            }
+        }
+
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // CHEAPSTACK TEST
+        //
+        // Concerns:
+        //: 1 Want to observe the basic call to cheapstack works.
+        //
+        // Plan:
+        //: 1 Call 'formatCheapStack' with a sufficiently large buffer.
+        //:
+        //: 2 Call 'formatCheapStack' again with an explicit taskname to be
+        //:   sure that the taskname is part of the output.
+        //:
+        // Testing
+        //   static void formatCheapStack(char*,int,char*);
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nCHEAPSTACK TEST"
+                             "\n===============\n" );
+
+        {
+            char buf[1024];
+            bsls::StackAddressUtil::formatCheapStack(buf, 1024);
+
+            if (verbose) printf("\nCheapstack output:%s", buf);
+
+            ASSERT( NULL != std::strstr(buf, "showfunc.tsk") );
+            ASSERT( NULL != std::strstr(buf, "to see the stack trace") );
+        }
+
+        {
+            const char *taskName = "TaSkNaMe!";
+            char        buf[1024];
+            bsls::StackAddressUtil::formatCheapStack(buf, 1024, taskName);
+
+            if (verbose) printf("\nCheapstack output:%s", buf);
+
+            ASSERT( NULL != std::strstr(buf, "showfunc.tsk") );
+            ASSERT( NULL != std::strstr(buf, "to see the stack trace") );
+            ASSERT( NULL != std::strstr(buf, taskName ) );
+        }
+
+      } break;
       case 4: {
         // --------------------------------------------------------------------
-        // USAGE EXAMPLE
+        // USAGE EXAMPLE #1
         //
         // Concerns:
         //: 1 The usage example provided in the component header file compiles,
@@ -569,16 +874,16 @@ int main(int argc, char *argv[])
         //:   in.
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   USAGE EXAMPLE #1
         // --------------------------------------------------------------------
 
-        if (verbose) printf("Finding Right Functions Test\n"
-                            "============================\n");
+        if (verbose) printf("\nUSAGE EXAMPLE #1"
+                            "\n================\n");
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
         // This test case just seems to fail on Windows, something to do with
         // '&' not working correctly, possibly because the compiler is creating
-        // 'thunk' functions which just call the actual routine.  I wish they
+        // 'thunk' functions that just call the actual routine.  I wish they
         // wouldn't do that.
 
         unsigned int result = CASE_FOUR::func6();
@@ -617,13 +922,13 @@ int main(int argc, char *argv[])
         //   int getStackAddresses(void **buffer, int maxFrames);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("Finding Right Functions Test\n"
-                            "============================\n");
+        if (verbose) printf("\nCLASS METHOD 'getStackAddresses'"
+                            "\n================================\n");
 
 #ifndef BSLS_PLATFORM_OS_WINDOWS
         // This test case just seems to fail on Windows, something to do with
         // '&' not working correctly, possibly because the compiler is creating
-        // 'thunk' functions which just call the actual routine.  I wish they
+        // 'thunk' functions that just call the actual routine.  I wish they
         // wouldn't do that.
 
         int i = 0;
@@ -647,8 +952,10 @@ int main(int argc, char *argv[])
         //   CONCERN: 'getStackAddresses(0, 0)' doesn't segFault.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("getStackAddresses(0, 0) TEST\n"
-                            "============================\n");
+        if (verbose) printf("\nZEROES TEST CASE"
+                            "\n================\n");
+
+        if (verbose) printf("getStackAddresses(0, 0) TEST.");
 
         bsls::StackAddressUtil::getStackAddresses(0, 0);
         bsls::StackAddressUtil::getStackAddresses(0, 0);
@@ -669,10 +976,10 @@ int main(int argc, char *argv[])
         //:   elements are either null or non-null as expected.
         //:
         //: 2 Do this twice, once in the case where the array is more than long
-        //:   enough to accomodate the entire stack depth, and once in the case
-        //:   where the array length passed is too short to hold the entire
-        //:   stack, and verify that elements past the specified length of the
-        //:   array are unaffected.
+        //:   enough to accommodate the entire stack depth, and once in the
+        //:   case where the array length passed is too short to hold the
+        //:   entire stack, and verify that elements past the specified length
+        //:   of the array are unaffected.
         //
         // Testing:
         //   BREATHING TEST
@@ -696,8 +1003,8 @@ int main(int argc, char *argv[])
                                                         // 'k_IGNORE_FRAMES'.
       }  break;
       default: {
-        fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
-        testStatus = -1;
+          fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
+          testStatus = -1;
       }
     }
 
@@ -709,7 +1016,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -111,7 +111,7 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_WINDOWS
 // windows.h defaults to include winsock.h unless WIN32_LEAN_AND_MEAN is
-// defined. BDE uses winsocks2.h for its transport facilities.
+// defined.  BDE uses winsocks2.h for its transport facilities.
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -148,9 +148,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bsls {
 
-                             // =============
-                             // class BslLock
-                             // =============
+                              // =============
+                              // class BslLock
+                              // =============
 
 class BslLock {
     // This 'class' implements a light-weight, portable wrapper of an OS-level
@@ -162,7 +162,7 @@ class BslLock {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     CRITICAL_SECTION d_lock;  // Windows critical section
 #else
-    pthread_mutex_t  d_lock;  // pthreads mutex object
+    pthread_mutex_t  d_lock;  // 'pthreads' mutex object
 #endif
 
   private:
@@ -189,15 +189,15 @@ class BslLock {
         // invoked while the calling thread holds the lock on the object.
 
     void unlock();
-        // Release the lock on this object that was previously acquired
-        // through a call to 'lock', enabling another thread to acquire the
-        // lock.  The behavior is undefined unless the calling thread holds the
-        // lock on this object.
+        // Release the lock on this object that was previously acquired through
+        // a call to 'lock', enabling another thread to acquire the lock.  The
+        // behavior is undefined unless the calling thread holds the lock on
+        // this object.
 };
 
-                             // ==================
-                             // class BslLockGuard
-                             // ==================
+                           // ==================
+                           // class BslLockGuard
+                           // ==================
 
 class BslLockGuard {
     // This 'class' implements a guard for automatically acquiring and
@@ -230,8 +230,8 @@ class BslLockGuard {
         // manages (if any) by invoking the 'unlock' method of the object that
         // was supplied at construction of this guard.  If no lock is currently
         // being managed, this method has no effect.  Note that if this guard
-        // object currently manages a lock, this method assumes the behavior
-        // of 'BslLock::unlock'.
+        // object currently manages a lock, this method assumes the behavior of
+        // 'BslLock::unlock'.
 
     // MANIPULATORS
     void release();
@@ -244,9 +244,9 @@ class BslLockGuard {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                             // -------------
-                             // class BslLock
-                             // -------------
+                              // -------------
+                              // class BslLock
+                              // -------------
 
 // CREATORS
 inline
@@ -305,9 +305,9 @@ void BslLock::unlock()
 #endif
 }
 
-                             // ------------------
-                             // class BslLockGuard
-                             // ------------------
+                           // ------------------
+                           // class BslLockGuard
+                           // ------------------
 
 // CREATORS
 inline
@@ -339,7 +339,7 @@ void BslLockGuard::release()
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

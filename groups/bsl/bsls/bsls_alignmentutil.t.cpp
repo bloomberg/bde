@@ -102,6 +102,17 @@ static void aSsErT(int c, const char *s, int i) {
 #define L_ __LINE__                           // current Line number
 #define TAB cout << '\t';
 
+// ============================================================================
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
+
 //=============================================================================
 //                  GLOBAL DEFINITIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -535,7 +546,7 @@ int main(int argc, char *argv[])
 
         {
 #ifdef BDE_BUILD_TARGET_EXC
-            bsls::Assert::setFailureHandler(&bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             // '0' in the expected 'ALIGN' column indicates that the call is
             // out of contract, so any result will be accepted unless the
@@ -543,64 +554,55 @@ int main(int argc, char *argv[])
 
             static struct {
                 int         d_lineNumber;
-                const char *d_assertBuildType;
                 char        d_expectedResult;
                 const void *d_address;
                 int         d_align;
             } const DATA[] = {
-                // LINE  TYPE  RESULT  ADDRESS  ALIGN
-                // ----  ----  ------  ----     -----
-                {  L_,   "S",  'F',     0,      -1 },
-                {  L_,   "S",  'F',     0,       0 },
-                {  L_,   "S",  'P',     0,       1 },
-                {  L_,   "S",  'P',     0,       2 },
-                {  L_,   "S",  'F',     0,       3 },
-                {  L_,   "S",  'P',     0,       4 },
-                {  L_,   "S",  'F',     0,       5 },
-                {  L_,   "S",  'F',     0,       6 },
-                {  L_,   "S",  'F',     0,       7 },
-                {  L_,   "S",  'P',     0,       8 },
-                {  L_,   "S",  'F',     0,       9 },
-                {  L_,   "S",  'F',     0,       65535 },
-                {  L_,   "S",  'P',     0,       65536 },
-                {  L_,   "S",  'F',     0,       65537 }
+                // LINE  RESULT  ADDRESS  ALIGN
+                // ----  ------  ----     -----
+                {  L_,   'F',     0,      -1 },
+                {  L_,   'F',     0,       0 },
+                {  L_,   'P',     0,       1 },
+                {  L_,   'P',     0,       2 },
+                {  L_,   'F',     0,       3 },
+                {  L_,   'P',     0,       4 },
+                {  L_,   'F',     0,       5 },
+                {  L_,   'F',     0,       6 },
+                {  L_,   'F',     0,       7 },
+                {  L_,   'P',     0,       8 },
+                {  L_,   'F',     0,       9 },
+                {  L_,   'F',     0,       65535 },
+                {  L_,   'P',     0,       65536 },
+                {  L_,   'F',     0,       65537 }
             };
             const int DATA_SIZE = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < DATA_SIZE; ++i) {
                 const int         LINE    = DATA[i].d_lineNumber;
-                const char *const TYPE    = DATA[i].d_assertBuildType;
                 const char        RESULT  = DATA[i].d_expectedResult;
                 const void *const ADDRESS = DATA[i].d_address;
                 const int         ALIGN   = DATA[i].d_align;
 
                 if(veryVerbose) {
-                    TAB P_(TYPE) P_(RESULT) P_(ADDRESS) P(ALIGN)
+                    TAB P_(RESULT) P_(ADDRESS) P(ALIGN)
                 }
 
-                LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
-                LOOP_ASSERT(LINE, bsls::AssertTest::isValidExpected(RESULT));
-
-                // Skip this test if the relevant assert is not active in this
-                // build.
-                if ('F' == RESULT && !BSLS_ASSERTTEST_IS_ACTIVE(TYPE)) {
-                    continue;
+                if ('F' == RESULT)
+                {
+                    ASSERT_SAFE_FAIL(bsls::AlignmentUtil::
+                                     calculateAlignmentOffset(
+                                         ADDRESS,
+                                         ALIGN));
                 }
+                else
+                {
+                    int a;
+                    ASSERT_SAFE_PASS(a = bsls::AlignmentUtil::
+                                     calculateAlignmentOffset(
+                                         ADDRESS,
+                                         ALIGN));
 
-                // The relevant assert is active in this build
-                try {
-                    int a = bsls::AlignmentUtil::calculateAlignmentOffset(
-                                                                       ADDRESS,
-                                                                       ALIGN);
-                    (void) a;
-                    LOOP_ASSERT(LINE, bsls::AssertTest::tryProbe(RESULT));
-
-//                  LOOP4_ASSERT(LINE, ADDRESS, ALIGN, a, ALIGN == a);
-                }
-                catch (const bsls::AssertTestException& e) {
-                    LOOP_ASSERT(LINE, bsls::AssertTest::catchProbe(RESULT,
-                                                                   e,
-                                                                   __FILE__));
+                    LOOP4_ASSERT(LINE, ADDRESS, ALIGN, a, a == 0);
                 }
             }
 #else
@@ -693,7 +695,7 @@ int main(int argc, char *argv[])
 
         {
 #ifdef BDE_BUILD_TARGET_EXC
-            bsls::Assert::setFailureHandler(&bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             // '0' in the expected 'ALIGN' column indicates that the call is
             // out of contract, so any result will be accepted unless the
@@ -701,52 +703,38 @@ int main(int argc, char *argv[])
 
             static struct {
                 int          d_lineNumber;
-                const char  *d_assertBuildType;
                 char         d_expectedResult;
                 std::size_t  d_size;
                 int          d_expected;
             } const DATA[] = {
-                // LINE  TYPE  RESULT  SIZE  ALIGN
-                // ----  ----  ------  ----  -----
-                {  L_,   "S",  'F',     0,      0 },
-                {  L_,   "S",  'P',     1,      1 },
-                {  L_,   "S",  'P',    std::numeric_limits<std::size_t>::max(),
+                // LINE  RESULT  SIZE  ALIGN
+                // ----  ------  ----  -----
+                {  L_,   'F',     0,      0 },
+                {  L_,   'P',     1,      1 },
+                {  L_,   'P',    std::numeric_limits<std::size_t>::max(),
                                                 1 }
             };
             const int DATA_SIZE = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < DATA_SIZE; ++i) {
                 const int         LINE   = DATA[i].d_lineNumber;
-                const char *const TYPE   = DATA[i].d_assertBuildType;
                 const char        RESULT = DATA[i].d_expectedResult;
                 const std::size_t SIZE   = DATA[i].d_size;
                 const int         ALIGN  = DATA[i].d_expected;
 
                 if(veryVerbose) {
-                    TAB P_(TYPE) P_(RESULT) P_(SIZE) P(ALIGN)
+                    TAB P_(RESULT) P_(SIZE) P(ALIGN)
                 }
 
-                LOOP_ASSERT(LINE, bsls::AssertTest::isValidAssertBuild(TYPE));
-                LOOP_ASSERT(LINE, bsls::AssertTest::isValidExpected(RESULT));
-
-                // Skip this test if the relevant assert is not active in this
-                // build.
-                if ('F' == RESULT && !BSLS_ASSERTTEST_IS_ACTIVE(TYPE)) {
-                    continue;
-                }
-
-                // The relevant assert is active in this build
-                try {
+                if ('F' == RESULT) {
+                    ASSERT_SAFE_FAIL(bsls::AlignmentUtil::
+                                     calculateAlignmentFromSize(SIZE));
+                } else {
                     int a = 0;
-                    a = bsls::AlignmentUtil::calculateAlignmentFromSize(SIZE);
-                    LOOP_ASSERT(LINE, bsls::AssertTest::tryProbe(RESULT));
+                    ASSERT_SAFE_PASS(a = bsls::AlignmentUtil::
+                                     calculateAlignmentFromSize(SIZE));
 
                     LOOP4_ASSERT(LINE, SIZE, ALIGN, a, ALIGN == a);
-                }
-                catch (const bsls::AssertTestException& e) {
-                    LOOP_ASSERT(LINE, bsls::AssertTest::catchProbe(RESULT,
-                                                                   e,
-                                                                   __FILE__));
                 }
             }
 #else
@@ -919,7 +907,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

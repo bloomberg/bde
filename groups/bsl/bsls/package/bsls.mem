@@ -6,6 +6,8 @@ bsls_alignmenttotype
 bsls_alignmentutil
 bsls_annotation
 bsls_assert
+bsls_assert_macroreset
+bsls_assertimputil
 bsls_asserttest
 bsls_asserttestexception
 bsls_atomic
@@ -59,6 +61,8 @@ bsls_platform
 bsls_platformutil
 bsls_pointercastutil
 bsls_protocoltest
+bsls_review
+bsls_review_macroreset
 bsls_spinlock
 bsls_stackaddressutil
 bsls_stopwatch
