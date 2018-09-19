@@ -87,6 +87,12 @@ void RecordAttributes::setMessage(const char *message)
     }
 }
 
+void RecordAttributes::setMessage(const char *message, int length)
+{
+    d_messageStreamBuf.pubseekpos(0);
+    d_messageStreamBuf.sputn(message, length);
+}
+
 RecordAttributes& RecordAttributes::operator=(const RecordAttributes& rhs)
 {
     if (this != &rhs) {
