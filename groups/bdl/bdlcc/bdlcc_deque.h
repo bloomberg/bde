@@ -30,10 +30,22 @@ BSLS_IDENT("$Id: $")
 // safety guarantees:
 //: 1 The destructor provides the no-throw guarantee.
 //: 2 Copy-assignment provides the strong guarantee.
-// then 'bdlcc::Deque' provides the strong exception guarantees, both for its
-// own salient state and the salient state of the 'bsl::vector', if any, passed
-// to its manipulators.  However, the non-salient 'capacity' of the underlying
+// then operations on 'bdlcc::Deque' that do not involve move semantics provide
+// the strong exception guarantees, both for the 'bdlcc::Deque's own salient
+// state and the salient state of the 'bsl::vector', if any, passed to its
+// manipulators.  However, the non-salient 'capacity' of the underlying
 // 'bsl::deque' and of the passed 'bsl::vector' may be modified.
+//
+// If move-construction and move-assignment of 'TYPE' provide the strong
+// guarantee, then
+//: 1 Operations between a 'bdlcc::Deque' and a single 'TYPE' object provide
+//:   the strong exception guarantee.
+//: 2 Operations between a 'bdlcc::Deque' and a 'bsl::vector' of 'TYPE' objects
+//:   provide only the basic exception guarantee.
+// Note that if 'TYPE' is a pair of objects that allocate when moving, we might
+// move the first, modifying its source, then throw on the second, therefore
+// move-construction and move-assignment of such an object would NOT provide
+// the strong guarantee.
 //
 ///Design Rationale for 'bdlcc::Deque'
 ///-----------------------------------
@@ -438,6 +450,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 
 #include <bslmf_integralconstant.h>
+#include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
 #include <bsls_review.h>
@@ -561,6 +574,7 @@ class Deque {
     // PUBLIC TYPES
     typedef bsl::deque<TYPE>               MonoDeque;
     typedef typename MonoDeque::size_type  size_type;
+    typedef TYPE                           ElemType;
 
     class Proctor;            // defined after this 'class'
     class ConstProctor;       // defined after this 'class'
@@ -686,7 +700,8 @@ class Deque {
         // destruction of this object.
 
     // MANIPULATORS
-    void forcePushBack(const TYPE& item);
+    void forcePushBack(const TYPE&             item);
+    void forcePushBack(bslmf::MovableRef<TYPE> item);
         // Append the specified 'item' to the back of this container without
         // regard for the high-water mark.  Note that this method is provided
         // to allow high priority items to be inserted when the container is
@@ -698,7 +713,8 @@ class Deque {
         // Append the specified specified range '[begin .. end)' of items to
         // the back of this container without regard for the high-water mark.
 
-    void forcePushFront(const TYPE& item);
+    void forcePushFront(const TYPE&             item);
+    void forcePushFront(bslmf::MovableRef<TYPE> item);
         // Append the specified 'item' to the front of this container without
         // regard for the high-water mark.  Note that this method is provided
         // to allow high priority items to be inserted when the container is
@@ -730,22 +746,28 @@ class Deque {
         // specified '*item'.  If the container is empty, block until an item
         // is available.
 
-    void pushBack(const TYPE& item);
+    void pushBack(const TYPE&             item);
+    void pushBack(bslmf::MovableRef<TYPE> item);
         // Block until space in this container becomes available (see
         // {'High-Water Mark' Feature}), then append the specified 'item' to
         // the back of this container.
 
-    void pushFront(const TYPE& item);
+    void pushFront(const TYPE&             item);
+    void pushFront(bslmf::MovableRef<TYPE> item);
         // Block until space in this container becomes available (see
         // {'High-Water Mark' Feature}), then append the specified 'item' to
         // the front of this container.
 
-    void removeAll(bsl::vector<TYPE> *buffer = 0);
+    void removeAll(bsl::vector<TYPE> *buffer = 0, bool move = false);
         // If the optionally specified 'buffer' is non-zero, append all the
         // elements from this container to '*buffer' in the same order, then,
-        // regardless of whether 'buffer' is zero, clear this container.  Note
-        // that the previous contents of '*buffer' are not discarded -- the
-        // removed items are appended to it.
+        // regardless of whether 'buffer' is zero, clear this container.  If
+        // the specified 'move' is 'true', attempt to use move semantics to
+        // move, rather than copy, items to '*buffer'.  Note that the previous
+        // contents of '*buffer' are not discarded -- the removed items are
+        // appended to it.  Also note that if 'move' is 'false', this method
+        // provides the strong exception guaratee, while if 'move' is 'true',
+        // it provides only the basic exception guarantee.
 
     int timedPopBack(TYPE *item, const bsls::TimeInterval& timeout);
         // Remove the last item in this container and load that item value into
@@ -769,7 +791,10 @@ class Deque {
         // a proctor object -- there is no guarantee that this method will
         // return after 'timeout'.
 
-    int timedPushBack(const TYPE& item, const bsls::TimeInterval& timeout);
+    int timedPushBack(const TYPE&               item,
+                      const bsls::TimeInterval& timeout);
+    int timedPushBack(bslmf::MovableRef<TYPE>   item,
+                      const bsls::TimeInterval& timeout);
         // Append the specified 'item' to the back of this container if space
         // is available, otherwise (if the container is full) block waiting for
         // space to become available or until the specified 'timeout'
@@ -781,7 +806,10 @@ class Deque {
         // thread has the mutex locked, particularly by a proctor object --
         // there is no guarantee that this method will return after 'timeout'.
 
-    int timedPushFront(const TYPE& item,  const bsls::TimeInterval& timeout);
+    int timedPushFront(const TYPE&               item,
+                       const bsls::TimeInterval& timeout);
+    int timedPushFront(bslmf::MovableRef<TYPE>   item,
+                       const bsls::TimeInterval& timeout);
         // Append the specified 'item' to the front of this container if space
         // is available, otherwise (if the container is full) block waiting for
         // space to become available or until the specified 'timeout'
@@ -799,16 +827,22 @@ class Deque {
         // this container is empty, return a non-zero value with no effect on
         // 'item' or the state of this container.
 
-    void tryPopBack(size_type maxNumItems, bsl::vector<TYPE> *buffer = 0);
+    void tryPopBack(size_type          maxNumItems,
+                    bsl::vector<TYPE> *buffer = 0,
+                    bool               move = false);
         // Remove up to the specified 'maxNumItems' from the back of this
         // container.  Optionally specify a 'buffer' into which the items
         // removed from the container are loaded.  If 'buffer' is non-null, the
         // removed items are appended to it as if by repeated application of
         // 'buffer->push_back(popBack())' while the container is not empty and
-        // 'maxNumItems' have not yet been removed.  Note that the ordering of
-        // the items in '*buffer' after the call is the reverse of the ordering
-        // they had in the deque.  Also note that '*buffer' is not cleared --
-        // the popped items are appended after any pre-existing contents.
+        // 'maxNumItems' have not yet been removed.  If the specified 'move' is
+        // 'false', items are copied to '*buffer' and the strong exception
+        // guarantee is provided.  If 'move' is 'true', items are move-assigned
+        // to '*buffer', and only the basic exeption guarantee is provided.
+        // Note that the ordering of the items in '*buffer' after the call is
+        // the reverse of the ordering they had in the deque.  Also note that
+        // '*buffer' is not cleared -- the popped items are appended after any
+        // pre-existing contents.
         //
         // Also note that to transfer the entire contents of a 'Deque' 'd' to a
         // vector 'v', use 'd.removeAll(&v);'.
@@ -819,20 +853,26 @@ class Deque {
         // If this container is empty, return a non-zero value with no effect
         // on '*item' or the state of this container.
 
-    void tryPopFront(size_type maxNumItems, bsl::vector<TYPE> *buffer = 0);
+    void tryPopFront(size_type          maxNumItems,
+                     bsl::vector<TYPE> *buffer = 0,
+                     bool               move = false);
         // Remove up to the specified 'maxNumItems' from the front of this
         // container.  Optionally specify a 'buffer' into which the items
         // removed from the container are appended.  If 'buffer' is non-null,
         // the removed items are appended to it as if by repeated application
         // of 'buffer->push_back(popFront())' while the const is not empty and
-        // 'maxNumItems' have not yet been removed.  Note that '*buffer' is not
-        // cleared -- the popped items are appended after any pre-existing
-        // contents.
+        // 'maxNumItems' have not yet been removed.  If the specified 'move' is
+        // 'false', items are copied to '*buffer' and the strong exception
+        // guarantee is provided.  If 'move' is 'true', items are move-assigned
+        // to '*buffer', and only the basic exeption guarantee is provided.
+        // Note that '*buffer' is not cleared -- the popped items are appended
+        // after any pre-existing contents.
         //
         // Also note that to transfer the entire contents of a 'Deque' 'd' to a
         // vector 'v', use 'd.removeAll(&v);'.
 
-    int tryPushBack(const TYPE& item);
+    int tryPushBack(const TYPE&             item);
+    int tryPushBack(bslmf::MovableRef<TYPE> item);
         // If the container is not full (see {'High-Water Mark' Feature}),
         // append the specified 'item' to the back of the container, otherwise
         // leave the container unchanged.  Return 0 if the container was
@@ -846,7 +886,8 @@ class Deque {
         // the back of the container, stopping if the container high-water mark
         // is reached.  Return the number of items pushed.
 
-    int tryPushFront(const TYPE& item);
+    int tryPushFront(const TYPE&             item);
+    int tryPushFront(bslmf::MovableRef<TYPE> item);
         // If the container is not full (see {'High-Water Mark' Feature}),
         // append the specified 'item' to the front of the container, otherwise
         // leave the container unchanged.  Return 0 if the container was
@@ -1519,6 +1560,19 @@ void Deque<TYPE>::forcePushBack(const TYPE& item)
 }
 
 template <class TYPE>
+inline
+void Deque<TYPE>::forcePushBack(bslmf::MovableRef<TYPE> item)
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        d_monoDeque.push_back(bslmf::MovableRefUtil::move(item));
+    }
+
+    d_notEmptyCondition.signal();
+}
+
+template <class TYPE>
 template <class INPUT_ITER>
 inline
 void Deque<TYPE>::forcePushBack(INPUT_ITER begin,
@@ -1550,6 +1604,19 @@ void Deque<TYPE>::forcePushFront(const TYPE& item)
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
         d_monoDeque.push_front(item);
+    }
+
+    d_notEmptyCondition.signal();
+}
+
+template <class TYPE>
+inline
+void Deque<TYPE>::forcePushFront(bslmf::MovableRef<TYPE> item)
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        d_monoDeque.push_front(bslmf::MovableRefUtil::move(item));
     }
 
     d_notEmptyCondition.signal();
@@ -1589,7 +1656,7 @@ TYPE Deque<TYPE>::popBack()
     while (d_monoDeque.empty()) {
         d_notEmptyCondition.wait(&d_mutex);
     }
-    TYPE ret(d_monoDeque.back());
+    TYPE ret(bslmf::MovableRefUtil::move(d_monoDeque.back()));
     d_monoDeque.pop_back();
 
     const bool shouldSignal = d_monoDeque.size() < d_highWaterMark;
@@ -1613,7 +1680,12 @@ void Deque<TYPE>::popBack(TYPE *item)
         while (d_monoDeque.empty()) {
             d_notEmptyCondition.wait(&d_mutex);
         }
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        *item = bslmf::MovableRefUtil::move(d_monoDeque.back());
+#else
         *item = d_monoDeque.back();
+#endif
         d_monoDeque.pop_back();
         shouldSignal = d_monoDeque.size() < d_highWaterMark;
     }
@@ -1631,7 +1703,7 @@ TYPE Deque<TYPE>::popFront()
     while (d_monoDeque.empty()) {
         d_notEmptyCondition.wait(&d_mutex);
     }
-    TYPE ret(d_monoDeque.front());
+    TYPE ret(bslmf::MovableRefUtil::move(d_monoDeque.front()));
     d_monoDeque.pop_front();
 
     const bool shouldSignal = d_monoDeque.size() < d_highWaterMark;
@@ -1654,7 +1726,11 @@ void Deque<TYPE>::popFront(TYPE *item)
         while (d_monoDeque.empty()) {
             d_notEmptyCondition.wait(&d_mutex);
         }
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        *item = bslmf::MovableRefUtil::move(d_monoDeque.front());
+#else
         *item = d_monoDeque.front();
+#endif
         d_monoDeque.pop_front();
 
         shouldSignal = d_monoDeque.size() < d_highWaterMark;
@@ -1681,6 +1757,21 @@ void Deque<TYPE>::pushBack(const TYPE& item)
 }
 
 template <class TYPE>
+void Deque<TYPE>::pushBack(bslmf::MovableRef<TYPE> item)
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        while (d_monoDeque.size() >= d_highWaterMark) {
+            d_notFullCondition.wait(&d_mutex);
+        }
+        d_monoDeque.push_back(bslmf::MovableRefUtil::move(item));
+    }
+
+    d_notEmptyCondition.signal();
+}
+
+template <class TYPE>
 void Deque<TYPE>::pushFront(const TYPE& item)
 {
     {
@@ -1696,16 +1787,48 @@ void Deque<TYPE>::pushFront(const TYPE& item)
 }
 
 template <class TYPE>
+void Deque<TYPE>::pushFront(bslmf::MovableRef<TYPE> item)
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        while (d_monoDeque.size() >= d_highWaterMark) {
+            d_notFullCondition.wait(&d_mutex);
+        }
+        d_monoDeque.push_front(bslmf::MovableRefUtil::move(item));
+    }
+
+    d_notEmptyCondition.signal();
+}
+
+template <class TYPE>
 inline
-void Deque<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
+void Deque<TYPE>::removeAll(bsl::vector<TYPE> *buffer, bool move)
 {
     Proctor proctor(this);
 
     VectorThrowGuard tg(buffer);
 
     if (buffer) {
-        buffer->reserve(buffer->size() + d_monoDeque.size());
-        buffer->insert(buffer->end(), d_monoDeque.begin(), d_monoDeque.end());
+        const size_type size = d_monoDeque.size();
+        buffer->reserve(buffer->size() + size);
+
+        if (move) {
+            // The client opted for move semantics, meaning we provide only the
+            // basic exception guarantee.
+
+            for (size_type ii = 0; ii < size; ++ii) {
+                buffer->push_back(bslmf::MovableRefUtil::move(
+                                                             d_monoDeque[ii]));
+            }
+        }
+        else {
+            // No move semantics -- we provide the strong exception guarantee.
+
+            buffer->insert(buffer->end(),
+                           d_monoDeque.begin(),
+                           d_monoDeque.end());
+        }
     }
 
     proctor->clear();
@@ -1726,7 +1849,11 @@ int Deque<TYPE>::timedPopBack(TYPE                      *item,
                 return 1;                                             // RETURN
             }
         }
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        *item = bslmf::MovableRefUtil::move(d_monoDeque.back());
+#else
         *item = d_monoDeque.back();
+#endif
         d_monoDeque.pop_back();
 
         shouldSignal = d_monoDeque.size() < d_highWaterMark;
@@ -1752,7 +1879,11 @@ int Deque<TYPE>::timedPopFront(TYPE                      *item,
                 return 1;                                             // RETURN
             }
         }
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        *item = bslmf::MovableRefUtil::move(d_monoDeque.front());
+#else
         *item = d_monoDeque.front();
+#endif
         d_monoDeque.pop_front();
 
         shouldSignal = d_monoDeque.size() < d_highWaterMark;
@@ -1786,6 +1917,26 @@ int Deque<TYPE>::timedPushBack(const TYPE&               item,
 }
 
 template <class TYPE>
+int Deque<TYPE>::timedPushBack(bslmf::MovableRef<TYPE>   item,
+                               const bsls::TimeInterval& timeout)
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        while (d_monoDeque.size() >= d_highWaterMark) {
+            if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
+        }
+        d_monoDeque.push_back(bslmf::MovableRefUtil::move(item));
+    }
+
+    d_notEmptyCondition.signal();
+
+    return 0;
+}
+
+template <class TYPE>
 int Deque<TYPE>::timedPushFront(const TYPE&               item,
                                 const bsls::TimeInterval &timeout)
 {
@@ -1806,6 +1957,26 @@ int Deque<TYPE>::timedPushFront(const TYPE&               item,
 }
 
 template <class TYPE>
+int Deque<TYPE>::timedPushFront(bslmf::MovableRef<TYPE>   item,
+                                const bsls::TimeInterval &timeout)
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        while (d_monoDeque.size() >= d_highWaterMark) {
+            if (d_notFullCondition.timedWait(&d_mutex, timeout)) {
+                return 1;                                             // RETURN
+            }
+        }
+        d_monoDeque.push_front(bslmf::MovableRefUtil::move(item));
+    }
+
+    d_notEmptyCondition.signal();
+
+    return 0;
+}
+
+template <class TYPE>
 int Deque<TYPE>::tryPopBack(TYPE *item)
 {
     bool shouldSignal;
@@ -1815,7 +1986,11 @@ int Deque<TYPE>::tryPopBack(TYPE *item)
         if (d_monoDeque.empty()) {
             return 1;                                                 // RETURN
         }
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        *item = bslmf::MovableRefUtil::move(d_monoDeque.back());
+#else
         *item = d_monoDeque.back();
+#endif
         d_monoDeque.pop_back();
 
         shouldSignal = d_monoDeque.size() < d_highWaterMark;
@@ -1830,7 +2005,8 @@ int Deque<TYPE>::tryPopBack(TYPE *item)
 
 template <class TYPE>
 void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
-                             bsl::vector<TYPE>               *buffer)
+                             bsl::vector<TYPE>               *buffer,
+                             bool                             move)
 {
     Proctor proctor(this);
     VectorThrowGuard tg(buffer);
@@ -1838,13 +2014,30 @@ void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
     // First, calculate 'toMove', which drives how the rest of the function
     // behaves.
 
-    const size_type toMove = bsl::min(d_monoDeque.size(), maxNumItems);
+    const size_type size   = d_monoDeque.size();
+    const size_type toMove = bsl::min(size, maxNumItems);
 
     if (buffer) {
         buffer->reserve(buffer->size() + toMove);
-        buffer->insert(buffer->end(),
-                       d_monoDeque.rbegin(),
-                       d_monoDeque.rbegin() + toMove);
+
+        if (move) {
+            // The client has opted for move semantics, so we aren't providing
+            // the strong exception guarantee.
+
+            const size_type lastMovedIdx = size - toMove;
+            for (size_type ii = size; lastMovedIdx < ii--; ) {
+                buffer->push_back(bslmf::MovableRefUtil::move(
+                                                             d_monoDeque[ii]));
+            }
+        }
+        else {
+            // No move semantics, so we're copying and providing the strong
+            // exception guarantee.
+
+            buffer->insert(buffer->end(),
+                           d_monoDeque.rbegin(),
+                           d_monoDeque.rbegin() + toMove);
+        }
     }
     d_monoDeque.erase(d_monoDeque.end() - toMove, d_monoDeque.end());
 
@@ -1863,7 +2056,11 @@ int Deque<TYPE>::tryPopFront(TYPE *item)
         if (d_monoDeque.empty()) {
             return 1;                                                 // RETURN
         }
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        *item = bslmf::MovableRefUtil::move(d_monoDeque.front());
+#else
         *item = d_monoDeque.front();
+#endif
         d_monoDeque.pop_front();
 
         shouldSignal = d_monoDeque.size() < d_highWaterMark;
@@ -1878,7 +2075,8 @@ int Deque<TYPE>::tryPopFront(TYPE *item)
 
 template <class TYPE>
 void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
-                              bsl::vector<TYPE>               *buffer)
+                              bsl::vector<TYPE>               *buffer,
+                              bool                             move)
 {
     typedef typename MonoDeque::iterator Iterator;
 
@@ -1894,7 +2092,22 @@ void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
 
     if (buffer) {
         buffer->reserve(buffer->size() + toMove);
-        buffer->insert(buffer->end(), beginRange, endRange);
+
+        if (move) {
+            // The client has opted for move semantics, so we aren't providing
+            // the strong exception guarantee.
+
+            for (size_type ii = 0; ii < toMove; ++ii) {
+                buffer->push_back(bslmf::MovableRefUtil::move(
+                                                             d_monoDeque[ii]));
+            }
+        }
+        else {
+            // No move semantics, so we're copying and providing the strong
+            // exception guarantee.
+
+            buffer->insert(buffer->end(), beginRange, endRange);
+        }
     }
     proctor->erase(beginRange, endRange);
 
@@ -1914,6 +2127,24 @@ int Deque<TYPE>::tryPushBack(const TYPE& item)
         }
 
         d_monoDeque.push_back(item);
+    }
+
+    d_notEmptyCondition.signal();
+
+    return 0;
+}
+
+template <class TYPE>
+int Deque<TYPE>::tryPushBack(bslmf::MovableRef<TYPE> item)
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        if (d_monoDeque.size() >= d_highWaterMark) {
+            return 1;                                                 // RETURN
+        }
+
+        d_monoDeque.push_back(bslmf::MovableRefUtil::move(item));
     }
 
     d_notEmptyCondition.signal();
@@ -1963,6 +2194,24 @@ int Deque<TYPE>::tryPushFront(const TYPE& item)
         }
 
         d_monoDeque.push_front(item);
+    }
+
+    d_notEmptyCondition.signal();
+
+    return 0;
+}
+
+template <class TYPE>
+int Deque<TYPE>::tryPushFront(bslmf::MovableRef<TYPE> item)
+{
+    {
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+
+        if (d_monoDeque.size() >= d_highWaterMark) {
+            return 1;                                                 // RETURN
+        }
+
+        d_monoDeque.push_front(bslmf::MovableRefUtil::move(item));
     }
 
     d_notEmptyCondition.signal();
