@@ -1,5 +1,12 @@
-bsl-internal (3.13.0.0) unstable; urgency=low
+bsl-internal (3.13.0.1) unstable; urgency=low
 
+  * 4e012e8b4 Merge pull request #2086 from mgiroux/pr/2085-rebased-releases/3.13.x
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 19 Sep 2018 13:36:58 -0400
+
+bsl-internal (3.13.0.0) git; urgency=low
+
+  * acd360510 Changelog for version 3.13.0.0
   * dc4950bd9 Merge pull request #2079 from mgiroux/review/bump-version-to-3.13.0
   * 7cff10798 Bump bal, bbl, and bdl versions to 3.13.0
   * 516e8405f add reserveCapacity and release
@@ -10,7 +17,7 @@ bsl-internal (3.13.0.0) unstable; urgency=low
   * 3c8f87c15 bdlt_intervalconversionutil -- support microseconds
   * d97567343 drqs-124673692: master: Format fixes for 'bdedox' conversion.
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 17 Sep 2018 14:19:36 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 17 Sep 2018 14:30:29 -0400
 
 bsl-internal (3.11.0.0) git; urgency=low
 
