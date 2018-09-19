@@ -45,14 +45,13 @@ using bsl::flush;
 // the supplied 'INITIAL_VALUE', and that it can be created for any pointer
 // type.
 //-----------------------------------------------------------------------------
-// [ 6] BSLMT_DECLARE_THREAD_LOCAL_VARIABLE: AIX XLC ISSUE
 // [ 5] BSLMT_DECLARE_THREAD_LOCAL_VARIABLE: data types test
 // [ 4] BSLMT_DECLARE_THREAD_LOCAL_VARIABLE: initial value test
 // [ 3] BSLMT_DECLARE_THREAD_LOCAL_VARIABLE: global scope test
 // [ 2] BSLMT_DECLARE_THREAD_LOCAL_VARIABLE: function scope static test
 //-----------------------------------------------------------------------------
 // [ 1] Helper Test: 'my_Barrier'
-// [ 7] Usage examples
+// [ 6] Usage examples
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -439,6 +438,29 @@ void my_Barrier::wait()
 }
 
 // ============================================================================
+//                                TEST GUARD
+// ----------------------------------------------------------------------------
+
+// Verify that the macro is defined on supported platforms.
+#if defined(BSLS_PLATFORM_CMP_SUN)                                            \
+ || (defined(BSLS_PLATFORM_CMP_GNU) && !(defined(BSLS_PLATFORM_CPU_SPARC)))   \
+ || (defined(BSLS_PLATFORM_CMP_CLANG) && !(defined(BSLS_PLATFORM_CPU_SPARC)))
+#ifndef BSLMT_THREAD_LOCAL_VARIABLE
+#error "'BSLMT_THREAD_LOCAL_VARIABLE' macro undefined for a supported platform"
+#endif
+#else  // unsupported platform
+#ifdef BSLMT_THREAD_LOCAL_VARIABLE
+#error "BSLMT_THREAD_LOCAL_VARIABLE macro defined for an unsupported platform"
+#endif
+#endif
+
+// If the macro is not define (i.e., this is an unsupported platform) disable
+// all the tests.
+#ifndef BSLMT_THREAD_LOCAL_VARIABLE
+#define DISABLE_TEST
+#endif
+
+// ============================================================================
 //                               TEST CLASSES
 // ----------------------------------------------------------------------------
 
@@ -643,34 +665,6 @@ extern "C" void *typesTest(void *voidArgs)
     return 0;
 }
 
-// ---------------------------  AIX XLC TEST  ---------------------------------
-
-void AixXlcTest()
-{
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, a, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, b, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, c, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, d, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, e, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, f, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, g, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, h, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, i, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, j, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, k, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, a, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, b, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, c, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, d, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, e, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, f, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, g, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, h, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, i, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, j, 0); }
-    { BSLMT_THREAD_LOCAL_VARIABLE(int, k, 0); }
-}
-
 // ============================================================================
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -825,7 +819,7 @@ int main(int argc, char *argv[])
 // If testing is disable, we still require a fake test case.
       case 1: {} break;
 #else // #ifndef DISABLE_TEST
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -857,26 +851,6 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_THREADS; ++i) {
             myJoinThread(handles[i]);
         }
-      } break;
-      case 6: {
-        // --------------------------------------------------------------------
-        // TEST TYPES
-        //
-        // Concerns:
-        //    That 'BSLMT_THREAD_LOCAL_VARIABLE' creates variables of the
-        //    correct type.
-        //
-        // Plan:
-        //    Declares a thread local pointers of different types, assign the
-        //    pointer to another variable of that type, then verify they have
-        //    the same value.
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl
-                          << "AIX XLC TEST" << endl
-                          << "============" << endl;
-
-        AixXlcTest();
       } break;
       case 5: {
         // --------------------------------------------------------------------
