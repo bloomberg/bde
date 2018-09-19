@@ -32,6 +32,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
@@ -2926,12 +2927,12 @@ void TestDriver<TYPE, ALLOC>::testCase34_noexcept()
         Obj mX;  const Obj& X = mX;
         Obj mY;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
+        ASSERT(false
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX =
                                              bslmf::MovableRefUtil::move(mY)));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.get_allocator()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.get_allocator()));
     }
 
     // page 847
@@ -2954,35 +2955,35 @@ void TestDriver<TYPE, ALLOC>::testCase34_noexcept()
     {
         Obj mX; const Obj& X = mX;
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.begin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.begin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.begin()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.end()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.end()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.end()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.end()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.rbegin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.rbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.rbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.rbegin()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.rend()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.rend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.rend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.rend()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cbegin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.cbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.cend()));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.crbegin()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.crend()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.crbegin()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.crend()));
     }
 
     // page 848
@@ -2996,12 +2997,12 @@ void TestDriver<TYPE, ALLOC>::testCase34_noexcept()
     {
         Obj mX; const Obj& X = mX;
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.size()));
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_size()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.empty()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.size()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.max_size()));
     }
 
     // page 848
@@ -3016,11 +3017,11 @@ void TestDriver<TYPE, ALLOC>::testCase34_noexcept()
         Obj x;
         Obj y;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
+        ASSERT(false
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(y)));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.clear()));
     }
 
     // page 848-849
@@ -3032,8 +3033,8 @@ void TestDriver<TYPE, ALLOC>::testCase34_noexcept()
     {
         Obj x;
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.reverse()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.reverse()));
     }
 
     // page 849
@@ -3048,11 +3049,11 @@ void TestDriver<TYPE, ALLOC>::testCase34_noexcept()
         Obj x;
         Obj y;
 
-        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
+        ASSERT(false
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(y)));
 
-        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
+        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.clear()));
     }
 }
 
@@ -3155,7 +3156,7 @@ void TestDriver<TYPE,ALLOC>::test33_initializerList()
         Int64 B = defaultAllocator_p->numBlocksInUse(), A, BB, AA;
 
         int numThrows;
-#if defined(BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
+#if defined(BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
         // To avoid reporting spurious memory leaks, perform this test without
         // exceptions.
 

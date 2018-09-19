@@ -8,6 +8,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -47,7 +48,7 @@ MovableTestType::MovableTestType(const MovableTestType&  original)
 }
 
 MovableTestType::MovableTestType(
-               bslmf::MovableRef<MovableTestType> original) BSLS_CPP11_NOEXCEPT
+             bslmf::MovableRef<MovableTestType> original) BSLS_KEYWORD_NOEXCEPT
 : d_data(bslmf::MovableRefUtil::access(original).d_data)
 , d_self_p(this)
 , d_movedFrom(bsltf::MoveState::e_NOT_MOVED)

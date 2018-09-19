@@ -11,6 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_convertible: standard meta-function for type conversion checking
+//  bsl::is_convertible_v: the result value of 'bsl::is_convertible'
 //  bslmf::IsConvertible: meta-function for type conversion checking
 //
 //@SEE_ALSO: bslmf_integralconstant
@@ -18,8 +19,10 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Paul Staniforth (pstaniforth)
 //
 //@DESCRIPTION: This component defines two meta-functions,
-// 'bsl::is_convertible' and 'BloombergLP::bslmf::IsConvertible', both of which
-// may be used to check whether a conversion exists from one type to another.
+// 'bsl::is_convertible' and 'BloombergLP::bslmf::IsConvertible' and a template
+// variable 'bsl::is_convertible_v', that represents the result value of the
+// 'bsl::is_convertible' meta-function.  All these meta-functions may be used
+// to check whether a conversion exists from one type to another.
 //
 // 'bsl::is_convertible' meets the requirements of the 'is_convertible'
 // template defined in the C++11 standard [meta.rel], while
@@ -46,6 +49,15 @@ BSLS_IDENT("$Id: $")
 //
 //  static int const C = bsl::is_convertible<D*, A*>::value;  // ERROR!
 //..
+// Also note that the template variable 'is_convertible_v' is defined in the
+// C++17 standard as an inline variable.  If the current compiler supports the
+// inline variable C++17 compiler feature, 'bsl::is_convertible_v' is defined
+// as an 'inline constexpr bool' variable.  Otherwise, if the compiler supports
+// the variable templates C++14 compiler feature, 'bsl::is_convertible_v' is
+// defined as a non-inline 'constexpr bool' variable.  See
+// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
+// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -194,6 +206,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -212,13 +228,28 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 # if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1900
-    // The Microsft implementation of native traits allows binding of rvalues
+    // The Microsoft implementation of native traits allows binding of rvalues
     // (including temporaries invented for conversion) to 'const volatile &'
     // references.  Early versions also do not correctly disallow conversion
     // from itself for types that are neither copy- nor move-constructible.
 #   define BSLMF_ISCONVERTIBLE_USE_NATIVE_TRAITS
 # endif
 #endif
+
+namespace bsl {
+
+template <class FROM_TYPE, class TO_TYPE>
+struct is_convertible;
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class FROM_TYPE, class TO_TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_convertible_v = is_convertible<FROM_TYPE, TO_TYPE>::value;
+    // This template variable represents the result value of the
+    // 'bsl::is_convertible' meta-function.
+#endif
+
+}  // close namespace bsl
 
 namespace BloombergLP {
 namespace bslmf {
@@ -277,7 +308,7 @@ struct is_convertible
                                                            >::value> {
 };
 
-}
+}  // close namespace bsl
 #else
 
 namespace BloombergLP {

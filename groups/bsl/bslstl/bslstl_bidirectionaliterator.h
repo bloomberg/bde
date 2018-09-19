@@ -201,8 +201,8 @@ in BSL_OVERRIDES_STD mode"
 #include <bslstl_iterator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
 #endif
 
 #ifndef INCLUDED_ITERATOR

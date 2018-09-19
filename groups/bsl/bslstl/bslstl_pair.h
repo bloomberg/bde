@@ -277,6 +277,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_conditional.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_INTEGERSEQUENCE
+#include <bslmf_integersequence.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
 #include <bslmf_isbitwiseequalitycomparable.h>
 #endif
@@ -313,8 +317,8 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_CPP11
-#include <bsls_cpp11.h>
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
 #endif
 
 #ifndef INCLUDED_BSLS_LIBRARYFEATURES
@@ -335,6 +339,11 @@ BSL_OVERRIDES_STD mode"
 
 #ifndef INCLUDED_BSLSTL_HASH
 #include <bslstl_hash.h>
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include <cstddef>  // 'std::size_t'
+#define INCLUDED_CSTDDEF
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
@@ -374,26 +383,7 @@ void swap(TYPE& a, TYPE& b);
 
 #endif // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES  && ! CLANG
 
-namespace tmp {
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-template <int ...>
-struct index_sequence { };
-
-template <int N, int ...I>
-struct make_index_sequence : make_index_sequence<N-1, N-1, I...> { };
-
-template <int ...I>
-struct make_index_sequence<0, I...>
-{
-    typedef index_sequence<I...> type;
-};
-#endif
-
-}  // close namespace tmp
-
 namespace bsl {
-
                         // =========================
                         // trait Pair_AllocatorIdiom
                         // =========================
@@ -419,60 +409,85 @@ struct Pair_BslmaIdiom : bsl::integral_constant<int,
            : Pair_BslmaIdiomAtEnd::value)
         : Pair_BslmaIdiomNone::value>
 {
-    // Component-private meta-function to determine whether the specified
+    // This component-private meta-function determines whether the specified
     // 'TYPE' template parameter takes a 'bslma::Allocator*' constructor
-    // argument and, of so, whether that argument is at the end of the
-    // argument list or at the begining of the argument list following an
-    // argument of type 'bsl::allocator_arg_t'.  This type is derived from one
-    // of 'Pair_BslmaIdiomNone', 'Pair_BslmaIdiomAtEnd', or
-    // 'Pair_BslmaIdiomAllocatorArgT'.
+    // argument and, if so, whether that argument is at the end of the argument
+    // list or at the begining of the argument list following an argument of
+    // type 'bsl::allocator_arg_t'.  This type derived from
+    // 'bsl::integral_constant<int, N>' where 'N' is the number of additional
+    // parameters required to pass an allocator to a constructor using the
+    // chosen idiom.
 };
 
-                             // ====================
-                             // struct Pair_MakeUtil
-                             // ====================
-
-struct Pair_MakeUtil {
-    // This class provides a suite of utility functions for returning newly
-    // constructed pair elements by value.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-    // CLASS METHODS
-    template <class TYPE, class ...Args, int ...I>
-    static TYPE make(
-           BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<Args...>) tuple,
-           tmp::index_sequence<I...>);
-        // Construct and return by value an object of (template parameter) type
-        // 'TYPE', forwarding in order the elements in the specified 'tuple' to
-        // the corresponding constructor of 'TYPE'.
+template <class TYPE, class ... ARGS>
+struct Pair_ConstructionParametersPackLength : integral_constant<int,
+                               sizeof...(ARGS) + Pair_BslmaIdiom<TYPE>::value >
+{
+    // This component-private component-private meta-function determines the
+    // number of elements in a tuple containing parameters for piecewise
+    // construction of a 'bsl::pair' member having the specified 'TYPE'.
+    // Result value depends on the 'TYPE', whether it takes a
+    // 'bslma::Allocator*' constructor argument and, if so, whether that
+    // argument follows an argument of type 'bsl::allocator_arg_t'.
+};
+#endif
 
-    template <class TYPE, class ...Args, int ...I>
-    static TYPE make(
-           BloombergLP::bslma::Allocator                         *,
-           BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<Args...>) tuple,
-           tmp::index_sequence<I...>,
-           Pair_BslmaIdiomNone);
-    template <class TYPE, class ...Args, int ...I>
-    static TYPE make(
-           BloombergLP::bslma::Allocator                         *allocator,
-           BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<Args...>) tuple,
-           tmp::index_sequence<I...>,
-           Pair_BslmaIdiomAtEnd);
-    template <class TYPE, class ...Args, int ...I>
-    static TYPE make(
-           BloombergLP::bslma::Allocator                         *allocator,
-           BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<Args...>) tuple,
-           tmp::index_sequence<I...>,
-           Pair_BslmaIdiomAllocatorArgT);
-        // Construct and return by value an object of (template parameter) type
-        // 'TYPE', forwarding in order the elements in the specified 'tuple' to
-        // the corresponding constructor of 'TYPE', using the specified
-        // 'basicAllocator' to supply memory.  Note that exactly one of these
-        // three constructors is enabled at compile-time for 'TYPE' based on
-        // the following respective criteria: 1) 'TYPE' does not support
-        // 'bslma'-style allocators, 2) 'TYPE' takes a 'bslma'-style allocator
-        // as the last constructor argument, and 3) 'TYPE' takes a 'bslma'-
-        // style allocator as the second constructor argument preceded by
-        // 'bsl::allocator_arg'.
+                        // ===================
+                        // struct Pair_ImpUtil
+                        // ===================
+struct Pair_ImpUtil {
+     // This 'struct' provides a namespace for utility functions used to
+     // creating a tuple, containing arguments for the constructor of pair
+     // element in the process of 'bsl::pair' piecewise construction.
+
+    // CLASS METHODS
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+    template <class ... ARGS>
+    static
+    native_std::tuple<ARGS...>
+    concatAllocator(
+          BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<ARGS...>)  tpl,
+          BloombergLP::bslma::Allocator                                 *alloc,
+          bsl::Pair_BslmaIdiomNone);
+        // Construct and return by value a tuple, containing arguments for the
+        // corresponding  constructor of (template parameter) 'TYPE',
+        // forwarding in order the elements in the specified 'tpl' and
+        // discarding the specified 'alloc', because 'TYPE' does not support
+        // 'bslma'-style allocators.  This method provides the no-throw
+        // exception-safety guarantee.
+
+
+    template <class ... ARGS>
+    static
+    native_std::tuple<ARGS..., BloombergLP::bslma::Allocator *>
+    concatAllocator(
+          BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<ARGS...>)  tpl,
+          BloombergLP::bslma::Allocator                                 *alloc,
+          bsl::Pair_BslmaIdiomAtEnd);
+        // Construct and return by value a tuple, containing arguments for the
+        // corresponding  constructor of (template parameter) 'TYPE',
+        // forwarding in order the elements in the specified 'tpl' and
+        // appending the specified 'alloc', because 'TYPE' takes a
+        // 'bslma'-style allocator as the last constructor argument.  This
+        // method provides the no-throw exception-safety guarantee.
+
+    template <class ... ARGS>
+    static
+    native_std::tuple<bsl::allocator_arg_t,
+                      BloombergLP::bslma::Allocator *,
+                      ARGS...>
+    concatAllocator(
+          BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<ARGS...>)  tpl,
+          BloombergLP::bslma::Allocator                                 *alloc,
+          bsl::Pair_BslmaIdiomAllocatorArgT);
+        // Construct and return by value a tuple, containing arguments for the
+        // corresponding  constructor of (template parameter) type 'TYPE',
+        // forwarding in order the elements in the specified 'tpl' preciding by
+        // 'bsl::allocator_arg' object and the specified 'alloc', because
+        // 'TYPE' takes a 'bslma'-style allocator as the second constructor
+        // argument preceded by 'bsl::allocator_arg'.  This method provides the
+        // no-throw exception-safety guarantee.
 #endif
 };
 
@@ -498,6 +513,7 @@ struct Pair_First {
     TYPE first;
 
     // CREATORS
+    BSLS_KEYWORD_CONSTEXPR
     Pair_First();
         // Construct the 'first' member of a 'pair' using the default
         // constructor for (template parameter) 'TYPE'.
@@ -517,6 +533,7 @@ struct Pair_First {
         // and 3) 'TYPE' takes a 'bslma'-style allocator as the second
         // constructor argument preceded by 'bsl::allocator_arg'.
 
+    BSLS_KEYWORD_CONSTEXPR
     explicit Pair_First(
                    typename bsl::add_lvalue_reference<const TYPE>::type value);
         // Construct the 'first' member from the specified non-modifiable
@@ -524,11 +541,14 @@ struct Pair_First {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class U>
+    BSLS_KEYWORD_CONSTEXPR
     explicit Pair_First(U&& value);
 #else
     template <class U>
+    BSLS_KEYWORD_CONSTEXPR
     explicit Pair_First(const U& value);
     template <class U>
+    BSLS_KEYWORD_CONSTEXPR
     explicit Pair_First(U& value);
 #endif
         // TBD: improve comment.
@@ -587,15 +607,15 @@ struct Pair_First {
         // argument preceded by 'bsl::allocator_arg'.
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-    template<class ...Args>
-    Pair_First(native_std::tuple<Args...> tuple);
-    template<class ...Args>
-    Pair_First(native_std::tuple<Args...> tuple,
-               BloombergLP::bslma::Allocator *basicAllocator);
+    template <class ...ARGS, size_t ...I>
+    Pair_First(native_std::tuple<ARGS...>&& argsPack,
+               bsl::index_sequence<I...>);
         // Construct the 'first' member of a 'pair', forwarding in order the
-        // elements in the specified 'tuple' to the corresponding constructor
-        // of (template parameter) type 'TYPE'.  Optionally specify a
-        // 'basicAllocator' used to supply memory.
+        // elements in the specified 'argsPack' to the corresponding
+        // constructor of (template parameter) 'TYPE'.  The length of the
+        // 'argsPack' is equal to the lenght of the specified (template
+        // parameter pack) 'I...' and passed to the constructor via the
+        // 'bsl::index_sequence' object.
 #endif
 
     //! Pair_First(const Pair_First&) = default;
@@ -626,6 +646,7 @@ struct Pair_Second {
     TYPE second;
 
     // CREATORS
+    BSLS_KEYWORD_CONSTEXPR
     Pair_Second();
         // Construct the 'second' member of a 'pair' using the default
         // constructor for (template parameter) type 'TYPE'.
@@ -645,6 +666,7 @@ struct Pair_Second {
         // and 3) 'TYPE' takes a 'bslma'-style allocator as the second
         // constructor argument preceded by 'bsl::allocator_arg'.
 
+    BSLS_KEYWORD_CONSTEXPR
     explicit Pair_Second(
                    typename bsl::add_lvalue_reference<const TYPE>::type value);
         // Construct the 'second' member from the specified non-modifiable
@@ -652,11 +674,14 @@ struct Pair_Second {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class U>
+    BSLS_KEYWORD_CONSTEXPR
     explicit Pair_Second(U&& value);
 #else
     template <class U>
+    BSLS_KEYWORD_CONSTEXPR
     explicit Pair_Second(const U& value);
     template <class U>
+    BSLS_KEYWORD_CONSTEXPR
     explicit Pair_Second(U& value);
 #endif
         // Construct the 'second' member from the specified 'value', without
@@ -665,41 +690,41 @@ struct Pair_Second {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class U>
-    Pair_Second(BSLS_COMPILERFEATURES_FORWARD_REF(U) value,
-                BloombergLP::bslma::Allocator       *basicAllocator,
+    Pair_Second(U&&                            value,
+                BloombergLP::bslma::Allocator *basicAllocator,
                 Pair_BslmaIdiomNone);
     template <class U>
-    Pair_Second(BSLS_COMPILERFEATURES_FORWARD_REF(U) value,
-                BloombergLP::bslma::Allocator       *basicAllocator,
+    Pair_Second(U&&                            value,
+                BloombergLP::bslma::Allocator *basicAllocator,
                 Pair_BslmaIdiomAtEnd);
     template <class U>
-    Pair_Second(BSLS_COMPILERFEATURES_FORWARD_REF(U) value,
-                BloombergLP::bslma::Allocator       *basicAllocator,
+    Pair_Second(U&&                            value,
+                BloombergLP::bslma::Allocator *basicAllocator,
                 Pair_BslmaIdiomAllocatorArgT);
 #else
     template <class U>
-    Pair_Second(const U& value,
-                BloombergLP::bslma::Allocator       *basicAllocator,
+    Pair_Second(const U&                       value,
+                BloombergLP::bslma::Allocator *basicAllocator,
                 Pair_BslmaIdiomNone);
     template <class U>
-    Pair_Second(U& value,
-                BloombergLP::bslma::Allocator       *basicAllocator,
+    Pair_Second(U&                             value,
+                BloombergLP::bslma::Allocator *basicAllocator,
                 Pair_BslmaIdiomNone);
     template <class U>
-    Pair_Second(const U& value,
-                BloombergLP::bslma::Allocator       *basicAllocator,
+    Pair_Second(const U&                       value,
+                BloombergLP::bslma::Allocator *basicAllocator,
                 Pair_BslmaIdiomAtEnd);
     template <class U>
-    Pair_Second(U& value,
-                BloombergLP::bslma::Allocator       *basicAllocator,
+    Pair_Second(U&                             value,
+                BloombergLP::bslma::Allocator *basicAllocator,
                 Pair_BslmaIdiomAtEnd);
     template <class U>
-    Pair_Second(const U& value,
-                BloombergLP::bslma::Allocator       *basicAllocator,
+    Pair_Second(const U&                       value,
+                BloombergLP::bslma::Allocator *basicAllocator,
                 Pair_BslmaIdiomAllocatorArgT);
     template <class U>
-    Pair_Second(U& value,
-                BloombergLP::bslma::Allocator       *basicAllocator,
+    Pair_Second(U&                             value,
+                BloombergLP::bslma::Allocator *basicAllocator,
                 Pair_BslmaIdiomAllocatorArgT);
 #endif
         // Construct the 'second' member of a 'pair' from the specified
@@ -714,16 +739,15 @@ struct Pair_Second {
         // argument preceded by 'bsl::allocator_arg'.
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-    template<class ...Args>
-    Pair_Second(native_std::tuple<Args...> tuple);
-    template<class ...Args>
-    Pair_Second(native_std::tuple<Args...> tuple,
-                BloombergLP::bslma::Allocator *basicAllocator);
+    template <class ...ARGS, size_t ...I>
+    Pair_Second(native_std::tuple<ARGS...>&& argsPack,
+                bsl::index_sequence<I...>);
         // Construct the 'second' member of a 'pair', forwarding in order the
-        // elements in the specified 'tuple' to the corresponding constructor
-        // of (template parameter) 'TYPE'.  Optionally specify a
-        // 'basicAllocator' used to supply memory if (template parameter) type
-        // 'TYPE' accepts an allocator upon construction.
+        // elements in the specified 'argsPack' to the corresponding
+        // constructor of (template parameter) 'TYPE'.  The length of the
+        // 'argsPack' is equal to the lenght of the specified (template
+        // parameter pack) 'I...' and passed to the constructor via the
+        // 'bsl::index_sequence' object.
 #endif
 
     //! Pair_Second(const Pair_Second&) = default;
@@ -789,6 +813,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     using SecondBase::second;
 
     // CREATORS
+    BSLS_KEYWORD_CONSTEXPR
     pair();
     explicit pair(AllocatorPtr basicAllocator);
         // Construct a 'pair' with the 'first' and 'second' members initialized
@@ -799,6 +824,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // compile-time error.  This method requires that 'T1' and 'T2' be
         // default-constructible.
 
+    BSLS_KEYWORD_CONSTEXPR
     pair(typename bsl::add_lvalue_reference<const T1>::type a,
          typename bsl::add_lvalue_reference<const T2>::type b);
     pair(typename bsl::add_lvalue_reference<const T1>::type a,
@@ -815,6 +841,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class U1, class U2>
+    BSLS_KEYWORD_CONSTEXPR
     pair(U1&& a,
          U2&& b,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
@@ -836,6 +863,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     pair(U1&& a, U2&& b, AllocatorPtr basicAllocator);
 #else
     template <class U1, class U2>
+    BSLS_KEYWORD_CONSTEXPR
     pair(const U1& a,
          const U2& b,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
@@ -878,6 +906,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     pair(U1& a, const U2& b, AllocatorPtr basicAllocator);
 
     template <class U1, class U2>
+    BSLS_KEYWORD_CONSTEXPR
     pair(const U1& a,
          U2&       b,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
@@ -899,6 +928,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     pair(const U1& a, U2& b, AllocatorPtr basicAllocator);
 
     template <class U1, class U2>
+    BSLS_KEYWORD_CONSTEXPR
     pair(U1& a,
          U2& b,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
@@ -930,15 +960,15 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // convertible from 'U1' and 'U2', respectively.
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
-    template<class ...Args1, class ...Args2>
+    template<class ...ARGS_1, class ...ARGS_2>
     pair(native_std::piecewise_construct_t,
-         native_std::tuple<Args1...> first_args,
-         native_std::tuple<Args2...> second_args);
-    template<class ...Args1, class ...Args2>
+         native_std::tuple<ARGS_1...>      first_args,
+         native_std::tuple<ARGS_2...>      second_args);
+    template<class ...ARGS_1, class ...ARGS_2>
     pair(native_std::piecewise_construct_t,
-         native_std::tuple<Args1...> first_args,
-         native_std::tuple<Args2...> second_args,
-         AllocatorPtr           basicAllocator);
+         native_std::tuple<ARGS_1...>      first_args,
+         native_std::tuple<ARGS_2...>      second_args,
+         AllocatorPtr                      basicAllocator);
         // Create a 'pair' from piece-wise construction of 'first' and 'second'
         // values by forwarding in order the elements in the specified
         // 'first_args' and 'second_args' tuples to the corresponding
@@ -947,11 +977,15 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // memory if either (template parameter) type 'T1' or 'T2' (or both)
         // use 'bslma'-style allocators; using the second version if neither
         // 'T1' nor 'T2' use 'bslma'-style allocators will result in a
-        // compile-time error.  This method requires that 'T1' and 'T2' be
-        // constructible from (the variable number of template paramters)
-        // 'Args1' and 'Args2' respectively.
+        // compile-time error.  Allocators can also be passed as a tuple
+        // members straight to 'T1' or 'T2' (or both) constructors using first
+        // version (but using of second version for this approach will result
+        // in a compile-time error).  This method requires that 'T1' and 'T2'
+        // be constructible from (the variable number of template paramters)
+        // 'ARGS_1' and 'ARGS_2' respectively.
 #endif
 
+    BSLS_KEYWORD_CONSTEXPR
     pair(const pair& original);
     pair(const pair& original, AllocatorPtr basicAllocator);
         // Construct a 'pair' having the same value as that of the specified
@@ -963,9 +997,11 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // copy-constructible.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    BSLS_KEYWORD_CONSTEXPR
     pair(pair&& original);
     pair(pair&& original, AllocatorPtr basicAllocator);
 #else
+    BSLS_KEYWORD_CONSTEXPR
     pair(BloombergLP::bslmf::MovableRef<pair> original);
     pair(BloombergLP::bslmf::MovableRef<pair> original,
          AllocatorPtr                         basicAllocator);
@@ -982,19 +1018,23 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
 
 #if defined(BSLSTL_PAIR_ENABLE_ALL_CONVERTIBILITY_CHECKS)
     template <class U1, class U2>
+    BSLS_KEYWORD_CONSTEXPR
     pair(const pair<U1, U2>& other,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                               && bsl::is_convertible<U2, T2>::value,
                                  void *>::type = 0);
     template <class U1, class U2>
+    BSLS_KEYWORD_CONSTEXPR
     pair(const native_std::pair<U1, U2>& other,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                               && bsl::is_convertible<U2, T2>::value,
                                  void *>::type = 0);
 #else
     template <class U1, class U2>
+    BSLS_KEYWORD_CONSTEXPR
     pair(const pair<U1, U2>& other);
     template <class U1, class U2>
+    BSLS_KEYWORD_CONSTEXPR
     pair(const native_std::pair<U1, U2>& other);
 #endif
     template <class U1, class U2>
@@ -1012,11 +1052,13 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class U1, class U2>
+    BSLS_KEYWORD_CONSTEXPR
     pair(pair<U1, U2>&& other,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                               && bsl::is_convertible<U2, T2>::value,
                                  void *>::type = 0);
     template <class U1, class U2>
+    BSLS_KEYWORD_CONSTEXPR
     pair(native_std::pair<U1, U2>&& other,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                               && bsl::is_convertible<U2, T2>::value,
@@ -1035,6 +1077,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // from 'U1' and 'U2', respectively.
 #else
     template <class U1, class U2>
+    BSLS_KEYWORD_CONSTEXPR
     pair(BloombergLP::bslmf::MovableRef<pair<U1, U2> > other,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                               && bsl::is_convertible<U2, T2>::value,
@@ -1049,6 +1092,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     }
 
     template <class U1, class U2>
+    BSLS_KEYWORD_CONSTEXPR
     pair(BloombergLP::bslmf::MovableRef<native_std::pair<U1, U2> > other,
          typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                               && bsl::is_convertible<U2, T2>::value,
@@ -1080,6 +1124,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     template <class U1, class U2>
+    BSLS_KEYWORD_CONSTEXPR
     pair(const BloombergLP::bslma::ManagedPtr_PairProxy<U1, U2>&
                                                               rhs); // IMPLICIT
         // Create a 'pair' that has the same value as the specified 'rhs' pair
@@ -1098,7 +1143,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // be copy-assignable.
 
     pair& operator=(BloombergLP::bslmf::MovableRef<pair> rhs)
-             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
+                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
         // Assign to this 'pair' the value of the specified 'rhs' pair (before
         // the call to the assignment), and return a reference providing
         // modifiable access to this object.  Note that 'rhs' is left in a
@@ -1144,8 +1189,50 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
         // 'T2' supply assignment operators, and 'T1' is assignable from 'U1'
         // and 'T2' is assignable from 'U2'.
 
-    void swap(pair& other)
-             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+    template <class U1, class U2,
+              typename bsl::enable_if<bsl::is_convertible<T1, U1>::value
+                                   && bsl::is_convertible<T2, U2>::value,
+                            bool>::type = 0>
+    operator native_std::tuple<U1&, U2&>() BSLS_KEYWORD_NOEXCEPT;
+        // Return an 'std::tuple' object, holding references that provide
+        // modifiable access to the members of this object.
+
+    template <class U1,
+              typename bsl::enable_if<bsl::is_convertible<T1, U1>::value,
+                            bool>::type = 0>
+    operator native_std::tuple<U1&, decltype(std::ignore)&>()
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // This partial specialization of 'template <class U1, class U2> operator
+    // std::tuple<U1&, U2&>()', for when the (template parameter) 'U2' (second
+    // element's type) is the type of 'std::ignore'.
+
+    template <class U2,
+              typename bsl::enable_if<bsl::is_convertible<T2, U2>::value,
+                            bool>::type = 0>
+    operator native_std::tuple<decltype(std::ignore)&, U2&>()
+                                                         BSLS_KEYWORD_NOEXCEPT;
+    // This partial specialization of
+    // 'template <class U1, class U2> operator std::tuple<U1&, U2&>()', for
+    // when the (template parameter) 'U1' (first element's type) is the type of
+    // 'std::ignore'.
+
+    operator native_std::tuple<decltype(std::ignore)&,
+                               decltype(std::ignore)&>() BSLS_KEYWORD_NOEXCEPT
+    // This partial specialization of
+    // 'template <class U1, class U2> operator std::tuple<U1&, U2&>()', for
+    // when the (template parameters) 'U1' (first element's type) and 'U2'
+    // (second element's type) are the type of 'std::ignore'.  Note that this
+    // method is defined within the class body intentionally to avoid build
+    // failure on MSVC 2015.
+    {
+        return native_std::tuple<decltype(std::ignore)&,
+                                 decltype(std::ignore)&>(std::ignore,
+                                                         std::ignore);
+    }
+#endif
+
+    void swap(pair& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
         // Swap the value of this pair with the value of the specified 'other'
         // pair by applying 'swap' to each of the 'first' and 'second' pair
         // fields.  Note that this method is no-throw only if 'swap' on each
@@ -1155,6 +1242,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
 // FREE OPERATORS
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 bool operator==(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // Return true if the specified 'lhs' and 'rhs' pair objects have the same
     // value and false otherwise.  'lhs' has the same value as 'rhs' if
@@ -1163,6 +1251,7 @@ bool operator==(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
 
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 bool operator!=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // Return true if the specified 'lhs' and 'rhs' pair objects do not have
     // the same value and false otherwise.  'lhs' does not have the same value
@@ -1171,6 +1260,7 @@ bool operator!=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
 
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 bool operator<(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // Return true if the specified 'lhs' has a value less than the specified
     // 'rhs' and false otherwise.  Whether or not 'lhs' is less than 'rhs' is
@@ -1182,6 +1272,7 @@ bool operator<(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
 
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 bool operator>(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // Return true if the specified 'lhs' has a value greater than the
     // specified 'rhs' and false otherwise.  'lhs' has a value greater than
@@ -1190,6 +1281,7 @@ bool operator>(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
 
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 bool operator<=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // Return true if the specified 'lhs' has a value less than or equal to the
     // specified 'rhs' and false otherwise.  'lhs' has a value less than or
@@ -1198,6 +1290,7 @@ bool operator<=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
 
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
     // Return true if the specified 'lhs' has a value greater than or equal to
     // the specified 'rhs' and false otherwise.  'lhs' has a value greater than
@@ -1207,7 +1300,7 @@ bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs);
 // FREE FUNCTIONS
 template <class T1, class T2>
 void swap(pair<T1, T2>& a, pair<T1, T2>& b)
-             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
+                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
     // Swap the values of the specified 'a' and 'b' pairs by applying 'swap' to
     // each of the 'first' and 'second' pair fields.  Note that this method is
     // no-throw only if 'swap' on each field is no-throw.
@@ -1219,65 +1312,271 @@ void hashAppend(HASHALG& hashAlg, const pair<T1, T2>&  input);
 
 }  // close namespace bsl
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+
+#if defined(BSL_OVERRIDES_STD) && defined(std)
+#   undef std
+#   define BSLSTL_PAIR_RESTORE_STD
+#endif
+
+namespace std {
+
+                             // ====================
+                             // struct tuple_element
+                             // ====================
+template<class T1, class T2>
+struct tuple_element<0, bsl::pair<T1, T2> >
+    // This partial specialization of 'tuple_element' provides compile-time
+    // access to the type of the pair's first element.
+{
+    // TYPES
+    typedef T1 type;
+};
+
+template<class T1, class T2>
+struct tuple_element<1, bsl::pair<T1, T2> >
+    // This partial specialization of 'tuple_element' provides compile-time
+    // access to the type of the pair's second element.
+{
+    // TYPES
+    typedef T2 type;
+};
+
+                              // =================
+                              // struct tuple_size
+                              // =================
+
+template<class T1, class T2>
+struct tuple_size<bsl::pair<T1, T2> > : integral_constant<size_t, 2>
+    // This meta-function provides a compile-time way to obtain the number of
+    // elements in a pair, which is always 2.
+{};
+
+}  // close namespace std
+
+#if defined(BSLSTL_PAIR_RESTORE_STD)
+#   define std bsl
+#   undef BSLSTL_PAIR_RESTORE_STD
+#endif
+
+namespace BloombergLP {
+namespace bslstl {
+
+                          // =====================
+                          // class Pair_GetImpUtil
+                          // =====================
+
+template <native_std::size_t INDEX, class T1, class T2>
+struct Pair_GetImpUtil
+    // This utility class template provides functions for selecting the element
+    // of pair, returned from 'bsl::get(bsl::pair<T1, T2>)', by its index.
+{
+    BSLMF_ASSERT(INDEX < 2);
+};
+
+template <class T1, class T2>
+struct Pair_GetImpUtil<0, T1, T2>
+    // This partial specialization of 'Pair_GetImpUtil', for when the
+    // (template parameter) 'INDEX'(element's index) is equal to 0.
+{
+  private:
+    // PRIVATE TYPES
+    typedef bslmf::MovableRefUtil MovUtil;
+        // This typedef is a convenient alias for the utility associated with
+        // implementing movable references in C++03 and C++11 environments.
+
+  public:
+    // CLASS METHODS
+    static T1& getPairElement(bsl::pair<T1, T2>& p);
+        // Return a reference providing modifiable access to the first element
+        // of the specified 'p'.
+
+    static const T1& getPairElement(const bsl::pair<T1, T2>& p);
+        // Return a reference providing non-modifiable access to the first
+        // element of the specified 'p'.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    static T1&&
+    getPairElement(bsl::pair<T1, T2>&& p);
+        // Return a rvalue reference providing modifiable access to the first
+        // element of the specified 'p'
+
+    static const T1&&
+    getPairElement(const bsl::pair<T1, T2>&& p);
+        // Return a rvalue reference providing non-modifiable access to the
+        // first element of the specified 'p'
+
+#endif
+};
+
+template <class T1, class T2>
+struct Pair_GetImpUtil<1u, T1, T2>
+    // This partial specialization of 'Pair_GetImpUtil', for when the
+    // (template parameter) 'INDEX'(element's index) is equal to 1.
+{
+  private:
+    // PRIVATE TYPES
+    typedef bslmf::MovableRefUtil MovUtil;
+        // This typedef is a convenient alias for the utility associated with
+        // implementing movable references in C++03 and C++11 environments.
+
+  public:
+    // CLASS METHODS
+    static T2& getPairElement(bsl::pair<T1, T2>& p);
+        // Return a reference providing modifiable access to the second element
+        // of the specified 'p'.
+
+    static
+    const T2& getPairElement(const bsl::pair<T1, T2>& p);
+        // Return a reference providing non-modifiable access to the second
+        // element of the specified 'p'.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    static T2&&
+    getPairElement(bsl::pair<T1, T2>&& p);
+        // Return a rvalue reference providing modifiable access to the second
+        // element of the specified 'p'
+
+    static const T2&&
+    getPairElement(const bsl::pair<T1, T2>&& p);
+        // Return a rvalue reference providing non-modifiable access to the
+        // second element of the specified 'p'
+#endif
+};
+
+template <class T, class T1, class T2>
+struct Pair_IndexOfType
+    // This meta-function provides a compile-time way to obtain the index of
+    // 'bsl::pair' element, having the (template parameter) type 'T'.  If
+    // neither type of pair's element is equal to 'T' or both pair's elements
+    // have the same type, code is not compiled.
+{};
+
+template <class T1, class T2>
+struct Pair_IndexOfType<T1, T1, T2> : bsl::integral_constant<size_t, 0>
+    // This partial specialization of 'Pair_IndexOfType' returns the index of
+    // first element of pair.
+{};
+
+template <class T1, class T2>
+struct Pair_IndexOfType<T2, T1, T2> : bsl::integral_constant<size_t, 1u>
+    // This partial specialization of 'Pair_IndexOfType' returns the index of
+    // second element of pair.
+{};
+
+}  // close package namespace
+}  // close enterprise namespace
+
+namespace bsl {
+
+// FREE FUNCTIONS
+template<native_std::size_t INDEX, class T1, class T2>
+typename native_std::tuple_element<INDEX, bsl::pair<T1, T2> >::type& get(
+                                                         bsl::pair<T1, T2>& p);
+    // Return a reference providing modifiable access to the element of the
+    // specified 'p', having the ordinal number specified by the (template
+    // parameter) 'INDEX'.  This function will not compile unless the 'INDEX'
+    // is either 0 or 1.
+
+template<native_std::size_t INDEX, class T1, class T2>
+const typename native_std::tuple_element<INDEX, bsl::pair<T1, T2> >::type& get(
+                                                   const bsl::pair<T1, T2>& p);
+    // Return a reference providing non-modifiable access to the element of the
+    // specified 'p', having the ordinal number specified by the (template
+    // parameter) 'INDEX'.  This function will not compile unless the 'INDEX'
+    // is either 0 or 1.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template<native_std::size_t INDEX, class T1, class T2>
+typename native_std::tuple_element<INDEX, bsl::pair<T1, T2> >::type&& get(
+                                                        bsl::pair<T1, T2>&& p);
+    // Return a rvalue reference providing modifiable access to the element of
+    // the specified 'p', having the ordinal number specified by the (template
+    // parameter) 'INDEX'.  This function will not compile unless the 'INDEX'
+    // is either 0 or 1.
+#endif
+
+template<class TYPE, class T1, class T2>
+TYPE& get(bsl::pair<T1, T2>& p);
+    // Return a reference providing modifiable access to the element of the
+    // specified 'p', having the (template parameter) 'TYPE'.  This function
+    // will not compile unless the types 'T1' and 'T2' are different and the
+    // 'TYPE' is the same as either 'T1' or 'T2'.
+
+template<class TYPE, class T1, class T2>
+const TYPE& get(const bsl::pair<T1, T2>& p);
+    // Return a reference providing non-modifiable access to the element of the
+    // specified 'p', having the (template parameter) 'TYPE'.  This function
+    // will not compile unless the types 'T1' and 'T2' are different and the
+    // 'TYPE' is the same as either 'T1' or 'T2'.
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template<class TYPE, class T1, class T2>
+TYPE&& get(bsl::pair<T1, T2>&& p);
+    // Return a rvalue reference providing modifiable access to the element of
+    // the specified 'p', having the (template parameter) 'TYPE'.  This
+    // function will not compile unless the types 'T1' and 'T2' are different
+    // and the 'TYPE' is the same as either 'T1' or 'T2'.
+
+template<class TYPE, class T1, class T2>
+const TYPE&& get(const bsl::pair<T1, T2>&& p);
+    // Return a rvalue reference providing non-modifiable access to the element
+    // of the specified 'p', having the (template parameter) 'TYPE'.  This
+    // function will not compile unless the types 'T1' and 'T2' are different
+    // and the 'TYPE' is the same as either 'T1' or 'T2'.
+#endif
+
+}  // close bsl namespace
+
+#endif
+
+
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 // See IMPLEMENTATION NOTES in the .cpp before modifying anything below.
 
 namespace bsl {
-
-                             // --------------------
-                             // struct Pair_MakeUtil
-                             // --------------------
-
+                        // -------------------
+                        // struct Pair_ImpUtil
+                        // -------------------
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-template <class TYPE, class ...Args, int ...I>
+template <class ... ARGS>
 inline
-TYPE Pair_MakeUtil::make(
-           BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<Args...>) tuple,
-           tmp::index_sequence<I...>)
+native_std::tuple<ARGS...>
+Pair_ImpUtil::concatAllocator(
+          BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<ARGS...>)  tpl,
+          BloombergLP::bslma::Allocator                                 *alloc,
+          bsl::Pair_BslmaIdiomNone)
 {
-        return TYPE(native_std::get<I>(BSLS_COMPILERFEATURES_FORWARD(
-                                        native_std::tuple<Args...>,tuple))...);
+    return BloombergLP::bslmf::MovableRefUtil::move(tpl);
 }
 
-template <class TYPE, class ...Args, int ...I>
+template <class ... ARGS>
 inline
-TYPE Pair_MakeUtil::make(
-           BloombergLP::bslma::Allocator                                *,
-           BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<Args...>) tuple,
-           tmp::index_sequence<I...>,
-           Pair_BslmaIdiomNone)
+native_std::tuple<ARGS..., BloombergLP::bslma::Allocator *>
+Pair_ImpUtil::concatAllocator(
+          BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<ARGS...>)  tpl,
+          BloombergLP::bslma::Allocator                                 *alloc,
+          bsl::Pair_BslmaIdiomAtEnd)
 {
-    return TYPE(native_std::get<I>(BSLS_COMPILERFEATURES_FORWARD(
-                                        native_std::tuple<Args...>,tuple))...);
+    return native_std::tuple_cat(BloombergLP::bslmf::MovableRefUtil::move(tpl),
+                                 native_std::tie(alloc));
 }
 
-template <class TYPE, class ...Args, int ...I>
+template <class ... ARGS>
 inline
-TYPE Pair_MakeUtil::make(
-       BloombergLP::bslma::Allocator                                *allocator,
-       BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<Args...>) tuple,
-       tmp::index_sequence<I...>,
-       Pair_BslmaIdiomAtEnd)
+native_std::tuple<bsl::allocator_arg_t,
+                  BloombergLP::bslma::Allocator *,
+                  ARGS...>
+Pair_ImpUtil::concatAllocator(
+          BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<ARGS...>)  tpl,
+          BloombergLP::bslma::Allocator                                 *alloc,
+          bsl::Pair_BslmaIdiomAllocatorArgT)
 {
-    return TYPE(native_std::get<I>(BSLS_COMPILERFEATURES_FORWARD(
-                                         native_std::tuple<Args...>,tuple))...,
-                allocator);
-}
-
-template <class TYPE, class ...Args, int ...I>
-inline
-TYPE Pair_MakeUtil::make(
-       BloombergLP::bslma::Allocator                                *allocator,
-       BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<Args...>) tuple,
-       tmp::index_sequence<I...>,
-       Pair_BslmaIdiomAllocatorArgT)
-{
-    return TYPE(bsl::allocator_arg,
-                allocator,
-                native_std::get<I>(BSLS_COMPILERFEATURES_FORWARD(
-                                        native_std::tuple<Args...>,tuple))...);
+    return native_std::tuple_cat(
+                                native_std::tie(bsl::allocator_arg, alloc),
+                                BloombergLP::bslmf::MovableRefUtil::move(tpl));
 }
 #endif
 
@@ -1288,6 +1587,7 @@ TYPE Pair_MakeUtil::make(
 // CREATORS
 template <class TYPE>
 inline
+BSLS_KEYWORD_CONSTEXPR
 Pair_First<TYPE>::Pair_First()
 : first()
 {
@@ -1319,6 +1619,7 @@ Pair_First<TYPE>::Pair_First(BloombergLP::bslma::Allocator *basicAllocator,
 
 template <class TYPE>
 inline
+BSLS_KEYWORD_CONSTEXPR
 Pair_First<TYPE>::Pair_First(
                     typename bsl::add_lvalue_reference<const TYPE>::type value)
 : first(value)
@@ -1329,14 +1630,16 @@ Pair_First<TYPE>::Pair_First(
 template <class TYPE>
 template <class U>
 inline
+BSLS_KEYWORD_CONSTEXPR
 Pair_First<TYPE>::Pair_First(U&& value)
-: first(BSLS_COMPILERFEATURES_FORWARD(U,value))
+: first(BSLS_COMPILERFEATURES_FORWARD(U, value))
 {
 }
 #else
 template <class TYPE>
 template <class U>
 inline
+BSLS_KEYWORD_CONSTEXPR
 Pair_First<TYPE>::Pair_First(const U& value)
 : first(value)
 {
@@ -1345,6 +1648,7 @@ Pair_First<TYPE>::Pair_First(const U& value)
 template <class TYPE>
 template <class U>
 inline
+BSLS_KEYWORD_CONSTEXPR
 Pair_First<TYPE>::Pair_First(U& value)
 : first(value)
 {
@@ -1355,7 +1659,7 @@ Pair_First<TYPE>::Pair_First(U& value)
 template <class TYPE>
 template <class U>
 inline
-Pair_First<TYPE>::Pair_First(U&& value,
+Pair_First<TYPE>::Pair_First(U&&                            value,
                              BloombergLP::bslma::Allocator *,
                              Pair_BslmaIdiomNone)
 : first(BSLS_COMPILERFEATURES_FORWARD(U,value))
@@ -1387,7 +1691,7 @@ Pair_First<TYPE>::Pair_First(U&&                            value,
 template <class TYPE>
 template <class U>
 inline
-Pair_First<TYPE>::Pair_First(const U& value,
+Pair_First<TYPE>::Pair_First(const U&                       value,
                              BloombergLP::bslma::Allocator *,
                              Pair_BslmaIdiomNone)
 : first(value)
@@ -1397,7 +1701,7 @@ Pair_First<TYPE>::Pair_First(const U& value,
 template <class TYPE>
 template <class U>
 inline
-Pair_First<TYPE>::Pair_First(U& value,
+Pair_First<TYPE>::Pair_First(U&                             value,
                              BloombergLP::bslma::Allocator *,
                              Pair_BslmaIdiomNone)
 : first(value)
@@ -1407,7 +1711,7 @@ Pair_First<TYPE>::Pair_First(U& value,
 template <class TYPE>
 template <class U>
 inline
-Pair_First<TYPE>::Pair_First(const U& value,
+Pair_First<TYPE>::Pair_First(const U&                       value,
                              BloombergLP::bslma::Allocator *basicAllocator,
                              Pair_BslmaIdiomAtEnd)
 : first(value, basicAllocator)
@@ -1417,7 +1721,7 @@ Pair_First<TYPE>::Pair_First(const U& value,
 template <class TYPE>
 template <class U>
 inline
-Pair_First<TYPE>::Pair_First(U& value,
+Pair_First<TYPE>::Pair_First(U&                             value,
                              BloombergLP::bslma::Allocator *basicAllocator,
                              Pair_BslmaIdiomAtEnd)
 : first(value, basicAllocator)
@@ -1427,7 +1731,7 @@ Pair_First<TYPE>::Pair_First(U& value,
 template <class TYPE>
 template <class U>
 inline
-Pair_First<TYPE>::Pair_First(const U& value,
+Pair_First<TYPE>::Pair_First(const U&                       value,
                              BloombergLP::bslma::Allocator *basicAllocator,
                              Pair_BslmaIdiomAllocatorArgT)
 : first(bsl::allocator_arg, basicAllocator, value)
@@ -1437,7 +1741,7 @@ Pair_First<TYPE>::Pair_First(const U& value,
 template <class TYPE>
 template <class U>
 inline
-Pair_First<TYPE>::Pair_First(U& value,
+Pair_First<TYPE>::Pair_First(U&                             value,
                              BloombergLP::bslma::Allocator *basicAllocator,
                              Pair_BslmaIdiomAllocatorArgT)
 : first(bsl::allocator_arg, basicAllocator, value)
@@ -1447,29 +1751,12 @@ Pair_First<TYPE>::Pair_First(U& value,
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
 template <class TYPE>
-template <class ...Args>
+template <class ...ARGS, size_t ...I>
 inline
-Pair_First<TYPE>::Pair_First(native_std::tuple<Args...> tuple)
-: first(Pair_MakeUtil::make<TYPE>(
-              BSLS_COMPILERFEATURES_FORWARD(native_std::tuple<Args...>, tuple),
-              typename tmp::make_index_sequence<
-                     native_std::tuple_size<native_std::tuple<Args...> >::value
-                                               >::type()))
-{
-}
 
-template <class TYPE>
-template <class ...Args>
-inline
-Pair_First<TYPE>::Pair_First(native_std::tuple<Args...> tuple,
-                             BloombergLP::bslma::Allocator *allocator)
-: first(Pair_MakeUtil::make<TYPE>(
-              allocator,
-              BSLS_COMPILERFEATURES_FORWARD(native_std::tuple<Args...>, tuple),
-              typename tmp::make_index_sequence<
-                     native_std::tuple_size<native_std::tuple<Args...> >::value
-                                               >::type(),
-              FirstBslmaIdiom()))
+Pair_First<TYPE>::Pair_First(native_std::tuple<ARGS...>&& argsPack,
+                             bsl::index_sequence<I...>)
+: first(native_std::get<I>(native_std::move(argsPack))...)
 {
 }
 #endif
@@ -1481,6 +1768,7 @@ Pair_First<TYPE>::Pair_First(native_std::tuple<Args...> tuple,
 // CREATORS
 template <class TYPE>
 inline
+BSLS_KEYWORD_CONSTEXPR
 Pair_Second<TYPE>::Pair_Second()
 : second()
 {
@@ -1512,6 +1800,7 @@ Pair_Second<TYPE>::Pair_Second(BloombergLP::bslma::Allocator *alloc,
 
 template <class TYPE>
 inline
+BSLS_KEYWORD_CONSTEXPR
 Pair_Second<TYPE>::Pair_Second(
     typename bsl::add_lvalue_reference<const TYPE>::type value)
 : second(value)
@@ -1522,6 +1811,7 @@ Pair_Second<TYPE>::Pair_Second(
 template <class TYPE>
 template <class U>
 inline
+BSLS_KEYWORD_CONSTEXPR
 Pair_Second<TYPE>::Pair_Second(U&& value)
 : second(BSLS_COMPILERFEATURES_FORWARD(U, value))
 {
@@ -1530,6 +1820,7 @@ Pair_Second<TYPE>::Pair_Second(U&& value)
 template <class TYPE>
 template <class U>
 inline
+BSLS_KEYWORD_CONSTEXPR
 Pair_Second<TYPE>::Pair_Second(const U& value)
 : second(value)
 {
@@ -1537,6 +1828,7 @@ Pair_Second<TYPE>::Pair_Second(const U& value)
 template <class TYPE>
 template <class U>
 inline
+BSLS_KEYWORD_CONSTEXPR
 Pair_Second<TYPE>::Pair_Second(U& value)
 : second(value)
 {
@@ -1547,7 +1839,7 @@ Pair_Second<TYPE>::Pair_Second(U& value)
 template <class TYPE>
 template <class U>
 inline
-Pair_Second<TYPE>::Pair_Second(U&& value,
+Pair_Second<TYPE>::Pair_Second(U&&                            value,
                                BloombergLP::bslma::Allocator *,
                                Pair_BslmaIdiomNone)
 : second(BSLS_COMPILERFEATURES_FORWARD(U, value))
@@ -1579,7 +1871,7 @@ Pair_Second<TYPE>::Pair_Second(U&&                            value,
 template <class TYPE>
 template <class U>
 inline
-Pair_Second<TYPE>::Pair_Second(const U& value,
+Pair_Second<TYPE>::Pair_Second(const U&                       value,
                                BloombergLP::bslma::Allocator *,
                                Pair_BslmaIdiomNone)
 : second(value)
@@ -1589,7 +1881,7 @@ Pair_Second<TYPE>::Pair_Second(const U& value,
 template <class TYPE>
 template <class U>
 inline
-Pair_Second<TYPE>::Pair_Second(U& value,
+Pair_Second<TYPE>::Pair_Second(U&                             value,
                                BloombergLP::bslma::Allocator *,
                                Pair_BslmaIdiomNone)
 : second(value)
@@ -1639,29 +1931,11 @@ Pair_Second<TYPE>::Pair_Second(U&                             value,
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
 template <class TYPE>
-template <class ...Args>
+template <class ...ARGS, size_t ...I>
 inline
-Pair_Second<TYPE>::Pair_Second(native_std::tuple<Args...> tuple)
-: second(Pair_MakeUtil::make<TYPE>(
-              BSLS_COMPILERFEATURES_FORWARD(native_std::tuple<Args...>, tuple),
-              typename tmp::make_index_sequence<
-                     native_std::tuple_size<native_std::tuple<Args...> >::value
-                                               >::type()))
-{
-}
-
-template <class TYPE>
-template <class ...Args>
-inline
-Pair_Second<TYPE>::Pair_Second(native_std::tuple<Args...> tuple,
-                               BloombergLP::bslma::Allocator *allocator)
-: second(Pair_MakeUtil::make<TYPE>(
-              allocator,
-              BSLS_COMPILERFEATURES_FORWARD(native_std::tuple<Args...>, tuple),
-              typename tmp::make_index_sequence<
-                     native_std::tuple_size<native_std::tuple<Args...> >::value
-                                               >::type(),
-              SecondBslmaIdiom()))
+Pair_Second<TYPE>::Pair_Second(native_std::tuple<ARGS...>&& argsPack,
+                               bsl::index_sequence<I...>)
+: second(native_std::get<I>(native_std::move(argsPack))...)
 {
 }
 #endif
@@ -1673,6 +1947,7 @@ Pair_Second<TYPE>::Pair_Second(native_std::tuple<Args...> tuple,
 // CREATORS
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair()
 : FirstBase()
 , SecondBase()
@@ -1689,6 +1964,7 @@ pair<T1, T2>::pair(AllocatorPtr basicAllocator)
 
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(typename bsl::add_lvalue_reference<const T1>::type a,
                    typename bsl::add_lvalue_reference<const T2>::type b)
 : FirstBase(a)
@@ -1760,37 +2036,46 @@ pair<T1, T2>::pair(U1& a, U2& b, AllocatorPtr basicAllocator)
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
 template <class T1, class T2>
-template<class ...Args1, class ...Args2>
+template<class ...ARGS_1, class ...ARGS_2>
 inline
 pair<T1, T2>::pair(native_std::piecewise_construct_t,
-                   native_std::tuple<Args1...> first_args,
-                   native_std::tuple<Args2...> second_args)
-: FirstBase(BSLS_COMPILERFEATURES_FORWARD(native_std::tuple<Args1...>,
-                                          first_args))
-, SecondBase(BSLS_COMPILERFEATURES_FORWARD(native_std::tuple<Args2...>,
-                                           second_args))
+                   native_std::tuple<ARGS_1...>      first_args,
+                   native_std::tuple<ARGS_2...>      second_args)
+: FirstBase(native_std::move(first_args),
+            typename bsl::make_index_sequence<
+                   native_std::tuple_size<native_std::tuple<ARGS_1...> >::value
+                                              >())
+, SecondBase(native_std::move(second_args),
+            typename bsl::make_index_sequence<
+                   native_std::tuple_size<native_std::tuple<ARGS_2...> >::value
+                                              >())
 {
 }
 
 template <class T1, class T2>
-template<class ...Args1, class ...Args2>
+template<class ...ARGS_1, class ...ARGS_2>
 inline
 pair<T1, T2>::pair(native_std::piecewise_construct_t,
-                   native_std::tuple<Args1...> first_args,
-                   native_std::tuple<Args2...> second_args,
-                   AllocatorPtr           basicAllocator)
-: FirstBase(
-        BSLS_COMPILERFEATURES_FORWARD(native_std::tuple<Args1...>, first_args),
-        basicAllocator)
-, SecondBase(
-       BSLS_COMPILERFEATURES_FORWARD(native_std::tuple<Args2...>, second_args),
-       basicAllocator)
+                   native_std::tuple<ARGS_1...>      first_args,
+                   native_std::tuple<ARGS_2...>      second_args,
+                   AllocatorPtr                      basicAllocator)
+: FirstBase(Pair_ImpUtil::concatAllocator(native_std::move(first_args),
+                                          basicAllocator,
+                                          FirstBslmaIdiom()),
+            typename bsl::make_index_sequence<
+                Pair_ConstructionParametersPackLength<T1, ARGS_1...>::value>())
+, SecondBase(Pair_ImpUtil::concatAllocator(native_std::move(second_args),
+                                           basicAllocator,
+                                           SecondBslmaIdiom()),
+             typename bsl::make_index_sequence<
+                Pair_ConstructionParametersPackLength<T2, ARGS_2...>::value>())
 {
 }
 #endif
 
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(const pair& original)
 : FirstBase(original.first)
 , SecondBase(original.second)
@@ -1808,6 +2093,7 @@ pair<T1, T2>::pair(const pair& original, AllocatorPtr basicAllocator)
 #if defined (BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(pair&& original)
 : FirstBase(BSLS_COMPILERFEATURES_FORWARD(T1, original.first))
 , SecondBase(BSLS_COMPILERFEATURES_FORWARD(T2, original.second))
@@ -1828,6 +2114,7 @@ pair<T1, T2>::pair(pair&& original, AllocatorPtr basicAllocator)
 #else
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(BloombergLP::bslmf::MovableRef<pair> original)
 : FirstBase(MovUtil::move(MovUtil::access(original).first))
 , SecondBase(MovUtil::move(MovUtil::access(original).second))
@@ -1836,6 +2123,7 @@ pair<T1, T2>::pair(BloombergLP::bslmf::MovableRef<pair> original)
 
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(BloombergLP::bslmf::MovableRef<pair> original,
                    AllocatorPtr                         basicAllocator)
 : FirstBase(MovUtil::move(MovUtil::access(original).first),
@@ -1852,6 +2140,7 @@ pair<T1, T2>::pair(BloombergLP::bslmf::MovableRef<pair> original,
 template <class T1, class T2>
 template <class U1, class U2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(const pair<U1, U2>& other,
                    typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                                         && bsl::is_convertible<U2, T2>::value,
@@ -1864,6 +2153,7 @@ pair<T1, T2>::pair(const pair<U1, U2>& other,
 template <class T1, class T2>
 template <class U1, class U2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(const native_std::pair<U1, U2>& other,
                    typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                                         && bsl::is_convertible<U2, T2>::value,
@@ -1875,6 +2165,8 @@ pair<T1, T2>::pair(const native_std::pair<U1, U2>& other,
 #else
 template <class T1, class T2>
 template <class U1, class U2>
+inline
+BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(const pair<U1, U2>& other)
 : FirstBase(other.first)
 , SecondBase(other.second)
@@ -1883,6 +2175,8 @@ pair<T1, T2>::pair(const pair<U1, U2>& other)
 
 template <class T1, class T2>
 template <class U1, class U2>
+inline
+BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(const native_std::pair<U1, U2>& other)
 : FirstBase(other.first)
 , SecondBase(other.second)
@@ -1912,9 +2206,10 @@ pair<T1, T2>::pair(const native_std::pair<U1, U2>& other,
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template <class T1, class T2>
 template <class U1, class U2>
+BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(pair<U1, U2>&& other,
                    typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
-                         && bsl::is_convertible<U2, T2>::value,
+                                        && bsl::is_convertible<U2, T2>::value,
                             void *>::type)
 : FirstBase(MovUtil::move(other.first))
 , SecondBase(MovUtil::move(other.second))
@@ -1923,6 +2218,7 @@ pair<T1, T2>::pair(pair<U1, U2>&& other,
 
 template <class T1, class T2>
 template <class U1, class U2>
+BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(native_std::pair<U1, U2>&& other,
                    typename bsl::enable_if<bsl::is_convertible<U1, T1>::value
                                         && bsl::is_convertible<U2, T2>::value,
@@ -1980,6 +2276,7 @@ pair<T1, T2>::pair(
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 template <class T1, class T2>
 template <class U1, class U2>
+BSLS_KEYWORD_CONSTEXPR
 pair<T1, T2>::pair(const BloombergLP::bslma::ManagedPtr_PairProxy<U1, U2>& rhs)
 : FirstBase(rhs.first)
 , SecondBase(rhs.second)
@@ -2000,7 +2297,7 @@ pair<T1, T2>& pair<T1, T2>::operator=(const pair& rhs)
 template <class T1, class T2>
 inline
 pair<T1, T2>& pair<T1, T2>::operator=(BloombergLP::bslmf::MovableRef<pair> rhs)
-              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
 {
     pair& lvalue = rhs;
     first = MovUtil::move(lvalue.FirstBase::first);
@@ -2051,10 +2348,44 @@ pair<T1, T2>::operator=(const native_std::pair<U1, U2>& rhs)
     return *this;
 }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+template <class T1, class T2>
+template <class U1, class U2,
+          typename bsl::enable_if<bsl::is_convertible<T1, U1>::value
+                               && bsl::is_convertible<T2, U2>::value,
+                        bool>::type>
+inline
+pair<T1, T2>::operator native_std::tuple<U1&, U2&>() BSLS_KEYWORD_NOEXCEPT
+{
+    return native_std::tuple<U1&, U2&>(first, second);
+}
+
+template <class T1, class T2>
+template <class U1,
+          typename bsl::enable_if<bsl::is_convertible<T1, U1>::value,
+                        bool>::type>
+inline
+pair<T1, T2>::operator native_std::tuple<U1&, decltype(std::ignore)&>()
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return native_std::tuple<U1&, decltype(std::ignore)&>(first, std::ignore);
+}
+
+template <class T1, class T2>
+template <class U2,
+          typename bsl::enable_if<bsl::is_convertible<T2, U2>::value,
+                        bool>::type>
+inline
+pair<T1, T2>::operator native_std::tuple<decltype(std::ignore)&, U2&>()
+                                                          BSLS_KEYWORD_NOEXCEPT
+{
+    return native_std::tuple<decltype(std::ignore)&, U2&>(std::ignore, second);
+}
+#endif
+
 template <class T1, class T2>
 inline
-void pair<T1, T2>::swap(pair& other)
-              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
+void pair<T1, T2>::swap(pair& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
 {
     // Find either 'std::swap' or a specialized 'swap' for 'T1' and 'T2' via
     // ADL.
@@ -2068,6 +2399,7 @@ void pair<T1, T2>::swap(pair& other)
 // FREE OPERATORS
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 bool operator==(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
     return lhs.first == rhs.first && lhs.second == rhs.second;
@@ -2075,6 +2407,7 @@ bool operator==(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 bool operator!=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
     return ! (lhs == rhs);
@@ -2082,6 +2415,7 @@ bool operator!=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 bool operator<(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
     return (lhs.first < rhs.first ? true  :
@@ -2091,6 +2425,7 @@ bool operator<(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 bool operator>(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
     return rhs < lhs;
@@ -2098,6 +2433,7 @@ bool operator>(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 bool operator<=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
     return ! (rhs < lhs);
@@ -2105,6 +2441,7 @@ bool operator<=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 
 template <class T1, class T2>
 inline
+BSLS_KEYWORD_CONSTEXPR
 bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 {
     return ! (lhs < rhs);
@@ -2114,7 +2451,7 @@ bool operator>=(const pair<T1, T2>& lhs, const pair<T1, T2>& rhs)
 template <class T1, class T2>
 inline
 void swap(pair<T1, T2>& a, pair<T1, T2>& b)
-              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
 {
     a.swap(b);
 }
@@ -2129,6 +2466,153 @@ void hashAppend(HASHALG& hashAlg, const pair<T1, T2>&  input)
 }
 
 }  // close namespace bsl
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+namespace BloombergLP {
+namespace bslstl {
+
+                         // ---------------------
+                         // class Pair_GetImpUtil
+                         // ---------------------
+
+// CLASS METHODS
+template <class T1, class T2>
+inline
+T1& Pair_GetImpUtil<0, T1, T2>::getPairElement(bsl::pair<T1, T2>& p)
+{
+    return p.first;
+}
+
+template <class T1, class T2>
+inline
+const T1& Pair_GetImpUtil<0, T1, T2>::getPairElement(
+                                                    const bsl::pair<T1, T2>& p)
+{
+    return p.first;
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class T1, class T2>
+inline
+T1&& Pair_GetImpUtil<0, T1, T2>::getPairElement(bsl::pair<T1, T2>&&  p)
+{
+    return native_std::move(p.first);
+}
+
+template <class T1, class T2>
+inline
+const T1&& Pair_GetImpUtil<0, T1, T2>::getPairElement(
+                                                  const bsl::pair<T1, T2>&&  p)
+{
+    return native_std::move(p.first);
+}
+#endif
+
+template <class T1, class T2>
+inline
+T2& Pair_GetImpUtil<1u, T1, T2>::getPairElement(bsl::pair<T1, T2>& p)
+{
+    return p.second;
+}
+
+template <class T1, class T2>
+inline
+const T2& Pair_GetImpUtil<1u, T1, T2>::getPairElement(
+                                                    const bsl::pair<T1, T2>& p)
+{
+    return p.second;
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class T1, class T2>
+inline
+T2&& Pair_GetImpUtil<1u, T1, T2>::getPairElement(bsl::pair<T1, T2>&&  p)
+{
+    return native_std::move(p.second);
+}
+
+template <class T1, class T2>
+inline
+const T2&& Pair_GetImpUtil<1u, T1, T2>::getPairElement(
+                                                  const bsl::pair<T1, T2>&&  p)
+{
+    return native_std::move(p.second);
+}
+
+#endif
+
+}  // close package namespace
+}  // close enterprise namespace
+
+// FREE FUNCTIONS
+template<native_std::size_t INDEX, class T1, class T2>
+inline
+typename native_std::tuple_element<INDEX, bsl::pair<T1, T2> >::type& bsl::get(
+                                                          bsl::pair<T1, T2>& p)
+{
+    return BloombergLP::bslstl::Pair_GetImpUtil<INDEX, T1, T2>::getPairElement(
+                                                                            p);
+}
+
+template<native_std::size_t INDEX, class T1, class T2>
+inline
+const typename native_std::tuple_element<INDEX, bsl::pair<T1, T2> >::type&
+bsl::get(const bsl::pair<T1, T2>& p)
+{
+    return BloombergLP::bslstl::Pair_GetImpUtil<INDEX, T1, T2>::getPairElement(
+                                                                            p);
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template<native_std::size_t INDEX, class T1, class T2>
+inline
+typename native_std::tuple_element<INDEX, bsl::pair<T1, T2> >::type&& bsl::get(
+                                                         bsl::pair<T1, T2>&& p)
+{
+    return BloombergLP::bslstl::Pair_GetImpUtil<INDEX, T1, T2>::getPairElement(
+                                                          native_std::move(p));
+}
+#endif
+
+template<class TYPE, class T1, class T2>
+inline
+TYPE& bsl::get(bsl::pair<T1, T2>& p)
+{
+    return BloombergLP::bslstl::Pair_GetImpUtil<
+        BloombergLP::bslstl::Pair_IndexOfType<TYPE, T1, T2>::value, T1, T2>
+                                                           ::getPairElement(p);
+}
+
+template<class TYPE, class T1, class T2>
+inline
+const TYPE& bsl::get(const bsl::pair<T1, T2>& p)
+{
+    return BloombergLP::bslstl::Pair_GetImpUtil<
+        BloombergLP::bslstl::Pair_IndexOfType<TYPE, T1, T2>::value, T1, T2>
+                                                           ::getPairElement(p);
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template<class TYPE, class T1, class T2>
+inline
+TYPE&& bsl::get(bsl::pair<T1, T2>&& p)
+{
+    return BloombergLP::bslstl::Pair_GetImpUtil<
+        BloombergLP::bslstl::Pair_IndexOfType<TYPE, T1, T2>::value, T1, T2>
+            ::getPairElement(native_std::move(p));
+}
+
+template<class TYPE, class T1, class T2>
+inline
+const TYPE&& bsl::get(const bsl::pair<T1, T2>&& p)
+{
+    return BloombergLP::bslstl::Pair_GetImpUtil<
+        BloombergLP::bslstl::Pair_IndexOfType<TYPE, T1, T2>::value, T1, T2>
+            ::getPairElement(native_std::move(p));
+}
+#endif
+
+#endif
 
 // ============================================================================
 //                                TYPE TRAITS

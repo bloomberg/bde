@@ -2660,6 +2660,12 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                          ALLOCATOR                   allocator,
                                          bslmf::MetaInt<NIL_TRAITS> *)
 {
+    if (first == last) {  // Nothing to delete, bail out fast
+        *toBegin = fromBegin;
+        *toEnd   = fromEnd;
+        return first;                                                 // RETURN
+    }
+
     size_type frontSize = first - fromBegin;
     size_type backSize  = fromEnd - last;
     Iterator  ret;

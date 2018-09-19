@@ -31,6 +31,14 @@ BSLS_IDENT("$Id: $")
 // the Bloomberg supplied standard header file.
 
 #ifndef BSL_OVERRIDES_STD
+// According to C++11 Standard (24.6.5 range access)some functions (begin(),
+// cbegin() etc.) must be available not only via inclusion of the <iterator>
+// header, but also when <list> is included. To satisfy this requirement the
+// following inclusion is added.
+#ifndef INCLUDED_BSLSTL_ITERATOR
+#include <bslstl_iterator.h>
+#endif
+
 #include <bslstl_list.h>
 #endif
 

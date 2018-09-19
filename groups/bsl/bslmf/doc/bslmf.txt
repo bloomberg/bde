@@ -126,6 +126,7 @@
       bslmf_addrvaluereference
       bslmf_arraytopointer
       bslmf_conditional
+      bslmf_integersequence
       bslmf_isconst
       bslmf_nthparameter
       bslmf_removeconst
@@ -210,6 +211,9 @@
 :
 : 'bslmf_if':
 :      Provide a compile-time 'if/else' (conditional) meta-function.
+:
+: 'bslmf_integersequence':
+:      Provide a template parameter pack of integers.
 :
 : 'bslmf_integralconstant':
 :      Provide a mapping from integral constants to unique types.

@@ -452,6 +452,9 @@
 #   include <bslmf_isconvertible.h>
 # endif
 // level 12
+# ifndef INCLUDED_BSLMF_INOVOKERESULT
+#   include <bslmf_invokeresult.h>
+# endif
 // level 13
 # ifndef INCLUDED_BSLMF_ISENUM
 #   include <bslmf_isenum.h>

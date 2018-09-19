@@ -22,16 +22,17 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines two meta-functions, 'bsl::is_enum' and
-// 'bslmf::IsEnum', that determine whether a template parameter type is an
-// enumerated type.  Thus, we need to ensure that the value returned by these
-// meta-functions are correct for each possible category of types.  Since the
-// two meta-functions are functionally equivalent, we will use the same set of
-// types for both.
+// 'bslmf::IsEnum' and a template variable 'bsl::is_enum_v', that determine
+// whether a template parameter type is an enumerated type.  Thus, we need to
+// ensure that the value returned by these meta-functions are correct for each
+// possible category of types.  Since the two meta-functions are functionally
+// equivalent, we will use the same set of types for both.
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 2] bslmf::IsEnum::VALUE
 // [ 1] bsl::is_enum::value
+// [ 1] bsl::is_enum_v
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 
@@ -82,19 +83,40 @@ void aSsErT(bool condition, const char *message, int line)
 //                  COMPONENT SPECIFIC MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+#define ASSERT_V_SAME(TYPE)                                                   \
+    ASSERT( bsl::is_enum<TYPE>::value == bsl::is_enum_v<TYPE>)
+    // 'ASSERT' that 'is_enum_v' has the same value as 'is_enum::value'.
+#else
+#define ASSERT_V_SAME(TYPE)
+#endif
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER) &&                   \
     defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 # define TYPE_ASSERT_REF(META_FUNC, TYPE, result)                             \
     ASSERT(result == META_FUNC<                         TYPE       >::value); \
     ASSERT(false == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::value); \
-    ASSERT(false == META_FUNC<bsl::add_rvalue_reference<TYPE>::type>::value);
+    ASSERT(false == META_FUNC<bsl::add_rvalue_reference<TYPE>::type>::value); \
+    ASSERT_V_SAME(                          TYPE       );                     \
+    ASSERT_V_SAME(bsl::add_lvalue_reference<TYPE>::type);                     \
+    ASSERT_V_SAME(bsl::add_rvalue_reference<TYPE>::type);
+    // References are never 'enum' types, but must safely be parsed by the
+    // metafunction under test, and give the expected ('false') result.  Also
+    // test that the result value of the 'META_FUNC' on the specified 'TYPE'
+    // and references to that type and the value of the 'META_FUNC_v' variable
+    // instantiated with the same types are the same.
 #else
 # define TYPE_ASSERT_REF(META_FUNC, TYPE, result)                             \
     ASSERT(result == META_FUNC<                         TYPE       >::value); \
-    ASSERT(false == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::value);
+    ASSERT(false == META_FUNC<bsl::add_lvalue_reference<TYPE>::type>::value); \
+    ASSERT_V_SAME(                          TYPE       );                     \
+    ASSERT_V_SAME(bsl::add_lvalue_reference<TYPE>::type);
+    // References are never 'enum' types, but must safely be parsed by the
+    // metafunction under test, and give the expected ('false') result. Also
+    // test that the result value of the 'META_FUNC' on the specified 'TYPE'
+    // and a reference to that type and the value of the 'META_FUNC_v' variable
+    // instantiated with the same types are the same.
 #endif
-    // References are never 'enum' types, but must safely be arsed by the
-    // metafunction under test, and give the expected ('false') result.
 
 # define TYPE_ASSERT_CVQ(META_FUNC,                   TYPE,        result)    \
          TYPE_ASSERT_REF(META_FUNC,                   TYPE,        result)    \
@@ -265,6 +287,14 @@ int main(int argc, char *argv[])
     ASSERT(true  == bsl::is_enum<MyEnum>::value);
     ASSERT(false == bsl::is_enum<MyClass>::value);
 //..
+// Note that if the current compiler supports the variable templates C++14
+// feature, then we can re-write the snippet of code above as follows:
+//..
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+    ASSERT(true  == bsl::is_enum_v<MyEnum>);
+    ASSERT(false == bsl::is_enum_v<MyClass>);
+#endif
+//..
 
       } break;
       case 2: {
@@ -427,6 +457,9 @@ int main(int argc, char *argv[])
         //:
         //: 7 'is_enum::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) array type.
+        //:
+        //: 9  That 'is_enum<T>::value' has the same value as 'is_enum_v<T>'
+        //:    for a variety of template parameter types.
         //
         // Plan:
         //: 1 Verify that 'bsl::is_enum::value' has the correct value for each
@@ -434,6 +467,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::is_enum::value
+        //   bsl::is_enum_v
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING 'bsl::is_enum::value'\n"
@@ -479,6 +513,10 @@ int main(int argc, char *argv[])
         ASSERT(! bsl::is_enum<ConvertToAnyType const>::value);
         ASSERT(! bsl::is_enum<ConvertToAnyType &>::value);
         ASSERT(! bsl::is_enum<ConvertToAnyType const &>::value);
+        ASSERT_V_SAME(ConvertToAnyType);
+        ASSERT_V_SAME(ConvertToAnyType const);
+        ASSERT_V_SAME(ConvertToAnyType &);
+        ASSERT_V_SAME(ConvertToAnyType const &);
 
         // C-6
         TYPE_ASSERT_CVQP(bsl::is_enum, int(int),  false);
@@ -507,20 +545,40 @@ int main(int argc, char *argv[])
         ASSERT(! bsl::is_enum<volatile int[2]>::value);
         ASSERT(! bsl::is_enum<const volatile int[2]>::value);
 
+        ASSERT_V_SAME(int[2]);
+        ASSERT_V_SAME(const int[2]);
+        ASSERT_V_SAME(volatile int[2]);
+        ASSERT_V_SAME(const volatile int[2]);
+
         ASSERT(! bsl::is_enum<int[4][2]>::value);
         ASSERT(! bsl::is_enum<const int[4][2]>::value);
         ASSERT(! bsl::is_enum<volatile int[4][2]>::value);
         ASSERT(! bsl::is_enum<const volatile int[4][2]>::value);
+
+        ASSERT_V_SAME(int[4][2]);
+        ASSERT_V_SAME(const int[4][2]);
+        ASSERT_V_SAME(volatile int[4][2]);
+        ASSERT_V_SAME(const volatile int[4][2]);
 
         ASSERT(! bsl::is_enum<EnumTestType[2]>::value);
         ASSERT(! bsl::is_enum<const EnumTestType[2]>::value);
         ASSERT(! bsl::is_enum<volatile EnumTestType[2]>::value);
         ASSERT(! bsl::is_enum<const volatile EnumTestType[2]>::value);
 
+        ASSERT_V_SAME(EnumTestType[2]);
+        ASSERT_V_SAME(const EnumTestType[2]);
+        ASSERT_V_SAME(volatile EnumTestType[2]);
+        ASSERT_V_SAME(const volatile EnumTestType[2]);
+
         ASSERT(! bsl::is_enum<EnumTestType[4][2]>::value);
         ASSERT(! bsl::is_enum<const EnumTestType[4][2]>::value);
         ASSERT(! bsl::is_enum<volatile EnumTestType[4][2]>::value);
         ASSERT(! bsl::is_enum<const volatile EnumTestType[4][2]>::value);
+
+        ASSERT_V_SAME(EnumTestType[4][2]);
+        ASSERT_V_SAME(const EnumTestType[4][2]);
+        ASSERT_V_SAME(volatile EnumTestType[4][2]);
+        ASSERT_V_SAME(const volatile EnumTestType[4][2]);
 #endif
 
       } break;

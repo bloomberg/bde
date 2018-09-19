@@ -11,6 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::remove_extent: type trait that returns the element type of an array
+//  bsl::remove_extent_t: alias to the return type of the 'bsl::remove_extent'
 //
 //@SEE_ALSO: bslmf_decay
 //
@@ -37,7 +38,18 @@ BSLS_IDENT("$Id: $")
 //  template <class ARRAY_TYPE>
 //  class Traverser {
 //  public:
+//
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//..
+// Note that if the current compiler supports alias templates C++11 feature, we
+// can use 'bsl::remove_extent_t' alias to the "result" type of the
+// 'bsl::remove_extent' meta-function, that avoids the '::type' suffix and
+// 'typename' prefix in the declaration of the function return type:
+//..
+//      using RowType = bsl::remove_extent_t<ARRAY_TYPE>;
+//#else
 //      typedef typename bsl::remove_extent<ARRAY_TYPE>::type RowType;
+//#endif
 //
 //  private:
 //      RowType d_row;  // Might be scalar
@@ -62,6 +74,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
 #endif
 
 #ifndef INCLUDED_CSTDLIB
@@ -99,6 +115,18 @@ struct remove_extent<TYPE[SZ]> {
 
     typedef TYPE type;
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+// ALIASES
+template <class TYPE>
+using remove_extent_t = typename remove_extent<TYPE>::type;
+    // 'remove_extent_t' is an alias to the return type of the
+    // 'bsl::remove_extent' meta-function.  Note, that the 'enable_if_t' avoids
+    // the '::type' suffix and 'typename' prefix when we want to use the result
+    // of the meta-function in templates.
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 }  // close namespace bsl
 

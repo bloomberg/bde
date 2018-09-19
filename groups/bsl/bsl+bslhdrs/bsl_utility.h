@@ -58,6 +58,10 @@ namespace bsl {
     using native_std::piecewise_construct_t;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+    using native_std::exchange;
+#endif
+
 }  // close package namespace
 
 // Include Bloomberg's implementation, unless compilation is configured to
@@ -66,6 +70,7 @@ namespace bsl {
 // the Bloomberg supplied standard header file.
 
 #ifndef BSL_OVERRIDES_STD
+#include <bslmf_integersequence.h>
 #include <bslstl_pair.h>
 #endif
 

@@ -2190,7 +2190,7 @@ int main(int argc, char *argv[])
         // TEST 'readInitialLength' and 'readSectionOffset'
         //
         // Concerns:
-        //: 1 That 'readInitialLength' correctly reads the intial length.
+        //: 1 That 'readInitialLength' correctly reads the initial length.
         //: 2 That 'readInitialLength' correctly sets the offset size.
         //: 3 That 'offsetSize' correctly indicates the offset size.
         //: 4 That 'readSectionOffset' correctly reads section offsets, and

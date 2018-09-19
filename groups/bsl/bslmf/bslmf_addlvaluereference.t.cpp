@@ -21,14 +21,16 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function,
-// 'bsl::add_lvalue_reference', which transform a template parameter 'TYPE' to
-// its lvalue reference type.  Thus, we need to ensure that the value returned
-// by this meta-functions is correct for each possible category of types.
+// The component under test defines meta-functions, 'bsl::add_lvalue_reference'
+// and 'bsl::add_lvalue_reference_t', which transform a template parameter
+// 'TYPE' to its lvalue reference type.  Thus, we need to ensure that the value
+// returned by this meta-functions is correct for each possible category of
+// types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::add_lvalue_reference::type
+// [ 1] bsl::add_lvalue_reference_t
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -148,18 +150,45 @@ struct Incomplete;
 
 #define ASSERT_ADD_LVALUE_REF_CVQ(TYPE1, TYPE2)                               \
     ASSERT(true == (bsl::is_same<                                             \
-              bsl::add_lvalue_reference<TYPE1>::type, TYPE2                   \
+              bsl::add_lvalue_reference<               TYPE1>::type,          \
+                                                       TYPE2                  \
               >::value));                                                     \
     ASSERT(true == (bsl::is_same<                                             \
-              bsl::add_lvalue_reference<const TYPE1>::type, const TYPE2       \
+              bsl::add_lvalue_reference<const          TYPE1>::type,          \
+                                        const          TYPE2                  \
               >::value));                                                     \
     ASSERT(true == (bsl::is_same<                                             \
-              bsl::add_lvalue_reference<volatile TYPE1>::type, volatile TYPE2 \
+              bsl::add_lvalue_reference<      volatile TYPE1>::type,          \
+                                              volatile TYPE2                  \
               >::value));                                                     \
     ASSERT(true == (bsl::is_same<                                             \
               bsl::add_lvalue_reference<const volatile TYPE1>::type,          \
-              const volatile TYPE2                                            \
+                                        const volatile TYPE2                  \
               >::value));
+    // Test all cv-qualified combination on the specified 'TYPE1' and confirm
+    // that the result type of the 'bsl::add_lvalue_reference' meta-function
+    // and same cv-qualified 'TYPE2' are the same.
+
+#define ASSERT_ADD_LVALUE_REF_T_CVQ(TYPE)                                     \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_lvalue_reference  <               TYPE>::type,         \
+              bsl::add_lvalue_reference_t<               TYPE>                \
+              >::value));                                                     \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_lvalue_reference  <const          TYPE>::type,         \
+              bsl::add_lvalue_reference_t<const          TYPE>                \
+              >::value));                                                     \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_lvalue_reference  <      volatile TYPE>::type,         \
+              bsl::add_lvalue_reference_t<      volatile TYPE>                \
+              >::value));                                                     \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_lvalue_reference  <const volatile TYPE>::type,         \
+              bsl::add_lvalue_reference_t<const volatile TYPE>                \
+              >::value));
+    // Test that the result types of the 'bsl::add_lvalue_reference' and
+    // 'bsl::add_lvalue_reference_t' meta-functions are the same for all
+    // cv-qualified combination on the specified 'TYPE'.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -227,6 +256,25 @@ int main(int argc, char *argv[])
 //..
 // Notice that the rvalue reference used above is a feature introduced in the
 // C++11 standard and may not be supported by all compilers.
+//
+// Finally, if the current compiler supports alias templates C++11 feature, we
+// instantiate the 'bsl::add_lvalue_reference_t' template for the same set of
+// types, and use the 'bsl::is_same' meta-function to assert the resultant type
+// of each instantiation:
+//..
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+    ASSERT(true  ==
+              (bsl::is_same<bsl::add_lvalue_reference_t<int>,   int&>::value));
+    ASSERT(false ==
+              (bsl::is_same<bsl::add_lvalue_reference_t<int>,   int >::value));
+    ASSERT(true  ==
+              (bsl::is_same<bsl::add_lvalue_reference_t<int&>,  int&>::value));
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    ASSERT(true ==
+              (bsl::is_same<bsl::add_lvalue_reference_t<int&&>, int&>::value));
+#endif
+#endif
+//..
 
       } break;
       case 1: {
@@ -246,13 +294,22 @@ int main(int argc, char *argv[])
         //: 3 'add_lvalue_reference::type' transforms 'TYPE' to the lvalue
         //:   reference type of its underlying type when 'TYPE' is an rvalue
         //:   reference type.
+        //:
+        //: 4 'bsl::add_lvalue_reference_t' represents the return type of
+        //:   'bsl::add_lvalue_reference' meta-function for a variety of
+        //:   template parameter types.
         //
         // Plan:
-        //   Instantiate 'bsl::add_lvalue_reference' with various types and
-        //   verify that the 'type' member is initialized properly.
+        //  1 Instantiate 'bsl::add_lvalue_reference' with various types and
+        //    verify that the 'type' member is initialized properly.
+        //
+        //  2 Verify that 'bsl::add_lvalue_reference_t' has the same type as
+        //    the return type of 'bsl::add_lvalue_reference' for a variety of
+        //    template parameter types. (C-4)
         //
         // Testing:
         //   bsl::add_lvalue_reference::type
+        //   bsl::add_lvalue_reference_t
         // --------------------------------------------------------------------
 
         if (verbose) printf("bsl::add_lvalue_reference::type\n"
@@ -442,6 +499,95 @@ int main(int argc, char *argv[])
         ASSERT((bsl::is_same<bsl::add_lvalue_reference<F *&&>::type,
                                                        F *&>::value));
 #endif
+
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+        if (verbose) printf("bsl::add_lvalue_reference_t\n"
+                            "===========================\n");
+
+        // C-4
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int*);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(EnumTestType );
+        ASSERT_ADD_LVALUE_REF_T_CVQ(EnumTestType*);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(StructTestType );
+        ASSERT_ADD_LVALUE_REF_T_CVQ(StructTestType*);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(UnionTestType );
+        ASSERT_ADD_LVALUE_REF_T_CVQ(UnionTestType*);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(BaseClassTestType );
+        ASSERT_ADD_LVALUE_REF_T_CVQ(BaseClassTestType*);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(DerivedClassTestType);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(DerivedClassTestType*);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(MethodPtrTestType);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(MethodPtrTestType*);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(FunctionPtrTestType);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(FunctionPtrTestType*);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD*);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int StructTestType::*);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int StructTestType::* *);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int StructTestType::* * *);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD BaseClassTestType::*);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD BaseClassTestType::* *);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD BaseClassTestType::* * *);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(Incomplete );
+        ASSERT_ADD_LVALUE_REF_T_CVQ(Incomplete*);
+
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int*&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(EnumTestType &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(EnumTestType*&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(StructTestType &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(StructTestType*&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(UnionTestType &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(UnionTestType*&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(BaseClassTestType &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(BaseClassTestType*&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(DerivedClassTestType &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(DerivedClassTestType*&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(MethodPtrTestType &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(MethodPtrTestType*&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(FunctionPtrTestType &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(FunctionPtrTestType*&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD*&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int StructTestType::*       &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int StructTestType::* *     &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int StructTestType::* * *   &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD BaseClassTestType::*    &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD BaseClassTestType::* *  &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD BaseClassTestType::* * *&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(Incomplete &);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(Incomplete*&);
+
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int*&&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(EnumTestType &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(EnumTestType*&&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(StructTestType &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(StructTestType*&&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(UnionTestType &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(UnionTestType*&&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(BaseClassTestType &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(BaseClassTestType*&&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(DerivedClassTestType &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(DerivedClassTestType*&&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(MethodPtrTestType &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(MethodPtrTestType*&&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(FunctionPtrTestType &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(FunctionPtrTestType*&&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD*&&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int StructTestType::*       &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int StructTestType::* *     &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(int StructTestType::* * *   &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD BaseClassTestType::*    &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD BaseClassTestType::* *  &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(PMD BaseClassTestType::* * *&&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(Incomplete &&);
+        ASSERT_ADD_LVALUE_REF_T_CVQ(Incomplete*&&);
 
 #endif
       } break;

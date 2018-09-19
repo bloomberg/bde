@@ -23,43 +23,7 @@ BSLS_IDENT("$Id: $")
 
 #include <ratio>
 
-namespace bsl {
-
-    using native_std::ratio;
-    using native_std::ratio_add;
-    using native_std::ratio_subtract;
-    using native_std::ratio_multiply;
-    using native_std::ratio_divide;
-    using native_std::ratio_equal;
-    using native_std::ratio_not_equal;
-    using native_std::ratio_less;
-    using native_std::ratio_less_equal;
-    using native_std::ratio_greater;
-    using native_std::ratio_greater_equal;
-    using native_std::atto;
-    using native_std::femto;
-    using native_std::pico;
-    using native_std::nano;
-    using native_std::micro;
-    using native_std::milli;
-    using native_std::centi;
-    using native_std::deci;
-    using native_std::deca;
-    using native_std::hecto;
-    using native_std::kilo;
-    using native_std::mega;
-    using native_std::giga;
-    using native_std::tera;
-    using native_std::peta;
-    using native_std::exa;
-#ifdef BSL_RATIO_SUPPORTS_EXTENDED_SI_TYPEDEFS
-    using native_std::yocto;
-    using native_std::zepto;
-    using native_std::zetta;
-    using native_std::yotta;
-#endif
-
-}  // close package namespace
+#include <bslstl_ratio.h>
 
 #endif
 

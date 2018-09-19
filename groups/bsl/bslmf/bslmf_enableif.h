@@ -11,6 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::enable_if: standard meta-function to drop templates from overload sets
+//  bsl::enable_if_t: alias to the return type of the meta-function
 //  bslmf::EnableIf: meta-function to drop templates from overload sets
 //
 //@AUTHOR: Alisdair Meredith (ameredith1)
@@ -230,10 +231,22 @@ BSLS_IDENT("$Id: $")
 // then the attempt to use 'dynamic_cast' would be a compile-time failure, and
 // we must use 'static_cast' instead.
 //..
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//..
+// Note that if the current compiler supports alias templates C++11 feature, we
+// can use 'bsl::enable_if_t' alias to the "result" type of 'bsl::enable_if'
+// meta-function, that avoids the '::type' suffix and 'typename' prefix in the
+// declaration of the function return type:
+//..
 //  template<class TO, class FROM>
 //  typename bsl::enable_if<bsl::is_polymorphic<FROM>::value &&
 //                                              bsl::is_polymorphic<TO>::value,
 //                          TO>::type *
+//#else
+//  template<class TO, class FROM>
+//  bsl::enable_if_t<bsl::is_polymorphic<FROM>::value &&
+//                      bsl::is_polymorphic<TO  >::value, TO> *
+//#endif
 //  smart_cast(FROM *from)
 //      // Return a pointer to the specified 'TO' type if the specified 'from'
 //      // pointer refers to an object whose complete class publicly derives,
@@ -242,10 +255,16 @@ BSLS_IDENT("$Id: $")
 //      return dynamic_cast<TO *>(from);
 //  }
 //
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//  template<class TO, class FROM>
+//  bsl::enable_if_t<not(bsl::is_polymorphic<FROM>::value &&
+//                       bsl::is_polymorphic<TO  >::value), TO> *
+//#else
 //  template<class TO, class FROM>
 //  typename bsl::enable_if<not(bsl::is_polymorphic<FROM>::value &&
 //                                            bsl::is_polymorphic<TO>::value),
 //                          TO>::type *
+//#endif
 //  smart_cast(FROM *from)
 //      // Return the specified 'from' pointer value cast as a pointer to type
 //      // 'TO'.  The behavior is undefined unless such a conversion is valid.
@@ -448,6 +467,10 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 namespace bsl {
 
                          // ================
@@ -479,6 +502,18 @@ struct enable_if<false, TYPE> {
     // parameter) 'COND' is 'false', guarantees that no 'typedef' 'type' is
     // supplied.  Note that this class definition is intentionally empty.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+// ALIASES
+template <bool COND, class TYPE = void>
+using enable_if_t = typename enable_if<COND, TYPE>::type;
+    // 'enable_if_t' is an alias to the return type of the 'bsl::enable_if'
+    // meta-function.  Note, that the 'enable_if_t' avoids the '::type' suffix
+    // and 'typename' prefix when we want to use the result of the
+    // meta-function in templates.
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 }  // close namespace bsl
 

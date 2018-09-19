@@ -17,14 +17,15 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function, 'bsl::remove_pointer',
-// that transforms a pointer type to the type pointed to by the pointer type.
-// We need to ensure that the values returned by the meta-function are correct
-// for each possible category of types.
+// The component under test defines meta-functions, 'bsl::remove_pointer' and
+// 'bsl::remove_pointer_t', that transform a pointer type to the type pointed
+// to by the pointer type.  We need to ensure that the values returned by the
+// meta-function are correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC TYPES
 // [ 1] bsl::remove_pointer::type
+// [ 1] bsl::remove_pointer_t
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -82,6 +83,16 @@ struct TestType {
    // This user-defined type is intended to be used during testing as an
    // argument for a template parameter.
 };
+
+typedef void (TestType::*MethodPtrTestType) ();
+    // This non-static function member type is intended to be used during
+    // testing as an argument for the template parameter 'TYPE' of
+    // 'bsl::remove_pointer'.
+
+typedef int TestType::* PMD;
+    // This class public data member pointer type is intended to be used during
+    // testing as an argument as an argument for the template parameter 'TYPE'
+    // of 'bsl::remove_pointer'.
 
 void funcWithDefaultArg(int arg = 0);
 
@@ -235,6 +246,15 @@ int main(int argc, char *argv[])
     ASSERT((bsl::is_same<bsl::remove_pointer<MyPtrType>::type,
                          MyType>::value));
 //..
+// Finally, if the current compiler supports alias templates C++11 feature, we
+// get the type pointed to by 'MyPtrType' using 'bsl::remove_pointer_t' and
+// verify that the resulting type is the same as 'MyType':
+//..
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+    ASSERT(true ==
+              (bsl::is_same<bsl::remove_pointer_t<MyPtrType>, MyType>::value));
+#endif
+//..
 
       } break;
       case 1: {
@@ -249,6 +269,10 @@ int main(int argc, char *argv[])
         //:
         //: 2 'bsl::remove_pointer' returns the same type as the argument when
         //:   it is not a pointer type.
+        //:
+        //: 3 'bsl::remove_pointer_t' represents the return type of
+        //:   'bsl::remove_pointer' meta-function for a variety of template
+        //:   parameter types.
         //
         // Plan:
         //   Verify that 'bsl::remove_pointer::type' has the correct type for
@@ -287,6 +311,44 @@ int main(int argc, char *argv[])
         testVolatileFuncPtrType(&funcWithDefaultArg);
         testConstVolatileFuncPtrType(&funcWithDefaultArg);
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+        if (verbose) printf("\n'bsl::remove_pointer_t'\n"
+                            "\n=======================\n");
+
+        // C-3
+        ASSERT((is_same<remove_pointer  <int *     >::type,
+                        remove_pointer_t<int *     >>::value));
+        ASSERT((is_same<remove_pointer  <void *    >::type,
+                        remove_pointer_t<void *    >>::value));
+        ASSERT((is_same<remove_pointer<  TestType *>::type,
+                        remove_pointer_t<TestType *>>::value));
+
+        ASSERT((is_same<remove_pointer  <int * const         >::type,
+                        remove_pointer_t<int * const         >>::value));
+        ASSERT((is_same<remove_pointer  <int *       volatile>::type,
+                        remove_pointer_t<int *       volatile>>::value));
+        ASSERT((is_same<remove_pointer  <int * const volatile>::type,
+                        remove_pointer_t<int * const volatile>>::value));
+        ASSERT((is_same<remove_pointer<  int   const *       >::type,
+                        remove_pointer_t<int   const *       >>::value));
+
+        ASSERT((is_same<remove_pointer  <               int   >::type,
+                        remove_pointer_t<               int   >>::value));
+        ASSERT((is_same<remove_pointer  <const          int   >::type,
+                        remove_pointer_t<const          int   >>::value));
+        ASSERT((is_same<remove_pointer  <      volatile int   >::type,
+                        remove_pointer_t<      volatile int   >>::value));
+        ASSERT((is_same<remove_pointer  <const volatile int   >::type,
+                        remove_pointer_t<const volatile int   >>::value));
+        ASSERT((is_same<remove_pointer  <               int *&>::type,
+                        remove_pointer_t<               int *&>>::value));
+
+        ASSERT((is_same<remove_pointer  <MethodPtrTestType *>::type,
+                        remove_pointer_t<MethodPtrTestType *>>::value));
+        ASSERT((is_same<remove_pointer  <PMD               *>::type,
+                        remove_pointer_t<PMD               *>>::value));
+#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
