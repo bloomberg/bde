@@ -1086,6 +1086,13 @@ int main(int argc, char *argv[])
             ASSERT(anotherBlob.numBuffers()           == 2);
             ASSERT(anotherBlob.totalSize()            == 512);
 
+            // Ensure that buffer factory is preserved
+
+            anotherBlob.setLength(1024);
+            ASSERT(anotherBlob.length() == 1024);
+
+            // Test that the source is in a moved-from state
+
             ASSERT(aBlob.lastDataBufferLength() == 0);
             ASSERT(aBlob.length()               == 0);
             ASSERT(aBlob.numDataBuffers()       == 0);
@@ -1112,22 +1119,30 @@ int main(int argc, char *argv[])
 
             // Testing differing allocators
 
+            bdlbb::Blob aBlob2(&factory, &ta);
+            aBlob2.setLength(324);
+
             bslma::TestAllocator ta2("object2", veryVeryVerbose);
-            bdlbb::Blob          aBlob2(MoveUtil::move(anotherBlob), &ta2);
+            bdlbb::Blob          anotherBlob2(MoveUtil::move(aBlob2), &ta2);
+
+            ASSERT(anotherBlob2.lastDataBufferLength() == 68);
+            ASSERT(anotherBlob2.length()               == 324);
+            ASSERT(anotherBlob2.numDataBuffers()       == 2);
+            ASSERT(anotherBlob2.numBuffers()           == 2);
+            ASSERT(anotherBlob2.totalSize()            == 512);
+
+            // Ensure that buffer factory is preserved
+
+            anotherBlob2.setLength(1024);
+            ASSERT(anotherBlob2.length() == 1024);
+
+            // This did a copy, since the allocators differ
 
             ASSERT(aBlob2.lastDataBufferLength() == 68);
             ASSERT(aBlob2.length()               == 324);
             ASSERT(aBlob2.numDataBuffers()       == 2);
             ASSERT(aBlob2.numBuffers()           == 2);
             ASSERT(aBlob2.totalSize()            == 512);
-
-            // This did a copy, since the allocators differ
-
-            ASSERT(anotherBlob.lastDataBufferLength() == 68);
-            ASSERT(anotherBlob.length()               == 324);
-            ASSERT(anotherBlob.numDataBuffers()       == 2);
-            ASSERT(anotherBlob.numBuffers()           == 2);
-            ASSERT(anotherBlob.totalSize()            == 512);
         }
 
         if (verbose) cout << "Testing 'Blob' move assignment\n";
@@ -1147,6 +1162,13 @@ int main(int argc, char *argv[])
             ASSERT(anotherBlob.numDataBuffers()       == 2);
             ASSERT(anotherBlob.numBuffers()           == 2);
             ASSERT(anotherBlob.totalSize()            == 512);
+
+            // Ensure that buffer factory is preserved
+
+            anotherBlob.setLength(1024);
+            ASSERT(anotherBlob.length() == 1024);
+
+            // Test that the source is in a moved-from state
 
             ASSERT(aBlob.lastDataBufferLength() == 0);
             ASSERT(aBlob.length()               == 0);
@@ -1177,23 +1199,31 @@ int main(int argc, char *argv[])
 
             // Testing differing allocators
 
+            bdlbb::Blob aBlob2(&factory, &ta);
+            aBlob2.setLength(324);
+
             bslma::TestAllocator ta2("object2", veryVeryVerbose);
-            bdlbb::Blob          aBlob2(&ta2);
-            aBlob2 = MoveUtil::move(anotherBlob);
+            bdlbb::Blob          anotherBlob2(&ta2);
+            anotherBlob2 = MoveUtil::move(aBlob2);
+
+            ASSERT(anotherBlob2.lastDataBufferLength() == 68);
+            ASSERT(anotherBlob2.length()               == 324);
+            ASSERT(anotherBlob2.numDataBuffers()       == 2);
+            ASSERT(anotherBlob2.numBuffers()           == 2);
+            ASSERT(anotherBlob2.totalSize()            == 512);
+
+            // Ensure that buffer factory is preserved
+
+            anotherBlob2.setLength(1024);
+            ASSERT(anotherBlob2.length() == 1024);
+
+            // This did a copy, since the allocators differ
 
             ASSERT(aBlob2.lastDataBufferLength() == 68);
             ASSERT(aBlob2.length()               == 324);
             ASSERT(aBlob2.numDataBuffers()       == 2);
             ASSERT(aBlob2.numBuffers()           == 2);
             ASSERT(aBlob2.totalSize()            == 512);
-
-            // This did a copy, since the allocators differ
-
-            ASSERT(anotherBlob.lastDataBufferLength() == 68);
-            ASSERT(anotherBlob.length()               == 324);
-            ASSERT(anotherBlob.numDataBuffers()       == 2);
-            ASSERT(anotherBlob.numBuffers()           == 2);
-            ASSERT(anotherBlob.totalSize()            == 512);
         }
 
       } break;
