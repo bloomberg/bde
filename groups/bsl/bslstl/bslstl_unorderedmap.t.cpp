@@ -16976,22 +16976,23 @@ int main(int argc, char *argv[])
       } break;
       case 39: {
         // --------------------------------------------------------------------
-	// SIMPLE MSVC COMPILATION FAILURE
-	//
-	// Concerns:
-	//: 1 Per '{DRQS 126926371}', try building a simple 'int -> int' map.
-	//
-	// Plan:
-	//: 1 Include a test case as reported in that 'DRQS'.
-	//
-	// Testing: CONCERN: Simple test case fails to compile on MSVC.
+        // SIMPLE MSVC COMPILATION FAILURE
+        //
+        // Concerns:
+        //: 1 Per '{DRQS 126926371}', try building a simple 'int -> int' map.
+        //
+        // Plan:
+        //: 1 Include a test case as reported in that 'DRQS'.
+        //
+        // Testing:
+        //   CONCERN: Simple test case fails to compile on MSVC.
         // --------------------------------------------------------------------
 
-	if (verbose) printf("\nSIMPLE MSVC COMPILATION FAILURE"
-	                    "\n===============================\n");
+        if (verbose) printf("\nSIMPLE MSVC COMPILATION FAILURE"
+                            "\n===============================\n");
 
-	bsl::unordered_map<int, int> mX;
-	testCase39(mX);
+        bsl::unordered_map<int, int> mX;
+        testCase39(mX);
       } break;
       case 38: {
         // --------------------------------------------------------------------
