@@ -237,7 +237,7 @@ using bsl::pair;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [39] USAGE EXAMPLE
+// [40] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int  ggg(Obj *, const char *, bool verbose = true);
@@ -252,6 +252,7 @@ using bsl::pair;
 // [26] CONCERN: The type provides the full interface defined by the standard.
 // [36] CONCERN: 'unordered_map' supports incomplete types.
 // [38] CONCERN: 'erase' overload is deduced correctly.
+// [39] CONCERN: Simple test case fails to compile on MSVC.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -601,8 +602,16 @@ int valueOf(const TYPE& value)
 {
     return TTF::getIdentifier(value);
 }
-
 }  // close namespace u
+
+void testCase39(const bsl::unordered_map<int, int>& m)
+    // Iterate through the specified map 'm'.  Note that the real test is seeing
+    // whether this function compiles, not what it does.
+{
+    for (bsl::unordered_map<int, int>::const_iterator
+         it = m.begin(); it != m.end(); ++it) {
+    }
+}
 
                        // =============================
                        // struct EraseAmbiguityTestType
@@ -16945,7 +16954,7 @@ int main(int argc, char *argv[])
     bslma::Default::setDefaultAllocator(&testAlloc);
 
     switch (test) { case 0:
-      case 39: {
+      case 40: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -16964,6 +16973,25 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
         usage();
+      } break;
+      case 39: {
+        // --------------------------------------------------------------------
+	// SIMPLE MSVC COMPILATION FAILURE
+	//
+	// Concerns:
+	//: 1 Per '{DRQS 126926371}', try building a simple 'int -> int' map.
+	//
+	// Plan:
+	//: 1 Include a test case as reported in that 'DRQS'.
+	//
+	// Testing: CONCERN: Simple test case fails to compile on MSVC.
+        // --------------------------------------------------------------------
+
+	if (verbose) printf("\nSIMPLE MSVC COMPILATION FAILURE"
+	                    "\n===============================\n");
+
+	bsl::unordered_map<int, int> mX;
+	testCase39(mX);
       } break;
       case 38: {
         // --------------------------------------------------------------------
