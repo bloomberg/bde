@@ -605,8 +605,8 @@ int valueOf(const TYPE& value)
 }  // close namespace u
 
 void testCase39(const bsl::unordered_map<int, int>& m)
-    // Iterate through the specified map 'm'.  Note that the real test is seeing
-    // whether this function compiles, not what it does.
+    // Iterate through the specified map 'm'.  Note that the real test is
+    // seeing whether this function compiles, not what it does.
 {
     for (bsl::unordered_map<int, int>::const_iterator
          it = m.begin(); it != m.end(); ++it) {
