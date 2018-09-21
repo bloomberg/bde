@@ -286,6 +286,8 @@ Logger::Logger(const bsl::shared_ptr<Observer>&            observer,
 
     // 'snprintf' message buffer
     d_scratchBuffer_p = (char *)d_allocator_p->allocate(d_scratchBufferSize);
+    d_recursiveScratchBuffer_p = (char *)d_allocator_p->allocate(
+                                                          d_scratchBufferSize);
 }
 
 Logger::~Logger()
@@ -294,11 +296,13 @@ Logger::~Logger()
     BSLS_ASSERT(d_recordBuffer_p);
     BSLS_ASSERT(d_publishAll);
     BSLS_ASSERT(d_scratchBuffer_p);
+    BSLS_ASSERT(d_recursiveScratchBuffer_p);
     BSLS_ASSERT(d_allocator_p);
 
     d_observer->releaseRecords();
     d_recordBuffer_p->removeAll();
     d_allocator_p->deallocate(d_scratchBuffer_p);
+    d_allocator_p->deallocate(d_recursiveScratchBuffer_p);
 }
 
 // PRIVATE MANIPULATORS
@@ -491,6 +495,15 @@ char *Logger::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
     *mutex      = &d_scratchBufferMutex;
     *bufferSize = d_scratchBufferSize;
     return d_scratchBuffer_p;
+}
+
+char *Logger::obtainMessageBuffer(bslmt::RecursiveMutex **mutex,
+                                  int                    *bufferSize)
+{
+    d_recursiveScratchBufferMutex.lock();
+    *mutex      = &d_recursiveScratchBufferMutex;
+    *bufferSize = d_scratchBufferSize;
+    return d_recursiveScratchBuffer_p;
 }
 
                            // -------------------
@@ -853,6 +866,29 @@ char *LoggerManager::obtainMessageBuffer(bslmt::Mutex **mutex,
     static char buffer[k_DEFAULT_LOGGER_BUFFER_SIZE];
 
     static bsls::ObjectBuffer<bslmt::Mutex> staticMutex;
+    BSLMT_ONCE_DO {
+        // This mutex must remain valid for the lifetime of the task, and is
+        // intentionally never destroyed.  This function may be called on
+        // program termination, e.g., if a statically initialized object
+        // performs logging during its destruction.
+
+        new (staticMutex.buffer()) bslmt::Mutex();
+    }
+
+    staticMutex.object().lock();
+    *mutex      = &staticMutex.object();
+    *bufferSize = k_DEFAULT_LOGGER_BUFFER_SIZE;
+
+    return buffer;
+}
+
+char *LoggerManager::obtainMessageBuffer(bslmt::RecursiveMutex **mutex,
+                                         int                    *bufferSize)
+{
+    const int   k_DEFAULT_LOGGER_BUFFER_SIZE = 8192;
+    static char buffer[k_DEFAULT_LOGGER_BUFFER_SIZE];
+
+    static bsls::ObjectBuffer<bslmt::RecursiveMutex> staticMutex;
     BSLMT_ONCE_DO {
         // This mutex must remain valid for the lifetime of the task, and is
         // intentionally never destroyed.  This function may be called on

@@ -109,7 +109,7 @@ void Log::logMessage(const Category *category,
     }
 }
 
-char *Log::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
+char *Log::obtainMessageBuffer(bslmt::RecursiveMutex **mutex, int *bufferSize)
 {
     if (LoggerManager::isInitialized()) {
         return LoggerManager::
@@ -123,7 +123,7 @@ char *Log::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
     }
 }
 
-void Log::releaseMessageBuffer(bslmt::Mutex *mutex)
+void Log::releaseMessageBuffer(bslmt::RecursiveMutex *mutex)
 {
     mutex->unlock();
 }
@@ -237,36 +237,17 @@ Log_Formatter::Log_Formatter(const Category *category,
 : d_category_p(category)
 , d_record_p(Log::getRecord(category, fileName, lineNumber))
 , d_severity(severity)
-{}
+, d_mutex_p(0)
+{
+    d_buffer_p = Log::obtainMessageBuffer(&d_mutex_p, &d_bufferLen);
+}
 
 Log_Formatter::~Log_Formatter()
 {
+    d_buffer_p[d_bufferLen - 1] = '\0';
+    bslmt::LockGuard<bslmt::RecursiveMutex> lockGuard(d_mutex_p, 1);
+    d_record_p->fixedFields().setMessage(d_buffer_p);
     Log::logMessage(d_category_p, d_severity, d_record_p);
-}
-
-// MANIPULATORS
-void Log_Formatter::format(const char *format, ...)
-{
-    enum { BUFFER_SIZE = 8192 };
-
-    char buffer[BUFFER_SIZE];
-
-    bsl::va_list args;
-    va_start(args, format);
-    const int status = vsnprintf(buffer, BUFFER_SIZE, format, args);
-    va_end(args);
-
-    // On 'buffer' overflow, most implementations of 'vsnprintf' return the
-    // number of characters that would have been written if 'buffer' were large
-    // enough.  A few older implementations return -1.  The following code
-    // works either way.
-
-    if (status > 0) {
-        buffer[BUFFER_SIZE - 1] = '\0';
-        d_record_p->fixedFields().setMessage(
-                            buffer,
-                            BUFFER_SIZE <= status ? BUFFER_SIZE - 1 : status );
-    }
 }
 
 }  // close package namespace

@@ -886,6 +886,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmt_mutex.h>
 #include <bslmt_readerwritermutex.h>
+#include <bslmt_recursivemutex.h>
 
 #include <bsls_compilerfeatures.h>
 
@@ -929,36 +930,47 @@ class Logger {
     bdlcc::ObjectPool<Record,
                       bdlcc::ObjectPoolFunctors::DefaultCreator,
                       bdlcc::ObjectPoolFunctors::Clear<Record> >
-                          d_recordPool;         // pool of records with a
+                 d_recordPool;                  // pool of records with a
                                                 // custom RESETTER
 
     const bsl::shared_ptr<Observer>
-                          d_observer;           // holds observer
+                 d_observer;                    // holds observer
 
-    RecordBuffer         *d_recordBuffer_p;     // holds log record buffer
+    RecordBuffer
+                *d_recordBuffer_p;              // holds log record buffer
                                                 // (not owned)
 
     UserFieldsPopulatorCallback
-                          d_populator;          // user populator functor
+                 d_populator;                   // user populator functor
 
     PublishAllTriggerCallback
-                          d_publishAll;         // publishAll callback functor
+                 d_publishAll;                  // publishAll callback functor
 
-    char                 *d_scratchBuffer_p;    // buffer for formatting log
+    char        *d_scratchBuffer_p;             // buffer for formatting log
                                                 // messages (owned)
 
-    int                   d_scratchBufferSize;  // message buffer size (bytes)
+    char        *d_recursiveScratchBuffer_p;    // buffer for formatting log
+                                                // messages allowing recursive
+                                                // access(owned)
 
-    bslmt::Mutex          d_scratchBufferMutex; // ensure thread-safety of
+    int          d_scratchBufferSize;           // message buffer size (bytes)
+
+    bslmt::Mutex d_scratchBufferMutex;          // ensure thread-safety of
                                                 // message buffer
 
+    bslmt::RecursiveMutex
+                 d_recursiveScratchBufferMutex; // ensure thread-safety of
+                                                // message buffer allowing
+                                                // recursive access
+
     LoggerManagerConfiguration::LogOrder
-                          d_logOrder;           // logging order
+                 d_logOrder;                    // logging order
 
     LoggerManagerConfiguration::TriggerMarkers
-                          d_triggerMarkers;     // trigger markers
+                 d_triggerMarkers;              // trigger markers
 
-    bslma::Allocator     *d_allocator_p;        // memory allocator (held, not
+    bslma::Allocator
+                *d_allocator_p;                 // memory allocator (held, not
                                                 // owned)
 
     // FRIENDS
@@ -1092,6 +1104,7 @@ class Logger {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     char *obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize);
+    char *obtainMessageBuffer(bslmt::RecursiveMutex **mutex, int *bufferSize);
         // Block until access to the buffer of this logger used for formatting
         // messages is available.  Return the address of the modifiable buffer
         // to which this thread of execution has exclusive access, load the
@@ -1415,6 +1428,8 @@ class LoggerManager {
         // 'LoggerManager::getRecord' method.
 
     static char *obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize);
+    static char *obtainMessageBuffer(bslmt::RecursiveMutex **mutex,
+                                     int                    *bufferSize);
         // Block until access to the static buffer used for formatting messages
         // is available.  Return the address of the modifiable buffer to which
         // this thread of execution has exclusive access, load the address of

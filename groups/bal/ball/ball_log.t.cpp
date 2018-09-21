@@ -355,9 +355,10 @@ const int FILL = 0xbb;
 inline
 char *messageBuffer()
 {
-    BloombergLP::bslmt::Mutex *mutex = 0;
-    int bufferSize = 0;
-    char *buffer = Obj::obtainMessageBuffer(&mutex, &bufferSize);
+    BloombergLP::bslmt::RecursiveMutex *mutex = 0;
+    int                                 bufferSize = 0;
+    char                               *buffer =
+                                 Obj::obtainMessageBuffer(&mutex, &bufferSize);
     Obj::releaseMessageBuffer(mutex);
     return buffer;
 }
@@ -365,8 +366,8 @@ char *messageBuffer()
 inline
 int messageBufferSize()
 {
-    BloombergLP::bslmt::Mutex *mutex = 0;
-    int bufferSize = 0;
+    BloombergLP::bslmt::RecursiveMutex *mutex = 0;
+    int                                 bufferSize = 0;
     Obj::obtainMessageBuffer(&mutex, &bufferSize);
     Obj::releaseMessageBuffer(mutex);
     return bufferSize;

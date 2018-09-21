@@ -851,6 +851,8 @@ BSLS_IDENT("$Id: $")
 #include <ball_loggermanager.h>
 #include <ball_severity.h>
 
+#include <bslmt_recursivemutex.h>
+
 #include <bsls_annotation.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
@@ -1211,7 +1213,9 @@ do {                                                                          \
                                        __FILE__,                              \
                                        __LINE__,                              \
                                        (SEVERITY));                           \
-        ball_log_fOrMaTtEr.format(__VA_ARGS__);                               \
+        BloombergLP::ball::Log::format(ball_log_fOrMaTtEr.messageBuffer(),    \
+                                       ball_log_fOrMaTtEr.messageBufferLen(), \
+                                       __VA_ARGS__);                          \
     }                                                                         \
 } while(0)
 
@@ -1234,7 +1238,9 @@ do {                                                                          \
                                        __FILE__,                              \
                                        __LINE__,                              \
                                        (SEVERITY));                           \
-        ball_log_fOrMaTtEr.format(__VA_ARGS__);                               \
+        BloombergLP::ball::Log::format(ball_log_fOrMaTtEr.messageBuffer(),    \
+                                       ball_log_fOrMaTtEr.messageBufferLen(), \
+                                       __VA_ARGS__);                          \
     }                                                                         \
 } while(0)
 
@@ -1359,7 +1365,8 @@ struct Log {
         // obtained by a call to 'Log::getRecord', and, if 'category' is not
         // 0, the logger manager singleton is initialized.
 
-    static char *obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize);
+    static char *obtainMessageBuffer(bslmt::RecursiveMutex **mutex,
+                                     int                    *bufferSize);
         // Block until access to the buffer used for formatting messages in
         // this thread of execution is available.  Return the address of the
         // modifiable buffer to which this thread of execution has exclusive
@@ -1374,7 +1381,7 @@ struct Log {
         // 'Log::logMessage'; other use may adversely affect performance for
         // the entire program.
 
-    static void releaseMessageBuffer(bslmt::Mutex *mutex);
+    static void releaseMessageBuffer(bslmt::RecursiveMutex *mutex);
         // Unlock the specified 'mutex' that guards the buffer used for
         // formatting messages in this thread of execution.  The behavior is
         // undefined unless 'mutex' was obtained by a call to
@@ -1541,22 +1548,31 @@ class Log_Formatter {
     //  - record to be logged
     //  - category to which to log the record
     //  - severity at which to log the record
+    //  - buffer in which the user log message is formatted
+    //  - mutex mediating exclusive access to the buffer
     //..
-    //
-    // Note that the length of a message should not exceed 8192 symbols,
-    // because an on-stack buffer of non-configurable size is used to handle
-    // it.  All characters, that exceed the limit will be discarded.
+    // As a side-effect of creating an object of this class, the record is
+    // constructed and the mutex is locked.  As a side-effect of destroying the
+    // object, the record is logged and the mutex unlocked.
     //
     // This class should *not* be used directly by client code.  It is an
     // implementation detail of the macros provided by this component.
 
     // DATA
-    const Category *d_category_p;  // category to which record is logged
-                                   // (held, not owned)
+    const Category        *d_category_p;  // category to which record is logged
+                                          // (held, not owned)
 
-    Record         *d_record_p;    // logged record (held, not owned)
+    Record                *d_record_p;    // logged record (held, not owned)
 
-    const int       d_severity;    // severity at which record is logged
+    const int              d_severity;    // severity at which record is logged
+
+    char                  *d_buffer_p;    // buffer for formatted user log
+                                          // message (held, not owned)
+
+    int                    d_bufferLen;   // length of buffer
+
+    bslmt::RecursiveMutex *d_mutex_p;     // mutex to lock buffer (held, not
+                                          // owned)
 
   private:
     // NOT IMPLEMENTED
@@ -1582,10 +1598,10 @@ class Log_Formatter {
         // logging formatter.
 
     // MANIPULATORS
-    void format(const char *format, ...);
-        // Pack the elements in the variable argument list to the buffer in
-        // accordance with the specified 'format' and incorporate it as a
-        // message of the underlying record.
+    char *messageBuffer();
+        // Return the address of the modifiable buffer held by this logging
+        // formatter.  The address is valid until this logging formatter is
+        // destroyed.
 
     Record *record();
         // Return the address of the modifiable log record held by this logging
@@ -1596,6 +1612,10 @@ class Log_Formatter {
     const Category *category() const;
         // Return the address of the non-modifiable category held by this
         // logging formatter.
+
+    int messageBufferLen() const;
+        // Return the length (in bytes) of the buffer held by this logging
+        // formatter.
 
     const Record *record() const;
         // Return the address of the non-modifiable log record held by this
@@ -1704,6 +1724,12 @@ int Log_Stream::severity() const
 
 // MANIPULATORS
 inline
+char *Log_Formatter::messageBuffer()
+{
+    return d_buffer_p;
+}
+
+inline
 Record *Log_Formatter::record()
 {
     return d_record_p;
@@ -1714,6 +1740,12 @@ inline
 const Category *Log_Formatter::category() const
 {
     return d_category_p;
+}
+
+inline
+int Log_Formatter::messageBufferLen() const
+{
+    return d_bufferLen;
 }
 
 inline
