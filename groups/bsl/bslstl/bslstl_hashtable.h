@@ -1994,6 +1994,26 @@ class HashTable {
         // This typedef is a convenient alias for the utility associated with
         // movable references.
 
+    // CONSISTENCY CHECKS
+
+    // Assert consistency checks against Machiavellian users, specializing an
+    // allocator for a specific type to have different propagation traits to
+    // the primary template.
+
+    typedef typename AllocatorTraits::template rebind_traits<NodeType>
+        ReboundTraits;
+
+    BSLMF_ASSERT(
+        ReboundTraits::propagate_on_container_copy_assignment::value ==
+        AllocatorTraits::propagate_on_container_copy_assignment::value);
+
+    BSLMF_ASSERT(
+        ReboundTraits::propagate_on_container_move_assignment::value ==
+        AllocatorTraits::propagate_on_container_move_assignment::value);
+
+    BSLMF_ASSERT(ReboundTraits::propagate_on_container_swap::value ==
+                 AllocatorTraits::propagate_on_container_swap::value);
+
   private:
     // DATA
     ImplParameters      d_parameters;    // policies governing table behavior
@@ -3349,26 +3369,6 @@ class HashTable_ImplParameters
     HashTable_ImplParameters(const HashTable_ImplParameters&); // = delete;
     HashTable_ImplParameters& operator=(const HashTable_ImplParameters&);
         // = delete;
-
-    // CONSISTENCY CHECKS
-
-    // Assert consistency checks against Machiavellian users, specializing an
-    // allocator for a specific type to have different propagation traits to
-    // the primary template.
-
-    BSLMF_ASSERT(
-       ReboundTraits::propagate_on_container_copy_assignment::value ==
-       HashTableType::AllocatorTraits::
-                            propagate_on_container_copy_assignment::value);
-
-    BSLMF_ASSERT(
-       ReboundTraits::propagate_on_container_move_assignment::value ==
-       HashTableType::AllocatorTraits::
-                            propagate_on_container_move_assignment::value);
-
-    BSLMF_ASSERT(
-       ReboundTraits::propagate_on_container_swap::value ==
-       HashTableType::AllocatorTraits::propagate_on_container_swap::value);
 
   public:
     // CREATORS

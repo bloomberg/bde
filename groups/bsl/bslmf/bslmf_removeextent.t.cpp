@@ -17,12 +17,14 @@ using namespace BloombergLP;
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
 //
-// The component under test is a simple metafunction with a well-define set of
-// input and output types.  This test driver consists of applying a sequence
-// of simple test input types and verifying the correct output types.
+// The component under test defines meta-functions, 'bsl::remove_extent' and
+// 'bsl::remove_extent_t' with a well-define set of input and output types.
+// This test driver consists of applying a sequence of simple test input types
+// and verifying the correct output types.
 //
 //-----------------------------------------------------------------------------
 // [ 1] bsl::remove_extent<TYPE>::type
+// [ 1] bsl::remove_extent_t<TYPE>
 //-----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 
@@ -102,9 +104,18 @@ struct MyClass
 //..
     template <class ARRAY_TYPE>
     class Traverser {
-    public:
+      public:
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//..
+// Note that if the current compiler supports alias templates C++11 feature, we
+// can use 'bsl::remove_extent_t' alias to the "result" type of
+// 'bsl::remove_extent' meta-function, that avoids the '::type' suffix and
+// 'typename' prefix in the declaration of the function return type:
+//..
+        using RowType = bsl::remove_extent_t<ARRAY_TYPE>;
+#else
         typedef typename bsl::remove_extent<ARRAY_TYPE>::type RowType;
-
+#endif
     private:
         RowType d_row;  // Might be scalar
         // ...
@@ -177,40 +188,61 @@ int main(int argc, char *argv[])
         //: 1 If 'TYPE' is a scalar, function, pointer, pointer-to-function,
         //:   pointer-to-member, or void type,
         //:   'bsl::remove_extent<TYPE>::type' is exactly 'TYPE'.
+        //:
         //: 2 If 'TYPE' is a one-dimensional array of unknown bound, 'U[]',
         //:   then 'bsl::remove_extent<TYPE>::type' is 'U'
+        //:
         //: 3 If 'TYPE' is a one-dimensional array of known bound, 'U[N]',
         //:   then 'bsl::remove_extent<TYPE>::type' is 'U'
+        //:
         //: 4 If 'TYPE' is a two-dimensional array of unknown bound,
         //:   'U[][M]', then 'bsl::remove_extent<TYPE>::type' is 'U[M]'.
         //:   Similarly for a three-dimensional array of unknown high-order
         //:   bound.
+        //:
         //: 5 If 'TYPE' is a two-dimensional array of known bound,
         //:   'U[N][M]', then 'bsl::remove_extent<TYPE>::type' is 'U[M]'.
         //:   Similarly for a three-dimensional array of known high-order
         //:   bound.
+        //:
         //: 6 Cv-qualification on scalars or array elements is preserved.
+        //:
         //: 7 If 'TYPE' is a lvalue reference type 'U&', then
         //:   'bsl::remove_extent<TYPE>::type' is exactly 'U&', even if 'U' is
         //:   an array type.
+        //:
         //: 8 If 'TYPE' is a rvalue reference type 'U&&', then
         //:   'bsl::remove_extent<TYPE>::type' is exactly 'U&&', even if 'U' is
         //:   an array type.
+        //:
+        //: 9 'bsl::remove_extent_t' represents the return type of
+        //:   'bsl::remove_extent' meta-function for a variety of template
+        //:   parameter types.
         //
         // Plan:
-        //: 1 For each of the above concerns, instantiate
-        //:   'bsl::remove_extent<TYPE>' with an appropriate 'TYPE'.
-        //: 2  Use 'bsl::is_same' to verify that
-        //:    'bsl::remove_extent<TYPE>::type' is as expected.
+        //  1 For each of the above concerns, instantiate
+        //    'bsl::remove_extent<TYPE>' and 'bsl::remove_extent_t<TYPE>' with
+        //    an appropriate 'TYPE'.
+        //
+        //  2 Use 'bsl::is_same' to verify that
+        //    'bsl::remove_extent<TYPE>::type' is as expected.
         //
         // Testing:
         //   bsl::remove_extent<TYPE>::type
+        //   bsl::remove_extent_t<TYPE>
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nCOMPLETE TEST"
                             "\n=============\n");
 
-#define TEST(a,b) ASSERT((bsl::is_same<bsl::remove_extent<a>::type, b>::value))
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#define TEST(a,b)                                                             \
+        ASSERT((bsl::is_same<bsl::remove_extent  <a>::type, b>::value));      \
+        ASSERT((bsl::is_same<bsl::remove_extent_t<a>,       b>::value))
+#else
+#define TEST(a,b)                                                             \
+        ASSERT((bsl::is_same<bsl::remove_extent  <a>::type, b>::value))
+#endif
 
         //   TYPE                     remove_extent<TYPE>::type Concern #
         //   =======================  ========================= =========

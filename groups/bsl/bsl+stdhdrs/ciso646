@@ -25,7 +25,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef BSL_OVERRIDES_STD
+#if !defined(BSL_OVERRIDES_STD) || \
+    defined(BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS)
 
 #   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
@@ -35,6 +36,11 @@ BSLS_IDENT("$Id: $")
 #     include_next <ciso646>
 #   else
 #     include BSL_NATIVE_CPP_C_HEADER(ciso646)
+#   endif
+
+#   if defined(BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS)
+    // We want a new inclusion to re-evaluate this header.
+#   undef INCLUDED_NATIVE_CISO646
 #   endif
 
 #else // defined(BSL_OVERRIDES_STD)

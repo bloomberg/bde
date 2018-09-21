@@ -11,17 +11,29 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_const: meta-function for determining 'const'-qualified types
+//  bsl::is_const_v: the result value of the 'bsl::is_const' meta-function
 //
 //@SEE_ALSO: bslmf_integralconstant
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::is_const', that
-// may be used to query whether a type is 'const'-qualified as defined in the
-// C++11 standard [basic.type.qualifier].
+//@DESCRIPTION: This component defines a meta-function, 'bsl::is_const' and a
+// template variable 'bsl::is_const_v', that represents the result value of the
+// 'bsl::is_const' meta-function, that may be used to query whether a type is
+// 'const'-qualified as defined in the C++ standard [basic.type.qualifier].
 //
 // 'bsl::is_const' meets the requirements of the 'is_const' template defined in
 // the C++11 standard [meta.unary.prop].
+//
+// Note that the template variable 'is_const_v' is defined in the C++17
+// standard as an inline variable.  If the current compiler supports the inline
+// variable C++17 compiler feature, 'bsl::is_const_v' is defined as an
+// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
+// variable templates C++14 compiler feature, 'bsl::is_const_v' is defined
+// as a non-inline 'constexpr bool' variable.  See
+// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
+// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -44,6 +56,15 @@ BSLS_IDENT("$Id: $")
 //  assert(false == bsl::is_const<MyType>::value);
 //  assert(true  == bsl::is_const<MyConstType>::value);
 //..
+// Note that if the current compiler supports the variable templates C++14
+// feature then we can re-write the snippet of code above using the
+// 'bsl::is_const_v' variable as follows:
+//..
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//  assert(false == bsl::is_const_v<MyType>);
+//  assert(true  == bsl::is_const_v<MyConstType>);
+//#endif
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -57,6 +78,14 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_issame.h>
 #endif
 
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
+#endif
+
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -65,7 +94,6 @@ BSLS_IDENT("$Id: $")
 #include <stddef.h>
 #define INCLUDED_STDDEF_H
 #endif
-
 
 #if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1910)     \
  ||  defined(BSLS_PLATFORM_CMP_IBM)
@@ -148,6 +176,14 @@ struct is_const<const TYPE[LENGTH]> : true_type {
      // Note that this single specialization is sufficient to work around the
      // MSVC issue, even for multidimensional arrays.
 };
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_const_v = is_const<TYPE>::value;
+    // This template variable represents the result value of the
+    // 'bsl::is_const' meta-function.
 #endif
 
 }  // close namespace bsl

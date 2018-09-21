@@ -11,15 +11,18 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_trivially_default_constructible: trait meta-function
+//  bsl::is_trivially_default_constructible_v: the result value
 //
 //@SEE_ALSO: bslmf_integerconstant, bslmf_nestedtraitdeclaration
 //
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_trivially_default_constructible', that may be used to query whether
-// a type has a trivial default constructor as defined in section 12.1.5 of the
-// C++11 standard [class.ctor].
+// 'bsl::is_trivially_default_constructible' and a template variable
+// 'bsl::is_trivially_default_constructible_v', that represents the result
+// value of the 'bsl::is_trivially_default_constructible' meta-function, that
+// may be used to query whether a type has a trivial default constructor as
+// defined in section 12.1.5 of the C++11 standard [class.ctor].
 //
 // 'bsl::is_trivially_default_constructible' has the same syntax as the
 // 'is_trivially_default_constructible' template from the C++11 standard
@@ -47,6 +50,18 @@ BSLS_IDENT("$Id: $")
 //: 2 Use the 'BSLMF_NESTED_TRAIT_DECLARATION' macro to define
 //:   'bsl::is_trivially_default_constructible' as the trait in the class
 //:   definition of the type.
+//
+// Note that the template variable 'is_trivially_default_constructible_v' is
+// defined in the C++17 standard as an inline variable.  If the current
+// compiler supports the inline variable C++17 compiler feature,
+// 'bsl::is_trivially_default_constructible_v' is defined as an
+// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
+// variable templates C++14 compiler feature,
+// 'bsl::is_trivially_default_constructible_v' is defined as a non-inline
+// 'constexpr bool' variable.  See
+// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
+// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -108,6 +123,22 @@ BSLS_IDENT("$Id: $")
 //      bsl::is_trivially_default_constructible<
 //                             MyNonTriviallyDefaultConstructibleType>::value);
 //..
+// Note that if the current compiler supports the variable templates C++14
+// feature, then we can re-write the snippet of code above as follows:
+//..
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//  assert(true  ==
+//          bsl::is_trivially_default_constructible_v<MyFundamentalType>);
+//  assert(false ==
+//      bsl::is_trivially_default_constructible_v<MyFundamentalTypeReference>);
+//  assert(true  ==
+//      bsl::is_trivially_default_constructible_v<
+//                                       MyTriviallyDefaultConstructibleType>);
+//  assert(false ==
+//      bsl::is_trivially_default_constructible_v<
+//                                    MyNonTriviallyDefaultConstructibleType>);
+//#endif
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -129,16 +160,24 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isfundamental.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
+#include <bslmf_ismemberpointer.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
-#include <bslmf_ispointertomember.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -149,6 +188,14 @@ BSLS_IDENT("$Id: $")
 #include <stddef.h>
 #define INCLUDED_STDDEF_H
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
+#include <bslmf_ispointertomember.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
@@ -296,6 +343,15 @@ struct is_trivially_default_constructible<const volatile TYPE[]>
     // This partial specialization ensures that const-volatile-qualified
     // array-of-unknown-bound types have the same result as their element type.
 };
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_trivially_default_constructible_v
+                             = is_trivially_default_constructible<TYPE>::value;
+    // This template variable represents the result value of the
+    // 'bsl::is_trivially_default_constructible' meta-function.
 #endif
 
 }  // close namespace bsl

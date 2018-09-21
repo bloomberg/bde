@@ -23,7 +23,8 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function,
-// 'bsl::is_trivially_copyable', that determines whether a template parameter
+// 'bsl::is_trivially_copyable' and a template variable
+// 'bsl::is_trivially_copyable_v', that determine whether a template parameter
 // type is trivially copyable.  By default, the meta-function supports a
 // restricted set of type categories and can be extended to support other types
 // through either template specialization or use of the
@@ -40,6 +41,7 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::is_trivially_copyable::value
+// [ 1] bsl::is_trivially_copyable_v
 //
 // ----------------------------------------------------------------------------
 // [ 4] USAGE EXAMPLE
@@ -103,11 +105,48 @@ void aSsErT(bool condition, const char *message, int line)
 // not type-dependent contexts, so there is no need to use 'typename' when
 // fetching the result from any of the queried traits.
 
-#define ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(TYPE, RESULT)                       \
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+# define ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(TYPE, RESULT)                      \
+    ASSERT( bsl::is_trivially_copyable  <TYPE>::value == RESULT);             \
+    ASSERT( bsl::is_trivially_copyable  <TYPE>::value ==                      \
+            bsl::is_trivially_copyable_v<TYPE>);                              \
+    ASSERT( bsl::is_trivially_copyable<bsl::add_pointer<TYPE>::type>::value); \
+    ASSERT(!bsl::is_trivially_copyable<                                       \
+                                bsl::add_lvalue_reference<TYPE>::type>::value)
+    // Test the specified 'TYPE', a pointer and a reference to that type and
+    // confirm that the result value of 'bsl::is_trivially_copyable'
+    // instantiated with 'TYPE' and the expected 'RESULT' value are the same.
+    // Also confirm that 'bsl::is_trivially_copyable_v' has the same value as
+    // the result value.  Also confirm that result value of
+    // 'bsl::is_trivially_copyable' instantiated with a pointer to 'TYPE' is
+    // 'true', and instantiated with a reference to 'TYPE' is 'false'.
+
+# define ASSERT_IS_TRIVIALLY_COPYABLE(TYPE, RESULT)                           \
+    ASSERT( bsl::is_trivially_copyable<  TYPE>::value == RESULT);             \
+    ASSERT( bsl::is_trivially_copyable  <TYPE>::value ==                      \
+            bsl::is_trivially_copyable_v<TYPE>)
+    // Confirm that the result value of 'bsl::is_trivially_copyable'
+    // instantiated with the specified 'TYPE' and the expected 'RESULT' value
+    // are the same.  Also confirm that 'bsl::is_trivially_copyable_v' has the
+    // same value as the result value.
+#else
+# define ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(TYPE, RESULT)                      \
     ASSERT( bsl::is_trivially_copyable<TYPE>::value == RESULT);               \
     ASSERT( bsl::is_trivially_copyable<bsl::add_pointer<TYPE>::type>::value); \
     ASSERT(!bsl::is_trivially_copyable<                                       \
-                                bsl::add_lvalue_reference<TYPE>::type>::value);
+                                bsl::add_lvalue_reference<TYPE>::type>::value)
+    // Test the specified 'TYPE', a pointer and a reference to that type and
+    // confirm that the result value of 'bsl::is_trivially_copyable'
+    // instantiated with 'TYPE' and the expected 'RESULT' value are the same.
+    // Also confirm that result value of 'bsl::is_trivially_copyable'
+    // instantiated with a pointer to 'TYPE' is 'true', and instantiated with a
+    // reference to 'TYPE' is 'false'.
+# define ASSERT_IS_TRIVIALLY_COPYABLE(TYPE, RESULT)                           \
+    ASSERT( bsl::is_trivially_copyable<  TYPE>::value == RESULT)
+    // Confirm that the result value of 'bsl::is_trivially_copyable'
+    // instantiated with the specified 'TYPE' and the expected 'RESULT' value
+    // are the same.
+#endif
 
 #define ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE, RESULT)                    \
     ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(TYPE, RESULT);                          \
@@ -138,18 +177,6 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE, RESULT)                        \
     ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[128], RESULT)                   \
     ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[12][8], RESULT)
-
-#elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
-// Old microsoft compilers compilers do not support references to arrays of
-// unknown bound.
-
-# define ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(TYPE, RESULT)               \
-    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE, RESULT)                        \
-    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[128], RESULT)                   \
-    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE[12][8], RESULT)                 \
-    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE_NO_REF(TYPE[], RESULT)               \
-    ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE_NO_REF(TYPE[][8], RESULT)
-
 #else
 # define ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(TYPE, RESULT)               \
     ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(TYPE, RESULT)                        \
@@ -326,6 +353,15 @@ int main(int argc, char *argv[])
         ASSERT(false == bsl::is_trivially_copyable<
                                            MyNonTriviallyCopyableType>::value);
 //..
+// Note that if the current compiler supports the variable templates C++14
+// feature, then we can re-write the snippet of code above as follows:
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+        ASSERT( bsl::is_trivially_copyable_v<MyFundamentalType>);
+        ASSERT(!bsl::is_trivially_copyable_v<MyFundamentalTypeReference>);
+        ASSERT( bsl::is_trivially_copyable_v<MyTriviallyCopyableType>);
+        ASSERT(!bsl::is_trivially_copyable_v<MyNonTriviallyCopyableType>);
+#endif
+//..
 
       } break;
       case 3: {
@@ -437,6 +473,10 @@ int main(int argc, char *argv[])
         //:  9 The meta-function returns the same result for cv-qualified
         //:    types that it would return 'true' for the corresponding
         //:    cv-unqualified type.
+        //:
+        //: 10 That 'is_trivially_copyable<T>::value' has the same value as
+        //:    'is_trivially_copyable_v<T>' for a variety of template parameter
+        //:    types.
         //
         // Plan:
         //:  1 Create a set of macros that will generate an 'ASSERT' test for
@@ -457,35 +497,27 @@ int main(int argc, char *argv[])
             printf("\n'bsl::is_trivially_copyable::value'"
                    "\n===================================\n");
 
-        // C-1
+        // C-1, (partial 6, 7, 8, 9)
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(int, true);
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(char, true);
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(long double, true);
 
-        // C-2
+        // C-2 (partial 6, 7, 8, 9)
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(EnumTestType, true);
 
-        // C-3
+        // C-3 (complete 6, 7, 8, 9)
         ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(MethodPtrTestType, true);
 
         // C-4 : 'void' is not an object type, but can be cv-qualified.
         ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE(void, false);
 
         // C-5 : Function types are not object types, nor cv-qualifiable.
-        // Note that this particular test stresses compilers handling of
-        // function types, and function reference types, in the template type
-        // system.  We incrementally disable tests for compilers known to have
-        // bugs that we cannot easily work around/
-        ASSERT( bsl::is_trivially_copyable<void(*)()>::value);
-        ASSERT( bsl::is_trivially_copyable<int(*)(float, double...)>::value);
-#if !defined(BSLS_PLATFORM_CMP_SUN) // last tested for v12.3
-        ASSERT(!bsl::is_trivially_copyable<void()>::value);
-        ASSERT(!bsl::is_trivially_copyable<int(float, double...)>::value);
-#if !defined(BSLS_PLATFORM_CMP_IBM) // last tested for v12.1
-        ASSERT(!bsl::is_trivially_copyable<void(&)()>::value);
-        ASSERT(!bsl::is_trivially_copyable<int(&)(float, double...)>::value);
-#endif
-#endif
+        ASSERT_IS_TRIVIALLY_COPYABLE(void(*)(), true);
+        ASSERT_IS_TRIVIALLY_COPYABLE(int(*)(float, double...), true);
+        ASSERT_IS_TRIVIALLY_COPYABLE(void(), false);
+        ASSERT_IS_TRIVIALLY_COPYABLE(int(float, double...), false);
+        ASSERT_IS_TRIVIALLY_COPYABLE(void(&)(), false);
+        ASSERT_IS_TRIVIALLY_COPYABLE(int(&)(float, double...), false);
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

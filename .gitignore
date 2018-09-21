@@ -42,6 +42,7 @@ TAGS
 *.suo
 *.sdf
 *.opensdf
+.vs/
 
 # Visual Studio 2017 files
 *.VC.db

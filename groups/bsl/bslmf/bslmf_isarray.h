@@ -11,13 +11,15 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_array: standard meta-function for detecting array types
+//  bsl::is_array_v: the result value of the 'bsl::is_array' meta-function
 //  bslmf::IsArray: meta-function for detecting array types
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_array' and
-// 'BloombergLP::bslmf::IsArray', both of which may be used to query whether a
-// type is an array type.
+// 'BloombergLP::bslmf::IsArray' and a template variable 'bsl::is_array_v',
+// that represents the result value of the 'bsl::is_array' meta-function.  All
+// these meta-functions may be used to query whether a type is an array type.
 //
 // 'bsl::is_array' meets the requirements of the 'is_array' template defined in
 // the C++11 standard [meta.unary.cat], while 'bslmf::IsArray' was devised
@@ -30,6 +32,16 @@ BSLS_IDENT("$Id: $")
 //
 // Note that 'bsl::is_array' should be preferred over 'bslmf::IsArray', and in
 // general, should be used by new components.
+//
+// Also note that the template variable 'is_array_v' is defined in the C++17
+// standard as an inline variable.  If the current compiler supports the inline
+// variable C++17 compiler feature, 'bsl::is_array_v' is defined as
+// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
+// variable templates C++14 compiler feature, 'bsl::is_array_v' is defined as a
+// non-inline 'constexpr bool' variable.  See
+// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
+// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -50,6 +62,15 @@ BSLS_IDENT("$Id: $")
 //  assert(false == bsl::is_array<MyType>::value);
 //  assert(true  == bsl::is_array<MyArrayType>::value);
 //..
+// Note that if the current compiler supports the variable templates C++14
+// feature then we can re-write the snippet of code above using the
+// 'bsl::is_array_v' variable as follows:
+//..
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//  assert(false == bsl::is_array_v<MyType>);
+//  assert(true  == bsl::is_array_v<MyArrayType>);
+//#endif
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -57,6 +78,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
 #endif
 
 #ifndef INCLUDED_CSTDDEF
@@ -108,6 +137,14 @@ struct is_array<TYPE []> : true_type {
      // 'TYPE' is an array type of unknown bound, derives from
      // 'bsl::true_type'.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_array_v = is_array<TYPE>::value;
+    // This template variable represents the result value of the
+    // 'bsl::is_array' meta-function.
+#endif
 
 }  // close namespace bsl
 

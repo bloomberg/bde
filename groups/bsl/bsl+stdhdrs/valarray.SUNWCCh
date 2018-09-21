@@ -21,13 +21,23 @@ BSLS_IDENT("$Id: $")
 // 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
 // places them in the 'std' namespace.
 
-#ifndef BSL_OVERRIDES_STD
+#if !defined(BSL_OVERRIDES_STD) || \
+    defined(BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS)
 
 #   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
 #   include BSL_NATIVE_CPP_LIB_HEADER(valarray)
+
+// Note that this header (with the SUNWCCh extension) is *different* from the
+// other (no extension), because on SUN we use this header to detect the
+// different standard library implementations (LIBCSTD vs. STLPort), but not on
+// any other platform.
+#   if defined(BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS)
+    // We want a new inclusion to re-evaluate this header.
+#   undef INCLUDED_NATIVE_VALARRAY
+#   endif
 
 #else // defined(BSL_OVERRIDES_STD)
 

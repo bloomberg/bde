@@ -16,14 +16,15 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-functions, 'bsl::remove_const', that
-// removes any top-level 'const'-qualifier from a template parameter type.
-// Thus, we need to ensure that the values returned by the meta-function is
-// correct for each possible category of types.
+// The component under test defines meta-functions, 'bsl::remove_const' and
+// 'bsl::remove_const_t', that removes any top-level 'const'-qualifier from a
+// template parameter type.  Thus, we need to ensure that the values returned
+// by the meta-function is correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::remove_const::type
+// [ 1] bsl::remove_const_t
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -195,6 +196,15 @@ int main(int argc, char *argv[])
         ASSERT(true == (bsl::is_same<bsl::remove_const<MyConstType>::type,
                                                               MyType>::value));
 //..
+// Finally, if the current compiler supports alias templates C++11 feature, we
+// remove a 'const'-qualifier from 'MyConstType' using 'bsl::remove_const_t'
+// and verify that the resulting type is the same as 'MyType':
+//..
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+        ASSERT(true ==
+              (bsl::is_same<bsl::remove_const_t<MyConstType>, MyType>::value));
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//..
 
       } break;
       case 1: {
@@ -208,19 +218,28 @@ int main(int argc, char *argv[])
         //:   at the top-level as-is.
         //:
         //: 2 'bsl::remove_const' remove any top-level 'const'-qualifier.
-        //
+        //:
         //: 3 'bsl::remove_const' removes any top-level 'const'-qualifier from
         //:   a pointer-to-member object type, and not from the qualifier in
         //:   the pointed-to member.
+        //:
+        //: 5 'bsl::remove_const_t' represents the return type of
+        //:   'bsl::remove_const' meta-function for a variety of template
+        //:   parameter types.
         //
         // Plan:
-        //   Verify that 'bsl::remove_const::type' has the correct type for
-        //   each concern.  Use typedefs to verify pointer-to-member types to
-        //   be clear whether the pointed-to member, or the type itself, is
-        //   cv-qualified.
+        //  1 Verify that 'bsl::remove_const::type' has the correct type for
+        //    each concern.  Use typedefs to verify pointer-to-member types to
+        //    be clear whether the pointed-to member, or the type itself, is
+        //    cv-qualified. (C1-4)
+        //
+        //  2 Verify that 'bsl::remove_const_t' has the same type as the return
+        //    type of 'bsl::remove_const' for a variety of template parameter
+        //    types. (C-5)
         //
         // Testing:
         //   bsl::remove_const::type
+        //   bsl::remove_const_t
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'bsl::remove_const<T>::type'"
@@ -347,6 +366,57 @@ int main(int argc, char *argv[])
                                      int const(*        )()>::value));
         ASSERT((is_same<remove_const<int const(* const &)()>::type,
                                      int const(* const &)()>::value));
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+        if (verbose) printf("\nTESTING 'bsl::remove_const_t'"
+                            "\n============================\n");
+
+        // C-5
+        ASSERT((is_same<remove_const  <int        >::type,
+                        remove_const_t<int        >>::value));
+        ASSERT((is_same<remove_const  <int *      >::type,
+                        remove_const_t<int *      >>::value));
+        ASSERT((is_same<remove_const  <TestType   >::type,
+                        remove_const_t<TestType   >>::value));
+        ASSERT((is_same<remove_const  <int const *>::type,
+                        remove_const_t<int const *>>::value));
+        ASSERT((is_same<remove_const  <int const &>::type,
+                        remove_const_t<int const &>>::value));
+        ASSERT((is_same<remove_const<  int const()>::type,
+                        remove_const_t<int const()>>::value));
+        ASSERT((is_same<remove_const<  int[5]     >::type,
+                        remove_const_t<int[5]     >>::value));
+        ASSERT((is_same<remove_const  <void       >::type,
+                        remove_const_t<void       >>::value));
+
+        ASSERT((is_same<remove_const<const int  TestType::*         >::type,
+                                     const int  TestType::*         >::value));
+        ASSERT((is_same<remove_const<const int (TestType::*)() const>::type,
+                                     const int (TestType::*)() const>::value));
+
+        ASSERT((is_same<remove_const  <int const     >::type,
+                        remove_const_t<int const     >>::value));
+        ASSERT((is_same<remove_const  <int * const   >::type,
+                        remove_const_t<int * const   >>::value));
+        ASSERT((is_same<remove_const  <TestType const>::type,
+                        remove_const_t<TestType const>>::value));
+        ASSERT((is_same<remove_const  <const int[5]  >::type,
+                        remove_const_t<const int[5]  >>::value));
+        ASSERT((is_same<remove_const  <      Pm      >::type,
+                        remove_const_t<      Pm      >>::value));
+        ASSERT((is_same<remove_const  <const Pm      >::type,
+                        remove_const_t<const Pm      >>::value));
+        ASSERT((is_same<remove_const  <      Pmf     >::type,
+                        remove_const_t<      Pmf     >>::value));
+        ASSERT((is_same<remove_const  <const Pmf     >::type,
+                        remove_const_t<const Pmf     >>::value));
+        ASSERT((is_same<remove_const  <      Pmq     >::type,
+                        remove_const_t<      Pmq     >>::value));
+        ASSERT((is_same<remove_const<  const Pmq     >::type,
+                        remove_const_t<const Pmq     >>::value));
+#endif
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

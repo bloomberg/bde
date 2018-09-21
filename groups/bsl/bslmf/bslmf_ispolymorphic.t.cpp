@@ -17,11 +17,11 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines two meta-functions, 'bsl::is_polymorphic'
-// and 'bslmf::IsPolymorphic', that determine whether a template parameter type
-// is a polymorphic type.  Thus, we need to ensure that the values returned by
-// these meta-functions are correct for each possible category of types.  Since
-// the two meta-functions are functionally equivalent, we will use the same set
-// of types for both.
+// and 'bslmf::IsPolymorphic' and a template variable 'bsl::is_polymorphic_v',
+// that determine whether a template parameter type is a polymorphic type.
+// Thus, we need to ensure that the values returned by these meta-functions are
+// correct for each possible category of types.  Since the two meta-functions
+// are functionally equivalent, we will use the same set of types for both.
 //
 //-----------------------------------------------------------------------------
 // [ 1] BloombergLP::bslmf::IsPolymorphic::VALUE
@@ -98,6 +98,38 @@ void aSsErT(bool condition, const char *message, int line)
 #else
 #   define EXCEPTION_SPECIFICATION
 #endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+#define ASSERT_V_EQ_VALUE(type)                                               \
+    ASSERT(bsl::is_polymorphic  <type>::value ==                              \
+           bsl::is_polymorphic_v<type>)
+    // Test whether 'bsl::is_polymorphic_v<type>' value equals to
+    // 'bsl::is_polymorphic<type>::value'.
+#else
+#define ASSERT_V_EQ_VALUE(type)
+#endif
+
+#define TYPE_ASSERT(type, result)                                             \
+    ASSERT(result == bsl::is_polymorphic<type>::value);                       \
+    ASSERT_V_EQ_VALUE(type)
+    // Test that the result of 'bsl::is_polymorphic<type>' has the same value
+    // as the expected 'result'.  Confirm that the result value of the
+    // 'bsl::is_polymorphic' and the value of the 'bsl::is_polymorphic_v'
+    // variable are the same.
+
+#define TYPE_ASSERT_CVQ_REF(type, result);                                    \
+    TYPE_ASSERT(type&,                result);                                \
+    TYPE_ASSERT(type const& ,         result);                                \
+    TYPE_ASSERT(type volatile&,       result);                                \
+    TYPE_ASSERT(type const volatile&, result);
+    // Test cv-qualified combinations on the specified 'type'.
+
+#define TYPE_ASSERT_CVQ(type, result);                                        \
+    TYPE_ASSERT(type,                 result);                                \
+    TYPE_ASSERT(type const ,          result);                                \
+    TYPE_ASSERT(type volatile,        result);                                \
+    TYPE_ASSERT(type const volatile,  result);
+    // Test references to cv-qualified combinations on the specified 'type'.
 
 //=============================================================================
 //                      GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -276,8 +308,27 @@ int main(int argc, char *argv[])
         ASSERT(true  == bsl::is_polymorphic<      MyClass    >::value);
         ASSERT(false == bsl::is_polymorphic<const MyClass&   >::value);
         ASSERT(false == bsl::is_polymorphic<      MyClass   *>::value);
+        ASSERT(true  == bsl::is_polymorphic<MyDerivedClass   >::value);
         ASSERT(false == bsl::is_polymorphic<MyDerivedClass&  >::value);
         ASSERT(false == bsl::is_polymorphic<MyDerivedClass  *>::value);
+//..
+// Note that if the current compiler supports the variable templates C++14
+// feature then we can re-write the snippet of code above using the
+// 'bsl::is_polymorphic_v' variable as follows:
+//..
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+        ASSERT(false == bsl::is_polymorphic_v<MyStruct          >);
+        ASSERT(false == bsl::is_polymorphic_v<MyStruct         *>);
+        ASSERT(false == bsl::is_polymorphic_v<MyDerivedStruct&  >);
+        ASSERT(false == bsl::is_polymorphic_v<MyDerivedStruct  *>);
+
+        ASSERT(true  == bsl::is_polymorphic_v<      MyClass    >);
+        ASSERT(false == bsl::is_polymorphic_v<const MyClass&   >);
+        ASSERT(false == bsl::is_polymorphic_v<      MyClass   *>);
+        ASSERT(true  == bsl::is_polymorphic_v<MyDerivedClass   >);
+        ASSERT(false == bsl::is_polymorphic_v<MyDerivedClass&  >);
+        ASSERT(false == bsl::is_polymorphic_v<MyDerivedClass  *>);
+#endif
 //..
       } break;
       case 4: {
@@ -573,6 +624,10 @@ int main(int argc, char *argv[])
         //:
         //:  7 'is_polymorphic' returns the same value if the argument type is
         //:    cv-qualified.
+        //:
+        //:  8 That 'is_polymorphic<T>::value' has the same value as
+        //:    'is_polymorphic_v<T>' for a variety of template parameter
+        //:    types.
         //
         // Test Plan:
         //   Verify that 'bsl::is_polymorphic' returns the correct values
@@ -580,6 +635,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::is_polymorphic::value
+        //   bsl::is_polymorphic_v
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n'bsl::is_polymorphic::value'\n"
@@ -587,290 +643,69 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == bsl::is_polymorphic<void>::value);
 
-        ASSERT(0 == bsl::is_polymorphic<int               >::value);
-        ASSERT(0 == bsl::is_polymorphic<int const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<int volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<int const volatile>::value);
+        TYPE_ASSERT_CVQ(    int, 0);
+        TYPE_ASSERT_CVQ_REF(int, 0);
 
-        ASSERT(0 == bsl::is_polymorphic<int&               >::value);
-        ASSERT(0 == bsl::is_polymorphic<int const&         >::value);
-        ASSERT(0 == bsl::is_polymorphic<int volatile&      >::value);
-        ASSERT(0 == bsl::is_polymorphic<int const volatile&>::value);
+        TYPE_ASSERT_CVQ(Enum, 0);
 
-        ASSERT(0 == bsl::is_polymorphic<Enum               >::value);
-        ASSERT(0 == bsl::is_polymorphic<Enum const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Enum volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Enum const volatile>::value);
+        TYPE_ASSERT_CVQ(int *,                0);
+        TYPE_ASSERT_CVQ(int const *,          0);
+        TYPE_ASSERT_CVQ(int volatile *,       0);
+        TYPE_ASSERT_CVQ(int const volatile *, 0);
 
-        ASSERT(0 ==
-              bsl::is_polymorphic<int *                             >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int *const                        >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int *volatile                     >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int *const volatile               >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int const *                       >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int const *const                  >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int const *volatile               >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int const *const volatile         >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int volatile *                    >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int volatile *const               >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int volatile *volatile            >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int volatile *const volatile      >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int const volatile *              >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int const volatile *const         >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int const volatile *volatile      >::value);
-        ASSERT(0 ==
-              bsl::is_polymorphic<int const volatile *const volatile>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<Struct               >::value);
-        ASSERT(0 == bsl::is_polymorphic<Struct const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Struct volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Struct const volatile>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<Struct&               >::value);
-        ASSERT(0 == bsl::is_polymorphic<Struct const&         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Struct volatile&      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Struct const volatile&>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<Struct *              >::value);
-        ASSERT(0 == bsl::is_polymorphic<Struct *const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Struct *volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Struct *const volatile>::value);
+        TYPE_ASSERT_CVQ(    Struct,   0);
+        TYPE_ASSERT_CVQ(    Struct *, 0);
+        TYPE_ASSERT_CVQ_REF(Struct,   0);
 
 // The following cases fail to compile on platforms that do not support an
 // intrinsic operation to check this trait.  It may be possible to detect
 // 'union' types in C++11 with extended SFINAE, but all compilers known to
 // implement extended SFINAE also provide an appropriate traits intrinsic.
 #if defined(BSLMF_ISPOLYMORPHIC_HAS_INTRINSIC)
-        ASSERT(0 == bsl::is_polymorphic<Union               >::value);
-        ASSERT(0 == bsl::is_polymorphic<Union const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Union volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Union const volatile>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<Union&               >::value);
-        ASSERT(0 == bsl::is_polymorphic<Union const&         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Union volatile&      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Union const volatile&>::value);
+        TYPE_ASSERT_CVQ(    Union,   0);
+        TYPE_ASSERT_CVQ_REF(Union,   0);
 #endif
+        TYPE_ASSERT_CVQ(    Union *, 0);
 
-        ASSERT(0 == bsl::is_polymorphic<Union *              >::value);
-        ASSERT(0 == bsl::is_polymorphic<Union *const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Union *volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Union *const volatile>::value);
+        TYPE_ASSERT_CVQ(    Base,   0);
+        TYPE_ASSERT_CVQ(    Base *, 0);
+        TYPE_ASSERT_CVQ_REF(Base,   0);
 
-        ASSERT(0 == bsl::is_polymorphic<Base               >::value);
-        ASSERT(0 == bsl::is_polymorphic<Base const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Base volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Base const volatile>::value);
+        TYPE_ASSERT_CVQ(    Derived, 0);
+        TYPE_ASSERT_CVQ(    Derived *, 0);
+        TYPE_ASSERT_CVQ_REF(Derived, 0);
 
-        ASSERT(0 == bsl::is_polymorphic<Base&               >::value);
-        ASSERT(0 == bsl::is_polymorphic<Base const&         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Base volatile&      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Base const volatile&>::value);
+        TYPE_ASSERT_CVQ(    DerivedPoly,   1);
+        TYPE_ASSERT_CVQ(    DerivedPoly *, 0);
+        TYPE_ASSERT_CVQ_REF(DerivedPoly,   0);
 
-        ASSERT(0 == bsl::is_polymorphic<Base *              >::value);
-        ASSERT(0 == bsl::is_polymorphic<Base *const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Base *volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Base *const volatile>::value);
+        TYPE_ASSERT_CVQ(    DerivedPolyThrowSpec,   1);
+        TYPE_ASSERT_CVQ(    DerivedPolyThrowSpec *, 0);
+        TYPE_ASSERT_CVQ_REF(DerivedPolyThrowSpec,   0);
 
-        ASSERT(0 == bsl::is_polymorphic<Derived               >::value);
-        ASSERT(0 == bsl::is_polymorphic<Derived const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Derived volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Derived const volatile>::value);
+        TYPE_ASSERT_CVQ(    Poly,   1);
+        TYPE_ASSERT_CVQ(    Poly *, 0);
+        TYPE_ASSERT_CVQ_REF(Poly,   0);
 
-        ASSERT(0 == bsl::is_polymorphic<Derived&               >::value);
-        ASSERT(0 == bsl::is_polymorphic<Derived const&         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Derived volatile&      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Derived const volatile&>::value);
+        TYPE_ASSERT_CVQ(    DerivedFromPoly,   1);
+        TYPE_ASSERT_CVQ(    DerivedFromPoly *, 0);
+        TYPE_ASSERT_CVQ_REF(DerivedFromPoly,   0);
 
-        ASSERT(0 == bsl::is_polymorphic<Derived *              >::value);
-        ASSERT(0 == bsl::is_polymorphic<Derived *const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Derived *volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Derived *const volatile>::value);
+        TYPE_ASSERT_CVQ(    DerivedFromPolyThrowSpec,   1);
+        TYPE_ASSERT_CVQ(    DerivedFromPolyThrowSpec *, 0);
+        TYPE_ASSERT_CVQ_REF(DerivedFromPolyThrowSpec,   0);
 
-        ASSERT(1 == bsl::is_polymorphic<DerivedPoly               >::value);
-        ASSERT(1 == bsl::is_polymorphic<DerivedPoly const         >::value);
-        ASSERT(1 == bsl::is_polymorphic<DerivedPoly volatile      >::value);
-        ASSERT(1 == bsl::is_polymorphic<DerivedPoly const volatile>::value);
+        TYPE_ASSERT_CVQ(    PolyThrowSpec,   1);
+        TYPE_ASSERT_CVQ(    PolyThrowSpec *, 0);
+        TYPE_ASSERT_CVQ_REF(PolyThrowSpec,   0);
 
-        ASSERT(0 == bsl::is_polymorphic<DerivedPoly&               >::value);
-        ASSERT(0 == bsl::is_polymorphic<DerivedPoly const&         >::value);
-        ASSERT(0 == bsl::is_polymorphic<DerivedPoly volatile&      >::value);
-        ASSERT(0 == bsl::is_polymorphic<DerivedPoly const volatile&>::value);
+        TYPE_ASSERT_CVQ(    DerivedFromPolyThrowSpec2,   1);
+        TYPE_ASSERT_CVQ(    DerivedFromPolyThrowSpec2 *, 0);
+        TYPE_ASSERT_CVQ_REF(DerivedFromPolyThrowSpec2,   0);
 
-        ASSERT(0 == bsl::is_polymorphic<DerivedPoly *              >::value);
-        ASSERT(0 == bsl::is_polymorphic<DerivedPoly *const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<DerivedPoly *volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<DerivedPoly *const volatile>::value);
+        TYPE_ASSERT_CVQ(int Struct::*, 0);
 
-        ASSERT(1 == bsl::is_polymorphic<
-                                 DerivedPolyThrowSpec               >::value);
-        ASSERT(1 == bsl::is_polymorphic<
-                                 DerivedPolyThrowSpec const         >::value);
-        ASSERT(1 == bsl::is_polymorphic<
-                                 DerivedPolyThrowSpec volatile      >::value);
-        ASSERT(1 == bsl::is_polymorphic<
-                                 DerivedPolyThrowSpec const volatile>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<
-                                 DerivedPolyThrowSpec&               >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                 DerivedPolyThrowSpec const&         >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                 DerivedPolyThrowSpec volatile&      >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                 DerivedPolyThrowSpec const volatile&>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<
-                                 DerivedPolyThrowSpec *              >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                 DerivedPolyThrowSpec *const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                 DerivedPolyThrowSpec *volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                 DerivedPolyThrowSpec *const volatile>::value);
-
-        ASSERT(1 == bsl::is_polymorphic<Poly               >::value);
-        ASSERT(1 == bsl::is_polymorphic<Poly const         >::value);
-        ASSERT(1 == bsl::is_polymorphic<Poly volatile      >::value);
-        ASSERT(1 == bsl::is_polymorphic<Poly const volatile>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<Poly&               >::value);
-        ASSERT(0 == bsl::is_polymorphic<Poly const&         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Poly volatile&      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Poly const volatile&>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<Poly *              >::value);
-        ASSERT(0 == bsl::is_polymorphic<Poly *const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<Poly *volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<Poly *const volatile>::value);
-
-        ASSERT(1 == bsl::is_polymorphic<
-                                     DerivedFromPoly               >::value);
-        ASSERT(1 == bsl::is_polymorphic<
-                                     DerivedFromPoly const         >::value);
-        ASSERT(1 == bsl::is_polymorphic<
-                                     DerivedFromPoly volatile      >::value);
-        ASSERT(1 == bsl::is_polymorphic<
-                                     DerivedFromPoly const volatile>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<
-                                     DerivedFromPoly&               >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                     DerivedFromPoly const&         >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                     DerivedFromPoly volatile&      >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                     DerivedFromPoly const volatile&>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<
-                                     DerivedFromPoly *              >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                     DerivedFromPoly *const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                     DerivedFromPoly *volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                     DerivedFromPoly *const volatile>::value);
-
-        ASSERT(1 == bsl::is_polymorphic<
-                             DerivedFromPolyThrowSpec               >::value);
-        ASSERT(1 == bsl::is_polymorphic<
-                             DerivedFromPolyThrowSpec const         >::value);
-        ASSERT(1 == bsl::is_polymorphic<
-                             DerivedFromPolyThrowSpec volatile      >::value);
-        ASSERT(1 == bsl::is_polymorphic<
-                             DerivedFromPolyThrowSpec const volatile>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<
-                            DerivedFromPolyThrowSpec&               >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                            DerivedFromPolyThrowSpec const&         >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                            DerivedFromPolyThrowSpec volatile&      >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                            DerivedFromPolyThrowSpec const volatile&>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<
-                            DerivedFromPolyThrowSpec *              >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                            DerivedFromPolyThrowSpec *const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                            DerivedFromPolyThrowSpec *volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                            DerivedFromPolyThrowSpec *const volatile>::value);
-
-        ASSERT(1 == bsl::is_polymorphic<PolyThrowSpec               >::value);
-        ASSERT(1 == bsl::is_polymorphic<PolyThrowSpec const         >::value);
-        ASSERT(1 == bsl::is_polymorphic<PolyThrowSpec volatile      >::value);
-        ASSERT(1 == bsl::is_polymorphic<PolyThrowSpec const volatile>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<
-                                        PolyThrowSpec&               >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                        PolyThrowSpec const&         >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                        PolyThrowSpec volatile&      >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                        PolyThrowSpec const volatile&>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<
-                                        PolyThrowSpec *              >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                        PolyThrowSpec *const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                        PolyThrowSpec *volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                                        PolyThrowSpec *const volatile>::value);
-
-        ASSERT(1 == bsl::is_polymorphic<
-                           DerivedFromPolyThrowSpec2               >::value);
-        ASSERT(1 == bsl::is_polymorphic<
-                           DerivedFromPolyThrowSpec2 const         >::value);
-        ASSERT(1 == bsl::is_polymorphic<
-                           DerivedFromPolyThrowSpec2 volatile      >::value);
-        ASSERT(1 == bsl::is_polymorphic<
-                           DerivedFromPolyThrowSpec2 const volatile>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<
-                           DerivedFromPolyThrowSpec2&               >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                           DerivedFromPolyThrowSpec2 const&         >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                           DerivedFromPolyThrowSpec2 volatile&      >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                           DerivedFromPolyThrowSpec2 const volatile&>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<
-                           DerivedFromPolyThrowSpec2 *              >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                           DerivedFromPolyThrowSpec2 *const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                           DerivedFromPolyThrowSpec2 *volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<
-                           DerivedFromPolyThrowSpec2 *const volatile>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<int Struct::*               >::value);
-        ASSERT(0 == bsl::is_polymorphic<int Struct::* const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<int Struct::* volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<int Struct::* const volatile>::value);
-
-        ASSERT(0 == bsl::is_polymorphic<int Poly::*               >::value);
-        ASSERT(0 == bsl::is_polymorphic<int Poly::* const         >::value);
-        ASSERT(0 == bsl::is_polymorphic<int Poly::* volatile      >::value);
-        ASSERT(0 == bsl::is_polymorphic<int Poly::* const volatile>::value);
+        TYPE_ASSERT_CVQ(int Poly::*, 0);
       } break;
       case 2: {
         // --------------------------------------------------------------------

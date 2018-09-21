@@ -9,6 +9,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide macros for C++11 forward compatibility.
 //
+//@DEPRECATED: Use 'bsls_keyword' instead.
+//
 //@CLASSES:
 //
 //@MACROS:
@@ -35,49 +37,55 @@ BSLS_IDENT("$Id: $")
 // The following are the macros provided by this component.
 //
 //: 'BSLS_CPP11_CONSTEXPR':
-//:     This macro inserts the keyword 'constexpr' when compiling with C++11
-//:     mode and inserts nothing when compiling with C++03 mode.
+//:     !DEPRECATED!: Use 'BSLS_KEYWORD_CONSTEXPR' instead.  This macro inserts
+//:     the keyword 'constexpr' when compiling with C++11 mode and inserts
+//:     nothing when compiling with C++03 mode.
 //:
 //: 'BSLS_CPP11_DELETED':
-//:     This macro inserts the text '= delete' when compiling with C++11
-//:     mode and inserts nothing when compiling with C++03 mode.
+//:     !DEPRECATED!: Use 'BSLS_KEYWORD_DELETED' instead.  This macro inserts
+//:     the text '= delete' when compiling with C++11 mode and inserts nothing
+//:     when compiling with C++03 mode.
 //:
 //: 'BSLS_CPP11_EXPLICIT':
-//:     This macro inserts the keyword 'explicit' when compiling with C++11
-//:     mode and inserts nothing when compiling with C++03 mode.
+//:     !DEPRECATED!: Use 'BSLS_KEYWORD_EXPLICIT' instead.  This macro inserts
+//:     the keyword 'explicit' when compiling with C++11 mode and inserts
+//:     nothing when compiling with C++03 mode.
 //:
 //: 'BSLS_CPP11_FINAL':
-//:     This macro inserts the keyword 'final' when compiling with C++11 mode
-//:     and inserts nothing when compiling with C++03 mode.
+//:     !DEPRECATED!: Use 'BSLS_KEYWORD_FINAL' instead.  This macro inserts the
+//:     keyword 'final' when compiling with C++11 mode and inserts nothing when
+//:     compiling with C++03 mode.
 //:
 //: 'BSLS_CPP11_NOEXCEPT':
-//:     This macro inserts the keyword 'noexcept' when compiling with C++11
-//:     mode and inserts nothing when compiling with C++03 mode.
+//:     !DEPRECATED!: Use 'BSLS_KEYWORD_NOEXCEPT' instead.  This macro inserts
+//:     the keyword 'noexcept' when compiling with C++11 mode and inserts
+//:     nothing when compiling with C++03 mode.
 //:
 //: 'BSLS_CPP11_NOEXCEPT_AVAILABLE':
-//:     This macro expands to 'true' when the 'noexcept' feature is available
-//:     and 'false' otherwise.
+//:     !DEPRECATED!: Use 'BSLS_KEYWORD_NOEXCEPT_AVAILABLE' instead.  This
+//:     macro expands to 'true' when the 'noexcept' feature is available and
+//:     'false' otherwise.
 //:
 //: 'BSLS_CPP11_NOEXCEPT_SPECIFICATION(BOOL_EXPRESSION)':
-//:     This macro inserts the exception specification
-//:     'noexcept(BOOL_EXPRESSION)' when compiling with C++11 mode and inserts
-//:     nothing when compiling with C++03 mode.  This macro is used to specify
-//:     which version of noexcept is intended when multiple 'noexcept's are
-//:     used in a single statement.
+//:     !DEPRECATED!: Use 'BSLS_KEYWORD_NOEXCEPT_SPECIFICATION' instead.  This
+//:     macro inserts the exception specification 'noexcept(BOOL_EXPRESSION)'
+//:     when compiling with C++11 mode and inserts nothing when compiling with
+//:     C++03 mode.  This macro is used to specify which version of 'noexcept'
+//:     is intended when multiple 'noexcept's are used in a single statement.
 //:
 //: 'BSLS_CPP11_NOEXCEPT_OPERATOR(expr)':
-//:     This macro inserts the operation 'noexcept(expr)' when compiling with
-//:     C++11 mode and inserts the literal 'false' when compiling with C++03
-//:     mode.
+//:     !DEPRECATED!: Use 'BSLS_KEYWORD_NOEXCEPT_OPERATOR' instead.  This macro
+//:     inserts the operation 'noexcept(expr)' when compiling with C++11 mode
+//:     and inserts the literal 'false' when compiling with C++03 mode.
 //:
 //: 'BSLS_CPP11_OVERRIDE'
-//:     This macro inserts the keyword 'override' when compiling with C++11
-//:     mode and inserts nothing when compiling with C++03 mode.
+//:     !DEPRECATED!: Use 'BSLS_KEYWORD_OVERRIDE' instead.  This macro inserts
+//:     the keyword 'override' when compiling with C++11 mode and inserts
+//:     nothing when compiling with C++03 mode.
 //:
 //: 'BSLS_CPP11_PROVISIONALLY_FALSE':
-//:     This macro inserts the keyword 'false' when compiling with C++11
-//:     mode and inserts nothing when compiling with C++03 mode.  This macro
-//:     is intended to be used as a placeholder in the
+//:     !DEPRECATED!: Use 'false' instead.  This macro inserts the keyword
+//:     'false'.  This macro is intended to be used as a placeholder in the
 //:     'BSLS_CPP11_NOEXCEPT_SPECIFICATION(BOOL_EXPRESSION)' macro when
 //:     traits needed for 'BOOL_EXPRESSION' have not yet been implemented.
 //
@@ -234,53 +242,27 @@ BSLS_IDENT("$Id: $")
 // };
 //..
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
 #endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-#define BSLS_CPP11_CONSTEXPR constexpr
-#else
-#define BSLS_CPP11_CONSTEXPR
-#endif
+#define BSLS_CPP11_CONSTEXPR BSLS_KEYWORD_CONSTEXPR
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
-#define BSLS_CPP11_DELETED = delete
-#else
-#define BSLS_CPP11_DELETED
-#endif
+#define BSLS_CPP11_DELETED BSLS_KEYWORD_DELETED
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-#define BSLS_CPP11_NOEXCEPT noexcept
-#define BSLS_CPP11_NOEXCEPT_AVAILABLE true
-#define BSLS_CPP11_NOEXCEPT_SPECIFICATION(...) noexcept(__VA_ARGS__)
-#define BSLS_CPP11_NOEXCEPT_OPERATOR(...)      noexcept(__VA_ARGS__)
+#define BSLS_CPP11_NOEXCEPT BSLS_KEYWORD_NOEXCEPT
+#define BSLS_CPP11_NOEXCEPT_AVAILABLE BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+#define BSLS_CPP11_NOEXCEPT_SPECIFICATION(...) \
+                               BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(__VA_ARGS__)
+#define BSLS_CPP11_NOEXCEPT_OPERATOR(...) \
+                                    BSLS_KEYWORD_NOEXCEPT_OPERATOR(__VA_ARGS__)
 #define BSLS_CPP11_PROVISIONALLY_FALSE false
-#else
-#define BSLS_CPP11_NOEXCEPT
-#define BSLS_CPP11_NOEXCEPT_AVAILABLE false
-#define BSLS_CPP11_NOEXCEPT_SPECIFICATION(...)
-#define BSLS_CPP11_NOEXCEPT_OPERATOR(...) false
-#define BSLS_CPP11_PROVISIONALLY_FALSE false
-#endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-#define BSLS_CPP11_EXPLICIT   explicit
-#else
-#define BSLS_CPP11_EXPLICIT
-#endif
+#define BSLS_CPP11_EXPLICIT BSLS_KEYWORD_EXPLICIT
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_FINAL
-#define BSLS_CPP11_FINAL      final
-#else
-#define BSLS_CPP11_FINAL
-#endif
+#define BSLS_CPP11_FINAL BSLS_KEYWORD_FINAL
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-#define BSLS_CPP11_OVERRIDE   override
-#else
-#define BSLS_CPP11_OVERRIDE
-#endif
+#define BSLS_CPP11_OVERRIDE BSLS_KEYWORD_OVERRIDE
 
 // ----------------------------------------------------------------------------
 

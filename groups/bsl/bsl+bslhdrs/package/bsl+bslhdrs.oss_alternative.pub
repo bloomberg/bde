@@ -88,6 +88,7 @@ bsl_random.h
 bsl_ratio.h
 bsl_regex.h
 bsl_scoped_allocator.h
+bsl_shared_mutex.h
 bsl_system_error.h
 bsl_thread.h
 bsl_tuple.h

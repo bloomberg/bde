@@ -105,8 +105,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_isbitwisemoveable.h>
 #endif
 
-#ifndef INCLUDED_BSLS_CPP11
-#include <bsls_cpp11.h>
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
 #endif
 
 #ifndef INCLUDED_BSLS_UTIL
@@ -136,7 +136,7 @@ class reference_wrapper {
     typedef T type;
 
     // CREATORS
-    reference_wrapper(T& object) BSLS_CPP11_NOEXCEPT;               // IMPLICIT
+    reference_wrapper(T& object) BSLS_KEYWORD_NOEXCEPT;             // IMPLICIT
         // Create a reference wrapper representing the specified 'object'.
 
     // reference_wrapper(const reference_wrapper& original) = default;
@@ -152,31 +152,31 @@ class reference_wrapper {
         // 'rhs', and return '*this'.
 
     // ACCESSORS
-    T& get() const BSLS_CPP11_NOEXCEPT;
+    T& get() const BSLS_KEYWORD_NOEXCEPT;
         // Return a reference to the object that '*this' represents.
 
-    operator T&() const BSLS_CPP11_NOEXCEPT;
+    operator T&() const BSLS_KEYWORD_NOEXCEPT;
         // Return a reference to the object that '*this' represents.
 };
 
 // FREE FUNCTIONS
 template <class T>
-reference_wrapper<const T> cref(const T& object) BSLS_CPP11_NOEXCEPT;
+reference_wrapper<const T> cref(const T& object) BSLS_KEYWORD_NOEXCEPT;
     // Return a reference wrapper representing a 'const' view of the specified
     // 'object'.
 
 template <class T>
 reference_wrapper<const T> cref(reference_wrapper<T> original)
-                                                           BSLS_CPP11_NOEXCEPT;
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return a reference wrapper representing a 'const' view of the same
     // object as the specified 'original'.
 
 template <class T>
-reference_wrapper<T> ref(T& object) BSLS_CPP11_NOEXCEPT;
+reference_wrapper<T> ref(T& object) BSLS_KEYWORD_NOEXCEPT;
     // Return a reference wrapper that represents the specified 'object'.
 
 template <class T>
-reference_wrapper<T> ref(reference_wrapper<T> original) BSLS_CPP11_NOEXCEPT;
+reference_wrapper<T> ref(reference_wrapper<T> original) BSLS_KEYWORD_NOEXCEPT;
     // Return a reference wrapper that represents the same object as the
     // specified 'original'.
 
@@ -193,7 +193,7 @@ reference_wrapper<T> ref(reference_wrapper<T> original) BSLS_CPP11_NOEXCEPT;
 // CREATORS
 template <class T>
 inline
-bsl::reference_wrapper<T>::reference_wrapper(T& object) BSLS_CPP11_NOEXCEPT
+bsl::reference_wrapper<T>::reference_wrapper(T& object) BSLS_KEYWORD_NOEXCEPT
   : d_represented_p(BloombergLP::bsls::Util::addressOf(object))
 {
 }
@@ -201,14 +201,14 @@ bsl::reference_wrapper<T>::reference_wrapper(T& object) BSLS_CPP11_NOEXCEPT
 // ACCESSORS
 template <class T>
 inline
-T& bsl::reference_wrapper<T>::get() const BSLS_CPP11_NOEXCEPT
+T& bsl::reference_wrapper<T>::get() const BSLS_KEYWORD_NOEXCEPT
 {
     return *d_represented_p;
 }
 
 template <class T>
 inline
-bsl::reference_wrapper<T>::operator T&() const BSLS_CPP11_NOEXCEPT
+bsl::reference_wrapper<T>::operator T&() const BSLS_KEYWORD_NOEXCEPT
 {
     return *d_represented_p;
 }
@@ -216,7 +216,8 @@ bsl::reference_wrapper<T>::operator T&() const BSLS_CPP11_NOEXCEPT
 // FREE FUNCTIONS
 template <class T>
 inline
-bsl::reference_wrapper<const T> bsl::cref(const T& object) BSLS_CPP11_NOEXCEPT
+bsl::reference_wrapper<const T> bsl::cref(const T& object)
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return reference_wrapper<const T>(object);
 }
@@ -224,14 +225,14 @@ bsl::reference_wrapper<const T> bsl::cref(const T& object) BSLS_CPP11_NOEXCEPT
 template <class T>
 inline
 bsl::reference_wrapper<const T> bsl::cref(bsl::reference_wrapper<T> original)
-                                                            BSLS_CPP11_NOEXCEPT
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return cref(original.get());
 }
 
 template <class T>
 inline
-bsl::reference_wrapper<T> bsl::ref(T& object) BSLS_CPP11_NOEXCEPT
+bsl::reference_wrapper<T> bsl::ref(T& object) BSLS_KEYWORD_NOEXCEPT
 {
     return reference_wrapper<T>(object);
 }
@@ -239,7 +240,7 @@ bsl::reference_wrapper<T> bsl::ref(T& object) BSLS_CPP11_NOEXCEPT
 template <class T>
 inline
 bsl::reference_wrapper<T> bsl::ref(bsl::reference_wrapper<T> original)
-                                                            BSLS_CPP11_NOEXCEPT
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return ref(original.get());
 }

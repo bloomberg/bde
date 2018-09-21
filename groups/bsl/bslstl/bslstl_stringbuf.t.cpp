@@ -40,19 +40,21 @@ using namespace BloombergLP;
 // [ 2] stringbuf(ios_base::openmode, const ALLOCATOR&)
 // [ 2] stringbuf(const string&, const ALLOCATOR&)
 // [ 2] stringbuf(const string&, ios_base::openmode, const ALLOCATOR&)
-// [ 3] seekoff(streamoff, ios_base::seekdir, ios_base::openmode)
-// [ 4] seekpos(streempos, ios_base::openmode)
-// [ 5] xsgetn(char *, streamsize)
-// [ 6] underflow()
-// [ 7] uflow()
-// [ 8] pbackfail(int)
-// [ 9] xsputn(const char *, streamsize)
-// [10] overflow(int)
+// [ 2] stringbuf(stringbuf&&)
+// [ 3] operator=(stringbuf&&)
+// [ 4] seekoff(streamoff, ios_base::seekdir, ios_base::openmode)
+// [ 5] seekpos(streempos, ios_base::openmode)
+// [ 6] xsgetn(char *, streamsize)
+// [ 7] underflow()
+// [ 8] uflow()
+// [ 9] pbackfail(int)
+// [10] xsputn(const char *, streamsize)
+// [11] overflow(int)
 //-----------------------------------------------------------------------------
-// [11] OUTPUT TO STRINGBUF VIA PUBLIC INTERFACE
-// [12] INPUT FROM STRINGBUF VIA PUBLIC INTERFACE
-// [13] INPUT/OUTPUT FROM/TO STRINGBUF VIA PUBLIC INTERFACE
-// [14] USAGE EXAMPLE
+// [12] OUTPUT TO STRINGBUF VIA PUBLIC INTERFACE
+// [13] INPUT FROM STRINGBUF VIA PUBLIC INTERFACE
+// [14] INPUT/OUTPUT FROM/TO STRINGBUF VIA PUBLIC INTERFACE
+// [15] USAGE EXAMPLE
 // [ 1] BREATHING TEST
 
 // ============================================================================
@@ -657,7 +659,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -682,7 +684,7 @@ int main(int argc, char *argv[])
 //..
 
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING MODIFYING BUFFER POINTERS VIA BASE CLASS INTERFACE
         //
@@ -747,7 +749,7 @@ int main(int argc, char *argv[])
             buf.setp(0, 0);
         }
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING INPUT/OUTPUT FROM/TO STRINGBUF VIA PUBLIC INTERFACE
         //
@@ -793,7 +795,7 @@ int main(int argc, char *argv[])
             ASSERT(res == EOF);
         }
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING INPUT FROM STRINGBUF VIA PUBLIC INTERFACE
         //
@@ -1051,7 +1053,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT TO STRINGBUF VIA PUBLIC INTERFACE
         //
@@ -1169,7 +1171,7 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING OVERFLOW FUNCTION
         //
@@ -1196,7 +1198,7 @@ int main(int argc, char *argv[])
         StringBufTest::testOverflow();
 
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING XSPUTN FUNCTION
         //
@@ -1224,7 +1226,7 @@ int main(int argc, char *argv[])
         StringBufTest::testXsputn();
 
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING PBACKFAIL FUNCTION
         //
@@ -1256,7 +1258,7 @@ int main(int argc, char *argv[])
         StringBufTest::testPbackfail();
 
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING UFLOW FUNCTION
         //
@@ -1280,7 +1282,7 @@ int main(int argc, char *argv[])
         StringBufTest::testUflow();
 
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING UNDERFLOW FUNCTION
         //
@@ -1304,7 +1306,7 @@ int main(int argc, char *argv[])
         StringBufTest::testUnderflow();
 
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING XSGETN FUNCTION
         //
@@ -1325,7 +1327,7 @@ int main(int argc, char *argv[])
         StringBufTest::testXsgetn();
 
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING SEEKPOS FUNCTION
         //
@@ -1349,7 +1351,7 @@ int main(int argc, char *argv[])
         StringBufTest::testSeekpos();
 
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING SEEKOFF FUNCTION
         //
@@ -1378,6 +1380,110 @@ int main(int argc, char *argv[])
         StringBufTest::testSeekoff();
 
       } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE ASSIGMENT
+        //
+        // Concerns:
+        //: 1. move assignment moves
+        //: 2. move assignment properly updates the internal pointers of the
+        //:    moved-from object if the internal string changes
+        //: 3. move assignment properly updates the internal pointers of the
+        //:    moved-to object if the internal string has the small string
+        //:    optimization (pointers point into the object)
+        //
+        // Plan:
+        //: 1. create a stringbuf object with both long (allocating) and short
+        //:    strings.  Move assign other stringbufs from them.
+        //:    1. Verify that all accessible members have the moved-from
+        //:       values.
+        //:    2. Verify that the string has not changed.
+        //:    3. Verify that the read position has not changed.
+        //:    4. Verify that the long string has been moved-from by checking
+        //:       that the original stream now reports an empty 'str()'.  Note
+        //:       that this test requires the inner string to be longer than
+        //:       the short string optimization.
+        //:    5. Verify that the short string has been non-destructively
+        //:       moved-from by checking that the original stream still reports
+        //:       the original 'str()'.  Note that this test requires the
+        //:       string to employ the short string optimization (otherwise the
+        //:       move is destructive).
+        //:    6. Verify that the write position has not changed.
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING MOVE ASSIGNMENT"
+                            "\n=======================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+        if (veryVerbose)
+            printf("\tstringbuf move assignment with a long string\n");
+
+        {
+            bslma::TestAllocator ta("Test Allocator", veryVeryVeryVerbose);
+            static const char ls[] = "something very very very very very long";
+            bsl::stringbuf sb1(ls,
+                               std::ios_base::in | std::ios_base::out,
+                               &ta);
+
+            ASSERTV(ls[0], (char)sb1.snextc(), ls[0] == sb1.sbumpc());
+            ASSERTV(ls[1], (char)sb1.snextc(), ls[1] == sb1.sgetc());
+
+            bsl::stringbuf sb2(&ta);
+            sb2 = std::move(sb1);
+
+            ASSERT(ls == sb2.str());
+            ASSERT(sb1.str().empty());
+            ASSERT(bsl::stringbuf::traits_type::eof() == sb1.sgetc());
+
+            for (const char *p = ls + 1; *p; ++p) {
+                ASSERTV((char)sb2.snextc(), *p == sb2.sbumpc());
+            }
+            ASSERTV(sb2.sgetc(), (char)sb2.sgetc(),
+                    bsl::stringbuf::traits_type::eof() == sb2.sgetc());
+
+            // Test output
+
+            static const char   s[] = "a string";
+            static const size_t n = sizeof(s) / sizeof(s[0]) - 1;
+            ASSERT(n == sb2.sputn(s, n));
+            ASSERT(sb2.str() == "a stringg very very very very very long");
+            ASSERT(0 == sb2.pubseekpos(0, std::ios_base::in));
+            ASSERT(sb1.str().empty());
+            for (const char *p = s; *p; ++p) {
+                ASSERTV((char)sb2.snextc(), *p == sb2.sbumpc());
+            }
+        }
+
+        if (veryVerbose)
+            printf("\tstringbuf move assignment with a short string\n");
+
+        {  // With a short string move copies the string
+            bslma::TestAllocator ta("Test Allocator", veryVeryVeryVerbose);
+            static const char sm[] = "small";
+            bsl::stringbuf sb1(sm,
+                               std::ios_base::in | std::ios_base::out,
+                               &ta);
+
+            bsl::stringbuf sb2(&ta);
+            sb2 = std::move(sb1);
+
+            ASSERT(sm == sb2.str());
+            ASSERT(sm == sb1.str());
+
+            // Test output
+
+            static const char   s[] = "short";
+            static const size_t n = sizeof(s) / sizeof(s[0]) - 1;
+            ASSERT(n == sb2.sputn(s, n));
+            ASSERT(s == sb2.str());
+            ASSERT(0 == sb2.pubseekpos(0, std::ios_base::in));
+            ASSERT(sm == sb1.str());
+            for (const char *p = s; *p; ++p) {
+                ASSERTV((char)sb2.snextc(), *p == sb2.sbumpc());
+            }
+        }
+#endif
+      } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING CREATORS
@@ -1389,6 +1495,12 @@ int main(int argc, char *argv[])
         //: 3. stringbuf is creatable with constructor taking the initial
         //:    string
         //: 4. stringbuf is creatable with constructors taking an allocator
+        //: 5. move constructor moves
+        //: 6. move constructor properly updates the internal pointers of the
+        //:    moved-from object if the internal string changes
+        //: 7. move constructor properly updates the internal pointers of the
+        //:    moved-to object if the internal string has the small string
+        //:    optimization (pointers point into the object)
         //
         // Plan:
         //: 1. create stringbuf object with the default constructor
@@ -1397,6 +1509,22 @@ int main(int argc, char *argv[])
         //: 3. create stringbuf object with constructor taking the initial
         //:    string
         //: 4. create stringbuf objects with constructors taking an allocator
+        //: 5. create a stringbuf object with both long (allocating) and short
+        //:    strings.  Move construct other stringbufs from them.
+        //:    1. Verify that all accessible members have the moved-from
+        //:       values.
+        //:    2. Verify that the string has not changed.
+        //:    3. Verify that the read position has not changed.
+        //:    4. Verify that the long string has been moved-from by checking
+        //:       that the original stream now reports an empty 'str()'.  Note
+        //:       that this test requires the inner string to be longer than
+        //:       the short string optimization.
+        //:    5. Verify that the short string has been non-destructively
+        //:       moved-from by checking that the original stream still reports
+        //:       the original 'str()'.  Note that this test requires the
+        //:       string to employ the short string optimization (otherwise the
+        //:       move is destructive).
+        //:    6. Verify that the write position has not changed.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CREATORS"
@@ -1438,6 +1566,72 @@ int main(int argc, char *argv[])
                                 bslma::Default::allocator());
         }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+        if (veryVerbose)
+            printf("\tstringbuf move construction with a long string\n");
+
+        {
+            bslma::TestAllocator ta("Test Allocator", veryVeryVeryVerbose);
+            static const char ls[] = "something very very very very very long";
+            bsl::stringbuf sb1(ls,
+                               std::ios_base::in | std::ios_base::out,
+                               &ta);
+
+            ASSERTV(ls[0], (char)sb1.snextc(), ls[0] == sb1.sbumpc());
+            ASSERTV(ls[1], (char)sb1.snextc(), ls[1] == sb1.sgetc());
+
+            bsl::stringbuf sb2(std::move(sb1));
+
+            ASSERT(ls == sb2.str());
+            ASSERT(sb1.str().empty());
+            ASSERT(bsl::stringbuf::traits_type::eof() == sb1.sgetc());
+
+            for (const char *p = ls + 1; *p; ++p) {
+                ASSERTV((char)sb2.snextc(), *p == sb2.sbumpc());
+            }
+            ASSERT(bsl::stringbuf::traits_type::eof() == sb2.sgetc());
+
+            // Test output
+
+            static const char   s[] = "a string";
+            static const size_t n = sizeof(s) / sizeof(s[0]) - 1;
+            ASSERT(n == sb2.sputn(s, n));
+            ASSERT(sb2.str() == "a stringg very very very very very long");
+            ASSERT(0 == sb2.pubseekpos(0, std::ios_base::in));
+            ASSERT(sb1.str().empty());
+            for (const char *p = s; *p; ++p) {
+                ASSERTV((char)sb2.snextc(), *p == sb2.sbumpc());
+            }
+        }
+
+        if (veryVerbose)
+            printf("\tstringbuf move construction with a short string\n");
+
+        {  // With a short string move copies the string
+            bslma::TestAllocator ta("Test Allocator", veryVeryVeryVerbose);
+            static const char sm[] = "small";
+            bsl::stringbuf sb1(sm,
+                               std::ios_base::in | std::ios_base::out,
+                               &ta);
+
+            bsl::stringbuf sb2(std::move(sb1));
+
+            ASSERT(sm == sb2.str());
+            ASSERT(sm == sb1.str());
+
+            // Test output
+
+            static const char   s[] = "short";
+            static const size_t n = sizeof(s) / sizeof(s[0]) - 1;
+            ASSERT(n == sb2.sputn(s, n));
+            ASSERT(s == sb2.str());
+            ASSERT(0 == sb2.pubseekpos(0, std::ios_base::in));
+            ASSERT(sm == sb1.str());
+            for (const char *p = s; *p; ++p) {
+                ASSERTV((char)sb2.snextc(), *p == sb2.sbumpc());
+            }
+        }
+#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------

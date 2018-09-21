@@ -8,6 +8,7 @@
 #include <bslma_stdallocator.h>           // for testing only
 #include <bslma_testallocator.h>          // for testing only
 #include <bslma_testallocatorexception.h> // for testing only
+#include <bslmf_movableref.h>             // for testing only
 #include <bsls_alignmentutil.h>           // for testing only
 #include <bsls_bsltestutil.h>             // for testing only
 #include <bsls_objectbuffer.h>            // for testing only
@@ -114,53 +115,53 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 #ifdef BDE_BUILD_TARGET_EXC
-#define BEGIN_bslma_EXCEPTION_TEST {                                         \
-    {                                                                        \
-        static int firstTime = 1;                                            \
-        if (g_veryVerbose && firstTime) printf(                              \
-            "### bslma EXCEPTION TEST -- (ENABLED) --\n");                   \
-        firstTime = 0;                                                       \
-    }                                                                        \
-    if (g_veryVeryVerbose) printf("### Begin bslma exception test.\n");      \
-    int bslmaExceptionCounter = 0;                                           \
-    static int bslmaExceptionLimit = 1000;                                   \
-    testAllocator.setAllocationLimit(bslmaExceptionCounter);                 \
-    do {                                                                     \
+#define BEGIN_bslma_EXCEPTION_TEST {                                          \
+    {                                                                         \
+        static int firstTime = 1;                                             \
+        if (g_veryVerbose && firstTime) printf(                               \
+            "### bslma EXCEPTION TEST -- (ENABLED) --\n");                    \
+        firstTime = 0;                                                        \
+    }                                                                         \
+    if (g_veryVeryVerbose) printf("### Begin bslma exception test.\n");       \
+    int bslmaExceptionCounter = 0;                                            \
+    static int bslmaExceptionLimit = 1000;                                    \
+    testAllocator.setAllocationLimit(bslmaExceptionCounter);                  \
+    do {                                                                      \
         try {
 
-#define END_bslma_EXCEPTION_TEST                                             \
-        } catch (bslma::TestAllocatorException& e) {                         \
-            if ((g_veryVerbose && bslmaExceptionLimit) || g_veryVeryVerbose){\
-                --bslmaExceptionLimit;                                       \
-                printf("(*** %d)", bslmaExceptionCounter);                   \
-                if (g_veryVeryVerbose) {                                     \
-                    printf(" bslma::EXCEPTION:"                              \
-                           " alloc limit = %d,",                             \
-                           bslmaExceptionCounter);                           \
-                    printf(" last alloc size = ");                           \
-                    bsls::BslTestUtil::callDebugprint(e.numBytes());         \
-                    printf("\n");                                            \
-                }                                                            \
-                else if (0 == bslmaExceptionLimit) {                         \
-                    printf(" [ Note: 'bslmaExceptionLimit' reached. ]\n");   \
-                }                                                            \
-            }                                                                \
-            testAllocator.setAllocationLimit(++bslmaExceptionCounter);       \
-            continue;                                                        \
-        }                                                                    \
-        testAllocator.setAllocationLimit(-1);                                \
-        break;                                                               \
-    } while (1);                                                             \
-    if (g_veryVeryVerbose) printf("### End bslma exception test.\n");        \
+#define END_bslma_EXCEPTION_TEST                                              \
+        } catch (bslma::TestAllocatorException& e) {                          \
+            if ((g_veryVerbose && bslmaExceptionLimit) || g_veryVeryVerbose) {\
+                --bslmaExceptionLimit;                                        \
+                printf("(*** %d)", bslmaExceptionCounter);                    \
+                if (g_veryVeryVerbose) {                                      \
+                    printf(" bslma::EXCEPTION:"                               \
+                           " alloc limit = %d,",                              \
+                           bslmaExceptionCounter);                            \
+                    printf(" last alloc size = ");                            \
+                    bsls::BslTestUtil::callDebugprint(e.numBytes());          \
+                    printf("\n");                                             \
+                }                                                             \
+                else if (0 == bslmaExceptionLimit) {                          \
+                    printf(" [ Note: 'bslmaExceptionLimit' reached. ]\n");    \
+                }                                                             \
+            }                                                                 \
+            testAllocator.setAllocationLimit(++bslmaExceptionCounter);        \
+            continue;                                                         \
+        }                                                                     \
+        testAllocator.setAllocationLimit(-1);                                 \
+        break;                                                                \
+    } while (1);                                                              \
+    if (g_veryVeryVerbose) printf("### End bslma exception test.\n");         \
 }
 #else
-#define BEGIN_bslma_EXCEPTION_TEST                                           \
-{                                                                            \
-    static int firstTime = 1;                                                \
-    if (g_verbose && firstTime) { printf(                                    \
-        "### bslma EXCEPTION TEST -- (NOT ENABLED) --\n");                   \
-        firstTime = 0;                                                       \
-    }                                                                        \
+#define BEGIN_bslma_EXCEPTION_TEST                                            \
+{                                                                             \
+    static int firstTime = 1;                                                 \
+    if (g_verbose && firstTime) { printf(                                     \
+        "### bslma EXCEPTION TEST -- (NOT ENABLED) --\n");                    \
+        firstTime = 0;                                                        \
+    }                                                                         \
 }
 #define END_bslma_EXCEPTION_TEST
 #endif
@@ -179,11 +180,13 @@ class TestType;
 class TestTypeNoAlloc;
 class BitwiseMoveableTestType;
 class BitwiseCopyableTestType;
+class SelfMoveAssignTestType;
 
 typedef TestType                      T;    // uses 'bslma' allocators
 typedef TestTypeNoAlloc               TNA;  // does not use 'bslma' allocators
 typedef BitwiseMoveableTestType       BMT;  // uses 'bslma' allocators
 typedef BitwiseCopyableTestType       BCT;  // uses 'bslma' allocators
+typedef SelfMoveAssignTestType        SMA;  // does not use 'bslma' allocators
 
 typedef bsls::Types::Int64      Int64;
 typedef bsls::Types::Uint64     Uint64;
@@ -612,6 +615,72 @@ namespace bsl {
 template <> struct is_trivially_copyable<BitwiseCopyableTestType>
     : true_type {};
 }  // close namespace bsl
+
+                       // ============================
+                       // class SelfMoveAssignTestType
+                       // ============================
+
+class SelfMoveAssignTestType : public TestTypeNoAlloc {
+    // This test type is identical to 'TestTypeNoAlloc' except that it has its
+    // move assignment operator defined.  All other members are inherited.
+
+    // PRIVATE TYPES
+    typedef bslmf::MovableRefUtil MoveUtil;
+        // Used in move construction and assignment to make lines shorter.
+
+public:
+    // CREATORS
+    SelfMoveAssignTestType()
+    : TestTypeNoAlloc()
+    {
+    }
+
+    SelfMoveAssignTestType(char c)
+    : TestTypeNoAlloc(c)
+    {
+        ++numCharCtorCalls;
+    }
+
+    SelfMoveAssignTestType(const SelfMoveAssignTestType& original)
+    : TestTypeNoAlloc(original.datum())
+    {
+    }
+
+    SelfMoveAssignTestType(bslmf::MovableRef<SelfMoveAssignTestType> original)
+    : TestTypeNoAlloc(MoveUtil::access(original))
+    {
+        TestTypeNoAlloc& lvalue = original;
+        lvalue = TestTypeNoAlloc(); // Destroy the value of the source
+    }
+
+    // MANIPULATORS
+    SelfMoveAssignTestType& operator=(const SelfMoveAssignTestType& rhs)
+    {
+        const TestTypeNoAlloc& other = rhs;
+        TestTypeNoAlloc&       me    = *this;
+
+        me = other;
+
+        return *this;
+    }
+
+    SelfMoveAssignTestType&
+    operator=(bslmf::MovableRef<SelfMoveAssignTestType> rhs)
+    {
+        ASSERT(&MoveUtil::access(rhs) != this);
+
+        TestTypeNoAlloc& lvalue = rhs;
+        if (&lvalue != this) {
+            TestTypeNoAlloc& me = *this;
+            me = MoveUtil::move(lvalue);
+        }
+        else {
+            lvalue = TestTypeNoAlloc();
+        }
+
+        return *this;
+    }
+};
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -2212,6 +2281,7 @@ int main(int argc, char *argv[])
         //      specified range [first, last).
         //   3. 'toBegin' is properly updated with the new start position.
         //   4. Exception safety.
+        //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
@@ -2261,6 +2331,13 @@ int main(int argc, char *argv[])
         testInsertAndMoveToFrontRange<BCT,4>(false);
         testInsertAndMoveToFrontRange<BCT,5>(false);
 
+        if (verbose) printf("\n\t...with SelfMoveAssignmentTestType.\n");
+        testInsertAndMoveToFrontRange<SMA, 1>(false);
+        testInsertAndMoveToFrontRange<SMA, 2>(false);
+        testInsertAndMoveToFrontRange<SMA, 3>(false);
+        testInsertAndMoveToFrontRange<SMA, 4>(false);
+        testInsertAndMoveToFrontRange<SMA, 5>(false);
+
         if (verbose) printf("\n\tException test.\n");
         testInsertAndMoveToFrontRange<T,1>(true);
         testInsertAndMoveToFrontRange<T,2>(true);
@@ -2282,6 +2359,7 @@ int main(int argc, char *argv[])
         //      specified range [first, last).
         //   3. 'toEnd' is properly updated with the new end position.
         //   4. Exception safety.
+        //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
@@ -2331,6 +2409,13 @@ int main(int argc, char *argv[])
         testInsertAndMoveToBackRange<BCT,4>(false);
         testInsertAndMoveToBackRange<BCT,5>(false);
 
+        if (verbose) printf("\n\t...with SelfMoveAssignmentTestType.\n");
+        testInsertAndMoveToBackRange<SMA, 1>(false);
+        testInsertAndMoveToBackRange<SMA, 2>(false);
+        testInsertAndMoveToBackRange<SMA, 3>(false);
+        testInsertAndMoveToBackRange<SMA, 4>(false);
+        testInsertAndMoveToBackRange<SMA, 5>(false);
+
         if (verbose) printf("\n\tException test.\n");
         testInsertAndMoveToBackRange<T,1>(true);
         testInsertAndMoveToBackRange<T,2>(true);
@@ -2351,6 +2436,7 @@ int main(int argc, char *argv[])
         //      [position, position + numElements) with the specified 'value'.
         //   3. 'toBegin' is properly updated with the new start position.
         //   4. Exception safety.
+        //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
@@ -2398,6 +2484,13 @@ int main(int argc, char *argv[])
         testInsertAndMoveToFrontRaw<BCT,4>(false);
         testInsertAndMoveToFrontRaw<BCT,5>(false);
 
+        if (verbose) printf("\n\t...with SelfMoveAssignmentTestType.\n");
+        testInsertAndMoveToFrontRaw<SMA, 1>(false);
+        testInsertAndMoveToFrontRaw<SMA, 2>(false);
+        testInsertAndMoveToFrontRaw<SMA, 3>(false);
+        testInsertAndMoveToFrontRaw<SMA, 4>(false);
+        testInsertAndMoveToFrontRaw<SMA, 5>(false);
+
         if (verbose) printf("\n\tException test.\n");
         testInsertAndMoveToFrontRaw<T,1>(true);
         testInsertAndMoveToFrontRaw<T,2>(true);
@@ -2418,6 +2511,7 @@ int main(int argc, char *argv[])
         //      [position, position + numElements) with the specified 'value'.
         //   3. 'toEnd' is properly updated with the new end position.
         //   4. Exception safety.
+        //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
@@ -2465,6 +2559,13 @@ int main(int argc, char *argv[])
         testInsertAndMoveToBackRaw<BCT,4>(false);
         testInsertAndMoveToBackRaw<BCT,5>(false);
 
+        if (verbose) printf("\n\t...with SelfMoveAssignmentTestType.\n");
+        testInsertAndMoveToBackRaw<SMA, 1>(false);
+        testInsertAndMoveToBackRaw<SMA, 2>(false);
+        testInsertAndMoveToBackRaw<SMA, 3>(false);
+        testInsertAndMoveToBackRaw<SMA, 4>(false);
+        testInsertAndMoveToBackRaw<SMA, 5>(false);
+
         if (verbose) printf("\n\tException test.\n");
         testInsertAndMoveToBackRaw<T,1>(true);
         testInsertAndMoveToBackRaw<T,2>(true);
@@ -2486,6 +2587,7 @@ int main(int argc, char *argv[])
         //   3. The 'toBegin' iterator is properly updated to reflect the new
         //      start of the deque.
         //   4. Exception safety.
+        //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
@@ -2532,6 +2634,13 @@ int main(int argc, char *argv[])
         testUninitializedFillNFront<BCT,4>(false);
         testUninitializedFillNFront<BCT,5>(false);
 
+        if (verbose) printf("\n\t...with SelfMoveAssignmentTestType.\n");
+        testUninitializedFillNFront<SMA, 1>(false);
+        testUninitializedFillNFront<SMA, 2>(false);
+        testUninitializedFillNFront<SMA, 3>(false);
+        testUninitializedFillNFront<SMA, 4>(false);
+        testUninitializedFillNFront<SMA, 5>(false);
+
         if (verbose) printf("\n\tException test.\n");
         testUninitializedFillNFront<T,1>(true);
         testUninitializedFillNFront<T,2>(true);
@@ -2552,6 +2661,7 @@ int main(int argc, char *argv[])
         //   3. The 'toEnd' iterator is properly updated to reflect the new
         //      end of the deque.
         //   4. Exception safety.
+        //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
@@ -2598,6 +2708,13 @@ int main(int argc, char *argv[])
         testUninitializedFillNBack<BCT,4>(false);
         testUninitializedFillNBack<BCT,5>(false);
 
+        if (verbose) printf("\n\t...with SelfMoveAssignmentTestType.\n");
+        testUninitializedFillNBack<SMA, 1>(false);
+        testUninitializedFillNBack<SMA, 2>(false);
+        testUninitializedFillNBack<SMA, 3>(false);
+        testUninitializedFillNBack<SMA, 4>(false);
+        testUninitializedFillNBack<SMA, 5>(false);
+
         if (verbose) printf("\n\tException test.\n");
         testUninitializedFillNBack<T,1>(true);
         testUninitializedFillNBack<T,2>(true);
@@ -2617,6 +2734,7 @@ int main(int argc, char *argv[])
         //   3. 'erase' properly shifts the smaller portion of the front / end
         //      to fill in the gaps after erasing.
         //   4. Exception safety
+        //   5. No potentially destructive self-move assignment is used.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
@@ -2664,6 +2782,13 @@ int main(int argc, char *argv[])
         testErase<BCT,3>(false);
         testErase<BCT,4>(false);
         testErase<BCT,5>(false);
+
+        if (verbose) printf("\n\t...with SelfMoveAssignmentTestType.\n");
+        testErase<SMA,1>(false);
+        testErase<SMA,2>(false);
+        testErase<SMA,3>(false);
+        testErase<SMA,4>(false);
+        testErase<SMA,5>(false);
 
         if (verbose) printf("\n\tException test.\n");
         testErase<T,1>(true);

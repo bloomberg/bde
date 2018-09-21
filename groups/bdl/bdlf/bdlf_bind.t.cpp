@@ -1887,7 +1887,7 @@ DEFINE_TEST_CASE(5) {
         //   3. That we respect the constness of arguments (within the
         //   limitations imposed by our handling of the forwarding problem).
         //   4. That we correctly respect volatile qualifications.  This is a
-        //   concern because the forwarding type invokes 'bslmf::RemoveCvq'.
+        //   concern because the forwarding type invokes 'bsl::remove_cv'.
         //   5. That we can bind a function object with placeholders, and later
         //   invoke the binder resolving to two different overloads based on
         //   the type of the invocation arguments.

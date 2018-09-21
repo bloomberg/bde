@@ -16,16 +16,17 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines two meta-functions, 'bsl::is_array' and
-// 'bslmf::IsArray', that determine whether a template parameter type is an
-// array type.  Thus, we need to ensure that the values returned by these
-// meta-functions are correct for each possible category of types.  Since the
-// two meta-functions are functionally equivalent, we will use the same set of
-// types for both.
+// 'bslmf::IsArray' and a template variable 'bsl::is_array_v', that determine
+// whether a template parameter type is an array type.  Thus, we need to ensure
+// that the values returned by these meta-functions are correct for each
+// possible category of types.  Since the two meta-functions are functionally
+// equivalent, we will use the same set of types for both.
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 2] BloombergLP::bslmf::IsArray::VALUE
 // [ 1] bsl::is_array::value
+// [ 1] bsl::is_array_v
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 
@@ -97,6 +98,14 @@ union Union {
     char a[sizeof(int)];
 };
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+#   define TYPE_ASSERT_V_SAME(metaFunc,  type)                                \
+        ASSERT(metaFunc<type>::value == metaFunc##_v<type>)
+    // 'ASSERT' that 'metaFunc_v' has the same value as 'metaFunc::value'.
+#else
+#   define TYPE_ASSERT_V_SAME(metaFunc, type)
+#endif
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -156,6 +165,15 @@ int main(int argc, char *argv[])
 //..
     ASSERT(false == bsl::is_array<MyType>::value);
     ASSERT(true  == bsl::is_array<MyArrayType>::value);
+//..
+// Note that if the current compiler supports the variable templates C++14
+// feature then we can re-write the snippet of code above using the
+// 'bsl::is_array_v' variable as follows:
+//..
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+    ASSERT(false == bsl::is_array_v<MyType>);
+    ASSERT(true  == bsl::is_array_v<MyArrayType>);
+#endif
 //..
 
       } break;
@@ -309,6 +327,9 @@ int main(int argc, char *argv[])
         //: 3 'is_array' returns 'false' for a reference to an array type.
         //:
         //: 4 'is_array' returns 'false' for non-array types.
+        //:
+        //: 5 That 'is_array_v' equals to 'is_array::value' for a variety of
+        //:   template parameter types.
         //
         // Plan:
         //: 1 Verify that 'bsl::is_array' returns the correct value for each
@@ -430,6 +451,53 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == bsl::is_array<int  Struct::*    >::value);
         ASSERT(0 == bsl::is_array<int (Struct::*)[9]>::value);
+
+        // C-5
+
+        TYPE_ASSERT_V_SAME(bsl::is_array, int);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int*);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int&);
+
+        TYPE_ASSERT_V_SAME(bsl::is_array, int    []);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int(&) []);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int(*) []);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int *  []);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int(*&)[]);
+
+        TYPE_ASSERT_V_SAME(bsl::is_array, int    [][5]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int(&) [][5]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int(*) [][5]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int *  [][5]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int(*&)[][5]);
+
+        TYPE_ASSERT_V_SAME(bsl::is_array, int    [5]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int(&) [5]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int(*) [5]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int *  [5]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int(*&)[5]);
+
+        TYPE_ASSERT_V_SAME(bsl::is_array, int    [5][5]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int(&) [5][5]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int(*) [5][5]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int *  [5][5]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, int(*&)[5][5]);
+
+        TYPE_ASSERT_V_SAME(bsl::is_array, Enum          [8]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, Enum       (&)[8]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, Enum const (&)[8]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, Enum             );
+
+        TYPE_ASSERT_V_SAME(bsl::is_array, Struct    [8]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, Struct (&)[8]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, Struct       );
+
+        TYPE_ASSERT_V_SAME(bsl::is_array, Union    [8]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, Union (&)[8]);
+        TYPE_ASSERT_V_SAME(bsl::is_array, Union       );
+
+        TYPE_ASSERT_V_SAME(bsl::is_array, int  Struct::*    );
+        TYPE_ASSERT_V_SAME(bsl::is_array, int (Struct::*)[9]);
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

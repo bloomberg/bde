@@ -11,18 +11,21 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::add_volatile: meta-function for adding top-level 'volatile'-qualifier
+//  bsl::add_volatile_t: alias to the return type of the 'bsl::add_volatile'
+
 //
 //@SEE_ALSO: bslmf_removevolatile
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::add_volatile',
-// that may be used to add a top-level 'volatile'-qualifier to a type if it is
-// not a reference type, nor a function type, nor already 'volatile'-qualified
-// at the top-level.
+//@DESCRIPTION: This component defines a meta-function, 'bsl::add_volatile'
+// and declares an 'bsl::add_volatile_t' alias to the return type of the
+// 'bsl::add_volatile', that may be used to add a top-level
+// 'volatile'-qualifier to a type if it is not a reference type, nor a function
+// type, nor already 'volatile'-qualified at the top-level.
 //
-// 'bsl::add_volatile' meets the requirements of the 'add_volatile' template
-// defined in the C++11 standard [meta.trans.cv].
+// 'bsl::add_volatile' and 'bsl::add_volatile_t' meet the requirements of the
+// 'add_volatile' template defined in the C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----
@@ -45,6 +48,18 @@ BSLS_IDENT("$Id: $")
 //  assert(true ==
 //     (bsl::is_same<bsl::add_volatile<MyType>::type, MyVolatileType>::value));
 //..
+// Finally, if the current compiler supports alias templates C++11 feature, we
+// add a 'volatile'-qualifier to 'MyType' using 'bsl::add_volatile_t' and
+// verify that the resulting type is the same as 'MyVolatileType':
+//..
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//  assert(true ==
+//         (bsl::is_same<bsl::add_volatile_t<MyType>, MyVolatileType>::value));
+//#endif
+//..
+// Note, that the 'bsl::add_volatile_t' avoids the '::type' suffix and
+// 'typename' prefix when we want to use the result of the 'bsl::add_volatile'
+// meta-function in templates.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -61,6 +76,11 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSLMF_ISVOLATILE
 #include <bslmf_isvolatile.h>
 #endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
 
 namespace BloombergLP {
 namespace bslmf {
@@ -128,6 +148,17 @@ struct add_volatile {
         // type, nor a function type, nor already 'volatile'-qualified at the
         // top-level; otherwise, 'type' is an alias to 'TYPE'.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+// ALIASES
+template <class TYPE>
+using add_volatile_t = typename add_volatile<TYPE>::type;
+    // 'add_volatile_t' is an alias to the return type of the
+    // 'bsl::add_volatile' meta-function.  Note, that the 'bsl::add_volatile_t'
+    // avoids the '::type' suffix and 'typename' prefix when we want to use the
+    // result of the meta-function in templates.
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 }  // close namespace bsl
 

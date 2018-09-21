@@ -169,8 +169,8 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_CPP11
-#include <bsls_cpp11.h>
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -287,12 +287,12 @@ class Bitset_ImpBase<BITSETSIZE, 1> {
     unsigned int d_data[BITSETSIZE];
 
     // CREATORS
-    BSLS_CPP11_CONSTEXPR Bitset_ImpBase();
+    BSLS_KEYWORD_CONSTEXPR Bitset_ImpBase();
         // Create a 'Bitset_ImpBase' with each bit in 'd_data' initialized to
         // zero.  In C++11 this constructor can be used in a constant
         // expression.
 
-    BSLS_CPP11_CONSTEXPR Bitset_ImpBase(unsigned long val);
+    BSLS_KEYWORD_CONSTEXPR Bitset_ImpBase(unsigned long val);
         // Create a 'Bitset_ImpBase' with the first 'N' bit positions of
         // 'd_data' corresponding to the first 'N' bit positions of the
         // specified 'val' after conversion to 'unsigned int' and the remaining
@@ -309,12 +309,12 @@ class Bitset_ImpBase<BITSETSIZE, 2> {
     unsigned int d_data[BITSETSIZE];
 
     // CREATORS
-    BSLS_CPP11_CONSTEXPR Bitset_ImpBase();
+    BSLS_KEYWORD_CONSTEXPR Bitset_ImpBase();
         // Create a Bitset_ImpBase with each bit in 'd_data' initialized to
         // zero.  In C++11 this constructor can be used in a constant
         // expression.
 
-    BSLS_CPP11_CONSTEXPR Bitset_ImpBase(unsigned long);
+    BSLS_KEYWORD_CONSTEXPR Bitset_ImpBase(unsigned long);
         // Create a 'Bitset_ImpBase' with the first 'N' bit positions of
         // 'd_data' corresponding to the first 'N' bit positions of the
         // specified 'val' after conversion to 'unsigned int' and the remaining
@@ -377,25 +377,25 @@ class bitset :
 
       public:
         // MANIPULATORS
-        reference& operator=(bool x) BSLS_CPP11_NOEXCEPT;
+        reference& operator=(bool x) BSLS_KEYWORD_NOEXCEPT;
             // Assign to the bit referenced by this object the specified value
             // 'x' and return a reference offering modifiable access to this
             // object.
 
-        reference& operator=(const reference& x) BSLS_CPP11_NOEXCEPT;
+        reference& operator=(const reference& x) BSLS_KEYWORD_NOEXCEPT;
             // Assign this object to refer to the same bit as the specified 'x'
             // and return a reference offering modifiable access to this
             // object.
 
-        reference& flip() BSLS_CPP11_NOEXCEPT;
+        reference& flip() BSLS_KEYWORD_NOEXCEPT;
             // Invert the value of the bit referenced by this object and return
             // a reference offering modifiable access to this object.
 
         // ACCESSORS
-        operator bool() const BSLS_CPP11_NOEXCEPT;
+        operator bool() const BSLS_KEYWORD_NOEXCEPT;
             //  Return the value of the bit referenced by this object.
 
-        bool operator~() const BSLS_CPP11_NOEXCEPT;
+        bool operator~() const BSLS_KEYWORD_NOEXCEPT;
             // Return the inverted value of the bit referenced by this object.
             // Note that the value of the referenced bit remains unchanged.
     };
@@ -446,11 +446,11 @@ class bitset :
 
   public:
     // CREATORS
-    BSLS_CPP11_CONSTEXPR bitset() BSLS_CPP11_NOEXCEPT;
+    BSLS_KEYWORD_CONSTEXPR bitset() BSLS_KEYWORD_NOEXCEPT;
         // Create a 'bitset' with all bits initialized to '0'.
 
-    BSLS_CPP11_CONSTEXPR
-    bitset(unsigned long val) BSLS_CPP11_NOEXCEPT;                  // IMPLICIT
+    BSLS_KEYWORD_CONSTEXPR
+    bitset(unsigned long val) BSLS_KEYWORD_NOEXCEPT;                // IMPLICIT
         // Create a bitset with its first 'M' bit positions correspond to bit
         // values in the specified 'val'.  'M' is the smaller of the
         // parameterized 'N' and '8 * sizeof(unsigned long)'.  If 'M < N', the
@@ -513,38 +513,38 @@ class bitset :
         // not the specified 'zeroChar' and not the specified 'oneChar'
 
     // MANIPULATORS
-    bitset& operator&=(const bitset& rhs) BSLS_CPP11_NOEXCEPT;
+    bitset& operator&=(const bitset& rhs) BSLS_KEYWORD_NOEXCEPT;
         // Clear each bit of this bitset for each corresponding bit that is 0
         // in the specified 'rhs', and leaves all other bits unchanged.  Return
         // a reference to this modifiable bitset.  Note that this is equivalent
         // to a bitwise OR.
 
-    bitset& operator|=(const bitset& rhs) BSLS_CPP11_NOEXCEPT;
+    bitset& operator|=(const bitset& rhs) BSLS_KEYWORD_NOEXCEPT;
         // Set each bit of this bitset for each corresponding bit that is 1 in
         // the specified 'rhs', and leaves all other bits unchanged.  Return a
         // reference to this modifiable bitset.  Note that this is equivalent
         // to a bitwise AND.
 
-    bitset& operator^=(const bitset& rhs) BSLS_CPP11_NOEXCEPT;
+    bitset& operator^=(const bitset& rhs) BSLS_KEYWORD_NOEXCEPT;
         // Toggle each bit of this bitset for each corresponding bit that is 1
         // in the specified 'rhs', and leaves all other bits unchanged.  Return
         // a reference to this modifiable bitset.  Note that this is equivalent
         // to a bitwise XOR.
 
-    bitset& operator<<=(std::size_t pos) BSLS_CPP11_NOEXCEPT;
+    bitset& operator<<=(std::size_t pos) BSLS_KEYWORD_NOEXCEPT;
         // Shift the bits of this bitset left (towards the most significant
         // bit) by the specified 'pos' and return a reference to this
         // modifiable bitset.  For all bits with position I where 'I <= pos',
         // the new value is 0.  The behavior is undefined unless 'pos <= N'.
 
-    bitset& operator>>=(std::size_t pos) BSLS_CPP11_NOEXCEPT;
+    bitset& operator>>=(std::size_t pos) BSLS_KEYWORD_NOEXCEPT;
         // Shift the bits of this bitset right (towards the least significant
         // bit) by the specified 'pos' and return a reference to this
         // modifiable bitset.  For all bits with position I where
         // 'I > N - pos', the new value is 0.  The behavior is undefined unless
         // 'pos <= N'.
 
-    bitset& flip() BSLS_CPP11_NOEXCEPT;
+    bitset& flip() BSLS_KEYWORD_NOEXCEPT;
         // Toggle all bits of this bitset and return a reference to this
         // modifiable bitset.
 
@@ -552,7 +552,7 @@ class bitset :
         // Toggle the bit at the specified 'pos' of this bitset and return a
         // reference to this modifiable bitset.
 
-    bitset& reset() BSLS_CPP11_NOEXCEPT;
+    bitset& reset() BSLS_KEYWORD_NOEXCEPT;
         // Set all bits of this bitset to 0 and return a reference to this
         // modifiable bitset.
 
@@ -560,7 +560,7 @@ class bitset :
         // Set the bit at the specified 'pos' of this bitset to 0 and return a
         // reference to this modifiable bitset.
 
-    bitset& set() BSLS_CPP11_NOEXCEPT;
+    bitset& set() BSLS_KEYWORD_NOEXCEPT;
         // Set all bits of this bitset to 1 and return a reference to this
         // modifiable bitset.
 
@@ -575,50 +575,50 @@ class bitset :
         // 'pos'.
 
     // ACCESSORS
-    bitset operator<<(std::size_t pos) const BSLS_CPP11_NOEXCEPT;
+    bitset operator<<(std::size_t pos) const BSLS_KEYWORD_NOEXCEPT;
         // Return a bitset constructed from shifting this bitset left by the
         // specified 'pos'.
 
-    bitset operator>>(std::size_t pos) const BSLS_CPP11_NOEXCEPT;
+    bitset operator>>(std::size_t pos) const BSLS_KEYWORD_NOEXCEPT;
         // Return a bitset constructed from shifting this bitset right by the
         // specified 'pos'.
 
-    bitset operator~() const BSLS_CPP11_NOEXCEPT;
+    bitset operator~() const BSLS_KEYWORD_NOEXCEPT;
         // Toggle all bits of this bitset and return a reference to this
         // modifiable bitset.
 
-    BSLS_CPP11_CONSTEXPR bool operator[](std::size_t pos) const;
+    BSLS_KEYWORD_CONSTEXPR bool operator[](std::size_t pos) const;
         // Return the value of the bit position at the specified 'pos'.
 
-    bool operator==(const bitset& rhs) const BSLS_CPP11_NOEXCEPT;
+    bool operator==(const bitset& rhs) const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the specified 'rhs' has the same value as this
         // bitset and 'false' otherwise.  Two bitsets have the same value when
         // the sequence and value of bits they hold are the same.
 
-    bool operator!=(const bitset& rhs) const BSLS_CPP11_NOEXCEPT;
+    bool operator!=(const bitset& rhs) const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the specified 'rhs' do not have the same value as
         // this bitset and 'false' otherwise.  Two bitset do not have the same
         // value when either the sequence or the value of bits they hold are
         // not the same.
 
-    bool all() const BSLS_CPP11_NOEXCEPT;
+    bool all() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if all of the bits in this bitset have the value of 1
         // and 'false' otherwise.  Note that 'all()' and 'none()' are both true
         // for bitsets of size 0.
 
-    bool any() const BSLS_CPP11_NOEXCEPT;
+    bool any() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if one or more of the bits in this bitset has the
         // value of 1 and 'false' otherwise.
 
-    bool none() const BSLS_CPP11_NOEXCEPT;
+    bool none() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if all the bits in this bitset has the value of 0 and
         // 'false' otherwise.  Note that 'all()' and 'none()' are both true
         // for bitsets of size 0.
 
-    std::size_t count() const BSLS_CPP11_NOEXCEPT;
+    std::size_t count() const BSLS_KEYWORD_NOEXCEPT;
         // Return the number of bits in this bitset that have the value of 1.
 
-    BSLS_CPP11_CONSTEXPR std::size_t size() const BSLS_CPP11_NOEXCEPT;
+    BSLS_KEYWORD_CONSTEXPR std::size_t size() const BSLS_KEYWORD_NOEXCEPT;
         // Return the number of bits this bitset holds.
 
     bool test(size_t pos) const;
@@ -650,19 +650,19 @@ class bitset :
 // FREE OPERATORS
 template <std::size_t N>
 bitset<N> operator&(const bitset<N>& lhs, const bitset<N>& rhs)
-                                                           BSLS_CPP11_NOEXCEPT;
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return a 'bitset' that results from a bitwise AND of the specified 'lhs'
     // and 'rhs'.
 
 template <std::size_t N>
 bitset<N> operator|(const bitset<N>& lhs, const bitset<N>& rhs)
-                                                           BSLS_CPP11_NOEXCEPT;
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return a 'bitset' that results from a bitwise OR of the specified 'lhs'
     // and 'rhs'.
 
 template <std::size_t N>
 bitset<N> operator^(const bitset<N>& lhs, const bitset<N>& rhs)
-                                                           BSLS_CPP11_NOEXCEPT;
+                                                         BSLS_KEYWORD_NOEXCEPT;
     // Return a 'bitset' that results from a bitwise XOR of the specified 'lhs'
     // and 'rhs'.
 
@@ -684,17 +684,17 @@ operator<<(std::basic_ostream<CHAR_TYPE, TRAITS>& os, const bitset<N>& x);
                         // --------------------------
 
 template <std::size_t BITSETSIZE>
-inline BSLS_CPP11_CONSTEXPR
+inline BSLS_KEYWORD_CONSTEXPR
 Bitset_ImpBase<BITSETSIZE, 1>::Bitset_ImpBase()
 : d_data()
 {
 }
 
 template <std::size_t BITSETSIZE>
-inline BSLS_CPP11_CONSTEXPR
+inline BSLS_KEYWORD_CONSTEXPR
 Bitset_ImpBase<BITSETSIZE, 1>::Bitset_ImpBase(unsigned long val)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) \
- &&!(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER < 1900)
+ &&!(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
   : d_data{static_cast<unsigned int>(val)}
 {
 }
@@ -709,14 +709,14 @@ Bitset_ImpBase<BITSETSIZE, 1>::Bitset_ImpBase(unsigned long val)
                         // --------------------------
 
 template <std::size_t BITSETSIZE>
-inline BSLS_CPP11_CONSTEXPR
+inline BSLS_KEYWORD_CONSTEXPR
 Bitset_ImpBase<BITSETSIZE, 2>::Bitset_ImpBase()
 : d_data()
 {
 }
 
   template <std::size_t BITSETSIZE>
-inline BSLS_CPP11_CONSTEXPR
+inline BSLS_KEYWORD_CONSTEXPR
 Bitset_ImpBase<BITSETSIZE, 2>::Bitset_ImpBase(unsigned long val)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) \
  &&!(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER < 1900)
@@ -748,7 +748,7 @@ bitset<N>::reference::reference(unsigned int *i, unsigned int offset)
 template <std::size_t N>
 inline
 typename bitset<N>::reference&
-bitset<N>::reference::operator=(bool x) BSLS_CPP11_NOEXCEPT
+bitset<N>::reference::operator=(bool x) BSLS_KEYWORD_NOEXCEPT
 {
     if (x) {
         *d_int_p |= (1 << d_offset);
@@ -762,7 +762,7 @@ bitset<N>::reference::operator=(bool x) BSLS_CPP11_NOEXCEPT
 template <std::size_t N>
 inline
 typename bitset<N>::reference&
-bitset<N>::reference::operator=(const reference& x) BSLS_CPP11_NOEXCEPT
+bitset<N>::reference::operator=(const reference& x) BSLS_KEYWORD_NOEXCEPT
 {
     if (x) {
         *d_int_p |= (1 << d_offset);
@@ -776,7 +776,7 @@ bitset<N>::reference::operator=(const reference& x) BSLS_CPP11_NOEXCEPT
 template <std::size_t N>
 inline
 typename bitset<N>::reference&
-bitset<N>::reference::flip() BSLS_CPP11_NOEXCEPT
+bitset<N>::reference::flip() BSLS_KEYWORD_NOEXCEPT
 {
     *d_int_p ^= (1 << d_offset);
     return *this;
@@ -785,14 +785,14 @@ bitset<N>::reference::flip() BSLS_CPP11_NOEXCEPT
 // ACCESSORS
 template <std::size_t N>
 inline
-bitset<N>::reference::operator bool() const BSLS_CPP11_NOEXCEPT
+bitset<N>::reference::operator bool() const BSLS_KEYWORD_NOEXCEPT
 {
     return ((*d_int_p & (1 << d_offset)) != 0);
 }
 
 template <std::size_t N>
 inline
-bool bitset<N>::reference::operator~() const BSLS_CPP11_NOEXCEPT
+bool bitset<N>::reference::operator~() const BSLS_KEYWORD_NOEXCEPT
 {
     return ((*d_int_p & (1 << d_offset)) == 0);
 }
@@ -921,14 +921,14 @@ void bitset<N>::copyString(
 
 // CREATORS
 template <std::size_t N>
-inline BSLS_CPP11_CONSTEXPR
-bitset<N>::bitset() BSLS_CPP11_NOEXCEPT : Base()
+inline BSLS_KEYWORD_CONSTEXPR
+bitset<N>::bitset() BSLS_KEYWORD_NOEXCEPT : Base()
 {
 }
 
 template <std::size_t N>
-BSLS_CPP11_CONSTEXPR
-bitset<N>::bitset(unsigned long val) BSLS_CPP11_NOEXCEPT : Base(val)
+BSLS_KEYWORD_CONSTEXPR
+bitset<N>::bitset(unsigned long val) BSLS_KEYWORD_NOEXCEPT : Base(val)
 {
 }
 
@@ -999,7 +999,7 @@ bitset(const bsl::basic_string<CHAR_TYPE, TRAITS, ALLOCATOR>& str,
 
 // MANIPULATORS
 template <std::size_t N>
-bitset<N>& bitset<N>::operator&=(const bitset& rhs) BSLS_CPP11_NOEXCEPT
+bitset<N>& bitset<N>::operator&=(const bitset& rhs) BSLS_KEYWORD_NOEXCEPT
 {
     for (std::size_t i = 0; i < k_BITSETSIZE; ++i) {
         d_data[i] &= rhs.d_data[i];
@@ -1008,7 +1008,7 @@ bitset<N>& bitset<N>::operator&=(const bitset& rhs) BSLS_CPP11_NOEXCEPT
 }
 
 template <std::size_t N>
-bitset<N>& bitset<N>::operator|=(const bitset& rhs) BSLS_CPP11_NOEXCEPT
+bitset<N>& bitset<N>::operator|=(const bitset& rhs) BSLS_KEYWORD_NOEXCEPT
 {
     for (std::size_t i = 0; i < k_BITSETSIZE; ++i) {
         d_data[i] |= rhs.d_data[i];
@@ -1017,7 +1017,7 @@ bitset<N>& bitset<N>::operator|=(const bitset& rhs) BSLS_CPP11_NOEXCEPT
 }
 
 template <std::size_t N>
-bitset<N>& bitset<N>::operator^=(const bitset& rhs) BSLS_CPP11_NOEXCEPT
+bitset<N>& bitset<N>::operator^=(const bitset& rhs) BSLS_KEYWORD_NOEXCEPT
 {
     for (std::size_t i = 0; i < k_BITSETSIZE; ++i) {
         d_data[i] ^= rhs.d_data[i];
@@ -1026,7 +1026,7 @@ bitset<N>& bitset<N>::operator^=(const bitset& rhs) BSLS_CPP11_NOEXCEPT
 }
 
 template <std::size_t N>
-bitset<N>& bitset<N>::operator<<=(std::size_t pos) BSLS_CPP11_NOEXCEPT
+bitset<N>& bitset<N>::operator<<=(std::size_t pos) BSLS_KEYWORD_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(pos <= N);
 
@@ -1055,7 +1055,7 @@ bitset<N>& bitset<N>::operator<<=(std::size_t pos) BSLS_CPP11_NOEXCEPT
 }
 
 template <std::size_t N>
-bitset<N>& bitset<N>::operator>>=(std::size_t pos) BSLS_CPP11_NOEXCEPT
+bitset<N>& bitset<N>::operator>>=(std::size_t pos) BSLS_KEYWORD_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(pos <= N);
 
@@ -1084,7 +1084,7 @@ bitset<N>& bitset<N>::operator>>=(std::size_t pos) BSLS_CPP11_NOEXCEPT
 }
 
 template <std::size_t N>
-bitset<N>& bitset<N>::flip() BSLS_CPP11_NOEXCEPT
+bitset<N>& bitset<N>::flip() BSLS_KEYWORD_NOEXCEPT
 {
     for (std::size_t i = 0; i < k_BITSETSIZE; ++i) {
         d_data[i] = ~d_data[i];
@@ -1107,7 +1107,7 @@ bitset<N>& bitset<N>::flip(std::size_t pos)
 
 template <std::size_t N>
 inline
-bitset<N>& bitset<N>::reset() BSLS_CPP11_NOEXCEPT
+bitset<N>& bitset<N>::reset() BSLS_KEYWORD_NOEXCEPT
 {
     memset(d_data, 0, k_BITSETSIZE * k_BYTES_PER_INT);
     return *this;
@@ -1127,7 +1127,7 @@ bitset<N>& bitset<N>::reset(std::size_t pos)
 
 template <std::size_t N>
 inline
-bitset<N>& bitset<N>::set() BSLS_CPP11_NOEXCEPT
+bitset<N>& bitset<N>::set() BSLS_KEYWORD_NOEXCEPT
 {
     memset(d_data, 0xFF, k_BITSETSIZE * k_BYTES_PER_INT);
     clearUnusedBits();
@@ -1165,7 +1165,7 @@ typename bitset<N>::reference bitset<N>::operator[](std::size_t pos)
 // ACCESSORS
 template <std::size_t N>
 inline
-bitset<N> bitset<N>::operator<<(std::size_t pos) const BSLS_CPP11_NOEXCEPT
+bitset<N> bitset<N>::operator<<(std::size_t pos) const BSLS_KEYWORD_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(pos <= N);
 
@@ -1175,7 +1175,7 @@ bitset<N> bitset<N>::operator<<(std::size_t pos) const BSLS_CPP11_NOEXCEPT
 
 template <std::size_t N>
 inline
-bitset<N> bitset<N>::operator>>(std::size_t pos) const BSLS_CPP11_NOEXCEPT
+bitset<N> bitset<N>::operator>>(std::size_t pos) const BSLS_KEYWORD_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(pos <= N);
 
@@ -1185,14 +1185,14 @@ bitset<N> bitset<N>::operator>>(std::size_t pos) const BSLS_CPP11_NOEXCEPT
 
 template <std::size_t N>
 inline
-bitset<N> bitset<N>::operator~() const BSLS_CPP11_NOEXCEPT
+bitset<N> bitset<N>::operator~() const BSLS_KEYWORD_NOEXCEPT
 {
     bitset<N> tmp(*this);
     return tmp.flip();
 }
 
 template <std::size_t N>
-inline BSLS_CPP11_CONSTEXPR
+inline BSLS_KEYWORD_CONSTEXPR
 bool bitset<N>::operator[](std::size_t pos) const
 {
 #if defined(BSLSTL_BITSET_ALLOW_ASSERT_IN_CONSTEXPR)
@@ -1204,20 +1204,20 @@ bool bitset<N>::operator[](std::size_t pos) const
 
 template <std::size_t N>
 inline
-bool bitset<N>::operator==(const bitset& rhs) const BSLS_CPP11_NOEXCEPT
+bool bitset<N>::operator==(const bitset& rhs) const BSLS_KEYWORD_NOEXCEPT
 {
     return memcmp(d_data, rhs.d_data, k_BITSETSIZE * k_BYTES_PER_INT) == 0;
 }
 
 template <std::size_t N>
 inline
-bool bitset<N>::operator!=(const bitset& rhs) const BSLS_CPP11_NOEXCEPT
+bool bitset<N>::operator!=(const bitset& rhs) const BSLS_KEYWORD_NOEXCEPT
 {
     return !operator==(rhs);
 }
 
 template <std::size_t N>
-bool bitset<N>::all() const BSLS_CPP11_NOEXCEPT
+bool bitset<N>::all() const BSLS_KEYWORD_NOEXCEPT
 {
     for (std::size_t i = 0; i < N / k_BITS_PER_INT; ++i) {
         if (d_data[i] != ~0u) {
@@ -1236,7 +1236,7 @@ bool bitset<N>::all() const BSLS_CPP11_NOEXCEPT
 }
 
 template <std::size_t N>
-bool bitset<N>::any() const BSLS_CPP11_NOEXCEPT
+bool bitset<N>::any() const BSLS_KEYWORD_NOEXCEPT
 {
     for (std::size_t i = 0; i < k_BITSETSIZE; ++i) {
         if (d_data[i] != 0) {
@@ -1247,7 +1247,7 @@ bool bitset<N>::any() const BSLS_CPP11_NOEXCEPT
 }
 
 template <std::size_t N>
-std::size_t bitset<N>::count() const BSLS_CPP11_NOEXCEPT
+std::size_t bitset<N>::count() const BSLS_KEYWORD_NOEXCEPT
 {
     std::size_t sum = 0;
     for (std::size_t i = 0; i < k_BITSETSIZE; ++i) {
@@ -1258,14 +1258,14 @@ std::size_t bitset<N>::count() const BSLS_CPP11_NOEXCEPT
 
 template <std::size_t N>
 inline
-bool bitset<N>::none() const BSLS_CPP11_NOEXCEPT
+bool bitset<N>::none() const BSLS_KEYWORD_NOEXCEPT
 {
     return !any();
 }
 
 template <std::size_t N>
 inline
-BSLS_CPP11_CONSTEXPR std::size_t bitset<N>::size() const BSLS_CPP11_NOEXCEPT
+BSLS_KEYWORD_CONSTEXPR std::size_t bitset<N>::size() const BSLS_KEYWORD_NOEXCEPT
 {
     return N;
 }
@@ -1327,7 +1327,7 @@ unsigned long bitset<N>::to_ulong() const
 // FREE OPERATORS
 template <std::size_t N>
 bitset<N> operator&(const bitset<N>& lhs, const bitset<N>& rhs)
-                                                            BSLS_CPP11_NOEXCEPT
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     bitset<N> tmp(lhs);
     return tmp &= rhs;
@@ -1335,7 +1335,7 @@ bitset<N> operator&(const bitset<N>& lhs, const bitset<N>& rhs)
 
 template <std::size_t N>
 bitset<N> operator|(const bitset<N>& lhs, const bitset<N>& rhs)
-                                                            BSLS_CPP11_NOEXCEPT
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     bitset<N> tmp(lhs);
     return tmp |= rhs;
@@ -1343,7 +1343,7 @@ bitset<N> operator|(const bitset<N>& lhs, const bitset<N>& rhs)
 
 template <std::size_t N>
 bitset<N> operator^(const bitset<N>& lhs, const bitset<N>& rhs)
-                                                            BSLS_CPP11_NOEXCEPT
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     bitset<N> tmp(lhs);
     return tmp ^= rhs;

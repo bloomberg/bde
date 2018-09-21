@@ -11,17 +11,30 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_volatile: meta-function for determining 'volatile'-qualified types
+//  bsl::is_volatile_v: the result value of 'bsl::is_volatile'
 //
 //@SEE_ALSO: bslmf_integralconstant
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::is_volatile',
-// that may be used to query whether a type is 'volatile'-qualified as defined
-// in the C++11 standard [basic.type.qualifier].
+//@DESCRIPTION: This component defines a meta-function, 'bsl::is_volatile' and
+// a template variable 'bsl::is_volatile_v', that represents the result value
+// of the meta-function, that may be used to query whether a type is
+// 'volatile'-qualified as defined in the C++11 standard
+// [basic.type.qualifier].
 //
 // 'bsl::is_volatile' meets the requirements of the 'is_volatile' template
 // defined in the C++11 standard [meta.unary.prop].
+//
+// Note that the template variable 'is_volatile_v' is defined in the C++17
+// standard as an inline variable.  If the current compiler supports the inline
+// variable C++17 compiler feature, 'bsl::is_volatile_v' is defined as an
+// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
+// variable templates C++14 compiler feature, 'bsl::is_volatile_v' is defined
+// as a non-inline 'constexpr bool' variable.  See
+// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
+// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -44,6 +57,13 @@ BSLS_IDENT("$Id: $")
 //  assert(false == bsl::is_volatile<MyType>::value);
 //  assert(true  == bsl::is_volatile<MyVolatileType>::value);
 //..
+// Note that if the current compiler supports the variable templates C++14
+// feature, then we can re-write the snippet of code above as follows:
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//  assert(false == bsl::is_volatile_v<MyType>);
+//  assert(true  == bsl::is_volatile_v<MyVolatileType>);
+//#endif
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -59,6 +79,14 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
 #endif
 
 #ifndef INCLUDED_STDDEF_H
@@ -147,6 +175,14 @@ struct is_volatile<volatile TYPE[LENGTH]> : true_type {
      // 'bsl::true_type'.  Note that this single specialization is sufficient
      // to work around the MSVC issue, even for multidimensional arrays.
 };
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_volatile_v = is_volatile<TYPE>::value;
+    // This template variable represents the result value of the
+    // 'bsl::is_volatile' meta-function.
 #endif
 
 }  // close namespace bsl
