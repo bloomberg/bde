@@ -21,6 +21,13 @@ BSLS_IDENT("$Id: $")
 // places them in the 'std' namespace.
 */
 
+/*
+// Note that 'assert.h' is meant for multiple inclusion on Linux, so only the
+// ident is protected by the include guard.
+*/
+
+#endif  /* INCLUDED_NATIVE_C_ASSERT */
+
 #include <bsls_compilerfeatures.h>
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
@@ -60,8 +67,6 @@ BSLS_IDENT("$Id: $")
 #   endif
 
 #endif  /* BSL_OVERRIDES_STD */
-
-#endif  /* INCLUDED_NATIVE_C_ASSERT */
 
 /*
 // ----------------------------------------------------------------------------
