@@ -27,6 +27,7 @@
 #include <bslmf_assert.h>
 #include <bslmt_threadutil.h>
 
+#include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_stackaddressutil.h>
@@ -1936,6 +1937,12 @@ int main(int argc, char *argv[])
         bslma::TestAllocator ta;
         bsl::vector<TC::Data> v(&ta);
 
+        TC::pushVec(&v, L_, &bsls::StackAddressUtil::getStackAddresses,
+                 "BloombergLP::bsls::StackAddressUtil::getStackAddresses(void",
+                             "getStackAddresses", "bsls_stackaddressutil.cpp");
+        TC::pushVec(&v, L_, &bsls::Log::logFormattedMessage,
+                                "BloombergLP::bsls::Log::logFormattedMessage(",
+                                        "logFormattedMessage", "bsls_log.cpp");
         TC::pushVec(&v, L_, &balst::StackTraceFrame::address,
                               "BloombergLP::balst::StackTraceFrame::address()",
                                          "address", "balst_stacktraceframe.h");
@@ -1963,12 +1970,6 @@ int main(int argc, char *argv[])
         TC::pushVec(&v, L_, &bsls::Stopwatch::accumulatedTimes,
                        "BloombergLP::bsls::Stopwatch::accumulatedTimes(double",
                                      "accumulatedTimes", "bsls_stopwatch.cpp");
-        TC::pushVec(&v, L_, &bsls::StackAddressUtil::getStackAddresses,
-                 "BloombergLP::bsls::StackAddressUtil::getStackAddresses(void",
-                             "getStackAddresses", "bsls_stackaddressutil.cpp");
-        TC::pushVec(&v, L_, &bsls::TimeInterval::totalNanoseconds,
-                         "BloombergLP::bsls::TimeInterval::totalNanoseconds()",
-                                    "totalNanoseconds", "bsls_timeinterval.h");
         TC::pushVec(&v, L_, &bsls::TimeInterval::totalNanoseconds,
                          "BloombergLP::bsls::TimeInterval::totalNanoseconds()",
                                     "totalNanoseconds", "bsls_timeinterval.h");
@@ -2073,6 +2074,9 @@ int main(int argc, char *argv[])
                                         !bsl::strcmp(path.c_str(), foundName));
                         }
                     }
+
+                    ASSERTV(expName, frame.sourceFileName(),
+                        bdls::FilesystemUtil::exists(frame.sourceFileName()));
                 }
 
                 ASSERTV(LINE, expName, frame.lineNumber(),
@@ -2085,7 +2089,8 @@ int main(int argc, char *argv[])
 
                     if (veryVeryVerbose) {
                         cout << "SymbolName-file:line: " << name << '-' <<
-                                 basename << ':' << frame.lineNumber() << endl;
+                                               frame.sourceFileName() << ':' <<
+                                                    frame.lineNumber() << endl;
                     }
                     else {
                         cout << "ExpSymbol-file:line: " << expMangled <<
