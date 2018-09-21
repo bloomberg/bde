@@ -440,6 +440,7 @@ Blob& Blob::operator=(bslmf::MovableRef<Blob> rhs)
     d_dataLength         = MoveUtil::move(lvalue.d_dataLength);
     d_dataIndex          = MoveUtil::move(lvalue.d_dataIndex);
     d_preDataIndexLength = MoveUtil::move(lvalue.d_preDataIndexLength);
+    d_bufferFactory_p    = MoveUtil::move(lvalue.d_bufferFactory_p);
 
     if (0 == lvalue.d_buffers.size()) {
         lvalue.removeAll();
