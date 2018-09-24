@@ -857,54 +857,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, const bsl::deque<MCElement>& d)
     return stream;
 }
 
-bsl::ostream& operator<<(bsl::ostream& stream, const bsl::vector<Element>& x)
-    // Output the specified 'x' to the specified 'stream'.
-{
-    stream << "[";
-    for (unsigned ii = 0; ii < x.size(); ++ii) {
-        stream << ' ' << x[ii];
-    }
-    stream << " ]";
-
-    return stream;
-}
-
-bsl::ostream& operator<<(bsl::ostream& stream, const bsl::vector<AElement>& x)
-    // Output the specified 'x' to the specified 'stream'.
-{
-    stream << "[";
-    for (unsigned ii = 0; ii < x.size(); ++ii) {
-        stream << ' ' << x[ii];
-    }
-    stream << " ]";
-
-    return stream;
-}
-
-bsl::ostream& operator<<(bsl::ostream& stream, const bsl::vector<MElement>& x)
-    // Output the specified 'x' to the specified 'stream'.
-{
-    stream << "[";
-    for (unsigned ii = 0; ii < x.size(); ++ii) {
-        stream << ' ' << x[ii];
-    }
-    stream << " ]";
-
-    return stream;
-}
-
-bsl::ostream& operator<<(bsl::ostream& stream, const bsl::vector<MCElement>& x)
-    // Output the specified 'x' to the specified 'stream'.
-{
-    stream << "[";
-    for (unsigned ii = 0; ii < x.size(); ++ii) {
-        stream << ' ' << x[ii];
-    }
-    stream << " ]";
-
-    return stream;
-}
-
 bsl::ostream& operator<<(bsl::ostream& stream, bsltf::MoveState::Enum x)
 {
     return stream << bsltf::MoveState::toAscii(x);
@@ -1359,8 +1311,23 @@ struct VecChecker {
         // object, compare the two containers tracked by this object.
     {
         if (d_toBeModified) {
-            ASSERTV(d_line, *d_toBeModified, *d_toBeCompared,
-                           "VecChecker" && *d_toBeModified == *d_toBeCompared);
+            if (*d_toBeModified != *d_toBeCompared) {
+                const bsl::vector<ELEMENT>& M = *d_toBeModified;
+                const bsl::vector<ELEMENT>& C = *d_toBeCompared;
+
+                cout << "*d_toBeModified:";
+                IntPtr s = M.size();
+                for (int ii = 0; ii < s; ++ii) {
+                    cout << "\tM[" << ii << "]: " << M[ii];
+                }
+                cout << "\n*d_toBeCompared:";
+                s = C.size();
+                for (int ii = 0; ii < s; ++ii) {
+                    cout << "\tC[" << ii << "]: " << C[ii];
+                }
+                cout << '\n';
+                ASSERTV(d_line, "VecChecker" && M == C);
+            }
         }
     }
 
@@ -2950,28 +2917,19 @@ void testForcePushRemoveAll()
 
     if (verbose) cout << "Force Push Remove All: " << name << endl;
 
-    for (int ti = 0; ti < 16; ++ti) {
+    for (int ti = 0; ti < 8; ++ti) {
         const bool match     = ti & 1;
         const bool moveFlag  = ti & 2;
-        const bool noFlag    = ti & 4;
-        const bool pushFront = ti & 8;
-
-        if (moveFlag && noFlag) {
-            continue;
-        }
+        const bool pushFront = ti & 4;
 
         bslma::TestAllocator& ooa = match ? ta : oa;
-        const bsltf::MoveState::Enum expMove = !u::IsMoveAware<ELEMENT>::value
-                                             ? e_UNKNOWN
-                                             : !moveFlag ||
-                                                         (!match && isMoveCopy)
-                                             ? e_NOT_MOVED
-                                             : e_MOVED;
+        bsltf::MoveState::Enum expMove = !u::IsMoveAware<ELEMENT>::value
+                                       ? e_UNKNOWN
+                                       : !moveFlag || (!match && isMoveCopy)
+                                       ? e_NOT_MOVED
+                                       : e_MOVED;
 
-        if (veryVerbose) {
-            P_(ti);    P_(match);    P_(moveFlag);    P_(noFlag);
-            P(pushFront);
-        }
+        if (veryVerbose) { P_(ti);    P_(match);    P(pushFront); }
 
         bsl::vector<ELEMENT> footprintVec(&ooa);
         footprintVec.resize(1);
@@ -3018,32 +2976,19 @@ void testForcePushRemoveAll()
             }
         }
 
+        expMove = !u::IsMoveAware<ELEMENT>::value
+                ? e_UNKNOWN
+                : !match && isMoveCopy
+                ? e_NOT_MOVED
+                : e_MOVED;
+
         bsl::vector<ELEMENT> v(&ooa);
         int numThrows = -1;
-        if (!moveFlag || k_WELL_BEHAVED || match) {
-            BEGIN_EXCEP_TEST_OBJ_VEC(ELEMENT, mX, v) {
-                ++numThrows;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
+            ++numThrows;
 
-                if (noFlag) {
-                    mX.removeAll(&v);
-                }
-                else {
-                    mX.removeAll(&v, moveFlag);
-                }
-            } END_EXCEP_TEST_OBJ_VEC
-        }
-        else {
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
-                ++numThrows;
-
-                if (noFlag) {
-                    mX.removeAll(&v);
-                }
-                else {
-                    mX.removeAll(&v, moveFlag);
-                }
-            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-        }
+            mX.removeAll(&v);
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
         if (PLAT_EXC) {
             ASSERTV(numThrows, 1 <= numThrows);
@@ -3056,7 +3001,7 @@ void testForcePushRemoveAll()
                                         expMove == bsltf::getMovedInto(v[ii]));
         }
 
-        if (!moveFlag || k_WELL_BEHAVED || match) {
+        if (k_WELL_BEHAVED || match) {
             ASSERTV(v.size(), k_NUM_ELEMENTS == v.size());
             for (int ii = 0; ii < k_NUM_ELEMENTS; ++ii) {
                 char exp = static_cast<char>('A' + ii);
@@ -3681,9 +3626,7 @@ class TestPopFront {
         int                    maxVecSizeAt = 0;
         bsltf::MoveState::Enum vms = !k_IS_MOVE_AWARE
                                    ? e_UNKNOWN
-                                   : d_moveFlag
-                                   ? e_MOVED
-                                   : e_NOT_MOVED;
+                                   : e_MOVED;
         bsltf::MoveState::Enum eam = !k_IS_MOVE_AWARE
                                    ? e_UNKNOWN
                                    : expAssignMoveState;
@@ -3705,14 +3648,9 @@ class TestPopFront {
             }
 
             v.clear();
-            if (passMove || d_moveFlag) {
-                d_mX_p->tryPopFront(20, &v, d_moveFlag);
-            }
-            else {
-                d_mX_p->tryPopFront(20, &v);
-            }
+            d_mX_p->tryPopFront(20, &v);
             IntPtr s = v.size();
-            for (unsigned ii = 0; ii < s; ++ii) {
+            for (int ii = 0; ii < s; ++ii) {
                 const int d = u::getData(v[ii]);
                 ASSERTV(expectedVal, d, expectedVal++ == d && "popFront");
                 ASSERTV(vms, bsltf::getMovedInto(v[ii]),
@@ -3764,9 +3702,7 @@ class TestPopBack {
         int                    maxVecSizeAt = 0;
         bsltf::MoveState::Enum vms = !k_IS_MOVE_AWARE
                                    ? e_UNKNOWN
-                                   : d_moveFlag
-                                   ? e_MOVED
-                                   : e_NOT_MOVED;
+                                   : e_MOVED;
         bsltf::MoveState::Enum eam = !k_IS_MOVE_AWARE
                                    ? e_UNKNOWN
                                    : expAssignMoveState;
@@ -3789,14 +3725,9 @@ class TestPopBack {
 
             v.clear();
 
-            if (passMove || d_moveFlag) {
-                d_mX_p->tryPopBack(20, &v, d_moveFlag);
-            }
-            else {
-                d_mX_p->tryPopBack(20, &v);
-            }
+            d_mX_p->tryPopBack(20, &v);
             IntPtr s = v.size();
-            for (unsigned ii = 0; ii < s; ++ii) {
+            for (int ii = 0; ii < s; ++ii) {
                 const int d = u::getData(v[ii]);
                 ASSERTV(expectedVal, d, expectedVal++ == d && "popBack");
                 ASSERTV(vms, bsltf::getMovedInto(v[ii]),
@@ -4157,14 +4088,8 @@ void testSingleThreadedTryPop()
                         (k_IS_MOVE_AWARE ? "" : "not ") << "move aware, " <<
                         (k_ALLOC ? "allocates" : "doesn't allocate") << endl;
 
-    for (int ti = 0; ti < 8; ++ti) {
-        const bool match    = ti & 1;
-        const bool moveFlag = ti & 2;
-        const bool noFlag   = ti & 4;
-
-        if (moveFlag && noFlag) {
-            continue;
-        }
+    for (int ti = 0; ti < 2; ++ti) {
+        const bool match = ti;
 
         bslma::TestAllocator& ooa = match ? ta : oa;
 
@@ -4177,9 +4102,7 @@ void testSingleThreadedTryPop()
         int                   sts;
 
         if (veryVerbose) cout << "\tPopFront: " <<
-                                         (match ? "" : "no ") << "match, " <<
-                                         (moveFlag ? "" : "no ") << "move, " <<
-                                         (noFlag ? "noFlag" : "flag") << endl;
+                                     (match ? "" : "no ") << "match, " << endl;
 
         ASSERT(!X.length());
 
@@ -4212,7 +4135,7 @@ void testSingleThreadedTryPop()
 
             sts = mX.tryPopFront(&e);
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-        ASSERTV(numThrows, NameOf<ELEMENT>(), match, moveFlag, !PLAT_EXC ||
+        ASSERTV(numThrows, NameOf<ELEMENT>(), match, !PLAT_EXC ||
                  (k_ALLOC && (!match || !k_IS_MOVE_AWARE || !expAssignMove)) ==
                                                               (0 < numThrows));
         ASSERT(0 == sts);
@@ -4227,18 +4150,13 @@ void testSingleThreadedTryPop()
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
             ++numThrows;
 
-            if (noFlag) {
-                mX.tryPopFront(4, &v);
-            }
-            else {
-                mX.tryPopFront(4, &v, moveFlag);
-            }
+            mX.tryPopFront(4, &v);
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-        ASSERTV(numThrows, NameOf<ELEMENT>(), match, moveFlag, !PLAT_EXC ||
-                      (k_ALLOC && (!match || !k_IS_MOVE_AWARE || !moveFlag)) ==
+        ASSERTV(numThrows, NameOf<ELEMENT>(), match, !PLAT_EXC ||
+                      (k_ALLOC && (!match || !k_IS_MOVE_AWARE)) ==
                                                               (0 < numThrows));
         ASSERT(4 == v.size());
-        if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE || !moveFlag) {
+        if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE) {
             ASSERT('A' + 2 == u::getData(v.front()));
             ASSERT('A' + 5 == u::getData(v.back()));
         }
@@ -4257,19 +4175,14 @@ void testSingleThreadedTryPop()
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
             ++numThrows;
 
-            if (noFlag) {
-                mX.tryPopFront(10, &v);
-            }
-            else {
-                mX.tryPopFront(10, &v, moveFlag);
-            }
+            mX.tryPopFront(10, &v);
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         ASSERTV(numThrows, !PLAT_EXC ||
-                      (k_ALLOC && (!match || !k_IS_MOVE_AWARE || !moveFlag)) ==
+                                   (k_ALLOC && (!match || !k_IS_MOVE_AWARE)) ==
                                                               (0 < numThrows));
         ASSERT(0 == u::myLength(X));
         ASSERT(4 == v.size());
-        if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE || !moveFlag) {
+        if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE) {
             ASSERT('A' + 6 == u::getData(v.front()));
             ASSERT('A' + 9 == u::getData(v.back()));
         }
@@ -4281,9 +4194,7 @@ void testSingleThreadedTryPop()
         mY.clear();
 
         if (veryVerbose) cout << "\tPopBack:  " <<
-                                         (match ? "" : "no ") << "match, " <<
-                                         (moveFlag ? "" : "no ") << "move, " <<
-                                         (noFlag ? "noFlag" : "flag") << endl;
+                                     (match ? "" : "no ") << "match, " << endl;
 
         ASSERT(!X.length());
 
@@ -4316,7 +4227,7 @@ void testSingleThreadedTryPop()
 
             sts = mX.tryPopBack(&e);
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-        ASSERTV(numThrows, NameOf<ELEMENT>(), match, moveFlag, !PLAT_EXC ||
+        ASSERTV(numThrows, NameOf<ELEMENT>(), match, !PLAT_EXC ||
                  (k_ALLOC && (!match || !k_IS_MOVE_AWARE || !expAssignMove)) ==
                                                               (0 < numThrows));
         ASSERT(0 == sts);
@@ -4331,18 +4242,13 @@ void testSingleThreadedTryPop()
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
             ++numThrows;
 
-            if (noFlag) {
-                mX.tryPopBack(4, &v);
-            }
-            else {
-                mX.tryPopBack(4, &v, moveFlag);
-            }
+            mX.tryPopBack(4, &v);
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-        ASSERTV(numThrows, NameOf<ELEMENT>(), match, moveFlag, !PLAT_EXC ||
-                      (k_ALLOC && (!match || !k_IS_MOVE_AWARE || !moveFlag)) ==
+        ASSERTV(numThrows, NameOf<ELEMENT>(), match, !PLAT_EXC ||
+                                   (k_ALLOC && (!match || !k_IS_MOVE_AWARE)) ==
                                                               (0 < numThrows));
         ASSERT(4 == v.size());
-        if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE || !moveFlag) {
+        if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE) {
             ASSERTV(v.front(), 'A' + 2 == u::getData(v.front()));
             ASSERTV(v.back(),  'A' + 5 == u::getData(v.back()));
         }
@@ -4361,19 +4267,14 @@ void testSingleThreadedTryPop()
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ooa) {
             ++numThrows;
 
-            if (noFlag) {
-                mX.tryPopBack(10, &v);
-            }
-            else {
-                mX.tryPopBack(10, &v, moveFlag);
-            }
+            mX.tryPopBack(10, &v);
         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         ASSERTV(numThrows, !PLAT_EXC ||
-                      (k_ALLOC && (!match || !k_IS_MOVE_AWARE || !moveFlag)) ==
+                                   (k_ALLOC && (!match || !k_IS_MOVE_AWARE)) ==
                                                               (0 < numThrows));
         ASSERT(0 == u::myLength(X));
         ASSERT(4 == v.size());
-        if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE || !moveFlag) {
+        if (k_WELL_BEHAVED || !k_IS_MOVE_AWARE) {
             ASSERTV(v.front(), 'A' + 6 == u::getData(v.front()));
             ASSERTV(v.back(),  'A' + 9 == u::getData(v.back()));
         }

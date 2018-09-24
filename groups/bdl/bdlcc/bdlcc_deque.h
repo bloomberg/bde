@@ -29,23 +29,17 @@ BSLS_IDENT("$Id: $")
 // Provided the template parameter 'TYPE' provides the following exception
 // safety guarantees:
 //: 1 The destructor provides the no-throw guarantee.
-//: 2 Copy-assignment provides the strong guarantee.
-// then operations on 'bdlcc::Deque' that do not involve move semantics provide
-// the strong exception guarantees, both for the 'bdlcc::Deque's own salient
-// state and the salient state of the 'bsl::vector', if any, passed to its
-// manipulators.  However, the non-salient 'capacity' of the underlying
-// 'bsl::deque' and of the passed 'bsl::vector' may be modified.
-//
-// If move-construction and move-assignment of 'TYPE' provide the strong
-// guarantee, then
-//: 1 Operations between a 'bdlcc::Deque' and a single 'TYPE' object provide
-//:   the strong exception guarantee.
-//: 2 Operations between a 'bdlcc::Deque' and a 'bsl::vector' of 'TYPE' objects
-//:   provide only the basic exception guarantee.
-// Note that if 'TYPE' is a pair of objects that allocate when moving, we might
-// move the first, modifying its source, then throw on the second, therefore
-// move-construction and move-assignment of such an object would NOT provide
-// the strong guarantee.
+//: 2 Copy-assignment provides the strong guarantee and does not modify the
+//:   source.
+//: 3 Move-assignment where the allocators of the source and destination match,
+//:   or if the type is non-allocating, provides the no-throw guarantee.
+//: 4 Move-assignment where the allocators of source and destination do not
+//:   match does not modify the source.
+// then operations on 'bdlcc::Deque' provide the strong exception guarantees,
+// both for the 'bdlcc::Deque's own salient state and the salient state of the
+// 'bsl::vector', if any, passed to its manipulators.  However, the non-salient
+// 'capacity' of the underlying 'bsl::deque' and of the passed 'bsl::vector'
+// may be modified.
 //
 ///Design Rationale for 'bdlcc::Deque'
 ///-----------------------------------
@@ -758,16 +752,12 @@ class Deque {
         // {'High-Water Mark' Feature}), then append the specified 'item' to
         // the front of this container.
 
-    void removeAll(bsl::vector<TYPE> *buffer = 0, bool move = false);
+    void removeAll(bsl::vector<TYPE> *buffer = 0);
         // If the optionally specified 'buffer' is non-zero, append all the
         // elements from this container to '*buffer' in the same order, then,
-        // regardless of whether 'buffer' is zero, clear this container.  If
-        // the specified 'move' is 'true', attempt to use move semantics to
-        // move, rather than copy, items to '*buffer'.  Note that the previous
-        // contents of '*buffer' are not discarded -- the removed items are
-        // appended to it.  Also note that if 'move' is 'false', this method
-        // provides the strong exception guaratee, while if 'move' is 'true',
-        // it provides only the basic exception guarantee.
+        // regardless of whether 'buffer' is zero, clear this container.  Note
+        // that the previous contents of '*buffer' are not discarded -- the
+        // removed items are appended to it.
 
     int timedPopBack(TYPE *item, const bsls::TimeInterval& timeout);
         // Remove the last item in this container and load that item value into
@@ -828,21 +818,16 @@ class Deque {
         // 'item' or the state of this container.
 
     void tryPopBack(size_type          maxNumItems,
-                    bsl::vector<TYPE> *buffer = 0,
-                    bool               move = false);
+                    bsl::vector<TYPE> *buffer = 0);
         // Remove up to the specified 'maxNumItems' from the back of this
         // container.  Optionally specify a 'buffer' into which the items
         // removed from the container are loaded.  If 'buffer' is non-null, the
         // removed items are appended to it as if by repeated application of
         // 'buffer->push_back(popBack())' while the container is not empty and
-        // 'maxNumItems' have not yet been removed.  If the specified 'move' is
-        // 'false', items are copied to '*buffer' and the strong exception
-        // guarantee is provided.  If 'move' is 'true', items are move-assigned
-        // to '*buffer', and only the basic exeption guarantee is provided.
-        // Note that the ordering of the items in '*buffer' after the call is
-        // the reverse of the ordering they had in the deque.  Also note that
-        // '*buffer' is not cleared -- the popped items are appended after any
-        // pre-existing contents.
+        // 'maxNumItems' have not yet been removed.  Note that the ordering of
+        // the items in '*buffer' after the call is the reverse of the ordering
+        // they had in the deque.  Also note that '*buffer' is not cleared --
+        // the popped items are appended after any pre-existing contents.
         //
         // Also note that to transfer the entire contents of a 'Deque' 'd' to a
         // vector 'v', use 'd.removeAll(&v);'.
@@ -854,19 +839,15 @@ class Deque {
         // on '*item' or the state of this container.
 
     void tryPopFront(size_type          maxNumItems,
-                     bsl::vector<TYPE> *buffer = 0,
-                     bool               move = false);
+                     bsl::vector<TYPE> *buffer = 0);
         // Remove up to the specified 'maxNumItems' from the front of this
         // container.  Optionally specify a 'buffer' into which the items
         // removed from the container are appended.  If 'buffer' is non-null,
         // the removed items are appended to it as if by repeated application
         // of 'buffer->push_back(popFront())' while the const is not empty and
-        // 'maxNumItems' have not yet been removed.  If the specified 'move' is
-        // 'false', items are copied to '*buffer' and the strong exception
-        // guarantee is provided.  If 'move' is 'true', items are move-assigned
-        // to '*buffer', and only the basic exeption guarantee is provided.
-        // Note that '*buffer' is not cleared -- the popped items are appended
-        // after any pre-existing contents.
+        // 'maxNumItems' have not yet been removed.  Note that '*buffer' is not
+        // cleared -- the popped items are appended after any pre-existing
+        // contents.
         //
         // Also note that to transfer the entire contents of a 'Deque' 'd' to a
         // vector 'v', use 'd.removeAll(&v);'.
@@ -1803,7 +1784,7 @@ void Deque<TYPE>::pushFront(bslmf::MovableRef<TYPE> item)
 
 template <class TYPE>
 inline
-void Deque<TYPE>::removeAll(bsl::vector<TYPE> *buffer, bool move)
+void Deque<TYPE>::removeAll(bsl::vector<TYPE> *buffer)
 {
     Proctor proctor(this);
 
@@ -1813,21 +1794,8 @@ void Deque<TYPE>::removeAll(bsl::vector<TYPE> *buffer, bool move)
         const size_type size = d_monoDeque.size();
         buffer->reserve(buffer->size() + size);
 
-        if (move) {
-            // The client opted for move semantics, meaning we provide only the
-            // basic exception guarantee.
-
-            for (size_type ii = 0; ii < size; ++ii) {
-                buffer->push_back(bslmf::MovableRefUtil::move(
-                                                             d_monoDeque[ii]));
-            }
-        }
-        else {
-            // No move semantics -- we provide the strong exception guarantee.
-
-            buffer->insert(buffer->end(),
-                           d_monoDeque.begin(),
-                           d_monoDeque.end());
+        for (size_type ii = 0; ii < size; ++ii) {
+            buffer->push_back(bslmf::MovableRefUtil::move(d_monoDeque[ii]));
         }
     }
 
@@ -2005,8 +1973,7 @@ int Deque<TYPE>::tryPopBack(TYPE *item)
 
 template <class TYPE>
 void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
-                             bsl::vector<TYPE>               *buffer,
-                             bool                             move)
+                             bsl::vector<TYPE>               *buffer)
 {
     Proctor proctor(this);
     VectorThrowGuard tg(buffer);
@@ -2020,23 +1987,9 @@ void Deque<TYPE>::tryPopBack(typename Deque<TYPE>::size_type  maxNumItems,
     if (buffer) {
         buffer->reserve(buffer->size() + toMove);
 
-        if (move) {
-            // The client has opted for move semantics, so we aren't providing
-            // the strong exception guarantee.
-
-            const size_type lastMovedIdx = size - toMove;
-            for (size_type ii = size; lastMovedIdx < ii--; ) {
-                buffer->push_back(bslmf::MovableRefUtil::move(
-                                                             d_monoDeque[ii]));
-            }
-        }
-        else {
-            // No move semantics, so we're copying and providing the strong
-            // exception guarantee.
-
-            buffer->insert(buffer->end(),
-                           d_monoDeque.rbegin(),
-                           d_monoDeque.rbegin() + toMove);
+        const size_type lastMovedIdx = size - toMove;
+        for (size_type ii = size; lastMovedIdx < ii--; ) {
+            buffer->push_back(bslmf::MovableRefUtil::move(d_monoDeque[ii]));
         }
     }
     d_monoDeque.erase(d_monoDeque.end() - toMove, d_monoDeque.end());
@@ -2075,8 +2028,7 @@ int Deque<TYPE>::tryPopFront(TYPE *item)
 
 template <class TYPE>
 void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
-                              bsl::vector<TYPE>               *buffer,
-                              bool                             move)
+                              bsl::vector<TYPE>               *buffer)
 {
     typedef typename MonoDeque::iterator Iterator;
 
@@ -2093,20 +2045,8 @@ void Deque<TYPE>::tryPopFront(typename Deque<TYPE>::size_type  maxNumItems,
     if (buffer) {
         buffer->reserve(buffer->size() + toMove);
 
-        if (move) {
-            // The client has opted for move semantics, so we aren't providing
-            // the strong exception guarantee.
-
-            for (size_type ii = 0; ii < toMove; ++ii) {
-                buffer->push_back(bslmf::MovableRefUtil::move(
-                                                             d_monoDeque[ii]));
-            }
-        }
-        else {
-            // No move semantics, so we're copying and providing the strong
-            // exception guarantee.
-
-            buffer->insert(buffer->end(), beginRange, endRange);
+        for (size_type ii = 0; ii < toMove; ++ii) {
+            buffer->push_back(bslmf::MovableRefUtil::move(d_monoDeque[ii]));
         }
     }
     proctor->erase(beginRange, endRange);
