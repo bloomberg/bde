@@ -27,11 +27,19 @@ BSLS_IDENT("$Id: $")
 ///Attributes
 ///----------
 //..
-//  Name                Type         Default
-//  ------------------  -----------  -------
-//  data                int          0
+//  Name                Type             Default
+//  ------------------  ---------------  -------
+//  data                int              0
+//  movedInto           MoveState::Enum  e_NOT_MOVED
+//  movedFrom           MoveState::Enum  e_NOT_MOVED
 //..
 //: o 'data': representation of the object's value
+//:
+//: o 'movedInto': indicates whether a move constructor or move assignment
+//:   operator was used to set the value of this object.
+//:
+//: o 'movedFrom': indicates whether a move constructor or move assignment
+//:   operator was used to move out the value of this object.
 //
 ///Usage
 ///-----
@@ -101,9 +109,7 @@ namespace bsltf {
 class MovableTestType {
     // This class provides an unconstrained (value-semantic) attribute type
     // that records when move semantics have been invoked with the object
-    // instance as the source parameter.  The class uses a 'bslma::Allocator'
-    // to allocate memory and defines the type trait
-    // 'bslma::UsesBslmaAllocator'.  This class is primarily provided
+    // instance as the source parameter.  This class is primarily provided
     // to facilitate testing of templates where move semantics need to be
     // differentiated versus copy semantics.  See the 'Attributes' section
     // under @DESCRIPTION in the component-level documentation for information
@@ -124,27 +130,27 @@ class MovableTestType {
         // Create a 'MovableTestType' object having the (default)
         // attribute values:
         //..
-        //  data() == -1
+        //  data()      == -1
+        //  movedInto() == e_NOT_MOVED
+        //  movedFrom() == e_NOT_MOVED
         //..
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
 
     explicit MovableTestType(int data);
         // Create a 'MovableTestType' object having the specified 'data'
-        // attribute value.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
+        // attribute value.
 
     MovableTestType(const MovableTestType&  original);
         // Create a 'MovableTestType' object having the same value as the
-        // specified 'original' object.  Optionally specify a 'basicAllocator'
-        // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+        // specified 'original' object.  Note that 'movedInto()' for this
+        // object will be 'e_NOT_MOVED', and 'original.movedFrom()' will also
+        // be 'e_NOT_MOVED'.
 
     MovableTestType(bslmf::MovableRef<MovableTestType>
                                                original) BSLS_KEYWORD_NOEXCEPT;
-        // TBD: comment this
+        // Create a 'MovableTestType' object having the same value as the
+        // specified 'original' object.  Note that 'movedInto()' for this
+        // object will be 'e_MOVED', and 'original.movedFrom()' will also be
+        // 'e_MOVED'.
 
     ~MovableTestType();
         // Destroy this object.
@@ -152,10 +158,15 @@ class MovableTestType {
     // MANIPULATORS
     MovableTestType& operator=(const MovableTestType& rhs);
         // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
+        // return a reference providing modifiable access to this object.  Note
+        // that 'movedInto()' for this object will be 'e_NOT_MOVED', and
+        // 'rhs.movedFrom()' will also be 'e_NOT_MOVED'.
 
     MovableTestType& operator=(bslmf::MovableRef<MovableTestType> rhs);
-        // TBD: comment this
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a reference providing modifiable access to this object.
+        // Note that 'movedInto()' for this object will be 'e_MOVED', and
+        // 'rhs.movedFrom()' will also be 'e_MOVED'.
 
     void setData(int value);
         // Set the 'data' attribute of this object to the specified 'value'.
@@ -178,16 +189,17 @@ class MovableTestType {
 bool operator==(const MovableTestType& lhs,
                 const MovableTestType& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'MovableTestType' objects have
-    // the same if their 'data' attributes are the same.
+    // 'data()' value, and 'false' otherwise.  Two 'MovableTestType' objects
+    // have the same value if their 'data' attributes are the same.
     // TBD: think about the behavior when specified on an object that was
     // moved-from on this as well as other functions/methods if appropriate.
 
 bool operator!=(const MovableTestType& lhs,
                 const MovableTestType& rhs);
     // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
-    // same value, and 'false' otherwise.  Two 'MovableTestType' objects
-    // do not have the same value if their 'data' attributes are not the same.
+    // same 'data()' value, and 'false' otherwise.  Two 'MovableTestType'
+    // objects do not have the same value if their 'data' attributes are not
+    // the same.
 
 // FREE FUNCTIONS
 MoveState::Enum getMovedFrom(const MovableTestType& object);
@@ -282,7 +294,7 @@ struct is_nothrow_move_constructible<BloombergLP::bsltf::MovableTestType>
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
