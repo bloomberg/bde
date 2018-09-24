@@ -29,17 +29,19 @@ BSLS_IDENT("$Id: $")
 // Provided the template parameter 'TYPE' provides the following exception
 // safety guarantees:
 //: 1 The destructor provides the no-throw guarantee.
-//: 2 Copy-assignment provides the strong guarantee and does not modify the
-//:   source.
-//: 3 Move-assignment where the allocators of the source and destination match,
-//:   or if the type is non-allocating, provides the no-throw guarantee.
-//: 4 Move-assignment where the allocators of source and destination do not
-//:   match does not modify the source.
-// then operations on 'bdlcc::Deque' provide the strong exception guarantees,
-// both for the 'bdlcc::Deque's own salient state and the salient state of the
-// 'bsl::vector', if any, passed to its manipulators.  However, the non-salient
-// 'capacity' of the underlying 'bsl::deque' and of the passed 'bsl::vector'
-// may be modified.
+//: 2 Copy construction and assignment provide the strong guarantee and do not
+//:   modify the source.
+//: 3 Move construction and assignment where the allocators of the source and
+//:   destination match, or if the type is non-allocating, provide the no-throw
+//:   guarantee.
+//: 4 Move construction and assignment where the allocators of source and
+//:   destination do not match behave like non-moving copy construction and
+//:   assignment.
+// then all operations on 'bdlcc::Deque' provide the strong exception
+// guarantee, both for the 'bdlcc::Deque's own salient state and the salient
+// state of the 'bsl::vector', if any, passed to manipulators.  However, the
+// non-salient 'capacity' of the underlying 'bsl::deque' and of the passed
+// 'bsl::vector' may be modified.
 //
 ///Design Rationale for 'bdlcc::Deque'
 ///-----------------------------------
