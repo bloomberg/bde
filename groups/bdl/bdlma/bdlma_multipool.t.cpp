@@ -1905,80 +1905,80 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'Multipool(numPools, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1));
+                ASSERT_PASS(Obj( 1));
 
-                ASSERT_SAFE_FAIL(Obj( 0));
-                ASSERT_SAFE_FAIL(Obj(-1));
+                ASSERT_FAIL(Obj( 0));
+                ASSERT_FAIL(Obj(-1));
             }
 
             if (veryVerbose) cout << "\t'Multipool(numPools, gs, *ba)'"
                                   << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1, CON));
+                ASSERT_PASS(Obj( 1, CON));
 
-                ASSERT_SAFE_FAIL(Obj( 0, CON));
-                ASSERT_SAFE_FAIL(Obj(-1, CON));
+                ASSERT_FAIL(Obj( 0, CON));
+                ASSERT_FAIL(Obj(-1, CON));
             }
 
             if (veryVerbose) cout << "\t'Multipool(numPools, gs, mbpc, *ba)'"
                                   << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1, CON,  1));
+                ASSERT_PASS(Obj( 1, CON,  1));
 
-                ASSERT_SAFE_FAIL(Obj( 0, CON,  1));
-                ASSERT_SAFE_FAIL(Obj(-1, CON,  1));
+                ASSERT_FAIL(Obj( 0, CON,  1));
+                ASSERT_FAIL(Obj(-1, CON,  1));
 
-                ASSERT_SAFE_FAIL(Obj( 1, CON,  0));
-                ASSERT_SAFE_FAIL(Obj( 1, CON, -1));
+                ASSERT_FAIL(Obj( 1, CON,  0));
+                ASSERT_FAIL(Obj( 1, CON, -1));
             }
 
             if (veryVerbose) cout << "\t'Multipool(numPools, *gs, *ba)'"
                                   << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1, SDATA[0]));
+                ASSERT_PASS(Obj( 1, SDATA[0]));
 
-                ASSERT_SAFE_FAIL(Obj( 0, SDATA[0]));
-                ASSERT_SAFE_FAIL(Obj(-1, SDATA[0]));
+                ASSERT_FAIL(Obj( 0, SDATA[0]));
+                ASSERT_FAIL(Obj(-1, SDATA[0]));
 
-                ASSERT_SAFE_FAIL(Obj( 1, (Strategy *)0));
+                ASSERT_FAIL(Obj( 1, (Strategy *)0));
             }
 
             if (veryVerbose) cout << "\t'Multipool(numPools, *gs, mbpc, *ba)'"
                                   << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1, SDATA[0],       1));
+                ASSERT_PASS(Obj( 1, SDATA[0],       1));
 
-                ASSERT_SAFE_FAIL(Obj( 0, SDATA[0],       1));
-                ASSERT_SAFE_FAIL(Obj(-1, SDATA[0],       1));
+                ASSERT_FAIL(Obj( 0, SDATA[0],       1));
+                ASSERT_FAIL(Obj(-1, SDATA[0],       1));
 
-                ASSERT_SAFE_FAIL(Obj( 1, (Strategy *)0,  1));
+                ASSERT_FAIL(Obj( 1, (Strategy *)0,  1));
 
-                ASSERT_SAFE_FAIL(Obj( 1, SDATA[0],       0));
-                ASSERT_SAFE_FAIL(Obj( 1, SDATA[0],      -1));
+                ASSERT_FAIL(Obj( 1, SDATA[0],       0));
+                ASSERT_FAIL(Obj( 1, SDATA[0],      -1));
             }
 
             if (veryVerbose) cout << "\t'Multipool(numPools, gs, *mbpc, *ba)'"
                                   << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1, CON, MDATA[0]));
+                ASSERT_PASS(Obj( 1, CON, MDATA[0]));
 
-                ASSERT_SAFE_FAIL(Obj( 0, CON, MDATA[0]));
-                ASSERT_SAFE_FAIL(Obj(-1, CON, MDATA[0]));
+                ASSERT_FAIL(Obj( 0, CON, MDATA[0]));
+                ASSERT_FAIL(Obj(-1, CON, MDATA[0]));
 
-                ASSERT_SAFE_FAIL(Obj( 1, CON, (int *)0));
+                ASSERT_FAIL(Obj( 1, CON, (int *)0));
             }
 
             if (veryVerbose) cout << "\t'Multipool(numPools, *gs, *mbpc, *ba)'"
                                   << endl;
             {
-                ASSERT_SAFE_PASS(Obj( 1, SDATA[0],      MDATA[0]));
+                ASSERT_PASS(Obj( 1, SDATA[0],      MDATA[0]));
 
-                ASSERT_SAFE_FAIL(Obj( 0, SDATA[0],      MDATA[0]));
-                ASSERT_SAFE_FAIL(Obj(-1, SDATA[0],      MDATA[0]));
+                ASSERT_FAIL(Obj( 0, SDATA[0],      MDATA[0]));
+                ASSERT_FAIL(Obj(-1, SDATA[0],      MDATA[0]));
 
-                ASSERT_SAFE_FAIL(Obj( 1, (Strategy *)0, MDATA[0]));
+                ASSERT_FAIL(Obj( 1, (Strategy *)0, MDATA[0]));
 
-                ASSERT_SAFE_FAIL(Obj( 1, SDATA[0],      (int *)0));
+                ASSERT_FAIL(Obj( 1, SDATA[0],      (int *)0));
             }
         }
 
@@ -2066,13 +2066,13 @@ int main(int argc, char *argv[])
             Obj mX(2);
 
             {
-                ASSERT_SAFE_PASS(mX.reserveCapacity( 1,  1));
-                ASSERT_SAFE_PASS(mX.reserveCapacity(16,  0));
+                ASSERT_PASS(mX.reserveCapacity( 1,  1));
+                ASSERT_PASS(mX.reserveCapacity(16,  0));
 
-                ASSERT_SAFE_PASS(mX.reserveCapacity( 0,  1));
-                ASSERT_SAFE_FAIL(mX.reserveCapacity(17,  1));
+                ASSERT_PASS(mX.reserveCapacity( 0,  1));
+                ASSERT_FAIL(mX.reserveCapacity(17,  1));
 
-                ASSERT_SAFE_FAIL(mX.reserveCapacity(16, -1));
+                ASSERT_FAIL(mX.reserveCapacity(16, -1));
             }
         }
       } break;
@@ -2234,9 +2234,9 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'deallocate(0)'" << endl;
             {
-                ASSERT_SAFE_PASS(mX.deallocate(p));
+                ASSERT_PASS(mX.deallocate(p));
 
-                ASSERT_SAFE_FAIL(mX.deallocate(0));
+                ASSERT_FAIL(mX.deallocate(0));
             }
         }
       } break;

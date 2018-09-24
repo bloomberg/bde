@@ -4116,7 +4116,7 @@ int main(int argc, char **argv)
         const bsl::size_t minus1 = -1;
 
         (void)utf32Input;
-        
+
         if (verbose) cout << "All illegal values of utf8 error byte\n";
 
         for (int i = 0x80; i < 0x100; ++i) {
@@ -4160,23 +4160,23 @@ int main(int argc, char **argv)
             bsl::vector<char> utf8DestVec;
             bsl::string       utf8DestString;
 
-            ASSERT_SAFE_FAIL(Util::utf32ToUtf8((bsl::vector<char> *) 0,
-                                               utf32Input));
-            ASSERT_SAFE_FAIL(Util::utf32ToUtf8(&utf8DestVec,
-                                               0));
+            ASSERT_FAIL(Util::utf32ToUtf8((bsl::vector<char> *) 0,
+                                          utf32Input));
+            ASSERT_FAIL(Util::utf32ToUtf8(&utf8DestVec,
+                                          0));
 
-            ASSERT_SAFE_FAIL(Util::utf32ToUtf8((bsl::string *) 0,
-                                               utf32Input));
-            ASSERT_SAFE_FAIL(Util::utf32ToUtf8(&utf8DestString,
-                                               0));
+            ASSERT_FAIL(Util::utf32ToUtf8((bsl::string *) 0,
+                                          utf32Input));
+            ASSERT_FAIL(Util::utf32ToUtf8(&utf8DestString,
+                                          0));
 
             utf8DestVec.resize(10);
-            ASSERT_SAFE_FAIL(Util::utf32ToUtf8(&utf8DestVec.front(),
-                                               utf8DestVec.size(),
-                                               0));
-            ASSERT_SAFE_FAIL(Util::utf32ToUtf8((char *) 0,
-                                               utf8DestVec.size(),
-                                               utf32Input));
+            ASSERT_FAIL(Util::utf32ToUtf8(&utf8DestVec.front(),
+                                          utf8DestVec.size(),
+                                          0));
+            ASSERT_FAIL(Util::utf32ToUtf8((char *) 0,
+                                          utf8DestVec.size(),
+                                          utf32Input));
         }
 
         if (verbose) cout << "Some illegal values of utf32 error words\n";
@@ -4220,20 +4220,20 @@ int main(int argc, char **argv)
 
             Utf32Vec utf32DestVec;
 
-            ASSERT_SAFE_FAIL(Util::utf8ToUtf32((Utf32Vec *) 0,
-                                               utf8Input));
-            ASSERT_SAFE_FAIL(Util::utf8ToUtf32(&utf32DestVec,
+            ASSERT_FAIL(Util::utf8ToUtf32((Utf32Vec *) 0,
+                                          utf8Input));
+            ASSERT_FAIL(Util::utf8ToUtf32(&utf32DestVec,
                                                0));
             utf32DestVec.resize(10);
-            ASSERT_SAFE_FAIL(Util::utf8ToUtf32(&utf32DestVec.front(),
-                                               utf32DestVec.size(),
-                                               0));
-            ASSERT_SAFE_FAIL(Util::utf8ToUtf32(&utf32DestVec.front(),
-                                               utf32DestVec.size(),
-                                               bslstl::StringRef()));
-            ASSERT_SAFE_FAIL(Util::utf8ToUtf32((unsigned int *) 0,
-                                               utf32DestVec.size(),
-                                               utf8Input));
+            ASSERT_FAIL(Util::utf8ToUtf32(&utf32DestVec.front(),
+                                          utf32DestVec.size(),
+                                          0));
+            ASSERT_FAIL(Util::utf8ToUtf32(&utf32DestVec.front(),
+                                          utf32DestVec.size(),
+                                          bslstl::StringRef()));
+            ASSERT_FAIL(Util::utf8ToUtf32((unsigned int *) 0,
+                                          utf32DestVec.size(),
+                                          utf8Input));
         }
       } break;
       case 9: {

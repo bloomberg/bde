@@ -871,12 +871,12 @@ int main(int argc, char *argv[])
             bslstl::StringRef tail;
             bslstl::StringRef path;
 
-            ASSERT_SAFE_FAIL(Obj::splitFilename(0,         0, path));
-            ASSERT_SAFE_FAIL(Obj::splitFilename(0,     &tail, path));
-            ASSERT_SAFE_FAIL(Obj::splitFilename(&head,     0, path));
-            ASSERT_SAFE_FAIL(Obj::splitFilename(&head, &head, path));
+            ASSERT_FAIL(Obj::splitFilename(0,         0, path));
+            ASSERT_FAIL(Obj::splitFilename(0,     &tail, path));
+            ASSERT_FAIL(Obj::splitFilename(&head,     0, path));
+            ASSERT_FAIL(Obj::splitFilename(&head, &head, path));
 
-            ASSERT_SAFE_PASS(Obj::splitFilename(&head, &tail, path));
+            ASSERT_PASS(Obj::splitFilename(&head, &tail, path));
         }
       } break;
       case 4: {

@@ -1950,15 +1950,15 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout << "\t'loadLocalTimePeriod'" << endl;
             {
                 baltzo::LocalTimePeriod ltp;
-                ASSERT_SAFE_PASS(Util::loadLocalTimePeriod(&ltp));
-                ASSERT_SAFE_FAIL(Util::loadLocalTimePeriod(0));
+                ASSERT_PASS(Util::loadLocalTimePeriod(&ltp));
+                ASSERT_FAIL(Util::loadLocalTimePeriod(0));
             }
 
             if (veryVerbose) cout << "\t'loadTimezone'" << endl;
             {
                 bsl::string s;
-                ASSERT_SAFE_PASS(Util::loadTimezone(&s));
-                ASSERT_SAFE_FAIL(Util::loadTimezone( 0));
+                ASSERT_PASS(Util::loadTimezone(&s));
+                ASSERT_FAIL(Util::loadTimezone( 0));
             }
         }
       } break;

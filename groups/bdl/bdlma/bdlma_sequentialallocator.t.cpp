@@ -1510,74 +1510,74 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) cout << "\t'Obj(i, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS_RAW(Obj( 1));
+                ASSERT_PASS_RAW(Obj( 1));
 
-                ASSERT_SAFE_FAIL_RAW(Obj( 0));
+                ASSERT_FAIL_RAW(Obj( 0));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, GS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS_RAW(Obj( 1, CON));
+                ASSERT_PASS_RAW(Obj( 1, CON));
 
-                ASSERT_SAFE_FAIL_RAW(Obj( 0, CON));
+                ASSERT_FAIL_RAW(Obj( 0, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, AS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS_RAW(Obj( 1, MAX));
+                ASSERT_PASS_RAW(Obj( 1, MAX));
 
-                ASSERT_SAFE_FAIL_RAW(Obj( 0, MAX));
+                ASSERT_FAIL_RAW(Obj( 0, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, GS, AS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS_RAW(Obj( 1, CON, MAX));
+                ASSERT_PASS_RAW(Obj( 1, CON, MAX));
 
-                ASSERT_SAFE_FAIL_RAW(Obj( 0, CON, MAX));
+                ASSERT_FAIL_RAW(Obj( 0, CON, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS_RAW(Obj( 1,  8));
+                ASSERT_PASS_RAW(Obj( 1,  8));
 
-                ASSERT_SAFE_FAIL_RAW(Obj( 0,  8));
+                ASSERT_FAIL_RAW(Obj( 0,  8));
 
-                ASSERT_SAFE_PASS_RAW(Obj( 2,  2));
+                ASSERT_PASS_RAW(Obj( 2,  2));
 
-                ASSERT_SAFE_FAIL_RAW(Obj( 2,  1));
+                ASSERT_FAIL_RAW(Obj( 2,  1));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, GS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS_RAW(Obj( 1,  8, CON));
+                ASSERT_PASS_RAW(Obj( 1,  8, CON));
 
-                ASSERT_SAFE_FAIL_RAW(Obj( 0,  8, CON));
+                ASSERT_FAIL_RAW(Obj( 0,  8, CON));
 
-                ASSERT_SAFE_PASS_RAW(Obj( 2,  2, CON));
+                ASSERT_PASS_RAW(Obj( 2,  2, CON));
 
-                ASSERT_SAFE_FAIL_RAW(Obj( 2,  1, CON));
+                ASSERT_FAIL_RAW(Obj( 2,  1, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, AS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS_RAW(Obj( 1,  8, MAX));
+                ASSERT_PASS_RAW(Obj( 1,  8, MAX));
 
-                ASSERT_SAFE_FAIL_RAW(Obj( 0,  8, MAX));
+                ASSERT_FAIL_RAW(Obj( 0,  8, MAX));
 
-                ASSERT_SAFE_PASS_RAW(Obj( 2,  2, MAX));
+                ASSERT_PASS_RAW(Obj( 2,  2, MAX));
 
-                ASSERT_SAFE_FAIL_RAW(Obj( 2,  1, MAX));
+                ASSERT_FAIL_RAW(Obj( 2,  1, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(i, m, GS, AS, *ba)'" << endl;
             {
-                ASSERT_SAFE_PASS_RAW(Obj( 1,  8, CON, MAX));
+                ASSERT_PASS_RAW(Obj( 1,  8, CON, MAX));
 
-                ASSERT_SAFE_FAIL_RAW(Obj( 0,  8, CON, MAX));
+                ASSERT_FAIL_RAW(Obj( 0,  8, CON, MAX));
 
-                ASSERT_SAFE_PASS_RAW(Obj( 2,  2, CON, MAX));
+                ASSERT_PASS_RAW(Obj( 2,  2, CON, MAX));
 
-                ASSERT_SAFE_FAIL_RAW(Obj( 2,  1, CON, MAX));
+                ASSERT_FAIL_RAW(Obj( 2,  1, CON, MAX));
             }
         }
 

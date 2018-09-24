@@ -4131,8 +4131,8 @@ int main(int argc, char *argv[])
 
             const Datum D = Datum::createNull();
 
-            ASSERT_SAFE_FAIL(D.clone(nullAllocPtr));
-            ASSERT_SAFE_PASS(D.clone(&oa));
+            ASSERT_FAIL(D.clone(nullAllocPtr));
+            ASSERT_PASS(D.clone(&oa));
 
             ASSERT(0 == oa.status());
          }
@@ -5218,13 +5218,13 @@ int main(int argc, char *argv[])
 
             (void) nullDatumPtr;  // suppress compiler warning
 
-            ASSERT_SAFE_FAIL(Datum::createUninitializedString(nullDatumPtr,
-                                                              0,
-                                                              &oa));
-            ASSERT_SAFE_FAIL(Datum::createUninitializedString(&mD,
-                                                              0,
-                                                              nullAllocPtr));
-            ASSERT_SAFE_PASS(Datum::createUninitializedString(&mD, 0, &oa));
+            ASSERT_FAIL(Datum::createUninitializedString(nullDatumPtr,
+                                                         0,
+                                                         &oa));
+            ASSERT_FAIL(Datum::createUninitializedString(&mD,
+                                                         0,
+                                                         nullAllocPtr));
+            ASSERT_PASS(Datum::createUninitializedString(&mD, 0, &oa));
 
             Datum::destroy(mD, &oa);
         }
@@ -5776,15 +5776,15 @@ int main(int argc, char *argv[])
 
                 (void) nullRefPtr;  // suppress compiler warning
 
-                ASSERT_SAFE_FAIL(Datum::createUninitializedMap(nullRefPtr,
-                                                               0,
-                                                               &oa));
-                ASSERT_SAFE_FAIL(Datum::createUninitializedMap(&map,
-                                                               0,
-                                                               nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::createUninitializedMap(&map,
-                                                               0,
-                                                               &oa));
+                ASSERT_FAIL(Datum::createUninitializedMap(nullRefPtr,
+                                                          0,
+                                                          &oa));
+                ASSERT_FAIL(Datum::createUninitializedMap(&map,
+                                                          0,
+                                                          nullAllocPtr));
+                ASSERT_PASS(Datum::createUninitializedMap(&map,
+                                                          0,
+                                                          &oa));
                 Datum mD = Datum::adoptMap(map);
                 Datum::destroy(mD, &oa);
             }
@@ -5799,18 +5799,18 @@ int main(int argc, char *argv[])
 
                 (void) nullRefPtr;  // suppress compiler warning
 
-                ASSERT_SAFE_FAIL(Datum::createUninitializedMap(nullRefPtr,
-                                                               0,
-                                                               0,
-                                                               &oa));
-                ASSERT_SAFE_FAIL(Datum::createUninitializedMap(&map,
-                                                               0,
-                                                               0,
-                                                               nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::createUninitializedMap(&map,
-                                                               0,
-                                                               0,
-                                                               &oa));
+                ASSERT_FAIL(Datum::createUninitializedMap(nullRefPtr,
+                                                          0,
+                                                          0,
+                                                          &oa));
+                ASSERT_FAIL(Datum::createUninitializedMap(&map,
+                                                          0,
+                                                          0,
+                                                          nullAllocPtr));
+                ASSERT_PASS(Datum::createUninitializedMap(&map,
+                                                          0,
+                                                          0,
+                                                          &oa));
                 Datum mD = Datum::adoptMap(map);
                 Datum::destroy(mD, &oa);
             }
@@ -6089,16 +6089,15 @@ int main(int argc, char *argv[])
 
                 (void) nullRefPtr;  // suppress compiler warning
 
-                ASSERT_SAFE_FAIL(Datum::createUninitializedIntMap(nullRefPtr,
-                                                                  0,
-                                                                  &oa));
-                ASSERT_SAFE_FAIL(Datum::createUninitializedIntMap(
-                                                                &map,
-                                                                0,
-                                                                nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::createUninitializedIntMap(&map,
-                                                                  0,
-                                                                  &oa));
+                ASSERT_FAIL(Datum::createUninitializedIntMap(nullRefPtr,
+                                                             0,
+                                                             &oa));
+                ASSERT_FAIL(Datum::createUninitializedIntMap(&map,
+                                                             0,
+                                                             nullAllocPtr));
+                ASSERT_PASS(Datum::createUninitializedIntMap(&map,
+                                                             0,
+                                                             &oa));
                 Datum mD = Datum::adoptIntMap(map);
                 Datum::destroy(mD, &oa);
             }
@@ -6427,16 +6426,15 @@ int main(int argc, char *argv[])
 
                 (void) nullRefPtr;  // suppress compiler warning
 
-                ASSERT_SAFE_FAIL(Datum::createUninitializedArray(nullRefPtr,
-                                                                 0,
-                                                                 &oa));
-                ASSERT_SAFE_FAIL(Datum::createUninitializedArray(
-                                                                &array,
-                                                                0,
-                                                                nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::createUninitializedArray(&array,
-                                                                 0,
-                                                                 &oa));
+                ASSERT_FAIL(Datum::createUninitializedArray(nullRefPtr,
+                                                            0,
+                                                            &oa));
+                ASSERT_FAIL(Datum::createUninitializedArray(&array,
+                                                            0,
+                                                            nullAllocPtr));
+                ASSERT_PASS(Datum::createUninitializedArray(&array,
+                                                            0,
+                                                            &oa));
                 Datum mD = Datum::adoptArray(array);
                 Datum::destroy(mD, &oa);
             }
@@ -10617,8 +10615,8 @@ int main(int argc, char *argv[])
             {
                 bdlt::Datetime temp;
 
-                ASSERT_SAFE_FAIL(Datum::createDatetime(temp, nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::destroy(
+                ASSERT_FAIL(Datum::createDatetime(temp, nullAllocPtr));
+                ASSERT_PASS(Datum::destroy(
                                        Datum::createDatetime(temp, &ta), &ta));
             }
 
@@ -10626,9 +10624,9 @@ int main(int argc, char *argv[])
             {
                 bdlt::DatetimeInterval temp;
 
-                ASSERT_SAFE_FAIL(Datum::createDatetimeInterval(temp,
-                                                               nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::destroy(
+                ASSERT_FAIL(Datum::createDatetimeInterval(temp, nullAllocPtr));
+
+                ASSERT_PASS(Datum::destroy(
                                Datum::createDatetimeInterval(temp, &ta), &ta));
             }
 
@@ -10637,10 +10635,10 @@ int main(int argc, char *argv[])
                 const int       CODE = 1;
                 const StringRef MESSAGE("temp");
 
-                ASSERT_SAFE_FAIL(Datum::createError(CODE,
-                                                    MESSAGE,
-                                                    nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::destroy(
+                ASSERT_FAIL(Datum::createError(CODE,
+                                               MESSAGE,
+                                               nullAllocPtr));
+                ASSERT_PASS(Datum::destroy(
                                  Datum::createError(CODE, MESSAGE, &ta), &ta));
             }
 
@@ -10648,8 +10646,8 @@ int main(int argc, char *argv[])
             {
                 bsls::Types::Int64 temp = 1;
 
-                ASSERT_SAFE_FAIL(Datum::createInteger64(temp, nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::destroy(
+                ASSERT_FAIL(Datum::createInteger64(temp, nullAllocPtr));
+                ASSERT_PASS(Datum::destroy(
                                       Datum::createInteger64(temp, &ta), &ta));
             }
 
@@ -10720,23 +10718,23 @@ int main(int argc, char *argv[])
 
                 // Data check.
 
-                ASSERT_SAFE_PASS(Datum::destroy(Datum::copyBinary(nullPtr,
+                ASSERT_PASS(Datum::destroy(Datum::copyBinary(nullPtr,
                                                                   0,
                                                                   &ta),
                                                 &ta));
-                ASSERT_SAFE_FAIL(Datum::copyBinary(nullPtr, SIZE, &ta));
-                ASSERT_SAFE_PASS(Datum::destroy(Datum::copyBinary(VALUE,
+                ASSERT_FAIL(Datum::copyBinary(nullPtr, SIZE, &ta));
+                ASSERT_PASS(Datum::destroy(Datum::copyBinary(VALUE,
                                                                   0,
                                                                   &ta),
                                                 &ta));
-                ASSERT_SAFE_PASS(Datum::destroy(Datum::copyBinary(VALUE,
+                ASSERT_PASS(Datum::destroy(Datum::copyBinary(VALUE,
                                                                   SIZE,
                                                                   &ta),
                                                 &ta));
 
                 // Allocator check.
 
-                ASSERT_SAFE_FAIL(Datum::copyBinary(VALUE, SIZE, nullAllocPtr));
+                ASSERT_FAIL(Datum::copyBinary(VALUE, SIZE, nullAllocPtr));
             }
 
             if (verbose) cout << "\tTesting 'copyString'." << endl;
@@ -10747,22 +10745,22 @@ int main(int argc, char *argv[])
 
                 // Data check.
 
-                ASSERT_SAFE_PASS(Datum::copyString(nullCharPtr, 0,   &ta));
-                ASSERT_SAFE_FAIL(Datum::copyString(nullCharPtr, LEN, &ta));
-                ASSERT_SAFE_PASS(Datum::copyString(temp,        0,   &ta));
-                ASSERT_SAFE_PASS(Datum::copyString(temp,        LEN, &ta));
+                ASSERT_PASS(Datum::copyString(nullCharPtr, 0,   &ta));
+                ASSERT_FAIL(Datum::copyString(nullCharPtr, LEN, &ta));
+                ASSERT_PASS(Datum::copyString(temp,        0,   &ta));
+                ASSERT_PASS(Datum::copyString(temp,        LEN, &ta));
 
                 // Allocator check.
 
-                ASSERT_SAFE_FAIL(Datum::copyString(temp, LEN, nullAllocPtr));
+                ASSERT_FAIL(Datum::copyString(temp, LEN, nullAllocPtr));
             }
 
             if (verbose) cout << "\tTesting 'destroy'." << endl;
             {
                 const Datum temp = Datum::createNull();
 
-                ASSERT_SAFE_FAIL(Datum::destroy(temp, nullAllocPtr));
-                ASSERT_SAFE_PASS(Datum::destroy(temp, &ta));
+                ASSERT_FAIL(Datum::destroy(temp, nullAllocPtr));
+                ASSERT_PASS(Datum::destroy(temp, &ta));
             }
 
             if (verbose) cout << "\tTesting 'theBinary'." << endl;

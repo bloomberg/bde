@@ -2991,10 +2991,10 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X, C));
+                ASSERT_FAIL(Util::generate(     0, OBJLEN, X, C));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
+                ASSERT_FAIL(Util::generate(buffer,     -1, X, C));
 
                 bsl::string mS("qwerty");
 
@@ -3002,7 +3002,7 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generate(  0, X));
 
                 ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(  0, X, C));
+                ASSERT_FAIL(Util::generate(  0, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -3014,7 +3014,7 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
-                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X, C));
+                ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
 
@@ -3355,10 +3355,10 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X, C));
+                ASSERT_FAIL(Util::generate(     0, OBJLEN, X, C));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
+                ASSERT_FAIL(Util::generate(buffer,     -1, X, C));
 
                 bsl::string mS("qwerty");
 
@@ -3366,7 +3366,7 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generate(  0, X));
 
                 ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(  0, X, C));
+                ASSERT_FAIL(Util::generate(  0, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -3378,7 +3378,7 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
-                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X, C));
+                ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
 
@@ -3709,10 +3709,10 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X, C));
+                ASSERT_FAIL(Util::generate(     0, OBJLEN, X, C));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
+                ASSERT_FAIL(Util::generate(buffer,     -1, X, C));
 
                 bsl::string mS("qwerty");
 
@@ -3720,7 +3720,7 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generate(  0, X));
 
                 ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(  0, X, C));
+                ASSERT_FAIL(Util::generate(  0, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -3732,7 +3732,7 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
-                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X, C));
+                ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
 
@@ -4075,10 +4075,10 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X, C));
+                ASSERT_FAIL(Util::generate(     0, OBJLEN, X, C));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
+                ASSERT_FAIL(Util::generate(buffer,     -1, X, C));
 
                 bsl::string mS("qwerty");
 
@@ -4086,7 +4086,7 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generate(  0, X));
 
                 ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(  0, X, C));
+                ASSERT_FAIL(Util::generate(  0, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -4098,7 +4098,7 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
-                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X, C));
+                ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
 
@@ -4406,10 +4406,10 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X, C));
+                ASSERT_FAIL(Util::generate(     0, OBJLEN, X, C));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
+                ASSERT_FAIL(Util::generate(buffer,     -1, X, C));
 
                 bsl::string mS("qwerty");
 
@@ -4417,7 +4417,7 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generate(  0, X));
 
                 ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(  0, X, C));
+                ASSERT_FAIL(Util::generate(  0, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -4429,7 +4429,7 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
-                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X, C));
+                ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
 
@@ -4735,10 +4735,10 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer, OBJLEN, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(     0, OBJLEN, X, C));
+                ASSERT_FAIL(Util::generate(     0, OBJLEN, X, C));
 
                 ASSERT_SAFE_PASS(Util::generate(buffer,      0, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(buffer,     -1, X, C));
+                ASSERT_FAIL(Util::generate(buffer,     -1, X, C));
 
                 bsl::string mS("qwerty");
 
@@ -4746,7 +4746,7 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generate(  0, X));
 
                 ASSERT_SAFE_PASS(Util::generate(&mS, X, C));
-                ASSERT_SAFE_FAIL(Util::generate(  0, X, C));
+                ASSERT_FAIL(Util::generate(  0, X, C));
             }
 
             if (verbose) cout << "\t'generateRaw'" << endl;
@@ -4758,7 +4758,7 @@ if (veryVerbose)
                 ASSERT_SAFE_FAIL(Util::generateRaw(     0, X));
 
                 ASSERT_SAFE_PASS(Util::generateRaw(buffer, X, C));
-                ASSERT_SAFE_FAIL(Util::generateRaw(     0, X, C));
+                ASSERT_FAIL(Util::generateRaw(     0, X, C));
             }
         }
 

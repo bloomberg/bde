@@ -115,8 +115,8 @@ static void aSsErT(int c, const char *s, int i)
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1208,8 +1208,8 @@ int main(int argc, char *argv[])
             // Verify the object's attribute values.
             // -------------------------------------
 
-            ASSERT_SAFE_FAIL(X.rootPath());
-            ASSERT_SAFE_FAIL(X.isRootPathPlausible());
+            ASSERT_FAIL(X.rootPath());
+            ASSERT_FAIL(X.isRootPathPlausible());
 
             // Verify that no memory is allocate by from the non-object
             // allocator.

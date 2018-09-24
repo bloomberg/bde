@@ -937,12 +937,12 @@ if (veryVerbose)
 
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-            ASSERT_SAFE_FAIL_RAW(Obj((const char *)0     ));
-            ASSERT_SAFE_FAIL_RAW(Obj(              0,   0));
-            ASSERT_SAFE_FAIL_RAW(Obj(              0, &sa));
+            ASSERT_FAIL_RAW(Obj((const char *)0     ));
+            ASSERT_FAIL_RAW(Obj(              0,   0));
+            ASSERT_FAIL_RAW(Obj(              0, &sa));
 
-            ASSERT_SAFE_PASS_RAW(Obj(            "x",   0));
-            ASSERT_SAFE_PASS_RAW(Obj(            "x", &sa));
+            ASSERT_PASS_RAW(Obj(            "x",   0));
+            ASSERT_PASS_RAW(Obj(            "x", &sa));
         }
 
       } break;

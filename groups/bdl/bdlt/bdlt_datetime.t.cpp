@@ -7752,11 +7752,11 @@ if (veryVerbose)
                 ASSERT_SAFE_PASS(X.printToBuffer(buf,  0  , PRECISION));
                 ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE, 0));
 
-                ASSERT_SAFE_FAIL(X.printToBuffer(0,   SIZE, PRECISION));
-                ASSERT_SAFE_FAIL(X.printToBuffer(buf, -1  , PRECISION));
-                ASSERT_SAFE_FAIL(X.printToBuffer(0,   -1  , PRECISION));
-                ASSERT_SAFE_FAIL(X.printToBuffer(buf,  0  , -1));
-                ASSERT_SAFE_FAIL(X.printToBuffer(buf,  0  , PRECISION + 1));
+                ASSERT_FAIL(X.printToBuffer(0,   SIZE, PRECISION));
+                ASSERT_FAIL(X.printToBuffer(buf, -1  , PRECISION));
+                ASSERT_FAIL(X.printToBuffer(0,   -1  , PRECISION));
+                ASSERT_FAIL(X.printToBuffer(buf,  0  , -1));
+                ASSERT_FAIL(X.printToBuffer(buf,  0  , PRECISION + 1));
             }
         }
       } break;

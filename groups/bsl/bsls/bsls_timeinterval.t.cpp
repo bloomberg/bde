@@ -4455,13 +4455,13 @@ int main(int argc, char *argv[])
             if (veryVerbose) printf("\tMaximum interval\n");
             {
                 ASSERT_SAFE_PASS(Obj(k_SECS_MAX, k_NANOSECS_PER_SEC - 1));
-                ASSERT_SAFE_FAIL(Obj(k_SECS_MAX, k_NANOSECS_PER_SEC));
+                ASSERT_FAIL(Obj(k_SECS_MAX, k_NANOSECS_PER_SEC));
             }
 
             if (veryVerbose) printf("\tMinimum interval\n");
             {
                 ASSERT_SAFE_PASS(Obj(k_SECS_MIN, -k_NANOSECS_PER_SEC + 1));
-                ASSERT_SAFE_FAIL(Obj(k_SECS_MIN, -k_NANOSECS_PER_SEC));
+                ASSERT_FAIL(Obj(k_SECS_MIN, -k_NANOSECS_PER_SEC));
             }
         }
       } break;
@@ -4595,14 +4595,14 @@ int main(int argc, char *argv[])
             if (veryVerbose) printf("\tMaximum interval\n");
             {
                 Obj mX;
-                ASSERT_SAFE_FAIL(mX.setInterval(SMAX, k_NANOSECS_PER_SEC));
+                ASSERT_FAIL(mX.setInterval(SMAX, k_NANOSECS_PER_SEC));
                 ASSERT_SAFE_PASS(mX.setInterval(SMAX, k_NANOSECS_PER_SEC-1));
             }
 
             if (veryVerbose) printf("\tMinimum interval\n");
             {
                 Obj mX;
-                ASSERT_SAFE_FAIL(mX.setInterval(SMIN, -k_NANOSECS_PER_SEC));
+                ASSERT_FAIL(mX.setInterval(SMIN, -k_NANOSECS_PER_SEC));
                 ASSERT_SAFE_PASS(mX.setInterval(SMIN, -k_NANOSECS_PER_SEC+1));
             }
         }

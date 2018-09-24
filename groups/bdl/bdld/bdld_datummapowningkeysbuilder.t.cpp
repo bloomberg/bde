@@ -664,8 +664,8 @@ int main(int argc, char *argv[])
                 bsls::AssertFailureHandlerGuard hG(
                                              bsls::AssertTest::failTestDriver);
 
-                ASSERT_SAFE_FAIL((Obj(0)));
-                ASSERT_SAFE_PASS((Obj(&ta)));
+                ASSERT_FAIL((Obj(0)));
+                ASSERT_PASS((Obj(&ta)));
             }
         }
       } break;
@@ -1098,8 +1098,8 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tTesting constructor." << endl;
             {
-                ASSERT_SAFE_FAIL((Obj(0, 0, 0)));
-                ASSERT_SAFE_PASS((Obj(0, 0, &ta)));
+                ASSERT_FAIL((Obj(0, 0, 0)));
+                ASSERT_PASS((Obj(0, 0, &ta)));
             }
 
             if (verbose) cout << "\tTesting 'append'." << endl;
@@ -1108,10 +1108,10 @@ int main(int argc, char *argv[])
                 DatumMapEntry entry(StringRef("first"),
                                     Datum::createInteger(1));
 
-                ASSERT_SAFE_FAIL(mB.append(0,      0));
-                ASSERT_SAFE_FAIL(mB.append(&entry, 0));
-                ASSERT_SAFE_FAIL(mB.append(0,      1));
-                ASSERT_SAFE_PASS(mB.append(&entry, 1));
+                ASSERT_FAIL(mB.append(0,      0));
+                ASSERT_FAIL(mB.append(&entry, 0));
+                ASSERT_FAIL(mB.append(0,      1));
+                ASSERT_PASS(mB.append(&entry, 1));
             }
 
             if (verbose) cout << "\tTesting 'commit'." << endl;

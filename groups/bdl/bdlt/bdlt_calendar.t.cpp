@@ -4757,7 +4757,7 @@ int main(int argc, char *argv[])
 
                 mX.addWeekendDaysTransition(bdlt::Date(2012, 3, 1), wd);
 
-                ASSERT_SAFE_FAIL_RAW(mX.addWeekendDays(wd));
+                ASSERT_FAIL_RAW(mX.addWeekendDays(wd));
             }
         }
       } break;
@@ -8926,7 +8926,7 @@ int main(int argc, char *argv[])
 
                 mX.addWeekendDaysTransition(bdlt::Date(2012, 3, 1), wd);
 
-                ASSERT_SAFE_FAIL_RAW(mX.addWeekendDay(bdlt::DayOfWeek::e_SUN));
+                ASSERT_FAIL_RAW(mX.addWeekendDay(bdlt::DayOfWeek::e_SUN));
             }
         }
       } break;

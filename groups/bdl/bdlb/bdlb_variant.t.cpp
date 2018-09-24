@@ -26262,36 +26262,36 @@ void TestUtil::testCase16()
             Obj mX;  const Obj& X = mX;
             UVV mV;  const UVV& V = mV;
 
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw(mV));
-            mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw(mV));
+            mX.assign<int>(77);  ASSERT_PASS(mX.applyRaw(mV));
+            mX.reset();          ASSERT_FAIL(mX.applyRaw(mV));
 
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw(V));
-            mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw(V));
+            mX.assign<int>(77);  ASSERT_PASS(mX.applyRaw(V));
+            mX.reset();          ASSERT_FAIL(mX.applyRaw(V));
 
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw(mV));
-            mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw(mV));
+            mX.assign<int>(77);  ASSERT_PASS(X.applyRaw(mV));
+            mX.reset();          ASSERT_FAIL(X.applyRaw(mV));
 
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw(V));
-            mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw(V));
+            mX.assign<int>(77);  ASSERT_PASS(X.applyRaw(V));
+            mX.reset();          ASSERT_FAIL(X.applyRaw(V));
 
             // specify the return type
 
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw<int>(mV));
-            mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw<int>(mV));
+            mX.assign<int>(77);  ASSERT_PASS(mX.applyRaw<int>(mV));
+            mX.reset();          ASSERT_FAIL(mX.applyRaw<int>(mV));
 
 // TBD conditionally disable for AIX/xlC (DRQS 89729549)
 #if !defined(BSLS_PLATFORM_CMP_IBM) || (BSLS_PLATFORM_CMP_VERSION >= 0x0c01)
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw<int>(V));
-            mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw<int>(V));
+            mX.assign<int>(77);  ASSERT_PASS(mX.applyRaw<int>(V));
+            mX.reset();          ASSERT_FAIL(mX.applyRaw<int>(V));
 #endif
 
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw<int>(mV));
-            mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw<int>(mV));
+            mX.assign<int>(77);  ASSERT_PASS(X.applyRaw<int>(mV));
+            mX.reset();          ASSERT_FAIL(X.applyRaw<int>(mV));
 
 // TBD conditionally disable for AIX/xlC (DRQS 89729549)
 #if !defined(BSLS_PLATFORM_CMP_IBM) || (BSLS_PLATFORM_CMP_VERSION >= 0x0c01)
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw<int>(V));
-            mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw<int>(V));
+            mX.assign<int>(77);  ASSERT_PASS(X.applyRaw<int>(V));
+            mX.reset();          ASSERT_FAIL(X.applyRaw<int>(V));
 #endif
         }
 
@@ -26301,36 +26301,36 @@ void TestUtil::testCase16()
             Obj  mX;  const Obj&  X = mX;
             UVRV mV;  const UVRV& V = mV;
 
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw(mV));
-            mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw(mV));
+            mX.assign<int>(77);  ASSERT_PASS(mX.applyRaw(mV));
+            mX.reset();          ASSERT_FAIL(mX.applyRaw(mV));
 
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw(V));
-            mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw(V));
+            mX.assign<int>(77);  ASSERT_PASS(mX.applyRaw(V));
+            mX.reset();          ASSERT_FAIL(mX.applyRaw(V));
 
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw(mV));
-            mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw(mV));
+            mX.assign<int>(77);  ASSERT_PASS(X.applyRaw(mV));
+            mX.reset();          ASSERT_FAIL(X.applyRaw(mV));
 
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw(V));
-            mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw(V));
+            mX.assign<int>(77);  ASSERT_PASS(X.applyRaw(V));
+            mX.reset();          ASSERT_FAIL(X.applyRaw(V));
 
             // specify the return type
 
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw<int>(mV));
-            mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw<int>(mV));
+            mX.assign<int>(77);  ASSERT_PASS(mX.applyRaw<int>(mV));
+            mX.reset();          ASSERT_FAIL(mX.applyRaw<int>(mV));
 
 // TBD conditionally disable for AIX/xlC (DRQS 89729549)
 #if !defined(BSLS_PLATFORM_CMP_IBM) || (BSLS_PLATFORM_CMP_VERSION >= 0x0c01)
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(mX.applyRaw<int>(V));
-            mX.reset();          ASSERT_SAFE_FAIL(mX.applyRaw<int>(V));
+            mX.assign<int>(77);  ASSERT_PASS(mX.applyRaw<int>(V));
+            mX.reset();          ASSERT_FAIL(mX.applyRaw<int>(V));
 #endif
 
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw<int>(mV));
-            mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw<int>(mV));
+            mX.assign<int>(77);  ASSERT_PASS(X.applyRaw<int>(mV));
+            mX.reset();          ASSERT_FAIL(X.applyRaw<int>(mV));
 
 // TBD conditionally disable for AIX/xlC (DRQS 89729549)
 #if !defined(BSLS_PLATFORM_CMP_IBM) || (BSLS_PLATFORM_CMP_VERSION >= 0x0c01)
-            mX.assign<int>(77);  ASSERT_SAFE_PASS(X.applyRaw<int>(V));
-            mX.reset();          ASSERT_SAFE_FAIL(X.applyRaw<int>(V));
+            mX.assign<int>(77);  ASSERT_PASS(X.applyRaw<int>(V));
+            mX.reset();          ASSERT_FAIL(X.applyRaw<int>(V));
 #endif
         }
     }
