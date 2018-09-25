@@ -2186,10 +2186,16 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // suppress indentation of the first line.  If 'spacesPerLevel' is
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.  Note that nothing
-        // is printed if this variant is unset.  Also note that the compiler
-        // will return an error if an object held by this variant is not
-        // printable.
+        // not valid on entry, this operation has no effect.  Nothing is
+        // printed if this variant is unset.  An object held by this variant
+        // will use the print method associated with the traits
+        // 'bdlb::TypeTraitHasPrintMethod', 'bslalg::HasStlIterators', or
+        // 'bslmf::IsPair'.  See {bdlb_printmethods}.  If none is associated
+        // with the object, it will use the << stream output operator.  Note
+        // that the compiler will return an error if an object held by this
+        // variant does not have one the traits (or the associated print method
+        // is not defined), and the << stream output operator for this object
+        // is not defined.
 
     template <class TYPE>
     const TYPE& the() const;
