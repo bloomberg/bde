@@ -494,8 +494,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 #ifndef INCLUDED_BSLS_UTIL
@@ -581,7 +581,7 @@ struct MovableRefUtil {
     // objects and the C++11 'TYPE&&' r-value references.
 
     template <class TYPE>
-    static TYPE& access(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT;
+    static TYPE& access(TYPE& lvalue) BSLS_CPP11_NOEXCEPT;
         // Return a reference to the specified 'lvalue'.  This overload of
         // access is used when accessing an argument passed by
         // 'bslma::MovableRef<TYPE>' with a C++11 implementation: the 'TYPE&&'
@@ -591,7 +591,7 @@ struct MovableRefUtil {
         // this function.
 
     template <class TYPE>
-    static TYPE& access(MovableRef<TYPE>& lvalue) BSLS_KEYWORD_NOEXCEPT;
+    static TYPE& access(MovableRef<TYPE>& lvalue) BSLS_CPP11_NOEXCEPT;
         // Return a reference to the object referenced by the specified
         // 'lvalue' object.  This reference might be obtained by a conversion
         // of 'lvalue' to 'TYPE&' in contexts where a conversion is viable.
@@ -607,23 +607,20 @@ struct MovableRefUtil {
 
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class TYPE>
-    static MovableRef<TYPE> move(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT;
+    static MovableRef<TYPE> move(TYPE& lvalue) BSLS_CPP11_NOEXCEPT;
         // Return a movable reference of type 'MovableRef<TYPE>' from the
         // specified 'lvalue'.  For a C++03 implementation this function
         // behaves like a factory for 'MovableRef<TYPE>' objects.  For a C++11
         // implementation this function behaves exactly like 'std::move(value)'
         // applied to l-values.
+#endif
 
     template <class TYPE>
-    static
-    MovableRef<typename bsl::remove_reference<TYPE>::type>
-    move(MovableRef<TYPE> reference) BSLS_KEYWORD_NOEXCEPT;
-#else
-    template <class TYPE>
-    static
-    BSLS_KEYWORD_CONSTEXPR
-    MovableRef<typename bsl::remove_reference<TYPE>::type>
-    move(TYPE&& reference) BSLS_KEYWORD_NOEXCEPT;
+    static MovableRef<typename bsl::remove_reference<TYPE>::type>
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        move(TYPE&& reference) BSLS_CPP11_NOEXCEPT;
+#else  // support r-value references and alias templates
+        move(MovableRef<TYPE> reference) BSLS_CPP11_NOEXCEPT;
 #endif // support r-value references and alias templates
         // Return a movable reference to the object referred to by the
         // specified 'reference'.
@@ -633,7 +630,7 @@ struct MovableRefUtil {
     typename bsl::enable_if<!bsl::is_nothrow_move_constructible<TYPE>::value
                           && bsl::is_copy_constructible<TYPE>::value,
                             const TYPE& >::type
-    move_if_noexcept(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT
+    move_if_noexcept(TYPE& lvalue) BSLS_CPP11_NOEXCEPT
     {
         // The implementation is placed here in the class definition to work
         // around a Microsoft C++ compiler (version 16) bug where the
@@ -646,7 +643,7 @@ struct MovableRefUtil {
     typename bsl::enable_if<!bsl::is_copy_constructible<TYPE>::value
                           || bsl::is_nothrow_move_constructible<TYPE>::value,
                             MovableRef<TYPE> >::type
-    move_if_noexcept(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT
+    move_if_noexcept(TYPE& lvalue) BSLS_CPP11_NOEXCEPT
     {
         // The implementation is placed here in the class definition to work
         // around a Microsoft C++ compiler (version 16) bug where the
@@ -699,38 +696,35 @@ MovableRef<TYPE>::operator TYPE&() const {
 
 template <class TYPE>
 inline
-TYPE& MovableRefUtil::access(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT {
+TYPE& MovableRefUtil::access(TYPE& lvalue) BSLS_CPP11_NOEXCEPT {
     return lvalue;
 }
 
 template <class TYPE>
 inline
-TYPE& MovableRefUtil::access(MovableRef<TYPE>& lvalue) BSLS_KEYWORD_NOEXCEPT {
+TYPE& MovableRefUtil::access(MovableRef<TYPE>& lvalue) BSLS_CPP11_NOEXCEPT {
     return lvalue;
 }
 
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 template <class TYPE>
 inline
-MovableRef<TYPE> MovableRefUtil::move(TYPE& lvalue) BSLS_KEYWORD_NOEXCEPT {
+MovableRef<TYPE> MovableRefUtil::move(TYPE& lvalue) BSLS_CPP11_NOEXCEPT {
     return MovableRef<TYPE>(bsls::Util::addressOf(lvalue));
 }
+#endif // support r-value references and alias templates
 
 template <class TYPE>
 inline
 MovableRef<typename bsl::remove_reference<TYPE>::type>
-MovableRefUtil::move(MovableRef<TYPE> rvalue) BSLS_KEYWORD_NOEXCEPT {
-    return rvalue;
-}
-#else  // support r-value references and alias templates
-template <class TYPE>
-inline
-BSLS_KEYWORD_CONSTEXPR
-MovableRef<typename bsl::remove_reference<TYPE>::type>
-MovableRefUtil::move(TYPE&& rvalue) BSLS_KEYWORD_NOEXCEPT {
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+MovableRefUtil::move(TYPE&& rvalue) BSLS_CPP11_NOEXCEPT {
     return static_cast<typename bsl::remove_reference<TYPE>::type&&>(rvalue);
-}
+#else  // support r-value references and alias templates
+MovableRefUtil::move(MovableRef<TYPE> rvalue) BSLS_CPP11_NOEXCEPT {
+    return rvalue;
 #endif // support r-value references and alias templates
+}
 
 // ----------------------------------------------------------------------------
 

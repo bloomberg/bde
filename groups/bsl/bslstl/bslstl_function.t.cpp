@@ -4,12 +4,9 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
-
 #include <bslmf_issame.h>
 #include <bslmf_nestedtraitdeclaration.h>
-
 #include <bsls_bsltestutil.h>
-#include <bsls_exceptionutil.h>
 #include <bsls_macrorepeat.h>
 #include <bsls_types.h>
 
@@ -90,8 +87,6 @@ using namespace bsl;
 // [16] bool operator!=(const function<FUNC>& f, nullptr_t) noexcept;
 // [16] bool operator!=(nullptr_t, const function<FUNC>& f) noexcept;
 // [12] void swap(function<FUNC>& a, function<FUNC>& b) noexcept;
-// [18] Function_NothrowWrapper
-// [19] Function_IsReferenceCompatible
 //
 // NESTED TYPES
 // [  ] result_type
@@ -102,8 +97,8 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE
 // [17] CONCERN: allocator-aware traits are 'true'
-// [20] CONCERN: Workaround for SunCC bug
-// [21] CONCERN: Workaround for MSVC compiler bug (DRQS94831150)
+// [18] CONCERN: Workaround for SunCC bug
+// [19] CONCERN: Workaround for MSVC compiler bug (DRQS94831150)
 // [ 3] CONCERN: use default allocator when no allocator is specified
 // [ 3] CONCERN: destructor cleans up correctly for default allocator
 // [ 4] CONCERN: operator() works for empty function objects
@@ -117,8 +112,8 @@ using namespace bsl;
 // [-1] CONCERN: 'operator==' does not compile for two function objects
 // [-1] CONCERN: 'swap' does not compile for different function objects
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-// [22] operator BloombergLP::bdef_Function<RET(*)(ARGS...)>&();
-// [22] operator const BloombergLP::bdef_Function<RET(*)(ARGS...)>&() const;
+// [20] operator BloombergLP::bdef_Function<RET(*)(ARGS...)>&();
+// [20] operator const BloombergLP::bdef_Function<RET(*)(ARGS...)>&() const;
 #endif
 
 // ============================================================================
@@ -220,7 +215,7 @@ class ExceptionLimit
     }
 
     int value() const { return d_counter; }
-    const char *what() const BSLS_NOTHROW_SPEC { return d_name; }
+    const char *what() const { return d_name; }
 };
 
 // These macros are used to test for exception neutrality in the case where
@@ -382,13 +377,11 @@ class bdef_Function<PROTOTYPE*> : public bsl::function<PROTOTYPE>
 
 namespace bsl {
 
-// Specialize 'bsl::Function_IsReferenceCompatible' metafunction to indicate
-// that references to 'bdef_Function' can be used as references to
-// 'bsl::function'.
-template <class PROTOTYPE>
-struct Function_IsReferenceCompatible<BloombergLP::bdef_Function<PROTOTYPE*>,
-                                      bsl::function<PROTOTYPE> >
-    : bsl::true_type
+// Specialize 'bsl::Function_DisableIfLosslessCnvrsn' metafunction to indicate
+// that there is a lossless conversion from 'bdef_Function' to 'bsl::function'.
+template <class PROTOTYPE, class RESULT>
+struct Function_DisableIfLosslessCnvrsn<BloombergLP::bdef_Function<PROTOTYPE*>,
+                                        bsl::function<PROTOTYPE>, RESULT>
 {
 };
 
@@ -408,14 +401,6 @@ bsl::Function_NothrowWrapper<FUNC> ntWrap(const FUNC& f)
     // Wrap the specified functor, 'f' in a nothrow wrapper.
 {
     return f;
-}
-
-template <class FUNC>
-bsl::Function_NothrowWrapper<FUNC> ntWrap(const FUNC& f,
-                                          bslma::Allocator *a)
-    // Wrap the specified functor, 'f' in a nothrow wrapper.
-{
-    return bsl::Function_NothrowWrapper<FUNC>(f, a);
 }
 
 #define NTUNWRAP_T(FUNC) bsl::Function_NothrowWrapperUtil<FUNC>::UnwrappedType
@@ -552,23 +537,6 @@ class IntWrapperDerived : public IntWrapper
 int *getAddress(int& r) { return &r; }
 const int *getConstAddress(const int& r) { return &r; }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-template <class DEST, class SRC>
-inline DEST&& upcastMovableRef(SRC&& ref) {
-    return bslmf::MovableRefUtil::move(ref);
-}
-#else
-template <class DEST, class SRC>
-inline bslmf::MovableRef<DEST> upcastMovableRef(bslmf::MovableRef<SRC> ref)
-    // Convert from 'bslmf::MovableRef<SRC>' to 'bslmf::MovableRef<DEST>',
-    // where 'DEST' is a base class of 'SRC'.
-{
-    SRC& sRef = ref;   // Convert to lvalue ref
-    DEST& dRef = sRef; // Upcast
-    return bslmf::MovableRefUtil::move(dRef);
-}
-#endif
-
 class CountCopies
 {
     // Counts the number of times an object has been copy-constructed or
@@ -580,9 +548,10 @@ class CountCopies
     CountCopies() : d_numCopies(0) { }
     CountCopies(const CountCopies& other) : d_numCopies(other.d_numCopies+1) {}
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Move constructor does not bump count
-    CountCopies(bslmf::MovableRef<CountCopies> other)
-        : d_numCopies(bslmf::MovableRefUtil::access(other).d_numCopies) {}
+    CountCopies(CountCopies&& other) : d_numCopies(other.d_numCopies) {}
+#endif
 
     CountCopies& operator=(const CountCopies& rhs)
         { d_numCopies = rhs.d_numCopies + 1; return *this; }
@@ -616,7 +585,9 @@ class FunctorBase
   public:
     FunctorBase() { ++s_count; }
     FunctorBase(const FunctorBase&) { ++s_count; }
-    FunctorBase(bslmf::MovableRef<FunctorBase>) { ++s_count; }
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    FunctorBase(FunctorBase&&) { ++s_count; }
+#endif
     ~FunctorBase() { --s_count; ASSERT(s_count >= 0); }
 
     static int count() { return s_count; }
@@ -658,9 +629,7 @@ class FunctorMonitor
 // Limits the number of copies before a copy operation throws.
 ExceptionLimit copyLimit("copy limit");
 
-// TBD
-#if 1
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 // Limits the number of moves before a move operation throws.
 ExceptionLimit moveLimit("move limit");
 #else
@@ -745,8 +714,6 @@ bool operator!=(const EmptyFunctor&, const EmptyFunctor&)
     return false;
 }
 
-static const int k_MOVED_FROM_VAL = 0x100000;
-
 class SmallFunctor : public FunctorBase
 {
     // Small stateful functor.
@@ -755,6 +722,8 @@ class SmallFunctor : public FunctorBase
     // - Throwing move construtor
 
     int d_value;  // Arbitrary state to distinguish one instance from another
+
+    enum { k_MOVED_FROM_VAL = 0x100000 };
 
   public:
     // BITWISE MOVEABLE
@@ -767,13 +736,12 @@ class SmallFunctor : public FunctorBase
       : FunctorBase(), d_value(other.d_value)
         { --copyLimit; }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Move-constructor deliberately modifies 'other'.
-    // This move constructor is not called for destructive move.
-    SmallFunctor(bslmf::MovableRef<SmallFunctor> other)
-        : d_value(bslmf::MovableRefUtil::access(other).d_value) {
-        --moveLimit;
-        bslmf::MovableRefUtil::access(other).d_value = k_MOVED_FROM_VAL;
-    }
+    // This move constructor is not called in destructive move settings.
+    SmallFunctor(SmallFunctor&& other) : d_value(other.d_value)
+        { --moveLimit; other.d_value = k_MOVED_FROM_VAL; }
+#endif
 
     ~SmallFunctor() { memset(this, 0xbb, sizeof(*this)); }
 
@@ -831,12 +799,14 @@ class MediumFunctor : public SmallFunctor
     MediumFunctor(const MediumFunctor& other) : SmallFunctor(other)
         { memset(d_padding, 0xee, sizeof(d_padding)); }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // This move constructor is not called in destructive move settings.
-    MediumFunctor(bslmf::MovableRef<MediumFunctor> other)
-        : SmallFunctor(upcastMovableRef<SmallFunctor>(other))
+    MediumFunctor(MediumFunctor&& other)
+      : SmallFunctor(bslmf::MovableRefUtil::move(other))
     {
         memset(d_padding, 0xee, sizeof(d_padding));
     }
+#endif
 
     ~MediumFunctor() { memset(this, 0xbb, sizeof(*this)); }
 };
@@ -872,12 +842,14 @@ class LargeFunctor : public SmallFunctor
     LargeFunctor(const LargeFunctor& other) : SmallFunctor(other)
         { memset(d_padding, 0xee, sizeof(d_padding)); }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // This move constructor is not called in destructive move settings.
-    LargeFunctor(bslmf::MovableRef<LargeFunctor> other)
-        : SmallFunctor(upcastMovableRef<SmallFunctor>(other))
+    LargeFunctor(LargeFunctor&& other)
+      : SmallFunctor(bslmf::MovableRefUtil::move(other))
     {
         memset(d_padding, 0xee, sizeof(d_padding));
     }
+#endif
 
     ~LargeFunctor() { memset(this, 0xbb, sizeof(*this)); }
 };
@@ -901,6 +873,8 @@ class NTSmallFunctor
     // - No allocator
     // - Not bitwise movable (except in C++-03 mode)
     // - Nothrow move constructible
+
+    enum { k_MOVED_FROM_VAL = 0x100000 };
 
     // Value that is XOR'ed with 'this' address.  If an object of this type
     // subjected to a bitwise move, the encoded value will be wrong and the
@@ -926,15 +900,14 @@ class NTSmallFunctor
     NTSmallFunctor(const NTSmallFunctor& other)
         : d_encodedValue(xorWithSelf(other.value())) { --copyLimit; }
 
-    NTSmallFunctor(bslmf::MovableRef<NTSmallFunctor> other) throw()
-        // Nothrow move and copy constructible
-        : d_encodedValue(xorWithSelf(
-                             bslmf::MovableRefUtil::access(other).value())) {
-        NTSmallFunctor& otherRef = other;
-        otherRef.d_encodedValue = otherRef.xorWithSelf(k_MOVED_FROM_VAL);
+#if defined BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT && \
+    defined BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // Nothrow move and copy constructible
+    NTSmallFunctor(NTSmallFunctor&& other) noexcept
+      : d_encodedValue(xorWithSelf(other.value())) {
+        other.d_encodedValue = other.xorWithSelf(k_MOVED_FROM_VAL);
     }
-
-#if ! defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+#else
     // Bitwise moveable -- use if 'noexcept' is not supported.
     BSLMF_NESTED_TRAIT_DECLARATION(NTSmallFunctor,
                                    bslmf::IsBitwiseMoveable);
@@ -978,11 +951,12 @@ class ThrowingEmptyFunctor : public EmptyFunctor
     ThrowingEmptyFunctor(const ThrowingEmptyFunctor& other)
         : EmptyFunctor(other) { }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Throwing move constructor.  Note that the constructor for the
     // 'EmptyFunctor' base does not increment 'moveLimit'.
-    ThrowingEmptyFunctor(bslmf::MovableRef<ThrowingEmptyFunctor> other)
-        : EmptyFunctor((--moveLimit, upcastMovableRef<EmptyFunctor>(other)))
-        { }
+    ThrowingEmptyFunctor(ThrowingEmptyFunctor&& other)
+        : EmptyFunctor((--moveLimit, bslmf::MovableRefUtil::move(other))) { }
+#endif
 
     ~ThrowingEmptyFunctor() { memset(this, 0xbb, sizeof(*this)); }
 };
@@ -1022,6 +996,8 @@ class ThrowingSmallFunctor : public FunctorBase
     // - Not bitwise movable
     // - Throwing move constructor
 
+    enum { k_MOVED_FROM_VAL = 0x100000 };
+
     // Value that is XOR'ed with 'this' address.  If an object of this type
     // subjected to a bitwise move, the encoded value will be wrong and the
     // test driver will detect the error.
@@ -1042,12 +1018,12 @@ class ThrowingSmallFunctor : public FunctorBase
       : FunctorBase(), d_encodedValue(xorWithSelf(other.value()))
         { --copyLimit; }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Throwing move constructor
-    ThrowingSmallFunctor(bslmf::MovableRef<ThrowingSmallFunctor> other)
-      : FunctorBase()
-      , d_encodedValue(xorWithSelf(
-                           bslmf::MovableRefUtil::access(other).value()))
+    ThrowingSmallFunctor(ThrowingSmallFunctor&& other)
+      : FunctorBase(), d_encodedValue(xorWithSelf(other.value()))
         { --moveLimit; }
+#endif
 
     ~ThrowingSmallFunctor() {
         memset(this, 0xbb, sizeof(*this));
@@ -1077,7 +1053,7 @@ class SmallFunctorWithAlloc : public SmallFunctor
 {
     // Small functor with allocator.
     // - Uses allocator
-    // - Not bitwise moveable
+    // - Bitwise moveable
     // - Throwing move constructor
 
     bslma::Allocator *d_alloc_p;
@@ -1085,6 +1061,10 @@ class SmallFunctorWithAlloc : public SmallFunctor
   public:
     BSLMF_NESTED_TRAIT_DECLARATION(SmallFunctorWithAlloc,
                                    bslma::UsesBslmaAllocator);
+
+    // BITWISE MOVEABLE
+    BSLMF_NESTED_TRAIT_DECLARATION(SmallFunctorWithAlloc,
+                                   bslmf::IsBitwiseMoveable);
 
     enum { IS_STATELESS = false };
 
@@ -1095,14 +1075,16 @@ class SmallFunctorWithAlloc : public SmallFunctor
                           bslma::Allocator             *alloc = 0)
         : SmallFunctor(other), d_alloc_p(bslma::Default::allocator(alloc)) { }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Move constructor propagates allocator
-    SmallFunctorWithAlloc(bslmf::MovableRef<SmallFunctorWithAlloc> other)
-        : SmallFunctor(upcastMovableRef<SmallFunctor>(other))
-        , d_alloc_p(bslmf::MovableRefUtil::access(other).d_alloc_p) { }
-    SmallFunctorWithAlloc(bslmf::MovableRef<SmallFunctorWithAlloc>  other,
-                          bslma::Allocator                         *alloc)
-        : SmallFunctor(upcastMovableRef<SmallFunctor>(other))
+    SmallFunctorWithAlloc(SmallFunctorWithAlloc&& other)
+        : SmallFunctor(bslmf::MovableRefUtil::move(other))
+        , d_alloc_p(other.d_alloc_p) { }
+    SmallFunctorWithAlloc(SmallFunctorWithAlloc&&  other,
+                          bslma::Allocator        *alloc)
+        : SmallFunctor(bslmf::MovableRefUtil::move(other))
         , d_alloc_p(alloc) { }
+#endif
 
     ~SmallFunctorWithAlloc()
         { memset(this, 0xbb, sizeof(*this)); }
@@ -1118,61 +1100,6 @@ bool operator==(const SmallFunctorWithAlloc& a, const SmallFunctorWithAlloc& b)
 
 inline
 bool operator!=(const SmallFunctorWithAlloc& a, const SmallFunctorWithAlloc& b)
-{
-    return a.value() != b.value();
-}
-
-class BMSmallFunctorWithAlloc : public SmallFunctor
-{
-    // Small functor with allocator.
-    // - Uses allocator
-    // - Bitwise moveable
-    // - Throwing move constructor
-
-    bslma::Allocator *d_alloc_p;
-
-  public:
-    BSLMF_NESTED_TRAIT_DECLARATION(BMSmallFunctorWithAlloc,
-                                   bslma::UsesBslmaAllocator);
-
-    // BITWISE MOVEABLE
-    BSLMF_NESTED_TRAIT_DECLARATION(BMSmallFunctorWithAlloc,
-                                   bslmf::IsBitwiseMoveable);
-
-    enum { IS_STATELESS = false };
-
-    explicit BMSmallFunctorWithAlloc(int v, bslma::Allocator *alloc = 0)
-        : SmallFunctor(v), d_alloc_p(alloc) { }
-
-    BMSmallFunctorWithAlloc(const BMSmallFunctorWithAlloc&  other,
-                          bslma::Allocator             *alloc = 0)
-        : SmallFunctor(other), d_alloc_p(bslma::Default::allocator(alloc)) { }
-
-    // Move constructor propagates allocator
-    BMSmallFunctorWithAlloc(bslmf::MovableRef<BMSmallFunctorWithAlloc> other)
-        : SmallFunctor(upcastMovableRef<SmallFunctor>(other))
-        , d_alloc_p(bslmf::MovableRefUtil::access(other).d_alloc_p) { }
-    BMSmallFunctorWithAlloc(bslmf::MovableRef<BMSmallFunctorWithAlloc>  other,
-                          bslma::Allocator                             *alloc)
-        : SmallFunctor(upcastMovableRef<SmallFunctor>(other))
-        , d_alloc_p(alloc) { }
-
-    ~BMSmallFunctorWithAlloc()
-        { memset(this, 0xbb, sizeof(*this)); }
-
-    bslma::Allocator *allocator() const { return d_alloc_p; }
-};
-
-inline
-bool operator==(const BMSmallFunctorWithAlloc& a,
-                const BMSmallFunctorWithAlloc& b)
-{
-    return a.value() == b.value();
-}
-
-inline
-bool operator!=(const BMSmallFunctorWithAlloc& a,
-                const BMSmallFunctorWithAlloc& b)
 {
     return a.value() != b.value();
 }
@@ -1200,19 +1127,19 @@ class NTSmallFunctorWithAlloc : public NTSmallFunctor
                             bslma::Allocator               *alloc = 0)
         : NTSmallFunctor(other), d_alloc_p(alloc) { }
 
+#if defined BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT && \
+    defined BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Nothrow move and copy constructible
-    NTSmallFunctorWithAlloc(bslmf::MovableRef<NTSmallFunctorWithAlloc> other)
-        throw()
-        : NTSmallFunctor(upcastMovableRef<NTSmallFunctor>(other))
-        , d_alloc_p(bslmf::MovableRefUtil::access(other).d_alloc_p)
+    NTSmallFunctorWithAlloc(NTSmallFunctorWithAlloc&& other) noexcept
+      : NTSmallFunctor(bslmf::MovableRefUtil::move(other))
+      , d_alloc_p(other.d_alloc_p)
     {
     }
-    NTSmallFunctorWithAlloc(bslmf::MovableRef<NTSmallFunctorWithAlloc>  other,
-                            bslma::Allocator                           *alloc)
-        : NTSmallFunctor(upcastMovableRef<NTSmallFunctor>(other))
-        , d_alloc_p(alloc) { if (alloc != d_alloc_p) --moveLimit; }
-
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+    NTSmallFunctorWithAlloc(NTSmallFunctorWithAlloc&&  other,
+                            bslma::Allocator          *alloc)
+      : NTSmallFunctor(bslmf::MovableRefUtil::move(other))
+      , d_alloc_p(alloc) { if (alloc != d_alloc_p) --moveLimit; }
+#else
     // Bitwise moveable -- use if 'noexcept' is not supported.
     BSLMF_NESTED_TRAIT_DECLARATION(NTSmallFunctorWithAlloc,
                                    bslmf::IsBitwiseMoveable);
@@ -1237,7 +1164,7 @@ bool operator!=(const NTSmallFunctorWithAlloc& a,
     return a.value() != b.value();
 }
 
-class LargeFunctorWithAlloc : public BMSmallFunctorWithAlloc
+class LargeFunctorWithAlloc : public SmallFunctorWithAlloc
 {
     // Functor with allocator that is barely too large to fit into the small
     // object buffer.
@@ -1245,8 +1172,7 @@ class LargeFunctorWithAlloc : public BMSmallFunctorWithAlloc
     // - Bitwise movable
     // - Throwing move constructor
 
-    char d_padding[sizeof(SmallObjectBuffer)-
-                   sizeof(BMSmallFunctorWithAlloc)+1];
+    char d_padding[sizeof(SmallObjectBuffer)-sizeof(SmallFunctorWithAlloc)+1];
 
   public:
     // BITWISE MOVEABLE
@@ -1257,24 +1183,24 @@ class LargeFunctorWithAlloc : public BMSmallFunctorWithAlloc
                                    bslma::UsesBslmaAllocator);
 
     explicit LargeFunctorWithAlloc(int v, bslma::Allocator *alloc = 0)
-        : BMSmallFunctorWithAlloc(v, alloc)
+        : SmallFunctorWithAlloc(v, alloc)
         { memset(d_padding, 0xee, sizeof(d_padding)); }
 
     LargeFunctorWithAlloc(const LargeFunctorWithAlloc&  other,
                           bslma::Allocator             *alloc = 0)
-        : BMSmallFunctorWithAlloc(other, alloc)
+      : SmallFunctorWithAlloc(other, alloc)
         { memset(d_padding, 0xee, sizeof(d_padding)); }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Move constructor propagates allocator
-    LargeFunctorWithAlloc(bslmf::MovableRef<LargeFunctorWithAlloc> other)
-        : BMSmallFunctorWithAlloc(
-            upcastMovableRef<BMSmallFunctorWithAlloc>(other))
+    LargeFunctorWithAlloc(LargeFunctorWithAlloc&& other)
+      : SmallFunctorWithAlloc(bslmf::MovableRefUtil::move(other))
         { memset(d_padding, 0xee, sizeof(d_padding)); }
-    LargeFunctorWithAlloc(bslmf::MovableRef<LargeFunctorWithAlloc>  other,
-                          bslma::Allocator                         *alloc)
-        : BMSmallFunctorWithAlloc(
-            upcastMovableRef<BMSmallFunctorWithAlloc>(other), alloc)
+    LargeFunctorWithAlloc(LargeFunctorWithAlloc&&  other,
+                          bslma::Allocator        *alloc)
+      : SmallFunctorWithAlloc(bslmf::MovableRefUtil::move(other), alloc)
         { memset(d_padding, 0xee, sizeof(d_padding)); }
+#endif
 
     ~LargeFunctorWithAlloc()
         { memset(this, 0xbb, sizeof(*this)); }
@@ -3141,7 +3067,7 @@ void testAssignFromFunctor(const Obj&   lhsIn,
 
 }
 
-// Functions for testing the workaround to the SunCC compiler bug (case 19)
+// Functions for testing the workaround to the SunCC compiler bug (case 18)
 template <class RET_TYPE>
 void sun1(const bsl::function<RET_TYPE()>&)
 {
@@ -3247,44 +3173,6 @@ OuterClass::NestedClass OuterClass::memberFunc(int value)
     return result;
 }
 
-// For testing 'bsl::Function_IsReferenceCompatible'
-struct BaseClass { };
-struct DerivedClass : BaseClass { };
-
-template <class T, class U, bool EXP, int LINE>
-void testIsReferenceCompatible()
-    // Instantiates 'Function_IsReferenceCompatible<T, U>' and verifies that
-    // the result type has a const member 'value' such that 'value ==
-    // EXP'. Also instantiate 'Function_IsReferenceCompatible<T, U>' with
-    // every combination of const and reference qualifiers on 'T' and const
-    // quailifier on 'U', verifying the expected result 'value' (which is
-    // sometimes 'false' even if 'EXP' is true).
-{
-    const bool res = bsl::Function_IsReferenceCompatible<T, U>::value;
-    LOOP_ASSERT(LINE, EXP == res);
-
-#define TEST(TT, UU, EE)                                                     \
-    LOOP_ASSERT(LINE,                                                        \
-                (EE == bsl::Function_IsReferenceCompatible<TT, UU>::value))
-
-    // Test reference qualifiers
-    TEST(T&                         , U       , res  );
-    TEST(bslmf::MovableRef<T>       , U       , res  );
-
-    // Test const qualifiers
-    TEST(T                          , U const , res  );
-    TEST(T&                         , U const , res  );
-    TEST(bslmf::MovableRef<T>       , U const , res  );
-    TEST(T const                    , U const , res  );
-    TEST(T const&                   , U const , res  );
-    TEST(bslmf::MovableRef<T const> , U const , res  );
-    TEST(T const                    , U       , false);
-    TEST(T const&                   , U       , false);
-    TEST(bslmf::MovableRef<T const> , U       , false);
-
-#undef TEST
-}
-
 }  // close unnamed namespace
 
 //=============================================================================
@@ -3329,7 +3217,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:  // Zero is always the leading case.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      case 22: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION TO/FROM 'bdef_Function'
         //
@@ -3390,7 +3278,7 @@ int main(int argc, char *argv[])
         ASSERT(2 == bdefOverload(F1));
       } break;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-      case 21: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING DRQS94831150 BUG FIX
         //
@@ -3475,7 +3363,7 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-      case 20: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING SUNCC BUG FIX
         //
@@ -3501,192 +3389,6 @@ int main(int argc, char *argv[])
                             "\n=====================\n");
 
         sun2(&sun1<int>);
-
-      } break;
-      case 19: {
-        // --------------------------------------------------------------------
-        // TESTING 'Function_IsReferenceCompatible'
-        //
-        // Concerns:
-        //: 1 An instantiation of 'Function_IsReferenceCompatible<T,U>' where
-        //:   'T' and 'U' are the same type yields (is derived from)
-        //:   'true_type'.
-        //: 2 An *unspecialized* instantiation of
-        //:   'Function_IsReferenceCompatible<T,U>' where 'T' and 'U' are
-        //:   different types yields 'false_type', even if 'T' is derived from
-        //:   'U'.
-        //: 3 An instantiation of 'Function_IsReferenceCompatible<T,U>' that
-        //:   matches an explicit specialization or partial specialization
-        //:   yields the result of that specialization or partial
-        //:   specialization.
-        //: 4 Lvalue and rvalue reference qualifiers on 'T' are ignored when
-        //:   evaluating 'Function_IsReferenceCompatible<T,U>'.
-        //: 5 If 'T' is const qualified and 'U' is not const qualified,
-        //:   'Function_IsReferenceCompatible<T,U>' yields 'false_type' even
-        //:   if 'T' and 'U' are reference compatible. If 'U' is const
-        //:   qualified, then the const qualifiers on both 'T' and 'U' are
-        //:   ignored.  (This semantic adheres to the language rule that const
-        //:   references do not bind to modifiable references).
-        //
-        // Plan:
-        //: 1 For concern one, instantiate
-        //:   'Function_IsReferenceCompatible<T,T>', where 'T' is 'int', a
-        //:   'bsl::function' specialization and a 'bdef_Function'
-        //:   specialization. Verify that the contained 'value' constant is
-        //:   'true'.
-        //: 2 For concern 2, instantiate 'Function_IsReferenceCompatible<T,U>'
-        //:   where 'T' and 'U' are different, incompatible types, including
-        //:   the case where 'T' is derived from 'U'. Verify that the
-        //:   contained 'value' constant is 'false'.
-        //: 3 For concern 3, instantiate 'Function_IsReferenceCompatible<T,U>'
-        //:   where 'T' is a specialization of 'bdef_Function' and 'U' is a
-        //:   specializaton of 'bsl::function' based on the same function
-        //:   prototype. Verify that it yields 'true_type' (because there is
-        //:   an explicit specialization). Repeat this step using
-        //:   'bdef_Function' and 'bsl::function' based on different function
-        //:   prototypes and verify that it yields 'false_type'.
-        //: 4 For concern 4 repeat the above steps, adding lvalue and rvalue
-        //:   qualifiers to the first parameter to
-        //:   'Function_IsReferenceCompatible'. Verify that the result does
-        //:   not change.
-        //: 5 For concern 5, repeat the above steps with const qualifiers on
-        //:   the first parameter, the second parameter, or both. Verify that
-        //:   if the first paramter is const and the second is not const, then
-        //:   the result is 'false_type'; otherwise the result is the same as
-        //:   without the const qualifiers.
-        //: 6 To simplify testing the cross-product of types,
-        //:   reference qualifiers, and const-qualifiers, encapsulate steps 4
-        //:   and 5 into a function, 'testIsReferenceCompatible', which is
-        //:   instantiated with a 'T', a 'U', and an expected result and which
-        //:   tests each combination of reference and const qualifiers.
-        //
-        // Testing:
-        //      Function_IsReferenceCompatible
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nTESTING 'Function_IsReferenceCompatible'"
-                            "\n=======================================\n");
-
-        typedef bsl::function<int(char*)>    bslFunc1;
-        typedef bdef_Function<int(*)(char*)> bdefFunc1;
-        typedef bdef_Function<int(*)(void*)> bdefFunc2;
-
-#define TEST(T, U, EXP) testIsReferenceCompatible<T, U, EXP, __LINE__>()
-
-        // All tests perform steps 4, 5, and 6
-
-        //   T             U              EXP
-        //   ============  =============  =====
-        // Step 1
-        TEST(int          , int          , true );
-        TEST(bslFunc1     , bslFunc1     , true );
-        TEST(bdefFunc1    , bdefFunc1    , true );
-        TEST(BaseClass    , BaseClass    , true );
-        TEST(DerivedClass , DerivedClass , true );
-
-        // Step 2
-        TEST(int          , short        , false);
-        TEST(DerivedClass , BaseClass    , false);
-        TEST(BaseClass    , DerivedClass , false);
-        TEST(bdefFunc1    , bdefFunc2    , false);
-
-        // Step 3
-        TEST(bdefFunc1    , bslFunc1     , true );
-        TEST(bdefFunc2    , bslFunc1     , false);
-        TEST(bslFunc1     , bdefFunc1    , false);
-
-#undef TEST
-
-      } break;
-      case 18: {
-        // --------------------------------------------------------------------
-        // TESTING 'Function_NothrowWrapper'
-        //
-        // Concerns:
-        //: 1 Constructing a 'Function_NothrowWrapper' from a functor
-        //:   stores a copy of that functor.  If the functor is passed in by
-        //:   rvalue reference, then it is move into the wrapper.
-        //: 2 If an allocator is supplied to the wrapper on construction, and
-        //:   if the functor being stored takes an allocator, then that
-        //:   allocator is provided to the constructor of the wrapped functor.
-        //: 3 If an allocator is supplied to the wrapper on construction, and
-        //:   if the functor being stored does not take an allocator, then the
-        //:   allocator is ignored.
-        //: 4 NOTE: Supplying a wrapped functor to 'bsl::function' is tested
-        //:   in other parts of this test driver, not here.
-        //: 5 NOTE: Copy and move construction are not tested because they are
-        //:   not part of the use model for this class.
-        //
-        // Plan:
-        //: 1 For concern 1, construct 'Function_NothrowWrapper' objects from
-        //:   lvalue and rvalue functors, using the single-argument
-        //:   constructors. Using the 'unwrap' method, verify that the wrapped
-        //:   functors compare equal to the original.  In the case of functor
-        //:   rvalues, verify that the constructor argument was moved from.
-        //: 2 For concern 2, construct 'Function_NothrowWrapper' objects from
-        //:   lvalue and rvalue functors, using the two-argument constructors
-        //:   and passing in functors that use 'bslma::Allocator'. Verify that
-        //:   the wrapped functors compare equal to the original and have the
-        //:   passed-in allocator.
-        //: 3 For concern 3: construct 'Function_NothrowWrapper' objects from
-        //:   lvalue and rvalue functors, using the two-argument constructors
-        //:   and passing in functors that DO NOT use
-        //:   'bslma::Allocator'. Verify that the wrapped functors compare
-        //:   equal to the original.
-        //
-        // TESTING
-        //      Function_NowthrowWrapper constructors
-        //      Function_NowthrowWrapper::unwrap
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nTESTING 'Function_NothrowWrapper'"
-                            "\n=================================\n");
-
-        // Step 1:
-        {
-            SmallFunctor f1(1);
-            Function_NothrowWrapper<SmallFunctor> fw1(f1);
-            ASSERT(SmallFunctor(1) == f1); // Unchanged
-            ASSERT(SmallFunctor(1) == fw1.unwrap());
-
-            SmallFunctor f2(2);
-            Function_NothrowWrapper<SmallFunctor>
-                fw2(bslmf::MovableRefUtil::move(f2));
-            ASSERT(k_MOVED_FROM_VAL == f2.value());  // Moved from
-            ASSERT(SmallFunctor(2) == fw2.unwrap());
-        }
-
-        // Step 2:
-        {
-            bslma::TestAllocator ta;
-            SmallFunctorWithAlloc f1(1);
-            Function_NothrowWrapper<SmallFunctorWithAlloc> fw1(f1, &ta);
-            ASSERT(SmallFunctorWithAlloc(1) == f1); // Unchanged
-            ASSERT(SmallFunctorWithAlloc(1) == fw1.unwrap());
-            ASSERT(&ta == fw1.unwrap().allocator());
-
-            SmallFunctorWithAlloc f2(2);
-            Function_NothrowWrapper<SmallFunctorWithAlloc>
-                fw2(bslmf::MovableRefUtil::move(f2), &ta);
-            ASSERT(k_MOVED_FROM_VAL == f2.value());  // Moved from
-            ASSERT(SmallFunctorWithAlloc(2) == fw2.unwrap());
-            ASSERT(&ta == fw1.unwrap().allocator());
-        }
-
-        // Step 3:
-        {
-            bslma::TestAllocator ta;
-            SmallFunctor f1(1);
-            Function_NothrowWrapper<SmallFunctor> fw1(f1, &ta);
-            ASSERT(SmallFunctor(1) == f1); // Unchanged
-            ASSERT(SmallFunctor(1) == fw1.unwrap());
-
-            SmallFunctor f2(2);
-            Function_NothrowWrapper<SmallFunctor>
-                fw2(bslmf::MovableRefUtil::move(f2), &ta);
-            ASSERT(k_MOVED_FROM_VAL == f2.value());  // Moved from
-            ASSERT(SmallFunctor(2) == fw2.unwrap());
-        }
 
       } break;
       case 17: {
@@ -3890,7 +3592,6 @@ int main(int argc, char *argv[])
             TEST_ITEM(ThrowingSmallFunctor        , 0x7000            ),
             TEST_ITEM(ThrowingEmptyFunctor        , 0                 ),
             TEST_ITEM(SmallFunctorWithAlloc       , 0x2000            ),
-            TEST_ITEM(BMSmallFunctorWithAlloc     , 0x2000            ),
             TEST_ITEM(NTSmallFunctorWithAlloc     , 0x2000            ),
             TEST_ITEM(LargeFunctorWithAlloc       , 0x1000            ),
 
@@ -4014,15 +3715,6 @@ int main(int argc, char *argv[])
             TEST(StatefulAllocator2<char>, SmallFunctorWithAlloc(0x2000) );
 
             if (veryVerbose) printf("Assign %s = "
-                                    "BMSmallFunctorWithAlloc(0x2000)\n",
-                                    funcName);
-            TEST(bslma::TestAllocator *  , BMSmallFunctorWithAlloc(0x2000) );
-            TEST(bsl::allocator<char>    , BMSmallFunctorWithAlloc(0x2000) );
-            TEST(EmptySTLAllocator<char> , BMSmallFunctorWithAlloc(0x2000) );
-            TEST(StatefulAllocator<char> , BMSmallFunctorWithAlloc(0x2000) );
-            TEST(StatefulAllocator2<char>, BMSmallFunctorWithAlloc(0x2000) );
-
-            if (veryVerbose) printf("Assign %s = "
                                     "NTSmallFunctorWithAlloc(0x2000)\n",
                                     funcName);
             TEST(bslma::TestAllocator *  , NTSmallFunctorWithAlloc(0x2000) );
@@ -4144,7 +3836,6 @@ int main(int argc, char *argv[])
             TEST_ITEM(ThrowingSmallFunctor   , 0x7000            ),
             TEST_ITEM(ThrowingEmptyFunctor   , 0                 ),
             TEST_ITEM(SmallFunctorWithAlloc  , 0x2000            ),
-            TEST_ITEM(BMSmallFunctorWithAlloc, 0x2000            ),
             TEST_ITEM(NTSmallFunctorWithAlloc, 0x2000            ),
             TEST_ITEM(LargeFunctorWithAlloc  , 0x1000            ),
 
@@ -4335,7 +4026,6 @@ int main(int argc, char *argv[])
             TEST_ITEM(ThrowingSmallFunctor   , 0x7000            ),
             TEST_ITEM(ThrowingEmptyFunctor   , 0                 ),
             TEST_ITEM(SmallFunctorWithAlloc  , 0x2000            ),
-            TEST_ITEM(BMSmallFunctorWithAlloc, 0x2000            ),
             TEST_ITEM(NTSmallFunctorWithAlloc, 0x2000            ),
             TEST_ITEM(LargeFunctorWithAlloc  , 0x1000            ),
         };
@@ -4357,7 +4047,6 @@ int main(int argc, char *argv[])
             TEST_ITEM(ThrowingSmallFunctor   , 0x6000            ),
             TEST_ITEM(ThrowingEmptyFunctor   , 0                 ),
             TEST_ITEM(SmallFunctorWithAlloc  , 0x1000            ),
-            TEST_ITEM(BMSmallFunctorWithAlloc, 0x1000            ),
             TEST_ITEM(NTSmallFunctorWithAlloc, 0x1000            ),
             TEST_ITEM(LargeFunctorWithAlloc  , 0x2000            ),
         };
@@ -4515,7 +4204,6 @@ int main(int argc, char *argv[])
             TEST_ITEM(ThrowingSmallFunctor   , 0x7000            ),
             TEST_ITEM(ThrowingEmptyFunctor   , 0                 ),
             TEST_ITEM(SmallFunctorWithAlloc  , 0x1000            ),
-            TEST_ITEM(BMSmallFunctorWithAlloc, 0x1000            ),
             TEST_ITEM(NTSmallFunctorWithAlloc, 0x1000            ),
             TEST_ITEM(LargeFunctorWithAlloc  , 0x2000            ),
         };
@@ -4537,7 +4225,6 @@ int main(int argc, char *argv[])
             TEST_ITEM(ThrowingSmallFunctor   , 0x6000            ),
             TEST_ITEM(ThrowingEmptyFunctor   , 0                 ),
             TEST_ITEM(SmallFunctorWithAlloc  , 0x2000            ),
-            TEST_ITEM(BMSmallFunctorWithAlloc, 0x2000            ),
             TEST_ITEM(NTSmallFunctorWithAlloc, 0x2000            ),
             TEST_ITEM(LargeFunctorWithAlloc  , 0x1000            ),
         };
@@ -4814,13 +4501,6 @@ int main(int argc, char *argv[])
         TEST(StatefulAllocator<char> , SmallFunctorWithAlloc(0, &xa));
         TEST(StatefulAllocator2<char>, SmallFunctorWithAlloc(0, &xa));
 
-        if (veryVerbose) printf("FUNC is BMSmallFunctorWithAlloc(0)\n");
-        TEST(bslma::TestAllocator *  , BMSmallFunctorWithAlloc(0, &xa));
-        TEST(bsl::allocator<char>    , BMSmallFunctorWithAlloc(0, &xa));
-        TEST(EmptySTLAllocator<char> , BMSmallFunctorWithAlloc(0, &xa));
-        TEST(StatefulAllocator<char> , BMSmallFunctorWithAlloc(0, &xa));
-        TEST(StatefulAllocator2<char>, BMSmallFunctorWithAlloc(0, &xa));
-
         if (veryVerbose) printf("FUNC is NTSmallFunctorWithAlloc(0)\n");
         TEST(bslma::TestAllocator *  , NTSmallFunctorWithAlloc(0, &xa));
         TEST(bsl::allocator<char>    , NTSmallFunctorWithAlloc(0, &xa));
@@ -5048,13 +4728,6 @@ int main(int argc, char *argv[])
         TEST(EmptySTLAllocator<char> , SmallFunctorWithAlloc(0, &xa));
         TEST(StatefulAllocator<char> , SmallFunctorWithAlloc(0, &xa));
         TEST(StatefulAllocator2<char>, SmallFunctorWithAlloc(0, &xa));
-
-        if (veryVerbose) printf("FUNC is BMSmallFunctorWithAlloc(0)\n");
-        TEST(bslma::TestAllocator *  , BMSmallFunctorWithAlloc(0, &xa));
-        TEST(bsl::allocator<char>    , BMSmallFunctorWithAlloc(0, &xa));
-        TEST(EmptySTLAllocator<char> , BMSmallFunctorWithAlloc(0, &xa));
-        TEST(StatefulAllocator<char> , BMSmallFunctorWithAlloc(0, &xa));
-        TEST(StatefulAllocator2<char>, BMSmallFunctorWithAlloc(0, &xa));
 
         if (veryVerbose) printf("FUNC is NTSmallFunctorWithAlloc(0)\n");
         TEST(bslma::TestAllocator *  , NTSmallFunctorWithAlloc(0, &xa));
@@ -5329,19 +5002,11 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("FUNC is SmallFunctorWithAlloc(0)\n");
 #define SmFnAlloc SmallFunctorWithAlloc
-        TEST(bslma::TestAllocator *  , SmFnAlloc(0, &xa), e_OUTOFPLACE_BOTH);
-        TEST(bsl::allocator<char>    , SmFnAlloc(0, &xa), e_OUTOFPLACE_BOTH);
-        TEST(EmptySTLAllocator<char> , SmFnAlloc(0, &xa), e_OUTOFPLACE_BOTH);
-        TEST(StatefulAllocator<char> , SmFnAlloc(0, &xa), e_OUTOFPLACE_BOTH);
-        TEST(StatefulAllocator2<char>, SmFnAlloc(0, &xa), e_OUTOFPLACE_BOTH);
-
-        if (veryVerbose) printf("FUNC is BMSmallFunctorWithAlloc(0)\n");
-#define BMSmFnAlc BMSmallFunctorWithAlloc
-        TEST(bslma::TestAllocator *  , BMSmFnAlc(0, &xa), e_INPLACE_BOTH);
-        TEST(bsl::allocator<char>    , BMSmFnAlc(0, &xa), e_INPLACE_BOTH);
-        TEST(EmptySTLAllocator<char> , BMSmFnAlc(0, &xa), e_INPLACE_BOTH);
-        TEST(StatefulAllocator<char> , BMSmFnAlc(0, &xa), e_INPLACE_FUNC_ONLY);
-        TEST(StatefulAllocator2<char>, BMSmFnAlc(0, &xa), e_INPLACE_FUNC_ONLY);
+        TEST(bslma::TestAllocator *  , SmFnAlloc(0, &xa), e_INPLACE_BOTH);
+        TEST(bsl::allocator<char>    , SmFnAlloc(0, &xa), e_INPLACE_BOTH);
+        TEST(EmptySTLAllocator<char> , SmFnAlloc(0, &xa), e_INPLACE_BOTH);
+        TEST(StatefulAllocator<char> , SmFnAlloc(0, &xa), e_INPLACE_FUNC_ONLY);
+        TEST(StatefulAllocator2<char>, SmFnAlloc(0, &xa), e_INPLACE_FUNC_ONLY);
 
         if (veryVerbose) printf("FUNC is NTSmallFunctorWithAlloc(0)\n");
 #define NTSmFnAlc NTSmallFunctorWithAlloc

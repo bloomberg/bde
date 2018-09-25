@@ -6,11 +6,9 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <bsls_buildtarget.h>
-
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
-#include <string.h>     // 'memcpy', 'strcmp'
+#include <string.h>     // 'memcpy'
 
 using namespace BloombergLP;
 
@@ -27,10 +25,8 @@ using namespace BloombergLP;
 // [1] bslma::Testallocatorexception(int numBytes);
 // [1] ~bslma::Testallocatorexception();
 // [1] int numBytes() const;
-// [2] const char *what() const BSLS_EXCEPTION_WHAT_NOTHROW;
 //-----------------------------------------------------------------------------
-// [2] CONCERN: 'bslma::TestAllocatorException' is-an 'std::bad_alloc'
-// [3] USAGE TEST - Make sure main usage example compiles and works.
+// [2] USAGE TEST - Make sure main usage example compiles and works.
 //=============================================================================
 //                    STANDARD BDE ASSERT TEST MACRO
 //-----------------------------------------------------------------------------
@@ -118,7 +114,7 @@ void *my_Allocator::allocate(size_type size)
     if (0 <= d_allocationLimit) {
         --d_allocationLimit;
         if (0 > d_allocationLimit) {
-            BSLS_THROW(bslma::TestAllocatorException(size));
+            throw bslma::TestAllocatorException(size);
         }
     }
 #endif
@@ -343,7 +339,7 @@ int main(int argc, char *argv[])
     my_Allocator testAllocator;
 
     switch (test) { case 0:
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
         // USAGE TEST
         //   Verify that the usage example is free of syntax errors and works
@@ -382,40 +378,6 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LINE, ti, areEqual(EXP, A, NUM_ELEM));
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // BAD_ALLOC TEST
-        //   Verify that 'bslma::TestAllocatorException' is-an
-        //   'std::bad_alloc'.  Verify that the 'what' method works as
-        //   expected.  Verify also that 'bslma::TestAllocatorException' can be
-        //   caught as an 'std::bad_alloc', if exceptions are enabled.
-        //
-        // Testing:
-        //   CONCERN: 'bslma::TestAllocatorException' is-an 'std::bad_alloc'
-        //   const char *what() const BSLS_EXCEPTION_WHAT_NOTHROW;
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nBAD_ALLOC TEST"
-                            "\n==============\n");
-
-
-        bslma::TestAllocatorException obj(42);
-        const bslma::TestAllocatorException& cObj(obj);
-        const std::bad_alloc& badAlloc(cObj);
-        ASSERT(0 == strcmp(badAlloc.what(), "bslma::TestAllocatorException"));
-
-#ifdef BDE_BUILD_TARGET_EXC
-        try {
-            BSLS_THROW(bslma::TestAllocatorException(42));
-        }
-        catch (const std::bad_alloc& e) {
-            ASSERT(0 == strcmp(e.what(), "bslma::TestAllocatorException"));
-        }
-        catch (...) {
-            ASSERT(!"Uncaught exception");
-        }
-#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------

@@ -11,7 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_fundamental: standard meta-function for detecting fundamental types
-//  bsl::is_fundamental_v: the result value of 'bsl::is_fundamental'
 //  bslmf::IsFundamental: meta-function for detecting fundamental types
 //
 //@SEE_ALSO: bslmf_isenum, bslmf_ispointer
@@ -19,10 +18,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Shawn Edwards (sedwards)
 //
 //@DESCRIPTION: This component defines two meta-functions,
-// 'bsl::is_fundamental' and 'BloombergLP::bslmf::IsFundamental' and a template
-// variable 'bsl::is_fundamental_v', that represents the result value of the
-// 'bsl::is_fundamental' meta-function.  All these meta-functions may be used
-// to query whether a type is a fundamental type.
+// 'bsl::is_fundamental' and 'BloombergLP::bslmf::IsFundamental', that may be
+// used to query whether a type is a fundamental type.
 //
 // 'bsl::is_fundamental' meets the requirements of the 'is_fundamental'
 // template defined in the C++11 standard [meta.unary.comp], while
@@ -40,16 +37,6 @@ BSLS_IDENT("$Id: $")
 //
 // Note that 'bsl::is_fundamental' should be preferred over
 // 'bslmf::Fundamental', and in general, should be used by new components.
-//
-// Also note that the template variable 'is_fundamental_v' is defined in the
-// C++17 standard as an inline variable.  If the current compiler supports the
-// inline variable C++17 compiler feature, 'bsl::is_fundamental_v' is defined
-// as an 'inline constexpr bool' variable.  Otherwise, if the compiler supports
-// the variable templates C++14 compiler feature, 'bsl::is_fundamental_v' is
-// defined as a non-inline 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
-// bsls_compilerfeatures component for details.
 //
 // The C++ fundamental types are described in the C++ standard
 // [basic.fundamental], and consist of the following distinct types, and
@@ -94,17 +81,6 @@ BSLS_IDENT("$Id: $")
 //  assert(true  == bsl::is_fundamental<long long  >::value);
 //  assert(false == bsl::is_fundamental<long long *>::value);
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature then we can re-write the snippet of code above using the
-// 'bsl::is_fundamental_v' variable as follows:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(true  == bsl::is_fundamental_v<int>);
-//  assert(false == bsl::is_fundamental_v<int&>);
-//  assert(true  == bsl::is_fundamental_v<long long  >);
-//  assert(false == bsl::is_fundamental_v<long long *>);
-//#endif
-//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -128,10 +104,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NULLPTR
@@ -275,9 +247,8 @@ template <class TYPE>
 struct IsFundamental
     : IsFundamental_Imp<typename bsl::remove_cv<TYPE>::type>::type {
     // This 'struct' template implements a meta-function for checking if a type
-    // is fundamental, or a reference to a fundamental type.  The static
-    // constant 'VALUE' member will be 1 if 'TYPE' is fundamental and 0
-    // otherwise.
+    // is fundamental.  The static constant 'VALUE' member will be 1 if 'TYPE'
+    // is fundamental and 0 otherwise.
 };
 
 template <class TYPE>
@@ -302,17 +273,7 @@ struct is_fundamental
                         is_arithmetic<TYPE>::value || is_void<TYPE>::value> {
     // This 'struct' template implements a meta-function for checking if a type
     // is fundamental as defined in the C++11 standard [basic.fundamental].
-    // Note that this is subtly differemt from 'bslmf::IsFundamental', which
-    // also returns 'true_type' for references to fundamental types.
 };
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_fundamental_v = is_fundamental<TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_fundamental' meta-function.
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
 template <>

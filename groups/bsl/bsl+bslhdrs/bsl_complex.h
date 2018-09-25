@@ -19,13 +19,61 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLS_LIBRARYFEATURES
+#include <bsls_libraryfeatures.h>
+#endif
+
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
 #endif
 
 #include <complex>
 
-#include <bslstl_complex.h>
+namespace bsl {
+    // Import selected symbols into bsl namespace
+
+    using native_std::abs;
+    using native_std::acos;
+    using native_std::arg;
+    using native_std::asin;
+    using native_std::atan;
+    using native_std::complex;
+    using native_std::conj;
+    using native_std::cos;
+    using native_std::cosh;
+    using native_std::exp;
+    using native_std::imag;
+    using native_std::log;
+    using native_std::log10;
+    using native_std::norm;
+    using native_std::polar;
+    using native_std::pow;
+    using native_std::real;
+    using native_std::sin;
+    using native_std::sinh;
+    using native_std::sqrt;
+    using native_std::tan;
+    using native_std::tanh;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    using native_std::acosh;
+    using native_std::asinh;
+    using native_std::atanh;
+    using native_std::proj;
+#endif  // BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    using native_std::basic_ios;
+    using native_std::basic_iostream;
+    using native_std::basic_istream;
+    using native_std::basic_ostream;
+    using native_std::basic_streambuf;
+    using native_std::ios_base;
+    using native_std::istreambuf_iterator;
+    using native_std::locale;
+    using native_std::ostreambuf_iterator;
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+}  // close package namespace
 
 #endif
 

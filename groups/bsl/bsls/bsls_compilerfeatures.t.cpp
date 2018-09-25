@@ -3,7 +3,6 @@
 #include <bsls_compilerfeatures.h>
 
 #include <bsls_bsltestutil.h>
-#include <bsls_exceptionutil.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -16,35 +15,30 @@
 // Testing available C++11 language features by trying to compile code that
 // uses them.  For example, if 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is
 // defined, then we try to compile code that uses 'static_assert'.  This is a
-// purely compile-time test.  If the code compiles, then the test succeeds, if
-// the code fails to compile, then the test fails.  Due to the limitations of
-// the testing framework, there is no way to turn compile-time failures into
+// purely compile-time test.  If the code compiles than the test succeeds, if
+// the code fails to compile than the test fails.  Due to the limitations of
+// the testing framework there is no way to turn compile-time failures into
 // runtime failures.  Note that we don't intend to test the correctness of the
 // implementation of C++ features, but just the fact that features are
 // supported.
 //-----------------------------------------------------------------------------
-// [22] BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
 // [ 1] BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-// [18] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 // [ 2] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-// [ 3] BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-// [ 4] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-// [ 5] BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-// [ 6] BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
-// [ 7] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-// [ 8] BSLS_COMPILERFEATURES_SUPPORT_FINAL
-// [ 9] BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-// [21] BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-// [10] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-// [11] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-// [12] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-// [13] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-// [14] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-// [19] BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-// [15] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-// [16] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-// [20] BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-// [17] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+// [ 3] BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+// [ 4] BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+// [ 5] BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+// [ 6] BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+// [ 7] BSLS_COMPILERFEATURES_SUPPORT_FINAL
+// [ 8] BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+// [ 9] BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+// [10] BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+// [11] BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+// [12] BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+// [13] BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+// [14] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+// [15] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+// [16] BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+// [17] BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 //=============================================================================
 
 using namespace BloombergLP;
@@ -547,220 +541,6 @@ void test_func() {
 }  // close unnamed namespace
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-namespace {
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)
-constexpr int relaxedConstExprFunc(bool b)
-    // Return a different integer value depending on the specified 'b' boolean
-    // value.  This function demonstrates relaxed 'constexpr' requirements
-    // since it has multiple statements, including mutating of a local variable
-    // and multiple return statements.
-{
-    int i = -1;
-    if (b) {
-        i = 42;
-        return i;                                                     // RETURN
-    }
-    else {
-        i = 0;
-        return i;                                                     // RETURN
-    }
-}
-#endif
-
-struct FalseType {
-    // A type to represent 'false'.  Notice that its size is different from
-    // that of 'TrueType'.
-
-    // PUBLIC DATA
-    char d_dummy;
-};
-
-struct TrueType {
-    // A type to represent 'true'.  Notice that its size is different from that
-    // of 'FalseType'.
-
-    // PUBLIC DATA
-    char d_dummy[13];
-};
-
-template <int N>
-struct TypeN {
-    // This class template turns a compile time constant into a distinct type.
-};
-
-struct Sniffer {
-    // This class provides a means to detect if the expression
-    // 'TARGET().call(true)' is valid, and usable in SFINAE constraints.
-
-    template <class TARGET>
-    static FalseType test(...);
-    // The "catch all" overload that gets selected when
-    // 'TARGET{}.call(true)' is not a compile time constant.
-
-    template <class TARGET>
-    static TrueType test(TARGET *, TypeN < TARGET{}.call(true) > * = 0);
-    // The overload that gets selected when 'TARGET{}.call(true)' is a
-    // valid compile time constant ('constexpr').
-};
-
-struct ConstexprConst {
-    // This class uses expression SFINAE to detect if the expression
-    // 'const TARGET{}.call(true)' is a valid compile time constant expression.
-
-    template <class TARGET>
-    static TrueType test(...);
-    // The "catch all" overload that gets selected when
-    // 'const TARGET{}.call(true)' is not a valid compile time constant
-    // expression.  Notice that since in 'Feature14' the function 'call' is
-    // not defined explicitly 'const', therefore this catch all function
-    // returns 'TrueType', because in C++14 'constexpr' does not make
-    // member functions implicitly 'const'.
-
-    template <class TARGET,
-        class = decltype(std::declval<const TARGET>().call(true))>
-        static FalseType test(TARGET *);
-    // The overload that gets selected when 'TARGET{}.call(true)' is a
-    // valid expression.
-};
-
-struct Feature11 {
-    // This literal type is for testing C++11 'constexpr' support.
-
-    // CREATORS
-    constexpr Feature11();
-    // Create a, possibly 'constexpr', 'Feature11' object.
-
-    // MANIPULATORS
-    constexpr int call(bool) const;
-    // Return an integer usable in constant expressions.
-};
-
-constexpr Feature11::Feature11()
-{
-}
-
-constexpr int Feature11::call(bool) const
-{
-    return 42;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)
-struct Feature14 {
-    // This literal type is for testing C++11 'constexpr' support.
-
-    // PUBLIC DATA
-    int d_value;
-
-    // CREATORS
-    constexpr Feature14();
-    // Create a, possibly 'constexpr', 'Feature14' object.
-
-    constexpr int call(bool b);
-    // Return, a possibly 'constexpr' integer value that depends on the
-    // specified 'b' flag.  This method is "complex", cannot be 'constexpr'
-    // in C++11, only in C++14 and onwards.
-
-};
-
-constexpr Feature14::Feature14()
-: d_value(-1)
-{
-}
-
-constexpr int Feature14::call(bool b)
-{
-    if (b) {
-        d_value = 42;
-        return d_value;                                               // RETURN
-    }
-    else {
-        d_value = 21;
-        return d_value;                                               // RETURN
-    }
-}
-#endif
-
-}  // close unnamed namespace
-#endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-
-
-                    // case 22
-
-static const bool
-    u_BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined =
-#if defined(BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
-                                                                          true;
-#else
-                                                                         false;
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-
-#include <initializer_list>
-
-namespace test_case_22 {
-
-class MyType {
-  public:
-    static int s_liveCount;
-
-  private:
-    static void addToLiveCount() {
-        if (s_liveCount > 5) {
-            BSLS_THROW(s_liveCount);
-        }
-        else {
-            ++s_liveCount;
-        }
-    }
-
-  public:
-    MyType() { addToLiveCount(); }
-    MyType(int) { addToLiveCount(); }
-    MyType(const MyType&) { addToLiveCount(); }
-    ~MyType() { --s_liveCount; }
-};
-
-struct MyWrapper {
-    MyWrapper(std::initializer_list<MyType>) {}
-};
-
-int MyType::s_liveCount = 0;
-
-void runTest() {
-    ASSERT(0 == MyType::s_liveCount);
-
-# if defined(BDE_BUILD_TARGET_EXC)
-    try {
-        const MyWrapper X = { 1, 2 };
-        (void)X;
-    }
-    catch(...) {
-        ASSERT(!"Strange error! No exceptions were expected.");
-    }
-    ASSERT(0 == MyType::s_liveCount);
-
-    try {
-        const MyWrapper X = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        (void)X;
-    }
-    catch(int) {
-        if (
-          u_BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined)
-            ASSERT(0 != MyType::s_liveCount);
-        else
-            ASSERT(0 == MyType::s_liveCount);
-    }
-# endif
-}
-
-}  // close namespace test_case_22
-#endif
-
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -782,205 +562,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 22: {
-        // --------------------------------------------------------------------
-        // TESTING 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
-        //
-        // Concerns:
-        //: 1 The 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
-        //:   flag is defined when the native standard library provides the
-        //:   class template 'std::initializer_list<T>', and the constructor
-        //:   called by the compiler when providing a list of initializers does
-        //:   not properly clean up after itself if an exception is thrown
-        //:   copying one of those elements.  This macro should not be defined
-        //:   if the library does not provide 'std::initializer_list<T>', nor
-        //:   in the expected case that the library implementation does not
-        //:   leak.
-        //
-        // Plan:
-        //: 1 When 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS' is
-        //:   defined conditionally compile code that includes
-        //:   '<initializer_list>', and try to initialize from a list of
-        //:   instrumented user-defined object types, using a constructor that
-        //:   throws when the (instrumented) global object count gets too high.
-        //: 2 Verify that the live global object count is reduced to zero after
-        //:   throwing the exception, unless the macro
-        //:   'BSLS_COMPILERFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' is
-        //:   defined.  (C-1)
-        //
-        // Testing:
-        //   BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
-        // --------------------------------------------------------------------
-
-        if (verbose) printf(
-       "TESTING 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS'\n"
-       "====================================================================\n"
-        );
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-        test_case_22::runTest();
-#endif
-
-        if (verbose) {
-            P(
-          u_BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined)
-        }
-
-        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
-
-      } break;
-      case 21: {
-        // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-        //
-        // Concerns:
-        //: 1 When 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is defined
-        //:   '__has_include' is available in preprocessor conditionals.
-        //:
-        //: 2 When 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is not
-        //:   available.
-        //
-        // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is defined, try
-        //:   '__has_include(<stddef.h>)', as that is a C header that exists in
-        //:   non-hosted environments as well, so it is the safest bet.
-        //: 2 If 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is *not* defined,
-        //:   use the clang-suggested
-        //:   (https://clang.llvm.org/docs/LanguageExtensions.html#has-include)
-        //:   test '#if !defined(__has_include)' to verify that '__has_include'
-        //:   is not available.
-        //
-        // Testing:
-        //   BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-        // --------------------------------------------------------------------
-        if (verbose)
-            printf("TESTING BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE\n"
-                   "=================================================\n"
-                );
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
-# if !__has_include(<stddef.h>)
-#   error '__has_include' appears not to be working.
-# endif
-#else
-# if defined(__has_include)
-#   if __has_include(<stddef.h>)
-#     error '__has_include' appears to be present but \
-            'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is not defined.
-#   endif
-# endif
-#endif
-      } break;
-      case 20: {
-        // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-        //
-        // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is
-        //:   defined only when the compiler supports unicode character types
-        //:   unicode character literals, and unicode string literals.
-        //: 2 Both 16-bit and 32-bit unicode are supported.
-        //: 3 8-bit unicode is a C++17 feature and is not tested.
-        //
-        // Plan:
-        //: 1 For concern 1, if
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is defined
-        //:   then define 'char16_t' and 'char16_t[]' variables initialized to
-        //:   character and string constants with the 'u' prefix.
-        //: 2 For concern 2, also define 'char32_t' and 'char32_t[]' variables
-        //:   initialized to character and string constants with the 'U'
-        //:   prefix.
-        //: 3 For concern 3, eventually define 'char8_t' and 'char8_t[]'
-        //:   variables initialized to character and string constants with
-        //:   the 'u8' prefix. It is likely that a different macro will be
-        //:   tested for the u8 types.
-        //
-        // Testing:
-        //   BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-        // --------------------------------------------------------------------
-
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose)
-            printf("TESTING BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES"
-                   " skipped\n"
-                   "========================================================"
-                   "========\n");
-#else
-        if (verbose)
-            printf("TESTING BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES\n"
-                   "========================================================\n"
-                );
-
-        const char16_t leftArrow   = u'\u2190';
-        const char16_t rightArrow  = u'\u2192';
-        const char16_t leftRight[] = u"\u2190\u2192";
-        ASSERT(0x2190     == leftArrow);
-        ASSERT(0x2192     == rightArrow);
-        ASSERT(leftArrow  == leftRight[0]);
-        ASSERT(rightArrow == leftRight[1]);
-        ASSERT(0          == leftRight[2]);
-
-        const char32_t sadEmoticon    = U'\U0001F641';
-        const char32_t smileyEmoticon = U'\U0001F642';
-        const char32_t happySad[]     = U"\U0001F642\U0001F641";
-        ASSERT(0x1F641        == sadEmoticon);
-        ASSERT(0x1F642        == smileyEmoticon);
-        ASSERT(smileyEmoticon == happySad[0]);
-        ASSERT(sadEmoticon    == happySad[1]);
-        ASSERT(0              == happySad[2]);
-#endif
-
-      } break;
-      case 19: {
-        // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-        //
-        // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS' is
-        //:   defined only when the compiler is able to compile code with
-        //:   ref-qualified functions.
-        //: 2 If rvalue references are also supported, then functions can be
-        //:   qualified with rvalue references.
-        //: 3 Ref qualification is orthoganol to cv qualification.
-        //
-        // Plan:
-        //: 1 For concern 1, if 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
-        //:   is defined then compile a class that defines ref-qualified
-        //:   member functions.
-        //: 2 For concern 2, if
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is also
-        //:   defined, include rvalue-ref-qualified member functions.
-        //: 3 For concern 3, try every combination of cv qualification on all
-        //:   ref-qualified member functions.
-        //
-        // Testing:
-        //   BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-        // --------------------------------------------------------------------
-
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
-        if (verbose) printf("Testing ref-qualified functions skipped\n"
-                            "=======================================\n");
-#else
-        if (verbose) printf("Testing ref-qualified functions\n"
-                            "===============================\n");
-
-        struct TestClass {
-            // This class defines reference-qualified member functions
-
-            void foo(int)                &  { }
-            void foo(int) const          &  { }
-            void foo(int)       volatile &  { }
-            void foo(int) const volatile &  { }
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-            void foo(int)                && { }
-            void foo(int) const          && { }
-            void foo(int)       volatile && { }
-            void foo(int) const volatile && { }
-#endif
-        };
-#endif
-      } break;
-      case 18: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
         //
@@ -1007,7 +589,7 @@ int main(int argc, char *argv[])
         alignas(8) int foo; (void) foo;
 #endif
       } break;
-      case 17: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
         //
@@ -1035,7 +617,7 @@ int main(int argc, char *argv[])
         ASSERT((PackSize<int, char, double, void>::VALUE == 4));
 #endif
       } break;
-      case 16: {
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
         //
@@ -1062,7 +644,7 @@ int main(int argc, char *argv[])
         static_assert(1,    "static_assert with int");
 #endif
       } break;
-      case 15: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         //
@@ -1095,7 +677,7 @@ int main(int argc, char *argv[])
         z.test();
 #endif
       } break;
-      case 14: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
         //
@@ -1126,7 +708,7 @@ int main(int argc, char *argv[])
         struct Override: OverrideBase { void f() const override {} };
 #endif
       } break;
-      case 13: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
         //
@@ -1164,7 +746,7 @@ int main(int argc, char *argv[])
         ASSERT(result);
 #endif
       } break;
-      case 12: {
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
         //
@@ -1192,7 +774,7 @@ int main(int argc, char *argv[])
         OverloadForNullptr(nullptr);
 #endif
       } break;
-      case 11:{
+      case 10:{
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
         //
@@ -1224,7 +806,7 @@ int main(int argc, char *argv[])
         ASSERT(false == noexcept(notNoexceptTest2()));
 #endif
       } break;
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
         //
@@ -1249,7 +831,7 @@ int main(int argc, char *argv[])
                             "====================\n");
 #endif
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
         //
@@ -1280,7 +862,7 @@ int main(int argc, char *argv[])
         mX.use( {object{}, { object{}, object{} } });
 #endif
       } break;
-      case 8: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_FINAL
         //
@@ -1312,7 +894,7 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 7: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
         //
@@ -1341,7 +923,7 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 6: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
         //
@@ -1367,8 +949,8 @@ int main(int argc, char *argv[])
                             "==================================\n");
         ClassWithDeletedOps* p; (void)p;
 #endif
-      } break;
-      case 5: {
+      }break;
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
         //
@@ -1416,7 +998,7 @@ int main(int argc, char *argv[])
         ASSERT(42 == defaulted.d_value);
 #endif
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
         //
@@ -1450,61 +1032,6 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 3: {
-        // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-        //
-        // Concerns:
-        //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED' is defined only
-        //:   when the compiler is actually able to compile code with relaxed
-        //:   constexpr functions that may comprise of multiple statements,
-        //:   including multiple return statements, and may mutate the state of
-        //:   local variables.
-        //: 2 When 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED' is defined
-        //:   constexpr member functions are not implicitly const.
-        //
-        // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED' is defined
-        //:   then compile code that uses this feature to define relaxed
-        //:   constant expression functions.
-        //: 2 If 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED' is defined
-        //:   then compile code that uses this feature to define a constexpr
-        //:   member function and detect that it is not a const member
-        //:   function.  Use expression SFINAE to detect this without invoking
-        //:   a compiler error.
-        //
-        // Testing:
-        //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-        // --------------------------------------------------------------------
-
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)
-        if (verbose) {
-   printf("TESTING BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED SKIPPED\n"
-          "===============================================================\n");
-        }
-#else
-        if (verbose) {
-           printf("TESTING BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED\n"
-                  "=======================================================\n");
-        }
-
-        static_assert(relaxedConstExprFunc(true) == 42,
-                      "Relaxed (C++14) 'constexpr' is not supported");
-
-        if (sizeof(Sniffer::test<Feature14>(0)) == sizeof(FalseType)) {
-            ASSERT(!"C++14 did not detect relaxed constexpr");
-        }
-
-        if (sizeof(Sniffer::test<Feature11>(0)) == sizeof(FalseType)) {
-            ASSERT(!"C++14 did not detect original constexpr");
-        }
-
-        if (sizeof(ConstexprConst::test<Feature14>(0)) == sizeof(FalseType)) {
-            ASSERT(!"C++14 constexpr erroneously makes member function const");
-        }
-#endif
-
-      } break;
       case 2: {
         // --------------------------------------------------------------------
         // TESTING BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
@@ -1533,10 +1060,6 @@ int main(int argc, char *argv[])
 
         constexpr int v = A(true).m;
         ASSERT(v == 42);
-
-        if (sizeof(Sniffer::test<Feature11>(0)) == sizeof(FalseType)) {
-            ASSERT(!"C++11 did not detect original constexpr");
-        }
 #endif
 
       } break;

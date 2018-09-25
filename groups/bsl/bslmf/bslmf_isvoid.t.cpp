@@ -14,14 +14,11 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines two meta-functions, 'bsl::is_void' and
-// 'bslmf::IsVoid' and a template variable 'bsl::is_void_t', that determine
-// whether a template parameter type is the (possibly cv-qualified) 'void'
-// type.  Also the component defines template variable 'bsl::is_void_v' that
-// represents the result value of the 'bsl::is_void' meta-function.  Thus, we
-// need to ensure that the values returned by these meta-functions are correct
-// for each possible category of types.  Since the two meta-functions and the
-// variable are functionally equivalent, we will use the same set of types for
-// both.
+// 'bslmf::IsVoid', that determine whether a template parameter type is the
+// (possibly cv-qualified) 'void' type.  Thus, we need to ensure that the
+// values returned by these meta-functions are correct for each possible
+// category of types.  Since the two meta-functions are functionally
+// equivalent, we will use the same set of types for both.
 //
 //-----------------------------------------------------------------------------
 // [ 4] bsl::is_void conversion to bool
@@ -31,7 +28,6 @@ using namespace BloombergLP;
 // [ 3] bsl::is_void::type
 // [ 3] bslmf::IsVoid::Type
 // [ 2] bsl::is_void::value
-// [ 2] bsl::is_void_v
 // [ 2] bslmf::IsVoid::VALUE
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -197,14 +193,6 @@ int main(int argc, char *argv[])
 //..
     ASSERT(false == bsl::is_void<MyType>::value);
     ASSERT(true  == bsl::is_void<MyVoidType>::value);
-//..
-// Note that if the current compiler supports the variable templates C++14
-// feature, then we can re-write the snippet of code above as follows:
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    ASSERT(false == bsl::is_void_v<MyType>);
-    ASSERT(true  == bsl::is_void_v<MyVoidType>);
-#endif
 //..
       } break;
       case 4: {
@@ -379,8 +367,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bslmf::IsVoid::VALUE', 'bsl::is_void::value' and
-        // 'bsl::is_void::value_v'
+        // 'bslmf::IsVoid::VALUE' and 'bsl::is_void::value'
         //
         // Concerns:
         //: 1 The meta-functions return 'true' for any 'void' type, regardless
@@ -429,21 +416,6 @@ int main(int argc, char *argv[])
         ASSERT(!bsl::is_void<void *Empty::*>::value);
         ASSERT(!bsl::is_void<bsl::is_void<void> >::value);
         ASSERT(!bsl::is_void<Incomplete>::value);
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-        ASSERT( bsl::is_void_v<               void>);
-        ASSERT( bsl::is_void_v<const          void>);
-        ASSERT( bsl::is_void_v<      volatile void>);
-        ASSERT( bsl::is_void_v<const volatile void>);
-        ASSERT(!bsl::is_void_v<void *             >);
-        ASSERT(!bsl::is_void_v<void *&            >);
-        ASSERT(!bsl::is_void_v<void()             >);
-        ASSERT(!bsl::is_void_v<void(*)()          >);
-        ASSERT(!bsl::is_void_v<void *Empty::*     >);
-        ASSERT(!bsl::is_void_v<void *(Empty::*)() >);
-        ASSERT(!bsl::is_void_v<bsl::is_void<void> >);
-        ASSERT(!bsl::is_void_v<Incomplete         >);
-#endif
 
       } break;
       case 1: {

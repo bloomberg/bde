@@ -189,21 +189,14 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_CSTDDEF
-#include <cstddef>
-#define INCLUDED_CSTDDEF
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-#ifndef INCLUDED_INITIALIZER_LIST
-#include <initializer_list>
-#define INCLUDED_INITIALIZER_LIST
-#endif
-#endif
-
 #ifndef INCLUDED_ITERATOR
 #include <iterator>
 #define INCLUDED_ITERATOR
+#endif
+
+#ifndef INCLUDED_CSTDDEF
+#include <cstddef>
+#define INCLUDED_CSTDDEF
 #endif
 
 #if (__cplusplus < 201103L) && defined(BSLS_PLATFORM_CMP_SUN) \
@@ -234,11 +227,6 @@ using native_std::front_inserter;
 using native_std::insert_iterator;
 using native_std::inserter;
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-// 24.5 predefined iterators (C++14)
-using native_std::make_reverse_iterator;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-
 // 24.5 stream iterators
 using native_std::istream_iterator;
 using native_std::ostream_iterator;
@@ -246,6 +234,8 @@ using native_std::istreambuf_iterator;
 using native_std::ostreambuf_iterator;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+using native_std::begin;
+using native_std::end;
 using native_std::move_iterator;
 using native_std::make_move_iterator;
 using native_std::next;
@@ -676,147 +666,6 @@ distance(ITER start, ITER finish);
 using native_std::distance;
 #endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
-using native_std::begin;
-using native_std::end;
-#else
-template <class T>
-typename T::iterator begin(T& container);
-    // Return an iterator providing modifiable access to the first valid
-    // element of the specified 'container'.
-
-template <class T>
-typename T::const_iterator begin(const T& container);
-    // Return an iterator providing non-modifiable access to the first valid
-    // element of the specified 'container'.
-
-template<class T, size_t N>
-T *begin(T (&array)[N]);
-    // Return the address of the modifiable first element in the specified
-    // 'array'.
-
-template<class T, size_t N>
-const T *begin(const T (&array)[N]);
-    // Return the address of the non-modifiable first element in the specified
-    // 'array'.
-
-template <class T>
-typename T::iterator end(T& container);
-    // Return the iterator providing modifiable access to the position one
-    // after the last valid element in the specified 'container'.
-
-template <class T>
-typename T::const_iterator end(const T& container);
-    // Return the iterator providing non-modifiable access to the position one
-    // after the last valid element in the specified 'container'.
-
-template<class T, size_t N>
-T *end(T (&array)[N]);
-    // Return the address of the modifiable element after the last element
-    // in the specified 'array'.
-
-template<class T, size_t N>
-const T *end(const T (&array)[N]);
-    // Return the address of the non-modifiable element after the last element
-    // in the specified 'array'.
-
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
-using native_std::cbegin;
-using native_std::cend;
-using native_std::rbegin;
-using native_std::rend;
-using native_std::crbegin;
-using native_std::crend;
-#else
-template <class T>
-typename T::const_iterator cbegin(const T& container);
-    // Return an iterator providing non-modifiable access to the first valid
-    // element of the specified 'container'.
-
-template<class T, size_t N>
-const T *cbegin(const T (&array)[N]);
-    // Return the address of the non-modifiable first element in the specified
-    // 'array'.
-
-template <class T>
-typename T::reverse_iterator rbegin(T& container);
-    // Return the reverse iterator providing modifiable access to the last
-    // valid element of the specified 'container'.
-
-template <class T>
-typename T::const_reverse_iterator rbegin(const T& container);
-    // Return the reverse iterator providing non-modifiable access to the last
-    // valid element of the specified 'container'.
-
-template <class T, size_t N>
-reverse_iterator<T *> rbegin(T (&array)[N]);
-    // Return the reverse iterator providing modifiable access to the last
-    // element of the specified 'array'.
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-template <class T>
-reverse_iterator<const T *> rbegin(std::initializer_list<T> initializerList);
-    // Return the reverse iterator providing non-modifiable access to the last
-    // element of the specified 'initializerList'.
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-
-template <class T>
-typename T::const_reverse_iterator crbegin(const T& container);
-    // Return the reverse iterator providing non-modifiable access to the last
-    // valid element of the specified 'container'.
-
-template <class T, size_t N>
-reverse_iterator<const T *> crbegin(const T (&array)[N]);
-    // Return the reverse iterator providing non-modifiable access to the last
-    // element of the specified 'array'.
-
-template <class T>
-typename T::const_iterator cend(const T& container);
-    // Return the iterator providing non-modifiable access to the position one
-    // after the last valid element in the specified 'container'.
-
-template<class T, size_t N>
-const T *cend(const T (&array)[N]);
-    // Return the address of the non-modifiable element after the last element
-    // in the specified 'array'.
-
-template <class T>
-typename T::reverse_iterator rend(T& container);
-    // Return the reverse iterator providing modifiable access to the position
-    // one before the first valid element in the specified 'container'.
-
-template <class T>
-typename T::const_reverse_iterator rend(const T& container);
-    // Return the reverse iterator providing non-modifiable access to the
-    // position one before the first valid element in the specified
-    // 'container'.
-
-template <class T, size_t N>
-reverse_iterator<T *> rend(T (&array)[N]);
-    // Return the reverse iterator providing modifiable access to the position
-    // one before the first element in the specified 'array'.
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-template <class T>
-reverse_iterator<const T *> rend(std::initializer_list<T> initializerList);
-    // Return the reverse iterator providing non-modifiable access to the
-    // position one before the first element in the specified
-    // 'initializerList'.
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-
-template <class T>
-typename T::const_reverse_iterator crend(const T& container);
-    // Return the reverse iterator providing non-modifiable access to the
-    // position one before the first element in the specified 'container'.
-
-template <class T, size_t N>
-reverse_iterator<const T *> crend(const T (&array)[N]);
-    // Return the reverse iterator providing non-modifiable access to the
-    // position one before the first element in the specified 'array'.
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
-
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
@@ -1124,182 +973,6 @@ distance(ITER start, ITER finish)
 }
 
 #endif  // BSLS_PLATFORM_CMP_SUN && !BDE_BUILD_TARGET_STLPORT
-
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
-template <class T>
-inline
-typename T::iterator begin(T& container)
-{
-    return container.begin();
-}
-
-template <class T>
-inline
-typename T::const_iterator begin(const T& container)
-{
-    return container.begin();
-}
-
-template<class T, size_t N>
-inline
-T *begin(T (&array)[N])
-{
-    return array;
-}
-
-template<class T, size_t N>
-inline
-const T *begin(const T (&array)[N])
-{
-    return array;
-}
-
-template <class T>
-inline
-typename T::iterator end(T& container)
-{
-    return container.end();
-}
-
-template <class T>
-inline
-typename T::const_iterator end(const T& container)
-{
-    return container.end();
-}
-
-template<class T, size_t N>
-inline
-T *end(T (&array)[N])
-{
-    return array + N;
-}
-
-template<class T, size_t N>
-inline
-const T *end(const T (&array)[N])
-{
-    return array + N;
-}
-
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
-
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
-template <class T>
-inline
-typename T::const_iterator cbegin(const T& container)
-{
-    return begin(container);
-}
-
-template<class T, size_t N>
-inline
-const T *cbegin(const T (&array)[N])
-{
-    return begin(array);
-}
-
-template <class T>
-inline
-typename T::reverse_iterator rbegin(T& container)
-{
-    return container.rbegin();
-}
-
-template <class T>
-inline
-typename T::const_reverse_iterator rbegin(const T& container)
-{
-    return container.rbegin();
-}
-
-template <class T, size_t N>
-inline
-reverse_iterator<T *> rbegin(T (&array)[N])
-{
-    return reverse_iterator<T *>(array + N);
-}
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-template <class T>
-inline
-reverse_iterator<const T *> rbegin(std::initializer_list<T> initializerList)
-{
-    return reverse_iterator<const T *>(initializerList.end());
-}
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-
-template <class T>
-inline
-typename T::const_reverse_iterator crbegin(const T& container)
-{
-    return rbegin(container);
-}
-
-template <class T, size_t N>
-inline
-reverse_iterator<const T *> crbegin(const T (&array)[N])
-{
-    return reverse_iterator<const T *>(array + N);
-}
-
-template <class T>
-inline
-typename T::const_iterator cend(const T& container)
-{
-    return end(container);
-}
-
-template<class T, size_t N>
-inline
-const T *cend(const T (&array)[N])
-{
-    return end(array);
-}
-
-template <class T>
-inline
-typename T::reverse_iterator rend(T& container)
-{
-    return container.rend();
-}
-
-template <class T>
-inline
-typename T::const_reverse_iterator rend(const T& container)
-{
-    return container.rend();
-}
-
-template <class T, size_t N>
-inline
-reverse_iterator<T *> rend(T (&array)[N])
-{
-    return reverse_iterator<T *>(array);
-}
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-template <class T>
-inline
-reverse_iterator<const T *> rend(std::initializer_list<T> initializerList)
-{
-    return reverse_iterator<const T *>(initializerList.begin());
-}
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-
-template <class T>
-typename T::const_reverse_iterator crend(const T& container)
-{
-    return rend(container);
-}
-
-template <class T, size_t N>
-inline
-reverse_iterator<const T *> crend(const T (&array)[N])
-{
-    return reverse_iterator<const T *>(array);
-}
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
 
 }  // close namespace bsl
 

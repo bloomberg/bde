@@ -133,8 +133,8 @@ in BSL_OVERRIDES_STD mode"
 #include <bslalg_hashtablebucket.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECV
-#include <bslmf_removecv.h>
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#include <bslmf_removecvq.h>
 #endif
 
 #ifndef INCLUDED_BSLS_ASSERT
@@ -152,14 +152,6 @@ in BSL_OVERRIDES_STD mode"
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
 #endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
-#endif
-
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bslstl {
@@ -191,7 +183,7 @@ class HashTableBucketIterator {
     // node.
 
     // PRIVATE TYPES
-    typedef typename bsl::remove_cv<VALUE_TYPE>::type        NcType;
+    typedef typename bslmf::RemoveCvq<VALUE_TYPE>::Type NcType;
     typedef HashTableBucketIterator<NcType, DIFFERENCE_TYPE> NcIter;
 
   public:

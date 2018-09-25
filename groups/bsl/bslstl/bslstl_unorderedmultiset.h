@@ -718,8 +718,8 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
@@ -1032,7 +1032,7 @@ class unordered_multiset
 
     unordered_multiset&
     operator=(BloombergLP::bslmf::MovableRef<unordered_multiset> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value, hash function, and equality
         // comparator of the specified 'rhs' object, propagate to this object
         // the allocator of 'rhs' if the 'ALLOCATOR' type has trait
@@ -1059,13 +1059,13 @@ class unordered_multiset
         // this unordered multiset (see {Requirements on 'KEY'}).
 #endif
 
-    iterator begin() BSLS_KEYWORD_NOEXCEPT;
+    iterator begin() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the first
         // 'value_type' object (in the sequence of 'value_type' objects)
         // maintained by this unordered multiset, or the 'end' iterator if this
         // unordered multiset is empty.
 
-    iterator end() BSLS_KEYWORD_NOEXCEPT;
+    iterator end() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the past-the-end
         // element in the sequence of 'value_type' objects maintained by this
         // unordered multiset.
@@ -1083,7 +1083,7 @@ class unordered_multiset
         // bucket having the specified 'index', in the array of buckets
         // maintained by this unordered multiset.
 
-    void clear() BSLS_KEYWORD_NOEXCEPT;
+    void clear() BSLS_CPP11_NOEXCEPT;
         // Remove all entries from this unordered multiset.  Note that the
         // container is empty after this call, but allocated memory may be
         // retained for future use.
@@ -1543,7 +1543,7 @@ class unordered_multiset
         // has no effect if 'numElements <= size()'.
 
     void swap(unordered_multiset& other)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value, hash function, and equality comparator of this
         // object with the value, hash function, and equality comparator of the
         // specified 'other' object.  Additionally, if
@@ -1558,31 +1558,31 @@ class unordered_multiset
         // allocator or 'propagate_on_container_swap' is 'true'.
 
     // ACCESSORS
-    ALLOCATOR get_allocator() const BSLS_KEYWORD_NOEXCEPT;
+    ALLOCATOR get_allocator() const BSLS_CPP11_NOEXCEPT;
         // Return (a copy of) the allocator used for memory allocation by this
         // unordered multiset.
 
-    const_iterator  begin() const BSLS_KEYWORD_NOEXCEPT;
-    const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator  begin() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the sequence of 'value_type' objects
         // maintained by this unordered multiset, or the 'end' iterator if this
         // unordered multiset is empty.
 
-    const_iterator  end() const BSLS_KEYWORD_NOEXCEPT;
-    const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator  end() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element in the sequence of 'value_type' objects
         // maintained by this unordered multiset.
 
-    bool empty() const BSLS_KEYWORD_NOEXCEPT;
+    bool empty() const BSLS_CPP11_NOEXCEPT;
         // Return 'true' if this unordered multiset contains no elements, and
         // 'false' otherwise.
 
-    size_type size() const BSLS_KEYWORD_NOEXCEPT;
+    size_type size() const BSLS_CPP11_NOEXCEPT;
         // Return the number of elements in this unordered multiset.
 
-    size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
+    size_type max_size() const BSLS_CPP11_NOEXCEPT;
         // Return a theoretical upper bound on the largest number of elements
         // that this unordered multiset could possibly hold.  Note that there
         // is no guarantee that the unordered multiset can successfully grow to
@@ -1641,11 +1641,11 @@ class unordered_multiset
         // container, where a value equivalent to the specified 'key' would be
         // inserted.
 
-    size_type bucket_count() const BSLS_KEYWORD_NOEXCEPT;
+    size_type bucket_count() const BSLS_CPP11_NOEXCEPT;
         // Return the number of buckets in the array of buckets maintained by
         // this unordered multiset.
 
-    size_type max_bucket_count() const BSLS_KEYWORD_NOEXCEPT;
+    size_type max_bucket_count() const BSLS_CPP11_NOEXCEPT;
         // Return a theoretical upper bound on the largest number of buckets
         // that this container could possibly manage.  Note that there is no
         // guarantee that the unordered multiset can successfully grow to the
@@ -1659,13 +1659,13 @@ class unordered_multiset
         // bucket_count()'.
 
 
-    float load_factor() const BSLS_KEYWORD_NOEXCEPT;
+    float load_factor() const BSLS_CPP11_NOEXCEPT;
         // Return the current ratio between the 'size' of this container and
         // the number of buckets.  The 'load_factor' is a measure of how full
         // the container is, and a higher load factor leads to an increased
         // number of collisions, thus resulting in a loss performance.
 
-    float max_load_factor() const BSLS_KEYWORD_NOEXCEPT;
+    float max_load_factor() const BSLS_CPP11_NOEXCEPT;
         // Return the maximum load factor allowed for this container.  If an
         // insert operation would cause 'load_factor' to exceed the
         // 'max_load_factor', that same insert operation will increase the
@@ -1701,7 +1701,7 @@ bool operator!=(const unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& lhs,
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 void swap(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& a,
           unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& b)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value, hash function, and equality comparator of the
     // specified 'a' object with the value, hash function, and equality
     // comparator of the specified 'b' object.  Additionally, if
@@ -1952,7 +1952,7 @@ inline
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>&
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::operator=(
                         BloombergLP::bslmf::MovableRef<unordered_multiset> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     // Note that we have delegated responsibility for correct handling of
     // allocator propagation to the 'HashTable' implementation.
@@ -2569,7 +2569,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::emplace_hint(
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::begin() BSLS_KEYWORD_NOEXCEPT
+unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::begin() BSLS_CPP11_NOEXCEPT
 {
     return iterator(d_impl.elementListRoot());
 }
@@ -2577,7 +2577,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::begin() BSLS_KEYWORD_NOEXCEPT
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::iterator
-unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::end() BSLS_KEYWORD_NOEXCEPT
+unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::end() BSLS_CPP11_NOEXCEPT
 {
     return iterator();
 }
@@ -2605,7 +2605,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index)
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void
-unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
+unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     d_impl.removeAll();
 }
@@ -2784,7 +2784,7 @@ inline
 void
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::swap(
                                                      unordered_multiset& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     d_impl.swap(other.d_impl);
 }
@@ -2794,7 +2794,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 ALLOCATOR
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::get_allocator() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.allocator();
 }
@@ -2803,7 +2803,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::begin() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_iterator(d_impl.elementListRoot());
 }
@@ -2812,7 +2812,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::end() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_iterator();
 }
@@ -2821,7 +2821,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::cbegin() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_iterator(d_impl.elementListRoot());
 }
@@ -2830,7 +2830,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::const_iterator
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::cend() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_iterator();
 }
@@ -2891,7 +2891,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::bucket_count() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.numBuckets();
 }
@@ -2942,7 +2942,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::empty() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return 0 == d_impl.size();
 }
@@ -2951,7 +2951,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::size() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.size();
 }
@@ -2960,7 +2960,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::max_size() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return AllocatorTraits::max_size(get_allocator());
 }
@@ -3000,7 +3000,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::size_type
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.maxNumBuckets();
 }
@@ -3009,7 +3009,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 float unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::load_factor() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.loadFactor();
 }
@@ -3017,7 +3017,7 @@ float unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::load_factor() const
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 float unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::max_load_factor() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_impl.maxLoadFactor();
 }
@@ -3049,7 +3049,7 @@ inline
 void
 bsl::swap(bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& a,
           bsl::unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& b)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }

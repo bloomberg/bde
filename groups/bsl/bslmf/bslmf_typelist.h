@@ -244,9 +244,9 @@ using TypeList20 = TypeList< A1, A2, A3, A4, A5, A6, A7, A8, A9,A10,
                             A11,A12,A13,A14,A15,A16,A17,A18,A19,A20>;
 
 
-         // ========================================================
-         // TypeList specializations for fixed number of  parameters
-         // ========================================================
+         // =========================================================
+         // TypeList speciailizations for fixed number of  parameters
+         // =========================================================
 
 template <class A1>
 struct TypeList<A1> {

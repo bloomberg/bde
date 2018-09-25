@@ -148,6 +148,10 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_rbtreeutil.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECVQ
+#include <bslmf_removecvq.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
 #endif
@@ -164,10 +168,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallycopyable.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECV
-#include <bslmf_removecv.h>
-#endif
-
 #ifndef INCLUDE_BSLS_ASSERT
 #include <bsls_assert.h>
 #endif
@@ -179,14 +179,6 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
 #endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_REMOVECVQ
-#include <bslmf_removecvq.h>
-#endif
-
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDE
 
 namespace BloombergLP {
 namespace bslstl {

@@ -18,15 +18,13 @@ using namespace BloombergLP;
 //                                --------
 // The component under test defines two meta-functions, 'bsl::remove_reference'
 // and 'bslmf::RemoveReference', both of which remove the reference-ness of the
-// (template parameter) 'TYPE'.   Also the component defines an alias to the
-// result type of the 'bsl::remove_reference' meta-function.  Thus, we need to
-// ensure that the values returned by these meta-functions are correct for each
-// possible category of types.
+// (template parameter) 'TYPE'.  Thus, we need to ensure that the values
+// returned by these meta-functions are correct for each possible category of
+// types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC TYPES
 // [ 1] bsl::remove_reference::type
-// [ 1] bsl::remove_reference_t
 // [ 2] bslmf::RemoveReference::Type
 //
 // ----------------------------------------------------------------------------
@@ -127,16 +125,6 @@ typedef char ( &&RRA)[5];
     ASSERT_SAME2(volatile X, volatile Y)                                      \
     ASSERT_SAME2(const volatile X, const volatile Y)
 
-#define ASSERT_SAME3(X, Y)                                                    \
-    ASSERT((bsl::is_same<bsl::remove_reference  <X>::type,                    \
-                         bsl::remove_reference_t<Y> >::value));
-
-#define ASSERT_REMOVE_REF_T(X, Y)                                             \
-    ASSERT_SAME3(X, Y)                                                        \
-    ASSERT_SAME3(const X, const Y)                                            \
-    ASSERT_SAME3(volatile X, volatile Y)                                      \
-    ASSERT_SAME3(const volatile X, const volatile Y)
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -200,24 +188,6 @@ int main(int argc, char *argv[])
 //..
 // Note that rvalue reference is a feature introduced in the C++11 standard and
 // may not be supported by all compilers.
-//
-// Finally, if the current compiler supports alias templates C++11 feature, we
-// remove reference-ness from a set of types using 'bsl::remove_reference_t'
-// and verify that the resulting type has any reference-ness removed:
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-    ASSERT(true  ==
-                  (bsl::is_same<bsl::remove_reference_t<int& >, int >::value));
-    ASSERT(false ==
-                  (bsl::is_same<bsl::remove_reference_t<int& >, int&>::value));
-    ASSERT(true  ==
-                  (bsl::is_same<bsl::remove_reference_t<int  >, int >::value));
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    ASSERT(true ==
-                  (bsl::is_same<bsl::remove_reference_t<int&&>, int >::value));
-#endif
-#endif
-//..
 
       } break;
       case 2: {
@@ -317,22 +287,13 @@ int main(int argc, char *argv[])
         //:
         //: 2 'remove_reference' does not transform 'TYPE' when 'TYPE' is not a
         //:   reference type.
-        //:
-        //: 3 'remove_reference_t' represents the return type of
-        //:   'remove_reference' meta-function for a variety of template
-        //:   parameter types.
         //
         // Plan:
-        //  1 Instantiate 'bsl::remove_reference' with various types and
-        //    verify that the 'type' member is initialized properly.  (C-1,2)
-        //
-        //  2 Verify that 'bsl::remove_reference_t' has the same type as the
-        //    return type of 'bsl::remove_reference' for a variety of template
-        //    parameter types. (C-3)
+        //: 1 Instantiate 'bsl::remove_reference' with various types and
+        //:  verify that the 'type' member is initialized properly.  (C-1,2)
         //
         // Testing:
         //   bsl::remove_reference::type
-        //   bsl::remove_reference_t
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING 'bsl::remove_reference::type'\n"
@@ -393,39 +354,6 @@ int main(int argc, char *argv[])
 
         ASSERT_SAME(RRA, A);
   #endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-        if (verbose) printf("TESTING 'bsl::remove_reference_t'\n"
-                            "================================\n");
-
-        // C-3
-        ASSERT_REMOVE_REF_T(int&,          int);
-        ASSERT_REMOVE_REF_T(void*&,        void*);
-        ASSERT_REMOVE_REF_T(Enum&,         Enum);
-        ASSERT_REMOVE_REF_T(Struct&,       Struct);
-        ASSERT_REMOVE_REF_T(Union&,        Union);
-        ASSERT_REMOVE_REF_T(Class&,        Class);
-        ASSERT_REMOVE_REF_T(int Class::*&, int Class::*);
-
-        ASSERT_REMOVE_REF_T(int,           int);
-        ASSERT_REMOVE_REF_T(void*,         void*);
-        ASSERT_REMOVE_REF_T(Enum,          Enum);
-        ASSERT_REMOVE_REF_T(Struct,        Struct);
-        ASSERT_REMOVE_REF_T(Union,         Union);
-        ASSERT_REMOVE_REF_T(Class,         Class);
-        ASSERT_REMOVE_REF_T(int Class::*,  int Class::*);
-
-  #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        ASSERT_REMOVE_REF_T(int&&,          int&&);
-        ASSERT_REMOVE_REF_T(void*&&,        void*&&);
-        ASSERT_REMOVE_REF_T(Enum&&,         Enum&&);
-        ASSERT_REMOVE_REF_T(Struct&&,       Struct&&);
-        ASSERT_REMOVE_REF_T(Union&&,        Union&&);
-        ASSERT_REMOVE_REF_T(Class&&,        Class&&);
-        ASSERT_REMOVE_REF_T(int Class::*&&, int Class::*&&);
-  #endif
-
-#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

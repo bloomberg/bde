@@ -401,8 +401,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NULLPTR
@@ -420,12 +420,6 @@ BSLS_IDENT("$Id: $")
 #ifndef INCLUDED_CSTDDEF
 #include <cstddef>       // for 'std::size_t', 'std::ptrdiff_t'
 #define INCLUDED_CSTDDEF
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#ifndef INCLUDED_BSLS_CPP11
-#include <bsls_cpp11.h>
-#endif
 #endif
 
 namespace BloombergLP {
@@ -596,13 +590,13 @@ void operator delete(void                           *address,
 // link-time error should any code inadvertently use them.
 
 void *operator new(
-           std::size_t                    size,
-           BloombergLP::bslma::Allocator *basicAllocator) BSLS_KEYWORD_DELETED;
+             std::size_t                    size,
+             BloombergLP::bslma::Allocator *basicAllocator) BSLS_CPP11_DELETED;
     // Note that this operator is intentionally not defined.
 
 void operator delete(
-           void                          *address,
-           BloombergLP::bslma::Allocator *basicAllocator) BSLS_KEYWORD_DELETED;
+             void                          *address,
+             BloombergLP::bslma::Allocator *basicAllocator) BSLS_CPP11_DELETED;
     // Note that this operator is intentionally not defined.
 
 // ============================================================================

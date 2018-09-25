@@ -11,20 +11,16 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::remove_volatile: meta-function for removing 'volatile'-qualifier
-//  bsl::remove_volatile_t: alias to the return type of the meta-function
 //
 //@SEE_ALSO: bslmf_addvolatile
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::remove_volatile'
-//  and declares an 'bsl::remove_volatile_t' alias to the return type of the
-// 'bsl::remove_volatile', that may be used to remove any top-level
-// 'volatile'-qualifier from a type.
+//@DESCRIPTION: This component defines a meta-function, 'bsl::remove_volatile',
+// that may be used to remove any top-level 'volatile'-qualifier from a type.
 //
-// 'bsl::remove_volatile' and 'bsl::remove_volatile_t' meet the requirements of
-// the 'remove_volatile' template defined in the C++11 standard
-// [meta.trans.cv].
+// 'bsl::remove_volatile' meets the requirements of the 'remove_volatile'
+// template defined in the C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----
@@ -49,26 +45,9 @@ BSLS_IDENT("$Id: $")
 //  assert(true == (bsl::is_same<bsl::remove_volatile<MyVolatileType>::type,
 //                                                            MyType>::value));
 //..
-// Finally, if the current compiler supports alias templates C++11 feature, we
-// remove a 'volatile'-qualifier from 'MyVolatileType' using
-//'bsl::remove_volatile_t' and verify that the resulting type is the same as
-// 'MyType':
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//  assert(true ==
-//      (bsl::is_same<bsl::remove_volatile_t<MyVolatileType>, MyType>::value));
-//#endif
-//..
-// Note, that the 'bsl::remove_volatile_t' avoids the '::type' suffix and
-// 'typename' prefix when we want to use the result of the  'bsl::remove_const'
-// meta-function in templates.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -231,17 +210,6 @@ struct remove_volatile<TYPE[LENGTH]> {
         // parameter) 'TYPE[N]' except with the 'volatile'-qualifier removed.
 };
 #endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-
-// ALIASES
-template <class TYPE>
-using remove_volatile_t = typename remove_volatile<TYPE>::type;
-    // 'remove_volatile_t' is an alias to the return type of the
-    // 'bsl::remove_volatile' meta-function.  Note, that the
-    // 'remove_volatile_t' avoids the '::type' suffix and 'typename' prefix
-    // when we want to use the result of the meta-function in templates.
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 }  // close namespace bsl
 

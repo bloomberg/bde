@@ -121,10 +121,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
-#endif
-
 #ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
 #endif
@@ -162,17 +158,6 @@ struct Util_RemoveReference<TYPE&&> {
     typedef TYPE type;
 };
 
-template <class TYPE>
-struct Util_AssertNotLvalue {
-    typedef int type;
-};
-
-template <class TYPE>
-struct Util_AssertNotLvalue<TYPE&> {
-    static_assert(sizeof(typename Util_Identity<TYPE>::type) == 0,
-                  "Cannot forward an rvalue as an lvalue.");
-    typedef int type;
-};
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
                                  // ===========
@@ -213,15 +198,9 @@ struct Util {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class TYPE>
-    static
-    BSLS_KEYWORD_CONSTEXPR
-    TYPE&& forward(typename Util_RemoveReference<TYPE>::type&  t)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+    static TYPE&& forward(typename Util_RemoveReference<TYPE>::type&  t);
     template <class TYPE>
-    static
-    BSLS_KEYWORD_CONSTEXPR
-    TYPE&& forward(typename Util_RemoveReference<TYPE>::type&& t)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+    static TYPE&& forward(typename Util_RemoveReference<TYPE>::type&& t);
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 };
 
@@ -295,20 +274,14 @@ Util::addressOf(RESULT (&fn)(ARG1, ARG2))
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 template <class TYPE>
-BSLS_KEYWORD_CONSTEXPR
 TYPE&& Util::forward(typename Util_RemoveReference<TYPE>::type& t)
-                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return static_cast<TYPE&&>(t);
 }
 
 template <class TYPE>
-BSLS_KEYWORD_CONSTEXPR
 TYPE&& Util::forward(typename Util_RemoveReference<TYPE>::type&& t)
-                                                          BSLS_KEYWORD_NOEXCEPT
 {
-    static_assert(sizeof(typename Util_AssertNotLvalue<TYPE>::type) > 0,
-                  "Just to trigger instantiation of the checker template.");
     return static_cast<TYPE&&>(t);
 }
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES

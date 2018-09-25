@@ -3,7 +3,6 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
-#include <bsls_nullptr.h>
 
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
@@ -16,27 +15,20 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function,
-// 'bsl::is_member_function_pointer' and a template variable
-// 'bsl::is_member_function_pointer_v', that determine whether a template
+// 'bsl::is_member_function_pointer', which determines whether a template
 // parameter type is a pointer to (non-static) member function type.  Thus, we
 // need to ensure that the value returned by this meta-function is correct for
-// each possible category of types.  Note that a few test cases will produce
-// awkward error messages on failure, but will always contain the full type
-// name through a macro expansion.  Alternative techniques have been explored,
-// such as using 'ASSERTV' with 'bsls::NameOf', but compile times for the test
-// driver grow considerably, e.g., for Linux/gcc-C++17 builds, build time with
-// just adding the 'bsls::NameOf' call to each ASSERT grew from 10 seconds to
-// 1'45.
+// each possible category of types.
+//
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::is_member_function_pointer::value
-// [ 1] bsl::is_member_function_pointer_v
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 
 // ============================================================================
-//                      STANDARD BSL ASSERT TEST FUNCTION
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
@@ -57,7 +49,7 @@ void aSsErT(bool condition, const char *message, int line)
 }  // close unnamed namespace
 
 // ============================================================================
-//              STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
@@ -79,19 +71,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
-//              PLATFORM-SPECIFIC MACROS FOR WORKAROUNDS
-//-----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-# define BSLMF_ISMEMBERFUNCTIONPOINTER_NO_ABOMINABLE_TYPES 1
-#endif
-
-// #define BSLMF_ISMEMBERFUNCTIONPOINTER_SHOW_FAIL_FOR_DIAGNOSTICS 1
-//   Define this macro to generate expected test failures for types that might
-//   have awkward diagnostics, to verify that all the necessary information is
-//   available to correctly diagnose a test failure.
-
-//=============================================================================
 //                      WARNING SUPPRESSION
 //-----------------------------------------------------------------------------
 
@@ -107,250 +86,8 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 //=============================================================================
-//                          MACROS USEFUL FOR TESTING
-//-----------------------------------------------------------------------------
-
-#define INT_00
-#define INT_01 int
-#define INT_02 INT_01, int
-#define INT_03 INT_02, int
-#define INT_04 INT_03, int
-#define INT_05 INT_04, int
-#define INT_06 INT_05, int
-#define INT_07 INT_06, int
-#define INT_08 INT_07, int
-#define INT_09 INT_08, int
-#define INT_10 INT_09, int
-#define INT_11 INT_10, int
-#define INT_12 INT_11, int
-#define INT_13 INT_12, int
-#define INT_14 INT_13, int
-#define INT_15 INT_14, int
-#define INT_16 INT_15, int
-#define INT_17 INT_16, int
-#define INT_18 INT_17, int
-#define INT_19 INT_18, int
-#define INT_20 INT_19, int
-#define INT_21 INT_20, int
-    // This set of macros will make it much simpler to declare function types
-    // with a specific number of parameters, and to clearly see that number
-    // without counting each individual parameter to audit coverage.  Various
-    // BDE metaprogramming utilities support 10, 14, 16, and 20 arguments, so
-    // provide a full set up to 21 in order to cover anticipated boundary
-    // conditions.
-
-
-// The following macros provide most of the test machinery used to validate the
-// trait under test in this test driver.
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES)
-# define ASSERT_V_EQ_VALUE(TYPE)                                              \
-    ASSERT(bsl::is_member_function_pointer  <TYPE>::value ==                  \
-           bsl::is_member_function_pointer_v<TYPE>)
-    // Test whether 'bsl::is_member_function_pointer_v<TYPE>' value equals to
-    // 'bsl::is_member_function_pointer<TYPE>::value'.
-#else
-# define ASSERT_V_EQ_VALUE(TYPE)
-#endif
-
-#define TYPE_ASSERT(META_FUNC, TYPE, result)                                  \
-    ASSERT(result == META_FUNC<TYPE>::value);                                 \
-    ASSERT_V_EQ_VALUE(TYPE)
-    // Test that the result of 'META_FUNC' has the same value as the expected
-    // 'result'.  Confirm that the result value of the 'META_FUNC' and the
-    // value of the 'META_FUNC_v' variable are the same.
-
-
-
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-# define TEST_OBJECT_AND_REFERENCES(META_FUNC, TYPE)            \
-    TYPE_ASSERT(META_FUNC, TYPE,                   false);      \
-    TYPE_ASSERT(META_FUNC, TYPE &,                 false);
-#else
-# define TEST_OBJECT_AND_REFERENCES(META_FUNC, TYPE)            \
-    TYPE_ASSERT(META_FUNC, TYPE,                   false);      \
-    TYPE_ASSERT(META_FUNC, TYPE &,                 false);      \
-    TYPE_ASSERT(META_FUNC, TYPE &&,                false);
-#endif
-
-
-#define TEST_CV_OBJECT(META_FUNC, TYPE)                         \
-    TEST_OBJECT_AND_REFERENCES(META_FUNC, TYPE               ); \
-    TEST_OBJECT_AND_REFERENCES(META_FUNC, TYPE const         ); \
-    TEST_OBJECT_AND_REFERENCES(META_FUNC, TYPE       volatile); \
-    TEST_OBJECT_AND_REFERENCES(META_FUNC, TYPE const volatile);
-
-#define TEST_OBJECT(META_FUNC, TYPE)                            \
-    TEST_CV_OBJECT(META_FUNC, TYPE  );                          \
-    TEST_CV_OBJECT(META_FUNC, TYPE *);
-
-
-#define TEST_ARRAY(META_FUNC, TYPE)                             \
-    TYPE_ASSERT(META_FUNC, TYPE[],       false);                \
-    TYPE_ASSERT(META_FUNC, TYPE[2],      false);                \
-    TYPE_ASSERT(META_FUNC, TYPE[][2],    false);                \
-    TYPE_ASSERT(META_FUNC, TYPE(*)[],    false);                \
-    TYPE_ASSERT(META_FUNC, TYPE(*)[2],   false);                \
-    TYPE_ASSERT(META_FUNC, TYPE(*)[][2], false);                \
-    TYPE_ASSERT(META_FUNC, TYPE(&)[],    false);                \
-    TYPE_ASSERT(META_FUNC, TYPE(&)[2],   false);                \
-    TYPE_ASSERT(META_FUNC, TYPE(&)[][2], false);
-
-
-
-#define TEST_MEMPTR(META_FUNC, TYPE)                            \
-    TEST_OBJECT(META_FUNC, Identity<TYPE>::type Incomplete::*); \
-    TEST_ARRAY (META_FUNC, Identity<TYPE>::type Incomplete::*);
-
-
-// Define the macro 'TEST_FUNCTION(META_FUNC, TYPE, result)' to incrementally
-// support testing of cv-qualified abominable functions, cv-ref qualified
-// abominable functions, and cv-ref-noexcept qualified abominable functions,
-// according to the level of support offered by the compiler.
-#if defined(BSLMF_ISMEMBERFUNCTIONPOINTER_NO_ABOMINABLE_TYPES)
-
-# define TEST_FUNCTION(META_FUNC, TYPE)                        \
-    TYPE_ASSERT(META_FUNC, TYPE,                   false);     \
-    TYPE_ASSERT(META_FUNC, Identity<TYPE>::type &, false);     \
-    TEST_OBJECT(META_FUNC, Identity<TYPE>::type *);            \
-    TEST_ARRAY (META_FUNC, Identity<TYPE>::type *);
-
-#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-
-# define TEST_FUNCTION(META_FUNC, TYPE)                        \
-    TYPE_ASSERT(META_FUNC, TYPE,                   false);     \
-    TYPE_ASSERT(META_FUNC, TYPE const,             false);     \
-    TYPE_ASSERT(META_FUNC, TYPE       volatile,    false);     \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile,    false);     \
-    TYPE_ASSERT(META_FUNC, Identity<TYPE>::type &, false);     \
-    TEST_OBJECT(META_FUNC, Identity<TYPE>::type *);            \
-    TEST_ARRAY (META_FUNC, Identity<TYPE>::type *);
-
-#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
-
-# define TEST_FUNCTION(META_FUNC, TYPE)                        \
-    TYPE_ASSERT(META_FUNC, TYPE,                    false);    \
-    TYPE_ASSERT(META_FUNC, TYPE const,              false);    \
-    TYPE_ASSERT(META_FUNC, TYPE       volatile,     false);    \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile,     false);    \
-    TYPE_ASSERT(META_FUNC, Identity<TYPE>::type  &, false);    \
-    TYPE_ASSERT(META_FUNC, Identity<TYPE>::type &&, false);    \
-    TEST_OBJECT(META_FUNC, Identity<TYPE>::type *);            \
-    TEST_ARRAY (META_FUNC, Identity<TYPE>::type *);
-
-#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
-
-# define TEST_FUNCTION(META_FUNC, TYPE)                        \
-    TYPE_ASSERT(META_FUNC, TYPE,                    false);    \
-    TYPE_ASSERT(META_FUNC, TYPE const,              false);    \
-    TYPE_ASSERT(META_FUNC, TYPE       volatile,     false);    \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile,     false);    \
-    TYPE_ASSERT(META_FUNC, TYPE                  &, false);    \
-    TYPE_ASSERT(META_FUNC, TYPE const            &, false);    \
-    TYPE_ASSERT(META_FUNC, TYPE       volatile   &, false);    \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile   &, false);    \
-    TYPE_ASSERT(META_FUNC, TYPE                 &&, false);    \
-    TYPE_ASSERT(META_FUNC, TYPE const           &&, false);    \
-    TYPE_ASSERT(META_FUNC, TYPE volatile        &&, false);    \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile  &&, false);    \
-    TYPE_ASSERT(META_FUNC, Identity<TYPE>::type  &, false);    \
-    TYPE_ASSERT(META_FUNC, Identity<TYPE>::type &&, false);    \
-    TEST_OBJECT(META_FUNC, Identity<TYPE>::type *);            \
-    TEST_ARRAY (META_FUNC, Identity<TYPE>::type *);
-
-#else
-
-# define TEST_FUNCTION(META_FUNC, TYPE)                                \
-    TYPE_ASSERT(META_FUNC, TYPE,                             false);   \
-    TYPE_ASSERT(META_FUNC, TYPE const,                       false);   \
-    TYPE_ASSERT(META_FUNC, TYPE       volatile,              false);   \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile,              false);   \
-    TYPE_ASSERT(META_FUNC, TYPE                 &,           false);   \
-    TYPE_ASSERT(META_FUNC, TYPE const           &,           false);   \
-    TYPE_ASSERT(META_FUNC, TYPE       volatile  &,           false);   \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile  &,           false);   \
-    TYPE_ASSERT(META_FUNC, TYPE                &&,           false);   \
-    TYPE_ASSERT(META_FUNC, TYPE const          &&,           false);   \
-    TYPE_ASSERT(META_FUNC, TYPE       volatile &&,           false);   \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile &&,           false);   \
-    TYPE_ASSERT(META_FUNC, TYPE                   noexcept,  false);   \
-    TYPE_ASSERT(META_FUNC, TYPE const             noexcept,  false);   \
-    TYPE_ASSERT(META_FUNC, TYPE       volatile    noexcept,  false);   \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile    noexcept,  false);   \
-    TYPE_ASSERT(META_FUNC, TYPE                 & noexcept,  false);   \
-    TYPE_ASSERT(META_FUNC, TYPE const           & noexcept,  false);   \
-    TYPE_ASSERT(META_FUNC, TYPE       volatile  & noexcept,  false);   \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile  & noexcept,  false);   \
-    TYPE_ASSERT(META_FUNC, TYPE                && noexcept,  false);   \
-    TYPE_ASSERT(META_FUNC, TYPE const          && noexcept,  false);   \
-    TYPE_ASSERT(META_FUNC, TYPE       volatile && noexcept,  false);   \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile && noexcept,  false);   \
-    TYPE_ASSERT(META_FUNC, Identity<TYPE>::type  &,          false);   \
-    TYPE_ASSERT(META_FUNC, Identity<TYPE>::type &&,          false);   \
-    TYPE_ASSERT(META_FUNC, Identity<TYPE noexcept>::type  &, false);   \
-    TYPE_ASSERT(META_FUNC, Identity<TYPE noexcept>::type &&, false);   \
-    TEST_OBJECT(META_FUNC, Identity<TYPE>::type *);                    \
-    TEST_OBJECT(META_FUNC, Identity<TYPE noexcept>::type *);           \
-    TEST_ARRAY (META_FUNC, Identity<TYPE>::type *);                    \
-    TEST_ARRAY (META_FUNC, Identity<TYPE noexcept>::type *);
-#endif
-
-
-// Support macro for following tests
-#define ASSERT_MEMFUNC_TYPE(META_FUNC, TYPE)                   \
-    TYPE_ASSERT(META_FUNC, TYPE, true);                        \
-    TEST_OBJECT(META_FUNC, Identity<TYPE>::type *);            \
-    TEST_ARRAY (META_FUNC, Identity<TYPE>::type);
-
-
-// Member function always support cv-qualifiers. so worry less about abominable
-// function types.
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
-# define TEST_MEMFUN_NOEXCEPT(META_FUNC, TYPE)                 \
-    ASSERT_MEMFUNC_TYPE(META_FUNC, TYPE         );             \
-    ASSERT_MEMFUNC_TYPE(META_FUNC, TYPE noexcept);
-#else
-# define TEST_MEMFUN_NOEXCEPT(META_FUNC, TYPE)                 \
-    ASSERT_MEMFUNC_TYPE(META_FUNC, TYPE         );
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
-# define TEST_MEMFUN_REF(META_FUNC, TYPE)                      \
-    TEST_MEMFUN_NOEXCEPT(META_FUNC, TYPE   );                  \
-    TEST_MEMFUN_NOEXCEPT(META_FUNC, TYPE  &);                  \
-    TEST_MEMFUN_NOEXCEPT(META_FUNC, TYPE &&);
-#else
-# define TEST_MEMFUN_REF(META_FUNC, TYPE)                      \
-    ASSERT_MEMFUNC_TYPE (META_FUNC, TYPE);
-#endif
-
-# define TEST_MEMFUN(META_FUNC, TYPE)                          \
-    TEST_MEMFUN_REF(META_FUNC, TYPE);                          \
-    TEST_MEMFUN_REF(META_FUNC, TYPE const);                    \
-    TEST_MEMFUN_REF(META_FUNC, TYPE       volatile);           \
-    TEST_MEMFUN_REF(META_FUNC, TYPE const volatile);
-
-//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
-
-template <class TYPE_PARAMETER>
-struct Identity {
-    // This template provides an easy way to obtain a 'typedef' to the template
-    // parameter 'TYPE_PARAMETER'.  This is most useful when the parameter type
-    // is a function or array type, as it is difficult to add pointer or
-    // reference qualifiers to such types with their regular syntax, but very
-    // simple to add a trailing '*' or '&' using this type.  E.g.,
-    //..
-    //  static_assert(is_same_v<Identity<int()>::type *, int(*)()>);
-    //..
-    // It is very difficult to manipulate such types within macros, where all
-    // we have access to is a stream of tokens (source code) without type
-    // information.
-
-    typedef TYPE_PARAMETER type;
-};
 
 namespace {
 
@@ -358,18 +95,6 @@ enum EnumTestType {
     // This user-defined 'enum' type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_member_function_pointer'.
 };
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS)
-enum class EnumClassTestType {
-    // This user-defined 'enum' type is intended to be used for testing as the
-    // template parameter 'TYPE' of 'bsl::is_member_function_pointer'.
-};
-#else
-enum EnumClassTestType {
-    // Simpler to have a redundant test than use macros to determine test
-    // support everywhere.
-};
-#endif
 
 struct StructTestType {
     // This user-defined 'struct' type is intended to be used for testing as
@@ -391,12 +116,118 @@ class DerivedClassTestType : public BaseClassTestType {
     // as the template parameter 'TYPE' of 'bsl::is_member_function_pointer'.
 };
 
+typedef int (StructTestType::*MethodPtrTestType0) ();
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType1) (int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType2) (int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType3) (int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType4) (int, int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType5) (int, int, int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType6) (int, int, int,
+                                                   int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType7) (int, int, int, int,
+                                                   int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType8) (int, int, int, int,
+                                                   int, int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType9) (int, int, int, int, int,
+                                                   int, int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*MethodPtrTestType10) (int, int, int, int, int,
+                                                    int, int, int, int, int);
+    // This pointer to non-static member function type is intended to be used
+    // for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*ConstMethodPtrTestType) (int) const;
+    // This pointer to non-static 'const' member function type is intended to
+    // be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*VolatileMethodPtrTestType) (int) volatile;
+    // This pointer to non-static 'volatile' member function type is intended
+    // to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef int (StructTestType::*CVMethodPtrTestType) (int) const volatile;
+    // This pointer to non-static 'const volatile' member function type is
+    // intended to be used for testing as the template parameter 'TYPE' of
+    // 'bsl::is_member_function_pointer'.
+
+typedef void (*FunctionPtrTestType) ();
+    // This function pointer type is intended to be used for testing as the
+    // template parameter 'TYPE' of 'bsl::is_member_function_pointer'.
+
+typedef int StructTestType::* PMD;
+    // This pointer to member object type is intended to be used for testing as
+    // the template parameter 'TYPE' of 'bsl::is_member_function_pointer'.
+
 struct Incomplete;
     // This incomplete 'struct' type is intended to be used for testing as the
     // template parameter 'TYPE' of 'bsl::is_member_function_pointer'.
 
 }  // close unnamed namespace
 
+#define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)       \
+    ASSERT(result == META_FUNC<TYPE>::value);                 \
+    ASSERT(result == META_FUNC<const TYPE>::value);           \
+    ASSERT(result == META_FUNC<volatile TYPE>::value);        \
+    ASSERT(result == META_FUNC<const volatile TYPE>::value);
+
+#define TYPE_ASSERT_CVQ_SUFFIX(META_FUNC, TYPE, result)       \
+    ASSERT(result == META_FUNC<TYPE>::value);                 \
+    ASSERT(result == META_FUNC<TYPE const>::value);           \
+    ASSERT(result == META_FUNC<TYPE volatile>::value);        \
+    ASSERT(result == META_FUNC<TYPE const volatile>::value);
+
+#define TYPE_ASSERT_CVQ_REF(META_FUNC, TYPE, result)           \
+    ASSERT(result == META_FUNC<TYPE&>::value);                 \
+    ASSERT(result == META_FUNC<TYPE const&>::value);           \
+    ASSERT(result == META_FUNC<TYPE volatile&>::value);        \
+    ASSERT(result == META_FUNC<TYPE const volatile&>::value);
+
+#define TYPE_ASSERT_CVQ(META_FUNC, TYPE, result)                     \
+    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result);                 \
+    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const, result);           \
+    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE volatile, result);        \
+    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const volatile, result);  \
 
 //=============================================================================
 //                              USAGE EXAMPLES
@@ -472,266 +303,188 @@ int main(int argc, char *argv[])
     ASSERT(false == bsl::is_member_function_pointer<MyFunctionPtr    >::value);
     ASSERT(true  == bsl::is_member_function_pointer<MyStructMethodPtr>::value);
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature then we can re-write the snippet of code above using the
-// 'bsl::is_member_function_pointer' variable as follows:
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    ASSERT(false == bsl::is_member_function_pointer_v<MyFunctionPtr    >);
-    ASSERT(true  == bsl::is_member_function_pointer_v<MyStructMethodPtr>);
-#endif
-//..
-
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING 'bsl::is_member_function_pointer::value'
+        // 'bsl::is_member_function_pointer::value'
         //   Ensure that the static data member 'value' of
-        //   'bsl::is_member_function_pointer<TYPE>' instantiations having
-        //    various (template parameter) 'TYPE's has the correct value.
+        //   'bsl::is_member_function_pointer' instantiations having various
+        //   (template parameter) 'TYPE's has the correct value.
         //
         // Concerns:
-        //:  1 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
-        //:    (possibly cv-qualified) primitive type or reference to such.
-        //:  2 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
-        //:    (possibly cv-qualified) user-defined type or reference to such.
-        //:  3 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
-        //:    (possibly cv-qualified) pointer type or reference to such.
-        //:  4 'is_member_function_pointer::value' is 'false' when 'TYPE' is an
-        //:    array type or reference to such, or pointer to such.
-        //:  5 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
-        //:    (possibly cv-qualified) function type or reference to function
-        //:    type, including abominable function types.
-        //:  6 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
-        //:    (possibly cv-qualified) pointer to non-static data member type,
-        //:    or a pointer or reference to such a type, or an array of such a
-        //:    type.
-        //:  7 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
-        //:    pointer to pointer to member function or a member pointer to
-        //:    pointer to member function.  This should be a superfluous
-        //:    concern, but you never know what compiler corner cases you might
-        //:    uncover.
-        //:  8 'is_member_function_pointer::value' is 'true' when 'TYPE' is a
-        //:    (possibly cv-qualified) pointer to non-static member function
-        //:    type.  However, if 'TYPE' is a reference, then the result is
-        //:    'false.  Allow for the full range of function types including
-        //:    zero and multiple arguments, C-style elipses, trailing
-        //:    cv-qualifiers, reference-qualifiers for C++11, and 'noexcept'
-        //:    specifications in C++17.
-        //:  9 Concern 8 applies when the member function (not the pointer) is
-        //:    cv-qualfied.
-        //: 10 Concern 8 applies when the member function (not the pointer) is
-        //:    ref-qualified (in C++11 and later).
-        //: 10 That 'is_member_function_pointer<T>::value' has the same value
-        //:    as 'is_member_function_pointer_v<T>'.
+        //: 1 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
+        //:   (possibly cv-qualified) primitive type.
+        //:
+        //: 2 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
+        //:   (possibly cv-qualified) user-defined type.
+        //:
+        //: 3 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
+        //:   (possibly cv-qualified) pointer type other than pointer to
+        //:   non-static member function pointer.
+        //:
+        //: 4 'is_member_function_pointer::value' is 'true' when 'TYPE' is a
+        //:   (possibly cv-qualified) pointer to non-static member function
+        //:   type.
+        //:
+        //: 5 'is_member_function_pointer::value' is 'false' when 'TYPE' is a
+        //:   (possibly cv-qualified) function type.
         //
         // Plan:
-        //: 1 Create a set of test macros that can verify the expected result
-        //:   of 'value' member of the 'is_member_function_pointer' trait for
-        //:   the distinct syntax patterns of object types, array types,
-        //:   function types, pointer-to-data-member types, and
-        //:   pointer-to-member-function types; such macros should also handle
-        //:   (recursively) cv-qualified versions of such types, and
-        //:   (cv-qualified) pointers and references to such types.  Those
-        //:   macros should also verify the 'bool' value of the
-        //:   'is_member_function_pointer_v' variable template on build
-        //:   configurations that support it.
-        //: 2 Use the test macro for object types to verify the trait(s) for a
-        //:   representative cross-section of fundamental types.  Note that
-        //:   cv-qualfied 'void' types must be tested fairly directly, due to
-        //:   the lack of support for reference-to-'void' types that would fall
-        //:   out of most top-level test macro invocations.
-        //: 3 Use the test macro for object types to verify the trait(s) for a
-        //:   representative cross-section of user-defined types, including
-        //:   enumerations, class types, union types, and incomplete class
-        //:   types.
-        //: 4 Use the test macro for array types to verify the trait(s) for a
-        //:   representative cross-section of types that can be stored in an
-        //:   array.
-        //: 5 Use the test macro for function types to verify the trait(s) for
-        //:   a representative cross-section of function types, including all
-        //:   abominable (cv-ref-qualified) function types supported by the
-        //:   current build mode; parameter lists that cover the boundaries
-        //:   around common meta-programming limits used in BDE code (10, 14,
-        //:   16, and 20); and functions with C-style elipses; and functions
-        //:   with 'noexcept' specifications (when supported).  Such macros
-        //:   should recursively handle pointers and references to such typs
-        //:   (where valid), and array od pointers.
-        //: 6 Use the test macro for pointer-to-data-member types to verify the
-        //:   trait(s) for a representative cross-section of
-        //:   pointer-to-data-member types.  While there is a surprisingly
-        //:   sparse set of obviously interesting types to test, special
-        //:   attention should be given to types that that may  be confused as
-        //:   pointer-to-member-function types by old compilers.   The test
-        //:   macros should also test pointers and references to such  types,
-        //:   arrrays of such types, and recurively pointers and refences to
-        //:   arrays of such types.
-        //: 7 Finally, use the test macro for pointer-to-member-function types
-        //:   to verify the trait(s) for a representative cross-section of
-        //:   pointer-to-member-function types.  Test for the same variety of
-        //:   parameters as highlighed for regular (and abominable) function
-        //:   types, and verify that pointers and references to such types do
-        //:   *not* satisfy the trait(s), nor do arrays of such types.
+        //   Verify that 'bsl::is_member_function_pointer::value' has the
+        //   correct value for each (template parameter) 'TYPE' in the
+        //   concerns.
         //
         // Testing:
         //   bsl::is_member_function_pointer::value
-        //   bsl::is_member_function_pointer_v
         // --------------------------------------------------------------------
 
-        if (verbose) printf(
-                         "TESTING 'bsl::is_member_function_pointer::value'\n"
-                         "================================================\n");
+        if (verbose) printf("'bsl::is_member_function_pointer::value'\n"
+                            "========================================\n");
 
-        // C-1, 3
-        TEST_OBJECT(bsl::is_member_function_pointer, bool);
-        TEST_OBJECT(bsl::is_member_function_pointer, int);
-        TEST_OBJECT(bsl::is_member_function_pointer, long double);
+        // C-1
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_member_function_pointer, void, false);
+        TYPE_ASSERT_CVQ_SUFFIX(bsl::is_member_function_pointer, int,  false);
+        TYPE_ASSERT_CVQ_REF   (bsl::is_member_function_pointer, int,  false);
 
-        TEST_OBJECT(bsl::is_member_function_pointer, bsl::nullptr_t);
+        // C-2
+        TYPE_ASSERT_CVQ_SUFFIX(
+                 bsl::is_member_function_pointer, EnumTestType,         false);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                 bsl::is_member_function_pointer, StructTestType,       false);
+        TYPE_ASSERT_CVQ_REF   (
+                 bsl::is_member_function_pointer, StructTestType,       false);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                 bsl::is_member_function_pointer, UnionTestType,        false);
+        TYPE_ASSERT_CVQ_REF   (
+                 bsl::is_member_function_pointer, UnionTestType,        false);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                 bsl::is_member_function_pointer, Incomplete,           false);
+        TYPE_ASSERT_CVQ_REF   (
+                 bsl::is_member_function_pointer, Incomplete,           false);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                 bsl::is_member_function_pointer, BaseClassTestType,    false);
+        TYPE_ASSERT_CVQ_REF   (
+                 bsl::is_member_function_pointer, BaseClassTestType,    false);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                 bsl::is_member_function_pointer, DerivedClassTestType, false);
+        TYPE_ASSERT_CVQ_REF   (
+                 bsl::is_member_function_pointer, DerivedClassTestType, false);
 
-        // Test 'void' separately as cannot form reference to cv-'void'.
+        // C-3
+        TYPE_ASSERT_CVQ(
+           bsl::is_member_function_pointer, int*,                       false);
+        TYPE_ASSERT_CVQ(
+           bsl::is_member_function_pointer, StructTestType*,            false);
+        TYPE_ASSERT_CVQ(
+           bsl::is_member_function_pointer, int StructTestType::*,      false);
+        TYPE_ASSERT_CVQ(
+           bsl::is_member_function_pointer, int StructTestType::* *,    false);
+        TYPE_ASSERT_CVQ(
+           bsl::is_member_function_pointer, UnionTestType*,             false);
+        TYPE_ASSERT_CVQ(
+           bsl::is_member_function_pointer, PMD BaseClassTestType::*,   false);
+        TYPE_ASSERT_CVQ(
+           bsl::is_member_function_pointer, PMD BaseClassTestType::* *, false);
+        TYPE_ASSERT_CVQ(
+           bsl::is_member_function_pointer, BaseClassTestType*,         false);
+        TYPE_ASSERT_CVQ(
+           bsl::is_member_function_pointer, DerivedClassTestType*,      false);
+        TYPE_ASSERT_CVQ(
+           bsl::is_member_function_pointer, Incomplete*,                false);
+        TYPE_ASSERT_CVQ_SUFFIX(
+                  bsl::is_member_function_pointer, FunctionPtrTestType, false);
 
-        TYPE_ASSERT(bsl::is_member_function_pointer, void, false);
-        TYPE_ASSERT(bsl::is_member_function_pointer, const void, false);
-        TYPE_ASSERT(bsl::is_member_function_pointer, volatile void, false);
-        TYPE_ASSERT(bsl::is_member_function_pointer, const volatile void,
-                                                                        false);
-        TEST_OBJECT(bsl::is_member_function_pointer, void *);
-
-        // C-2, 3
-        TEST_OBJECT(bsl::is_member_function_pointer, EnumTestType);
-        TEST_OBJECT(bsl::is_member_function_pointer, EnumClassTestType);
-        TEST_OBJECT(bsl::is_member_function_pointer, StructTestType);
-        TEST_OBJECT(bsl::is_member_function_pointer, UnionTestType);
-        TEST_OBJECT(bsl::is_member_function_pointer, Incomplete);
-        TEST_OBJECT(bsl::is_member_function_pointer, BaseClassTestType);
-        TEST_OBJECT(bsl::is_member_function_pointer, DerivedClassTestType);
-
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, int*,                       false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, StructTestType*,            false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, int StructTestType::*,      false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, int StructTestType::* *,    false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, UnionTestType*,             false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, PMD BaseClassTestType::*,   false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, PMD BaseClassTestType::* *, false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, BaseClassTestType*,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, DerivedClassTestType*,      false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, Incomplete*,                false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, FunctionPtrTestType,        false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType0,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType1,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType2,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType3,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType4,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType5,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType6,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType7,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType8,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType9,         false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, MethodPtrTestType10,        false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, ConstMethodPtrTestType,     false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, VolatileMethodPtrTestType,  false);
+        TYPE_ASSERT_CVQ_REF(
+           bsl::is_member_function_pointer, CVMethodPtrTestType,        false);
 
         // C-4
-        TEST_ARRAY(bsl::is_member_function_pointer, int);
-        TEST_ARRAY(bsl::is_member_function_pointer, void *);
-        TEST_ARRAY(bsl::is_member_function_pointer, EnumTestType);
-        TEST_ARRAY(bsl::is_member_function_pointer, UnionTestType);
-        TEST_ARRAY(bsl::is_member_function_pointer, StructTestType);
-        TEST_ARRAY(bsl::is_member_function_pointer, Incomplete *);
-
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, MethodPtrTestType0,        true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, MethodPtrTestType1,        true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, MethodPtrTestType2,        true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, MethodPtrTestType3,        true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, MethodPtrTestType4,        true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, MethodPtrTestType5,        true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, MethodPtrTestType6,        true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, MethodPtrTestType7,        true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, MethodPtrTestType8,        true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, MethodPtrTestType9,        true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, MethodPtrTestType10,       true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, ConstMethodPtrTestType,    true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, VolatileMethodPtrTestType, true);
+        TYPE_ASSERT_CVQ_SUFFIX(
+             bsl::is_member_function_pointer, CVMethodPtrTestType,       true);
 
         // C-5
-        typedef Incomplete X;  // Smaller name to fit tests onto a single line.
-        typedef void (X::*MemFnType)();
+        TYPE_ASSERT_CVQ_PREFIX(
+                          bsl::is_member_function_pointer, int  (int),  false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                          bsl::is_member_function_pointer, void (void), false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                          bsl::is_member_function_pointer, int  (void), false);
+        TYPE_ASSERT_CVQ_PREFIX(
+                          bsl::is_member_function_pointer, void (int),  false);
 
-        TEST_FUNCTION(bsl::is_member_function_pointer, int  (int)      );
-        TEST_FUNCTION(bsl::is_member_function_pointer, void (void)     );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int  (void)     );
-        TEST_FUNCTION(bsl::is_member_function_pointer, void (int)      );
-        TEST_FUNCTION(bsl::is_member_function_pointer, MemFnType (int) );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (MemFnType) );
-
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_09)    );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_10)    );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_11)    );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_12)    );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_13)    );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_14)    );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_15)    );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_16)    );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_17)    );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_18)    );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_19)    );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_20)    );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_21)    );
-
-
-        TEST_FUNCTION(bsl::is_member_function_pointer, int  (...)      );
-        TEST_FUNCTION(bsl::is_member_function_pointer, void (...)      );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int  (int...)   );
-        TEST_FUNCTION(bsl::is_member_function_pointer, void (int...)   );
-
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_09...) );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_10...) );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_11...) );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_12...) );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_13...) );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_14...) );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_15...) );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_16...) );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_17...) );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_18...) );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_19...) );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_20...) );
-        TEST_FUNCTION(bsl::is_member_function_pointer, int (INT_21...) );
-
-
-        // C-6
-        TEST_MEMPTR(bsl::is_member_function_pointer, int);
-        TEST_MEMPTR(bsl::is_member_function_pointer, void *);
-        TEST_MEMPTR(bsl::is_member_function_pointer, int (*)());
-
-        // C-7
-        typedef Incomplete X;  // Smaller name to fit tests onto a single line.
-
-        TEST_MEMPTR(bsl::is_member_function_pointer, int X::*);
-        TEST_MEMPTR(bsl::is_member_function_pointer, int (X::*)());
-        TEST_MEMPTR(bsl::is_member_function_pointer, int (X::*)(...));
-        TEST_MEMPTR(bsl::is_member_function_pointer, int (X::*)(INT_21...));
-        TEST_MEMPTR(bsl::is_member_function_pointer, int (X::*)() volatile);
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
-        TEST_MEMPTR(bsl::is_member_function_pointer, int (X::*)() &&);
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
-        TEST_MEMPTR(bsl::is_member_function_pointer, int (X::*)() & noexcept);
-# endif
-#endif
-
-#if defined(BSLMF_ISMEMBERFUNCTIONPOINTER_SHOW_FAIL_FOR_DIAGNOSTICS)
-        // Test diagnostics for readability with an interesting failure
-        TEST_MEMPTR(bsl::is_member_function_pointer, int (int)             );
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
-        TEST_MEMPTR(bsl::is_member_function_pointer, int (int) && noexcept );
-# endif
-#endif
-
-        // C-8, 9, 10
-        typedef Incomplete X;  // Smaller name to fit tests onto a single line.
-
-        TEST_MEMFUN(bsl::is_member_function_pointer, int  (X::*)(int)      );
-        TEST_MEMFUN(bsl::is_member_function_pointer, void (X::*)(void)     );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int  (X::*)(void)     );
-        TEST_MEMFUN(bsl::is_member_function_pointer, void (X::*)(int)      );
-
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_09)    );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_10)    );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_11)    );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_12)    );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_13)    );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_14)    );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_15)    );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_16)    );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_17)    );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_18)    );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_19)    );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_20)    );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_21)    );
-
-
-        TEST_MEMFUN(bsl::is_member_function_pointer, int  (X::*)(...)      );
-        TEST_MEMFUN(bsl::is_member_function_pointer, void (X::*)(...)      );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int  (X::*)(int...)   );
-        TEST_MEMFUN(bsl::is_member_function_pointer, void (X::*)(int...)   );
-
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_09...) );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_10...) );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_11...) );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_12...) );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_13...) );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_14...) );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_15...) );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_16...) );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_17...) );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_18...) );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_19...) );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_20...) );
-        TEST_MEMFUN(bsl::is_member_function_pointer, int (X::*)(INT_21...) );
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -747,7 +500,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013-2018 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

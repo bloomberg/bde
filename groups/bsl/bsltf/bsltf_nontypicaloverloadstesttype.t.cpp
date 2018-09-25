@@ -9,6 +9,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_cpp11.h>
 #include <bsls_platform.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_util.h>
@@ -248,7 +249,7 @@ int main(int argc, char *argv[])
           BSLS_ASSERTTEST_ASSERT_OPT_FAIL(  new((void *)obj.buffer()) Obj());
           BSLS_ASSERTTEST_ASSERT_OPT_PASS(::new((void *)obj.buffer()) Obj());
 
-          ASSERT(!BSLS_KEYWORD_NOEXCEPT_OPERATOR(delete obj.address()));
+          ASSERT(!BSLS_CPP11_NOEXCEPT_OPERATOR(delete obj.address()));
           BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete obj.address());
           BSLS_ASSERTTEST_ASSERT_OPT_PASS(
                                   obj.object().~NonTypicalOverloadsTestType());

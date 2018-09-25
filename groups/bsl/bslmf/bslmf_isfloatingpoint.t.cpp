@@ -13,16 +13,14 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function, 'bsl::is_floating_point'
-// and a template variable 'bsl::is_floating_point_v' that determine whether a
-// template parameter type is a floating-point type.  Thus, we need to ensure
-// that the values returned by the meta-function are correct for each possible
-// category of types.
+// The component under test defines a meta-function, 'bsl::is_floating_point',
+// that determines whether a template parameter type is a floating-point type.
+// Thus, we need to ensure that the values returned by the meta-function are
+// correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::is_floating_point::value
-// [ 1] bsl::is_floating_point_v
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -97,30 +95,11 @@ typedef double (*RetFloatingPointFunctionPtrType) ();
 
 }  // close unnamed namespace
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-#define ASSERT_V_SAME(TYPE)                                                   \
-    ASSERT(bsl::is_floating_point  <TYPE>::value ==                           \
-           bsl::is_floating_point_v<TYPE>)
-    // 'ASSERT' that 'is_floating_point_v' has the same value as
-    // 'is_floating_point::value'.
-#else
-#define ASSERT_V_SAME(TYPE)
-#endif
-
 #define TYPE_ASSERT_CVQ(metaFunc, member, type, result)                       \
-    ASSERT(result == metaFunc<               type>::member);                  \
-    ASSERT(result == metaFunc<const          type>::member);                  \
-    ASSERT(result == metaFunc<      volatile type>::member);                  \
-    ASSERT(result == metaFunc<const volatile type>::member);                  \
-    ASSERT_V_SAME(               type);                                       \
-    ASSERT_V_SAME(const          type);                                       \
-    ASSERT_V_SAME(      volatile type);                                       \
-    ASSERT_V_SAME(const volatile type);
-    // Test all cv-qualified combinations on the specified 'type' and confirm
-    // that the result value of the 'metaFunc' and the expected 'result' value
-    // are the same.  Also test that all cv-qualified combinations on the
-    // 'type' has the same value as the 'metaFunc_v' template variable
-    // instantiated with the same types.
+    ASSERT(result == metaFunc<type>::member);                                 \
+    ASSERT(result == metaFunc<const type>::member);                           \
+    ASSERT(result == metaFunc<volatile type>::member);                        \
+    ASSERT(result == metaFunc<const volatile type>::member);
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -184,15 +163,6 @@ int main(int argc, char *argv[])
     ASSERT(false == bsl::is_floating_point<MyType>::value);
     ASSERT(true  == bsl::is_floating_point<MyFloatingPointType>::value);
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature, then we can re-write the snippet of code above using the
-// 'bsl::is_floating_point_v<T> as follows:
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    ASSERT(false == bsl::is_floating_point_v<MyType>);
-    ASSERT(true  == bsl::is_floating_point_v<MyFloatingPointType>);
-#endif
-//..
 
       } break;
       case 1: {
@@ -225,10 +195,6 @@ int main(int argc, char *argv[])
         //:
         //: 8 'is_floating_point::value' is 'true' when 'TYPE' is a (possibly
         //:   cv-qualified) floating-point type.
-        //:
-        //: 10 That 'is_floating_point<T>::value' has the same value as
-        //:    'is_floating_point_v<T>' for a variety of template parameter
-        //:    types.
         //
         // Plan:
         //   Verify that 'bsl::is_floating_point::value' has the correct value
@@ -236,7 +202,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::is_floating_point::value
-        //   bsl::is_floating_point_v
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nbsl::is_floating_point::value\n"

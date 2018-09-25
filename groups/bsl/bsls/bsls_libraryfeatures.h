@@ -23,23 +23,11 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES: misc utils provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR: use "piecewise"
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION: "program exit" provided
-//  BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS: 'begin' and 'end' provided
-//  BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE: basic_stream move operations
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE: 'tuple' provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR: 'unique_ptr' provided
-//  BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY: C++14 base lib provided
-//  BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE: 'integer_sequence' defined
-//  BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS: range functions extension
-//  BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY: C++17 base lib provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: !NOT DEFINED! see below
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS: optional atomics
-//  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
-//  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
-//  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
-//  BSLS_LIBRARYFEATURES_STDCPP_LLVM: implementation is LLVM libc++
-//  BSLS_LIBRARYFEATURES_STDCPP_MSVC: implementation is MSVC
-//  BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD: implementation is Sun's (RogueWave)
-//  BSLS_LIBRARYFEATURES_STDCPP_STLPORT: implementation is STLPort
+//  BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS: library has a bug
 //
 //@SEE_ALSO: bsls_platform, bsls_compilerfeatures, bsls_nativestd
 //
@@ -181,10 +169,9 @@ BSLS_IDENT("$Id: $")
 //:   o Functions defined in '<cwctype>'
 //:     o 'iswblank'
 //
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 4.8
-//:   o Clang 3.0 (using at least GCC 4.8 STL)
+//: o Supported by the compiler vendor's STL implementation
+//:   o gcc 4.8
+//:   o clang 3.0
 //:   o MSVC 2013
 //
 // Notice that the above list does *not* include 'snprintf' as that is included
@@ -202,10 +189,9 @@ BSLS_IDENT("$Id: $")
 //:   o Function defined in '<cstdio>'
 //:     o 'snprintf'
 //
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 4.8
-//:   o Clang 3.0 (using at least GCC 4.8 STL)
+//: o Supported by the compiler vendor's STL implementation
+//:   o gcc 4.8
+//:   o clang 3.0
 //:   o MSVC 2015
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR'
@@ -218,17 +204,12 @@ BSLS_IDENT("$Id: $")
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'
 ///-------------------------------------------------
-// This macro is used to identify whether the current platform's standard
-// library supports a baseline set of C++11 library features (which are defined
-// below).  This is especially important in BSL when importing standard library
-// functions and types into the 'bsl::' namespace, as is done in 'bsl+bslhdrs'.
-// In particular this macro is used where C++11 has introduced new functions
-// and types into headers available in older versions of the C++ standard.  For
-// example, C++11 introduced the type 'tuple' to the existing '<utility>'
-// header, so 'bsl_utility.h' uses this macro to determine whether to import
-// 'std::tuple' into the 'bsl' namespace.
-//
-// This macro is defined if *both* of the listed conditions are true:
+// The C++11 standard library introduced several functions and types defined in
+// headers available in earlier standards and implemented by all vendors of
+// platform/compiler combination that supported C++11 features.  This macro is
+// used to import symbols introduced in C++11 and defined in those headers into
+// the 'bsl' namespace via aliases to the native library implementation.  This
+// macro is defined if *both* of the listed conditions are true:
 //
 //: o The compiler supports C++11 language features.
 //:
@@ -294,7 +275,7 @@ BSLS_IDENT("$Id: $")
 //:   o Function defined in '<locale>'
 //:     o 'isblank'
 //:
-//:   o Functions defined in '<memory>'
+//:   o Function defined in '<memory>'
 //:     o 'addressof'
 //:     o 'pointer_traits'
 //:     o 'uninitialized_copy_n'
@@ -302,118 +283,20 @@ BSLS_IDENT("$Id: $")
 //:   o Function defined in '<numeric>'
 //:     o 'iota'
 //:
-//:   o Functions defined in '<utility>'
+//:   o Function defined in '<utility>'
 //:     o 'declval'
 //:     o 'forward'
 //:     o 'move'
 //:     o 'move_if_noexcept'
 //:     o 'swap'
 //:
-//:   o Functions and types defined in '<ios>'
-//:     o 'io_errc'
-//:     o 'iostream_category'
-//:     o 'is_error_code_enum'
-//:     o 'make_error_code'
-//:     o 'make_error_condition'
-//:     o 'hexfloat'
-//:     o 'defaultfloat'
-//
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 4.8
-//:   o Clang 3.0 (using at least GCC 4.8 STL)
+//: o Supported by the compiler vendor's STL implementation
+//:   o gcc 4.8
+//:   o clang 3.0
 //:   o MSVC 2013
 //
 // Notice that the above list does *not* include 'random_shuffle' as that is
 // deprecated in C++14 and will be removed in C++17.
-//
-///'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY'
-///----------------------------------------------------
-// This macro is used to identify whether the current platform's standard
-// library supports a baseline set of C++14 library features (which are defined
-// below).  This is especially important in BSL when importing standard library
-// functions and types into the 'bsl::' namespace, as is done in 'bsl+bslhdrs'.
-//
-// This macro is defined if *both* of the listed conditions are true:
-//
-//: o The compiler supports C++14 language features.
-//:
-//: o The following functions and types are provided by the native standard
-//:   library:
-//:
-//:   o Type defined in '<functional>'
-//:     o bit_not
-//:
-//:   o Function defined in '<iterator>'
-//:     o make_reverse_iterator
-//:
-//:   o Function defined in '<iomanip>'
-//:     o quoted
-//:
-//:   o Function defined in '<memory>'
-//:     o 'make_unique'
-//:
-//:   o Function defined in '<type_traits>'
-//:     o 'is_null_pointer'
-//:     o 'is_final'
-//:
-//:   o Function defined in '<utility>'
-//:     o 'exchange'
-//:
-//:   o UDLs support for <'chrono>'
-//:
-//:   o UDLs support for '<complex>'
-//
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o gcc 4.9
-//:   o clang 3.4
-//:   o MSVC 2015
-//
-///'BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE'
-///-------------------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE' macro is defined if
-// *all* of the listed conditions are true:
-//
-//: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro is defined.
-//:
-//: o The 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' macro is also
-//:   defined.
-//
-//: o The 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES' macro is also
-//:   defined.
-//
-// Note that though 'struct' 'integer_sequence' was introduced in the C++14
-// standard, 'bsl::integer_sequence' is supported by BDE when compiling in
-// C++11 mode.
-//
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 4.8
-//:   o Clang 3.0 (using at least GCC 4.8 STL)
-//:   o MSVC 2015
-//
-///'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY'
-///----------------------------------------------------
-// This macro is used to identify whether the current platform's standard
-// library supports a baseline set of C++17 library features (which are defined
-// below).  This is especially important in BSL when importing standard library
-// functions and types into the 'bsl::' namespace, as is done in 'bsl+bslhdrs'.
-//
-// This macro is defined if *both* of the listed conditions are true:
-//
-//: o The compiler supports C++17 language features.
-//:
-//: o The following functions and types are provided by the native standard
-//:   library in <type_traits>:
-//:
-//:   o 'conjunction'
-//:   o 'disjunction'
-//:   o 'negation'
-//
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o gcc 7.0
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING'
 ///---------------------------------------------------
@@ -431,14 +314,13 @@ BSLS_IDENT("$Id: $")
 //:   o 'rethrow_if_nested'
 //:   o 'throw_with_nested'
 //
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 4.8
-//:   o Clang 3.0 (using at least GCC 4.8 STL)
+//: o Supported by the compiler vendor's STL implementation
+//:   o gcc 4.8
+//:   o clang 3.0
 //:   o MSVC 2015
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API'
-///-------------------------------------------------------
+///-------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API' is defined if
 // *both* of the listed conditions are true:
 //
@@ -454,10 +336,8 @@ BSLS_IDENT("$Id: $")
 //:   o 'undeclare_no_pointers'
 //:   o 'undeclare_reachable'
 //
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 6.0
-//:   o Clang 3.0 (using at least GCC 6.0 STL)
+//: o Supported by the compiler vendor's STL implementation
+//:   o gcc 6.0
 //:   o MSVC 2015
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES'
@@ -493,10 +373,8 @@ BSLS_IDENT("$Id: $")
 //:     o 'bad_array_new_length'
 //:     o 'get_new_handler'
 //
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 5.0
-//:   o Clang 3.0 (using at least GCC 5.0 STL)
+//: o Supported by the compiler vendor's STL implementation
+//:   o gcc 5.0
 //:   o MSVC 2013
 //
 // Notice that the function 'get_unexpected' will be removed in C++17.
@@ -524,10 +402,9 @@ BSLS_IDENT("$Id: $")
 //:
 //: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE' macro is defined.
 //
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 4.8
-//:   o Clang 3.0 (using at least GCC 4.8 STL)
+//: o Supported by the compiler vendor's STL implementation
+//:   o gcc 4.8
+//:   o clang 3.0
 //:   o MSVC 2015
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS'
@@ -552,16 +429,13 @@ BSLS_IDENT("$Id: $")
 //:   o atomic_intptr_t;
 //:   o atomic_uintptr_t;
 //
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 7.0
-//:   o Clang 3.0 (using at least GCC 7.0 STL)
+//: o Supported by the compiler vendor's STL implementation
 //:   o MSVC 2013
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
 ///----------------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION' is defined if
-// of the listed conditions are true:
+// *both* of the listed conditions are true:
 //
 //: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro is defined.
 //:
@@ -572,79 +446,9 @@ BSLS_IDENT("$Id: $")
 //: o 'quick_exit'
 //: o 'at_quick_exit'
 //
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 4.8
-//:   o Clang 3.0 (using at least GCC 4.8 STL)
-//:   o MSVC 2015
-//
-///'BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS'
-///------------------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS' is defined if the
-// following functions are provided by the native standard library in the
-// '<iterator>' header:
-//
-//..
-//  template <class C> auto begin(C& c) -> decltype(c.begin());
-//  template <class C> auto begin(const C& c) -> decltype(c.begin());
-//  template <class C> auto end(C& c) -> decltype(c.end());
-//  template <class C> auto end(const C& c) -> decltype(c.end());
-//  template <class T, size_t N> T* begin(T (&array)[N]);
-//  template <class T, size_t N> T* end(T (&array)[N]);
-//..
-//
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 4.6
-//:   o Clang 3.0
-//:   o MSVC 2012
-//
-///'BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS'
-///------------------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS' is defined if the
-// following functions are provided by the native standard library in the
-// '<iterator>' header:
-//
-//..
-//  template <class C> auto cbegin(const C& c) -> decltype(std::begin(c));
-//  template <class C> auto cend(const C& c) -> decltype(std::end(c));
-//  template <class C> auto rbegin(C& c) -> decltype(c.rbegin());
-//  template <class C> auto rbegin(const C& c) -> decltype(c.rbegin());
-//  template <class C> auto rend(C& c) -> decltype(c.rend());
-//  template <class C> auto rend(const C& c) -> decltype(c.rend());
-//  template <class T, size_t N> reverse_iterator<T*> rbegin(T (&array)[N]);
-//  template <class T, size_t N> reverse_iterator<T*> rend(T (&array)[N]);
-//  template <class E> reverse_iterator<const E*> rbegin(
-//                                                    initializer_list<E> il);
-//  template <class E> reverse_iterator<const E*> rend(initializer_list<E> il);
-//  template <class C> auto crbegin(const C& c) -> decltype(std::rbegin(c));
-//  template <class C> auto crend(const C& c) -> decltype(std::rend(c));
-//..
-//
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 4.9
-//:   o Clang 3.4
-//:   o MSVC 2013
-//
-///'BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE'
-///--------------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE' is defined if the standard
-// stream classes ('basic_istream', 'basic_ostream', 'basic_stream') all have
-// the C++11 mandated move operations (constructor and assignment operator)
-// defined.  Notice that the this macro is separate from the macro
-// 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' as standard library
-// implementations exist that implement almost all of C++11 (which is detected
-// by the 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro) but not this
-// feature.  Note that when 'BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE' is
-// defined 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' will also be
-// defined, as the standard feature cannot be implemented without rvalue
-// reference support from the compiler.
-//
 //: o Supported by the compiler vendor's STL implementation
-//:   o gcc 5.0
-//:   o clang 3.0
-//:   o MSVC 2013
+//:   o gcc 5.4
+//:   o MSVC 2015
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE'
 ///--------------------------------------
@@ -659,10 +463,9 @@ BSLS_IDENT("$Id: $")
 //: o The 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' macro is also
 //:   defined.
 //
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 4.8
-//:   o Clang 3.0 (using at least GCC 4.8 STL)
+//: o Supported by the compiler vendor's STL implementation
+//:   o gcc 4.8
+//:   o clang 3.0
 //:   o MSVC 2015
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR'
@@ -678,10 +481,9 @@ BSLS_IDENT("$Id: $")
 //: o The 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' macro is also
 //:   defined.
 //
-// Currently the following compilers will have this trait defined by default:
-//
-//:   o GCC 4.8
-//:   o Clang 3.0 (using at least GCC 4.8 STL)
+//: o Supported by the compiler vendor's STL implementation
+//:   o gcc 4.8
+//:   o clang 3.0
 //:   o MSVC 2013
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT': !NOT DEFINED!
@@ -700,37 +502,17 @@ BSLS_IDENT("$Id: $")
 // native type is obviated so 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT' is
 // being removed.
 //
-///'BSLS_LIBRARYFEATURES_STDCPP_GNU_LIBSTDCPP'
-// The 'BSLS_LIBRARYFEATURES_STDCPP_GNU' macro is defined if the C++
-// standard library implementation is GNU libstdc++.
-//
-///'BSLS_LIBRARYFEATURES_STDCPP_IBM'
-// The 'BSLS_LIBRARYFEATURES_STDCPP_IBM' macro is defined if the C++ standard
-// library implementation is IBM's VACPP.
-//
-/// 'BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE'
-// The 'BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE' macro is defined if
-// Microsoft's Intellisense is running (instead of a production compiler).
-// Note that detecting Intellisense does *not* mean that the MSVC compiler is
-// used.  Visual Studio 2017 is capable of cross platform development using
-// clang and Visual Studio Code (also featuring Intellisense) may be used with
-// virtually any compiler.
-//
-///'BSLS_LIBRARYFEATURES_STDCPP_LLVM'
-// The 'BSLS_LIBRARYFEATURES_STDCPP_LLVM_LIBCPP' macro is defined if the C++
-// standard library implementation is LLVM's libc++.
-//
-///'BSLS_LIBRARYFEATURES_STDCPP_MSVC'
-// The 'BSLS_LIBRARYFEATURES_STDCPP_MSVC' macro is defined if the C++ standard
-// library implementation is Microsoft's (Dinkumware based) implementation.
-//
-///'BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD'
-// The 'BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD' macro is defined if the C++
-// standard library implementation is a RogueWave implementation.
-//
-///'BSLS_LIBRARYFEATURES_STDCPP_STLPORT'
-// The 'BSLS_LIBRARYFEATURES_STDCPP_STLPORT' macro is defined if the C++
-// standard library implementation is an STLPort implementation.
+///'BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
+///----------------------------------------------------------
+// The 'BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS' macro is
+// defined for early implementations of the gnu standard library, which leaks
+// temporary objects constructed trying to initialize a 'std::initializer_list'
+// object in the event that one of the elements of the list throws from its
+// constructor.  This is known to affect gcc libraries as recently as the 5.x
+// series, and the Sun CC compiler in C++11 mode, which also used the
+// problematic gnu library.  This would often reveal itself as a spurious
+// memory leak in exception-safety tests for 'initializer_list' constructors,
+// so rises to the level of a generally supported defect-detection macro.
 //
 ///Usage
 ///-----
@@ -796,125 +578,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
-#endif
-
-// Library implementation detection block
-
-#define BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS
-// We are including a *standard* header to get the macros defined that allow us
-// to determine what standard library implementation we have.  Do *not* change
-// these to any other header.  These headers were selected because they do not
-// include (m)any other standard headers *and* they do not define any dangerous
-// (non-uppercase) macros.  '<ciso646>' would define dangerous macros on
-// Microsoft platform, so we use the standard header '<cstddef>' to get to the
-// platform-determining macros.  '<ciso646>' is effectively empty on older GNU
-// implementations, so we also include '<cstddef>'.  Note that we cannot
-// include non-standard headers if they define anything with 'std' in it,
-// because this header may be included while '#define std bsl' is active.  If
-// we include standard headers, our "intercept" headers (see 'bsl+stdhdrs'
-// package) will ensure the proper inclusion.
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-// On platforms that support it we use '__has_include' to give a better error
-// message if/when our assumptions about the platforms and its supported header
-// files break.
-
-// First we determine if we have clang that uses the GNU library.  We need this
-// info because for the GNU library we need to include another header, not
-// '<ciso646>', because '<ciso646>' does not define the required macros prior
-// to version 6.1.  See http://en.cppreference.com/w/cpp/header/ciso646
-
-# if defined(BSLS_PLATFORM_CMP_CLANG)
-#   if __has_include(<bits/c++config.h>)
-#     define BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP
-#   endif
-# endif
-
-# ifdef BSLS_PLATFORM_CMP_MSVC
-#   if !__has_include(<yvals.h>)
-#     error Standard library implementation detection is broken.  The \
-            implementation specific header file <yvals.h> we assumed exists \
-            is not found.  'bsls_libraryfeatures.h' needs to be updated.
-#   endif
-
-# elif defined(BSLS_PLATFORM_CMP_GNU) || \
-       defined(BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP)
-#   if !__has_include(<bits/c++config.h>)
-#     error Standard library implementation detection is broken.  The \
-            implementation specific header file <bits/c++config.h> we assumed \
-            exists is not found.  'bsls_libraryfeatures.h' needs to be updated.
-#   endif
-
-# elif defined(BSLS_PLATFORM_CMP_SUN)
-#   if !__has_include(<valarray>)
-#     error Standard library implementation detection is broken.  The \
-            standard header file <valarray> we assumed exists is not found. \
-            'bsls_libraryfeatures.h' needs to be updated.
-#   endif
-
-# else
-#   if !__has_include(<ciso646>)
-#     error Standard library implementation detection is broken.  The \
-            standard header file <ciso646> we assumed exists is not found. \
-            'bsls_libraryfeatures.h' needs to be updated.
-#   endif
-# endif
-
-#endif  // '__has_include' is supported
-
-// Include a header from the standard library that defines the macros that we
-// use for detection.  Note that once C++20 is out (and we know what the value
-// of the __cplusplus macro for that is) we can add to this code the use of the
-// newly standardized <version> header.  See
-// http://en.cppreference.com/w/cpp/header/version
-
-#ifdef BSLS_PLATFORM_CMP_MSVC
-# include <cstddef>
-#elif defined(BSLS_PLATFORM_CMP_GNU) || \
-      defined(BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP)
-# include <cstddef>
-# if defined(BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP)
-  // No macro pollution
-#   undef BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP
-# endif
-#elif defined(BSLS_PLATFORM_CMP_SUN)
-// Unfortunately, SUN does *nothing* in its '<ciso646>', its '<exception>'.
-// Its '<new>', and '<typeinfo>' headers are shared between the RogueWave and
-// the STLPort implementations, so they do not define anything standard library
-// specific (see
-// https://docs.oracle.com/cd/E19205-01/819-5267/6n7c46e4p/index.html 12.7.1),
-// therefore we have to include something that is different between RogueWave
-// and STLPort implementations.  All such headers are large and not cheap. :(
-# include <valarray>
-#else
-# include <ciso646>
-#endif
-#undef BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS
-
-// The implementation detection logic itself.  Note that on IBM we just detect
-// the compiler, because the IBM library does not define a specific macro.
-
-#if defined (__GLIBCPP__) || defined(__GLIBCXX__)
-# define BSLS_LIBRARYFEATURES_STDCPP_GNU
-#elif defined(_CPPLIB_VER) || (defined(_YVALS) && !defined(__IBMCPP__))
-# define BSLS_LIBRARYFEATURES_STDCPP_MSVC
-#elif defined(_LIBCPP_VERSION)
-# define BSLS_LIBRARYFEATURES_STDCPP_LLVM
-#elif defined(__STD_RWCOMPILER_H__) || defined(_RWSTD_VER)
-# define BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
-#elif defined(__SGI_STL_PORT) || defined(__STLPORT_VERSION)
-# define BSLS_LIBRARYFEATURES_STDCPP_STLPORT
-#elif defined(__IBMCPP__)
-# define BSLS_LIBRARYFEATURES_STDCPP_IBM
-#elif defined(__INTELLISENSE__)
-# define BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
-#else
-# error Could not determine standard library platform.
-#endif
-
-
 #if __cplusplus < 201402L
 # define BSLS_LIBRARYFEATURES_HAS_C90_GETS
     // Set unconditionally for compilers supporting an earlier standard than
@@ -939,47 +602,40 @@ BSLS_IDENT("$Id: $")
         #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
     #endif
     #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-        #if BSLS_PLATFORM_CMP_VERSION >= 40600
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
-        #endif
-
         #if BSLS_PLATFORM_CMP_VERSION >= 40800
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
-            #if defined(_GLIBCXX_HAVE_AT_QUICK_EXIT) && \
-                defined(_GLIBCXX_HAVE_QUICK_EXIT)
-                // This feature depends on GLIBC exposing support by defining
-                // the above two pre-processor definitions.
-                #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
-            #endif
         #endif
 
         #if BSLS_PLATFORM_CMP_VERSION >= 50000
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
         #endif
 
+        #if BSLS_PLATFORM_CMP_VERSION >= 50400 && \
+            defined(_GLIBCXX_HAVE_AT_QUICK_EXIT) && \
+            defined(_GLIBCXX_HAVE_QUICK_EXIT)
+            // Have not confirmed these features are in gcc 5.4+, but they are
+            // not available in gcc 5.3 (the most recent gcc installed on unix
+            // development hosts).  Setting this to be enabled beyond 5.3 to
+            // re-test this when it is appropriate.  (hversche 2017-03-06)
+            // The features also depend on the underlying GLIBC implementation
+            // (distributed separately from the library.  (hrosen4 2017-04-28)
+
+            #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
+        #endif
         #if BSLS_PLATFORM_CMP_VERSION >= 60000
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
         #endif
+
+        #if BSLS_PLATFORM_CMP_VERSION < 60000
+            #define BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
+        #endif
     #endif
-    #if __cplusplus > 201103L
-        #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-        #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
-    #endif
-    #if defined(__cpp_lib_atomic_is_always_lock_free)
-        // There is no pre-processor define declared in libstdc++ to indicate
-        // that precise bitwidth atomics exist, but the libstdc++ shipping
-        // with GCC 7 also includes lock-free support in C++17 mode.  That
-        // feature does include a pre-processor definition, so use it as a
-        // stand-in for detecting precise bitwidth atomics.  This pre-processor
-        // definition will already only be defined when compiling in at least
-        // C++17 standard mode, so there is no need for an additional check.
-        #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
-    #endif
+
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
@@ -992,59 +648,51 @@ BSLS_IDENT("$Id: $")
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
     // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_SUN)
-    #if __cplusplus >= 201103L
-        // It would be simpler if we could simply identify as the corresping
-        // gcc library version:
-        // CC       CMP_VERSION     libstdc++ version
-        // 12.4     0x5130          4.8.4
-        // 12.5     0x5140          5.1.0
-        // 12.6     0x5150          5.4.0
-        #if BSLS_PLATFORM_CMP_VERSION >= 0x5130
-            #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
-            #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
-            #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
-        #endif
+#if defined(BSLS_PLATFORM_CMP_SUN) && __cplusplus >= 201103L
+    // It would be simpler if we could simply identify as the corresping gcc
+    // library version:
+    // CC       CMP_VERSION     libstdc++ version
+    // 12.4     0x5130          4.8.4
+    // 12.5     0x5140          5.1.0
+    // 12.6     0x5150          5.4.0
 
-        #if BSLS_PLATFORM_CMP_VERSION >= 0x5140
-             #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-        #endif
-
-        #if BSLS_PLATFORM_CMP_VERSION >= 0x5150
-            // Currently have an issue with rvalue-references on the CC 12.6
-            // (beta) compiler, so undefining library feature macros that rely
-            // on that language feature being marked as available
-            #undef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
-            #undef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
-            #undef BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
-        #endif
+    #if BSLS_PLATFORM_CMP_VERSION >= 0x5130
+        #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
+        #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+        #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
+        #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
+        #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+        #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+        #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
     #endif
-    #if __cplusplus > 201103L
-        #if BSLS_PLATFORM_CMP_VERSION >= 0x5140
-            #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-            #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
-        #endif
+
+    #if BSLS_PLATFORM_CMP_VERSION >= 0x5140
+         #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+    #endif
+
+    #if BSLS_PLATFORM_CMP_VERSION >= 0x5150
+        // Currently have an issue with rvalue-references on the CC 12.6(beta)
+        // compiler, so undefining library feature macros that rely on that
+        // language feature being marked as available
+        #undef BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
+        #undef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+        #undef BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
     #endif
 
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
     // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
+
+    #if BSLS_PLATFORM_CMP_VERSION < 0x5160
+        #define BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
+    #endif
+
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
@@ -1059,16 +707,10 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
             #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
-        #endif
-
-        #if __cplusplus > 201103L
-            #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
         #endif
 
     #elif BSLS_PLATFORM_CMP_VERSION >= 30000
@@ -1077,49 +719,17 @@ BSLS_IDENT("$Id: $")
             #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
             #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
-
-            #if defined(_GLIBCXX_HAVE_AT_QUICK_EXIT) && \
-                defined(_GLIBCXX_HAVE_QUICK_EXIT)
-                // Assume a minimum of a GCC 4.8 toolchain and check for GLIBC
-                // support for the feature.
-                #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
-            #endif
-        #endif
-
-        #if defined(__cpp_lib_atomic_is_always_lock_free)
-        // There is no pre-processor define declared in libstdc++ to indicate
-        // that precise bitwidth atomics exist, but the libstdc++ shipping
-        // with GCC 7 also includes lock-free support in C++17 mode.  That
-        // feature does include a pre-processor definition, so use it as a
-        // stand-in for detecting precise bitwidth atomics.  This pre-processor
-        // definition will already only be defined when compiling in at least
-        // C++17 standard mode, so there is no need for an additional check.
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
-        #endif
-
-        #if __cplusplus > 201103L
-            #if BSLS_PLATFORM_CMP_VERSION >= 30400
-                #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-                #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
-            #endif
-        #endif
-        #if __cplusplus >= 201703L
-            #define BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         #endif
     #endif
 
-    // Do not define these until there is a pre-processor definition given
-    // by the build system to indicate at least the major version number of
-    // the GCC toolchain used by Clang.
-    //
-    // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -1131,23 +741,13 @@ BSLS_IDENT("$Id: $")
         #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
         #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
-        #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
             // Note that 'unique_ptr' appears as early as version 1600 (MSVC
             // 2010) 'BSLS_COMPILER_FEATURES_HAS_RVALUE_REFERENCES', also
             // required for this macro, is not defined until version 1800 (MSVC
             // 2013).
-            //
-            // Also note that 'cbegin()'/'cend()', 'rbegin()'/'rend()', and
-            // 'crbegin()'/crend()' non-member functions are implemented in
-            // 1800 version (MSVC 2013), so the
-            // 'BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS' macro is
-            // defined in this section.
-            // https://msdn.microsoft.com/en-us/library/hh567368.aspx
     #endif
 
     #if BSLS_PLATFORM_CMP_VERSION >= 1900  // Visual Studio 2015
@@ -1161,17 +761,9 @@ BSLS_IDENT("$Id: $")
             // Note that earlier verions have 'tuple' but this macro also
             // requires the definition of the
             // 'BSLS_COMPILER_FEATURES_HAS_VARIADIC_TEMPLATES' macro.
-        #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 
         #undef BSLS_LIBRARYFEATURES_HAS_C90_GETS
     #endif
-#endif
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)  && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-
-    #define BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 #endif
 
 #endif // INCLUDED_BSLS_LIBRARYFEATURES

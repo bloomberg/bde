@@ -78,14 +78,14 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'bsl::weak_ptr' objects themselves rather than the thread safety of the
 // objects being referenced.
 //
-// It is *not* *safe* to access or modify a 'bsl::shared_ptr' (or
+// It is safe to access or modify two distinct 'shared_ptr' (or
+// 'bsl::weak_ptr') objects simultaneously, each from a separate thread, even
+// if they share ownership of a common object.  It is safe to access a single
+// 'bsl::shared_ptr' (or 'bsl::weak_ptr') object simultaneously from two or
+// more separate threads, provided no other thread is simultaneously modifying
+// the object.  It is not safe to access or modify a 'bsl::shared_ptr' (or
 // 'bsl::weak_ptr') object in one thread while another thread modifies the same
-// object.  However, it is safe to access or modify two distinct 'shared_ptr'
-// (or 'bsl::weak_ptr') objects simultaneously, each from a separate thread,
-// even if they share ownership of a common object.  It is safe to access a
-// single 'bsl::shared_ptr' (or 'bsl::weak_ptr') object simultaneously from two
-// or more separate threads, provided no other thread is simultaneously
-// modifying the object.
+// object.
 //
 // It is safe to access, modify, copy, or delete a shared pointer (or weak
 // pointer) in one thread, while other threads access or modify other shared
@@ -1565,8 +1565,8 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 #ifndef INCLUDED_BSLS_LIBRARYFEATURES
@@ -1858,14 +1858,14 @@ class shared_ptr {
         // as this 'shared_ptr'.
 
     // CREATORS
-    BSLS_KEYWORD_CONSTEXPR
-    shared_ptr() BSLS_KEYWORD_NOEXCEPT;
+    BSLS_CPP11_CONSTEXPR
+    shared_ptr() BSLS_CPP11_NOEXCEPT;
         // Create an empty shared pointer, i.e., a shared pointer with no
         // representation that does not refer to any object and has no
         // deleter.
 
-    BSLS_KEYWORD_CONSTEXPR
-    shared_ptr(bsl::nullptr_t) BSLS_KEYWORD_NOEXCEPT;               // IMPLICIT
+    BSLS_CPP11_CONSTEXPR
+    shared_ptr(bsl::nullptr_t) BSLS_CPP11_NOEXCEPT;                 // IMPLICIT
         // Create an empty shared pointer, i.e., a shared pointer with no
         // representation that does not refer to any object and has no
         // deleter.
@@ -2244,7 +2244,7 @@ class shared_ptr {
 
     template <class ANY_TYPE>
     shared_ptr(const shared_ptr<ANY_TYPE>&  source,
-               ELEMENT_TYPE                *object) BSLS_KEYWORD_NOEXCEPT;
+               ELEMENT_TYPE                *object) BSLS_CPP11_NOEXCEPT;
         // Create a shared pointer that manages the same modifiable object (if
         // any) as the specified 'source' shared pointer to the (template
         // parameter) type 'ANY_TYPE', and that refers to the modifiable object
@@ -2261,7 +2261,7 @@ class shared_ptr {
 
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
-    shared_ptr(const shared_ptr<COMPATIBLE_TYPE>& other) BSLS_KEYWORD_NOEXCEPT;
+    shared_ptr(const shared_ptr<COMPATIBLE_TYPE>& other) BSLS_CPP11_NOEXCEPT;
         // Create a shared pointer that manages the same modifiable object (if
         // any) as the specified 'other' shared pointer to the (template
         // parameter) type 'COMPATIBLE_TYPE', uses the same deleter as 'other'
@@ -2273,7 +2273,7 @@ class shared_ptr {
         // still point to an un-managed object if 'other' were constructed
         // through an aliasing constructor.
 
-    shared_ptr(const shared_ptr& original) BSLS_KEYWORD_NOEXCEPT;
+    shared_ptr(const shared_ptr& original) BSLS_CPP11_NOEXCEPT;
         // Create a shared pointer that refers to and manages the same object
         // (if any) as the specified 'original' shared pointer, and uses the
         // same deleter as 'original' to destroy the shared object.  Note that
@@ -2282,7 +2282,7 @@ class shared_ptr {
         // constructed through an aliasing constructor.
 
     shared_ptr(BloombergLP::bslmf::MovableRef<shared_ptr> original)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Create a shared pointer that refers to and assumes management of the
         // same object (if any) as the specified 'original' shared pointer,
         // using the same deleter as 'original' to destroy the shared object,
@@ -2294,7 +2294,7 @@ class shared_ptr {
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
-    shared_ptr(shared_ptr<COMPATIBLE_TYPE>&& other) BSLS_KEYWORD_NOEXCEPT;
+    shared_ptr(shared_ptr<COMPATIBLE_TYPE>&& other) BSLS_CPP11_NOEXCEPT;
         // Create a shared pointer that refers to and assumes management of the
         // same object (if any) as the specified 'other' shared pointer to the
         // (template parameter) type 'COMPATIBLE_TYPE', using the same deleter
@@ -2310,7 +2310,7 @@ class shared_ptr {
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
     shared_ptr(
             BloombergLP::bslmf::MovableRef<shared_ptr<COMPATIBLE_TYPE> > other)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Create a shared pointer that refers to and assumes management of the
         // same object (if any) as the specified 'other' shared pointer to the
         // (template parameter) type 'COMPATIBLE_TYPE', using the same deleter
@@ -2355,7 +2355,7 @@ class shared_ptr {
         // shared pointer is the last reference to that object.
 
     // MANIPULATORS
-    shared_ptr& operator=(const shared_ptr& rhs) BSLS_KEYWORD_NOEXCEPT;
+    shared_ptr& operator=(const shared_ptr& rhs) BSLS_CPP11_NOEXCEPT;
         // Make this shared pointer manage the same modifiable object as the
         // specified 'rhs' shared pointer to the (template parameter) type
         // 'COMPATIBLE_TYPE', use the same deleter as 'rhs', and refer to
@@ -2366,7 +2366,7 @@ class shared_ptr {
         // has no effect.
 
     shared_ptr& operator=(BloombergLP::bslmf::MovableRef<shared_ptr> rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Make this shared pointer manage the same modifiable object as the
         // specified 'rhs' shared pointer to the (template parameter) type
         // 'COMPATIBLE_TYPE', use the same deleter as 'rhs', and refer to
@@ -2380,7 +2380,7 @@ class shared_ptr {
     typename enable_if<
         is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
         shared_ptr&>::type
-    operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
+    operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
         // Make this shared pointer refer to and manage the same modifiable
         // object as the specified 'rhs' shared pointer to the (template
         // parameter) type 'COMPATIBLE_TYPE', using the same deleter as 'rhs'
@@ -2397,7 +2397,7 @@ class shared_ptr {
     typename enable_if<
         is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
         shared_ptr&>::type
-    operator=(shared_ptr<COMPATIBLE_TYPE>&& rhs) BSLS_KEYWORD_NOEXCEPT;
+    operator=(shared_ptr<COMPATIBLE_TYPE>&& rhs) BSLS_CPP11_NOEXCEPT;
         // Make this shared pointer refer to and manage the same modifiable
         // object as the specified 'rhs' shared pointer to the (template
         // parameter) type 'COMPATIBLE_TYPE', using the same deleter as 'rhs'
@@ -2419,7 +2419,7 @@ class shared_ptr {
         is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
         shared_ptr&>::type
     operator=(BloombergLP::bslmf::MovableRef<shared_ptr<COMPATIBLE_TYPE> > rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Make this shared pointer refer to and manage the same modifiable
         // object as the specified 'rhs' shared pointer to the (template
         // parameter) type 'COMPATIBLE_TYPE', using the same deleter as 'rhs'
@@ -2483,7 +2483,7 @@ class shared_ptr {
         // so this implementation may be non-conforming.
 #endif
 
-    void reset() BSLS_KEYWORD_NOEXCEPT;
+    void reset() BSLS_CPP11_NOEXCEPT;
         // Reset this shared pointer to the empty state.  If this shared
         // pointer is managing a (possibly shared) object, then release the
         // reference to the shared object, calling the associated deleter to
@@ -2627,7 +2627,7 @@ class shared_ptr {
         // Standard 'shared_ptr' interface, which does not provide an alias
         // overload for the 'reset' function.
 
-    void swap(shared_ptr& other) BSLS_KEYWORD_NOEXCEPT;
+    void swap(shared_ptr& other) BSLS_CPP11_NOEXCEPT;
         // Efficiently exchange the states of this shared pointer and the
         // specified 'other' shared pointer such that each will refer to the
         // object formerly referred to by the other and each will manage the
@@ -2950,7 +2950,7 @@ class shared_ptr {
         // 'reset(source, object)'.
 
     pair<ELEMENT_TYPE *, BloombergLP::bslma::SharedPtrRep *> release()
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Return the pair consisting of the addresses of the modifiable
         // 'ELEMENT_TYPE' object referred to, and the representation shared by,
         // this shared pointer, and reset this shared pointer to the empty
@@ -2968,7 +2968,7 @@ class shared_ptr {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // DEPRECATED BDE LEGACY MANIPULATORS
-    void clear() BSLS_KEYWORD_NOEXCEPT;
+    void clear() BSLS_CPP11_NOEXCEPT;
         // [!DEPRECATED!] Use 'reset' instead.
         //
         // Reset this shared pointer to the empty state.  If this shared
@@ -3083,7 +3083,7 @@ class shared_ptr {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // ACCESSORS
-    operator BoolType() const BSLS_KEYWORD_NOEXCEPT;
+    operator BoolType() const BSLS_CPP11_NOEXCEPT;
         // Return a value of an "unspecified bool" type that evaluates to
         // 'false' if this shared pointer does not refer to an object, and
         // 'true' otherwise.  Note that this conversion operator allows a
@@ -3092,20 +3092,20 @@ class shared_ptr {
         // to unrelated types to be compared (e.g., via '<' or '>').
 
     typename add_lvalue_reference<ELEMENT_TYPE>::type
-    operator*() const BSLS_KEYWORD_NOEXCEPT;
+    operator*() const BSLS_CPP11_NOEXCEPT;
         // Return a reference providing modifiable access to the object
         // referred to by this shared pointer.  The behavior is undefined
         // unless this shared pointer refers to an object, and 'ELEMENT_TYPE'
         // is not (potentially 'const' or 'volatile' qualified) 'void'.
 
-    ELEMENT_TYPE *operator->() const BSLS_KEYWORD_NOEXCEPT;
+    ELEMENT_TYPE *operator->() const BSLS_CPP11_NOEXCEPT;
         // Return the address providing modifiable access to the object
         // referred to by this shared pointer, or 0 if this shared pointer does
         // not refer to an object.  Note that applying this operator
         // conventionally (e.g., to invoke a method) to an shared pointer that
         // does not refer to an object will result in undefined behavior.
 
-    ELEMENT_TYPE *get() const BSLS_KEYWORD_NOEXCEPT;
+    ELEMENT_TYPE *get() const BSLS_CPP11_NOEXCEPT;
         // Return the address providing modifiable access to the object
         // referred to by this shared pointer, or 0 if this shared pointer does
         // not refer to an object.
@@ -3122,7 +3122,7 @@ class shared_ptr {
         // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
         // otherwise.
 
-    bool unique() const BSLS_KEYWORD_NOEXCEPT;
+    bool unique() const BSLS_CPP11_NOEXCEPT;
         // Return 'true' if this shared pointer is not empty and does not share
         // ownership of the object it managed with any other shared pointer,
         // and 'false' otherwise.  Note that a shared pointer with a custom
@@ -3131,7 +3131,7 @@ class shared_ptr {
         // reliable in a multithreaded program, where a weak pointer may be
         // locked on another thread.  This function is deprecated in C++17.
 
-    long use_count() const BSLS_KEYWORD_NOEXCEPT;
+    long use_count() const BSLS_CPP11_NOEXCEPT;
         // Return a "snapshot" of the number of shared pointers (including this
         // one) that share ownership of the object managed by this shared
         // pointer.  Note that 0 is returned if this shared pointer is empty.
@@ -3162,14 +3162,14 @@ class shared_ptr {
         // counting a null pointer, the empty 'bslma::ManagedPtr' returned will
         // not participate in that shared ownership.
 
-    BloombergLP::bslma::SharedPtrRep *rep() const BSLS_KEYWORD_NOEXCEPT;
+    BloombergLP::bslma::SharedPtrRep *rep() const BSLS_CPP11_NOEXCEPT;
         // Return the address providing modifiable access to the
         // 'BloombergLP::bslma::SharedPtrRep' object used by this shared
         // pointer, or 0 if this shared pointer is empty.
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // DEPRECATED BDE LEGACY ACCESSORS
-    int numReferences() const BSLS_KEYWORD_NOEXCEPT;
+    int numReferences() const BSLS_CPP11_NOEXCEPT;
         // [!DEPRECATED!] Use 'use_count' instead.
         //
         // Return a "snapshot" of the number of shared pointers (including this
@@ -3178,7 +3178,7 @@ class shared_ptr {
         // 'use_count', and the result may be unreliable in multithread code
         // for the same reasons.
 
-    ELEMENT_TYPE *ptr() const BSLS_KEYWORD_NOEXCEPT;
+    ELEMENT_TYPE *ptr() const BSLS_CPP11_NOEXCEPT;
         // [!DEPRECATED!] Use 'get' instead.
         //
         // Return the address providing modifiable access to the object
@@ -3191,7 +3191,7 @@ class shared_ptr {
 // FREE OPERATORS
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator==(const shared_ptr<LHS_TYPE>& lhs,
-                const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
+                const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the specified 'lhs' shared pointer refers to the same
     // object (if any) as that referred to by the specified 'rhs' shared
     // pointer (if any), and 'false' otherwise; a compiler diagnostic will be
@@ -3202,7 +3202,7 @@ bool operator==(const shared_ptr<LHS_TYPE>& lhs,
 
 template <class LHS_TYPE, class RHS_TYPE>
 bool operator!=(const shared_ptr<LHS_TYPE>& lhs,
-                const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
+                const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the specified 'lhs' shared pointer does not refer to
     // the same object (if any) as that referred to by the specified 'rhs'
     // shared pointer (if any), and 'false' otherwise; a compiler diagnostic
@@ -3213,7 +3213,7 @@ bool operator!=(const shared_ptr<LHS_TYPE>& lhs,
 
 template<class LHS_TYPE, class RHS_TYPE>
 bool operator<(const shared_ptr<LHS_TYPE>& lhs,
-               const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
+               const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the address of the object that the specified 'lhs'
     // shared pointer refers to is ordered before the address of the object
     // that the specified 'rhs' shared pointer refers to under the total
@@ -3222,7 +3222,7 @@ bool operator<(const shared_ptr<LHS_TYPE>& lhs,
 
 template<class LHS_TYPE, class RHS_TYPE>
 bool operator>(const shared_ptr<LHS_TYPE>& lhs,
-               const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
+               const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the address of the object that the specified 'lhs'
     // shared pointer refers to is ordered after the address of the object
     // that the specified 'rhs' shared pointer refers to under the total
@@ -3231,7 +3231,7 @@ bool operator>(const shared_ptr<LHS_TYPE>& lhs,
 
 template<class LHS_TYPE, class RHS_TYPE>
 bool operator<=(const shared_ptr<LHS_TYPE>& lhs,
-                const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
+                const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the specified 'lhs' shared pointer refers to the same
     // object as the specified 'rhs' shared pointer, or if the address of the
     // object referred to by 'lhs' (if any) is ordered before the address of
@@ -3241,7 +3241,7 @@ bool operator<=(const shared_ptr<LHS_TYPE>& lhs,
 
 template<class LHS_TYPE, class RHS_TYPE>
 bool operator>=(const shared_ptr<LHS_TYPE>& lhs,
-                const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
+                const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the specified 'lhs' shared pointer refers to the same
     // object as the specified 'rhs' shared pointer, or if the address of the
     // object referred to by 'lhs' (if any) is ordered after the address of the
@@ -3251,39 +3251,37 @@ bool operator>=(const shared_ptr<LHS_TYPE>& lhs,
 
 template <class LHS_TYPE>
 bool operator==(const shared_ptr<LHS_TYPE>& lhs,
-                nullptr_t) BSLS_KEYWORD_NOEXCEPT;
+                nullptr_t) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the specified 'lhs' shared pointer does not refer to an
     // object, and 'false' otherwise.
 
 template <class RHS_TYPE>
 bool operator==(nullptr_t,
-                const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
+                const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the specified 'rhs' shared pointer does not refer to an
     // object, and 'false' otherwise.
 
 template <class LHS_TYPE>
 bool operator!=(const shared_ptr<LHS_TYPE>& lhs,
-                nullptr_t) BSLS_KEYWORD_NOEXCEPT;
+                nullptr_t) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the specified 'lhs' shared pointer refers to an object,
     // and 'false' otherwise.
 
 template <class RHS_TYPE>
 bool operator!=(nullptr_t,
-                const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
+                const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the specified 'rhs' shared pointer refers to an object,
     // and 'false' otherwise.
 
 template <class LHS_TYPE>
-bool operator<(const shared_ptr<LHS_TYPE>& lhs, nullptr_t)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+bool operator<(const shared_ptr<LHS_TYPE>& lhs, nullptr_t) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the address of the object referred to by the specified
     // 'lhs' shared pointer is ordered before the null-pointer value under the
     // total ordering supplied by 'std::less<LHS_TYPE *>', and 'false'
     // otherwise.
 
 template <class RHS_TYPE>
-bool operator<(nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+bool operator<(nullptr_t, const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the address of the object referred to by the specified
     // 'rhs' shared pointer is ordered after the null-pointer value under the
     // total ordering supplied by 'std::less<RHS_TYPE *>', and 'false'
@@ -3291,7 +3289,7 @@ bool operator<(nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 
 template <class LHS_TYPE>
 bool operator<=(const shared_ptr<LHS_TYPE>& lhs,
-                nullptr_t) BSLS_KEYWORD_NOEXCEPT;
+                nullptr_t) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the specified 'lhs' shared pointer does not refer to an
     // object, or if the address of the object referred to by 'lhs' is ordered
     // before the null-pointer value under the total ordering supplied by
@@ -3299,23 +3297,21 @@ bool operator<=(const shared_ptr<LHS_TYPE>& lhs,
 
 template <class RHS_TYPE>
 bool operator<=(nullptr_t,
-                const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
+                const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the specified 'rhs' shared pointer does not refer to an
     // object, or if the address of the object referred to by 'rhs' is ordered
     // after the null-pointer value under the total ordering supplied by
     // 'std::less<RHS_TYPE *>', and 'false' otherwise.
 
 template <class LHS_TYPE>
-bool operator>(const shared_ptr<LHS_TYPE>& lhs, nullptr_t)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+bool operator>(const shared_ptr<LHS_TYPE>& lhs, nullptr_t) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the address of the object referred to by the specified
     // 'lhs' shared pointer is ordered after the null-pointer value under the
     // total ordering supplied by 'std::less<LHS_TYPE *>', and 'false'
     // otherwise.
 
 template <class RHS_TYPE>
-bool operator>(nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+bool operator>(nullptr_t, const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the address of the object referred to by the specified
     // 'rhs' shared pointer is ordered before the null-pointer value under the
     // total ordering supplied by 'std::less<RHS_TYPE *>', and 'false'
@@ -3323,7 +3319,7 @@ bool operator>(nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 
 template <class LHS_TYPE>
 bool operator>=(const shared_ptr<LHS_TYPE>& lhs,
-                nullptr_t) BSLS_KEYWORD_NOEXCEPT;
+                nullptr_t) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the specified 'lhs' shared pointer does not refer to an
     // object, or if the address of the object referred to by 'lhs' is ordered
     // after the null-pointer value under the total ordering supplied by
@@ -3331,7 +3327,7 @@ bool operator>=(const shared_ptr<LHS_TYPE>& lhs,
 
 template <class RHS_TYPE>
 bool operator>=(nullptr_t,
-                const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
+                const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
     // Return 'true' if the specified 'rhs' shared pointer does not refer to an
     // object, or if the address of the object referred to by 'rhs' is ordered
     // before the null-pointer value under the total ordering supplied by
@@ -3354,7 +3350,7 @@ void hashAppend(HASHALG& hashAlg, const shared_ptr<ELEMENT_TYPE>& input);
 
 template <class ELEMENT_TYPE>
 void swap(shared_ptr<ELEMENT_TYPE>& a, shared_ptr<ELEMENT_TYPE>& b)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
     // Efficiently exchange the states of the specified 'a' and 'b' shared
     // pointers such that each will refer to the object formerly referred to by
     // the other, and each will manage the object formerly managed by the
@@ -3362,7 +3358,7 @@ void swap(shared_ptr<ELEMENT_TYPE>& a, shared_ptr<ELEMENT_TYPE>& b)
 
 // STANDARD FREE FUNCTIONS
 template<class DELETER, class ELEMENT_TYPE>
-DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>& p) BSLS_KEYWORD_NOEXCEPT;
+DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>& p) BSLS_CPP11_NOEXCEPT;
     // Return the address of deleter used by the specified 'p' shared pointer
     // if the (template parameter) type 'DELETER' is the type of the deleter
     // installed in 'p', and a null pointer value otherwise.
@@ -3370,7 +3366,7 @@ DELETER *get_deleter(const shared_ptr<ELEMENT_TYPE>& p) BSLS_KEYWORD_NOEXCEPT;
 // STANDARD CAST FUNCTIONS
 template<class TO_TYPE, class FROM_TYPE>
 shared_ptr<TO_TYPE> const_pointer_cast(const shared_ptr<FROM_TYPE>& source)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
     // Return a 'shared_ptr<TO_TYPE>' object sharing ownership of the same
     // object as the specified 'source' shared pointer to the (template
     // parameter) 'FROM_TYPE', and referring to
@@ -3380,7 +3376,7 @@ shared_ptr<TO_TYPE> const_pointer_cast(const shared_ptr<FROM_TYPE>& source)
 
 template<class TO_TYPE, class FROM_TYPE>
 shared_ptr<TO_TYPE> dynamic_pointer_cast(const shared_ptr<FROM_TYPE>& source)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
     // Return a 'shared_ptr<TO_TYPE>' object sharing ownership of the same
     // object as the specified 'source' shared pointer to the (template
     // parameter) 'FROM_TYPE', and referring to
@@ -3390,7 +3386,7 @@ shared_ptr<TO_TYPE> dynamic_pointer_cast(const shared_ptr<FROM_TYPE>& source)
 
 template<class TO_TYPE, class FROM_TYPE>
 shared_ptr<TO_TYPE> static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
     // Return a 'shared_ptr<TO_TYPE>' object sharing ownership of the same
     // object as the specified 'source' shared pointer to the (template
     // parameter) 'FROM_TYPE', and referring to
@@ -4351,13 +4347,13 @@ class weak_ptr {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     // CREATORS
-    BSLS_KEYWORD_CONSTEXPR
-    weak_ptr() BSLS_KEYWORD_NOEXCEPT;
+    BSLS_CPP11_CONSTEXPR
+    weak_ptr() BSLS_CPP11_NOEXCEPT;
         // Create a weak pointer in the empty state and referring to no object,
         // i.e., a weak pointer having no representation.
 
     weak_ptr(BloombergLP::bslmf::MovableRef<weak_ptr> original)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Create a weak pointer that refers to the same object (if any) as the
         // specified 'original' weak pointer, and reset 'original' to an empty
         // state.
@@ -4365,19 +4361,19 @@ class weak_ptr {
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
-    weak_ptr(weak_ptr<COMPATIBLE_TYPE>&& other) BSLS_KEYWORD_NOEXCEPT;
+    weak_ptr(weak_ptr<COMPATIBLE_TYPE>&& other) BSLS_CPP11_NOEXCEPT;
 #else
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
     weak_ptr(BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > other)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
 #endif
         // Create a weak pointer that refers to the same object (if any) as the
         // specified 'other' weak pointer, and reset 'original' to an empty
         // state.  Note that this operation does not involve any change to
         // reference counts.
 
-    weak_ptr(const weak_ptr& original) BSLS_KEYWORD_NOEXCEPT;
+    weak_ptr(const weak_ptr& original) BSLS_CPP11_NOEXCEPT;
         // Create a weak pointer that refers to the same object (if any) as the
         // specified 'original' weak pointer, and increment the number of weak
         // references to the object managed by 'original' (if any).  Note that
@@ -4386,11 +4382,11 @@ class weak_ptr {
 
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
-    weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& other) BSLS_KEYWORD_NOEXCEPT;
+    weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& other) BSLS_CPP11_NOEXCEPT;
                                                                     // IMPLICIT
     template <class COMPATIBLE_TYPE
               BSLSTL_SHAREDPTR_DECLARE_IF_COMPATIBLE>
-    weak_ptr(const weak_ptr<COMPATIBLE_TYPE>& other) BSLS_KEYWORD_NOEXCEPT;
+    weak_ptr(const weak_ptr<COMPATIBLE_TYPE>& other) BSLS_CPP11_NOEXCEPT;
                                                                     // IMPLICIT
         // Create a weak pointer that refers to the same object (if any) as the
         // specified 'other' (shared or weak) pointer of the (template
@@ -4407,7 +4403,7 @@ class weak_ptr {
 
     // MANIPULATORS
     weak_ptr& operator=(BloombergLP::bslmf::MovableRef<weak_ptr> rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Make this weak pointer refer to the same object (if any) as the
         // specified 'rhs' weak pointer.  If 'rhs' is not a reference to this
         // weak pointer, decrement the number of weak references to the object
@@ -4416,7 +4412,7 @@ class weak_ptr {
         // pointer.  Note that if 'rhs' is in an empty state, this weak pointer
         // will be set to an empty state.
 
-    weak_ptr& operator=(const weak_ptr& rhs) BSLS_KEYWORD_NOEXCEPT;
+    weak_ptr& operator=(const weak_ptr& rhs) BSLS_CPP11_NOEXCEPT;
         // Make this weak pointer refer to the same object (if any) as the
         // specified 'rhs' weak pointer.  Decrement the number of weak
         // references to the object this weak pointer manages (if any), and
@@ -4429,13 +4425,13 @@ class weak_ptr {
     template <class COMPATIBLE_TYPE>
     typename enable_if<
      is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value, weak_ptr&>::type
-    operator=(weak_ptr<COMPATIBLE_TYPE>&& rhs) BSLS_KEYWORD_NOEXCEPT;
+    operator=(weak_ptr<COMPATIBLE_TYPE>&& rhs) BSLS_CPP11_NOEXCEPT;
 #else
     template <class COMPATIBLE_TYPE>
     typename enable_if<
      is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value, weak_ptr&>::type
     operator=(BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
 #endif
         // Make this weak pointer refer to the same object (if any) as the
         // specified 'rhs' weak pointer.  Decrement the number of weak
@@ -4450,11 +4446,11 @@ class weak_ptr {
     template <class COMPATIBLE_TYPE>
     typename enable_if<
      is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value, weak_ptr&>::type
-    operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
+    operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
     template <class COMPATIBLE_TYPE>
     typename enable_if<
      is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value, weak_ptr&>::type
-    operator=(const weak_ptr<COMPATIBLE_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT;
+    operator=(const weak_ptr<COMPATIBLE_TYPE>& rhs) BSLS_CPP11_NOEXCEPT;
         // Make this weak pointer refer to the same object (if any) as the
         // specified 'rhs' (shared or weak) pointer to the (template parameter)
         // 'COMPATIBLE_TYPE'.  Decrement the number of weak references to the
@@ -4466,24 +4462,24 @@ class weak_ptr {
         // Note that if 'rhs' is in the empty state, this weak pointer will be
         // set to the empty state.
 
-    void reset() BSLS_KEYWORD_NOEXCEPT;
+    void reset() BSLS_CPP11_NOEXCEPT;
         // Reset this weak pointer to the empty state.  If this weak pointer
         // manages a (possibly shared) object, then decrement the number of
         // weak references to that object.
 
-    void swap(weak_ptr& other) BSLS_KEYWORD_NOEXCEPT;
+    void swap(weak_ptr& other) BSLS_CPP11_NOEXCEPT;
         // Efficiently exchange the states of this weak pointer and the
         // specified 'other' weak pointer such that each will refer to the
         // object (if any) and representation (if any) formerly referred to and
         // managed by the other.
 
     // ACCESSORS
-    bool expired() const BSLS_KEYWORD_NOEXCEPT;
+    bool expired() const BSLS_CPP11_NOEXCEPT;
         // Return 'true' if this weak pointer is in the empty state or the
         // object that it originally referenced has been destroyed, and 'false'
         // otherwise.
 
-    shared_ptr<ELEMENT_TYPE> lock() const BSLS_KEYWORD_NOEXCEPT;
+    shared_ptr<ELEMENT_TYPE> lock() const BSLS_CPP11_NOEXCEPT;
         // Return a shared pointer to the object referred to by this weak
         // pointer if 'false == expired()', and a shared pointer in the empty
         // state otherwise.
@@ -4500,12 +4496,12 @@ class weak_ptr {
         // 'std::less<BloombergLP::bslma::SharedPtrRep *>', and 'false'
         // otherwise.
 
-    BloombergLP::bslma::SharedPtrRep *rep() const BSLS_KEYWORD_NOEXCEPT;
+    BloombergLP::bslma::SharedPtrRep *rep() const BSLS_CPP11_NOEXCEPT;
         // Return the address providing modifiable access to the
         // 'BloombergLP::bslma::SharedPtrRep' object held by this weak pointer,
         // or 0 if this weak pointer is in the empty state.
 
-    long use_count() const BSLS_KEYWORD_NOEXCEPT;
+    long use_count() const BSLS_CPP11_NOEXCEPT;
         // Return a "snapshot" of the current number of shared pointers that
         // share ownership of the object referred to by this weak pointer, or 0
         // if this weak pointer is in the empty state.  Note that any result
@@ -4517,14 +4513,14 @@ class weak_ptr {
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // DEPRECATED BDE LEGACY ACCESSORS
-    shared_ptr<ELEMENT_TYPE> acquireSharedPtr() const BSLS_KEYWORD_NOEXCEPT;
+    shared_ptr<ELEMENT_TYPE> acquireSharedPtr() const BSLS_CPP11_NOEXCEPT;
         // Return a shared pointer to the object referred to by this weak
         // pointer and managing the same object as that managed by this weak
         // pointer (if any) if 'false == expired()', and a shared pointer in
         // the empty state otherwise.  Note that the behavior of this method is
         // the same as that of 'lock'.
 
-    int numReferences() const BSLS_KEYWORD_NOEXCEPT;
+    int numReferences() const BSLS_CPP11_NOEXCEPT;
         // [!DEPRECATED!] Use 'use_count' instead.
         //
         // Return a "snapshot" of the current number of shared pointers that
@@ -4570,12 +4566,12 @@ class enable_shared_from_this {
 
   protected:
     // PROTECTED CREATORS
-    enable_shared_from_this() BSLS_KEYWORD_NOEXCEPT;
+    enable_shared_from_this() BSLS_CPP11_NOEXCEPT;
         // Create an 'enable_shared_from_this' object that is not owned by any
         // 'shared_ptr' object.
 
     enable_shared_from_this(const enable_shared_from_this& unused)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Create an 'enable_shared_from_this' object that is not owned by any
         // 'shared_ptr' object.  Note that the specified 'unused' argument is
         // not used by this constructor.
@@ -4585,7 +4581,7 @@ class enable_shared_from_this {
 
     // PROTECTED MANIPULATORS
     enable_shared_from_this& operator=(const enable_shared_from_this& rhs)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Return '*this'. This object is unchanged.  Note that the specified
         // 'rhs' is not used.
 
@@ -4599,7 +4595,7 @@ class enable_shared_from_this {
         // managing this object, the returned 'shared_ptr' will share ownership
         // with the group that first managed this object.
 
-    bsl::weak_ptr<ELEMENT_TYPE> weak_from_this() BSLS_KEYWORD_NOEXCEPT;
+    bsl::weak_ptr<ELEMENT_TYPE> weak_from_this() BSLS_CPP11_NOEXCEPT;
         // Return a 'weak_ptr' holding a weak reference to this managed object
         // if this object is currently managed by 'shared_ptr', and return an
         // expired 'weak_ptr' otherwise.  If multiple groups of 'shared_ptr's
@@ -4617,7 +4613,7 @@ class enable_shared_from_this {
 
 
     bsl::weak_ptr<const ELEMENT_TYPE> weak_from_this() const
-                                                          BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Return a 'weak_ptr' holding a weak reference (with only 'const'
         // access) to this managed object if this object is currently managed
         // by 'shared_ptr', and return an expired 'weak_ptr' otherwise.  If
@@ -4629,7 +4625,7 @@ class enable_shared_from_this {
 // ASPECTS
 template <class ELEMENT_TYPE>
 void swap(weak_ptr<ELEMENT_TYPE>& a, weak_ptr<ELEMENT_TYPE>& b)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
     // Efficiently exchange the states of the specified 'a' and 'b' weak
     // pointers such that each will refer to the object (if any) and
     // representation formerly referred to by the other.
@@ -4683,7 +4679,7 @@ struct SharedPtrUtil {
     template <class TARGET, class SOURCE>
     static
     bsl::shared_ptr<TARGET> constCast(const bsl::shared_ptr<SOURCE>& source)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Return a 'bsl::shared_ptr<TARGET>' object sharing ownership of the
         // same object as the specified 'source' shared pointer to the
         // (template parameter) 'SOURCE' type, and referring to
@@ -4710,7 +4706,7 @@ struct SharedPtrUtil {
     template <class TARGET, class SOURCE>
     static
     bsl::shared_ptr<TARGET> dynamicCast(const bsl::shared_ptr<SOURCE>& source)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Return a 'bsl::shared_ptr<TARGET>' object sharing ownership of the
         // same object as the specified 'source' shared pointer to the
         // (template parameter) 'SOURCE' type, and referring to
@@ -4737,7 +4733,7 @@ struct SharedPtrUtil {
     template <class TARGET, class SOURCE>
     static
     bsl::shared_ptr<TARGET> staticCast(const bsl::shared_ptr<SOURCE>& source)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Return a 'bsl::shared_ptr<TARGET>' object sharing ownership of the
         // same object as the specified 'source' shared pointer to the
         // (template parameter) 'SOURCE' type, and referring to
@@ -4755,7 +4751,7 @@ struct SharedPtrNilDeleter {
     // nothing when invoked.
 
     // ACCESSORS
-    void operator()(const volatile void *) const BSLS_KEYWORD_NOEXCEPT;
+    void operator()(const volatile void *) const BSLS_CPP11_NOEXCEPT;
         // No-Op.
 };
 
@@ -4769,7 +4765,7 @@ struct SharedPtr_DefaultDeleter {
 
     // ACCESSORS
     template <class ANY_TYPE>
-    void operator()(ANY_TYPE *ptr) const BSLS_KEYWORD_NOEXCEPT;
+    void operator()(ANY_TYPE *ptr) const BSLS_CPP11_NOEXCEPT;
         // Call 'delete' with the specified 'ptr'.
 };
 
@@ -4800,7 +4796,7 @@ struct SharedPtr_ImpUtil {
         // specialization of 'enable_shared_from_this'.
 
     static void loadEnableSharedFromThis(const volatile void *, const void *)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Do nothing.  This overload is selected, rather than the immediately
         // preceding template, when the 'SHARED_TYPE' template type parameter
         // of 'shared_ptr<SHARED_TYPE>' does not derive from a specialization
@@ -4810,12 +4806,12 @@ struct SharedPtr_ImpUtil {
         // Throw a 'bsl::bad_weak_ptr' exception.
 
     template <class TYPE>
-    static void *voidify(TYPE *address) BSLS_KEYWORD_NOEXCEPT;
+    static void *voidify(TYPE *address) BSLS_CPP11_NOEXCEPT;
         // Return the specified 'address' cast as a pointer to 'void', even if
         // (the template parameter) 'TYPE' is cv-qualified.
 
     template <class TYPE>
-    static TYPE *unqualify(const volatile TYPE *address) BSLS_KEYWORD_NOEXCEPT;
+    static TYPE *unqualify(const volatile TYPE *address) BSLS_CPP11_NOEXCEPT;
         // Return the specified 'address' of a potentially 'cv'-qualified
         // object of the given (template parameter) 'TYPE', cast as a pointer
         // to a modifiable non-volatile object of the given 'TYPE'.
@@ -4842,7 +4838,7 @@ class SharedPtr_RepProctor {
   public:
     // CREATORS
     explicit SharedPtr_RepProctor(bslma::SharedPtrRep *rep)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
         // Create a 'SharedPtr_RepProctor' that conditionally manages the
         // specified 'rep' (if non-zero).
 
@@ -4854,7 +4850,7 @@ class SharedPtr_RepProctor {
         // reference count will not be decremented.
 
     // MANIPULATORS
-    void release() BSLS_KEYWORD_NOEXCEPT;
+    void release() BSLS_CPP11_NOEXCEPT;
         // Release from management the object currently managed by this
         // proctor.  If no object is currently being managed, this method has
         // no effect.
@@ -5065,7 +5061,7 @@ namespace bsl {
 template<class ELEMENT_TYPE>
 inline // constexpr
 enable_shared_from_this<ELEMENT_TYPE>::enable_shared_from_this()
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 : d_weakThis()
 {
 }
@@ -5074,7 +5070,7 @@ template<class ELEMENT_TYPE>
 inline
 enable_shared_from_this<ELEMENT_TYPE>::enable_shared_from_this(
                                                 const enable_shared_from_this&)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 : d_weakThis()
 {
 }
@@ -5091,7 +5087,7 @@ inline
 enable_shared_from_this<ELEMENT_TYPE>&
 enable_shared_from_this<ELEMENT_TYPE>::operator=(
                                                 const enable_shared_from_this&)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return *this;
 }
@@ -5115,7 +5111,7 @@ enable_shared_from_this<ELEMENT_TYPE>::shared_from_this() const
 template<class ELEMENT_TYPE>
 inline
 weak_ptr<ELEMENT_TYPE>
-enable_shared_from_this<ELEMENT_TYPE>::weak_from_this() BSLS_KEYWORD_NOEXCEPT
+enable_shared_from_this<ELEMENT_TYPE>::weak_from_this() BSLS_CPP11_NOEXCEPT
 {
     return d_weakThis;
 }
@@ -5124,7 +5120,7 @@ template<class ELEMENT_TYPE>
 inline
 weak_ptr<const ELEMENT_TYPE>
 enable_shared_from_this<ELEMENT_TYPE>::weak_from_this() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_weakThis;
 }
@@ -5180,8 +5176,8 @@ shared_ptr<ELEMENT_TYPE>::makeInternalRep(COMPATIBLE_TYPE *ptr,
 // CREATORS
 template <class ELEMENT_TYPE>
 inline
-BSLS_KEYWORD_CONSTEXPR
-shared_ptr<ELEMENT_TYPE>::shared_ptr() BSLS_KEYWORD_NOEXCEPT
+BSLS_CPP11_CONSTEXPR
+shared_ptr<ELEMENT_TYPE>::shared_ptr() BSLS_CPP11_NOEXCEPT
 : d_ptr_p(0)
 , d_rep_p(0)
 {
@@ -5189,8 +5185,8 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr() BSLS_KEYWORD_NOEXCEPT
 
 template <class ELEMENT_TYPE>
 inline
-BSLS_KEYWORD_CONSTEXPR
-shared_ptr<ELEMENT_TYPE>::shared_ptr(bsl::nullptr_t) BSLS_KEYWORD_NOEXCEPT
+BSLS_CPP11_CONSTEXPR
+shared_ptr<ELEMENT_TYPE>::shared_ptr(bsl::nullptr_t) BSLS_CPP11_NOEXCEPT
 : d_ptr_p(0)
 , d_rep_p(0)
 {
@@ -5510,7 +5506,7 @@ template <class ELEMENT_TYPE>
 template <class ANY_TYPE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(const shared_ptr<ANY_TYPE>&  source,
                                      ELEMENT_TYPE                *object)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 : d_ptr_p(object)
 , d_rep_p(source.d_rep_p)
 {
@@ -5523,7 +5519,7 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE
           BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
 shared_ptr<ELEMENT_TYPE>::
-shared_ptr(const shared_ptr<COMPATIBLE_TYPE>& other) BSLS_KEYWORD_NOEXCEPT
+shared_ptr(const shared_ptr<COMPATIBLE_TYPE>& other) BSLS_CPP11_NOEXCEPT
 : d_ptr_p(other.d_ptr_p)
 , d_rep_p(other.d_rep_p)
 {
@@ -5534,7 +5530,7 @@ shared_ptr(const shared_ptr<COMPATIBLE_TYPE>& other) BSLS_KEYWORD_NOEXCEPT
 
 template <class ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(const shared_ptr& original)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 : d_ptr_p(original.d_ptr_p)
 , d_rep_p(original.d_rep_p)
 {
@@ -5546,7 +5542,7 @@ shared_ptr<ELEMENT_TYPE>::shared_ptr(const shared_ptr& original)
 template <class ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr
                           (BloombergLP::bslmf::MovableRef<shared_ptr> original)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 : d_ptr_p(BloombergLP::bslmf::MovableRefUtil::access(original).d_ptr_p)
 , d_rep_p(BloombergLP::bslmf::MovableRefUtil::access(original).d_rep_p)
 {
@@ -5559,7 +5555,7 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE
           BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
 shared_ptr<ELEMENT_TYPE>::shared_ptr(shared_ptr<COMPATIBLE_TYPE>&& other)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 : d_ptr_p(other.d_ptr_p)
 , d_rep_p(other.d_rep_p)
 {
@@ -5572,7 +5568,7 @@ template <class COMPATIBLE_TYPE
           BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
 shared_ptr<ELEMENT_TYPE>::
 shared_ptr(BloombergLP::bslmf::MovableRef<shared_ptr<COMPATIBLE_TYPE> > other)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 : d_ptr_p(BloombergLP::bslmf::MovableRefUtil::access(other).d_ptr_p)
 , d_rep_p(BloombergLP::bslmf::MovableRefUtil::access(other).d_rep_p)
 {
@@ -5645,8 +5641,7 @@ shared_ptr<ELEMENT_TYPE>::~shared_ptr()
 // MANIPULATORS
 template <class ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE>&
-shared_ptr<ELEMENT_TYPE>::operator=(const shared_ptr& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+shared_ptr<ELEMENT_TYPE>::operator=(const shared_ptr& rhs) BSLS_CPP11_NOEXCEPT
 {
     // Instead of testing '&rhs == this', which happens infrequently, optimize
     // for when reps are the same.
@@ -5665,7 +5660,7 @@ template <class ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE>&
 shared_ptr<ELEMENT_TYPE>::operator=(
                                 BloombergLP::bslmf::MovableRef<shared_ptr> rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     // No self-assignment to optimize, postcondition demands 'rhs' is left
     // empty, unless it is the exact same object, not just the same 'rep'.
@@ -5681,7 +5676,7 @@ typename enable_if<
     is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
     shared_ptr<ELEMENT_TYPE>&>::type
 shared_ptr<ELEMENT_TYPE>::operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     // Instead of testing '&rhs == this', which happens infrequently, optimize
     // for when reps are the same.
@@ -5703,7 +5698,7 @@ typename enable_if<
     is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
     shared_ptr<ELEMENT_TYPE>&>::type
 shared_ptr<ELEMENT_TYPE>::operator=(shared_ptr<COMPATIBLE_TYPE>&& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 #else
 template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE>
@@ -5712,7 +5707,7 @@ typename enable_if<
     shared_ptr<ELEMENT_TYPE>&>::type
 shared_ptr<ELEMENT_TYPE>::operator=(
               BloombergLP::bslmf::MovableRef<shared_ptr<COMPATIBLE_TYPE> > rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 #endif
 {
     // No self-assignment to optimize, postcondition demands 'rhs' is left
@@ -5757,7 +5752,7 @@ shared_ptr<ELEMENT_TYPE>::operator=(
 
 template <class ELEMENT_TYPE>
 inline
-void shared_ptr<ELEMENT_TYPE>::reset() BSLS_KEYWORD_NOEXCEPT
+void shared_ptr<ELEMENT_TYPE>::reset() BSLS_CPP11_NOEXCEPT
 {
     BloombergLP::bslma::SharedPtrRep *rep = d_rep_p;
 
@@ -5824,7 +5819,7 @@ void shared_ptr<ELEMENT_TYPE>::reset(const shared_ptr<ANY_TYPE>&  source,
 
 template <class ELEMENT_TYPE>
 inline
-void shared_ptr<ELEMENT_TYPE>::swap(shared_ptr& other) BSLS_KEYWORD_NOEXCEPT
+void shared_ptr<ELEMENT_TYPE>::swap(shared_ptr& other) BSLS_CPP11_NOEXCEPT
 {
     // We directly implement swapping of two pointers, rather than simply
     // calling 'bsl::swap' or using 'bslalg::SwapUtil', to avoid (indirectly)
@@ -6408,7 +6403,7 @@ shared_ptr<ELEMENT_TYPE>::loadAlias(const shared_ptr<ANY_TYPE>&  source,
 
 template <class ELEMENT_TYPE>
 pair<ELEMENT_TYPE *, BloombergLP::bslma::SharedPtrRep *>
-shared_ptr<ELEMENT_TYPE>::release() BSLS_KEYWORD_NOEXCEPT
+shared_ptr<ELEMENT_TYPE>::release() BSLS_CPP11_NOEXCEPT
 {
     pair<ELEMENT_TYPE *, BloombergLP::bslma::SharedPtrRep *> ret(d_ptr_p,
                                                                  d_rep_p);
@@ -6421,7 +6416,7 @@ shared_ptr<ELEMENT_TYPE>::release() BSLS_KEYWORD_NOEXCEPT
 // DEPRECATED BDE LEGACY MANIPULATORS
 template <class ELEMENT_TYPE>
 inline
-void shared_ptr<ELEMENT_TYPE>::clear() BSLS_KEYWORD_NOEXCEPT
+void shared_ptr<ELEMENT_TYPE>::clear() BSLS_CPP11_NOEXCEPT
 {
     reset();
 }
@@ -6461,9 +6456,9 @@ template <class ELEMENT_TYPE>
 inline
 # if defined(BSLS_PLATFORM_CMP_IBM)
 shared_ptr<ELEMENT_TYPE>::operator typename shared_ptr::BoolType() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 # else
-shared_ptr<ELEMENT_TYPE>::operator BoolType() const BSLS_KEYWORD_NOEXCEPT
+shared_ptr<ELEMENT_TYPE>::operator BoolType() const BSLS_CPP11_NOEXCEPT
 # endif
 {
     return BloombergLP::bsls::UnspecifiedBool<shared_ptr>::makeValue(d_ptr_p);
@@ -6472,7 +6467,7 @@ shared_ptr<ELEMENT_TYPE>::operator BoolType() const BSLS_KEYWORD_NOEXCEPT
 template <class ELEMENT_TYPE>
 inline
 typename add_lvalue_reference<ELEMENT_TYPE>::type
-shared_ptr<ELEMENT_TYPE>::operator*() const BSLS_KEYWORD_NOEXCEPT
+shared_ptr<ELEMENT_TYPE>::operator*() const BSLS_CPP11_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(d_ptr_p);
 
@@ -6481,15 +6476,14 @@ shared_ptr<ELEMENT_TYPE>::operator*() const BSLS_KEYWORD_NOEXCEPT
 
 template <class ELEMENT_TYPE>
 inline
-ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::operator->() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::operator->() const BSLS_CPP11_NOEXCEPT
 {
     return d_ptr_p;
 }
 
 template <class ELEMENT_TYPE>
 inline
-ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::get() const BSLS_KEYWORD_NOEXCEPT
+ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::get() const BSLS_CPP11_NOEXCEPT
 {
     return d_ptr_p;
 }
@@ -6516,14 +6510,14 @@ shared_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
 
 template <class ELEMENT_TYPE>
 inline
-bool shared_ptr<ELEMENT_TYPE>::unique() const BSLS_KEYWORD_NOEXCEPT
+bool shared_ptr<ELEMENT_TYPE>::unique() const BSLS_CPP11_NOEXCEPT
 {
     return 1 == use_count();
 }
 
 template <class ELEMENT_TYPE>
 inline
-long shared_ptr<ELEMENT_TYPE>::use_count() const BSLS_KEYWORD_NOEXCEPT
+long shared_ptr<ELEMENT_TYPE>::use_count() const BSLS_CPP11_NOEXCEPT
 {
     return d_rep_p ? d_rep_p->numReferences() : 0;
 }
@@ -6560,7 +6554,7 @@ shared_ptr<ELEMENT_TYPE>::managedPtr() const
 template <class ELEMENT_TYPE>
 inline
 BloombergLP::bslma::SharedPtrRep *shared_ptr<ELEMENT_TYPE>::rep() const
-                                                            BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_rep_p;
 }
@@ -6569,14 +6563,14 @@ BloombergLP::bslma::SharedPtrRep *shared_ptr<ELEMENT_TYPE>::rep() const
 // DEPRECATED BDE LEGACY ACCESSORS
 template <class ELEMENT_TYPE>
 inline
-int shared_ptr<ELEMENT_TYPE>::numReferences() const BSLS_KEYWORD_NOEXCEPT
+int shared_ptr<ELEMENT_TYPE>::numReferences() const BSLS_CPP11_NOEXCEPT
 {
     return d_rep_p ? d_rep_p->numReferences() : 0;
 }
 
 template <class ELEMENT_TYPE>
 inline
-ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::ptr() const BSLS_KEYWORD_NOEXCEPT
+ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::ptr() const BSLS_CPP11_NOEXCEPT
 {
     return d_ptr_p;
 }
@@ -6589,8 +6583,8 @@ ELEMENT_TYPE *shared_ptr<ELEMENT_TYPE>::ptr() const BSLS_KEYWORD_NOEXCEPT
 // CREATORS
 template <class ELEMENT_TYPE>
 inline
-BSLS_KEYWORD_CONSTEXPR
-weak_ptr<ELEMENT_TYPE>::weak_ptr() BSLS_KEYWORD_NOEXCEPT
+BSLS_CPP11_CONSTEXPR
+weak_ptr<ELEMENT_TYPE>::weak_ptr() BSLS_CPP11_NOEXCEPT
 : d_ptr_p(0)
 , d_rep_p(0)
 {
@@ -6598,8 +6592,7 @@ weak_ptr<ELEMENT_TYPE>::weak_ptr() BSLS_KEYWORD_NOEXCEPT
 
 template <class ELEMENT_TYPE>
 weak_ptr<ELEMENT_TYPE>::weak_ptr(
-         BloombergLP::bslmf::MovableRef<weak_ptr> original)
-                                                          BSLS_KEYWORD_NOEXCEPT
+         BloombergLP::bslmf::MovableRef<weak_ptr> original) BSLS_CPP11_NOEXCEPT
 : d_ptr_p(BloombergLP::bslmf::MovableRefUtil::access(original).d_ptr_p)
 , d_rep_p(BloombergLP::bslmf::MovableRefUtil::access(original).d_rep_p)
 {
@@ -6612,7 +6605,7 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE
           BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
 weak_ptr<ELEMENT_TYPE>::weak_ptr(weak_ptr<COMPATIBLE_TYPE>&& original)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 : d_ptr_p(original.d_ptr_p)
 , d_rep_p(original.d_rep_p)
 {
@@ -6625,7 +6618,7 @@ template <class COMPATIBLE_TYPE
           BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
 weak_ptr<ELEMENT_TYPE>::weak_ptr(
            BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > original)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 : d_ptr_p(original.d_ptr_p)
 , d_rep_p(original.d_rep_p)
 {
@@ -6636,7 +6629,7 @@ weak_ptr<ELEMENT_TYPE>::weak_ptr(
 
 template <class ELEMENT_TYPE>
 weak_ptr<ELEMENT_TYPE>::weak_ptr(const weak_ptr<ELEMENT_TYPE>& original)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 : d_ptr_p(original.d_ptr_p)
 , d_rep_p(original.d_rep_p)
 {
@@ -6649,7 +6642,7 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE
           BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
 weak_ptr<ELEMENT_TYPE>::weak_ptr(const shared_ptr<COMPATIBLE_TYPE>& other)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 : d_ptr_p(other.get())
 , d_rep_p(other.rep())
 {
@@ -6662,7 +6655,7 @@ template <class ELEMENT_TYPE>
 template <class COMPATIBLE_TYPE
           BSLSTL_SHAREDPTR_DEFINE_IF_COMPATIBLE>
 weak_ptr<ELEMENT_TYPE>::weak_ptr(const weak_ptr<COMPATIBLE_TYPE>& other)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 : d_ptr_p(other.d_ptr_p)
 , d_rep_p(other.d_rep_p)
 {
@@ -6700,7 +6693,7 @@ void weak_ptr<ELEMENT_TYPE>::privateAssign(
 template <class ELEMENT_TYPE>
 weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
                                   BloombergLP::bslmf::MovableRef<weak_ptr> rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     weak_ptr tmp(BloombergLP::bslmf::MovableRefUtil::move(rhs));
     tmp.swap(*this);
@@ -6714,7 +6707,7 @@ typename enable_if<
     is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
     weak_ptr<ELEMENT_TYPE>&>::type
 weak_ptr<ELEMENT_TYPE>::operator=(weak_ptr<COMPATIBLE_TYPE>&& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     weak_ptr tmp(BloombergLP::bslmf::MovableRefUtil::move(rhs));
     tmp.swap(*this);
@@ -6728,7 +6721,7 @@ typename enable_if<
     weak_ptr<ELEMENT_TYPE>&>::type
 weak_ptr<ELEMENT_TYPE>::operator=(
                 BloombergLP::bslmf::MovableRef<weak_ptr<COMPATIBLE_TYPE> > rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     weak_ptr tmp(BloombergLP::bslmf::MovableRefUtil::move(rhs));
     tmp.swap(*this);
@@ -6739,7 +6732,7 @@ weak_ptr<ELEMENT_TYPE>::operator=(
 template <class ELEMENT_TYPE>
 weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
                                              const weak_ptr<ELEMENT_TYPE>& rhs)
-                                                            BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
 #if 1
     weak_ptr tmp(rhs);
@@ -6757,7 +6750,7 @@ typename enable_if<
     is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
     weak_ptr<ELEMENT_TYPE>&>::type
 weak_ptr<ELEMENT_TYPE>::operator=(const shared_ptr<COMPATIBLE_TYPE>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
 #if 1
     weak_ptr tmp(rhs);
@@ -6775,7 +6768,7 @@ typename enable_if<
     is_convertible<COMPATIBLE_TYPE *, ELEMENT_TYPE *>::value,
     weak_ptr<ELEMENT_TYPE>&>::type
 weak_ptr<ELEMENT_TYPE>::operator=(const weak_ptr<COMPATIBLE_TYPE>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
 #if 1
     weak_ptr tmp(rhs);
@@ -6789,7 +6782,7 @@ weak_ptr<ELEMENT_TYPE>::operator=(const weak_ptr<COMPATIBLE_TYPE>& rhs)
 
 template <class ELEMENT_TYPE>
 inline
-void weak_ptr<ELEMENT_TYPE>::reset() BSLS_KEYWORD_NOEXCEPT
+void weak_ptr<ELEMENT_TYPE>::reset() BSLS_CPP11_NOEXCEPT
 {
     if (d_rep_p) {
         d_rep_p->releaseWeakRef();
@@ -6802,7 +6795,7 @@ void weak_ptr<ELEMENT_TYPE>::reset() BSLS_KEYWORD_NOEXCEPT
 template <class ELEMENT_TYPE>
 inline
 void weak_ptr<ELEMENT_TYPE>::swap(weak_ptr<ELEMENT_TYPE>& other)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     // We directly implement swapping of two pointers, rather than simply
     // calling 'bsl::swap' or using 'bslalg::SwapUtil', to avoid (indirectly)
@@ -6822,14 +6815,14 @@ void weak_ptr<ELEMENT_TYPE>::swap(weak_ptr<ELEMENT_TYPE>& other)
 // ACCESSORS
 template <class ELEMENT_TYPE>
 inline
-bool weak_ptr<ELEMENT_TYPE>::expired() const BSLS_KEYWORD_NOEXCEPT
+bool weak_ptr<ELEMENT_TYPE>::expired() const BSLS_CPP11_NOEXCEPT
 {
     return !(d_rep_p && d_rep_p->numReferences());
 }
 
 template <class ELEMENT_TYPE>
 shared_ptr<ELEMENT_TYPE> weak_ptr<ELEMENT_TYPE>::lock() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     if (d_rep_p && d_rep_p->tryAcquireRef()) {
         return shared_ptr<ELEMENT_TYPE>(
@@ -6865,14 +6858,14 @@ weak_ptr<ELEMENT_TYPE>::owner_before(const weak_ptr<ANY_TYPE>& other) const
 template <class ELEMENT_TYPE>
 inline
 BloombergLP::bslma::SharedPtrRep *weak_ptr<ELEMENT_TYPE>::rep() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return d_rep_p;
 }
 
 template <class ELEMENT_TYPE>
 inline
-long weak_ptr<ELEMENT_TYPE>::use_count() const BSLS_KEYWORD_NOEXCEPT
+long weak_ptr<ELEMENT_TYPE>::use_count() const BSLS_CPP11_NOEXCEPT
 {
     return d_rep_p ? d_rep_p->numReferences() : 0;
 }
@@ -6882,14 +6875,14 @@ long weak_ptr<ELEMENT_TYPE>::use_count() const BSLS_KEYWORD_NOEXCEPT
 template <class ELEMENT_TYPE>
 inline
 shared_ptr<ELEMENT_TYPE> weak_ptr<ELEMENT_TYPE>::acquireSharedPtr() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return lock();
 }
 
 template <class ELEMENT_TYPE>
 inline
-int weak_ptr<ELEMENT_TYPE>::numReferences() const BSLS_KEYWORD_NOEXCEPT
+int weak_ptr<ELEMENT_TYPE>::numReferences() const BSLS_CPP11_NOEXCEPT
 {
     return d_rep_p ? d_rep_p->numReferences() : 0;
 }
@@ -6924,21 +6917,21 @@ void SharedPtr_ImpUtil::loadEnableSharedFromThis(
 inline
 void bslstl::SharedPtr_ImpUtil::loadEnableSharedFromThis(const volatile void *,
                                                          const void *)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
 }
 
 template <class TYPE>
 inline
 TYPE *SharedPtr_ImpUtil::unqualify(const volatile TYPE *address)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return const_cast<typename bsl::remove_cv<TYPE>::type *>(address);
 }
 
 template <class TYPE>
 inline
-void *SharedPtr_ImpUtil::voidify(TYPE *address) BSLS_KEYWORD_NOEXCEPT
+void *SharedPtr_ImpUtil::voidify(TYPE *address) BSLS_CPP11_NOEXCEPT
 {
     return static_cast<void *>(
             const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
@@ -6963,7 +6956,7 @@ template <class TARGET, class SOURCE>
 inline
 bsl::shared_ptr<TARGET>
 SharedPtrUtil::constCast(const bsl::shared_ptr<SOURCE>& source)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return bsl::shared_ptr<TARGET>(source,
                                    const_cast<TARGET *>(source.get()));
@@ -6988,7 +6981,7 @@ template <class TARGET, class SOURCE>
 inline
 bsl::shared_ptr<TARGET>
 SharedPtrUtil::dynamicCast(const bsl::shared_ptr<SOURCE>& source)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     if (TARGET *castPtr = dynamic_cast<TARGET *>(source.get())) {
         return bsl::shared_ptr<TARGET>(source, castPtr);              // RETURN
@@ -7011,7 +7004,7 @@ template <class TARGET, class SOURCE>
 inline
 bsl::shared_ptr<TARGET>
 SharedPtrUtil::staticCast(const bsl::shared_ptr<SOURCE>& source)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return bsl::shared_ptr<TARGET>(source,
                                    static_cast<TARGET *>(source.get()));
@@ -7024,7 +7017,7 @@ SharedPtrUtil::staticCast(const bsl::shared_ptr<SOURCE>& source)
 // ACCESSORS
 inline
 void SharedPtrNilDeleter::operator()(const volatile void *) const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
 }
 
@@ -7036,7 +7029,7 @@ void SharedPtrNilDeleter::operator()(const volatile void *) const
 template <class ANY_TYPE>
 inline
 void SharedPtr_DefaultDeleter::operator()(ANY_TYPE *ptr) const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     delete ptr;
 }
@@ -7048,7 +7041,7 @@ void SharedPtr_DefaultDeleter::operator()(ANY_TYPE *ptr) const
 // CREATORS
 inline
 SharedPtr_RepProctor::SharedPtr_RepProctor(bslma::SharedPtrRep *rep)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 : d_rep_p(rep)
 {
 }
@@ -7063,7 +7056,7 @@ SharedPtr_RepProctor::~SharedPtr_RepProctor()
 
 // MANIPULATORS
 inline
-void SharedPtr_RepProctor::release() BSLS_KEYWORD_NOEXCEPT
+void SharedPtr_RepProctor::release() BSLS_CPP11_NOEXCEPT
 {
     d_rep_p = 0;
 }
@@ -7075,7 +7068,7 @@ void SharedPtr_RepProctor::release() BSLS_KEYWORD_NOEXCEPT
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bsl::operator==(const shared_ptr<LHS_TYPE>& lhs,
-                     const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT
+                     const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT
 {
     return lhs.get() == rhs.get();
 }
@@ -7083,7 +7076,7 @@ bool bsl::operator==(const shared_ptr<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bsl::operator!=(const shared_ptr<LHS_TYPE>& lhs,
-                     const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT
+                     const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT
 {
     return !(lhs == rhs);
 }
@@ -7091,7 +7084,7 @@ bool bsl::operator!=(const shared_ptr<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bsl::operator<(const shared_ptr<LHS_TYPE>& lhs,
-                    const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT
+                    const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT
 {
     return native_std::less<const void *>()(lhs.get(), rhs.get());
 }
@@ -7099,7 +7092,7 @@ bool bsl::operator<(const shared_ptr<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bsl::operator>(const shared_ptr<LHS_TYPE>& lhs,
-                    const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT
+                    const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT
 {
     return rhs < lhs;
 }
@@ -7107,7 +7100,7 @@ bool bsl::operator>(const shared_ptr<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bsl::operator<=(const shared_ptr<LHS_TYPE>& lhs,
-                     const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT
+                     const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT
 {
     return !(rhs < lhs);
 }
@@ -7115,7 +7108,7 @@ bool bsl::operator<=(const shared_ptr<LHS_TYPE>& lhs,
 template <class LHS_TYPE, class RHS_TYPE>
 inline
 bool bsl::operator>=(const shared_ptr<LHS_TYPE>& lhs,
-                     const shared_ptr<RHS_TYPE>& rhs) BSLS_KEYWORD_NOEXCEPT
+                     const shared_ptr<RHS_TYPE>& rhs) BSLS_CPP11_NOEXCEPT
 {
     return !(lhs < rhs);
 }
@@ -7123,7 +7116,7 @@ bool bsl::operator>=(const shared_ptr<LHS_TYPE>& lhs,
 template <class LHS_TYPE>
 inline
 bool bsl::operator==(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !lhs;
 }
@@ -7131,7 +7124,7 @@ bool bsl::operator==(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
 template <class RHS_TYPE>
 inline
 bool bsl::operator==(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !rhs;
 }
@@ -7139,7 +7132,7 @@ bool bsl::operator==(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 template <class LHS_TYPE>
 inline
 bool bsl::operator!=(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return static_cast<bool>(lhs);
 }
@@ -7147,7 +7140,7 @@ bool bsl::operator!=(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
 template <class RHS_TYPE>
 inline
 bool bsl::operator!=(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return static_cast<bool>(rhs);
 }
@@ -7155,7 +7148,7 @@ bool bsl::operator!=(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 template <class LHS_TYPE>
 inline
 bool bsl::operator<(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return native_std::less<LHS_TYPE *>()(lhs.get(), 0);
 }
@@ -7163,7 +7156,7 @@ bool bsl::operator<(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
 template <class RHS_TYPE>
 inline
 bool bsl::operator<(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return native_std::less<RHS_TYPE *>()(0, rhs.get());
 }
@@ -7171,7 +7164,7 @@ bool bsl::operator<(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 template <class LHS_TYPE>
 inline
 bool bsl::operator<=(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !native_std::less<LHS_TYPE *>()(0, lhs.get());
 }
@@ -7179,7 +7172,7 @@ bool bsl::operator<=(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
 template <class RHS_TYPE>
 inline
 bool bsl::operator<=(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !native_std::less<RHS_TYPE *>()(rhs.get(), 0);
 }
@@ -7187,7 +7180,7 @@ bool bsl::operator<=(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 template <class LHS_TYPE>
 inline
 bool bsl::operator>(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return native_std::less<LHS_TYPE *>()(0, lhs.get());
 }
@@ -7195,7 +7188,7 @@ bool bsl::operator>(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
 template <class RHS_TYPE>
 inline
 bool bsl::operator>(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return native_std::less<RHS_TYPE *>()(rhs.get(), 0);
 }
@@ -7203,7 +7196,7 @@ bool bsl::operator>(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
 template <class LHS_TYPE>
 inline
 bool bsl::operator>=(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !native_std::less<LHS_TYPE *>()(lhs.get(), 0);
 }
@@ -7211,7 +7204,7 @@ bool bsl::operator>=(const shared_ptr<LHS_TYPE>& lhs, bsl::nullptr_t)
 template <class RHS_TYPE>
 inline
 bool bsl::operator>=(bsl::nullptr_t, const shared_ptr<RHS_TYPE>& rhs)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return !native_std::less<RHS_TYPE *>()(0, rhs.get());
 }
@@ -7236,7 +7229,7 @@ void bsl::hashAppend(HASHALG& hashAlg, const shared_ptr<ELEMENT_TYPE>& input)
 template <class ELEMENT_TYPE>
 inline
 void bsl::swap(shared_ptr<ELEMENT_TYPE>& a, shared_ptr<ELEMENT_TYPE>& b)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     a.swap(b);
 }
@@ -7244,7 +7237,7 @@ void bsl::swap(shared_ptr<ELEMENT_TYPE>& a, shared_ptr<ELEMENT_TYPE>& b)
 template <class ELEMENT_TYPE>
 inline
 void bsl::swap(weak_ptr<ELEMENT_TYPE>& a, weak_ptr<ELEMENT_TYPE>& b)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     a.swap(b);
 }
@@ -7253,7 +7246,7 @@ void bsl::swap(weak_ptr<ELEMENT_TYPE>& a, weak_ptr<ELEMENT_TYPE>& b)
 template<class DELETER, class ELEMENT_TYPE>
 inline
 DELETER *bsl::get_deleter(const shared_ptr<ELEMENT_TYPE>& p)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     BloombergLP::bslma::SharedPtrRep *rep = p.rep();
     return rep ? static_cast<DELETER *>(rep->getDeleter(typeid(DELETER))) : 0;
@@ -7264,7 +7257,7 @@ template<class TO_TYPE, class FROM_TYPE>
 inline
 bsl::shared_ptr<TO_TYPE>
 bsl::const_pointer_cast(const shared_ptr<FROM_TYPE>& source)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return shared_ptr<TO_TYPE>(source, const_cast<TO_TYPE *>(source.get()));
 }
@@ -7273,7 +7266,7 @@ template<class TO_TYPE, class FROM_TYPE>
 inline
 bsl::shared_ptr<TO_TYPE>
 bsl::dynamic_pointer_cast(const shared_ptr<FROM_TYPE>& source)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     if (TO_TYPE *castPtr = dynamic_cast<TO_TYPE *>(source.get())) {
         return shared_ptr<TO_TYPE>(source, castPtr);                  // RETURN
@@ -7286,7 +7279,7 @@ template<class TO_TYPE, class FROM_TYPE>
 inline
 bsl::shared_ptr<TO_TYPE>
 bsl::static_pointer_cast(const shared_ptr<FROM_TYPE>& source)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return shared_ptr<TO_TYPE>(source, static_cast<TO_TYPE *>(source.get()));
 }

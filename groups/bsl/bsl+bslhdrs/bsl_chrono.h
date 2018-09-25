@@ -23,7 +23,26 @@ BSLS_IDENT("$Id: $")
 
 #include <chrono>
 
-#include <bslstl_chrono.h>
+namespace bsl {
+
+    namespace chrono {
+        using native_std::chrono::duration;
+        using native_std::chrono::time_point;
+        using native_std::chrono::system_clock;
+        using native_std::chrono::steady_clock;
+        using native_std::chrono::high_resolution_clock;
+        using native_std::chrono::treat_as_floating_point;
+        using native_std::chrono::duration_values;
+        using native_std::chrono::duration_cast;
+        using native_std::chrono::time_point_cast;
+        using native_std::chrono::hours;
+        using native_std::chrono::minutes;
+        using native_std::chrono::seconds;
+        using native_std::chrono::milliseconds;
+        using native_std::chrono::microseconds;
+        using native_std::chrono::nanoseconds;
+    }  // close namespace chrono
+}  // close package namespace
 
 #endif
 

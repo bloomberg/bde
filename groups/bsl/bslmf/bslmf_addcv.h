@@ -11,21 +11,19 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::add_cv: meta-function for adding top-level cv-qualifiers
-//  bsl::add_cv_t: alias to the return type of the 'bsl::add_cv' meta-function
 //
 //@SEE_ALSO: bslmf_removecv
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::add_cv' and
-// declares an 'bsl::add_cv_t' alias to the return type of the 'bsl::add_cv',
-// that may be used to add a top-level 'const'-qualifier and a top-level
+//@DESCRIPTION: This component defines a meta-function, 'bsl::add_cv', that may
+// be used to add a top-level 'const'-qualifier and a top-level
 // 'volatile'-qualifier to a type if it is not a reference type, nor a function
 // type, nor already 'const'-qualified and 'volatile'-qualified at the
 // top-level.
 //
-// 'bsl::add_cv' and 'bsl::add_cv_t' meet the requirements of the 'add_cv'
-// template defined in the C++11 standard [meta.trans.cv].
+// 'bsl::add_cv' meets the requirements of the 'add_cv' template defined in the
+// C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----
@@ -48,18 +46,6 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(true == (bsl::is_same<bsl::add_cv<MyType>::type, MyCvType>::value));
 //..
-// Finally, if the current compiler supports alias templates C++11 feature, we
-// add a 'const'-qualifier and a 'volatile'-qualifier to 'MyType' using
-// 'bsl::add_cv_t' and verify that the resulting type is the same as
-// 'MyCvType':
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//  assert(true == (bsl::is_same<bsl::add_cv_t<MyType>, MyCvType>::value));
-//#endif
-//..
-// Note, that the 'bsl::add_cv_t' avoids the '::type' suffix and 'typename'
-// prefix when we want to use the result of the 'bsl::add_cv' meta-function in
-// templates.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -71,10 +57,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ADDVOLATILE
 #include <bslmf_addvolatile.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
 #endif
 
 namespace bsl {
@@ -101,17 +83,6 @@ struct add_cv {
         // 'const'-qualified and 'volatile'-qualified at the top-level;
         // otherwise, 'type' is an alias to 'TYPE'.
 };
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-
-// ALIASES
-template <class TYPE>
-using add_cv_t = typename add_cv<TYPE>::type;
-    // 'add_cv_t' is an alias to the return type of the 'bsl::add_cv'
-    // meta-function.  Note, that the 'add_cv_t' avoids the '::type' suffix and
-    // 'typename' prefix when we want to use the result of the 'bsl::add_cv' in
-    // templates.
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 }  // close namespace bsl
 

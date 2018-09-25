@@ -11,7 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_void: standard meta-function for determining 'void' types
-//  bsl::is_void_v: the result value of the 'bsl::is_void' meta-function
 //  bslmf::IsVoid: meta-function for determining 'void' types
 //
 //@SEE_ALSO: bslmf_integralconstant
@@ -19,10 +18,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Alisdair Meredith (ameredit)
 //
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_void' and
-// 'BloombergLP::bslmf::IsVoid' and a template variable 'bsl::is_void_v', that
-// represents the result value of 'bsl::is_void' meta-function.  All these
-// meta-functions may be used to query whether a type is the (possibly
-// cv-qualified) 'void' type.
+// 'BloombergLP::bslmf::IsVoid', both of which may be used to query whether a
+// type is the (possibly cv-qualified) 'void' type.
 //
 // 'bsl::is_void' meets the requirements of the 'is_void' template defined in
 // the C++11 standard [meta.unary.cat], while 'bslmf::IsVoid' was devised
@@ -35,16 +32,6 @@ BSLS_IDENT("$Id: $")
 //
 // Note that 'bsl::is_void' should be preferred over 'bslmf::IsVoid', and in
 // general, should be used by new components.
-//
-// Also note that the template variable 'is_void_v' is defined in the C++17
-// standard as an inline variable.  If the current compiler supports the inline
-// variable C++17 compiler feature, 'bsl::is_void_v' is defined as an
-// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
-// variable templates C++14 compiler feature, 'bsl::is_void_v' is defined as a
-// non-inline 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
-// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -65,15 +52,6 @@ BSLS_IDENT("$Id: $")
 //  assert(false == bsl::is_void<MyType>::value);
 //  assert(true  == bsl::is_void<MyVoidType>::value);
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature, then we can re-write the snippet of code above as follows:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(false == bsl::is_void_v<MyType>);
-//  assert(true  == bsl::is_void_v<MyVoidType>);
-//#endif
-//..
-
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -83,16 +61,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
 #ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
 #endif
@@ -101,8 +69,35 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 #endif
 
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+namespace BloombergLP {
+namespace bslmf {
 
+                         // =================
+                         // struct IsVoid_Imp
+                         // =================
+
+template <class TYPE>
+struct IsVoid_Imp : bsl::false_type {
+    // This 'struct' template implements a meta-function to determine whether
+    // the (template parameter) 'TYPE' is the (non-cv-qualified) 'void' type.
+    // This generic default template derives from 'bsl::false_type'.  A
+    // template specialization is provided (below) that derives from
+    // 'bsl::true_type'.
+};
+
+                         // =========================
+                         // struct IsVoid_Imp<TYPE *>
+                         // =========================
+
+template <>
+struct IsVoid_Imp<void> : bsl::true_type {
+     // This partial specialization of 'IsVoid_Imp' derives from
+     // 'bsl::true_type' for when the (template parameter) 'TYPE' is the 'void'
+     // type.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace bsl {
 
@@ -111,48 +106,14 @@ namespace bsl {
                          // ==============
 
 template <class TYPE>
-struct is_void : false_type {
+struct is_void : BloombergLP::bslmf::IsVoid_Imp<
+                                        typename remove_cv<TYPE>::type>::type {
     // This 'struct' template implements the 'is_void' meta-function defined in
     // the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is the (possibly cv-qualified) 'void' type.  This
     // 'struct' derives from 'bsl::true_type' if 'TYPE' is the 'void' type, and
     // 'bsl::false_type' otherwise.
 };
-
-template <>
-struct is_void<void> : true_type {
-     // This partial specialization of 'is_void' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is 'void'.
-};
-
-template <>
-struct is_void<const void> : true_type {
-     // This partial specialization of 'is_void' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is
-     // 'const void'.
-};
-
-template <>
-struct is_void<volatile void> : true_type {
-     // This partial specialization of 'is_void' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is
-     // 'volatile void'.
-};
-
-template <>
-struct is_void<const volatile void> : bsl::true_type {
-     // This partial specialization of 'is_void' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is
-     // 'const volatile void'.
-};
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_void_v = is_void<TYPE>::value;
-    // This template variable represents the result value of the 'bsl::is_void'
-    // meta-function.
-#endif
 
 }  // close namespace bsl
 

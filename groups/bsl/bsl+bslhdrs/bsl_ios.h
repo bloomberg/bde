@@ -82,16 +82,6 @@ namespace bsl {
     using native_std::use_facet;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    using native_std::io_errc;
-    using native_std::is_error_code_enum;
-    using native_std::iostream_category;
-    using native_std::make_error_code;
-    using native_std::make_error_condition;
-    using native_std::hexfloat;
-    using native_std::hexfloat;
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-
     // The following using declarations result in link time errors with the
     // gcc 4.1.2 compiler (due to a compiler bug).  See DRQS 31108406.
 #if !(defined(BSLS_PLATFORM_CMP_GNU)               \

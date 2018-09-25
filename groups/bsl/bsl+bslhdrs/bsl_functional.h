@@ -82,27 +82,6 @@ namespace bsl {
     using native_std::mem_fn;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-    using native_std::bit_not;
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::is_bind_expression_v;
-    using native_std::is_placeholder_v;
-#elif defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-    template <class TYPE>
-    constexpr bool is_bind_expression_v =
-                                   native_std::is_bind_expression<TYPE>::value;
-        // This template variable represents the result value of the
-        // 'native_std::is_bind_expression' meta-function.
-
-    template <class TYPE>
-    constexpr bool is_placeholder_v = native_std::is_placeholder<TYPE>::value;
-        // This template variable represents the result value of the
-        // 'native_std::is_placeholder' meta-function.
-
-#endif
-
 }  // close package namespace
 
 // Include Bloomberg's implementation, unless compilation is configured to

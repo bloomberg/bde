@@ -22,7 +22,6 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
-#include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_util.h>
@@ -84,7 +83,7 @@ enum {
     bsltf::NonTypicalOverloadsTestType
     // For the short term, the following types have been removed from this list
     // while testing with the Solaris CC compiler:
-    //  bsltf::SimpleTestType,
+    //  bsltf::SimpleTestType,                                                 
     //  bsltf::MovableTestType,
 
 #endif
@@ -150,6 +149,9 @@ using bsls::NameOf;
 // [12] unordered_multiset(ITER, ITER, size_type, hasher, allocator);
 // [12] unordered_multiset(ITER, ITER, size_type, hasher, key_equal, alloc);
 //*[29] unordered_multiset(unordered_multiset&& original);
+//*[36] unordered_multiset(unordered_multiset&& original);
+//*[37] unordered_multiset(unordered_multiset&& original);
+//*[38] unordered_multiset(unordered_multiset&& original);
 //*[11] unordered_multiset(const A& allocator);
 //*[ 7] unordered_multiset(const unordered_multiset& original);
 //*[ 7] unordered_multiset(const unordered_multiset& original, const A& alloc);
@@ -240,7 +242,7 @@ using bsls::NameOf;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] default construction (only)
-// [36] USAGE EXAMPLE
+// [39] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(unordered_multiset *object, const char *s, int verbose);
@@ -1592,11 +1594,12 @@ class TestDriver {
 
     template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
               bool OTHER_FLAGS>
-    static void testCase29_propagate_on_container_move_assignment_dispatch();
-    static void testCase29_propagate_on_container_move_assignment();
+    static void
+          testCaseMoveAssign_propagate_on_container_move_assignment_dispatch();
+    static void testCaseMoveAssign_propagate_on_container_move_assignment();
         // Test 'propagate_on_container_move_assignment'.
 
-    static void testCase29();
+    static void testCaseMoveAssign();
         // Test move assignment.
 
     static void testCase28();
@@ -2324,12 +2327,12 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase35()
         Obj mX;  const Obj& X = mX;    (void) X;
         Obj mY;                        (void) mY;
 
-        ASSERT(false
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX =
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX =
                                              bslmf::MovableRefUtil::move(mY)));
 
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.get_allocator()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.get_allocator()));
     }
 
     // page 896
@@ -2346,20 +2349,20 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase35()
     {
         Obj mX; const Obj& X = mX;    (void) X;
 
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.begin()));
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.begin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.begin()));
 
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(mX.end()));
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.end()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(mX.end()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.end()));
 
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.cbegin()));
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR( X.cend()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cbegin()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR( X.cend()));
     }
 
     // page 896
@@ -2373,12 +2376,12 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase35()
     {
         Obj mX; const Obj& X = mX;    (void) X;
 
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.empty()));
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.size()));
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.max_size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.empty()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.size()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_size()));
     }
 
     // page 897
@@ -2395,11 +2398,11 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase35()
         Obj x;    (void) x;
         Obj y;    (void) y;
 
-        ASSERT(false
-           == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(y)));
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+           == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(y)));
 
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.clear()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.clear()));
     }
 
     // page 897
@@ -2412,10 +2415,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase35()
     {
         Obj mX; const Obj& X = mX;    (void) X;
 
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.bucket_count()));
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.max_bucket_count()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.bucket_count()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_bucket_count()));
     }
 
     // page 897
@@ -2428,10 +2431,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase35()
     {
         Obj mX; const Obj& X = mX;    (void) X;
 
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.load_factor()));
-        ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-            == BSLS_KEYWORD_NOEXCEPT_OPERATOR(X.max_load_factor()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.load_factor()));
+        ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(X.max_load_factor()));
     }
 
     // page 897
@@ -2447,7 +2450,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase35()
         Obj mX;    (void) mX;
         Obj mY;    (void) mY;
 
-        ASSERT(false == BSLS_KEYWORD_NOEXCEPT_OPERATOR(swap(mX, mY)));
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(mX, mY)));
     }
 
 }
@@ -2484,8 +2488,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34_outOfLine()
     if (verbose)
         printf("\tTesting constructor with initializer lists\n");
 
-    bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::Default::setDefaultAllocatorRaw(&da);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
     {
         const struct {
             int                         d_line;    // source line number
@@ -2880,7 +2884,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase34_inline()
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(usedAlloc) {
             ++numThrows;
 
-#if defined(BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
+#if defined(BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
             // There's a bug in 'std::initializer_list' in the GNU g++ compiler
             // which, if a throw occurs while the initializer list is being
             // constructed, it isn't destroyed properly and memory is leaked.
@@ -4316,7 +4320,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOC>
 template <bool PROPAGATE_ON_CONTAINER_MOVE_ASSIGNMENT_FLAG,
           bool OTHER_FLAGS>
 void TestDriver<KEY, HASH, EQUAL, ALLOC>::
-                   testCase29_propagate_on_container_move_assignment_dispatch()
+           testCaseMoveAssign_propagate_on_container_move_assignment_dispatch()
 {
     // Set the three properties of 'bsltf::StdStatefulAllocator' that are not
     // under test in this test case to 'false'.
@@ -4420,7 +4424,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, HASH, EQUAL, ALLOC>::
-                            testCase29_propagate_on_container_move_assignment()
+                    testCaseMoveAssign_propagate_on_container_move_assignment()
 {
     // ------------------------------------------------------------------------
     // MOVE-ASSIGNMENT OPERATOR: ALLOCATOR PROPAGATION
@@ -4485,18 +4489,24 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::
     if (verbose)
         printf("\t'propagate_on_container_move_assignment::value == false'\n");
 
-    testCase29_propagate_on_container_move_assignment_dispatch<false, false>();
-    testCase29_propagate_on_container_move_assignment_dispatch<false, true>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                                      false,
+                                                                      false>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<false,
+                                                                       true>();
 
     if (verbose)
         printf("\t'propagate_on_container_move_assignment::value == true'\n");
 
-    testCase29_propagate_on_container_move_assignment_dispatch<true, false>();
-    testCase29_propagate_on_container_move_assignment_dispatch<true, true>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<
+                                                                      true,
+                                                                      false>();
+    testCaseMoveAssign_propagate_on_container_move_assignment_dispatch<true,
+                                                                       true>();
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase29()
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCaseMoveAssign()
 {
     // ------------------------------------------------------------------------
     // TESTING MOVE-ASSIGNMENT OPERATOR
@@ -10516,10 +10526,10 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     bslma::TestAllocator testAlloc("A");
-    bslma::Default::setDefaultAllocator(&testAlloc);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&testAlloc));
 
     switch (test) { case 0:
-      case 36: {
+      case 39: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -10672,6 +10682,49 @@ int main(int argc, char *argv[])
 // See the material in {'bslstl_unorderedmap'|Example 2}.
 
       } break;
+      case 38: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE ASSIGNMENT - PART 4
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING TESTING MOVE ASSIGNMENT - PART 4\n"
+                            "========================================\n");
+
+        // 'propagate_on_container_move_assignment' testing
+
+        RUN_EACH_TYPE(
+                     TestDriver,
+                     testCaseMoveAssign_propagate_on_container_move_assignment,
+                     BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+      } break;
+      case 37: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE ASSIGNMENT - PART 3
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING TESTING MOVE ASSIGNMENT - PART 3\n"
+                            "========================================\n");
+
+        // TBD test 'bsltf::MoveOnlyAllocTestType' here
+
+        RUN_EACH_TYPE(StdBslmaTestDriver,
+                      testCaseMoveAssign,
+                      bsltf::StdAllocTestType<bsl::allocator<int> >,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+      } break;
+      case 36: {
+        // --------------------------------------------------------------------
+        // TESTING MOVE ASSIGNMENT - PART 2
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("TESTING TESTING MOVE ASSIGNMENT - PART 2\n"
+                            "========================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCaseMoveAssign,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_USER_DEFINED,
+                      bsltf::MoveOnlyAllocTestType);
+      } break;
       case 35: {
         // --------------------------------------------------------------------
         // 'noexcept' SPECIFICATION
@@ -10780,28 +10833,16 @@ int main(int argc, char *argv[])
       } break;
       case 29: {
         // --------------------------------------------------------------------
-        // TESTING MOVE ASSIGNMENT
+        // TESTING MOVE ASSIGNMENT - PART 1
         // --------------------------------------------------------------------
-        if (verbose) printf("TESTING TESTING MOVE ASSIGNMENT\n"
-                            "===============================\n");
+
+        if (verbose) printf("TESTING TESTING MOVE ASSIGNMENT - PART 1\n"
+                            "========================================\n");
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase29,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
+                      testCaseMoveAssign,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE,
                       bsltf::MoveOnlyAllocTestType);
-
-        // 'propagate_on_container_move_assignment' testing
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase29_propagate_on_container_move_assignment,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        // TBD test 'bsltf::MoveOnlyAllocTestType' here
-
-        RUN_EACH_TYPE(StdBslmaTestDriver,
-                      testCase29,
-                      bsltf::StdAllocTestType<bsl::allocator<int> >,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
       } break;
       case 28: {
         // --------------------------------------------------------------------
@@ -11451,7 +11492,7 @@ int main(int argc, char *argv[])
 }  // Empty test driver
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

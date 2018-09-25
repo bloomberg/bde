@@ -11,34 +11,17 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_member_pointer: standard meta-function for member pointer types
-//  bsl::is_member_pointer_v: the result value of the standard meta-function
 //
 //@SEE_ALSO: bslmf_ismemberfunctionpointer, bslmf_ismemberobjectpointer
 //
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_member_pointer' and a template variable 'bsl::is_member_pointer_v',
-// that represents the result value of the 'bsl::is_member_pointer'
-// meta-function, that may be used to query whether a type is a pointer to
-// non-static member type.
+// 'bsl::is_member_pointer', that may be used to query whether a type is a
+// pointer to non-static member type.
 //
 // 'bsl::is_member_pointer' meets the requirements of the 'is_member_pointer'
 // template defined in the C++11 standard [meta.unary.comp].
-//
-// Note that the template variable 'is_member_pointer_v' is defined in the
-// C++17 standard as an inline variable.  If the current compiler supports the
-// inline variable C++17 compiler feature, 'bsl::is_member_pointer_v' is
-// defined as an 'inline constexpr bool' variable.  Otherwise, if the compiler
-// supports the variable templates C++14 compiler feature,
-// 'bsl::is_member_pointer_v' is defined as a non-inline 'constexpr bool'
-// variable.  See 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
-// bsls_compilerfeatures component for details.
-//
-///Usage
-///-----
-// In this section we show intended use of this component.
 //
 ///Example 1: Verify Member Pointer Types
 /// - - - - - - - - - - - - - - - - - - -
@@ -66,17 +49,6 @@ BSLS_IDENT("$Id: $")
 //  assert(true  == bsl::is_member_pointer<DataMemPtr>::value);
 //  assert(true  == bsl::is_member_pointer<MyStructMethodPtr>::value);
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature then we can re-write the snippet of code above using the
-// 'bsl::is_member_pointer_v' variable as follows:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(false == bsl::is_member_pointer_v<int*>);
-//  assert(false == bsl::is_member_pointer_v<MyFunctionPtr>);
-//  assert(true  == bsl::is_member_pointer_v<DataMemPtr>);
-//  assert(true  == bsl::is_member_pointer_v<MyStructMethodPtr>);
-//#endif
-//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -86,28 +58,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
 #ifndef INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
 #include <bslmf_ismemberfunctionpointer.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISMEMBEROBJECTPOINTER
 #include <bslmf_ismemberobjectpointer.h>
-#endif
-
 #endif
 
 namespace bsl {
@@ -117,268 +73,16 @@ namespace bsl {
                          // ========================
 
 template <class TYPE>
-struct is_member_pointer : false_type {
+struct is_member_pointer
+    : integral_constant<bool,
+                        is_member_object_pointer<TYPE>::value
+                        || bsl::is_member_function_pointer<TYPE>::value> {
     // This 'struct' template implements the 'is_member_pointer' meta-function
     // defined in the C++11 standard [meta.unary.comp] to determine if the
     // (template parameter) 'TYPE' is a member pointer type.  This 'struct'
     // derives from 'bsl::true_type' if the 'TYPE' is a member pointer type,
-    // and from 'bsl::false_type' otherwise.  Additional specializations are
-    // provided below to give the correct answer in all cases.
+    // and from 'bsl::false_type' otherwise.
 };
-
-template <class TARGET_TYPE, class HOST_TYPE>
-struct is_member_pointer<TARGET_TYPE HOST_TYPE::*> : true_type {
-    // This partial specialization provides the 'true_type' result for a
-    // (cv-unqualified) pointer-to-member type.  Note that additional partial
-    // specializations are required to handle the cv-qualified cases.
-};
-
-template <class TARGET_TYPE, class HOST_TYPE>
-struct is_member_pointer<TARGET_TYPE HOST_TYPE::* const> : true_type {
-    // This partial specialization provides the 'true_type' result for a
-    // 'const'-qualified pointer-to-member type.
-};
-
-template <class TARGET_TYPE, class HOST_TYPE>
-struct is_member_pointer<TARGET_TYPE HOST_TYPE::* volatile> : true_type {
-    // This partial specialization provides the 'true_type' result for a
-    // 'volatile'-qualified pointer-to-member type.
-};
-
-template <class TARGET_TYPE, class HOST_TYPE>
-struct is_member_pointer<TARGET_TYPE HOST_TYPE::* const volatile> : true_type {
-    // This partial specialization provides the 'true_type' result for a
-    // 'const volatile'-qualified pointer-to-member type.
-};
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_member_pointer_v = is_member_pointer<TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_member_pointer' meta-function.
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)    \
- &&   BSLS_PLATFORM_CMP_VERSION < 1910 \
- &&!((BSLS_PLATFORM_CMP_VERSION == 1900) && defined(BSLS_PLATFORM_CPU_64_BIT))
-// MSVC 2013 (and earlier) has two bugs that affect this component.  First,
-// it does not match partial specializations for cv-qualfiied pointer-to-member
-// types, requiring a general stripping of cv-qualifiers for all types to get
-// the right result.  Secondly, pointer-to-cv-qualified-member-function fails
-// to match the partial specialization at all, so fall back on trying to match
-// a member function with exactly the right signature using variadic templates,
-// which apparently does work.  Note that this bug also appears to affect the
-// MSVC 2015 compiler, but only for 32-bit builds.
-
-template <class TYPE>
-struct is_member_pointer<const TYPE> : is_member_pointer<TYPE>::type {
-    // The 'const'-qualfied (template parameter) 'TYPE' is a member pointer if
-    // the corresponding unqualfied 'TYPE' is a member pointer.
-};
-
-template <class TYPE>
-struct is_member_pointer<volatile TYPE> : is_member_pointer<TYPE>::type {
-    // The 'volatile'-qualfied (template parameter) 'TYPE' is a member pointer
-    // if the corresponding unqualfied 'TYPE' is a member pointer.
-};
-
-template <class TYPE>
-struct is_member_pointer<const volatile TYPE> : is_member_pointer<TYPE>::type {
-    // The 'const volatile'-qualfied (template parameter) 'TYPE' is a member
-    // pointer if the corresponding unqualfied 'TYPE' is a member pointer.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...)> : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...) const> : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...) volatile> : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...) const volatile>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...,...)> : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...,...) const> : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...,...) volatile> : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...,...) const volatile>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
-// Only MSVC 2015 32-bit builds get here
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...) &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...) const &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...) volatile &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...) const volatile &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...,...) &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...,...) const &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...,...) volatile &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...,...) const volatile &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...) &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...) const &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...) volatile &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...) const volatile &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...,...) &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...,...) const &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...,...) volatile &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_pointer<RESULT (HOST::*)(ARGS...,...) const volatile &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-#endif  // Reference-qualifier support for MSVC 2015
-
-#endif  // MSVC workarounds
 
 }  // close namespace bsl
 

@@ -8,7 +8,6 @@
 #include <bslmf_issame.h>
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
-#include <bsls_compilerfeatures.h>
 
 #include <stdio.h>       // printf
 #include <stdlib.h>      // atoi
@@ -341,7 +340,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    // Confirm no static initialization locked the global allocator
+    // Confirm no static intialization locekd the global allocator
     ASSERT(&globalAllocator == bslma::Default::globalAllocator());
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);

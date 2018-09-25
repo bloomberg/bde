@@ -495,8 +495,8 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -650,20 +650,20 @@ class Deque_Base {
 
     // *** iterators ***
 
-    iterator begin() BSLS_KEYWORD_NOEXCEPT;
+    iterator begin() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the first element
         // in this deque, and the past-the-end iterator if this deque is empty.
 
-    iterator end() BSLS_KEYWORD_NOEXCEPT;
+    iterator end() BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end (forward) iterator providing modifiable
         // access to this deque.
 
-    reverse_iterator rbegin() BSLS_KEYWORD_NOEXCEPT;
+    reverse_iterator rbegin() BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing modifiable access to the last
         // element in this deque, and the past-the-end reverse iterator if this
         // deque is empty.
 
-    reverse_iterator rend() BSLS_KEYWORD_NOEXCEPT;
+    reverse_iterator rend() BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end reverse iterator providing modifiable access
         // to this deque.
 
@@ -693,40 +693,40 @@ class Deque_Base {
 
     // *** iterators ***
 
-    const_iterator  begin() const BSLS_KEYWORD_NOEXCEPT;
-    const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator  begin() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // element in this deque, and the past-the-end iterator if this deque
         // is empty.
 
-    const_iterator  end() const BSLS_KEYWORD_NOEXCEPT;
-    const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator  end() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end (forward) iterator providing non-modifiable
         // access to this deque.
 
-    const_reverse_iterator  rbegin() const BSLS_KEYWORD_NOEXCEPT;
-    const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator  rbegin() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator crbegin() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last element in this deque, and the past-the-end reverse iterator if
         // this deque is empty.
 
-    const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
-    const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator rend() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator crend() const BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end reverse iterator providing non-modifiable
         // access to this deque.
 
     // *** capacity ***
 
-    size_type size() const BSLS_KEYWORD_NOEXCEPT;
+    size_type size() const BSLS_CPP11_NOEXCEPT;
         // Return the number of elements contained by this deque.
 
-    size_type capacity() const BSLS_KEYWORD_NOEXCEPT;
+    size_type capacity() const BSLS_CPP11_NOEXCEPT;
         // Return the sum of the current size of this deque plus the minimum
         // number of 'push_front' or 'push_back' operations needed to
         // invalidate iterators in this deque.  Note that this method is not
         // part of the C++ standard.
 
-    bool empty() const BSLS_KEYWORD_NOEXCEPT;
+    bool empty() const BSLS_CPP11_NOEXCEPT;
         // Return 'true' if this deque contains no elements, and 'false'
         // otherwise.
 
@@ -1143,7 +1143,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // deque (see {Requirements on 'VALUE_TYPE'}).
 
     deque& operator=(BloombergLP::bslmf::MovableRef<deque> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value of the specified 'rhs' object,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_move_assignment', and return
@@ -1828,7 +1828,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // '[first .. cend()]' (both endpoints included).
 
     void swap(deque<VALUE_TYPE, ALLOCATOR>& other)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value of this object with the value of the specified
         // 'other' object.  Additionally, if
         // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -1839,7 +1839,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
         // either this object was created with the same allocator as 'other' or
         // 'propagate_on_container_swap' is 'true'.
 
-    void clear() BSLS_KEYWORD_NOEXCEPT;
+    void clear() BSLS_CPP11_NOEXCEPT;
         // Remove all elements from this deque making its size 0.  Note that
         // although this deque is empty after this method returns, it preserves
         // the same capacity it had before the method was called.
@@ -1848,10 +1848,10 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
     // *** construct/copy/destroy ***
 
-    allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
+    allocator_type get_allocator() const BSLS_CPP11_NOEXCEPT;
         // Return the allocator used by this deque to supply memory.
 
-    size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
+    size_type max_size() const BSLS_CPP11_NOEXCEPT;
         // Return the maximum possible size of this deque.  Note that this is a
         // theoretical maximum (such as the maximum value that can be held by
         // 'size_type').  Also note that any request to create or enlarge a
@@ -1935,7 +1935,7 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
 // FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR>
 void swap(deque<VALUE_TYPE, ALLOCATOR>& a, deque<VALUE_TYPE, ALLOCATOR>& b)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value of the specified 'a' object with the value of the
     // specified 'b' object.  Additionally, if
     // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -2177,13 +2177,13 @@ class Deque_Guard {
         // will do nothing if count is not incremented again after this call.
 
     // ACCESSORS
-    std::size_t count() const BSLS_KEYWORD_NOEXCEPT;
+    std::size_t count() const BSLS_CPP11_NOEXCEPT;
         // Return the current count maintained by this guard.
 
-    IteratorImp begin() const BSLS_KEYWORD_NOEXCEPT;
+    IteratorImp begin() const BSLS_CPP11_NOEXCEPT;
         // Return a pointer after the first item in the guarded range.
 
-    IteratorImp end() const BSLS_KEYWORD_NOEXCEPT;
+    IteratorImp end() const BSLS_CPP11_NOEXCEPT;
         // Return a pointer after the last item in the guarded range.
 };
 
@@ -2201,7 +2201,7 @@ class Deque_Guard {
 template <class VALUE_TYPE>
 inline
 typename Deque_Base<VALUE_TYPE>::iterator
-Deque_Base<VALUE_TYPE>::begin() BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::begin() BSLS_CPP11_NOEXCEPT
 {
     return d_start;
 }
@@ -2209,7 +2209,7 @@ Deque_Base<VALUE_TYPE>::begin() BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE>
 inline
 typename Deque_Base<VALUE_TYPE>::iterator
-Deque_Base<VALUE_TYPE>::end() BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::end() BSLS_CPP11_NOEXCEPT
 {
     return d_finish;
 }
@@ -2217,7 +2217,7 @@ Deque_Base<VALUE_TYPE>::end() BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE>
 inline
 typename Deque_Base<VALUE_TYPE>::reverse_iterator
-Deque_Base<VALUE_TYPE>::rbegin() BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::rbegin() BSLS_CPP11_NOEXCEPT
 {
     return reverse_iterator(end());
 }
@@ -2225,7 +2225,7 @@ Deque_Base<VALUE_TYPE>::rbegin() BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE>
 inline
 typename Deque_Base<VALUE_TYPE>::reverse_iterator
-Deque_Base<VALUE_TYPE>::rend() BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::rend() BSLS_CPP11_NOEXCEPT
 {
     return reverse_iterator(begin());
 }
@@ -2279,7 +2279,7 @@ Deque_Base<VALUE_TYPE>::back()
 template <class VALUE_TYPE>
 inline
 typename Deque_Base<VALUE_TYPE>::const_iterator
-Deque_Base<VALUE_TYPE>::begin() const BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::begin() const BSLS_CPP11_NOEXCEPT
 {
     return d_start;
 }
@@ -2287,7 +2287,7 @@ Deque_Base<VALUE_TYPE>::begin() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE>
 inline
 typename Deque_Base<VALUE_TYPE>::const_iterator
-Deque_Base<VALUE_TYPE>::cbegin() const BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::cbegin() const BSLS_CPP11_NOEXCEPT
 {
     return d_start;
 }
@@ -2295,7 +2295,7 @@ Deque_Base<VALUE_TYPE>::cbegin() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE>
 inline
 typename Deque_Base<VALUE_TYPE>::const_iterator
-Deque_Base<VALUE_TYPE>::end() const BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::end() const BSLS_CPP11_NOEXCEPT
 {
     return d_finish;
 }
@@ -2303,7 +2303,7 @@ Deque_Base<VALUE_TYPE>::end() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE>
 inline
 typename Deque_Base<VALUE_TYPE>::const_iterator
-Deque_Base<VALUE_TYPE>::cend() const BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::cend() const BSLS_CPP11_NOEXCEPT
 {
     return d_finish;
 }
@@ -2311,7 +2311,7 @@ Deque_Base<VALUE_TYPE>::cend() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE>
 inline
 typename Deque_Base<VALUE_TYPE>::const_reverse_iterator
-Deque_Base<VALUE_TYPE>::rbegin() const BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::rbegin() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(end());
 }
@@ -2319,7 +2319,7 @@ Deque_Base<VALUE_TYPE>::rbegin() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE>
 inline
 typename Deque_Base<VALUE_TYPE>::const_reverse_iterator
-Deque_Base<VALUE_TYPE>::crbegin() const BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::crbegin() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(end());
 }
@@ -2327,7 +2327,7 @@ Deque_Base<VALUE_TYPE>::crbegin() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE>
 inline
 typename Deque_Base<VALUE_TYPE>::const_reverse_iterator
-Deque_Base<VALUE_TYPE>::rend() const BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::rend() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(begin());
 }
@@ -2335,7 +2335,7 @@ Deque_Base<VALUE_TYPE>::rend() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE>
 inline
 typename Deque_Base<VALUE_TYPE>::const_reverse_iterator
-Deque_Base<VALUE_TYPE>::crend() const BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::crend() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(begin());
 }
@@ -2343,14 +2343,14 @@ Deque_Base<VALUE_TYPE>::crend() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE>
 inline
 typename Deque_Base<VALUE_TYPE>::size_type
-Deque_Base<VALUE_TYPE>::size() const BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::size() const BSLS_CPP11_NOEXCEPT
 {
     return d_finish - d_start;
 }
 
 template <class VALUE_TYPE>
 typename Deque_Base<VALUE_TYPE>::size_type
-Deque_Base<VALUE_TYPE>::capacity() const BSLS_KEYWORD_NOEXCEPT
+Deque_Base<VALUE_TYPE>::capacity() const BSLS_CPP11_NOEXCEPT
 {
     // 'ContainerBase::allocateN', which creates the 'd_blocks_p' array, does
     // not, in its contract, guarantee to initialize the array to 0.  Since we
@@ -2388,7 +2388,7 @@ Deque_Base<VALUE_TYPE>::capacity() const BSLS_KEYWORD_NOEXCEPT
 
 template <class VALUE_TYPE>
 inline
-bool Deque_Base<VALUE_TYPE>::empty() const BSLS_KEYWORD_NOEXCEPT
+bool Deque_Base<VALUE_TYPE>::empty() const BSLS_CPP11_NOEXCEPT
 {
     return d_start == d_finish;
 }
@@ -3300,7 +3300,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 deque<VALUE_TYPE, ALLOCATOR>&
 deque<VALUE_TYPE, ALLOCATOR>::operator=(
                                      BloombergLP::bslmf::MovableRef<deque> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     deque& lvalue = rhs;
 
@@ -6363,7 +6363,7 @@ deque<VALUE_TYPE, ALLOCATOR>::erase(const_iterator first, const_iterator last)
 
 template <class VALUE_TYPE, class ALLOCATOR>
 void deque<VALUE_TYPE, ALLOCATOR>::swap(deque<VALUE_TYPE, ALLOCATOR>& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         Deque_Util::swap(static_cast<Base *>(this),
@@ -6392,7 +6392,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::swap(deque<VALUE_TYPE, ALLOCATOR>& other)
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-void deque<VALUE_TYPE, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
+void deque<VALUE_TYPE, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     DequePrimitives::destruct(this->d_start,
                               this->d_finish,
@@ -6422,7 +6422,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 typename deque<VALUE_TYPE, ALLOCATOR>::allocator_type
-deque<VALUE_TYPE, ALLOCATOR>::get_allocator() const BSLS_KEYWORD_NOEXCEPT
+deque<VALUE_TYPE, ALLOCATOR>::get_allocator() const BSLS_CPP11_NOEXCEPT
 {
     return ContainerBase::allocator();
 }
@@ -6430,7 +6430,7 @@ deque<VALUE_TYPE, ALLOCATOR>::get_allocator() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 typename deque<VALUE_TYPE, ALLOCATOR>::size_type
-deque<VALUE_TYPE, ALLOCATOR>::max_size() const BSLS_KEYWORD_NOEXCEPT
+deque<VALUE_TYPE, ALLOCATOR>::max_size() const BSLS_CPP11_NOEXCEPT
 {
     return this->get_allocator().max_size();
 }
@@ -6512,7 +6512,7 @@ bool operator>=(const deque<VALUE_TYPE, ALLOCATOR>& lhs,
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(deque<VALUE_TYPE, ALLOCATOR>& a, deque<VALUE_TYPE, ALLOCATOR>& b)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }
@@ -6831,7 +6831,7 @@ void Deque_Guard<VALUE_TYPE, ALLOCATOR>::release()
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 std::size_t
-Deque_Guard<VALUE_TYPE, ALLOCATOR>::count() const BSLS_KEYWORD_NOEXCEPT
+Deque_Guard<VALUE_TYPE, ALLOCATOR>::count() const BSLS_CPP11_NOEXCEPT
 {
     return d_count;
 }
@@ -6839,7 +6839,7 @@ Deque_Guard<VALUE_TYPE, ALLOCATOR>::count() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 typename Deque_Guard<VALUE_TYPE, ALLOCATOR>::IteratorImp
-Deque_Guard<VALUE_TYPE, ALLOCATOR>::begin() const BSLS_KEYWORD_NOEXCEPT
+Deque_Guard<VALUE_TYPE, ALLOCATOR>::begin() const BSLS_CPP11_NOEXCEPT
 {
     return d_deque_p->d_start - d_count;
 }
@@ -6847,7 +6847,7 @@ Deque_Guard<VALUE_TYPE, ALLOCATOR>::begin() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
 typename Deque_Guard<VALUE_TYPE, ALLOCATOR>::IteratorImp
-Deque_Guard<VALUE_TYPE, ALLOCATOR>::end() const BSLS_KEYWORD_NOEXCEPT
+Deque_Guard<VALUE_TYPE, ALLOCATOR>::end() const BSLS_CPP11_NOEXCEPT
 {
     return d_deque_p->d_finish + d_count;
 }

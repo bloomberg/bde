@@ -486,20 +486,6 @@ void setValue(MemberFuncPtrType *mfpt, char ch)
     *mfpt = memberFuncPtrArray[ch];
 }
 
-                                // =========
-                                // bool type
-                                // =========
-
-char getValue(const bool& b)
-{
-    return b ? 'T' : 'F';
-}
-
-void setValue(bool *ptr, char ch)
-{
-    *ptr = ch % 2;
-}
-
                                 // ==========
                                 // char types
                                 // ==========
@@ -703,11 +689,6 @@ void setValue(const int **pis, char ch)
     *pis = reinterpret_cast<const int *>(static_cast<UintPtr>(ch));
 }
 
-void setValue(volatile int **pis, char ch)
-{
-    *pis = reinterpret_cast<volatile int *>(static_cast<UintPtr>(ch));
-}
-
 #if !defined(BSLS_ARRAYPRIMITIVES_CONST_POINTER_OVERLOAD_RESOLUTION_BUG)
 char getValue(int * const& is)
 {
@@ -716,23 +697,6 @@ char getValue(int * const& is)
 #endif
 
 char getValue(const int * const& is)
-{
-    return static_cast<char>(reinterpret_cast<UintPtr>(is) & 0xff);
-}
-
-char getValue(volatile int * const& is)
-{
-    return static_cast<char>(reinterpret_cast<UintPtr>(is) & 0xff);
-}
-
-
-
-void setValue(const volatile int **pis, char ch)
-{
-    *pis = reinterpret_cast<const volatile int *>(static_cast<UintPtr>(ch));
-}
-
-char getValue(const volatile int * const& is)
 {
     return static_cast<char>(reinterpret_cast<UintPtr>(is) & 0xff);
 }
@@ -1639,7 +1603,7 @@ class CleanupGuard {
                 bslalg::ScalarDestructionPrimitives::destroy(d_array_p + i);
             }
             else {
-                ASSERTV(i, '_' == c);
+                LOOP_ASSERT(i, '_' == c);
             }
         }
     }
@@ -1658,30 +1622,6 @@ class CleanupGuard {
     }
 };
 
-void cleanup(bool *array, const char *spec)
-    // Verify that elements in the specified 'array' have values according to
-    // the specified 'spec' and destroy elements in the 'array' according to
-    // the 'spec'.  For '0 <= i < strlen(spec)', 'array[i]' is destroyed if
-    // and only if '1 == isalpha(spec[i]) || spec[i] == '?''.
-{
-    for (int i = 0; spec[i]; ++i) {
-        const char c = spec[i];
-        if (isalpha(c)) {
-            bool b = c % 2;
-            ASSERTV(i, c, array[i], b, array[i] == b);
-            array[i] = false;   // clear array to all false values; there is no
-                                // spare representation corresponding to the
-                                // preferred '_' character.
-        }
-        else if (c == '?') {
-            ASSERTV(i, array[i], c, !array[i]);
-        }
-        else {
-            ASSERTV(i, '_' == c);
-        }
-    }
-}
-
 void cleanup(char *array, const char *spec)
     // Verify that elements in the specified 'array' have values according to
     // the specified 'spec' and destroy elements in the 'array' according to
@@ -1691,15 +1631,15 @@ void cleanup(char *array, const char *spec)
     for (int i = 0; spec[i]; ++i) {
         char c = spec[i];
         if (isalpha(c)) {
-            ASSERTV(i, array[i] == c);
+            LOOP_ASSERT(i, array[i] == c);
             array[i] = '_';
         }
         else if ('?' == c) {
-            ASSERTV(i, array[i] == c || array[i] == '\0');
+            LOOP_ASSERT(i, array[i] == c || array[i] == '\0');
             array[i] = '_';
         }
         else {
-            ASSERTV(i, '_' == c);
+            LOOP_ASSERT(i, '_' == c);
         }
     }
 }
@@ -1712,39 +1652,18 @@ void cleanup(TYPE *array, const char *spec)
     // and only if '1 == isalpha(spec[i]) || spec[i] == '?''.
 {
     for (int i = 0; spec[i]; ++i) {
-        const char c = spec[i];
+        char c = spec[i];
         if (isalpha(c)) {
-            ASSERTV(i, getValue(array[i]), c, getValue(array[i]) == c);
+            LOOP_ASSERT(i, getValue(array[i]) == c);
             bslalg::ScalarDestructionPrimitives::destroy(array + i);
         }
         else if ('?' == c) {
-            ASSERTV(i, getValue(array[i]),   c,
-                       getValue(array[i]) == c || getValue(array[i]) == '\0');
+            LOOP_ASSERT(i,    getValue(array[i]) == c
+                           || getValue(array[i]) == '\0');
             bslalg::ScalarDestructionPrimitives::destroy(array + i);
         }
         else {
-            ASSERTV(i, '_' == c);
-        }
-    }
-}
-
-void verify(bool *array, const char *spec)
-    // Verify that elements in the specified 'array' have values according to
-    // the specified 'spec'.  Note that as 'bool' has only two states, the
-    // matching rules accept a wider range of matches from an input character
-    // set of 128 values.
-{
-    for (int i = 0; spec[i]; ++i) {
-        const char c = spec[i];
-        if (isalpha(c)) {
-            bool b = c % 2;
-            ASSERTV(i, c, array[i], b, array[i] == b);
-        }
-        else if (c == '?') {
-            ASSERTV(i, array[i], c, !array[i]);
-        }
-        else {
-            ASSERTV(i, '_' == c);
+            LOOP_ASSERT(i, '_' == c);
         }
     }
 }
@@ -1754,15 +1673,15 @@ void verify(char *array, const char *spec)
     // the specified 'spec'.
 {
     for (int i = 0; spec[i]; ++i) {
-        const char c = spec[i];
+        char c = spec[i];
         if (isalpha(c)) {
-            ASSERTV(i, array[i], c, array[i] == c);
+            LOOP3_ASSERT(i, array[i], c, array[i] == c);
         }
         else if (c == '?') {
-            ASSERTV(i, array[i], c, array[i] == c || array[i] == '\0');
+            LOOP3_ASSERT(i, array[i], c, array[i] == c || array[i] == '\0');
         }
         else {
-            ASSERTV(i, '_' == c);
+            LOOP_ASSERT(i, '_' == c);
         }
     }
 }
@@ -1773,16 +1692,16 @@ void verify(TYPE *array, const char *spec)
     // the specified 'spec'.
 {
     for (int i = 0; spec[i]; ++i) {
-        const char c = spec[i];
+        char c = spec[i];
         if (isalpha(c)) {
-            ASSERTV(i, getValue(array[i]), c, getValue(array[i]) == c);
+            LOOP3_ASSERT(i, getValue(array[i]), c, getValue(array[i]) == c);
         }
         else if ('?' == c) {
-            ASSERTV(i,    getValue(array[i]) == c
+            LOOP_ASSERT(i,    getValue(array[i]) == c
                            || getValue(array[i]) == '\0');
         }
         else {
-            ASSERTV(i, '_' == c);
+            LOOP_ASSERT(i, '_' == c);
         }
     }
 }
@@ -2068,7 +1987,7 @@ void testEmplaceDefaultValue(bool bitwiseMoveableFlag,
             const int         DST  = DATA_9DV[ti].d_dst;
             const int         END  = DATA_9DV[ti].d_end;
             const char *const EXP  = DATA_9DV[ti].d_expected;
-            ASSERTV(ti, MAX_SIZE >= (int)std::strlen(SPEC));
+            LOOP_ASSERT(ti, MAX_SIZE >= (int)std::strlen(SPEC));
 
             if (veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
@@ -2167,12 +2086,7 @@ void testEmplaceValue(bool bitwiseMoveableFlag,
         bslalg::ScalarPrimitives::defaultConstruct(mV.address(), Z);
         setValue(mV.address(), 'V');
         const TYPE& V = mV.object();
-        if (bsl::is_same<bool, TYPE>::value) {
-            ASSERTV(getValue(V), 'F' == getValue(V));
-        }
-        else {
-            ASSERTV(getValue(V), 'V' == getValue(V));
-        }
+        ASSERT('V' == getValue(V));
 
         for (size_t ti = 0; ti < NUM_DATA_9V; ++ti) {
             const int         LINE = DATA_9V[ti].d_lineNum;
@@ -2180,7 +2094,7 @@ void testEmplaceValue(bool bitwiseMoveableFlag,
             const int         DST  = DATA_9V[ti].d_dst;
             const int         END  = DATA_9V[ti].d_end;
             const char *const EXP  = DATA_9V[ti].d_expected;
-            ASSERTV(ti, MAX_SIZE >= (int)std::strlen(SPEC));
+            LOOP_ASSERT(ti, MAX_SIZE >= (int)std::strlen(SPEC));
 
             if (veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
@@ -2255,7 +2169,7 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
             const int         END    = DATA_9V[ti].d_end;
             const char *const EXP    = DATA_9V[ti].d_expected;
             const int         EXPNUM = DATA_9V[ti].d_expNum;
-            ASSERTV(ti, MAX_SIZE >= (int)std::strlen(SPEC));
+            LOOP_ASSERT(ti, MAX_SIZE >= (int)std::strlen(SPEC));
 
             if (veryVerbose) {
                 printf("LINE = %d, SPEC = %s, "
@@ -2354,7 +2268,7 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
                                                                       buf + i);
                         }
                         else {
-                            ASSERTV(LINE, i, '_' == ch);
+                            LOOP2_ASSERT(LINE, i, '_' == ch);
                         }
                     }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -2376,57 +2290,57 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
 
                 if (e) {
                     Obj::emplace(&buf[DST], &buf[END], Z, a, b, c, d, e);
-                    ASSERTV(LINE, NUM_0     == Attrib5::ctor0Count());
-                    ASSERTV(LINE, NUM_1     == Attrib5::ctor1Count());
-                    ASSERTV(LINE, NUM_2     == Attrib5::ctor2Count());
-                    ASSERTV(LINE, NUM_3     == Attrib5::ctor3Count());
-                    ASSERTV(LINE, NUM_4     == Attrib5::ctor4Count());
-                    ASSERTV(LINE, NUM_5 + N == Attrib5::ctor5Count());
+                    LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
+                    LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
+                    LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
+                    LOOP_ASSERT(LINE, NUM_3     == Attrib5::ctor3Count());
+                    LOOP_ASSERT(LINE, NUM_4     == Attrib5::ctor4Count());
+                    LOOP_ASSERT(LINE, NUM_5 + N == Attrib5::ctor5Count());
                 }
                 else if (d) {
                     Obj::emplace(&buf[DST], &buf[END], Z, a, b, c, d);
-                    ASSERTV(LINE, NUM_0     == Attrib5::ctor0Count());
-                    ASSERTV(LINE, NUM_1     == Attrib5::ctor1Count());
-                    ASSERTV(LINE, NUM_2     == Attrib5::ctor2Count());
-                    ASSERTV(LINE, NUM_3     == Attrib5::ctor3Count());
-                    ASSERTV(LINE, NUM_4 + N == Attrib5::ctor4Count());
-                    ASSERTV(LINE, NUM_5     == Attrib5::ctor5Count());
+                    LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
+                    LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
+                    LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
+                    LOOP_ASSERT(LINE, NUM_3     == Attrib5::ctor3Count());
+                    LOOP_ASSERT(LINE, NUM_4 + N == Attrib5::ctor4Count());
+                    LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
                 }
                 else if (c) {
                     Obj::emplace(&buf[DST], &buf[END], Z, a, b, c);
-                    ASSERTV(LINE, NUM_0     == Attrib5::ctor0Count());
-                    ASSERTV(LINE, NUM_1     == Attrib5::ctor1Count());
-                    ASSERTV(LINE, NUM_2     == Attrib5::ctor2Count());
-                    ASSERTV(LINE, NUM_3 + N == Attrib5::ctor3Count());
-                    ASSERTV(LINE, NUM_4     == Attrib5::ctor4Count());
-                    ASSERTV(LINE, NUM_5     == Attrib5::ctor5Count());
+                    LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
+                    LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
+                    LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
+                    LOOP_ASSERT(LINE, NUM_3 + N == Attrib5::ctor3Count());
+                    LOOP_ASSERT(LINE, NUM_4     == Attrib5::ctor4Count());
+                    LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
                 }
                 else if (b) {
                     Obj::emplace(&buf[DST], &buf[END], Z, a, b);
-                    ASSERTV(LINE, NUM_0     == Attrib5::ctor0Count());
-                    ASSERTV(LINE, NUM_1     == Attrib5::ctor1Count());
-                    ASSERTV(LINE, NUM_2 + N == Attrib5::ctor2Count());
-                    ASSERTV(LINE, NUM_3     == Attrib5::ctor3Count());
-                    ASSERTV(LINE, NUM_4     == Attrib5::ctor4Count());
-                    ASSERTV(LINE, NUM_5     == Attrib5::ctor5Count());
+                    LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
+                    LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
+                    LOOP_ASSERT(LINE, NUM_2 + N == Attrib5::ctor2Count());
+                    LOOP_ASSERT(LINE, NUM_3     == Attrib5::ctor3Count());
+                    LOOP_ASSERT(LINE, NUM_4     == Attrib5::ctor4Count());
+                    LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
                 }
                 else if (a) {
                     Obj::emplace(&buf[DST], &buf[END], Z, a);
-                    ASSERTV(LINE, NUM_0     == Attrib5::ctor0Count());
-                    ASSERTV(LINE, NUM_1 + N == Attrib5::ctor1Count());
-                    ASSERTV(LINE, NUM_2     == Attrib5::ctor2Count());
-                    ASSERTV(LINE, NUM_3     == Attrib5::ctor3Count());
-                    ASSERTV(LINE, NUM_4     == Attrib5::ctor4Count());
-                    ASSERTV(LINE, NUM_5     == Attrib5::ctor5Count());
+                    LOOP_ASSERT(LINE, NUM_0     == Attrib5::ctor0Count());
+                    LOOP_ASSERT(LINE, NUM_1 + N == Attrib5::ctor1Count());
+                    LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
+                    LOOP_ASSERT(LINE, NUM_3     == Attrib5::ctor3Count());
+                    LOOP_ASSERT(LINE, NUM_4     == Attrib5::ctor4Count());
+                    LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
                 }
                 else {
                     Obj::emplace(&buf[DST], &buf[END], Z);
-                    ASSERTV(LINE, NUM_0 + N == Attrib5::ctor0Count());
-                    ASSERTV(LINE, NUM_1     == Attrib5::ctor1Count());
-                    ASSERTV(LINE, NUM_2     == Attrib5::ctor2Count());
-                    ASSERTV(LINE, NUM_3     == Attrib5::ctor3Count());
-                    ASSERTV(LINE, NUM_4     == Attrib5::ctor4Count());
-                    ASSERTV(LINE, NUM_5     == Attrib5::ctor5Count());
+                    LOOP_ASSERT(LINE, NUM_0 + N == Attrib5::ctor0Count());
+                    LOOP_ASSERT(LINE, NUM_1     == Attrib5::ctor1Count());
+                    LOOP_ASSERT(LINE, NUM_2     == Attrib5::ctor2Count());
+                    LOOP_ASSERT(LINE, NUM_3     == Attrib5::ctor3Count());
+                    LOOP_ASSERT(LINE, NUM_4     == Attrib5::ctor4Count());
+                    LOOP_ASSERT(LINE, NUM_5     == Attrib5::ctor5Count());
                 }
 
                 for (int i = 0; EXP[i]; ++i) {
@@ -2484,7 +2398,7 @@ void testEmplaceAttrib5(bool exceptionSafetyFlag,
                         bslalg::ScalarDestructionPrimitives::destroy(buf + i);
                     }
                     else {
-                        ASSERTV(LINE, i, '_' == ch);
+                        LOOP2_ASSERT(LINE, i, '_' == ch);
                     }
                 }
             }
@@ -2879,7 +2793,7 @@ void testDestructiveMoveAndInsertValueN(bool bitwiseMoveableFlag,
             const int         END      = DATA_6V[ti].d_end;
             const char *const SRC_EXP  = DATA_6V[ti].d_srcExp;
             const char *const DST_EXP  = DATA_6V[ti].d_dstExp;
-            ASSERTV(ti, MAX_SIZE >= (int)std::strlen(SRC_SPEC));
+            LOOP_ASSERT(ti, MAX_SIZE >= (int)std::strlen(SRC_SPEC));
 
             if (veryVerbose) {
                 printf("LINE = %d, SRC_SPEC = %s, NE = %d, "
@@ -3089,7 +3003,7 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
         const int         END      = DATA_6R[ti].d_end;
         const char *const SRC_EXP  = DATA_6R[ti].d_srcExp;
         const char *const DST_EXP  = DATA_6R[ti].d_dstExp;
-        ASSERTV(ti, MAX_SIZE >= (int)std::strlen(SRC_SPEC));
+        LOOP_ASSERT(ti, MAX_SIZE >= (int)std::strlen(SRC_SPEC));
 
         if (veryVerbose) {
             printf("LINE = %d, SRC_SPEC = %s, NE = %d, "
@@ -3268,7 +3182,7 @@ void testDestructiveMoveAndMoveInsert(bool bitwiseMoveableFlag,
         const int         END      = DATA_6R[ti].d_end;
         const char *const SRC_EXP  = DATA_6R[ti].d_srcExp;
         const char *const DST_EXP  = DATA_6R[ti].d_dstExp;
-        ASSERTV(ti, MAX_SIZE >= (int)std::strlen(SRC_SPEC));
+        LOOP_ASSERT(ti, MAX_SIZE >= (int)std::strlen(SRC_SPEC));
 
         if (veryVerbose) {
             printf("LINE = %d, SRC_SPEC = %s, NE = %d, "
@@ -3415,9 +3329,6 @@ void testInsertValueN(bool bitwiseMoveableFlag,
     // indices in a buffer built according to the 'd_spec' specifications
     // results in a buffer built according to the 'd_expected' specifications.
     // The 'd_lineNum' member is used to report errors.
-    //
-    // TBD: There is no testing of aliasing concerns, as the only object that
-    // is copied for each round of insertions is a local contant 'V'.
 {
     const int MAX_SIZE = 16;
     static union {
@@ -3430,12 +3341,7 @@ void testInsertValueN(bool bitwiseMoveableFlag,
         bslalg::ScalarPrimitives::defaultConstruct(&mV.object(), Z);
         setValue(&mV.object(), 'V');
         const TYPE& V = mV.object();
-        if (bsl::is_same<bool, TYPE>::value) {
-            ASSERTV(getValue(V), 'F' == getValue(V));
-        }
-        else {
-            ASSERTV(getValue(V), 'V' == getValue(V));
-        }
+        ASSERT('V' == getValue(V));
 
         for (size_t ti = 0; ti < NUM_DATA_5V; ++ti) {
             const int         LINE = DATA_5V[ti].d_lineNum;
@@ -3444,7 +3350,7 @@ void testInsertValueN(bool bitwiseMoveableFlag,
             const int         DST  = DATA_5V[ti].d_dst;
             const int         END  = DATA_5V[ti].d_end;
             const char *const EXP  = DATA_5V[ti].d_expected;
-            ASSERTV(ti, MAX_SIZE >= (int)std::strlen(SPEC));
+            LOOP_ASSERT(ti, MAX_SIZE >= (int)std::strlen(SPEC));
 
             if (veryVerbose) {
                 printf("LINE = %d, SPEC = %s, NE = %d, "
@@ -4238,12 +4144,7 @@ void testUninitializedFillN(bool, // bitwiseMoveableFlag
         bslalg::ScalarPrimitives::defaultConstruct(&mV.object(), Z);
         setValue(&mV.object(), 'V');
         const TYPE& V = mV.object();
-        if (bsl::is_same<bool, TYPE>::value) {
-            ASSERTV(getValue(V), 'F' == getValue(V));
-        }
-        else {
-            ASSERTV(getValue(V), 'V' == getValue(V));
-        }
+        ASSERT('V' == getValue(V));
 
         for (size_t ti = 0; ti < NUM_DATA_2; ++ti) {
             const int         LINE  = DATA_2[ti].d_lineNum;
@@ -4327,17 +4228,17 @@ void testUninitializedFillNBCT(TYPE value)
                 // compare negative, even if the bit pattern is identical).
                 {
                     int cmp = memcmp(bufU, bufV, begin * sizeof(TYPE));
-                    ASSERTV(arraySize, begin, numElements, cmp, 0 == cmp);
+                    LOOP4_ASSERT(arraySize, begin, numElements, cmp, 0 == cmp);
                 }
                 {
                     size_t offset = begin + numElements;
                     int    cmp = memcmp(bufU + offset,
                                         bufV + offset,
                                         BUFFER_SIZE - offset * sizeof(TYPE));
-                    ASSERTV(arraySize, begin, numElements, cmp, 0 == cmp);
+                    LOOP4_ASSERT(arraySize, begin, numElements, cmp, 0 == cmp);
                 }
                 for (size_t i = begin; i < begin + numElements; ++i) {
-                    ASSERTV(arraySize, begin, numElements, i,
+                    LOOP4_ASSERT(arraySize, begin, numElements, i,
                                  value == bufU[i]);
                 }
             }
@@ -4476,15 +4377,6 @@ bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
 //    - exception testing is to be done.
 //
 // Run 'func' on a whole gauntlet of different types.
-// Note that the 'GAUNTLET' still misses 4 fundamental types that should be
-// properly tested, as there are overload sets that do special things for
-// fundamental types:
-//..
-//  bool
-//  char16_t
-//  char32_t
-//  nullptr_t
-//..
 //=============================================================================
 
 #define GAUNTLET(func) do {                                                   \
@@ -4559,12 +4451,6 @@ bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
                                                                               \
         if (verbose) printf("\t...with 'const int *'.\n");                    \
         func<const int *>(true, true);                                        \
-                                                                              \
-        if (verbose) printf("\t...with 'volatile int *'.\n");                    \
-        func<volatile int *>(true, true);                                     \
-                                                                              \
-        if (verbose) printf("\t...with 'const volatile int *'.\n");                    \
-        func<const volatile int*>(true, true);                                       \
                                                                               \
         if (verbose) printf("\t...with 'FnPtrConvertibleType'.\n");           \
         func<FnPtrConvertibleType>(false, false);                             \

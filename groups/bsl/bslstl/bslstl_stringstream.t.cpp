@@ -43,22 +43,20 @@
 //-----------------------------------------------------------------------------
 // CREATORS
 // [ 2] stringstream(const A& a = A());
-// [ 3] stringstream(const A&& a);
-// [ 5] stringstream(openmode mask, const A& a = A());
-// [ 6] stringstream(const STRING& s, const A& a = A());
-// [ 7] stringstream(const STRING& s, openmode mask, const A& a = A());
+// [ 4] stringstream(openmode mask, const A& a = A());
+// [ 5] stringstream(const STRING& s, const A& a = A());
+// [ 6] stringstream(const STRING& s, openmode mask, const A& a = A());
 //
 // MANIPULATORS
-// [ 3] operator=(const A&& a);
-// [ 4] void str(const StringType& value);
+// [ 3] void str(const StringType& value);
 //
 // ACCESSORS
-// [ 4] StringType str() const;
+// [ 3] StringType str() const;
 // [ 2] StreamBufType *rdbuf() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 9] USAGE EXAMPLE
-// [ 8] CONCERN: Standard allocator can be used
+// [ 8] USAGE EXAMPLE
+// [ 7] CONCERN: Standard allocator can be used
 // [ *] CONCERN: In no case does memory come from the global allocator.
 
 //=============================================================================
@@ -389,320 +387,6 @@ template <class StreamT, class BaseT, class StringT, class CharT>
 void testCase3()
 {
     // ------------------------------------------------------------------------
-    // MOVE CTOR AND ASSIGNMENT
-    //
-    // Concerns:
-    //: 1 An object created with the move constructor or assigned with the
-    //:   move-assignment operator has the state of the moved-from object.
-    //:
-    //: 2 Move construction/assignment allocates no memory.
-    //:
-    //: 3 The moved-from object is in a valid state.
-    //
-    // Plan:
-    //:  1 Create a stream in input mode with a string to read from.
-    //:
-    //:  2 Read some from the string to have a state change in the 'BaseStream'
-    //:    ('basic_iostream') and 'BaseType' ('StringBufContainer').
-    //:
-    //:  3 Move-construct/assign a stream.
-    //:
-    //:  4 Verify that the 'BaseType' ('StringBufContainer') has been moved.
-    //:    The verification is done using the 'str()' member.
-    //:
-    //:  5 Verify that the 'BaseStream' ('basic_iostream') has been moved.  The
-    //:    verification is done using the 'fail()' and 'tellg()' members.
-    //:
-    //:  6 Create a stream in output mode.
-    //:
-    //:  7 Write some string to have a state change in the 'BaseStream'
-    //:    ('basic_iostream') and 'BaseType' ('StringBufContainer').
-    //:
-    //:  8 Move-construct/assign a stream.
-    //:
-    //:  9 Verify that the 'BaseType' ('StringBufContainer') has been moved.
-    //:    The verification is done using the 'str()' member.
-    //:
-    //: 10 Verify that the 'BaseStream' ('basic_iostream') has been moved.  The
-    //:    verification is done using the 'fail()' and 'tellp()' members.
-    //
-    // Testing:
-    //   stringstream(const A&&);
-    //   operator=(const A&& a);
-    // ------------------------------------------------------------------------
-
-    if (verbose) printf("\nMOVE CTOR AND ASSIGNMENT"
-                        "\n========================\n");
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
-    using namespace BloombergLP;
-
-    if (veryVerbose) {
-        printf("\nTesting move construction with short string.\n");
-    }
-
-    {
-        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-        bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
-        static const size_t n = 3;
-        StringT s(&sa);
-        loadString(&s, n);
-        StreamT movedFrom(s, IosBase::in, &oa);
-
-        // Set some state for both 'BaseType' and 'BaseStream'
-
-        CharT b[n];
-        movedFrom.read(b, 1);                 // state change in 'BaseType'
-        ASSERTV(movedFrom.tellg(), 1 == movedFrom.tellg());
-
-        movedFrom.setstate(IosBase::failbit); // state change in 'BaseStream'
-        ASSERT(movedFrom.fail());
-
-        // Move the stream
-
-        StreamT movedTo(std::move(movedFrom));
-
-        ASSERTV(movedTo.str().c_str(), s == movedTo.str());
-
-        ASSERT(movedTo.fail());
-        movedTo.clear();
-        ASSERTV(movedTo.tellg(), 1 == movedTo.tellg());
-    }
-
-    {
-        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-        bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
-        StreamT movedFrom(IosBase::out, &oa);
-
-        // Set some state for both 'BaseType' and 'BaseStream'
-
-        static const size_t n = 3;
-        StringT s(&sa);
-        loadString(&s, n);
-        movedFrom.write(s.data(), n);         // state change in 'BaseType'
-        ASSERTV(movedFrom.tellp(), n == movedFrom.tellp());
-
-        static const typename StreamT::pos_type seekPos = 1;
-
-        movedFrom.seekp(seekPos);
-        ASSERTV(movedFrom.tellp(), seekPos == movedFrom.tellp());
-
-        movedFrom.setstate(IosBase::failbit); // state change in 'BaseStream'
-        ASSERT(movedFrom.fail());
-
-        // Move the stream
-
-        StreamT movedTo(std::move(movedFrom));
-
-        ASSERTV(movedTo.str().c_str(), s == movedTo.str());
-
-        ASSERT(movedTo.fail());
-        movedTo.clear();
-        ASSERTV(movedTo.tellp(), seekPos == movedTo.tellp());
-    }
-
-    if (veryVerbose) {
-        printf("\nTesting move assignment with short string.\n");
-    }
-
-    {
-        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-        bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
-        static const size_t n = 3;
-        StringT s(&sa);
-        loadString(&s, n);
-        StreamT movedFrom(s, IosBase::in, &oa);
-
-        // Set some state for both 'BaseType' and 'BaseStream'
-
-        CharT b[n];
-        movedFrom.read(b, 1);                 // state change in 'BaseType'
-        ASSERTV(movedFrom.tellg(), 1 == movedFrom.tellg());
-
-        movedFrom.setstate(IosBase::failbit); // state change in 'BaseStream'
-        ASSERT(movedFrom.fail());
-
-        // Move the stream
-
-        StreamT movedTo(&oa);
-        movedTo = std::move(movedFrom);
-
-        ASSERTV(movedTo.str().c_str(), s == movedTo.str());
-
-        ASSERT(movedTo.fail());
-        movedTo.clear();
-        ASSERTV(movedTo.tellg(), 1 == movedTo.tellg());
-    }
-
-    {
-        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-        bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
-        StreamT movedFrom(IosBase::out, &oa);
-
-        // Set some state for both 'BaseType' and 'BaseStream'
-
-        static const size_t n = 3;
-        StringT s(&sa);
-        loadString(&s, n);
-        movedFrom.write(s.data(), n);         // state change in 'BaseType'
-        ASSERTV(movedFrom.tellp(), n == movedFrom.tellp());
-
-        static const typename StreamT::pos_type seekPos = 1;
-
-        movedFrom.seekp(seekPos);
-        ASSERTV(movedFrom.tellp(), seekPos == movedFrom.tellp());
-
-        movedFrom.setstate(IosBase::failbit); // state change in 'BaseStream'
-        ASSERT(movedFrom.fail());
-
-        // Move the stream
-
-        StreamT movedTo(&oa);
-        movedTo = std::move(movedFrom);
-
-        ASSERTV(movedTo.str().c_str(), s == movedTo.str());
-
-        ASSERT(movedTo.fail());
-        movedTo.clear();
-        ASSERTV(movedTo.tellp(), seekPos == movedTo.tellp());
-    }
-
-    if (veryVerbose) {
-        printf("\nTesting move construction with long string.\n");
-    }
-
-    {
-        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-        bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
-        static const size_t n = LENGTH_OF_SUFFICIENTLY_LONG_STRING;
-        StringT s(&sa);
-        loadString(&s, n);
-        StreamT movedFrom(s, IosBase::in, &oa);
-
-        // Set some state for both 'BaseType' and 'BaseStream'
-
-        CharT b[n];
-        movedFrom.read(b, 1);                 // state change in 'BaseType'
-        ASSERTV(movedFrom.tellg(), 1 == movedFrom.tellg());
-
-        movedFrom.setstate(IosBase::failbit); // state change in 'BaseStream'
-        ASSERT(movedFrom.fail());
-
-        // Move the stream
-
-        StreamT movedTo(std::move(movedFrom));
-
-        ASSERTV(movedTo.str().c_str(), s == movedTo.str());
-
-        ASSERT(movedTo.fail());
-        movedTo.clear();
-        ASSERTV(movedTo.tellg(), 1 == movedTo.tellg());
-    }
-
-    {
-        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-        bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
-        StreamT movedFrom(IosBase::out, &oa);
-
-        // Set some state for both 'BaseType' and 'BaseStream'
-
-        static const size_t n = LENGTH_OF_SUFFICIENTLY_LONG_STRING;
-        StringT s(&sa);
-        loadString(&s, n);
-        movedFrom.write(s.data(), n);         // state change in 'BaseType'
-        ASSERTV(movedFrom.tellp(), n == movedFrom.tellp());
-
-        static const typename StreamT::pos_type seekPos = n - 4;
-
-        movedFrom.seekp(seekPos);
-        ASSERTV(movedFrom.tellp(), seekPos == movedFrom.tellp());
-
-        movedFrom.setstate(IosBase::failbit); // state change in 'BaseStream'
-        ASSERT(movedFrom.fail());
-
-        // Move the stream
-
-        StreamT movedTo(std::move(movedFrom));
-
-        ASSERTV(movedTo.str().c_str(), s == movedTo.str());
-
-        ASSERT(movedTo.fail());
-        movedTo.clear();
-        ASSERTV(movedTo.tellp(), seekPos == movedTo.tellp());
-    }
-
-    if (veryVerbose) {
-        printf("\nTesting move assignment with long string.\n");
-    }
-
-    {
-        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-        bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
-        static const size_t n = LENGTH_OF_SUFFICIENTLY_LONG_STRING;
-        StringT s(&sa);
-        loadString(&s, n);
-        StreamT movedFrom(s, IosBase::in, &oa);
-
-        // Set some state for both 'BaseType' and 'BaseStream'
-
-        CharT b[n];
-        movedFrom.read(b, 1);                 // state change in 'BaseType'
-        ASSERTV(movedFrom.tellg(), 1 == movedFrom.tellg());
-
-        movedFrom.setstate(IosBase::failbit); // state change in 'BaseStream'
-        ASSERT(movedFrom.fail());
-
-        // Move the stream
-
-        StreamT movedTo(&oa);
-        movedTo = std::move(movedFrom);
-
-        ASSERTV(movedTo.str().c_str(), s == movedTo.str());
-
-        ASSERT(movedTo.fail());
-        movedTo.clear();
-        ASSERTV(movedTo.tellg(), 1 == movedTo.tellg());
-    }
-
-    {
-        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
-        bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
-        StreamT movedFrom(IosBase::out, &oa);
-
-        // Set some state for both 'BaseType' and 'BaseStream'
-
-        static const size_t n = LENGTH_OF_SUFFICIENTLY_LONG_STRING;
-        StringT s(&sa);
-        loadString(&s, n);
-        movedFrom.write(s.data(), n);         // state change in 'BaseType'
-        ASSERTV(movedFrom.tellp(), n == movedFrom.tellp());
-
-        static const typename StreamT::pos_type seekPos = n - 4;
-
-        movedFrom.seekp(seekPos);
-        ASSERTV(movedFrom.tellp(), seekPos == movedFrom.tellp());
-
-        movedFrom.setstate(IosBase::failbit); // state change in 'BaseStream'
-        ASSERT(movedFrom.fail());
-
-        // Move the stream
-
-        StreamT movedTo(&oa);
-        movedTo = std::move(movedFrom);
-
-        ASSERTV(movedTo.str().c_str(), s == movedTo.str());
-
-        ASSERT(movedTo.fail());
-        movedTo.clear();
-        ASSERTV(movedTo.tellp(), seekPos == movedTo.tellp());
-    }
-#endif
-}
-
-template <class StreamT, class BaseT, class StringT, class CharT>
-void testCase4()
-{
-    // ------------------------------------------------------------------------
     // 'str' MANIPULATOR AND 'str' ACCESSOR
     //   Ensure that the 'str' manipulator and 'str' accessor work as expected.
     //
@@ -772,7 +456,7 @@ void testCase4()
 }
 
 template <class StreamT, class BaseT, class StringT, class CharT>
-void testCase5()
+void testCase4()
 {
     // ------------------------------------------------------------------------
     // OPENMODE CTOR
@@ -985,7 +669,7 @@ void testCase5()
 }
 
 template <class StreamT, class BaseT, class StringT, class CharT>
-void testCase6()
+void testCase5()
 {
     // ------------------------------------------------------------------------
     // STRING CTOR
@@ -1152,7 +836,7 @@ void testCase6()
 }
 
 template <class StreamT, class BaseT, class StringT, class CharT>
-void testCase7()
+void testCase6()
 {
     // ------------------------------------------------------------------------
     // STRING & OPENMODE CTOR
@@ -1351,7 +1035,7 @@ void testCase7()
 }
 
 template <class CharT>
-void testCase8()
+void testCase7()
 {
     // ------------------------------------------------------------------------
     // CONCERN: Standard allocator can be used
@@ -1524,7 +1208,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 10: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING READ/WRITE/SEEK COMBINATIONS
         //
@@ -1578,7 +1262,7 @@ int main(int argc, char *argv[])
 
         ASSERT(endPos2 == (std::streamoff) str2.size());
       } break;
-      case 9: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1614,13 +1298,9 @@ int main(int argc, char *argv[])
 //..
 
       } break;
-      case 8: {
-        testCase8<char>();
-        testCase8<wchar_t>();
-      } break;
       case 7: {
-        testCase7<Obj,  std::iostream,  bsl::string,  char>();
-        testCase7<WObj, std::wiostream, bsl::wstring, wchar_t>();
+        testCase7<char>();
+        testCase7<wchar_t>();
       } break;
       case 6: {
         testCase6<Obj,  std::iostream,  bsl::string,  char>();

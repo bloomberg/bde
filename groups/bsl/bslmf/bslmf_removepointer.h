@@ -11,7 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::remove_pointer: transform a pointer type to its referent pointer
-//  bsl::remove_pointer_t: alias to the return type of the meta-function
 //
 //@SEE_ALSO: bslmf_addpointer
 //
@@ -20,9 +19,8 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component defines a meta-function, 'bsl::remove_pointer',
 // that may be used to obtain the type pointed to by a pointer type.
 //
-// 'bsl::remove_pointer' and 'bsl::remove_pointer_t' meet the requirements of
-// the 'remove_pointer' template defined in the C++11 standard
-// [meta.trans.ptr].
+// 'bsl::remove_pointer' meets the requirements of the 'remove_pointer'
+// template defined in the C++11 standard [meta.trans.ptr].
 //
 ///Usage
 ///-----
@@ -44,17 +42,6 @@ BSLS_IDENT("$Id: $")
 //  assert((bsl::is_same<bsl::remove_pointer<MyPtrType>::type,
 //                       MyType>::value));
 //..
-// Finally, if the current compiler supports alias templates C++11 feature, we
-// get the type pointed to by 'MyPtrType' using 'bsl::remove_pointer_t' and
-// verify that the resulting type is the same as 'MyType':
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//  assert((bsl::is_same<bsl::remove_pointer_t<MyPtrType>, MyType>::value));
-//#endif
-//..
-// Note, that the 'bsl::remove_pointer_t' avoids the '::type' suffix and
-// 'typename' prefix when we want to use the result of the
-// 'bsl::remove_pointer' meta-function in templates.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -62,10 +49,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -237,18 +220,6 @@ struct remove_pointer {
 
 #endif
 };
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-
-// ALIASES
-template <class TYPE>
-using remove_pointer_t = typename remove_pointer<TYPE>::type;
-    // 'remove_pointer_t' is an alias to the return type of the
-    // 'bsl::remove_pointer' meta-function.  Note, that the 'remove_pointer_t'
-    // avoids the '::type' suffix and 'typename' prefix when we want to use the
-    // result of the meta-function in templates.
-
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 }  // close namespace bsl
 

@@ -36,12 +36,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isfundamental.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
-#include <bslmf_ismemberpointer.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
+#include <bslmf_ispointertomember.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISREFERENCE
@@ -50,14 +50,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
-#include <bslmf_ispointertomember.h>
-#endif
-
 #endif
 
 

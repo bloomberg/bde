@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef INCLUDED_SYS_STAT_H
-#include <sys/stat.h>  // 'struct stat[64]': required on Sun and Windows only
+#include <sys/stat.h>  // 'struct stat': required on Sun and Windows only
 #define INCLUDED_SYS_STAT_H
 #endif
 
@@ -95,12 +95,6 @@ class OutputRedirector {
         e_STDERR_STREAM
     };
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-    typedef struct stat StatType;
-#else
-    typedef struct stat64 StatType;
-#endif
-
     static const size_t k_OUTPUT_REDIRECTOR_BUFFER_SIZE          = 4096;
         // This represents the size of the buffer used by the class
         // 'OutputRedirector' to store the captured values loaded in the
@@ -133,7 +127,7 @@ class OutputRedirector {
     size_t           d_outputSize;            // size of output loaded into
                                               // 'd_outputBuffer'
 
-    StatType         d_originalStat;          // status information for
+    struct stat      d_originalStat;          // status information for
                                               // 'stdout' or 'stderr' just
                                               // before redirection
 
@@ -260,7 +254,7 @@ class OutputRedirector {
         // Return the value of the global 'stdout' or 'stderr' corresponding to
         // the stream that is not intended to be redirected by this object.
 
-    const StatType& originalStat() const;
+    const struct stat& originalStat() const;
         // Return a reference to the status information for 'stdout' collected
         // just before redirection.  This method is used only to test the
         // correctness of 'OutputRedirector'.

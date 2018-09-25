@@ -196,8 +196,7 @@ class MapComparator : private bslalg::FunctorAdapter<COMPARATOR>::Type {
         // Destroy this object.
 
     // MANIPULATORS
-    template <class LOOKUP_KEY>
-    bool operator()(const LOOKUP_KEY&         lhs,
+    bool operator()(const KEY&                lhs,
                     const bslalg::RbTreeNode& rhs);
         // Return 'true' if the specified 'lhs' is less than (ordered before,
         // according to the comparator held by this object) 'value().first' of
@@ -205,9 +204,8 @@ class MapComparator : private bslalg::FunctorAdapter<COMPARATOR>::Type {
         // otherwise.  The behavior is undefined unless 'rhs' can be safely
         // cast to 'NodeType'.
 
-    template <class LOOKUP_KEY>
     bool operator()(const bslalg::RbTreeNode& lhs,
-                    const LOOKUP_KEY&         rhs);
+                    const KEY&                rhs);
         // Return 'true' if 'value().first()' of the specified 'lhs' after
         // being cast to 'NodeType' is less than (ordered before, according to
         // the comparator held by this object) the specified 'rhs', and 'false'
@@ -220,8 +218,7 @@ class MapComparator : private bslalg::FunctorAdapter<COMPARATOR>::Type {
         // exception-safety guarantee.
 
     // ACCESSORS
-    template <class LOOKUP_KEY>
-    bool operator()(const LOOKUP_KEY&         lhs,
+    bool operator()(const KEY&                lhs,
                     const bslalg::RbTreeNode& rhs) const;
         // Return 'true' if the specified 'lhs' is less than (ordered before,
         // according to the comparator held by this object) 'value().first' of
@@ -229,9 +226,8 @@ class MapComparator : private bslalg::FunctorAdapter<COMPARATOR>::Type {
         // otherwise.  The behavior is undefined unless 'rhs' can be safely
         // cast to 'NodeType'.
 
-    template <class LOOKUP_KEY>
     bool operator()(const bslalg::RbTreeNode& lhs,
-                    const LOOKUP_KEY&         rhs) const;
+                    const KEY&                rhs) const;
         // Return 'true' if 'value().first()' of the specified 'lhs' after
         // being cast to 'NodeType' is less than (ordered before, according to
         // the comparator held by this object) the specified 'rhs', and 'false'
@@ -295,10 +291,9 @@ void MapComparator<KEY, VALUE, COMPARATOR>::swap(
 
 // ACCESSOR
 template <class KEY, class VALUE, class COMPARATOR>
-template <class LOOKUP_KEY>
 inline
 bool MapComparator<KEY, VALUE, COMPARATOR>::operator()(
-                                                 const LOOKUP_KEY&         lhs,
+                                                 const KEY&                lhs,
                                                  const bslalg::RbTreeNode& rhs)
 {
     return keyComparator()(lhs,
@@ -306,10 +301,9 @@ bool MapComparator<KEY, VALUE, COMPARATOR>::operator()(
 }
 
 template <class KEY, class VALUE, class COMPARATOR>
-template <class LOOKUP_KEY>
 inline
 bool MapComparator<KEY, VALUE, COMPARATOR>::operator()(
-                                           const LOOKUP_KEY&         lhs,
+                                           const KEY&                lhs,
                                            const bslalg::RbTreeNode& rhs) const
 {
     return keyComparator()(lhs,
@@ -317,22 +311,20 @@ bool MapComparator<KEY, VALUE, COMPARATOR>::operator()(
 }
 
 template <class KEY, class VALUE, class COMPARATOR>
-template <class LOOKUP_KEY>
 inline
 bool MapComparator<KEY, VALUE, COMPARATOR>::operator()(
                                                  const bslalg::RbTreeNode& lhs,
-                                                 const LOOKUP_KEY&         rhs)
+                                                 const KEY&                rhs)
 {
     return keyComparator()(static_cast<const NodeType&>(lhs).value().first,
                            rhs);
 }
 
 template <class KEY, class VALUE, class COMPARATOR>
-template <class LOOKUP_KEY>
 inline
 bool MapComparator<KEY, VALUE, COMPARATOR>::operator()(
                                            const bslalg::RbTreeNode& lhs,
-                                           const LOOKUP_KEY&         rhs) const
+                                           const KEY&                rhs) const
 {
     return keyComparator()(static_cast<const NodeType&>(lhs).value().first,
                            rhs);

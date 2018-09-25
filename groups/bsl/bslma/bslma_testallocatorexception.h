@@ -208,19 +208,6 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #endif
 
-#ifndef INCLUDED_BSLS_EXCEPTIONUTIL
-#include <bsls_exceptionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_NEW
-#include <new>          // For 'std::bad_alloc'
-#define INCLUDED_NEW
-#endif
-
 namespace BloombergLP {
 
 namespace bslma {
@@ -229,7 +216,7 @@ namespace bslma {
                         // class TestAllocatorException
                         // ============================
 
-class TestAllocatorException : public std::bad_alloc {
+class TestAllocatorException {
     // This class defines an exception object for memory allocation operations.
     // Objects of this class contain information about an allocation request.
 
@@ -258,12 +245,6 @@ class TestAllocatorException : public std::bad_alloc {
     size_type numBytes() const;
         // Return the number of bytes (supplied at construction) that indicates
         // an allocation request size.
-
-    const char *what() const BSLS_EXCEPTION_WHAT_NOTHROW BSLS_KEYWORD_OVERRIDE;
-        // Return a pointer to the string literal
-        // "bslma::TestAllocatorException" having a storage duration of the
-        // lifetime of the program.  Note that the caller should *not* attempt
-        // to free this memory.
 };
 
 // ============================================================================
@@ -287,13 +268,6 @@ TestAllocatorException::size_type
 TestAllocatorException::numBytes() const
 {
     return d_numBytes;
-}
-
-inline
-const char *
-TestAllocatorException::what() const BSLS_EXCEPTION_WHAT_NOTHROW
-{
-    return "bslma::TestAllocatorException";
 }
 
 }  // close package namespace

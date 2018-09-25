@@ -5,8 +5,6 @@ bslstl_badweakptr
 bslstl_bidirectionaliterator
 bslstl_bidirectionalnodepool
 bslstl_bitset
-bslstl_chrono
-bslstl_complex
 bslstl_deque
 bslstl_equalto
 bslstl_forwarditerator
@@ -30,7 +28,6 @@ bslstl_pair
 bslstl_priorityqueue
 bslstl_queue
 bslstl_randomaccessiterator
-bslstl_ratio
 bslstl_referencewrapper
 bslstl_set
 bslstl_setcomparator

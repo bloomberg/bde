@@ -37,12 +37,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLS_EXCEPTIONUTIL
-#include <bsls_exceptionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -82,13 +78,13 @@ namespace bslstl {
 
 class BadWeakPtr : public native_std::exception {
   public:
-    BadWeakPtr() BSLS_KEYWORD_NOEXCEPT;
+    BadWeakPtr() BSLS_CPP11_NOEXCEPT;
         // Create a 'BadWeakPtr' object.  Note that this function is explicitly
         // user-declared, to make it simple to declare 'const' objects of this
         // type.
 
     // ACCESSORS
-    const char *what() const BSLS_EXCEPTION_WHAT_NOTHROW BSLS_KEYWORD_OVERRIDE;
+    const char *what() const throw();
         // Return a pointer to the string literal "bad_weak_ptr", with a
         // storage duration of the lifetime of the program.  Note that the
         // caller should *not* attempt to free this memory.  Note that the
@@ -107,13 +103,13 @@ class BadWeakPtr : public native_std::exception {
                        // ----------------
 
 inline
-BadWeakPtr::BadWeakPtr() BSLS_KEYWORD_NOEXCEPT
+BadWeakPtr::BadWeakPtr() BSLS_CPP11_NOEXCEPT
 : native_std::exception()
 {
 }
 
 inline
-const char *BadWeakPtr::what() const BSLS_EXCEPTION_WHAT_NOTHROW
+const char *BadWeakPtr::what() const throw()
 {
     return "bad_weak_ptr";
 }

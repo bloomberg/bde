@@ -21,19 +21,13 @@ BSLS_IDENT("$Id: $")
 // 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
 // places them in the 'std' namespace.
 
-#if !defined(BSL_OVERRIDES_STD) || \
-    defined(BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS)
+#ifndef BSL_OVERRIDES_STD
 
 #   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
 #   include BSL_NATIVE_CISO646_HEADER(ciso646)
-
-#   if defined(BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS)
-    // We want a new inclusion to re-evaluate this header.
-#   undef INCLUDED_NATIVE_CISO646
-#   endif
 
 #else // defined(BSL_OVERRIDES_STD)
 

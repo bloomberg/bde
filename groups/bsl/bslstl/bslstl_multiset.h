@@ -544,10 +544,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_usesbslmaallocator.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISTRANSPARENTPREDICATE
-#include <bslmf_istransparentpredicate.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
 #endif
@@ -560,8 +556,8 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -902,7 +898,7 @@ class multiset {
         // into this multiset (see {Requirements on 'KEY'}).
 
     multiset& operator=(BloombergLP::bslmf::MovableRef<multiset> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value and comparator of the specified
         // 'rhs' object, propagate to this object the allocator of 'rhs' if the
         // 'ALLOCATOR' type has trait 'propagate_on_container_move_assignment',
@@ -927,23 +923,23 @@ class multiset {
         // multiset (see {Requirements on 'KEY'}).
 #endif
 
-    iterator begin() BSLS_KEYWORD_NOEXCEPT;
+    iterator begin() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the first
         // 'value_type' object in the ordered sequence of 'value_type' objects
         // maintained by this multiset, or the 'end' iterator if this multiset
         // is empty.
 
-    iterator end() BSLS_KEYWORD_NOEXCEPT;
+    iterator end() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the past-the-end
         // element in the ordered sequence of 'value_type' objects maintained
         // by this multiset.
 
-    reverse_iterator rbegin() BSLS_KEYWORD_NOEXCEPT;
+    reverse_iterator rbegin() BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing modifiable access to the last
         // 'value_type' object in the ordered sequence of 'value_type' objects
         // maintained by this multiset, or 'rend' if this multiset is empty.
 
-    reverse_iterator rend() BSLS_KEYWORD_NOEXCEPT;
+    reverse_iterator rend() BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing modifiable access to the
         // prior-to-the-beginning element in the ordered sequence of
         // 'value_type' objects maintained by this multiset.
@@ -1342,7 +1338,8 @@ class multiset {
         // the 'end' iterator, and the 'first' position is at or before the
         // 'last' position in the ordered sequence provided by this container.
 
-    void swap(multiset& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(multiset& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value and comparator of this object with the value and
         // comparator of the specified 'other' object.  Additionally, if
         // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -1353,45 +1350,18 @@ class multiset {
         // either this object was created with the same allocator as 'other' or
         // 'propagate_on_container_swap' is 'true'.
 
-    void clear() BSLS_KEYWORD_NOEXCEPT;
+    void clear() BSLS_CPP11_NOEXCEPT;
         // Remove all entries from this multiset.  Note that the multiset is
         // empty after this call, but allocated memory may be retained for
         // future use.
 
-    // Turn off complaints about necessarily class-defined methods.
-    // BDE_VERIFY pragma: push
-    // BDE_VERIFY pragma: -CD01
-
-    iterator find(const key_type& key)
+    iterator find(const key_type& key);
         // Return an iterator providing modifiable access to the first
         // 'value_type' object in this multiset equivalent to the specified
         // 'key', if such an object exists, and the past-the-end ('end')
         // iterator otherwise.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        return iterator(BloombergLP::bslalg::RbTreeUtil::find(
-            d_tree, this->comparator(), key));
-    }
 
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        iterator>::type
-    find(const LOOKUP_KEY& key)
-        // Return an iterator providing modifiable access to the first
-        // 'value_type' object in this multiset equivalent to the specified
-        // 'key', if such an object exists, and the past-the-end ('end')
-        // iterator otherwise.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        return iterator(BloombergLP::bslalg::RbTreeUtil::find(
-            d_tree, this->comparator(), key));
-    }
-
-    iterator lower_bound(const key_type& key)
+    iterator lower_bound(const key_type& key);
         // Return an iterator providing modifiable access to the first (i.e.,
         // ordered least) 'value_type' object in this multiset greater-than or
         // equal-to the specified 'key', and the past-the-end iterator if this
@@ -1400,35 +1370,8 @@ class multiset {
         // position before which a 'value_type' object equivalent to 'key'
         // could be inserted into the ordered sequence maintained by this
         // multiset, while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
-            d_tree, this->comparator(), key));
-    }
 
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        iterator>::type
-    lower_bound(const LOOKUP_KEY& key)
-        // Return an iterator providing modifiable access to the first (i.e.,
-        // ordered least) 'value_type' object in this multiset greater-than or
-        // equal-to the specified 'key', and the past-the-end iterator if this
-        // multiset does not contain a 'value_type' object greater-than or
-        // equal-to 'key'.  Note that this function returns the *first*
-        // position before which a 'value_type' object equivalent to 'key'
-        // could be inserted into the ordered sequence maintained by this
-        // multiset, while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
-            d_tree, this->comparator(), key));
-    }
-
-    iterator upper_bound(const key_type& key)
+    iterator upper_bound(const key_type& key);
         // Return an iterator providing modifiable access to the first (i.e.,
         // ordered least) 'value_type' object in this multiset greater than the
         // specified 'key', and the past-the-end iterator if this multiset does
@@ -1437,35 +1380,8 @@ class multiset {
         // 'value_type' object equivalent to 'key' could be inserted into the
         // ordered sequence maintained by this multiset, while preserving its
         // ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
-            d_tree, this->comparator(), key));
-    }
 
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        iterator>::type
-    upper_bound(const LOOKUP_KEY& key)
-        // Return an iterator providing modifiable access to the first (i.e.,
-        // ordered least) 'value_type' object in this multiset greater than the
-        // specified 'key', and the past-the-end iterator if this multiset does
-        // not contain a 'value_type' object greater-than 'key'.  Note that
-        // this function returns the *last* position before which a
-        // 'value_type' object equivalent to 'key' could be inserted into the
-        // ordered sequence maintained by this multiset, while preserving its
-        // ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
-            d_tree, this->comparator(), key));
-    }
-
-    pair<iterator, iterator> equal_range(const key_type& key)
+    pair<iterator, iterator> equal_range(const key_type& key);
         // Return a pair of iterators providing modifiable access to the
         // sequence of 'value_type' objects in this multiset equivalent to the
         // specified 'key', where the first iterator is positioned at the start
@@ -1474,102 +1390,64 @@ class multiset {
         // the second returned iterator will be 'upper_bound(key)', and, if
         // this multiset contains no 'value_type' objects with an equivalent
         // key, then the two returned iterators will have the same value.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        iterator startIt = lower_bound(key);
-        iterator endIt   = startIt;
-
-        if (endIt != end() && !comparator()(key, *endIt.node())) {
-            endIt = upper_bound(key);
-        }
-        return pair<iterator, iterator>(startIt, endIt);
-    }
-
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        pair<iterator, iterator> >::type
-    equal_range(const LOOKUP_KEY& key)
-        // Return a pair of iterators providing modifiable access to the
-        // sequence of 'value_type' objects in this multiset equivalent to the
-        // specified 'key', where the first iterator is positioned at the start
-        // of the sequence and the second is positioned one past the end of the
-        // sequence.  The first returned iterator will be 'lower_bound(key)',
-        // the second returned iterator will be 'upper_bound(key)', and, if
-        // this multiset contains no 'value_type' objects with an equivalent
-        // key, then the two returned iterators will have the same value.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        iterator startIt = lower_bound(key);
-        iterator endIt   = startIt;
-        if (endIt != end() && !comparator()(key, *endIt.node())) {
-            endIt = upper_bound(key);
-        }
-        return pair<iterator, iterator>(startIt, endIt);
-    }
-
-    // BDE_VERIFY pragma: pop
 
     // ACCESSORS
-    allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
+    allocator_type get_allocator() const BSLS_CPP11_NOEXCEPT;
         // Return (a copy of) the allocator used for memory allocation by this
         // multiset.
 
-    const_iterator begin() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator begin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the ordered sequence of 'value_type' objects
         // maintained by this multiset, or the 'end' iterator if this multiset
         // is empty.
 
-    const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator end() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element in the ordered sequence of 'value_type' objects
         // maintained by this multiset.
 
-    const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator rbegin() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last 'value_type' object in the ordered sequence of 'value_type'
         // objects maintained by this multiset, or 'rend' if this multiset is
         // empty.
 
-    const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator rend() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // prior-to-the-beginning element in the ordered sequence of
         // 'value_type' objects maintained by this multiset.
 
-    const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the ordered sequence of 'value_type' objects
         // maintained by this multiset, or the 'end' iterator if this multiset
         // is empty.
 
-    const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the
         // past-the-end element in the ordered sequence of 'value_type' objects
         // maintained by this multiset.
 
-    const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator crbegin() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last 'value_type' object in the ordered sequence of 'value_type'
         // objects maintained by this multiset, or 'rend' if this multiset is
         // empty.
 
-    const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator crend() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // prior-to-the-beginning element in the ordered sequence of
         // 'value_type' objects maintained by this multiset.
 
-    bool empty() const BSLS_KEYWORD_NOEXCEPT;
+    bool empty() const BSLS_CPP11_NOEXCEPT;
         // Return 'true' if this multiset contains no elements, and 'false'
         // otherwise.
 
-    size_type size() const BSLS_KEYWORD_NOEXCEPT;
+    size_type size() const BSLS_CPP11_NOEXCEPT;
         // Return the number of elements in this multiset.
 
-    size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
+    size_type max_size() const BSLS_CPP11_NOEXCEPT;
         // Return a theoretical upper bound on the largest number of elements
         // that this multiset could possibly hold.  Note that there is no
         // guarantee that the multiset can successfully grow to the returned
@@ -1587,77 +1465,17 @@ class multiset {
         // 'key_comp()'.  Note that since 'value_type' is an alias to 'KEY' for
         // 'multiset', this method returns the same functor as 'key_comp()'.
 
-    // Turn off complaints about necessarily class-defined methods.
-    // BDE_VERIFY pragma: push
-    // BDE_VERIFY pragma: -CD01
-
-    const_iterator find(const key_type& key) const
+    const_iterator find(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object that is equivalent to the specified 'key' in
         // ordered sequence maintained by this multiset, if such an object
         // exists, and the past-the-end ('end') iterator otherwise.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        return const_iterator(BloombergLP::bslalg::RbTreeUtil::find(
-            d_tree, this->comparator(), key));
-    }
 
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        const_iterator>::type
-    find(const LOOKUP_KEY& key) const
-        // Return an iterator providing non-modifiable access to the first
-        // 'value_type' object that is equivalent to the specified 'key' in
-        // ordered sequence maintained by this multiset, if such an object
-        // exists, and the past-the-end ('end') iterator otherwise.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        return const_iterator(BloombergLP::bslalg::RbTreeUtil::find(
-            d_tree, this->comparator(), key));
-    }
-
-    size_type count(const key_type& key) const
+    size_type count(const key_type& key) const;
         // Return the number of 'value_type' objects within this multiset that
         // are equivalent to the specified 'key'.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        int            count = 0;
-        const_iterator it    = lower_bound(key);
 
-        while (it != end() && !comparator()(key, *it.node())) {
-            ++it;
-            ++count;
-        }
-        return count;
-    }
-
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        size_type>::type
-    count(const LOOKUP_KEY& key) const
-        // Return the number of 'value_type' objects within this multiset that
-        // are equivalent to the specified 'key'.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        int            count = 0;
-        const_iterator it    = lower_bound(key);
-
-        while (it != end() && !comparator()(key, *it.node())) {
-            ++it;
-            ++count;
-        }
-        return count;
-    }
-
-    const_iterator lower_bound(const key_type& key) const
+    const_iterator lower_bound(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
         // (i.e., ordered least) 'value_type' object in this multiset
         // greater-than or equal-to the specified 'key', and the past-the-end
@@ -1666,35 +1484,8 @@ class multiset {
         // *first* position before which a 'value_type' object equivalent to
         // 'key' could be inserted into the ordered sequence maintained by this
         // multiset, while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
-            d_tree, this->comparator(), key));
-    }
 
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        const_iterator>::type
-    lower_bound(const LOOKUP_KEY& key) const
-        // Return an iterator providing non-modifiable access to the first
-        // (i.e., ordered least) 'value_type' object in this multiset
-        // greater-than or equal-to the specified 'key', and the past-the-end
-        // iterator if this multiset does not contain a 'value_type'
-        // greater-than or equal-to 'key'.  Note that this function returns the
-        // *first* position before which a 'value_type' object equivalent to
-        // 'key' could be inserted into the ordered sequence maintained by this
-        // multiset, while preserving its ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        return const_iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
-            d_tree, this->comparator(), key));
-    }
-
-    const_iterator upper_bound(const key_type& key) const
+    const_iterator upper_bound(const key_type& key) const;
         // Return an iterator providing non-modifiable access to the first
         // (i.e., ordered least) 'value_type' object in this multiset greater
         // than the specified 'key', and the past-the-end iterator if this
@@ -1703,35 +1494,9 @@ class multiset {
         // 'value_type' object equivalent to 'key' could be inserted into the
         // ordered sequence maintained by this multiset, while preserving its
         // ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
-            d_tree, this->comparator(), key));
-    }
 
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        const_iterator>::type
-    upper_bound(const LOOKUP_KEY& key) const
-        // Return an iterator providing non-modifiable access to the first
-        // (i.e., ordered least) 'value_type' object in this multiset greater
-        // than the specified 'key', and the past-the-end iterator if this
-        // multiset does not contain a 'value_type' object greater-than 'key'.
-        // Note that this function returns the *last* position before which a
-        // 'value_type' object equivalent to 'key' could be inserted into the
-        // ordered sequence maintained by this multiset, while preserving its
-        // ordering.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
-            d_tree, this->comparator(), key));
-    }
-
-    pair<const_iterator, const_iterator> equal_range(const key_type& key) const
+    pair<const_iterator, const_iterator> equal_range(
+                                                    const key_type& key) const;
         // Return a pair of iterators providing non-modifiable access to the
         // sequence of 'value_type' objects in this multiset that are
         // equivalent to the specified 'key', where the first iterator is
@@ -1741,45 +1506,6 @@ class multiset {
         // will be 'upper_bound(key)'; and, if this multiset contains no
         // 'value_type' objects equivalent to 'key', then the two returned
         // iterators will have the same value.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        const_iterator startIt = lower_bound(key);
-        const_iterator endIt   = startIt;
-
-        if (endIt != end() && !comparator()(key, *endIt.node())) {
-            endIt = upper_bound(key);
-        }
-        return pair<const_iterator, const_iterator>(startIt, endIt);
-    }
-
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
-                                                   LOOKUP_KEY>::value,
-        pair<const_iterator, const_iterator> >::type
-    equal_range(const LOOKUP_KEY& key) const
-        // Return a pair of iterators providing non-modifiable access to the
-        // sequence of 'value_type' objects in this multiset that are
-        // equivalent to the specified 'key', where the first iterator is
-        // positioned at the start of the sequence, and the second is
-        // positioned one past the end of the sequence.  The first returned
-        // iterator will be 'lower_bound(key)'; the second returned iterator
-        // will be 'upper_bound(key)'; and, if this multiset contains no
-        // 'value_type' objects equivalent to 'key', then the two returned
-        // iterators will have the same value.
-        //
-        // Note: implemented inline due to Sun CC compilation error.
-    {
-        const_iterator startIt = lower_bound(key);
-        const_iterator endIt   = startIt;
-        if (endIt != end() && !comparator()(key, *endIt.node())) {
-            endIt = upper_bound(key);
-        }
-        return pair<const_iterator, const_iterator>(startIt, endIt);
-    }
-
-    // BDE_VERIFY pragma: pop
 };
 
 // FREE OPERATORS
@@ -1857,7 +1583,7 @@ bool operator>=(const multiset<KEY, COMPARATOR, ALLOCATOR>& lhs,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 void swap(multiset<KEY, COMPARATOR, ALLOCATOR>& a,
           multiset<KEY, COMPARATOR, ALLOCATOR>& b)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value and comparator of the specified 'a' object with the
     // value and comparator of the specified 'b' object.  Additionally, if
     // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -2220,7 +1946,7 @@ inline
 multiset<KEY, COMPARATOR, ALLOCATOR>&
 multiset<KEY, COMPARATOR, ALLOCATOR>::operator=(
                                   BloombergLP::bslmf::MovableRef<multiset> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     multiset& lvalue = rhs;
 
@@ -2258,7 +1984,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::operator=(
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::begin() BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::begin() BSLS_CPP11_NOEXCEPT
 {
     return iterator(d_tree.firstNode());
 }
@@ -2266,7 +1992,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::begin() BSLS_KEYWORD_NOEXCEPT
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::end() BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::end() BSLS_CPP11_NOEXCEPT
 {
     return iterator(d_tree.sentinel());
 }
@@ -2274,7 +2000,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::end() BSLS_KEYWORD_NOEXCEPT
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::reverse_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::rbegin() BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::rbegin() BSLS_CPP11_NOEXCEPT
 {
     return reverse_iterator(end());
 }
@@ -2282,7 +2008,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::rbegin() BSLS_KEYWORD_NOEXCEPT
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::reverse_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::rend() BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::rend() BSLS_CPP11_NOEXCEPT
 {
     return reverse_iterator(begin());
 }
@@ -3441,7 +3167,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::erase(const_iterator first,
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 void multiset<KEY, COMPARATOR, ALLOCATOR>::swap(multiset& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         quickSwapExchangeAllocators(other);
@@ -3474,7 +3200,7 @@ void multiset<KEY, COMPARATOR, ALLOCATOR>::swap(multiset& other)
 
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-void multiset<KEY, COMPARATOR, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
+void multiset<KEY, COMPARATOR, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     BSLS_ASSERT_SAFE(d_tree.firstNode());
 
@@ -3492,12 +3218,57 @@ void multiset<KEY, COMPARATOR, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
 #endif
 }
 
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::find(const key_type& key)
+{
+    return iterator(BloombergLP::bslalg::RbTreeUtil::find(d_tree,
+                                                          this->comparator(),
+                                                          key));
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::lower_bound(const key_type& key)
+{
+    return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
+                                                            d_tree,
+                                                            this->comparator(),
+                                                            key));
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::upper_bound(const key_type& key)
+{
+    return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
+                                                            d_tree,
+                                                            this->comparator(),
+                                                            key));
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+pair<typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator,
+     typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator>
+multiset<KEY, COMPARATOR, ALLOCATOR>::equal_range(const key_type& key) const
+{
+    const_iterator startIt = lower_bound(key);
+    const_iterator endIt   = startIt;
+    if (endIt != end() && !comparator()(key, *endIt.node())) {
+        endIt = upper_bound(key);
+    }
+    return pair<const_iterator, const_iterator>(startIt, endIt);
+}
+
 // ACCESSORS
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::allocator_type
-multiset<KEY, COMPARATOR, ALLOCATOR>::get_allocator() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::get_allocator() const BSLS_CPP11_NOEXCEPT
 {
     return nodeFactory().allocator();
 }
@@ -3505,7 +3276,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::get_allocator() const
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::begin() const BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::begin() const BSLS_CPP11_NOEXCEPT
 {
     return cbegin();
 }
@@ -3513,7 +3284,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::begin() const BSLS_KEYWORD_NOEXCEPT
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::end() const BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::end() const BSLS_CPP11_NOEXCEPT
 {
     return cend();
 }
@@ -3521,7 +3292,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::end() const BSLS_KEYWORD_NOEXCEPT
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_reverse_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::rbegin() const BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::rbegin() const BSLS_CPP11_NOEXCEPT
 {
     return crbegin();
 }
@@ -3529,7 +3300,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::rbegin() const BSLS_KEYWORD_NOEXCEPT
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_reverse_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::rend() const BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::rend() const BSLS_CPP11_NOEXCEPT
 {
     return crend();
 }
@@ -3537,7 +3308,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::rend() const BSLS_KEYWORD_NOEXCEPT
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::cbegin() const BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::cbegin() const BSLS_CPP11_NOEXCEPT
 {
     return const_iterator(d_tree.firstNode());
 }
@@ -3545,7 +3316,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::cbegin() const BSLS_KEYWORD_NOEXCEPT
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::cend() const BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::cend() const BSLS_CPP11_NOEXCEPT
 {
     return const_iterator(d_tree.sentinel());
 }
@@ -3553,7 +3324,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::cend() const BSLS_KEYWORD_NOEXCEPT
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_reverse_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::crbegin() const BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::crbegin() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(end());
 }
@@ -3561,7 +3332,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::crbegin() const BSLS_KEYWORD_NOEXCEPT
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_reverse_iterator
-multiset<KEY, COMPARATOR, ALLOCATOR>::crend() const BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::crend() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(begin());
 }
@@ -3569,7 +3340,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::crend() const BSLS_KEYWORD_NOEXCEPT
 // capacity:
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
-bool multiset<KEY, COMPARATOR, ALLOCATOR>::empty() const BSLS_KEYWORD_NOEXCEPT
+bool multiset<KEY, COMPARATOR, ALLOCATOR>::empty() const BSLS_CPP11_NOEXCEPT
 {
     return 0 == d_tree.numNodes();
 }
@@ -3577,7 +3348,7 @@ bool multiset<KEY, COMPARATOR, ALLOCATOR>::empty() const BSLS_KEYWORD_NOEXCEPT
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::size_type
-multiset<KEY, COMPARATOR, ALLOCATOR>::size() const BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::size() const BSLS_CPP11_NOEXCEPT
 {
     return d_tree.numNodes();
 }
@@ -3586,7 +3357,7 @@ multiset<KEY, COMPARATOR, ALLOCATOR>::size() const BSLS_KEYWORD_NOEXCEPT
 template <class KEY, class COMPARATOR, class ALLOCATOR>
 inline
 typename multiset<KEY, COMPARATOR, ALLOCATOR>::size_type
-multiset<KEY, COMPARATOR, ALLOCATOR>::max_size() const BSLS_KEYWORD_NOEXCEPT
+multiset<KEY, COMPARATOR, ALLOCATOR>::max_size() const BSLS_CPP11_NOEXCEPT
 {
     return AllocatorTraits::max_size(get_allocator());
 }
@@ -3605,6 +3376,67 @@ typename multiset<KEY, COMPARATOR, ALLOCATOR>::value_compare
 multiset<KEY, COMPARATOR, ALLOCATOR>::value_comp() const
 {
     return value_compare(key_comp());
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::find(const key_type& key) const
+{
+    return const_iterator(
+       BloombergLP::bslalg::RbTreeUtil::find(d_tree, this->comparator(), key));
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::size_type
+multiset<KEY, COMPARATOR, ALLOCATOR>::count(const key_type& key) const
+{
+    int            count = 0;
+    const_iterator it    = lower_bound(key);
+
+    while (it != end() && !comparator()(key, *it.node())) {
+        ++it;
+        ++count;
+    }
+    return count;
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::lower_bound(const key_type& key) const
+{
+    return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
+                                                            d_tree,
+                                                            this->comparator(),
+                                                            key));
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+typename multiset<KEY, COMPARATOR, ALLOCATOR>::const_iterator
+multiset<KEY, COMPARATOR, ALLOCATOR>::upper_bound(const key_type& key) const
+{
+    return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
+                                                            d_tree,
+                                                            this->comparator(),
+                                                            key));
+}
+
+template <class KEY, class COMPARATOR, class ALLOCATOR>
+inline
+pair<typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator,
+     typename multiset<KEY, COMPARATOR, ALLOCATOR>::iterator>
+multiset<KEY, COMPARATOR, ALLOCATOR>::equal_range(const key_type& key)
+{
+    iterator startIt = lower_bound(key);
+    iterator endIt   = startIt;
+
+    if (endIt != end() && !comparator()(key, *endIt.node())) {
+        endIt = upper_bound(key);
+    }
+    return pair<iterator, iterator>(startIt, endIt);
 }
 
 }  // close namespace bsl
@@ -3674,7 +3506,7 @@ template <class KEY,  class COMPARATOR,  class ALLOCATOR>
 inline
 void bsl::swap(bsl::multiset<KEY, COMPARATOR, ALLOCATOR>& a,
                bsl::multiset<KEY, COMPARATOR, ALLOCATOR>& b)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }

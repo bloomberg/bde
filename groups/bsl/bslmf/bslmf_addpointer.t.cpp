@@ -18,15 +18,14 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-functions, 'bsl::add_pointer' and
-// 'bsl::add_pointer_t', that transform a type to a pointer type to that type.
-// We need to ensure that the values returned by the meta-function are correct
-// for each possible category of types.
+// The component under test defines a meta-function, 'bsl::add_pointer', that
+// transforms a type to a pointer type to that type.  We need to ensure that
+// the values returned by the meta-function are correct for each possible
+// category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC TYPE
 // [ 1] bsl::add_pointer::type
-// [ 1] bsl::add_pointer_t
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -108,16 +107,6 @@ struct TestType {
    // argument for a template parameter.
 };
 
-typedef void (TestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::add_pointer'.
-
-typedef int TestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::add_pointer'.
-
 }  // close unnamed namespace
 
 //=============================================================================
@@ -182,14 +171,6 @@ int main(int argc, char *argv[])
     ASSERT((bsl::is_same<bsl::add_pointer<MyType>::type,
                          MyPtrType>::value));
 //..
-// Finally, if the current compiler supports alias templates C++11 feature, we
-// transform 'MyType' to a pointer type using 'bsl::add_pointer_t' and verify
-// that the resulting type is the same as 'MyPtrType':
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-    ASSERT((bsl::is_same<bsl::add_pointer_t<MyType>, MyPtrType>::value));
-#endif
-//..
 
       } break;
       case 1: {
@@ -216,10 +197,6 @@ int main(int argc, char *argv[])
         //:   known to have bugs, and we should test that this trait produces
         //:   the corresponding (illegal) type on such compilers, rather than
         //:   failing to compile at all.
-        //:
-        //: 6 'bsl::add_pointer_t' represents the return type of
-        //:   'bsl::add_pointer' meta-function for a variety of template
-        //:   parameter types.
         //
         // Plan:
         //   Verify that 'bsl::add_pointer::type' has the correct type for
@@ -297,64 +274,6 @@ int main(int argc, char *argv[])
                         AbominableFn>::value));
 #endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-
-        if (verbose) printf("\n'bsl::add_pointer_t'\n"
-                            "\n====================\n");
-
-        // C-6
-        ASSERT((is_same<add_pointer  <void       >::type,
-                        add_pointer_t<void       >>::value));
-        ASSERT((is_same<add_pointer  <const void >::type,
-                        add_pointer_t<const void >>::value));
-        ASSERT((is_same<add_pointer  <int        >::type,
-                        add_pointer_t<int        >>::value));
-        ASSERT((is_same<add_pointer  <const int  >::type,
-                        add_pointer_t<const int  >>::value));
-        ASSERT((is_same<add_pointer  <int *      >::type,
-                        add_pointer_t<int *      >>::value));
-        ASSERT((is_same<add_pointer  <TestType   >::type,
-                        add_pointer_t<TestType   >>::value));
-        ASSERT((is_same<add_pointer  <int &      >::type,
-                        add_pointer_t<int &      >>::value));
-        ASSERT((is_same<add_pointer  <int const &>::type,
-                        add_pointer_t<int const &>>::value));
-        ASSERT((is_same<add_pointer  <TestType & >::type,
-                        add_pointer_t<TestType & >>::value));
-
-       ASSERT((is_same<add_pointer  <MethodPtrTestType               >::type,
-                       add_pointer_t<MethodPtrTestType               >>::value));
-       ASSERT((is_same<add_pointer  <MethodPtrTestType &             >::type,
-                       add_pointer_t<MethodPtrTestType &             >>::value));
-       ASSERT((is_same<add_pointer  <MethodPtrTestType *             >::type,
-                       add_pointer_t<MethodPtrTestType *             >>::value));
-       ASSERT((is_same<add_pointer  <MethodPtrTestType const         >::type,
-                       add_pointer_t<MethodPtrTestType const         >>::value));
-       ASSERT((is_same<add_pointer  <MethodPtrTestType       volatile>::type,
-                       add_pointer_t<MethodPtrTestType       volatile>>::value));
-       ASSERT((is_same<add_pointer  <MethodPtrTestType const volatile>::type,
-                       add_pointer_t<MethodPtrTestType const volatile>>::value));
-
-       ASSERT((is_same<add_pointer  <PMD               >::type,
-                       add_pointer_t<PMD               >>::value));
-       ASSERT((is_same<add_pointer  <PMD &             >::type,
-                       add_pointer_t<PMD &             >>::value));
-       ASSERT((is_same<add_pointer  <PMD *             >::type,
-                       add_pointer_t<PMD *             >>::value));
-       ASSERT((is_same<add_pointer  <PMD const         >::type,
-                       add_pointer_t<PMD const         >>::value));
-       ASSERT((is_same<add_pointer  <PMD       volatile>::type,
-                       add_pointer_t<PMD       volatile>>::value));
-       ASSERT((is_same<add_pointer  <PMD const volatile>::type,
-                       add_pointer_t<PMD const volatile>>::value));
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        ASSERT((is_same<add_pointer  <int &&>::type,
-                        add_pointer_t<int &&> >::value));
-        ASSERT((is_same<add_pointer  <int const &&>::type,
-                        add_pointer_t<int const &&> >::value));
-#endif
-#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

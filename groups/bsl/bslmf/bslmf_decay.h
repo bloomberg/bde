@@ -11,7 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::decay: type trait computing return type for type parameter
-//  bsl::decay_t: alias to the return type of the 'bsl::decay' meta-function
 //
 //@SEE_ALSO: bslmf_removeextent
 //
@@ -51,19 +50,8 @@ BSLS_IDENT("$Id: $")
 //
 //  template <class TYPE>
 //  class Thing {
-//    public:
-//
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//..
-// Note that if the current compiler supports alias templates C++11 feature, we
-// can use 'bsl::decay_t' alias to the "result" type of the 'bsl::decay'
-// meta-function, that avoids the '::type' suffix and 'typename' prefix in the
-// declaration of the function return type:
-//..
-//      using CacheType = bsl::decay_t<TYPE>;
-//#else
+//  public:
 //      typedef typename bsl::decay<TYPE>::type CacheType;
-//#endif
 //
 //  private:
 //      CacheType d_cache;
@@ -120,10 +108,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removereference.h>
 #endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
-#endif
-
 namespace bsl {
 
 // Forward declaration
@@ -149,18 +133,6 @@ class decay
   public:
     typedef typename decay_imp<U, k_ISARRAY, k_ISFUNC>::type type;
 };
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-
-// ALIASES
-template <class TYPE>
-using decay_t = typename decay<TYPE>::type;
-    // 'decay_t' is an alias to the return type of the 'bsl::decay'
-    // meta-function.  Note, that the 'enable_if_t' avoids the '::type' suffix
-    // and 'typename' prefix when we want to use the result of the
-    // meta-function in templates.
-
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 // ============================================================================
 //                      CLASS TEMPLATE IMPLEMENTATION

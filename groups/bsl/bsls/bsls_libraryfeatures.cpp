@@ -6,11 +6,9 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_compilerfeatures.h>
 
-#include <bsls_bsltestutil.h>   // for testing only
-#include <bsls_buildtarget.h>   // for testing only
-#include <bsls_exceptionutil.h> // for testing only
-#include <bsls_keyword.h>       // for testing only
-#include <bsls_nativestd.h>     // for testing only
+#include <bsls_bsltestutil.h>  // for testing only
+#include <bsls_cpp11.h>        // for testing only
+#include <bsls_nativestd.h>    // for testing only
 
 ///Implementation Notes
 ///--------------------
@@ -40,71 +38,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //:   the earliest observed among those tested.  No effort was made to discover
 //:   the historically earliest version.  Also, once a feature is observed in a
 //:   compiler, all future versions are assumed to provide that feature.
-
-
-         // Standard library implementation detection verification
-
-// This code  attempts to verify that we have detected the right standard
-// library implementation by including a non-standard header that is
-// (hopefully) unique to and part of that implementation we have detected.  To
-// be paranoid, the code also verifies a macro that is defined by the known
-// implementations.  The headers have been selected to be not only
-// representative of the implementation, but also such that existed throughout
-// many many versions of the given implementation and so we can assume they
-// will exists for the foreseeable future.
-
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
-#include <bits/os_defines.h>
-#ifndef _GLIBCXX_OS_DEFINES
-#error <bits/os_defines.h> does not seem to #define _GLIBCXX_OS_DEFINES.
-#endif
-
-#elif defined(BSLS_LIBRARYFEATURES_STDCPP_MSVC)
-#if BSLS_PLATFORM_CMP_VERSION < 1900
-#include <vadefs.h>
-#ifndef _INC_VADEFS
-#error <vadefs.h> does not seem to #define _INC_VADEFS.
-#endif
-#else
-#include <vcruntime.h>
-#ifndef _UCRT
-#error <vcruntime.h> does not seem to #define _UCRT.
-#endif
-#endif
-
-#elif defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
-#include <__config>
-#ifndef _LIBCPP_CONFIG
-#error <__config> does not seem to #define _LIBCPP_CONFIG.
-#endif
-
-#elif defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
-#include <rw7/rw/compiler.h>
-#ifndef __RWCOMPILER_H__
-#error <rw/compiler.h> does not seem to #define __RWCOMPILER_H__.
-#endif
-
-#elif defined(BSLS_LIBRARYFEATURES_STDCPP_STLPORT)
-#include <config/stlcomp.h>
-#ifndef _STLP_COMP_H
-#error <config/stlcomp.h> does not seem to #define _STLP_COMP_H.
-#endif
-
-#elif defined(BSLS_LIBRARYFEATURES_STDCPP_IBM)
-#include <irtllock.h>
-#ifndef THREAD_SAFE_GLOBAL_LOCK
-#error <irtllock.h> does not seem to #define THREAD_SAFE_GLOBAL_LOCK.
-#endif
-
-#elif defined(BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE)
-// We do not attempt to check anything here, because in Intellisense passes we
-// have no idea what the target compiler or the target standard library
-// implementation is.  We only have this case (#elif) to ensure that people
-// will not see following #error in their IDEs while looking at their code.
-#else
-#error Unexpected standard library implementation.  Please update test driver.
-#endif
-
 
                         // Enforce invariants
 
@@ -219,6 +152,15 @@ BSLS_IDENT("$Id$ $CSID$")
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
 #error "See 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT': !NOT DEFINED! \
         in component-level documentation."
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
+
+    #ifndef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+    #error "'BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS' \
+             requires 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS'"
+    #endif
+
 #endif
 
 // ----------------------------------------------------------------------------

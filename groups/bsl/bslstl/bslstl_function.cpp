@@ -8,14 +8,14 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #ifdef BDE_BUILD_TARGET_EXC
 
-const char *bsl::bad_function_call::what() const BSLS_EXCEPTION_WHAT_NOTHROW
+const char* bsl::bad_function_call::what() const BSLS_NOTHROW_SPEC
 {
     return "bad_function_call";
 }
 
 #endif
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC) && !defined(BSLS_PLATFORM_CMP_SUN)
+#ifndef BSLS_PLATFORM_CMP_MSVC
 const std::size_t bsl::Function_SmallObjectOptimization::k_NON_SOO_SMALL_SIZE;
 
 const std::size_t bsl::Function_Rep::k_NON_SOO_SMALL_SIZE;

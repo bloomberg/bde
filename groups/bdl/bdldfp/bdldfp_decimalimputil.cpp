@@ -1124,7 +1124,7 @@ int DecimalImpUtil::format(char                      *buffer,
     return formatImpl(buffer, length, value, config);
 }
 
-DecimalImpUtil::ValueType32 DecimalImpUtil::min32() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType32 DecimalImpUtil::min32() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw32(1, -95);
@@ -1133,7 +1133,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::min32() BSLS_KEYWORD_NOEXCEPT
 #endif
 }
 
-DecimalImpUtil::ValueType32 DecimalImpUtil::max32() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType32 DecimalImpUtil::max32() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse32("9.999999e96");
@@ -1142,7 +1142,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::max32() BSLS_KEYWORD_NOEXCEPT
 #endif
 }
 
-DecimalImpUtil::ValueType32 DecimalImpUtil::epsilon32() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType32 DecimalImpUtil::epsilon32() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw32(1, -6);
@@ -1151,8 +1151,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::epsilon32() BSLS_KEYWORD_NOEXCEPT
 #endif
 }
 
-DecimalImpUtil::ValueType32 DecimalImpUtil::roundError32()
-                                                          BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType32 DecimalImpUtil::roundError32() BSLS_CPP11_NOEXCEPT
 { // TBD TODO - determine the real value from the round mode!
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw32(1, 0);
@@ -1161,7 +1160,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::roundError32()
 #endif
 }
 
-DecimalImpUtil::ValueType32 DecimalImpUtil::denormMin32() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType32 DecimalImpUtil::denormMin32() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse32("0.000001E-95");
@@ -1170,7 +1169,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::denormMin32() BSLS_KEYWORD_NOEXCEPT
 #endif
 }
 
-DecimalImpUtil::ValueType32 DecimalImpUtil::infinity32() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType32 DecimalImpUtil::infinity32() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse32("INF");
@@ -1179,7 +1178,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::infinity32() BSLS_KEYWORD_NOEXCEPT
 #endif
 }
 
-DecimalImpUtil::ValueType32 DecimalImpUtil::quietNaN32() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType32 DecimalImpUtil::quietNaN32() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse32("NaN");
@@ -1189,7 +1188,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::quietNaN32() BSLS_KEYWORD_NOEXCEPT
 }
 
 DecimalImpUtil::ValueType32 DecimalImpUtil::signalingNaN32()
-    BSLS_KEYWORD_NOEXCEPT
+    BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse32("sNaN");
@@ -1198,7 +1197,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::signalingNaN32()
 #endif
 }
 
-DecimalImpUtil::ValueType64 DecimalImpUtil::min64() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType64 DecimalImpUtil::min64() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw64(1, -383);
@@ -1207,7 +1206,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::min64() BSLS_KEYWORD_NOEXCEPT
 #endif
 }
 
-DecimalImpUtil::ValueType64 DecimalImpUtil::max64() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType64 DecimalImpUtil::max64() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse64("9.999999999999999e384");
@@ -1216,7 +1215,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::max64() BSLS_KEYWORD_NOEXCEPT
 #endif
 }
 
-DecimalImpUtil::ValueType64 DecimalImpUtil::epsilon64() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType64 DecimalImpUtil::epsilon64() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse64("1e-15");
@@ -1225,8 +1224,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::epsilon64() BSLS_KEYWORD_NOEXCEPT
 #endif
 }
 
-DecimalImpUtil::ValueType64 DecimalImpUtil::roundError64()
-                                                          BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType64 DecimalImpUtil::roundError64() BSLS_CPP11_NOEXCEPT
 {  // TBD TODO - determine the real value from the round mode!
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw64(1, 0);
@@ -1235,7 +1233,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::roundError64()
 #endif
 }
 
-DecimalImpUtil::ValueType64 DecimalImpUtil::denormMin64() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType64 DecimalImpUtil::denormMin64() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse64("0.000000000000001e-383");
@@ -1244,7 +1242,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::denormMin64() BSLS_KEYWORD_NOEXCEPT
 #endif
 }
 
-DecimalImpUtil::ValueType64 DecimalImpUtil::infinity64() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType64 DecimalImpUtil::infinity64() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse64("INF");
@@ -1253,7 +1251,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::infinity64() BSLS_KEYWORD_NOEXCEPT
 #endif
 }
 
-DecimalImpUtil::ValueType64 DecimalImpUtil::quietNaN64() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType64 DecimalImpUtil::quietNaN64() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse64("NaN");
@@ -1263,7 +1261,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::quietNaN64() BSLS_KEYWORD_NOEXCEPT
 }
 
 DecimalImpUtil::ValueType64 DecimalImpUtil::signalingNaN64()
-    BSLS_KEYWORD_NOEXCEPT
+    BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse64("sNaN");
@@ -1272,7 +1270,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::signalingNaN64()
 #endif
 }
 
-DecimalImpUtil::ValueType128 DecimalImpUtil::min128() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType128 DecimalImpUtil::min128() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw128(1, -6143);
@@ -1281,7 +1279,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::min128() BSLS_KEYWORD_NOEXCEPT
 #endif
 }
 
-DecimalImpUtil::ValueType128 DecimalImpUtil::max128() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType128 DecimalImpUtil::max128() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse128("9.999999999999999999999999999999999e6144");
@@ -1290,7 +1288,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::max128() BSLS_KEYWORD_NOEXCEPT
 #endif
 }
 
-DecimalImpUtil::ValueType128 DecimalImpUtil::epsilon128() BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType128 DecimalImpUtil::epsilon128() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw128(1, -33);
@@ -1300,7 +1298,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::epsilon128() BSLS_KEYWORD_NOEXCEPT
 }
 
 DecimalImpUtil::ValueType128 DecimalImpUtil::roundError128()
-    BSLS_KEYWORD_NOEXCEPT
+    BSLS_CPP11_NOEXCEPT
 {  // TBD TODO - determine the real value from the round mode setting!
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return makeDecimalRaw128(1, 0);
@@ -1309,8 +1307,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::roundError128()
 #endif
 }
 
-DecimalImpUtil::ValueType128 DecimalImpUtil::denormMin128()
-                                                          BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType128 DecimalImpUtil::denormMin128() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse128("0.000000000000000000000000000000001e-6143");
@@ -1319,8 +1316,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::denormMin128()
 #endif
 }
 
-DecimalImpUtil::ValueType128 DecimalImpUtil::infinity128()
-                                                          BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType128 DecimalImpUtil::infinity128() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse128("INF");
@@ -1329,8 +1325,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::infinity128()
 #endif
 }
 
-DecimalImpUtil::ValueType128 DecimalImpUtil::quietNaN128()
-                                                          BSLS_KEYWORD_NOEXCEPT
+DecimalImpUtil::ValueType128 DecimalImpUtil::quietNaN128() BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse128("NaN");
@@ -1340,7 +1335,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::quietNaN128()
 }
 
 DecimalImpUtil::ValueType128 DecimalImpUtil::signalingNaN128()
-    BSLS_KEYWORD_NOEXCEPT
+    BSLS_CPP11_NOEXCEPT
 {
 #if defined(BDLDFP_DECIMALPLATFORM_INTELDFP)
     return parse128("sNaN");

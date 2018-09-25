@@ -11,32 +11,18 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_member_object_pointer: standard meta-function
-//  bsl::is_member_object_pointer_v: the result value of the meta-function
 //
 //@SEE_ALSO: bslmf_integralconstant, bslmf_ismemberfunctionpointer
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_member_object_pointer' and a template variable
-// 'bsl::is_member_object_pointer_v', that represents the result value of the
-// 'bsl::is_member_object_pointer' meta-function, that may be used to query
-// whether a type is a pointer to non-static member object type.
+// 'bsl::is_member_object_pointer', that may be used to query whether a type is
+// a pointer to non-static member object type.
 //
 // 'bsl::is_member_object_pointer' meets the requirements of the
 // 'is_member_object_pointer' template defined in the C++11 standard
 // [meta.unary.cat].
-//
-// Note that the template variable 'is_member_object_pointer_v' is defined in
-// the C++17 standard as an inline variable.  If the current compiler supports
-// the inline variable C++17 compiler feature,
-// 'bsl::is_member_object_pointer_v' is defined as an 'inline constexpr bool'
-// variable.  Otherwise, if the compiler supports the variable templates C++14
-// compiler feature, 'bsl::is_member_object_pointer_v' is defined as a
-// non-inline 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
-// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -64,15 +50,6 @@ BSLS_IDENT("$Id: $")
 //  assert(false == bsl::is_member_object_pointer<int*>::value);
 //  assert(true  == bsl::is_member_object_pointer<DataMemPtr>::value);
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature then we can re-write the snippet of code above using the
-// 'bsl::is_member_object_pointer_v' variable as follows:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(false == bsl::is_member_object_pointer_v<int*>);
-//  assert(true  == bsl::is_member_object_pointer_v<DataMemPtr>);
-//#endif
-//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -82,98 +59,17 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISCONST
-#include <bslmf_isconst.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNCTION
-#include <bslmf_isfunction.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
 #ifndef INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
 #include <bslmf_ismemberfunctionpointer.h>
 #endif
 
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include <bslmf_isreference.h>
+#endif
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
-namespace bsl {
-
-                       // ===============================
-                       // struct is_member_object_pointer
-                       // ===============================
-
-template <class TYPE>
-struct is_member_object_pointer : false_type {
-    // This 'struct' template implements the 'is_member_object_pointer'
-    // meta-function defined in the C++11 standard [meta.unary.cat] to
-    // determine if the (template parameter) 'TYPE' is a pointer to non-static
-    // data member type.  This 'struct' derives from 'bsl::true_type' if the
-    // 'TYPE' is a pointer to non-static data member type, and from
-    // 'bsl::false_type' otherwise.
-};
-
-template <class TYPE, class CLASS>
-struct is_member_object_pointer<TYPE CLASS::*>
-    : is_const<const TYPE>::type {
-    // Partial specialization relies on the principle that only object types
-    // can be 'const'-qualified.  Reference-types and function-types do not
-    // retain the 'const' qualifier when added in this manner, and there are
-    // no 'void' class members.
-};
-
-template <class TYPE, class CLASS>
-struct is_member_object_pointer<TYPE CLASS::* const>
-    : is_const<const TYPE>::type {
-    // Partial specialization relies on the principle that only object types
-    // can be 'const'-qualified.  Reference-types and function-types do not
-    // retain the 'const' qualifier when added in this manner, and there are
-    // no 'void' class members.
-};
-
-
-template <class TYPE, class CLASS>
-struct is_member_object_pointer<TYPE CLASS::* volatile>
-    : is_const<const TYPE>::type {
-    // Partial specialization relies on the principle that only object types
-    // can be 'const'-qualified.  Reference-types and function-types do not
-    // retain the 'const' qualifier when added in this manner, and there are
-    // no 'void' class members.
-};
-
-
-template <class TYPE, class CLASS>
-struct is_member_object_pointer<TYPE CLASS::* const volatile>
-    : is_const<const TYPE>::type {
-    // Partial specialization relies on the principle that only object types
-    // can be 'const'-qualified.  Reference-types and function-types do not
-    // retain the 'const' qualifier when added in this manner, and there are
-    // no 'void' class members.
-};
-
-
-}  // close namespace bsl
-#else
-// The IBM xlC compiler produces parses an error when trying to add 'const' to
-// a function type, so leans on the original BDE implementation of this trait.
-// Note that this implementation fails on all other compilers for member
-// functions with a C-style elipsis, erroneously reporting such functions as
-// data members.  However, xlC appears to have sufficient compenstating bugs
-// that this implementation gives the correct result in such cases too.
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
 
 namespace BloombergLP {
 namespace bslmf {
@@ -192,10 +88,7 @@ struct IsPointerToMemberData_Imp : bsl::false_type {
 };
 
 template <class TYPE, class CLASS>
-struct IsPointerToMemberData_Imp<TYPE CLASS::*>
-    :  bsl::integral_constant<bool,
-                             !bsl::is_function<TYPE>::value
-                             > {
+struct IsPointerToMemberData_Imp<TYPE CLASS::*> : bsl::true_type {
      // This partial specialization of 'IsPointerToMemberData_Imp' derives from
      // 'bsl::true_type' for when the (template parameter) 'TYPE' is a pointer
      // to non-static data member type.
@@ -212,7 +105,11 @@ namespace bsl {
 
 template <class TYPE>
 struct is_member_object_pointer
-    : BloombergLP::bslmf::IsPointerToMemberData_Imp<TYPE>::type {
+    : integral_constant<bool,
+                       BloombergLP::bslmf::IsPointerToMemberData_Imp<
+                           typename remove_cv<TYPE>::type>::value
+                       && !is_member_function_pointer<TYPE>::value
+                       && !is_reference<TYPE>::value> {
     // This 'struct' template implements the 'is_member_object_pointer'
     // meta-function defined in the C++11 standard [meta.unary.cat] to
     // determine if the (template parameter) 'TYPE' is a pointer to non-static
@@ -221,46 +118,12 @@ struct is_member_object_pointer
     // 'bsl::false_type' otherwise.
 };
 
-template <class TYPE>
-struct is_member_object_pointer<const TYPE>
-    : BloombergLP::bslmf::IsPointerToMemberData_Imp<TYPE>::type {
-    // Partial specialization to handle 'const'-qualified pointer-to-member
-    // objects.
-};
-
-template <class TYPE>
-struct is_member_object_pointer<volatile TYPE>
-    : BloombergLP::bslmf::IsPointerToMemberData_Imp<TYPE>::type {
-    // Partial specialization to handle 'volatile'-qualified pointer-to-member
-    // objects.
-};
-
-template <class TYPE>
-struct is_member_object_pointer<const volatile TYPE>
-    : BloombergLP::bslmf::IsPointerToMemberData_Imp<TYPE>::type {
-    // Partial specialization to handle 'const volatile'-qualified
-    // pointer-to-member objects.
-};
-
 }  // close namespace bsl
-#endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-namespace bsl {
-
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_member_object_pointer_v =
-                                         is_member_object_pointer<TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_member_object_pointer' meta-function.
-}  // close namespace bsl
-#endif
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013-2018 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

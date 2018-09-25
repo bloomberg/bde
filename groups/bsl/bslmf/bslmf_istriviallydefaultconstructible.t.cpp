@@ -21,8 +21,7 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function,
-// 'bsl::is_trivially_default_constructible' and a template variable
-// 'bsl::is_trivially_default_constructible_v', that determine whether a
+// 'bsl::is_trivially_default_constructible', that determines whether a
 // template parameter type is trivially default-constructible.  By default, the
 // meta-function supports a restricted set of type categories, but can be
 // extended to support other types through either template specialization or
@@ -100,19 +99,8 @@ void aSsErT(bool condition, const char *message, int line)
 // type-dependent contexts, so there is no need to use 'typename' when fetching
 // the result from any of the queried traits.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-#define ASSERT_V_SAME(TYPE)                                                   \
-    ASSERT(bsl::is_trivially_default_constructible  <TYPE>::value ==          \
-           bsl::is_trivially_default_constructible_v<TYPE>)
-    // Test whether 'bsl::is_trivially_default_constructible_v<TYPE>' has the
-    // same value as 'bsl::is_trivially_default_constructible<TYPE>::value'.
-#else
-#define ASSERT_V_SAME(TYPE)
-#endif
-
 #define ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_TYPE(TYPE, RESULT)          \
-    ASSERT( bsl::is_trivially_default_constructible  <TYPE>::value == RESULT);\
-    ASSERT_V_SAME(TYPE);                                                      \
+    ASSERT( bsl::is_trivially_default_constructible<TYPE>::value == RESULT);  \
     ASSERT( bsl::is_trivially_default_constructible<                          \
                                        bsl::add_pointer<TYPE>::type>::value); \
     ASSERT(!bsl::is_trivially_default_constructible<                          \
@@ -351,20 +339,6 @@ int main(int argc, char *argv[])
     ASSERT(false ==
                  bsl::is_trivially_default_constructible<
                      MyNonTriviallyDefaultConstructibleType>::value);
-//..
-// Note that if the current compiler supports the variable templates C++14
-// feature, then we can re-write the snippet of code above as follows:
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    ASSERT(true  == bsl::is_trivially_default_constructible_v<
-                                                           MyFundamentalType>);
-    ASSERT(false == bsl::is_trivially_default_constructible_v<
-                                                  MyFundamentalTypeReference>);
-    ASSERT(true  == bsl::is_trivially_default_constructible_v<
-                                         MyTriviallyDefaultConstructibleType>);
-    ASSERT(false == bsl::is_trivially_default_constructible_v<
-                                      MyNonTriviallyDefaultConstructibleType>);
-#endif
 //..
 
       } break;

@@ -11,7 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::add_pointer: meta-function to transform a type to a pointer type
-//  bsl::add_pointer_t: alias to the return type of the 'bsl::add_pointer'
 //
 //@SEE_ALSO: bslmf_removepointer
 //
@@ -37,22 +36,13 @@ BSLS_IDENT("$Id: $")
 //  typedef int   MyType;
 //  typedef int * MyPtrType;
 //..
-// Now, we transform 'MyType' to a pointer type using 'bsl::add_pointer' and
-// verify that the resulting type is the same as 'MyPtrType':
+// Now, we transform 'MyType' to a pointer type to 'MyType' using
+// 'bsl::add_pointer' and verify that the resulting type is the same as
+// 'MyPtrType':
 //..
-//  assert((bsl::is_same<bsl::add_pointer<MyType>::type, MyPtrType>::value));
+//  assert((bsl::is_same<bsl::add_pointer<MyType>::type,
+//                       MyPtrType>::value));
 //..
-// Finally, if the current compiler supports alias templates C++11 feature, we
-// transform 'MyType' to a pointer type using 'bsl::add_pointer_t' and verify
-// that the resulting type is the same as 'MyPtrType':
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//  assert((bsl::is_same<bsl::add_pointer_t<MyType>, MyPtrType>::value));
-//#endif
-//..
-// Note, that the 'bsl::add_pointer_t' avoids the '::type' suffix and
-// 'typename' prefix when we want to use the result of the 'bsl::add_pointer'
-// meta-function in templates.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -66,7 +56,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_STDDEF_H
+#ifndef INCLUDED_BSLS_STDDEF_H
 #include <stddef.h>
 #endif
 
@@ -178,18 +168,6 @@ struct add_pointer<TYPE &&> {
     typedef TYPE * type;
 };
 #endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-
-//ALIASES
-template <class TYPE>
-using add_pointer_t = typename add_pointer<TYPE>::type;
-    // 'add_pointer_t' is an alias to the return type of the 'bsl::add_pointer'
-    // meta-function.  Note, that the 'remove_pointer_t' avoids the '::type'
-    // suffix and 'typename' prefix when we want to use the result of the
-    // meta-function in templates.
-
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 }  // close namespace bsl
 

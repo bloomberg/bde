@@ -9,6 +9,7 @@
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_cpp11.h>
 #include <bsls_nullptr.h>
 
 #include <stdio.h>   // 'printf'
@@ -22,8 +23,7 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines a meta-function,
-// 'bsl::is_nothrow_move_constructible'and a template variable
-// 'bsl::is_nothrow_move_constructible_v', that determine whether a template
+// 'bsl::is_nothrow_move_constructible', that determines whether a template
 // parameter type has a nothrow move constructor.  By default, the
 // meta-function supports a restricted set of type categories and can be
 // extended to support other types through either template specialization or
@@ -41,7 +41,6 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::is_nothrow_move_constructible::value
-// [ 1] bsl::is_nothrow_move_constructible_v
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -101,31 +100,12 @@ void aSsErT(bool condition, const char *message, int line)
 // Note that these are not type-dependent contexts, so there is no need to use
 // 'typename' when fetching the result from any of the queried traits.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-#define ASSERT_V_SAME(TYPE)                                                   \
-    ASSERT( bsl::is_nothrow_move_constructible  <TYPE>::value ==              \
-            bsl::is_nothrow_move_constructible_v<TYPE>)
-    // 'ASSERT' that 'is_nothrow_move_constructible_v' has the same value as
-    // 'is_nothrow_move_constructible::value'.
-#else
-#define ASSERT_V_SAME(TYPE)
-#endif
-
-#define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(TYPE, RESULT)                    \
-    ASSERT( bsl::is_nothrow_move_constructible<TYPE>::value ==  RESULT);      \
-    ASSERT_V_SAME(TYPE)
-    // Test that the result of 'bsl::is_nothrow_move_constructible<type>' has
-    // the same value as the expected 'RESULT'.  Confirm that the result value
-    // of 'bsl::is_polymorphic' and the value of 'bsl::is_polymorphic_v' are
-    // the same.
-
 #define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(TYPE, RESULT)               \
-    ASSERT( bsl::is_nothrow_move_constructible  <TYPE>::value == RESULT);     \
+    ASSERT( bsl::is_nothrow_move_constructible<TYPE>::value == RESULT);       \
     ASSERT( bsl::is_nothrow_move_constructible<                               \
                                        bsl::add_pointer<TYPE>::type>::value); \
     ASSERT( bsl::is_nothrow_move_constructible<                               \
-                    bsl::add_lvalue_reference<TYPE>::type>::value);           \
-    ASSERT_V_SAME(TYPE)
+                    bsl::add_lvalue_reference<TYPE>::type>::value);
 
 #define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)            \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(TYPE, RESULT);                  \
@@ -257,10 +237,6 @@ int main(int argc, char *argv[])
         //:  9 The meta-function returns the same result for cv-qualified
         //:    types that it would return 'true' for the corresponding
         //:    cv-unqualified type.
-        //:
-        //: 10 That 'is_nothrow_move_constructible<T>::value' has the same
-        //:    value as 'is_nothrow_move_constructible_v<T>' for a variety of
-        //:    template parameter types.
         //
         // Plan:
         //:  1 Create a set of macros that will generate an 'ASSERT' test for
@@ -275,7 +251,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::is_nothrow_move_constructible::value
-        //   bsl::is_nothrow_move_constructible_v
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -306,28 +281,33 @@ int main(int argc, char *argv[])
                                                          true);
 
         // C-4 : 'void' is not an object type, but can be cv-qualified.
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(void,                  false);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(void *,                true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(const void,            false);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(const void *,          true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(volatile void,         false);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(volatile void *,       true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(const volatile void,   false);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(const volatile void *, true);
+        ASSERT(!bsl::is_nothrow_move_constructible<void>::value);
+        ASSERT( bsl::is_nothrow_move_constructible<void *>::value);
+        ASSERT(!bsl::is_nothrow_move_constructible<const void>::value);
+        ASSERT( bsl::is_nothrow_move_constructible<const void *>::value);
+        ASSERT(!bsl::is_nothrow_move_constructible<volatile void>::value);
+        ASSERT( bsl::is_nothrow_move_constructible<volatile void *>::value);
+        ASSERT(!bsl::is_nothrow_move_constructible<
+                                              const volatile void>::value);
+        ASSERT( bsl::is_nothrow_move_constructible<
+                                              const volatile void *>::value);
 
         // C-5 : Function types are not object types, nor cv-qualifiable.
         // Note that this particular test stresses compilers handling of
         // function types, and function reference types, in the template type
         // system.  We incrementally disable tests for compilers known to have
         // bugs that we cannot easily work around/
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(void(*)(),                true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(int(*)(float, double...), true);
+        ASSERT( bsl::is_nothrow_move_constructible<void(*)()>::value);
+        ASSERT( bsl::is_nothrow_move_constructible<
+                                             int(*)(float, double...)>::value);
 #if !defined(BSLS_PLATFORM_CMP_SUN) // last tested for v12.3
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(void(),                   false);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(int(float, double...),    false);
+        ASSERT(!bsl::is_nothrow_move_constructible<void()>::value);
+        ASSERT(!bsl::is_nothrow_move_constructible<
+                                                int(float, double...)>::value);
 #if !defined(BSLS_PLATFORM_CMP_IBM) // last tested for v12.1
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(void(&)(),                true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(int(&)(float, double...), true);
+        ASSERT( bsl::is_nothrow_move_constructible<void(&)()>::value);
+        ASSERT( bsl::is_nothrow_move_constructible<
+                                             int(&)(float, double...)>::value);
 #endif
 #endif
       } break;

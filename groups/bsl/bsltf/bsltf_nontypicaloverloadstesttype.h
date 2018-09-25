@@ -59,8 +59,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -115,7 +115,7 @@ class NonTypicalOverloadsTestType {
     static void operator delete(void *ptr);
 #else
     static void operator delete(void *ptr)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+                                      BSLS_CPP11_NOEXCEPT_SPECIFICATION(false);
 #endif
         // Overload 'operator delete' and assert this method is not called.
 
@@ -196,7 +196,7 @@ inline
 void NonTypicalOverloadsTestType::operator delete(void *)
 #else
 void NonTypicalOverloadsTestType::operator delete(void *)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+                                       BSLS_CPP11_NOEXCEPT_SPECIFICATION(false)
 #endif
 {
     BSLS_ASSERT_OPT(0);

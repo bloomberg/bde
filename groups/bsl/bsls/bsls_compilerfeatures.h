@@ -12,12 +12,10 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //
 //@MACROS
-//  BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS: compiler bug
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: flag for alias templates
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: flag for 'alignas'
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: '[[noreturn]]' attribute
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: 'constexpr' specifier
-//  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED: C++14 'constexpr' spec.
 //  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: flag for 'decltype'
 //  BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS: for function templates
 //  BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS: explicit '= default'
@@ -26,22 +24,17 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: flag for 'extern template'
 //  BSLS_COMPILERFEATURES_SUPPORT_FINAL: flag for 'final' keyword
 //  BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS: init-list syntax
-//  BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE: flag for '__has_include'
 //  BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT: flag for 'include_next'
-//  BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE: flag for 'inline namespace'
-//  BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES: flag for 'inline' variables
 //  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: 'noexcept' operator
 //  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES: func-type includes 'noexcept'
 //  BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: flag for 'nullptr'
 //  BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT: 'explicit' operator
 //  BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: 'override' keyword
-//  BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS: ref-qualified member function
+//  BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS: flag for reference qualifiers
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for 'static_assert'
-//  BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS: C++98 exception specs.
 //  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: has <type_traits> header
 //  BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES: flag for 'char(16|32)_t'
-//  BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES: variable templates flag
 //  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: flag for variadic params
 //  BSLS_COMPILERFEATURES_FORWARD_REF(T): argument of type 'T' to be forwarded
 //  BSLS_COMPILERFEATURES_FORWARD(T,V): Forward argument 'V' of type 'T'
@@ -64,16 +57,6 @@ BSLS_IDENT("$Id: $")
 // The following are the macros provided by this component.  Note that they are
 // not defined for all platform/compiler combinations.
 //
-//:'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS':
-//: The 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS' macro is
-//: defined for implementations that leak temporary objects constructed trying
-//: to initialize a 'std::initializer_list' object in the event that one of the
-//: elements of the list throws from its constructor.  This is known to affect
-//: gcc as recently as the 8.x series, and the Sun CC compiler in C++11 mode.
-//: This would often reveal itself as a spurious memory leak in
-//: exception-safety tests for 'initializer_list' constructors, so rises to the
-//: level of a generally supported defect-detection macro.
-//:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES':
 //:     This macro is defined if alias templates are supported by the current
 //:     compiler settings for this platform.
@@ -89,13 +72,6 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR':
 //:     This macro is defined if 'constexpr' is supported by the current
 //:     compiler settings for this platform.
-//:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED':
-//:     This macro is defined if 'constexpr' with C++14 semantics is supported
-//:     by the current compiler settings for this platform.  In particular,
-//:     this allows multiple statements in a constexpr function; changing state
-//:     of local variables within the function; and making 'non-const' member
-//:     functions 'constexpr'.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE':
 //:     This macro is defined if 'decltype' is supported by the current
@@ -122,23 +98,9 @@ BSLS_IDENT("$Id: $")
 //:     This macro is defined if generalized initializers are supported by the
 //:     current compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE':
-//:     This macro is defined if '__has_include' is supported by the current
-//:     compiler settings for this platform.
-//:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT':
 //:     This macro is defined if 'include_next' is supported by the current
 //:     compiler settings for this platform.
-//:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE'
-//:     This macro is defined if 'inline' namespaces introduced in C++11
-//:     standard are supported by the current compiler settings for this
-//:     platform.
-//:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES'
-//:     This macro is defined if 'inline' variables introduced in C++17
-//:     standard are supported by the current compiler settings for this
-//:     platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
 //:     This macro is defined if the 'noexcept' keyword is supported by the
@@ -158,11 +120,6 @@ BSLS_IDENT("$Id: $")
 //:     This macro is defined if the 'override' keyword is supported by the
 //:     current compiler settings for this platform.
 //:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
-//:     This macro is defined if member functions with trailing reference
-//:     qualifiers (e.g., 'void myfunc(int) &&') are supported by the current
-//:     compiler settings for this platform.
-//:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'
 //:     This macro is defined if rvalue references are supported by the current
 //:     compiler settings for this platform.
@@ -180,17 +137,11 @@ BSLS_IDENT("$Id: $")
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'
 //:     This macro is defined if the compiler supports the 'char16_t' and
-//:     'char32_t' types and the related u and U prefixes for character- and
-//:     string-literal values.
+//:     'char32_t' types.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
 //:     This macro is defined if variadic template parameters are supported by
 //:     the current compiler settings for this platform.
-//:
-//: 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES'
-//:     This macro is defined if variable templates introduced in C++14
-//:     standard are supported by the current compiler settings for this
-//:     platform.
 //
 ///Usage
 ///-----
@@ -220,19 +171,6 @@ BSLS_IDENT("$Id: $")
 //  // ...
 //..
 //
-///Bugs in Compilers
-///-----------------
-//
-///'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This macro is defined if the compiler leaks temporary objects constructed
-// trying to initialize a 'std::initializer_list' object in the event that one
-// of the elements of the list throws from its constructor.
-//
-//: o Compilers affected:
-//:   o GCC
-//:   o Oracle CC 12.6
-//
 ///Feature Support in Compilers
 ///----------------------------
 //
@@ -243,8 +181,8 @@ BSLS_IDENT("$Id: $")
 // of types.
 //
 //: o Compiler support:
-//:   o GCC 4.7
-//:   o Clang 3.0
+//:   o gcc 4.7
+//:   o clang 3.0
 //:   o MSVC 2013
 //:   o Oracle CC 12.4
 //
@@ -254,22 +192,22 @@ BSLS_IDENT("$Id: $")
 // specifier.
 //
 //: o Compiler support:
-//:   o GCC 4.8
-//:   o Clang 3.0
+//:   o gcc 4.8
+//:   o clang 3.0
 //
-// This feature is not yet supported in Visual Studio, IBM xlC, Oracle CC.
+// This feature is not yet supported in Visual Studio, xlc, CC.
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN'
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports '[[noreturn]]' C++11
 // attribute syntax.  MSVC supports the attribute with alternative syntax
-// __declspec(noreturn), and earlier versions of GCC and Clang support the
+// __declspec(noreturn), and earlier versions of gcc and clang support the
 // alternative syntax '__attribute__((noreturn))'.
 //
 //: o Compiler support:
-//:   o GCC 4.8
-//:   o Clang 3.3
-//:   o IBM xlC 12.1
+//:   o gcc 4.8
+//:   o clang 3.3
+//:   o xlC 12.1
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR'
@@ -278,30 +216,20 @@ BSLS_IDENT("$Id: $")
 // keyword.
 //
 //: o Compiler support:
-//:   o GCC 4.7
-//:   o Clang 3.1
-//:   o IBM xlC 13
+//:   o gcc 4.7
+//:   o clang 3.1
+//:   o xlC 13
 //:   o Oracle CC 12.4
-//
-///'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED'
-///- - - - - - - - - - - - - - - - - - - - - - - - -
-// This macro is defined in the compiler supports the 'constexpr' reserved
-// keyword with C++14 semantics.
-//
-//: o Compiler support:
-//:   o gcc 5
-//:   o clang 3.4
-//:   o MSVC 19.10
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'
 /// - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports the 'decltype' reserved word.
 //
 //: o Compiler support:
-//:   o GCC 4.3
-//:   o Clang 3.3
+//:   o gcc 4.3
+//:   o clang 3.3
 //:   o MSVC 2010
-//:   o IBM xlC 11.1
+//:   o xlC 11.1
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS'
@@ -310,10 +238,10 @@ BSLS_IDENT("$Id: $")
 // functions.
 //
 //: o Compiler support:
-//:   o GCC 4.3
-//:   o Clang 2.9
+//:   o gcc 4.3
+//:   o clang 2.9
 //:   o MSVC 2013
-//:   o IBM xlC not supported?
+//:   o xlC not supported?
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS'
@@ -322,10 +250,10 @@ BSLS_IDENT("$Id: $")
 // functions.
 //
 //: o Compiler support:
-//:   o GCC 4.4
-//:   o Clang 2.9
+//:   o gcc 4.4
+//:   o clang 2.9
 //:   o MSVC 2013
-//:   o IBM xlC 13.1
+//:   o xlC 13.1
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'
@@ -334,10 +262,10 @@ BSLS_IDENT("$Id: $")
 // functions.
 //
 //: o Compiler support:
-//:   o GCC 4.4
-//:   o Clang 2.9
+//:   o gcc 4.4
+//:   o clang 2.9
 //:   o MSVC 2013
-//:   o IBM xlC 13.1
+//:   o xlC 13.1
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'
@@ -347,10 +275,10 @@ BSLS_IDENT("$Id: $")
 // directive with the 'extern' keyword.
 //
 //: o Compiler support:
-//:   o GCC 3.3
-//:   o Clang (any)
+//:   o gcc 3.3
+//:   o clang (any)
 //:   o MSVC 2010
-//:   o IBM xlC 11.1
+//:   o xlC 11.1
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_FINAL'
@@ -361,10 +289,10 @@ BSLS_IDENT("$Id: $")
 // its signature.
 //
 //: o Compiler support:
-//:   o GCC 4.7
-//:   o Clang 3.0
+//:   o gcc 4.7
+//:   o clang 3.0
 //:   o MSVC 2012
-//:   o IBM xlC 11.1
+//:   o xlC 11.1
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS'
@@ -372,22 +300,11 @@ BSLS_IDENT("$Id: $")
 // This macro is defined if the compiler supports generalized initializers.
 //
 //: o Compiler support:
-//:   o GCC 4.4
-//:   o Clang 3.1
+//:   o gcc 4.4
+//:   o clang 3.1
 //:   o MSVC 2013
-//:   o IBM xlC not supported
+//:   o xlC not supported
 //:   o Oracle CC 13
-//
-///'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE'
-///- - - - - - - - - - - - - - - - - - - - - -
-// This macro is defined if the compiler supports '__has_include' semantics as
-// defined in the C++17 Standard (see also P006R1).  Note that this
-// preprocessor feature is often available in earlier language dialects.
-//
-//: o Compiler support:
-//:   o GCC 5.0
-//:   o clang (any)
-//:   o MSVC 19.10 (Visual Studio 2017 15.3)
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'
 /// - - - - - - - - - - - - - - - - - - - - - -
@@ -396,32 +313,10 @@ BSLS_IDENT("$Id: $")
 // BSL_OVERRIDES_STD macro.
 //
 //: o Compiler support:
-//:   o GCC (any)
-//:   o Clang (any)
-//:   o IBM xlC 8
+//:   o gcc (any)
+//:   o clang (any)
+//:   o xlC 8
 //:   o Oracle CC 12.4
-//
-///'BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE'
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
-// This macro is defined if the compiler supports 'inline' namespaces
-// introduced in C++11 standard.
-//
-//: o Compiler support:
-//:   o GCC 4.4
-//:   o Clang 2.9
-//:   o MSVC 2015
-//:   o IBM xlC 11.1
-//:   o Oracle CC 12.4
-//
-///'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES'
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
-// This macro is defined if the compiler supports 'inline' variables introduced
-// in C++17 standard.
-//
-//: o Compiler support:
-//:   o GCC 7.0
-//:   o Clang 3.9
-//:   o MSVC 2017 v.15.5
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
 /// - - - - - - - - - - - - - - - - - - - -
@@ -429,18 +324,18 @@ BSLS_IDENT("$Id: $")
 // keyword.
 //
 //: o Compiler support:
-//:   o GCC 4.6
-//:   o Clang 3.0
+//:   o gcc 4.6
+//:   o clang 3.0
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR'
 ///- - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports the 'nullptr' reserved word.
 //
 //: o Compiler support:
-//:   o GCC 4.6
-//:   o Clang 3.0
+//:   o gcc 4.6
+//:   o clang 3.0
 //:   o MSVC 2010
-//:   o IBM xlC 13.1
+//:   o xlC 13.1
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT'
@@ -450,10 +345,10 @@ BSLS_IDENT("$Id: $")
 // conversions.
 //
 //: o Compiler support:
-//:   o GCC 4.5
-//:   o Clang 3.0
+//:   o gcc 4.5
+//:   o clang 3.0
 //:   o MSVC 2013
-//:   o IBM xlC 11.1
+//:   o xlC 11.1
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE'
@@ -463,26 +358,10 @@ BSLS_IDENT("$Id: $")
 // function (and cause a failure if that is not the case).
 //
 //: o Compiler support:
-//:   o GCC 4.7
-//:   o Clang 3.0
+//:   o gcc 4.7
+//:   o clang 3.0
 //:   o MSVC 2012
-//:   o IBM xlC 11.1
-//:   o Oracle CC 12.4
-//
-///'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
-///- - - - - - - - - - - - - - - - - - - - - - - - -
-// This macro is defined if member functions with trailing reference
-// qualifiers (e.g., 'void myfunc(int) &') are supported.  If both this macro
-// and 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' are both defined,
-// then trailing rvalue reference qualifiers (e.g., 'void myfunc(int) &') are
-// also supported.
-//
-//: o Compiler support:
-//:   o gcc 4.5 (rvalue references v2.1; original draft support in gcc 4.3 is
-//:     not correct with respect to final spec (v3.0))
-//:   o clang 2.9
-//:   o MSVC 2015
-//:   o xlC 12.1
+//:   o xlC 11.1
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'
@@ -492,11 +371,11 @@ BSLS_IDENT("$Id: $")
 // changed since early draft proposals.)
 //
 //: o Compiler support:
-//:   o GCC 4.5 (rvalue references v2.1; original draft support in GCC 4.3 is
+//:   o gcc 4.5 (rvalue references v2.1; original draft support in gcc 4.3 is
 //:     not correct with respect to final spec (v3.0))
-//:   o Clang 2.9
+//:   o clang 2.9
 //:   o MSVC 2010
-//:   o IBM xlC 12.1
+//:   o xlC 12.1
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT'
@@ -505,10 +384,10 @@ BSLS_IDENT("$Id: $")
 // word.
 //
 //: o Compiler support:
-//:   o GCC 4.3
-//:   o Clang 2.9
+//:   o gcc 4.3
+//:   o clang 2.9
 //:   o MSVC 2010
-//:   o IBM xlC 11.1
+//:   o xlC 11.1
 //:   o Oracle CC 12.4
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
@@ -518,21 +397,10 @@ BSLS_IDENT("$Id: $")
 // manner.
 //
 //: o Compiler support:
-//:   o GCC 4.3
-//:   o Clang 2.9
+//:   o gcc 4.3
+//:   o clang 2.9
 //:   o MSVC 2015
-//:   o IBM xlC 11.1
-//:   o Oracle CC 12.4
-//
-///'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES'
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
-// This macro is defined if the compiler supports variable templates introduced
-// in C++14 standard.
-//
-//: o Compiler support:
-//:   o gcc 5.0
-//:   o clang 3.4
-//:   o MSVC 2015
+//:   o xlC 11.1
 //:   o Oracle CC 12.4
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -543,99 +411,67 @@ BSLS_IDENT("$Id: $")
 #include <bsls_macrorepeat.h>
 #endif
 
-
-// First, define feature macros for any C++98 features that should be available
-// on all compilers, until removed by a later standard.  These macros will be
-// specifically undefined when compilers stop supporting that feature in a
-// modern build mode.
-#define BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
-
-// Use the standard compiler-independent feature-test macros (SD-6).
-#if defined(__cpp_unicode_characters) && defined(__cpp_unicode_literals)
-# define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-#endif
-
-// GCC
+// gcc
 // https://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
-// As GCC tracked the evolving C++11 standard, earlier versions of the compiler
+// As gcc tracked the evolving C++11 standard, earlier versions of the compiler
 // have implementations of earlier specifications of features that can show up
 // as bugs compared to the final standard.  Therefore, BDE does not attempt to
-// support C++11 in GCC compilers prior to the 4.8 release.
+// support C++11 in gcc compilers prior to the 4.8 release.
 #if defined(BSLS_PLATFORM_CMP_GNU)
-#define BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
-
-# define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-
-# if BSLS_PLATFORM_CMP_VERSION >= 30300
-#  define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-# endif
-#  if BSLS_PLATFORM_CMP_VERSION >= 50000
-#    define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-//   GCC provides this support prior to C++17, independant of language dialect.
+#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #endif
-// GCC -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
-# if defined(__GXX_EXPERIMENTAL_CXX0X__)
-#  if BSLS_PLATFORM_CMP_VERSION >= 40800
-#    define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-#    define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
-#    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
-// GCC supports __attribute__((noreturn)) in earlier versions
-#    define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-#    define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-#    define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
-#    define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-#    define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
-#    define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
-#    define BSLS_COMPILERFEATURES_SUPPORT_FINAL
-#    define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-#    define BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
-#    define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-#    define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-#    define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-#    define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-#    define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-#    define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-#    define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-#    define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-#  endif
-#  if BSLS_PLATFORM_CMP_VERSION >= 50000
-#    define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-//   Note that while basic support is available in earlier versions of the
-//   library, the full header is not implemented until gcc 5.0.
-#  endif
-# endif
-# if __cplusplus >= 201402L
-#    define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-#    define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-# endif
-# if __cplusplus >= 201500
-// GCC defines the '__cplusplus' macro to the non-standard value of 201500 to
-// indicate experimental C++17 support.
-#  if BSLS_PLATFORM_CMP_VERSION >= 70000
-#    define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-#    undef  BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
-#  endif
-#  if BSLS_PLATFORM_CMP_VERSION >= 72000
-// Note that early release of gcc 7.0 have a name-mangling bug with 'noexcept'
-// on "abominable" function types.
-#    define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
-#  endif
-# endif
+#if BSLS_PLATFORM_CMP_VERSION >= 30300
+#define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+#endif
+// gcc -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
+#if defined(BSLS_PLATFORM_CMP_GNU) && defined(__GXX_EXPERIMENTAL_CXX0X__)
+#if BSLS_PLATFORM_CMP_VERSION >= 40800
+#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+#define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+// gcc supports __attribute__((noreturn)) in earlier versions
+#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
+#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+#define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
+#define BSLS_COMPILERFEATURES_SUPPORT_FINAL
+#define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+#define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+#define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+#define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+#endif
+#if BSLS_PLATFORM_CMP_VERSION >= 50000
+#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+// Note that while basic support is available in earlier versions of the
+// library, the full header is not implemented until gcc 5.0.
 #endif
 
-// Clang
+
+// Not yet enabling C++17 support, but pro-active test drivers may want to add
+// coverage.  Note that gcc 7.0 has a name-mangling bug with 'noexcept' on
+// abominable function types, so we would want at least the first patch release
+// before enabling.
+// # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+
+#endif
+
+// clang
 // http://clang.llvm.org/cxx_status.html
 // http://clang.llvm.org/docs/LanguageExtensions.html
 #if defined(BSLS_PLATFORM_CMP_CLANG)
-// Clang supported
-#define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+// clang supported
 #define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 // clang -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
-// Clang 2.9
-#if __has_feature(cxx_reference_qualified_functions)
-#define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-#endif
+// clang 2.9
 #if __has_feature(cxx_rvalue_references)
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #endif
@@ -651,27 +487,19 @@ BSLS_IDENT("$Id: $")
 #if __has_feature(cxx_static_assert)
 #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #endif
-#if __has_feature(cxx_inline_namespaces) || \
-    __has_extension(cxx_inline_namespaces)
-#define BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
-#endif
 #if __has_feature(cxx_variadic_templates)
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #endif
-// Clang 3.0
+// clang 3.0
 #if __has_feature(cxx_alias_templates)
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 #endif
 #if __has_feature(cxx_noexcept)
 #define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 #endif
-// Clang 3.1
+// clang 3.1
 #if __has_feature(cxx_constexpr)
 #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-#endif
-// clang 3.4
-#if __has_feature(cxx_relaxed_constexpr)
-#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
 #endif
 #if __has_feature(cxx_explicit_conversions)
 #define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
@@ -683,40 +511,25 @@ BSLS_IDENT("$Id: $")
 #if __has_feature(cxx_nullptr)
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #endif
-// Clang 3.1
+// clang 3.1
 #if __has_feature(cxx_generalized_initializers)
 #define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 #endif
 #if __has_feature(cxx_alignas)
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #endif
-// Clang 3.3
+// clang 3.3
 #if __has_feature(cxx_decltype)
 #define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #endif
-// clang 3.4
-#if __has_feature(cxx_variable_templates)
-#define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-#endif
 #if __has_feature(cxx_attributes)
 #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
-// Clang supports __attribute__((noreturn)) in earlier versions
+// clang supports __attribute__((noreturn)) in earlier versions
 #endif
 #if (__cplusplus >= 201103L ||                                                \
     (defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)))           \
     && __has_include(<type_traits>)
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-#endif
-// work only with --std=c++1z
-#if __cplusplus >= 201703L  // C++17
-#define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-#endif
-#if defined(__GXX_EXPERIMENTAL_CXX0X__)
-    // When compiling in >= C++11 mode on a non-Darwin platform, assume
-    // Clang >= 3.0 and a minimum GCC 4.8 toolchain, which supports it.
-    #if (!defined(__APPLE_CC__) || __APPLE_CC__ >= 6000)
-        #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-    #endif
 #endif
 #endif
 
@@ -753,20 +566,11 @@ BSLS_IDENT("$Id: $")
 // the 2015 compiler where those issues are ironed out.
 // Note that while MSVC 2013 supports deleted functions in principle, the only
 // use we had caused a C1001 compiler internal error.
-// Also note that the variable template C++14 compiler feature is supported
-// since the 2015 update 2 compiler.
 #define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-#define BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
-#define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 #define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-#define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-#endif
-#if BSLS_PLATFORM_CMP_VERSION >= 1910  // Microsoft Visual Studio 2017
-#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
 #endif
 // MSVC has __declspec(noreturn)
 // (see bsls_bslexceptionutil.h bslstl_stdexceptutil.h)
@@ -774,26 +578,16 @@ BSLS_IDENT("$Id: $")
 // (not yet supported in MSVC)
 //#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 
+
+// Not yet tested for support
+// # define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+
 // Not yet enabling C++17 support, but pro-active test drivers may want to add
 // coverage.
 // # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 
-#if BSLS_PLATFORM_CMP_VERSION >= 1911  // Microsoft Visual Studio 2017
-                                       // version 15.3
-#define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
 #endif
 
-#if BSLS_PLATFORM_CMP_VERSION >= 1912  // Microsoft Visual Studio 2017
-                                       // version 15.5
-#if _MSVC_LANG >= 201703L  // C++17
-// Microsoft does not always report the language dialect properly in
-// '__cplusplus', therefore we need to use the Microsoft specific predefined
-// macro.  See https://goo.gl/ikfyDw and
-// https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros
-#define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-#endif
-#endif
-#endif
 
 // IBM Visual Age xlC 11.1 and better include increasing support for C++11
 // http://www-01.ibm.com/support/knowledgecenter/SSGH3R_13.1.0/com.ibm.xlcpp131.aix.doc/compiler_ref/macros_lang_levels.html
@@ -820,9 +614,6 @@ BSLS_IDENT("$Id: $")
 #if defined(__IBM_INCLUDE_NEXT)
 #define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #endif
-#if defined(__IBMCPP_INLINE_NAMESPACE)
-#define BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
-#endif
 #if defined(__IBMCPP_NULLPTR)
 #define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #endif
@@ -831,7 +622,6 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
 #endif
 #if defined(__IBMCPP_RVALUE_REFERENCES)
-#define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 #define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 #endif
 #if defined(__IBMCPP_STATIC_ASSERT)
@@ -845,17 +635,14 @@ BSLS_IDENT("$Id: $")
 #endif
 // (not yet supported in xlC)
 //#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
 //#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 
 // Not yet tested for support
-// # define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+// # define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 
 // Not yet enabling C++17 support, but pro-active test drivers may want to add
 // coverage.
 // # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
-// # define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-// # define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
 #endif
 
 
@@ -865,9 +652,9 @@ BSLS_IDENT("$Id: $")
 // No C++11 features are available by default.  To use any C++11 features,
 // you must use the new -std=c++11 option with the CC compiler.
 // (__cplusplus >= 201103L when Oracle Solaris Studio CC -std=c++11 is invoked)
-#if defined(BSLS_PLATFORM_CMP_SUN)
 // CC -std=c++11
-#if  __cplusplus >= 201103L
+#if defined(BSLS_PLATFORM_CMP_SUN) && __cplusplus >= 201103L
+
 # if BSLS_PLATFORM_CMP_VERSION >= 0x5130
 #   define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 #   define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
@@ -876,7 +663,6 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
 #   define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
 #   define BSLS_COMPILERFEATURES_SUPPORT_FINAL
-#   define BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
 #   define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
 #   define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
 #   define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
@@ -891,11 +677,6 @@ BSLS_IDENT("$Id: $")
     // brace initalization, leading to rejection of valid code when there is no
     // valid initializer list conversion, but another method creating a
     // temporary object from the braced arguments should have been chosen.
-
-#   define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-    // Although this feature might be available in an earlier compiler, we are
-    // asking for trouble if we don't keep this feature together with
-    // rvalue references.
 
 #   define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // CC 12.4 hits an awkward bug when performing deduction in some corner
@@ -931,28 +712,11 @@ BSLS_IDENT("$Id: $")
     // unfortuntely breaks for 'shared_ptr' in a way that is widely used.
     // Note that the version check assumes the next revision of the compiler
     // will have this fix, or the test driver will force us to update again.
-# endif
-
-# if BSLS_PLATFORM_CMP_VERSION < 0x5160
-#   define BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
-# endif
-
-    // # define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-    // # define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-#endif
-// No C++14 features are available by default.  To use any C++14 features,
-// you must use the new -std=c++14 option with the CC compiler.
-// (__cplusplus >= 201402L when Oracle Solaris Studio CC -std=c++14 is invoked)
-// CC -std=c++14
-#if  __cplusplus >= 201402L
-# if BSLS_PLATFORM_CMP_VERSION > 0x5150
-#   define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-# endif
 #endif
 
-// No C++17 features
-// # define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+//# define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #endif
+
 
 // Feature interactions
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&  \
@@ -962,7 +726,6 @@ BSLS_IDENT("$Id: $")
     // order to provide a transparent upgrade to the C++11 syntax that also
     // supports implicit-move from rvalues.
 #endif
-
     //  *** Simulate various C++11 features ***
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
@@ -1032,7 +795,7 @@ namespace bsls {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013-2018 Bloomberg Finance L.P.
+// Copyright 2013-2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

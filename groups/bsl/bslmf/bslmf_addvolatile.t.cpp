@@ -16,15 +16,14 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-functions, 'bsl::add_volatile' and
-// 'bsl::add_volatile_t', that add a top-level 'volatile'-qualifier to a
-// template parameter type.  Thus, we need to ensure that the values returned
-// by the meta-function are correct for each possible category of types.
+// The component under test defines a meta-function, 'bsl::add_volatile', that
+// adds a top-level 'volatile'-qualifier to a template parameter type.  Thus,
+// we need to ensure that the values returned by the meta-function are correct
+// for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC TYPES
 // [ 1] bsl::add_volatile::type
-// [ 1] bsl::add_volatile_t
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -82,16 +81,6 @@ struct TestType {
    // This user-defined type is intended to be used during testing as an
    // argument for the template parameter 'TYPE' of 'bsl::add_volatile'.
 };
-
-typedef void (TestType::*MethodPtrTestType) ();
-    // This non-static function member type is intended to be used during
-    // testing as an argument for the template parameter 'TYPE' of
-    // 'bsl::add_volatile'.
-
-typedef int TestType::* PMD;
-    // This class public data member pointer type is intended to be used during
-    // testing as an argument as an argument for the template parameter 'TYPE'
-    // of 'bsl::add_volatile'.
 
 }  // close unnamed namespace
 
@@ -157,15 +146,6 @@ int main(int argc, char *argv[])
         ASSERT(true == (bsl::is_same<bsl::add_volatile<MyType>::type,
                                                       MyVolatileType>::value));
 //..
-// Finally, if the current compiler supports alias templates C++11 feature, we
-// add a 'volatile'-qualifier to 'MyType' using 'bsl::add_volatile_t' and
-// verify that the resulting type is the same as 'MyVolatileType':
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-        ASSERT(true ==
-           (bsl::is_same<bsl::add_volatile_t<MyType>, MyVolatileType>::value));
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//..
 
       } break;
       case 1: {
@@ -174,9 +154,6 @@ int main(int argc, char *argv[])
         //   Ensure that the 'typedef' 'type' of 'bsl::add_volatile'
         //   has the correct type for a variety of template parameter types.
         //
-        //   Ensure that the 'bsl::add_volatile_t' represents the correct type
-        //   for a variety of template parameter types.
-        //
         // Concerns:
         //: 1 'bsl::add_volatile' adds a top-level 'volatile'-qualifier only to
         //:   regular types (primitive, pointers, and user-defined types).
@@ -184,22 +161,13 @@ int main(int argc, char *argv[])
         //: 2 'bsl::add_volatile' does not add a 'volatile'-qualifier to
         //:   reference types, function types, or types that are already
         //:   'volatile'-qualified.
-        //:
-        //: 3 'bsl::add_volatile_t' represents the return type of
-        //:   'bsl::add_volatile' meta-function for a variety of template
-        //:   parameter types.
         //
         // Plan:
-        //  1 Verify that 'bsl::add_volatile::type' has the correct type for
-        //    each concern. (C1-2)
-        //
-        //  2 Verify that 'bsl::add_volatile_t' has the same type as the return
-        //    type of 'bsl::add_const' for a variety of template parameter
-        //    types. (C-3)
+        //   Verify that 'bsl::add_volatile::type' has the correct type for
+        //   each concern.
         //
         // Testing:
         //   bsl::add_volatile::type
-        //   bsl::add_volatile_t
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n'bsl::add_volatile'\n"
@@ -219,58 +187,6 @@ int main(int argc, char *argv[])
         ASSERT((is_same<add_volatile<int (int)>::type, int (int)>::value));
         ASSERT((is_same<add_volatile<int volatile>::type,
                                                         int volatile>::value));
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-        if (verbose) printf("\n'bsl::add_volatile_t'\n"
-                            "\n=====================\n");
-
-        // C-3
-        ASSERT((is_same<add_volatile  <int           >::type,
-                        add_volatile_t<int           >>::value));
-        ASSERT((is_same<add_volatile  <int *         >::type,
-                        add_volatile_t<int *         >>::value));
-        ASSERT((is_same<add_volatile  <int volatile *>::type,
-                        add_volatile_t<int volatile *>>::value));
-        ASSERT((is_same<add_volatile  <TestType      >::type,
-                        add_volatile_t<TestType      >>::value));
-
-        ASSERT((is_same<add_volatile  <int &       >::type,
-                        add_volatile_t<int &       >>::value));
-        ASSERT((is_same<add_volatile  <TestType &  >::type,
-                        add_volatile_t<TestType &  >>::value));
-        ASSERT((is_same<add_volatile  <int (int)   >::type,
-                        add_volatile_t<int (int)   >>::value));
-        ASSERT((is_same<add_volatile  <int volatile>::type,
-                        add_volatile_t<int volatile>>::value));
-
-        ASSERT((is_same<add_volatile  <MethodPtrTestType         >::type,
-                        add_volatile_t<MethodPtrTestType         >>::value));
-        ASSERT((is_same<add_volatile  <MethodPtrTestType &       >::type,
-                        add_volatile_t<MethodPtrTestType &       >>::value));
-        ASSERT((is_same<add_volatile  <MethodPtrTestType *       >::type,
-                        add_volatile_t<MethodPtrTestType *       >>::value));
-        ASSERT((is_same<add_volatile  <MethodPtrTestType const   >::type,
-                        add_volatile_t<MethodPtrTestType const   >>::value));
-        ASSERT((is_same<add_volatile  <MethodPtrTestType volatile>::type,
-                        add_volatile_t<MethodPtrTestType volatile>>::value));
-        ASSERT((is_same<
-                    add_volatile  <MethodPtrTestType const volatile>::type,
-                    add_volatile_t<MethodPtrTestType const volatile>>::value));
-
-        ASSERT((is_same<add_volatile  <PMD               >::type,
-                        add_volatile_t<PMD               >>::value));
-        ASSERT((is_same<add_volatile  <PMD &             >::type,
-                        add_volatile_t<PMD &             >>::value));
-        ASSERT((is_same<add_volatile  <PMD *             >::type,
-                        add_volatile_t<PMD *             >>::value));
-        ASSERT((is_same<add_volatile  <PMD const         >::type,
-                        add_volatile_t<PMD const         >>::value));
-        ASSERT((is_same<add_volatile  <PMD volatile      >::type,
-                        add_volatile_t<PMD volatile      >>::value));
-        ASSERT((is_same<add_volatile  <PMD const volatile>::type,
-                        add_volatile_t<PMD const volatile>>::value));
-
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

@@ -83,10 +83,6 @@ namespace bsl {
     using native_std::unexpected_handler;
     using native_std::use_facet;
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
-
-#if defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-   using native_std::quoted;
-#endif
 }  // close package namespace
 
 #endif

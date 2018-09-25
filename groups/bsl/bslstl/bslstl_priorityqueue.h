@@ -353,17 +353,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
-#endif
-
 #ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
-
-#ifndef INCLUDED_ALGORITHM
-#include <algorithm>
-#define INCLUDED_ALGORITHM
 #endif
 
 #ifndef INCLUDED_FUNCTIONAL
@@ -581,7 +572,7 @@ class priority_queue {
 
     priority_queue& operator=(
                             BloombergLP::bslmf::MovableRef<priority_queue> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value and comparator of the specified
         // 'rhs' object and return a reference providing modifiable access to
         // this object.  'rhs' is left in a valid but unspecified state.
@@ -742,7 +733,7 @@ class priority_queue {
         // object.
 
     void swap(priority_queue& other)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Efficiently exchange the value of this object with the value of the
         // specified 'other' object.  In effect, performs 'using bsl::swap;
         // swap(c, other.c);'.
@@ -767,7 +758,7 @@ class priority_queue {
 template <class VALUE, class CONTAINER, class COMPARATOR>
 void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& a,
           priority_queue<VALUE, CONTAINER, COMPARATOR>& b)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the container and comparator of the specified 'a' object with
     // the container and comparator of the specified 'b' object.
 
@@ -979,7 +970,7 @@ inline
 priority_queue<VALUE, CONTAINER, COMPARATOR>&
 priority_queue<VALUE, CONTAINER, COMPARATOR>::operator=(
                             BloombergLP::bslmf::MovableRef<priority_queue> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     c = MoveUtil::move(MoveUtil::access(rhs).c);
     comp = MoveUtil::access(rhs).comp;
@@ -1287,7 +1278,7 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::pop()
 template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
 void priority_queue<VALUE, CONTAINER, COMPARATOR>::swap(priority_queue& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     BloombergLP::bslalg::SwapUtil::swap(&c, &other.c);
     BloombergLP::bslalg::SwapUtil::swap(&comp, &other.comp);
@@ -1321,7 +1312,7 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::top() const
 template <class VALUE, class CONTAINER, class COMPARATOR>
 void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& a,
           priority_queue<VALUE, CONTAINER, COMPARATOR>& b)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }

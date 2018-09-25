@@ -661,8 +661,8 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
@@ -1144,7 +1144,7 @@ class list {
         // exception-safety guarantee.  The behavior is undefined unless this
         // object was created with the same allocator as 'other'.
 
-    typename AllocTraits::size_type& sizeRef() BSLS_KEYWORD_NOEXCEPT;
+    typename AllocTraits::size_type& sizeRef() BSLS_CPP11_NOEXCEPT;
         // Return a reference providing modifiable access to the data element
         // holding the size of this list.
 
@@ -1171,8 +1171,7 @@ class list {
         // Return a pointer providing modifiable access to the first node in
         // this list or the sentinel node if this list is empty.
 
-    const typename AllocTraits::size_type& sizeRef() const
-                                                         BSLS_KEYWORD_NOEXCEPT;
+    const typename AllocTraits::size_type& sizeRef() const BSLS_CPP11_NOEXCEPT;
         // Return a reference providing non-modifiable access to the data
         // element holding the size of this list.
 
@@ -1346,7 +1345,7 @@ class list {
         // be copy-inserted or erased.
 
     list& operator=(BloombergLP::bslmf::MovableRef<list> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Assign to this object the value of the specified 'rhs' object,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_move_assignment', and return
@@ -1431,26 +1430,26 @@ class list {
 
                               // *** iterators ***
 
-    iterator begin() BSLS_KEYWORD_NOEXCEPT;
+    iterator begin() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the first element
         // in this list, and the past-the-end iterator if this list is empty.
 
-    iterator end() BSLS_KEYWORD_NOEXCEPT;
+    iterator end() BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end (forward) iterator providing modifiable
         // access to this list.
 
-    reverse_iterator rbegin() BSLS_KEYWORD_NOEXCEPT;
+    reverse_iterator rbegin() BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing modifiable access to the last
         // element in this list, and the past-the-end reverse iterator if this
         // list is empty.
 
-    reverse_iterator rend() BSLS_KEYWORD_NOEXCEPT;
+    reverse_iterator rend() BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end reverse iterator providing modifiable access
         // to this list.
 
                             // *** modify size ***
 
-    void clear() BSLS_KEYWORD_NOEXCEPT;
+    void clear() BSLS_CPP11_NOEXCEPT;
         // Remove all the elements from this list.
 
     void resize(size_type newSize);
@@ -2114,7 +2113,7 @@ class list {
         // Remove and destroy all elements in this list for which the specified
         // unary 'predicate' returns 'true'.
 
-    void reverse() BSLS_KEYWORD_NOEXCEPT;
+    void reverse() BSLS_CPP11_NOEXCEPT;
         // Reverse the order of the elements in this list.
 
     void sort();
@@ -2190,7 +2189,8 @@ class list {
 
                               // *** misc ***
 
-    void swap(list& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(list& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value of this object with the value of the specified
         // 'other' object.  Additionally, if
         // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -2205,42 +2205,42 @@ class list {
 
                                // *** iterators ***
 
-    const_iterator begin() const BSLS_KEYWORD_NOEXCEPT;
-    const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator begin() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // 'value_type' object in the ordered sequence of 'value_type' objects
         // maintained by this list, or the 'end' iterator if this list is
         // empty.
 
-    const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
-    const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator end() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end (forward) iterator providing non-modifiable
         // access to this list.
 
-    const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
-    const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator rbegin() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator crbegin() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last element in this list, and the past-the-end reverse iterator if
         // this list is empty.
 
-    const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
-    const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator rend() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator crend() const BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end reverse iterator providing non-modifiable
         // access to this list.
 
                                   // *** size ***
 
-    bool empty() const BSLS_KEYWORD_NOEXCEPT;
+    bool empty() const BSLS_CPP11_NOEXCEPT;
         // Return 'true' if this list has no elements, and 'false' otherwise.
 
-    size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
+    size_type max_size() const BSLS_CPP11_NOEXCEPT;
         // Return an upper bound on the largest number of elements that this
         // list could possibly hold.  Note that the return value of this
         // function does not guarantee that this list can successfully grow
         // that large, or even close to that large without running out of
         // resources.
 
-    size_type size() const BSLS_KEYWORD_NOEXCEPT;
+    size_type size() const BSLS_CPP11_NOEXCEPT;
         // Return the number of elements in this list.
 
                            // *** element access ***
@@ -2257,7 +2257,7 @@ class list {
 
                                 // *** misc ***
 
-    allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
+    allocator_type get_allocator() const BSLS_CPP11_NOEXCEPT;
         // Return a copy of the allocator used for memory allocation by this
         // list.
 };
@@ -2339,7 +2339,7 @@ bool operator>=(const list<VALUE, ALLOCATOR>& lhs,
 // FREE FUNCTIONS
 template <class VALUE, class ALLOCATOR>
 void swap(list<VALUE, ALLOCATOR>& a, list<VALUE, ALLOCATOR>& b)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
     // Exchange the value and comparator of the specified 'a' object with the
     // value and comparator of the specified 'b' object.  Additionally, if
     // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
@@ -2707,7 +2707,7 @@ void list<VALUE, ALLOCATOR>::quickSwap(list *other)
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::AllocTraits::size_type&
-list<VALUE, ALLOCATOR>::sizeRef() BSLS_KEYWORD_NOEXCEPT
+list<VALUE, ALLOCATOR>::sizeRef() BSLS_CPP11_NOEXCEPT
 {
     return d_alloc_and_size.size();
 }
@@ -2755,7 +2755,7 @@ typename list<VALUE, ALLOCATOR>::NodePtr list<VALUE, ALLOCATOR>::headNode()
 template <class VALUE, class ALLOCATOR>
 inline
 const typename list<VALUE, ALLOCATOR>::AllocTraits::size_type&
-list<VALUE, ALLOCATOR>::sizeRef() const BSLS_KEYWORD_NOEXCEPT
+list<VALUE, ALLOCATOR>::sizeRef() const BSLS_CPP11_NOEXCEPT
 {
     return d_alloc_and_size.size();
 }
@@ -2988,7 +2988,7 @@ list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(const list& rhs)
 template <class VALUE, class ALLOCATOR>
 list<VALUE, ALLOCATOR>& list<VALUE, ALLOCATOR>::operator=(
                                       BloombergLP::bslmf::MovableRef<list> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     list& lvalue = rhs;
 
@@ -3095,7 +3095,7 @@ void list<VALUE, ALLOCATOR>::assign(std::initializer_list<VALUE> values)
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::iterator list<VALUE, ALLOCATOR>::begin()
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return iterator(headNode());
 }
@@ -3103,7 +3103,7 @@ typename list<VALUE, ALLOCATOR>::iterator list<VALUE, ALLOCATOR>::begin()
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::iterator list<VALUE, ALLOCATOR>::end()
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return iterator(d_sentinel);
 }
@@ -3111,7 +3111,7 @@ typename list<VALUE, ALLOCATOR>::iterator list<VALUE, ALLOCATOR>::end()
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::reverse_iterator
-list<VALUE, ALLOCATOR>::rbegin() BSLS_KEYWORD_NOEXCEPT
+list<VALUE, ALLOCATOR>::rbegin() BSLS_CPP11_NOEXCEPT
 {
     return reverse_iterator(end());
 }
@@ -3119,7 +3119,7 @@ list<VALUE, ALLOCATOR>::rbegin() BSLS_KEYWORD_NOEXCEPT
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::reverse_iterator
-list<VALUE, ALLOCATOR>::rend() BSLS_KEYWORD_NOEXCEPT
+list<VALUE, ALLOCATOR>::rend() BSLS_CPP11_NOEXCEPT
 {
     return reverse_iterator(begin());
 }
@@ -3128,7 +3128,7 @@ list<VALUE, ALLOCATOR>::rend() BSLS_KEYWORD_NOEXCEPT
 
 template <class VALUE, class ALLOCATOR>
 inline
-void list<VALUE, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
+void list<VALUE, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     const NodePtr e = d_sentinel;
     for (NodePtr p = d_sentinel->d_next_p; e != p; ) {
@@ -4295,7 +4295,7 @@ void list<VALUE, ALLOCATOR>::remove_if(PREDICATE predicate)
 }
 
 template <class VALUE, class ALLOCATOR>
-void list<VALUE, ALLOCATOR>::reverse() BSLS_KEYWORD_NOEXCEPT
+void list<VALUE, ALLOCATOR>::reverse() BSLS_CPP11_NOEXCEPT
 {
     NodePtr sentinel = d_sentinel;
     NodePtr p = sentinel;
@@ -4480,7 +4480,7 @@ void list<VALUE, ALLOCATOR>::unique(EQ_PREDICATE binaryPredicate)
 
 template <class VALUE, class ALLOCATOR>
 void list<VALUE, ALLOCATOR>::swap(list& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     // C++11 behavior for member 'swap': undefined for unequal allocators.
     // BSLS_ASSERT(allocatorImp() == other.allocatorImp());
@@ -4526,7 +4526,7 @@ void list<VALUE, ALLOCATOR>::swap(list& other)
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::const_iterator
-list<VALUE, ALLOCATOR>::begin() const BSLS_KEYWORD_NOEXCEPT
+list<VALUE, ALLOCATOR>::begin() const BSLS_CPP11_NOEXCEPT
 {
     return const_iterator(headNode());
 }
@@ -4534,7 +4534,7 @@ list<VALUE, ALLOCATOR>::begin() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::const_iterator
-list<VALUE, ALLOCATOR>::end() const BSLS_KEYWORD_NOEXCEPT
+list<VALUE, ALLOCATOR>::end() const BSLS_CPP11_NOEXCEPT
 {
     return const_iterator(d_sentinel);
 }
@@ -4542,7 +4542,7 @@ list<VALUE, ALLOCATOR>::end() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::const_iterator
-list<VALUE, ALLOCATOR>::cbegin() const BSLS_KEYWORD_NOEXCEPT
+list<VALUE, ALLOCATOR>::cbegin() const BSLS_CPP11_NOEXCEPT
 {
     return begin();
 }
@@ -4550,7 +4550,7 @@ list<VALUE, ALLOCATOR>::cbegin() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::const_iterator
-list<VALUE, ALLOCATOR>::cend() const BSLS_KEYWORD_NOEXCEPT
+list<VALUE, ALLOCATOR>::cend() const BSLS_CPP11_NOEXCEPT
 {
     return end();
 }
@@ -4558,7 +4558,7 @@ list<VALUE, ALLOCATOR>::cend() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::const_reverse_iterator
-list<VALUE, ALLOCATOR>::crbegin() const BSLS_KEYWORD_NOEXCEPT
+list<VALUE, ALLOCATOR>::crbegin() const BSLS_CPP11_NOEXCEPT
 {
     return rbegin();
 }
@@ -4566,7 +4566,7 @@ list<VALUE, ALLOCATOR>::crbegin() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::const_reverse_iterator
-list<VALUE, ALLOCATOR>::crend() const BSLS_KEYWORD_NOEXCEPT
+list<VALUE, ALLOCATOR>::crend() const BSLS_CPP11_NOEXCEPT
 {
     return rend();
 }
@@ -4574,7 +4574,7 @@ list<VALUE, ALLOCATOR>::crend() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::const_reverse_iterator
-list<VALUE, ALLOCATOR>::rbegin() const BSLS_KEYWORD_NOEXCEPT
+list<VALUE, ALLOCATOR>::rbegin() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(end());
 }
@@ -4582,7 +4582,7 @@ list<VALUE, ALLOCATOR>::rbegin() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::const_reverse_iterator
-list<VALUE, ALLOCATOR>::rend() const BSLS_KEYWORD_NOEXCEPT
+list<VALUE, ALLOCATOR>::rend() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(begin());
 }
@@ -4591,7 +4591,7 @@ list<VALUE, ALLOCATOR>::rend() const BSLS_KEYWORD_NOEXCEPT
 
 template <class VALUE, class ALLOCATOR>
 inline
-bool list<VALUE, ALLOCATOR>::empty() const BSLS_KEYWORD_NOEXCEPT
+bool list<VALUE, ALLOCATOR>::empty() const BSLS_CPP11_NOEXCEPT
 {
     return 0 == sizeRef();
 }
@@ -4599,7 +4599,7 @@ bool list<VALUE, ALLOCATOR>::empty() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::size_type
-list<VALUE, ALLOCATOR>::max_size() const BSLS_KEYWORD_NOEXCEPT
+list<VALUE, ALLOCATOR>::max_size() const BSLS_CPP11_NOEXCEPT
 {
     return AllocTraits::max_size(allocatorImp());
 }
@@ -4607,7 +4607,7 @@ list<VALUE, ALLOCATOR>::max_size() const BSLS_KEYWORD_NOEXCEPT
 template <class VALUE, class ALLOCATOR>
 inline
 typename list<VALUE, ALLOCATOR>::size_type list<VALUE, ALLOCATOR>::size() const
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return sizeRef();
 }
@@ -4636,7 +4636,7 @@ const VALUE& list<VALUE, ALLOCATOR>::front() const
 
 template <class VALUE, class ALLOCATOR>
 inline
-ALLOCATOR list<VALUE, ALLOCATOR>::get_allocator() const BSLS_KEYWORD_NOEXCEPT
+ALLOCATOR list<VALUE, ALLOCATOR>::get_allocator() const BSLS_CPP11_NOEXCEPT
 {
     return allocatorImp();
 }
@@ -4706,7 +4706,7 @@ bool bsl::operator>=(const list<VALUE, ALLOCATOR>& lhs,
 template <class VALUE, class ALLOCATOR>
 inline
 void bsl::swap(list<VALUE, ALLOCATOR>& a, list<VALUE, ALLOCATOR>& b)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     a.swap(b);
 }

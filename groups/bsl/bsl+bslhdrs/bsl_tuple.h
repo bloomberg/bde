@@ -29,10 +29,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_LIBRARYFEATURES
-#include <bsls_libraryfeatures.h>
-#endif
-
 #if __cplusplus < 201103L \
     && (defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_IBM))
 #   error This file requires compiler and library support for \
@@ -69,26 +65,6 @@ namespace bsl {
     using native_std::tuple_cat;
     using native_std::get;
     using native_std::ignore;
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-template <std::size_t I, class TYPE> using tuple_element_t =
-                             typename native_std::tuple_element<I, TYPE>::type;
-        // 'tuple_element_t' is an alias to the return type of the
-        // 'native_std::tuple_element' meta-function.  Note, that the
-        // 'tuple_element_t' avoids the '::type' suffix and 'typename' prefix
-        // when we want to use the result of the meta-function in templates.
-#endif
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::tuple_size_v;
-#elif defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-    template <class TYPE>
-    constexpr bool tuple_size_v = native_std::tuple_size<TYPE>::value;
-        // This template variable represents the result value of the
-        // 'native_std::tuple_size' meta-function.
-
-#endif
-
 }  // close namespace bsl
 #endif
 

@@ -480,10 +480,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_asserttestexception.h>
 #endif
 
-#ifndef INCLUDED_BSLS_BUILDTARGET
-#include <bsls_buildtarget.h>
-#endif
-
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
 #endif

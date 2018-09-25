@@ -47,7 +47,6 @@ random          random.SUNWCCh
 ratio           ratio.SUNWCCh
 regex           regex.SUNWCCh
 scoped_allocator    scoped_allocator.SUNWCCh
-shared_mutex    shared_mutex.SUNWCCh
 stdexcept       stdexcept.SUNWCCh
 streambuf       streambuf.SUNWCCh
 strstream       strstream.SUNWCCh
@@ -97,7 +96,6 @@ random              random.SUNWCCh
 ratio               ratio.SUNWCCh
 regex               regex.SUNWCCh
 scoped_allocator    scoped_allocator.SUNWCCh
-shared_mutex        shared_mutex.SUNWCCh
 system_error        system_error.SUNWCCh
 thread              thread.SUNWCCh
 tuple               tuple.SUNWCCh

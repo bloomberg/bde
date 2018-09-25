@@ -11,20 +11,18 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //   bsl::is_empty: standard meta-function for detecting empty classes
-//   bsl::is_empty_v: the result value of the 'bsl::is_empty' meta-function
 //
 //@SEE_ALSO: bslmf_isclass.h
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::is_empty' and a
-// template variable 'bsl::is_empty_v', that represents the result value of the
-// 'bsl::is_empty' meta-function, which may be used to determine whether a type
-// is a 'class' or 'struct' with no non-static data members other than
-// bit-fields of length 0, no virtual member functions, no virtual base
-// classes, and no base class 'B' for which 'is_empty<B>::value' is 'false'.
-// This meta-function conforms to the definition of the C++11 standard
-// 'is_empty' meta-function in section [meta.unary.prop].
+//@DESCRIPTION: This component defines a meta-function, 'bsl::is_empty', which
+// may be used to determine whether a type is a 'class' or 'struct' with no
+// non-static data members other than bit-fields of length 0, no virtual member
+// functions, no virtual base classes, and no base class 'B' for which
+// 'is_empty<B>::value' is 'false'.  This meta-function conforms to the
+// definition of the C++11 standard 'is_empty meta-function in section
+// [meta.unary.prop].
 //
 // An empty class type type is *usually* stateless and, can be "stored" in a
 // zero-length memory region.  (Hypothetically, an empty object can hold state
@@ -32,16 +30,6 @@ BSLS_IDENT("$Id: $")
 // discouraged.) When a class inherits from an empty type, the compiler is
 // expected to optimize away the storage requirements of the empty base class.
 // This optimization is known as the "Empty Base Optimization" or "EBO".
-//
-// Note that the template variable 'is_empty_v' is defined in the C++17
-// standard as an inline variable.  If the current compiler supports the inline
-// variable C++17 compiler feature, 'bsl::is_empty_v' is defined as an
-// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
-// variable templates C++14 compiler feature, 'bsl::is_empty_v' is defined
-// as a non-inline 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
-// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -122,14 +110,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removecv.h>
 #endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
-#endif
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 
 #ifndef INCLUDED_BSLS_NATIVESTD
@@ -187,14 +167,6 @@ struct is_empty
     // This specification defers to the native trait on supported C++11
     // compilers.
 };
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_empty_v = is_empty<TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_empty' meta-function.
-#endif
 
 #else
 

@@ -24,14 +24,11 @@ using namespace BloombergLP;
 //                                --------
 // The component under test defines two meta-functions, 'bsl::enable_if' and
 // 'bslmf::EnableIf', that provide a 'typedef' 'type' only if a (template
-// parameter) condition is 'true'.  Also the component defines an alias to the
-// result type of the 'bsl::enable_if' meta-function.  Since both
-// meta-functions and the alias provide identical functionality, they are all
-// tested by verifying their behavior against an enumeration of 'true' and
-// 'false' conditions.
+// parameter) condition is 'true'.  Since both meta-functions provide identical
+// functionality, they are both tested by verifying their behavior against an
+// enumeration of 'true' and 'false' conditions.
 //-----------------------------------------------------------------------------
 // [ 2] bsl::enable_if
-// [ 2] bsl::enable_if_t
 // [ 1] bslmf::EnableIf
 //
 // ----------------------------------------------------------------------------
@@ -280,22 +277,10 @@ void aSsErT(bool condition, const char *message, int line)
 // then the attempt to use 'dynamic_cast' would be a compile-time failure, and
 // we must use 'static_cast' instead.
 //..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-//..
-// Note that if the current compiler supports alias templates C++11 feature, we
-// can use 'bsl::enable_if_t' alias to the "result" type of 'bsl::enable_if'
-// meta-function, that avoids the '::type' suffix and 'typename' prefix in the
-// declaration of the function return type.
-//..
-    template<class TO, class FROM>
-    bsl::enable_if_t<bsl::is_polymorphic<FROM>::value &&
-                     bsl::is_polymorphic<TO  >::value, TO> *
-#else
     template<class TO, class FROM>
     typename bsl::enable_if<bsl::is_polymorphic<FROM>::value &&
                                                 bsl::is_polymorphic<TO>::value,
                             TO>::type *
-#endif
     smart_cast(FROM *from)
         // Return a pointer to the specified 'TO' type if the specified 'from'
         // pointer refers to an object whose complete class publicly derives,
@@ -304,16 +289,10 @@ void aSsErT(bool condition, const char *message, int line)
         return dynamic_cast<TO *>(from);
     }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-    template<class TO, class FROM>
-    bsl::enable_if_t<not(bsl::is_polymorphic<FROM>::value &&
-                         bsl::is_polymorphic<TO  >::value), TO> *
-#else
     template<class TO, class FROM>
     typename bsl::enable_if<not(bsl::is_polymorphic<FROM>::value &&
                                               bsl::is_polymorphic<TO>::value),
                             TO>::type *
-#endif
     smart_cast(FROM *from)
         // Return the specified 'from' pointer value cast as a pointer to type
         // 'TO'.  The behavior is undefined unless such a conversion is valid.
@@ -560,6 +539,7 @@ typename bsl::enable_if<!COND, int>::type testMutuallyExclusiveFunctionBsl()
 {
     return 2;
 }
+
 }  // close unnamed namespace
 
 //=============================================================================
@@ -658,10 +638,6 @@ int main(int argc, char *argv[])
         //:
         //:  2 If the first template parameter is 'false', then
         //:    'bsl::enable_if' does not provide a 'typedef' 'type'.
-        //:
-        //:  3 'bsl::enable_if_t' represents the return type of
-        //:    'bsl::enable_if' meta-function for a variety of template
-        //:    parameter types.
         //
         // Plan:
         //:  1 For a set of possible types, instantiate 'bsl::enable_if' with
@@ -701,7 +677,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::enable_if
-        //   bsl::enable_if_t
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CLASS TEMPLATE 'bsl::enable_if'"
@@ -774,75 +749,6 @@ int main(int argc, char *argv[])
             // This should fail to compile if un-commented.
             // testFunctionBsl<true>();
         }
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-        if (veryVerbose) {
-          printf("\nTest if 'enable_if_t' and the result type of 'enable_if' "
-                 "are the same for the same template parameter types.\n");
-        }
-        {
-            {
-                const bool R =
-                    bsl::is_same<bsl::enable_if  <true, bool>::type,
-                                 bsl::enable_if_t<true, bool>>::value;
-                ASSERT(R);
-            }
-            {
-                const bool R =
-                    bsl::is_same<bsl::enable_if  <true, int>::type,
-                                 bsl::enable_if_t<true, int>>::value;
-                ASSERT(R);
-            }
-            {
-                const bool R =
-                    bsl::is_same<bsl::enable_if  <true, void *>::type,
-                                 bsl::enable_if_t<true, void *>>::value;
-                ASSERT(R);
-            }
-            {
-                const bool R =
-                    bsl::is_same<bsl::enable_if  <true, const void *>::type,
-                                 bsl::enable_if_t<true, const void *>>::value;
-                ASSERT(R);
-            }
-            {
-                const bool R =
-                    bsl::is_same<
-                        bsl::enable_if  <true, const volatile void *>::type,
-                        bsl::enable_if_t<true, const volatile void *>>::value;
-                ASSERT(R);
-            }
-            {
-                const bool R =
-                     bsl::is_same<bsl::enable_if  <true, DummyClass>::type,
-                                  bsl::enable_if_t<true, DummyClass>>::value;
-                ASSERT(R);
-            }
-            {
-                const bool R =
-                    bsl::is_same<bsl::enable_if  <true, DummyClass&>::type,
-                                 bsl::enable_if_t<true, DummyClass&>>::value;
-                ASSERT(R);
-            }
-            {
-                const bool R = bsl::is_same<
-                        bsl::enable_if  <true, void (DummyClass::*)()>::type,
-                        bsl::enable_if_t<true, void (DummyClass::*)()>>::value;
-                ASSERT(R);
-            }
-            {
-                const bool R = bsl::is_same<
-                             bsl::enable_if  <true, int DummyClass::*>::type,
-                             bsl::enable_if_t<true, int DummyClass::*>>::value;
-                ASSERT(R);
-            }
-            {
-                const bool R =
-                    bsl::is_same<bsl::enable_if  <true>::type,
-                                 bsl::enable_if_t<true>>::value;
-                ASSERT(R);
-            }
-        }
-#endif
       } break;
       case 1: {
         // --------------------------------------------------------------------

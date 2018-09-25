@@ -16,15 +16,14 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-functions, 'bsl::remove_cv' and
-// 'bsl::remove_cv_t', that remove any top-level cv-qualifiers from a template
-// parameter type.  Thus, we need to ensure that the values returned by the
-// meta-function are correct for each possible category of types.
+// The component under test defines a meta-function, 'bsl::remove_cv', that
+// removes any top-level cv-qualifiers from a template parameter type.  Thus,
+// we need to ensure that the values returned by the meta-function are correct
+// for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::remove_cv::type
-// [ 1] bsl::remove_cv_t
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -198,16 +197,6 @@ int main(int argc, char *argv[])
         ASSERT(true == (bsl::is_same<bsl::remove_cv<MyCvType>::type,
                                                               MyType>::value));
 //..
-// Finally, if the current compiler supports alias templates C++11 feature, we
-// remove a 'const'-qualified and 'volatile'-qualifier from 'MyCvType' using
-//'bsl::remove_cv_t' and verify that the resulting type is the same as
-// 'MyType':
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-        ASSERT(true ==
-                    (bsl::is_same<bsl::remove_cv_t<MyCvType>, MyType>::value));
-#endif
-//..
 
       } break;
       case 1: {
@@ -226,21 +215,13 @@ int main(int argc, char *argv[])
         //: 3 'bsl::remove_cv' removes top-level cv-qualifiers from a
         //:   pointer-to-member object type, and not from the qualifier in the
         //:   pointed-to member.
-        //:
-        //: 5 'bsl::remove_cv_t' represents the return type of 'bsl::remove_cv'
-        //:   meta-function for a variety of template parameter types.
         //
         // Plan:
-        //  1 Verify that 'bsl::remove_cv::type' has the correct type for each
-        //    concern. (C1-4)
-        //
-        //  2 Verify that 'bsl::remove_cv_t' has the same type as the return
-        //    type of 'bsl::remove_cv' for a variety of template parameter
-        //    types. (C-5)
+        //   Verify that 'bsl::remove_cv::type' has the correct type for each
+        //   concern.
         //
         // Testing:
         //   bsl::remove_cv::type
-        //   bsl::remove_cv_t
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n'bsl::remove_cv::type'\n"
@@ -393,83 +374,6 @@ int main(int argc, char *argv[])
                                   const int(*               )()>::value));
         ASSERT((is_same<remove_cv<const int(* volatile &)()>::type,
                                   const int(* volatile &)()>::value));
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-        if (verbose) printf("\n'bsl::remove_cv_t'\n"
-                            "\n=================\n");
-
-        ASSERT((is_same<remove_cv  <int     >::type,
-                        remove_cv_t<int     >>::value));
-        ASSERT((is_same<remove_cv  <int *   >::type,
-                        remove_cv_t<int *   >>::value));
-        ASSERT((is_same<remove_cv  <TestType>::type,
-                        remove_cv_t<TestType>>::value));
-
-        ASSERT((is_same<remove_cv  <int const volatile *>::type,
-                        remove_cv_t<int const volatile *>>::value));
-        ASSERT((is_same<remove_cv  <int const *         >::type,
-                        remove_cv_t<int const *         >>::value));
-        ASSERT((is_same<remove_cv  <int const &         >::type,
-                        remove_cv_t<int const &         >>::value));
-        ASSERT((is_same<remove_cv  <int const()         >::type,
-                        remove_cv_t<int const()         >>::value));
-        ASSERT((is_same<remove_cv  <int[5]              >::type,
-                        remove_cv_t<int[5]              >>::value));
-        ASSERT((is_same<remove_cv  <void                >::type,
-                        remove_cv_t<void                >>::value));
-
-        ASSERT((is_same<remove_cv  <const int  TestType::*         >::type,
-                        remove_cv_t<const int  TestType::*         >>::value));
-        ASSERT((is_same<remove_cv  <const int (TestType::*)() const>::type,
-                        remove_cv_t<const int (TestType::*)() const>>::value));
-
-        ASSERT((is_same<remove_cv  <int      const         >::type,
-                        remove_cv_t<int      const         >>::value));
-        ASSERT((is_same<remove_cv  <int *    const         >::type,
-                        remove_cv_t<int *    const         >>::value));
-        ASSERT((is_same<remove_cv  <TestType const         >::type,
-                        remove_cv_t<TestType const         >>::value));
-        ASSERT((is_same<remove_cv  <int            volatile>::type,
-                        remove_cv_t<int            volatile>>::value));
-        ASSERT((is_same<remove_cv  <int *          volatile>::type,
-                        remove_cv_t<int *          volatile>>::value));
-        ASSERT((is_same<remove_cv  <TestType       volatile>::type,
-                        remove_cv_t<TestType       volatile>>::value));
-        ASSERT((is_same<remove_cv  <int      const volatile>::type,
-                        remove_cv_t<int      const volatile>>::value));
-        ASSERT((is_same<remove_cv  <int *    const volatile>::type,
-                        remove_cv_t<int *    const volatile>>::value));
-        ASSERT((is_same<remove_cv  <TestType const volatile>::type,
-                        remove_cv_t<TestType const volatile>>::value));
-
-        ASSERT((is_same<remove_cv  <const int[5]>::type,
-                        remove_cv_t<const int[5]>>::value));
-
-        ASSERT((is_same<remove_cv  <               Pm>::type,
-                        remove_cv_t<               Pm>>::value));
-        ASSERT((is_same<remove_cv  <const          Pm>::type,
-                        remove_cv_t<const          Pm>>::value));
-        ASSERT((is_same<remove_cv  <      volatile Pm>::type,
-                        remove_cv_t<      volatile Pm>>::value));
-        ASSERT((is_same<remove_cv  <const volatile Pm>::type,
-                        remove_cv_t<const volatile Pm>>::value));
-        ASSERT((is_same<remove_cv  <               Pmf>::type,
-                        remove_cv_t<               Pmf>>::value));
-        ASSERT((is_same<remove_cv  <const          Pmf>::type,
-                        remove_cv_t<const          Pmf>>::value));
-        ASSERT((is_same<remove_cv  <      volatile Pmf>::type,
-                        remove_cv_t<      volatile Pmf>>::value));
-        ASSERT((is_same<remove_cv  <const volatile Pmf>::type,
-                        remove_cv_t<const volatile Pmf>>::value));
-        ASSERT((is_same<remove_cv  <               Pmq>::type,
-                        remove_cv_t<               Pmq>>::value));
-        ASSERT((is_same<remove_cv  <const          Pmq>::type,
-                        remove_cv_t<const          Pmq>>::value));
-        ASSERT((is_same<remove_cv  <      volatile Pmq>::type,
-                        remove_cv_t<      volatile Pmq>>::value));
-        ASSERT((is_same<remove_cv  <const volatile Pmq>::type,
-                        remove_cv_t<const volatile Pmq>>::value));
-#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

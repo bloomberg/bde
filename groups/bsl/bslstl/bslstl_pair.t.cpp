@@ -24,7 +24,6 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_assert.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isintegral.h>
@@ -38,9 +37,9 @@
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_cpp11.h>
 #include <bsls_nameof.h>
 #include <bsls_types.h>
-#include <bsls_util.h>
 
 #include <bsltf_movablealloctesttype.h>
 #include <bsltf_movestate.h>
@@ -122,8 +121,8 @@ using bsls::NameOf;
 // [11] pair(const first_type& a, const second_type& b, A a);
 // [11] pair(const pair<first_type, second_type>& pr);
 // [11] pair(const pair<first_type, second_type>& pr, Alloc a);
-// [13] pair(piecewise_construct_t, tuple, tuple)
-// [13] pair(piecewise_construct_t, tuple, tuple, basicAllocator)
+// [13] pair(piecewise_construct_t, tuple aArgs, tuple bArgs)
+// [13] pair(piecewise_construct_t, tuple aArgs, tuple bArgs, basicAllocator)
 // [14] pair(native_std::pair<*>, bool>)
 // [ 2] pair(const pair& original);
 // [ 2] pair(const pair& original, AllocatorPtr basicAllocator);
@@ -152,18 +151,13 @@ using bsls::NameOf;
 // [ 6] hashAppend(HASHALG& hashAlg, const pair<T1,T2>&  input);
 // [13] bsl::pair(piecewise_construct, tuple, tuple);
 // [13] bsl::pair(piecewise_construct, tuple, tuple, alloc);
-// [16] std::tuple_element<bsl::pair<T1, T2> >
-// [16] std::tuple_size<bsl::pair<T1, T2> >
-// [16] tuple_element<>::type& get<INDEX, T1, T2>(bsl::pair<T1, T2>& p)
-// [16] tuple_element<>::type& get<TYPE, T1, T2>(bsl::pair<T1, T2>& p)
-// [17] template <class U1, class U2> operator std::tuple<U1&, U2&>()
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [18] USAGE EXAMPLE
+// [15] USAGE EXAMPLE
 // [ 3] Type Traits
 // [ 7] Concern: Can create a pointer-to-member for 'first' and 'second'
 // [ 8] Concern: Can assign to a 'pair' of references
-// [15] Concern: Methods are qualified 'noexcept' as in the standard
+// [16] Concern: Methods qualifed 'noexcept' in standard are so implemented.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -611,1036 +605,6 @@ struct DisplayType {
 };
 
 }  // close namespace u
-
-                         // =========================
-                         // class VolatileMovableType
-                         // =========================
-
-class  VolatileMovableType {
-    // This class template declares a type, that supports copy and move
-    // semantics for volatile objects.  This class is primarily provided to
-    // unify testing of tuple-like APIs for 'bsl::pair' objects, having
-    // ordinary, constant and volatile elements.
-
-  public:
-    // TYPES
-    enum Enum {
-        // Enumeration of move state.
-        e_NOT_MOVED,            // The object was not involved in a move
-                                // operation.
-
-        e_MOVED,                // The object was involved in a move operation.
-
-        e_NOT_MOVED_BUT_COPIED  // The constant object was involved in a move
-                                // operation.
-    };
-
-  private:
-    // DATA
-    int              *d_data_p;       // pointer to the data value (owned)
-    mutable Enum      d_movedFrom;    // moved-from state
-    bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
-
-  public:
-    // CREATORS
-    explicit  VolatileMovableType(bslma::Allocator *basicAllocator = 0);
-        // Create an 'VolatileMovableType' object having the (default)
-        // attribute value '-1'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Note that the default constructor does
-        // not allocate memory.
-
-    explicit VolatileMovableType(int               value,
-                                 bslma::Allocator *basicAllocator = 0);
-        // Create an 'VolatileMovableType' object having the specified 'value'.
-        // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.  The behavior is undefined unless 'value >= 0'.
-
-    VolatileMovableType(volatile VolatileMovableType&  original,
-                        bslma::Allocator              *basicAllocator = 0);
-        // Create an 'VolatileMovableType' object having the same value as the
-        // specified 'original'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Note that no memory is allocated if
-        // 'original' refers to a default-constructed object.
-
-    VolatileMovableType(
-                      const volatile VolatileMovableType&  original,
-                      bslma::Allocator                    *basicAllocator = 0);
-        // Create an 'VolatileMovableType' object having the same value as the
-        // specified 'original'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.  Note that no memory is allocated if
-        // 'original' refers to a default-constructed object.
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    VolatileMovableType(volatile VolatileMovableType&&  original,
-                        bslma::Allocator               *basicAllocator = 0);
-        // Create an 'VolatileMovableType' object having the same value as the
-        // specified 'original'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
-
-    VolatileMovableType(
-                     const volatile VolatileMovableType&&  original,
-                     bslma::Allocator                     *basicAllocator = 0);
-        // Create an 'VolatileMovableType' object having the same value as the
-        // specified 'original'.  Optionally specify a 'basicAllocator' used to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
-#endif
-
-    ~VolatileMovableType();
-        // Destroy this object.
-
-    // MANIPULATORS
-    VolatileMovableType& operator=(volatile VolatileMovableType& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-
-    VolatileMovableType&
-    operator=(bslmf::MovableRef<volatile VolatileMovableType> rhs);
-        // Assign to this object the value of the specified 'rhs' object.  Note
-        // that 'rhs' is left in a valid but unspecified state.
-
-    // ACCESSORS
-    int value() const volatile;
-        // Return the value of this object.
-
-    Enum movedFrom() const volatile;
-        // Return the move state of this object as source of a move operation.
-};
-
-// FREE OPERATORS
-bool operator==(volatile VolatileMovableType& lhs,
-                volatile VolatileMovableType& rhs);
-    // Return true if the specified 'lhs' and 'rhs' objects have the same
-    // value and false otherwise.  'lhs' has the same value as 'rhs' if
-    // 'lhs.value() == rhs.value()'.
-
-                        // -------------------------
-                        // class VolatileMovableType
-                        // -------------------------
-
-// CREATORS
-inline
-VolatileMovableType::VolatileMovableType(bslma::Allocator *basicAllocator)
-: d_data_p(0)
-, d_movedFrom(VolatileMovableType::e_NOT_MOVED)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    // Note that the default constructor does not allocate memory.
-}
-
-inline
-VolatileMovableType::VolatileMovableType(int               value,
-                                         bslma::Allocator *basicAllocator)
-: d_data_p(0)
-, d_movedFrom(VolatileMovableType::e_NOT_MOVED)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    BSLS_ASSERT_SAFE(value >= 0);
-
-    d_data_p = new (*d_allocator_p) int(value);
-}
-
-inline
-VolatileMovableType::VolatileMovableType(
-                                 volatile VolatileMovableType&  original,
-                                 bslma::Allocator              *basicAllocator)
-: d_data_p(0)
-, d_movedFrom(VolatileMovableType::e_NOT_MOVED)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    if (original.d_data_p) {
-        d_data_p = new (*d_allocator_p) int(original.value());
-    }
-}
-
-inline
-VolatileMovableType::VolatileMovableType(
-                           const volatile VolatileMovableType&  original,
-                           bslma::Allocator                    *basicAllocator)
-: d_data_p(0)
-, d_movedFrom(VolatileMovableType::e_NOT_MOVED)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    if (original.d_data_p) {
-        d_data_p = new (*d_allocator_p) int(original.value());
-    }
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-inline
-VolatileMovableType::VolatileMovableType(
-                                volatile VolatileMovableType&&  original,
-                                bslma::Allocator               *basicAllocator)
-: d_movedFrom(VolatileMovableType::e_NOT_MOVED)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    volatile VolatileMovableType& lvalue = original;
-
-    if (d_allocator_p == lvalue.d_allocator_p) {
-        d_data_p = lvalue.d_data_p;
-    } else {
-        d_data_p = new (*d_allocator_p) int(lvalue.value());
-        lvalue.d_allocator_p->deleteObjectRaw(lvalue.d_data_p);
-    }
-
-    lvalue.d_data_p    = 0;
-    lvalue.d_movedFrom = VolatileMovableType::e_MOVED;
-}
-
-inline
-VolatileMovableType::VolatileMovableType(
-                          const volatile VolatileMovableType&&  original,
-                          bslma::Allocator                     *basicAllocator)
-: d_data_p(0)
-, d_movedFrom(VolatileMovableType::e_NOT_MOVED)
-, d_allocator_p(bslma::Default::allocator(basicAllocator))
-{
-    const volatile VolatileMovableType& lvalue = original;
-
-    if (lvalue.d_data_p) {
-        d_data_p = new (*d_allocator_p) int(lvalue.value());
-    }
-
-    lvalue.d_movedFrom = VolatileMovableType::e_NOT_MOVED_BUT_COPIED;
-}
-#endif
-
-inline
-VolatileMovableType::~VolatileMovableType()
-{
-    d_allocator_p->deleteObjectRaw(d_data_p);
-}
-
-// MANIPULATORS
-inline
-VolatileMovableType&
-VolatileMovableType::operator=(volatile VolatileMovableType& rhs)
-{
-    if (this != &rhs) {
-        int *newValue = 0;
-        if (rhs.d_data_p) {
-            newValue = d_data_p = new (*d_allocator_p) int(rhs.value());
-        }
-        if (d_data_p) {
-            d_allocator_p->deleteObjectRaw(d_data_p);
-        }
-
-        d_data_p    = newValue;
-        d_movedFrom = e_NOT_MOVED;
-    }
-    return *this;
-}
-
-inline
-VolatileMovableType& VolatileMovableType::operator=(
-              BloombergLP::bslmf::MovableRef<volatile VolatileMovableType> rhs)
-{
-    volatile VolatileMovableType& lvalue = rhs;
-
-    if (this != &lvalue) {
-        d_data_p           = lvalue.d_data_p;
-        lvalue.d_data_p    = 0;
-        d_movedFrom        = e_NOT_MOVED;
-        lvalue.d_movedFrom = e_MOVED;
-    }
-    return *this;
-}
-
-// ACCESSORS
-inline
-int VolatileMovableType::value() const volatile
-{
-    return d_data_p ? *d_data_p : -1;
-}
-
-inline
-VolatileMovableType::Enum VolatileMovableType::movedFrom() const volatile
-{
-    return d_movedFrom;
-}
-
-
-// FREE OPERATORS
-inline
-bool operator==(volatile VolatileMovableType& lhs,
-                volatile VolatileMovableType& rhs)
-{
-    return lhs.value() == rhs.value();
-}
-
-template <class T>
-bool isRefConstant(const T&)
-    // This specialization of 'isRefConstant' is called for const reference
-    // types and always returns 'true'.  The function is used to check
-    // const qualifier of parameter, returned by bsl::get(bsl::pair<T1, T2>).
-{
-    return true;
-}
-
-template <class T>
-bool isRefConstant(T&)
-    // This specialization of 'isRefConstant' is called for reference types and
-    // always returns 'false'.  The function is used to check const qualifier
-    // of parameter, returned by bsl::get(bsl::pair<T1, T2>).
-{
-    return false;
-}
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-template<class T>
-struct TupleApiTestDriver
-    // This utility class template provides functions for testing tuple-like
-    // APIs.
-{
-  private:
-    // PRIVATE TYPES
-    typedef                bsl::pair<         T, int       >   TIP ;
-    typedef                bsl::pair<const    T, int       >  CTIP ;
-    typedef                bsl::pair<volatile T, int       >  VTIP ;
-
-    typedef                bsl::pair<int       ,          T>   ITP ;
-    typedef                bsl::pair<int       , const    T>   ICTP;
-    typedef                bsl::pair<int       , volatile T>   IVTP;
-
-    typedef                bsl::pair<         T,          T>   TTP ;
-    typedef                bsl::pair<const    T,          T>  CTTP ;
-    typedef                bsl::pair<volatile T,          T>  VTTP ;
-    typedef                bsl::pair<         T, const    T>   TCTP;
-    typedef                bsl::pair<         T, volatile T>   TVTP;
-
-    typedef const          bsl::pair<         T, int       > C_TIP ;
-    typedef const          bsl::pair<int      ,           T> C_ITP ;
-    typedef const          bsl::pair<         T,          T> C_TTP ;
-
-    typedef       volatile bsl::pair<         T, int       >  V_TIP;
-    typedef       volatile bsl::pair<int      ,           T>  V_ITP;
-    typedef       volatile bsl::pair<         T,          T>  V_TTP;
-
-    typedef const volatile bsl::pair<         T, int       > CV_TIP;
-    typedef const volatile bsl::pair<int      ,           T> CV_ITP;
-    typedef const volatile bsl::pair<         T,          T> CV_TTP;
-
-    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
-
-  public:
-    // CLASS METHODS
-    static void metaFunctionsTest()
-        // Test 'tuple_element' and 'tuple_size' meta-functions.
-    {
-        if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
-
-        // Testing 'tuple_element'.
-
-        typedef native_std::tuple_element<0 ,   TIP >  TE0_TIP;
-        typedef native_std::tuple_element<0 ,  CTIP >  TE0_CTIP;
-        typedef native_std::tuple_element<0 ,  VTIP >  TE0_VTIP;
-        typedef native_std::tuple_element<1u,   TIP >  TE1_TIP;
-        typedef native_std::tuple_element<1u,  CTIP >  TE1_CTIP;
-        typedef native_std::tuple_element<1u,  VTIP >  TE1_VTIP;
-
-        typedef native_std::tuple_element<0 ,   ITP >  TE0_ITP;
-        typedef native_std::tuple_element<0 ,   ITP >  TE0_ICTP;
-        typedef native_std::tuple_element<0 ,   ITP >  TE0_IVTP;
-        typedef native_std::tuple_element<1u,   ITP >  TE1_ITP;
-        typedef native_std::tuple_element<1u,   ICTP>  TE1_ICTP;
-        typedef native_std::tuple_element<1u,   IVTP>  TE1_IVTP;
-
-        typedef native_std::tuple_element<0 ,   TTP >  TE0_TTP;
-        typedef native_std::tuple_element<0 ,  CTTP >  TE0_CTTP;
-        typedef native_std::tuple_element<0 ,  VTTP >  TE0_VTTP;
-
-        typedef native_std::tuple_element<1u,   TTP >  TE1_TTP;
-        typedef native_std::tuple_element<1u,   TCTP>  TE1_TCTP;
-        typedef native_std::tuple_element<1u,   TVTP>  TE1_TVTP;
-
-        // Aliases for const and volatile objects.
-
-        typedef native_std::tuple_element<0 , C_TIP >  TE0_C_TIP;
-        typedef native_std::tuple_element<0 , C_ITP >  TE0_C_ITP;
-        typedef native_std::tuple_element<0 , C_TTP >  TE0_C_TTP;
-
-        typedef native_std::tuple_element<1u, C_TIP >  TE1_C_TIP;
-        typedef native_std::tuple_element<1u, C_ITP >  TE1_C_ITP;
-        typedef native_std::tuple_element<1u, C_TTP >  TE1_C_TTP;
-
-        typedef native_std::tuple_element<0 ,  V_TIP > TE0_V_TIP;
-        typedef native_std::tuple_element<0 ,  V_ITP > TE0_V_ITP;
-        typedef native_std::tuple_element<0 ,  V_TTP > TE0_V_TTP;
-
-        typedef native_std::tuple_element<1u,  V_TIP > TE1_V_TIP;
-        typedef native_std::tuple_element<1u,  V_ITP > TE1_V_ITP;
-        typedef native_std::tuple_element<1u,  V_TTP > TE1_V_TTP;
-
-        typedef native_std::tuple_element<0 , CV_TIP > TE0_CV_TIP;
-        typedef native_std::tuple_element<0 , CV_ITP > TE0_CV_ITP;
-        typedef native_std::tuple_element<0 , CV_TTP > TE0_CV_TTP;
-
-        typedef native_std::tuple_element<1u, CV_TIP > TE1_CV_TIP;
-        typedef native_std::tuple_element<1u, CV_ITP > TE1_CV_ITP;
-        typedef native_std::tuple_element<1u, CV_TTP > TE1_CV_TTP;
-
-        // Aliases for returned types.
-
-        typedef const          int C_I;
-        typedef const          T   C_T;
-        typedef       volatile int  V_I;
-        typedef       volatile T    V_T;
-        typedef const volatile int CV_I;
-        typedef const volatile T   CV_T;
-
-        // Testing objects with various types of elements.
-
-        ASSERT((bsl::is_same<  T,  typename TE0_TIP::type   >::value));
-        ASSERT((bsl::is_same<C_T,  typename TE0_CTIP::type  >::value));
-        ASSERT((bsl::is_same<V_T,  typename TE0_VTIP::type  >::value));
-
-        ASSERT((bsl::is_same<int,  typename TE1_TIP::type   >::value));
-        ASSERT((bsl::is_same<int,  typename TE1_CTIP::type  >::value));
-        ASSERT((bsl::is_same<int,  typename TE1_VTIP::type  >::value));
-
-        ASSERT((bsl::is_same<int,  typename TE0_ITP::type   >::value));
-        ASSERT((bsl::is_same<int,  typename TE0_ICTP::type  >::value));
-        ASSERT((bsl::is_same<int,  typename TE0_IVTP::type  >::value));
-
-        ASSERT((bsl::is_same<  T,  typename TE1_ITP::type   >::value));
-        ASSERT((bsl::is_same<C_T,  typename TE1_ICTP::type  >::value));
-        ASSERT((bsl::is_same<V_T,  typename TE1_IVTP::type  >::value));
-
-        ASSERT((bsl::is_same<  T,  typename TE0_TTP::type   >::value));
-        ASSERT((bsl::is_same<C_T,  typename TE0_CTTP::type  >::value));
-        ASSERT((bsl::is_same<V_T,  typename TE0_VTTP::type  >::value));
-
-        ASSERT((bsl::is_same<  T,  typename TE1_TTP::type   >::value));
-        ASSERT((bsl::is_same<C_T,  typename TE1_TCTP::type  >::value));
-        ASSERT((bsl::is_same<V_T,  typename TE1_TVTP::type  >::value));
-
-        // Testing const and volatile objects.  Note that 'std::tuple_element'
-        // isn't specialized for 'const bsl::pair<T1, T2>',
-        // 'volatile bsl::pair<T1, T2>', or 'const volatile bsl::pair<T1, T2>',
-        // so generic specializations for cv-qualified types are tested.
-
-        ASSERT((bsl::is_same<C_T,  typename TE0_C_TIP::type >::value));
-        ASSERT((bsl::is_same<C_I,  typename TE0_C_ITP::type >::value));
-        ASSERT((bsl::is_same<C_T,  typename TE0_C_TTP::type >::value));
-
-        ASSERT((bsl::is_same<C_I,  typename TE1_C_TIP::type >::value));
-        ASSERT((bsl::is_same<C_T,  typename TE1_C_ITP::type >::value));
-        ASSERT((bsl::is_same<C_T,  typename TE1_C_TTP::type >::value));
-
-        ASSERT((bsl::is_same<V_T,  typename TE0_V_TIP::type >::value));
-        ASSERT((bsl::is_same<V_I,  typename TE0_V_ITP::type >::value));
-        ASSERT((bsl::is_same<V_T,  typename TE0_V_TTP::type >::value));
-
-        ASSERT((bsl::is_same<V_I,  typename TE1_V_TIP::type >::value));
-        ASSERT((bsl::is_same<V_T,  typename TE1_V_ITP::type >::value));
-        ASSERT((bsl::is_same<V_T,  typename TE1_V_TTP::type >::value));
-
-        ASSERT((bsl::is_same<CV_T, typename TE0_CV_TIP::type>::value));
-        ASSERT((bsl::is_same<CV_I, typename TE0_CV_ITP::type>::value));
-        ASSERT((bsl::is_same<CV_T, typename TE0_CV_TTP::type>::value));
-
-        ASSERT((bsl::is_same<CV_I, typename TE1_CV_TIP::type>::value));
-        ASSERT((bsl::is_same<CV_T, typename TE1_CV_ITP::type>::value));
-        ASSERT((bsl::is_same<CV_T, typename TE1_CV_TTP::type>::value));
-
-        // Testing 'tuple_size'.
-
-        typedef native_std::tuple_size< TIP> TS_TIP;
-        typedef native_std::tuple_size<CTIP> TS_CTIP;
-        typedef native_std::tuple_size<VTIP> TS_VTIP;
-        typedef native_std::tuple_size<ITP > TS_ITP;
-        typedef native_std::tuple_size<ICTP> TS_ICTP;
-        typedef native_std::tuple_size<IVTP> TS_IVTP;
-        typedef native_std::tuple_size< TTP> TS_TTP;
-        typedef native_std::tuple_size<CTTP> TS_CTTP;
-        typedef native_std::tuple_size<VTTP> TS_VTTP;
-        typedef native_std::tuple_size<TCTP> TS_TCTP;
-        typedef native_std::tuple_size<TVTP> TS_TVTP;
-
-        // Aliases for const and volatile objects.
-
-        typedef native_std::tuple_size<C_TIP > TS_C_TIP;
-        typedef native_std::tuple_size<C_ITP > TS_C_ITP;
-        typedef native_std::tuple_size<C_TTP > TS_C_TTP;
-        typedef native_std::tuple_size<V_TIP > TS_V_TIP;
-        typedef native_std::tuple_size<V_ITP > TS_V_ITP;
-        typedef native_std::tuple_size<V_TTP > TS_V_TTP;
-        typedef native_std::tuple_size<CV_TIP> TS_CV_TIP;
-        typedef native_std::tuple_size<CV_ITP> TS_CV_ITP;
-        typedef native_std::tuple_size<CV_TTP> TS_CV_TTP;
-
-        // Testing objects with various types of elements.
-
-        ASSERT((2u == TS_TIP::value ));
-        ASSERT((2u == TS_CTIP::value));
-        ASSERT((2u == TS_VTIP::value));
-        ASSERT((2u == TS_ITP::value ));
-        ASSERT((2u == TS_ICTP::value));
-        ASSERT((2u == TS_IVTP::value));
-        ASSERT((2u == TS_TTP::value ));
-        ASSERT((2u == TS_CTTP::value));
-        ASSERT((2u == TS_VTTP::value));
-        ASSERT((2u == TS_TCTP::value));
-        ASSERT((2u == TS_TVTP::value));
-
-        // Testing const and volatile objects.  Note that 'std::tuple_size'
-        // isn't specialized for 'const bsl::pair<T1, T2>',
-        // 'volatile bsl::pair<T1, T2>', or 'const volatile bsl::pair<T1, T2>',
-        // so generic specializations for cv-qualified types are tested.
-
-
-        ASSERT((2u == TS_C_TIP::value ));
-        ASSERT((2u == TS_C_ITP::value ));
-        ASSERT((2u == TS_C_TTP::value ));
-        ASSERT((2u == TS_V_TIP::value ));
-        ASSERT((2u == TS_V_ITP::value ));
-        ASSERT((2u == TS_V_TTP::value ));
-        ASSERT((2u == TS_CV_TIP::value));
-        ASSERT((2u == TS_CV_ITP::value));
-        ASSERT((2u == TS_CV_TTP::value));
-    }
-
-    static void getByIndexCopyTest()
-        // Test 'bsl::get(bsl::pair<T1, T2>)' functions, that accept element
-        // index as a template parameter and reference/const reference as a
-        // parameter.
-    {
-        if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
-
-        TIP       tip;
-        const TIP TIP_COPY = tip;
-
-        ASSERT((TIP_COPY.first  ==  bsl::get<0        >(tip)));
-        ASSERT((BSLS_UTIL_ADDRESSOF(tip.first) ==
-                BSLS_UTIL_ADDRESSOF(bsl::get<0        >(tip))));
-        ASSERT(      !isRefConstant(bsl::get<0        >(tip)));
-        ASSERT((TIP_COPY        ==                      tip ));
-        ASSERT((TIP_COPY.first  ==  bsl::get<0, T, int>(tip)));
-        ASSERT((BSLS_UTIL_ADDRESSOF(tip.first) ==
-               BSLS_UTIL_ADDRESSOF((bsl::get<0, T, int>(tip)))));
-        ASSERT(      !isRefConstant(bsl::get<0, T, int>(tip)));
-        ASSERT((TIP_COPY        ==                      tip ));
-
-        ASSERT((TIP_COPY.second ==  bsl::get<1        >(tip)));
-        ASSERT((    &tip.second == &bsl::get<1        >(tip)));
-        ASSERT(      !isRefConstant(bsl::get<1        >(tip)));
-        ASSERT((TIP_COPY        ==                      tip ));
-
-        ASSERT((TIP_COPY.second ==  bsl::get<1, T, int>(tip)));
-        ASSERT((    &tip.second == &bsl::get<1, T, int>(tip)));
-        ASSERT(      !isRefConstant(bsl::get<1, T, int>(tip)));
-        ASSERT((TIP_COPY        ==                      tip ));
-
-        ITP       itp;
-        const ITP ITP_COPY = itp;
-
-        ASSERT((ITP_COPY.first  ==  bsl::get<0        >(itp)));
-        ASSERT((    &itp.first  == &bsl::get<0        >(itp)));
-        ASSERT(      !isRefConstant(bsl::get<0        >(itp)));
-        ASSERT((ITP_COPY        ==                      itp ));
-
-        ASSERT((ITP_COPY.first  ==  bsl::get<0, int, T>(itp)));
-        ASSERT((    &itp.first  == &bsl::get<0, int, T>(itp)));
-        ASSERT(      !isRefConstant(bsl::get<0, int, T>(itp)));
-        ASSERT((ITP_COPY        ==                      itp ));
-
-        ASSERT((ITP_COPY.second ==  bsl::get<1        >(itp)));
-        ASSERT((BSLS_UTIL_ADDRESSOF(itp.second) ==
-                BSLS_UTIL_ADDRESSOF(bsl::get<1        >(itp))));
-        ASSERT(      !isRefConstant(bsl::get<1        >(itp)));
-        ASSERT((ITP_COPY        ==                      itp ));
-
-        ASSERT((ITP_COPY.second ==  bsl::get<1, int, T>(itp)));
-        ASSERT((BSLS_UTIL_ADDRESSOF(itp.second) ==
-               BSLS_UTIL_ADDRESSOF((bsl::get<1, int, T>(itp)))));
-        ASSERT(      !isRefConstant(bsl::get<1, int, T>(itp)));
-        ASSERT((ITP_COPY        ==                      itp ));
-
-        TTP       ttp;
-        const TTP TTP_COPY = ttp;
-
-        ASSERT((TTP_COPY.first  ==  bsl::get<0        >(ttp)));
-        ASSERT((BSLS_UTIL_ADDRESSOF(ttp.first) ==
-                BSLS_UTIL_ADDRESSOF(bsl::get<0        >(ttp))));
-        ASSERT(      !isRefConstant(bsl::get<0        >(ttp)));
-        ASSERT((TTP_COPY        ==                      ttp ));
-
-        ASSERT((TTP_COPY.first  ==  bsl::get<0,   T, T>(ttp)));
-        ASSERT((BSLS_UTIL_ADDRESSOF(ttp.first) ==
-               BSLS_UTIL_ADDRESSOF((bsl::get<0,   T, T>(ttp)))));
-        ASSERT(      !isRefConstant(bsl::get<0,   T, T>(ttp)));
-        ASSERT((TTP_COPY        ==                      ttp ));
-
-        ASSERT((TTP_COPY.second ==  bsl::get<1        >(ttp)));
-        ASSERT((BSLS_UTIL_ADDRESSOF(ttp.second) ==
-                BSLS_UTIL_ADDRESSOF(bsl::get<1        >(ttp))));
-        ASSERT(      !isRefConstant(bsl::get<1        >(ttp)));
-        ASSERT((TTP_COPY        ==                      ttp ));
-
-        ASSERT((TTP_COPY.second ==  bsl::get<1,   T, T>(ttp)));
-        ASSERT((BSLS_UTIL_ADDRESSOF(ttp.second) ==
-               BSLS_UTIL_ADDRESSOF((bsl::get<1,   T, T>(ttp)))));
-        ASSERT(      !isRefConstant(bsl::get<1,   T, T>(ttp)));
-        ASSERT((TTP_COPY        ==                      ttp ));
-
-        // Testing objects with const qualifier.
-
-        C_TIP       c_tip;
-        const C_TIP C_TIP_COPY = c_tip;
-
-        ASSERT((C_TIP_COPY.first  ==  bsl::get<0          >(c_tip)));
-        ASSERT((    &c_tip.first  == &bsl::get<0          >(c_tip)));
-        ASSERT(         isRefConstant(bsl::get<0          >(c_tip)));
-        ASSERT((C_TIP_COPY        ==                        c_tip ));
-
-        ASSERT((C_TIP_COPY.first  ==  bsl::get<0,   T, int>(c_tip)));
-        ASSERT((    &c_tip.first  == &bsl::get<0,   T, int>(c_tip)));
-        ASSERT(         isRefConstant(bsl::get<0,   T, int>(c_tip)));
-        ASSERT((C_TIP_COPY        ==                        c_tip ));
-
-        ASSERT((C_TIP_COPY.second ==  bsl::get<1          >(c_tip)));
-        ASSERT((    &c_tip.second == &bsl::get<1          >(c_tip)));
-        ASSERT(         isRefConstant(bsl::get<1          >(c_tip)));
-        ASSERT((C_TIP_COPY        ==                        c_tip ));
-
-        ASSERT((C_TIP_COPY.second ==  bsl::get<1,   T, int>(c_tip)));
-        ASSERT((    &c_tip.second == &bsl::get<1,   T, int>(c_tip)));
-        ASSERT(         isRefConstant(bsl::get<1,   T, int>(c_tip)));
-        ASSERT((C_TIP_COPY        ==                        c_tip ));
-
-        C_ITP       c_itp;
-        const C_ITP C_ITP_COPY = c_itp;
-
-        ASSERT((C_ITP_COPY.first  ==  bsl::get<0          >(c_itp)));
-        ASSERT((    &c_itp.first  == &bsl::get<0          >(c_itp)));
-        ASSERT(         isRefConstant(bsl::get<0          >(c_itp)));
-        ASSERT((C_ITP_COPY        ==                        c_itp ));
-
-        ASSERT((C_ITP_COPY.first  ==  bsl::get<0, int,   T>(c_itp)));
-        ASSERT((    &c_itp.first  == &bsl::get<0, int,   T>(c_itp)));
-        ASSERT(         isRefConstant(bsl::get<0, int,   T>(c_itp)));
-        ASSERT((C_ITP_COPY        ==                          c_itp ));
-
-        ASSERT((C_ITP_COPY.second ==  bsl::get<1          >(c_itp)));
-        ASSERT((    &c_itp.second == &bsl::get<1          >(c_itp)));
-        ASSERT(         isRefConstant(bsl::get<1          >(c_itp)));
-        ASSERT((C_ITP_COPY        ==                        c_itp ));
-
-        ASSERT((C_ITP_COPY.second ==  bsl::get<1, int,   T>(c_itp)));
-        ASSERT((    &c_itp.second == &bsl::get<1, int,   T>(c_itp)));
-        ASSERT(         isRefConstant(bsl::get<1, int,   T>(c_itp)));
-        ASSERT((C_ITP_COPY        ==                        c_itp ));
-
-        C_TTP       c_ttp;
-        const C_TTP C_TTP_COPY = c_ttp;
-
-        ASSERT((C_TTP_COPY.first  ==  bsl::get<0          >(c_ttp)));
-        ASSERT((    &c_ttp.first  == &bsl::get<0          >(c_ttp)));
-        ASSERT(         isRefConstant(bsl::get<0          >(c_ttp)));
-        ASSERT((C_TTP_COPY        ==                        c_ttp ));
-
-        ASSERT((C_TTP_COPY.first  ==  bsl::get<0,   T,   T>(c_ttp)));
-        ASSERT((    &c_ttp.first  == &bsl::get<0,   T,   T>(c_ttp)));
-        ASSERT(         isRefConstant(bsl::get<0,   T,   T>(c_ttp)));
-        ASSERT((C_TTP_COPY        ==                        c_ttp ));
-
-        ASSERT((C_TTP_COPY.second ==  bsl::get<1          >(c_ttp)));
-        ASSERT((    &c_ttp.second == &bsl::get<1          >(c_ttp)));
-        ASSERT(         isRefConstant(bsl::get<1          >(c_ttp)));
-        ASSERT((C_TTP_COPY        ==                        c_ttp ));
-
-        ASSERT((C_TTP_COPY.second ==  bsl::get<1,   T,   T>(c_ttp)));
-        ASSERT((    &c_ttp.second == &bsl::get<1,   T,   T>(c_ttp)));
-        ASSERT(         isRefConstant(bsl::get<1,   T,   T>(c_ttp)));
-        ASSERT((C_TTP_COPY        ==                        c_ttp ));
-    }
-
-    static void getByIndexMoveTest()
-        // Test 'bsl::get(bsl::pair<T1, T2>)' function, that accepts element
-        // index as a template parameter and rvalue reference as a parameter.
-    {
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
-
-        // Testing first element extraction.
-        {
-            TIP      tip(T(1), 1);
-            const T& crt     = tip.first;
-            const T  ORIG_T  = crt;
-
-            CTIP     ctip(T(2), 1);
-            const T& crct    = ctip.first;
-            const T  ORIG_CT = crct;
-
-            ASSERT(MoveState::e_NOT_MOVED == crt.movedFrom());
-            ASSERT(MoveState::e_NOT_MOVED == crct.movedFrom());
-
-            const T  tipCopy(bsl::get<0>(MoveUtil::move( tip)));
-            const T ctipCopy(bsl::get<0>(MoveUtil::move(ctip)));
-
-            ASSERT(ORIG_T                 == tipCopy);
-            ASSERT(MoveState::e_MOVED     == crt.movedFrom());
-            ASSERT(ORIG_CT                == ctipCopy);
-            ASSERT(MoveState::e_NOT_MOVED == crct.movedFrom());
-        }
-
-        // Testing second element extraction.
-        {
-            ITP      itp(1, T(3));
-            const T& crt     = itp.second;
-            const T  ORIG_T  = crt;
-
-            ICTP     ictp(1, T(4));
-            const T& crct    = ictp.second;
-            const T  ORIG_CT = crct;
-
-            ASSERT(MoveState::e_NOT_MOVED == crt.movedFrom());
-            ASSERT(MoveState::e_NOT_MOVED == crct.movedFrom());
-
-            const T  itpCopy(bsl::get<1>(MoveUtil::move( itp)));
-            const T ictpCopy(bsl::get<1>(MoveUtil::move(ictp)));
-
-            ASSERT(ORIG_T                 == itpCopy);
-            ASSERT(MoveState::e_MOVED     == crt.movedFrom());
-            ASSERT(ORIG_CT                == ictpCopy);
-            ASSERT(MoveState::e_NOT_MOVED == crct.movedFrom());
-        }
-
-        // Testing elements extraction from pair with elements of the same
-        // type.
-        {
-            TTP      ttp(T(5), T(6));
-            const T& crt1     = ttp.first;
-            const T  ORIG_T1  = crt1;
-            const T& crt2     = ttp.second;
-            const T  ORIG_T2  = crt2;
-
-            ASSERT(MoveState::e_NOT_MOVED == crt1.movedFrom());
-            ASSERT(MoveState::e_NOT_MOVED == crt2.movedFrom());
-
-            const T ttpCopy1(bsl::get<0>(MoveUtil::move(ttp)));
-
-            ASSERT(ORIG_T1                == ttpCopy1);
-            ASSERT(MoveState::e_MOVED     == crt1.movedFrom());
-            ASSERT(MoveState::e_NOT_MOVED == crt2.movedFrom());
-
-            const T ttpCopy2(bsl::get<1>(MoveUtil::move(ttp)));
-
-            ASSERT(ORIG_T2                == ttpCopy2);
-            ASSERT(MoveState::e_MOVED     == crt1.movedFrom());
-            ASSERT(MoveState::e_MOVED     == crt2.movedFrom());
-        }
-#endif
-    }
-
-    static void getByIndexVolatileMoveTest()
-        // Test 'bsl::get(bsl::pair<T1, T2>)' function, that accepts element
-        // index as a template parameter and rvalue reference to the pair,
-        // having at least one volatile element, as a parameter.
-    {
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
-
-        // Testing first element extraction.
-        {
-            VTIP      vtip(T(1), 1);
-            volatile T& crvt     = vtip.first;
-            volatile T  ORIG_VT  = crvt;
-
-            ASSERT(VolatileMovableType::e_NOT_MOVED == crvt.movedFrom());
-
-            volatile T  vtipCopy(bsl::get<0>(MoveUtil::move( vtip)));
-
-            ASSERT(ORIG_VT                          == vtipCopy);
-            ASSERT(VolatileMovableType::e_MOVED     == crvt.movedFrom());
-        }
-
-        // Testing second element extraction.
-        {
-            ITP         ivtp(1, T(3));
-            volatile T& crvt    = ivtp.second;
-            volatile T  ORIG_VT = crvt;
-
-            ASSERT(VolatileMovableType::e_NOT_MOVED == crvt.movedFrom());
-
-            volatile T  ivtpCopy(bsl::get<1>(MoveUtil::move( ivtp)));
-
-            ASSERT(ORIG_VT                          == ivtpCopy);
-            ASSERT(VolatileMovableType::e_MOVED     == crvt.movedFrom());
-        }
-#endif
-    }
-
-    static void getByTypeCopyTest()
-        // Test 'bsl::get(bsl::pair<T1, T2>)' function, that accepts element
-        // type as a template parameter and reference/const reference as a
-        // parameter.
-    {
-        if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
-
-        TIP       tip;
-        const TIP TIP_COPY = tip;
-
-        ASSERT((TIP_COPY.first  ==  bsl::get<T          >(tip)));
-        ASSERT((BSLS_UTIL_ADDRESSOF(tip.first) ==
-                BSLS_UTIL_ADDRESSOF(bsl::get<T          >(tip))));
-        ASSERT(      !isRefConstant(bsl::get<T          >(tip)));
-        ASSERT((TIP_COPY        ==                        tip ));
-
-        ASSERT((TIP_COPY.first  ==  bsl::get<T  , T, int>(tip)));
-        ASSERT((BSLS_UTIL_ADDRESSOF(tip.first) ==
-                BSLS_UTIL_ADDRESSOF((bsl::get<T  , T, int>(tip)))));
-        ASSERT(      !isRefConstant(bsl::get<T  , T, int>(tip)));
-        ASSERT((TIP_COPY        ==                        tip ));
-
-        ASSERT((TIP_COPY.second ==  bsl::get<int        >(tip)));
-        ASSERT((    &tip.second == &bsl::get<int        >(tip)));
-        ASSERT(      !isRefConstant(bsl::get<int        >(tip)));
-        ASSERT((TIP_COPY        ==                        tip ));
-
-        ASSERT((TIP_COPY.second ==  bsl::get<int, T, int>(tip)));
-        ASSERT((    &tip.second == &bsl::get<int, T, int>(tip)));
-        ASSERT(      !isRefConstant(bsl::get<int, T, int>(tip)));
-        ASSERT((TIP_COPY        ==                        tip ));
-
-        ITP       itp;
-        const ITP ITP_COPY = itp;
-
-        ASSERT((ITP_COPY.first  ==  bsl::get<int        >(itp)));
-        ASSERT((    &itp.first  == &bsl::get<int        >(itp)));
-        ASSERT(      !isRefConstant(bsl::get<int        >(itp)));
-        ASSERT((ITP_COPY        ==                        itp ));
-
-        ASSERT((ITP_COPY.first  ==  bsl::get<int, int, T>(itp)));
-        ASSERT((    &itp.first  == &bsl::get<int, int, T>(itp)));
-        ASSERT(      !isRefConstant(bsl::get<int, int, T>(itp)));
-        ASSERT((ITP_COPY        ==                        itp ));
-
-        ASSERT((ITP_COPY.second ==  bsl::get<T          >(itp)));
-        ASSERT((BSLS_UTIL_ADDRESSOF(itp.second) ==
-                BSLS_UTIL_ADDRESSOF(bsl::get<T          >(itp))));
-        ASSERT(      !isRefConstant(bsl::get<T          >(itp)));
-        ASSERT((ITP_COPY        ==                        itp ));
-
-        ASSERT((ITP_COPY.second ==  bsl::get<T  , int, T>(itp)));
-        ASSERT((BSLS_UTIL_ADDRESSOF(itp.second) ==
-                BSLS_UTIL_ADDRESSOF((bsl::get<T  , int, T>(itp)))));
-        ASSERT(      !isRefConstant(bsl::get<T  , int, T>(itp)));
-        ASSERT((ITP_COPY        ==                        itp ));
-
-        // Testing objects with const qualifier.
-
-        C_TIP       c_tip;
-        const C_TIP C_TIP_COPY = c_tip;
-
-        ASSERT((C_TIP_COPY.first  ==  bsl::get<T          >(c_tip)));
-        ASSERT((    &c_tip.first  == &bsl::get<T          >(c_tip)));
-        ASSERT(         isRefConstant(bsl::get<T          >(c_tip)));
-        ASSERT((C_TIP_COPY        ==                        c_tip ));
-
-        ASSERT((C_TIP_COPY.first  ==  bsl::get<T  , T, int>(c_tip)));
-        ASSERT((    &c_tip.first  == &bsl::get<T  , T, int>(c_tip)));
-        ASSERT(         isRefConstant(bsl::get<T  , T, int>(c_tip)));
-        ASSERT((C_TIP_COPY        ==                        c_tip ));
-
-        ASSERT((C_TIP_COPY.second ==  bsl::get<int        >(c_tip)));
-        ASSERT((    &c_tip.second == &bsl::get<int        >(c_tip)));
-        ASSERT(         isRefConstant(bsl::get<int        >(c_tip)));
-        ASSERT((C_TIP_COPY        ==                        c_tip ));
-
-        ASSERT((C_TIP_COPY.second ==  bsl::get<int, T, int>(c_tip)));
-        ASSERT((    &c_tip.second == &bsl::get<int, T, int>(c_tip)));
-        ASSERT(         isRefConstant(bsl::get<int, T, int>(c_tip)));
-        ASSERT((C_TIP_COPY        ==                        c_tip ));
-
-        C_ITP       c_itp;
-        const C_ITP C_ITP_COPY = c_itp;
-
-        ASSERT((C_ITP_COPY.first  ==  bsl::get<int        >(c_itp)));
-        ASSERT((    &c_itp.first  == &bsl::get<int        >(c_itp)));
-        ASSERT(         isRefConstant(bsl::get<int        >(c_itp)));
-        ASSERT((C_ITP_COPY        ==                        c_itp ));
-
-        ASSERT((C_ITP_COPY.first  ==  bsl::get<int, int, T>(c_itp)));
-        ASSERT((    &c_itp.first  == &bsl::get<int, int, T>(c_itp)));
-        ASSERT(         isRefConstant(bsl::get<int, int, T>(c_itp)));
-        ASSERT((C_ITP_COPY        ==                        c_itp ));
-
-        ASSERT((C_ITP_COPY.second ==  bsl::get<T          >(c_itp)));
-        ASSERT((    &c_itp.second == &bsl::get<T          >(c_itp)));
-        ASSERT(         isRefConstant(bsl::get<T          >(c_itp)));
-        ASSERT((C_ITP_COPY        ==                        c_itp ));
-
-        ASSERT((C_ITP_COPY.second ==  bsl::get<T  , int, T>(c_itp)));
-        ASSERT((    &c_itp.second == &bsl::get<T  , int, T>(c_itp)));
-        ASSERT(         isRefConstant(bsl::get<T  , int, T>(c_itp)));
-        ASSERT((C_ITP_COPY        ==                        c_itp ));
-    }
-
-    static void getByTypeMoveTest()
-        // Test 'bsl::get(bsl::pair<T1, T2>)' functions, that accept element
-        // index as a template parameter and rvalue reference/const rvalue
-        // reference as a parameter.
-    {
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
-
-        // Testing first element extraction.
-        {
-            TIP        tip(T(1), 1);
-            const T&   crt1     = tip.first;
-            const T    ORIG_T1  = crt1;
-
-            const TIP  tipc(T(2), 1);
-            const T&   crt2     = tipc.first;
-            const T    ORIG_T2  = crt2;
-
-            CTIP       ctip(T(3), 1);
-            const T&   crct1    = ctip.first;
-            const T    ORIG_CT1 = crct1;
-
-            const CTIP ctipc(T(4), 1);
-            const T&   crct2    = ctipc.first;
-            const T    ORIG_CT2 = crct2;
-
-            ASSERT(MoveState::e_NOT_MOVED == crt1.movedFrom());
-            ASSERT(MoveState::e_NOT_MOVED == crt2.movedFrom());
-            ASSERT(MoveState::e_NOT_MOVED == crct1.movedFrom());
-            ASSERT(MoveState::e_NOT_MOVED == crct2.movedFrom());
-
-            const T  tipCopy (bsl::get<      T>(MoveUtil::move( tip )));
-            const T  tipcCopy(bsl::get<      T>(MoveUtil::move( tipc)));
-            const T ctipCopy (bsl::get<const T>(MoveUtil::move(ctip )));
-            const T ctipcCopy(bsl::get<const T>(MoveUtil::move(ctipc)));
-
-            ASSERT(ORIG_T1                == tipCopy);
-            ASSERT(MoveState::e_MOVED     == crt1.movedFrom());
-            ASSERT(ORIG_T2                == tipcCopy);
-            ASSERT(MoveState::e_NOT_MOVED == crt2.movedFrom());
-            ASSERT(ORIG_CT1               == ctipCopy);
-            ASSERT(MoveState::e_NOT_MOVED == crct1.movedFrom());
-            ASSERT(ORIG_CT2               == ctipcCopy);
-            ASSERT(MoveState::e_NOT_MOVED == crct2.movedFrom());
-
-            ASSERT((1 == bsl::get<int>(MoveUtil::move( tip ))));
-            ASSERT((1 == bsl::get<int>(MoveUtil::move( tipc))));
-            ASSERT((1 == bsl::get<int>(MoveUtil::move(ctip ))));
-            ASSERT((1 == bsl::get<int>(MoveUtil::move(ctipc))));
-        }
-
-        // Testing second element extraction.
-        {
-            ITP        itp(1, T(5));
-            const T&   crt1     = itp.second;
-            const T    ORIG_T1  = crt1;
-
-            const ITP  itpc(1, T(6));
-            const T&   crt2     = itpc.second;
-            const T    ORIG_T2  = crt2;
-
-            ICTP       ictp(1, T(7));
-            const T&   crct1    = ictp.second;
-            const T    ORIG_CT1 = crct1;
-
-            const ICTP ictpc(1, T(8));
-            const T&   crct2    = ictpc.second;
-            const T    ORIG_CT2 = crct2;
-
-            ASSERT(MoveState::e_NOT_MOVED == crt1.movedFrom());
-            ASSERT(MoveState::e_NOT_MOVED == crt2.movedFrom());
-            ASSERT(MoveState::e_NOT_MOVED == crct1.movedFrom());
-            ASSERT(MoveState::e_NOT_MOVED == crct2.movedFrom());
-
-            const T  itpCopy (bsl::get<      T>(MoveUtil::move(itp  )));
-            const T  itpcCopy(bsl::get<      T>(MoveUtil::move(itpc )));
-            const T ictpCopy (bsl::get<const T>(MoveUtil::move(ictp )));
-            const T ictpcCopy(bsl::get<const T>(MoveUtil::move(ictpc)));
-
-            ASSERT(ORIG_T1                == itpCopy);
-            ASSERT(MoveState::e_MOVED     == crt1.movedFrom());
-            ASSERT(ORIG_T2                == itpcCopy);
-            ASSERT(MoveState::e_NOT_MOVED == crt2.movedFrom());
-            ASSERT(ORIG_CT1               == ictpCopy);
-            ASSERT(MoveState::e_NOT_MOVED == crct1.movedFrom());
-            ASSERT(ORIG_CT2               == ictpcCopy);
-            ASSERT(MoveState::e_NOT_MOVED == crct2.movedFrom());
-
-            ASSERT(1 == bsl::get<int>(MoveUtil::move(itp  )));
-            ASSERT(1 == bsl::get<int>(MoveUtil::move(itpc )));
-            ASSERT(1 == bsl::get<int>(MoveUtil::move(ictp )));
-            ASSERT(1 == bsl::get<int>(MoveUtil::move(ictpc)));
-        }
-#endif
-    }
-
-    static void getByTypeVolatileMoveTest()
-        // Test 'bsl::get(bsl::pair<T1, T2>)' function, that accepts element
-        // type as a template parameter and rvalue reference to the pair,
-        // having at least one volatile element, as a parameter.
-    {
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
-
-        typedef VolatileMovableType VMT;
-
-        // Testing first element extraction.
-        {
-            VTIP              vtip(T(9), 1);
-            volatile T&       crvt1      = vtip.first;
-            volatile T        ORIG_VT1   = crvt1;
-
-            const VTIP        vtipc(T(10), 1);
-            const volatile T& crvt2 = vtipc.first;
-            volatile T        ORIG_VT2   = crvt2;
-
-            ASSERT(VMT::e_NOT_MOVED            == crvt1.movedFrom());
-            ASSERT(VMT::e_NOT_MOVED            == crvt2.movedFrom());
-
-            volatile T vtipCopy (bsl::get<volatile T>(MoveUtil::move(vtip )));
-            volatile T vtipcCopy(bsl::get<volatile T>(MoveUtil::move(vtipc)));
-
-            ASSERT(ORIG_VT1                    == vtipCopy);
-            ASSERT(VMT::e_MOVED                == crvt1.movedFrom());
-            ASSERT(ORIG_VT2                    == vtipcCopy);
-            ASSERT(VMT::e_NOT_MOVED_BUT_COPIED == crvt2.movedFrom());
-
-            ASSERT(1 == bsl::get<int>(MoveUtil::move(vtip )));
-            ASSERT(1 == bsl::get<int>(MoveUtil::move(vtipc)));
-        }
-
-        // Testing second element extraction.
-        {
-            IVTP              ivtp(1, T(9));
-            volatile T&       crvt1      = ivtp.second;
-            volatile T        ORIG_VT1   = crvt1;
-
-            const IVTP        ivtpc(1, T(10));
-            const volatile T& crvt2 = ivtpc.second;
-            volatile T        ORIG_VT2   = crvt2;
-
-            ASSERT(VMT::e_NOT_MOVED            == crvt1.movedFrom());
-            ASSERT(VMT::e_NOT_MOVED            == crvt2.movedFrom());
-
-            volatile T ivtpCopy (bsl::get<volatile T>(MoveUtil::move(ivtp )));
-            volatile T ivtpcCopy(bsl::get<volatile T>(MoveUtil::move(ivtpc)));
-
-            ASSERT(ORIG_VT1                    == ivtpCopy);
-            ASSERT(VMT::e_MOVED                == crvt1.movedFrom());
-            ASSERT(ORIG_VT2                    == ivtpcCopy);
-            ASSERT(VMT::e_NOT_MOVED_BUT_COPIED == crvt2.movedFrom());
-
-            ASSERT(1 == bsl::get<int>(MoveUtil::move(ivtp )));
-            ASSERT(1 == bsl::get<int>(MoveUtil::move(ivtpc)));
-        }
-#endif
-    }
-};
-#endif
-
 }  // close unnamed namespace
 
 namespace BloombergLP {
@@ -1686,7 +650,7 @@ void debugprint(const u::Base& base)
 
 }  // close namespace bsl
 
-void testCase15()
+void testCase16()
 {
     // ------------------------------------------------------------------------
     // 'noexcept' SPECIFICATION
@@ -1696,7 +660,7 @@ void testCase15()
     //:   required by the standard.
     //
     // Plan:
-    //: 1 Apply the unary 'noexcept' operator to expressions that mimic those
+    //: 1 Apply the uniary 'noexcept' operator to expressions that mimic those
     //:   appearing in the standard and confirm that calculated boolean value
     //:   matches the expected value.
     //:
@@ -1705,7 +669,7 @@ void testCase15()
     //:   'TYPE' specializations.
     //
     // Testing:
-    //   CONCERN: Methods qualified 'noexcept' in standard are so implemented.
+    //   CONCERN: Methods qualifed 'noexcept' in standard are so implemented.
     // ------------------------------------------------------------------------
 
     // N4594: 20.4: Pairs
@@ -1720,10 +684,12 @@ void testCase15()
         bsl::pair<int, long> x;
         bsl::pair<int, long> p;
 
-        ASSERT(false == BSLS_KEYWORD_NOEXCEPT_OPERATOR(
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(
                                           x = bslmf::MovableRefUtil::move(p)));
 
-        ASSERT(false == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(p)));
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(p)));
     }
 }
 
@@ -2340,8 +1306,8 @@ namespace bslmf {
 template <>
 struct IsBitwiseEqualityComparable<my_EqualityTrivial> : bsl::true_type {};
 
-// Empty classes are bitwise movable by default.  Specialize for 'my_NoTraits'
-// to make it NOT bitwise movable.
+// Empty classes are bitwise moveable by default.  Specialize for 'my_NoTraits'
+// to make it NOT bitwise moveable.
 template<>
 struct IsBitwiseMoveable<my_NoTraits> : bsl::false_type {};
 
@@ -3049,96 +2015,11 @@ void testFunctionality(bsl::true_type usesBslmaAllocator)
 }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
-
-                         // ===========================
-                         // class CloneDisabledTestType
-                         // ===========================
-
-class CloneDisabledTestType {
-    // This class provides a test object used to check that all members are
-    // created inplace during piecewise pair construction.  Methods making
-    // clones of its objects are disabled.
-
-  public:
-    // PUBLIC TYPES
-    typedef bsltf::ArgumentType<1> ArgType;
-
-  private:
-    // DATA
-    ArgType d_arg;  // value
-
-    // NOT IMPLEMENTED
-    CloneDisabledTestType(const CloneDisabledTestType& original);
-    CloneDisabledTestType(bslmf::MovableRef<CloneDisabledTestType>);
-    CloneDisabledTestType& operator=(const CloneDisabledTestType& rhs);
-    CloneDisabledTestType& operator=(
-                                 bslmf::MovableRef<CloneDisabledTestType> rhs);
-
-  public:
-    // CREATORS
-    CloneDisabledTestType();
-        // Create an 'CloneDisabledTestType' object having the default
-        // attribute value '-1'.
-
-    explicit CloneDisabledTestType(ArgType arg);
-        // Create a 'CloneDisabledTestType' object having the specified 'arg'
-        // attribute value.
-
-    // ACCESSORS
-    const ArgType& arg() const;
-        // Return the value of the argument that was passed to the constructor
-        // of this object.
-
-    bool isEqual(const CloneDisabledTestType& other) const;
-        // Return 'true' if the specified 'other' object has the same value as
-        // this object, and 'false' otherwise.  Two 'CloneDisabledTestType'
-        // objects have the same value if their corresponding attributes have
-        // the same value.
-};
-
-// FREE OPERATORS
-bool operator==(const CloneDisabledTestType& lhs,
-                const CloneDisabledTestType& rhs);
-    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
-    // value, and 'false' otherwise.  Two 'CloneDisabledTestType' objects have
-    // the same value if their corresponding attributes have the same value.
-
-                        // ---------------------------
-                        // class CloneDisabledTestType
-                        // ---------------------------
-
-// CREATORS
-CloneDisabledTestType::CloneDisabledTestType()
-{}
-
-CloneDisabledTestType::CloneDisabledTestType(ArgType arg)
-: d_arg(arg)
-{}
-
-// ACCESSORS
-inline
-const CloneDisabledTestType::ArgType& CloneDisabledTestType::arg() const
-{
-    return d_arg;
-}
-
-inline
-bool CloneDisabledTestType::isEqual(const CloneDisabledTestType& other) const
-{
-    return d_arg == other.d_arg;
-}
-
-inline
-bool operator==(const CloneDisabledTestType& lhs,
-                const CloneDisabledTestType& rhs)
-{
-    return lhs.isEqual(rhs);
-}
-
-
 class TupleTestDriver {
-    // This 'class' is used for testing piecewise construction of 'bsl::pair'
-    // object.
+    // This 'class' is used for doing the tests with 'EmplacableTestType' and
+    // 'AllocEmplacableTestType'.  For simplicity, we chose to implement them
+    // as two functions rather than implementing by one with a template
+    // parameter.
 
     // PRIVATE CLASS METHODS
     template <class T>
@@ -3165,12 +2046,11 @@ class TupleTestDriver {
                           int         ns1,
                           int         ns2,
                           int         ns3);
-        // Passed as run time 'int's the template args to a 'runTestAlloc' and
-        // 'runTestNoAlloc' routines, check for sanity, where the specified
-        // 'displayName' is the name of the passed display type.  The thinking
-        // here is to shrink code size by handling this in a single,
-        // non-inline, non-template routine called by all the different
-        // template instantiations.
+        // Passed as run time 'int's the template args to a 'runTest*' routine,
+        // check for sanity, where the specified 'displayName' is the name of
+        // the passed display type.  The thinking here is to shrink code size
+        // by handling this in a single, non-inline, non-template routine
+        // called by all the different template instantiations.
 
   public:
     // CLASS METHODS
@@ -3233,25 +2113,6 @@ class TupleTestDriver {
         // parameters are in the range '[0 .. 2]', '2 == NF2' if '2 == NF1',
         // '2 == NF3' if '2 == NF2', '2 == NS2' if '2 == NS1', and '2 == NS3'
         // if '2 == NS2'.
-
-    template <class TYPE, int NF, int NS>
-    static void runTestInplaceMemberConstruction();
-        // Construct one pair of (template parameter) 'TYPE' with two tuples,
-        // each taking one argument.  Interpret the values of (template
-        // parameters) 'NF' and 'NS' as follows:
-        //..
-        //  NF == 0 => forward the 'first' argument using copy semantics
-        //  NS == 0 => forward the 'second' argument using copy semantics
-        //
-        //  NF == 1 => forward the 'first' argument using move semantics
-        //  NS == 1 => forward the 'second' argument using move semantics
-        //..
-        // The behavior is undefined unless  'NF' and 'NS' parameters are in
-        // the range '[0 .. 1]'.
-
-    static void runTestAllocatorPropagation();
-        // Test correctness of allocator propagation performed by all forms of
-        // 'bsl::pair' piecewise constructor.
 };
 
 void TupleTestDriver::checkArgs(const char *displayName,
@@ -3767,156 +2628,6 @@ void TupleTestDriver::runTestNoAlloc()
 
     ASSERTV(name, da.numAllocations(), 0 == da.numAllocations());
 }
-
-template <class TYPE, int NF, int NS>
-void TupleTestDriver::runTestInplaceMemberConstruction()
-{
-    typedef bsl::pair<TYPE, TYPE>  Pair;
-    typedef typename TYPE::ArgType Arg;
-
-    const char *name = NameOf<TYPE>();
-    if (veryVerbose) printf("runTestInplaceMemberConstruction(%s, %d, %d);\n",
-                            name,
-                            NF,
-                            NS);
-
-    ASSERTV(name, 0 <= NF && NF <= 1);
-    ASSERTV(name, 0 <= NF && NF <= 1);
-
-    // In C++17, these become the simpler-to-name 'bool_constant'.
-
-    static const bsl::integral_constant<bool, NF == 1> MOVE_F = {};
-    static const bsl::integral_constant<bool, NS == 1> MOVE_S = {};
-
-    bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::DefaultAllocatorGuard daGuard(&da);
-
-    Arg AF(1);
-    Arg AS(2);
-
-    bsls::ObjectBuffer<Pair>  oDst;
-    Pair                     *p = oDst.address();
-
-    new (p) Pair(native_std::piecewise_construct,
-                 native_std::forward_as_tuple(testArg(AF, MOVE_F)),
-                 native_std::forward_as_tuple(testArg(AS, MOVE_S)));
-
-    ASSERTV(name, MOVE_F, AF.movedFrom(),
-            MOVE_F == (MoveState::e_MOVED == AF.movedFrom()));
-
-    ASSERTV(name, MOVE_S, AS.movedFrom(),
-            MOVE_S == (MoveState::e_MOVED == AS.movedFrom()));
-
-    const TYPE& F = p->first;
-
-    ASSERTV(name, 1  == F.arg());
-
-    const TYPE& S = p->second;
-
-    ASSERTV(name, 2  == S.arg());
-
-    ASSERTV(name, da.numAllocations(), 0 == da.numAllocations());
-}
-
-void TupleTestDriver::runTestAllocatorPropagation()
-{
-
-    typedef bsl::pair<my_NoAllocString, my_NoAllocString>       NoAllocPair;
-    typedef bsl::pair<my_String, my_String>                     BslmaAllocPair;
-    typedef bsl::pair<my_BslmaAllocArgStr, my_BslmaAllocArgStr> ArgAllocPair;
-
-    bslma::TestAllocator          da("default", veryVeryVeryVerbose);
-    bslma::TestAllocator          oa("object",    veryVeryVeryVerbose);
-    bslma::TestAllocator         *dma = my_STLCharAlloc::defaultMechanism();
-    bslma::DefaultAllocatorGuard  dag(&da);
-
-    ASSERTV(da.numBytesInUse(),   0 == da.numBytesInUse());
-    ASSERTV(oa.numBytesInUse(),   0 == oa.numBytesInUse());
-    ASSERTV(dma->numBytesInUse(), 0 == dma->numBytesInUse());
-    {
-        // 'my_NoAllocString' object uses 'my_STLCharAlloc::defaultMechanism()'
-        // if allocator wasn't specified by client on construction.
-
-        NoAllocPair    npa(native_std::piecewise_construct,
-                           native_std::forward_as_tuple("a"),
-                           native_std::forward_as_tuple("b"));
-
-        ASSERTV(dma == npa.first.allocator());
-        ASSERTV(dma == npa.second.allocator());
-        ASSERTV(0   == strcmp("a", npa.first.c_str()));
-        ASSERTV(0   == strcmp("b", npa.second.c_str()));
-
-        // 'my_String' object uses 'bslma::Default::defaultAllocator()' if
-        // allocator wasn't specified by client on construction.
-
-        BslmaAllocPair bpa(native_std::piecewise_construct,
-                           native_std::forward_as_tuple("c"),
-                           native_std::forward_as_tuple("d"));
-
-        ASSERTV(&da == bpa.first.allocator());
-        ASSERTV(&da == bpa.second.allocator());
-        ASSERTV(0   == strcmp("c", bpa.first.c_str()));
-        ASSERTV(0   == strcmp("d", bpa.second.c_str()));
-
-        // 'my_BslmaAllocArgStr' object uses
-        // 'bslma::Default::defaultAllocator()' if allocator wasn't specified
-        // by client on construction.
-
-        ArgAllocPair   apa(native_std::piecewise_construct,
-                           native_std::forward_as_tuple("e"),
-                           native_std::forward_as_tuple("f"));
-
-        ASSERTV(&da == apa.first.allocator());
-        ASSERTV(&da == apa.second.allocator());
-        ASSERTV(0   == strcmp("e", apa.first.c_str()));
-        ASSERTV(0   == strcmp("f", apa.second.c_str()));
-
-        ASSERTV(da.numBytesInUse(),   8 == da.numBytesInUse());
-        ASSERTV(oa.numBytesInUse(),   0 == oa.numBytesInUse());
-        ASSERTV(dma->numBytesInUse(), 4 == dma->numBytesInUse());
-    }
-
-    ASSERTV(da.numBytesInUse(),   0 == da.numBytesInUse());
-    ASSERTV(oa.numBytesInUse(),   0 == oa.numBytesInUse());
-    ASSERTV(dma->numBytesInUse(), 0 == dma->numBytesInUse());
-
-    {
-        BslmaAllocPair bpa(native_std::piecewise_construct,
-                           native_std::forward_as_tuple("c"),
-                           native_std::forward_as_tuple("d"),
-                           &oa);
-
-        ASSERTV(&oa == bpa.first.allocator());
-        ASSERTV(&oa == bpa.second.allocator());
-        ASSERTV(0   == strcmp("c", bpa.first.c_str()));
-        ASSERTV(0   == strcmp("d", bpa.second.c_str()));
-
-        ASSERTV(da.numBytesInUse(),   0 == da.numBytesInUse());
-        ASSERTV(oa.numBytesInUse(),   4 == oa.numBytesInUse());
-        ASSERTV(dma->numBytesInUse(), 0 == dma->numBytesInUse());
-    }
-
-    ASSERTV(da.numBytesInUse(),   0 == da.numBytesInUse());
-    ASSERTV(oa.numBytesInUse(),   0 == oa.numBytesInUse());
-    ASSERTV(dma->numBytesInUse(), 0 == dma->numBytesInUse());
-
-    {
-        ArgAllocPair   apa(native_std::piecewise_construct,
-                           native_std::forward_as_tuple("e"),
-                           native_std::forward_as_tuple("f"),
-                           &oa);
-
-        ASSERTV(&oa == apa.first.allocator());
-        ASSERTV(&oa == apa.second.allocator());
-        ASSERTV(0   == strcmp("e", apa.first.c_str()));
-        ASSERTV(0   == strcmp("f", apa.second.c_str()));
-
-        ASSERTV(da.numBytesInUse(),   0 == da.numBytesInUse());
-        ASSERTV(oa.numBytesInUse(),   4 == oa.numBytesInUse());
-        ASSERTV(dma->numBytesInUse(), 0 == dma->numBytesInUse());
-    }
-}
-
 #endif
 
 template <class TO_FIRST, class TO_SECOND, class FROM_FIRST, class FROM_SECOND>
@@ -5182,7 +3893,7 @@ struct MetaTestDriver {
     //: o 'ToPair' == 'pair<ToFirst, ToSecond>', and
     //: o 'FromPair' == 'pair<FromFirst, FromSecond>'
     //
-    // where 'ToPair' should be implicitly convertible from a 'FromPair'.  We
+    // where 'ToPair' should be implicitly convertable from a 'FromPair'.  We
     // will also be doing move conversions, which in C++03 only work if
     // 'ToPair' is trivially (as opposed to implicitly) convertible from
     // 'FromPair', meaning that the respective 'first_type's and 'second_type's
@@ -5276,122 +3987,9 @@ u_META_FUNCTION(testCase9)
 
 #undef u_META_FUNCTION
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-template<class T>
-struct TupleConversionDriver
-    // This utility class template provides functions for testing conversion to
-    // 'std::tuple' operator.
-{
-    static void operatorTest()
-        // Formally test coversion operator.
-    {
-        if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
-
-        int value = 0;
-
-        T   t(  value);
-        int i(++value);
-
-        bsl::pair<  T, int> mX1(t, i);
-        bsl::pair<int,   T> mX2(i, t);
-
-        ASSERTV(t == mX1.first);
-        ASSERTV(t == mX2.second);
-        ASSERTV(i == mX1.second);
-        ASSERTV(i == mX2.first);
-
-        native_std::tuple<  T&, int&>       mY1 =
-                                    mX1.operator native_std::tuple<T&, int&>();
-        const native_std::tuple<  T&, int&> Y1  = mY1;
-        native_std::tuple<int&,   T&>       mY2 =
-                                    mX2.operator native_std::tuple<int&, T&>();
-        const native_std::tuple<int&,   T&> Y2  = mY2;
-
-        ASSERTV(t == std::get<0>(Y1));
-        ASSERTV(t == std::get<1>(Y2));
-        ASSERTV(i == std::get<1>(Y1));
-        ASSERTV(i == std::get<0>(Y2));
-
-        // Changing 'bsl::pair'.
-
-        t.setData(++value);
-        mX1.first.setData(value);
-        mX2.second.setData(value);
-
-        i          = ++value;
-        mX1.second = i;
-        mX2.first  = i;
-
-        ASSERTV(t == std::get<0>(Y1));
-        ASSERTV(t == std::get<1>(Y2));
-        ASSERTV(i == std::get<1>(Y1));
-        ASSERTV(i == std::get<0>(Y2));
-
-        // Changing 'native_std::tuple'.
-
-        t.setData(++value);
-        std::get<0>(Y1).setData(value);
-        std::get<1>(Y2).setData(value);
-
-        i               = ++value;
-        std::get<1>(Y1) = i;
-        std::get<0>(Y2) = i;
-
-        ASSERTV(t == mX1.first);
-        ASSERTV(t == mX2.second);
-        ASSERTV(i == mX1.second);
-        ASSERTV(i == mX2.first);
-    }
-
-    static void tieTest()
-        // Check compatibility of 'bsl::pair' with 'std::tie()' function.
-    {
-        if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
-
-        T lStorage(0);
-        T rStorage(0);
-
-        int value = 0;
-        T   lValue1(++value);
-        T   rValue1(++value);
-
-        bsl::pair<T, T> mX1(lValue1, rValue1);
-
-        ASSERT(T(0) == lStorage);
-        ASSERT(T(0) == rStorage);
-
-        std::tie(std::ignore, std::ignore) = mX1;
-
-        ASSERT(T(0) == lStorage);
-        ASSERT(T(0) == rStorage);
-
-        std::tie(lStorage, std::ignore) = mX1;
-
-        ASSERT(lValue1 == lStorage);
-        ASSERT(T(0)    == rStorage);
-
-        T lValue2(++value);
-        T rValue2(++value);
-
-        bsl::pair<T, T> mX2(lValue2, rValue2);
-
-        std::tie(std::ignore, rStorage) = mX2;
-
-        ASSERT(lValue1 == lStorage);
-        ASSERT(rValue2 == rStorage);
-
-        T lValue3(++value);
-        T rValue3(++value);
-
-        bsl::pair<T, T> mX3(lValue3, rValue3);
-
-        std::tie(lStorage, rStorage) = mX3;
-
-        ASSERT(lValue3 == lStorage);
-        ASSERT(rValue3 == rStorage);
-    }
-};
-#endif
+//=============================================================================
+//                  CLASSES FOR TESTING USAGE EXAMPLES
+//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -5407,15 +4005,21 @@ int main(int argc, char *argv[])
 
     setbuf(stdout, 0);    // Use unbuffered output
 
-    bslma::TestAllocator defaultMainAllocator(veryVeryVeryVerbose);
-    int                  status;
-    status = bslma::Default::setDefaultAllocator(&defaultMainAllocator);
-    ASSERTV(status, 0 == status);
-
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 16: {
+        // --------------------------------------------------------------------
+        // 'noexcept' SPECIFICATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
+                                 "========================" "\n");
+
+        testCase16();
+
+      } break;
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -5436,209 +4040,6 @@ int main(int argc, char *argv[])
                             "\n=============\n");
 
         usageExample();
-
-      } break;
-      case 17: {
-        // --------------------------------------------------------------------
-        // TESTING CONVERSION TO 'std::tuple'
-        //
-        // Concerns:
-        //: 1 Operator returns a std::tuple, which memebers are references
-        //:   providing modifiable access to the elements of calling object.
-        //:
-        //: 2 Operator is implicitly called during assignment of 'bsl::pair'
-        //:   object to the result of 'std::tie' function, accepting two
-        //:   parameters.
-        //:
-        //: 3 Operator is able to convert 'bsl::pair' object to the
-        //:   'std::tuple', having one or both members of type of
-        //:   'std::ignore'.
-        //
-        // Plan:
-        //: 1 Create a 'bsl::pair' and convert it to 'std::tuple' using
-        //:   conversion operator.  Modify original 'bsl::pair' object and
-        //:   verify, that 'std::tuple' reflects these changes.  Then modify
-        //:   tuple's members and verify that pair's members are changed too.
-        //:   (C-1)
-        //:
-        //: 2 Assign 'bsl::pair' object to the result of 'std::tie' function
-        //:   accepting two parameters and verify, that values of variables,
-        //:   passed to the function are changed (if these variables are not
-        //:   'std:ignore' values).  (C-2..3)
-        //
-        // Testing:
-        //   template <class U1, class U2> operator std::tuple<U1&, U2&>()
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nTESTING CONVERSION TO 'std::tuple'"
-                            "\n==================================\n");
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-
-    // MSVC 2015 compler incorrectly handles tuple assigment so this test
-    // compiling fails.  MSVC 2013 does not support tuples, so this test is
-    // disabled for it anyway.  MSVC 2017 handles this test correctly.
-
-  #if !(defined(BSLS_PLATFORM_CMP_MSVC)) ||  \
-     (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION > 1900)
-        RUN_EACH_TYPE(TupleConversionDriver,
-                      operatorTest,
-                      bsltf::SimpleTestType,
-                      bsltf::AllocTestType,
-                      bsltf::BitwiseCopyableTestType,
-                      bsltf::BitwiseMoveableTestType,
-                      bsltf::AllocBitwiseMoveableTestType,
-                      bsltf::NonTypicalOverloadsTestType);
-
-        RUN_EACH_TYPE(TupleConversionDriver,
-              tieTest,
-              int,
-              long int,
-              bsltf::SimpleTestType,
-              bsltf::AllocTestType,
-              bsltf::BitwiseCopyableTestType,
-              bsltf::BitwiseMoveableTestType,
-              bsltf::AllocBitwiseMoveableTestType,
-              bsltf::NonTypicalOverloadsTestType);
-  #else
-    if (verbose) printf("\tThis test is disabled for MSVC 2015\n");
-  #endif
-#else
-    if (verbose) printf(
-         "\tThis test is disabled because compiler does not support tuples\n");
-#endif
-      } break;
-      case 16: {
-        // --------------------------------------------------------------------
-        // TESTING TUPLE-LIKE API
-        //
-        // Concerns:
-        //: 1 The partial specialization of 'std::tuple_size' for 'bsl::pair'
-        //:   always shows that there are two elements in pair, irrespectively
-        //:   of their types.
-        //:
-        //: 2 The partial specializations of 'std::tuple_element' for
-        //:   'bsl::pair' has 'type' attribute value equal to the type of the
-        //:   first pair's element, if 'INDEX' template parameter is equal to
-        //:   '0', and to the type of the second pair's element, if 'INDEX'
-        //:   template parameter is equal to '1'.
-        //:
-        //: 3 The index-based overloads of 'get' function return pair's element
-        //:   with requested index.
-        //:
-        //: 4 The type-based overloads of 'get' function return pair's element
-        //:   with requested type.
-        //:
-        //: 5 All tuple-like APIs work correctly with pairs, having constant
-        //:   and volatile elements.
-        //:
-        //: 6 There is no unexpected recursion when an element type is an
-        //:   instantiation of 'bsl::pair<T1, T2>'.
-        //
-        // Plan:
-        //: 1 Specify the set of types and verify attributes of 'tuple_size'
-        //:   and 'tuple_element' partial specializations, having 'bsl::pair'
-        //:   with elements of these types as template parameters.  (C-1..2, 6)
-        //:
-        //: 2 Specify the set of types and verify return values of 'bsl::get'
-        //:   function overloads, having 'bsl::pair' with ordinary and constant
-        //:   elements of these types as parameters.
-        //:
-        //: 4 Use special test class to verify return values of 'bsl::get'
-        //:   function overloads, having 'bsl::pair' with volatile elements of
-        //:   this type as parameters.  (C-3..5, 6)
-        //
-        // Testing:
-        //   std::tuple_element<bsl::pair<T1, T2> >
-        //   std::tuple_size<bsl::pair<T1, T2> >
-        //   tuple_element<>::type& get<INDEX, T1, T2>(bsl::pair<T1, T2>& p)
-        //   tuple_element<>::type& get<TYPE, T1, T2>(bsl::pair<T1, T2>& p)
-        // --------------------------------------------------------------------
-
-
-        if (verbose) printf("\nTESTING TUPLE-LIKE API"
-                            "\n======================\n");
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-        if (verbose) printf(
-                "\tTesting meta-functions 'tuple_element' and 'tuple_size'\n");
-
-        RUN_EACH_TYPE(TupleApiTestDriver,
-                      metaFunctionsTest,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        // Use 'bsl::pair<int, int>' class as a template parameter to check
-        // code for recursive problems.
-
-        TupleApiTestDriver<bsl::pair<int, int> >::metaFunctionsTest();
-
-
-        if (verbose) printf(
-                "\tTesting 'get' function, accepting index as a template"
-                " parameter\n");
-
-        RUN_EACH_TYPE(TupleApiTestDriver,
-                      getByIndexCopyTest,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        // Use 'bsl::pair<int, int>' class as a template parameter to check
-        // code for recursive problems.
-
-        TupleApiTestDriver<bsl::pair<int, int> >::getByIndexCopyTest();
-
-        RUN_EACH_TYPE(TupleApiTestDriver,
-                      getByIndexMoveTest,
-                      bsltf::AllocArgumentType<1>,
-                      bsltf::ArgumentType<1>,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
-
-        RUN_EACH_TYPE(TupleApiTestDriver,
-                      getByIndexVolatileMoveTest,
-                      VolatileMovableType);
-
-        if (verbose) printf(
-                "\tTesting 'get' function, accepting type  as a template"
-                " parameter\n");
-
-        // We test 'get' function for 'bsl::pair<T, int>' and
-        // 'bsl::pair<int, T>' objects.
-        // BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR contains 'size_t'
-        // type, but not 'int' type, so we will not hit the situation when pair
-        // contains elements of the same type.
-
-        RUN_EACH_TYPE(TupleApiTestDriver,
-                      getByTypeCopyTest,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
-
-        // Use 'bsl::pair<int, int>' class as a template parameter to check
-        // code for recursive problems.
-
-        TupleApiTestDriver<bsl::pair<int, int> >::getByTypeCopyTest();
-
-        RUN_EACH_TYPE(TupleApiTestDriver,
-                      getByTypeMoveTest,
-                      bsltf::AllocArgumentType<1>,
-                      bsltf::ArgumentType<1>,
-                      bsltf::MovableTestType,
-                      bsltf::MovableAllocTestType);
-
-        RUN_EACH_TYPE(TupleApiTestDriver,
-                      getByTypeVolatileMoveTest,
-                      VolatileMovableType);
-#else
-        if (verbose) printf("Tuple-like APIs are not supported\n");
-#endif
-      } break;
-      case 15: {
-        // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
-                                 "========================" "\n");
-
-        testCase15();
 
       } break;
       case 14: {
@@ -5702,8 +4103,8 @@ int main(int argc, char *argv[])
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
-                   // BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- test case
-                   // needs copy c'tor.
+                   // BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) -- test case needs copy
+                   // c'tor.
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -5713,12 +4114,6 @@ int main(int argc, char *argv[])
         //: 1 That the constructor of 'bsl::pair' can properly propagate
         //:   complex argument types to a template constructors of its member
         //:   types.
-        //:
-        //: 2 Members of 'bsl::pair' are created in-place during piecewise
-        //:   construction.
-        //:
-        //: 3 Allocators are correctly propagated to pair members
-        //:   irrespectively of their allocator traits.
         //
         // Plan:
         //: 1 Create a template function 'testArg' that will return an argument
@@ -5739,488 +4134,467 @@ int main(int argc, char *argv[])
         //:
         //: 4 In 'main' call 'runTestAlloc' and 'runTestNoAlloc' with every
         //:   possible valid combination of template arguments.
-        //:
-        //: 5 Call 'runTestInplaceMemberConstruction' function to create a pair
-        //:   of objects of 'CloneDisabledTestType' class, that has private
-        //:   copy and move constructors and assignment operators, to prove
-        //:   that members of pair are created in-place.
-        //:
-        //: 6 Construct several pairs of types, having different allocator
-        //:   traits (not taking allocators on construction, taking bslma
-        //:   allocators, taking allocators preceded by 'bsl::allocator_arg')
-        //:   with/without passing allocators on construction. Verify, that
-        //:   constructed members use default/passed on construction allocator
-        //:   to supply memory.
         //
         // Testing:
-        //   pair(piecewise_construct_t, tuple, tuple);
-        //   pair(piecewise_construct_t, tuple, tuple, basicAllocator);
+        //   bsl::pair(piecewise_construct, tuple, tuple);
+        //   bsl::pair(piecewise_construct, tuple, tuple, alloc);
         // --------------------------------------------------------------------
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
-        typedef TupleTestDriver TTD;
-
         // These series were machine generated to generate all possible
         // combinations of calls with no repetition:
 
-        TTD::runTestAlloc<0, 2,2,2, 0, 2,2,2>();
-        TTD::runTestAlloc<0, 2,2,2, 1, 0,2,2>();
-        TTD::runTestAlloc<0, 2,2,2, 1, 1,2,2>();
-        TTD::runTestAlloc<0, 2,2,2, 2, 0,0,2>();
-        TTD::runTestAlloc<0, 2,2,2, 2, 0,1,2>();
-        TTD::runTestAlloc<0, 2,2,2, 2, 1,0,2>();
-        TTD::runTestAlloc<0, 2,2,2, 2, 1,1,2>();
-        TTD::runTestAlloc<0, 2,2,2, 3, 0,0,0>();
-        TTD::runTestAlloc<0, 2,2,2, 3, 0,0,1>();
-        TTD::runTestAlloc<0, 2,2,2, 3, 0,1,0>();
-        TTD::runTestAlloc<0, 2,2,2, 3, 0,1,1>();
-        TTD::runTestAlloc<0, 2,2,2, 3, 1,0,0>();
-        TTD::runTestAlloc<0, 2,2,2, 3, 1,0,1>();
-        TTD::runTestAlloc<0, 2,2,2, 3, 1,1,0>();
-        TTD::runTestAlloc<0, 2,2,2, 3, 1,1,1>();
-        TTD::runTestAlloc<1, 0,2,2, 0, 2,2,2>();
-        TTD::runTestAlloc<1, 0,2,2, 1, 0,2,2>();
-        TTD::runTestAlloc<1, 0,2,2, 1, 1,2,2>();
-        TTD::runTestAlloc<1, 0,2,2, 2, 0,0,2>();
-        TTD::runTestAlloc<1, 0,2,2, 2, 0,1,2>();
-        TTD::runTestAlloc<1, 0,2,2, 2, 1,0,2>();
-        TTD::runTestAlloc<1, 0,2,2, 2, 1,1,2>();
-        TTD::runTestAlloc<1, 0,2,2, 3, 0,0,0>();
-        TTD::runTestAlloc<1, 0,2,2, 3, 0,0,1>();
-        TTD::runTestAlloc<1, 0,2,2, 3, 0,1,0>();
-        TTD::runTestAlloc<1, 0,2,2, 3, 0,1,1>();
-        TTD::runTestAlloc<1, 0,2,2, 3, 1,0,0>();
-        TTD::runTestAlloc<1, 0,2,2, 3, 1,0,1>();
-        TTD::runTestAlloc<1, 0,2,2, 3, 1,1,0>();
-        TTD::runTestAlloc<1, 0,2,2, 3, 1,1,1>();
-        TTD::runTestAlloc<1, 1,2,2, 0, 2,2,2>();
-        TTD::runTestAlloc<1, 1,2,2, 1, 0,2,2>();
-        TTD::runTestAlloc<1, 1,2,2, 1, 1,2,2>();
-        TTD::runTestAlloc<1, 1,2,2, 2, 0,0,2>();
-        TTD::runTestAlloc<1, 1,2,2, 2, 0,1,2>();
-        TTD::runTestAlloc<1, 1,2,2, 2, 1,0,2>();
-        TTD::runTestAlloc<1, 1,2,2, 2, 1,1,2>();
-        TTD::runTestAlloc<1, 1,2,2, 3, 0,0,0>();
-        TTD::runTestAlloc<1, 1,2,2, 3, 0,0,1>();
-        TTD::runTestAlloc<1, 1,2,2, 3, 0,1,0>();
-        TTD::runTestAlloc<1, 1,2,2, 3, 0,1,1>();
-        TTD::runTestAlloc<1, 1,2,2, 3, 1,0,0>();
-        TTD::runTestAlloc<1, 1,2,2, 3, 1,0,1>();
-        TTD::runTestAlloc<1, 1,2,2, 3, 1,1,0>();
-        TTD::runTestAlloc<1, 1,2,2, 3, 1,1,1>();
-        TTD::runTestAlloc<2, 0,0,2, 0, 2,2,2>();
-        TTD::runTestAlloc<2, 0,0,2, 1, 0,2,2>();
-        TTD::runTestAlloc<2, 0,0,2, 1, 1,2,2>();
-        TTD::runTestAlloc<2, 0,0,2, 2, 0,0,2>();
-        TTD::runTestAlloc<2, 0,0,2, 2, 0,1,2>();
-        TTD::runTestAlloc<2, 0,0,2, 2, 1,0,2>();
-        TTD::runTestAlloc<2, 0,0,2, 2, 1,1,2>();
-        TTD::runTestAlloc<2, 0,0,2, 3, 0,0,0>();
-        TTD::runTestAlloc<2, 0,0,2, 3, 0,0,1>();
-        TTD::runTestAlloc<2, 0,0,2, 3, 0,1,0>();
-        TTD::runTestAlloc<2, 0,0,2, 3, 0,1,1>();
-        TTD::runTestAlloc<2, 0,0,2, 3, 1,0,0>();
-        TTD::runTestAlloc<2, 0,0,2, 3, 1,0,1>();
-        TTD::runTestAlloc<2, 0,0,2, 3, 1,1,0>();
-        TTD::runTestAlloc<2, 0,0,2, 3, 1,1,1>();
-        TTD::runTestAlloc<2, 0,1,2, 0, 2,2,2>();
-        TTD::runTestAlloc<2, 0,1,2, 1, 0,2,2>();
-        TTD::runTestAlloc<2, 0,1,2, 1, 1,2,2>();
-        TTD::runTestAlloc<2, 0,1,2, 2, 0,0,2>();
-        TTD::runTestAlloc<2, 0,1,2, 2, 0,1,2>();
-        TTD::runTestAlloc<2, 0,1,2, 2, 1,0,2>();
-        TTD::runTestAlloc<2, 0,1,2, 2, 1,1,2>();
-        TTD::runTestAlloc<2, 0,1,2, 3, 0,0,0>();
-        TTD::runTestAlloc<2, 0,1,2, 3, 0,0,1>();
-        TTD::runTestAlloc<2, 0,1,2, 3, 0,1,0>();
-        TTD::runTestAlloc<2, 0,1,2, 3, 0,1,1>();
-        TTD::runTestAlloc<2, 0,1,2, 3, 1,0,0>();
-        TTD::runTestAlloc<2, 0,1,2, 3, 1,0,1>();
-        TTD::runTestAlloc<2, 0,1,2, 3, 1,1,0>();
-        TTD::runTestAlloc<2, 0,1,2, 3, 1,1,1>();
-        TTD::runTestAlloc<2, 1,0,2, 0, 2,2,2>();
-        TTD::runTestAlloc<2, 1,0,2, 1, 0,2,2>();
-        TTD::runTestAlloc<2, 1,0,2, 1, 1,2,2>();
-        TTD::runTestAlloc<2, 1,0,2, 2, 0,0,2>();
-        TTD::runTestAlloc<2, 1,0,2, 2, 0,1,2>();
-        TTD::runTestAlloc<2, 1,0,2, 2, 1,0,2>();
-        TTD::runTestAlloc<2, 1,0,2, 2, 1,1,2>();
-        TTD::runTestAlloc<2, 1,0,2, 3, 0,0,0>();
-        TTD::runTestAlloc<2, 1,0,2, 3, 0,0,1>();
-        TTD::runTestAlloc<2, 1,0,2, 3, 0,1,0>();
-        TTD::runTestAlloc<2, 1,0,2, 3, 0,1,1>();
-        TTD::runTestAlloc<2, 1,0,2, 3, 1,0,0>();
-        TTD::runTestAlloc<2, 1,0,2, 3, 1,0,1>();
-        TTD::runTestAlloc<2, 1,0,2, 3, 1,1,0>();
-        TTD::runTestAlloc<2, 1,0,2, 3, 1,1,1>();
-        TTD::runTestAlloc<2, 1,1,2, 0, 2,2,2>();
-        TTD::runTestAlloc<2, 1,1,2, 1, 0,2,2>();
-        TTD::runTestAlloc<2, 1,1,2, 1, 1,2,2>();
-        TTD::runTestAlloc<2, 1,1,2, 2, 0,0,2>();
-        TTD::runTestAlloc<2, 1,1,2, 2, 0,1,2>();
-        TTD::runTestAlloc<2, 1,1,2, 2, 1,0,2>();
-        TTD::runTestAlloc<2, 1,1,2, 2, 1,1,2>();
-        TTD::runTestAlloc<2, 1,1,2, 3, 0,0,0>();
-        TTD::runTestAlloc<2, 1,1,2, 3, 0,0,1>();
-        TTD::runTestAlloc<2, 1,1,2, 3, 0,1,0>();
-        TTD::runTestAlloc<2, 1,1,2, 3, 0,1,1>();
-        TTD::runTestAlloc<2, 1,1,2, 3, 1,0,0>();
-        TTD::runTestAlloc<2, 1,1,2, 3, 1,0,1>();
-        TTD::runTestAlloc<2, 1,1,2, 3, 1,1,0>();
-        TTD::runTestAlloc<2, 1,1,2, 3, 1,1,1>();
-        TTD::runTestAlloc<3, 0,0,0, 0, 2,2,2>();
-        TTD::runTestAlloc<3, 0,0,0, 1, 0,2,2>();
-        TTD::runTestAlloc<3, 0,0,0, 1, 1,2,2>();
-        TTD::runTestAlloc<3, 0,0,0, 2, 0,0,2>();
-        TTD::runTestAlloc<3, 0,0,0, 2, 0,1,2>();
-        TTD::runTestAlloc<3, 0,0,0, 2, 1,0,2>();
-        TTD::runTestAlloc<3, 0,0,0, 2, 1,1,2>();
-        TTD::runTestAlloc<3, 0,0,0, 3, 0,0,0>();
-        TTD::runTestAlloc<3, 0,0,0, 3, 0,0,1>();
-        TTD::runTestAlloc<3, 0,0,0, 3, 0,1,0>();
-        TTD::runTestAlloc<3, 0,0,0, 3, 0,1,1>();
-        TTD::runTestAlloc<3, 0,0,0, 3, 1,0,0>();
-        TTD::runTestAlloc<3, 0,0,0, 3, 1,0,1>();
-        TTD::runTestAlloc<3, 0,0,0, 3, 1,1,0>();
-        TTD::runTestAlloc<3, 0,0,0, 3, 1,1,1>();
-        TTD::runTestAlloc<3, 0,0,1, 0, 2,2,2>();
-        TTD::runTestAlloc<3, 0,0,1, 1, 0,2,2>();
-        TTD::runTestAlloc<3, 0,0,1, 1, 1,2,2>();
-        TTD::runTestAlloc<3, 0,0,1, 2, 0,0,2>();
-        TTD::runTestAlloc<3, 0,0,1, 2, 0,1,2>();
-        TTD::runTestAlloc<3, 0,0,1, 2, 1,0,2>();
-        TTD::runTestAlloc<3, 0,0,1, 2, 1,1,2>();
-        TTD::runTestAlloc<3, 0,0,1, 3, 0,0,0>();
-        TTD::runTestAlloc<3, 0,0,1, 3, 0,0,1>();
-        TTD::runTestAlloc<3, 0,0,1, 3, 0,1,0>();
-        TTD::runTestAlloc<3, 0,0,1, 3, 0,1,1>();
-        TTD::runTestAlloc<3, 0,0,1, 3, 1,0,0>();
-        TTD::runTestAlloc<3, 0,0,1, 3, 1,0,1>();
-        TTD::runTestAlloc<3, 0,0,1, 3, 1,1,0>();
-        TTD::runTestAlloc<3, 0,0,1, 3, 1,1,1>();
-        TTD::runTestAlloc<3, 0,1,0, 0, 2,2,2>();
-        TTD::runTestAlloc<3, 0,1,0, 1, 0,2,2>();
-        TTD::runTestAlloc<3, 0,1,0, 1, 1,2,2>();
-        TTD::runTestAlloc<3, 0,1,0, 2, 0,0,2>();
-        TTD::runTestAlloc<3, 0,1,0, 2, 0,1,2>();
-        TTD::runTestAlloc<3, 0,1,0, 2, 1,0,2>();
-        TTD::runTestAlloc<3, 0,1,0, 2, 1,1,2>();
-        TTD::runTestAlloc<3, 0,1,0, 3, 0,0,0>();
-        TTD::runTestAlloc<3, 0,1,0, 3, 0,0,1>();
-        TTD::runTestAlloc<3, 0,1,0, 3, 0,1,0>();
-        TTD::runTestAlloc<3, 0,1,0, 3, 0,1,1>();
-        TTD::runTestAlloc<3, 0,1,0, 3, 1,0,0>();
-        TTD::runTestAlloc<3, 0,1,0, 3, 1,0,1>();
-        TTD::runTestAlloc<3, 0,1,0, 3, 1,1,0>();
-        TTD::runTestAlloc<3, 0,1,0, 3, 1,1,1>();
-        TTD::runTestAlloc<3, 0,1,1, 0, 2,2,2>();
-        TTD::runTestAlloc<3, 0,1,1, 1, 0,2,2>();
-        TTD::runTestAlloc<3, 0,1,1, 1, 1,2,2>();
-        TTD::runTestAlloc<3, 0,1,1, 2, 0,0,2>();
-        TTD::runTestAlloc<3, 0,1,1, 2, 0,1,2>();
-        TTD::runTestAlloc<3, 0,1,1, 2, 1,0,2>();
-        TTD::runTestAlloc<3, 0,1,1, 2, 1,1,2>();
-        TTD::runTestAlloc<3, 0,1,1, 3, 0,0,0>();
-        TTD::runTestAlloc<3, 0,1,1, 3, 0,0,1>();
-        TTD::runTestAlloc<3, 0,1,1, 3, 0,1,0>();
-        TTD::runTestAlloc<3, 0,1,1, 3, 0,1,1>();
-        TTD::runTestAlloc<3, 0,1,1, 3, 1,0,0>();
-        TTD::runTestAlloc<3, 0,1,1, 3, 1,0,1>();
-        TTD::runTestAlloc<3, 0,1,1, 3, 1,1,0>();
-        TTD::runTestAlloc<3, 0,1,1, 3, 1,1,1>();
-        TTD::runTestAlloc<3, 1,0,0, 0, 2,2,2>();
-        TTD::runTestAlloc<3, 1,0,0, 1, 0,2,2>();
-        TTD::runTestAlloc<3, 1,0,0, 1, 1,2,2>();
-        TTD::runTestAlloc<3, 1,0,0, 2, 0,0,2>();
-        TTD::runTestAlloc<3, 1,0,0, 2, 0,1,2>();
-        TTD::runTestAlloc<3, 1,0,0, 2, 1,0,2>();
-        TTD::runTestAlloc<3, 1,0,0, 2, 1,1,2>();
-        TTD::runTestAlloc<3, 1,0,0, 3, 0,0,0>();
-        TTD::runTestAlloc<3, 1,0,0, 3, 0,0,1>();
-        TTD::runTestAlloc<3, 1,0,0, 3, 0,1,0>();
-        TTD::runTestAlloc<3, 1,0,0, 3, 0,1,1>();
-        TTD::runTestAlloc<3, 1,0,0, 3, 1,0,0>();
-        TTD::runTestAlloc<3, 1,0,0, 3, 1,0,1>();
-        TTD::runTestAlloc<3, 1,0,0, 3, 1,1,0>();
-        TTD::runTestAlloc<3, 1,0,0, 3, 1,1,1>();
-        TTD::runTestAlloc<3, 1,0,1, 0, 2,2,2>();
-        TTD::runTestAlloc<3, 1,0,1, 1, 0,2,2>();
-        TTD::runTestAlloc<3, 1,0,1, 1, 1,2,2>();
-        TTD::runTestAlloc<3, 1,0,1, 2, 0,0,2>();
-        TTD::runTestAlloc<3, 1,0,1, 2, 0,1,2>();
-        TTD::runTestAlloc<3, 1,0,1, 2, 1,0,2>();
-        TTD::runTestAlloc<3, 1,0,1, 2, 1,1,2>();
-        TTD::runTestAlloc<3, 1,0,1, 3, 0,0,0>();
-        TTD::runTestAlloc<3, 1,0,1, 3, 0,0,1>();
-        TTD::runTestAlloc<3, 1,0,1, 3, 0,1,0>();
-        TTD::runTestAlloc<3, 1,0,1, 3, 0,1,1>();
-        TTD::runTestAlloc<3, 1,0,1, 3, 1,0,0>();
-        TTD::runTestAlloc<3, 1,0,1, 3, 1,0,1>();
-        TTD::runTestAlloc<3, 1,0,1, 3, 1,1,0>();
-        TTD::runTestAlloc<3, 1,0,1, 3, 1,1,1>();
-        TTD::runTestAlloc<3, 1,1,0, 0, 2,2,2>();
-        TTD::runTestAlloc<3, 1,1,0, 1, 0,2,2>();
-        TTD::runTestAlloc<3, 1,1,0, 1, 1,2,2>();
-        TTD::runTestAlloc<3, 1,1,0, 2, 0,0,2>();
-        TTD::runTestAlloc<3, 1,1,0, 2, 0,1,2>();
-        TTD::runTestAlloc<3, 1,1,0, 2, 1,0,2>();
-        TTD::runTestAlloc<3, 1,1,0, 2, 1,1,2>();
-        TTD::runTestAlloc<3, 1,1,0, 3, 0,0,0>();
-        TTD::runTestAlloc<3, 1,1,0, 3, 0,0,1>();
-        TTD::runTestAlloc<3, 1,1,0, 3, 0,1,0>();
-        TTD::runTestAlloc<3, 1,1,0, 3, 0,1,1>();
-        TTD::runTestAlloc<3, 1,1,0, 3, 1,0,0>();
-        TTD::runTestAlloc<3, 1,1,0, 3, 1,0,1>();
-        TTD::runTestAlloc<3, 1,1,0, 3, 1,1,0>();
-        TTD::runTestAlloc<3, 1,1,0, 3, 1,1,1>();
-        TTD::runTestAlloc<3, 1,1,1, 0, 2,2,2>();
-        TTD::runTestAlloc<3, 1,1,1, 1, 0,2,2>();
-        TTD::runTestAlloc<3, 1,1,1, 1, 1,2,2>();
-        TTD::runTestAlloc<3, 1,1,1, 2, 0,0,2>();
-        TTD::runTestAlloc<3, 1,1,1, 2, 0,1,2>();
-        TTD::runTestAlloc<3, 1,1,1, 2, 1,0,2>();
-        TTD::runTestAlloc<3, 1,1,1, 2, 1,1,2>();
-        TTD::runTestAlloc<3, 1,1,1, 3, 0,0,0>();
-        TTD::runTestAlloc<3, 1,1,1, 3, 0,0,1>();
-        TTD::runTestAlloc<3, 1,1,1, 3, 0,1,0>();
-        TTD::runTestAlloc<3, 1,1,1, 3, 0,1,1>();
-        TTD::runTestAlloc<3, 1,1,1, 3, 1,0,0>();
-        TTD::runTestAlloc<3, 1,1,1, 3, 1,0,1>();
-        TTD::runTestAlloc<3, 1,1,1, 3, 1,1,0>();
-        TTD::runTestAlloc<3, 1,1,1, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<0, 2,2,2, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<1, 0,2,2, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<1, 1,2,2, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<2, 0,0,2, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<2, 0,1,2, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<2, 1,0,2, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<2, 1,1,2, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<3, 0,0,0, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<3, 0,0,1, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<3, 0,1,0, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<3, 0,1,1, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<3, 1,0,0, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<3, 1,0,1, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<3, 1,1,0, 3, 1,1,1>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 0, 2,2,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 1, 0,2,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 1, 1,2,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 2, 0,0,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 2, 0,1,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 2, 1,0,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 2, 1,1,2>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 3, 0,0,0>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 3, 0,0,1>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 3, 0,1,0>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 3, 0,1,1>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 3, 1,0,0>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 3, 1,0,1>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 3, 1,1,0>();
+        TupleTestDriver::runTestAlloc<3, 1,1,1, 3, 1,1,1>();
 
-        TTD::runTestNoAlloc<0, 2,2,2, 0, 2,2,2>();
-        TTD::runTestNoAlloc<0, 2,2,2, 1, 0,2,2>();
-        TTD::runTestNoAlloc<0, 2,2,2, 1, 1,2,2>();
-        TTD::runTestNoAlloc<0, 2,2,2, 2, 0,0,2>();
-        TTD::runTestNoAlloc<0, 2,2,2, 2, 0,1,2>();
-        TTD::runTestNoAlloc<0, 2,2,2, 2, 1,0,2>();
-        TTD::runTestNoAlloc<0, 2,2,2, 2, 1,1,2>();
-        TTD::runTestNoAlloc<0, 2,2,2, 3, 0,0,0>();
-        TTD::runTestNoAlloc<0, 2,2,2, 3, 0,0,1>();
-        TTD::runTestNoAlloc<0, 2,2,2, 3, 0,1,0>();
-        TTD::runTestNoAlloc<0, 2,2,2, 3, 0,1,1>();
-        TTD::runTestNoAlloc<0, 2,2,2, 3, 1,0,0>();
-        TTD::runTestNoAlloc<0, 2,2,2, 3, 1,0,1>();
-        TTD::runTestNoAlloc<0, 2,2,2, 3, 1,1,0>();
-        TTD::runTestNoAlloc<0, 2,2,2, 3, 1,1,1>();
-        TTD::runTestNoAlloc<1, 0,2,2, 0, 2,2,2>();
-        TTD::runTestNoAlloc<1, 0,2,2, 1, 0,2,2>();
-        TTD::runTestNoAlloc<1, 0,2,2, 1, 1,2,2>();
-        TTD::runTestNoAlloc<1, 0,2,2, 2, 0,0,2>();
-        TTD::runTestNoAlloc<1, 0,2,2, 2, 0,1,2>();
-        TTD::runTestNoAlloc<1, 0,2,2, 2, 1,0,2>();
-        TTD::runTestNoAlloc<1, 0,2,2, 2, 1,1,2>();
-        TTD::runTestNoAlloc<1, 0,2,2, 3, 0,0,0>();
-        TTD::runTestNoAlloc<1, 0,2,2, 3, 0,0,1>();
-        TTD::runTestNoAlloc<1, 0,2,2, 3, 0,1,0>();
-        TTD::runTestNoAlloc<1, 0,2,2, 3, 0,1,1>();
-        TTD::runTestNoAlloc<1, 0,2,2, 3, 1,0,0>();
-        TTD::runTestNoAlloc<1, 0,2,2, 3, 1,0,1>();
-        TTD::runTestNoAlloc<1, 0,2,2, 3, 1,1,0>();
-        TTD::runTestNoAlloc<1, 0,2,2, 3, 1,1,1>();
-        TTD::runTestNoAlloc<1, 1,2,2, 0, 2,2,2>();
-        TTD::runTestNoAlloc<1, 1,2,2, 1, 0,2,2>();
-        TTD::runTestNoAlloc<1, 1,2,2, 1, 1,2,2>();
-        TTD::runTestNoAlloc<1, 1,2,2, 2, 0,0,2>();
-        TTD::runTestNoAlloc<1, 1,2,2, 2, 0,1,2>();
-        TTD::runTestNoAlloc<1, 1,2,2, 2, 1,0,2>();
-        TTD::runTestNoAlloc<1, 1,2,2, 2, 1,1,2>();
-        TTD::runTestNoAlloc<1, 1,2,2, 3, 0,0,0>();
-        TTD::runTestNoAlloc<1, 1,2,2, 3, 0,0,1>();
-        TTD::runTestNoAlloc<1, 1,2,2, 3, 0,1,0>();
-        TTD::runTestNoAlloc<1, 1,2,2, 3, 0,1,1>();
-        TTD::runTestNoAlloc<1, 1,2,2, 3, 1,0,0>();
-        TTD::runTestNoAlloc<1, 1,2,2, 3, 1,0,1>();
-        TTD::runTestNoAlloc<1, 1,2,2, 3, 1,1,0>();
-        TTD::runTestNoAlloc<1, 1,2,2, 3, 1,1,1>();
-        TTD::runTestNoAlloc<2, 0,0,2, 0, 2,2,2>();
-        TTD::runTestNoAlloc<2, 0,0,2, 1, 0,2,2>();
-        TTD::runTestNoAlloc<2, 0,0,2, 1, 1,2,2>();
-        TTD::runTestNoAlloc<2, 0,0,2, 2, 0,0,2>();
-        TTD::runTestNoAlloc<2, 0,0,2, 2, 0,1,2>();
-        TTD::runTestNoAlloc<2, 0,0,2, 2, 1,0,2>();
-        TTD::runTestNoAlloc<2, 0,0,2, 2, 1,1,2>();
-        TTD::runTestNoAlloc<2, 0,0,2, 3, 0,0,0>();
-        TTD::runTestNoAlloc<2, 0,0,2, 3, 0,0,1>();
-        TTD::runTestNoAlloc<2, 0,0,2, 3, 0,1,0>();
-        TTD::runTestNoAlloc<2, 0,0,2, 3, 0,1,1>();
-        TTD::runTestNoAlloc<2, 0,0,2, 3, 1,0,0>();
-        TTD::runTestNoAlloc<2, 0,0,2, 3, 1,0,1>();
-        TTD::runTestNoAlloc<2, 0,0,2, 3, 1,1,0>();
-        TTD::runTestNoAlloc<2, 0,0,2, 3, 1,1,1>();
-        TTD::runTestNoAlloc<2, 0,1,2, 0, 2,2,2>();
-        TTD::runTestNoAlloc<2, 0,1,2, 1, 0,2,2>();
-        TTD::runTestNoAlloc<2, 0,1,2, 1, 1,2,2>();
-        TTD::runTestNoAlloc<2, 0,1,2, 2, 0,0,2>();
-        TTD::runTestNoAlloc<2, 0,1,2, 2, 0,1,2>();
-        TTD::runTestNoAlloc<2, 0,1,2, 2, 1,0,2>();
-        TTD::runTestNoAlloc<2, 0,1,2, 2, 1,1,2>();
-        TTD::runTestNoAlloc<2, 0,1,2, 3, 0,0,0>();
-        TTD::runTestNoAlloc<2, 0,1,2, 3, 0,0,1>();
-        TTD::runTestNoAlloc<2, 0,1,2, 3, 0,1,0>();
-        TTD::runTestNoAlloc<2, 0,1,2, 3, 0,1,1>();
-        TTD::runTestNoAlloc<2, 0,1,2, 3, 1,0,0>();
-        TTD::runTestNoAlloc<2, 0,1,2, 3, 1,0,1>();
-        TTD::runTestNoAlloc<2, 0,1,2, 3, 1,1,0>();
-        TTD::runTestNoAlloc<2, 0,1,2, 3, 1,1,1>();
-        TTD::runTestNoAlloc<2, 1,0,2, 0, 2,2,2>();
-        TTD::runTestNoAlloc<2, 1,0,2, 1, 0,2,2>();
-        TTD::runTestNoAlloc<2, 1,0,2, 1, 1,2,2>();
-        TTD::runTestNoAlloc<2, 1,0,2, 2, 0,0,2>();
-        TTD::runTestNoAlloc<2, 1,0,2, 2, 0,1,2>();
-        TTD::runTestNoAlloc<2, 1,0,2, 2, 1,0,2>();
-        TTD::runTestNoAlloc<2, 1,0,2, 2, 1,1,2>();
-        TTD::runTestNoAlloc<2, 1,0,2, 3, 0,0,0>();
-        TTD::runTestNoAlloc<2, 1,0,2, 3, 0,0,1>();
-        TTD::runTestNoAlloc<2, 1,0,2, 3, 0,1,0>();
-        TTD::runTestNoAlloc<2, 1,0,2, 3, 0,1,1>();
-        TTD::runTestNoAlloc<2, 1,0,2, 3, 1,0,0>();
-        TTD::runTestNoAlloc<2, 1,0,2, 3, 1,0,1>();
-        TTD::runTestNoAlloc<2, 1,0,2, 3, 1,1,0>();
-        TTD::runTestNoAlloc<2, 1,0,2, 3, 1,1,1>();
-        TTD::runTestNoAlloc<2, 1,1,2, 0, 2,2,2>();
-        TTD::runTestNoAlloc<2, 1,1,2, 1, 0,2,2>();
-        TTD::runTestNoAlloc<2, 1,1,2, 1, 1,2,2>();
-        TTD::runTestNoAlloc<2, 1,1,2, 2, 0,0,2>();
-        TTD::runTestNoAlloc<2, 1,1,2, 2, 0,1,2>();
-        TTD::runTestNoAlloc<2, 1,1,2, 2, 1,0,2>();
-        TTD::runTestNoAlloc<2, 1,1,2, 2, 1,1,2>();
-        TTD::runTestNoAlloc<2, 1,1,2, 3, 0,0,0>();
-        TTD::runTestNoAlloc<2, 1,1,2, 3, 0,0,1>();
-        TTD::runTestNoAlloc<2, 1,1,2, 3, 0,1,0>();
-        TTD::runTestNoAlloc<2, 1,1,2, 3, 0,1,1>();
-        TTD::runTestNoAlloc<2, 1,1,2, 3, 1,0,0>();
-        TTD::runTestNoAlloc<2, 1,1,2, 3, 1,0,1>();
-        TTD::runTestNoAlloc<2, 1,1,2, 3, 1,1,0>();
-        TTD::runTestNoAlloc<2, 1,1,2, 3, 1,1,1>();
-        TTD::runTestNoAlloc<3, 0,0,0, 0, 2,2,2>();
-        TTD::runTestNoAlloc<3, 0,0,0, 1, 0,2,2>();
-        TTD::runTestNoAlloc<3, 0,0,0, 1, 1,2,2>();
-        TTD::runTestNoAlloc<3, 0,0,0, 2, 0,0,2>();
-        TTD::runTestNoAlloc<3, 0,0,0, 2, 0,1,2>();
-        TTD::runTestNoAlloc<3, 0,0,0, 2, 1,0,2>();
-        TTD::runTestNoAlloc<3, 0,0,0, 2, 1,1,2>();
-        TTD::runTestNoAlloc<3, 0,0,0, 3, 0,0,0>();
-        TTD::runTestNoAlloc<3, 0,0,0, 3, 0,0,1>();
-        TTD::runTestNoAlloc<3, 0,0,0, 3, 0,1,0>();
-        TTD::runTestNoAlloc<3, 0,0,0, 3, 0,1,1>();
-        TTD::runTestNoAlloc<3, 0,0,0, 3, 1,0,0>();
-        TTD::runTestNoAlloc<3, 0,0,0, 3, 1,0,1>();
-        TTD::runTestNoAlloc<3, 0,0,0, 3, 1,1,0>();
-        TTD::runTestNoAlloc<3, 0,0,0, 3, 1,1,1>();
-        TTD::runTestNoAlloc<3, 0,0,1, 0, 2,2,2>();
-        TTD::runTestNoAlloc<3, 0,0,1, 1, 0,2,2>();
-        TTD::runTestNoAlloc<3, 0,0,1, 1, 1,2,2>();
-        TTD::runTestNoAlloc<3, 0,0,1, 2, 0,0,2>();
-        TTD::runTestNoAlloc<3, 0,0,1, 2, 0,1,2>();
-        TTD::runTestNoAlloc<3, 0,0,1, 2, 1,0,2>();
-        TTD::runTestNoAlloc<3, 0,0,1, 2, 1,1,2>();
-        TTD::runTestNoAlloc<3, 0,0,1, 3, 0,0,0>();
-        TTD::runTestNoAlloc<3, 0,0,1, 3, 0,0,1>();
-        TTD::runTestNoAlloc<3, 0,0,1, 3, 0,1,0>();
-        TTD::runTestNoAlloc<3, 0,0,1, 3, 0,1,1>();
-        TTD::runTestNoAlloc<3, 0,0,1, 3, 1,0,0>();
-        TTD::runTestNoAlloc<3, 0,0,1, 3, 1,0,1>();
-        TTD::runTestNoAlloc<3, 0,0,1, 3, 1,1,0>();
-        TTD::runTestNoAlloc<3, 0,0,1, 3, 1,1,1>();
-        TTD::runTestNoAlloc<3, 0,1,0, 0, 2,2,2>();
-        TTD::runTestNoAlloc<3, 0,1,0, 1, 0,2,2>();
-        TTD::runTestNoAlloc<3, 0,1,0, 1, 1,2,2>();
-        TTD::runTestNoAlloc<3, 0,1,0, 2, 0,0,2>();
-        TTD::runTestNoAlloc<3, 0,1,0, 2, 0,1,2>();
-        TTD::runTestNoAlloc<3, 0,1,0, 2, 1,0,2>();
-        TTD::runTestNoAlloc<3, 0,1,0, 2, 1,1,2>();
-        TTD::runTestNoAlloc<3, 0,1,0, 3, 0,0,0>();
-        TTD::runTestNoAlloc<3, 0,1,0, 3, 0,0,1>();
-        TTD::runTestNoAlloc<3, 0,1,0, 3, 0,1,0>();
-        TTD::runTestNoAlloc<3, 0,1,0, 3, 0,1,1>();
-        TTD::runTestNoAlloc<3, 0,1,0, 3, 1,0,0>();
-        TTD::runTestNoAlloc<3, 0,1,0, 3, 1,0,1>();
-        TTD::runTestNoAlloc<3, 0,1,0, 3, 1,1,0>();
-        TTD::runTestNoAlloc<3, 0,1,0, 3, 1,1,1>();
-        TTD::runTestNoAlloc<3, 0,1,1, 0, 2,2,2>();
-        TTD::runTestNoAlloc<3, 0,1,1, 1, 0,2,2>();
-        TTD::runTestNoAlloc<3, 0,1,1, 1, 1,2,2>();
-        TTD::runTestNoAlloc<3, 0,1,1, 2, 0,0,2>();
-        TTD::runTestNoAlloc<3, 0,1,1, 2, 0,1,2>();
-        TTD::runTestNoAlloc<3, 0,1,1, 2, 1,0,2>();
-        TTD::runTestNoAlloc<3, 0,1,1, 2, 1,1,2>();
-        TTD::runTestNoAlloc<3, 0,1,1, 3, 0,0,0>();
-        TTD::runTestNoAlloc<3, 0,1,1, 3, 0,0,1>();
-        TTD::runTestNoAlloc<3, 0,1,1, 3, 0,1,0>();
-        TTD::runTestNoAlloc<3, 0,1,1, 3, 0,1,1>();
-        TTD::runTestNoAlloc<3, 0,1,1, 3, 1,0,0>();
-        TTD::runTestNoAlloc<3, 0,1,1, 3, 1,0,1>();
-        TTD::runTestNoAlloc<3, 0,1,1, 3, 1,1,0>();
-        TTD::runTestNoAlloc<3, 0,1,1, 3, 1,1,1>();
-        TTD::runTestNoAlloc<3, 1,0,0, 0, 2,2,2>();
-        TTD::runTestNoAlloc<3, 1,0,0, 1, 0,2,2>();
-        TTD::runTestNoAlloc<3, 1,0,0, 1, 1,2,2>();
-        TTD::runTestNoAlloc<3, 1,0,0, 2, 0,0,2>();
-        TTD::runTestNoAlloc<3, 1,0,0, 2, 0,1,2>();
-        TTD::runTestNoAlloc<3, 1,0,0, 2, 1,0,2>();
-        TTD::runTestNoAlloc<3, 1,0,0, 2, 1,1,2>();
-        TTD::runTestNoAlloc<3, 1,0,0, 3, 0,0,0>();
-        TTD::runTestNoAlloc<3, 1,0,0, 3, 0,0,1>();
-        TTD::runTestNoAlloc<3, 1,0,0, 3, 0,1,0>();
-        TTD::runTestNoAlloc<3, 1,0,0, 3, 0,1,1>();
-        TTD::runTestNoAlloc<3, 1,0,0, 3, 1,0,0>();
-        TTD::runTestNoAlloc<3, 1,0,0, 3, 1,0,1>();
-        TTD::runTestNoAlloc<3, 1,0,0, 3, 1,1,0>();
-        TTD::runTestNoAlloc<3, 1,0,0, 3, 1,1,1>();
-        TTD::runTestNoAlloc<3, 1,0,1, 0, 2,2,2>();
-        TTD::runTestNoAlloc<3, 1,0,1, 1, 0,2,2>();
-        TTD::runTestNoAlloc<3, 1,0,1, 1, 1,2,2>();
-        TTD::runTestNoAlloc<3, 1,0,1, 2, 0,0,2>();
-        TTD::runTestNoAlloc<3, 1,0,1, 2, 0,1,2>();
-        TTD::runTestNoAlloc<3, 1,0,1, 2, 1,0,2>();
-        TTD::runTestNoAlloc<3, 1,0,1, 2, 1,1,2>();
-        TTD::runTestNoAlloc<3, 1,0,1, 3, 0,0,0>();
-        TTD::runTestNoAlloc<3, 1,0,1, 3, 0,0,1>();
-        TTD::runTestNoAlloc<3, 1,0,1, 3, 0,1,0>();
-        TTD::runTestNoAlloc<3, 1,0,1, 3, 0,1,1>();
-        TTD::runTestNoAlloc<3, 1,0,1, 3, 1,0,0>();
-        TTD::runTestNoAlloc<3, 1,0,1, 3, 1,0,1>();
-        TTD::runTestNoAlloc<3, 1,0,1, 3, 1,1,0>();
-        TTD::runTestNoAlloc<3, 1,0,1, 3, 1,1,1>();
-        TTD::runTestNoAlloc<3, 1,1,0, 0, 2,2,2>();
-        TTD::runTestNoAlloc<3, 1,1,0, 1, 0,2,2>();
-        TTD::runTestNoAlloc<3, 1,1,0, 1, 1,2,2>();
-        TTD::runTestNoAlloc<3, 1,1,0, 2, 0,0,2>();
-        TTD::runTestNoAlloc<3, 1,1,0, 2, 0,1,2>();
-        TTD::runTestNoAlloc<3, 1,1,0, 2, 1,0,2>();
-        TTD::runTestNoAlloc<3, 1,1,0, 2, 1,1,2>();
-        TTD::runTestNoAlloc<3, 1,1,0, 3, 0,0,0>();
-        TTD::runTestNoAlloc<3, 1,1,0, 3, 0,0,1>();
-        TTD::runTestNoAlloc<3, 1,1,0, 3, 0,1,0>();
-        TTD::runTestNoAlloc<3, 1,1,0, 3, 0,1,1>();
-        TTD::runTestNoAlloc<3, 1,1,0, 3, 1,0,0>();
-        TTD::runTestNoAlloc<3, 1,1,0, 3, 1,0,1>();
-        TTD::runTestNoAlloc<3, 1,1,0, 3, 1,1,0>();
-        TTD::runTestNoAlloc<3, 1,1,0, 3, 1,1,1>();
-        TTD::runTestNoAlloc<3, 1,1,1, 0, 2,2,2>();
-        TTD::runTestNoAlloc<3, 1,1,1, 1, 0,2,2>();
-        TTD::runTestNoAlloc<3, 1,1,1, 1, 1,2,2>();
-        TTD::runTestNoAlloc<3, 1,1,1, 2, 0,0,2>();
-        TTD::runTestNoAlloc<3, 1,1,1, 2, 0,1,2>();
-        TTD::runTestNoAlloc<3, 1,1,1, 2, 1,0,2>();
-        TTD::runTestNoAlloc<3, 1,1,1, 2, 1,1,2>();
-        TTD::runTestNoAlloc<3, 1,1,1, 3, 0,0,0>();
-        TTD::runTestNoAlloc<3, 1,1,1, 3, 0,0,1>();
-        TTD::runTestNoAlloc<3, 1,1,1, 3, 0,1,0>();
-        TTD::runTestNoAlloc<3, 1,1,1, 3, 0,1,1>();
-        TTD::runTestNoAlloc<3, 1,1,1, 3, 1,0,0>();
-        TTD::runTestNoAlloc<3, 1,1,1, 3, 1,0,1>();
-        TTD::runTestNoAlloc<3, 1,1,1, 3, 1,1,0>();
-        TTD::runTestNoAlloc<3, 1,1,1, 3, 1,1,1>();
-
-        TTD::runTestInplaceMemberConstruction<CloneDisabledTestType, 0, 0>();
-        TTD::runTestInplaceMemberConstruction<CloneDisabledTestType, 0, 1>();
-        TTD::runTestInplaceMemberConstruction<CloneDisabledTestType, 1, 0>();
-        TTD::runTestInplaceMemberConstruction<CloneDisabledTestType, 1, 1>();
-
-        TTD::runTestAllocatorPropagation();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<0, 2,2,2, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<1, 0,2,2, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<1, 1,2,2, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<2, 0,0,2, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<2, 0,1,2, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<2, 1,0,2, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<2, 1,1,2, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,0, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,0,1, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,0, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 0,1,1, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,0, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,0,1, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,0, 3, 1,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 0, 2,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 1, 0,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 1, 1,2,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 2, 0,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 2, 0,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 2, 1,0,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 2, 1,1,2>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 3, 0,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 3, 0,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 3, 0,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 3, 0,1,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 3, 1,0,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 3, 1,0,1>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 3, 1,1,0>();
+        TupleTestDriver::runTestNoAlloc<3, 1,1,1, 3, 1,1,1>();
 #endif
       } break;
       case 12: {
@@ -6361,7 +4735,6 @@ int main(int argc, char *argv[])
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
                       BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType));
-
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -7228,8 +5601,6 @@ int main(int argc, char *argv[])
         //:   pointer is passed through to the member(s) that take it.
         //: 4 Assignment works as designed.
         //: 5 Operators ==, !=, <, >, <=, and >= work as designed.
-        //: 6 Constructors and relational operators are 'constexpr' under C++14
-        //:   mode.
         //
         // Plan:
         // - Select a small set of interesting types:
@@ -7262,8 +5633,6 @@ int main(int argc, char *argv[])
         //   * Verify that memory was used from the allocators as expected.
         //   * Verify that no memory was used from the default allocator.
         //   * Test assignment among the new objects
-        // - Use 'static_assert' to determine that the results of constructors
-        //   and relational operators are compile-time constant expressions.
         //
         // Testing:
         //   typedef T1 first_type;
@@ -7330,78 +5699,6 @@ int main(int argc, char *argv[])
         TEST(my_NoAllocString   , my_BslmaAllocArgStr);
         TEST(my_NoAllocString   , my_STLAllocArgStr  );
         TEST(my_NoAllocString   , my_NoAllocString   );
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-
-        // 'constexpr' tests
-
-        using bsl::pair;
-
-        // Simple constructors
-
-        static_assert(pair<int, int>().second == 0,
-                      "Default constructor is not 'constexpr'.");
-
-        constexpr int f = 1, s = 2;
-        static_assert(pair<int, int>(f, s).second == 2,
-                      "Constructor is not 'constexpr'.");
-
-        // Relational operators
-
-        static_assert(pair<int, int>(f, s) == pair<int, int>(f, s),
-                      "Operator == is not 'constexpr'.");
-
-        static_assert(pair<int, int>(s, f) >= pair<int, int>(f, s),
-                      "Operator >= is not 'constexpr'.");
-        static_assert(pair<int, int>(s, f) >  pair<int, int>(f, s),
-                      "Operator > is not 'constexpr'.");
-        static_assert(pair<int, int>(s, f) != pair<int, int>(f, s),
-                      "Operator != is not 'constexpr'.");
-
-        static_assert(pair<int, int>(f, s) <= pair<int, int>(s, f),
-                      "Operator <= is not 'constexpr'.");
-        static_assert(pair<int, int>(f, s) <  pair<int, int>(s, f),
-                      "Operator < is not 'constexpr'.");
-        static_assert(pair<int, int>(f, s) != pair<int, int>(s, f),
-                      "Operator != is not 'constexpr'.");
-
-        // Moving constructors
-
-        static_assert(pair<int, int>(1, 2).second == 2,
-                      "Constructor is not 'constexpr'.");
-        static_assert(pair<int, int>(f, 2).second == 2,
-                      "Constructor is not 'constexpr'.");
-        static_assert(pair<int, int>(1, s).second == 2,
-                      "Constructor is not 'constexpr'.");
-        static_assert(pair<int, int>(f, s).second == 2,
-                      "Constructor is not 'constexpr'.");
-
-        static_assert(pair<short, short>(1, 2).second == 2,
-                      "Constructor is not 'constexpr'.");
-        static_assert(pair<short, short>(f, 2).second == 2,
-                      "Constructor is not 'constexpr'.");
-        static_assert(pair<short, short>(1, s).second == 2,
-                      "Constructor is not 'constexpr'.");
-        static_assert(pair<short, short>(f, s).second == 2,
-                      "Constructor is not 'constexpr'.");
-
-        static_assert(pair<short, short>(pair<int, int>(1, 2)).second == 2,
-                      "Templated constructor is not 'constexpr'.");
-
-        static_assert(pair<int, int>(pair<int, int>(1, 2)).second == 2,
-                      "Copy constructor is not 'constexpr'.");
-
-        // Copying constructors
-
-        constexpr pair<int, int> pairii(1, 2);
-
-        static_assert(pair<short, short>(pairii).second == 2,
-                      "Templated constructor is not 'constexpr'.");
-
-        static_assert(pair<int, int>(pairii).second == 2,
-                      "Copy constructor is not 'constexpr'.");
-
-#endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 
 #undef TEST
 

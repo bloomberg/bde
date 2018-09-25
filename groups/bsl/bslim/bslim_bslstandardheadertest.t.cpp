@@ -136,10 +136,6 @@
 #include <bsl_typeindex.h>
 #endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-#include <bsl_shared_mutex.h>
-#endif
-
 
 #include <bsltf_templatetestfacility.h>
 
@@ -164,7 +160,6 @@ using namespace bslim;
 // defined in 'bslstl'.
 //
 //-----------------------------------------------------------------------------
-// [ 5] CONCERN: Range functions are not ambiguous with 'std' under ADL
 // [ 4] maps of smart pointers
 // [ 3] string vector resize
 // [ 2] CONCERN: REGRESSION TEST FOR C99 FEATURES
@@ -404,38 +399,6 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
-        // --------------------------------------------------------------------
-        // TESTING ITERATOR RANGE FUNCTIONS
-        //
-        // Concerns:
-        //: 1 Iterator range functions can be used with 'std' containers under
-        //:   ADL.
-        //
-        // Plan:
-        //: 1 Call all 8 range functions (unqualified) for a 'bsl::set<int>',
-        //:   as this will be associated with both namespace 'bsl' and native
-        //:   'std' (for 'std::less' as a template parameter).
-        //
-        // Testing
-        //   CONCERN: Range functions are not ambiguous with 'std' under ADL
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nTESTING ITERATOR RANGE FUNCTIONS"
-                            "\n================================\n");
-
-        bsl::set<int> mX;
-
-        (void)(begin  (mX));
-        (void)(cbegin (mX));
-        (void)(rbegin (mX));
-        (void)(crbegin(mX));
-
-        (void)(end  (mX));
-        (void)(cend (mX));
-        (void)(rend (mX));
-        (void)(crend(mX));
-      } break;
       case 4: {
         // --------------------------------------------------------------------
         // CONCERN: MAPS CONTAINING SMART POINTERS

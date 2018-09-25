@@ -11,29 +11,17 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_function: standard meta-function for determining function types
-//  bsl::is_function_v: the result value of 'bsl::is_function'
 //
 //@SEE_ALSO: bslmf_integralconstant
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::is_function' and
-// a template variable 'bsl::is_function_v', that represents the result value
-// of the 'bsl::is_function' meta-function, that may be used to query whether a
-// template parameter type is a function type.
+//@DESCRIPTION: This component defines a meta-function, 'bsl::is_function',
+// that may be used to query whether a template parameter type is a function
+// type.
 //
 // 'bsl::is_function' meets the requirements of the 'is_function' template
 // defined in the C++11 standard [meta.unary.cat].
-//
-// Note that the template variable 'is_function_v' is defined in the C++17
-// standard as an inline variable.  If the current compiler supports the inline
-// variable C++17 compiler feature, 'bsl::is_function_v' is defined as an
-// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
-// variable templates C++14 compiler feature, 'bsl::is_function_v' is defined
-// as a non-const 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
-// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -50,15 +38,6 @@ BSLS_IDENT("$Id: $")
 //  assert(false == bsl::is_function<int>::value);
 //  assert(true  == bsl::is_function<int (int)>::value);
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature, then we can re-write the snippet of code above using the
-// 'bsl::is_function_v' variable as follows:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(false == bsl::is_function_v<int>);
-//  assert(true  == bsl::is_function_v<int (int)>);
-//#endif
-//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -74,10 +53,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -230,14 +205,6 @@ struct is_function<TYPE &&> : false_type {
     // with this partial specialization.
 };
 # endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_function_v = is_function<TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_function' meta-function.
-#endif
 
 }  // close namespace bsl
 #endif

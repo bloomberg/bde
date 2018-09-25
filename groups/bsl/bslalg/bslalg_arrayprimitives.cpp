@@ -331,52 +331,6 @@ void ArrayPrimitives_Imp::uninitializedFillN(
     }
 }
 
-void ArrayPrimitives_Imp::uninitializedFillN(
-                     volatile void                               **begin,
-                     volatile void                                *value,
-                     size_type                                     numElements,
-                     void                                         *,
-                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  *)
-{
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
-
-    if (0 == numElements) {
-        return;                                                       // RETURN
-    }
-    if (0 == value) {
-        std::memset(begin, 0, numElements * sizeof value);
-    }
-    else {
-        *begin = value;
-        bitwiseFillN(reinterpret_cast<char *>(begin),
-                     sizeof value,
-                     numElements * sizeof value);
-    }
-}
-
-void ArrayPrimitives_Imp::uninitializedFillN(
-                     const volatile void                         **begin,
-                     const volatile void                          *value,
-                     size_type                                     numElements,
-                     void                                         *,
-                     bslmf::MetaInt<e_IS_FUNDAMENTAL_OR_POINTER>  *)
-{
-    BSLS_ASSERT_SAFE(begin || 0 == numElements);
-
-    if (0 == numElements) {
-        return;                                                       // RETURN
-    }
-    if (0 == value) {
-        std::memset(begin, 0, numElements * sizeof value);
-    }
-    else {
-        *begin = value;
-        bitwiseFillN(reinterpret_cast<char *>(begin),
-                     sizeof value,
-                     numElements * sizeof value);
-    }
-}
-
 // 'bitwise' METHODS
 
 void ArrayPrimitives_Imp::bitwiseFillN(char      *begin,

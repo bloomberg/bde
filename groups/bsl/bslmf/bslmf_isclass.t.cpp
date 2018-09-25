@@ -14,17 +14,17 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines two meta-functions, 'bsl::is_class' and
-// 'bslmf::IsClass' and a template variable 'bsl::is_class_v', that determine
-// whether a template parameter type is a class type.  Thus, we need to ensure
-// that the values returned by these meta-functions are correct for each
-// possible category of types.  Since the two meta-functions are functionally
-// equivalent, we will use the same set of types for both.
+// 'bslmf::IsClass', that determine whether a template parameter type is a
+// class type.  Thus, we need to ensure that the values returned by these
+// meta-functions are correct for each possible category of types.  Since the
+// two meta-functions are functionally equivalent, we will use the same set of
+// types for both.
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 2] bslmf::IsClass::VALUE
 // [ 1] bsl::is_class::value
-// [ 1] bsl::is_class_v
+//
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 
@@ -135,64 +135,29 @@ struct Incomplete;
 
 }  // close unnamed namespace
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-#   define TYPE_ASSERT_V_SAME(type)                                           \
-        ASSERT(bsl::is_class<type>::value == bsl::is_class_v<type>)
-    // 'ASSERT' that 'is_class_v' has the same value as 'is_class::value'.
-#else
-#   define TYPE_ASSERT_V_SAME(type)
-#endif
+#define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)       \
+    ASSERT(result == META_FUNC<TYPE>::value);                 \
+    ASSERT(result == META_FUNC<const TYPE>::value);           \
+    ASSERT(result == META_FUNC<volatile TYPE>::value);        \
+    ASSERT(result == META_FUNC<const volatile TYPE>::value);
 
-#define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result)                       \
-    ASSERT(result == META_FUNC<TYPE>::value);                                 \
-    ASSERT(result == META_FUNC<const TYPE>::value);                           \
-    ASSERT(result == META_FUNC<volatile TYPE>::value);                        \
-    ASSERT(result == META_FUNC<const volatile TYPE>::value);                  \
-    TYPE_ASSERT_V_SAME(TYPE);                                                 \
-    TYPE_ASSERT_V_SAME(const TYPE);                                           \
-    TYPE_ASSERT_V_SAME(volatile TYPE);                                        \
-    TYPE_ASSERT_V_SAME(const volatile TYPE);
-    // Test cv-qualified combinations on the specified 'TYPE' and confirm that
-    // the result value of the 'META_FUNC' and the expected 'result' value are
-    // the same.  Also confirm that the result value of the 'META_FUNC' and the
-    // value of the 'META_FUNC_v' variable are the same.
+#define TYPE_ASSERT_CVQ_SUFFIX(META_FUNC, TYPE, result)       \
+    ASSERT(result == META_FUNC<TYPE>::value);                 \
+    ASSERT(result == META_FUNC<TYPE const>::value);           \
+    ASSERT(result == META_FUNC<TYPE volatile>::value);        \
+    ASSERT(result == META_FUNC<TYPE const volatile>::value);
 
-#define TYPE_ASSERT_CVQ_SUFFIX(META_FUNC, TYPE, result)                       \
-    ASSERT(result == META_FUNC<TYPE>::value);                                 \
-    ASSERT(result == META_FUNC<TYPE const>::value);                           \
-    ASSERT(result == META_FUNC<TYPE volatile>::value);                        \
-    ASSERT(result == META_FUNC<TYPE const volatile>::value);                  \
-    TYPE_ASSERT_V_SAME(TYPE);                                                 \
-    TYPE_ASSERT_V_SAME(TYPE const);                                           \
-    TYPE_ASSERT_V_SAME(TYPE volatile);                                        \
-    TYPE_ASSERT_V_SAME(TYPE const volatile);
-    // Test cv-qualified combinations on the specified 'TYPE' and confirm that
-    // the result value of the 'META_FUNC' and the expected 'result' value are
-    // the same.  Also confirm that the result value of the 'META_FUNC' and the
-    // value of the 'META_FUNC_v' variable are the same.
+#define TYPE_ASSERT_CVQ_REF(META_FUNC, TYPE, result)           \
+    ASSERT(result == META_FUNC<TYPE&>::value);                 \
+    ASSERT(result == META_FUNC<TYPE const&>::value);           \
+    ASSERT(result == META_FUNC<TYPE volatile&>::value);        \
+    ASSERT(result == META_FUNC<TYPE const volatile&>::value);
 
-#define TYPE_ASSERT_CVQ_REF(META_FUNC, TYPE, result)                          \
-    ASSERT(result == META_FUNC<TYPE&>::value);                                \
-    ASSERT(result == META_FUNC<TYPE const&>::value);                          \
-    ASSERT(result == META_FUNC<TYPE volatile&>::value);                       \
-    ASSERT(result == META_FUNC<TYPE const volatile&>::value);                 \
-    TYPE_ASSERT_V_SAME(TYPE&);                                                \
-    TYPE_ASSERT_V_SAME(TYPE const&);                                          \
-    TYPE_ASSERT_V_SAME(TYPE volatile&);                                       \
-    TYPE_ASSERT_V_SAME(TYPE const volatile);
-    // Test a reference to cv-qualified combinations on the specified 'TYPE'
-    // and confirm that the result value of the 'META_FUNC' and the expected
-    // 'result' value are the same.  Also confirm that the result value of the
-    // 'META_FUNC' and the value of the 'METU_FUNC_v' variable are the same.
-
-#define TYPE_ASSERT_CVQ(META_FUNC, TYPE, result)                              \
-    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result);                          \
-    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const, result);                    \
-    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE volatile, result);                 \
-    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const volatile, result);           \
-    // Test all cv-qualified combinations on the specified 'TYPE' and confirm
-    // that the result value of the '<META_FUNC' and the expected 'result'
-    // value are the same.
+#define TYPE_ASSERT_CVQ(META_FUNC, TYPE, result)                     \
+    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE, result);                 \
+    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const, result);           \
+    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE volatile, result);        \
+    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, TYPE const volatile, result);  \
 
 //=============================================================================
 //                              USAGE EXAMPLES
@@ -260,15 +225,6 @@ int main(int argc, char *argv[])
 //..
     ASSERT(false == bsl::is_class<int>::value);
     ASSERT(true  == bsl::is_class<MyClass>::value);
-//..
-// Note that if the current compiler supports the variable templates C++14
-// feature then we can re-write the snippet of code above using the
-// 'bsl::is_class_v' variable as follows:
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    ASSERT(false == bsl::is_class_v<int>);
-    ASSERT(true  == bsl::is_class_v<MyClass>);
-#endif
 //..
 
       } break;
@@ -381,9 +337,6 @@ int main(int argc, char *argv[])
         //:
         //: 5 'is_class::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) function type.
-        //:
-        //: 6 That 'is_class_v' equals to 'is_class::value' for a variety of
-        //:   template parameter types.
         //
         // Plan:
         //   Verify that 'bsl::is_class::value' has the correct value for
@@ -391,21 +344,20 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::is_class::value
-        //   bsl::is_class_v
         // --------------------------------------------------------------------
 
         if (verbose) printf("'bsl::is_class::value'\n"
                             "======================\n");
 
-        // C-1,6
+        // C-1
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, void, false);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, int,  false);
         TYPE_ASSERT_CVQ_REF   (bsl::is_class, int,  false);
 
-        // C-2,6
+        // C-2
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, EnumTestType, false);
 
-        // C-3,6
+        // C-3
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, StructTestType,       true);
         TYPE_ASSERT_CVQ_REF   (bsl::is_class, StructTestType,       false);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, UnionTestType,        true);
@@ -417,7 +369,7 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_class, DerivedClassTestType, true);
         TYPE_ASSERT_CVQ_REF   (bsl::is_class, DerivedClassTestType, false);
 
-        // C-4,6
+        // C-4
         TYPE_ASSERT_CVQ(bsl::is_class, int*,                       false);
         TYPE_ASSERT_CVQ(bsl::is_class, StructTestType*,            false);
         TYPE_ASSERT_CVQ(bsl::is_class, int StructTestType::*,      false);
@@ -444,7 +396,7 @@ int main(int argc, char *argv[])
         TYPE_ASSERT_CVQ_REF(bsl::is_class, MethodPtrTestType,          false);
         TYPE_ASSERT_CVQ_REF(bsl::is_class, FunctionPtrTestType,        false);
 
-        // C-5,6
+        // C-5
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_class, int  (int),  false);
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_class, void (void), false);
         TYPE_ASSERT_CVQ_PREFIX(bsl::is_class, int  (void), false);

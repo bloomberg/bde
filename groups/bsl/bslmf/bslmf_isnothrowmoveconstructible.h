@@ -11,30 +11,10 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bslmf::is_nothrow_move_constructible: type-traits meta-function
-//  bslmf::is_nothrow_move_constructible_v: the meta-function's result value
 //
 //@SEE_ALSO: bslmf_integralconstant, bslmf_nestedtraitdeclaration
 //
-//@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_nothrow_move_constructible' and a template variable
-// 'bsl::is_nothrow_move_constructible_v', that represents the result value of
-// the 'bsl::is_nothrow_move_constructible' meta-function, that may be used to
-// query whether a type is a pointer to non-static member object type.
-//
-// 'bsl::is_nothrow_move_constructible' meets the requirements of the
-// 'is_nothrow_move_constructible' template defined in the C++11 standard.
-//
-// Note that the template variable 'is_nothrow_move_constructible_v' is defined
-// in the C++17 standard as an inline variable.  If the current compiler
-// supports the inline variable C++17 compiler feature,
-// 'bsl::is_nothrow_move_constructible_v' is defined as an
-// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
-// variable templates C++14 compiler feature,
-// 'bsl::is_nothrow_move_constructible_v' is defined as a non-inline
-// 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
-// bsls_compilerfeatures component for details.
+//@DESCRIPTION: TBD
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -58,10 +38,6 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -159,15 +135,6 @@ struct is_nothrow_move_constructible
     // types, this template must be specialized to inherit from
     // 'bsl::true_type' for them.
 };
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_nothrow_move_constructible_v
-                                  = is_nothrow_move_constructible<TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_nothrow_move_constructible' meta-function.
-#endif
 
 // TBD: check to make sure these are correct
 template <class TYPE>

@@ -11,7 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_pointer: standard meta-function for determining pointer types
-//  bsl::is_pointer_v: the result value of the 'bsl::is_pointer' meta-function
 //  bsl::IsPointer: meta-function for determining pointer types
 //
 //@SEE_ALSO: bslmf_integralconstant
@@ -19,10 +18,8 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR:
 //
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_pointer'
-// and 'BloombergLP::bslmf::IsPointer' and a template variable
-// 'bsl::is_pointer_v', that represents the result value of the
-// 'bsl::is_pointer' meta-function.  All these meta-functions may be used to
-// query whether or not a type is a pointer type.
+// and 'BloombergLP::bslmf::IsPointer', both of which may be used to query
+// whether or not a type is a pointer type.
 //
 // 'bsl::is_pointer' meets the requirements of the 'is_pointer' template
 // defined in the C++11 standard [meta.unary.cat], while 'bslmf::IsPointer' was
@@ -35,16 +32,6 @@ BSLS_IDENT("$Id: $")
 //
 // Note that 'bsl::is_pointer' should be preferred over 'bslmf::IsPointer', and
 // in general, should be used by new components.
-//
-// Also note that the template variable 'is_pointer_v' is defined in the C++17
-// standard as an inline variable.  If the current compiler supports the inline
-// variable C++17 compiler feature, 'bsl::is_pointer_v' is defined as an
-// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
-// variable templates C++14 compiler feature, 'bsl::is_pointer_v' is
-// defined as a non-inline 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
-// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -65,15 +52,6 @@ BSLS_IDENT("$Id: $")
 //  assert(false == bsl::is_pointer<MyType>::value);
 //  assert(true  == bsl::is_pointer<MyPtrType>::value);
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature then we can re-write the snippet of code above using the
-// 'bsl::is_pointer_v' variable as follows:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(false == bsl::is_pointer_v<MyType>);
-//  assert(true  == bsl::is_pointer_v<MyPtrType>);
-//#endif
-//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -83,25 +61,39 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
 #ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
 #endif
 
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+namespace BloombergLP {
+namespace bslmf {
+
+                         // ====================
+                         // struct IsPointer_Imp
+                         // ====================
+
+template <class TYPE>
+struct IsPointer_Imp : bsl::false_type {
+    // This 'struct' template implements a meta-function to determine whether
+    // the (template parameter) 'TYPE' is a (non-cv-qualified) pointer type.
+    // This generic default template derives from 'bsl::false_type'.  A
+    // template specialization is provided (below) that derives from
+    // 'bsl::true_type'.
+};
+
+                         // ============================
+                         // struct IsPointer_Imp<TYPE *>
+                         // ============================
+
+template <class TYPE>
+struct IsPointer_Imp<TYPE *> : bsl::true_type {
+     // This partial specialization of 'IsPointer_Imp' derives from
+     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a pointer
+     // type.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace bsl {
 
@@ -110,80 +102,15 @@ namespace bsl {
                          // =================
 
 template <class TYPE>
-struct is_pointer : bsl::false_type {
+struct is_pointer
+    : BloombergLP::bslmf::IsPointer_Imp<typename remove_cv<TYPE>::type>::type {
     // This 'struct' template implements the 'is_pointer' meta-function defined
     // in the C++11 standard [meta.unary.cat] to determine if the (template
     // parameter) 'TYPE' is a pointer.  This 'struct' derives from
     // 'bsl::true_type' if the 'TYPE' is a pointer type (but not a
     // pointer-to-non-static-member type), and 'bsl::false_type' otherwise.
+
 };
-
-template <class TYPE>
-struct is_pointer<TYPE *> : bsl::true_type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
-     // (cv-unqalified) pointer type.
-};
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-// Older Microsoft compilers do not recognize cv-qualifiers on function pointer
-// types as matching a 'TYPE *const' partial specialization, but can correctly
-// strip the cv-qualifier if we take a second template instantiation on a more
-// general 'TYPE const' parameter.
-
-template <class TYPE>
-struct is_pointer<TYPE const> : is_pointer<TYPE>::type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'const'
-     // qualified pointer type.
-};
-
-template <class TYPE>
-struct is_pointer<TYPE volatile> : is_pointer<TYPE>::type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
-     // 'volatile' qualified pointer type.
-};
-
-template <class TYPE>
-struct is_pointer<TYPE const volatile> : is_pointer<TYPE>::type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'const
-     // volatile' qualified pointer type.
-};
-#else
-// Preferred implementation avoids a second dispatch for arbitrary cv-qualified
-// types.
-
-template <class TYPE>
-struct is_pointer<TYPE *const> : bsl::true_type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'const'
-     // qualified pointer type.
-};
-
-template <class TYPE>
-struct is_pointer<TYPE *volatile> : bsl::true_type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a
-     // 'volatile' qualified pointer type.
-};
-
-template <class TYPE>
-struct is_pointer<TYPE *const volatile> : bsl::true_type {
-     // This partial specialization of 'is_pointer' derives from
-     // 'bsl::true_type' for when the (template parameter) 'TYPE' is a 'const
-     // volatile' qualified pointer type.
-};
-#endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_pointer_v = is_pointer<TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_pointer' meta-function.
-#endif
 
 }  // close namespace bsl
 

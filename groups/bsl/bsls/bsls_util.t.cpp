@@ -16,21 +16,11 @@ using namespace BloombergLP;
 // 'bsls::Util' is a utility class, where each function will be tested in a
 // separate test case.  Any significant test machinery will be tested before
 // any function whose test case relies upon it.
-//
-// Further, there are a number of behaviors that explicitly should not compile
-// by accident that we will provide tests for.  These tests should fail to
-// compile if the appropriate macro is defined.  Each such test will use a
-// unique macro for its feature test, and provide a commented-out definition of
-// that macro immediately above the test, to easily enable compiling that test
-// while in development.  Below is the list of all macros that control the
-// availability of these tests:
-//  #define BSLS_UTIL_COMPILE_FAIL_FORWARD_RVALUE_AS_LVALUE
 //-----------------------------------------------------------------------------
 // [2] TYPE *bsls::Util::addressOf(TYPE&);
 // [3] BSLS_UTIL_ADDRESSOF macro
-// [4] TYPE&& forward(typename Util_RemoveReference<TYPE>::type& t);
 //-----------------------------------------------------------------------------
-// [5] USAGE EXAMPLE
+// [4] USAGE EXAMPLE
 //
 // Test apparatus
 // [1]  CvQualification cvqOfPtr(T *p);
@@ -197,20 +187,6 @@ class EvilType {
 
 int EvilType::d_bogus = 0;
 
-template <class TYPE1, class TYPE2>
-struct TestAreSame {
-    static bool test() {
-        return false;
-    }
-};
-
-template <class TYPE>
-struct TestAreSame<TYPE, TYPE> {
-    static bool test() {
-        return true;
-    }
-};
-
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -261,7 +237,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -307,164 +283,6 @@ int main(int argc, char *argv[])
     ASSERT(c == p->byteptr());
     ASSERT(3 == p->bitpos());
 //..
-      } break;
-      case 4: {
-        // --------------------------------------------------------------------
-        // TESTING 'forward'
-        //
-        // Concerns:
-        //: 1 Calling 'bsls::Util::forward' with an lvalue will return an
-        //:   lvalue reference to that object.
-        //:
-        //: 2 Calling 'bsls::Util::forward' with an rvalue will return an
-        //:   rvalue reference to that object.
-        //:
-        //: 3 'bsls::Util::forward' preserves cv-qualifiers of the forwarded
-        //:   type.
-        //:
-        //: 4 The 'bsls::Util::forward' methods are 'noexcept'.
-        //:
-        //: 5 The 'bsls::Util::forward' methods are 'constexpr'.
-        //:
-        //: 6 It is a compile time error to pass an rvalue to be forwarded as
-        //:   an lvalue.
-        //
-        // Plan:
-        //: 1 Call 'forward<int&>' with a non-cv-qualified lvalue and assign
-        //:   the result to an 'int&'.  Verify that the addresses of the lvalue
-        //:   argument and the return value match.  Repeat with cv-qualified
-        //:   lvalues. (C1, C3)
-        //:
-        //: 2 Call 'forward<int>' with a non-cv-qualified rvalue and assign
-        //:   the result to an 'int&&'.  Verify that the addresses of the
-        //:   rvalue argument and the return value match.  Repeat with
-        //:   cv-qualified rvalues. (C2, C3)
-        //:
-        //: 3 Call 'forward<int>' with a non-cv-qualified prvalue and assign
-        //:   the result to an 'int&&'.  Verify that the values of the prvalue
-        //:   argument and the return value match.  Repeat with cv-qualified
-        //:   prvalues. (C2, C3)
-        //:
-        //: 4 Try forwarding a prvalue as an lvalue ('forward<int&>(42)') and
-        //:   check that it does not compile.  Notice that this is a manual
-        //:   test that need to be enabled by defining the
-        //:   'BSLS_UTIL_COMPILE_FAIL_FORWARD_RVALUE_AS_LVALUE' macro. (C6)
-        //:
-        //: 5 If the compiler supports 'noexcept' use the 'noexcept' operator
-        //:   to test that both overloads of 'forward' are 'noexcept'.
-        //:
-        //: 6 If the compiler supports 'constexpr' use 'constexpr' input to
-        //:   'forward' and assign the return value to a 'constexpr' variable.
-        //:   The code will not compile if 'forward' is not declared
-        //:   'constexpr'.  Notice that rvalues cannot be 'constexpr' so we do
-        //:   not test for them.
-        //
-        // Testing:
-        //   TYPE&& forward(typename Util_RemoveReference<TYPE>::type& t);
-        // --------------------------------------------------------------------
-
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        if (verbose) printf("\nSKIPPED TESTING 'forward'"
-                            "\n=========================\n");
-#else
-        if (verbose) printf("\nTESTING 'forward'"
-                            "\n=================\n");
-
-        // Non-cv-qualified
-
-        int lvalue = 42;
-        int& lvalueResult = bsls::Util::forward<int&>(lvalue);
-        ASSERTV(&lvalue, &lvalueResult, &lvalue == &lvalueResult);
-        ASSERT((TestAreSame<int&,
-                        decltype(bsls::Util::forward<int&>(lvalue))>::test()));
-
-        int&& rvalue = 42;
-        int&& rvalueResult = bsls::Util::forward<int>(rvalue);
-        ASSERTV(&rvalue, &rvalueResult, &rvalue == &rvalueResult);
-        ASSERT((TestAreSame<int&&,
-                         decltype(bsls::Util::forward<int>(rvalue))>::test()));
-
-        int&& rvalueResult2 = bsls::Util::forward<int>(42);
-        ASSERTV(rvalueResult2, 42 == rvalueResult2);
-        ASSERT((TestAreSame<int&&,
-                            decltype(bsls::Util::forward<int>(42))>::test()));
-
-        // 'const' values
-
-        const int clvalue = 42;
-        const int& clvalueResult = bsls::Util::forward<const int&>(clvalue);
-        ASSERTV(&clvalue, &clvalueResult, &clvalue == &clvalueResult);
-        ASSERT((TestAreSame<const int&,
-                 decltype(bsls::Util::forward<const int&>(clvalue))>::test()));
-
-        const int&& crvalue = 42;
-        const int&& crvalueResult = bsls::Util::forward<const int>(crvalue);
-        ASSERTV(&crvalue, &crvalueResult, &crvalue == &crvalueResult);
-        ASSERT((TestAreSame<const int&&,
-                  decltype(bsls::Util::forward<const int>(crvalue))>::test()));
-
-        const int&& crvalueResult2 = bsls::Util::forward<const int>(42);
-        ASSERTV(crvalueResult2, 42 == crvalueResult2);
-        ASSERT((TestAreSame<const int&&,
-                       decltype(bsls::Util::forward<const int>(42))>::test()));
-
-        // 'volatile' values
-
-        volatile int vlvalue = 42;
-        volatile int& vlvalueResult =
-                                   bsls::Util::forward<volatile int&>(vlvalue);
-        ASSERTV(&vlvalue, &vlvalueResult, &vlvalue == &vlvalueResult);
-        ASSERT((TestAreSame<volatile int&,
-              decltype(bsls::Util::forward<volatile int&>(vlvalue))>::test()));
-
-        volatile int&& vrvalue = 42;
-        volatile int&& vrvalueResult =
-                                    bsls::Util::forward<volatile int>(vrvalue);
-        ASSERTV(&vrvalue, &vrvalueResult, &vrvalue == &vrvalueResult);
-        ASSERT((TestAreSame<volatile int&&,
-               decltype(bsls::Util::forward<volatile int>(vrvalue))>::test()));
-
-        volatile int&& vrvalueResult2 = bsls::Util::forward<volatile int>(42);
-        ASSERTV(vrvalueResult2, 42 == vrvalueResult2);
-        ASSERT((TestAreSame<volatile int&&,
-                    decltype(bsls::Util::forward<volatile int>(42))>::test()));
-
-        // 'const' 'volatile' values
-
-        typedef const volatile int cvint;
-
-        cvint cvlvalue = 42;
-        cvint& cvlvalueResult = bsls::Util::forward<cvint&>(cvlvalue);
-        ASSERTV(&cvlvalue, &cvlvalueResult, &cvlvalue == &cvlvalueResult);
-        ASSERT((TestAreSame<cvint&,
-                    decltype(bsls::Util::forward<cvint&>(cvlvalue))>::test()));
-
-        cvint&& cvrvalue = 42;
-        cvint&& cvrvalueResult = bsls::Util::forward<cvint>(cvrvalue);
-        ASSERTV(&cvrvalue, &cvrvalueResult, &cvrvalue == &cvrvalueResult);
-        ASSERT((TestAreSame<cvint&&,
-                     decltype(bsls::Util::forward<cvint>(cvrvalue))>::test()));
-
-        cvint&& cvrvalueResult2 = bsls::Util::forward<cvint>(42);
-        ASSERTV(cvrvalueResult2, 42 == cvrvalueResult2);
-        ASSERT((TestAreSame<cvint&&,
-                           decltype(bsls::Util::forward<cvint>(42))>::test()));
-
-# ifdef BSLS_UTIL_COMPILE_FAIL_FORWARD_RVALUE_AS_LVALUE
-        bsls::Util::forward<int&>(42);                             // Concern 6
-# endif
-
-# ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-        ASSERT(noexcept(bsls::Util::forward<int&>(lvalue)));       // Concern 4
-        ASSERT(noexcept(bsls::Util::forward<int>(rvalue)));
-# endif
-
-# ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-        static constexpr int ce1 = 42;                             // Concern 5
-        constexpr const int& ce1Result = bsls::Util::forward<const int&>(ce1);
-# endif
-
-#endif
       } break;
       case 3: {
         // --------------------------------------------------------------------

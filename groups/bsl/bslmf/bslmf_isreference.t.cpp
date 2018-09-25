@@ -15,16 +15,14 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function, 'bsl::is_reference' and
-// a template variable 'bsl::is_reference_v', that determine whether a template
-// parameter type is an (lvalue or rvalue) reference type.  Thus, we need to
-// ensure that the value returned by this meta-function is correct for each
-// possible category of types.
+// The component under test defines a meta-function, 'bsl::is_reference', that
+// determines whether a template parameter type is an (lvalue or rvalue)
+// reference type.  Thus, we need to ensure that the value returned by this
+// meta-function is correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::is_reference::value
-// [ 1] bsl::is_reference_v
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -146,58 +144,35 @@ struct Incomplete;
 
 }  // close unnamed namespace
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-#define ASSERT_V_EQ_VALUE(TYPE)                                               \
-    ASSERT(bsl::is_reference  <TYPE>::value ==                                \
-           bsl::is_reference_v<TYPE>)
-    // Test whether 'bsl::is_reference_v<TYPE>' value equals to
-    // 'bsl::is_reference<TYPE>::value'.
-#else
-#define ASSERT_V_EQ_VALUE(TYPE)
-#endif
+#define TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result)                \
+    ASSERT(result == metaFunc<type>::member);                                 \
+    ASSERT(result == metaFunc<type const>::member);                           \
+    ASSERT(result == metaFunc<type volatile>::member);                        \
+    ASSERT(result == metaFunc<type const volatile>::member);
 
-#define TYPE_ASSERT(META_FUNC, TYPE, result)                                  \
-    ASSERT(result == META_FUNC<TYPE>::value);                                 \
-    ASSERT_V_EQ_VALUE(TYPE)
-    // Test that the result of 'META_FUNC' has the same value as the expected
-    // 'result'.  Confirm that the result value of the 'META_FUNC' and the
-    // value of the 'META_FUNC_v' variable are the same.
+#define TYPE_ASSERT_CVQ_PREFIX(metaFunc, member, type, result)                \
+    ASSERT(result == metaFunc<type>::member);                                 \
+    ASSERT(result == metaFunc<const type>::member);                           \
+    ASSERT(result == metaFunc<volatile type>::member);                        \
+    ASSERT(result == metaFunc<const volatile type>::member);
 
-#define TYPE_ASSERT_CVQ_PREFIX(META_FUNC, MEMBER, TYPE, result)               \
-    TYPE_ASSERT(META_FUNC,                TYPE, result);                      \
-    TYPE_ASSERT(META_FUNC, const          TYPE, result);                      \
-    TYPE_ASSERT(META_FUNC, volatile       TYPE, result);                      \
-    TYPE_ASSERT(META_FUNC, const volatile TYPE, result);
-    // Test cv-qualified combinations on the specified 'TYPE'.
+#define TYPE_ASSERT_CVQ_REF(metaFunc, member, type, result)                   \
+    ASSERT(result == metaFunc<type&>::member);                                \
+    ASSERT(result == metaFunc<type const&>::member);                          \
+    ASSERT(result == metaFunc<type volatile&>::member);                       \
+    ASSERT(result == metaFunc<type const volatile&>::member);
 
-#define TYPE_ASSERT_CVQ_SUFFIX(META_FUNC, MEMBER, TYPE, result)               \
-    TYPE_ASSERT(META_FUNC, TYPE,                result);                      \
-    TYPE_ASSERT(META_FUNC, TYPE const,          result);                      \
-    TYPE_ASSERT(META_FUNC, TYPE volatile,       result);                      \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile, result);
-    // Test cv-qualified combinations on the specified 'TYPE'.
+#define TYPE_ASSERT_CVQ_RREF(metaFunc, member, type, result)                  \
+    ASSERT(result == metaFunc<type&&>::member);                               \
+    ASSERT(result == metaFunc<type const&&>::member);                         \
+    ASSERT(result == metaFunc<type volatile&&>::member);                      \
+    ASSERT(result == metaFunc<type const volatile&&>::member);
 
-#define TYPE_ASSERT_CVQ_REF(META_FUNC, MEMBER, TYPE, result)                  \
-    TYPE_ASSERT(META_FUNC, TYPE&,                result);                     \
-    TYPE_ASSERT(META_FUNC, TYPE const&,          result);                     \
-    TYPE_ASSERT(META_FUNC, TYPE volatile&,       result);                     \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile&, result);
-    // Test references to cv-qualified combinations on the specified 'TYPE'.
-
-#define TYPE_ASSERT_CVQ_RREF(META_FUNC, MEMBER, TYPE, result)                 \
-    TYPE_ASSERT(META_FUNC, TYPE&&,                result);                    \
-    TYPE_ASSERT(META_FUNC, TYPE const&&,          result);                    \
-    TYPE_ASSERT(META_FUNC, TYPE volatile&&,       result);                    \
-    TYPE_ASSERT(META_FUNC, TYPE const volatile&&, result);
-    // Test an r-value  references to cv-qualified combinations on the
-    // specified 'TYPE'.
-
-#define TYPE_ASSERT_CVQ(META_FUNC, MEMBER, TYPE, result)                      \
-    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, MEMBER, TYPE,                result);   \
-    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, MEMBER, TYPE const,          result);   \
-    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, MEMBER, TYPE volatile,       result);   \
-    TYPE_ASSERT_CVQ_PREFIX(META_FUNC, MEMBER, TYPE const volatile, result);
-    // Test all cv-qualified combinations on the specified 'TYPE'.
+#define TYPE_ASSERT_CVQ(metaFunc, member, type, result)                       \
+    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, type, result);                   \
+    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, const type, result);             \
+    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, volatile type, result);          \
+    TYPE_ASSERT_CVQ_SUFFIX(metaFunc, member, const volatile type, result);
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -261,17 +236,8 @@ int main(int argc, char *argv[])
 //..
 // Note that rvalue reference is a feature introduced in the C++11 standard,
 // and may not be supported by all compilers.
-//
-// Also note that if the current compiler supports the variable templates C++14
-// feature then we can re-write the snippet of code above using the
-// 'bsl::is_reference_v' variable as follows:
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    ASSERT(false == bsl::is_reference_v<int>);
-    ASSERT(true  == bsl::is_reference_v<int&>);
-    ASSERT(true  == bsl::is_reference_v<int&&>);
-#endif
-//..
+
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -295,9 +261,6 @@ int main(int argc, char *argv[])
         //:
         //: 5 'is_reference::value' is 'false' when 'TYPE' is a (possibly
         //:   cv-qualified) function type.
-        //:
-        //: 6 That 'is_reference<T>::value' has the same value as
-        //:   'is_reference_v<T>' for a variety of template parameter types.
         //
         // Plan:
         //   Verify that 'bsl::is_reference::value' has the correct value for
@@ -305,7 +268,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::is_reference::value
-        //   bsl::is_reference_v
         // --------------------------------------------------------------------
 
         if (verbose) printf("'bsl::is_reference::value'\n"

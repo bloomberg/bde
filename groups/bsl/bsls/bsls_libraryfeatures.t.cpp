@@ -2,10 +2,8 @@
 #include <bsls_libraryfeatures.h>
 
 #include <bsls_bsltestutil.h>
-#include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_exceptionutil.h>
-#include <bsls_keyword.h>
+#include <bsls_cpp11.h>
 #include <bsls_nativestd.h>
 
 #include <stddef.h>  // for 'size_t'
@@ -82,19 +80,12 @@
 // [ 4] BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 // [ 5] BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT
+// [ 8] BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
+// [ 9] BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS
 // [ 7] int native_std::isblank(int);
 // [ 7] bool native_std::isblank(char, const native_std::locale&);
-// [ 9] BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-// [12] BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
-// [ 8] BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
-// [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
-// [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
-// [10] BSLS_LIBRARYFEATURES_STDCPP_LLVM
-// [10] BSLS_LIBRARYFEATURES_STDCPP_MSVC
-// [10] BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
-// [10] BSLS_LIBRARYFEATURES_STDCPP_STLPORT
 // ----------------------------------------------------------------------------
-// [11] USAGE EXAMPLE
+// [10] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 
@@ -154,13 +145,6 @@ static const bool u_BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES_defined =
                                                                          false;
 #endif
 
-static const bool u_BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES_defined =
-#if         defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-                                                                          true;
-#else
-                                                                         false;
-#endif
-
 static const bool u_BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES_defined =
 #if         defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
                                                                           true;
@@ -170,96 +154,83 @@ static const bool u_BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES_defined =
 
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined =
 #if         defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
+                                                                     true;
+#else
+                                                                     false;
+#endif
+
+                    // case 9
+
+static const bool
+    u_BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined =
+#if defined(BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
                                                                           true;
 #else
                                                                          false;
 #endif
 
-static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE_defined =
-#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
-                                                                          true;
-#else
-                                                                         false;
-#endif
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 
-                    // case 10
+#include <initializer_list>
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY) || \
-    defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY_FORCE)
+namespace test_case_9
+{
+class MyType {
+  public:
+    static int s_liveCount;
 
-    #include <chrono>
-    #include <complex>
-    #include <iomanip>
-    #include <iterator>
-    #include <functional>
-    #include <memory>
-    #include <type_traits>
-    #include <utility>
-    #include <vector>
-
-    static void useCpp14Algorithms()
-        // Use each of the function templates associated with the
-        // 'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY' flag in a
-        // syntactically correct (and semantically meaningless) manner as a
-        // compile-time test that these templates are available.
-    {
-        // Type defined in '<functional>'
-        ASSERT(0x0F == native_std::bit_not<unsigned char>().operator()(0xF0));
-
-        // Function defined in '<iterator>'
-        native_std::vector<int> v;
-        native_std::make_reverse_iterator(v.end());
-
-        // Function defined in '<iomanip>'
-        native_std::quoted("\"quotes\"");
-
-        // Function defined in '<utility>'
-        int X(0);
-        int Y = native_std::exchange(X, 1);
-
-        { // UDLs for <complex>
-            using namespace native_std::complex_literals;
-            native_std::complex<double>      zi = 2i;
-            (void) zi;
-            native_std::complex<long double> zl = 2il;
-            (void) zl;
-            native_std::complex<float>       zf = 2if;
-            (void) zf;
+  private:
+    static void addToLiveCount() {
+        if (s_liveCount > 5) {
+            throw s_liveCount;
         }
-
-        { // UDLs for <chrono>
-            using namespace native_std::chrono_literals;
-            native_std::chrono::duration<double> d(0);
-            d = 1h;
-            d = 2min;
-            d = 3s;
-            d = 4ms;
-            d = 5ns;
-            d = 6us;
-        }
-
-        { // Function defined in '<memory>'
-            native_std::unique_ptr<int> up = native_std::make_unique<int>(0);
-        }
-
-        { // Functions defined in '<type_traits>'
-            bool b = native_std::is_null_pointer<int *>::value;
-            (void) b;
-
-            class Foo final {};
-            bool b2 = native_std::is_final<Foo>::value;
-            (void) b2;
+        else {
+            ++s_liveCount;
         }
     }
+
+  public:
+    MyType() { addToLiveCount(); }
+    MyType(int) { addToLiveCount(); }
+    MyType(const MyType&) { addToLiveCount(); }
+    ~MyType() { --s_liveCount; }
+};
+
+struct MyWrapper {
+    MyWrapper(std::initializer_list<MyType>) {}
+};
+
+int MyType::s_liveCount = 0;
+
+void runTest() {
+    ASSERT(0 == MyType::s_liveCount);
+
+# if defined(BDE_BUILD_TARGET_EXC)
+    try {
+        const MyWrapper X = { 1, 2 };
+        (void)X;
+    }
+    catch(...) {
+        ASSERT(!"Strange error! No exceptions were expected.");
+    }
+    ASSERT(0 == MyType::s_liveCount);
+
+    try {
+        const MyWrapper X = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        (void)X;
+    }
+    catch(int) {
+        if (u_BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined)
+            ASSERT(0 != MyType::s_liveCount);
+        else
+            ASSERT(0 == MyType::s_liveCount);
+    }
+# endif
+}
+
+}  // close namespace test_case_9
 #endif
 
-static
-const bool u_BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY_defined =
-#if  defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
-                                                                         true;
-#else
-                                                                         false;
-#endif
 
                     // case 8
 
@@ -338,6 +309,7 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF_defined =
 #else
                                                                   false;
 #endif
+
 
                     // case 5
 
@@ -429,10 +401,10 @@ static const bool
             // Alias for the type of the values returned by this class.
 
         // CLASS METHODS
-        static BSLS_KEYWORD_CONSTEXPR unsigned min();
+        static BSLS_CPP11_CONSTEXPR unsigned min();
             // Return 0, the smallest value returned by 'operator()'.
 
-        static BSLS_KEYWORD_CONSTEXPR unsigned max();
+        static BSLS_CPP11_CONSTEXPR unsigned max();
             // Return the largest value *potentially* returned by 'operator()'.
             // The C++ standard requires that this returned value be greater
             // than the value returned by the 'min' method; consequentally,
@@ -457,11 +429,11 @@ static const bool
                    // ========================================
 
     // CLASS METHODS
-    BSLS_KEYWORD_CONSTEXPR unsigned SimpleUniformRandomNumberGenerator::min()
+    BSLS_CPP11_CONSTEXPR unsigned SimpleUniformRandomNumberGenerator::min()
     {
         return 0;
     }
-    BSLS_KEYWORD_CONSTEXPR unsigned SimpleUniformRandomNumberGenerator::max()
+    BSLS_CPP11_CONSTEXPR unsigned SimpleUniformRandomNumberGenerator::max()
     {
         return 1;
     }
@@ -488,10 +460,8 @@ static const bool
     };
 
     #include <algorithm>
-    #include <ios>
-    #include <memory>         // for 'uninitialized_copy_n'
-    #include <numeric>        // for 'iota'
-    #include <sstream>
+    #include <memory>    // for 'uninitialized_copy_n'
+    #include <numeric>   // for 'iota'
 
     static bool unaryPredicate(int)
         // Return 'true' irrespective of the (ignored) input argument.  Used to
@@ -567,21 +537,6 @@ static const bool
         native_std::uninitialized_copy_n(inputFirst,
                                          NUM_ELEMENTS,
                                          outputFirst);
-
-        // test <ios> C++11 functions
-        const native_std::error_category& errorCategory =
-                                               native_std::iostream_category();
-        (void) errorCategory;
-
-        native_std::make_error_code(native_std::io_errc::stream);
-        native_std::make_error_condition(native_std::io_errc::stream);
-
-        ASSERT(true ==
-                   native_std::is_error_code_enum<native_std::io_errc>::value);
-
-        double f;
-        native_std::istringstream("0x1P-1022") >> native_std::hexfloat >> f;
-        native_std::istringstream("0.01") >> native_std::defaultfloat >> f;
     }
 #endif
 
@@ -688,41 +643,11 @@ static void printFlags()
 {
     Q(printFlags: Enter);
     Q(printFlags: component-defined macros);
-#if defined(BSLS_LIBRARYFEATURES_HAS_C90_GETS)
-          Q(BSLS_LIBRARYFEATURES_HAS_C90_GETS);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY)
-          Q(BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY)
-          Q(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)
-          Q(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF);
-#endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
           Q(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR);
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
           Q(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING)
-          Q(BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API)
-          Q(BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES)
-          Q(BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
-          Q(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION)
-          Q(BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE)
-          Q(BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE);
 #endif
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
           Q(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE);
@@ -730,50 +655,14 @@ static void printFlags()
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
           Q(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR);
 #endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
-          Q(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
-          Q(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
-          Q(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
-          Q(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS)
-          Q(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
-          Q(BSLS_LIBRARYFEATURES_STDCPP_GNU);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_IBM)
-          Q(BSLS_LIBRARYFEATURES_STDCPP_IBM);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE)
-          Q(BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
-          Q(BSLS_LIBRARYFEATURES_STDCPP_LLVM);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_MSVC)
-          Q(BSLS_LIBRARYFEATURES_STDCPP_MSVC);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
-          Q(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_STLPORT)
-          Q(BSLS_LIBRARYFEATURES_STDCPP_STLPORT);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+          Q(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR);
 #endif
 
     Q(printFlags: imported macros);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
           Q(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES);
-#endif
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-          Q(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES);
 #endif
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
           Q(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES);
@@ -811,9 +700,6 @@ static void printFlags()
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
           P(__GXX_EXPERIMENTAL_CXX0X__)
 #endif
-#if defined(_GLIBCXX_USE_CXX11_ABI)
-          P(_GLIBCXX_USE_CXX11_ABI)
-#endif
 #if defined(__APPLE_CC__)
           P(__APPLE_CC__)
 #endif
@@ -849,51 +735,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 12: {
-        // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE'
-        //
-        // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE' flag is
-        //:   defined when related macros
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP11_BASE_LINE',
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' and
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES' are also
-        //:   defined.
-        //
-        // Plan:
-        //: 1 Confirm the expected relationship between
-        //:   'BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE' and its related
-        //:   macros 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASE_LINE',
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' and
-        //:   'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES' using the
-        //:   associated conditionally initialized global variables.  See
-        //:   "Global constants for testing invariants" above.
-        //
-        // Testing:
-        //   BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
-        // --------------------------------------------------------------------
-
-        if (verbose) printf(
-      "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE'\n"
-      "=========================================================\n");
-
-        if (verbose) {
-         P(u_BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE_defined)
-        }
-
-        if(u_BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE_defined)
-        {
-            ASSERT(true ==
-                      u_BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES_defined);
-            ASSERT(true ==
-                   u_BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES_defined);
-        }
-
-        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
-
-      } break;
-      case 11: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -914,118 +756,47 @@ int main(int argc, char *argv[])
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
       } break;
-      case 10: {
-        // --------------------------------------------------------------------
-        // TESTING STANDARD LIBRARY IMPLEMENTATION DETECTION
-        //
-        // Concerns:
-        //: 1 We detect the expected libraries for the compilers
-        //: 2 We detect the right library implementation
-        //
-        // Plan:
-        //: 1 Verify that the compiler type is one of the expected ones for the
-        //:   detected standard library implementation.
-        //: 2 Try to include header files that exist only in the given standard
-        //:   library implementation to verify that we actually have that
-        //:   implementation.  This is done in the .cpp file so that it the
-        //:   sanity check is always done.  To find it, search for
-        //:   'Standard library implementation detection verification' in the
-        //:   implementation (.cpp) file.
-        //
-        // Testing:
-        //  BSLS_LIBRARYFEATURES_STDCPP_GNU
-        //  BSLS_LIBRARYFEATURES_STDCPP_IBM
-        //  BSLS_LIBRARYFEATURES_STDCPP_LLVM
-        //  BSLS_LIBRARYFEATURES_STDCPP_MSVC
-        //  BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
-        //  BSLS_LIBRARYFEATURES_STDCPP_STLPORT
-        // --------------------------------------------------------------------
-
-        if (verbose) printf(
-             "TESTING STANDARD LIBRARY IMPLEMENTATION DETECTION\n"
-             "=================================================\n");
-
-        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
-
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU)
-#ifdef BSLS_PLATFORM_CMP_GNU
-#elif  BSLS_PLATFORM_CMP_CLANG
-#else
-#error Unexpected compiler for GNU LibStdC++.
-#endif
-#elif defined(BSLS_LIBRARYFEATURES_STDCPP_MSVC)
-#ifdef BSLS_PLATFORM_CMP_MSVC
-#else
-#error Unexpected compiler for Microsoft STL.
-#endif
-#elif defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
-#ifdef BSLS_PLATFORM_CMP_CLANG
-#else
-#error Unexpected compiler for LLVM LibC++.
-#endif
-#elif defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
-#ifdef BSLS_PLATFORM_CMP_SUN
-#else
-#error Unexpected compiler for RogueWave STL.
-#endif
-#elif defined(BSLS_LIBRARYFEATURES_STDCPP_STLPORT)
-#ifdef BSLS_PLATFORM_CMP_SUN
-#else
-#error Unexpected compiler for STLPort.
-#endif
-#elif defined(BSLS_LIBRARYFEATURES_STDCPP_IBM)
-#ifdef BSLS_PLATFORM_CMP_IBM
-#else
-#error Unexpected compiler for IBM STL.
-#endif
-#else
-#error Unexpected standard library implementation.  Please update test driver.
-#endif
-
-      } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY'
+        // TESTING 'BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
         //
         // Concerns:
-        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' flag is
-        //:   defined when the native standard library defines the following
-        //:   functions and types:
-        //:
-        //:   o Type defined in '<functional>'
-        //:     o bit_not
-        //:
-        //:   o Function defined in '<iterator>'
-        //:     o make_reverse_iterator
-        //:
-        //:   o Function defined in '<iomanip>'
-        //:     o quoted
-        //:
-        //:   o UDLs support for '<chrono>'
-        //:
-        //:   o UDLs support for '<complex>'
+        //: 1 The 'BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS'
+        //:   flag is defined when the native standard library provides the
+        //:   class template 'std::initializer_list<T>', and the constructor
+        //:   called by the compiler when providing a list of initializers does
+        //:   not properly clean up after itself if an exception is thrown
+        //:   copying one of those elements.  This macro should not be defined
+        //:   if the library does not provide 'std::initializer_list<T>', nor
+        //:   in the expected case that the library implementation does not
+        //:   leak.
         //
         // Plan:
-        //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY' is
-        //:   defined conditionally compile code that includes '<functional>',
-        //:   '<iomanip>', '<iterator>', '<chrono>', '<complex>' and uses each
-        //:   of the listed function
-        //:   templates at least once.
+        //: 1 When 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS' is
+        //:   defined conditionally compile code that includes
+        //:   '<initializer_list>', and try to initialize from a list of
+        //:   instrumented user-defined object types, using a constructor that
+        //:   throws when the (instrumented) global object count gets too high.
+        //: 2 Verify that the live global object count is reduced to zero after
+        //:   throwing the exception, unless the macro
+        //:   'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' is
+        //:   defined.  (C-1)
         //
         // Testing:
-        //   BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+        //   BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-             "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY'\n"
-             "=========================================================\n");
+       "TESTING 'BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS'\n"
+       "==================================================================\n");
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
-        useCpp14Algorithms();
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+        test_case_9::runTest();
 #endif
 
         if (verbose) {
-            P(u_BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY_defined)
+            P(
+            u_BSLS_LIBRARYFEATURES_INTIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined)
         }
 
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
@@ -1402,15 +1173,6 @@ int main(int argc, char *argv[])
         //:
         //:   o Function defined in '<utility>'
         //:     o 'swap'
-        //:
-        //:   o Functions and types defined in '<ios>'
-        //:     o 'io_errc'
-        //:     o 'iostream_category'
-        //:     o 'is_error_code_enum'
-        //:     o 'make_error_code'
-        //:     o 'make_error_condition'
-        //:     o 'hexfloat'
-        //:     o 'defaultfloat'
         //
         // Plan:
         //: 1 When 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' is defined

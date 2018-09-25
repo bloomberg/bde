@@ -549,10 +549,6 @@ BSL_OVERRIDES_STD mode"
 #include <bslscm_version.h>
 #endif
 
-#ifndef INCLUDED_BSLSTL_HASH
-#include <bslstl_hash.h>
-#endif
-
 #ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>
 #endif
@@ -597,16 +593,16 @@ BSL_OVERRIDES_STD mode"
 #include <bslma_allocatortraits.h>
 #endif
 
-#ifndef INCLUDED_BSLMA_AUTODESTRUCTOR
-#include <bslma_autodestructor.h>
-#endif
-
 #ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
 #endif
 
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_CONDITIONAL
+#include <bslmf_conditional.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ENABLEIF
@@ -621,12 +617,12 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_isconvertible.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
-#include <bslmf_isfundamental.h>
+#ifndef INCLUDED_BSLMF_ISFUNCTION
+#include <bslmf_isfunction.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISINTEGRAL
-#include <bslmf_isintegral.h>
+#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
+#include <bslmf_isfundamental.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISSAME
@@ -657,8 +653,8 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
@@ -669,22 +665,20 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_platform.h>
 #endif
 
-#ifndef INCLUDED_BSLS_TYPES
-#include <bsls_types.h>
-#endif
-
-#ifndef INCLUDED_CSTDDEF
-#include <cstddef>
-#define INCLUDED_CSTDDEF
+#ifndef INCLUDED_BSLSTL_HASH
+#include <bslstl_hash.h>
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-
 #ifndef INCLUDED_INITIALIZER_LIST
 #include <initializer_list>
 #define INCLUDED_INITIALIZER_LIST
 #endif
 
+#endif
+#ifndef INCLUDED_CSTDDEF
+#include <cstddef>
+#define INCLUDED_CSTDDEF
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -696,12 +690,19 @@ BSL_OVERRIDES_STD mode"
 
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFORM_CMP_SUN)
+# define BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS 1
+// Both Microsoft Visual C++ and the Sun CC 12.4 compiler have a bug where
+// partial specialization of templates matches function-pointers as 'T *' but
+// overload partial-ordering prefers to match as 'const T *'.  This means that
+// free-function overloads will dispatch to members of the wrong class template
+// specialization.  Note that this bug is new to Sun CC 12.4, and we have not
+// tested for whether the bug is fixed in later Microsoft compilers.  However,
+// defining this macro universally for these compilers does not lead to any new
+// problems, as the workarounds we deploy are backwards compatible.
+#endif
+
 namespace bsl {
-
-// Forward declarations
-
-template <class VALUE_TYPE, class ITERATOR>
-class vector_UintPtrConversionIterator;
 
                           // ==================
                           // struct Vector_Util
@@ -709,10 +710,10 @@ class vector_UintPtrConversionIterator;
 
 struct Vector_Util {
     // This 'struct' provides a namespace for implementing the 'swap' member
-    // function of 'vector<VALUE_TYPE, ALLOCATOR>'.  'swap' can be implemented
-    // irrespective of the 'VALUE_TYPE' or 'ALLOCATOR' template parameters,
-    // which is why we implement it in this non-parameterized, non-inlined
-    // utility.
+    // function of 'Vector_Imp<VALUE_TYPE, ALLOCATOR>'.  'swap' can be
+    // implemented irrespective of the 'VALUE_TYPE' or 'ALLOCATOR' template
+    // parameters, which is why we implement it in this non-parameterized,
+    // non-inlined utility.
 
     // CLASS METHODS
     static std::size_t computeNewCapacity(std::size_t newLength,
@@ -734,8 +735,8 @@ struct Vector_Util {
                           // class Vector_DeduceIteratorCategory
                           // ===================================
 
-template <class BSLSTL_ITERATOR,
-          bool  BSLSTL_NOTSPECIALIZED = is_fundamental<BSLSTL_ITERATOR>::value>
+template <class BSLSTL_ITERATOR, bool BSLSTL_NOTSPECIALIZED
+                   = BloombergLP::bslmf::IsFundamental<BSLSTL_ITERATOR>::value>
 struct Vector_DeduceIteratorCategory {
     // This 'struct' provides a primitive means to distinguish between iterator
     // types and fundamental types, in order to dispatch to the correct
@@ -764,43 +765,13 @@ struct Vector_DeduceIteratorCategory<BSLSTL_ITERATOR, true> {
 };
 
 
-                        // ======================================
-                        // class vector_UintPtrConversionIterator
-                        // ======================================
-
-template <class TARGET, class ITERATOR, bool = is_integral<ITERATOR>::value>
-struct vector_ForwardIteratorForPtrs {
-    // This metafunction provides an appropriate iterator adaptor for the
-    // specified (template parameter) type 'ITERATOR' in order to implement
-    // members of the 'vector' partial template specialization for vectors of
-    // pointers to the (template parameter) type 'TARGET'.  The metafunction
-    // will return the original 'ITERATOR' type unless it truly is an iterator,
-    // using 'is_integral' as a proxy for testing that a type is NOT an
-    // iterator.  This is needed to disambiguate only the cases of users
-    // passing '0' as a null-pointer value to functions requesting a number of
-    // identical copies of an element.
-
-    // PUBLIC TYPES
-    typedef ITERATOR type;
-};
-
-template <class TARGET, class ITERATOR>
-struct vector_ForwardIteratorForPtrs<TARGET, ITERATOR, false> {
-    // This metafunction specialization provides an appropriate iterator
-    // adaptor for the specified (template parameter) type 'ITERATOR' in order
-    // to implement members of the 'vector' partial template specialization for
-    // vectors of pointers to the (template parameter) type 'TARGET'.
-
-    // PUBLIC TYPES
-    typedef vector_UintPtrConversionIterator<TARGET *, ITERATOR> type;
-};
-
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
 
 template <class BSLSTL_ITERATOR>
 struct Vector_IsRandomAccessIterator :
-    bsl::is_same<typename Vector_DeduceIteratorCategory<BSLSTL_ITERATOR>::type,
-                 bsl::random_access_iterator_tag>::type
+    bsl::is_same<
+        typename Vector_DeduceIteratorCategory<BSLSTL_ITERATOR>::type,
+                                         bsl::random_access_iterator_tag>::type
 {
 };
 
@@ -822,40 +793,46 @@ struct Vector_RangeCheck {
     template <class BSLSTL_ITERATOR>
     static
     typename bsl::enable_if<
-            !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
-    isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR);
+           !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
+    isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR)
         // Return 'false'.  Note that we know of no way to identify an input
         // iterator range that is guaranteed to be invalid.
+    {
+        return false;
+    }
 
     template <class BSLSTL_ITERATOR>
     static
     typename bsl::enable_if<
-             Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
-    isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last);
+           Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE, bool>::type
+    isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
         // Return 'true' if 'last < first', and 'false' otherwise.  The
         // behavior is undefined unless both 'first' and 'last' are valid
         // iterators that refer to the same range.
+    {
+        return last < first;
+    }
 };
 
 #endif
 
-                          // ================
-                          // class vectorBase
-                          // ================
+                          // ====================
+                          // class Vector_ImpBase
+                          // ====================
 
 template <class VALUE_TYPE>
-class vectorBase {
+class Vector_ImpBase {
     // This class describes the basic layout for a vector class, to be included
-    // into the 'vector' layout *before* the allocator (provided by
+    // into the 'Vector_Imp' layout *before* the allocator (provided by
     // 'bslalg::ContainerBase') to take better advantage of cache prefetching.
     // It is parameterized by 'VALUE_TYPE' only, and implements the portion of
-    // 'vector' that does not need to know about its (template parameter) type
-    // 'ALLOCATOR' (in order to generate shorter debug strings).  This class
-    // intentionally has *no* creators (other than the compiler-generated
+    // 'Vector_Imp' that does not need to know about its (template parameter)
+    // type 'ALLOCATOR' (in order to generate shorter debug strings).  This
+    // class intentionally has *no* creators (other than the compiler-generated
     // ones).
 
     // PRIVATE TYPES
-    typedef BloombergLP::bslmf::MovableRefUtil     MoveUtil;
+    typedef BloombergLP::bslmf::MovableRefUtil                 MoveUtil;
         // This 'typedef' is a convenient alias for the utility associated with
         // movable references.
 
@@ -879,32 +856,32 @@ class vectorBase {
 
   public:
     // CREATORS
-    vectorBase();
+    Vector_ImpBase();
         // Create an empty base object with no capacity.
 
     // MANIPULATORS
-    void adopt(BloombergLP::bslmf::MovableRef<vectorBase> base);
+    void adopt(BloombergLP::bslmf::MovableRef<Vector_ImpBase> base);
         // Adopt all outstanding memory allocations associated with the
         // specified 'base' object.  The behavior is undefined unless this
         // object is in a default-constructed state.
 
                              // *** iterators ***
 
-    iterator begin() BSLS_KEYWORD_NOEXCEPT;
+    iterator begin() BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing modifiable access to the first element
         // in this vector, or the past-the-end iterator if this vector is
         // empty.
 
-    iterator end() BSLS_KEYWORD_NOEXCEPT;
+    iterator end() BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end iterator providing modifiable access to this
         // vector.
 
-    reverse_iterator rbegin() BSLS_KEYWORD_NOEXCEPT;
+    reverse_iterator rbegin() BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing modifiable access to the last
         // element in this vector, and the past-the-end reverse iterator if
         // this vector is empty.
 
-    reverse_iterator rend() BSLS_KEYWORD_NOEXCEPT;
+    reverse_iterator rend() BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end reverse iterator providing modifiable access
         // to this vector.
 
@@ -930,7 +907,7 @@ class vectorBase {
         // in this vector.  The behavior is undefined unless this vector is not
         // empty.
 
-    VALUE_TYPE *data() BSLS_KEYWORD_NOEXCEPT;
+    VALUE_TYPE *data() BSLS_CPP11_NOEXCEPT;
         // Return the address of the modifiable first element in this vector,
         // or a valid, but non-dereferenceable pointer value if this vector is
         // empty.
@@ -939,39 +916,39 @@ class vectorBase {
 
                              // *** iterators ***
 
-    const_iterator  begin() const BSLS_KEYWORD_NOEXCEPT;
-    const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator  begin() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cbegin() const BSLS_CPP11_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // element in this vector, and the past-the-end iterator if this vector
         // is empty.
 
-    const_iterator  end() const BSLS_KEYWORD_NOEXCEPT;
-    const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator  end() const BSLS_CPP11_NOEXCEPT;
+    const_iterator cend() const BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end (forward) iterator providing non-modifiable
         // access to this vector.
 
-    const_reverse_iterator  rbegin() const BSLS_KEYWORD_NOEXCEPT;
-    const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator  rbegin() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator crbegin() const BSLS_CPP11_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last element in this vector, and the past-the-end reverse iterator
         // if this vector is empty.
 
-    const_reverse_iterator  rend() const BSLS_KEYWORD_NOEXCEPT;
-    const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator  rend() const BSLS_CPP11_NOEXCEPT;
+    const_reverse_iterator crend() const BSLS_CPP11_NOEXCEPT;
         // Return the past-the-end reverse iterator providing non-modifiable
         // access to this vector.
 
                             // *** capacity ***
 
-    size_type size() const BSLS_KEYWORD_NOEXCEPT;
+    size_type size() const BSLS_CPP11_NOEXCEPT;
         // Return the number of elements in this vector.
 
-    size_type capacity() const BSLS_KEYWORD_NOEXCEPT;
+    size_type capacity() const BSLS_CPP11_NOEXCEPT;
         // Return the capacity of this vector, i.e., the maximum number of
         // elements for which resizing is guaranteed not to trigger a
         // reallocation.
 
-    bool empty() const BSLS_KEYWORD_NOEXCEPT;
+    bool empty() const BSLS_CPP11_NOEXCEPT;
         // Return 'true' if this vector has size 0, and 'false' otherwise.
 
                           // *** element access ***
@@ -996,19 +973,20 @@ class vectorBase {
         // element in this vector.  The behavior is undefined unless this
         // vector is not empty.
 
-    const VALUE_TYPE *data() const BSLS_KEYWORD_NOEXCEPT;
+    const VALUE_TYPE *data() const BSLS_CPP11_NOEXCEPT;
         // Return the address of the non-modifiable first element in this
         // vector, or a valid, but non-dereferenceable pointer value if this
         // vector is empty.
+
 };
 
-                        // ============
-                        // class vector
-                        // ============
+                        // ================
+                        // class Vector_Imp
+                        // ================
 
-template <class VALUE_TYPE, class ALLOCATOR = allocator<VALUE_TYPE> >
-class vector : public  vectorBase<VALUE_TYPE>
-             , private BloombergLP::bslalg::ContainerBase<ALLOCATOR> {
+template <class VALUE_TYPE, class ALLOCATOR = bsl::allocator<VALUE_TYPE> >
+class Vector_Imp : public Vector_ImpBase<VALUE_TYPE>
+                 , private BloombergLP::bslalg::ContainerBase<ALLOCATOR> {
     // This class template provides an STL-compliant 'vector' that conforms to
     // the 'bslma::Allocator' model.  For the requirements of a vector class,
     // consult the C++11 standard.  In particular, this implementation offers
@@ -1023,8 +1001,8 @@ class vector : public  vectorBase<VALUE_TYPE>
     //:   'bslstl::StdExceptUtil::throwOutOfRange'.
     //..
     // Note that portions of the standard methods are implemented in
-    // 'vectorBase', which is parameterized on only 'VALUE_TYPE' in order to
-    // generate smaller debug strings.
+    // 'Vector_ImpBase', which is parameterized on only 'VALUE_TYPE' in order
+    // to generate smaller debug strings.
     //
     // This class:
     //: o supports a complete set of *value-semantic* operations
@@ -1040,15 +1018,15 @@ class vector : public  vectorBase<VALUE_TYPE>
     // object is left in a valid state and its value is unchanged.
 
     // PRIVATE TYPES
-    typedef BloombergLP::bslalg::ArrayPrimitives      ArrayPrimitives;
+    typedef BloombergLP::bslalg::ArrayPrimitives               ArrayPrimitives;
         // This 'typedef' is an alias for a utility class that provides many
         // useful functions that operate on arrays.
 
-    typedef BloombergLP::bslmf::MovableRefUtil        MoveUtil;
+    typedef BloombergLP::bslmf::MovableRefUtil                 MoveUtil;
         // This 'typedef' is a convenient alias for the utility associated with
         // movable references.
 
-    typedef allocator_traits<ALLOCATOR>               AllocatorTraits;
+    typedef bsl::allocator_traits<ALLOCATOR>                   AllocatorTraits;
         // This 'typedef' is an alias for the allocator traits type associated
         // with this container.
 
@@ -1071,7 +1049,7 @@ class vector : public  vectorBase<VALUE_TYPE>
 
   private:
     // PRIVATE TYPES
-    typedef vectorBase<VALUE_TYPE>                    ImpBase;
+    typedef Vector_ImpBase<VALUE_TYPE>                    ImpBase;
         // Implementation base type, with iterator-related functionality.
 
     typedef BloombergLP::bslalg::ContainerBase<ALLOCATOR> ContainerBase;
@@ -1080,7 +1058,7 @@ class vector : public  vectorBase<VALUE_TYPE>
 
     class Proctor {
         // This class provides a proctor for deallocating an array of
-        // 'VALUE_TYPE' objects, to be used in the 'vector' constructors.
+        // 'VALUE_TYPE' objects, to be used in the 'Vector_Imp' constructors.
 
         // DATA
         VALUE_TYPE          *d_data_p;       // array pointer
@@ -1171,7 +1149,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         // Specialized insertion for forward, bidirectional, and random-access
         // iterators.
 
-    void privateMoveInsert(vector         *fromVector,
+    void privateMoveInsert(Vector_Imp     *fromVector,
                            const_iterator  position);
         // Destructive move insertion from a temporary vector, to avoid
         // duplicate copies after importing from an input iterator into a
@@ -1186,8 +1164,8 @@ class vector : public  vectorBase<VALUE_TYPE>
 
                       // *** construct/copy/destroy ***
 
-    vector() BSLS_KEYWORD_NOEXCEPT;
-    explicit vector(const ALLOCATOR& basicAllocator) BSLS_KEYWORD_NOEXCEPT;
+    explicit
+    Vector_Imp(const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create an empty vector.  Optionally specify a 'basicAllocator' used
         // to supply memory.  If 'basicAllocator' is not specified, a
         // default-constructed object of the (template parameter) type
@@ -1197,8 +1175,9 @@ class vector : public  vectorBase<VALUE_TYPE>
         // supplied for 'basicAllocator' if the type 'ALLOCATOR' is
         // 'bsl::allocator' (the default).
 
-    explicit vector(size_type        initialSize,
-                    const ALLOCATOR& basicAllocator = ALLOCATOR());
+    explicit
+    Vector_Imp(size_type         initialSize,
+               const ALLOCATOR&  basicAllocator = ALLOCATOR());
         // Create a vector of the specified 'initialSize' whose every element
         // is a default-constructed object of the (template parameter) type
         // 'VALUE_TYPE'.  Optionally specify a 'basicAllocator' used to supply
@@ -1212,9 +1191,9 @@ class vector : public  vectorBase<VALUE_TYPE>
         // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
         // type 'ALLOCATOR' is 'bsl::allocator' (the default).
 
-    vector(size_type         initialSize,
-           const VALUE_TYPE& value,
-           const ALLOCATOR&  basicAllocator = ALLOCATOR());
+    Vector_Imp(size_type         initialSize,
+               const VALUE_TYPE& value,
+               const ALLOCATOR&  basicAllocator = ALLOCATOR());
         // Create a vector of the specified 'initialSize' whose every element
         // is a copy of the specified 'value'.  Optionally specify a
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
@@ -1229,9 +1208,9 @@ class vector : public  vectorBase<VALUE_TYPE>
         // type 'ALLOCATOR' is 'bsl::allocator' (the default).
 
     template <class INPUT_ITER>
-    vector(INPUT_ITER       first,
-           INPUT_ITER       last,
-           const ALLOCATOR& basicAllocator = ALLOCATOR());
+    Vector_Imp(INPUT_ITER       first,
+               INPUT_ITER       last,
+               const ALLOCATOR& basicAllocator = ALLOCATOR());
         // Create a vector, and insert (in order) each 'VALUE_TYPE' object in
         // the range starting at the specified 'first' element, and ending
         // immediately before the specified 'last' element.  Optionally specify
@@ -1253,7 +1232,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
         // type 'ALLOCATOR' is 'bsl::allocator' (the default).
 
-    vector(const vector& original);
+    Vector_Imp(const Vector_Imp& original);
         // Create a vector having the same value as the specified 'original'
         // object.  Use the allocator returned by
         // 'bsl::allocator_traits<ALLOCATOR>::
@@ -1262,15 +1241,14 @@ class vector : public  vectorBase<VALUE_TYPE>
         // type 'VALUE_TYPE' be 'copy-insertable' into this vector (see
         // {Requirements on 'VALUE_TYPE'}).
 
-    vector(BloombergLP::bslmf::MovableRef<vector> original)
-                                             BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
+    Vector_Imp(BloombergLP::bslmf::MovableRef<Vector_Imp> original);// IMPLICIT
         // Create a vector having the same value as the specified 'original'
         // object by moving (in constant time) the contents of 'original' to
         // the new vector.  The allocator associated with 'original' is
         // propagated for use in the newly-created vector.  'original' is left
         // in a valid but unspecified state.
 
-    vector(const vector& original, const ALLOCATOR& basicAllocator);
+    Vector_Imp(const Vector_Imp& original, const ALLOCATOR& basicAllocator);
         // Create a vector having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // This method requires that the (template parameter) type 'VALUE_TYPE'
@@ -1279,8 +1257,8 @@ class vector : public  vectorBase<VALUE_TYPE>
         // for 'basicAllocator' if the (template parameter) type 'ALLOCATOR' is
         // 'bsl::allocator' (the default).
 
-    vector(BloombergLP::bslmf::MovableRef<vector> original,
-           const ALLOCATOR&                       basicAllocator);
+    Vector_Imp(BloombergLP::bslmf::MovableRef<Vector_Imp> original,
+               const ALLOCATOR&                           basicAllocator);
         // Create a vector having the same value as the specified 'original'
         // object that uses the specified 'basicAllocator' to supply memory.
         // The contents of 'original' are moved (in constant time) to the new
@@ -1293,28 +1271,11 @@ class vector : public  vectorBase<VALUE_TYPE>
         // for 'basicAllocator' if the (template parameter) type 'ALLOCATOR' is
         // 'bsl::allocator' (the default).
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-    vector(std::initializer_list<VALUE_TYPE> values,
-           const ALLOCATOR&                  basicAllocator = ALLOCATOR());
-                                                                    // IMPLICIT
-        // Create a vector and insert (in order) each 'VALUE_TYPE' object in
-        // the specified 'values' initializer list.  Optionally specify a
-        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
-        // specified, a default-constructed object of the (template parameter)
-        // type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
-        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
-        // installed default allocator is used.  This method requires that the
-        // (template parameter) type 'VALUE_TYPE' be 'copy-insertable' into
-        // this vector (see {Requirements on 'VALUE_TYPE'}).  Note that a
-        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
-        // type 'ALLOCATOR' is 'bsl::allocator' (the default).
-#endif
-
-    ~vector();
+    ~Vector_Imp();
         // Destroy this vector.
 
     // MANIPULATORS
-    vector& operator=(const vector& rhs);
+    Vector_Imp& operator=(const Vector_Imp& rhs);
         // Assign to this object the value of the specified 'rhs' object,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_copy_assignment', and return
@@ -1324,7 +1285,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         // 'VALUE_TYPE' be 'copy-assignable' and 'copy-insertable' into this
         // vector (see {Requirements on 'VALUE_TYPE'}).
 
-    vector& operator=(BloombergLP::bslmf::MovableRef<vector> rhs);
+    Vector_Imp& operator=(BloombergLP::bslmf::MovableRef<Vector_Imp> rhs);
         // Assign to this object the value of the specified 'rhs' object,
         // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
         // type has trait 'propagate_on_container_move_assignment', and return
@@ -1339,26 +1300,6 @@ class vector : public  vectorBase<VALUE_TYPE>
         // the (template parameter) type 'VALUE_TYPE' be 'move-assignable' and
         // 'move-insertable' into this vector (see {Requirements on
         // 'VALUE_TYPE'}).
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-    vector& operator=(std::initializer_list<VALUE_TYPE> values);
-        // Assign to this object the value resulting from first clearing this
-        // vector and then inserting (in order) each 'VALUE_TYPE' object in the
-        // specified 'values' initializer list.  If an exception is thrown,
-        // '*this' is left in a valid but unspecified state.  This method
-        // requires that the (template parameter) type 'VALUE_TYPE' be
-        // 'copy-insertable' into this vector (see {Requirements on
-        // 'VALUE_TYPE'}).
-
-    void assign(std::initializer_list<VALUE_TYPE> values);
-        // Assign to this object the value resulting from first clearing this
-        // vector and then inserting (in order) each 'VALUE_TYPE' object in the
-        // specified 'values' initializer list.  If an exception is thrown,
-        // '*this' is left in a valid but unspecified state.  This method
-        // requires that the (template parameter) type 'VALUE_TYPE' be
-        // 'copy-insertable' into this vector (see {Requirements on
-        // 'VALUE_TYPE'}).
-#endif
 
     template <class INPUT_ITER>
     void assign(INPUT_ITER first, INPUT_ITER last);
@@ -1386,6 +1327,16 @@ class vector : public  vectorBase<VALUE_TYPE>
         // parameter) type 'VALUE_TYPE' be 'copy-insertable' into this vector
         // (see {Requirements on 'VALUE_TYPE'}).
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    void assign(std::initializer_list<VALUE_TYPE> values);
+        // Assign to this object the value resulting from first clearing this
+        // vector and then inserting (in order) each 'value_type' object in the
+        // specified 'values' initializer list.  If an exception is thrown,
+        // '*this' is left in a valid but unspecified state.  This method
+        // requires that the (template parameter) type 'VALUE_TYPE' be
+        // 'copy-insertable' into this vector (see {Requirements on
+        // 'VALUE_TYPE'}).
+#endif
 
                              // *** capacity ***
 
@@ -1665,7 +1616,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         if (newSize > this->d_capacity) {
             size_type newCapacity = Vector_Util::computeNewCapacity(
                                            newSize, this->d_capacity, maxSize);
-            vector temp(this->get_allocator());
+            Vector_Imp temp(this->get_allocator());
             temp.privateReserveEmpty(newCapacity);
 
             ArrayPrimitives::destructiveMoveAndEmplace(
@@ -1723,7 +1674,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         if (newSize > this->d_capacity) {
             size_type newCapacity = Vector_Util::computeNewCapacity(
                                            newSize, this->d_capacity, maxSize);
-            vector temp(this->get_allocator());
+            Vector_Imp temp(this->get_allocator());
             temp.privateReserveEmpty(newCapacity);
 
             ArrayPrimitives::destructiveMoveAndEmplace(
@@ -1773,7 +1724,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         if (newSize > this->d_capacity) {
             size_type newCapacity = Vector_Util::computeNewCapacity(
                                            newSize, this->d_capacity, maxSize);
-            vector temp(this->get_allocator());
+            Vector_Imp temp(this->get_allocator());
             temp.privateReserveEmpty(newCapacity);
 
             ArrayPrimitives::destructiveMoveAndEmplace(
@@ -1827,7 +1778,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         if (newSize > this->d_capacity) {
             size_type newCapacity = Vector_Util::computeNewCapacity(
                                            newSize, this->d_capacity, maxSize);
-            vector temp(this->get_allocator());
+            Vector_Imp temp(this->get_allocator());
             temp.privateReserveEmpty(newCapacity);
 
             ArrayPrimitives::destructiveMoveAndEmplace(
@@ -1885,7 +1836,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         if (newSize > this->d_capacity) {
             size_type newCapacity = Vector_Util::computeNewCapacity(
                                            newSize, this->d_capacity, maxSize);
-            vector temp(this->get_allocator());
+            Vector_Imp temp(this->get_allocator());
             temp.privateReserveEmpty(newCapacity);
 
             ArrayPrimitives::destructiveMoveAndEmplace(
@@ -1947,7 +1898,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         if (newSize > this->d_capacity) {
             size_type newCapacity = Vector_Util::computeNewCapacity(
                                            newSize, this->d_capacity, maxSize);
-            vector temp(this->get_allocator());
+            Vector_Imp temp(this->get_allocator());
             temp.privateReserveEmpty(newCapacity);
 
             ArrayPrimitives::destructiveMoveAndEmplace(
@@ -2013,7 +1964,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         if (newSize > this->d_capacity) {
             size_type newCapacity = Vector_Util::computeNewCapacity(
                                            newSize, this->d_capacity, maxSize);
-            vector temp(this->get_allocator());
+            Vector_Imp temp(this->get_allocator());
             temp.privateReserveEmpty(newCapacity);
 
             ArrayPrimitives::destructiveMoveAndEmplace(
@@ -2083,7 +2034,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         if (newSize > this->d_capacity) {
             size_type newCapacity = Vector_Util::computeNewCapacity(
                                            newSize, this->d_capacity, maxSize);
-            vector temp(this->get_allocator());
+            Vector_Imp temp(this->get_allocator());
             temp.privateReserveEmpty(newCapacity);
 
             ArrayPrimitives::destructiveMoveAndEmplace(
@@ -2157,7 +2108,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         if (newSize > this->d_capacity) {
             size_type newCapacity = Vector_Util::computeNewCapacity(
                                            newSize, this->d_capacity, maxSize);
-            vector temp(this->get_allocator());
+            Vector_Imp temp(this->get_allocator());
             temp.privateReserveEmpty(newCapacity);
 
             ArrayPrimitives::destructiveMoveAndEmplace(
@@ -2235,7 +2186,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         if (newSize > this->d_capacity) {
             size_type newCapacity = Vector_Util::computeNewCapacity(
                                            newSize, this->d_capacity, maxSize);
-            vector temp(this->get_allocator());
+            Vector_Imp temp(this->get_allocator());
             temp.privateReserveEmpty(newCapacity);
 
             ArrayPrimitives::destructiveMoveAndEmplace(
@@ -2317,7 +2268,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         if (newSize > this->d_capacity) {
             size_type newCapacity = Vector_Util::computeNewCapacity(
                                            newSize, this->d_capacity, maxSize);
-            vector temp(this->get_allocator());
+            Vector_Imp temp(this->get_allocator());
             temp.privateReserveEmpty(newCapacity);
 
             ArrayPrimitives::destructiveMoveAndEmplace(
@@ -2403,7 +2354,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         if (newSize > this->d_capacity) {
             size_type newCapacity = Vector_Util::computeNewCapacity(
                                            newSize, this->d_capacity, maxSize);
-            vector temp(this->get_allocator());
+            Vector_Imp temp(this->get_allocator());
             temp.privateReserveEmpty(newCapacity);
 
             ArrayPrimitives::destructiveMoveAndEmplace(
@@ -2475,7 +2426,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         if (newSize > this->d_capacity) {
             size_type newCapacity = Vector_Util::computeNewCapacity(
                                            newSize, this->d_capacity, maxSize);
-            vector temp(this->get_allocator());
+            Vector_Imp temp(this->get_allocator());
             temp.privateReserveEmpty(newCapacity);
 
             ArrayPrimitives::destructiveMoveAndEmplace(
@@ -2509,7 +2460,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         // specified 'value', and return an iterator referring to the newly
         // inserted element.  If an exception is thrown (other than by the copy
         // constructor, move constructor, assignment operator, or move
-        // assignment operator of 'VALUE_TYPE'), '*this' is unaffected.  Throw
+        // assignment operator of 'value_type'), '*this' is unaffected.  Throw
         // 'std::length_error' if 'size() == max_size()'.  The behavior is
         // undefined unless 'position' is an iterator in the range
         // '[begin() .. end()]' (both endpoints included).  This method
@@ -2524,7 +2475,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         // newly inserted element.  'value' is left in a valid but unspecified
         // state.  If an exception is thrown (other than by the copy
         // constructor, move constructor, assignment operator, or move
-        // assignment operator of 'VALUE_TYPE'), 'this' is unaffected.  Throw
+        // assignment operator of 'value_type'), 'this' is unaffected.  Throw
         // 'std::length_error' if 'size() == max_size()'.  The behavior is
         // undefined unless 'position' is an iterator in the range
         // '[begin() .. end()]' (both endpoints included).  This method
@@ -2540,7 +2491,7 @@ class vector : public  vectorBase<VALUE_TYPE>
         // iterator referring to the first newly inserted element.  If an
         // exception is thrown (other than by the copy constructor, move
         // constructor, assignment operator, or move assignment operator of
-        // 'VALUE_TYPE'), '*this' is unaffected.  Throw 'std::length_error' if
+        // 'value_type'), '*this' is unaffected.  Throw 'std::length_error' if
         // 'size() + numElements > max_size()'.  The behavior is undefined
         // unless 'position' is an iterator in the range '[begin() .. end()]'
         // (both endpoints included).  This method requires that the (template
@@ -2594,12 +2545,12 @@ class vector : public  vectorBase<VALUE_TYPE>
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     iterator insert(const_iterator                    position,
                     std::initializer_list<VALUE_TYPE> values);
-        // Insert at the specified 'position' in this vector each 'VALUE_TYPE'
+        // Insert at the specified 'position' in this vector each 'value_type'
         // object in the specified 'values' initializer list, and return an
         // iterator referring to the first newly inserted element.  If an
         // exception is thrown (other than by the copy constructor, move
         // constructor, assignment operator, and move assignment operator of
-        // 'VALUE_TYPE'), '*this' is unaffected.  Throw 'std::length_error' if
+        // 'value_type'), '*this' is unaffected.  Throw 'std::length_error' if
         // 'size() + values.size() > max_size()'.  The behavior is undefined
         // unless 'position' is an iterator in the range '[begin() .. end()]'
         // (both endpoints included).  This method requires that the (template
@@ -2626,37 +2577,323 @@ class vector : public  vectorBase<VALUE_TYPE>
         // included) and 'last' is an iterator in the range
         // '[first .. cend()]' (both endpoints included).
 
-    void swap(vector& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+    void swap(Vector_Imp& other)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
         // Exchange the value of this object with the value of the specified
         // 'other' object.  Additionally, if
         // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
         // 'true', then exchange the allocator of this object with that of the
         // 'other' object, and do not modify either allocator otherwise.  This
         // method provides the no-throw exception-safety guarantee and
-        // guarantees 'O[1]' complexity.  Note that the exception specification
-        // is a stand in until 'bsl' can assume availability of all the traits
-        // for the 'noexcept' predicate on all supported platforms.  The
-        // behavior is undefined unless either this object was created with the
-        // same allocator as 'other' or 'propagate_on_container_swap' is
-        // 'true'.
+        // guarantees 'O[1]' complexity.  The behavior is undefined unless
+        // either this object was created with the same allocator as 'other' or
+        // 'propagate_on_container_swap' is 'true'.
 
-    void clear() BSLS_KEYWORD_NOEXCEPT;
+    void clear() BSLS_CPP11_NOEXCEPT;
         // Remove all elements from this vector making its size 0.  Note that
         // although this vector is empty after this method returns, it
         // preserves the same capacity it had before the method was called.
 
     // ACCESSORS
-    allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
+    allocator_type get_allocator() const BSLS_CPP11_NOEXCEPT;
         // Return (a copy of) the allocator used for memory allocation by this
         // vector.
 
-    size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
+    size_type max_size() const BSLS_CPP11_NOEXCEPT;
         // Return a theoretical upper bound on the largest number of elements
         // that this vector could possibly hold.  Note that there is no
         // guarantee that the vector can successfully grow to the returned
         // size, or even close to that size without running out of resources.
         // Also note that requests to create a vector longer than this number
         // of elements are guaranteed to raise a 'std::length_error' exception.
+};
+
+// FREE OPERATORS
+
+                       // *** relational operators ***
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator==(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'vector' objects 'lhs' and 'rhs' have
+    // the same value if they have the same number of elements, and each
+    // element in the ordered sequence of elements of 'lhs' has the same value
+    // as the corresponding element in the ordered sequence of elements of
+    // 'rhs'.  This method requires that the (template parameter) type
+    // 'VALUE_TYPE' be 'equality-comparable' (see {Requirements on
+    // 'VALUE_TYPE'}).
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator!=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same value, and 'false' otherwise.  Two 'vector' objects 'lhs' and 'rhs'
+    // do not have the same value if they do not have the same number of
+    // elements, or some element in the ordered sequence of elements of 'lhs'
+    // does not have the same value as the corresponding element in the ordered
+    // sequence of elements of 'rhs'.  This method requires that the (template
+    // parameter) type 'VALUE_TYPE' be 'equality-comparable' (see {Requirements
+    // on 'VALUE_TYPE'}).
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator<(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+               const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically less than that of the specified 'rhs' vector, and
+    // 'false' otherwise.  Given iterators 'i' and 'j' over the respective
+    // sequences '[lhs.begin() .. lhs.end())' and '[rhs.begin() .. rhs.end())',
+    // the value of vector 'lhs' is lexicographically less than that of vector
+    // 'rhs' if 'true == *i < *j' for the first pair of corresponding iterator
+    // positions where '*i < *j' and '*j < *i' are not both 'false'.  If no
+    // such corresponding iterator position exists, the value of 'lhs' is
+    // lexicographically less than that of 'rhs' if 'lhs.size() < rhs.size()'.
+    // This method requires that 'operator<', inducing a total order, be
+    // defined for 'value_type'.
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator>(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+               const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically greater than that of the specified 'rhs' vector, and
+    // 'false' otherwise.  The value of vector 'lhs' is lexicographically
+    // greater than that of vector 'rhs' if 'rhs' is lexicographically less
+    // than 'lhs' (see 'operator<').  This method requires that 'operator<',
+    // inducing a total order, be defined for 'value_type'.  Note that this
+    // operator returns 'rhs < lhs'.
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator<=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically less than or equal to that of the specified 'rhs'
+    // vector, and 'false' otherwise.  The value of vector 'lhs' is
+    // lexicographically less than or equal to that of vector 'rhs' if 'rhs' is
+    // not lexicographically less than 'lhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(rhs < lhs)'.
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs);
+    // Return 'true' if the value of the specified 'lhs' vector is
+    // lexicographically greater than or equal to that of the specified 'rhs'
+    // vector, and 'false' otherwise.  The value of vector 'lhs' is
+    // lexicographically greater than or equal to that of vector 'rhs' if 'lhs'
+    // is not lexicographically less than 'rhs' (see 'operator<').  This method
+    // requires that 'operator<', inducing a total order, be defined for
+    // 'value_type'.  Note that this operator returns '!(lhs < rhs)'.
+
+                            // ============
+                            // class vector
+                            // ============
+
+template <class VALUE_TYPE, class ALLOCATOR = bsl::allocator<VALUE_TYPE> >
+class vector : public Vector_Imp<VALUE_TYPE, ALLOCATOR>
+    // Note that members that do not need to be redefined are inherited
+    // straightforwardly from the 'Base', although if an overloaded method
+    // needs to be redefined, then all its overloads need to be redefined.
+{
+    // PRIVATE TYPES
+    typedef Vector_Imp<VALUE_TYPE, ALLOCATOR>                  Base;
+
+    typedef bsl::allocator_traits<ALLOCATOR>                   AllocatorTraits;
+        // This 'typedef' is an alias for the allocator traits type associated
+        // with this container.
+
+    typedef BloombergLP::bslmf::MovableRefUtil                 MoveUtil;
+        // This 'typedef' is a convenient alias for the utility associated with
+        // movable references.
+
+    typedef BloombergLP::bslalg::ContainerBase<ALLOCATOR> ContainerBase;
+
+  public:
+    // PUBLIC TYPES
+    typedef typename Base::value_type             value_type;
+    typedef typename Base::allocator_type         allocator_type;
+    typedef typename Base::reference              reference;
+    typedef typename Base::const_reference        const_reference;
+
+    typedef typename Base::size_type              size_type;
+    typedef typename Base::difference_type        difference_type;
+    typedef typename Base::pointer                pointer;
+    typedef typename Base::const_pointer          const_pointer;
+
+    typedef typename Base::iterator               iterator;
+    typedef typename Base::const_iterator         const_iterator;
+    typedef typename Base::reverse_iterator       reverse_iterator;
+    typedef typename Base::const_reverse_iterator const_reverse_iterator;
+
+  public:
+    // CREATORS
+
+    // *** construct/copy/destroy ***
+
+    vector() BSLS_CPP11_NOEXCEPT;
+    explicit vector(const ALLOCATOR& basicAllocator) BSLS_CPP11_NOEXCEPT;
+        // Create an empty vector.  Optionally specify a 'basicAllocator' used
+        // to supply memory.  If 'basicAllocator' is not specified, a
+        // default-constructed object of the (template parameter) type
+        // 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is 'bsl::allocator'
+        // and 'basicAllocator' is not supplied, the currently installed
+        // default allocator is used.  Note that a 'bslma::Allocator *' can be
+        // supplied for 'basicAllocator' if the type 'ALLOCATOR' is
+        // 'bsl::allocator' (the default).
+
+    explicit vector(size_type        initialSize,
+                    const ALLOCATOR& basicAllocator = ALLOCATOR());
+        // Create a vector of the specified 'initialSize' whose every element
+        // is a default-constructed object of the (template parameter) type
+        // 'VALUE_TYPE'.  Optionally specify a 'basicAllocator' used to supply
+        // memory.  If 'basicAllocator' is not specified, a default-constructed
+        // object of the (template parameter) type 'ALLOCATOR' is used.  If the
+        // type 'ALLOCATOR' is 'bsl::allocator' and 'basicAllocator' is not
+        // supplied, the currently installed default allocator is used.  Throw
+        // 'std::length_error' if 'initialSize > max_size()'.  This method
+        // requires that the type 'VALUE_TYPE' be 'default-insertable' into
+        // this vector (see {Requirements on 'VALUE_TYPE'}).  Note that a
+        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
+        // type 'ALLOCATOR' is 'bsl::allocator' (the default).
+
+    vector(size_type         initialSize,
+           const VALUE_TYPE& value,
+           const ALLOCATOR&  basicAllocator = ALLOCATOR());
+        // Create a vector of the specified 'initialSize' whose every element
+        // is a copy of the specified 'value'.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
+        // specified, a default-constructed object of the (template parameter)
+        // type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
+        // installed default allocator is used.  Throw 'std::length_error' if
+        // 'initialSize > max_size()'.  This method requires that the (template
+        // parameter) type 'VALUE_TYPE' be 'copy-insertable' into this vector
+        // (see {Requirements on 'VALUE_TYPE'}).  Note that a
+        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
+        // type 'ALLOCATOR' is 'bsl::allocator' (the default).
+
+    template <class INPUT_ITER>
+    vector(INPUT_ITER       first,
+           INPUT_ITER       last,
+           const ALLOCATOR& basicAllocator = ALLOCATOR());
+        // Create a vector, and insert (in order) each 'VALUE_TYPE' object in
+        // the range starting at the specified 'first' element, and ending
+        // immediately before the specified 'last' element.  Optionally specify
+        // a 'basicAllocator' used to supply memory.  If 'basicAllocator' is
+        // not specified, a default-constructed object of the (template
+        // parameter) type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
+        // installed default allocator is used.  Throw 'std::length_error' if
+        // the number of elements in '[first .. last)' exceeds the value
+        // returned by the method 'max_size'.  The (template parameter) type
+        // 'INPUT_ITER' shall meet the requirements of an input iterator
+        // defined in the C++11 standard [24.2.3] providing access to values of
+        // a type convertible to 'value_type', and 'value_type' must be
+        // 'emplace-constructible' from '*i' into this vector, where 'i' is a
+        // dereferenceable iterator in the range '[first .. last)' (see
+        // {Requirements on 'VALUE_TYPE'}).  The behavior is undefined unless
+        // 'first' and 'last' refer to a range of valid values where 'first'
+        // is at a position at or before 'last'.  Note that a
+        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
+        // type 'ALLOCATOR' is 'bsl::allocator' (the default).
+
+    vector(const vector& original);
+        // Create a vector having the same value as the specified 'original'
+        // object.  Use the allocator returned by
+        // 'bsl::allocator_traits<ALLOCATOR>::
+        // select_on_container_copy_construction(original.get_allocator())' to
+        // allocate memory.  This method requires that the (template parameter)
+        // type 'VALUE_TYPE' be 'copy-insertable' into this vector (see
+        // {Requirements on 'VALUE_TYPE'}).
+
+    vector(BloombergLP::bslmf::MovableRef<vector> original)
+                                               BSLS_CPP11_NOEXCEPT; // IMPLICIT
+        // Create a vector having the same value as the specified 'original'
+        // object by moving (in constant time) the contents of 'original' to
+        // the new vector.  The allocator associated with 'original' is
+        // propagated for use in the newly-created vector.  'original' is left
+        // in a valid but unspecified state.
+
+    vector(const vector& original, const ALLOCATOR& basicAllocator);
+        // Create a vector having the same value as the specified 'original'
+        // object that uses the specified 'basicAllocator' to supply memory.
+        // This method requires that the (template parameter) type 'VALUE_TYPE'
+        // be 'copy-insertable' into this vector (see {Requirements on
+        // 'VALUE_TYPE'}).  Note that a 'bslma::Allocator *' can be supplied
+        // for 'basicAllocator' if the (template parameter) type 'ALLOCATOR' is
+        // 'bsl::allocator' (the default).
+
+    vector(BloombergLP::bslmf::MovableRef<vector> original,
+           const ALLOCATOR&                       basicAllocator);
+        // Create a vector having the same value as the specified 'original'
+        // object that uses the specified 'basicAllocator' to supply memory.
+        // The contents of 'original' are moved (in constant time) to the new
+        // vector if 'basicAllocator == original.get_allocator()', and are
+        // move-inserted (in linear time) using 'basicAllocator' otherwise.
+        // 'original' is left in a valid but unspecified state.  This method
+        // requires that the (template parameter) type 'VALUE_TYPE' be
+        // 'move-insertable' into this vector (see {Requirements on
+        // 'VALUE_TYPE'}).  Note that a 'bslma::Allocator *' can be supplied
+        // for 'basicAllocator' if the (template parameter) type 'ALLOCATOR' is
+        // 'bsl::allocator' (the default).
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    vector(std::initializer_list<VALUE_TYPE> values,
+           const ALLOCATOR&                  basicAllocator = ALLOCATOR());
+                                                                    // IMPLICIT
+        // Create a vector and insert (in order) each 'value_type' object in
+        // the specified 'values' initializer list.  Optionally specify a
+        // 'basicAllocator' used to supply memory.  If 'basicAllocator' is not
+        // specified, a default-constructed object of the (template parameter)
+        // type 'ALLOCATOR' is used.  If the type 'ALLOCATOR' is
+        // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
+        // installed default allocator is used.  This method requires that the
+        // (template parameter) type 'VALUE_TYPE' be 'copy-insertable' into
+        // this vector (see {Requirements on 'VALUE_TYPE'}).  Note that a
+        // 'bslma::Allocator *' can be supplied for 'basicAllocator' if the
+        // type 'ALLOCATOR' is 'bsl::allocator' (the default).
+#endif
+
+    ~vector();
+        // Destroy this vector.
+
+    // MANIPULATORS
+    vector& operator=(const vector& rhs);
+        // Assign to this object the value of the specified 'rhs' object,
+        // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
+        // type has trait 'propagate_on_container_copy_assignment', and return
+        // a reference providing modifiable access to this object.  If an
+        // exception is thrown, '*this' is left in a valid but unspecified
+        // state.  This method requires that the (template parameter) type
+        // 'VALUE_TYPE' be 'copy-assignable' and 'copy-insertable' into this
+        // vector (see {Requirements on 'VALUE_TYPE'}).
+
+    vector& operator=(BloombergLP::bslmf::MovableRef<vector> rhs)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
+        // Assign to this object the value of the specified 'rhs' object,
+        // propagate to this object the allocator of 'rhs' if the 'ALLOCATOR'
+        // type has trait 'propagate_on_container_move_assignment', and return
+        // a reference providing modifiable access to this object.  The
+        // contents of 'rhs' are moved (in constant time) to this vector if
+        // 'get_allocator() == rhs.get_allocator()' (after accounting for the
+        // aforementioned trait); otherwise, all elements in this vector are
+        // either destroyed or move-assigned to and each additional element in
+        // 'rhs' is move-inserted into this vector.  'rhs' is left in a valid
+        // but unspecified state, and if an exception is thrown, '*this' is
+        // left in a valid but unspecified state.  This method requires that
+        // the (template parameter) type 'VALUE_TYPE' be 'move-assignable' and
+        // 'move-insertable' into this vector (see {Requirements on
+        // 'VALUE_TYPE'}).
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    vector& operator=(std::initializer_list<VALUE_TYPE> values);
+        // Assign to this object the value resulting from first clearing this
+        // vector and then inserting (in order) each 'value_type' object in the
+        // specified 'values' initializer list.  If an exception is thrown,
+        // '*this' is left in a valid but unspecified state.  This method
+        // requires that the (template parameter) type 'VALUE_TYPE' be
+        // 'copy-insertable' into this vector (see {Requirements on
+        // 'VALUE_TYPE'}).
+#endif
 };
 
 // FREE OPERATORS
@@ -2739,61 +2976,30 @@ bool operator>=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
 template <class VALUE_TYPE, class ALLOCATOR>
 void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
           vector<VALUE_TYPE, ALLOCATOR>& b)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
-    // Exchange the value of the specified 'a' object with the value of the
-    // specified 'b' object.  Additionally, if
-    // 'bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap' is
-    // 'true', then exchange the allocator of 'a' with that of 'b'.  If
-    // 'propagate_on_container_swap' is 'true' or 'a' and 'b' were created with
-    // the same allocator, then this method provides the no-throw
-    // exception-safety guarantee and has 'O[1]' complexity; otherwise, this
-    // method has 'O[n + m]' complexity, where 'n' and 'm' are the number of
-    // elements in 'a' and 'b', respectively.  Note that 'a' and 'b' are left
-    // in valid but unspecified states if an exception is thrown, e.g., in the
-    // case where 'propagate_on_container_swap' is 'false' and 'a' and 'b' were
-    // created with different allocators.  Also note that the exception
-    // specification is a stand in until 'bsl' can assume availability of all
-    // the traits for the 'noexcept' predicate on all supported platforms.
-
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
 
                    // =====================================
                    // class vector<VALUE_TYPE *, ALLOCATOR>
                    // =====================================
 
 template <class VALUE_TYPE, class ALLOCATOR>
-class vector<VALUE_TYPE *, ALLOCATOR>
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-    : private vector<BloombergLP::bsls::Types::UintPtr,
-                     typename allocator_traits<ALLOCATOR>::
-                      template rebind_alloc<BloombergLP::bsls::Types::UintPtr>>
-#else
-    : private vector<BloombergLP::bsls::Types::UintPtr,
-                     typename ALLOCATOR::template rebind<
-                                     BloombergLP::bsls::Types::UintPtr>::other>
-#endif
-{
-    // This partial specialization of 'vector' for pointer types to a (template
-    // parameter) 'VALUE_TYPE' type is implemented in terms of
-    // 'vector<UintPtr>' to reduce the amount of code generated.  Note that
-    // this specialization rebinds the (template parameter) 'ALLOCATOR' type to
-    // an allocator of 'UintPtr' so as to satisfy the invariant in the 'vector'
-    // base class.  Also note that members that do not need to be redefined are
-    // inherited straightforwardly from the 'Base', although if an overloaded
-    // method needs to be redefined, then all its overloads need to be
-    // redefined.  Note that the contract for all members is the same as the
-    // primary template, so documentation is not repeated to avoid accidentally
-    // introducing inconsistency over time.
+class vector< VALUE_TYPE *, ALLOCATOR >
+: public Vector_Imp<void *,
+                    typename ALLOCATOR::template rebind<void *>::other> {
+    // This partial specialization of 'vector' for pointer types to a
+    // (template parameter) 'VALUE_TYPE' type (not 'const') is implemented in
+    // terms of 'Vector_Imp<void *>' to reduce the amount of code generated.
+    // Note that this specialization rebinds the (template parameter)
+    // 'ALLOCATOR' type to an allocator of 'void *' so as to satisfy the
+    // invariant in 'Vector_Imp'.  Also note that members that do not need to
+    // be redefined are inherited straightforwardly from the 'Base', although
+    // if an overloaded method needs to be redefined, then all its overloads
+    // need to be redefined.
 
     // PRIVATE TYPES
-    typedef BloombergLP::bsls::Types::UintPtr                   UintPtr;
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-    typedef typename allocator_traits<ALLOCATOR>::
-                                template rebind_alloc<UintPtr>  BaseAlloc;
-#else
-    typedef typename ALLOCATOR::template rebind<UintPtr>::other BaseAlloc;
-#endif
-    typedef vector<UintPtr, BaseAlloc>                          Base;
-    typedef BloombergLP::bslmf::MovableRefUtil                  MoveUtil;
+    typedef typename ALLOCATOR::template rebind<void *>::other BaseAlloc;
+    typedef Vector_Imp<void *, BaseAlloc>                      Base;
+    typedef BloombergLP::bslmf::MovableRefUtil                 MoveUtil;
 
   public:
     // PUBLIC TYPES
@@ -2813,362 +3019,824 @@ class vector<VALUE_TYPE *, ALLOCATOR>
                       // *** construct/copy/destroy ***
 
     // CREATORS
-    vector() BSLS_KEYWORD_NOEXCEPT;
+    vector() BSLS_CPP11_NOEXCEPT
+    : Base()
+    {
+    }
 
-    explicit vector(const ALLOCATOR& basicAllocator) BSLS_KEYWORD_NOEXCEPT;
+    explicit vector(const ALLOCATOR& basicAllocator) BSLS_CPP11_NOEXCEPT
+    : Base(BaseAlloc(basicAllocator))
+    {
+    }
 
-    explicit vector(size_type        initialSize,
-                    const ALLOCATOR& basicAllocator = ALLOCATOR());
+    explicit vector(size_type initialSize,
+                    const ALLOCATOR& basicAllocator = ALLOCATOR())
+    : Base(initialSize, BaseAlloc(basicAllocator))
+    {
+    }
 
     vector(size_type         initialSize,
            VALUE_TYPE       *value,
-           const ALLOCATOR&  basicAllocator = ALLOCATOR());
+           const ALLOCATOR&  basicAllocator = ALLOCATOR())
+    : Base(initialSize, (void *) value, BaseAlloc(basicAllocator))
+    {
+    }
 
     template <class INPUT_ITER>
     vector(INPUT_ITER       first,
            INPUT_ITER       last,
-           const ALLOCATOR& basicAllocator = ALLOCATOR());
+           const ALLOCATOR& basicAllocator = ALLOCATOR())
+    : Base(first, last, BaseAlloc(basicAllocator))
+    {
+    }
 
-    vector(const vector& original);
+    vector(const vector& original)
+    : Base(original)
+    {
+    }
 
     vector(BloombergLP::bslmf::MovableRef<vector> original)
-                                             BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
+                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
+    : Base(MoveUtil::move(static_cast<Base&>(original)))
+    {
+    }
 
-    vector(const vector& original, const ALLOCATOR& basicAllocator);
+    vector(const vector& original, const ALLOCATOR& basicAllocator)
+    : Base(original, BaseAlloc(basicAllocator))
+    {
+    }
 
     vector(BloombergLP::bslmf::MovableRef<vector> original,
-           const ALLOCATOR&                       basicAllocator);
-
+           const ALLOCATOR& basicAllocator)
+    : Base(MoveUtil::move(static_cast<Base&>(original)),
+           BaseAlloc(basicAllocator))
+    {
+    }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     vector(std::initializer_list<VALUE_TYPE *> values,
-           const ALLOCATOR&                    basicAllocator = ALLOCATOR());
+           const ALLOCATOR&           basicAllocator = ALLOCATOR())
+    : Base(values.begin(), values.end(), basicAllocator)
+    {
+    }
 #endif
 
-    ~vector();
+    ~vector()
+    {
+    }
 
     // MANIPULATORS
-    vector& operator=(const vector& rhs);
+    vector& operator=(const vector& rhs)
+    {
+        Base::operator=(rhs);
+        return *this;
+    }
+
     vector& operator=(BloombergLP::bslmf::MovableRef<vector> rhs)
-                                    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
+    {
+        Base::operator=(MoveUtil::move(static_cast<Base&>(rhs)));
+        return *this;
+    }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-    vector& operator=(std::initializer_list<VALUE_TYPE *> values);
-
-    void assign(std::initializer_list<VALUE_TYPE *> values);
-
+    vector& operator=(std::initializer_list<VALUE_TYPE *> values)
+    {
+        Base::assign(values.begin(), values.end());
+        return *this;
+    }
 #endif
 
     template <class INPUT_ITER>
-    void assign(INPUT_ITER first, INPUT_ITER last);
-    void assign(size_type numElements, VALUE_TYPE *value);
+    void assign(INPUT_ITER first, INPUT_ITER last)
+    {
+        Base::assign(first, last);
+    }
 
+    void assign(size_type numElements, VALUE_TYPE *value)
+    {
+        Base::assign(numElements, (void *) value);
+    }
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    void assign(std::initializer_list<VALUE_TYPE *> values)
+    {
+        Base::assign(values.begin(), values.end());
+    }
+#endif
                              // *** iterators ***
 
-    iterator begin() BSLS_KEYWORD_NOEXCEPT;
-    iterator end() BSLS_KEYWORD_NOEXCEPT;
+    iterator begin() BSLS_CPP11_NOEXCEPT
+    {
+        return (iterator) Base::begin();
+    }
 
-    reverse_iterator rbegin() BSLS_KEYWORD_NOEXCEPT;
-    reverse_iterator rend() BSLS_KEYWORD_NOEXCEPT;
+    iterator end() BSLS_CPP11_NOEXCEPT
+    {
+        return (iterator) Base::end();
+    }
+
+    reverse_iterator rbegin() BSLS_CPP11_NOEXCEPT
+    {
+        return reverse_iterator((iterator) Base::rbegin().base());
+    }
+    reverse_iterator rend() BSLS_CPP11_NOEXCEPT
+    {
+        return reverse_iterator((iterator) Base::rend().base());
+    }
 
                           // *** element access ***
 
-    reference operator[](size_type position);
-    reference at(size_type position);
+    reference operator[](size_type position)
+    {
+        return (reference) Base::operator[](position);
+    }
 
-    reference front();
-    reference back();
+    reference at(size_type position)
+    {
+        return (reference) Base::at(position);
+    }
 
-    VALUE_TYPE **data() BSLS_KEYWORD_NOEXCEPT;
+    reference front()
+    {
+        return (reference) Base::front();
+    }
+
+    reference back()
+    {
+        return (reference) Base::back();
+    }
+
+    VALUE_TYPE **data() BSLS_CPP11_NOEXCEPT
+    {
+        return (VALUE_TYPE **) Base::data();
+    }
 
                              // *** capacity ***
 
-    void resize(size_type newLength);
-    void resize(size_type newLength, VALUE_TYPE *value);
+    void resize(size_type newLength)
+    {
+        Base::resize(newLength);
+    }
 
-    using Base::reserve;
-    using Base::shrink_to_fit;
-        // These methods can be inherited from Base without a cast.
+    void resize(size_type newLength, VALUE_TYPE *value)
+    {
+        Base::resize(newLength, (void *) value);
+    }
+
+    // void reserve(size_type newCapacity);
+    //   This method can be inherited from Base without a cast.
+
+    // void shrink_to_fit();
+    //   This method can be inherited from Base without a cast.
 
                             // *** modifiers ***
 
-    void emplace_back();
+    void emplace_back()
+    {
+        Base::emplace_back();
+    }
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class ARG>
-    void emplace_back(ARG&& arg);
+    void emplace_back(ARG&& arg)
+    {
+        VALUE_TYPE *ptr(arg);  // Support explicit conversion operators
+        Base::emplace_back(reinterpret_cast<void *>(ptr));
+    }
 # else
-    void emplace_back(VALUE_TYPE *ptr);
+    void emplace_back(VALUE_TYPE *ptr)
+    {
+        Base::emplace_back(reinterpret_cast<void *>(ptr));
+    }
 # endif
 
-    void push_back(VALUE_TYPE *value);
+    void push_back(VALUE_TYPE *value)
+    {
+        Base::emplace_back(reinterpret_cast<void *>(value));
+    }
 
-    using Base::pop_back;
-        // This method can be inherited from Base without a cast.
+    // void pop_back();
+    //   This method can be inherited from Base without a cast.
 
-    iterator emplace(const_iterator position);
+    iterator emplace(const_iterator position)
+    {
+        return (iterator) Base::emplace((void *const *) position);
+    }
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class ARG>
-    iterator emplace(const_iterator position, ARG&& arg);
+    iterator emplace(const_iterator position, ARG&& arg)
+    {
+        VALUE_TYPE *ptr(arg);  // Support explicit conversion operators
+        return (iterator) Base::emplace((void *const *) position,
+                                        reinterpret_cast<void *>(ptr));
+    }
 # else
-    iterator emplace(const_iterator position, VALUE_TYPE *ptr);
+    iterator emplace(const_iterator position, VALUE_TYPE *ptr)
+    {
+        return (iterator) Base::emplace((void *const *) position,
+                                        reinterpret_cast<void *>(ptr));
+    }
 # endif
 
-    iterator insert(const_iterator position, VALUE_TYPE *value);
+    iterator insert(const_iterator position, VALUE_TYPE *value)
+    {
+        return (iterator) Base::emplace((void *const *) position,
+                                        reinterpret_cast<void *>(value));
+    }
+
     iterator insert(const_iterator  position,
                     size_type       numElements,
-                    VALUE_TYPE     *value);
+                    VALUE_TYPE     *value)
+    {
+        return (iterator) Base::insert((void *const *) position, numElements,
+                                       (void *) value);
+    }
+
+    template <class INPUT_ITER>
+    iterator insert(const_iterator position, INPUT_ITER first, INPUT_ITER last)
+    {
+        return (iterator) Base::insert((void *const *) position, first, last);
+    }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    iterator insert(const_iterator position,
+                    std::initializer_list<VALUE_TYPE *> values)
+    {
+        return (iterator) Base::insert((void *const *) position,
+                                       values.begin(),
+                                       values.end());
+    }
+#endif
+
+    iterator erase(const_iterator position)
+    {
+        return (iterator) Base::erase((void *const *) position);
+    }
+
+    iterator erase(const_iterator first, const_iterator last)
+    {
+        return (iterator) Base::erase((void *const *) first,
+                                      (void *const *) last);
+    }
+
+    // void swap(Vector_Imp& other);
+    // void clear();
+    //   These methods can be inherited from Base without a cast.
+
+    // ACCESSORS
+    allocator_type get_allocator() const BSLS_CPP11_NOEXCEPT
+    {
+        return ALLOCATOR(Base::get_allocator());
+    }
+
+    // size_type max_size();
+    //   This method can be inherited from Base without a cast.
+
+                             // *** iterators ***
+
+    const_iterator begin() const BSLS_CPP11_NOEXCEPT
+    {
+        return (const_iterator) Base::begin();
+    }
+
+    const_iterator cbegin() const BSLS_CPP11_NOEXCEPT
+    {
+        return (const_iterator) Base::cbegin();
+    }
+
+    const_iterator end() const BSLS_CPP11_NOEXCEPT
+    {
+        return (const_iterator) Base::end();
+    }
+
+    const_iterator cend() const BSLS_CPP11_NOEXCEPT
+    {
+        return (const_iterator) Base::cend();
+    }
+
+    const_reverse_iterator rbegin() const BSLS_CPP11_NOEXCEPT
+    {
+        return const_reverse_iterator((const_iterator) Base::rbegin().base());
+    }
+
+    const_reverse_iterator crbegin() const BSLS_CPP11_NOEXCEPT
+    {
+        return const_reverse_iterator((const_iterator) Base::crbegin().base());
+    }
+
+    const_reverse_iterator rend() const BSLS_CPP11_NOEXCEPT
+    {
+        return const_reverse_iterator((const_iterator) Base::rend().base());
+    }
+
+    const_reverse_iterator crend() const BSLS_CPP11_NOEXCEPT
+    {
+        return const_reverse_iterator((const_iterator) Base::crend().base());
+    }
+
+                             // *** capacity ***
+
+    // size_type size();
+    // size_type capacity();
+    // bool empty();
+    //   These methods can be inherited from Base without a cast.
+
+                          // *** element access ***
+
+    const_reference operator[](size_type position) const
+    {
+        return (const_reference) Base::operator[](position);
+    }
+
+    const_reference at(size_type position) const
+    {
+        return (const_reference) Base::at(position);
+    }
+
+    const_reference front() const
+    {
+        return (const_reference) Base::front();
+    }
+
+    const_reference back() const
+    {
+        return (const_reference) Base::back();
+    }
+
+    VALUE_TYPE *const *data() const BSLS_CPP11_NOEXCEPT
+    {
+        return (VALUE_TYPE *const *) Base::data();
+    }
+};
+
+// FREE OPERATORS
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator==(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<VALUE_TYPE *,ALLOCATOR>& rhs);
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator!=(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<VALUE_TYPE *,ALLOCATOR>& rhs);
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator<(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
+               const vector<VALUE_TYPE *,ALLOCATOR>& rhs);
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator>(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
+               const vector<VALUE_TYPE *,ALLOCATOR>& rhs);
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator<=(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<VALUE_TYPE *,ALLOCATOR>& rhs);
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator>=(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<VALUE_TYPE *,ALLOCATOR>& rhs);
+
+// FREE FUNCTIONS
+template <class VALUE_TYPE, class ALLOCATOR>
+void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
+          vector<VALUE_TYPE *, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
+
+             // ===========================================
+             // class vector<const VALUE_TYPE *, ALLOCATOR>
+             // ===========================================
+
+template <class VALUE_TYPE, class ALLOCATOR>
+class vector< const VALUE_TYPE *, ALLOCATOR >
+: public Vector_Imp<const void *,
+                    typename ALLOCATOR::template rebind<const void *>::other> {
+    // This partial specialization of 'vector' for pointer types to a
+    // 'const'-qualified (template parameter) 'VALUE_TYPE' is implemented in
+    // terms of 'Vector_Imp<const void *>' to reduce the amount of code
+    // generated.  Note that this specialization rebinds the (template
+    // parameter) 'ALLOCATOR' type to an allocator of 'const void *' so as to
+    // satisfy the invariant in 'Vector_Imp'.  Also note that members that do
+    // not need to be redefined are inherited straightforwardly from the
+    // 'Base', although if an overloaded method needs to be redefined, then all
+    // its overloads need to be redefined.
+
+    // PRIVATE TYPES
+    typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
+    typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+    typedef BloombergLP::bslmf::MovableRefUtil                       MoveUtil;
+
+  public:
+    // PUBLIC TYPES
+    typedef typename ALLOCATOR::reference         reference;
+    typedef typename ALLOCATOR::const_reference   const_reference;
+    typedef const VALUE_TYPE                    **iterator;
+    typedef const VALUE_TYPE *const              *const_iterator;
+    typedef std::size_t                           size_type;
+    typedef std::ptrdiff_t                        difference_type;
+    typedef const VALUE_TYPE                     *value_type;
+    typedef ALLOCATOR                             allocator_type;
+    typedef typename ALLOCATOR::pointer           pointer;
+    typedef typename ALLOCATOR::const_pointer     const_pointer;
+    typedef bsl::reverse_iterator<iterator>       reverse_iterator;
+    typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
+
+                      // *** construct/copy/destroy ***
+
+    // CREATORS
+    vector() BSLS_CPP11_NOEXCEPT
+    : Base()
+    {
+    }
+
+    explicit vector(const ALLOCATOR& basicAllocator) BSLS_CPP11_NOEXCEPT
+    : Base(BaseAlloc(basicAllocator))
+    {
+    }
+
+
+    explicit vector(size_type        initialSize,
+                    const ALLOCATOR& basicAllocator = ALLOCATOR())
+    : Base(initialSize, BaseAlloc(basicAllocator))
+    {
+    }
+
+    vector(size_type         initialSize,
+           const VALUE_TYPE *value,
+           const ALLOCATOR&  basicAllocator = ALLOCATOR())
+    : Base(initialSize, (const void *)value, BaseAlloc(basicAllocator))
+    {
+    }
+
+    template <class INPUT_ITER>
+    vector(INPUT_ITER       first,
+           INPUT_ITER       last,
+           const ALLOCATOR& basicAllocator = ALLOCATOR())
+    : Base(first, last, BaseAlloc(basicAllocator))
+    {
+    }
+
+    vector(const vector& original)
+    : Base(original)
+    {
+    }
+
+    vector(BloombergLP::bslmf::MovableRef<vector> original)
+                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
+    : Base(MoveUtil::move(static_cast<Base&>(original)))
+    {
+    }
+
+    vector(const vector& original, const ALLOCATOR& basicAllocator)
+    : Base(original, BaseAlloc(basicAllocator))
+    {
+    }
+
+    vector(BloombergLP::bslmf::MovableRef<vector> original,
+           const ALLOCATOR&                       basicAllocator)
+    : Base(MoveUtil::move(static_cast<Base&>(original)),
+           BaseAlloc(basicAllocator))
+    {
+    }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    vector(
+        std::initializer_list<const VALUE_TYPE *> values,
+        const ALLOCATOR&                          basicAllocator = ALLOCATOR())
+    : Base(values.begin(), values.end(), basicAllocator)
+    {
+    }
+#endif
+
+    ~vector() {}
+
+    // MANIPULATORS
+
+    vector& operator=(const vector& rhs)
+    {
+        Base::operator=(rhs);
+        return *this;
+    }
+
+    vector& operator=(BloombergLP::bslmf::MovableRef<vector> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
+    {
+        Base::operator=(MoveUtil::move(static_cast<Base&>(rhs)));
+        return *this;
+    }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    vector& operator=(std::initializer_list<const VALUE_TYPE *> values)
+    {
+        Base::assign(values.begin(), values.end());
+        return *this;
+    }
+#endif
+
+    template <class INPUT_ITER>
+    void assign(INPUT_ITER first, INPUT_ITER last)
+    {
+        Base::assign(first, last);
+    }
+
+    void assign(size_type numElements, const VALUE_TYPE *value)
+    {
+        Base::assign(numElements, (const void *) value);
+    }
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    void assign(std::initializer_list<const VALUE_TYPE *> values)
+    {
+        Base::assign(values.begin(), values.end());
+    }
+#endif
+                             // *** iterators ***
+
+    iterator begin() BSLS_CPP11_NOEXCEPT
+    {
+        return (iterator) Base::begin();
+    }
+
+    iterator end() BSLS_CPP11_NOEXCEPT
+    {
+        return (iterator) Base::end();
+    }
+
+    reverse_iterator rbegin() BSLS_CPP11_NOEXCEPT
+    {
+        return reverse_iterator((iterator) Base::rbegin().base());
+    }
+
+    reverse_iterator rend() BSLS_CPP11_NOEXCEPT
+    {
+        return reverse_iterator((iterator) Base::rend().base());
+    }
+
+                          // *** element access ***
+
+    reference operator[](size_type position)
+    {
+        return (reference) Base::operator[](position);
+    }
+
+    reference at(size_type position)
+    {
+        return (reference) Base::at(position);
+    }
+
+    reference front()
+    {
+        return (reference) Base::front();
+    }
+
+    reference back()
+    {
+        return (reference) Base::back();
+    }
+
+    const VALUE_TYPE **data() BSLS_CPP11_NOEXCEPT
+    {
+        return (const VALUE_TYPE **) Base::data();
+    }
+
+                             // *** capacity ***
+
+    void resize(size_type newLength)
+    {
+        Base::resize(newLength);
+    }
+
+    void resize(size_type newLength, const VALUE_TYPE *value)
+    {
+        Base::resize(newLength, (const void *) value);
+    }
+
+    // void reserve(size_type newCapacity);
+    //   This method can be inherited from Base without a cast.
+
+                            // *** modifiers ***
+
+    void emplace_back()
+    {
+        Base::emplace_back();
+    }
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    template <class ARG>
+    void emplace_back(ARG&& arg)
+    {
+        const VALUE_TYPE *ptr(arg);  // Support explicit conversion operators
+        Base::emplace_back(static_cast<const void *>(ptr));
+    }
+# else
+    void emplace_back(const VALUE_TYPE *ptr)
+    {
+        Base::emplace_back(static_cast<const void *>(ptr));
+    }
+# endif
+
+    void push_back(const VALUE_TYPE *value)
+    {
+        Base::emplace_back(static_cast<const void *>(value));
+    }
+
+    // void pop_back();
+    //   This method can be inherited from Base without a cast.
+
+    iterator emplace(const_iterator position)
+    {
+        return (iterator) Base::emplace((const void *const *) position);
+    }
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+    template <class ARG>
+    iterator emplace(const_iterator position, ARG&& arg)
+    {
+        const VALUE_TYPE *ptr(arg);  // Support explicit conversion operators
+        return (iterator) Base::emplace((const void *const *) position,
+                                        static_cast<const void *>(ptr));
+    }
+# else
+    iterator emplace(const_iterator position, const VALUE_TYPE *ptr)
+    {
+        return (iterator) Base::emplace((const void *const *) position,
+                                        static_cast<const void *>(ptr));
+    }
+# endif
+
+    iterator insert(const_iterator position, const VALUE_TYPE *value)
+    {
+        return (iterator) Base::emplace((const void *const *) position,
+                                        static_cast<const void *>(value));
+    }
+
+    iterator insert(const_iterator    position,
+                    size_type         numElements,
+                    const VALUE_TYPE *value)
+    {
+        return (iterator) Base::insert((const void *const *) position,
+                                       numElements,
+                                       (const void *) value);
+    }
 
     template <class INPUT_ITER>
     iterator insert(const_iterator position,
                     INPUT_ITER     first,
                     INPUT_ITER     last)
     {
-        // NOTE: This function has been implemented inline due to an issue with
-        // the Sun compiler.
-
-        typedef typename vector_ForwardIteratorForPtrs<VALUE_TYPE,
-                                                       INPUT_ITER>::type Iter;
-
-        return (iterator) Base::insert((const UintPtr*) position,
-                                       Iter(first),
-                                       Iter(last));
+        return (iterator) Base::insert((const void *const *) position,
+                                       first,
+                                       last);
     }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     iterator insert(const_iterator position,
-                    std::initializer_list<VALUE_TYPE *> values);
+                    std::initializer_list<const VALUE_TYPE *> values)
+    {
+        return (iterator) Base::insert((const void *const *) position,
+                                       values.begin(),
+                                       values.end());
+    }
 #endif
 
-    iterator erase(const_iterator position);
-    iterator erase(const_iterator first, const_iterator last);
+    iterator erase(const_iterator position)
+    {
+        return (iterator) Base::erase((const void *const *) position);
+    }
 
-    void swap(vector& other);
+    iterator erase(const_iterator first, const_iterator last)
+    {
+        return (iterator) Base::erase((const void *const *)first,
+                                      (const void *const *)last);
+    }
 
-    using Base::clear;
-        // This methods can be inherited from Base without a cast.
+    // void swap(vector &other);
+    // void clear();
+    //  These methods can be inherited from Base without a cast.
 
     // ACCESSORS
-    allocator_type get_allocator() const BSLS_KEYWORD_NOEXCEPT;
 
-    using Base::max_size;
-        // This method can be inherited from Base without a cast.
+    allocator_type get_allocator() const BSLS_CPP11_NOEXCEPT
+    {
+        return ALLOCATOR(Base::get_allocator());
+    }
+
+    // size_type max_size();
+    //   This method can be inherited from Base without a cast.
 
                              // *** iterators ***
 
-    const_iterator  begin() const BSLS_KEYWORD_NOEXCEPT;
-    const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
-    const_iterator  end() const BSLS_KEYWORD_NOEXCEPT;
-    const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator begin() const BSLS_CPP11_NOEXCEPT
+    {
+        return (const_iterator) Base::begin();
+    }
 
-    const_reverse_iterator  rbegin() const BSLS_KEYWORD_NOEXCEPT;
-    const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
-    const_reverse_iterator  rend() const BSLS_KEYWORD_NOEXCEPT;
-    const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator cbegin() const BSLS_CPP11_NOEXCEPT
+    {
+        return (const_iterator) Base::cbegin();
+    }
+
+    const_iterator end() const BSLS_CPP11_NOEXCEPT
+    {
+        return (const_iterator) Base::end();
+    }
+
+    const_iterator cend() const BSLS_CPP11_NOEXCEPT
+    {
+        return (const_iterator) Base::cend();
+    }
+
+    const_reverse_iterator rbegin() const BSLS_CPP11_NOEXCEPT
+    {
+        return const_reverse_iterator((const_iterator) Base::rbegin().base());
+    }
+
+    const_reverse_iterator crbegin() const BSLS_CPP11_NOEXCEPT
+    {
+        return const_reverse_iterator((const_iterator) Base::crbegin().base());
+    }
+
+    const_reverse_iterator rend() const BSLS_CPP11_NOEXCEPT
+    {
+        return const_reverse_iterator((const_iterator) Base::rend().base());
+    }
+
+    const_reverse_iterator crend() const BSLS_CPP11_NOEXCEPT
+    {
+        return const_reverse_iterator((const_iterator) Base::crend().base());
+    }
 
                              // *** capacity ***
 
-    using Base::size;
-    using Base::capacity;
-    using Base::empty;
-        // These methods can be inherited from Base without a cast.
+    // 'size()', 'capacity()', 'empty()' can be inherited from Base without
+    // cast.
 
                           // *** element access ***
 
-    const_reference operator[](size_type position) const;
-
-    const_reference at(size_type position) const;
-
-    const_reference front() const;
-    const_reference back() const;
-
-    VALUE_TYPE *const *data() const BSLS_KEYWORD_NOEXCEPT;
-
-
-    // FRIENDS
-    friend
-    bool operator==(const vector& lhs, const vector& rhs)
+    const_reference operator[](size_type position) const
     {
-        return (const Base&)lhs == (const Base&)rhs;
+        return (const_reference) Base::operator[](position);
     }
 
-    friend
-    bool operator!=(const vector& lhs, const vector& rhs)
+    const_reference at(size_type position) const
     {
-        return (const Base&)lhs != (const Base&)rhs;
+        return (const_reference) Base::at(position);
     }
 
-    friend
-    bool operator<(const vector& lhs, const vector& rhs)
+    const_reference front() const
     {
-        return (const Base&)lhs < (const Base&)rhs;
+        return (const_reference) Base::front();
     }
 
-    friend
-    bool operator>(const vector& lhs, const vector& rhs)
+    const_reference back() const
     {
-        return (const Base&)lhs > (const Base&)rhs;
+        return (const_reference) Base::back();
     }
 
-    friend
-    bool operator<=(const vector& lhs, const vector& rhs)
+    const VALUE_TYPE *const *data() const BSLS_CPP11_NOEXCEPT
     {
-        return (const Base&)lhs <= (const Base&)rhs;
-    }
-
-    friend
-    bool operator>=(const vector& lhs, const vector& rhs)
-    {
-        return (const Base&)lhs >= (const Base&)rhs;
-    }
-
-    friend
-    void swap(vector& a, vector& b) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
-    {
-        static_cast<Base&>(a).swap(b);
+        return (const VALUE_TYPE *const *) Base::data();
     }
 };
 
+// FREE OPERATORS
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator==(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs);
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator!=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs);
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator<(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
+               const vector<const VALUE_TYPE *,ALLOCATOR>& rhs);
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator>(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
+               const vector<const VALUE_TYPE *,ALLOCATOR>& rhs);
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator<=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs);
+
+template <class VALUE_TYPE, class ALLOCATOR>
+bool operator>=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs);
+
+// FREE FUNCTIONS
+template <class VALUE_TYPE, class ALLOCATOR>
+void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
+          vector<const VALUE_TYPE *, ALLOCATOR>& b)
+             BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE);
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
 // See IMPLEMENTATION NOTES in the .cpp before modifying anything below.
 
-                        // ======================================
-                        // class vector_UintPtrConversionIterator
-                        // ======================================
-
-template <class VALUE_TYPE, class ITERATOR>
-class vector_UintPtrConversionIterator {
-    // This class provides a minimal proxy iterator adapter, transforming
-    // pointers to 'uintptr_t' values on the fly, for only the operations
-    // needed to implement the member functions and constructors of the
-    // 'vector' partial template specialization that take iterator ranges as
-    // arguments.  While it does not provide a standard conforming iterator
-    // itself, if provides exactly sufficient behavior to implement all the
-    // needed members.  'VALUE_TYPE' shall be a pointer type, and 'ITERATOR'
-    // shall be a standard conforming iterator that dereferences to a type
-    // implicitly convertible to 'VALUE_TYPE'
-
-  private:
-    // DATA
-    ITERATOR d_iter;
-
-  public:
-    // PUBLIC TYPES
-    typedef BloombergLP::bsls::Types::UintPtr UintPtr;
-
-    typedef UintPtr  value_type;
-    typedef UintPtr *pointer;
-    typedef UintPtr  reference;
-    typedef typename iterator_traits<ITERATOR>::difference_type
-                                                               difference_type;
-    typedef typename iterator_traits<ITERATOR>::iterator_category
-                                                             iterator_category;
-
-    // CREATORS
-    vector_UintPtrConversionIterator(ITERATOR it);                  // IMPLICIT
-        // Create a proxy iterator adapting the specified 'it'.
-
-    // MANIPULATORS
-    vector_UintPtrConversionIterator& operator++();
-        // Increment this iterator to refer to the next element in the
-        // underlying sequence, and return a reference to this object.
-
-    // ACCESSORS
-    UintPtr operator*() const;
-        // Return the value of the pointer this iterator refers to, converted
-        // to an unsigned integer.
-
-    // FRIENDS
-    friend
-    bool operator==(const vector_UintPtrConversionIterator& lhs,
-                    const vector_UintPtrConversionIterator& rhs)
-        // Return 'true' if the specified 'lhs' and 'rhs' iterators refer to
-        // the same element in the same underlying sequence or both refer to
-        // the past-the-end element of the same sequence, and 'false'
-        // otherwise.  The behavior is undefined if 'lhs' and 'rhs' do not
-        // iterate over the same sequence.
-    {
-        return lhs.d_iter == rhs.d_iter;
-    }
-
-    friend
-    bool operator!=(const vector_UintPtrConversionIterator& lhs,
-                    const vector_UintPtrConversionIterator& rhs)
-        // Return 'true' if the specified 'lhs' and 'rhs' iterators do not
-        // refer to the same element in the same underlying sequence and no
-        // more than one refers to the past-the-end element of the sequence,
-        // and 'false' otherwise.  The behavior is undefined if 'lhs' and 'rhs'
-        // do not iterate over the same sequence.
-    {
-        return lhs.d_iter != rhs.d_iter;
-    }
-
-    friend
-    bool operator<(const vector_UintPtrConversionIterator& lhs,
-                   const vector_UintPtrConversionIterator& rhs)
-        // Return 'true' if the specified 'lhs' iterator is earlier in the
-        // underlying sequence than the specified 'rhs' iterator, and 'false'
-        // otherwise.  The behavior is undefined if 'lhs' and 'rhs' do not
-        // iterate over the same sequence, or if the (template parameter) type
-        // 'ITERATOR' is not a random access iterator.
-    {
-        return lhs.d_iter < rhs.d_iter;
-    }
-
-    friend
-    difference_type operator-(const vector_UintPtrConversionIterator& lhs,
-                              const vector_UintPtrConversionIterator& rhs)
-        // Return the distance between the specified 'lhs' iterator and the
-        // specified 'rhs' iterator.  The behavior is undefined if 'lhs' and
-        // 'rhs' do not iterate over the same sequence, or if the (template
-        // parameter) type 'ITERATOR' is not a random access iterator.
-    {
-        return lhs.d_iter - rhs.d_iter;
-    }
-};
-
-                        // --------------------------------------
-                        // class vector_UintPtrConversionIterator
-                        // --------------------------------------
-
-// CREATORS
-template <class VALUE_TYPE, class ITERATOR>
-inline
-vector_UintPtrConversionIterator<VALUE_TYPE, ITERATOR>::
-vector_UintPtrConversionIterator(ITERATOR it)
-: d_iter(it)
-{
-}
-
-// MANIPULATORS
-template <class VALUE_TYPE, class ITERATOR>
-inline
-vector_UintPtrConversionIterator<VALUE_TYPE, ITERATOR>&
-vector_UintPtrConversionIterator<VALUE_TYPE, ITERATOR>::operator++()
-{
-    ++d_iter;
-    return *this;
-}
-
-// ACCESSORS
-template <class VALUE_TYPE, class ITERATOR>
-inline
-BloombergLP::bsls::Types::UintPtr
-vector_UintPtrConversionIterator<VALUE_TYPE, ITERATOR>::operator*() const
-{
-    VALUE_TYPE const ptr = *d_iter;
-    return reinterpret_cast<UintPtr>(ptr);
-}
-
-
-                        // ========================
-                        // class Vector_PushProctor
-                        // ========================
+                          // ------------------------
+                          // class Vector_PushProctor
+                          // ------------------------
 
 template <class VALUE_TYPE, class ALLOCATOR>
 class Vector_PushProctor {
@@ -3210,10 +3878,6 @@ class Vector_PushProctor {
         // no effect.
 };
 
-                        // ------------------------
-                        // class Vector_PushProctor
-                        // ------------------------
-
     // CREATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
@@ -3242,38 +3906,14 @@ void Vector_PushProctor<VALUE_TYPE,ALLOCATOR>::release()
     d_target_p = 0;
 }
 
-#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-                        // -----------------------
-                        // class Vector_RangeCheck
-                        // -----------------------
-
-template <class BSLSTL_ITERATOR>
-inline
-typename enable_if<!Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE,
-                   bool>::type
-Vector_RangeCheck::isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR)
-{
-    return false;
-}
-
-template <class BSLSTL_ITERATOR>
-inline
-typename enable_if<Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::VALUE,
-                   bool>::type
-Vector_RangeCheck::isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
-{
-    return last < first;
-}
-#endif
-
-                        // ----------------
-                        // class vectorBase
-                        // ----------------
+                          // --------------------
+                          // class Vector_ImpBase
+                          // --------------------
 
 // CREATORS
 template <class VALUE_TYPE>
 inline
-vectorBase<VALUE_TYPE>::vectorBase()
+Vector_ImpBase<VALUE_TYPE>::Vector_ImpBase()
 : d_dataBegin_p(0)
 , d_dataEnd_p(0)
 , d_capacity(0)
@@ -3285,13 +3925,14 @@ vectorBase<VALUE_TYPE>::vectorBase()
 template <class VALUE_TYPE>
 inline
 void
-vectorBase<VALUE_TYPE>::adopt(BloombergLP::bslmf::MovableRef<vectorBase> base)
+Vector_ImpBase<VALUE_TYPE>::adopt(
+                           BloombergLP::bslmf::MovableRef<Vector_ImpBase> base)
 {
     BSLS_ASSERT_SAFE(0 == d_dataBegin_p);
     BSLS_ASSERT_SAFE(0 == d_dataEnd_p);
     BSLS_ASSERT_SAFE(0 == d_capacity);
 
-    vectorBase& lvalue = base;
+    Vector_ImpBase& lvalue = base;
     d_dataBegin_p          = lvalue.d_dataBegin_p;
     d_dataEnd_p            = lvalue.d_dataEnd_p;
     d_capacity             = lvalue.d_capacity;
@@ -3303,32 +3944,32 @@ vectorBase<VALUE_TYPE>::adopt(BloombergLP::bslmf::MovableRef<vectorBase> base)
                              // *** iterators ***
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::iterator
-vectorBase<VALUE_TYPE>::begin() BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::iterator
+Vector_ImpBase<VALUE_TYPE>::begin() BSLS_CPP11_NOEXCEPT
 {
     return d_dataBegin_p;
 }
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::iterator
-vectorBase<VALUE_TYPE>::end() BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::iterator
+Vector_ImpBase<VALUE_TYPE>::end() BSLS_CPP11_NOEXCEPT
 {
     return d_dataEnd_p;
 }
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::reverse_iterator
-vectorBase<VALUE_TYPE>::rbegin() BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::reverse_iterator
+Vector_ImpBase<VALUE_TYPE>::rbegin() BSLS_CPP11_NOEXCEPT
 {
     return reverse_iterator(end());
 }
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::reverse_iterator
-vectorBase<VALUE_TYPE>::rend() BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::reverse_iterator
+Vector_ImpBase<VALUE_TYPE>::rend() BSLS_CPP11_NOEXCEPT
 {
     return reverse_iterator(begin());
 }
@@ -3337,8 +3978,8 @@ vectorBase<VALUE_TYPE>::rend() BSLS_KEYWORD_NOEXCEPT
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::reference
-vectorBase<VALUE_TYPE>::operator[](size_type position)
+typename Vector_ImpBase<VALUE_TYPE>::reference
+Vector_ImpBase<VALUE_TYPE>::operator[](size_type position)
 {
     BSLS_ASSERT_SAFE(size() > position);
 
@@ -3346,8 +3987,8 @@ vectorBase<VALUE_TYPE>::operator[](size_type position)
 }
 
 template <class VALUE_TYPE>
-typename vectorBase<VALUE_TYPE>::reference
-vectorBase<VALUE_TYPE>::at(size_type position)
+typename Vector_ImpBase<VALUE_TYPE>::reference
+Vector_ImpBase<VALUE_TYPE>::at(size_type position)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position >= size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3359,8 +4000,8 @@ vectorBase<VALUE_TYPE>::at(size_type position)
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::reference
-vectorBase<VALUE_TYPE>::front()
+typename Vector_ImpBase<VALUE_TYPE>::reference
+Vector_ImpBase<VALUE_TYPE>::front()
 {
     BSLS_ASSERT_SAFE(!empty());
 
@@ -3369,8 +4010,8 @@ vectorBase<VALUE_TYPE>::front()
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::reference
-vectorBase<VALUE_TYPE>::back()
+typename Vector_ImpBase<VALUE_TYPE>::reference
+Vector_ImpBase<VALUE_TYPE>::back()
 {
     BSLS_ASSERT_SAFE(!empty());
 
@@ -3380,7 +4021,7 @@ vectorBase<VALUE_TYPE>::back()
 template <class VALUE_TYPE>
 inline
 VALUE_TYPE *
-vectorBase<VALUE_TYPE>::data() BSLS_KEYWORD_NOEXCEPT
+Vector_ImpBase<VALUE_TYPE>::data() BSLS_CPP11_NOEXCEPT
 {
     return d_dataBegin_p;
 }
@@ -3390,64 +4031,64 @@ vectorBase<VALUE_TYPE>::data() BSLS_KEYWORD_NOEXCEPT
                              // *** iterators ***
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::const_iterator
-vectorBase<VALUE_TYPE>::begin() const BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::const_iterator
+Vector_ImpBase<VALUE_TYPE>::begin() const BSLS_CPP11_NOEXCEPT
 {
     return d_dataBegin_p;
 }
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::const_iterator
-vectorBase<VALUE_TYPE>::cbegin() const BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::const_iterator
+Vector_ImpBase<VALUE_TYPE>::cbegin() const BSLS_CPP11_NOEXCEPT
 {
     return d_dataBegin_p;
 }
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::const_iterator
-vectorBase<VALUE_TYPE>::end() const BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::const_iterator
+Vector_ImpBase<VALUE_TYPE>::end() const BSLS_CPP11_NOEXCEPT
 {
     return d_dataEnd_p;
 }
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::const_iterator
-vectorBase<VALUE_TYPE>::cend() const BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::const_iterator
+Vector_ImpBase<VALUE_TYPE>::cend() const BSLS_CPP11_NOEXCEPT
 {
     return d_dataEnd_p;
 }
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::const_reverse_iterator
-vectorBase<VALUE_TYPE>::rbegin() const BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::const_reverse_iterator
+Vector_ImpBase<VALUE_TYPE>::rbegin() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(end());
 }
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::const_reverse_iterator
-vectorBase<VALUE_TYPE>::crbegin() const BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::const_reverse_iterator
+Vector_ImpBase<VALUE_TYPE>::crbegin() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(end());
 }
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::const_reverse_iterator
-vectorBase<VALUE_TYPE>::rend() const BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::const_reverse_iterator
+Vector_ImpBase<VALUE_TYPE>::rend() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(begin());
 }
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::const_reverse_iterator
-vectorBase<VALUE_TYPE>::crend() const BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::const_reverse_iterator
+Vector_ImpBase<VALUE_TYPE>::crend() const BSLS_CPP11_NOEXCEPT
 {
     return const_reverse_iterator(begin());
 }
@@ -3456,23 +4097,23 @@ vectorBase<VALUE_TYPE>::crend() const BSLS_KEYWORD_NOEXCEPT
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::size_type
-vectorBase<VALUE_TYPE>::size() const BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::size_type
+Vector_ImpBase<VALUE_TYPE>::size() const BSLS_CPP11_NOEXCEPT
 {
     return d_dataEnd_p - d_dataBegin_p;
 }
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::size_type
-vectorBase<VALUE_TYPE>::capacity() const BSLS_KEYWORD_NOEXCEPT
+typename Vector_ImpBase<VALUE_TYPE>::size_type
+Vector_ImpBase<VALUE_TYPE>::capacity() const BSLS_CPP11_NOEXCEPT
 {
     return d_capacity;
 }
 
 template <class VALUE_TYPE>
 inline
-bool vectorBase<VALUE_TYPE>::empty() const BSLS_KEYWORD_NOEXCEPT
+bool Vector_ImpBase<VALUE_TYPE>::empty() const BSLS_CPP11_NOEXCEPT
 {
     return d_dataEnd_p == d_dataBegin_p;
 }
@@ -3480,8 +4121,8 @@ bool vectorBase<VALUE_TYPE>::empty() const BSLS_KEYWORD_NOEXCEPT
                           // *** element access ***
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::const_reference
-vectorBase<VALUE_TYPE>::operator[](size_type position) const
+typename Vector_ImpBase<VALUE_TYPE>::const_reference
+Vector_ImpBase<VALUE_TYPE>::operator[](size_type position) const
 {
     BSLS_ASSERT_SAFE(size() > position);
 
@@ -3489,8 +4130,8 @@ vectorBase<VALUE_TYPE>::operator[](size_type position) const
 }
 
 template <class VALUE_TYPE>
-typename vectorBase<VALUE_TYPE>::const_reference
-vectorBase<VALUE_TYPE>::at(size_type position) const
+typename Vector_ImpBase<VALUE_TYPE>::const_reference
+Vector_ImpBase<VALUE_TYPE>::at(size_type position) const
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(position >= size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3502,8 +4143,8 @@ vectorBase<VALUE_TYPE>::at(size_type position) const
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::const_reference
-vectorBase<VALUE_TYPE>::front() const
+typename Vector_ImpBase<VALUE_TYPE>::const_reference
+Vector_ImpBase<VALUE_TYPE>::front() const
 {
     BSLS_ASSERT_SAFE(!empty());
 
@@ -3512,8 +4153,8 @@ vectorBase<VALUE_TYPE>::front() const
 
 template <class VALUE_TYPE>
 inline
-typename vectorBase<VALUE_TYPE>::const_reference
-vectorBase<VALUE_TYPE>::back() const
+typename Vector_ImpBase<VALUE_TYPE>::const_reference
+Vector_ImpBase<VALUE_TYPE>::back() const
 {
     BSLS_ASSERT_SAFE(!empty());
 
@@ -3523,21 +4164,21 @@ vectorBase<VALUE_TYPE>::back() const
 template <class VALUE_TYPE>
 inline
 const VALUE_TYPE *
-vectorBase<VALUE_TYPE>::data() const BSLS_KEYWORD_NOEXCEPT
+Vector_ImpBase<VALUE_TYPE>::data() const BSLS_CPP11_NOEXCEPT
 {
     return d_dataBegin_p;
 }
 
-             // --------------------------------------------
-             // class vector<VALUE_TYPE, ALLOCATOR>::Proctor
-             // --------------------------------------------
+             // ------------------------------------------------
+             // class Vector_Imp<VALUE_TYPE, ALLOCATOR>::Proctor
+             // ------------------------------------------------
 
 // CREATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
-vector<VALUE_TYPE, ALLOCATOR>::Proctor::Proctor(VALUE_TYPE    *data,
-                                                std::size_t    capacity,
-                                                ContainerBase *container)
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::Proctor::Proctor(VALUE_TYPE    *data,
+                                                    std::size_t    capacity,
+                                                    ContainerBase *container)
 : d_data_p(data)
 , d_capacity(capacity)
 , d_container_p(container)
@@ -3546,7 +4187,7 @@ vector<VALUE_TYPE, ALLOCATOR>::Proctor::Proctor(VALUE_TYPE    *data,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
-vector<VALUE_TYPE, ALLOCATOR>::Proctor::~Proctor()
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::Proctor::~Proctor()
 {
     if (d_data_p) {
         d_container_p->deallocateN(d_data_p, d_capacity);
@@ -3556,19 +4197,19 @@ vector<VALUE_TYPE, ALLOCATOR>::Proctor::~Proctor()
 // MANIPULATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
-void vector<VALUE_TYPE, ALLOCATOR>::Proctor::release()
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::Proctor::release()
 {
     d_data_p = 0;
 }
 
-                            // ------------
-                            // class vector
-                            // ------------
+                            // ----------------
+                            // class Vector_Imp
+                            // ----------------
 
 // PRIVATE MANIPULATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class FWD_ITER>
-void vector<VALUE_TYPE, ALLOCATOR>::constructFromRange(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::constructFromRange(
                                                FWD_ITER                  first,
                                                FWD_ITER                  last,
                                                std::forward_iterator_tag)
@@ -3604,7 +4245,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::constructFromRange(
 
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
-void vector<VALUE_TYPE, ALLOCATOR>::constructFromRange(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::constructFromRange(
                                                  INPUT_ITER              first,
                                                  INPUT_ITER              last,
                                                  std::input_iterator_tag)
@@ -3613,21 +4254,21 @@ void vector<VALUE_TYPE, ALLOCATOR>::constructFromRange(
     // which may reallocate memory multiple times, but unfortunately is
     // required because we can't compute the size in advance (as with
     // 'forward_iterator_tag') because input iterators can be traversed only
-    // once.  A temporary vector is populated and then swapped to ensure that
-    // all memory is reclaimed if 'emplace_back' throws, as the destructor will
-    // not run when this method is called from a constructor.
+    // once.  Note that '[first .. last)' is not empty, so there is no harm
+    // reserving one element; in fact, it will speed up the first
+    // 'emplace_back'.
 
-    vector temp(this->get_allocator());
+    privateReserveEmpty(size_type(1));
+
     while (first != last) {
-        temp.emplace_back(*first);
+        this->emplace_back(*first);
         ++first;
     }
-    Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INTEGRAL>
-void vector<VALUE_TYPE, ALLOCATOR>::constructFromRange(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::constructFromRange(
                                             INTEGRAL               initialSize,
                                             INTEGRAL               value,
                                             BloombergLP::bslmf::Nil)
@@ -3635,10 +4276,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::constructFromRange(
     // IMPLEMENTATION NOTES: this constructor is trying to construct a range of
     // 'initialSize' elements having the specified integral 'value'.  Without
     // this extra overload, such calls would match an attempt to construct from
-    // a range specified by two iterators.  Note that as 'VALUE_TYPE' must be
-    // a (trivial) integral type, a proctor is almost certainly not needed.
-    // The only risk of a throw is for user-defined allocators doing strange
-    // extra (potentially throwing) work in their 'construct' call.
+    // a range specified by two iterators.
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                            static_cast<size_type>(initialSize) > max_size())) {
@@ -3666,7 +4304,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::constructFromRange(
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
                               const_iterator                          position,
                               INPUT_ITER                              count,
                               INPUT_ITER                              value,
@@ -3684,7 +4322,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
                                           const_iterator              position,
                                           INPUT_ITER                  first,
                                           INPUT_ITER                  last,
@@ -3694,160 +4332,64 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
     // Dispatch based on iterator category.
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
 
-    typedef typename iterator_traits<INPUT_ITER>::iterator_category Tag;
+    typedef typename bsl::iterator_traits<INPUT_ITER>::iterator_category Tag;
     this->privateInsert(position, first, last, Tag());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
-void vector<VALUE_TYPE, ALLOCATOR>::privateInsert(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsert(
                                       const_iterator                  position,
                                       INPUT_ITER                      first,
                                       INPUT_ITER                      last,
                                       const std::input_iterator_tag&)
 {
-    // IMPLEMENTATION NOTES: We can't compute the size in advance.  Append onto
-    // the back of the current vector while capacity remains.  This honors the
-    // idea of not allocating unnecessarily for the temporary vector, and so
-    // saves important cycles from a sequential allocator.  We then need to
-    // shuffle the data back into the correct position.  If capacity must grow,
-    // then create a new vector and move just the newly inserted elements into
-    // place, moving the original vector elements only in the event that all
-    // iterated elements are correctly inserted.
+    // IMPLEMENTATION NOTES: We can't compute the size in advance.  Bootstrap
+    // insertion with random-access iterator by using a temporary vector (which
+    // will also guarantee that if allocator throws, the vector is unchanged).
+    // Also, use the same allocator for the temporary vector so that its
+    // elements can be moved into the current one, rather than copied.
+    // Finally, construct the temporary vector by iterated 'push_back', which
+    // may reallocate memory associated with the temporary vector multiple
+    // times, but unfortunately is required because we can't compute the size
+    // in advance (as with 'forward_iterator_tag') because input iterators can
+    // be traversed only once.
 
-    // Short-circuit if there is nothing to do, do not allocate for an empty
-    // 'vector' as that would invalidate 'begin'.
+    BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
 
     if (first == last) {
+        // Avoid creating a 'temp' vector in that case.
+
         return;                                                       // RETURN
     }
 
-    typedef BloombergLP::bslalg::ArrayPrimitives ArrayPrimitives;
+    // Make sure we don't shrink the capacity if this vector is empty, because
+    // it will be swapped.  Note that '[first .. last)' is not empty, so there
+    // is no harm reserving one element; in fact, it will speed up the first
+    // 'push_back'.
 
-
-    if (!this->capacity()) {
-        privateReserveEmpty(size_type(1));
-        position = this->d_dataBegin_p;       // 'position' must have been null
-    }
-
-    size_type insertOffset = position - this->d_dataBegin_p;
-    size_type initialEnd   = this->size();
-    size_type tailLength   = this->end() - position;
-
-    VALUE_TYPE *emplaceBegin    = this->d_dataEnd_p;
-    VALUE_TYPE *emplaceEnd      = this->d_dataBegin_p + this->d_capacity;
-    VALUE_TYPE *emplacePosition = emplaceBegin;
-
-    allocator_type alloc(this->get_allocator());  // need non-'const' lvalue
-
-    vector resultState(alloc);  // vector that will build the final state
-        // This vector is not used if sufficient capacity can be found in the
-        // current vector for all the insertions.  However, it must have a
-        // lifetime longer than the destructor guard below, in order to ensure
-        // that the guarded elements are destroyed before the allocated storage
-        // that holds them if an exception is thrown.
-
-    // TBD: We really need an allocator-aware 'AutoDestructor' that will call
-    // 'allocator_traits<ALLOC>::destroy(allocator, pointer)' rather than
-    // invoke the destructor directly.  'bslalg::AutoArrayDestructor' is close,
-    // but lacks 'reset'.
-    BloombergLP::bslma::AutoDestructor<VALUE_TYPE> insertProctor(
-                                                              emplacePosition);
-    while (emplacePosition != emplaceEnd) {
-        AllocatorTraits::construct(alloc, emplacePosition, *first);
-        ++insertProctor;
-        ++emplacePosition;
-        if (++first == last) {
-            this->d_dataEnd_p = emplacePosition;
-            insertProctor.release();
-
-            ArrayPrimitives::rotate(this->d_dataBegin_p + insertOffset,
-                                    this->d_dataBegin_p + initialEnd,
-                                    this->d_dataEnd_p);
-            return;                                                   // RETURN
-        }
-    }
-
-    // Now we need to grow a buffer and destructive-move only the new elements.
-    // This needs to be handled in a loop that can allow for multiple growth
-    // spurts.
-
-    resultState.reserve(this->d_capacity*2);
-    emplacePosition = resultState.d_dataBegin_p + insertOffset;
-    ArrayPrimitives::destructiveMove(emplacePosition,
-                                     emplaceBegin,
-                                     emplaceEnd,
-                                     alloc);
-
-    size_type emplaceOffset = (emplaceEnd - emplaceBegin);
-    insertProctor.reset(emplacePosition);
-    emplaceBegin = emplacePosition;
-    emplaceEnd   = resultState.d_dataBegin_p + resultState.d_capacity
-                                             - tailLength;
-    emplacePosition += emplaceOffset;
+    const bool isEmpty = this->empty();
+    Vector_Imp temp(this->get_allocator());
+    temp.privateReserveEmpty(isEmpty ? this->capacity() : size_type(1));
 
     while (first != last) {
-        if (emplacePosition == emplaceEnd) {
-            // need to grow again
-            vector nextResult(alloc);
-            nextResult.reserve(resultState.d_capacity*2);
-            emplacePosition = nextResult.d_dataBegin_p + insertOffset;
-            ArrayPrimitives::destructiveMove(emplacePosition,
-                                             emplaceBegin,
-                                             emplaceEnd,
-                                             alloc);
-
-            insertProctor.reset(emplacePosition);
-            emplaceOffset = (emplaceEnd - emplaceBegin);
-            emplaceBegin  = emplacePosition;
-            emplaceEnd    = nextResult.d_dataBegin_p + nextResult.d_capacity
-                                                     - tailLength;
-            emplacePosition += emplaceOffset;
-
-            Vector_Util::swap(&nextResult.d_dataBegin_p,
-                              &resultState.d_dataBegin_p);
-        }
-
-        AllocatorTraits::construct(alloc, emplacePosition, *first);
-        ++insertProctor;
-        ++emplacePosition;
+        temp.emplace_back(*first);
         ++first;
     }
 
-    // move tail
-    ArrayPrimitives::destructiveMove(emplacePosition,
-                                     this->d_dataBegin_p + insertOffset,
-                                     this->d_dataBegin_p + initialEnd,
-                                     alloc);
+    if (isEmpty) {
+        // Optimization: no need to insert into an empty vector, just swap.
 
-    // reset 'end' in case a throw follows:
-    this->d_dataEnd_p = this->d_dataBegin_p + insertOffset;
-    emplacePosition += (initialEnd - insertOffset);
-    insertProctor.setLength(
-         insertProctor.length() + static_cast<int>(initialEnd - insertOffset));
+        Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
+        return;                                                       // RETURN
+    }
 
-    // move prefix
-    ArrayPrimitives::destructiveMove(resultState.d_dataBegin_p,
-                                     this->d_dataBegin_p,
-                                     this->d_dataBegin_p + insertOffset,
-                                     alloc);
-
-    // Nothing after this point can throw.
-
-    // 'resultState' adopts ownership of all elements
-    resultState.d_dataEnd_p = emplacePosition;
-
-    // We no longer own any data to protect
-    insertProctor.release();
-    this->d_dataEnd_p = this->d_dataBegin_p;
-
-    // Finally, swap states
-    Vector_Util::swap(&this->d_dataBegin_p, &resultState.d_dataBegin_p);
+    this->privateMoveInsert(&temp, position);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class FWD_ITER>
-void vector<VALUE_TYPE, ALLOCATOR>::privateInsert(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateInsert(
                                     const_iterator                    position,
                                     FWD_ITER                          first,
                                     FWD_ITER                          last,
@@ -3874,8 +4416,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateInsert(
                                                               newSize,
                                                               this->d_capacity,
                                                               maxSize);
-
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         ArrayPrimitives::destructiveMoveAndInsert(temp.d_dataBegin_p,
@@ -3902,8 +4443,8 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateInsert(
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-void vector<VALUE_TYPE, ALLOCATOR>::privateMoveInsert(
-                                                    vector         *fromVector,
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateMoveInsert(
+                                                    Vector_Imp     *fromVector,
                                                     const_iterator  position)
 {
     const iterator& pos = const_cast<const iterator&>(position);
@@ -3922,8 +4463,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateMoveInsert(
                                                               newSize,
                                                               this->d_capacity,
                                                               maxSize);
-
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         ArrayPrimitives::destructiveMoveAndMoveInsert(
@@ -3954,7 +4494,8 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateMoveInsert(
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::privateReserveEmpty(size_type numElements)
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::privateReserveEmpty(
+                                                         size_type numElements)
 {
     BSLS_ASSERT_SAFE(this->empty());
     BSLS_ASSERT_SAFE(0 == this->capacity());
@@ -3970,25 +4511,16 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateReserveEmpty(size_type numElements)
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-vector<VALUE_TYPE, ALLOCATOR>::vector() BSLS_KEYWORD_NOEXCEPT
-: vectorBase<VALUE_TYPE>()
-, ContainerBase(ALLOCATOR())
-{
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-vector<VALUE_TYPE, ALLOCATOR>::vector(const ALLOCATOR& basicAllocator)
-                                                          BSLS_KEYWORD_NOEXCEPT
-: vectorBase<VALUE_TYPE>()
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(const ALLOCATOR& basicAllocator)
+: Vector_ImpBase<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-vector<VALUE_TYPE, ALLOCATOR>::vector(size_type        initialSize,
-                                      const ALLOCATOR& basicAllocator)
-: vectorBase<VALUE_TYPE>()
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(size_type        initialSize,
+                                              const ALLOCATOR& basicAllocator)
+: Vector_ImpBase<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(initialSize > max_size())) {
@@ -4012,10 +4544,10 @@ vector<VALUE_TYPE, ALLOCATOR>::vector(size_type        initialSize,
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-vector<VALUE_TYPE, ALLOCATOR>::vector(size_type         initialSize,
-                                      const VALUE_TYPE& value,
-                                      const ALLOCATOR&  basicAllocator)
-: vectorBase<VALUE_TYPE>()
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(size_type         initialSize,
+                                              const VALUE_TYPE& value,
+                                              const ALLOCATOR&  basicAllocator)
+: Vector_ImpBase<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(initialSize > max_size())) {
@@ -4042,25 +4574,25 @@ vector<VALUE_TYPE, ALLOCATOR>::vector(size_type         initialSize,
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
-vector<VALUE_TYPE, ALLOCATOR>::vector(INPUT_ITER       first,
-                                      INPUT_ITER       last,
-                                      const ALLOCATOR& basicAllocator)
-: vectorBase<VALUE_TYPE>()
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(INPUT_ITER       first,
+                                              INPUT_ITER       last,
+                                              const ALLOCATOR& basicAllocator)
+: Vector_ImpBase<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
 
-    typedef typename Vector_DeduceIteratorCategory<INPUT_ITER>::type Tag;
+    typedef typename bsl::Vector_DeduceIteratorCategory<INPUT_ITER>::type Tag;
 
-    if (is_same<Tag, BloombergLP::bslmf::Nil>::value || first != last) {
+    if (bsl::is_same<Tag, BloombergLP::bslmf::Nil>::value || first != last) {
         // Range-check avoids allocating on an empty sequence.
         constructFromRange(first, last, Tag());
     }
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-vector<VALUE_TYPE, ALLOCATOR>::vector(const vector& original)
-: vectorBase<VALUE_TYPE>()
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(const Vector_Imp& original)
+: Vector_ImpBase<VALUE_TYPE>()
 , ContainerBase(AllocatorTraits::select_on_container_copy_construction(
                                           original.ContainerBase::allocator()))
 {
@@ -4081,9 +4613,9 @@ vector<VALUE_TYPE, ALLOCATOR>::vector(const vector& original)
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-vector<VALUE_TYPE, ALLOCATOR>::
-vector(const vector& original, const ALLOCATOR& basicAllocator)
-: vectorBase<VALUE_TYPE>()
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::
+Vector_Imp(const Vector_Imp& original, const ALLOCATOR& basicAllocator)
+: Vector_ImpBase<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {
     if (original.size() > 0) {
@@ -4103,24 +4635,23 @@ vector(const vector& original, const ALLOCATOR& basicAllocator)
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-vector<VALUE_TYPE, ALLOCATOR>::vector(
-                               BloombergLP::bslmf::MovableRef<vector> original)
-                                                          BSLS_KEYWORD_NOEXCEPT
-: vectorBase<VALUE_TYPE>()
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(
+                           BloombergLP::bslmf::MovableRef<Vector_Imp> original)
+: Vector_ImpBase<VALUE_TYPE>()
 , ContainerBase(MoveUtil::access(original).get_allocator())
 {
-    vector& lvalue = original;
+    Vector_Imp& lvalue = original;
     ImpBase::adopt(MoveUtil::move(static_cast<ImpBase&>(lvalue)));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-vector<VALUE_TYPE, ALLOCATOR>::vector(
-                         BloombergLP::bslmf::MovableRef<vector> original,
-                         const ALLOCATOR&                       basicAllocator)
-: vectorBase<VALUE_TYPE>()
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::Vector_Imp(
+                     BloombergLP::bslmf::MovableRef<Vector_Imp> original,
+                     const ALLOCATOR&                           basicAllocator)
+: Vector_ImpBase<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {
-    vector& lvalue = original;
+    Vector_Imp& lvalue = original;
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(get_allocator() ==
                                             lvalue.get_allocator())) {
@@ -4144,28 +4675,9 @@ vector<VALUE_TYPE, ALLOCATOR>::vector(
     }
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-vector<VALUE_TYPE, ALLOCATOR>::vector(
-                              std::initializer_list<VALUE_TYPE> values,
-                              const ALLOCATOR&                  basicAllocator)
-: vectorBase<VALUE_TYPE>()
-, ContainerBase(basicAllocator)
-{
-    if (values.begin() != values.end()) {
-        constructFromRange(values.begin(),
-                           values.end(),
-                           std::random_access_iterator_tag());
-    }
-}
-
-#endif
-
-
 template <class VALUE_TYPE, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
-vector<VALUE_TYPE, ALLOCATOR>::~vector()
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::~Vector_Imp()
 {
     if (this->d_dataBegin_p) {
         BloombergLP::bslalg::ArrayDestructionPrimitives::destroy(
@@ -4178,12 +4690,12 @@ vector<VALUE_TYPE, ALLOCATOR>::~vector()
 
 // MANIPULATORS
 template <class VALUE_TYPE, class ALLOCATOR>
-vector<VALUE_TYPE, ALLOCATOR>&
-vector<VALUE_TYPE, ALLOCATOR>::operator=(const vector& rhs)
+Vector_Imp<VALUE_TYPE, ALLOCATOR>&
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::operator=(const Vector_Imp& rhs)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &rhs)) {
         if (AllocatorTraits::propagate_on_container_copy_assignment::value) {
-            vector other(rhs, rhs.get_allocator());
+            Vector_Imp other(rhs, rhs.get_allocator());
             Vector_Util::swap(&this->d_dataBegin_p, &other.d_dataBegin_p);
             using std::swap;
             swap(ContainerBase::allocator(), other.ContainerBase::allocator());
@@ -4200,25 +4712,25 @@ vector<VALUE_TYPE, ALLOCATOR>::operator=(const vector& rhs)
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-vector<VALUE_TYPE, ALLOCATOR>&
-vector<VALUE_TYPE, ALLOCATOR>::operator=(
-                                    BloombergLP::bslmf::MovableRef<vector> rhs)
+Vector_Imp<VALUE_TYPE, ALLOCATOR>&
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::operator=(
+                                BloombergLP::bslmf::MovableRef<Vector_Imp> rhs)
 {
-    vector& lvalue = rhs;
+    Vector_Imp& lvalue = rhs;
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this != &lvalue)) {
         if (get_allocator() == lvalue.get_allocator()) {
-            vector other(MoveUtil::move(lvalue));
+            Vector_Imp other(MoveUtil::move(lvalue));
             Vector_Util::swap(&this->d_dataBegin_p, &other.d_dataBegin_p);
         }
-        else if (AllocatorTraits::
-                               propagate_on_container_move_assignment::value) {
-            vector other(MoveUtil::move(lvalue));
+        else if (
+              AllocatorTraits::propagate_on_container_move_assignment::value) {
+            Vector_Imp other(MoveUtil::move(lvalue));
             using std::swap;
             swap(ContainerBase::allocator(), other.ContainerBase::allocator());
             Vector_Util::swap(&this->d_dataBegin_p, &other.d_dataBegin_p);
         }
         else {
-            vector other(MoveUtil::move(lvalue),
+            Vector_Imp other(MoveUtil::move(lvalue),
                              ContainerBase::allocator());
             Vector_Util::swap(&this->d_dataBegin_p, &other.d_dataBegin_p);
         }
@@ -4226,44 +4738,24 @@ vector<VALUE_TYPE, ALLOCATOR>::operator=(
     return *this;
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-vector<VALUE_TYPE, ALLOCATOR>&
-vector<VALUE_TYPE, ALLOCATOR>::operator=(
-                                      std::initializer_list<VALUE_TYPE> values)
-{
-    this->assign(values.begin(), values.end());
-    return *this;
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-void vector<VALUE_TYPE, ALLOCATOR>::assign(
-                                      std::initializer_list<VALUE_TYPE> values)
-{
-    assign(values.begin(), values.end());
-}
-#endif
-
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::assign(INPUT_ITER first, INPUT_ITER last)
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::assign(INPUT_ITER first,
+                                               INPUT_ITER last)
 {
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
 
     if (!this->empty()) {
         erase(this->begin(), this->end());
     }
-
     insert(this->begin(), first, last);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::assign(size_type         numElements,
-                                           const VALUE_TYPE& value)
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::assign(size_type         numElements,
+                                               const VALUE_TYPE& value)
 {
     if (!this->empty()) {
         erase(this->begin(), this->end());
@@ -4271,11 +4763,20 @@ void vector<VALUE_TYPE, ALLOCATOR>::assign(size_type         numElements,
     insert(this->begin(), numElements, value);
 }
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::assign(
+                                      std::initializer_list<VALUE_TYPE> values)
+{
+    assign(values.begin(), values.end());
+}
+#endif
 
                              // *** capacity ***
 
 template <class VALUE_TYPE, class ALLOCATOR>
-void vector<VALUE_TYPE, ALLOCATOR>::resize(size_type newSize)
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::resize(size_type newSize)
 {
     // This function provides the *strong* exception guarantee (except when
     // the move constructor of a non-copy-insertable 'value_type' throws).
@@ -4293,7 +4794,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::resize(size_type newSize)
     else if (0 == this->d_capacity) {
         // Because of {DRQS 99966534}, we check for zero capacity here and
         // handle it separately rather than falling into the case below.
-        vector temp(newSize, this->get_allocator());
+        Vector_Imp temp(newSize, this->get_allocator());
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
     else if (newSize > this->d_capacity) {
@@ -4306,8 +4807,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::resize(size_type newSize)
 
         size_type newCapacity = Vector_Util::computeNewCapacity(
                                        newSize, this->d_capacity, maxSize);
-
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         ArrayPrimitives::destructiveMoveAndInsert(
@@ -4331,8 +4831,8 @@ void vector<VALUE_TYPE, ALLOCATOR>::resize(size_type newSize)
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-void vector<VALUE_TYPE, ALLOCATOR>::resize(size_type         newSize,
-                                           const VALUE_TYPE& value)
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::resize(size_type         newSize,
+                                               const VALUE_TYPE& value)
 {
     // This function provides the *strong* exception guarantee (except when
     // the move constructor of a non-copy-insertable 'value_type' throws).
@@ -4350,7 +4850,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::resize(size_type         newSize,
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-void vector<VALUE_TYPE, ALLOCATOR>::reserve(size_type newCapacity)
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::reserve(size_type newCapacity)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newCapacity > max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -4361,7 +4861,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::reserve(size_type newCapacity)
         privateReserveEmpty(newCapacity);
     }
     else if (this->d_capacity < newCapacity) {
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
@@ -4376,10 +4876,10 @@ void vector<VALUE_TYPE, ALLOCATOR>::reserve(size_type newCapacity)
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-void vector<VALUE_TYPE, ALLOCATOR>::shrink_to_fit()
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::shrink_to_fit()
 {
     if (this->size() < this->d_capacity) {
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(this->size());
         ArrayPrimitives::destructiveMove(temp.d_dataBegin_p,
                                          this->d_dataBegin_p,
@@ -4398,7 +4898,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::shrink_to_fit()
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class... Args>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
         AllocatorTraits::construct(
@@ -4418,7 +4918,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         // Construct before we risk invalidating the reference
@@ -4458,7 +4958,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
 #if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 0
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                            )
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
@@ -4478,7 +4978,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
@@ -4506,7 +5006,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
@@ -4527,7 +5027,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
@@ -4557,7 +5057,7 @@ template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
@@ -4580,7 +5080,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
@@ -4612,7 +5112,7 @@ template <class Args_01,
           class Args_02,
           class Args_03>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
@@ -4637,7 +5137,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
@@ -4671,7 +5171,7 @@ template <class Args_01,
           class Args_03,
           class Args_04>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4698,7 +5198,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
@@ -4734,7 +5234,7 @@ template <class Args_01,
           class Args_04,
           class Args_05>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4763,7 +5263,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
@@ -4801,7 +5301,7 @@ template <class Args_01,
           class Args_05,
           class Args_06>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4832,7 +5332,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
@@ -4872,7 +5372,7 @@ template <class Args_01,
           class Args_06,
           class Args_07>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4905,7 +5405,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
@@ -4947,7 +5447,7 @@ template <class Args_01,
           class Args_07,
           class Args_08>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4982,7 +5482,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
@@ -5026,7 +5526,7 @@ template <class Args_01,
           class Args_08,
           class Args_09>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -5063,7 +5563,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
@@ -5109,7 +5609,7 @@ template <class Args_01,
           class Args_09,
           class Args_10>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -5148,7 +5648,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
@@ -5188,7 +5688,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class... Args>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::emplace_back(
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args)...arguments)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
@@ -5209,7 +5709,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         VALUE_TYPE *pos = temp.d_dataBegin_p + this->size();
@@ -5236,7 +5736,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
 #endif
 
 template <class VALUE_TYPE, class ALLOCATOR>
-void vector<VALUE_TYPE, ALLOCATOR>::push_back(const VALUE_TYPE& value)
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::push_back(const VALUE_TYPE& value)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
         AllocatorTraits::construct(ContainerBase::allocator(),
@@ -5255,8 +5755,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::push_back(const VALUE_TYPE& value)
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         // Construct before we risk invalidating the reference
@@ -5284,7 +5783,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::push_back(const VALUE_TYPE& value)
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-void vector<VALUE_TYPE, ALLOCATOR>::push_back(
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::push_back(
                               BloombergLP::bslmf::MovableRef<VALUE_TYPE> value)
 {
     VALUE_TYPE& lvalue = value;
@@ -5305,8 +5804,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::push_back(
                                                              this->size() + 1,
                                                              this->d_capacity,
                                                              this->max_size());
-
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         // Construct before we risk invalidating the reference
@@ -5334,7 +5832,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::push_back(
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::pop_back()
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::pop_back()
 {
     BSLS_ASSERT_SAFE(!this->empty());
 
@@ -5344,19 +5842,21 @@ void vector<VALUE_TYPE, ALLOCATOR>::pop_back()
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-typename vector<VALUE_TYPE, ALLOCATOR>::iterator
-vector<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
-                                      const VALUE_TYPE& value)
+typename Vector_Imp<VALUE_TYPE, ALLOCATOR>::iterator
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
+                                          const VALUE_TYPE& value)
 {
     BSLS_ASSERT_SAFE(this->begin() <= position);
     BSLS_ASSERT_SAFE(position      <= this->end());
 
-    return insert(position, size_type(1), value);
+    const size_type index = position - this->begin();
+    insert(position, size_type(1), value);
+    return this->begin() + index;
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-typename vector<VALUE_TYPE, ALLOCATOR>::iterator
-vector<VALUE_TYPE, ALLOCATOR>::insert(
+typename Vector_Imp<VALUE_TYPE, ALLOCATOR>::iterator
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(
                            const_iterator                             position,
                            BloombergLP::bslmf::MovableRef<VALUE_TYPE> value)
 {
@@ -5381,8 +5881,7 @@ vector<VALUE_TYPE, ALLOCATOR>::insert(
                                                               newSize,
                                                               this->d_capacity,
                                                               maxSize);
-
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         ArrayPrimitives::destructiveMoveAndEmplace(temp.d_dataBegin_p,
@@ -5408,10 +5907,10 @@ vector<VALUE_TYPE, ALLOCATOR>::insert(
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-typename vector<VALUE_TYPE, ALLOCATOR>::iterator
-vector<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
-                                      size_type         numElements,
-                                      const VALUE_TYPE& value)
+typename Vector_Imp<VALUE_TYPE, ALLOCATOR>::iterator
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
+                                          size_type         numElements,
+                                          const VALUE_TYPE& value)
 {
     BSLS_ASSERT_SAFE(this->begin() <= position);
     BSLS_ASSERT_SAFE(position      <= this->end());
@@ -5433,8 +5932,7 @@ vector<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
                                                               newSize,
                                                               this->d_capacity,
                                                               maxSize);
-
-        vector temp(this->get_allocator());
+        Vector_Imp temp(this->get_allocator());
         temp.privateReserveEmpty(newCapacity);
 
         ArrayPrimitives::destructiveMoveAndInsert(temp.d_dataBegin_p,
@@ -5463,8 +5961,8 @@ vector<VALUE_TYPE, ALLOCATOR>::insert(const_iterator    position,
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-typename vector<VALUE_TYPE, ALLOCATOR>::iterator
-vector<VALUE_TYPE, ALLOCATOR>::insert(
+typename Vector_Imp<VALUE_TYPE, ALLOCATOR>::iterator
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::insert(
                                     const_iterator                    position,
                                     std::initializer_list<VALUE_TYPE> values)
 {
@@ -5474,8 +5972,8 @@ vector<VALUE_TYPE, ALLOCATOR>::insert(
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-typename vector<VALUE_TYPE, ALLOCATOR>::iterator
-vector<VALUE_TYPE, ALLOCATOR>::erase(const_iterator position)
+typename Vector_Imp<VALUE_TYPE, ALLOCATOR>::iterator
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::erase(const_iterator position)
 {
     BSLS_ASSERT_SAFE(this->begin() <= position);
     BSLS_ASSERT_SAFE(position      <  this->end());
@@ -5485,8 +5983,9 @@ vector<VALUE_TYPE, ALLOCATOR>::erase(const_iterator position)
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-typename vector<VALUE_TYPE, ALLOCATOR>::iterator
-vector<VALUE_TYPE, ALLOCATOR>::erase(const_iterator first, const_iterator last)
+typename Vector_Imp<VALUE_TYPE, ALLOCATOR>::iterator
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::erase(const_iterator first,
+                                         const_iterator last)
 {
     BSLS_ASSERT_SAFE(this->begin() <= first);
     BSLS_ASSERT_SAFE(first         <= this->end());
@@ -5503,8 +6002,9 @@ vector<VALUE_TYPE, ALLOCATOR>::erase(const_iterator first, const_iterator last)
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-void vector<VALUE_TYPE, ALLOCATOR>::swap(vector<VALUE_TYPE, ALLOCATOR>& other)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::swap(
+                                      Vector_Imp<VALUE_TYPE, ALLOCATOR>& other)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
     if (AllocatorTraits::propagate_on_container_swap::value) {
         Vector_Util::swap(&this->d_dataBegin_p, &other.d_dataBegin_p);
@@ -5519,9 +6019,9 @@ void vector<VALUE_TYPE, ALLOCATOR>::swap(vector<VALUE_TYPE, ALLOCATOR>& other)
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            vector toOtherCopy(MoveUtil::move(*this),
+            Vector_Imp toOtherCopy(MoveUtil::move(*this),
                                    other.get_allocator());
-            vector toThisCopy( MoveUtil::move(other),
+            Vector_Imp toThisCopy( MoveUtil::move(other),
                                    this->get_allocator());
 
             Vector_Util::swap(&toOtherCopy.d_dataBegin_p,
@@ -5534,7 +6034,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::swap(vector<VALUE_TYPE, ALLOCATOR>& other)
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
+void Vector_Imp<VALUE_TYPE, ALLOCATOR>::clear() BSLS_CPP11_NOEXCEPT
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!this->empty())) {
         BloombergLP::bslalg::ArrayDestructionPrimitives::destroy(
@@ -5549,8 +6049,8 @@ void vector<VALUE_TYPE, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
 // ACCESSORS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-typename vector<VALUE_TYPE, ALLOCATOR>::allocator_type
-vector<VALUE_TYPE, ALLOCATOR>::get_allocator() const BSLS_KEYWORD_NOEXCEPT
+typename Vector_Imp<VALUE_TYPE, ALLOCATOR>::allocator_type
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::get_allocator() const BSLS_CPP11_NOEXCEPT
 {
     return ContainerBase::allocator();
 }
@@ -5559,8 +6059,8 @@ vector<VALUE_TYPE, ALLOCATOR>::get_allocator() const BSLS_KEYWORD_NOEXCEPT
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-typename vector<VALUE_TYPE, ALLOCATOR>::size_type
-vector<VALUE_TYPE, ALLOCATOR>::max_size() const BSLS_KEYWORD_NOEXCEPT
+typename Vector_Imp<VALUE_TYPE, ALLOCATOR>::size_type
+Vector_Imp<VALUE_TYPE, ALLOCATOR>::max_size() const BSLS_CPP11_NOEXCEPT
 {
     return ContainerBase::allocator().max_size();
 }
@@ -5571,8 +6071,8 @@ vector<VALUE_TYPE, ALLOCATOR>::max_size() const BSLS_KEYWORD_NOEXCEPT
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-bool operator==(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
-                const vector<VALUE_TYPE, ALLOCATOR>& rhs)
+bool operator==(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs)
 {
     return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
                                                     lhs.end(),
@@ -5584,16 +6084,16 @@ bool operator==(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-bool operator!=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
-                const vector<VALUE_TYPE, ALLOCATOR>& rhs)
+bool operator!=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs)
 {
     return ! (lhs == rhs);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-bool operator< (const vector<VALUE_TYPE, ALLOCATOR>& lhs,
-                const vector<VALUE_TYPE, ALLOCATOR>& rhs)
+bool operator< (const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs)
 {
     return 0 > BloombergLP::bslalg::RangeCompare::lexicographical(lhs.begin(),
                                                                   lhs.end(),
@@ -5605,28 +6105,219 @@ bool operator< (const vector<VALUE_TYPE, ALLOCATOR>& lhs,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-bool operator> (const vector<VALUE_TYPE, ALLOCATOR>& lhs,
-                const vector<VALUE_TYPE, ALLOCATOR>& rhs)
+bool operator> (const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs)
 {
     return rhs < lhs;
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-bool operator<=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
-                const vector<VALUE_TYPE, ALLOCATOR>& rhs)
+bool operator<=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs)
 {
     return !(rhs < lhs);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-bool operator>=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
-                const vector<VALUE_TYPE, ALLOCATOR>& rhs)
+bool operator>=(const Vector_Imp<VALUE_TYPE, ALLOCATOR>& lhs,
+                const Vector_Imp<VALUE_TYPE, ALLOCATOR>& rhs)
 {
     return !(lhs < rhs);
 }
 
+                            // ------------
+                            // class vector
+                            // ------------
+
+// CREATORS
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>::vector() BSLS_CPP11_NOEXCEPT
+: Base(ALLOCATOR())
+{
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>::vector(const ALLOCATOR& basicAllocator)
+                                                            BSLS_CPP11_NOEXCEPT
+: Base(basicAllocator)
+{
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>::vector(size_type        initialSize,
+                                      const ALLOCATOR& basicAllocator)
+: Base(initialSize, basicAllocator)
+{
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>::vector(size_type         initialSize,
+                                      const VALUE_TYPE& value,
+                                      const ALLOCATOR&  basicAllocator)
+: Base(initialSize, value, basicAllocator)
+{
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class INPUT_ITER>
+inline
+vector<VALUE_TYPE, ALLOCATOR>::vector(INPUT_ITER       first,
+                                      INPUT_ITER       last,
+                                      const ALLOCATOR& basicAllocator)
+: Base(first, last, basicAllocator)
+{
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>::vector(
+                              std::initializer_list<VALUE_TYPE> values,
+                              const ALLOCATOR&                  basicAllocator)
+: Base(values.begin(), values.end(), basicAllocator)
+{
+}
+#endif
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>::vector(const vector& original)
+: Base(original)
+{
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>::vector(
+                               BloombergLP::bslmf::MovableRef<vector> original)
+                                                            BSLS_CPP11_NOEXCEPT
+: Base(MoveUtil::move(static_cast<Base&>(original)))
+{
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>::vector(const vector&    original,
+                                      const ALLOCATOR& basicAllocator)
+: Base(original, basicAllocator)
+{
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>::vector(
+                         BloombergLP::bslmf::MovableRef<vector> original,
+                         const ALLOCATOR&                       basicAllocator)
+: Base(MoveUtil::move(static_cast<Base&>(original)), basicAllocator)
+{
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>::~vector()
+{
+}
+
+// MANIPULATORS
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>&
+vector<VALUE_TYPE, ALLOCATOR>::operator=(const vector& rhs)
+{
+    Base::operator=(rhs);
+    return *this;
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>&
+vector<VALUE_TYPE, ALLOCATOR>::operator=(
+                                    BloombergLP::bslmf::MovableRef<vector> rhs)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
+{
+    vector& lvalue = rhs;
+    Base::operator=(MoveUtil::move(*static_cast<Base *>(&lvalue)));
+    return *this;
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+vector<VALUE_TYPE, ALLOCATOR>&
+vector<VALUE_TYPE, ALLOCATOR>::operator=(
+                                      std::initializer_list<VALUE_TYPE> values)
+{
+    Base::assign(values.begin(), values.end());
+    return *this;
+}
+#endif
+
+// FREE OPERATORS
+template <class VALUE_TYPE,  class ALLOCATOR>
+inline
+bool operator==(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
+                const vector<VALUE_TYPE, ALLOCATOR>& rhs)
+{
+    typedef Vector_Imp<VALUE_TYPE, ALLOCATOR> Base;
+    return operator==(static_cast<const Base&>(lhs),
+                      static_cast<const Base&>(rhs));
+}
+
+template <class VALUE_TYPE,  class ALLOCATOR>
+inline
+bool operator!=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
+                const vector<VALUE_TYPE, ALLOCATOR>& rhs)
+{
+    typedef Vector_Imp<VALUE_TYPE, ALLOCATOR> Base;
+    return operator!=(static_cast<const Base&>(lhs),
+                      static_cast<const Base&>(rhs));
+}
+
+template <class VALUE_TYPE,  class ALLOCATOR>
+inline
+bool operator<(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
+               const vector<VALUE_TYPE, ALLOCATOR>& rhs)
+{
+    typedef Vector_Imp<VALUE_TYPE, ALLOCATOR> Base;
+    return operator<(static_cast<const Base&>(lhs),
+                     static_cast<const Base&>(rhs));
+}
+
+template <class VALUE_TYPE,  class ALLOCATOR>
+inline
+bool operator>(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
+               const vector<VALUE_TYPE, ALLOCATOR>& rhs)
+{
+    typedef Vector_Imp<VALUE_TYPE, ALLOCATOR> Base;
+    return operator>(static_cast<const Base&>(lhs),
+                     static_cast<const Base&>(rhs));
+}
+
+template <class VALUE_TYPE,  class ALLOCATOR>
+inline
+bool operator<=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
+                const vector<VALUE_TYPE, ALLOCATOR>& rhs)
+{
+    typedef Vector_Imp<VALUE_TYPE, ALLOCATOR> Base;
+    return operator<=(static_cast<const Base&>(lhs),
+                      static_cast<const Base&>(rhs));
+}
+
+template <class VALUE_TYPE,  class ALLOCATOR>
+inline
+bool operator>=(const vector<VALUE_TYPE, ALLOCATOR>& lhs,
+                const vector<VALUE_TYPE, ALLOCATOR>& rhs)
+{
+    typedef Vector_Imp<VALUE_TYPE, ALLOCATOR> Base;
+    return operator>=(static_cast<const Base&>(lhs),
+                      static_cast<const Base&>(rhs));
+}
 
 // FREE FUNCTIONS
 
@@ -5636,9 +6327,21 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void swap(vector<VALUE_TYPE, ALLOCATOR>& a,
           vector<VALUE_TYPE, ALLOCATOR>& b)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
-    a.swap(b);
+    typedef Vector_Imp<VALUE_TYPE, ALLOCATOR> Base;
+
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Some platforms might not be willing to do a 'static_cast' here.
+
+    Base *pa = reinterpret_cast<Base *>(&a);
+    Base *pb = reinterpret_cast<Base *>(&b);
+#else
+    Base *pa = &a;
+    Base *pb = &b;
+#endif
+
+    pa->swap(*pb);
 }
 
 // HASH SPECIALIZATIONS
@@ -5654,527 +6357,239 @@ void hashAppend(HASHALG& hashAlg, const vector<VALUE_TYPE, ALLOCATOR>& input)
     }
 }
 
-
                    // -------------------------------------
                    // class vector<VALUE_TYPE *, ALLOCATOR>
                    // -------------------------------------
 
-                      // *** construct/copy/destroy ***
-
-// CREATORS
+// FREE OPERATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-vector<VALUE_TYPE *, ALLOCATOR>::vector() BSLS_KEYWORD_NOEXCEPT
-: Base()
+bool operator==(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+    typedef typename ALLOCATOR::template rebind<void *>::other BaseAlloc;
+    typedef Vector_Imp<void *, BaseAlloc>                      Base;
+    return operator==(static_cast<const Base&>(lhs),
+                      static_cast<const Base&>(rhs));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-vector<VALUE_TYPE *, ALLOCATOR>::vector(const ALLOCATOR& basicAllocator)
-                                                          BSLS_KEYWORD_NOEXCEPT
-: Base(BaseAlloc(basicAllocator))
+bool operator!=(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+    typedef typename ALLOCATOR::template rebind<void *>::other BaseAlloc;
+    typedef Vector_Imp<void *, BaseAlloc>                      Base;
+    return operator!=(static_cast<const Base&>(lhs),
+                      static_cast<const Base&>(rhs));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-vector<VALUE_TYPE *, ALLOCATOR>::vector(size_type        initialSize,
-                                        const ALLOCATOR& basicAllocator)
-: Base(initialSize, BaseAlloc(basicAllocator))
+bool operator<(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
+               const vector<VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+    typedef typename ALLOCATOR::template rebind<void *>::other BaseAlloc;
+    typedef Vector_Imp<void *, BaseAlloc>                      Base;
+    return operator<(static_cast<const Base&>(lhs),
+                     static_cast<const Base&>(rhs));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-vector<VALUE_TYPE *, ALLOCATOR>::vector(size_type         initialSize,
-                                        VALUE_TYPE       *value,
-                                        const ALLOCATOR&  basicAllocator)
-: Base(initialSize, (UintPtr) value, BaseAlloc(basicAllocator))
+bool operator>(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
+               const vector<VALUE_TYPE *,ALLOCATOR>& rhs)
 {
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-template <class INPUT_ITER>
-inline
-vector<VALUE_TYPE *, ALLOCATOR>::vector(INPUT_ITER       first,
-                                        INPUT_ITER       last,
-                                        const ALLOCATOR& basicAllocator)
-: Base(typename vector_ForwardIteratorForPtrs<VALUE_TYPE,
-                                              INPUT_ITER>::type(first),
-       typename vector_ForwardIteratorForPtrs<VALUE_TYPE,
-                                              INPUT_ITER>::type(last),
-       basicAllocator)
-{
+    typedef typename ALLOCATOR::template rebind<void *>::other BaseAlloc;
+    typedef Vector_Imp<void *, BaseAlloc>                      Base;
+    return operator>(static_cast<const Base&>(lhs),
+                     static_cast<const Base&>(rhs));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-vector<VALUE_TYPE *, ALLOCATOR>::vector(const vector& original)
-: Base(original)
+bool operator<=(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+    typedef typename ALLOCATOR::template rebind<void *>::other BaseAlloc;
+    typedef Vector_Imp<void *, BaseAlloc>                      Base;
+    return operator<=(static_cast<const Base&>(lhs),
+                      static_cast<const Base&>(rhs));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-vector<VALUE_TYPE *, ALLOCATOR>::vector(
-                               BloombergLP::bslmf::MovableRef<vector> original)
-                                                          BSLS_KEYWORD_NOEXCEPT
-: Base(MoveUtil::move(static_cast<Base&>(original)))
+bool operator>=(const vector<VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<VALUE_TYPE *,ALLOCATOR>& rhs)
 {
+    typedef typename ALLOCATOR::template rebind<void *>::other BaseAlloc;
+    typedef Vector_Imp<void *, BaseAlloc>                      Base;
+    return operator>=(static_cast<const Base&>(lhs),
+                      static_cast<const Base&>(rhs));
 }
 
+// FREE FUNCTIONS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-vector<VALUE_TYPE *, ALLOCATOR>::vector(const vector&    original,
-                                        const ALLOCATOR& basicAllocator)
-: Base(original, BaseAlloc(basicAllocator))
+void swap(vector<VALUE_TYPE *, ALLOCATOR>& a,
+          vector<VALUE_TYPE *, ALLOCATOR>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
 {
-}
+    typedef typename ALLOCATOR::template rebind<void *>::other BaseAlloc;
+    typedef Vector_Imp<void *, BaseAlloc>                      Base;
 
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-vector<VALUE_TYPE *, ALLOCATOR>::vector(
-                         BloombergLP::bslmf::MovableRef<vector> original,
-                         const ALLOCATOR&                       basicAllocator)
-: Base(MoveUtil::move(static_cast<Base&>(original)),
-       BaseAlloc(basicAllocator))
-{
-}
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+    // Windows is not willing to do a 'static_cast' here.
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-vector<VALUE_TYPE *, ALLOCATOR>::vector(
-                            std::initializer_list<VALUE_TYPE *> values,
-                            const ALLOCATOR&                    basicAllocator)
-: Base(typename vector_ForwardIteratorForPtrs<
-                   VALUE_TYPE,
-                   typename std::initializer_list<VALUE_TYPE *>::const_iterator
-                                             >::type(values.begin()),
-       typename vector_ForwardIteratorForPtrs<
-                   VALUE_TYPE,
-                   typename std::initializer_list<VALUE_TYPE *>::const_iterator
-                                             >::type(values.end()),
-       basicAllocator)
-{
-}
+    Base *pa = reinterpret_cast<Base *>(&a);
+    Base *pb = reinterpret_cast<Base *>(&b);
+#else
+    Base *pa = &a;
+    Base *pb = &b;
 #endif
 
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-vector<VALUE_TYPE *, ALLOCATOR>::~vector()
-{
+    pa->swap(*pb);
 }
 
-// MANIPULATORS
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-vector<VALUE_TYPE *, ALLOCATOR>& vector<VALUE_TYPE *, ALLOCATOR>::operator=(
-                                                             const vector& rhs)
-{
-    Base::operator=(rhs);
-    return *this;
-}
+             // -------------------------------------------
+             // class vector<const VALUE_TYPE *, ALLOCATOR>
+             // -------------------------------------------
 
+// FREE OPERATORS
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-vector<VALUE_TYPE *, ALLOCATOR>& vector<VALUE_TYPE *, ALLOCATOR>::operator=(
-                                    BloombergLP::bslmf::MovableRef<vector> rhs)
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+bool operator==(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
-    Base::operator=(MoveUtil::move(static_cast<Base&>(rhs)));
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-vector<VALUE_TYPE *, ALLOCATOR>& vector<VALUE_TYPE *, ALLOCATOR>::operator=(
-                                    std::initializer_list<VALUE_TYPE *> values)
-{
-    assign(values);
-    return *this;
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
+    typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
+    typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
+    return operator==(static_cast<const Base&>(lhs),
+                      static_cast<const Base&>(rhs));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-void vector<VALUE_TYPE *, ALLOCATOR>::assign(
-                                    std::initializer_list<VALUE_TYPE *> values)
+bool operator!=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
 {
-    typedef typename std::initializer_list<VALUE_TYPE *>::const_iterator
-                                                                      InitIter;
-
-    typedef typename vector_ForwardIteratorForPtrs<VALUE_TYPE, InitIter>::type
-                                                                          Iter;
-
-    Base::assign(Iter(values.begin()), Iter(values.end()));
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
+    typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
+    typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
+    return operator!=(static_cast<const Base&>(lhs),
+                      static_cast<const Base&>(rhs));
 }
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+bool operator<(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
+               const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
+{
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
+    typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
+    typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
+    return operator<(static_cast<const Base&>(lhs),
+                     static_cast<const Base&>(rhs));
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+bool operator>(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
+               const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
+{
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
+    typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
+    typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
+    return operator>(static_cast<const Base&>(lhs),
+                     static_cast<const Base&>(rhs));
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+bool operator<=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
+{
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
+    typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
+    typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
+    return operator<=(static_cast<const Base&>(lhs),
+                      static_cast<const Base&>(rhs));
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+bool operator>=(const vector<const VALUE_TYPE *,ALLOCATOR>& lhs,
+                const vector<const VALUE_TYPE *,ALLOCATOR>& rhs)
+{
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
+    typedef typename bsl::conditional<bsl::is_function<VALUE_TYPE>::value,
+                                      void,
+                                      const void>::type VoidType;
+    typedef typename ALLOCATOR::template rebind<VoidType *>::other BaseAlloc;
+    typedef Vector_Imp<VoidType *, BaseAlloc>                      Base;
+#else
+    typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
+    typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+#endif
+    return operator>=(static_cast<const Base&>(lhs),
+                      static_cast<const Base&>(rhs));
+}
+
+// FREE FUNCTIONS
+template <class VALUE_TYPE, class ALLOCATOR>
+inline
+void swap(vector<const VALUE_TYPE *, ALLOCATOR>& a,
+          vector<const VALUE_TYPE *, ALLOCATOR>& b)
+              BSLS_CPP11_NOEXCEPT_SPECIFICATION(BSLS_CPP11_PROVISIONALLY_FALSE)
+{
+    typedef typename ALLOCATOR::template rebind<const void *>::other BaseAlloc;
+    typedef Vector_Imp<const void *, BaseAlloc>                      Base;
+
+#if defined(BSLSTL_VECTOR_INCONSISTENT_CV_FOR_FUNCTION_POINTERS)
+    Base *pa = reinterpret_cast<Base *>(&a);
+    Base *pb = reinterpret_cast<Base *>(&b);
+#else
+    Base *pa = &a;
+    Base *pb = &b;
 #endif
 
-template <class VALUE_TYPE, class ALLOCATOR>
-template <class INPUT_ITER>
-inline
-void vector<VALUE_TYPE *, ALLOCATOR>::assign(INPUT_ITER first, INPUT_ITER last)
-{
-    typedef typename vector_ForwardIteratorForPtrs<VALUE_TYPE,
-                                                   INPUT_ITER>::type Iter;
-
-    Base::assign(Iter(first), Iter(last));
+    pa->swap(*pb);
 }
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-void vector<VALUE_TYPE *, ALLOCATOR>::assign(size_type   numElements,
-                                             VALUE_TYPE *value)
-{
-    Base::assign(numElements, (UintPtr) value);
-}
-
-                             // *** iterators ***
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
-vector<VALUE_TYPE *, ALLOCATOR>::begin() BSLS_KEYWORD_NOEXCEPT
-{
-    return (iterator) Base::begin();
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
-vector<VALUE_TYPE *, ALLOCATOR>::end() BSLS_KEYWORD_NOEXCEPT
-{
-    return (iterator) Base::end();
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::reverse_iterator
-vector<VALUE_TYPE *, ALLOCATOR>::rbegin() BSLS_KEYWORD_NOEXCEPT
-{
-    return reverse_iterator((iterator) Base::rbegin().base());
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::reverse_iterator
-vector<VALUE_TYPE *, ALLOCATOR>::rend() BSLS_KEYWORD_NOEXCEPT
-{
-    return reverse_iterator((iterator) Base::rend().base());
-}
-
-                          // *** element access ***
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::reference
-vector<VALUE_TYPE *, ALLOCATOR>::operator[](size_type position)
-{
-    return (reference) Base::operator[](position);
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::reference
-vector<VALUE_TYPE *, ALLOCATOR>::at(size_type position)
-{
-    return (reference) Base::at(position);
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::reference
-vector<VALUE_TYPE *, ALLOCATOR>::front()
-{
-    return (reference) Base::front();
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::reference
-vector<VALUE_TYPE *, ALLOCATOR>::back()
-{
-    return (reference) Base::back();
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-VALUE_TYPE **vector<VALUE_TYPE *, ALLOCATOR>::data() BSLS_KEYWORD_NOEXCEPT
-{
-    return (VALUE_TYPE **) Base::data();
-}
-
-                             // *** capacity ***
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-void vector<VALUE_TYPE *, ALLOCATOR>::resize(size_type newLength)
-{
-    Base::resize(newLength);
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-void vector<VALUE_TYPE *, ALLOCATOR>::resize(size_type   newLength,
-                                             VALUE_TYPE *value)
-{
-    Base::resize(newLength, (UintPtr) value);
-}
-
-
-                            // *** modifiers ***
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-void vector<VALUE_TYPE *, ALLOCATOR>::emplace_back()
-{
-    Base::emplace_back();
-}
-
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template <class VALUE_TYPE, class ALLOCATOR>
-template <class ARG>
-inline
-void vector<VALUE_TYPE *, ALLOCATOR>::emplace_back(ARG&& arg)
-{
-    VALUE_TYPE *ptr(arg);  // Support explicit conversion operators
-    Base::emplace_back(reinterpret_cast<UintPtr>(ptr));
-}
-# else
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-void vector<VALUE_TYPE *, ALLOCATOR>::emplace_back(VALUE_TYPE *ptr)
-{
-    Base::emplace_back(reinterpret_cast<UintPtr>(ptr));
-}
-# endif
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-void vector<VALUE_TYPE *, ALLOCATOR>::push_back(VALUE_TYPE *value)
-{
-    Base::emplace_back(reinterpret_cast<UintPtr>(value));
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
-vector<VALUE_TYPE *, ALLOCATOR>::emplace(const_iterator position)
-{
-    return (iterator) Base::emplace((const UintPtr*) position);
-}
-
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template <class VALUE_TYPE, class ALLOCATOR>
-template <class ARG>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
-vector<VALUE_TYPE *, ALLOCATOR>::emplace(const_iterator position, ARG&& arg)
-{
-    VALUE_TYPE *ptr(arg);  // Support explicit conversion operators
-    return (iterator) Base::emplace((const UintPtr*) position,
-                                    reinterpret_cast<UintPtr>(ptr));
-}
-# else
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
-vector<VALUE_TYPE *, ALLOCATOR>::emplace(const_iterator  position,
-                                         VALUE_TYPE     *ptr)
-{
-    return (iterator) Base::emplace((const UintPtr*) position,
-                                    reinterpret_cast<UintPtr>(ptr));
-}
-# endif
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
-vector<VALUE_TYPE *, ALLOCATOR>::insert(const_iterator  position,
-                                        VALUE_TYPE     *value)
-{
-    return (iterator) Base::emplace((const UintPtr*) position,
-                                    reinterpret_cast<UintPtr>(value));
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
-vector<VALUE_TYPE *, ALLOCATOR>::insert(const_iterator  position,
-                                        size_type       numElements,
-                                        VALUE_TYPE     *value)
-{
-    return (iterator) Base::insert((const UintPtr*) position, numElements,
-                                   (UintPtr) value);
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
-vector<VALUE_TYPE *, ALLOCATOR>::insert(
-                                  const_iterator                      position,
-                                  std::initializer_list<VALUE_TYPE *> values)
-{
-    typedef typename std::initializer_list<VALUE_TYPE *>::const_iterator
-                                                                      InitIter;
-
-    typedef typename vector_ForwardIteratorForPtrs<VALUE_TYPE, InitIter>::type
-                                                                          Iter;
-
-    return (iterator) Base::insert((const UintPtr*) position,
-                                   Iter(values.begin()),
-                                   Iter(values.end()));
-}
-#endif
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
-vector<VALUE_TYPE *, ALLOCATOR>::erase(const_iterator position)
-{
-    return (iterator) Base::erase((const UintPtr*) position);
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
-vector<VALUE_TYPE *, ALLOCATOR>::erase(const_iterator first,
-                                       const_iterator last)
-{
-    return (iterator) Base::erase((const UintPtr*) first,
-                                  (const UintPtr*) last);
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-void vector<VALUE_TYPE *, ALLOCATOR>::swap(vector& other)
-{
-    Base::swap(static_cast<Base&>(other));
-}
-
-
-    // ACCESSORS
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::allocator_type
-vector<VALUE_TYPE *, ALLOCATOR>::get_allocator() const BSLS_KEYWORD_NOEXCEPT
-{
-    return ALLOCATOR(Base::get_allocator());
-}
-
-
-                             // *** iterators ***
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::const_iterator
-vector<VALUE_TYPE *, ALLOCATOR>::begin() const BSLS_KEYWORD_NOEXCEPT
-{
-    return (const_iterator) Base::begin();
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::const_iterator
-vector<VALUE_TYPE *, ALLOCATOR>::cbegin() const BSLS_KEYWORD_NOEXCEPT
-{
-    return (const_iterator) Base::cbegin();
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::const_iterator
-vector<VALUE_TYPE *, ALLOCATOR>::end() const BSLS_KEYWORD_NOEXCEPT
-{
-    return (const_iterator) Base::end();
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::const_iterator
-vector<VALUE_TYPE *, ALLOCATOR>::cend() const BSLS_KEYWORD_NOEXCEPT
-{
-    return (const_iterator) Base::cend();
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::const_reverse_iterator
-vector<VALUE_TYPE *, ALLOCATOR>::rbegin() const BSLS_KEYWORD_NOEXCEPT
-{
-    return const_reverse_iterator((const_iterator) Base::rbegin().base());
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::const_reverse_iterator
-vector<VALUE_TYPE *, ALLOCATOR>::crbegin() const BSLS_KEYWORD_NOEXCEPT
-{
-    return const_reverse_iterator((const_iterator) Base::crbegin().base());
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::const_reverse_iterator
-vector<VALUE_TYPE *, ALLOCATOR>::rend() const BSLS_KEYWORD_NOEXCEPT
-{
-    return const_reverse_iterator((const_iterator) Base::rend().base());
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::const_reverse_iterator
-vector<VALUE_TYPE *, ALLOCATOR>::crend() const BSLS_KEYWORD_NOEXCEPT
-{
-    return const_reverse_iterator((const_iterator) Base::crend().base());
-}
-
-
-                          // *** element access ***
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::const_reference
-vector<VALUE_TYPE *, ALLOCATOR>::operator[](size_type position) const
-{
-    return (const_reference) Base::operator[](position);
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::const_reference
-vector<VALUE_TYPE *, ALLOCATOR>::at(size_type position) const
-{
-    return (const_reference) Base::at(position);
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::const_reference
-vector<VALUE_TYPE *, ALLOCATOR>::front() const
-{
-    return (const_reference) Base::front();
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-typename vector<VALUE_TYPE *, ALLOCATOR>::const_reference
-vector<VALUE_TYPE *, ALLOCATOR>::back() const
-{
-    return (const_reference) Base::back();
-}
-
-template <class VALUE_TYPE, class ALLOCATOR>
-inline
-VALUE_TYPE *const *vector<VALUE_TYPE *, ALLOCATOR>::data() const
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return (VALUE_TYPE *const *) Base::data();
-}
-
 
 }  // close namespace bsl
 
@@ -6199,15 +6614,6 @@ struct HasStlIterators<bsl::vector<VALUE_TYPE, ALLOCATOR> > : bsl::true_type
 
 }  // close namespace bslalg
 
-namespace bslma {
-
-template <class VALUE_TYPE, class ALLOCATOR>
-struct UsesBslmaAllocator<bsl::vector<VALUE_TYPE, ALLOCATOR> >
-    : bsl::is_convertible<Allocator *, ALLOCATOR>::type
-{};
-
-}  // close namespace bslma
-
 namespace bslmf {
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6217,26 +6623,53 @@ struct IsBitwiseMoveable<bsl::vector<VALUE_TYPE, ALLOCATOR> >
 
 }  // close namespace bslmf
 
+namespace bslma {
+
+template <class VALUE_TYPE, class ALLOCATOR>
+struct UsesBslmaAllocator<bsl::vector<VALUE_TYPE, ALLOCATOR> >
+    : bsl::is_convertible<Allocator *, ALLOCATOR>::type
+{};
+
+}  // close namespace bslma
+
 }  // close enterprise namespace
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-extern template class bsl::vectorBase<bool>;
-extern template class bsl::vectorBase<char>;
-extern template class bsl::vectorBase<signed char>;
-extern template class bsl::vectorBase<unsigned char>;
-extern template class bsl::vectorBase<short>;
-extern template class bsl::vectorBase<unsigned short>;
-extern template class bsl::vectorBase<int>;
-extern template class bsl::vectorBase<unsigned int>;
-extern template class bsl::vectorBase<long>;
-extern template class bsl::vectorBase<unsigned long>;
-extern template class bsl::vectorBase<long long>;
-extern template class bsl::vectorBase<unsigned long long>;
-extern template class bsl::vectorBase<float>;
-extern template class bsl::vectorBase<double>;
-extern template class bsl::vectorBase<long double>;
-extern template class bsl::vectorBase<void *>;
-extern template class bsl::vectorBase<const char *>;
+extern template class bsl::Vector_ImpBase<bool>;
+extern template class bsl::Vector_ImpBase<char>;
+extern template class bsl::Vector_ImpBase<signed char>;
+extern template class bsl::Vector_ImpBase<unsigned char>;
+extern template class bsl::Vector_ImpBase<short>;
+extern template class bsl::Vector_ImpBase<unsigned short>;
+extern template class bsl::Vector_ImpBase<int>;
+extern template class bsl::Vector_ImpBase<unsigned int>;
+extern template class bsl::Vector_ImpBase<long>;
+extern template class bsl::Vector_ImpBase<unsigned long>;
+extern template class bsl::Vector_ImpBase<long long>;
+extern template class bsl::Vector_ImpBase<unsigned long long>;
+extern template class bsl::Vector_ImpBase<float>;
+extern template class bsl::Vector_ImpBase<double>;
+extern template class bsl::Vector_ImpBase<long double>;
+extern template class bsl::Vector_ImpBase<void *>;
+extern template class bsl::Vector_ImpBase<const void *>;
+
+extern template class bsl::Vector_Imp<bool>;
+extern template class bsl::Vector_Imp<char>;
+extern template class bsl::Vector_Imp<signed char>;
+extern template class bsl::Vector_Imp<unsigned char>;
+extern template class bsl::Vector_Imp<short>;
+extern template class bsl::Vector_Imp<unsigned short>;
+extern template class bsl::Vector_Imp<int>;
+extern template class bsl::Vector_Imp<unsigned int>;
+extern template class bsl::Vector_Imp<long>;
+extern template class bsl::Vector_Imp<unsigned long>;
+extern template class bsl::Vector_Imp<long long>;
+extern template class bsl::Vector_Imp<unsigned long long>;
+extern template class bsl::Vector_Imp<float>;
+extern template class bsl::Vector_Imp<double>;
+extern template class bsl::Vector_Imp<long double>;
+extern template class bsl::Vector_Imp<void *>;
+extern template class bsl::Vector_Imp<const void *>;
 
 extern template class bsl::vector<bool>;
 extern template class bsl::vector<char>;
@@ -6254,13 +6687,13 @@ extern template class bsl::vector<float>;
 extern template class bsl::vector<double>;
 extern template class bsl::vector<long double>;
 extern template class bsl::vector<void *>;
-extern template class bsl::vector<const char *>;
+extern template class bsl::vector<const void *>;
 #endif
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -19,16 +19,14 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test implements a meta-function, 'bsl::is_integral' and
-// a template variable 'bsl::is_integral_v', that determines whether a template
-// parameter type is an integral type.  Thus, we need to ensure that the value
-// returned by the meta-function is correct for each possible category of
-// types.
+// The component under test implements a meta-function, 'bsl::is_integral',
+// that determines whether a template parameter type is an integral type.
+// Thus, we need to ensure that the value returned by the meta-function is
+// correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::is_integral::value
-// [ 1] bsl::is_integral_v
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -86,25 +84,12 @@ void aSsErT(bool condition, const char *message, int line)
     // unknown bound.
 #endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-#define ASSERT_V_SAME(TYPE)                                                   \
-    ASSERT(bsl::is_integral<TYPE>::value == bsl::is_integral_v<TYPE>)
-    // Test whether 'bsl::is_integral_v<TYPE>' has the same value as
-    // 'bsl::is_integral<TYPE>::value'.
-#else
-#define ASSERT_V_SAME(TYPE)
-#endif
-
 #define TYPE_ASSERT_CVQ(METAFUNC, MEMBER, TYPE, RESULT)                       \
-    ASSERT(RESULT == METAFUNC<                  TYPE>::MEMBER);               \
-    ASSERT(RESULT == METAFUNC<   bsl::add_const<TYPE>::type>::MEMBER);        \
+    ASSERT(RESULT == METAFUNC<TYPE>::MEMBER);                                 \
+    ASSERT(RESULT == METAFUNC<bsl::add_const<TYPE>::type>::MEMBER);           \
     ASSERT(RESULT == METAFUNC<bsl::add_volatile<TYPE>::type>::MEMBER);        \
-    ASSERT(RESULT == METAFUNC<      bsl::add_cv<TYPE>::type>::MEMBER);        \
-    ASSERT_V_SAME(                              TYPE);                        \
-    ASSERT_V_SAME(               bsl::add_const<TYPE>::type);                 \
-    ASSERT_V_SAME(            bsl::add_volatile<TYPE>::type);                 \
-    ASSERT_V_SAME(                  bsl::add_cv<TYPE>::type);
-    // This macro allows for efficient testing of all cv-qualified combination
+    ASSERT(RESULT == METAFUNC<bsl::add_cv<TYPE>::type>::MEMBER);
+    // This macro allows for efficient testing of all cv-qualified combinations
     // of a type.  Note the 'typename' is NOT missing from the invocations of
     // the 'add_qualifier' traits, as 'TYPE' will be textually substituted as
     // the exact type, rather than a type parameter, so this is NOT a dependant
@@ -204,15 +189,7 @@ int main(int argc, char *argv[])
     ASSERT(false == bsl::is_integral<MyType>::value);
     ASSERT(true  == bsl::is_integral<MyIntegralType>::value);
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature then we can re-write the snippet of code above using the
-// 'bsl::is_function_v' variable as follows:
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    ASSERT(false == bsl::is_integral_v<MyType>);
-    ASSERT(true  == bsl::is_integral_v<MyIntegralType>);
-#endif
-//..
+
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -251,9 +228,6 @@ int main(int argc, char *argv[])
         //: 10 The type names defined by 'bsls::Types' alias existing integral
         //:    types.  (This test is deferred from 'bsls_types' to this
         //:    component, as we need the machinery at this level for the test.)
-        //:
-        //: 11 That 'is_integral<T>::value' has the same value as
-        //:    'is_integral_v<T>' for a variety of template parameter types.
         //
         // Plan:
         //: 1 Verify that 'bsl::is_integral<TYPE>::value' has the correct value
@@ -264,7 +238,6 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::is_integral::value
-        //   bsl::is_integral_v
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n'bsl::is_integral::value'\n"

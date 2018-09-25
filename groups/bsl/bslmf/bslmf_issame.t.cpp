@@ -14,17 +14,16 @@ using namespace BloombergLP;
 //                                Overview
 //                                --------
 // The component under test defines two meta-functions, 'bsl::is_same' and
-// 'bslmf::IsSame' and a template variable 'bsl::is_same_v', that determine
-// whether two template parameter types are same.  Thus, we need to ensure that
-// the values returned by these meta-functions are correct for each possible
-// pair of types.  Since the two meta-functions are functionally equivalent, we
-// will use the same set of types for both.
+// 'bslmf::IsSame', that determine whether two template parameter types are
+// same.  Thus, we need to ensure that the values returned by these
+// meta-functions are correct for each possible pair of types.  Since the two
+// meta-functions are functionally equivalent, we will use the same set of
+// types for both.
 //
 //-----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 2] BloombergLP::bslmf::IsSame::VALUE
 // [ 1] bsl::is_same::value
-// [ 1] bsl::is_same_v
 //
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
@@ -103,20 +102,6 @@ typedef void Fie(int, ...);
 typedef void Fe(...);
 typedef void (*PFi)(int);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-#define ASSERT_V_EQ_VALUE(type1, type2)                                       \
-    ASSERT((bsl::is_same<type1, type2>::value == bsl::is_same_v<type1, type2>))
-    // Test whether 'bsl::is_same_v<TYPE>' value equals to
-    // 'bsl::is_same<TYPE>::value'.
-#else
-#define ASSERT_V_EQ_VALUE(type1, type2)
-#endif
-
-#define TYPE_ASSERT(type1, type2, result)                                     \
-    ASSERT((result == bsl::is_same<type1, type2>::value));                    \
-    ASSERT_V_EQ_VALUE(type1, type2);
-
-
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -191,15 +176,7 @@ int main(int argc, char *argv[])
 //..
     ASSERT(false == (bsl::is_same<INT, INT_REF>::value));
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature then we can re-write the snippet of code above using the
-// 'bsl::is_same_v' variable as follows:
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    ASSERT(false == (bsl::is_same_v<SHORT, CONST_SHORT>));
-    ASSERT(false == (bsl::is_same_v<INT, INT_REF>));
-#endif
-//..
+
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -310,9 +287,6 @@ int main(int argc, char *argv[])
         //:
         //: 2 'is_same::value' is 'false' when the two template parameter types
         //:   are not the same.
-        //:
-        //: 3 That 'is_same<T>::value' has the same value as 'is_same_v<T>'
-        //:   for a variety of template parameter types.
         //
         // Plan:
         //   Instantiate 'bsl::is_same' with various combinations of types and
@@ -320,82 +294,81 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   bsl::is_same::value
-        //   bsl::is_same_v
         // --------------------------------------------------------------------
 
         if (verbose) printf("bsl::is_same::value\n"
                             "===================\n");
 
-        TYPE_ASSERT(int,   int,      true );
-        TYPE_ASSERT(short, short,    true );
-        TYPE_ASSERT(int,   short,    false);
-        TYPE_ASSERT(short, int,      false);
-        TYPE_ASSERT(int,   unsigned, false);
-        TYPE_ASSERT(int&,  int,      false);
-        TYPE_ASSERT(float, double,   false);
-        TYPE_ASSERT(float, float&,   false);
+        ASSERT(true  == (bsl::is_same<int, int>::value));
+        ASSERT(true  == (bsl::is_same<short, short>::value));
+        ASSERT(false == (bsl::is_same<int, short>::value));
+        ASSERT(false == (bsl::is_same<short, int>::value));
+        ASSERT(false == (bsl::is_same<int, unsigned>::value));
+        ASSERT(false == (bsl::is_same<int&, int>::value));
+        ASSERT(false == (bsl::is_same<float, double>::value));
+        ASSERT(false == (bsl::is_same<float, float&>::value));
 
-        TYPE_ASSERT(int const,          int const, true );
-        TYPE_ASSERT(const int,          int const, true );
-        TYPE_ASSERT(int,                int const, false);
-        TYPE_ASSERT(int volatile,       int,       false);
-        TYPE_ASSERT(int const volatile, int const, false);
+        ASSERT(true  == (bsl::is_same<int const, int const>::value));
+        ASSERT(true  == (bsl::is_same<const int, int const>::value));
+        ASSERT(false == (bsl::is_same<int, int const>::value));
+        ASSERT(false == (bsl::is_same<int volatile, int>::value));
+        ASSERT(false == (bsl::is_same<int const volatile, int const>::value));
 
-        TYPE_ASSERT(Enum1, Enum1,         true );
-        TYPE_ASSERT(Enum3, Enum3,         true );
-        TYPE_ASSERT(Enum1, Enum2,         false);
-        TYPE_ASSERT(Enum3, Enum1,         false);
-        TYPE_ASSERT(int,   Enum1,         false);
-        TYPE_ASSERT(Enum1, unsigned,      false);
-        TYPE_ASSERT(long,  Enum1,         false);
-        TYPE_ASSERT(Enum1, unsigned long, false);
+        ASSERT(true  == (bsl::is_same<Enum1, Enum1>::value));
+        ASSERT(true  == (bsl::is_same<Enum3, Enum3>::value));
+        ASSERT(false == (bsl::is_same<Enum1, Enum2>::value));
+        ASSERT(false == (bsl::is_same<Enum3, Enum1>::value));
+        ASSERT(false == (bsl::is_same<int, Enum1>::value));
+        ASSERT(false == (bsl::is_same<Enum1, unsigned>::value));
+        ASSERT(false == (bsl::is_same<long, Enum1>::value));
+        ASSERT(false == (bsl::is_same<Enum1, unsigned long>::value));
 
-        TYPE_ASSERT(char *,       char *,       true );
-        TYPE_ASSERT(void *,       void *,       true );
-        TYPE_ASSERT(const char *, const char *, true );
-        TYPE_ASSERT(const char *, char *,       false);
-        TYPE_ASSERT(char *,       char *const,  false);
-        TYPE_ASSERT(char *,       void *,       false);
-        TYPE_ASSERT(int *,        char *,       false);
+        ASSERT(true  == (bsl::is_same<char *, char *>::value));
+        ASSERT(true  == (bsl::is_same<void *, void *>::value));
+        ASSERT(true  == (bsl::is_same<const char *, const char *>::value));
+        ASSERT(false == (bsl::is_same<const char *, char *>::value));
+        ASSERT(false == (bsl::is_same<char *, char *const>::value));
+        ASSERT(false == (bsl::is_same<char *, void *>::value));
+        ASSERT(false == (bsl::is_same<int *, char *>::value));
 
-        TYPE_ASSERT(Struct1, Struct1, true );
-        TYPE_ASSERT(Struct3, Struct3, true );
-        TYPE_ASSERT(Struct1, Struct2, false);
-        TYPE_ASSERT(Struct3, Struct1, false);
+        ASSERT(true  == (bsl::is_same<Struct1, Struct1>::value));
+        ASSERT(true  == (bsl::is_same<Struct3, Struct3>::value));
+        ASSERT(false == (bsl::is_same<Struct1, Struct2>::value));
+        ASSERT(false == (bsl::is_same<Struct3, Struct1>::value));
 
-        TYPE_ASSERT(Base,         Base,         true );
-        TYPE_ASSERT(const Base *, const Base *, true );
-        TYPE_ASSERT(Derived&,     Derived&,     true );
-        TYPE_ASSERT(Base&,        Base,         false);
-        TYPE_ASSERT(Base&,        Derived&,     false);
-        TYPE_ASSERT(Derived *,    Base *,       false);
-        TYPE_ASSERT(void *,       Base *,       false);
+        ASSERT(true  == (bsl::is_same<Base, Base>::value));
+        ASSERT(true  == (bsl::is_same<const Base *, const Base *>::value));
+        ASSERT(true  == (bsl::is_same<Derived&, Derived&>::value));
+        ASSERT(false == (bsl::is_same<Base&, Base>::value));
+        ASSERT(false == (bsl::is_same<Base&, Derived&>::value));
+        ASSERT(false == (bsl::is_same<Derived *, Base *>::value));
+        ASSERT(false == (bsl::is_same<void *, Base *>::value));
 
-        TYPE_ASSERT(int Base::*,    int Base::*,    true );
-        TYPE_ASSERT(int Struct3::*, int Struct3::*, true );
-        TYPE_ASSERT(int Base::*,    int Class::*,   false);
-        TYPE_ASSERT(int Base::*,    int Derived::*, false);
-        TYPE_ASSERT(int Derived::*, int Base::*,    false);
+        ASSERT(true  == (bsl::is_same<int Base::*, int Base::*>::value));
+        ASSERT(true  == (bsl::is_same<int Struct3::*, int Struct3::*>::value));
+        ASSERT(false == (bsl::is_same<int Base::*, int Class::*>::value));
+        ASSERT(false == (bsl::is_same<int Base::*, int Derived::*>::value));
+        ASSERT(false == (bsl::is_same<int Derived::*, int Base::*>::value));
 
-        TYPE_ASSERT(INT_TYPE,     INT_TYPE,        true );
-        TYPE_ASSERT(INT_TYPE,     Class::INT_TYPE, true );
-        TYPE_ASSERT(NS::INT_TYPE, Class::INT_TYPE, true );
-        TYPE_ASSERT(INT_TYPE,     NS::INT_TYPE,    true );
+        ASSERT(true  == (bsl::is_same<INT_TYPE, INT_TYPE>::value));
+        ASSERT(true  == (bsl::is_same<INT_TYPE, Class::INT_TYPE>::value));
+        ASSERT(true  == (bsl::is_same<NS::INT_TYPE, Class::INT_TYPE>::value));
+        ASSERT(true  == (bsl::is_same<INT_TYPE, NS::INT_TYPE>::value));
 
-        TYPE_ASSERT(char [1],      char [1],      true );
-        TYPE_ASSERT(const int [5], const int [5], true );
-        TYPE_ASSERT(char,          char [1],      false);
-        TYPE_ASSERT(int [5],       char [5],      false);
-        TYPE_ASSERT(int [2][4],    int [4][2],    false);
+        ASSERT(true  == (bsl::is_same<char [1], char [1]>::value));
+        ASSERT(true  == (bsl::is_same<const int [5], const int [5]>::value));
+        ASSERT(false == (bsl::is_same<char, char [1]>::value));
+        ASSERT(false == (bsl::is_same<int [5], char [5]>::value));
+        ASSERT(false == (bsl::is_same<int [2][4], int [4][2]>::value));
 
-        TYPE_ASSERT(F,   F,   true );
-        TYPE_ASSERT(Fv,  F,   true );
-        TYPE_ASSERT(Fi,  Fi,  true );
-        TYPE_ASSERT(PFi, PFi, true );
-        TYPE_ASSERT(Fe,  Fi,  false);
-        TYPE_ASSERT(Fe,  Fie, false);
-        TYPE_ASSERT(Fie, Fi,  false);
-        TYPE_ASSERT(PFi, Fi,  false);
+        ASSERT(true  == (bsl::is_same<F, F>::value));
+        ASSERT(true  == (bsl::is_same<Fv, F>::value));
+        ASSERT(true  == (bsl::is_same<Fi, Fi>::value));
+        ASSERT(true  == (bsl::is_same<PFi, PFi>::value));
+        ASSERT(false == (bsl::is_same<Fe, Fi>::value));
+        ASSERT(false == (bsl::is_same<Fe, Fie>::value));
+        ASSERT(false == (bsl::is_same<Fie, Fi>::value));
+        ASSERT(false == (bsl::is_same<PFi, Fi>::value));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

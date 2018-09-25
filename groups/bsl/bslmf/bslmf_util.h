@@ -51,8 +51,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
+#ifndef INCLUDED_BSLS_CPP11
+#include <bsls_cpp11.h>
 #endif
 
 namespace BloombergLP {
@@ -75,15 +75,15 @@ struct Util {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class TYPE>
     static TYPE&& forward(typename bsl::remove_reference<TYPE>::type&  t)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
     template <class TYPE>
     static TYPE&& forward(typename bsl::remove_reference<TYPE>::type&& t)
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
 #else
     template <class TYPE>
-    static const TYPE& forward(const TYPE& t) BSLS_KEYWORD_NOEXCEPT;
+    static const TYPE& forward(const TYPE& t) BSLS_CPP11_NOEXCEPT;
     template <class TYPE>
-    static MovableRef<TYPE> forward(MovableRef<TYPE> t) BSLS_KEYWORD_NOEXCEPT;
+    static MovableRef<TYPE> forward(MovableRef<TYPE> t) BSLS_CPP11_NOEXCEPT;
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         // Correctly forward the specified 't' argument based on the current
         // compilation environment.
@@ -91,11 +91,11 @@ struct Util {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class TYPE>
     static typename bsl::add_rvalue_reference<TYPE>::type declval()
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
 #else
     template <class TYPE>
     static typename bsl::add_lvalue_reference<TYPE>::type declval()
-                                                         BSLS_KEYWORD_NOEXCEPT;
+                                                           BSLS_CPP11_NOEXCEPT;
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         // This function has no implementation.  It exists to allow for the
         // appearance of a temporary object of the specified type that can be
@@ -111,7 +111,7 @@ struct Util {
 template <class TYPE>
 inline
 TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type& t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return static_cast<TYPE&&>(t);
 }
@@ -119,7 +119,7 @@ TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type& t)
 template <class TYPE>
 inline
 TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type&& t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return static_cast<TYPE&&>(t);
 }
@@ -128,7 +128,7 @@ TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type&& t)
 
 template <class TYPE>
 inline
-const TYPE& Util::forward(const TYPE& t) BSLS_KEYWORD_NOEXCEPT
+const TYPE& Util::forward(const TYPE& t) BSLS_CPP11_NOEXCEPT
 {
     return t;
 }
@@ -136,7 +136,7 @@ const TYPE& Util::forward(const TYPE& t) BSLS_KEYWORD_NOEXCEPT
 template <class TYPE>
 inline
 bslmf::MovableRef<TYPE> Util::forward(bslmf::MovableRef<TYPE> t)
-                                                          BSLS_KEYWORD_NOEXCEPT
+                                                            BSLS_CPP11_NOEXCEPT
 {
     return t;
 }

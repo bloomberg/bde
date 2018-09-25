@@ -11,18 +11,15 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_trivially_copyable: type-traits meta-function
-//  bsl::is_trivially_copyable_v: the result value of the meta-function
 //
 //@SEE_ALSO: bslmf_integralconstant, bslmf_nestedtraitdeclaration
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_trivially_copyable' and a template variable
-// 'bsl::is_trivially_copyable_v', that represents the result value of the
-// 'bsl::is_trivially_copyable' meta-function, that may be used to query
-// whether a type is trivially copyable as defined in section 3.9.3 of the
-// C++11 standard [basic.types].
+// 'bsl::is_trivially_copyable', that may be used to query whether a type is
+// trivially copyable as defined in section 3.9.3 of the C++11 standard
+// [basic.types].
 //
 // 'bsl::is_trivially_copyable' has the same syntax as the
 // 'is_trivially_copyable' template from the C++11 standard [meta.unary.prop].
@@ -50,16 +47,6 @@ BSLS_IDENT("$Id: $")
 //: 2 Use the 'BSLMF_NESTED_TRAIT_DECLARATION' macro to define
 //:   'bsl::is_trivially_copyable' as a trait in the class definition of the
 //:   type.
-//
-// Note that the template variable 'is_trivially_copyable_v' is defined in the
-// C++17 standard as an inline variable.  If the current compiler supports the
-// inline variable C++17 compiler feature, 'bsl::is_trivially_copyable_v' is
-// defined as an 'inline constexpr bool' variable.  Otherwise, if the compiler
-// supports the variable templates C++14 compiler feature,
-// 'bsl::is_trivially_copyable_v' is defined as a non-inline 'constexpr bool'
-// variable.  See 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
-// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -106,15 +93,6 @@ BSLS_IDENT("$Id: $")
 //  assert(false == bsl::is_trivially_copyable<
 //                                         MyNonTriviallyCopyableType>::value);
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature, then we can re-write the snippet of code above as follows:
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(true  == bsl::is_trivially_copyable_v<MyFundamentalType>);
-//  assert(false == bsl::is_trivially_copyable_v<MyFundamentalTypeReference>);
-//  assert(true  == bsl::is_trivially_copyable_v<MyTriviallyCopyableType>);
-//  assert(false == bsl::is_trivially_copyable_v<MyNonTriviallyCopyableType>);
-//#endif
-//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -136,20 +114,20 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isfundamental.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
-#include <bslmf_ismemberpointer.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
 #endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
+#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
+#include <bslmf_ispointertomember.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include <bslmf_isreference.h>
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
 #endif
 
 #ifndef INCLUDED_BSLS_PLATFORM
@@ -165,15 +143,6 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_STDDEF_H
 #endif
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
-#include <bslmf_ispointertomember.h>
-#endif
-
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-// This set of includes must come last, due to usage of 'bsls_nativestd'
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
@@ -222,56 +191,39 @@ namespace bslmf {
                          // struct IsTriviallyCopyable_Imp
                          // ==============================
 
-template <class TYPE, bool K_INTRINSIC = false>
-struct IsTriviallyCopyable_DetectTrait
-    :  DetectNestedTrait<TYPE, bsl::is_trivially_copyable>::type {
-    // This 'struct' template implements a meta-function to determine whether
-    // the (non-cv-qualified) (template parameter) 'TYPE' has been explicitly
-    // tagged with the trivially copyable trait.  If the flag 'K_INTRINSIC' is
-    // 'true' then the compiler has already determined that 'TYPE' is trivially
-    // copyable without user intervention, and the check for nested traits can
-    // be optimized away.
-};
-
-template <class TYPE>
-struct IsTriviallyCopyable_DetectTrait<TYPE, true>
-    :  bsl::true_type {
-    // This 'struct' template implements a meta-function to determine whether
-    // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
-    // copyable.
-};
-
 #ifdef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
 template <class TYPE>
-struct IsTriviallyCopyable_Intrinsic
-    : IsTriviallyCopyable_DetectTrait<
-                      TYPE,
-                      ::native_std::is_trivially_copyable<TYPE>::value>::type {
+struct IsTriviallyCopyable_Imp
+    : bsl::integral_constant<
+        bool,
+        ::native_std::is_trivially_copyable<TYPE>::value
+            || DetectNestedTrait<TYPE, bsl::is_trivially_copyable>::value> {
     // This 'struct' template implements a meta-function to determine whether
     // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
     // copyable.
 };
 #else
 template <class TYPE>
-struct IsTriviallyCopyable_Intrinsic
-    : IsTriviallyCopyable_DetectTrait<
-                                TYPE,
-                                bsl::is_fundamental<TYPE>::value
-                                || bsl::is_enum<TYPE>::value
-                                || bsl::is_pointer<TYPE>::value
-                                || bsl::is_member_pointer<TYPE>::value>::type {
+struct IsTriviallyCopyable_Imp
+    : bsl::integral_constant<
+           bool,
+           !bsl::is_reference<TYPE>::value
+           && (  IsFundamental<TYPE>::value
+              || IsEnum<TYPE>::value
+              || bsl::is_pointer<TYPE>::value
+              || IsPointerToMember<TYPE>::value
+              || DetectNestedTrait<TYPE, bsl::is_trivially_copyable>::value)> {
     // This 'struct' template implements a meta-function to determine whether
     // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
-    // copyable.  Without compiler support, only scalar types are trivial
     // copyable.
 };
+#endif
 
 template <>
-struct IsTriviallyCopyable_Intrinsic<void> : bsl::false_type {
+struct IsTriviallyCopyable_Imp<void> : bsl::false_type {
     // This explicit specialization reports that 'void' is not a trivially
     // copyable type, despite being a fundamental type.
 };
-#endif
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -284,7 +236,7 @@ namespace bsl {
 
 template <class TYPE>
 struct is_trivially_copyable
-: BloombergLP::bslmf::IsTriviallyCopyable_Intrinsic<TYPE>::type {
+: BloombergLP::bslmf::IsTriviallyCopyable_Imp<TYPE>::type {
     // This 'struct' template implements a meta-function to determine whether
     // the (template parameter) 'TYPE' is trivially copyable.  This 'struct'
     // derives from 'bsl::true_type' if the 'TYPE' is trivially copyable, and
@@ -299,14 +251,6 @@ struct is_trivially_copyable
     // types, this template must be specialized to inherit from
     // 'bsl::true_type' for them.
 };
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_trivially_copyable_v = is_trivially_copyable<TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_trivially_copyable' meta-function.
-#endif
 
 ///IMPLEMENTATION NOTE
 ///-------------------
@@ -415,22 +359,6 @@ struct is_trivially_copyable<const volatile TYPE[]>
     :  is_trivially_copyable<TYPE>::type {
     // This partial specialization ensures that const-volatile-qualified
     // array-of-unknown-bound types have the same result as their element type.
-};
-#endif
-
-template <class TYPE>
-struct is_trivially_copyable<TYPE &> :  false_type {
-    // This partial specialization optimizes away a number of nested template
-    // instantiations to prove that reference types are never trivially
-    // copyable.
-};
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template <class TYPE>
-struct is_trivially_copyable<TYPE &&> :  false_type {
-    // This partial specialization optimizes away a number of nested template
-    // instantiations to prove that reference types are never trivially
-    // copyable.
 };
 #endif
 

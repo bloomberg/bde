@@ -15,16 +15,15 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function, 'bsl::is_const' and a
-// template variable 'bsl::is_const_v', that determine whether a template
-// parameter type is a 'const'-qualified type.  Thus, we need to ensure that
-// the value returned by the meta-function is correct for each possible
-// category of types.
+// The component under test defines a meta-function, 'bsl::is_const', that
+// determines whether a template parameter type is a 'const'-qualified type.
+// Thus, we need to ensure that the value returned by the meta-function is
+// correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::is_const<TYPE>
-// [ 1] bsl::is_const_v<TYPE>
+//
 // ----------------------------------------------------------------------------
 // [ 3] USAGE EXAMPLE
 // [ 2] Function-overload consistency
@@ -190,21 +189,6 @@ bool eval(const TRAIT& value)
     return eval_dispatch(value, value);
 }
 
-template <class TYPE>
-bool eval()
-    // Return 'is_const<TYPE>::value', and confirm that the deduced type
-    // 'is_const<TYPE>' has the base-characteristics of either 'bsl::true_type'
-    // or 'bsl::false_type'.  If the current compiler supports the variable
-    // templates C++14 feature then asserts on 'bsl::is_const<TYPE>::value' and
-    // 'bsl::is_const_v' values equality.
-{
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    ASSERT(bsl::is_const<TYPE>::value == bsl::is_const_v<TYPE>);
-#endif
-    return eval(bsl::is_const<TYPE>());
-}
-
-
 template <class DEDUCED_TYPE>
 bool testCVDeduction(DEDUCED_TYPE &)
 {
@@ -317,15 +301,6 @@ int main(int argc, char *argv[])
     ASSERT(false == bsl::is_const<MyType>::value);
     ASSERT(true  == bsl::is_const<MyConstType>::value);
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature then we can re-write the snippet of code above using 'the
-// bsl::is_const_v' variable as follows:
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    ASSERT(false == bsl::is_const_v<MyType>);
-    ASSERT(true  == bsl::is_const_v<MyConstType>);
-#endif
-//..
 
       } break;
       case 3: {
@@ -405,7 +380,7 @@ int main(int argc, char *argv[])
 
         ASSERT(testIsNotConstable<int() & noexcept>());
         ASSERT(testIsNotConstable<const int() & noexcept>());
-        ASSERT(testIsNotConstable<const int() const & noexcept>());
+        ASSERT(testIsNotConstable<const int() const & noexept>());
         ASSERT(testIsNotConstable<int() const & noexcept>());
         ASSERT(testIsNotConstable<const int() const & noexcept>());
         ASSERT(testIsNotConstable<const int() const volatile & noexcept>());
@@ -560,9 +535,6 @@ int main(int argc, char *argv[])
         //:
         //: 5 Objects of type 'is_const<T>' can be default constructed and
         //:   copied, for use in tag-dispatch schemes.
-        //:
-        //: 6 That 'is_const_v<T>' has the same value as 'is_const<T>::value'
-        //:   for a variety of template parameter types.
         //
         // Plan:
         //: 1 Call a test function template with a value-initialized object of
@@ -583,76 +555,76 @@ int main(int argc, char *argv[])
                             "\n=============================\n");
 
         // C-1
-        ASSERT(false == eval<int         >());
-        ASSERT(false == eval<int volatile>());
+        ASSERT(false == eval(bsl::is_const<int>()));
+        ASSERT(false == eval(bsl::is_const<int volatile>()));
 
-        ASSERT(false == eval<TestType         >());
-        ASSERT(false == eval<TestType volatile>());
+        ASSERT(false == eval(bsl::is_const<TestType>()));
+        ASSERT(false == eval(bsl::is_const<TestType volatile>()));
 
-        ASSERT(false == eval<               int &>());
-        ASSERT(false == eval<const          int &>());
-        ASSERT(false == eval<      volatile int &>());
-        ASSERT(false == eval<const volatile int &>());
+        ASSERT(false == eval(bsl::is_const<int &>()));
+        ASSERT(false == eval(bsl::is_const<const int &>()));
+        ASSERT(false == eval(bsl::is_const<volatile int &>()));
+        ASSERT(false == eval(bsl::is_const<const volatile int &>()));
 
-        ASSERT(false == eval<const          int *>());
-        ASSERT(false == eval<const volatile int *>());
-        ASSERT(false == eval<const          int TestType::*>());
-        ASSERT(false == eval<const volatile int TestType::*>());
+        ASSERT(false == eval(bsl::is_const<const int *>()));
+        ASSERT(false == eval(bsl::is_const<const volatile int *>()));
+        ASSERT(false == eval(bsl::is_const<const int TestType::*>()));
+        ASSERT(false == eval(bsl::is_const<const volatile int TestType::*>()));
 
-        ASSERT(false == eval<void         >());
-        ASSERT(false == eval<void volatile>());
+        ASSERT(false == eval(bsl::is_const<void>()));
+        ASSERT(false == eval(bsl::is_const<void volatile>()));
 
-        ASSERT(false == eval<const int()   >());
-        ASSERT(false == eval<const int(&)()>());
-        ASSERT(false == eval<const int(*)()>());
+        ASSERT(false == eval(bsl::is_const<const int()>()));
+        ASSERT(false == eval(bsl::is_const<const int(&)()>()));
+        ASSERT(false == eval(bsl::is_const<const int(*)()>()));
 
 #if !defined(BSLMF_ISCONST_COMPILER_CANNOT_PARSE_ABOMINABLE_FUNCTION_TYPES)
         // Additional tests for abominable function types
-        ASSERT(false == eval<const int() const>());
-        ASSERT(false == eval<const int(...) const volatile>());
+        ASSERT(false == eval(bsl::is_const<const int() const>()));
+        ASSERT(false == eval(bsl::is_const<const int(...) const volatile>()));
 #endif
 
-        ASSERT(false == eval<         int[4]>());
-        ASSERT(false == eval<volatile int[4]>());
+        ASSERT(false == eval(bsl::is_const<int[4]>()));
+        ASSERT(false == eval(bsl::is_const<volatile int[4]>()));
 
-        ASSERT(false == eval<         int[4][2]>());
-        ASSERT(false == eval<volatile int[4][2]>());
+        ASSERT(false == eval(bsl::is_const<int[4][2]>()));
+        ASSERT(false == eval(bsl::is_const<volatile int[4][2]>()));
 
-        ASSERT(false == eval<         int[]>());
-        ASSERT(false == eval<volatile int[]>());
+        ASSERT(false == eval(bsl::is_const<int[]>()));
+        ASSERT(false == eval(bsl::is_const<volatile int[]>()));
 
-        ASSERT(false == eval<         int[][2]>());
-        ASSERT(false == eval<volatile int[][2]>());
+        ASSERT(false == eval(bsl::is_const<int[][2]>()));
+        ASSERT(false == eval(bsl::is_const<volatile int[][2]>()));
 
         // C-2
-        ASSERT(true == eval<int const         >());
-        ASSERT(true == eval<int const volatile>());
+        ASSERT(true == eval(bsl::is_const<int const>()));
+        ASSERT(true == eval(bsl::is_const<int const volatile>()));
 
-        ASSERT(true == eval<TestType const         >());
-        ASSERT(true == eval<TestType const volatile>());
+        ASSERT(true == eval(bsl::is_const<TestType const>()));
+        ASSERT(true == eval(bsl::is_const<TestType const volatile>()));
 
-        ASSERT(true == eval<void const         >());
-        ASSERT(true == eval<void const volatile>());
+        ASSERT(true == eval(bsl::is_const<void const>()));
+        ASSERT(true == eval(bsl::is_const<void const volatile>()));
 
-        ASSERT(true == eval<int * const            >());
-        ASSERT(true == eval<int * const volatile   >());
-        ASSERT(true == eval<int(* const         )()>());
-        ASSERT(true == eval<int(* const volatile)()>());
+        ASSERT(true == eval(bsl::is_const<int * const>()));
+        ASSERT(true == eval(bsl::is_const<int * const volatile>()));
+        ASSERT(true == eval(bsl::is_const<int(* const)()>()));
+        ASSERT(true == eval(bsl::is_const<int(* const volatile)()>()));
 
-        ASSERT(true == eval<int TestType::* const         >());
-        ASSERT(true == eval<int TestType::* const volatile>());
+        ASSERT(true == eval(bsl::is_const<int TestType::* const>()));
+        ASSERT(true == eval(bsl::is_const<int TestType::* const volatile>()));
 
-        ASSERT(true == eval<const          int[4]>());
-        ASSERT(true == eval<const volatile int[4]>());
+        ASSERT(true == eval(bsl::is_const<const int[4]>()));
+        ASSERT(true == eval(bsl::is_const<const volatile int[4]>()));
 
-        ASSERT(true == eval<const int[4][2]>());
-        ASSERT(true == eval<const volatile int[4][2]>());
+        ASSERT(true == eval(bsl::is_const<const int[4][2]>()));
+        ASSERT(true == eval(bsl::is_const<const volatile int[4][2]>()));
 
-        ASSERT(true == eval<const          int[]>());
-        ASSERT(true == eval<const volatile int[]>());
+        ASSERT(true == eval(bsl::is_const<const int[]>()));
+        ASSERT(true == eval(bsl::is_const<const volatile int[]>()));
 
-        ASSERT(true == eval<const          int[][2]>());
-        ASSERT(true == eval<const volatile int[][2]>());
+        ASSERT(true == eval(bsl::is_const<const int[][2]>()));
+        ASSERT(true == eval(bsl::is_const<const volatile int[][2]>()));
 
       } break;
       default: {

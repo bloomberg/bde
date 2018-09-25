@@ -1894,7 +1894,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase22()
         Obj x;
         Obj q;
 
-        ASSERT(false == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(q)));
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(x.swap(q)));
     }
 
     // page 903
@@ -1910,7 +1911,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase22()
         Obj x;
         Obj y;
 
-        ASSERT(false == BSLS_KEYWORD_NOEXCEPT_OPERATOR(swap(x, y)));
+        ASSERT(BSLS_CPP11_PROVISIONALLY_FALSE
+            == BSLS_CPP11_NOEXCEPT_OPERATOR(swap(x, y)));
     }
 }
 

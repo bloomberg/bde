@@ -11,38 +11,18 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_member_function_pointer: standard meta-function
-//  bsl::is_member_function_pointer_v: the result value of the meta-function
 //
-//@SEE_ALSO: bslmf_memberfunctionpointertraits, bslmf_ismemberobjectpointer
+//@SEE_ALSO: bslmf_integralconstant, bslmf_ismemberobjectpointer
 //
 //@AUTHOR: Clay Wilson (cwilson9)
 //
 //@DESCRIPTION: This component defines a meta-function,
-// 'bsl::is_member_function_pointer' and a template variable
-// 'bsl::is_member_function_pointer_v', that represents the result value of the
-// 'bsl::is_member_function_pointer' meta-function, that may be used to query
-// whether a type is a pointer to non-static member function type.
+// 'bsl::is_member_function_pointer', that may be used to query whether a type
+// is a pointer to non-static member function type.
 //
 // 'bsl::is_member_function_pointer' meets the requirements of the
 // 'is_member_function_pointer' template defined in the C++11 standard
 // [meta.unary.cat].
-//
-// Note that, in order to support the widest range of compilers, this
-// component depends on bslmf_memberfunctionpointertraits, which does not
-// support member functions with C-style (varargs) elipses.  Thus,
-// 'bsl::is_member_function_pointer' will return a false negative if invoked
-// on a pointer to such a member.
-//
-// Note that the template variable 'is_member_function_pointer_v' is defined in
-// the C++17 standard as an inline variable.  If the current compiler supports
-// the inline variable C++17 compiler feature,
-// 'bsl::is_member_function_pointer_v' is defined as an 'inline constexpr bool'
-// variable.  Otherwise, if the compiler supports the variable templates C++14
-// compiler feature, 'bsl::is_member_function_pointer_v' is defined as a
-// non-inline 'constexpr bool' variable.  See
-// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
-// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
-// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -72,15 +52,6 @@ BSLS_IDENT("$Id: $")
 //  assert(false == bsl::is_member_function_pointer<MyFunctionPtr    >::value);
 //  assert(true  == bsl::is_member_function_pointer<MyStructMethodPtr>::value);
 //..
-// Note that if the current compiler supports the variable templates C++14
-// feature then we can re-write the snippet of code above using the
-// 'bsl::is_member_function_pointer_v' variable as follows:
-//..
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(false == bsl::is_member_function_pointer_v<MyFunctionPtr    >);
-//  assert(true  == bsl::is_member_function_pointer_v<MyStructMethodPtr>);
-//#endif
-//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -90,344 +61,564 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISFUNCTION
-#include <bslmf_isfunction.h>
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include <bslmf_isreference.h>
 #endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
-#include <bsls_compilerfeatures.h>
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
 #endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
-#include <bsls_keyword.h>
-#endif
+namespace BloombergLP {
+namespace bslmf {
 
-#ifndef INCLUDED_BSLS_PLATFORM
-#include <bsls_platform.h>
-#endif
+                     // ==================================
+                     // struct IsMemberFunctionPointer_Imp
+                     // ==================================
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+template <class PROTOTYPE>
+struct IsMemberFunctionPointer_Imp : bsl::false_type {
+    // This 'struct' template provides a meta-function to determine whether the
+    // (template parameter) 'TYPE' is a (non-cv-qualified) pointer to
+    // non-static data member type.  This generic default template derives from
+    // 'bsl::false_type'.  Template specializations are provided (below) that
+    // derive from 'bsl::true_type'.
+};
 
-#ifndef INCLUDED_BSLMF_MEMBERFUNCTIONPOINTERTRAITS
-#include <bslmf_memberfunctionpointertraits.h>
-#endif
+template <class RETURN, class CLASS>
+struct IsMemberFunctionPointer_Imp<RETURN (CLASS::*)()> : bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static member function type that takes no arguments.
+};
 
-#endif
+template <class RETURN, class CLASS, class ARG1>
+struct IsMemberFunctionPointer_Imp<RETURN (CLASS::*)(ARG1)> : bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static member function type that takes one argument.
+};
 
+template <class RETURN, class CLASS, class ARG1, class ARG2>
+struct IsMemberFunctionPointer_Imp<RETURN (CLASS::*)(ARG1, ARG2)>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static member function type that takes two arguments.
+};
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC)   \
- ||  BSLS_PLATFORM_CMP_VERSION >  1900 \
- ||((BSLS_PLATFORM_CMP_VERSION == 1900) && defined(BSLS_PLATFORM_CPU_64_BIT))
+template <class RETURN, class CLASS, class ARG1, class ARG2, class ARG3>
+struct IsMemberFunctionPointer_Imp<RETURN (CLASS::*)(ARG1, ARG2, ARG3)>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static member function type that takes three arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4>
+struct IsMemberFunctionPointer_Imp<RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4)>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static member function type that takes four arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4, class ARG5>
+struct IsMemberFunctionPointer_Imp<
+                               RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5)>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static member function type that takes five arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6>
+struct IsMemberFunctionPointer_Imp<
+                         RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6)>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static member function type that takes six arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7>
+struct IsMemberFunctionPointer_Imp<
+                   RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7)>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static member function type that takes seven arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7, class ARG8>
+struct IsMemberFunctionPointer_Imp<
+             RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8)>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static member function type that takes eight arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7, class ARG8,
+                                     class ARG9>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6, ARG7, ARG8, ARG9)>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static member function type that takes nine arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7, class ARG8,
+                                     class ARG9, class ARG10>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9, ARG10)> : bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static member function type that takes ten arguments.
+};
+
+// Match pointer to 'const' member function:
+template <class RETURN, class CLASS>
+struct IsMemberFunctionPointer_Imp<RETURN (CLASS::*)() const>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const' member function type that takes no
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1>
+struct IsMemberFunctionPointer_Imp<RETURN (CLASS::*)(ARG1) const>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const' member function type that takes one
+    // argument.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2) const>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const' member function type that takes two
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2, class ARG3>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3) const>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const' member function type that takes three
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4) const>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const' member function type that takes four
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5) const>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const' member function type that takes five
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const' member function type that takes six
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7) const>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const' member function type that takes seven
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7, class ARG8>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8) const>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const' member function type that takes eight
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7, class ARG8,
+                                     class ARG9>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9) const>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const' member function type that takes nine
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7, class ARG8,
+                                     class ARG9, class ARG10>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9, ARG10) const>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const' member function type that takes ten
+    // arguments.
+};
+
+// Match pointer to 'volatile' member function:
+template <class RETURN, class CLASS>
+struct IsMemberFunctionPointer_Imp<RETURN (CLASS::*)() volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'volatile' member function type that takes no
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1>
+struct IsMemberFunctionPointer_Imp<RETURN (CLASS::*)(ARG1) volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'volatile' member function type that takes one
+    // argument.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2) volatile> : bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'volatile' member function type that takes two
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2, class ARG3>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3) volatile> : bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'volatile' member function type that takes three
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4) volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'volatile' member function type that takes four
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5) volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'volatile' member function type that takes five
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'volatile' member function type that takes six
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7) volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'volatile' member function type that takes seven
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7, class ARG8>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8) volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'volatile' member function type that takes eight
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7, class ARG8,
+                                     class ARG9>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9) volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'volatile' member function type that takes nine
+    // arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7, class ARG8,
+                                     class ARG9, class ARG10>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9, ARG10) volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'volatile' member function type that takes ten
+    // arguments.
+};
+
+// Match pointer to 'const volatile' member function:
+template <class RETURN, class CLASS>
+struct IsMemberFunctionPointer_Imp<RETURN (CLASS::*)() const volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const volatile' member type function that takes
+    // no arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1) const volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const volatile' member function type that takes
+    // one argument.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2) const volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const volatile' member function type that takes
+    // two arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2, class ARG3>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3) const volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const volatile' member function type that takes
+    // three arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4) const volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const volatile' member function type that takes
+    // four arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5) const volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const volatile' member function type that takes
+    // five arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5, ARG6) const volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const volatile' member function type that takes
+    // six arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7) const volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const volatile' member function type that takes
+    // seven arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7, class ARG8>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8) const volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const volatile' member function type that takes
+    // eight arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7, class ARG8,
+                                     class ARG9>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9) const volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const volatile' member function type that takes
+    // nine arguments.
+};
+
+template <class RETURN, class CLASS, class ARG1, class ARG2,
+                                     class ARG3, class ARG4,
+                                     class ARG5, class ARG6,
+                                     class ARG7, class ARG8,
+                                     class ARG9, class ARG10>
+struct IsMemberFunctionPointer_Imp<
+       RETURN (CLASS::*)(ARG1, ARG2, ARG3, ARG4, ARG5,
+                         ARG6, ARG7, ARG8, ARG9, ARG10) const volatile>
+: bsl::true_type {
+    // This partial specialization of 'IsMemberFunctionPointer_Imp' derives
+    // from 'bsl::true_type' for when the (template parameter) 'TYPE' is a
+    // pointer to non-static 'const volatile' member function type that takes
+    // ten arguments.
+};
+
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace bsl {
+
                        // =================================
                        // struct is_member_function_pointer
                        // =================================
 
 template <class TYPE>
-struct is_member_function_pointer : false_type {
+struct is_member_function_pointer
+    : integral_constant<bool,
+                        BloombergLP::bslmf::IsMemberFunctionPointer_Imp<
+                            typename remove_cv<TYPE>::type>::value
+                        && !is_reference<TYPE>::value> {
     // This 'struct' template implements the 'is_member_function_pointer'
     // meta-function defined in the C++11 standard [meta.unary.cat] to
     // determine if the (template parameter) 'TYPE' is a pointer to non-static
     // member function type.  This 'struct' derives from 'bsl::true_type' if
     // the 'TYPE' is a pointer to non-static member function type, and from
-    // 'bsl::false_type' otherwise.  Additional specializations are provided
-    // below to give the correct answer in all cases.
+    // 'bsl::false_type' otherwise.
 };
-
-template <class TYPE, class CLASS>
-struct is_member_function_pointer<TYPE CLASS::*>
-    : bsl::is_function<TYPE>::type {
-    // This partial specialization for all non-cv-qualified pointer-to-member
-    // types derives from 'true_type' if the specified (template parameter)
-    // 'type' is a function type, and from 'false_type' otherwise.
-};
-
-template <class TYPE, class CLASS>
-struct is_member_function_pointer<TYPE CLASS::* const>
-    : bsl::is_function<TYPE>::type {
-    // This partial specialization for all 'const'-qualified pointer-to-member
-    // types derives from 'true_type' if the specified (template parameter)
-    // 'type' is a function type, and from 'false_type' otherwise.
-};
-
-
-template <class TYPE, class CLASS>
-struct is_member_function_pointer<TYPE CLASS::* volatile>
-    : bsl::is_function<TYPE>::type {
-    // This partial specialization for all 'volatile'-qualified
-    // pointer-to-member types derives from 'true_type' if the specified
-    // (template parameter) 'type' is a function type, and from 'false_type'
-    // otherwise.
-};
-
-
-template <class TYPE, class CLASS>
-struct is_member_function_pointer<TYPE CLASS::* const volatile>
-    : bsl::is_function<TYPE>::type {
-    // This partial specialization for all 'const volatile'-qualified
-    // pointer-to-member types derives from 'true_type'.
-};
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_member_function_pointer_v =
-                                       is_member_function_pointer<TYPE>::value;
-    // This variable template represents the result value of the
-    // 'bsl::is_member_function_pointer' meta-function.
-#endif
 
 }  // close namespace bsl
-
-#else  // MSVC 2013 workaround
-
-namespace bsl {
-
-                       // =================================
-                       // struct is_member_function_pointer
-                       // =================================
-
-template <class TYPE>
-struct is_member_function_pointer : false_type {
-    // This 'struct' template implements the 'is_member_function_pointer'
-    // meta-function defined in the C++11 standard [meta.unary.cat] to
-    // determine if the (template parameter) 'TYPE' is a pointer to non-static
-    // member function type.  This 'struct' derives from 'bsl::true_type' if
-    // the 'TYPE' is a pointer to non-static member function type, and from
-    // 'bsl::false_type' otherwise.  Additional specializations are provided
-    // below to give the correct answer in all cases.
-};
-
-template <class TYPE>
-struct is_member_function_pointer<const TYPE>
-    : is_member_function_pointer<TYPE>::type {
-};
-
-template <class TYPE>
-struct is_member_function_pointer<volatile TYPE>
-    : is_member_function_pointer<TYPE>::type {
-};
-
-template <class TYPE>
-struct is_member_function_pointer<const volatile TYPE>
-    : is_member_function_pointer<TYPE>::type {
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...)>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...) const>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...) volatile>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...) const volatile>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...,...)>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...,...) const>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...,...) volatile>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...,...) const volatile>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
-// Only MSVC 2015 32-bit builds get here
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...) &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...) const &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...) volatile &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...) const volatile &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...,...) &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...,...) const &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...,...) volatile &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<
-                                RESULT (HOST::*)(ARGS...,...) const volatile &>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...) &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...) const &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...) volatile &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...) const volatile &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...,...) &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...,...) const &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<RESULT (HOST::*)(ARGS...,...) volatile &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-
-template <class RESULT, class HOST, class... ARGS>
-struct is_member_function_pointer<
-                               RESULT (HOST::*)(ARGS...,...) const volatile &&>
-    : true_type {
-    // This partial specialization for non-cv-qualified pointer-to-member types
-    // derives from 'true_type' if the specified (template parameter) 'type' is
-    // a function type.
-};
-#endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_member_function_pointer_v =
-                                       is_member_function_pointer<TYPE>::value;
-    // This variable template represents the result value of the
-    // 'bsl::is_member_function_pointer' meta-function.
-#endif
-
-}  // close namespace bsl
-
-#endif  // MSVC 2013 workaround
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013-2018 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -441,4 +632,3 @@ constexpr bool is_member_function_pointer_v =
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-

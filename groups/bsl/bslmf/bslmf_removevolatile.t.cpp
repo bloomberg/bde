@@ -16,15 +16,14 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines meta-function, 'bsl::remove_volatile' and
-// 'bsl::remove_volatile', that remove any top-level 'volatile'-qualifier from
-// a template parameter type.  Thus, we need to ensure that the values returned
-// by the meta-function are correct for each possible category of types.
+// The component under test defines a meta-function, 'bsl::remove_volatile',
+// that removes any top-level 'volatile'-qualifier from a template parameter
+// type.  Thus, we need to ensure that the values returned by the meta-function
+// are correct for each possible category of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC CLASS DATA
 // [ 1] bsl::remove_volatile::type
-// [ 1] bsl::remove_volatile_t
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -201,17 +200,6 @@ int main(int argc, char *argv[])
                (bsl::is_same<bsl::remove_volatile<MyVolatileType>::type,
                                                               MyType>::value));
 //..
-// Finally, if the current compiler supports alias templates C++11 feature, we
-// remove a 'volatile'-qualifier from 'MyVolatileType' using
-//'bsl::remove_volatile_t' and verify that the resulting type is the same as
-// 'MyType':
-//..
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-        ASSERT(true ==
-               (bsl::is_same<bsl::remove_volatile_t<MyVolatileType>,
-                                                              MyType>::value));
-#endif
-//..
 
       } break;
       case 1: {
@@ -230,22 +218,13 @@ int main(int argc, char *argv[])
         //: 3 'bsl::remove_volatile' removes any top-level 'volatile'-qualifier
         //:   from a pointer-to-member object type, and not from the qualifier
         //:   in the pointed-to member.
-        //:
-        //: 5 'bsl::remove_const_t' represents the return type of
-        //:   'bsl::remove_const' meta-function for a variety of template
-        //:   parameter types.
         //
         // Plan:
-        //  1 Verify that 'bsl::remove_volatile::type' has the correct type for
-        //    each concern. (C1-4)
-        //
-        //  2 Verify that 'bsl::remove_const_t' has the same type as the return
-        //    type of 'bsl::remove_const' for a variety of template parameter
-        //    types. (C-5)
+        //   Verify that 'bsl::remove_volatile::type' has the correct type for
+        //   each concern.
         //
         // Testing:
         //   bsl::remove_volatile::type
-        //   bsl::remove_volatile_t
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'bsl::remove_volatile<T>::type'"
@@ -384,58 +363,6 @@ int main(int argc, char *argv[])
                                         int volatile(*           )()>::value));
         ASSERT((is_same<remove_volatile<int volatile(* volatile &)()>::type,
                                         int volatile(* volatile &)()>::value));
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-        // C-5
-
-        if (verbose) printf("\nTESTING 'bsl::remove_volatile_t'"
-                            "\n===============================\n");
-
-        ASSERT((is_same<remove_volatile  <int           >::type,
-                        remove_volatile_t<int           >>::value));
-        ASSERT((is_same<remove_volatile  <int *         >::type,
-                        remove_volatile_t<int *         >>::value));
-        ASSERT((is_same<remove_volatile  <TestType      >::type,
-                        remove_volatile_t<TestType      >>::value));
-        ASSERT((is_same<remove_volatile  <int volatile *>::type,
-                        remove_volatile_t<int volatile *>>::value));
-        ASSERT((is_same<remove_volatile  <int volatile &>::type,
-                        remove_volatile_t<int volatile &>>::value));
-        ASSERT((is_same<remove_volatile<  int volatile()>::type,
-                        remove_volatile_t<int volatile()>>::value));
-        ASSERT((is_same<remove_volatile<  int[5]        >::type,
-                        remove_volatile_t<int[5]        >>::value));
-        ASSERT((is_same<remove_volatile  <void          >::type,
-                        remove_volatile_t<void          >>::value))
-;
-        ASSERT((is_same<remove_volatile<volatile int TestType::*>::type,
-                                        volatile int TestType::*>::value));
-        ASSERT((is_same<remove_volatile<
-                               volatile int (TestType::*)() volatile>::type,
-                               volatile int (TestType::*)() volatile>::value));
-
-        ASSERT((is_same<remove_volatile  <int      volatile>::type,
-                        remove_volatile_t<int      volatile>>::value));
-        ASSERT((is_same<remove_volatile  <int *    volatile>::type,
-                        remove_volatile_t<int *    volatile>>::value));
-        ASSERT((is_same<remove_volatile  <TestType volatile>::type,
-                        remove_volatile_t<TestType volatile>>::value));
-
-        ASSERT((is_same<remove_volatile  <volatile int[5]  >::type,
-                        remove_volatile_t<volatile int[5]  >>::value));
-        ASSERT((is_same<remove_volatile  <         Pm      >::type,
-                        remove_volatile_t<         Pm      >>::value));
-        ASSERT((is_same<remove_volatile  <volatile Pm      >::type,
-                        remove_volatile_t<volatile Pm      >>::value));
-        ASSERT((is_same<remove_volatile  <         Pmf     >::type,
-                        remove_volatile_t<         Pmf     >>::value));
-        ASSERT((is_same<remove_volatile  <volatile Pmf     >::type,
-                        remove_volatile_t<volatile Pmf     >>::value));
-        ASSERT((is_same<remove_volatile  <         Pmq     >::type,
-                        remove_volatile_t<         Pmq     >>::value));
-        ASSERT((is_same<remove_volatile<  volatile Pmq     >::type,
-                        remove_volatile_t<volatile Pmq     >>::value));
-#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

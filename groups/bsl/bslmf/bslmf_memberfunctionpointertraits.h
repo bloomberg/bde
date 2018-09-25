@@ -27,10 +27,6 @@ BSLS_IDENT("$Id: $")
 // member function type, including the type of the object that it is a member
 // of, its result type, and the type of its list of arguments.
 //
-// Note that this component expands to a lot of code for supporting pre-C++11
-// compliant compilers.  To avoid yet another doubling of code, no attempt is
-// made to support member functions with C-style (varargs) elipses.
-//
 ///Usage
 ///-----
 // Define the following function types:
@@ -93,10 +89,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_REMOVECV
-#include <bslmf_removecv.h>
-#endif
-
 #ifndef INCLUDED_BSLMF_TAG
 #include <bslmf_tag.h>
 #endif
@@ -120,10 +112,7 @@ struct MemberFunctionPointerTraits_Imp;
 
 template <class PROTOTYPE>
 struct MemberFunctionPointerTraits
-    : public MemberFunctionPointerTraits_Imp<
-            typename bsl::remove_cv<PROTOTYPE>::type,
-            typename bsl::remove_cv<PROTOTYPE>::type
-        > {
+    : public MemberFunctionPointerTraits_Imp<PROTOTYPE,PROTOTYPE> {
     // This metafunction determines the traits of a member function type,
     // including the type of the object that it is a member of, its result
     // type, and the type of its list of arguments.
@@ -199,61 +188,76 @@ template <class PROTOTYPE,
           class BSLMF_RETURN,
           class TYPE
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 0
-        , class ARGS_0 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_0 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 0
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 1
-        , class ARGS_1 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_1 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 1
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 2
-        , class ARGS_2 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_2 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 2
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 3
-        , class ARGS_3 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_3 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 3
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 4
-        , class ARGS_4 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_4 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 4
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 5
-        , class ARGS_5 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_5 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 5
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 6
-        , class ARGS_6 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_6 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 6
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 7
-        , class ARGS_7 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_7 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 7
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 8
-        , class ARGS_8 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_8 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 8
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 9
-        , class ARGS_9 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_9 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 9
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 10
-        , class ARGS_10 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_10 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 10
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 11
-        , class ARGS_11 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_11 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 11
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 12
-        , class ARGS_12 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_12 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 12
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 13
-        , class ARGS_13 = BSLS_COMPILERFEATURES_NILT
+,
+          class ARGS_13 = BSLS_COMPILERFEATURES_NILT
 #endif  // BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 13
-        , class = BSLS_COMPILERFEATURES_NILT>
+,
+          class = BSLS_COMPILERFEATURES_NILT>
 class MemberFunctionPointerTraits_ClassType;
 
 #if BSLMF_MEMBERFUNCTIONPOINTERTRAITS_VARIADIC_LIMIT_A >= 0
@@ -1244,7 +1248,7 @@ template <class PROTOTYPE, class TEST_PROTOTYPE>
 struct MemberFunctionPointerTraits_Imp {
     // Implementation of 'MemberFunctionPointerTraits', containing the actual
     // traits types.  This primary template is instantiated when 'PROTOTYPE'
-    // does not match a pointer-to-member-function type.  In actual use,
+    // does not match a pointer-to-member-function type. In actual use,
     // 'PROTOTYPE' and 'TEST_PROTOTYPE' are the same, but specializations treat
     // 'PROTOTYPE' as an opaque type and 'TEST_PROTOTYPE' as a pattern match.
     // This redundancy is needed to work around some old compiler bugs.
@@ -1264,9 +1268,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
     // compilers might match this to any member function.
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS...>::Type ClassType;
@@ -1282,9 +1284,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
     // compilers might match this to any member function.
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS...>::Type ClassType;
@@ -1300,9 +1300,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
     // compilers might match this to any member function.
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -1319,9 +1317,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
     // compilers might match this to any member function.
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS...>::Type ClassType;
@@ -1344,9 +1340,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                       BSLMF_RETURN (TYPE::*)()> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE>::Type ClassType;
@@ -1361,9 +1355,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                       BSLMF_RETURN (TYPE::*)(ARGS_01)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01>::Type ClassType;
@@ -1380,9 +1372,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_02)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -1403,9 +1393,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_03)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -1430,9 +1418,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_04)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -1461,9 +1447,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_05)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -1496,9 +1480,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_06)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -1535,9 +1517,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_07)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -1578,9 +1558,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_08)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -1625,9 +1603,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_09)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -1676,9 +1652,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_10)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -1731,9 +1705,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_11)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -1790,9 +1762,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_12)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -1853,9 +1823,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_13)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -1920,9 +1888,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_14)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -1964,9 +1930,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                       BSLMF_RETURN (TYPE::*)() const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE>::Type ClassType;
@@ -1981,9 +1945,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                       BSLMF_RETURN (TYPE::*)(ARGS_01) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01>::Type ClassType;
@@ -2000,9 +1962,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_02) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -2023,9 +1983,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_03) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -2050,9 +2008,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_04) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -2081,9 +2037,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_05) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -2116,9 +2070,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_06) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -2155,9 +2107,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_07) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -2198,9 +2148,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_08) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -2245,9 +2193,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_09) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -2296,9 +2242,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_10) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -2351,9 +2295,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_11) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -2410,9 +2352,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_12) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -2473,9 +2413,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_13) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -2540,9 +2478,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                              ARGS_14) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -2584,9 +2520,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                     BSLMF_RETURN (TYPE::*)() volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -2602,9 +2536,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                     BSLMF_RETURN (TYPE::*)(ARGS_01) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -2622,9 +2554,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                            ARGS_02) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -2646,9 +2576,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                            ARGS_03) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -2674,9 +2602,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                            ARGS_04) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -2706,9 +2632,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                            ARGS_05) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -2742,9 +2666,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                            ARGS_06) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -2782,9 +2704,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                            ARGS_07) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -2826,9 +2746,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                            ARGS_08) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -2874,9 +2792,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                            ARGS_09) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -2926,9 +2842,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                            ARGS_10) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -2982,9 +2896,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                            ARGS_11) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -3042,9 +2954,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                            ARGS_12) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -3106,9 +3016,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                            ARGS_13) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -3174,9 +3082,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                            ARGS_14) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -3219,9 +3125,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                               BSLMF_RETURN (TYPE::*)() const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE>::Type ClassType;
@@ -3236,9 +3140,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                               BSLMF_RETURN (TYPE::*)(ARGS_01) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01>::Type ClassType;
@@ -3255,9 +3157,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                      ARGS_02) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -3278,9 +3178,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                      ARGS_03) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -3305,9 +3203,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                      ARGS_04) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -3336,9 +3232,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                      ARGS_05) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -3371,9 +3265,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                      ARGS_06) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -3410,9 +3302,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                      ARGS_07) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -3453,9 +3343,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                      ARGS_08) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -3500,9 +3388,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                      ARGS_09) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -3551,9 +3437,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                      ARGS_10) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -3606,9 +3490,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                      ARGS_11) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -3665,9 +3547,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                      ARGS_12) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -3728,9 +3608,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                      ARGS_13) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -3795,9 +3673,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                                      ARGS_14) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS_01,
@@ -3840,9 +3716,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                       BSLMF_RETURN (TYPE::*)(ARGS...)> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS...>::Type ClassType;
@@ -3855,9 +3729,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                       BSLMF_RETURN (TYPE::*)(ARGS...) const> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS...>::Type ClassType;
@@ -3870,9 +3742,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                                     BSLMF_RETURN (TYPE::*)(ARGS...) volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
 
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
@@ -3886,9 +3756,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
                               BSLMF_RETURN (TYPE::*)(ARGS...) const volatile> {
 
     enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 0
+        IS_MEMBER_FUNCTION_PTR = 1
     };
     typedef typename MemberFunctionPointerTraits_ClassType<PROTOTYPE,
           BSLMF_RETURN, TYPE, ARGS...>::Type ClassType;
@@ -3897,166 +3765,6 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
 };
 // }}} END GENERATED CODE
 #endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-    // All of our compilers that support reference qualifiers also support
-    // variadic templates.  It would be wasteful to do a variadic expansion
-    // that would never be used.  Thus, we exclude this code from processing by
-    // 'sim_cpp11_features.pl' and verify that if reference qualifiers are
-    // supported then variadics are supported, too.
-#   error Feature not supported for compilers without variadic templates
-#endif
-
-template <class PROTOTYPE, class BSLMF_RETURN, class TYPE, class... ARGS>
-struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
-                                      BSLMF_RETURN (TYPE::*)(ARGS...) &> {
-    // Specialization to determine the traits of a pointer to
-    // lvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
-
-    enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 1,
-        IS_RVALREF_QUALIFIED   = 0
-    };
-    typedef TYPE                             ClassType;
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-};
-
-template <class PROTOTYPE, class BSLMF_RETURN, class TYPE, class... ARGS>
-struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
-                                    BSLMF_RETURN (TYPE::*)(ARGS...) const &> {
-    // Specialization to determine the traits of a pointer to const
-    // lvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
-
-    enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 1,
-        IS_RVALREF_QUALIFIED   = 0
-    };
-    typedef const TYPE                       ClassType;
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-};
-
-template <class PROTOTYPE, class BSLMF_RETURN, class TYPE, class... ARGS>
-struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
-                                 BSLMF_RETURN (TYPE::*)(ARGS...) volatile &> {
-    // Specialization to determine the traits of a pointer to volatile
-    // lvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
-
-    enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 1,
-        IS_RVALREF_QUALIFIED   = 0
-    };
-    typedef volatile TYPE                    ClassType;
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-};
-
-template <class PROTOTYPE, class BSLMF_RETURN, class TYPE, class... ARGS>
-struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
-                           BSLMF_RETURN (TYPE::*)(ARGS...) const volatile &> {
-    // Specialization to determine the traits of a pointer to const volatile
-    // lvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
-
-    enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 1,
-        IS_RVALREF_QUALIFIED   = 0
-    };
-    typedef const volatile TYPE              ClassType;
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-};
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-
-template <class PROTOTYPE, class BSLMF_RETURN, class TYPE, class... ARGS>
-struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
-                                      BSLMF_RETURN (TYPE::*)(ARGS...) &&> {
-    // Specialization to determine the traits of a pointer to
-    // rvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
-
-    enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 1
-    };
-    typedef TYPE                             ClassType;
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-};
-
-template <class PROTOTYPE, class BSLMF_RETURN, class TYPE, class... ARGS>
-struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
-                                    BSLMF_RETURN (TYPE::*)(ARGS...) const &&> {
-    // Specialization to determine the traits of a pointer to const
-    // rvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
-
-    enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 1
-    };
-    typedef const TYPE                       ClassType;
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-};
-
-template <class PROTOTYPE, class BSLMF_RETURN, class TYPE, class... ARGS>
-struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
-                                 BSLMF_RETURN (TYPE::*)(ARGS...) volatile &&> {
-    // Specialization to determine the traits of a pointer to volatile
-    // rvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
-
-    enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 1
-    };
-    typedef volatile TYPE                    ClassType;
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-};
-
-template <class PROTOTYPE, class BSLMF_RETURN, class TYPE, class... ARGS>
-struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
-                           BSLMF_RETURN (TYPE::*)(ARGS...) const volatile &&> {
-    // Specialization to determine the traits of a pointer to const volatile
-    // rvalref-qualified member function.  The workarounds for older compilers
-    // are not needed because only more modern compilers support ref-qualified
-    // member functions.
-
-    enum {
-        IS_MEMBER_FUNCTION_PTR = 1,
-        IS_LVALREF_QUALIFIED   = 0,
-        IS_RVALREF_QUALIFIED   = 1
-    };
-    typedef const volatile TYPE              ClassType;
-    typedef BSLMF_RETURN                     ResultType;
-    typedef typename TypeList<ARGS...>::Type ArgumentList;
-};
-#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-
-#endif // BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 
 }  // close package namespace
 
@@ -4090,7 +3798,7 @@ struct MemberFunctionPointerTraits_Imp<PROTOTYPE,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013-2017 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

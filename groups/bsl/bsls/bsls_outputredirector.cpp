@@ -7,8 +7,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>   // for testing only
 
-#include <limits>
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -20,21 +18,18 @@ BSLS_IDENT("$Id$ $CSID$")
 # define snprintf _snprintf
 #else
 # include <unistd.h>
+# include <stdint.h>    // 'SIZE_MAX', cannot include on all Windows platforms
+# include <stdlib.h>    // 'mkstemp'
+#endif
+
+#ifndef SIZE_MAX
+#define SIZE_MAX (static_cast<size_t>(-1))
+    // 'SIZE_MAX' is only defined as part of C99, so it may not exist in some
+    // pre-C++11 compilers.
 #endif
 
 namespace BloombergLP {
 namespace bsls {
-
-namespace {
-inline int fstatFunc(int fd, OutputRedirector::StatType *buf)
-{
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-    return fstat(fd, buf);
-#else
-    return fstat64(fd, buf);
-#endif
-}
-} // close anonymous namespace
 
 // PRIVATE MANIPULATORS
 void OutputRedirector::cleanup()
@@ -168,7 +163,7 @@ void OutputRedirector::enable()
     const int originalFD = fileno(redirectedStream());
 
     BSLS_ASSERT(-1 != originalFD);
-    BSLS_ASSERT(0 == fstatFunc(originalFD, &d_originalStat));
+    BSLS_ASSERT(0 == fstat(originalFD, &d_originalStat));
 
     if (d_duplicatedOriginalFd == -1) {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -276,8 +271,8 @@ bool OutputRedirector::load()
     }
 
     // Conversion to 'unsigned long' is safe because 'incremented' > 0
-    if (static_cast<unsigned long>(incremented) >
-                                          std::numeric_limits<size_t>::max()) {
+
+    if (static_cast<unsigned long>(incremented) > SIZE_MAX) {
         // Our 'incremented' will not fit in a size_t, so it is too big for our
         // buffer.
 
@@ -426,7 +421,7 @@ FILE *OutputRedirector::nonRedirectedStream() const
     }
 }
 
-const OutputRedirector::StatType& OutputRedirector::originalStat() const
+const struct stat& OutputRedirector::originalStat() const
 {
     return d_originalStat;
 }
