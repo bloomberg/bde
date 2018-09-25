@@ -45,6 +45,7 @@ bsls_deprecate
 bsls_exceptionutil
 bsls_ident
 bsls_int64
+bsls_keyword
 bsls_libraryfeatures
 bsls_linkcoercion
 bsls_log

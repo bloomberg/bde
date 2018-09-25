@@ -11,6 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_enum: standard meta-function for determining enumerated types
+//  bsl::is_enum_v: the result value of the 'bsl::is_enum' meta-function
 //  bslmf::IsEnum: meta-function for determining enumerated types
 //
 //@SEE_ALSO: bslmf_isfundamental
@@ -18,8 +19,10 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Pablo Halpern (phalpern)
 //
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_enum' and
-// 'BloombergLP::bslmf::IsEnum', both of which may be used to query whether a
-// type is an enumerated type, optionally qualified with 'const' or 'volatile'.
+// 'BloombergLP::bslmf::IsEnum' and a template variable 'bsl::is_enum_v', that
+// represents the result value of the 'bsl::is_enum' meta-function.  All these
+// meta-functions may be used to query whether a type is an enumerated type,
+// optionally qualified with 'const' or 'volatile'.
 //
 // 'bsl::is_enum' meets the requirements of the 'is_enum' template defined in
 // the C++11 standard [meta.unary.cat], while 'bslmf::IsEnum' was devised
@@ -32,6 +35,16 @@ BSLS_IDENT("$Id: $")
 //
 // Note that 'bsl::is_enum' should be preferred over 'bslmf::IsEnum', and in
 // general, should be used by new components.
+//
+// Also note that the template variable 'is_enum_v' is defined in the C++17
+// standard as an inline variable.  If the current compiler supports the inline
+// variable C++17 compiler feature, 'bsl::is_enum_v' is defined as an
+// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
+// variable templates C++14 compiler feature, 'bsl::is_enum_v' is defined
+// as a non-inline 'constexpr bool' variable.  See
+// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
+// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -51,6 +64,14 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(true  == bsl::is_enum<MyEnum>::value);
 //  assert(false == bsl::is_enum<MyClass>::value);
+//..
+// Note that if the current compiler supports the variable templates C++14
+// feature, then we can re-write the snippet of code above as follows:
+//..
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//  assert(true  == bsl::is_enum_v<MyEnum>);
+//  assert(false == bsl::is_enum_v<MyClass>);
+//#endif
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION
@@ -85,8 +106,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isreference.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_REMOVECV
+#include <bslmf_removecv.h>
+#endif
+
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
+#endif
+
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
@@ -165,6 +194,14 @@ struct is_enum
     // This specialisation defers entirely to the native trait on supported
     // C++11 compilers.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_enum_v = is_enum<TYPE>::value;
+    // This template variable represents the result value of the 'bsl::is_enum'
+    // meta-function.
+#endif
 
 } // namespace bsl
 

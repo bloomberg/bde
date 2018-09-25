@@ -194,7 +194,8 @@ class SetComparator : private bslalg::FunctorAdapter<COMPARATOR>::Type {
         // Destroy this object.
 
     // MANIPULATORS
-    bool operator()(const KEY&                lhs,
+    template <class LOOKUP_KEY>
+    bool operator()(const LOOKUP_KEY&         lhs,
                     const bslalg::RbTreeNode& rhs);
         // Return 'true' if the specified 'lhs' is less than (ordered before,
         // according to the comparator held by this object) 'value()' of the
@@ -202,8 +203,9 @@ class SetComparator : private bslalg::FunctorAdapter<COMPARATOR>::Type {
         // otherwise.  The behavior is undefined unless 'rhs' can be safely
         // cast to 'NodeType'.
 
+    template <class LOOKUP_KEY>
     bool operator()(const bslalg::RbTreeNode& lhs,
-                    const KEY&                rhs);
+                    const LOOKUP_KEY&         rhs);
         // Return 'true' if 'value()' of the specified 'lhs' after
         // being cast to 'NodeType' is less than (ordered before, according to
         // the comparator held by this object) the specified 'rhs', and 'false'
@@ -216,7 +218,8 @@ class SetComparator : private bslalg::FunctorAdapter<COMPARATOR>::Type {
         // exception-safety guarantee.
 
     // ACCESSORS
-    bool operator()(const KEY&                lhs,
+    template <class LOOKUP_KEY>
+    bool operator()(const LOOKUP_KEY&         lhs,
                     const bslalg::RbTreeNode& rhs) const;
         // Return 'true' if the specified 'lhs' is less than (ordered before,
         // according to the comparator held by this object) 'value()' of the
@@ -224,8 +227,9 @@ class SetComparator : private bslalg::FunctorAdapter<COMPARATOR>::Type {
         // otherwise.  The behavior is undefined unless 'rhs' can be safely
         // cast to 'NodeType'.
 
+    template <class LOOKUP_KEY>
     bool operator()(const bslalg::RbTreeNode& lhs,
-                    const KEY&                rhs) const;
+                    const LOOKUP_KEY&         rhs) const;
         // Return 'true' if 'value()' of the specified 'lhs' after
         // being cast to 'NodeType' is less than (ordered before, according to
         // the comparator held by this object) the specified 'rhs', and 'false'
@@ -277,19 +281,21 @@ SetComparator(const COMPARATOR& valueComparator)
 
 // MANIPULATORS
 template <class KEY, class COMPARATOR>
+template <class LOOKUP_KEY>
 inline
 bool SetComparator<KEY, COMPARATOR>::operator()(
-                                           const KEY&                lhs,
+                                           const LOOKUP_KEY&         lhs,
                                            const bslalg::RbTreeNode& rhs)
 {
     return keyComparator()(lhs, static_cast<const NodeType&>(rhs).value());
 }
 
 template <class KEY, class COMPARATOR>
+template <class LOOKUP_KEY>
 inline
 bool SetComparator<KEY, COMPARATOR>::operator()(
                                            const bslalg::RbTreeNode& lhs,
-                                           const KEY&                rhs)
+                                           const LOOKUP_KEY&         rhs)
 
 {
     return keyComparator()(static_cast<const NodeType&>(lhs).value(), rhs);
@@ -308,19 +314,21 @@ void SetComparator<KEY, COMPARATOR>::swap(
 
 // ACCESSORS
 template <class KEY, class COMPARATOR>
+template <class LOOKUP_KEY>
 inline
 bool SetComparator<KEY, COMPARATOR>::operator()(
-                                           const KEY&                lhs,
+                                           const LOOKUP_KEY&         lhs,
                                            const bslalg::RbTreeNode& rhs) const
 {
     return keyComparator()(lhs, static_cast<const NodeType&>(rhs).value());
 }
 
 template <class KEY, class COMPARATOR>
+template <class LOOKUP_KEY>
 inline
 bool SetComparator<KEY, COMPARATOR>::operator()(
                                            const bslalg::RbTreeNode& lhs,
-                                           const KEY&                rhs) const
+                                           const LOOKUP_KEY&         rhs) const
 
 {
     return keyComparator()(static_cast<const NodeType&>(lhs).value(), rhs);

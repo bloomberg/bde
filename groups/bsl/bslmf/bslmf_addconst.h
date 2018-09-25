@@ -11,18 +11,20 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::add_const: meta-function for adding a top-level 'const'-qualifier
+//  bsl::add_const_t: alias to the return type of the meta-function
 //
 //@SEE_ALSO: bslmf_removeconst
 //
 //@AUTHOR:
 //
-//@DESCRIPTION: This component defines a meta-function, 'bsl::add_const', that
-// may be used to add a top-level 'const'-qualifier to a type if it is not a
-// reference type, nor a function type, nor already 'const'-qualified at the
-// top-level.
+//@DESCRIPTION: This component defines a meta-function, 'bsl::add_const' and
+// declares an 'bsl::add_const_t' alias to the return type of the
+// 'bsl::add_const', that may be used to add a top-level 'const'-qualifier to a
+// type if it is not a reference type, nor a function type, nor already
+// 'const'-qualified at the top-level.
 //
-// 'bsl::add_const' meets the requirements of the 'add_const' template defined
-// in the C++11 standard [meta.trans.cv].
+// 'bsl::add_const' and 'bsl::add_const_t' meet the requirements of the
+// 'add_const' template defined in the C++11 standard [meta.trans.cv].
 //
 ///Usage
 ///-----
@@ -44,6 +46,18 @@ BSLS_IDENT("$Id: $")
 //  assert(true ==
 //           (bsl::is_same<bsl::add_const<MyType>::type, MyConstType>::value));
 //..
+// Finally, if the current compiler supports alias templates C++11 feature, we
+// add a 'const'-qualifier to 'MyType' using 'bsl::add_const_t' and verify that
+// the resulting type is the same as 'MyConstType':
+//..
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//  assert(true ==
+//               (bsl::is_same<bsl::add_const_t<MyType>, MyConstType>::value));
+//#endif
+//..
+// Note, that the 'bsl::add_const_t' avoids the '::type' suffix and 'typename'
+// prefix when we want to use the result of the 'bsl::add_const' meta-function
+// in templates.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -59,6 +73,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
 #endif
 
 namespace BloombergLP {
@@ -127,6 +145,17 @@ struct add_const {
         // a function, nor already 'const'-qualified; otherwise, 'type' is an
         // alias to 'TYPE'.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+// ALIASES
+template <class TYPE>
+using add_const_t = typename add_const<TYPE>::type;
+    // 'add_const_t' is an alias to the return type of the 'add_const'
+    // meta-function.  Note, that the 'add_const_t' avoids the '::type' suffix
+    // and 'typename' prefix when we want to use the result of the
+    // meta-function in templates.
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 }  // close namespace bsl
 

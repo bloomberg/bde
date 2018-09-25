@@ -16,14 +16,16 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function,
-// 'bsl::add_rvalue_reference', that transforms a template parameter 'TYPE' to
-// its rvalue reference type.  Thus, we need to ensure that the values returned
-// by this meta-function are correct for each possible category of types.
+// The component under test defines meta-functions, 'bsl::add_rvalue_reference'
+// and 'bsl::add_rvalue_reference_t', that transform a template parameter
+// 'TYPE' to its rvalue reference type.  Thus, we need to ensure that the
+// values returned by this meta-function are correct for each possible category
+// of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC TYPES
 // [ 1] bsl::add_rvalue_reference::type
+// [ 1] bsl::add_rvalue_reference_t
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -131,54 +133,95 @@ struct Incomplete;
 
 #define ASSERT_RVALUE_REF_TRUE(TYPE)                                          \
     ASSERT(true == (bsl::is_same<                                             \
-              bsl::add_rvalue_reference<TYPE>::type, TYPE&&                   \
+              bsl::add_rvalue_reference<               TYPE>::type,           \
+                                                       TYPE&&                 \
               >::value));                                                     \
     ASSERT(true == (bsl::is_same<                                             \
-              bsl::add_rvalue_reference<const TYPE>::type, const TYPE&&       \
+              bsl::add_rvalue_reference<const          TYPE  >::type,         \
+                                        const          TYPE&&                 \
               >::value));                                                     \
     ASSERT(true == (bsl::is_same<                                             \
-              bsl::add_rvalue_reference<volatile TYPE>::type, volatile TYPE&& \
+              bsl::add_rvalue_reference<      volatile TYPE  >::type,         \
+                                              volatile TYPE&&                 \
               >::value));                                                     \
     ASSERT(true == (bsl::is_same<                                             \
-              bsl::add_rvalue_reference<const volatile TYPE>::type,           \
-              const volatile TYPE&&                                           \
+              bsl::add_rvalue_reference<const volatile TYPE  >::type,         \
+                                        const volatile TYPE&&                 \
               >::value));                                                     \
-    ASSERT(true == (bsl::is_same<                                             \
-              bsl::add_rvalue_reference<TYPE &>::type, TYPE&                  \
+    ASSERT(true == (bsl::is_same<bsl::add_rvalue_reference<TYPE&>::type,      \
+                                                           TYPE&              \
               >::value));                                                     \
-    ASSERT(true == (bsl::is_same<                                             \
-              bsl::add_rvalue_reference<TYPE &&>::type, TYPE&&                \
+    ASSERT(true == (bsl::is_same<bsl::add_rvalue_reference<TYPE&&>::type,     \
+                                                           TYPE&&             \
               >::value));
+    // Test all cv-qualified combination on the specified 'TYPE' and confirm
+    // that the result type of the 'bsl::add_rvalue_reference' meta-function
+    // and same cv-qualified rvalue reference to 'TYPE' are the same.  Also
+    // test any kind of reference to 'TYPE' and ensure that the meta-function
+    // returns the same reference to that 'TYPE'.
 
 #define ASSERT_RVALUE_REF_FALSE(TYPE)                                         \
     ASSERT(false == (bsl::is_same<                                            \
-              bsl::add_rvalue_reference<TYPE>::type, TYPE                     \
+              bsl::add_rvalue_reference<               TYPE>::type,           \
+                                                       TYPE                   \
               >::value));                                                     \
     ASSERT(false == (bsl::is_same<                                            \
-              bsl::add_rvalue_reference<const TYPE>::type, const TYPE         \
+              bsl::add_rvalue_reference<const          TYPE>::type,           \
+                                        const          TYPE                   \
               >::value));                                                     \
     ASSERT(false == (bsl::is_same<                                            \
-              bsl::add_rvalue_reference<volatile TYPE>::type, volatile TYPE   \
+              bsl::add_rvalue_reference<      volatile TYPE>::type,           \
+                                              volatile TYPE                   \
               >::value));                                                     \
     ASSERT(false == (bsl::is_same<                                            \
               bsl::add_rvalue_reference<const volatile TYPE>::type,           \
-              const volatile TYPE                                             \
+                                        const volatile TYPE                   \
               >::value));
+    // Test all cv-qualified combination on the specified 'TYPE' and confirm
+    // that the result type of the 'bsl::add_rvalue_reference' meta-function
+    // and 'TYPE' are not the same.
 
 #define ASSERT_RVALUE_REF_SAME(TYPE)                                          \
     ASSERT(true == (bsl::is_same<                                             \
-              bsl::add_rvalue_reference<TYPE>::type, TYPE                     \
+              bsl::add_rvalue_reference<               TYPE>::type,           \
+                                                       TYPE                   \
               >::value));                                                     \
     ASSERT(true == (bsl::is_same<                                             \
-              bsl::add_rvalue_reference<const TYPE>::type, const TYPE         \
+              bsl::add_rvalue_reference<const          TYPE>::type,           \
+                                        const          TYPE                   \
               >::value));                                                     \
     ASSERT(true == (bsl::is_same<                                             \
-              bsl::add_rvalue_reference<volatile TYPE>::type, volatile TYPE   \
+              bsl::add_rvalue_reference<      volatile TYPE>::type,           \
+                                              volatile TYPE                   \
               >::value));                                                     \
     ASSERT(true == (bsl::is_same<                                             \
               bsl::add_rvalue_reference<const volatile TYPE>::type,           \
               const volatile TYPE                                             \
               >::value));
+    // Test all cv-qualified combination on the specified 'TYPE' and confirm
+    // that the result of the 'bsl::add_rvalue_reference' meta-function and
+    // same cv-qualified 'TYPE' are the same.
+
+#define ASSERT_RVALUE_REF_T_SAME(TYPE)                                        \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_rvalue_reference<                 TYPE>::type,         \
+              bsl::add_rvalue_reference_t<               TYPE>                \
+              >::value));                                                     \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_rvalue_reference  <const          TYPE>::type,         \
+              bsl::add_rvalue_reference_t<const          TYPE>                \
+              >::value));                                                     \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_rvalue_reference  <      volatile TYPE>::type,         \
+              bsl::add_rvalue_reference_t<      volatile TYPE>                \
+              >::value));                                                     \
+    ASSERT(true == (bsl::is_same<                                             \
+              bsl::add_rvalue_reference  <const volatile TYPE>::type,         \
+              bsl::add_rvalue_reference_t<const volatile TYPE>                \
+              >::value));
+    // Test that the result types of the 'bsl::add_rvalue_reference' and
+    // 'bsl::add_rvalue_reference_t' meta-functions are the same for all
+    // cv-qualified combination on the specified 'TYPE'.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -242,7 +285,23 @@ int main(int argc, char *argv[])
          (bsl::is_same<bsl::add_rvalue_reference<int&>::type,  int&>::value));
     ASSERT(true  ==
          (bsl::is_same<bsl::add_rvalue_reference<int&&>::type, int&&>::value));
-  #endif
+//..
+// Finally, if the current compiler supports alias templates C++11 feature, we
+// instantiate the 'bsl::add_rvalue_reference_t' template for the same set of
+// types, and use the 'bsl::is_same' meta-function to assert the resultant type
+// of each instantiation:
+//..
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+    ASSERT(true  ==
+             (bsl::is_same<bsl::add_rvalue_reference_t<int>,   int&&>::value));
+    ASSERT(false ==
+             (bsl::is_same<bsl::add_rvalue_reference_t<int>,   int  >::value));
+    ASSERT(true  ==
+             (bsl::is_same<bsl::add_rvalue_reference_t<int&>,  int& >::value));
+    ASSERT(true ==
+             (bsl::is_same<bsl::add_rvalue_reference_t<int&&>, int&&>::value));
+#endif
+#endif
 //..
 // Note that rvalue is introduced in C++11 and may not be supported by all
 // compilers.  Note also that according to 'reference collapsing' semantics
@@ -263,6 +322,10 @@ int main(int argc, char *argv[])
         //:
         //: 2 'add_rvalue_reference' does not transform 'TYPE' when 'TYPE' is
         //:   neither an object nor a function.
+        //:
+        //: 3 'bsl::add_rvalue_reference_t' represents the return type of
+        //:   'bsl::add_rvalue_reference' meta-function for a variety of
+        //:   template parameter types.
         //
         // Plan:
         //   Instantiate 'bsl::add_rvalue_reference' with various types and
@@ -387,9 +450,87 @@ int main(int argc, char *argv[])
         ASSERT_RVALUE_REF_SAME (F*&&);
 #endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+        if (verbose) printf("bsl::add_lvalue_reference_t\n"
+                            "===========================\n");
+
+        // C-3
+        ASSERT_RVALUE_REF_T_SAME(int);
+        ASSERT_RVALUE_REF_T_SAME(int*);
+        ASSERT_RVALUE_REF_T_SAME(int&);
+        ASSERT_RVALUE_REF_T_SAME(int&&);
+
+        ASSERT_RVALUE_REF_T_SAME(EnumTestType);
+        ASSERT_RVALUE_REF_T_SAME(EnumTestType*);
+        ASSERT_RVALUE_REF_T_SAME(EnumTestType&);
+        ASSERT_RVALUE_REF_T_SAME(EnumTestType&&);
+
+        ASSERT_RVALUE_REF_T_SAME(StructTestType);
+        ASSERT_RVALUE_REF_T_SAME(StructTestType*);
+        ASSERT_RVALUE_REF_T_SAME(StructTestType&);
+        ASSERT_RVALUE_REF_T_SAME(StructTestType&&);
+
+        ASSERT_RVALUE_REF_T_SAME(UnionTestType);
+        ASSERT_RVALUE_REF_T_SAME(UnionTestType*);
+        ASSERT_RVALUE_REF_T_SAME(UnionTestType&);
+        ASSERT_RVALUE_REF_T_SAME(UnionTestType&&);
+
+        ASSERT_RVALUE_REF_T_SAME(BaseClassTestType);
+        ASSERT_RVALUE_REF_T_SAME(BaseClassTestType*);
+        ASSERT_RVALUE_REF_T_SAME(BaseClassTestType&);
+        ASSERT_RVALUE_REF_T_SAME(BaseClassTestType&&);
+
+        ASSERT_RVALUE_REF_T_SAME(DerivedClassTestType);
+        ASSERT_RVALUE_REF_T_SAME(DerivedClassTestType*);
+        ASSERT_RVALUE_REF_T_SAME(DerivedClassTestType&);
+        ASSERT_RVALUE_REF_T_SAME(DerivedClassTestType&&);
+
+        ASSERT_RVALUE_REF_T_SAME(MethodPtrTestType);
+        ASSERT_RVALUE_REF_T_SAME(MethodPtrTestType*);
+        ASSERT_RVALUE_REF_T_SAME(MethodPtrTestType&);
+        ASSERT_RVALUE_REF_T_SAME(MethodPtrTestType&&);
+
+        ASSERT_RVALUE_REF_T_SAME(FunctionPtrTestType);
+        ASSERT_RVALUE_REF_T_SAME(FunctionPtrTestType*);
+        ASSERT_RVALUE_REF_T_SAME(FunctionPtrTestType&);
+        ASSERT_RVALUE_REF_T_SAME(FunctionPtrTestType&&);
+
+        ASSERT_RVALUE_REF_T_SAME(PMD);
+        ASSERT_RVALUE_REF_T_SAME(PMD*);
+        ASSERT_RVALUE_REF_T_SAME(PMD&);
+        ASSERT_RVALUE_REF_T_SAME(PMD&&);
+
+        ASSERT_RVALUE_REF_T_SAME(int StructTestType::* );
+        ASSERT_RVALUE_REF_T_SAME(int StructTestType::* *);
+        ASSERT_RVALUE_REF_T_SAME(int StructTestType::* &);
+        ASSERT_RVALUE_REF_T_SAME(int StructTestType::* &&);
+
+        ASSERT_RVALUE_REF_T_SAME(int StructTestType::* * );
+        ASSERT_RVALUE_REF_T_SAME(int StructTestType::* * *);
+        ASSERT_RVALUE_REF_T_SAME(int StructTestType::* * &);
+        ASSERT_RVALUE_REF_T_SAME(int StructTestType::* * &&);
+
+        ASSERT_RVALUE_REF_T_SAME(PMD BaseClassTestType::* );
+        ASSERT_RVALUE_REF_T_SAME(PMD BaseClassTestType::* *);
+        ASSERT_RVALUE_REF_T_SAME(PMD BaseClassTestType::* &);
+        ASSERT_RVALUE_REF_T_SAME(PMD BaseClassTestType::* &&);
+
+        ASSERT_RVALUE_REF_T_SAME(PMD BaseClassTestType::* * );
+        ASSERT_RVALUE_REF_T_SAME(PMD BaseClassTestType::* * *);
+        ASSERT_RVALUE_REF_T_SAME(PMD BaseClassTestType::* * &);
+        ASSERT_RVALUE_REF_T_SAME(PMD BaseClassTestType::* * &&);
+
+        ASSERT_RVALUE_REF_T_SAME(Incomplete);
+        ASSERT_RVALUE_REF_T_SAME(Incomplete*);
+        ASSERT_RVALUE_REF_T_SAME(Incomplete&);
+        ASSERT_RVALUE_REF_T_SAME(Incomplete&&);
+#endif
+
 #else
         ASSERT(true);   // resolve unused function 'aSsErT' warning
 #endif
+
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

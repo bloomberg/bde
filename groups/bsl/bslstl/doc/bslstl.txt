@@ -73,10 +73,13 @@
   1. bslstl_allocator                                    !DEPRECATED!
      bslstl_allocatortraits                              !DEPRECATED!
      bslstl_badweakptr
+     bslstl_chrono
+     bslstl_complex
      bslstl_equalto
      bslstl_hash
      bslstl_iosfwd
      bslstl_iterator
+     bslstl_ratio
      bslstl_referencewrapper
      bslstl_sharedptrallocateinplacerep
      bslstl_sharedptrallocateoutofplacerep
@@ -109,6 +112,12 @@
 :
 : 'bslstl_bitset':
 :      Provide an STL-compliant bitset class.
+:
+: 'bslstl_chrono':
+:      Provide an user-defined literals for chrono types.
+:
+: 'bslstl_complex':
+:      Provide an user-defined literals for complex types.
 :
 : 'bslstl_deque':
 :      Provide an STL-compliant deque class.
@@ -175,6 +184,9 @@
 :
 : 'bslstl_queue':
 :      Provide container adapter class template 'queue'.
+:
+: 'bslstl_ratio':
+:      Provide rational fraction template calss 'ratio'.
 :
 : 'bslstl_randomaccessiterator':
 :      Provide a template to create STL-compliant random access iterators.

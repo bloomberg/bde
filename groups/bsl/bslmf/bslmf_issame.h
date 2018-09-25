@@ -11,14 +11,17 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::is_same: standard meta-function for testing if two types are the same
+//  bsl::is_same_v: the result value of the standard meta-function
 //  bslmf::IsSame: meta-function for testing if two types are the same
 //
 //@AUTHOR: Shawn Edwards (sedwards)
 //
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_same' and
-// 'BloombergLP::bslmf::IsSame', both of which may be used to query whether two
-// types are the same.  Two types are the same if they name the same type
-// having the same cv-qualifications.
+// 'BloombergLP::bslmf::IsSame' and a template variable 'bsl::is_same_v',
+// that represents the result value of the 'bsl::is_same' meta-function.  All
+// these meta-functions may be used to query whether two types are the same.
+// Two types are the same if they name the same type having the same
+// cv-qualifications.
 //
 // 'bsl::is_same' meets the requirements of the 'is_same' template defined in
 // the C++11 standard [meta.rel], while 'bslmf::IsSame' was devised before
@@ -31,6 +34,16 @@ BSLS_IDENT("$Id: $")
 //
 // Note that 'bsl::is_same' should be preferred over 'bslmf::IsSame', and in
 // general, should be used by new components.
+//
+// Also note that the template variable 'is_same_v' is defined in the C++17
+// standard as an inline variable.  If the current compiler supports the inline
+// variable C++17 compiler feature, 'bsl::is_same_v' is defined as an
+// 'inline constexpr bool' variable.  Otherwise, if the compiler supports the
+// variable templates C++14 compiler feature, 'bsl::is_same_v' is defined as a
+// non-inline 'constexpr bool' variable.  See
+// 'BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES' and
+// 'BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES' macros in
+// bsls_compilerfeatures component for details.
 //
 ///Usage
 ///-----
@@ -65,6 +78,15 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(false == (bsl::is_same<INT, INT_REF>::value));
 //..
+// Note that if the current compiler supports the variable templates C++14
+// feature then we can re-write the snippet of code above using the
+// 'bsl::is_same_v' variable as follows:
+//..
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//  assert(false == (bsl::is_same_v<SHORT, CONST_SHORT>));
+//  assert(false == (bsl::is_same_v<INT, INT_REF>));
+//#endif
+//..
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -74,13 +96,13 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #endif
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_METAINT
-#include <bslmf_metaint.h>
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
 #endif
 
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#ifndef INCLUDED_BSLS_KEYWORD
+#include <bsls_keyword.h>
+#endif
 
 namespace bsl {
 
@@ -102,6 +124,14 @@ struct is_same<TYPE, TYPE> : true_type {
      // This partial specialization of 'is_same' derives from 'bsl::true_type'
      // for when the (template parameter) types are the same.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class TYPE1, class TYPE2>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_same_v = is_same<TYPE1, TYPE2>::value;
+    // This template variable represents the result value of the 'bsl::is_same'
+    // meta-function.
+#endif
 
 }  // close namespace bsl
 

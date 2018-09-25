@@ -369,7 +369,7 @@ struct UserDefinedNothrowTestType {
         (void)original;
     }
     UserDefinedNothrowTestType(bslmf::MovableRef<UserDefinedNothrowTestType>)
-                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
+                                              BSLS_KEYWORD_NOEXCEPT // IMPLICIT
     {}
         // Explicitly supply constructors that do nothing, to ensure that this
         // class has no trivial traits detected with a conforming C++11 library
@@ -391,7 +391,7 @@ struct UserDefinedNothrowTestType2 {
         (void)original;
     }
     UserDefinedNothrowTestType2(bslmf::MovableRef<UserDefinedNothrowTestType2>)
-                                                BSLS_CPP11_NOEXCEPT // IMPLICIT
+                                              BSLS_KEYWORD_NOEXCEPT // IMPLICIT
     {}
         // Explicitly supply constructors that do nothing, to ensure that this
         // class has no trivial traits detected with a conforming C++11 library
@@ -759,6 +759,9 @@ int main(int argc, char *argv[])
         //:   to a 'MovableRef<T>'.
         //: 4 When compiling with a C++11 implementation an rvalue can be bound
         //:   to a 'MovableRef<T>'.
+        //: 5 When compiling with a C++11 implementation (that supports
+        //:   'constexpr') the result of 'MovableRefUtil::move()' can be used
+        //:   in a 'constexpr' context.
         //
         // Plan:
         //: 1 Use 'MovableRefUtil::move()' with an lvalue and initialize a
@@ -770,6 +773,10 @@ int main(int argc, char *argv[])
         //:   'MovableRefUtil::move()'.
         //: 4 Call the test function with an rvalue when compiling with a C++11
         //:   implementation.
+        //: 5 If 'constexpr' is supported, use 'MovableRefUtil::move()' with an
+        //:   rvalue and initialize a 'constexpr' variable with the result.
+        //:   Note that the 'constexpr' keyword is used deliberately, rather
+        //:   than a substitution macro, to make it clear what we are testing.
         //
         // Testing:
         //   MovableRef<TYPE> move(TYPE& lvalue);
@@ -805,6 +812,12 @@ int main(int argc, char *argv[])
             ASSERT(TestMovableRefArgument<TestMoving>::test(
              bslmf::MovableRefUtil::move(bslmf::MovableRefUtil::move(value))));
         }
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+        {
+            constexpr int value(bslmf::MovableRefUtil::move(42));
+            ASSERT(value == 42);
+        }
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------

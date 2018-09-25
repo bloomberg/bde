@@ -11,6 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::remove_reference: standard meta-function for stripping reference-ness
+//  bsl::remove_reference_t: alias to the return type of the meta-function
 //  bslmf::RemoveReference: meta-function for stripping reference-ness
 //
 //@SEE_ALSO: bslmf_addreference
@@ -58,8 +59,29 @@ BSLS_IDENT("$Id: $")
 //            (bsl::is_same<bsl::remove_reference<int&&>::type, int >::value));
 //#endif
 //..
+// Finally, if the current compiler supports alias templates C++11 feature, we
+// remove reference-ness from a set of types using 'bsl::remove_reference_t'
+// and verify that the resulting type has any reference-ness removed:
+//..
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//  assert(true  ==
+//            (bsl::is_same<bsl::remove_reference_t<int& >, int >::value));
+//  assert(false ==
+//            (bsl::is_same<bsl::remove_reference_t<int& >, int&>::value));
+//  assert(true  ==
+//            (bsl::is_same<bsl::remove_reference_t<int  >, int >::value));
+//#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+//  assert(true ==
+//            (bsl::is_same<bsl::remove_reference_t<int&&>, int >::value));
+//#endif
+//#endif
+//..
 // Note that rvalue reference is a feature introduced in the C++11 standard and
 // may not be supported by all compilers.
+//
+// Also note, that the 'bsl::remove_reference_t' avoids the '::type' suffix and
+// 'typename' prefix when we want to use the result of the
+// 'bsl::remove_reference' meta-function in templates.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
@@ -214,6 +236,18 @@ struct remove_reference<const volatile void> {
 };
 
 #endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+// ALIASES
+template <class TYPE>
+using remove_reference_t = typename remove_reference<TYPE>::type;
+    // 'remove_reference_t' is an alias to the return type of the
+    // 'bsl::remove_reference' meta-function.  Note, that the
+    // 'remove_reference_t' avoids the '::type' suffix and 'typename' prefix
+    // when we want to use the result of the meta-function in templates.
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
 }  // close namespace bsl
 
 namespace BloombergLP {

@@ -12,14 +12,16 @@
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// This component implements a relatively simple metafunction that computes a
-// true/false result.  The only type that will yield a true result is an empty
-// struct or class.  All other types, including fundamental types,
-// enumerations, and non-empty classes will yield false.  Testing involves
-// simply evaluating the metafunction with an empty class type and with a
-// representative of each of the non-empty type categories
+// This component implements a relatively simple metafunction 'bsl::is_empty'
+// and a template variable 'bsl::is_empty_v' that compute a true/false result.
+// The only type that will yield a true result is an empty struct or class.
+// All other types, including fundamental types, enumerations, and non-empty
+// classes will yield false.  Testing involves simply evaluating the
+// metafunction with an empty class type and with a representative of each of
+// the non-empty type categories
 //-----------------------------------------------------------------------------
 // [2] is_empty<TYPE>::value
+// [2] is_empty<TYPE>_v
 //-----------------------------------------------------------------------------
 // [3] USAGE EXAMPLE
 // [1] BREATHING TEST
@@ -170,6 +172,14 @@ struct NonEmptyFinalStruct final
 
 #endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+#define ASSERT_V_SAME(TYPE)                                                   \
+    ASSERT( bsl::is_empty <TYPE>::value == bsl::is_empty_v<TYPE>)
+    // 'ASSERT' that 'is_empty_v' has the same value as 'is_empty::value'.
+#else
+#define ASSERT_V_SAME(TYPE)
+#endif
+
 //=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
@@ -303,6 +313,8 @@ int main(int argc, char *argv[])
         //: 4 'is_empty<cvq T>::value == is_empty<T>::value' for any cv
         //:   qualifier, 'cvq'.
         //: 5 'is_empty<T>' is able to detect emptiness of final classes.
+        //: 6  That 'is_empty<T>::value' has the same value as 'is_empty_v<T>'
+        //:    for a variety of template parameter types.
         //
         // Plan:
         //: 1 For concern 1, instantiate 'is_empty' with various types of
@@ -321,17 +333,24 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //     is_empty<TYPE>::value
+        //     is_empty_v<TYPE>
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'is_empty<TYPE>::value'"
                             "\n===============================\n");
 
-        // Concern 4: Macro to add cv qualifiers
+        // Concern 4,6:
 #define TEST_IS_EMPTY(T, EXP)                                 \
-        ASSERT(EXP == bsl::is_empty<T>::value);               \
-        ASSERT(EXP == bsl::is_empty<const T>::value);         \
-        ASSERT(EXP == bsl::is_empty<volatile T>::value);      \
-        ASSERT(EXP == bsl::is_empty<const volatile T>::value);
+        ASSERT(EXP == bsl::is_empty<               T>::value);\
+        ASSERT(EXP == bsl::is_empty<const          T>::value);\
+        ASSERT(EXP == bsl::is_empty<      volatile T>::value);\
+        ASSERT(EXP == bsl::is_empty<const volatile T>::value);\
+        ASSERT_V_SAME(               T);                      \
+        ASSERT_V_SAME(const          T);                      \
+        ASSERT_V_SAME(      volatile T);                      \
+        ASSERT_V_SAME(const volatile T)
+        // Macro to add cv qualifiers and test
+        // 'is_empty<T>::value == is_empty_v<T>'
 
         // Concern 1: empty classes
         TEST_IS_EMPTY(EmptyStruct, true);

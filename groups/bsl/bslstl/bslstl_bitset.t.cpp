@@ -6,7 +6,6 @@
 
 #include <bslmf_assert.h>
 
-#include <bsls_cpp11.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_types.h>
 
@@ -411,7 +410,7 @@ void testCase3Imp(bool verbose, bool veryVerbose)
     ASSERT(verifyBitset(mX, VALUE, verbose));
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-    BSLS_CPP11_CONSTEXPR Obj mX2(VALUE);
+    BSLS_KEYWORD_CONSTEXPR Obj mX2(VALUE);
     ASSERT(verifyBitset(mX2, VALUE, verbose));
     BSLMF_ASSERT(mX2.size() == TESTSIZE);
     BSLMF_ASSERT(verifyBitsetConstexpr(mX2, VALUE));
@@ -650,12 +649,12 @@ int main(int argc, char *argv[])
             bsl::bitset<32> lhs;
             bsl::bitset<32> rhs;
 
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs & rhs));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs | rhs));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(lhs ^ rhs));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(lhs & rhs));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(lhs | rhs));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(lhs ^ rhs));
         }
 
         // page 557
@@ -686,27 +685,29 @@ int main(int argc, char *argv[])
             const bsl::bitset<32>::reference REF = b[j];
 
 
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(
                                              bsl::bitset<32>::reference(REF)));
                                     // copy constructor (also tests destructor)
 
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(ref.~reference()));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(ref.~reference()));
                                                                   // destructor
 
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(ref = x)); // 'operator=(bool)'
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(ref = REF));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(ref = x));
+                                                           // 'operator=(bool)'
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(ref = REF));
                                                // 'operator=(const reference&)'
 
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(~REF));          // 'operator~'
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(x = REF)); // 'operator bool()'
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(ref.flip()));       // 'flip()'
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(~REF));        // 'operator~'
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x = REF));
+                                                           // 'operator bool()'
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(ref.flip()));     // 'flip()'
         }
 
         // page 557: 20.8.1 constructors:
@@ -717,10 +718,10 @@ int main(int argc, char *argv[])
         {
             unsigned long long val = 1;
 
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>()));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(bsl::bitset<32>(val)));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::bitset<32>()));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(bsl::bitset<32>(val)));
         }
 
         // page 557: 20.8.2 bitset operations:
@@ -740,26 +741,26 @@ int main(int argc, char *argv[])
             bsl::bitset<32> rhs;
             size_t          pos;
 
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator&=(rhs)));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator|=(rhs)));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator^=(rhs)));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.operator&=(rhs)));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.operator|=(rhs)));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.operator^=(rhs)));
 
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<=(pos)));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>=(pos)));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.operator<<=(pos)));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.operator>>=(pos)));
 
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.set()));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.reset()));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator~()));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.flip()));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.set()));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.reset()));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.operator~()));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.flip()));
         }
 
         // page 557-558: element access:
@@ -780,27 +781,27 @@ int main(int argc, char *argv[])
             bsl::bitset<32> rhs;
             size_t          pos;
 
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.count()));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.size()));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.count()));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.size()));
 
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator==(rhs)));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator!=(rhs)));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.operator==(rhs)));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.operator!=(rhs)));
 
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.all()));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.any()));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.none()));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.all()));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.any()));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.none()));
 
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator<<(pos)));
-            ASSERT(BSLS_CPP11_NOEXCEPT_AVAILABLE
-                == BSLS_CPP11_NOEXCEPT_OPERATOR(b.operator>>(pos)));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.operator<<(pos)));
+            ASSERT(BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+                == BSLS_KEYWORD_NOEXCEPT_OPERATOR(b.operator>>(pos)));
         }
       } break;
       case 11: {

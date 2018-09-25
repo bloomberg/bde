@@ -134,6 +134,13 @@ BSL_OVERRIDES_STD mode"
 #define INCLUDED_IOSTREAM
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+#ifndef INCLUDED_UTILITY
+#include <utility>
+#define INCLUDED_UTILITY
+#endif
+#endif
+
 namespace bsl {
 
                           // ========================
@@ -204,10 +211,26 @@ class basic_stringstream
         // 'bsl::allocator' and 'basicAllocator' is not supplied, the currently
         // installed default allocator will be used to supply memory.
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    basic_stringstream(basic_stringstream&& original);
+        // Create a 'basic_stringstream' object having the same value as the
+        // specified 'original' object by moving the contents of 'original' to
+        // the newly-created object.  'original' is left in a valid but
+        // unspecified state.
+#endif
+
     //! ~basic_stringstream() = default;
         // Destroy this object.
 
     // MANIPULATORS
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    basic_stringstream& operator=(basic_stringstream&& rhs);
+        // Assign to this object the value of the specified 'rhs', and return a
+        // reference providing modifiable access to this object.  The contents
+        // of 'rhs' are move-assigned to this object.  'rhs' is left in a valid
+        // but unspecified state.
+#endif
+
     void str(const StringType& value);
         // Reset the internally buffered sequence of characters maintained by
         // this stream object to the specified 'value'.
@@ -294,7 +317,33 @@ basic_stringstream(const StringType&     initialString,
 {
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+basic_stringstream(basic_stringstream&& original)
+: BaseType(std::move(original))
+, BaseStream(std::move(original))
+{
+    BaseStream::set_rdbuf(BaseType::rdbuf());
+}
+#endif
+
 // MANIPULATORS
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
+basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+operator=(basic_stringstream&& rhs)
+{
+    this->BaseType::operator=(std::move(rhs));
+    this->BaseStream::operator=(std::move(rhs));
+
+    return *this;
+}
+#endif
+
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 void basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str(

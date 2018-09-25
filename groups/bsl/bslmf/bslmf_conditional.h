@@ -11,6 +11,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::conditional: standard meta-function for conditional type selection
+//  bsl::conditional_t: alias to the return type of the 'bsl::conditional'
 //
 //@SEE_ALSO: bslmf_enableif
 //
@@ -37,7 +38,7 @@ BSLS_IDENT("$Id: $")
 // Now, we use 'bsl::conditional' to select between two types, 'int' and
 // 'char', with a 'bool' value.  When the 'bool' is 'true', we select 'int';
 // otherwise, we select 'char'.  We verify that our code behaves correctly by
-// asserting the result of 'bsl::conditional' with the expected type using
+// asserting the result of the 'bsl::conditional' with the expected type using
 // 'bsl::is_same':
 //..
 //  assert(true ==
@@ -45,9 +46,28 @@ BSLS_IDENT("$Id: $")
 //  assert(true ==
 //      (bsl::is_same<bsl::conditional<false, int, char>::type, char>::value));
 //..
+// Finally, if the current compiler supports alias templates C++11 feature, we
+// select between two types using 'bsl::conditional_t' and verify that our code
+// behaves correctly by asserting the result of the 'bsl::conditional_t' with
+// the expected type using 'bsl::is_same':
+//..
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+//  assert(true ==
+//          (bsl::is_same<bsl::conditional_t<true,  int, char>, int >::value));
+//  assert(true ==
+//          (bsl::is_same<bsl::conditional_t<false, int, char>, char>::value));
+//#endif
+//..
+// Note, that the 'bsl::conditional_t' avoids the '::type' suffix and
+// 'typename' prefix when we want to use the result of the 'bsl::conditional'
+// meta-function in templates.
 
 #ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
+#endif
+
+#ifndef INCLUDED_BSLS_COMPILERFEATURES
+#include <bsls_compilerfeatures.h>
 #endif
 
 namespace bsl {
@@ -82,6 +102,18 @@ struct conditional<false, TRUE_TYPE, FALSE_TYPE> {
         // This 'typedef' is an alias to the (template parameter) type
         // 'FALSE_TYPE'.
 };
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
+// ALIASES
+template <bool COND, class TRUE_TYPE, class FALSE_TYPE>
+using conditional_t = typename conditional<COND, TRUE_TYPE, FALSE_TYPE>::type;
+    // 'conditional_t' is an alias to the return type of the 'bsl::conditional'
+    // meta-function.  Note, that the 'conditional_t' avoids the '::type'
+    // suffix and 'typename' prefix when we want to use the result of the
+    // meta-function in templates.
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 
 }  // close namespace bsl
 

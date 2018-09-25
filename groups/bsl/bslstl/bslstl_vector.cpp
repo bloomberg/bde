@@ -11,7 +11,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //     allocator, which is provided by 'bslalg::ContainerBase' (to potentially
 //     take advantage of the empty-base-class-optimization).
 //
-//  2. The 'bsl::Vector_ImpBase' class containing these members need only be
+//  2. The 'bsl::vectorBase' class containing these members need only be
 //     parameterized by 'VALUE_TYPE' (and not 'ALLOCATOR'), and can provide the
 //     iterator and element access methods, leading to shorter debug strings
 //     for those methods.
@@ -23,8 +23,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-#include <bslstl_iterator.h>   // for testing only
-
 #include <string.h>  // for 'memcpy'
 
 namespace bsl {
@@ -35,8 +33,8 @@ namespace {
                           // ------------------
 
 struct Vector_Base {
-    // This 'struct' must have the same layout as 'bsl::Vector_ImpBase'
-    // (defined in the .h file).
+    // This 'struct' must have the same layout as 'bsl::vectorBase' (defined in
+    // the .h file).
 
     // PUBLIC DATA
     void        *d_dataBegin_p;
@@ -83,41 +81,23 @@ void Vector_Util::swap(void *a, void *b)
 }  // close namespace bsl
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-template class bsl::Vector_ImpBase<bool>;
-template class bsl::Vector_ImpBase<char>;
-template class bsl::Vector_ImpBase<signed char>;
-template class bsl::Vector_ImpBase<unsigned char>;
-template class bsl::Vector_ImpBase<short>;
-template class bsl::Vector_ImpBase<unsigned short>;
-template class bsl::Vector_ImpBase<int>;
-template class bsl::Vector_ImpBase<unsigned int>;
-template class bsl::Vector_ImpBase<long>;
-template class bsl::Vector_ImpBase<unsigned long>;
-template class bsl::Vector_ImpBase<long long>;
-template class bsl::Vector_ImpBase<unsigned long long>;
-template class bsl::Vector_ImpBase<float>;
-template class bsl::Vector_ImpBase<double>;
-template class bsl::Vector_ImpBase<long double>;
-template class bsl::Vector_ImpBase<void *>;
-template class bsl::Vector_ImpBase<const void *>;
-
-template class bsl::Vector_Imp<bool>;
-template class bsl::Vector_Imp<char>;
-template class bsl::Vector_Imp<signed char>;
-template class bsl::Vector_Imp<unsigned char>;
-template class bsl::Vector_Imp<short>;
-template class bsl::Vector_Imp<unsigned short>;
-template class bsl::Vector_Imp<int>;
-template class bsl::Vector_Imp<unsigned int>;
-template class bsl::Vector_Imp<long>;
-template class bsl::Vector_Imp<unsigned long>;
-template class bsl::Vector_Imp<long long>;
-template class bsl::Vector_Imp<unsigned long long>;
-template class bsl::Vector_Imp<float>;
-template class bsl::Vector_Imp<double>;
-template class bsl::Vector_Imp<long double>;
-template class bsl::Vector_Imp<void *>;
-template class bsl::Vector_Imp<const void *>;
+template class bsl::vectorBase<bool>;
+template class bsl::vectorBase<char>;
+template class bsl::vectorBase<signed char>;
+template class bsl::vectorBase<unsigned char>;
+template class bsl::vectorBase<short>;
+template class bsl::vectorBase<unsigned short>;
+template class bsl::vectorBase<int>;
+template class bsl::vectorBase<unsigned int>;
+template class bsl::vectorBase<long>;
+template class bsl::vectorBase<unsigned long>;
+template class bsl::vectorBase<long long>;
+template class bsl::vectorBase<unsigned long long>;
+template class bsl::vectorBase<float>;
+template class bsl::vectorBase<double>;
+template class bsl::vectorBase<long double>;
+template class bsl::vectorBase<void *>;
+template class bsl::vectorBase<const char *>;
 
 template class bsl::vector<bool>;
 template class bsl::vector<char>;
@@ -135,11 +115,11 @@ template class bsl::vector<float>;
 template class bsl::vector<double>;
 template class bsl::vector<long double>;
 template class bsl::vector<void *>;
-template class bsl::vector<const void *>;
+template class bsl::vector<const char *>;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

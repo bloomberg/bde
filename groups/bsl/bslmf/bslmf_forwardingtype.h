@@ -270,8 +270,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ispointer.h>
 #endif
 
-#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
-#include <bslmf_ispointertomember.h>
+#ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
+#include <bslmf_ismemberpointer.h>
+#endif
+
+#ifndef INCLUDED_BSLMF_ISREFERENCE
+#include <bslmf_isreference.h>
 #endif
 
 #ifndef INCLUDED_BSLMF_ISRVALUEREFERENCE
@@ -299,6 +303,13 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_STDDEF_H
 #endif
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
+#include <bslmf_ispointertomember.h>
+#endif
+
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if defined(BSLS_PLATFORM_CMP_IBM) &&                                         \
     ((BSLS_PLATFORM_CMP_VERSION  < 0x0c10) ||                                 \

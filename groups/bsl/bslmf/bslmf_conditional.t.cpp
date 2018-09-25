@@ -20,14 +20,16 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                                Overview
 //                                --------
-// The component under test defines a meta-function, 'bsl::conditional', that
-// conditionally selects to one of its two template parameter types based on a
-// 'bool' (template parameter) value.  Thus, we need to ensure that the values
-// returned by this meta-function are correct for each possible set of types.
+// The component under test defines meta-functions, 'bsl::conditional' and
+// 'bsl::conditional_t', that conditionally select to one of its two template
+// parameter types based on a 'bool' (template parameter) value.  Thus, we need
+// to ensure that the values returned by this meta-function are correct for
+// each possible set of types.
 //
 // ----------------------------------------------------------------------------
 // PUBLIC TYPES
 // [ 1] bsl::conditional::type
+// [ 1] bsl::conditional_t
 //
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -84,6 +86,9 @@ struct Struct {};
 union  Union  {};
 class  Class  {};
 
+typedef void (Class::*MethodPtrTestType)();
+typedef int   Class::* PMD;
+
 typedef int INT;
 
 typedef void        F ();
@@ -103,51 +108,83 @@ typedef char ( & RA)[5];
     ASSERT((bsl::is_same<bsl::conditional<true,                               \
                                           TYPE1,                              \
                                           TYPE2>::type,                       \
-            TYPE1>::value));                                                  \
+                                          TYPE1                               \
+            >::value));                                                       \
     ASSERT((bsl::is_same<bsl::conditional<true,                               \
-                                          TYPE1,                              \
+                                                TYPE1,                        \
                                           const TYPE2>::type,                 \
-            TYPE1>::value));                                                  \
+                                                TYPE1                         \
+            >::value));                                                       \
     ASSERT((bsl::is_same<bsl::conditional<true,                               \
-                                          TYPE1,                              \
+                                                   TYPE1,                     \
                                           volatile TYPE2>::type,              \
-            TYPE1>::value));                                                  \
+                                                   TYPE1                      \
+            >::value));                                                       \
     ASSERT((bsl::is_same<bsl::conditional<true,                               \
-                                          TYPE1,                              \
+                                                         TYPE1,               \
                                           const volatile TYPE2>::type,        \
-            TYPE1>::value));                                                  \
+                                                         TYPE1                \
+            >::value));                                                       \
     ASSERT((bsl::is_same<bsl::conditional<false,                              \
                                           TYPE1,                              \
                                           TYPE2>::type,                       \
-            TYPE2>::value));                                                  \
+                                          TYPE2                               \
+            >::value));                                                       \
     ASSERT((bsl::is_same<bsl::conditional<false,                              \
-                                          TYPE1,                              \
+                                                TYPE1,                        \
                                           const TYPE2>::type,                 \
-            const TYPE2>::value));                                            \
+                                          const TYPE2>::value));              \
     ASSERT((bsl::is_same<bsl::conditional<false,                              \
-                                          TYPE1,                              \
+                                                   TYPE1,                     \
                                           volatile TYPE2>::type,              \
-            volatile TYPE2>::value));                                         \
+                                          volatile TYPE2                      \
+            >::value));                                                       \
     ASSERT((bsl::is_same<bsl::conditional<false,                              \
                                           TYPE1,                              \
                                           const volatile TYPE2>::type,        \
-            const volatile TYPE2>::value));
+                                          const volatile TYPE2                \
+            >::value));
+    // Test that the result type of 'bsl::conditional' meta-function is defined
+    // as the specified 'TYPE1' if the first template parameter of the
+    // meta-function is 'true', and one of cv-qualified combination on the
+    // specified 'TYPE2' otherwise.
 
 #define ASSERT_SAME_CV(TYPE1, TYPE2)                                          \
-    ASSERT_SAME_CV2(TYPE1, TYPE2)                                             \
-    ASSERT_SAME_CV2(const TYPE1, TYPE2)                                       \
-    ASSERT_SAME_CV2(volatile TYPE1, TYPE2)                                    \
+    ASSERT_SAME_CV2(               TYPE1, TYPE2)                              \
+    ASSERT_SAME_CV2(const          TYPE1, TYPE2)                              \
+    ASSERT_SAME_CV2(      volatile TYPE1, TYPE2)                              \
     ASSERT_SAME_CV2(const volatile TYPE1, TYPE2)
+    // Test all cv-qualified combination on the specified 'TYPE1' and 'TYPE2'.
 
 #define ASSERT_SAME_FN_TYPE(TYPE1, TYPE2)                                     \
     ASSERT((bsl::is_same<bsl::conditional<true,                               \
                                           TYPE1,                              \
                                           TYPE2>::type,                       \
-            TYPE1>::value));                                                  \
+                                          TYPE1                               \
+            >::value));                                                       \
     ASSERT((bsl::is_same<bsl::conditional<false,                              \
                                           TYPE1,                              \
                                           TYPE2>::type,                       \
-            TYPE2>::value));                                                  \
+                                          TYPE2                               \
+            >::value));
+    // Test function types separately since function types cannot be
+    // cv-qaulified.
+
+#define ASSERT_CONDITIONAL_T(TYPE1, TYPE2)                                    \
+    ASSERT((bsl::is_same<bsl::conditional  <true,                             \
+                                            TYPE1,                            \
+                                            TYPE2>::type,                     \
+                         bsl::conditional_t<true,                             \
+                                            TYPE1,                            \
+                                            TYPE2> >::value));                \
+    ASSERT((bsl::is_same<bsl::conditional  <false,                            \
+                                            TYPE1,                            \
+                                            TYPE2>::type,                     \
+                         bsl::conditional_t<false,                            \
+                                            TYPE1,                            \
+                                            TYPE2> >::value));
+    // Test that the result types of the 'bsl::conditional<COND, TYPE1, TYPE2>'
+    // and 'bsl::conditional_t<COND, TYPE1, TYPE2' meta-functions are the same.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -208,6 +245,18 @@ int main(int argc, char *argv[])
     ASSERT(true ==
         (bsl::is_same<bsl::conditional<false, int, char>::type, char>::value));
 //..
+// Finally, if the current compiler supports alias templates C++11 feature, we
+// select between two types using 'bsl::conditional_t' and verify that our code
+// behaves correctly by asserting the result of 'bsl::conditional_t' with the
+// expected type using 'bsl::is_same':
+//..
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+    ASSERT(true ==
+            (bsl::is_same<bsl::conditional_t<true,  int, char>, int >::value));
+    ASSERT(true ==
+            (bsl::is_same<bsl::conditional_t<false, int, char>, char>::value));
+#endif
+//..
 
       } break;
       case 1: {
@@ -224,6 +273,10 @@ int main(int argc, char *argv[])
         //: 2 'bsl::conditional' selects the second of its two (template
         //:   parameter) types when the (template parameter) value 'COND' is
         //:   'false'.
+        //:
+        //: 3 'bsl::conditional' represents the return type of
+        //:   'bsl::conditional' meta-function for a variety of template
+        //:   parameter types.
         //
         // Plan:
         //   Instantiate 'bsl::conditional' with various types and verify that
@@ -251,6 +304,18 @@ int main(int argc, char *argv[])
         ASSERT_SAME_FN_TYPE(  RFRi ,     A);
 
         ASSERT_SAME_CV(     A ,    RA);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+        if (verbose) printf("bsl::conditional_t\n"
+                            "==================\n");
+
+        // C-3
+        ASSERT_CONDITIONAL_T(int ,   char);
+        ASSERT_CONDITIONAL_T(void*,  Enum);
+        ASSERT_CONDITIONAL_T(Enum&,  Class);
+        ASSERT_CONDITIONAL_T(Class*, Union);
+        ASSERT_CONDITIONAL_T(PMD,    MethodPtrTestType);
+#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

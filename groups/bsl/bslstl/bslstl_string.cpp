@@ -949,6 +949,46 @@ bsl::wstring bsl::to_wstring(long double value) {
     return wstring (tempBuf, len);
 }
 
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY) && \
+    defined (BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)
+namespace bsl {
+inline namespace literals {
+inline namespace string_literals {
+
+bsl::string operator ""_s(const char *characterString, std::size_t length)
+{
+    BSLS_ASSERT_SAFE(characterString || 0 == length);
+    return bsl::string(characterString, length);
+}
+
+bsl::wstring operator ""_s(const wchar_t *characterString, std::size_t length)
+{
+    BSLS_ASSERT_SAFE(characterString || 0 == length);
+    return bsl::wstring(characterString, length);
+}
+
+bsl::string operator ""_S(const char *characterString, std::size_t length)
+{
+    BSLS_ASSERT_SAFE(characterString || 0 == length);
+    return bsl::string(characterString,
+                       length,
+                       BloombergLP::bslma::Default::globalAllocator());
+}
+
+bsl::wstring operator ""_S(const wchar_t *characterString, std::size_t length)
+{
+    BSLS_ASSERT_SAFE(characterString || 0 == length);
+    return bsl::wstring(characterString,
+                        length,
+                        BloombergLP::bslma::Default::globalAllocator());
+}
+
+}
+}
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+
+
 #endif
 
 // ----------------------------------------------------------------------------
