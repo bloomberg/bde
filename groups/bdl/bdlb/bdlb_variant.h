@@ -2186,10 +2186,10 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // suppress indentation of the first line.  If 'spacesPerLevel' is
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.  Note that the
-        // string "(* UNPRINTABLE *)" is printed if the object held by this
-        // variant is not printable, and the string "(* NULL *)" is printed if
-        // this variant is unset.
+        // not valid on entry, this operation has no effect.  Note that nothing
+        // is printed if this variant is unset.  Also note that the compiler
+        // will return an error if an object held by this variant is not
+        // printable.
 
     template <class TYPE>
     const TYPE& the() const;
