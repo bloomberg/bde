@@ -4,7 +4,6 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_exceptionutil.h>
 #include <bsls_keyword.h>
 #include <bsls_nativestd.h>
 
