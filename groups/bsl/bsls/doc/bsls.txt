@@ -20,55 +20,60 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 75 components having 14 levels of physical
+ The 'bsls' package currently has 76 components having 17 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  14. bsls_byteorder
+  17. bsls_byteorder
 
-  13. bsls_alignedbuffer
+  16. bsls_alignedbuffer
       bsls_alignment
       bsls_byteorderutil
-      bsls_nameof
       bsls_platformutil                                  !DEPRECATED!
       bsls_systemtime
 
-  12. bsls_alignmentutil
+  15. bsls_alignmentutil
       bsls_bslexceptionutil
       bsls_stopwatch
       bsls_timeinterval
 
-  11. bsls_asserttest
+  14. bsls_asserttest
       bsls_byteorderutil_impl                                         !PRIVATE!
       bsls_exceptionutil
+      bsls_nameof
       bsls_outputredirector
       bsls_spinlock
-      bsls_systemclocktype
       bsls_timeutil
 
-  10. bsls_assert
+  13. bsls_assert
 
-   9. bsls_review
+  12. bsls_review
 
-   8. bsls_objectbuffer
-      bsls_stackaddressutil
+  11. bsls_stackaddressutil
 
-   7. bsls_alignmentfromtype
-      bsls_dbghelpdllimpl_windows                                     !PRIVATE!
-      bsls_libraryfeatures
+  10. bsls_dbghelpdllimpl_windows                                     !PRIVATE!
 
-   6. bsls_alignmenttotype
+   9. bsls_bsllock
+
+   8. bsls_atomic
+      bsls_bslonce
+      bsls_log
+
+   7. bsls_atomicoperations
+      bsls_objectbuffer
+
+   6. bsls_alignmentfromtype
       bsls_atomicoperations_powerpc32_aix_xlc                         !PRIVATE!
       bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
       bsls_atomicoperations_sparc32_sun_cc                            !PRIVATE!
       bsls_atomicoperations_sparc64_sun_cc                            !PRIVATE!
-      bsls_bsllock
-      bsls_cpp11
-      bsls_nullptr
+      bsls_cpp11                                         !DEPRECATED!
+      bsls_libraryfeatures
       bsls_util
 
-   5. bsls_atomic
+   5. bsls_alignmenttotype
+      bsls_assertimputil
       bsls_atomicoperations_all_all_clangintrinsics                   !PRIVATE!
       bsls_atomicoperations_all_all_gccintrinsics                     !PRIVATE!
       bsls_atomicoperations_arm_all_gcc                               !PRIVATE!
@@ -80,20 +85,17 @@
       bsls_atomicoperations_x64_win_msvc                              !PRIVATE!
       bsls_atomicoperations_x86_all_gcc                               !PRIVATE!
       bsls_atomicoperations_x86_win_msvc                              !PRIVATE!
-      bsls_bslonce
-      bsls_compilerfeatures
       bsls_keyword
-      bsls_log
+      bsls_nullptr
 
-   4. bsls_assertimputil
-      bsls_atomicoperations
-      bsls_atomicoperations_default                                   !PRIVATE!
+   4. bsls_atomicoperations_default                                   !PRIVATE!
       bsls_buildtarget
+      bsls_compilerfeatures
       bsls_int64                                         !DEPRECATED!
       bsls_logseverity
-      bsls_macrorepeat
       bsls_performancehint
       bsls_pointercastutil
+      bsls_systemclocktype
       bsls_unspecifiedbool
 
    3. bsls_alignmentimp
@@ -101,7 +103,6 @@
       bsls_bsltestutil
       bsls_linkcoercion
       bsls_nativestd
-      bsls_protocoltest
       bsls_types
 
    2. bsls_assert_macroreset                                          !PRIVATE!
@@ -109,7 +110,9 @@
       bsls_blockgrowth
       bsls_bsldeprecationinformation
       bsls_macroincrement
+      bsls_macrorepeat
       bsls_platform
+      bsls_protocoltest
       bsls_review_macroreset                                          !PRIVATE!
 
    1. bsls_deprecate
@@ -141,6 +144,12 @@
 :
 : 'bsls_assert':
 :      Provide build-specific, runtime-configurable assertion macros.
+:
+: 'bsls_assert_macroreset':                                           !PRIVATE!
+:      Undefine all macros from 'bsls_assert.h' and 'bsls_review.h'.
+:
+: 'bsls_assertimputil':
+:      Provide utilities to implement 'bsls_assert' and 'bsls_review'.
 :
 : 'bsls_asserttest':
 :      Provide a test facility for assertion macros.
@@ -235,23 +244,26 @@
 : 'bsls_compilerfeatures':
 :      Provide macros to identify compiler support for C++11 features.
 :
-: 'bsls_cpp11':
+: 'bsls_cpp11':                                          !DEPRECATED!
 :      Provide macros for C++11 forward compatibility.
 :
 : 'bsls_dbghelpdllimpl_windows':                                      !PRIVATE!
 :      Provide access to the 'dbghelp.dll' shared library on Windows.
 :
-: 'bsls_exceptionutil':
-:      Provide simplified exception constructs for non-exception builds.
-:
 : 'bsls_deprecate':
 :      Provide machinery to deprecate interfaces on a per-version basis.
+:
+: 'bsls_exceptionutil':
+:      Provide simplified exception constructs for non-exception builds.
 :
 : 'bsls_ident':
 :      Provide macros for inserting SCM Ids into source files.
 :
 : 'bsls_int64':                                          !DEPRECATED!
 :      Provide namespace for platform-dependent 64-bit integer types.
+:
+: 'bsls_keyword':
+:      Provide macros for forward language dialect compatibility.
 :
 : 'bsls_libraryfeatures':
 :      Provide macros to identify native standard library features.
@@ -283,6 +295,9 @@
 : 'bsls_objectbuffer':
 :      Provide raw buffer with size and alignment of user-specified type.
 :
+: 'bsls_outputredirector':
+:      Provide a means for test drivers to redirect and inspect output.
+:
 : 'bsls_performancehint':
 :      Provide performance hints for code optimization.
 :
@@ -297,6 +312,12 @@
 :
 : 'bsls_protocoltest':
 :      Provide classes and macros for testing abstract protocols.
+:
+: 'bsls_review':
+:      Provide assertion macros to safely identify contract violations.
+:
+: 'bsls_review_macroreset':                                           !PRIVATE!
+:      Test driver utility to undefine all macros from 'bsls_review.h'.
 :
 : 'bsls_spinlock':
 :      Provide a spin lock.
