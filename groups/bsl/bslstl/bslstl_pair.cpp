@@ -70,6 +70,32 @@
 // template functions.  Users will have to perform an explicit cast before
 // making the function call.  This approach seems to be the lessor of three
 // evils, as there are only one case of this failure in robo.
+//
+// DELIBERATE DEVIATION FROM THE STANDARD INTERFACE
+// ------------------------------------------------
+// With improved test coverage for the C++14 standard interface, deliberate
+// deviation from the published interface became necessary.  In addition to the
+// constructors taking 'bslma::Allocator *' arguments for allocator-aware
+// construction, the 5 special members of 'pair' are deliberately NOT declared,
+// accepting the implicit declaration or deletion of those functions.  This is
+// essential in order to support 'pair's with 'bslma::ManagedPtr' members, or
+// any other type using 'std::auto_ptr'-like semantics.  The standard
+// declaration of 'pair(const pair&) = default;' breaks for such types, as we
+// instead need the implicitly decalred signature 'pair(pair&) = default;'
+// without the 'const'.  For C++11, the '= default' declaration is required as
+// the declaration of a move-assignment operator inhibits (deletes) the
+// implicit declaration of a copy constructor.  We cannot simply default the
+// declaration of the assignment operators, as a 'pair' with a reference member
+// would not compile, but has well-defined semantics in the standard.  For the
+// 'bsl' implementation, this is resolved by moving the problem down into our
+// two base classes, which provide a partial specialization for reference
+// elements, and so allow the 'pair' template to implicitly declare and define
+// all 5 special members in terms of its base classes.  Note that the C++20
+// language will update the definition of '= default' for copy constructors so
+// that the standard interface /would/ work correctly for us - but we are a
+// long way from being able to rely on (the not yet final) C++20 as our minimal
+// language conformance level.
+
 #include <bslstl_pair.h>
 
 #include <bsls_ident.h>

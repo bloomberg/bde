@@ -148,20 +148,6 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE(bsl::add_cv<TYPE>::type, IS_PRIMITIVE); \
 }
 
-// Two additional macros will allow testing on old MSVC compilers when 'TYPE'
-// is an array of unknown bound.
-
-#define ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE_NO_REF(TYPE, RESULT)                \
-    ASSERT( bsl::is_copy_constructible<TYPE>::value == RESULT);
-
-#define ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE, RESULT)             \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE_NO_REF(TYPE, RESULT);                   \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE_NO_REF(                                 \
-                                         bsl::add_const<TYPE>::type, RESULT); \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE_NO_REF(                                 \
-                                      bsl::add_volatile<TYPE>::type, false);  \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_TYPE_NO_REF(bsl::add_cv<TYPE>::type, false);
-
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
 // Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
@@ -171,19 +157,6 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(bsl::add_pointer<TYPE>::type, true)  \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[128], false)                    \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], false)
-
-#elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
-// Old microsoft compilers compilers do not support references to arrays of
-// unknown bound.
-
-# define ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)               \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)                        \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(bsl::add_pointer<TYPE>::type, true)  \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[128], false)                    \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], false)                  \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE[], false)                \
-    ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE[][8], false)
-
 #else
 # define ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)               \
     ASSERT_IS_COPY_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)                        \
@@ -235,7 +208,9 @@ class UserDefinedNcTestType2 {
 
 struct UserDefinedCopyableTestType {
     // This user-defined type, which is not marked to be 'nothrow' move
-    // constructible, is used for testing.
+    // constructible, is used for testing.  Note that this object must now be
+    // larger than a pointer, to avoid being accidentally assumed to be
+    // trivially copyable.
 
     UserDefinedCopyableTestType() {}
     UserDefinedCopyableTestType(const UserDefinedCopyableTestType& original)
@@ -332,6 +307,8 @@ int main(int argc, char *argv[])
                    "\n======================================\n");
 
         // C-1
+        ASSERTV(bsl::is_trivially_copyable<UserDefinedCopyableTestType>::value,
+               !bsl::is_trivially_copyable<UserDefinedCopyableTestType>::value);
         ASSERT_IS_COPY_CONSTRUCTIBLE_OBJECT_TYPE(UserDefinedCopyableTestType,
                                                  true);
 

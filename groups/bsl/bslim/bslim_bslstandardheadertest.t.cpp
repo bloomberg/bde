@@ -404,6 +404,43 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
     switch (test) { case 0:  // Zero is always the leading case.
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING SUPPORT FOR MOVE-ONLY TYPES
+        //   This tests a general concern for C++11 compilers that the 'bsl'
+        //   implementation of standard components support move-only types.
+        //   Motivated by DRQS 126478885.
+        //
+        // Concerns:
+        //: 1 Containers like 'vector', and 'bsl::pair', support move-only
+        //:   types like 'unique_ptr'..
+        //
+        // Plan:
+        //: 1 Call all 8 range functions (unqualified) for a 'bsl::set<int>',
+        //:   as this will be associated with both namespace 'bsl' and native
+        //:   'std' (for 'std::less' as a template parameter).
+        //
+        // Testing
+        //   CONCERN: Range functions are not ambiguous with 'std' under ADL
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING SUPPORT FOR MOVE-ONLY TYPES"
+                            "\n===================================\n");
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        typedef bsl::unique_ptr<int> Id;
+        typedef bsl::pair<int, Id>   Item;
+
+        bsl::vector<Item> items;
+
+        Item item(7, Id(new int(14)));
+
+        items.emplace_back(bsl::move(item));
+
+        bsl::map<int, Id> index;
+        index.emplace(13, Id(new int(42)));
+#endif
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING ITERATOR RANGE FUNCTIONS

@@ -1,18 +1,6 @@
 // bslstl_pair.t.cpp                                                  -*-C++-*-
 #include <bslstl_pair.h>
 
-#include <bsltf_allocargumenttype.h>
-#include <bsltf_allocbitwisemoveabletesttype.h>
-#include <bsltf_allocemplacabletesttype.h>
-#include <bsltf_argumenttype.h>
-#include <bsltf_emplacabletesttype.h>
-#include <bsltf_movablealloctesttype.h>
-#include <bsltf_movabletesttype.h>
-#include <bsltf_moveonlyalloctesttype.h>
-#include <bsltf_movestate.h>
-#include <bsltf_simpletesttype.h>
-#include <bsltf_templatetestfacility.h>
-
 #include <bslma_allocator.h>
 #include <bslma_allocatortraits.h>
 #include <bslma_constructionutil.h>
@@ -28,6 +16,7 @@
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isintegral.h>
+#include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_issame.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
@@ -38,11 +27,19 @@
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_types.h>
 #include <bsls_util.h>
 
+#include <bsltf_allocargumenttype.h>
+#include <bsltf_allocbitwisemoveabletesttype.h>
+#include <bsltf_allocemplacabletesttype.h>
+#include <bsltf_argumenttype.h>
+#include <bsltf_emplacabletesttype.h>
 #include <bsltf_movablealloctesttype.h>
+#include <bsltf_movabletesttype.h>
+#include <bsltf_moveonlyalloctesttype.h>
 #include <bsltf_movestate.h>
 #include <bsltf_simpletesttype.h>
 #include <bsltf_templatetestfacility.h>
@@ -53,6 +50,10 @@
 #include <string.h>     // 'strcmp'
 
 #include <algorithm>    // 'std::swap'
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+#include <type_traits>  // No 'bslmf' support for 'is_constructible'
+#endif
 
 // Local macros to detect and work around compiler defects.
 
@@ -65,6 +66,20 @@
 # define BAD_MOVE_GUARD(IDENTIFIER) int
 #else
 # define BAD_MOVE_GUARD(IDENTIFIER) IDENTIFIER
+#endif
+
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+// We don't have a specific macro asserting that 'std::swap' implements array
+// support, so proxy off the baseline macro until we prove we need more.
+# define BSLSTL_PAIR_SWAP_SUPPORTS_ARRAYS 1
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+// MSVC 2013 cannot generate the correct implicit constructors/assignment
+// operators for move-only types as members.  Further investigation for
+// workarounds is required.
+# define BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013 1
 #endif
 
 using namespace BloombergLP;
@@ -152,18 +167,26 @@ using bsls::NameOf;
 // [ 6] hashAppend(HASHALG& hashAlg, const pair<T1,T2>&  input);
 // [13] bsl::pair(piecewise_construct, tuple, tuple);
 // [13] bsl::pair(piecewise_construct, tuple, tuple, alloc);
-// [16] std::tuple_element<bsl::pair<T1, T2> >
-// [16] std::tuple_size<bsl::pair<T1, T2> >
-// [16] tuple_element<>::type& get<INDEX, T1, T2>(bsl::pair<T1, T2>& p)
-// [16] tuple_element<>::type& get<TYPE, T1, T2>(bsl::pair<T1, T2>& p)
+// [15] std::tuple_element<bsl::pair<T1, T2> >
+// [15] std::tuple_size<bsl::pair<T1, T2> >
+// [15] tuple_element<>::type& get<INDEX, T1, T2>(bsl::pair<T1, T2>& p)
+// [15] tuple_element<>::type& get<TYPE, T1, T2>(bsl::pair<T1, T2>& p)
 // [17] template <class U1, class U2> operator std::tuple<U1&, U2&>()
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [18] USAGE EXAMPLE
+// [26] USAGE EXAMPLE
 // [ 3] Type Traits
 // [ 7] Concern: Can create a pointer-to-member for 'first' and 'second'
 // [ 8] Concern: Can assign to a 'pair' of references
-// [15] Concern: Methods are qualified 'noexcept' as in the standard
+// [16] Concern: Methods marked 'noexcept' in standard are so implemented
+// [18] Concern: Fix for DRQS 122792538
+// [19] Concern: pairs of C++03 movable types work correctly
+// [20] Concern: pairs with 'const' members work correctly
+// [21] Concern: pairs of arrays work correctly
+// [22] Concern: pairs of references work correctly
+// [23] Concern: 'pair' constructors SFINAE when required by standard
+// [24] Concern: construct from '0' as null pointer literal
+// [25] Concern: 'return' by brace initialization
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -267,15 +290,28 @@ class AlBase {
 
   public:
     // CREATORS
+    AlBase()
+    : d_allocator_p(bslma::Default::allocator())
+    {
+        d_data_p = new (*d_allocator_p) int(0);
+    }
+
     explicit
-    AlBase(bslma::Allocator *allocator = 0)
+    AlBase(bslma::Allocator *allocator)
     : d_allocator_p(bslma::Default::allocator(allocator))
     {
         d_data_p = new (*d_allocator_p) int(0);
     }
 
     explicit
-    AlBase(int data, bslma::Allocator *allocator = 0)
+    AlBase(int data)
+    : d_allocator_p(bslma::Default::allocator())
+    {
+        d_data_p = new (*d_allocator_p) int(data);
+    }
+
+    explicit
+    AlBase(int data, bslma::Allocator *allocator)
     : d_allocator_p(bslma::Default::allocator(allocator))
     {
         d_data_p = new (*d_allocator_p) int(data);
@@ -348,13 +384,21 @@ struct Derived : public Base {
 
 struct AlDerived : public AlBase {
     // CREATORS
+    AlDerived()
+    : AlBase()
+    {}
+
     explicit
-    AlDerived(bslma::Allocator *allocator = 0)
+    AlDerived(bslma::Allocator *allocator)
     : AlBase(allocator)
     {}
 
     explicit
-    AlDerived(int data, bslma::Allocator *allocator = 0)
+    AlDerived(int data)
+    : AlBase(data)
+    {}
+
+    AlDerived(int data, bslma::Allocator *allocator)
     : AlBase(data, allocator)
     {}
 
@@ -609,6 +653,113 @@ struct DisplayType {
     // This 'struct' is just to be created to be passed to 'NameOf' to display
     // the template args.
 };
+
+
+
+                         // =======================
+                         // class StrictlyAllocated
+                         // =======================
+
+class StrictlyAllocated {
+    // This class provides testing for a particularly awkward element in a
+    // 'pair', that does not have public copy or move constructors, but insists
+    // on the caller providing an allocator when making copies.
+
+    // DATA
+    int               d_index;
+    bslma::Allocator *d_allocator_p;
+
+  private:
+    // NOT IMPLEMENTED
+    StrictlyAllocated(const StrictlyAllocated&) BSLS_CPP11_DELETED;
+    explicit StrictlyAllocated(int) BSLS_CPP11_DELETED;
+
+  public:
+    // CREATORS
+    explicit StrictlyAllocated(bslma::Allocator *basicAllocator);
+        // Create a 'StrictlyAllocated' object having the index 0, using the
+        // specified 'basicAllocator'.  Note that no memory is actually
+        // allocator, the allocator is merely stored for test purposes.
+
+    explicit StrictlyAllocated(int               columnIndex,
+                               bslma::Allocator *basicAllocator);
+        // Create a 'StrictlyAllocated' object having an index with the
+        // specified 'columIndex' value and using the specified
+        // 'basicAllocator'.  Note that no memory is actually allocator, the
+        // allocator is merely stored for test purposes.
+
+    StrictlyAllocated(const StrictlyAllocated&  other,
+                      bslma::Allocator         *basicAllocator);
+        // Create a copy of the specified 'other' object using the specified
+        // 'basicAllocator', having the same index value as the 'other' object.
+        // Note that no memory is actually allocator, the allocator is merely
+        // stored for test purposes.
+
+    ~StrictlyAllocated();
+        // Destroy this 'StrictlyAllocated' object.
+
+    // MANIPULATORS
+    StrictlyAllocated& operator=(const StrictlyAllocated& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    // ACCESSORS
+    int index() const;
+        // Return the 'index' attribute of this object.
+
+    bslma::Allocator *allocator() const;
+        // Return the 'allocator' used by this object.
+};
+
+                         // -----------------------
+                         // class StrictlyAllocated
+                         // -----------------------
+
+inline
+StrictlyAllocated::StrictlyAllocated(bslma::Allocator *basicAllocator)
+: d_index(0)
+, d_allocator_p(basicAllocator)
+{
+}
+
+inline
+StrictlyAllocated::StrictlyAllocated(int               columnIndex,
+                                     bslma::Allocator *basicAllocator)
+: d_index(columnIndex)
+, d_allocator_p(basicAllocator)
+{
+}
+
+inline
+StrictlyAllocated::StrictlyAllocated(const StrictlyAllocated&  other,
+                                     bslma::Allocator         *basicAllocator)
+: d_index(other.d_index)
+, d_allocator_p(basicAllocator)
+{
+}
+
+inline
+StrictlyAllocated::~StrictlyAllocated()
+{
+}
+
+inline
+StrictlyAllocated& StrictlyAllocated::operator=(const StrictlyAllocated& rhs)
+{
+    d_index = rhs.d_index;
+    return *this;
+}
+
+inline
+bslma::Allocator *StrictlyAllocated::allocator() const
+{
+    return d_allocator_p;
+}
+
+inline
+int StrictlyAllocated::index() const
+{
+    return d_index;
+}
 
 }  // close namespace u
 
@@ -923,8 +1074,6 @@ struct TupleApiTestDriver
     typedef const volatile bsl::pair<         T, int       > CV_TIP;
     typedef const volatile bsl::pair<int      ,           T> CV_ITP;
     typedef const volatile bsl::pair<         T,          T> CV_TTP;
-
-    typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
 
   public:
     // CLASS METHODS
@@ -1643,12 +1792,15 @@ struct TupleApiTestDriver
 
 }  // close unnamed namespace
 
+// TRAITS
 namespace BloombergLP {
 namespace bslma {
 template <>
 struct UsesBslmaAllocator<u::AlBase> : bsl::true_type {};
 template <>
 struct UsesBslmaAllocator<u::AlDerived> : bsl::true_type {};
+template <>
+struct UsesBslmaAllocator<u::StrictlyAllocated> : bsl::true_type {};
 }  // close namespace bslma
 }  // close enterprise namespace
 
@@ -1686,46 +1838,6 @@ void debugprint(const u::Base& base)
 
 }  // close namespace bsl
 
-void testCase15()
-{
-    // ------------------------------------------------------------------------
-    // 'noexcept' SPECIFICATION
-    //
-    // Concerns:
-    //: 1 The 'noexcept' specification has been applied to all class interfaces
-    //:   required by the standard.
-    //
-    // Plan:
-    //: 1 Apply the unary 'noexcept' operator to expressions that mimic those
-    //:   appearing in the standard and confirm that calculated boolean value
-    //:   matches the expected value.
-    //:
-    //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
-    //:   of the container, we need test for just one general type and any
-    //:   'TYPE' specializations.
-    //
-    // Testing:
-    //   CONCERN: Methods qualified 'noexcept' in standard are so implemented.
-    // ------------------------------------------------------------------------
-
-    // N4594: 20.4: Pairs
-
-    // pages 526-527: Class template pair
-    //..
-    //  pair& operator=(pair&& p) noexcept (see below);
-    //  void swap(pair& p) noexcept (see below);
-    //..
-
-    {
-        bsl::pair<int, long> x;
-        bsl::pair<int, long> p;
-
-        ASSERT(false == BSLS_KEYWORD_NOEXCEPT_OPERATOR(
-                                          x = bslmf::MovableRefUtil::move(p)));
-
-        ASSERT(false == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.swap(p)));
-    }
-}
 
                 // ===========================================
                 // class my_String (supplied by Usage example)
@@ -5011,13 +5123,13 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase10(
 
         {
             typedef ManagedWrapper<ToFirst>              WrappedType;
-            typedef bsl::pair<WrappedType, int>          ManagedType;
+            typedef bsl::pair<WrappedType, int *>        ManagedType;
             bslma::ManagedPtr<ToFirst> mp;
             ManagedType mt(mp, 0);
         }
         {
             typedef ManagedWrapper<ToFirst>              WrappedType;
-            typedef bsl::pair<int, WrappedType>          ManagedType;
+            typedef bsl::pair<int *, WrappedType>        ManagedType;
             bslma::ManagedPtr<ToFirst> mp;
             ManagedType mt(0, mp);
         }
@@ -5415,7 +5527,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 26: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -5438,12 +5550,1671 @@ int main(int argc, char *argv[])
         usageExample();
 
       } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: RETURN BY BRACE INITIALIZATION
+        //  This surprising test case arose when code stopped building after an
+        //  "obvious" simplification of 'pair'.  The syntax may not be BDE's
+        //  notion of good style, but is valid C++11 and should be supported.
+        //
+        // Concerns:
+        //: 1 'pair's can be constructed by providing brace-initializaers for
+        //:   each member, which should construct and move a temporary with
+        //:   that value.
+        //
+        // Plan:
+        //: 1 ....
+        //
+        // Testing:
+        //   Concern: 'return' by brace initialization
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                        "\nTESTING CONCERN: RETURN BY BRACE INITIALIZATION"
+                        "\n===============================================\n");
+
+#if __cplusplus >= 201103L
+        typedef bsl::pair<int, int> Obj;
+
+        auto call = [](Obj arg) -> Obj {
+            return { {arg.first}, arg.second };
+        };
+
+        Obj mX = call({3, {4}});   const Obj& X = mX;
+
+        ASSERTV(X.first,  3 == X.first);
+        ASSERTV(X.second, 4 == X.second);
+#endif
+
+      } break;
+      case 24: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: '0' AS NULL POINTER LITERAL
+        //  This surprising test case arose when code stopped building after an
+        //  "obvious" simplification of 'pair'.  The issue is that '0' becomes
+        //  an 'int' when passed through perfect-forwarding, even where the
+        //  intent was that it be a null pointer.
+        //
+        // Concerns:
+        //: 1 Constructors for (appropriate) smart pointers should accept the
+        //:   zero literal, '0', as a valid null-pointer literal.
+        //
+        // Plan:
+        //: 1 ....
+        //
+        // Testing:
+        //   Concern: construct from '0' as null pointer literal
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                           "\nTESTING CONCERN: '0' AS NULL POINTER LITERAL"
+                           "\n============================================\n");
+
+        {
+            typedef bsl::pair<const char *, int         > ObjL;
+            typedef bsl::pair<int,          const char *> ObjR;
+            typedef bsl::pair<const char *, const char *> ObjP;
+
+            ObjL mX(0, 0);
+            ObjR mY(0, 0);
+            ObjP mZ(0, 0);
+        }
+
+#if 0   // This test requires a 'bslmf' implementation of 'is_constructible' in
+        // order to properly constrain the constructor template that greedily
+        // matches '0' as an 'int'.
+        {
+            typedef bsl::pair<const char *, bsltf::MoveOnlyAllocTestType> ObjL;
+            typedef bsl::pair<const char *, bsltf::MoveOnlyAllocTestType> ObjR;
+            typedef bsl::pair<bsltf::MoveOnlyAllocTestType,
+                              bsltf::MoveOnlyAllocTestType>               ObjP;
+
+            ObjL mX(0, 0, 0);
+            ObjR mY(0, 0, 0);
+            ObjP mZ(0, 0, 0);
+        }
+#endif
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: CONSTRUCTOR SFINAE
+        //
+        // Concerns:
+        //: 1 All 'pair' constructors for complete types should fail to compile
+        //:   by dropping out of the overload set in a SFINAE-friendly manner
+        //:   if they would otherwise not instantiate.
+        //
+        // Plan:
+        //: 1 Use 'is_constructible' type trait to determine whether ill-formed
+        //:   constructors drop out of overload resolution through SFINAE.
+        //:   Note that this test may rely on the C++11 library implementation
+        //:   of <type_traits>.
+        //
+        // Testing:
+        //   Concern: 'pair' constructors SFINAE when required by standard
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING CONCERN: CONSTRUCTOR SFINAE"
+                            "\n===================================\n");
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+        if (verbose) printf("Test not supported without native type traits\n");
+#else
+
+        if (verbose) printf("\tDefault constructors\n");
+        {
+            ASSERTV( (std::is_constructible<bsl::pair<int,
+                                                      int > >::value));
+
+            ASSERTV( (std::is_constructible<bsl::pair<const int,
+                                                            int> >::value));
+            ASSERTV( (std::is_constructible<bsl::pair<      int,
+                                                      const int> >::value));
+            ASSERTV( (std::is_constructible<bsl::pair<const int,
+                                                      const int> >::value));
+
+            ASSERTV(!(std::is_constructible<bsl::pair<int&,
+                                                      int > >::value));
+            ASSERTV(!(std::is_constructible<bsl::pair<int ,
+                                                      int&> >::value));
+            ASSERTV(!(std::is_constructible<bsl::pair<int&,
+                                                      int&> >::value));
+        }
+#endif
+      } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: PAIR OF REFERENCES
+        //
+        // Concerns:
+        //: 1 'pair' can be instantiated and constructed with elements that are
+        //:   references to (cv-qualfied) complete object types.
+        //: 2 'pair' of reference to complete object type support copy and
+        //:   move assignment if the referenced object type supports copy and
+        //:   move assignment.
+        //: 3 'pair' of reference to base-class can be constructed and assigned
+        //:   to by objects and references to derived types, as long as the
+        //:   derived object/reference is no more cv-qualified than the base
+        //:   reference.
+        //: 4 'pair' of reference to incomplete type is supported and can be
+        //:   constructed and copied, although assignment and 'swap' would
+        //:   require the type to be complete before such calls.
+        //: 5 Concerns (3) and (4) apply when constructing/assigning from a
+        //:   type that is convertible to the corresponding reference type.
+        //: 6 'pair' of function references can be constructed and copied, but
+        //:   not assigned to or swapped.
+        //: 7 'pair' of reference to object type is swappable if both member
+        //:   types are swappable.  Note that member types nned not be complete
+        //:   to be swappable, as an appropriate 'swap' function may be
+        //:   discovered through ADL.
+        //: 8 Accessors and manipulators for reference members act on the
+        //:   bound (referenced) object, not on the reference itself.
+        //
+        // Plan:
+        //: 1 ...
+        //
+        // Testing:
+        //   Concern: pairs of references work correctly
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING CONCERN: PAIR OF REFERENCES"
+                            "\n====================================\n");
+
+        if (verbose) printf("\twith lvalue-references\n");
+
+        if (verbose) printf("\t\twith simple reference for 'first'\n");
+        {
+            typedef bsl::pair<int&, int> ObjL;
+
+            int a = 13;
+            int b = 42;
+
+            if (veryVerbose) printf("\t\tconstruct with two arguments\n");
+
+            ObjL mB(a, b);  const ObjL& B = mB;
+
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second, 42 == B.second);
+
+            if (veryVerbose) printf("\t\tcopy constructor\n");
+
+            ObjL mC = B;    const ObjL& C = mC;
+
+            ASSERTV(C.first,  13 == C.first);
+            ASSERTV(C.second, 42 == C.second);
+
+            typedef bsl::pair<int&,  double> Obj;
+            if (veryVerbose) printf(
+                          "\t\treference object for converting constructor\n");
+
+            Obj mA(b, 3.14);     const Obj& A = mA;
+
+            ASSERTV(A.first,  42   == A.first);
+            ASSERTV(A.second, 3.14 == A.second);
+
+            if (veryVerbose) printf("\t\tconverting 'pair' constructor\n");
+
+            ObjL mD = mA;   const ObjL& D = mD;
+
+            ASSERTV(D.first,  42 == D.first);
+            ASSERTV(D.second,  3 == D.second);
+
+            if (veryVerbose) printf("\t\tmove constructor\n");
+
+            ObjL mE = MoveUtil::move(B);     const ObjL& E = mE;
+
+            ASSERTV(E.first,  13 == E.first);
+            ASSERTV(E.second, 42 == E.second);
+
+#if 0       // Cannot bind moved reference to an lvalue reference, but the
+            // regular move constructor works?
+            if (veryVerbose) printf("\t\tconverting move constructor\n");
+
+            ObjL mF = MoveUtil::move(mA);     const ObjL& F = mF;
+
+            ASSERTV(F.first,  42 == F.first);
+            ASSERTV(F.second,  3 == F.second);
+#endif
+            // TDB Piecewise construction from native tuple of references
+
+            if (veryVerbose) printf("\t\tassign from 'pair'\n");
+
+            mA = B;
+
+            ASSERTV(A.first,  13 == A.first);
+            ASSERTV(A.second, 42 == A.second);
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second, 42 == B.second);
+
+#if 0
+            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+
+            mA = MoveUtil::move(F);
+
+            ASSERTV(A.first,  0 == A.first);
+            ASSERTV(A.second, 0 == A.second);
+            ASSERTV(F.first,  0 == F.first);
+            ASSERTV(F.second, 0 == F.second);
+#endif
+
+            if (veryVerbose) printf("\t\tcomparison operators\n");
+
+            ASSERT( (B == B));
+            ASSERT(!(B != B));
+            ASSERT(!(B <  B));
+            ASSERT( (B <= B));
+            ASSERT( (B >= B));
+            ASSERT(!(B >  B));
+#if 0
+            ASSERT(!(B == F));
+            ASSERT( (B != F));
+            ASSERT(!(B <  F));
+            ASSERT(!(B <= F));
+            ASSERT( (B >= F));
+            ASSERT( (B >  F));
+#endif
+        }
+
+        if (verbose) printf("\t\twith simple reference for 'second'\n");
+        {
+            typedef bsl::pair<int, int>  Obj;
+            typedef bsl::pair<int, int&> ObjR;
+
+            int a = 13;
+            int b = 42;
+
+            if (veryVerbose) printf("\t\treference object without 'const'\n");
+
+            Obj mA;         const Obj& A = mA;
+
+            ASSERTV(A.first,  0 == A.first);
+            ASSERTV(A.second, 0 == A.second);
+
+            if (veryVerbose) printf("\t\tconstruct with two arguments\n");
+
+            ObjR mB(a, b);  const ObjR& B = mB;
+
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second, 42 == B.second);
+
+            if (veryVerbose) printf("\t\tcopy constructor\n");
+
+            ObjR mC = B;    const ObjR& C = mC;
+
+            ASSERTV(C.first,  13 == C.first);
+            ASSERTV(C.second, 42 == C.second);
+
+#if 0
+            if (veryVerbose) printf("\t\tconverting 'pair' constructor\n");
+
+            ObjR mD = mA;   const ObjR& D = mD;
+
+            ASSERTV(D.first,  0 == D.first);
+            ASSERTV(D.second, 0 == D.second);
+#endif
+            if (veryVerbose) printf("\t\tmove constructor\n");
+
+            ObjR mE = MoveUtil::move(B);     const ObjR& E = mE;
+
+            ASSERTV(E.first,  13 == E.first);
+            ASSERTV(E.second, 42 == E.second);
+
+#if 0
+            if (veryVerbose) printf("\t\tconverting move constructor\n");
+
+            ObjR mF = MoveUtil::move(mA);     const ObjR& F = mF;
+
+            ASSERTV(F.first,  0 == F.first);
+            ASSERTV(F.second, 0 == F.second);
+#endif
+            // TDB Piecewise construction from native tuple of references
+
+            if (veryVerbose) printf("\t\tassign from 'pair'\n");
+
+            mA = B;
+
+            ASSERTV(A.first,  13 == A.first);
+            ASSERTV(A.second, 42 == A.second);
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second, 42 == B.second);
+
+#if 0
+            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+
+            mA = MoveUtil::move(F);
+
+            ASSERTV(A.first,  0 == A.first);
+            ASSERTV(A.second, 0 == A.second);
+            ASSERTV(F.first,  0 == F.first);
+            ASSERTV(F.second, 0 == F.second);
+#endif
+            if (veryVerbose) printf("\t\tcomparison operators\n");
+
+            ASSERT( (B == B));
+            ASSERT(!(B != B));
+            ASSERT(!(B <  B));
+            ASSERT( (B <= B));
+            ASSERT( (B >= B));
+            ASSERT(!(B >  B));
+#if 0
+            ASSERT(!(B == F));
+            ASSERT( (B != F));
+            ASSERT(!(B <  F));
+            ASSERT(!(B <= F));
+            ASSERT( (B >= F));
+            ASSERT( (B >  F));
+#endif
+        }
+
+        if (verbose) printf("\t\twith two simple references\n");
+        {
+            typedef bsl::pair<int,  int>  Obj;
+            typedef bsl::pair<int&, int&> ObjP;
+
+            int a = 13;
+            int b = 42;
+
+            if (veryVerbose) printf("\t\treference object without 'const'\n");
+
+            Obj mA;         const Obj& A = mA;
+
+            ASSERTV(A.first,  0 == A.first);
+            ASSERTV(A.second, 0 == A.second);
+
+            if (veryVerbose) printf("\t\tconstruct with two arguments\n");
+
+            ObjP mB(a, b);  const ObjP& B = mB;
+
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second, 42 == B.second);
+
+            if (veryVerbose) printf("\t\tcopy constructor\n");
+
+            ObjP mC = B;    const ObjP& C = mC;
+
+            ASSERTV(C.first,  13 == C.first);
+            ASSERTV(C.second, 42 == C.second);
+
+#if 0
+            if (veryVerbose) printf("\t\tconverting 'pair' constructor\n");
+
+            ObjP mD = A;    const ObjP& D = mD;
+
+            ASSERTV(D.first,  0 == D.first);
+            ASSERTV(D.second, 0 == D.second);
+#endif
+            if (veryVerbose) printf("\t\tmove constructor\n");
+
+            ObjP mE = MoveUtil::move(B);     const ObjP& E = mE;
+
+            ASSERTV(E.first,  13 == E.first);
+            ASSERTV(E.second, 42 == E.second);
+#if 0
+            if (veryVerbose) printf("\t\tconverting move constructor\n");
+
+            ObjP mF = MoveUtil::move(A);     const ObjP& F = mF;
+
+            ASSERTV(F.first,  0 == F.first);
+            ASSERTV(F.second, 0 == F.second);
+#endif
+            // TDB Piecewise construction from native tuple of references
+
+            if (veryVerbose) printf("\t\tassign from 'pair'\n");
+
+            mA = B;
+
+            ASSERTV(A.first,  13 == A.first);
+            ASSERTV(A.second, 42 == A.second);
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second, 42 == B.second);
+#if 0
+            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+
+            mA = MoveUtil::move(D);
+
+            ASSERTV(A.first,  0 == A.first);
+            ASSERTV(A.second, 0 == A.second);
+            ASSERTV(D.first,  0 == D.first);
+            ASSERTV(D.second, 0 == D.second);
+#endif
+            if (veryVerbose) printf("\t\tcomparison operators\n");
+
+            ASSERT( (B == B));
+            ASSERT(!(B != B));
+            ASSERT(!(B <  B));
+            ASSERT( (B <= B));
+            ASSERT( (B >= B));
+            ASSERT(!(B >  B));
+
+#if 0
+            ASSERT(!(B == D));
+            ASSERT( (B != D));
+            ASSERT(!(B <  D));
+            ASSERT(!(B <= D));
+            ASSERT( (B >= D));
+            ASSERT( (B >  D));
+#endif
+        }
+
+#if defined(BSLSTL_PAIR_CORRECTLY_FORWARDS_ALLOCATORS)  // NEVER DEFINED
+        // NOTE: The tests below varify that allocators are correctly forwarded
+        // through perfect forwarding constructors, especially when such
+        // forwarding turns into a move construction.  The implementation we
+        // have inherited from older BDE does not do this correctly, so while
+        // the intent is to update the contract to pass these tests below, they
+        // are currently disabled pending a follow-up piece of work.
+
+        if (verbose) printf("\twith allocator-aware types\n");
+            // TBD REVISE COMMENT
+            // Note that an array can never be allocator aware, so we test
+            // allocator-aware behavior for only the non-array member.  This
+            // is needed to test the allocator-aware constructors.
+
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ &&!defined(BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013)
+        // We do not have constructors with perfect-forwarding for the C++03
+        // move-emulating library, so these tests require true support for
+        // rvalue-references.
+
+        if (verbose) printf("\t\twith move-only type as 'second'\n");
+        {
+            typedef bsltf::MoveOnlyAllocTestType MoveOnly;
+
+            typedef bsl::pair<int&, MoveOnly>    ObjL;
+
+            bslma::Allocator *const pDA = &defaultMainAllocator;
+            bslma::TestAllocator    ta("Managed 'first'", veryVeryVeryVerbose);
+
+            int a = 13;
+            int b = 42;
+
+            if (veryVerbose) printf("\t\t... without allocators\n");
+
+            if (veryVerbose) printf("\t\tconstruct with two arguments\n");
+
+            ObjL mB(a, MoveOnly(b, &ta));  const ObjL& B = mB;
+
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(pDA, B.second.allocator(), pDA == B.second.allocator());
+            ASSERTV(&ta, B.second.allocator(), &ta != B.second.allocator());
+            ASSERTV(B.second.data(), 42 == B.second.data());
+
+            if (veryVerbose) printf("\t\tmove constructor\n");
+
+            ObjL mE = MoveUtil::move(mB);     const ObjL& E = mE;
+
+            ASSERTV(E.first,  13 == E.first);
+            ASSERTV(pDA, E.second.allocator(), pDA == E.second.allocator());
+            ASSERTV(E.second.data(), 42 == E.second.data());
+
+            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+
+            mB = MoveUtil::move(mE);
+
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second.data(), 42 == B.second.data());
+            ASSERTV(E.first,  13 == E.first);
+            ASSERTV(E.second.data(), 0 == E.second.data());
+
+            if (veryVerbose) printf("\t\tcomparison operators\n");
+
+            ASSERT( (B == B));
+            ASSERT(!(B != B));
+
+
+            if (veryVerbose) printf("\t\t... passing allocators\n");
+
+            if (veryVerbose) printf("\t\tconstruct with two arguments\n");
+
+            ObjL mC(a, MoveOnly(b), &ta);  const ObjL& C = mC;
+
+            ASSERTV(C.first,  13 == C.first);
+            ASSERTV(pDA, C.second.allocator(), pDA != C.second.allocator());
+            ASSERTV(&ta, C.second.allocator(), &ta == C.second.allocator());
+            ASSERTV(C.second.data(), 42 == C.second.data());
+
+            if (veryVerbose) printf("\t\tmove constructor\n");
+
+            ObjL mF(MoveUtil::move(mC), &ta);     const ObjL& F = mF;
+
+            ASSERTV(F.first,  13 == F.first);
+            ASSERTV(&ta, F.second.allocator(), &ta == F.second.allocator());
+            ASSERTV(F.second.data(), 42 == F.second.data());
+
+        }
+#endif
+
+        if (verbose) printf("\t\twith move-optimized type as 'second'\n");
+        {
+            typedef bsltf::MovableAllocTestType Movable;
+
+            typedef bsl::pair<int&, Movable>    ObjL;
+
+            bslma::Allocator *const pDA = &defaultMainAllocator;
+            bslma::TestAllocator    ta("Managed 'first'", veryVeryVeryVerbose);
+
+            int a = 13;
+            int b = 42;
+
+            if (veryVerbose) printf("\t\t... without allocators\n");
+
+            if (veryVerbose) printf("\t\tconstruct with two arguments\n");
+
+            const Movable REF_VALUE(b, &ta);
+            ObjL mB(a, Movable(b, &ta));  const ObjL& B = mB;
+
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(pDA, B.second.allocator(), pDA == B.second.allocator());
+            ASSERTV(&ta, B.second.allocator(), &ta != B.second.allocator());
+            ASSERTV(B.second.data(), 42 == B.second.data());
+
+            if (veryVerbose) printf("\t\tcopy constructor\n");
+
+            ObjL mC = B;     const ObjL& C = mC;
+
+            ASSERTV(C.first,  13 == C.first);
+            ASSERTV(pDA, C.second.allocator(), pDA == C.second.allocator());
+            ASSERTV(C.second.data(), 42 == C.second.data());
+
+            if (veryVerbose) printf("\t\tmove constructor\n");
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+            // Never clariffied why C++03 requires direct rather than copy
+            // initialization, but this flags as an error with both Clang and
+            // xlC otherwise.
+            ObjL mE(MoveUtil::move(mB));      const ObjL& E = mE;
+#else
+            ObjL mE = MoveUtil::move(mB);     const ObjL& E = mE;
+#endif
+
+            ASSERTV(E.first,  13 == E.first);
+            ASSERTV(pDA, E.second.allocator(), pDA == E.second.allocator());
+            ASSERTV(E.second.data(), 42 == E.second.data());
+
+            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+
+            mB = MoveUtil::move(mE);
+
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second.data(), 42 == B.second.data());
+            ASSERTV(E.first,  13 == E.first);
+            ASSERTV(E.second.data(), 0 == E.second.data());
+
+            if (veryVerbose) printf("\t\tcomparison operators\n");
+
+            ASSERT( (B == B));
+            ASSERT(!(B != B));
+
+
+            if (veryVerbose) printf("\t\t... passing allocators\n");
+
+            if (veryVerbose) printf("\t\tconstruct with two arguments\n");
+
+            ObjL mD(a, Movable(b), &ta);  const ObjL& D = mD;
+
+            ASSERTV(D.first,  13 == D.first);
+            ASSERTV(pDA, D.second.allocator(), pDA != D.second.allocator());
+            ASSERTV(&ta, D.second.allocator(), &ta == D.second.allocator());
+            ASSERTV(D.second.data(), 42 == D.second.data());
+
+            if (veryVerbose) printf("\t\textended copy constructor\n");
+
+            ObjL mF(D, &ta);     const ObjL& F = mF;
+
+            ASSERTV(F.first,  13 == F.first);
+            ASSERTV(&ta, F.second.allocator(), &ta == F.second.allocator());
+            ASSERTV(F.second.data(), 42 == F.second.data());
+
+            if (veryVerbose) printf("\t\textended move constructor\n");
+
+            ObjL mG(MoveUtil::move(mD), &ta);     const ObjL& G = mG;
+
+            ASSERTV(G.first,  13 == G.first);
+            ASSERTV(&ta, G.second.allocator(), &ta == G.second.allocator());
+            ASSERTV(G.second.data(), 42 == G.second.data());
+
+        }
+#endif  // BSLSTL_PAIR_CORRECTLY_FORWARDS_ALLOCATORS
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: PAIR OF ARRAYS
+        //  Note the array types do not support "copy-construction" when passed
+        //  an array argument by reference, so value-constructors will not be
+        //  tested.  Those constructors should not be available if queried with
+        //  the 'is_constructible' trait.
+        //
+        // Concerns:
+        //: 1 A pair with an array type for one or both members can be
+        //:   constructed only by the default constructor, or a constructor
+        //:   that has the semantics of the default constructor.
+        //: 2 'pair's with array members can be copy and move constructed if
+        //:   the elements of the array-type (and other member) can be copy and
+        //:   move constructed.
+        //: 3 'pair's with array members can be swapped in C++11, where
+        //:   'std::swap' is overloaded for arrays.
+        //: 4 All of the accessors of 'pair' work as previously tested for
+        //:   'pair's having array data members.
+        //
+        // Plan:
+        //: 1 Use 'is_constructible' type trait to determine whether ill-formed
+        //:   constructors drop out of overload resolution through SFINAE.
+        //:   Note that this test may rely on the C++11 library implementation
+        //:   of <type_traits>.
+        //
+        // Testing:
+        //   Concern: pairs of arrays work correctly
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING CONCERN: PAIR OF ARRAYS"
+                            "\n===============================\n");
+
+        if (verbose) printf("\twith no-allocating types\n");
+
+        if (verbose) printf("\t\twith array of 'int' for 'first'\n");
+        {
+            typedef bsl::pair<int[3], int> ObjL;
+
+            if (veryVerbose) printf("\t\tdefault constructor\n");
+
+            ObjL mA;  const ObjL& A = mA;
+
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.first[i],  0 == A.first[i]);
+            }
+            ASSERTV(A.second, 0 == A.second);
+
+            mA.first[0] = 9;
+            mA.first[1] = 99;
+            mA.first[2] = 999;
+            mA.second   = 9999;
+
+            if (veryVerbose) printf("\t\tcopy constructor\n");
+
+            ObjL mB = A;    const ObjL& B = mB;
+
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.first[i], B.first[i], A.first[i] == B.first[i]);
+            }
+            ASSERTV(A.second, B.second, A.second == B.second);
+
+            if (veryVerbose) printf("\t\tmove constructor\n");
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+            // Arrays do not move using BDE emulated move semantics, so this
+            // test would fail to compile.
+
+            ObjL mC = MoveUtil::move(mB);     const ObjL& C = mC;
+
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.first[i], C.first[i], A.first[i] == C.first[i]);
+            }
+            ASSERTV(A.second, C.second, A.second == C.second);
+#endif
+
+#if defined(BSLSTL_PAIR_SWAP_SUPPORTS_ARRAYS)
+            mB.first[0] = 13;
+            mB.first[1] = 14;
+            mB.first[2] = 15;
+            mB.second   = 42;
+
+            mB.swap(mC);
+
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.first[i], B.first[i], A.first[i] == B.first[i]);
+            }
+            ASSERTV(A.second, B.second, A.second == B.second);
+
+            ASSERTV(mC.first[0], 13 == mC.first[0]);
+            ASSERTV(mC.first[1], 14 == mC.first[1]);
+            ASSERTV(mC.first[2], 15 == mC.first[2]);
+            ASSERTV(mC.second,   42 == mC.second  );
+
+            swap(mC, mB);
+
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.first[i], C.first[i], A.first[i] == C.first[i]);
+            }
+            ASSERTV(A.second, C.second, A.second == C.second);
+
+            ASSERTV(mB.first[0], 13 == mB.first[0]);
+            ASSERTV(mB.first[1], 14 == mB.first[1]);
+            ASSERTV(mB.first[2], 15 == mB.first[2]);
+            ASSERTV(mB.second,   42 == mB.second  );
+#endif
+        }
+
+        if (verbose) printf("\t\twith array of 'int' for 'second'\n");
+        {
+            typedef bsl::pair<int, int[3]> ObjR;
+
+            if (veryVerbose) printf("\t\tdefault constructor\n");
+
+            ObjR mA;  const ObjR& A = mA;
+
+            ASSERTV(A.first, 0 == A.first);
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.second[i],  0 == A.second[i]);
+            }
+
+            if (veryVerbose) printf("\t\tcopy constructor\n");
+
+            ObjR mB = A;    const ObjR& B = mB;
+
+            ASSERTV(A.first, B.first, A.first == B.first);
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.second[i],   B.second[i],
+                           A.second[i] == B.second[i]);
+            }
+
+            if (veryVerbose) printf("\t\tmove constructor\n");
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+            // Arrays do not move using BDE emulated move semantics, so this
+            // test would fail to compile.
+
+            ObjR mC = MoveUtil::move(mB);     const ObjR& C = mC;
+
+            ASSERTV(A.first, C.first, A.first == C.first);
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.second[i],   C.second[i],
+                           A.second[i] == C.second[i]);
+            }
+#endif
+
+#if defined(BSLSTL_PAIR_SWAP_SUPPORTS_ARRAYS)
+            mB.first     = 42;
+            mB.second[0] = 13;
+            mB.second[1] = 14;
+            mB.second[2] = 15;
+
+            mB.swap(mC);
+
+            ASSERTV(A.first, B.first, A.first == B.first);
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.second[i],   B.second[i],
+                           A.second[i] == B.second[i]);
+            }
+
+            ASSERTV(mC.first,     42 == mC.first    );
+            ASSERTV(mC.second[0], 13 == mC.second[0]);
+            ASSERTV(mC.second[1], 14 == mC.second[1]);
+            ASSERTV(mC.second[2], 15 == mC.second[2]);
+
+            swap(mC, mB);
+
+            ASSERTV(A.first, C.first, A.first == C.first);
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.second[i],   C.second[i],
+                           A.second[i] == C.second[i]);
+            }
+
+            ASSERTV(mB.first,     42 == mB.first    );
+            ASSERTV(mB.second[0], 13 == mB.second[0]);
+            ASSERTV(mB.second[1], 14 == mB.second[1]);
+            ASSERTV(mB.second[2], 15 == mB.second[2]);
+#endif
+        }
+
+
+        if (verbose) printf("\t\twith two arrays of 'int'\n");
+        {
+            typedef bsl::pair<int[3], int[3]> ObjP;
+
+            if (veryVerbose) printf("\t\tdefault constructor\n");
+
+            ObjP mA;  const ObjP& A = mA;
+
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.first[i],  0 == A.first[i]);
+            }
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.second[i],  0 == A.second[i]);
+            }
+
+            if (veryVerbose) printf("\t\tcopy constructor\n");
+
+            ObjP mB = A;    const ObjP& B = mB;
+
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.first[i], B.first[i], A.first[i] == B.first[i]);
+            }
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.second[i],   B.second[i],
+                           A.second[i] == B.second[i]);
+            }
+
+            if (veryVerbose) printf("\t\tmove constructor\n");
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+            // Arrays do not move using BDE emulated move semantics, so this
+            // test would fail to compile.
+
+            ObjP mC = MoveUtil::move(mB);     const ObjP& C = mC;
+
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.first[i], C.first[i], A.first[i] == C.first[i]);
+            }
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.second[i],   C.second[i],
+                           A.second[i] == C.second[i]);
+            }
+#endif
+
+#if defined(BSLSTL_PAIR_SWAP_SUPPORTS_ARRAYS)
+            mB.first[0]  =  3;
+            mB.first[1]  =  4;
+            mB.first[2]  =  5;
+            mB.second[0] = 13;
+            mB.second[1] = 14;
+            mB.second[2] = 15;
+
+            mB.swap(mC);
+
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.first[i], B.first[i], A.first[i] == B.first[i]);
+            }
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.second[i],   B.second[i],
+                           A.second[i] == B.second[i]);
+            }
+
+            ASSERTV(mC.first[0],   3 == mC.first[0] );
+            ASSERTV(mC.first[1],   4 == mC.first[1] );
+            ASSERTV(mC.first[2],   5 == mC.first[2] );
+            ASSERTV(mC.second[0], 13 == mC.second[0]);
+            ASSERTV(mC.second[1], 14 == mC.second[1]);
+            ASSERTV(mC.second[2], 15 == mC.second[2]);
+
+            swap(mC, mB);
+
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.first[i], C.first[i], A.first[i] == C.first[i]);
+            }
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.second[i],   C.second[i],
+                           A.second[i] == C.second[i]);
+            }
+
+            ASSERTV(mB.first[0],   3 == mB.first[0] );
+            ASSERTV(mB.first[1],   4 == mB.first[1] );
+            ASSERTV(mB.first[2],   5 == mB.first[2] );
+            ASSERTV(mB.second[0], 13 == mB.second[0]);
+            ASSERTV(mB.second[1], 14 == mB.second[1]);
+            ASSERTV(mB.second[2], 15 == mB.second[2]);
+#endif
+        }
+
+
+        if (verbose) printf("\twith allocator-aware types\n");
+            // Note that an array can never be allocator aware, so we test
+            // allocator-aware behavior for only the non-array member.  This
+            // is needed to test the allocator-aware constructors.
+
+
+#if !defined(BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013)
+        if (verbose) printf("\t\twith array of 'int' for 'first'\n");
+        {
+            typedef bsl::pair<int[3], bsltf::MoveOnlyAllocTestType> ObjL;
+
+            bslma::Allocator *const pDA = &defaultMainAllocator;
+            bslma::TestAllocator    ta("'first' array", veryVeryVeryVerbose);
+
+            if (veryVerbose) printf("\t\tdefault constructor\n");
+
+            ObjL mA;  const ObjL& A = mA;
+
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.first[i],  0 == A.first[i]);
+            }
+            ASSERTV(pDA, A.second.allocator(), pDA == A.second.allocator());
+            ASSERTV(A.second.data(), 0 == A.second.data());
+
+            mA.first[0] = 9;
+            mA.first[1] = 99;
+            mA.first[2] = 999;
+            mA.second.setData(9999);
+
+            if (veryVerbose) printf("\t\tmove constructor\n");
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+            // Arrays do not move using BDE emulated move semantics, so this
+            // test would fail to compile.
+
+            ObjL mC = MoveUtil::move(mA);     const ObjL& C = mC;
+
+            // moving an array of 'int's is the same as a copy
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, A.first[i], C.first[i], A.first[i] == C.first[i]);
+            }
+            // verify 'second' has moved correctly
+            ASSERTV(pDA, C.second.allocator(), pDA == C.second.allocator());
+            ASSERTV(C.second.data(), 9999 == C.second.data());
+            ASSERTV(pDA, A.second.allocator(), pDA == A.second.allocator());
+            ASSERTV(A.second.data(), 0 == A.second.data());
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+            if (veryVerbose) printf(
+                                  "\t\tallocator-aware default constructor\n");
+
+            ObjL mD(&ta);  const ObjL& D = mD;
+
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, D.first[i],  0 == D.first[i]);
+            }
+            ASSERTV(pDA, D.second.allocator(), &ta == D.second.allocator());
+            ASSERTV(D.second.data(), 0 == D.second.data());
+
+            mD.first[0] = 8;
+            mD.first[1] = 88;
+            mD.first[2] = 888;
+            mD.second.setData(8888);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+            // Arrays do not move using BDE emulated move semantics, so this
+            // test would fail to compile.
+
+#if 0   //  TBD: need to forward directly to the move-constructor for the
+        //  'FirstBase' class and not try to pass an array by reference as an
+        //  argument, or this case will not compile.  Requires more work in the
+        //  component header.
+
+            if (veryVerbose) printf("\t\tallocator-aware move constructor\n");
+
+            ObjL mF(MoveUtil::move(mD), &ta);   const ObjL& F = mF;
+
+            // moving an array of 'int's is the same as a copy
+            for (int i = 0; i != 3; ++i) {
+                ASSERTV(i, D.first[i], F.first[i], D.first[i] == F.first[i]);
+            }
+            // verify 'second' has moved correctly
+            ASSERTV(pDA, F.second.allocator(), pDA == F.second.allocator());
+            ASSERTV(F.second.data(), 8888 == F.second.data());
+            ASSERTV(pDA, D.second.allocator(), pDA == D.second.allocator());
+            ASSERTV(D.second.data(), 0 == D.second.data());
+#endif
+#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        }
+#endif // BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: PAIR OF 'const' MEMBERS
+        //  An important use-case for 'pair' is 'pair<const Key, Value' as the
+        //  element type of a 'map'.  Such 'pair's are neither assignable nor
+        //  swappable, but many other contracts still hold.
+        //
+        // Concerns:
+        //: 1 A pair with a 'const' member is default constructible as long as
+        //:   the 'const-qualfied type is non-trivially default constructible.
+        //: 2 A pair with a 'const' member can be copy-constructed, holding a
+        //:   copy of the original value.
+        //: 3 A pair with a 'const' member may be move-constructed, as long as
+        //:   the 'const'-qualfied member is copy constructible.
+        //: 4 All of the accessors of 'pair' work as previously tested for a
+        //:   'pair' having a 'const'-qualified member.
+        //
+        // Plan:
+        //: 1 ...
+        //
+        // Testing:
+        //   Concern: pairs with 'const' members work correctly
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING CONCERN: PAIR OF 'const' MEMBERS"
+                            "\n========================================\n");
+
+        if (verbose) printf("\twith lvalue-references\n");
+
+        if (verbose) printf("\t\twith simple reference for 'first'\n");
+        {
+            typedef bsl::pair<int, int>       Obj;
+            typedef bsl::pair<const int, int> ObjL;
+
+            int a = 13;
+            int b = 42;
+
+            if (veryVerbose) printf("\t\treference object without 'const'\n");
+
+            Obj mA;         const Obj& A = mA;
+
+            ASSERTV(A.first,  0 == A.first);
+            ASSERTV(A.second, 0 == A.second);
+
+            if (veryVerbose) printf("\t\tconstruct with two arguments\n");
+
+            ObjL mB(a, b);  const ObjL& B = mB;
+
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second, 42 == B.second);
+
+            if (veryVerbose) printf("\t\tcopy constructor\n");
+
+            ObjL mC = B;    const ObjL& C = mC;
+
+            ASSERTV(C.first,  13 == C.first);
+            ASSERTV(C.second, 42 == C.second);
+
+            if (veryVerbose) printf("\t\tconverting 'pair' constructor\n");
+
+            ObjL mD = A;    const ObjL& D = mD;
+
+            ASSERTV(D.first,  0 == D.first);
+            ASSERTV(D.second, 0 == D.second);
+
+            if (veryVerbose) printf("\t\tmove constructor\n");
+
+            ObjL mE = MoveUtil::move(B);     const ObjL& E = mE;
+
+            ASSERTV(E.first,  13 == E.first);
+            ASSERTV(E.second, 42 == E.second);
+
+            if (veryVerbose) printf("\t\tconverting move constructor\n");
+
+            ObjL mF = MoveUtil::move(mA);     const ObjL& F = mF;
+
+            ASSERTV(F.first,  0 == F.first);
+            ASSERTV(F.second, 0 == F.second);
+
+            // TDB Piecewise construction from native tuple of references
+
+            if (veryVerbose) printf("\t\tassign from 'pair'\n");
+
+            mA = B;
+
+            ASSERTV(A.first,  13 == A.first);
+            ASSERTV(A.second, 42 == A.second);
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second, 42 == B.second);
+
+            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+
+            mA = MoveUtil::move(mD);
+
+            ASSERTV(A.first,  0 == A.first);
+            ASSERTV(A.second, 0 == A.second);
+            ASSERTV(D.first,  0 == D.first);
+            ASSERTV(D.second, 0 == D.second);
+
+            if (veryVerbose) printf("\t\tcomparison operators\n");
+
+            ASSERT( (B == B));
+            ASSERT(!(B != B));
+            ASSERT(!(B <  B));
+            ASSERT( (B <= B));
+            ASSERT( (B >= B));
+            ASSERT(!(B >  B));
+
+            ASSERT(!(B == D));
+            ASSERT( (B != D));
+            ASSERT(!(B <  D));
+            ASSERT(!(B <= D));
+            ASSERT( (B >= D));
+            ASSERT( (B >  D));
+        }
+
+        if (verbose) printf("\t\twith simple reference for 'second'\n");
+        {
+            typedef bsl::pair<int, int>       Obj;
+            typedef bsl::pair<int, const int> ObjR;
+
+            int a = 13;
+            int b = 42;
+
+            if (veryVerbose) printf("\t\treference object without 'const'\n");
+
+            Obj mA;         const Obj& A = mA;
+
+            ASSERTV(A.first,  0 == A.first);
+            ASSERTV(A.second, 0 == A.second);
+
+            if (veryVerbose) printf("\t\tconstruct with two arguments\n");
+
+            ObjR mB(a, b);  const ObjR& B = mB;
+
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second, 42 == B.second);
+
+            if (veryVerbose) printf("\t\tcopy constructor\n");
+
+            ObjR mC = B;    const ObjR& C = mC;
+
+            ASSERTV(C.first,  13 == C.first);
+            ASSERTV(C.second, 42 == C.second);
+
+            if (veryVerbose) printf("\t\tconverting 'pair' constructor\n");
+
+            ObjR mD = A;    const ObjR& D = mD;
+
+            ASSERTV(D.first,  0 == D.first);
+            ASSERTV(D.second, 0 == D.second);
+
+            if (veryVerbose) printf("\t\tmove constructor\n");
+
+            ObjR mE = MoveUtil::move(B);     const ObjR& E = mE;
+
+            ASSERTV(E.first,  13 == E.first);
+            ASSERTV(E.second, 42 == E.second);
+
+            if (veryVerbose) printf("\t\tconverting move constructor\n");
+
+            ObjR mF = MoveUtil::move(mA);     const ObjR& F = mF;
+
+            ASSERTV(F.first,  0 == F.first);
+            ASSERTV(F.second, 0 == F.second);
+
+            // TDB Piecewise construction from native tuple of references
+
+            if (veryVerbose) printf("\t\tassign from 'pair'\n");
+
+            mA = B;
+
+            ASSERTV(A.first,  13 == A.first);
+            ASSERTV(A.second, 42 == A.second);
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second, 42 == B.second);
+
+            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+
+            mA = MoveUtil::move(mD);
+
+            ASSERTV(A.first,  0 == A.first);
+            ASSERTV(A.second, 0 == A.second);
+            ASSERTV(D.first,  0 == D.first);
+            ASSERTV(D.second, 0 == D.second);
+
+            if (veryVerbose) printf("\t\tcomparison operators\n");
+
+            ASSERT( (B == B));
+            ASSERT(!(B != B));
+            ASSERT(!(B <  B));
+            ASSERT( (B <= B));
+            ASSERT( (B >= B));
+            ASSERT(!(B >  B));
+
+            ASSERT(!(B == D));
+            ASSERT( (B != D));
+            ASSERT(!(B <  D));
+            ASSERT(!(B <= D));
+            ASSERT( (B >= D));
+            ASSERT( (B >  D));
+        }
+
+        if (verbose) printf("\t\twith two simple references\n");
+        {
+            typedef bsl::pair<int, int>       Obj;
+            typedef bsl::pair<const int, const int> ObjP;
+
+            int a = 13;
+            int b = 42;
+
+            if (veryVerbose) printf("\t\treference object without 'const'\n");
+
+            Obj mA;         const Obj& A = mA;
+
+            ASSERTV(A.first,  0 == A.first);
+            ASSERTV(A.second, 0 == A.second);
+
+            if (veryVerbose) printf("\t\tconstruct with two arguments\n");
+
+            ObjP mB(a, b);  const ObjP& B = mB;
+
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second, 42 == B.second);
+
+            if (veryVerbose) printf("\t\tcopy constructor\n");
+
+            ObjP mC = B;    const ObjP& C = mC;
+
+            ASSERTV(C.first,  13 == C.first);
+            ASSERTV(C.second, 42 == C.second);
+
+            if (veryVerbose) printf("\t\tconverting 'pair' constructor\n");
+
+            ObjP mD = A;    const ObjP& D = mD;
+
+            ASSERTV(D.first,  0 == D.first);
+            ASSERTV(D.second, 0 == D.second);
+
+            if (veryVerbose) printf("\t\tmove constructor\n");
+
+            ObjP mE = MoveUtil::move(B);     const ObjP& E = mE;
+
+            ASSERTV(E.first,  13 == E.first);
+            ASSERTV(E.second, 42 == E.second);
+
+            if (veryVerbose) printf("\t\tconverting move constructor\n");
+
+            ObjP mF = MoveUtil::move(mA);     const ObjP& F = mF;
+
+            ASSERTV(F.first,  0 == F.first);
+            ASSERTV(F.second, 0 == F.second);
+
+            // TDB Piecewise construction from native tuple of references
+
+            if (veryVerbose) printf("\t\tassign from 'pair'\n");
+
+            mA = B;
+
+            ASSERTV(A.first,  13 == A.first);
+            ASSERTV(A.second, 42 == A.second);
+            ASSERTV(B.first,  13 == B.first);
+            ASSERTV(B.second, 42 == B.second);
+
+            if (veryVerbose) printf("\t\tmove-assign from 'pair'\n");
+
+            mA = MoveUtil::move(mD);
+
+            ASSERTV(A.first,  0 == A.first);
+            ASSERTV(A.second, 0 == A.second);
+            ASSERTV(D.first,  0 == D.first);
+            ASSERTV(D.second, 0 == D.second);
+
+            if (veryVerbose) printf("\t\tcomparison operators\n");
+
+            ASSERT( (B == B));
+            ASSERT(!(B != B));
+            ASSERT(!(B <  B));
+            ASSERT( (B <= B));
+            ASSERT( (B >= B));
+            ASSERT(!(B >  B));
+
+            ASSERT(!(B == D));
+            ASSERT( (B != D));
+            ASSERT(!(B <  D));
+            ASSERT(!(B <= D));
+            ASSERT( (B >= D));
+            ASSERT( (B >  D));
+        }
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: C++03 MOVABLE TYPES WORK CORRECTLY
+        //  Prior to C++11, BDE supported move operations through types like
+        //  'bslma::ManagedPtr' that emulate move semantics in the same way
+        //  that 'std::auto_ptr' did.  Such code must still continue to compile
+        //  for Bloomberg with a C++11 library, even though the standard makes
+        //  no such requirement.  Note that due to implementation details of
+        //  the 'pair' class, it is necessary to test support as 'first' and
+        //  'second' independently.
+        //
+        // Concerns:
+        //: 1 A 'pair' object with an instantiation of 'bslma::ManagedPtr' for
+        //:   either 'first', 'second', or both, can be default-constructed.
+        //: 2 A 'pair' object with an instantiation of 'bslma::ManagedPtr' for
+        //:   either 'first', 'second', or both, can be copy-constructed,
+        //:   copy-assigned, and swapped with the expected move-semantic
+        //:   behavior.
+        //: 3 A 'pair' object with an instantiation of 'bslma::ManagedPtr' for
+        //:   either 'first', 'second', or both, can be move-constructed,
+        //:   move-assigned, and swapped with the expected move-semantic
+        //:   behavior.
+        //
+        // Plan:
+        //: 1 ...
+        //
+        // Testing:
+        //   Concern: pairs of C++03 movable types work correctly
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                    "\nTESTING CONCERN: C++03 MOVABLE TYPES WORK CORRECTLY"
+                    "\n===================================================\n");
+
+        if (verbose) printf("\twith movable type as 'first'\n");
+        {
+            typedef bsl::pair<bslma::ManagedPtr<int>, int>  ObjL;
+
+            bslma::TestAllocator ta("Left managed pointer");
+
+            ObjL mX;   const ObjL& X = mX;
+
+            ASSERTV(X.first.get(), 0 == X.first.get());
+            ASSERTV(X.second, 0 == X.second);
+
+            int *pI = new(ta) int(13);
+
+            bslma::ManagedPtr<int> managed(pI, &ta);
+
+            ObjL mY(managed, 42);   const ObjL& Y = mY;
+
+            ASSERTV(Y.first.get(), pI == Y.first.get());
+            ASSERTV(Y.second, 42 == Y.second);
+
+            mX = mY;
+
+            ASSERTV(X.first.get(), pI == X.first.get());
+            ASSERTV(X.second, 42 == X.second);
+            ASSERTV(Y.first.get(), 0 == Y.first.get());
+            ASSERTV(Y.second, 42 == Y.second);
+
+            mY.second = 13;
+            mX.swap(mY);
+
+            ASSERTV(X.first.get(), 0 == X.first.get());
+            ASSERTV(X.second, 13 == X.second);
+            ASSERTV(Y.first.get(), pI == Y.first.get());
+            ASSERTV(Y.second, 42 == Y.second);
+        }
+
+        if (verbose) printf("\twith movable type as 'second'\n");
+        {
+            typedef bsl::pair<int, bslma::ManagedPtr<int> > ObjR;
+
+            bslma::TestAllocator ta("Right managed pointer");
+
+            ObjR mX;   const ObjR& X = mX;
+
+            ASSERTV(X.first, 0 == X.first);
+            ASSERTV(X.second.get(), 0 == X.second.get());
+
+            int *pI = new(ta) int(13);
+
+            bslma::ManagedPtr<int> managed(pI, &ta);
+
+            ObjR mY(42, managed);   const ObjR& Y = mY;
+
+            ASSERTV(Y.first, 42 == Y.first);
+            ASSERTV(Y.second.get(), pI == Y.second.get());
+
+            mX = mY;
+
+            ASSERTV(X.first, 42 == X.first);
+            ASSERTV(X.second.get(), pI == X.second.get());
+            ASSERTV(Y.first, 42 == Y.first);
+            ASSERTV(Y.second.get(), 0 == Y.second.get());
+
+            mY.first = 13;
+            mX.swap(mY);
+
+            ASSERTV(X.first, 13 == X.first);
+            ASSERTV(X.second.get(), 0 == X.second.get());
+            ASSERTV(Y.first, 42 == Y.first);
+            ASSERTV(Y.second.get(), pI == Y.second.get());
+        }
+
+        if (verbose) printf("\twith movable type for both members\n");
+        {
+            typedef bsl::pair<bslma::ManagedPtr<int>, bslma::ManagedPtr<int> >
+                                                                          ObjB;
+
+            bslma::TestAllocator ta("Left managed pointer");
+
+            ObjB mX;   const ObjB& X = mX;
+
+            ASSERTV(X.first.get(), 0 == X.first.get());
+            ASSERTV(X.second.get(), 0 == X.second.get());
+
+            int *pA = new(ta) int(13);
+            bslma::ManagedPtr<int> managedA(pA, &ta);
+
+            int *pB = new(ta) int(42);
+            bslma::ManagedPtr<int> managedB(pB, &ta);
+
+            ObjB mY(managedA, managedB);   const ObjB& Y = mY;
+
+            ASSERTV(Y.first.get(), pA == Y.first.get());
+            ASSERTV(Y.second.get(), pB == Y.second.get());
+
+            mX = mY;
+
+            ASSERTV(X.first.get(), pA == X.first.get());
+            ASSERTV(X.second.get(), pB == X.second.get());
+            ASSERTV(Y.first.get(), 0 == Y.first.get());
+            ASSERTV(Y.second.get(), 0 == Y.second.get());
+
+            mX.swap(mY);
+
+            ASSERTV(X.first.get(), 0 == X.first.get());
+            ASSERTV(X.second.get(), 0 == X.second.get());
+            ASSERTV(Y.first.get(), pA == Y.first.get());
+            ASSERTV(Y.second.get(), pB == Y.second.get());
+        }
+
+        if (verbose) printf("\twith allocator-aware types\n");
+            // Note that we do not have an allocator aware implicit-movable
+            // type for testing, so we test allocator-aware behavior for only
+            // the other member.  This is needed to test the allocator-aware
+            // constructors and 'swap'
+
+#if !defined(BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013)
+        if (verbose) printf("\t\twith move-only type as 'second'\n");
+        {
+            typedef bsl::pair<bslma::ManagedPtr<int>,
+                              bsltf::MoveOnlyAllocTestType>  ObjL;
+
+            bslma::TestAllocator ta("Managed 'first'", veryVeryVeryVerbose);
+
+            ObjL mX(&ta);   const ObjL& X = mX;
+
+            ASSERTV(X.first.get(), 0 == X.first.get());
+            ASSERTV(&ta, X.second.allocator(), &ta == X.second.allocator());
+            ASSERTV(X.second.data(), 0 == X.second.data());
+
+
+            int *pI = new(ta) int(13);
+
+            bslma::ManagedPtr<int> managed(pI, &ta);
+
+            ObjL mY(managed, 42, &ta);   const ObjL& Y = mY;
+
+            ASSERTV(Y.first.get(), pI == Y.first.get());
+            ASSERTV(&ta, Y.second.allocator(), &ta == Y.second.allocator());
+            ASSERTV(Y.second.data(), 42 == Y.second.data());
+
+            mX = MoveUtil::move(mY);
+            ASSERTV(&ta, X.second.allocator(), &ta == X.second.allocator());
+
+            ASSERTV(X.first.get(), pI == X.first.get());
+            ASSERTV(X.second.data(), 42 == X.second.data());
+            ASSERTV(Y.first.get(), 0 == Y.first.get());
+            ASSERTV(Y.second.data(), 0 == Y.second.data());
+
+            mX.swap(mY);
+            ASSERTV(&ta, X.second.allocator(), &ta == X.second.allocator());
+            ASSERTV(&ta, Y.second.allocator(), &ta == Y.second.allocator());
+
+            ASSERTV(X.first.get(), 0 == X.first.get());
+            ASSERTV(X.second.data(), 0 == X.second.data());
+            ASSERTV(Y.first.get(), pI == Y.first.get());
+            ASSERTV(Y.second.data(), 42 == Y.second.data());
+
+            ObjL mZ(MoveUtil::move(mY), &ta);   const ObjL& Z = mZ;
+
+            ASSERTV(Z.first.get(), pI == Z.first.get());
+            ASSERTV(&ta, Z.second.allocator(), &ta == Z.second.allocator());
+            ASSERTV(Z.second.data(), 42 == Z.second.data());
+            ASSERTV(Y.first.get(), 0 == Y.first.get());
+            ASSERTV(Y.second.data(), 0 == Y.second.data());
+        }
+#endif // BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013
+
+        if (verbose) printf("\t\twith move-optimized type as 'second'\n");
+        {
+            typedef bsl::pair<bslma::ManagedPtr<int>,
+                              bsltf::MovableAllocTestType>  ObjL;
+
+            bslma::TestAllocator ta("Managed 'first'", veryVeryVeryVerbose);
+
+            ObjL mX(&ta);   const ObjL& X = mX;
+
+            ASSERTV(X.first.get(), 0 == X.first.get());
+            ASSERTV(&ta, X.second.allocator(), &ta == X.second.allocator());
+            ASSERTV(X.second.data(), 0 == X.second.data());
+
+
+            int *pI = new(ta) int(13);
+
+            bslma::ManagedPtr<int> managed(pI, &ta);
+
+            ObjL mY(managed, 42, &ta);   const ObjL& Y = mY;
+
+            ASSERTV(Y.first.get(), pI == Y.first.get());
+            ASSERTV(&ta, Y.second.allocator(), &ta == Y.second.allocator());
+            ASSERTV(Y.second.data(), 42 == Y.second.data());
+
+            mX = MoveUtil::move(mY);
+            ASSERTV(&ta, X.second.allocator(), &ta == X.second.allocator());
+
+            ASSERTV(X.first.get(), pI == X.first.get());
+            ASSERTV(X.second.data(), 42 == X.second.data());
+            ASSERTV(Y.first.get(), 0 == Y.first.get());
+            ASSERTV(Y.second.data(), 0 == Y.second.data());
+
+            mX.swap(mY);
+            ASSERTV(&ta, X.second.allocator(), &ta == X.second.allocator());
+            ASSERTV(&ta, Y.second.allocator(), &ta == Y.second.allocator());
+
+            ASSERTV(X.first.get(), 0 == X.first.get());
+            ASSERTV(X.second.data(), 0 == X.second.data());
+            ASSERTV(Y.first.get(), pI == Y.first.get());
+            ASSERTV(Y.second.data(), 42 == Y.second.data());
+
+#if 0   //  TBD This fails to compile as the allocator-aware copy constructor
+        //  signature is not SFINAE-friendly.  However, this failure does not
+        //  look to be a new bug for the C++14 branch
+
+            ObjL mZ(mY, &ta);   const ObjL& Z = mZ;
+
+            ASSERTV(Z.first.get(), pI == Z.first.get());
+            ASSERTV(&ta, Z.second.allocator(), &ta == Z.second.allocator());
+            ASSERTV(Z.second.data(), 42 == Z.second.data());
+#endif
+        }
+
+        if (verbose) printf("\t\twith move-only type as 'first'\n");
+        {
+            typedef bsl::pair<bsltf::MoveOnlyAllocTestType,
+                              bslma::ManagedPtr<int> >      ObjR;
+
+            bslma::TestAllocator ta("Managed 'second'", veryVeryVeryVerbose);
+
+            ObjR mX(&ta);   const ObjR& X = mX;
+
+            ASSERTV(&ta, X.first.allocator(), &ta == X.first.allocator());
+            ASSERTV(X.first.data(), 0 == X.first.data());
+            ASSERTV(X.second.get(), 0 == X.second.get());
+
+            int *pI = new(ta) int(13);
+
+            bslma::ManagedPtr<int> managed(pI, &ta);
+
+            ObjR mY(42, managed, &ta);   const ObjR& Y = mY;
+
+            ASSERTV(&ta, Y.first.allocator(), &ta == Y.first.allocator());
+            ASSERTV(Y.first.data(), 42 == Y.first.data());
+            ASSERTV(Y.second.get(), pI == Y.second.get());
+
+            mX = MoveUtil::move(mY);
+
+            ASSERTV(X.first.data(), 42 == X.first.data());
+            ASSERTV(X.second.get(), pI == X.second.get());
+            ASSERTV(Y.first.data(), 0 == Y.first.data());
+            ASSERTV(Y.second.get(), 0 == Y.second.get());
+
+            ObjR mZ(MoveUtil::move(mX), &ta);   const ObjR& Z = mZ;
+
+            ASSERTV(&ta, Z.first.allocator(), &ta == Z.first.allocator());
+            ASSERTV(Z.first.data(), 42 == Z.first.data());
+            ASSERTV(Z.second.get(), pI == Z.second.get());
+            ASSERTV(X.first.data(), 0 == X.first.data());
+            ASSERTV(X.second.get(), 0 == X.second.get());
+        }
+
+        if (verbose) printf("\t\twith movable type as 'first'\n");
+        {
+            typedef bsl::pair<bsltf::MovableAllocTestType,
+                              bslma::ManagedPtr<int> >     ObjR;
+
+            bslma::TestAllocator ta("Managed 'second'", veryVeryVeryVerbose);
+
+            ObjR mX(&ta);   const ObjR& X = mX;
+
+            ASSERTV(&ta, X.first.allocator(), &ta == X.first.allocator());
+            ASSERTV(X.first.data(), 0 == X.first.data());
+            ASSERTV(X.second.get(), 0 == X.second.get());
+
+            int *pI = new(ta) int(13);
+
+            bslma::ManagedPtr<int> managed(pI, &ta);
+
+            ObjR mY(42, managed, &ta);   const ObjR& Y = mY;
+
+            ASSERTV(Y.first.data(), 42 == Y.first.data());
+            ASSERTV(&ta, Y.first.allocator(), &ta == Y.first.allocator());
+            ASSERTV(Y.second.get(), pI == Y.second.get());
+
+            mX = mY;
+
+            ASSERTV(X.first.data(), 42 == X.first.data());
+            ASSERTV(X.second.get(), pI == X.second.get());
+            ASSERTV(Y.first.data(), 42 == Y.first.data());
+            ASSERTV(Y.second.get(), 0 == Y.second.get());
+
+#if 0   //  TBD This fails to compile due to an incompatible allocator-aware
+        //  copy constructor signature, but does not look to be a new bug for
+        //  the C++14 branch
+
+            ObjR mZ(mY, &ta);   const ObjR& Z = mZ;
+
+            ASSERTV(&ta, Z.first.allocator(), &ta == Z.first.allocator());
+            ASSERTV(Z.first.data(), 42 == Z.first.data());
+            ASSERTV(Z.second.get(), pI == Z.second.get());
+#endif
+        }
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING FIX FOR DRQS 122792538
+        //  This test case concerns a regression that fell out of the SFINAE
+        //  rules for constructors applied as part of the C++14 upgrade for
+        //  'bsl::pair'.  The fix was to be more thorough about our treatment
+        //  of SFINAE-friendly constructors.
+        //
+        // Concerns:
+        //: 1 Pre-existing code does not fail to compile with the C++14 upgrade
+        //:   to 'bsl::pair'.
+        //
+        // Plan:
+        //: 1 Provide a minimal code example of the kind of valid code that was
+        //:   surprisingly failing to compile.  This test remains as a canary
+        //:   should a further regression introduce a similar problem.
+        //
+        // Testing:
+        //   Concern: Fix for DRQS 122792538
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING FIX FOR DRQS 122792538"
+                            "\n==============================\n");
+
+        typedef bsl::pair<u::StrictlyAllocated, int> Obj;
+
+        bslma::TestAllocator tax("Unused allocator");
+        Obj mX(&tax);    const Obj& X = mX;
+
+        ASSERTV(X.first.index(), 0 == X.first.index());
+        ASSERTV(X.first.allocator(), &tax == X.first.allocator());
+        ASSERTV(X.second, 0 == X.second);
+
+        bslma::TestAllocator tay("Unused allocator");
+        Obj mY(X, &tay); const Obj& Y = mY;
+
+        ASSERTV(Y.first.index(), 0 == X.first.index());
+        ASSERTV(Y.first.allocator(), &tax == X.first.allocator());
+        ASSERTV(Y.second, 0 == Y.second);
+
+        ASSERT((!bsl::is_nothrow_move_constructible<Obj>::value));
+            // The trait 'bsl::is_nothrow_move_constructible<Obj>' will fail to
+            // instantiate, reporting an attempt to access private constructors
+            // prior to applying the patch for the ticket above.
+      } break;
       case 17: {
         // --------------------------------------------------------------------
         // TESTING CONVERSION TO 'std::tuple'
         //
         // Concerns:
-        //: 1 Operator returns a std::tuple, which memebers are references
+        //: 1 Operator returns a 'std::tuple', which members are references
         //:   providing modifiable access to the elements of calling object.
         //:
         //: 2 Operator is implicitly called during assignment of 'bsl::pair'
@@ -5475,12 +7246,13 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
 
+# if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
     // MSVC 2015 compler incorrectly handles tuple assigment so this test
     // compiling fails.  MSVC 2013 does not support tuples, so this test is
     // disabled for it anyway.  MSVC 2017 handles this test correctly.
+    if (verbose) printf("\tThis test is disabled for MSVC 2015\n");
 
-  #if !(defined(BSLS_PLATFORM_CMP_MSVC)) ||  \
-     (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION > 1900)
+# else
         RUN_EACH_TYPE(TupleConversionDriver,
                       operatorTest,
                       bsltf::SimpleTestType,
@@ -5491,24 +7263,98 @@ int main(int argc, char *argv[])
                       bsltf::NonTypicalOverloadsTestType);
 
         RUN_EACH_TYPE(TupleConversionDriver,
-              tieTest,
-              int,
-              long int,
-              bsltf::SimpleTestType,
-              bsltf::AllocTestType,
-              bsltf::BitwiseCopyableTestType,
-              bsltf::BitwiseMoveableTestType,
-              bsltf::AllocBitwiseMoveableTestType,
-              bsltf::NonTypicalOverloadsTestType);
-  #else
-    if (verbose) printf("\tThis test is disabled for MSVC 2015\n");
-  #endif
+                      tieTest,
+                      int,
+                      long int,
+                      bsltf::SimpleTestType,
+                      bsltf::AllocTestType,
+                      bsltf::BitwiseCopyableTestType,
+                      bsltf::BitwiseMoveableTestType,
+                      bsltf::AllocBitwiseMoveableTestType,
+                      bsltf::NonTypicalOverloadsTestType);
+# endif
 #else
     if (verbose) printf(
          "\tThis test is disabled because compiler does not support tuples\n");
 #endif
       } break;
       case 16: {
+        // --------------------------------------------------------------------
+        // TESTING 'noexcept' SPECIFICATIONS
+        //
+        // Concerns:
+        //: 1 The 'noexcept' specification has been applied to all class
+        //:   interfaces required by the standard.
+        //
+        // Plan:
+        //: 1 Apply the unary 'noexcept' operator to expressions that mimic
+        //:   those appearing in the standard and confirm that calculated
+        //:   boolean value matches the expected value.
+        //:
+        //: 2 Since the 'noexcept' specification does not vary with the 'TYPE'
+        //:   of the container, we need test for just one general type and any
+        //:   'TYPE' specializations.
+        //
+        // Testing:
+        //   Concern: Methods marked 'noexcept' in standard are so implemented
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'noexcept' SPECIFICATIONS"
+                            "\n=================================\n");
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+        if (verbose) printf("'noexcept' not supported on this platform\n");
+#else
+        // N4594: 20.4: Pairs
+
+        // pages 526-527: Class template pair
+        //..
+        //  pair& operator=(pair&& p) noexcept (see below);
+        //  void pair::swap(pair& p) noexcept (see below);
+        //  void swap(pair& a, pair& b) noexcept (see below);
+        //  T& get<N>(pair &) noexcept;  // for all 4 c-ref-qualifications
+        //  T& get<T>(pair &) noexcept;  // for all 4 c-ref-qualifications
+        //..
+
+        {
+            bsl::pair<int, long> mX;
+            bsl::pair<int, long> mP;
+
+            const          bsl::pair<int, long>&   X = mX;
+                  volatile bsl::pair<int, long>& vmX = mX;
+            const volatile bsl::pair<int, long>&  vX = mX;
+
+            ASSERT(noexcept(mX = MoveUtil::move(mP)));
+# if defined(BSLSTL_PAIR_SUPPORTS_NOEXCEPT_ON_SWAP)
+            ASSERT(noexcept(mX.swap(mP)));
+            ASSERT(noexcept(bsl::swap(mX, mP)));
+# endif
+
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+            ASSERT(noexcept(bsl::get<0>(mX)));
+            ASSERT(noexcept(bsl::get<0>( X)));
+            ASSERT(noexcept(bsl::get<0>(std::move(mX))));
+            ASSERT(noexcept(bsl::get<0>(std::move( X))));
+
+            ASSERT(noexcept(bsl::get<1>(mX)));
+            ASSERT(noexcept(bsl::get<1>( X)));
+            ASSERT(noexcept(bsl::get<1>(std::move(mX))));
+            ASSERT(noexcept(bsl::get<1>(std::move( X))));
+
+            ASSERT(noexcept(bsl::get<int>(mX)));
+            ASSERT(noexcept(bsl::get<int>( X)));
+            ASSERT(noexcept(bsl::get<int>(std::move(mX))));
+            ASSERT(noexcept(bsl::get<int>(std::move( X))));
+
+            ASSERT(noexcept(bsl::get<long>(mX)));
+            ASSERT(noexcept(bsl::get<long>( X)));
+            ASSERT(noexcept(bsl::get<long>(std::move(mX))));
+            ASSERT(noexcept(bsl::get<long>(std::move( X))));
+# endif
+        }
+#endif
+      } break;
+      case 15: {
         // --------------------------------------------------------------------
         // TESTING TUPLE-LIKE API
         //
@@ -5554,7 +7400,6 @@ int main(int argc, char *argv[])
         //   tuple_element<>::type& get<INDEX, T1, T2>(bsl::pair<T1, T2>& p)
         //   tuple_element<>::type& get<TYPE, T1, T2>(bsl::pair<T1, T2>& p)
         // --------------------------------------------------------------------
-
 
         if (verbose) printf("\nTESTING TUPLE-LIKE API"
                             "\n======================\n");
@@ -5630,20 +7475,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("Tuple-like APIs are not supported\n");
 #endif
       } break;
-      case 15: {
-        // --------------------------------------------------------------------
-        // 'noexcept' SPECIFICATION
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\n" "'noexcept' SPECIFICATION" "\n"
-                                 "========================" "\n");
-
-        testCase15();
-
-      } break;
       case 14: {
         // --------------------------------------------------------------------
-        // C'TOR TO/FROM NATIVE_STD::PAIR, PAIRS WITHIN PAIRS
+        // TESTING C'TOR TO/FROM NATIVE_STD::PAIR, PAIRS WITHIN PAIRS
         //
         // This test case was written to expose a known problem, and verify its
         // fix, to do with pairs within pairs, and conversions between
@@ -5690,8 +7524,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                       "C'TOR TO/FROM NATIVE_STD::PAIR, PAIRS WITHIN PAIRS\n"
-                       "==================================================\n");
+             "\nTESTING C'TOR TO/FROM NATIVE_STD::PAIR, PAIRS WITHIN PAIRS"
+             "\n==========================================================\n");
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase14,
@@ -5756,6 +7590,9 @@ int main(int argc, char *argv[])
         //   pair(piecewise_construct_t, tuple, tuple);
         //   pair(piecewise_construct_t, tuple, tuple, basicAllocator);
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING TUPLE-BASED CONSTRUCTION"
+                            "\n================================\n");
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
         typedef TupleTestDriver TTD;
@@ -6221,22 +8058,26 @@ int main(int argc, char *argv[])
         TTD::runTestInplaceMemberConstruction<CloneDisabledTestType, 1, 1>();
 
         TTD::runTestAllocatorPropagation();
+#else
+        if (verbose) printf("\nNot supported in this build configuration.\n");
 #endif
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING MOVE and COPY ASSIGNMENT
+        // TESTING MOVE AND COPY ASSIGNMENT
         //
         // Concerns:
         //: 1 Construct two pairs, a 'ToPair' and a 'FromPair' (both types
         //:   defined and docced within the 'TestDriver' class) with different
         //:   types.
-
-
-
-        // template <class U1, class U2> pair& operator=(pair<U1, U2>&&);
-        // template <class U1, class U2> pair& operator=(const pair<U1, U2>&);
+        //
+        // Testing:
+        //   pair& operator=(pair<U1, U2>&& rhs);
+        //   pair& operator=(const pair<U1, U2>& rhs);
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING MOVE AND COPY ASSIGNMENT"
+                            "\n================================\n");
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase12_move,
@@ -6257,7 +8098,8 @@ int main(int argc, char *argv[])
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
-                   // BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType) - copy assign is needed
+                   // BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)
+                   // test disabled as copy-assign is needed
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -6310,6 +8152,10 @@ int main(int argc, char *argv[])
         //   pair(const pair<first_type, second_type>& pr, Alloc a);
         // --------------------------------------------------------------------
 
+        if (verbose) printf(
+           "\nTESTING MOVE CONSTRUCTOR WITH ONE ELEMENT MOVED, ONE COPIED"
+           "\n===========================================================\n");
+
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase11,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -6319,7 +8165,8 @@ int main(int argc, char *argv[])
                       BAD_MOVE_GUARD(bsltf::MovableTestType),
                       BAD_MOVE_GUARD(bsltf::MovableAllocTestType));
 
-        // Cannot do 'BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)' -- need copy c'tor.
+        // Cannot do 'BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)'
+        // -- would need a copy constructor.
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -6352,16 +8199,21 @@ int main(int argc, char *argv[])
         //   pair(first_type&& a, second_type&& b, AllocatorPtr a);
         // --------------------------------------------------------------------
 
-        RUN_EACH_TYPE(MetaTestDriver,
-                      testCase10,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+        if (verbose) printf(
+           "\nTESTING MOVE CONSTRUCTOR WITH 2 INDEPENDENTLY MOVED ELEMENTS"
+           "\n============================================================\n");
 
-        RUN_EACH_TYPE(MetaTestDriver,
-                      testCase10,
-                      BAD_MOVE_GUARD(bsltf::MovableTestType),
-                      BAD_MOVE_GUARD(bsltf::MovableAllocTestType),
-                      BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType));
+        RUN_EACH_TYPE( MetaTestDriver
+                     , testCase10
+                     , BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR
+                     );
 
+        RUN_EACH_TYPE( MetaTestDriver
+                     , testCase10
+                     , BAD_MOVE_GUARD(bsltf::MovableTestType)
+                     , BAD_MOVE_GUARD(bsltf::MovableAllocTestType)
+                     , BAD_MOVE_GUARD(bsltf::MoveOnlyAllocTestType)
+                     );
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -6390,9 +8242,13 @@ int main(int argc, char *argv[])
         // Testing:
         //   template <class U1, class U2> pair(pair<U1, U2>&&)
         //   template <class U1, class U2> pair(pair<U1, U2>&&, AllocatorPtr)
-        //   pair(pair&&)
-        //   pair(pair&&, AllocatorPtr)
+        //   pair(pair&& original)
+        //   pair(pair&& original, AllocatorPtr basicAllocator)
         // --------------------------------------------------------------------
+
+        if (verbose) printf(
+           "\nTESTING MOVE CONSTRUCTOR FOR DIFFERENT TYPE / SAME TYPE PAIR"
+           "\n============================================================\n");
 
         RUN_EACH_TYPE(MetaTestDriver,
                       testCase9,
@@ -6705,6 +8561,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   Concern: Can create a pointer-to-member for 'first' and 'second'
         // --------------------------------------------------------------------
+
         if (verbose) printf("\nTEST FORMING A POINTER-TO-DATA-MEMBER"
                             "\n=====================================\n");
 
@@ -6825,9 +8682,9 @@ int main(int argc, char *argv[])
             ASSERT(a1 != a6);
             if (veryVerbose) {
                 printf(
-                  "\tp1=p2: %d, p1/p3: %d, p1/p4: %d, p1/p5: %d, p1/p6: %d\n",
-                  int(a1 == a2), int(a1 != a3), int(a1 != a4),
-                  int(a1 != a5), int(a1 != a6));
+                   "\tp1=p2: %d, p1/p3: %d, p1/p4: %d, p1/p5: %d, p1/p6: %d\n",
+                   int(a1 == a2), int(a1 != a3), int(a1 != a4), int(a1 != a5),
+                   int(a1 != a6));
             }
             ASSERT(a2 != a3);
             ASSERT(a2 != a4);
@@ -6842,30 +8699,25 @@ int main(int argc, char *argv[])
             ASSERT(a3 != a5);
             ASSERT(a3 != a6);
             if (veryVerbose) {
-                printf(
-                   "\tp3/p4: %d, p3/p5: %d, p3/p6: %d\n",
-                   int(a3 != a4), int(a3 != a5), int(a3 != a6));
+                printf("\tp3/p4: %d, p3/p5: %d, p3/p6: %d\n",
+                       int(a3 != a4), int(a3 != a5), int(a3 != a6));
             }
             ASSERT(a4 == a5);
             ASSERT(a4 != a6);
             if (veryVerbose) {
-                printf(
-                   "\tp4=p5: %d, p4/p6: %d\n",
-                   int(a4 == a5), int(a4 != a6));
+                printf("\tp4=p5: %d, p4/p6: %d\n",
+                       int(a4 == a5), int(a4 != a6));
             }
             ASSERT(a5 != a6);
             if (veryVerbose) {
-                printf(
-                    "\tp5/p6: %d\n",
-                    int(a5 != a6));
+                printf("\tp5/p6: %d\n", int(a5 != a6));
             }
 
             ASSERT(a7 == a8);
             ASSERT(a1 == a8);
             if (veryVerbose) {
-                printf(
-                    "\tp7=p8: %d, p1=p8: %d\n",
-                    int(a7 == a8), int(a1 == a8));
+                printf("\tp7=p8: %d, p1=p8: %d\n",
+                       int(a7 == a8), int(a1 == a8));
             }
         }
         if (verbose) {
@@ -6972,10 +8824,10 @@ int main(int argc, char *argv[])
         // - When an allocator is not supplied on construction, verify that
         //   the correct default is used by the STRING in the constructed pair.
         // - When 'STRING' does not use a 'bslma::Allocator' and an allocator
-        //   is supllied on construction, verify that the 'STRING' value
+        //   is supplied on construction, verify that the 'STRING' value
         //   in the constructed pair uses the appropriate default allocator.
         // - When 'STRING' does use a 'bslma::Allocator' and an allocator
-        //   is supllied on construction, verify that the 'STRING' value
+        //   is supplied on construction, verify that the 'STRING' value
         //   in the constructed pair uses the supplied allocator.
         // - Verify that there are no memory leaks.
         //
@@ -7339,33 +9191,28 @@ int main(int argc, char *argv[])
 
         // Simple constructors
 
-        static_assert(pair<int, int>().second == 0,
+        constexpr int f = 1, s = 2;
+
+        constexpr pair<int, int> pairDefault;
+
+        static_assert(pairDefault.second == 0,
                       "Default constructor is not 'constexpr'.");
 
-        constexpr int f = 1, s = 2;
-        static_assert(pair<int, int>(f, s).second == 2,
-                      "Constructor is not 'constexpr'.");
+        constexpr pair<int, int> pairII(f, s);
+
+        static_assert(pairII.second == 2, "Constructor is not 'constexpr'.");
 
         // Relational operators
 
-        static_assert(pair<int, int>(f, s) == pair<int, int>(f, s),
-                      "Operator == is not 'constexpr'.");
+        static_assert(  pairII == pairII,  "Operator == is not 'constexpr'.");
+        static_assert(  pairII >= pairII,  "Operator >= is not 'constexpr'.");
+        static_assert(  pairII <= pairII,  "Operator <= is not 'constexpr'.");
 
-        static_assert(pair<int, int>(s, f) >= pair<int, int>(f, s),
-                      "Operator >= is not 'constexpr'.");
-        static_assert(pair<int, int>(s, f) >  pair<int, int>(f, s),
-                      "Operator > is not 'constexpr'.");
-        static_assert(pair<int, int>(s, f) != pair<int, int>(f, s),
-                      "Operator != is not 'constexpr'.");
+        static_assert(!(pairII != pairII), "Operator != is not 'constexpr'.");
+        static_assert(!(pairII >  pairII), "Operator > is not 'constexpr'.");
+        static_assert(!(pairII <  pairII), "Operator < is not 'constexpr'.");
 
-        static_assert(pair<int, int>(f, s) <= pair<int, int>(s, f),
-                      "Operator <= is not 'constexpr'.");
-        static_assert(pair<int, int>(f, s) <  pair<int, int>(s, f),
-                      "Operator < is not 'constexpr'.");
-        static_assert(pair<int, int>(f, s) != pair<int, int>(s, f),
-                      "Operator != is not 'constexpr'.");
-
-        // Moving constructors
+        // Rvalue constructors
 
         static_assert(pair<int, int>(1, 2).second == 2,
                       "Constructor is not 'constexpr'.");
@@ -7389,24 +9236,99 @@ int main(int argc, char *argv[])
                       "Templated constructor is not 'constexpr'.");
 
         static_assert(pair<int, int>(pair<int, int>(1, 2)).second == 2,
-                      "Copy constructor is not 'constexpr'.");
+                      "Move constructor is not 'constexpr'.");
 
         // Copying constructors
 
-        constexpr pair<int, int> pairii(1, 2);
-
-        static_assert(pair<short, short>(pairii).second == 2,
+        static_assert(pair<short, short>(pairII).second == 2,
                       "Templated constructor is not 'constexpr'.");
 
-        static_assert(pair<int, int>(pairii).second == 2,
+        static_assert(pair<int, int>(pairII).second == 2,
                       "Copy constructor is not 'constexpr'.");
+
+
+        // Repeat for pairs holding reference types, as they use different
+        // base class specializations for both 'first' and 'second'.
+
+        // Simple constructors
+
+        static_assert(pair<const int&, const int&>(f, s).second == 2,
+                      "Constructor is not 'constexpr'.");
+
+        // Relational operators
+
+        static_assert(pair<const int&, const int&>(f, s) ==
+                      pair<const int&, const int&>(f, s),
+                      "Operator == is not 'constexpr'.");
+
+        static_assert(pair<const int&, const int&>(s, f) >=
+                      pair<const int&, const int&>(f, s),
+                      "Operator >= is not 'constexpr'.");
+
+        static_assert(pair<const int&, const int&>(s, f) >
+                      pair<const int&, const int&>(f, s),
+                      "Operator > is not 'constexpr'.");
+
+        static_assert(pair<const int&, const int&>(s, f) !=
+                      pair<const int&, const int&>(f, s),
+                      "Operator != is not 'constexpr'.");
+
+        static_assert(pair<const int&, const int&>(f, s) <=
+                      pair<const int&, const int&>(f, s),
+                      "Operator <= is not 'constexpr'.");
+        static_assert(pair<const int&, const int&>(f, s) <
+                      pair<const int&, const int&>(s, f),
+                      "Operator < is not 'constexpr'.");
+        static_assert(pair<const int&, const int&>(f, s) !=
+                      pair<const int&, const int&>(s, f),
+                      "Operator != is not 'constexpr'.");
+
+        // Rvalue constructors
+
+        static_assert(pair<int&&, int&&>(1, 2).second == 2,
+                      "Constructor is not 'constexpr'.");
+#if 0
+        static_assert(pair<int&&, int&&>(f, 2).second == 2,
+                      "Constructor is not 'constexpr'.");
+        static_assert(pair<int&&, int&&>(1, s).second == 2,
+                      "Constructor is not 'constexpr'.");
+        static_assert(pair<int&&, int&&>(f, s).second == 2,
+                      "Constructor is not 'constexpr'.");
+#endif
+
+        static_assert(pair<short, short>(1, 2).second == 2,
+                      "Constructor is not 'constexpr'.");
+        static_assert(pair<short, short>(f, 2).second == 2,
+                      "Constructor is not 'constexpr'.");
+        static_assert(pair<short, short>(1, s).second == 2,
+                      "Constructor is not 'constexpr'.");
+        static_assert(pair<short, short>(f, s).second == 2,
+                      "Constructor is not 'constexpr'.");
+
+        static_assert(pair<short, short>(pair<int, int>(1, 2)).second == 2,
+                      "Templated constructor is not 'constexpr'.");
+        static_assert(
+  pair<const int&, const int&>(pair<const int&, const int&>(f, s)).second == s,
+  "Move constructor is not 'constexpr'.");
+
+        // Copying constructors
+#if 0   // TBD Need further investigation why ref-binding is not constexpr
+
+        constexpr pair<const int, const int> paircc(f, s);
+        constexpr pair<const int&, const int&> pairrr = paircc;
+
+        static_assert(pair<short, short>(pairrr).second == 2,
+                      "Templated constructor is not 'constexpr'.");
+
+        static_assert(pair<const int&, const int&>(pairrr).second == 2,
+                      "Copy constructor is not 'constexpr'.");
+#endif
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 
 #undef TEST
 
       } break;
-
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -7427,6 +9349,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
+
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 

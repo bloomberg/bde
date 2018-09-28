@@ -32,7 +32,7 @@ MoveOnlyAllocTestType::MoveOnlyAllocTestType(bslma::Allocator *basicAllocator)
     *d_data_p = 0;
 }
 
-MoveOnlyAllocTestType::MoveOnlyAllocTestType(int data,
+MoveOnlyAllocTestType::MoveOnlyAllocTestType(int               data,
                                              bslma::Allocator *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_self_p(this)
@@ -172,6 +172,18 @@ void MoveOnlyAllocTestType::setData(int value)
 }
 
 }  // close package namespace
+
+// FREE FUNCTIONS
+void bsltf::swap(bsltf::MoveOnlyAllocTestType& a,
+                 bsltf::MoveOnlyAllocTestType& b)
+{
+    typedef bslmf::MovableRefUtil MRU;
+
+    bsltf::MoveOnlyAllocTestType intermediate(MRU::move(a));
+    a = MRU::move(b);
+    b = MRU::move(intermediate);
+}
+
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

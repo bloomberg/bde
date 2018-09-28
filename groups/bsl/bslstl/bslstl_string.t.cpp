@@ -277,10 +277,10 @@ using bsls::nameOfType;
 // [24] bool operator>=(const string<C,CT,A>&, const string<C,CT,A>&);
 // [24] bool operator>=(const C *, const string<C,CT,A>&);
 // [24] bool operator>=(const string<C,CT,A>&, const C *);
-// [34] string operator "" _s(const char *, size_t);
-// [34] wstring operator "" _s(const wchar_t *, size_t);
-// [34] string operator "" _S(const char *, size_t);
-// [34] wstring operator "" _S(const wchar_t *, size_t);
+// [34] string operator ""_s(const char *, size_t);
+// [34] wstring operator ""_s(const wchar_t *, size_t);
+// [34] string operator ""_S(const char *, size_t);
+// [34] wstring operator ""_S(const wchar_t *, size_t);
 // [21] void swap(basic_string& lhs, basic_string& rhs);
 // [30] int stoi(const string& str, std::size_t *pos = 0, int base = 10);
 // [30] int stoi(const wstring& str, std::size_t *pos = 0, int base = 10);
@@ -19316,23 +19316,23 @@ int main(int argc, char *argv[])
       } break;
       case 34: {
         // --------------------------------------------------------------------
-        // TESTING 'operator "" _s' and 'operator "" _S'
+        // TESTING 'operator ""_s' and 'operator ""_S'
         //
         // Concerns:
-        //: 1 That the 'operator "" _s' and operator "" _S correctly forwards
+        //: 1 That the 'operator ""_s' and operator ""_S correctly forwards
         //:   arguments to the constructor of the 'basic_string' type.
         //:
         //: 2 That the length of the resultant string is determined by the
         //:   specified 'length' argument and does not depend on character
         //:   values of the input character array, for example null character.
         //:
-        //: 3 That the 'operator "" _s' uses the default allocator to supply
+        //: 3 That the 'operator ""_s' uses the default allocator to supply
         //:   memory.
         //:
-        //: 4 That the 'operator "" _S' uses the global allocator to supply
+        //: 4 That the 'operator ""_S' uses the global allocator to supply
         //:   memory.
         //:
-        //: 5 That an access to 'operator "" _s' and 'operator "" _S' can be
+        //: 5 That an access to 'operator ""_s' and 'operator ""_S' can be
         //:   gained using either 'bsl::literals', 'bsl::string_literals' or
         //:   'bsl::literals::string_literals' namespaces.
         //:
@@ -19349,10 +19349,10 @@ int main(int argc, char *argv[])
         //:   allocator.
         //
         // Testing:
-        //    string operator "" _s(const char*    str, std::size_t len);
-        //   wstring operator "" _s(const wchar_t* str, std::size_t len);
-        //    string operator "" _S(const char*    str, std::size_t len);
-        //   wstring operator "" _S(const wchar_t* str, std::size_t len);
+        //    string operator ""_s(const char*    str, std::size_t len);
+        //   wstring operator ""_s(const wchar_t* str, std::size_t len);
+        //    string operator ""_S(const char*    str, std::size_t len);
+        //   wstring operator ""_S(const wchar_t* str, std::size_t len);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -19464,17 +19464,17 @@ int main(int argc, char *argv[])
                 using namespace bsl::string_literals;
                 bsls::AssertTestHandlerGuard hG;
 
-                ASSERT_SAFE_PASS(operator "" _s("12345", 0));
-                ASSERT_SAFE_PASS(operator "" _s("12345", 5));
+                ASSERT_SAFE_PASS(operator ""_s("12345", 0));
+                ASSERT_SAFE_PASS(operator ""_s("12345", 5));
 
-                ASSERT_SAFE_PASS(operator "" _s(static_cast<char*>(0), 0));
-                ASSERT_SAFE_FAIL(operator "" _s(static_cast<char*>(0), 5));
+                ASSERT_SAFE_PASS(operator ""_s(static_cast<char*>(0), 0));
+                ASSERT_SAFE_FAIL(operator ""_s(static_cast<char*>(0), 5));
 
-                ASSERT_SAFE_PASS(operator "" _S("12345", 0));
-                ASSERT_SAFE_PASS(operator "" _S("12345", 5));
+                ASSERT_SAFE_PASS(operator ""_S("12345", 0));
+                ASSERT_SAFE_PASS(operator ""_S("12345", 5));
 
-                ASSERT_SAFE_PASS(operator "" _S(static_cast<char*>(0), 0));
-                ASSERT_SAFE_FAIL(operator "" _S(static_cast<char*>(0), 5));
+                ASSERT_SAFE_PASS(operator ""_S(static_cast<char*>(0), 0));
+                ASSERT_SAFE_FAIL(operator ""_S(static_cast<char*>(0), 5));
             }
         }
 
@@ -19580,21 +19580,21 @@ int main(int argc, char *argv[])
                 using namespace bsl::string_literals;
                 bsls::AssertTestHandlerGuard hG;
 
-                ASSERT_SAFE_PASS(operator "" _s(L"12345", 0));
-                ASSERT_SAFE_PASS(operator "" _s(L"12345", 5));
+                ASSERT_SAFE_PASS(operator ""_s(L"12345", 0));
+                ASSERT_SAFE_PASS(operator ""_s(L"12345", 5));
 
-                ASSERT_SAFE_PASS(operator "" _s(static_cast<char*>(0), 0));
-                ASSERT_SAFE_FAIL(operator "" _s(static_cast<char*>(0), 5));
+                ASSERT_SAFE_PASS(operator ""_s(static_cast<char*>(0), 0));
+                ASSERT_SAFE_FAIL(operator ""_s(static_cast<char*>(0), 5));
 
-                ASSERT_SAFE_PASS(operator "" _S(L"12345", 0));
-                ASSERT_SAFE_PASS(operator "" _S(L"12345", 5));
+                ASSERT_SAFE_PASS(operator ""_S(L"12345", 0));
+                ASSERT_SAFE_PASS(operator ""_S(L"12345", 5));
 
-                ASSERT_SAFE_PASS(operator "" _S(static_cast<char*>(0), 0));
-                ASSERT_SAFE_FAIL(operator "" _S(static_cast<char*>(0), 5));
+                ASSERT_SAFE_PASS(operator ""_S(static_cast<char*>(0), 0));
+                ASSERT_SAFE_FAIL(operator ""_S(static_cast<char*>(0), 5));
             }
         }
 #else
-        if (veryVerbose) { printf("Cannot test 'operator "" _s' "
+        if (veryVerbose) { printf("Cannot test 'operator ""_s' "
                                   "in pre-C++11 mode or if the compiler "
                                   "does not support inline namespaces.\n"); }
 #endif

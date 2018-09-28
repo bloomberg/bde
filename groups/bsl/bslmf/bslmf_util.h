@@ -74,15 +74,19 @@ struct Util {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class TYPE>
+    BSLS_KEYWORD_CONSTEXPR
     static TYPE&& forward(typename bsl::remove_reference<TYPE>::type&  t)
                                                          BSLS_KEYWORD_NOEXCEPT;
     template <class TYPE>
+    BSLS_KEYWORD_CONSTEXPR
     static TYPE&& forward(typename bsl::remove_reference<TYPE>::type&& t)
                                                          BSLS_KEYWORD_NOEXCEPT;
 #else
     template <class TYPE>
+    BSLS_KEYWORD_CONSTEXPR
     static const TYPE& forward(const TYPE& t) BSLS_KEYWORD_NOEXCEPT;
     template <class TYPE>
+    BSLS_KEYWORD_CONSTEXPR
     static MovableRef<TYPE> forward(MovableRef<TYPE> t) BSLS_KEYWORD_NOEXCEPT;
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         // Correctly forward the specified 't' argument based on the current
@@ -90,10 +94,12 @@ struct Util {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     template <class TYPE>
+    BSLS_KEYWORD_CONSTEXPR
     static typename bsl::add_rvalue_reference<TYPE>::type declval()
                                                          BSLS_KEYWORD_NOEXCEPT;
 #else
     template <class TYPE>
+    BSLS_KEYWORD_CONSTEXPR
     static typename bsl::add_lvalue_reference<TYPE>::type declval()
                                                          BSLS_KEYWORD_NOEXCEPT;
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -109,6 +115,7 @@ struct Util {
 // CLASS METHODS
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 template <class TYPE>
+BSLS_KEYWORD_CONSTEXPR
 inline
 TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type& t)
                                                           BSLS_KEYWORD_NOEXCEPT
@@ -117,6 +124,7 @@ TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type& t)
 }
 
 template <class TYPE>
+BSLS_KEYWORD_CONSTEXPR
 inline
 TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type&& t)
                                                           BSLS_KEYWORD_NOEXCEPT
@@ -127,6 +135,7 @@ TYPE&& Util::forward(typename bsl::remove_reference<TYPE>::type&& t)
 #else
 
 template <class TYPE>
+BSLS_KEYWORD_CONSTEXPR
 inline
 const TYPE& Util::forward(const TYPE& t) BSLS_KEYWORD_NOEXCEPT
 {
@@ -134,6 +143,7 @@ const TYPE& Util::forward(const TYPE& t) BSLS_KEYWORD_NOEXCEPT
 }
 
 template <class TYPE>
+BSLS_KEYWORD_CONSTEXPR
 inline
 bslmf::MovableRef<TYPE> Util::forward(bslmf::MovableRef<TYPE> t)
                                                           BSLS_KEYWORD_NOEXCEPT

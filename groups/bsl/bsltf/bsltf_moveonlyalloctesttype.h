@@ -20,7 +20,7 @@ BSLS_IDENT("$Id: $")
 // (value-semantic) attribute class, 'MoveOnlyAllocTestType', that uses a
 // 'bslma::Allocator' to supply memory (defines the type trait
 // 'bslma::UsesBslmaAllocator') and provides only a move constructor and
-// assignment operator (disables copy constructor and assigment operator).
+// assignment operator (disables copy constructor and assignment operator).
 // Furthermore, this class is not bitwise-moveable, and will assert on
 // destruction if it has been moved.  This class is primarily provided to
 // facilitate testing of templates by defining a simple type representative of
@@ -106,11 +106,11 @@ namespace bsltf {
 class MoveOnlyAllocTestType {
     // This unconstrained (value-semantic) attribute class that uses a
     // 'bslma::Allocator' to supply memory and defines the type trait
-    // 'bslma::UsesBslmaAllocator'.  This class is primarily provided
-    // to facilitate testing of templates by defining a simple type
-    // representative of user-defined types having an allocator.  See the
-    // Attributes section under @DESCRIPTION in the component-level
-    // documentation for information on the class attributes.
+    // 'bslma::UsesBslmaAllocator'.  This class is primarily provided to
+    // facilitate testing of templates by defining a simple type representative
+    // of user-defined types having an allocator.  See the Attributes section
+    // under @DESCRIPTION in the component-level documentation for information
+    // on the class attributes.
 
     // DATA
     int                     *d_data_p;       // pointer to the data value
@@ -142,7 +142,7 @@ class MoveOnlyAllocTestType {
         // 'basicAllocator' is 0, the currently installed default allocator is
         // used.
 
-    explicit MoveOnlyAllocTestType(int data,
+    explicit MoveOnlyAllocTestType(int               data,
                                    bslma::Allocator *basicAllocator = 0);
         // Create a 'MoveOnlyAllocTestType' object having the specified 'data'
         // attribute value.  Optionally specify a 'basicAllocator' used to
@@ -150,13 +150,17 @@ class MoveOnlyAllocTestType {
         // default allocator is used.
 
     MoveOnlyAllocTestType(bslmf::MovableRef<MoveOnlyAllocTestType> original);
-    MoveOnlyAllocTestType(bslmf::MovableRef<MoveOnlyAllocTestType> original,
-                          bslma::Allocator      *basicAllocator);
-        // TBD: fix comment
+    MoveOnlyAllocTestType(
+            bslmf::MovableRef<MoveOnlyAllocTestType>           original,
+            bslma::Allocator                                  *basicAllocator);
         // Create a 'MoveAllocTestType' object having the same value as the
         // specified 'original' object.  Optionally specify a 'basicAllocator'
         // used to supply memory.  If 'basicAllocator' is 0, the currently
-        // installed default allocator is used.
+        // installed default allocator is used.  After construction, this
+        // object will be in a 'movedInto' state, and 'original' will be in a
+        // 'movedFrom' state.  No allocations shall occur (so no exception will
+        // be thrown) unless 'basicAllocator' is not the currently installed
+        // default allocator.
 
     ~MoveOnlyAllocTestType();
         // Destroy this object.
@@ -164,9 +168,17 @@ class MoveOnlyAllocTestType {
     // MANIPULATORS
     MoveOnlyAllocTestType& operator=(
                                  bslmf::MovableRef<MoveOnlyAllocTestType> rhs);
-        // TBD: fix comment
         // Assign to this object the value of the specified 'rhs' object, and
-        // return a reference providing modifiable access to this object.
+        // return a reference providing modifiable access to this object.  If
+        // 'rhs' is a reference to this object, there are no other effects;
+        // otherwise, the object referenced by 'rhs' will be reset to a default
+        // constructed state, 'rhs' shall be in a 'movedFrom' state, and this
+        // object will be in a 'movedTo' state.  No allocations shall occur
+        // (so no exception will be thrown) unless this object and 'rhs' have
+        // different allocators.  Note that the moved-from state is specified,
+        // rather than "valid but unspecified", as this type is intended for
+        // verifying test drivers that want to ensure that moves occur
+        // correctly where expected.
 
     void setData(int value);
         // Set the 'data' attribute of this object to the specified 'value'.
@@ -196,8 +208,6 @@ bool operator==(const MoveOnlyAllocTestType& lhs,
     // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
     // value, and 'false' otherwise.  Two 'MoveOnlyAllocTestType' objects have
     // the same if their 'data' attributes are the same.
-    // TBD: think about the behavior when specified on an object that was
-    // moved-from on this as well as other functions/methods if appropriate.
 
 bool operator!=(const MoveOnlyAllocTestType& lhs,
                 const MoveOnlyAllocTestType& rhs);
@@ -215,6 +225,11 @@ MoveState::Enum getMovedInto(const MoveOnlyAllocTestType& object);
 void setMovedInto(MoveOnlyAllocTestType *object, MoveState::Enum value);
     // Set the moved-into state of the specified 'object' to the specified
     // 'value'.
+
+void swap(MoveOnlyAllocTestType& a, MoveOnlyAllocTestType& b);
+    // Exchange the states of the specified 'a' and 'b'.  Both 'a' and 'b' will
+    // be left in a moved-into state.  No allocations shall occur (so no
+    // exceptions will be thrown) unless 'a' and 'b' have different allocators.
 
 // ============================================================================
 //                  INLINE AND TEMPLATE FUNCTION IMPLEMENTATIONS
