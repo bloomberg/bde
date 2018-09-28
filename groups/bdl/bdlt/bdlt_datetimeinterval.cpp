@@ -195,12 +195,13 @@ void DatetimeInterval::setTotalSecondsFromDouble(double seconds)
            static_cast<bsls::Types::Int64>(microseconds));
 }
 
-void DatetimeInterval::addInterval(int                days,
-                                   bsls::Types::Int64 hours,
-                                   bsls::Types::Int64 minutes,
-                                   bsls::Types::Int64 seconds,
-                                   bsls::Types::Int64 milliseconds,
-                                   bsls::Types::Int64 microseconds)
+DatetimeInterval& DatetimeInterval::addInterval(
+                                               int                days,
+                                               bsls::Types::Int64 hours,
+                                               bsls::Types::Int64 minutes,
+                                               bsls::Types::Int64 seconds,
+                                               bsls::Types::Int64 milliseconds,
+                                               bsls::Types::Int64 microseconds)
 {
     bsls::Types::Int64 d = static_cast<bsls::Types::Int64>(days)
                          + hours        / TimeUnitRatio::k_H_PER_D
@@ -223,6 +224,8 @@ void DatetimeInterval::addInterval(int                days,
 
     assign(static_cast<bsls::Types::Int64>(d_days) + d,
            d_microseconds + us);
+
+    return *this;
 }
 
 void DatetimeInterval::setInterval(int                days,
