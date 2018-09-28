@@ -107,8 +107,8 @@ TimeInterval& TimeInterval::addSeconds(bsls::Types::Int64 seconds)
     return *this;
 }
 
-void TimeInterval::addInterval(bsls::Types::Int64 seconds,
-                               int                nanoseconds)
+TimeInterval& TimeInterval::addInterval(bsls::Types::Int64 seconds,
+                                        int                nanoseconds)
 {
     BSLS_ASSERT(isSumValidInt64(d_seconds, seconds));
     BSLS_ASSERT(isSumValidInt64(
@@ -137,6 +137,7 @@ void TimeInterval::addInterval(bsls::Types::Int64 seconds,
         ++d_seconds;
         d_nanoseconds -= k_NANOSECS_PER_SEC;
     }
+    return *this;
 }
 
 void TimeInterval::setInterval(bsls::Types::Int64 seconds,
