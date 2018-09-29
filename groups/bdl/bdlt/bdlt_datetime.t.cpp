@@ -2986,8 +2986,12 @@ if (veryVerbose)
         //: 2 The method works irrespective of the initial state of the object.
         //:
         //: 3 The method does not change the "time" part.
+        //
+        //: 3 The method does not change the "time" part.
+        //
+        //: 4 The method returns the expected value.
         //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Construct a table of substantial and varied differences in value
@@ -3004,10 +3008,14 @@ if (veryVerbose)
         //:   days.  Also confirm that the "time" part equals that of the
         //:   original value.  (C-1..3)
         //:
-        //: 3 Verify that, in appropriate build modes, defensive checks are
+        //: 3 For each invocation of the 'addDays' method, compare the address
+        //:   of the objected referenced by the return value to the address of
+        //:   the object under test.
+        //:
+        //: 4 Verify that, in appropriate build modes, defensive checks are
         //:   triggered when an attempt is made to perform operations that
         //:   would overflow the valid range of 'Datetime' values.
-        //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-4)
+        //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
         //
         // Testing:
         //   void addDays(int days);
@@ -3102,7 +3110,9 @@ if (veryVerbose)
 
                 if (veryVerbose) { T_ T_ P_(U) P_(D) P(DELTA) }
 
-                mU.addDays(DELTA);
+                Obj& RETVAL = mU.addDays(DELTA);
+
+                LOOP2_ASSERT(i, j, &RETVAL == &U);
 
                 LOOP2_ASSERT(i, j, U.date() - R.date() == DELTA);
                 LOOP2_ASSERT(i, j, R.time()            == U.time());
@@ -4691,7 +4701,9 @@ if (veryVerbose)
         //:   behave as if the object had been constructed with a 'Time' value
         //:   of 00:00:00.000.
         //:
-        //: 5 QoI: Asserted precondition violations are detected when enabled.
+        //: 4 Invocations of these methods return the expected value.
+        //:
+        //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Thoroughly test the 'addTime' method, then use that method as an
@@ -4735,11 +4747,15 @@ if (veryVerbose)
         //:   "0001/01/01_00:00:00.000".  Use the method under test to perform
         //:   a non-zero adjustment both of these objects and compare the
         //:   objects for equality.  (C-4)
+        //
+        //: 6 On each invocation of a method under test compare the address of
+        //:   the objected referenced by the return value to the address of the
+        //:   object under test.
         //:
-        //: 6 Verify that, in appropriate build modes, defensive checks are
+        //: 7 Verify that, in appropriate build modes, defensive checks are
         //:   triggered when an attempt is made to perform operations that
         //:   would overflow the valid range of 'Datetime' values.
-        //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
+        //:   (using the 'BSLS_ASSERTTEST_*' macros).  (C-6)
         //
         // Testing:
         //   void addTime(hours, mins, secs, msecs, usecs);
@@ -4853,7 +4869,12 @@ if (veryVerbose)
                 Obj mX(INITIAL_DATE, INITIAL_TIME);  const Obj& X = mX;
                 if (veryVerbose) { T_  P_(X) }
 
-                mX.addTime(HOURS, MINUTES, SECONDS, MSECS, USECS);
+                Obj& RETVAL = mX.addTime(HOURS,
+                                         MINUTES,
+                                         SECONDS,
+                                         MSECS,
+                                         USECS);
+                ASSERTV(LINE, &RETVAL == &X);
 
                 const Obj EXP(REFERENCE_YEAR,
                               REFERENCE_MONTH,
@@ -4937,39 +4958,51 @@ if (veryVerbose)
 
             Obj mA0;                    const Obj& A0 = mA0;
             Obj mA1(1, 1, 1, 0, 0, 0);  const Obj& A1 = mA1;
-            mA0.addTime(HOURS, MINUTES, SECONDS, MSECS, USECS);
-            mA1.addTime(HOURS, MINUTES, SECONDS, MSECS, USECS);
-            ASSERT(A0 == A1);
+            Obj& RET_A0 = mA0.addTime(HOURS, MINUTES, SECONDS, MSECS, USECS);
+            Obj& RET_A1 = mA1.addTime(HOURS, MINUTES, SECONDS, MSECS, USECS);
+            ASSERT(&RET_A0 == &A0)
+            ASSERT(&RET_A1 == &A1)
+            ASSERT(     A0 ==  A1);
 
             Obj mB0;                    const Obj& B0 = mB0;
             Obj mB1(1, 1, 1, 0, 0, 0);  const Obj& B1 = mB1;
-            mB0.addHours(HOURS);
-            mB1.addHours(HOURS);
-            ASSERT(B0 == B1);
+            Obj& RET_B0 = mB0.addHours(HOURS);
+            Obj& RET_B1 = mB1.addHours(HOURS);
+            ASSERT(&RET_B0 == &B0)
+            ASSERT(&RET_B1 == &B1)
+            ASSERT(     B0 ==  B1);
 
             Obj mC0;                    const Obj& C0 = mC0;
             Obj mC1(1, 1, 1, 0, 0, 0);  const Obj& C1 = mC1;
-            mC0.addMinutes(MINUTES);
-            mC1.addMinutes(MINUTES);
-            ASSERT(C0 == C1);
+            Obj& RET_C0 = mC0.addMinutes(MINUTES);
+            Obj& RET_C1 = mC1.addMinutes(MINUTES);
+            ASSERT(&RET_C0 == &C0)
+            ASSERT(&RET_C1 == &C1)
+            ASSERT(     C0 ==  C1);
 
             Obj mD0;                    const Obj& D0 = mD0;
             Obj mD1(1, 1, 1, 0, 0, 0);  const Obj& D1 = mD1;
-            mD0.addSeconds(SECONDS);
-            mD1.addSeconds(SECONDS);
-            ASSERT(D0 == D1);
+            Obj& RET_D0 = mD0.addSeconds(SECONDS);
+            Obj& RET_D1 = mD1.addSeconds(SECONDS);
+            ASSERT(&RET_D0 == &D0)
+            ASSERT(&RET_D1 == &D1)
+            ASSERT(     D0 ==  D1);
 
             Obj mE0;                    const Obj& E0 = mE0;
             Obj mE1(1, 1, 1, 0, 0, 0);  const Obj& E1 = mE1;
-            mE0.addMilliseconds(MSECS);
-            mE1.addMilliseconds(MSECS);
-            ASSERT(E0 == E1);
+            Obj& RET_E0 = mE0.addMilliseconds(MSECS);
+            Obj& RET_E1 = mE1.addMilliseconds(MSECS);
+            ASSERT(&RET_E0 == &E0)
+            ASSERT(&RET_E1 == &E1)
+            ASSERT(     E0 ==  E1);
 
             Obj mF0;                    const Obj& F0 = mF0;
             Obj mF1(1, 1, 1, 0, 0, 0);  const Obj& F1 = mF1;
-            mF0.addMicroseconds(USECS);
-            mF1.addMicroseconds(USECS);
-            ASSERT(F0 == F1);
+            Obj& RET_F0 = mF0.addMicroseconds(USECS);
+            Obj& RET_F1 = mF1.addMicroseconds(USECS);
+            ASSERT(&RET_F0 == &F0)
+            ASSERT(&RET_F1 == &F1)
+            ASSERT(     F0 ==  F1);
         }
 
         {

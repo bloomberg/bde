@@ -640,8 +640,9 @@ class Datetime {
         // and a non-zero value (with no effect) otherwise.  Note that this
         // method has no effect on the "date" part of this object.
 
-    void addDays(int days);
-        // Add the specified number of 'days' to the value of this object.  The
+    Datetime& addDays(int days);
+        // Add the specified number of 'days' to the value of this object.
+        // Return a reference providing modifiable access to this object.  The
         // behavior is undefined unless the resulting value is in the valid
         // range for a 'Datetime' object.  Note that this method has no effect
         // on the "time" part of this object.  Also note that 'days' may be
@@ -655,7 +656,7 @@ class Datetime {
         // of this object.  Also note that 'days' may be positive, 0, or
         // negative.
 
-    void addTime(bsls::Types::Int64 hours,
+    Datetime& addTime(bsls::Types::Int64 hours,
                  bsls::Types::Int64 minutes = 0,
                  bsls::Types::Int64 seconds = 0,
                  bsls::Types::Int64 milliseconds = 0,
@@ -664,7 +665,8 @@ class Datetime {
         // number of 'minutes', 'seconds', 'milliseconds', and 'microseconds'
         // to the value of this object, adjusting the "date" part of this
         // object accordingly.  Unspecified trailing optional parameters
-        // default to 0.  If '24 == hour()' on entry, set the 'hour' attribute
+        // default to 0.  Return a reference providing modifiable access to
+        // this object.  If '24 == hour()' on entry, set the 'hour' attribute
         // to 0 before performing the addition.  The behavior is undefined
         // unless the resulting value is in the valid range for a 'Datetime'
         // object.  Note that each argument independently may be positive,
@@ -685,9 +687,10 @@ class Datetime {
         // non-zero value (with no effect) otherwise.  Note that each argument
         // independently may be positive, negative, or 0.
 
-    void addHours(bsls::Types::Int64 hours);
+    Datetime& addHours(bsls::Types::Int64 hours);
         // Add the specified number of 'hours' to the value of this object,
-        // adjusting the "date" part of the object accordingly.  If
+        // adjusting the "date" part of the object accordingly.  Return a
+        // reference providing modifiable access to this object.  If
         // '24 == hour()' on entry, set the 'hour' attribute to 0 before
         // performing the addition.  The behavior is undefined unless the
         // resulting value is in the valid range for a 'Datetime' object.  Note
@@ -702,9 +705,10 @@ class Datetime {
         // (with no effect) otherwise.  Note that 'hours' may be positive,
         // negative, or 0.
 
-    void addMinutes(bsls::Types::Int64 minutes);
+    Datetime& addMinutes(bsls::Types::Int64 minutes);
         // Add the specified number of 'minutes' to the value of this object,
-        // adjusting the "date" part of the object accordingly.  If
+        // adjusting the "date" part of the object accordingly.  Return a
+        // reference providing modifiable access to this object.  If
         // '24 == hour()' on entry, set the 'hour' attribute to 0 before
         // performing the addition.  The behavior is undefined unless the
         // resulting value is in the valid range for a 'Datetime' object.  Note
@@ -719,9 +723,10 @@ class Datetime {
         // (with no effect) otherwise.  Note that 'minutes' may be positive,
         // negative, or 0.
 
-    void addSeconds(bsls::Types::Int64 seconds);
+    Datetime& addSeconds(bsls::Types::Int64 seconds);
         // Add the specified number of 'seconds' to the value of this object,
-        // adjusting the "date" part of the object accordingly.  If
+        // adjusting the "date" part of the object accordingly.  Return a
+        // reference providing modifiable access to this object.  If
         // '24 == hour()' on entry, set the 'hour' attribute to 0 before
         // performing the addition.  The behavior is undefined unless the
         // resulting value is in the valid range for a 'Datetime' object.  Note
@@ -736,9 +741,10 @@ class Datetime {
         // (with no effect) otherwise.  Note that 'seconds' may be positive,
         // negative, or 0.
 
-    void addMilliseconds(bsls::Types::Int64 milliseconds);
+    Datetime& addMilliseconds(bsls::Types::Int64 milliseconds);
         // Add the specified number of 'milliseconds' to the value of this
-        // object, adjusting the "date" part of the object accordingly.  If
+        // object, adjusting the "date" part of the object accordingly.  Return
+        // a reference providing modifiable access to this object.  If
         // '24 == hour()' on entry, set the 'hour' attribute to 0 before
         // performing the addition.  The behavior is undefined unless the
         // resulting value is in the valid range for a 'Datetime' object.  Note
@@ -753,9 +759,10 @@ class Datetime {
         // (with no effect) otherwise.  Note that 'milliseconds' may be
         // positive, negative, or 0.
 
-    void addMicroseconds(bsls::Types::Int64 microseconds);
+    Datetime& addMicroseconds(bsls::Types::Int64 microseconds);
         // Add the specified number of 'microseconds' to the value of this
-        // object, adjusting the "date" part of the object accordingly.  If
+        // object, adjusting the "date" part of the object accordingly.  Return
+        // a reference providing modifiable access to this object.  If
         // '24 == hour()' on entry, set the 'hour' attribute to 0 before
         // performing the addition.  The behavior is undefined unless the
         // resulting value is in the valid range for a 'Datetime' object.  Note
@@ -1730,7 +1737,7 @@ int Datetime::setMicrosecondIfValid(int microsecond)
 }
 
 inline
-void Datetime::addDays(int days)
+Datetime& Datetime::addDays(int days)
 {
     BSLS_ASSERT_SAFE(0 == Date(date()).addDaysIfValid(days));
 
@@ -1738,6 +1745,8 @@ void Datetime::addDays(int days)
                                         // 'date' and then 'setDate'
 
     setDate(date() + days);
+
+    return *this;
 }
 
 inline
@@ -1753,11 +1762,11 @@ int Datetime::addDaysIfValid(int days)
 }
 
 inline
-void Datetime::addTime(bsls::Types::Int64 hours,
-                       bsls::Types::Int64 minutes,
-                       bsls::Types::Int64 seconds,
-                       bsls::Types::Int64 milliseconds,
-                       bsls::Types::Int64 microseconds)
+Datetime& Datetime::addTime(bsls::Types::Int64 hours,
+                            bsls::Types::Int64 minutes,
+                            bsls::Types::Int64 seconds,
+                            bsls::Types::Int64 milliseconds,
+                            bsls::Types::Int64 microseconds)
 {
     // Reduce the input parameters to 'days' and 'microseconds', without any
     // constraints on the representation, without the possibility of overflow
@@ -1818,6 +1827,8 @@ void Datetime::addTime(bsls::Types::Int64 hours,
     // Assign the value.
 
     setMicrosecondsFromEpoch(totalMicroseconds);
+
+    return *this;
 }
 
 inline
@@ -1896,7 +1907,7 @@ int Datetime::addTimeIfValid(bsls::Types::Int64 hours,
 }
 
 inline
-void Datetime::addHours(bsls::Types::Int64 hours)
+Datetime& Datetime::addHours(bsls::Types::Int64 hours)
 {
     BSLS_ASSERT_SAFE( hours <= static_cast<bsls::Types::Int64>
                                ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
@@ -1908,6 +1919,8 @@ void Datetime::addHours(bsls::Types::Int64 hours)
 
     setMicrosecondsFromEpoch(hours * TimeUnitRatio::k_US_PER_H
                                                           + totalMicroseconds);
+
+    return *this;
 }
 
 inline
@@ -1927,7 +1940,7 @@ int Datetime::addHoursIfValid(bsls::Types::Int64 hours)
 }
 
 inline
-void Datetime::addMinutes(bsls::Types::Int64 minutes)
+Datetime& Datetime::addMinutes(bsls::Types::Int64 minutes)
 {
     BSLS_ASSERT_SAFE( minutes <= static_cast<bsls::Types::Int64>
                                ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
@@ -1939,6 +1952,7 @@ void Datetime::addMinutes(bsls::Types::Int64 minutes)
 
     setMicrosecondsFromEpoch(minutes * TimeUnitRatio::k_US_PER_M
                                                           + totalMicroseconds);
+    return *this;
 }
 
 inline
@@ -1958,7 +1972,7 @@ int Datetime::addMinutesIfValid(bsls::Types::Int64 minutes)
 }
 
 inline
-void Datetime::addSeconds(bsls::Types::Int64 seconds)
+Datetime& Datetime::addSeconds(bsls::Types::Int64 seconds)
 {
     BSLS_ASSERT_SAFE( seconds <= static_cast<bsls::Types::Int64>
                                ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
@@ -1970,6 +1984,7 @@ void Datetime::addSeconds(bsls::Types::Int64 seconds)
 
     setMicrosecondsFromEpoch(seconds * TimeUnitRatio::k_US_PER_S
                                                           + totalMicroseconds);
+    return *this;
 }
 
 inline
@@ -1989,7 +2004,7 @@ int Datetime::addSecondsIfValid(bsls::Types::Int64 seconds)
 }
 
 inline
-void Datetime::addMilliseconds(bsls::Types::Int64 milliseconds)
+Datetime& Datetime::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
     BSLS_ASSERT_SAFE( milliseconds <= static_cast<bsls::Types::Int64>
                                ((k_MAX_US_FROM_EPOCH - microsecondsFromEpoch())
@@ -2001,6 +2016,7 @@ void Datetime::addMilliseconds(bsls::Types::Int64 milliseconds)
 
     setMicrosecondsFromEpoch(milliseconds * TimeUnitRatio::k_US_PER_MS
                                                           + totalMicroseconds);
+    return *this;
 }
 
 inline
@@ -2020,7 +2036,7 @@ int Datetime::addMillisecondsIfValid(bsls::Types::Int64 milliseconds)
 }
 
 inline
-void Datetime::addMicroseconds(bsls::Types::Int64 microseconds)
+Datetime& Datetime::addMicroseconds(bsls::Types::Int64 microseconds)
 {
     BSLS_ASSERT_SAFE( microseconds <= static_cast<bsls::Types::Int64>
                               (k_MAX_US_FROM_EPOCH - microsecondsFromEpoch()));
@@ -2030,6 +2046,8 @@ void Datetime::addMicroseconds(bsls::Types::Int64 microseconds)
     bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
     setMicrosecondsFromEpoch(microseconds + totalMicroseconds);
+
+    return *this;
 }
 
 inline
