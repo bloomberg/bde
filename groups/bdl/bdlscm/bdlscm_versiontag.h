@@ -43,12 +43,12 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_versiontag.h>
 
 
-// For the 3.13.x release series, 'bdl' is being versioned independently of
+// For the 3.14.x release series, 'bdl' is being versioned independently of
 // 'bsl'.
 #define BDL_VERSION_MAJOR     3
     // Provide the major version number of the current (latest) BDL release.
 
-#define BDL_VERSION_MINOR     13
+#define BDL_VERSION_MINOR     14
     // Provide the minor version number of the current (latest) BDL release.
 
 #define BDL_VERSION BSL_MAKE_VERSION(BDL_VERSION_MAJOR, \
