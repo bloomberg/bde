@@ -88,6 +88,12 @@ using namespace bsl;
 // [10] bsl::hash<BigEndianUint32>
 // [10] bsl::hash<BigEndianInt64>
 // [10] bsl::hash<BigEndianUint64>
+// [11] hashAppend(SipHashAlgorithm, BigEndianInt16)
+// [11] hashAppend(SipHashAlgorithm, BigEndianUint16)
+// [11] hashAppend(SipHashAlgorithm, BigEndianInt32)
+// [11] hashAppend(SipHashAlgorithm, BigEndianUint32)
+// [11] hashAppend(SipHashAlgorithm, BigEndianInt64)
+// [11] hashAppend(SipHashAlgorithm, BigEndianUint64)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] TESTING HASH ENDIAN-NESS
@@ -434,122 +440,50 @@ int main(int argc, char *argv[])
         // TESTING HASH ENDIAN-NESS
         //
         // Concerns:
-        //: 1 A 'BigEndianInt16' object can be hashed by instances of
-        //:   'bsl::hash<bdlb::BigEndianInt16>'.
+        //: 1 A 'BigEndianInt16' object will have the same SipHash hash value
+        //:   for both small and big endian architecture.
         //:
-        //: 2 A small sample of different 'BigEndianInt16' objects produce
-        //:   different hashes.
+        //: 2 A 'BigEndianUint16' object will have the same SipHash hash value
+        //:   for both small and big endian architecture.
         //:
-        //: 3 Invoking 'bsl::hash<bdlb::BigEndianInt16>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
-        //:   'BigEndianInt16' object.
+        //: 3 A 'BigEndianInt32' object will have the same SipHash hash value
+        //:   for both small and big endian architecture.
         //:
-        //: 4 A 'BigEndianUint16' object can be hashed by instances of
-        //:   'bsl::hash<bdlb::BigEndianUint16>'.
+        //: 4 A 'BigEndianUint32' object will have the same SipHash hash value
+        //:   for both small and big endian architecture.
         //:
-        //: 5 A small sample of different 'BigEndianUint16' objects produce
-        //:   different hashes.
+        //: 5 A 'BigEndianInt64' object will have the same SipHash hash value
+        //:   for both small and big endian architecture.
         //:
-        //: 6 Invoking 'bsl::hash<bdlb::BigEndianUint16>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
-        //:   'BigEndianUint16' object.
-        //:
-        //: 7 A 'BigEndianInt32' object can be hashed by instances of
-        //:   'bsl::hash<bdlb::BigEndianInt32>'.
-        //:
-        //: 8 A small sample of different 'BigEndianInt32' objects produce
-        //:   different hashes.
-        //:
-        //: 9 Invoking 'bsl::hash<bdlb::BigEndianInt32>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
-        //:   'BigEndianInt32' object.
-        //:
-        //:10 A 'BigEndianUint32' object can be hashed by instances of
-        //:   'bsl::hash<bdlb::BigEndianUint32>'.
-        //:
-        //:11 A small sample of different 'BigEndianUint32' objects produce
-        //:   different hashes.
-        //:
-        //:12 Invoking 'bsl::hash<bdlb::BigEndianUint32>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
-        //:   'BigEndianUint32' object.
-        //:
-        //:13 A 'BigEndianInt64' object can be hashed by instances of
-        //:   'bsl::hash<bdlb::BigEndianInt6432>'.
-        //:
-        //:14 A small sample of different 'BigEndianInt64' objects produce
-        //:   different hashes.
-        //:
-        //:15 Invoking 'bsl::hash<bdlb::BigEndianInt64>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
-        //:   'BigEndianInt64' object.
-        //:
-        //:16 A 'BigEndianUint64' object can be hashed by instances of
-        //:   'bsl::hash<bdlb::BigEndianUint64>'.
-        //:
-        //:17 A small sample of different 'BigEndianUint64' objects produce
-        //:   different hashes.
-        //:
-        //:18 Invoking 'bsl::hash<bdlb::BigEndianUint64>' is identical to invoking
-        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
-        //:   'BigEndianUint64' object.
+        //: 6 A 'BigEndianUint64' object will have the same SipHash hash value
+        //:   for both small and big endian architecture.
         //
         // Plan:
         //: 1 Hash some different 'BigEndianInt16' objects and verify that the
-        //:   result of using 'bsl::hash<bdlb::BigEndianInt16>' is identical to
-        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
-        //:   attributes of the 'BigEndianInt16' object.  (C-1,3)
+        //:   result is the same for the various operating systems.  (C-1)
         //:
-        //: 2 Hash a number of different 'BigEndianInt16' objects and verify that
-        //:   they produce distinct hashes.  (C-2)
+        //: 2 Hash some different 'BigEndianUint16' objects and verify that the
+        //:   result is the same for the various operating systems.  (C-2)
         //:
-        //: 3 Hash some different 'BigEndianUint16' objects and verify that the
-        //:   result of using 'bsl::hash<bdlb::BigEndianUint16>' is identical to
-        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
-        //:   attributes of the 'BigEndianUint16' object.  (C-4,7)
+        //: 3 Hash some different 'BigEndianInt32' objects and verify that the
+        //:   result is the same for the various operating systems.  (C-3)
         //:
-        //: 4 Hash a number of different 'BigEndianUint16' objects and verify that
-        //:   they produce distinct hashes.  (C-5)
+        //: 4 Hash some different 'BigEndianUint32' objects and verify that the
+        //:   result is the same for the various operating systems.  (C-4)
         //:
-        //: 5 Hash some different 'BigEndianInt32' objects and verify that the
-        //:   result of using 'bsl::hash<bdlb::BigEndianInt32>' is identical to
-        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
-        //:   attributes of the 'BigEndianInt32' object.  (C-7,9)
+        //: 5 Hash some different 'BigEndianInt64' objects and verify that the
+        //:   result is the same for the various operating systems.  (C-5)
         //:
-        //: 6 Hash a number of different 'BigEndianInt32' objects and verify that
-        //:   they produce distinct hashes.  (C-8)
-        //:
-        //: 7 Hash some different 'BigEndianUint32' objects and verify that the
-        //:   result of using 'bsl::hash<bdlb::BigEndianUint32>' is identical to
-        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
-        //:   attributes of the 'BigEndianUint32' object.  (C-10,12)
-        //:
-        //: 8 Hash a number of different 'BigEndianUint32' objects and verify that
-        //:   they produce distinct hashes.  (C-11)
-        //:
-        //: 9 Hash some different 'BigEndianInt64' objects and verify that the
-        //:   result of using 'bsl::hash<bdlb::BigEndianInt64>' is identical to
-        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
-        //:   attributes of the 'BigEndianInt64' object.  (C-13,15)
-        //:
-        //:10 Hash a number of different 'BigEndianInt64' objects and verify that
-        //:   they produce distinct hashes.  (C-14)
-        //:
-        //:11 Hash some different 'BigEndianUint64' objects and verify that the
-        //:   result of using 'bsl::hash<bdlb::BigEndianUint64>' is identical to
-        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
-        //:   attributes of the 'BigEndianUint64' object.  (C-16,18)
-        //:
-        //:12 Hash a number of different 'BigEndianUint64' objects and verify that
-        //:   they produce distinct hashes.  (C-17)
+        //: 6 Hash some different 'BigEndianUint64' objects and verify that the
+        //:   result is the same for the various operating systems.  (C-6)
         //
         // Testing:
-        //   bsl::hash<BigEndianInt16>
-        //   bsl::hash<BigEndianUint16>
-        //   bsl::hash<BigEndianInt32>
-        //   bsl::hash<BigEndianUint32>
-        //   bsl::hash<BigEndianInt64>
-        //   bsl::hash<BigEndianUint64>
+        //   hashAppend(SipHashAlgorithm, BigEndianInt16)
+        //   hashAppend(SipHashAlgorithm, BigEndianUint16)
+        //   hashAppend(SipHashAlgorithm, BigEndianInt32)
+        //   hashAppend(SipHashAlgorithm, BigEndianUint32)
+        //   hashAppend(SipHashAlgorithm, BigEndianInt64)
+        //   hashAppend(SipHashAlgorithm, BigEndianUint64)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING HASH ENDIAN-NESS"
@@ -674,11 +608,6 @@ int main(int argc, char *argv[])
                          k_DATA[i].d_u64ExpectedHash,
                          resU64,
                          k_DATA[i].d_u64ExpectedHash == resU64);
-//            bsl::cout << "i=" << bsl::hex << i << ",resU16=" << resU16 << "\n";
-//            bsl::cout << "i=" << bsl::hex << i << ",resI32=" << resI32 << "\n";
-//            bsl::cout << "i=" << bsl::hex << i << ",resU32=" << resU32 << "\n";
-//            bsl::cout << "i=" << bsl::hex << i << ",resI64=" << resI64 << "\n";
-//            bsl::cout << "i=" << bsl::hex << i << ",resU64=" << resU64 << "\n";
         }
       } break;
       case 10: {
