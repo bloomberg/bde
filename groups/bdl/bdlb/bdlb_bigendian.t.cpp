@@ -9,6 +9,8 @@
 #include <winsock2.h>  // not a component
 #endif
 
+#include <bslh_siphashalgorithm.h>
+
 #include <bslx_instreamfunctions.h>
 #include <bslx_outstreamfunctions.h>
 #include <bslx_testinstream.h>
@@ -24,6 +26,7 @@
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_set.h>
 
 #include <bsl_cstdlib.h>     // 'atoi'
 
@@ -79,9 +82,16 @@ using namespace bsl;
 // [ 6] bool operator!=(const bdlb::BigEndianInt64& lhs, rhs);
 // [ 6] bool operator==(const bdlb::BigEndianUint64& lhs, rhs);
 // [ 6] bool operator!=(const bdlb::BigEndianUint64& lhs, rhs);
+// [10] bsl::hash<BigEndianInt16>
+// [10] bsl::hash<BigEndianUint16>
+// [10] bsl::hash<BigEndianInt32>
+// [10] bsl::hash<BigEndianUint32>
+// [10] bsl::hash<BigEndianInt64>
+// [10] bsl::hash<BigEndianUint64>
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [10] USAGE EXAMPLE
+// [11] TESTING HASH ENDIAN-NESS
+// [12] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -328,7 +338,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 10: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -418,6 +428,450 @@ int main(int argc, char *argv[])
     ASSERT(0x02   == header.d_messageType);
     ASSERT(0x1234 == header.d_messageLength);
 //..
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING HASH ENDIAN-NESS
+        //
+        // Concerns:
+        //: 1 A 'BigEndianInt16' object can be hashed by instances of
+        //:   'bsl::hash<bdlb::BigEndianInt16>'.
+        //:
+        //: 2 A small sample of different 'BigEndianInt16' objects produce
+        //:   different hashes.
+        //:
+        //: 3 Invoking 'bsl::hash<bdlb::BigEndianInt16>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
+        //:   'BigEndianInt16' object.
+        //:
+        //: 4 A 'BigEndianUint16' object can be hashed by instances of
+        //:   'bsl::hash<bdlb::BigEndianUint16>'.
+        //:
+        //: 5 A small sample of different 'BigEndianUint16' objects produce
+        //:   different hashes.
+        //:
+        //: 6 Invoking 'bsl::hash<bdlb::BigEndianUint16>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
+        //:   'BigEndianUint16' object.
+        //:
+        //: 7 A 'BigEndianInt32' object can be hashed by instances of
+        //:   'bsl::hash<bdlb::BigEndianInt32>'.
+        //:
+        //: 8 A small sample of different 'BigEndianInt32' objects produce
+        //:   different hashes.
+        //:
+        //: 9 Invoking 'bsl::hash<bdlb::BigEndianInt32>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
+        //:   'BigEndianInt32' object.
+        //:
+        //:10 A 'BigEndianUint32' object can be hashed by instances of
+        //:   'bsl::hash<bdlb::BigEndianUint32>'.
+        //:
+        //:11 A small sample of different 'BigEndianUint32' objects produce
+        //:   different hashes.
+        //:
+        //:12 Invoking 'bsl::hash<bdlb::BigEndianUint32>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
+        //:   'BigEndianUint32' object.
+        //:
+        //:13 A 'BigEndianInt64' object can be hashed by instances of
+        //:   'bsl::hash<bdlb::BigEndianInt6432>'.
+        //:
+        //:14 A small sample of different 'BigEndianInt64' objects produce
+        //:   different hashes.
+        //:
+        //:15 Invoking 'bsl::hash<bdlb::BigEndianInt64>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
+        //:   'BigEndianInt64' object.
+        //:
+        //:16 A 'BigEndianUint64' object can be hashed by instances of
+        //:   'bsl::hash<bdlb::BigEndianUint64>'.
+        //:
+        //:17 A small sample of different 'BigEndianUint64' objects produce
+        //:   different hashes.
+        //:
+        //:18 Invoking 'bsl::hash<bdlb::BigEndianUint64>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
+        //:   'BigEndianUint64' object.
+        //
+        // Plan:
+        //: 1 Hash some different 'BigEndianInt16' objects and verify that the
+        //:   result of using 'bsl::hash<bdlb::BigEndianInt16>' is identical to
+        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
+        //:   attributes of the 'BigEndianInt16' object.  (C-1,3)
+        //:
+        //: 2 Hash a number of different 'BigEndianInt16' objects and verify that
+        //:   they produce distinct hashes.  (C-2)
+        //:
+        //: 3 Hash some different 'BigEndianUint16' objects and verify that the
+        //:   result of using 'bsl::hash<bdlb::BigEndianUint16>' is identical to
+        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
+        //:   attributes of the 'BigEndianUint16' object.  (C-4,7)
+        //:
+        //: 4 Hash a number of different 'BigEndianUint16' objects and verify that
+        //:   they produce distinct hashes.  (C-5)
+        //:
+        //: 5 Hash some different 'BigEndianInt32' objects and verify that the
+        //:   result of using 'bsl::hash<bdlb::BigEndianInt32>' is identical to
+        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
+        //:   attributes of the 'BigEndianInt32' object.  (C-7,9)
+        //:
+        //: 6 Hash a number of different 'BigEndianInt32' objects and verify that
+        //:   they produce distinct hashes.  (C-8)
+        //:
+        //: 7 Hash some different 'BigEndianUint32' objects and verify that the
+        //:   result of using 'bsl::hash<bdlb::BigEndianUint32>' is identical to
+        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
+        //:   attributes of the 'BigEndianUint32' object.  (C-10,12)
+        //:
+        //: 8 Hash a number of different 'BigEndianUint32' objects and verify that
+        //:   they produce distinct hashes.  (C-11)
+        //:
+        //: 9 Hash some different 'BigEndianInt64' objects and verify that the
+        //:   result of using 'bsl::hash<bdlb::BigEndianInt64>' is identical to
+        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
+        //:   attributes of the 'BigEndianInt64' object.  (C-13,15)
+        //:
+        //:10 Hash a number of different 'BigEndianInt64' objects and verify that
+        //:   they produce distinct hashes.  (C-14)
+        //:
+        //:11 Hash some different 'BigEndianUint64' objects and verify that the
+        //:   result of using 'bsl::hash<bdlb::BigEndianUint64>' is identical to
+        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
+        //:   attributes of the 'BigEndianUint64' object.  (C-16,18)
+        //:
+        //:12 Hash a number of different 'BigEndianUint64' objects and verify that
+        //:   they produce distinct hashes.  (C-17)
+        //
+        // Testing:
+        //   bsl::hash<BigEndianInt16>
+        //   bsl::hash<BigEndianUint16>
+        //   bsl::hash<BigEndianInt32>
+        //   bsl::hash<BigEndianUint32>
+        //   bsl::hash<BigEndianInt64>
+        //   bsl::hash<BigEndianUint64>
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING HASH ENDIAN-NESS"
+                             "\n========================\n";
+
+        static struct TestData {
+            long long           d_line;
+            short               d_i16;
+            bsls::Types::Uint64 d_i16ExpectedHash;
+            unsigned short      d_u16;
+            bsls::Types::Uint64 d_u16ExpectedHash;
+            int                 d_i32;
+            bsls::Types::Uint64 d_i32ExpectedHash;
+            unsigned int        d_u32;
+            bsls::Types::Uint64 d_u32ExpectedHash;
+            bsls::Types::Int64  d_i64;
+            bsls::Types::Uint64 d_i64ExpectedHash;
+            bsls::Types::Uint64 d_u64;
+            bsls::Types::Uint64 d_u64ExpectedHash;
+        } k_DATA[] =
+        {
+            { L_,  0, 0x3a6d9523170345d0,  0, 0x3a6d9523170345d0,
+                   0, 0x7bf55e51b22b9698,  0, 0x7bf55e51b22b9698,
+                   0, 0xe849e8bb6ffe2567,  0, 0xe849e8bb6ffe2567 },
+            { L_, -2, 0xc76eec30e90d1347,  1, 0x62c3506f27376c25,
+                  -2, 0x7ae779acfdd82855,  1, 0x6b7666f5639fb7f7,
+                  -2, 0xed30d6f3984ef683,  1, 0x0a77dc4441ee47ba },
+            { L_,  1, 0x62c3506f27376c25, 10, 0xf5023c733d287ae4,
+                   1, 0x6b7666f5639fb7f7, 10, 0xc7deb7a34bafb984,
+                   1, 0x0a77dc4441ee47ba, 10, 0x6f560119f69841ad },
+            { L_, -3, 0xf5b7cc9bbe5df647, 31, 0xf796f73fb1c76672,
+                  -3, 0xf3b08ee698c2f6f2, 31, 0xa2e8af3fec05b185,
+                  -3, 0x8f69ecdc2bf99cd7, 31, 0xccd53bf79f6f26e2 },
+            { L_, 32, 0xf2f9ad244df43f35, 32, 0xf2f9ad244df43f35,
+                  32, 0x5182999810dd092c, 32, 0x5182999810dd092c,
+                  32, 0xda7863cff94b954c, 32, 0xda7863cff94b954c },
+            { L_,-33, 0x8252a4497a1ede71, 42, 0x38db1c88928275e8,
+                 -33, 0x4b1ac3e520f5a46c, 42, 0xda3e1d5149313583,
+                 -33, 0x670eb2d6a4081f8c, 42, 0x260d52c3dc8ae7ab },
+            { L_, 42, 0x38db1c88928275e8,132, 0x5d508a9cb51a3ce6,
+                  42, 0xda3e1d5149313583,132, 0x1ffcf1e8bc8391b1,
+                  42, 0x260d52c3dc8ae7ab,132, 0xc4a550a50c4986eb },
+            { L_,-43, 0x14204a2a24431034,742, 0x495317f46d6e01f9,
+                 -43, 0xd6acbfeb3f547371,742, 0x0a64788942e106a0,
+                 -43, 0xc4d2829c578c1c53,742, 0x5e0299d015c2da13 },
+        };
+
+        using namespace bdlb;
+        const bsl::size_t k_NUM_TESTS = sizeof(k_DATA) / sizeof(k_DATA[0]);
+
+        bsl::hash<BigEndianInt16>     bslHashFuncI16;
+        bsl::hash<BigEndianUint16>    bslHashFuncU16;
+        bsl::hash<BigEndianInt32>     bslHashFuncI32;
+        bsl::hash<BigEndianUint32>    bslHashFuncU32;
+        bsl::hash<BigEndianInt64>     bslHashFuncI64;
+        bsl::hash<BigEndianUint64>    bslHashFuncU64;
+        bsl::set<short>               hashResI16;
+        bsl::set<unsigned short>      hashResU16;
+        bsl::set<int>                 hashResI32;
+        bsl::set<unsigned int>        hashResU32;
+        bsl::set<bsls::Types::Int64>  hashResI64;
+        bsl::set<bsls::Types::Uint64> hashResU64;
+
+        const char genericSeed[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+        for (bsl::size_t i = 0; i < k_NUM_TESTS; ++i) {
+            BigEndianInt16  bei16 = BigEndianInt16::make (k_DATA[i].d_i16);
+            BigEndianUint16 beu16 = BigEndianUint16::make(k_DATA[i].d_u16);
+            BigEndianInt32  bei32 = BigEndianInt32::make (k_DATA[i].d_i32);
+            BigEndianUint32 beu32 = BigEndianUint32::make(k_DATA[i].d_u32);
+            BigEndianInt64  bei64 = BigEndianInt64::make (k_DATA[i].d_i64);
+            BigEndianUint64 beu64 = BigEndianUint64::make(k_DATA[i].d_u64);
+
+            bslh::SipHashAlgorithm hashAlgI16(genericSeed);
+            bslh::SipHashAlgorithm hashAlgU16(genericSeed);
+            bslh::SipHashAlgorithm hashAlgI32(genericSeed);
+            bslh::SipHashAlgorithm hashAlgU32(genericSeed);
+            bslh::SipHashAlgorithm hashAlgI64(genericSeed);
+            bslh::SipHashAlgorithm hashAlgU64(genericSeed);
+
+            hashAppend(hashAlgI16, bei16);
+            hashAppend(hashAlgU16, beu16);
+            hashAppend(hashAlgI32, bei32);
+            hashAppend(hashAlgU32, beu32);
+            hashAppend(hashAlgI64, bei64);
+            hashAppend(hashAlgU64, beu64);
+
+            bsl::size_t resI16 = hashAlgI16.computeHash();
+            bsl::size_t resU16 = hashAlgU16.computeHash();
+            bsl::size_t resI32 = hashAlgI32.computeHash();
+            bsl::size_t resU32 = hashAlgU32.computeHash();
+            bsl::size_t resI64 = hashAlgI64.computeHash();
+            bsl::size_t resU64 = hashAlgU64.computeHash();
+
+            LOOP4_ASSERT(i,
+                         k_DATA[i].d_i16,
+                         k_DATA[i].d_i16ExpectedHash,
+                         resI16,
+                         k_DATA[i].d_i16ExpectedHash == resI16);
+            LOOP4_ASSERT(i,
+                         k_DATA[i].d_u16,
+                         k_DATA[i].d_u16ExpectedHash,
+                         resU16,
+                         k_DATA[i].d_u16ExpectedHash == resU16);
+            LOOP4_ASSERT(i,
+                         k_DATA[i].d_i32,
+                         k_DATA[i].d_i32ExpectedHash,
+                         resI32,
+                         k_DATA[i].d_i32ExpectedHash == resI32);
+            LOOP4_ASSERT(i,
+                         k_DATA[i].d_u32,
+                         k_DATA[i].d_u32ExpectedHash,
+                         resU32,
+                         k_DATA[i].d_u32ExpectedHash == resU32);
+            LOOP4_ASSERT(i,
+                         k_DATA[i].d_i64,
+                         k_DATA[i].d_i64ExpectedHash,
+                         resI64,
+                         k_DATA[i].d_i64ExpectedHash == resI64);
+            LOOP4_ASSERT(i,
+                         k_DATA[i].d_u64,
+                         k_DATA[i].d_u64ExpectedHash,
+                         resU64,
+                         k_DATA[i].d_u64ExpectedHash == resU64);
+//            bsl::cout << "i=" << bsl::hex << i << ",resU16=" << resU16 << "\n";
+//            bsl::cout << "i=" << bsl::hex << i << ",resI32=" << resI32 << "\n";
+//            bsl::cout << "i=" << bsl::hex << i << ",resU32=" << resU32 << "\n";
+//            bsl::cout << "i=" << bsl::hex << i << ",resI64=" << resI64 << "\n";
+//            bsl::cout << "i=" << bsl::hex << i << ",resU64=" << resU64 << "\n";
+        }
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING HASH FUNCTION
+        //
+        // Concerns:
+        //: 1 A 'BigEndianInt16' object can be hashed by instances of
+        //:   'bsl::hash<bdlb::BigEndianInt16>'.
+        //:
+        //: 2 A small sample of different 'BigEndianInt16' objects produce
+        //:   different hashes.
+        //:
+        //: 3 Invoking 'bsl::hash<bdlb::BigEndianInt16>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
+        //:   'BigEndianInt16' object.
+        //:
+        //: 4 A 'BigEndianUint16' object can be hashed by instances of
+        //:   'bsl::hash<bdlb::BigEndianUint16>'.
+        //:
+        //: 5 A small sample of different 'BigEndianUint16' objects produce
+        //:   different hashes.
+        //:
+        //: 6 Invoking 'bsl::hash<bdlb::BigEndianUint16>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
+        //:   'BigEndianUint16' object.
+        //:
+        //: 7 A 'BigEndianInt32' object can be hashed by instances of
+        //:   'bsl::hash<bdlb::BigEndianInt32>'.
+        //:
+        //: 8 A small sample of different 'BigEndianInt32' objects produce
+        //:   different hashes.
+        //:
+        //: 9 Invoking 'bsl::hash<bdlb::BigEndianInt32>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
+        //:   'BigEndianInt32' object.
+        //:
+        //:10 A 'BigEndianUint32' object can be hashed by instances of
+        //:   'bsl::hash<bdlb::BigEndianUint32>'.
+        //:
+        //:11 A small sample of different 'BigEndianUint32' objects produce
+        //:   different hashes.
+        //:
+        //:12 Invoking 'bsl::hash<bdlb::BigEndianUint32>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
+        //:   'BigEndianUint32' object.
+        //:
+        //:13 A 'BigEndianInt64' object can be hashed by instances of
+        //:   'bsl::hash<bdlb::BigEndianInt6432>'.
+        //:
+        //:14 A small sample of different 'BigEndianInt64' objects produce
+        //:   different hashes.
+        //:
+        //:15 Invoking 'bsl::hash<bdlb::BigEndianInt64>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
+        //:   'BigEndianInt64' object.
+        //:
+        //:16 A 'BigEndianUint64' object can be hashed by instances of
+        //:   'bsl::hash<bdlb::BigEndianUint64>'.
+        //:
+        //:17 A small sample of different 'BigEndianUint64' objects produce
+        //:   different hashes.
+        //:
+        //:18 Invoking 'bsl::hash<bdlb::BigEndianUint64>' is identical to invoking
+        //:   'bslh::DefaultHashAlgorithm' on the underlying data of the
+        //:   'BigEndianUint64' object.
+        //
+        // Plan:
+        //: 1 Hash some different 'BigEndianInt16' objects and verify that the
+        //:   result of using 'bsl::hash<bdlb::BigEndianInt16>' is identical to
+        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
+        //:   attributes of the 'BigEndianInt16' object.  (C-1,3)
+        //:
+        //: 2 Hash a number of different 'BigEndianInt16' objects and verify that
+        //:   they produce distinct hashes.  (C-2)
+        //:
+        //: 3 Hash some different 'BigEndianUint16' objects and verify that the
+        //:   result of using 'bsl::hash<bdlb::BigEndianUint16>' is identical to
+        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
+        //:   attributes of the 'BigEndianUint16' object.  (C-4,7)
+        //:
+        //: 4 Hash a number of different 'BigEndianUint16' objects and verify that
+        //:   they produce distinct hashes.  (C-5)
+        //:
+        //: 5 Hash some different 'BigEndianInt32' objects and verify that the
+        //:   result of using 'bsl::hash<bdlb::BigEndianInt32>' is identical to
+        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
+        //:   attributes of the 'BigEndianInt32' object.  (C-7,9)
+        //:
+        //: 6 Hash a number of different 'BigEndianInt32' objects and verify that
+        //:   they produce distinct hashes.  (C-8)
+        //:
+        //: 7 Hash some different 'BigEndianUint32' objects and verify that the
+        //:   result of using 'bsl::hash<bdlb::BigEndianUint32>' is identical to
+        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
+        //:   attributes of the 'BigEndianUint32' object.  (C-10,12)
+        //:
+        //: 8 Hash a number of different 'BigEndianUint32' objects and verify that
+        //:   they produce distinct hashes.  (C-11)
+        //:
+        //: 9 Hash some different 'BigEndianInt64' objects and verify that the
+        //:   result of using 'bsl::hash<bdlb::BigEndianInt64>' is identical to
+        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
+        //:   attributes of the 'BigEndianInt64' object.  (C-13,15)
+        //:
+        //:10 Hash a number of different 'BigEndianInt64' objects and verify that
+        //:   they produce distinct hashes.  (C-14)
+        //:
+        //:11 Hash some different 'BigEndianUint64' objects and verify that the
+        //:   result of using 'bsl::hash<bdlb::BigEndianUint64>' is identical to
+        //:   invoking 'bslh::DefaultHashAlgorithm' on the underlying
+        //:   attributes of the 'BigEndianUint64' object.  (C-16,18)
+        //:
+        //:12 Hash a number of different 'BigEndianUint64' objects and verify that
+        //:   they produce distinct hashes.  (C-17)
+        //
+        // Testing:
+        //   bsl::hash<BigEndianInt16>
+        //   bsl::hash<BigEndianUint16>
+        //   bsl::hash<BigEndianInt32>
+        //   bsl::hash<BigEndianUint32>
+        //   bsl::hash<BigEndianInt64>
+        //   bsl::hash<BigEndianUint64>
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING HASH FUNCTION"
+                             "\n=====================\n";
+
+        static struct TestData {
+            long long           d_line;
+            short               d_i16;
+            unsigned short      d_u16;
+            int                 d_i32;
+            unsigned int        d_u32;
+            bsls::Types::Int64  d_i64;
+            bsls::Types::Uint64 d_u64;
+        } k_DATA[] =
+        {
+            { L_,  0,  0,  0,  0,  0,  0 },
+            { L_, -2,  1, -2,  1, -2,  1 },
+            { L_,  1, 10,  1, 10,  1, 10 },
+            { L_, -3, 31, -3, 31, -3, 31 },
+            { L_, 32, 32, 32, 32, 32, 32 },
+            { L_,-33, 42,-33, 42,-33, 42 },
+            { L_, 42,132, 42,132, 42,132 },
+            { L_,-43,742,-43,742,-43,742 },
+        };
+
+        using namespace bdlb;
+        const bsl::size_t k_NUM_TESTS = sizeof(k_DATA) / sizeof(k_DATA[0]);
+
+        bsl::hash<BigEndianInt16>     bslHashFuncI16;
+        bsl::hash<BigEndianUint16>    bslHashFuncU16;
+        bsl::hash<BigEndianInt32>     bslHashFuncI32;
+        bsl::hash<BigEndianUint32>    bslHashFuncU32;
+        bsl::hash<BigEndianInt64>     bslHashFuncI64;
+        bsl::hash<BigEndianUint64>    bslHashFuncU64;
+        bsl::set<short>               hashResI16;
+        bsl::set<unsigned short>      hashResU16;
+        bsl::set<int>                 hashResI32;
+        bsl::set<unsigned int>        hashResU32;
+        bsl::set<bsls::Types::Int64>  hashResI64;
+        bsl::set<bsls::Types::Uint64> hashResU64;
+
+        for (bsl::size_t i = 0; i < k_NUM_TESTS; ++i) {
+            BigEndianInt16  bei16 = BigEndianInt16::make (k_DATA[i].d_i16);
+            BigEndianUint16 beu16 = BigEndianUint16::make(k_DATA[i].d_u16);
+            BigEndianInt32  bei32 = BigEndianInt32::make (k_DATA[i].d_i32);
+            BigEndianUint32 beu32 = BigEndianUint32::make(k_DATA[i].d_u32);
+            BigEndianInt64  bei64 = BigEndianInt64::make (k_DATA[i].d_i64);
+            BigEndianUint64 beu64 = BigEndianUint64::make(k_DATA[i].d_u64);
+
+            bslh::Hash<>          defaultHashAlgorithm;
+
+            ASSERT(bslHashFuncI16(bei16) == defaultHashAlgorithm(bei16));
+            ASSERT(bslHashFuncU16(beu16) == defaultHashAlgorithm(beu16));
+            ASSERT(bslHashFuncI32(bei32) == defaultHashAlgorithm(bei32));
+            ASSERT(bslHashFuncU32(beu32) == defaultHashAlgorithm(beu32));
+            ASSERT(bslHashFuncI64(bei64) == defaultHashAlgorithm(bei64));
+            ASSERT(bslHashFuncU64(beu64) == defaultHashAlgorithm(beu64));
+            ASSERT(hashResI16.insert(bslHashFuncI16(bei16)).second);
+            ASSERT(hashResU16.insert(bslHashFuncU16(beu16)).second);
+            ASSERT(hashResI32.insert(bslHashFuncI32(bei32)).second);
+            ASSERT(hashResU32.insert(bslHashFuncU32(beu32)).second);
+            ASSERT(hashResI64.insert(bslHashFuncI64(bei64)).second);
+            ASSERT(hashResU64.insert(bslHashFuncU64(beu64)).second);
+        }
+        ASSERT(hashResI16.size() == k_NUM_TESTS);
+        ASSERT(hashResU16.size() == k_NUM_TESTS);
+        ASSERT(hashResI32.size() == k_NUM_TESTS);
+        ASSERT(hashResU32.size() == k_NUM_TESTS);
+        ASSERT(hashResI64.size() == k_NUM_TESTS);
+        ASSERT(hashResU64.size() == k_NUM_TESTS);
       } break;
       case 9: {
         // --------------------------------------------------------------------
