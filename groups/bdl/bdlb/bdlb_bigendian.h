@@ -1013,9 +1013,8 @@ inline
 void bdlb::hashAppend(HASH_ALGORITHM&       hashAlgorithm,
                       const BigEndianInt16& object)
 {
-    using bslh::hashAppend;
-    typedef const char char2[2];
-    hashAppend(hashAlgorithm, *reinterpret_cast<char2*>(&object));
+    hashAlgorithm(reinterpret_cast<const char *>(&object),
+                  sizeof(BigEndianInt16));
 }
 
 namespace bdlb {
@@ -1121,9 +1120,8 @@ inline
 void bdlb::hashAppend(HASH_ALGORITHM&        hashAlgorithm,
                       const BigEndianUint16& object)
 {
-    using bslh::hashAppend;
-    typedef const char char2[2];
-    hashAppend(hashAlgorithm, *reinterpret_cast<char2*>(&object));
+    hashAlgorithm(reinterpret_cast<const char *>(&object),
+                  sizeof(BigEndianUint16));
 }
 
 namespace bdlb {
@@ -1227,9 +1225,8 @@ inline
 void bdlb::hashAppend(HASH_ALGORITHM&       hashAlgorithm,
                       const BigEndianInt32& object)
 {
-    using bslh::hashAppend;
-    typedef const char char4[4];
-    hashAppend(hashAlgorithm, *reinterpret_cast<char4*>(&object));
+    hashAlgorithm(reinterpret_cast<const char *>(&object),
+                  sizeof(BigEndianInt32));
 }
 
 namespace bdlb {
@@ -1335,9 +1332,8 @@ inline
 void bdlb::hashAppend(HASH_ALGORITHM&        hashAlgorithm,
                       const BigEndianUint32& object)
 {
-    using bslh::hashAppend;
-    typedef const char char4[4];
-    hashAppend(hashAlgorithm, *reinterpret_cast<char4*>(&object));
+    hashAlgorithm(reinterpret_cast<const char *>(&object),
+                  sizeof(BigEndianUint32));
 }
 
 namespace bdlb {
@@ -1441,9 +1437,8 @@ inline
 void bdlb::hashAppend(HASH_ALGORITHM&       hashAlgorithm,
                       const BigEndianInt64& object)
 {
-    using bslh::hashAppend;
-    typedef const char char8[8];
-    hashAppend(hashAlgorithm, *reinterpret_cast<char8*>(&object));
+    hashAlgorithm(reinterpret_cast<const char *>(&object),
+                  sizeof(BigEndianInt64));
 }
 
 namespace bdlb {
@@ -1547,9 +1542,8 @@ inline
 void bdlb::hashAppend(HASH_ALGORITHM&        hashAlgorithm,
                       const BigEndianUint64& object)
 {
-    using bslh::hashAppend;
-    typedef const char char8[8];
-    hashAppend(hashAlgorithm, *reinterpret_cast<char8*>(&object));
+    hashAlgorithm(reinterpret_cast<const char *>(&object),
+                  sizeof(BigEndianUint64));
 }
 
 }  // close enterprise namespace
