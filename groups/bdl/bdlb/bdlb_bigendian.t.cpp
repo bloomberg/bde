@@ -82,18 +82,12 @@ using namespace bsl;
 // [ 6] bool operator!=(const bdlb::BigEndianInt64& lhs, rhs);
 // [ 6] bool operator==(const bdlb::BigEndianUint64& lhs, rhs);
 // [ 6] bool operator!=(const bdlb::BigEndianUint64& lhs, rhs);
-// [10] bsl::hash<BigEndianInt16>
-// [10] bsl::hash<BigEndianUint16>
-// [10] bsl::hash<BigEndianInt32>
-// [10] bsl::hash<BigEndianUint32>
-// [10] bsl::hash<BigEndianInt64>
-// [10] bsl::hash<BigEndianUint64>
-// [11] hashAppend(SipHashAlgorithm, BigEndianInt16)
-// [11] hashAppend(SipHashAlgorithm, BigEndianUint16)
-// [11] hashAppend(SipHashAlgorithm, BigEndianInt32)
-// [11] hashAppend(SipHashAlgorithm, BigEndianUint32)
-// [11] hashAppend(SipHashAlgorithm, BigEndianInt64)
-// [11] hashAppend(SipHashAlgorithm, BigEndianUint64)
+// [10] hashAppend(hashAlg, BigEndianInt16)
+// [10] hashAppend(hashAlg, BigEndianUint16)
+// [10] hashAppend(hashAlg, BigEndianInt32)
+// [10] hashAppend(hashAlg, BigEndianUint32)
+// [10] hashAppend(hashAlg, BigEndianInt64)
+// [10] hashAppend(hashAlg, BigEndianUint64)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [11] TESTING HASH ENDIAN-NESS
@@ -478,12 +472,7 @@ int main(int argc, char *argv[])
         //:   result is the same for the various operating systems.  (C-6)
         //
         // Testing:
-        //   hashAppend(SipHashAlgorithm, BigEndianInt16)
-        //   hashAppend(SipHashAlgorithm, BigEndianUint16)
-        //   hashAppend(SipHashAlgorithm, BigEndianInt32)
-        //   hashAppend(SipHashAlgorithm, BigEndianUint32)
-        //   hashAppend(SipHashAlgorithm, BigEndianInt64)
-        //   hashAppend(SipHashAlgorithm, BigEndianUint64)
+        //   TESTING HASH ENDIAN-NESS
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING HASH ENDIAN-NESS"
@@ -725,12 +714,12 @@ int main(int argc, char *argv[])
         //:   they produce distinct hashes.  (C-17)
         //
         // Testing:
-        //   bsl::hash<BigEndianInt16>
-        //   bsl::hash<BigEndianUint16>
-        //   bsl::hash<BigEndianInt32>
-        //   bsl::hash<BigEndianUint32>
-        //   bsl::hash<BigEndianInt64>
-        //   bsl::hash<BigEndianUint64>
+        //   hashAppend(hashAlg, BigEndianInt16)
+        //   hashAppend(hashAlg, BigEndianUint16)
+        //   hashAppend(hashAlg, BigEndianInt32)
+        //   hashAppend(hashAlg, BigEndianUint32)
+        //   hashAppend(hashAlg, BigEndianInt64)
+        //   hashAppend(hashAlg, BigEndianUint64)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING HASH FUNCTION"
