@@ -237,6 +237,11 @@ bsl::ostream& operator<<(bsl::ostream&         stream,
     // Write the specified 'integer' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
+template <class HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM& hashAlgorithm, const BigEndianInt16& object);
+    // Invoke the specified 'hashAlgorithm' on the attributes of the specified
+    // 'object'.
+
                          // =====================
                          // class BigEndianUint16
                          // =====================
@@ -366,6 +371,11 @@ bsl::ostream& operator<<(bsl::ostream&          stream,
     // Write the specified 'integer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
 
+template <class HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM& hashAlgorithm, const BigEndianUint16& object);
+    // Invoke the specified 'hashAlgorithm' on the attributes of the specified
+    // 'object'.
+
                          // ====================
                          // class BigEndianInt32
                          // ====================
@@ -492,6 +502,11 @@ bsl::ostream& operator<<(bsl::ostream&         stream,
                          const BigEndianInt32& integer);
     // Write the specified 'integer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
+
+template <class HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM& hashAlgorithm, const BigEndianInt32& object);
+    // Invoke the specified 'hashAlgorithm' on the attributes of the specified
+    // 'object'.
 
                          // =====================
                          // class BigEndianUint32
@@ -622,6 +637,11 @@ bsl::ostream& operator<<(bsl::ostream&          stream,
     // Write the specified 'integer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
 
+template <class HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM& hashAlgorithm, const BigEndianUint32& object);
+    // Invoke the specified 'hashAlgorithm' on the attributes of the specified
+    // 'object'.
+
                          // ====================
                          // class BigEndianInt64
                          // ====================
@@ -748,6 +768,11 @@ bsl::ostream& operator<<(bsl::ostream&         stream,
                          const BigEndianInt64& integer);
     // Write the specified 'integer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
+
+template <class HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM& hashAlgorithm, const BigEndianInt64& object);
+    // Invoke the specified 'hashAlgorithm' on the attributes of the specified
+    // 'object'.
 
                          // =====================
                          // class BigEndianUint64
@@ -877,6 +902,11 @@ bsl::ostream& operator<<(bsl::ostream& stream, const BigEndianUint64& integer);
     // Write the specified 'integer' to the specified output 'stream', and
     // return a reference to the modifiable 'stream'.
 
+template <class HASH_ALGORITHM>
+void hashAppend(HASH_ALGORITHM& hashAlgorithm, const BigEndianUint64& object);
+    // Invoke the specified 'hashAlgorithm' on the attributes of the specified
+    // 'object'.
+
 // ============================================================================
 //                               INLINE DEFINITIONS
 // ============================================================================
@@ -978,6 +1008,15 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&         stream,
     return stream;
 }
 
+template <class HASH_ALGORITHM>
+inline
+void bdlb::hashAppend(HASH_ALGORITHM&       hashAlgorithm,
+                      const BigEndianInt16& object)
+{
+    hashAlgorithm(reinterpret_cast<const char *>(&object),
+                  sizeof(BigEndianInt16));
+}
+
 namespace bdlb {
                          // ---------------------
                          // class BigEndianUint16
@@ -1076,6 +1115,15 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&          stream,
     return stream;
 }
 
+template <class HASH_ALGORITHM>
+inline
+void bdlb::hashAppend(HASH_ALGORITHM&        hashAlgorithm,
+                      const BigEndianUint16& object)
+{
+    hashAlgorithm(reinterpret_cast<const char *>(&object),
+                  sizeof(BigEndianUint16));
+}
+
 namespace bdlb {
                          // --------------------
                          // class BigEndianInt32
@@ -1170,6 +1218,15 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&         stream,
 {
     integer.print(stream, 0, -1);
     return stream;
+}
+
+template <class HASH_ALGORITHM>
+inline
+void bdlb::hashAppend(HASH_ALGORITHM&       hashAlgorithm,
+                      const BigEndianInt32& object)
+{
+    hashAlgorithm(reinterpret_cast<const char *>(&object),
+                  sizeof(BigEndianInt32));
 }
 
 namespace bdlb {
@@ -1270,6 +1327,15 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&          stream,
     return stream;
 }
 
+template <class HASH_ALGORITHM>
+inline
+void bdlb::hashAppend(HASH_ALGORITHM&        hashAlgorithm,
+                      const BigEndianUint32& object)
+{
+    hashAlgorithm(reinterpret_cast<const char *>(&object),
+                  sizeof(BigEndianUint32));
+}
+
 namespace bdlb {
                          // --------------------
                          // class BigEndianInt64
@@ -1366,6 +1432,15 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&         stream,
     return stream;
 }
 
+template <class HASH_ALGORITHM>
+inline
+void bdlb::hashAppend(HASH_ALGORITHM&       hashAlgorithm,
+                      const BigEndianInt64& object)
+{
+    hashAlgorithm(reinterpret_cast<const char *>(&object),
+                  sizeof(BigEndianInt64));
+}
+
 namespace bdlb {
                          // ---------------------
                          // class BigEndianUint64
@@ -1460,6 +1535,15 @@ bsl::ostream& bdlb::operator<<(bsl::ostream&          stream,
 {
     integer.print(stream, 0, -1);
     return stream;
+}
+
+template <class HASH_ALGORITHM>
+inline
+void bdlb::hashAppend(HASH_ALGORITHM&        hashAlgorithm,
+                      const BigEndianUint64& object)
+{
+    hashAlgorithm(reinterpret_cast<const char *>(&object),
+                  sizeof(BigEndianUint64));
 }
 
 }  // close enterprise namespace
