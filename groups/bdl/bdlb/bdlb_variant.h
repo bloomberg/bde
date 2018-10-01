@@ -2187,15 +2187,13 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // negative, format the entire output on one line, suppressing all but
         // the initial indentation (as governed by 'level').  If 'stream' is
         // not valid on entry, this operation has no effect.  Nothing is
-        // printed if this variant is unset.  An object held by this variant
-        // will use the print method associated with the traits
-        // 'bdlb::TypeTraitHasPrintMethod', 'bslalg::HasStlIterators', or
-        // 'bslmf::IsPair'.  See {bdlb_printmethods}.  If none is associated
-        // with the object, it will use the << stream output operator.  Note
-        // that the compiler will return an error if an object held by this
-        // variant does not have one the traits (or the associated print method
-        // is not defined), and the << stream output operator for this object
-        // is not defined.
+        // printed if this variant is unset.  Each type that may be contained
+        // by this variant shall be printable with 'bdlb::PrintMethods'
+        // (typically meaning that they either declare the
+        // 'bdlb::HasPrintMethods' trait or provide the '<<' output streaming
+        // operator). See {bdlb_printmethods}.  The compiler will emit an error
+        // if 'bdlb::PrintMethods::print' cannot be instantiated for each type
+        // that may be contained by this variant.
 
     template <class TYPE>
     const TYPE& the() const;
