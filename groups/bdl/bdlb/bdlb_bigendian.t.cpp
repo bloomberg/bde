@@ -571,12 +571,12 @@ int main(int argc, char *argv[])
             hashAppend(hashAlgI64, bei64);
             hashAppend(hashAlgU64, beu64);
 
-            bsl::size_t resI16 = hashAlgI16.computeHash();
-            bsl::size_t resU16 = hashAlgU16.computeHash();
-            bsl::size_t resI32 = hashAlgI32.computeHash();
-            bsl::size_t resU32 = hashAlgU32.computeHash();
-            bsl::size_t resI64 = hashAlgI64.computeHash();
-            bsl::size_t resU64 = hashAlgU64.computeHash();
+            bsls::Types::Uint64 resI16 = hashAlgI16.computeHash();
+            bsls::Types::Uint64 resU16 = hashAlgU16.computeHash();
+            bsls::Types::Uint64 resI32 = hashAlgI32.computeHash();
+            bsls::Types::Uint64 resU32 = hashAlgU32.computeHash();
+            bsls::Types::Uint64 resI64 = hashAlgI64.computeHash();
+            bsls::Types::Uint64 resU64 = hashAlgU64.computeHash();
 
             LOOP4_ASSERT(i,
                          k_DATA[i].d_i16,
