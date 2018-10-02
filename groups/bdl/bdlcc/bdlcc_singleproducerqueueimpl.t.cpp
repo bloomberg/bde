@@ -477,8 +477,8 @@ extern "C" void *deferredPopFront(void *arg)
 }
 
 struct OrderingValue {
-    bsls::Types::Uint64 d_pushThreadId;
-    bsls::Types::Uint64 d_sequenceNumber;
+    bsls::AtomicOperations::AtomicTypes::Uint64 d_pushThreadId;
+    bsls::AtomicOperations::AtomicTypes::Uint64 d_sequenceNumber;
 };
 
 typedef bdlcc::SingleProducerQueueImpl<OrderingValue,
@@ -502,23 +502,30 @@ extern "C" void *orderingPop(void *arg)
 
     while (1 < s_continue) {
         if (0 == mX.popFront(&value)) {
-            bsls::Types::Uint64& sequenceNumber =
-                                  data->d_sequenceNumber[value.d_pushThreadId];
+            bsls::Types::Uint64 pushThreadId =
+                                      bsls::AtomicOperations::getUint64Acquire(
+                                                        &value.d_pushThreadId);
+            bsls::Types::Uint64 sequenceNumber =
+                                      bsls::AtomicOperations::getUint64Acquire(
+                                                      &value.d_sequenceNumber);
+
+            bsls::Types::Uint64& lastSequenceNumber =
+                                          data->d_sequenceNumber[pushThreadId];
 
             if (data->d_isStrongTest) {
-                ASSERTV(value.d_pushThreadId,
+                ASSERTV(pushThreadId,
+                        lastSequenceNumber,
                         sequenceNumber,
-                        value.d_sequenceNumber,
-                        sequenceNumber + 1 == value.d_sequenceNumber);
+                        lastSequenceNumber + 1 == sequenceNumber);
             }
             else {
-                ASSERTV(value.d_pushThreadId,
+                ASSERTV(pushThreadId,
+                        lastSequenceNumber,
                         sequenceNumber,
-                        value.d_sequenceNumber,
-                        sequenceNumber < value.d_sequenceNumber);
+                        lastSequenceNumber < sequenceNumber);
             }
 
-            sequenceNumber = value.d_sequenceNumber;
+            lastSequenceNumber = sequenceNumber;
         }
     }
 
@@ -530,12 +537,15 @@ extern "C" void *orderingPush(void *arg)
     OrderingObj& mX = *static_cast<OrderingObj *>(arg);
 
     OrderingObj::value_type value;
-    value.d_pushThreadId = bslmt::ThreadUtil::selfIdAsUint64();
-    value.d_sequenceNumber = 1;
+
+    bsls::AtomicOperations::initUint64(&value.d_pushThreadId,
+                                       bslmt::ThreadUtil::selfIdAsUint64());
+    bsls::AtomicOperations::initUint64(&value.d_sequenceNumber, 1);
 
     while (1 < s_continue) {
         if (0 == mX.pushBack(value)) {
-            ++value.d_sequenceNumber;
+            bsls::AtomicOperations::addUint64AcqRel(&value.d_sequenceNumber,
+                                                    1);
         }
     }
 

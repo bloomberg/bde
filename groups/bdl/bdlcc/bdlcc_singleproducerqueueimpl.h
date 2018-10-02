@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //
 // The queue provides 'pushBack' and 'popFront' methods for pushing data into
 // the queue and popping data from the queue.  The queue will allocate memory
-// as necessary to accomodate 'pushBack' invocations ('pushBack' will never
+// as necessary to accommodate 'pushBack' invocations ('pushBack' will never
 // block and is provided for consistency with other containers).  When the
 // queue is empty, the 'popFront' methods block until data appears in the
 // queue.  Non-blocking methods 'tryPushBack' and 'tryPopFront' are also
@@ -87,6 +87,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
+
+#include <bsl_cstddef.h>
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -181,7 +183,7 @@ class SingleProducerQueueImpl {
         // writable at creation and after a read completes (when the single
         // producer can write to the node).  A node is readable after it is
         // written (when the node can be read by a consumer).  The states
-        // inbetween these two states (e.g., writing) are not needed by this
+        // in-between these two states (e.g., writing) are not needed by this
         // implementation of the queue.
 
         e_READABLE,  // node can be read
@@ -194,9 +196,10 @@ class SingleProducerQueueImpl {
 
     template <class T>
     struct QueueNode {
-        bsls::ObjectBuffer<T> d_value;
+        // PUBLIC DATA
+        bsls::ObjectBuffer<T> d_value;  // stored value
         AtomicInt             d_state;  // 'e_READABLE' or 'e_WRITABLE'
-        AtomicPointer         d_next;
+        AtomicPointer         d_next;   // pointer to next node
     };
 
     typedef QueueNode<TYPE> Node;
@@ -254,7 +257,7 @@ class SingleProducerQueueImpl {
                                                             MUTEX,
                                                             CONDITION>::Node >;
 
-    // PRIVATE CLASS METHODS
+    // PRIVATE MANIPULATORS
     void popComplete(Node *node, bool isEmpty);
         // Destruct the value stored in the specified 'node', mark the 'node'
         // writable, and if the specified 'isEmpty' is 'true' then signal the
@@ -262,7 +265,6 @@ class SingleProducerQueueImpl {
         // a guard to complete the reclamation of a node in the presence of an
         // exception.
 
-    // PRIVATE MANIPULATORS
     void popFrontRaw(TYPE* value, bool isEmpty);
         // Remove the element, without verifying the availability of the
         // element, from the front of this queue, load that element into the
@@ -470,7 +472,7 @@ SingleProducerQueueImpl_PopCompleteGuard<TYPE, NODE>::
                       // class SingleProducerQueueImpl
                       // -----------------------------
 
-// PRIVATE CLASS METHODS
+// PRIVATE MANIPULATORS
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 void SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                           popComplete(Node *node, bool isEmpty)
@@ -488,7 +490,6 @@ void SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
 
 }
 
-// PRIVATE MANIPULATORS
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 void SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                           popFrontRaw(TYPE *value,

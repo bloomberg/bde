@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //
 // The queue provides 'pushBack' and 'popFront' methods for pushing data into
 // the queue and popping data from the queue.  The queue will allocate memory
-// as necessary to accomodate 'pushBack' invocations ('pushBack' will never
+// as necessary to accommodate 'pushBack' invocations ('pushBack' will never
 // block and is provided for consistency with other containers).  When the
 // queue is empty, the 'popFront' methods block until data appears in the
 // queue.  Non-blocking methods 'tryPushBack' and 'tryPopFront' are also
