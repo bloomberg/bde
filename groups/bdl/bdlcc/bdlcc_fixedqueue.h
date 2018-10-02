@@ -178,6 +178,8 @@ BSLS_IDENT("$Id: $")
 //          item.d_type = my_WorkRequest::e_STOP;
 //          queue.pushBack(item);
 //      }
+//
+//      consumerThreads.joinAll();
 //  }
 //..
 
