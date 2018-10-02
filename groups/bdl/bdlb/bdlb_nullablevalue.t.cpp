@@ -25,6 +25,7 @@
 #include <bslmf_assert.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -37,6 +38,7 @@
 
 #include <bsl_cstdlib.h>    // 'atoi'
 #include <bsl_exception.h>
+#include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -45,6 +47,7 @@
 
 using namespace BloombergLP;
 using namespace bsl;
+using bsls::NameOf;
 
 // ============================================================================
 //                                 TEST PLAN
@@ -65,12 +68,12 @@ using namespace bsl;
 // [ 3] NullableValue(bslma::Allocator *basicAllocator);
 // [ 6] NullableValue(const NullableValue& original);
 // [ 6] NullableValue(const NullableValue& original, *ba);
-// [21] NullableValue(NullableValue&& original);
-// [21] NullableValue(NullableValue&& original, *ba);
+// [20] NullableValue(NullableValue&& original);
+// [2] NullableValue(NullableValue&& original, *ba);
 // [ 9] NullableValue(const TYPE& value);
 // [ 9] NullableValue(const TYPE& value, *ba);
-// [23] NullableValue(TYPE&& value);
-// [23] NullableValue(TYPE&& value, *ba);
+// [22] NullableValue(TYPE&& value);
+// [22] NullableValue(TYPE&& value, *ba);
 // [11] NullableValue(const OTHER_TYPE& value);
 // [11] NullableValue(const OTHER_TYPE& value, *ba);
 // [11] NullableValue(const NullableValue<OTHER_TYPE>&o);
@@ -79,10 +82,10 @@ using namespace bsl;
 //
 // MANIPULATORS
 // [ 7] NullableValue& operator=(const NullableValue& rhs);
-// [22] NullableValue& operator=(NullableValue&& rhs);
+// [21] NullableValue& operator=(NullableValue&& rhs);
 // [12] NullableValue& operator=(const NullableValue<OTHER_TYPE>& rhs);
 // [10] NullableValue& operator=(const TYPE& rhs);
-// [24] NullableValue& operator=(TYPE&& rhs);
+// [23] NullableValue& operator=(TYPE&& rhs);
 // [12] NullableValue& operator=(const OTHER_TYPE& rhs);
 // [13] void swap(NullableValue<TYPE>& other);
 // [ 3] TYPE& makeValue(const TYPE& value);
@@ -94,7 +97,7 @@ using namespace bsl;
 // [10] TYPE& value();
 // [14] TYPE valueOr(const TYPE& value) const;
 // [15] const TYPE *valueOr(const TYPE *value) const;
-// [26] const TYPE *addressOr(const TYPE *address) const;
+// [25] const TYPE *addressOr(const TYPE *address) const;
 // [16] const TYPE *valueOrNull() const;
 //
 // ACCESSORS
@@ -109,34 +112,30 @@ using namespace bsl;
 //
 // FREE OPERATORS
 // [ 5] bool operator==(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-// [ 5] bool operator==(const NullableValue<TYPE>&, const TYPE&);
-// [ 5] bool operator==(const TYPE&, const NullableValue<TYPE>&);
 // [ 5] bool operator!=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-// [ 5] bool operator!=(const NullableValue<TYPE>&, const TYPE&);
-// [ 5] bool operator!=(const TYPE&, const NullableValue<TYPE>&);
 // [ 5] bool operator< (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-// [ 5] bool operator< (const NullableValue<TYPE>&, const TYPE&);
-// [ 5] bool operator< (const TYPE&, const NullableValue<TYPE>&);
 // [ 5] bool operator<=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-// [ 5] bool operator<=(const NullableValue<TYPE>&, const TYPE&);
-// [ 5] bool operator<=(const TYPE&, const NullableValue<TYPE>&);
 // [ 5] bool operator> (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-// [ 5] bool operator> (const NullableValue<TYPE>&, const TYPE&);
-// [ 5] bool operator> (const TYPE&, const NullableValue<TYPE>&);
 // [ 5] bool operator>=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-// [ 5] bool operator>=(const NullableValue<TYPE>&, const TYPE&);
-// [ 5] bool operator>=(const TYPE&, const NullableValue<TYPE>&);
-// [17] bool operator==(const NullableValue<TYPE>&, const TYPE&);
-// [17] bool operator==(const TYPE&, const NullableValue<TYPE>&);
-// [17] bool operator!=(const NullableValue<TYPE>&, const TYPE&);
-// [17] bool operator!=(const TYPE&, const NullableValue<TYPE>&);
+// [ 5] bool operator==(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+// [ 5] bool operator==(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+// [ 5] bool operator!=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+// [ 5] bool operator!=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+// [ 5] bool operator< (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+// [ 5] bool operator< (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+// [ 5] bool operator<=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+// [ 5] bool operator<=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+// [ 5] bool operator> (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+// [ 5] bool operator> (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+// [ 5] bool operator>=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+// [ 5] bool operator>=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
 // [ 4] ostream& operator<<(ostream&, const NullableValue<TYPE>&);
 // [20] void hashAppend(HASHALG& hashAlg, NullableValue<TYPE>& input);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST 1: Using 'bsl::string'
 // [ 2] BREATHING TEST 2: Using 'int'
-// [27] USAGE EXAMPLE
-// [25] Concern: Types that are not copy-assignable can be used.
+// [26] USAGE EXAMPLE
+// [24] Concern: Types that are not copy-assignable can be used.
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -266,24 +265,201 @@ BSLMF_ASSERT(sizeof SUFFICIENTLY_LONG_STRING > sizeof(bsl::string));
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-template <class LHS_TYPE, class RHS_TYPE>
-void testRelationalOperations(int             i,
-                              int             j,
-                              const LHS_TYPE& lhs,
-                              const RHS_TYPE& rhs)
-    // Test all the relational operations for the specified 'lhs' and 'rhs'.
-    // The relation between 'lhs' and 'rhs' is expected to be exactly the same
-    // as between the specified 'i' and 'j'.
+template <class FIRST_TYPE, class SECOND_TYPE, class INIT_TYPE>
+void testRelationalOperationsNonNull(const INIT_TYPE& lesserVal,
+                                     const INIT_TYPE& greaterVal)
+    // Test all the relational operations for two types, which objects can be
+    // initialized with the specified 'lesserVal' and 'greaterVal' values and
+    // compared each other.
 {
-    const bool isSame = (i == j);
-    const bool isILess = (i < j);
-    const bool isJLess = (j < i);
-    ASSERTV(lhs, rhs,  isSame  == (lhs == rhs));
-    ASSERTV(lhs, rhs, !isSame  == (lhs != rhs));
-    ASSERTV(lhs, rhs,  isILess == (lhs <  rhs));
-    ASSERTV(lhs, rhs, !isILess == (lhs >= rhs));
-    ASSERTV(lhs, rhs, !isJLess == (lhs <= rhs));
-    ASSERTV(lhs, rhs,  isJLess == (lhs >  rhs));
+
+    if (veryVerbose) {
+        bsl::cout << "\t\t       FIRST_TYPE:  "
+                  << bsl::setw(50)
+                  << bsl::left
+                  << NameOf<FIRST_TYPE>().name()
+                  << "       SECOND_TYPE:  "
+                  << bsl::setw(50)
+                  << bsl::left
+                  << NameOf< SECOND_TYPE>().name()
+                  << bsl::endl;
+    }
+
+    FIRST_TYPE  firstLesser(lesserVal);
+    FIRST_TYPE  firstGreater(greaterVal);
+    SECOND_TYPE secondLesser(lesserVal);
+    SECOND_TYPE secondGreater(greaterVal);
+
+    ASSERTV( (firstLesser   == secondLesser ));
+    ASSERTV(!(firstLesser   == secondGreater));
+
+    ASSERTV(!(firstLesser   != secondLesser ));
+    ASSERTV( (firstLesser   != secondGreater));
+
+    ASSERTV(!(firstLesser   <  secondLesser ));
+    ASSERTV( (firstLesser   <  secondGreater));
+
+    ASSERTV( (firstLesser   <= secondLesser ));
+    ASSERTV( (firstLesser   <= secondGreater));
+
+    ASSERTV(!(firstLesser   >  secondLesser ));
+    ASSERTV(!(firstLesser   >  secondGreater));
+
+    ASSERTV( (firstLesser   >= secondLesser ));
+    ASSERTV(!(firstLesser   >= secondGreater));
+
+    ASSERTV(!(firstGreater  == secondLesser ));
+    ASSERTV( (firstGreater  == secondGreater));
+
+    ASSERTV( (firstGreater  != secondLesser ));
+    ASSERTV(!(firstGreater  != secondGreater));
+
+    ASSERTV(!(firstGreater  <  secondLesser ));
+    ASSERTV(!(firstGreater  <  secondGreater));
+
+    ASSERTV(!(firstGreater  <= secondLesser ));
+    ASSERTV( (firstGreater  <= secondGreater));
+
+    ASSERTV( (firstGreater  >  secondLesser ));
+    ASSERTV(!(firstGreater  >  secondGreater));
+
+    ASSERTV( (firstGreater  >= secondLesser ));
+    ASSERTV( (firstGreater  >= secondGreater));
+
+    ASSERTV( (secondLesser  == firstLesser  ));
+    ASSERTV(!(secondLesser  == firstGreater ));
+
+    ASSERTV(!(secondLesser  != firstLesser  ));
+    ASSERTV( (secondLesser  != firstGreater ));
+
+    ASSERTV(!(secondLesser  <  firstLesser  ));
+    ASSERTV( (secondLesser  <  firstGreater ));
+
+    ASSERTV( (secondLesser  <= firstLesser  ));
+    ASSERTV( (secondLesser  <= firstGreater ));
+
+    ASSERTV(!(secondLesser  >  firstLesser  ));
+    ASSERTV(!(secondLesser  >  firstGreater ));
+
+    ASSERTV( (secondLesser  >= firstLesser  ));
+    ASSERTV(!(secondLesser  >= firstGreater ));
+
+    ASSERTV(!(secondGreater == firstLesser  ));
+    ASSERTV( (secondGreater == firstGreater ));
+
+    ASSERTV( (secondGreater != firstLesser  ));
+    ASSERTV(!(secondGreater != firstGreater ));
+
+    ASSERTV(!(secondGreater <  firstLesser  ));
+    ASSERTV(!(secondGreater <  firstGreater ));
+
+    ASSERTV(!(secondGreater <= firstLesser  ));
+    ASSERTV( (secondGreater <= firstGreater ));
+
+    ASSERTV( (secondGreater >  firstLesser  ));
+    ASSERTV(!(secondGreater >  firstGreater ));
+
+    ASSERTV( (secondGreater >= firstLesser  ));
+    ASSERTV( (secondGreater >= firstGreater ));
+}
+
+
+template <class FIRST_NV_TYPE, class SECOND_TYPE, class INIT_TYPE>
+void testRelationalOperationsOneNull(const INIT_TYPE& initValue)
+    // Test all the relational operations for the null 'bdlb::NullableValue'
+    // object and an object of the 'SECOND_TYPE' that is initiated by the
+    // specified 'initValue'.  Note that it is expected that the
+    // 'FIRST_NV_TYPE' is the 'bdlb::NullableValue' type.
+
+{
+    if (veryVerbose) {
+
+        bsl::cout << "\t\t(NULL) FIRST_TYPE:  "
+                  << bsl::setw(50)
+                  << bsl::left
+                  << NameOf<FIRST_NV_TYPE>().name()
+                  << "       SECOND_TYPE:  "
+                  << bsl::setw(50)
+                  << bsl::left
+                  << NameOf<SECOND_TYPE>().name()
+                  << bsl::endl;
+    }
+
+    const FIRST_NV_TYPE firstNullNV;
+    const SECOND_TYPE   secondValue(initValue);
+
+    ASSERTV(!(firstNullNV == secondValue));
+    ASSERTV( (firstNullNV != secondValue));
+    ASSERTV( (firstNullNV <  secondValue));
+    ASSERTV( (firstNullNV <= secondValue));
+    ASSERTV(!(firstNullNV >  secondValue));
+    ASSERTV(!(firstNullNV >= secondValue));
+
+    ASSERTV(!(secondValue == firstNullNV));
+    ASSERTV( (secondValue != firstNullNV));
+    ASSERTV(!(secondValue <  firstNullNV));
+    ASSERTV(!(secondValue <= firstNullNV));
+    ASSERTV( (secondValue >  firstNullNV));
+    ASSERTV( (secondValue >= firstNullNV));
+}
+
+template <class FIRST_NV_TYPE, class SECOND_NV_TYPE>
+void testRelationalOperationsBothNull()
+    // Test all the relational operations for two null 'bdlb::NullableValue'
+    // objects.  Note that it is expected that the 'FIRST_NV_TYPE' and the
+    // 'SECOND_NV_TYPE' both are the 'bdlb::NullableValue' type.
+{
+    if (veryVerbose) {
+        bsl::cout << "\t\t(NULL) FIRST_TYPE:  "
+                  << bsl::setw(50)
+                  << bsl::left
+                  << NameOf<FIRST_NV_TYPE>().name()
+                  << "(NULL) SECOND_TYPE:  "
+                  << bsl::setw(50)
+                  << bsl::left
+                  << NameOf<SECOND_NV_TYPE>().name()
+                  << bsl::endl;
+    }
+
+    const  FIRST_NV_TYPE  firstNull;
+    const SECOND_NV_TYPE secondNull;
+
+
+    ASSERTV( (firstNull == secondNull));
+    ASSERTV(!(firstNull != secondNull));
+    ASSERTV(!(firstNull <  secondNull));
+    ASSERTV( (firstNull <= secondNull));
+    ASSERTV(!(firstNull >  secondNull));
+    ASSERTV( (firstNull >= secondNull));
+
+    ASSERTV( (secondNull == firstNull));
+    ASSERTV(!(secondNull != firstNull));
+    ASSERTV(!(secondNull <  firstNull));
+    ASSERTV( (secondNull <= firstNull));
+    ASSERTV(!(secondNull >  firstNull));
+    ASSERTV( (secondNull >= firstNull));
+}
+
+template <class FIRST_TYPE, class SECOND_TYPE, class INIT_TYPE>
+void testRelationalOperations(const INIT_TYPE& lesserVal,
+                              const INIT_TYPE& greaterVal)
+{
+    typedef bdlb::NullableValue< FIRST_TYPE>  FIRST_NV_TYPE;
+    typedef bdlb::NullableValue<SECOND_TYPE> SECOND_NV_TYPE;
+
+    testRelationalOperationsNonNull<FIRST_TYPE,    SECOND_NV_TYPE>(lesserVal,
+                                                                   greaterVal);
+    testRelationalOperationsNonNull<FIRST_NV_TYPE, SECOND_TYPE   >(lesserVal,
+                                                                   greaterVal);
+    testRelationalOperationsNonNull<FIRST_NV_TYPE, SECOND_NV_TYPE>(lesserVal,
+                                                                   greaterVal);
+
+    testRelationalOperationsOneNull<FIRST_NV_TYPE,  SECOND_TYPE   >(lesserVal);
+    testRelationalOperationsOneNull<FIRST_NV_TYPE,  SECOND_NV_TYPE>(lesserVal);
+    testRelationalOperationsOneNull<SECOND_NV_TYPE, FIRST_TYPE    >(lesserVal);
+    testRelationalOperationsOneNull<SECOND_NV_TYPE, FIRST_NV_TYPE >(lesserVal);
+
+    testRelationalOperationsBothNull<FIRST_NV_TYPE, SECOND_NV_TYPE>();
 }
 
 // ============================================================================
@@ -1504,8 +1680,704 @@ template <>
 struct UsesBslmaAllocator<ConvertibleFromAllocatorTestType> : bsl::true_type {
 
 };
+
 }  // close namespace bslma
 }  // close enterprise namespace
+
+namespace {
+
+class FirstMethodComparableType;
+class SecondMethodComparableType;
+class FirstFunctionComparableType;
+class SecondFunctionComparableType;
+
+                   // ===============================
+                   // class FirstMethodComparableType
+                   // ===============================
+
+class FirstMethodComparableType {
+  private:
+    // DATA
+    int d_data;  // object value
+
+  public:
+     // CREATORS
+     FirstMethodComparableType(int data);
+         // Create a 'FirstMethodComparableType' object having the specified
+         // 'data' attribute value.
+
+     // ACCESSORS
+     int data() const;
+         // Return the value of the 'data' attribute of this object.
+
+     bool operator==(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'rhs' has the same value as "this"
+         // object, and 'false' otherwise.
+
+     bool operator==(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'rhs' has the same value as "this"
+         // object, and 'false' otherwise.
+
+     bool operator!=(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'rhs' does not have the same value
+         // as "this" object, and 'false' otherwise.
+
+     bool operator!=(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'rhs' does not have the same value
+         // as "this" object, and 'false' otherwise.
+
+     bool operator<(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered before the
+         // specified 'rhs' nullable object, and 'false' otherwise.
+
+     bool operator<(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered before the
+         // specified 'rhs' nullable object, and 'false' otherwise.
+
+     bool operator<=(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered before the
+         // specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
+         // value, and 'false' otherwise.
+
+     bool operator<=(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered before the
+         // specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
+         // value, and 'false' otherwise.
+
+     bool operator>(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered after the specified
+         // 'rhs' nullable object, and 'false' otherwise.
+
+     bool operator>(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered after the specified
+         // 'rhs' nullable object, and 'false' otherwise.
+
+     bool operator>=(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered after the specified
+         // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
+         // 'false' otherwise.
+
+     bool operator>=(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered after the specified
+         // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
+         // 'false' otherwise.
+ };
+
+                   // ================================
+                   // class SecondMethodComparableType
+                   // ================================
+
+class SecondMethodComparableType {
+  private:
+    // DATA
+    int d_data;  // object value
+
+  public:
+     // CREATORS
+     SecondMethodComparableType(int data);
+         // Create a 'SecondMethodComparableType' object having the specified
+         // 'data' attribute value.
+
+     // ACCESSORS
+     int data() const;
+         // Return the value of the 'data' attribute of this object.
+
+     bool operator==(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'rhs' has the same value as "this"
+         // object, and 'false' otherwise.
+
+     bool operator==(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'rhs' has the same value as "this"
+         // object, and 'false' otherwise.
+
+     bool operator!=(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'rhs' does not have the same value
+         // as "this" object, and 'false' otherwise.
+
+     bool operator!=(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'rhs' does not have the same value
+         // as "this" object, and 'false' otherwise.
+
+     bool operator<(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered before the
+         // specified 'rhs' nullable object, and 'false' otherwise.
+
+     bool operator<(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered before the
+         // specified 'rhs' nullable object, and 'false' otherwise.
+
+     bool operator<=(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered before the
+         // specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
+         // value, and 'false' otherwise.
+
+     bool operator<=(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered before the
+         // specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
+         // value, and 'false' otherwise.
+
+     bool operator>(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered after the specified
+         // 'rhs' nullable object, and 'false' otherwise.
+
+     bool operator>(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered after the specified
+         // 'rhs' nullable object, and 'false' otherwise.
+
+     bool operator>=(const SecondMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered after the specified
+         // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
+         // 'false' otherwise.
+
+     bool operator>=(const FirstMethodComparableType& rhs) const;
+         // Return 'true' if the specified 'lhs' is ordered after the specified
+         // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
+         // 'false' otherwise.
+ };
+
+                   // -------------------------------
+                   // class FirstMethodComparableType
+                   // -------------------------------
+// CREATORS
+FirstMethodComparableType::FirstMethodComparableType(int data)
+: d_data(data)
+{}
+
+// ACCESSORS
+int FirstMethodComparableType::data() const
+{
+    return d_data;
+}
+
+bool FirstMethodComparableType::operator==(
+                                    const FirstMethodComparableType& rhs) const
+{
+    return d_data == rhs.data();
+}
+
+bool FirstMethodComparableType::operator==(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data == rhs.data();
+}
+
+bool FirstMethodComparableType::operator!=(
+                                    const FirstMethodComparableType& rhs) const
+{
+    return d_data != rhs.data();
+}
+
+bool FirstMethodComparableType::operator!=(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data != rhs.data();
+}
+
+bool FirstMethodComparableType::operator<(
+                                    const FirstMethodComparableType& rhs) const
+{
+    return d_data < rhs.data();
+}
+
+bool FirstMethodComparableType::operator<(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data < rhs.data();
+}
+
+bool FirstMethodComparableType::operator<=(
+                                    const FirstMethodComparableType& rhs) const
+{
+    return d_data <= rhs.data();
+}
+
+bool FirstMethodComparableType::operator<=(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data <= rhs.data();
+}
+
+bool FirstMethodComparableType::operator>(
+                                    const FirstMethodComparableType& rhs) const
+{
+    return d_data > rhs.data();
+}
+
+bool FirstMethodComparableType::operator>(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data > rhs.data();
+}
+
+bool FirstMethodComparableType::operator>=(
+                                    const FirstMethodComparableType& rhs) const
+{
+    return d_data >= rhs.data();
+}
+
+bool FirstMethodComparableType::operator>=(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data >= rhs.data();
+}
+
+
+                   // --------------------------------
+                   // class SecondMethodComparableType
+                   // --------------------------------
+// CREATORS
+SecondMethodComparableType::SecondMethodComparableType(int data)
+: d_data(data)
+{}
+
+// ACCESSORS
+int SecondMethodComparableType::data() const
+{
+    return d_data;
+}
+
+bool SecondMethodComparableType::operator==(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data == rhs.data();
+}
+
+bool SecondMethodComparableType::operator==(
+                                    const FirstMethodComparableType& rhs) const
+{
+    return d_data == rhs.data();
+}
+
+bool SecondMethodComparableType::operator!=(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data != rhs.data();
+}
+
+bool SecondMethodComparableType::operator!=(
+                                    const FirstMethodComparableType& rhs) const
+{
+    return d_data != rhs.data();
+}
+
+bool SecondMethodComparableType::operator<(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data < rhs.data();
+}
+
+bool SecondMethodComparableType::operator<(
+                                    const FirstMethodComparableType& rhs) const
+{
+    return d_data < rhs.data();
+}
+
+bool SecondMethodComparableType::operator<=(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data <= rhs.data();
+}
+
+bool SecondMethodComparableType::operator<=(
+                                    const FirstMethodComparableType& rhs) const
+{
+    return d_data <= rhs.data();
+}
+
+bool SecondMethodComparableType::operator>(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data > rhs.data();
+}
+
+bool SecondMethodComparableType::operator>(
+                                    const FirstMethodComparableType& rhs) const
+{
+    return d_data > rhs.data();
+}
+
+bool SecondMethodComparableType::operator>=(
+                                   const SecondMethodComparableType& rhs) const
+{
+    return d_data >= rhs.data();
+}
+
+bool SecondMethodComparableType::operator>=(
+                                    const FirstMethodComparableType& rhs) const
+{
+    return d_data >= rhs.data();
+}
+
+
+                   // =================================
+                   // class FirstFunctionComparableType
+                   // =================================
+
+class FirstFunctionComparableType {
+  private:
+    // DATA
+    int d_data;  // object value
+
+  public:
+     // CREATORS
+     FirstFunctionComparableType(int data);
+         // Create a 'FirstFunctionComparableType' object having the specified
+         // 'data' attribute value.
+
+     // ACCESSORS
+     int data() const;
+         // Return the value of the 'data' attribute of this object.
+ };
+
+// FREE OPERATORS
+bool operator==(const FirstFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'rhs' has the same value as "this"
+    // object, and 'false' otherwise.
+
+bool operator!=(const FirstFunctionComparableType& lhs,
+                const FirstFunctionComparableType& rhs);
+    // Return 'true' if the specified 'rhs' does not have the same value
+    // as "this" object, and 'false' otherwise.
+
+bool operator==(const FirstFunctionComparableType& lhs,
+                const FirstFunctionComparableType& rhs);
+    // Return 'true' if the specified 'rhs' has the same value as "this"
+    // object, and 'false' otherwise.
+
+bool operator!=(const FirstFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'rhs' does not have the same value
+    // as "this" object, and 'false' otherwise.
+
+bool operator<(const FirstFunctionComparableType& lhs,
+               const FirstFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' is ordered before the
+    // specified 'rhs' nullable object, and 'false' otherwise.
+
+bool operator<(const FirstFunctionComparableType&  lhs,
+               const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' is ordered before the
+    // specified 'rhs' nullable object, and 'false' otherwise.
+
+bool operator<=(const FirstFunctionComparableType& lhs,
+                const FirstFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' is ordered before the
+    // specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
+    // value, and 'false' otherwise.
+
+bool operator<=(const FirstFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' is ordered before the
+    // specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
+    // value, and 'false' otherwise.
+
+bool operator>(const FirstFunctionComparableType& lhs,
+               const FirstFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' is ordered after the specified
+    // 'rhs' nullable object, and 'false' otherwise.
+
+bool operator>(const FirstFunctionComparableType&  lhs,
+               const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' is ordered after the specified
+    // 'rhs' nullable object, and 'false' otherwise.
+
+bool operator>=(const FirstFunctionComparableType& lhs,
+                const FirstFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' is ordered after the specified
+    // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
+    // 'false' otherwise.
+
+bool operator>=(const FirstFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' is ordered after the specified
+    // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
+    // 'false' otherwise.
+
+                   // ==================================
+                   // class SecondFunctionComparableType
+                   // ==================================
+
+class SecondFunctionComparableType {
+  private:
+    // DATA
+    int d_data;  // object value
+
+  public:
+     // CREATORS
+     SecondFunctionComparableType(int data);
+         // Create a 'SecondFunctionComparableType' object having the specified
+         // 'data' attribute value.
+
+     // ACCESSORS
+     int data() const;
+         // Return the value of the 'data' attribute of this object.
+ };
+
+// FREE OPERATORS
+bool operator==(const SecondFunctionComparableType& lhs,
+                const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'rhs' has the same value as "this"
+    // object, and 'false' otherwise.
+
+bool operator==(const SecondFunctionComparableType& lhs,
+                const FirstFunctionComparableType&  rhs);
+    // Return 'true' if the specified 'rhs' has the same value as "this"
+    // object, and 'false' otherwise.
+
+bool operator!=(const SecondFunctionComparableType& lhs,
+                const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'rhs' does not have the same value
+    // as "this" object, and 'false' otherwise.
+
+bool operator!=(const SecondFunctionComparableType& lhs,
+                const FirstFunctionComparableType&  rhs);
+    // Return 'true' if the specified 'rhs' does not have the same value
+    // as "this" object, and 'false' otherwise.
+
+bool operator<(const SecondFunctionComparableType& lhs,
+               const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' is ordered before the
+    // specified 'rhs' nullable object, and 'false' otherwise.
+
+bool operator<(const SecondFunctionComparableType& lhs,
+               const FirstFunctionComparableType&  rhs);
+    // Return 'true' if the specified 'lhs' is ordered before the
+    // specified 'rhs' nullable object, and 'false' otherwise.
+
+bool operator<=(const SecondFunctionComparableType& lhs,
+                const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' is ordered before the
+    // specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
+    // value, and 'false' otherwise.
+
+bool operator<=(const SecondFunctionComparableType& lhs,
+                const FirstFunctionComparableType&  rhs);
+    // Return 'true' if the specified 'lhs' is ordered before the
+    // specified 'rhs' nullable object or 'lhs' and 'rhs' have the same
+    // value, and 'false' otherwise.
+
+bool operator>(const SecondFunctionComparableType& lhs,
+               const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' is ordered after the specified
+    // 'rhs' nullable object, and 'false' otherwise.
+
+bool operator>(const SecondFunctionComparableType& lhs,
+               const FirstFunctionComparableType&  rhs);
+    // Return 'true' if the specified 'lhs' is ordered after the specified
+    // 'rhs' nullable object, and 'false' otherwise.
+
+bool operator>=(const SecondFunctionComparableType& lhs,
+                const SecondFunctionComparableType& rhs);
+    // Return 'true' if the specified 'lhs' is ordered after the specified
+    // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
+    // 'false' otherwise.
+
+bool operator>=(const SecondFunctionComparableType& lhs,
+                const FirstFunctionComparableType&  rhs);
+    // Return 'true' if the specified 'lhs' is ordered after the specified
+    // 'rhs' nullable object or 'lhs' and 'rhs' have the same value, and
+    // 'false' otherwise.
+
+                   // ---------------------------------
+                   // class FirstFunctionComparableType
+                   // ---------------------------------
+// CREATORS
+FirstFunctionComparableType::FirstFunctionComparableType(int data)
+: d_data(data)
+{}
+
+// ACCESSORS
+int FirstFunctionComparableType::data() const
+{
+    return d_data;
+}
+
+// FREE OPERATORS
+inline
+bool operator==(const FirstFunctionComparableType& lhs,
+                const FirstFunctionComparableType& rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool operator==(const FirstFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool operator!=(const FirstFunctionComparableType& lhs,
+                const FirstFunctionComparableType& rhs)
+{
+    return lhs.data() != rhs.data();
+}
+
+inline
+bool operator!=(const FirstFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() != rhs.data();
+}
+
+inline
+bool operator<(const FirstFunctionComparableType& lhs,
+               const FirstFunctionComparableType& rhs)
+{
+    return lhs.data() < rhs.data();
+}
+
+inline
+bool operator<(const FirstFunctionComparableType&  lhs,
+               const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() < rhs.data();
+}
+
+inline
+bool operator<=(const FirstFunctionComparableType& lhs,
+                const FirstFunctionComparableType& rhs)
+{
+    return lhs.data() <= rhs.data();
+}
+
+inline
+bool operator<=(const FirstFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() <= rhs.data();
+}
+
+inline
+bool operator>(const FirstFunctionComparableType& lhs,
+               const FirstFunctionComparableType& rhs)
+{
+    return lhs.data() > rhs.data();
+}
+
+inline
+bool operator>(const FirstFunctionComparableType&  lhs,
+               const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() > rhs.data();
+}
+
+inline
+bool operator>=(const FirstFunctionComparableType& lhs,
+                const FirstFunctionComparableType& rhs)
+{
+    return lhs.data() >= rhs.data();
+}
+
+inline
+bool operator>=(const FirstFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() >= rhs.data();
+}
+
+                   // ----------------------------------
+                   // class SecondFunctionComparableType
+                   // ----------------------------------
+// CREATORS
+SecondFunctionComparableType::SecondFunctionComparableType(int data)
+: d_data(data)
+{}
+
+// ACCESSORS
+int SecondFunctionComparableType::data() const
+{
+    return d_data;
+}
+
+// FREE OPERATORS
+inline
+bool operator==(const SecondFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool operator==(const SecondFunctionComparableType& lhs,
+                const FirstFunctionComparableType& rhs)
+{
+    return lhs.data() == rhs.data();
+}
+
+inline
+bool operator!=(const SecondFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() != rhs.data();
+}
+
+inline
+bool operator!=(const SecondFunctionComparableType& lhs,
+                const FirstFunctionComparableType& rhs)
+{
+    return lhs.data() != rhs.data();
+}
+
+inline
+bool operator<(const SecondFunctionComparableType&  lhs,
+               const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() < rhs.data();
+}
+
+inline
+bool operator<(const SecondFunctionComparableType& lhs,
+               const FirstFunctionComparableType& rhs)
+{
+    return lhs.data() < rhs.data();
+}
+
+inline
+bool operator<=(const SecondFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() <= rhs.data();
+}
+
+inline
+bool operator<=(const SecondFunctionComparableType& lhs,
+                const FirstFunctionComparableType& rhs)
+{
+    return lhs.data() <= rhs.data();
+}
+
+inline
+bool operator>(const SecondFunctionComparableType&  lhs,
+               const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() > rhs.data();
+}
+
+inline
+bool operator>(const SecondFunctionComparableType& lhs,
+               const FirstFunctionComparableType& rhs)
+{
+    return lhs.data() > rhs.data();
+}
+
+inline
+bool operator>=(const SecondFunctionComparableType&  lhs,
+                const SecondFunctionComparableType& rhs)
+{
+    return lhs.data() >= rhs.data();
+}
+
+inline
+bool operator>=(const SecondFunctionComparableType& lhs,
+                const FirstFunctionComparableType& rhs)
+{
+    return lhs.data() >= rhs.data();
+}
+
+}  // close unnamed namespace
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1733,53 +2605,50 @@ class TestDriver {
     static void testCase16();
         // Test 'valueOrNull'.
 
-    static void testCase17();
-        // Test comparisons with the contained 'TYPE'.
-
-    static void testCase19_withoutAllocator();
+    static void testCase18_withoutAllocator();
         // Test 'makeValueInplace' methods using a contained 'TYPE' that does
         // not have the 'bslma::UsesBslmaAllocator' trait.
 
-    static void testCase19_withAllocator();
+    static void testCase18_withAllocator();
         // Test 'makeValueInplace' methods using a contained 'TYPE' that has
         // the 'bslma::UsesBslmaAllocator' trait.
 
-    static void testCase20();
+    static void testCase19();
         // Test 'hashAppend' on 'nullableValue' objects.
 
-    static void testCase21_withoutAllocator();
+    static void testCase20_withoutAllocator();
         // Test move constructor using a contained 'TYPE' that does not have
         // the 'bslma::UsesBslmaAllocator' trait.
 
-    static void testCase21_withAllocator();
+    static void testCase20_withAllocator();
         // Test move constructor using a contained 'TYPE' that has the
         // 'bslma::UsesBslmaAllocator' trait.
 
-    static void testCase22_withoutAllocator();
+    static void testCase21_withoutAllocator();
         // Test move-assignment using a contained 'TYPE' that does not have the
         // 'bslma::UsesBslmaAllocator' trait.
 
-    static void testCase22_withAllocator();
+    static void testCase21_withAllocator();
         // Test move-assignment using a contained 'TYPE' that has the
         // 'bslma::UsesBslmaAllocator' trait.
 
-    static void testCase23_withoutAllocator();
+    static void testCase22_withoutAllocator();
         // Test value move constructor using a contained 'TYPE' that does not
         // have the 'bslma::UsesBslmaAllocator' trait.
 
-    static void testCase23_withAllocator();
+    static void testCase22_withAllocator();
         // Test value move constructor using a contained 'TYPE' that has the
         // 'bslma::UsesBslmaAllocator' trait.
 
-    static void testCase24_withoutAllocator();
+    static void testCase23_withoutAllocator();
         // Test value move-assignment using a contained 'TYPE' that does not
         // have the 'bslma::UsesBslmaAllocator' trait.
 
-    static void testCase24_withAllocator();
+    static void testCase23_withAllocator();
         // Test value move-assignment using a contained 'TYPE' that has the
         // 'bslma::UsesBslmaAllocator' trait.
 
-    static void testCase26();
+    static void testCase25();
         // Test 'const T *addressOr(const T *)'.
 };
 
@@ -1831,7 +2700,7 @@ void TestDriver<TEST_TYPE>::primaryManipulator(
 
 // CLASS METHODS
 template <class TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase24_withoutAllocator()
+void TestDriver<TEST_TYPE>::testCase23_withoutAllocator()
 {
     // ------------------------------------------------------------------------
     // TESTING VALUE MOVE-ASSIGNMENT (without allocator)
@@ -1976,7 +2845,7 @@ void TestDriver<TEST_TYPE>::testCase24_withoutAllocator()
 }
 
 template <class TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase24_withAllocator()
+void TestDriver<TEST_TYPE>::testCase23_withAllocator()
 {
     // ------------------------------------------------------------------------
     // TESTING VALUE MOVE-ASSIGNMENT (with allocator)
@@ -2273,7 +3142,7 @@ void TestDriver<TEST_TYPE>::testCase24_withAllocator()
 }
 
 template <class TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase23_withoutAllocator()
+void TestDriver<TEST_TYPE>::testCase22_withoutAllocator()
 {
     // ------------------------------------------------------------------------
     // TESTING VALUE MOVE CONSTRUCTOR (without allocator)
@@ -2382,7 +3251,7 @@ void TestDriver<TEST_TYPE>::testCase23_withoutAllocator()
 }
 
 template <class TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase23_withAllocator()
+void TestDriver<TEST_TYPE>::testCase22_withAllocator()
 {
     // ------------------------------------------------------------------------
     // TESTING VALUE MOVE CONSTRUCTOR (with allocator)
@@ -2579,7 +3448,7 @@ void TestDriver<TEST_TYPE>::testCase23_withAllocator()
 }
 
 template <class TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase22_withoutAllocator()
+void TestDriver<TEST_TYPE>::testCase21_withoutAllocator()
 {
     // ------------------------------------------------------------------------
     // TESTING MOVE-ASSIGNMENT (without allocator)
@@ -2752,7 +3621,7 @@ void TestDriver<TEST_TYPE>::testCase22_withoutAllocator()
 }
 
 template <class TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase22_withAllocator()
+void TestDriver<TEST_TYPE>::testCase21_withAllocator()
 {
     // ------------------------------------------------------------------------
     // TESTING MOVE-ASSIGNMENT (with allocator)
@@ -3064,7 +3933,7 @@ void TestDriver<TEST_TYPE>::testCase22_withAllocator()
 }
 
 template <class TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase21_withoutAllocator()
+void TestDriver<TEST_TYPE>::testCase20_withoutAllocator()
 {
     // ------------------------------------------------------------------------
     // TESTING MOVE CONSTRUCTOR (without allocator)
@@ -3183,7 +4052,7 @@ void TestDriver<TEST_TYPE>::testCase21_withoutAllocator()
 }
 
 template <class TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase21_withAllocator()
+void TestDriver<TEST_TYPE>::testCase20_withAllocator()
 {
     // ------------------------------------------------------------------------
     // TESTING MOVE CONSTRUCTOR (with allocator)
@@ -3391,7 +4260,7 @@ void TestDriver<TEST_TYPE>::testCase21_withAllocator()
 }
 
 template <class TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase20()
+void TestDriver<TEST_TYPE>::testCase19()
 {
     // ------------------------------------------------------------------------
     // TESTING: Hashing
@@ -3482,7 +4351,7 @@ void TestDriver<TEST_TYPE>::testCase20()
 }
 
 template <class TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase19_withoutAllocator()
+void TestDriver<TEST_TYPE>::testCase18_withoutAllocator()
 {
     // TESTING: 'makeValueInplace' for Non-Allocating Types
     //
@@ -3509,7 +4378,7 @@ void TestDriver<TEST_TYPE>::testCase19_withoutAllocator()
     //: 5 The entire test case checks that neither the default nor global
     //:   allocator is used.
 
-    if (veryVerbose) { cout << "\ttestCase19_withoutAllocator: "
+    if (veryVerbose) { cout << "\ttestCase18_withoutAllocator: "
                                "Non-Allocating Type: "
                             << typeid(TEST_TYPE).name() << endl;
                      }
@@ -3583,7 +4452,7 @@ void TestDriver<TEST_TYPE>::testCase19_withoutAllocator()
 }
 
 template <class TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase19_withAllocator()
+void TestDriver<TEST_TYPE>::testCase18_withAllocator()
 {
     // TESTING: 'makeValueInplace' for Allocating Types
     //
@@ -3617,7 +4486,7 @@ void TestDriver<TEST_TYPE>::testCase19_withAllocator()
     //: 6 The entire test case checks that neither the default nor global
     //:   allocator is used.
 
-    if (veryVerbose) { cout << "\ttestCase19_withAllocator: "
+    if (veryVerbose) { cout << "\ttestCase18_withAllocator: "
                                "Allocating Type: "
                             << typeid(TEST_TYPE).name() << endl;
                      }
@@ -4101,108 +4970,7 @@ void TestDriver<TEST_TYPE>::testCase16()
 }
 
 template <class TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase17()
-{
-    // ------------------------------------------------------------------------
-    // TESTING: Comparison with the contained 'TYPE'
-    //
-    // Concerns:
-    //: 1 Comparing a value with a null value always returns that the values
-    //:   are not the same.
-    //:
-    //: 2 Comparing a value with a nullable value having the same value returns
-    //:   that the values are the same.
-    //:
-    //: 3 Comparing a value with a nullable value having a different value
-    //:   returns that the values are not the same.
-    //:
-    //: 4 Both operators can be called for 'const' objects.
-    //:
-    //: 5 No memory is allocated.
-    //
-    // Plan:
-    //: 1 Create a null nullable value and verify it does not compare equal
-    //:   (using the 4 different operator variants) to any non-null test value.
-    //:   (C-1)
-    //:
-    //: 2 Create a non-null nullable value for a series of test values and
-    //:   verify it compares equal (using the 4 different operator variants)
-    //:   only to the same test value.  (C-2..3)
-    //
-    // Testing:
-    //   bool operator==(const NullableValue<TYPE>&, const TYPE&);
-    //   bool operator==(const TYPE&, const NullableValue<TYPE>&);
-    //   bool operator!=(const NullableValue<TYPE>&, const TYPE&);
-    //   bool operator!=(const TYPE&, const NullableValue<TYPE>&);
-    // ------------------------------------------------------------------------
-
-    const TestValues VALUES;
-    const int        NUM_VALUES = static_cast<int>(VALUES.size());
-
-    bslma::TestAllocator da("default", veryVeryVeryVerbose);
-    bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
-
-    bslma::DefaultAllocatorGuard dag(&da);
-
-    if (veryVerbose) {
-       cout << "\tVerify null nullable values are different from any value.\n";
-    }
-    {
-        ObjWithAllocator object(&oa);
-        Obj& x = object.object();  const Obj& X = x;
-
-        ASSERT(0 == oa.numBlocksInUse());
-        ASSERT(0 == da.numBlocksInUse());
-
-        for (int i = 0; i < NUM_VALUES; ++i) {
-
-            ASSERT(!(VALUES[i] == X));
-            ASSERT( (VALUES[i] != X));
-
-            ASSERT(!(X == VALUES[i]));
-            ASSERT( (X != VALUES[i]));
-        }
-    }
-
-    if (veryVerbose) {
-        cout << "\tVerify non-null nullable values compare equal "
-                "to a value of the contained type.\n";
-    }
-    {
-        ObjWithAllocator object(&oa);
-        Obj& x = object.object();  const Obj& X = x;
-
-        for (int i = 0; i < NUM_VALUES; ++i) {
-            for (int j = 0; j < NUM_VALUES; ++j) {
-
-                ASSERT(0 == oa.numBlocksInUse());
-                ASSERT(0 == da.numBlocksInUse());
-
-                x = VALUES[i];
-
-                bslma::TestAllocatorMonitor oam(&oa);
-
-                bool areSame = i == j;
-
-                ASSERT( areSame == (VALUES[j] == X));
-                ASSERT(!areSame == (VALUES[j] != X));
-
-                ASSERT( areSame == (X == VALUES[j]));
-                ASSERT(!areSame == (X != VALUES[j]));
-
-                ASSERT(oam.isInUseSame());
-                ASSERT(0 == da.numBlocksInUse());
-
-                x.reset();
-            }
-        }
-        ASSERT(0 == oa.numBlocksInUse());
-        ASSERT(0 == da.numBlocksInUse());
-    }
-}
-
-template <class TEST_TYPE>
-void TestDriver<TEST_TYPE>::testCase26()
+void TestDriver<TEST_TYPE>::testCase25()
 {
     // ------------------------------------------------------------------------
     // TESTING 'const T *addressOr(const T *)'
@@ -4345,7 +5113,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 27: {
+      case 26: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -4389,7 +5157,7 @@ int main(int argc, char *argv[])
 //..
 
       } break;
-      case 26: {
+      case 25: {
         // --------------------------------------------------------------------
         // TESTING 'addressOr'
         // --------------------------------------------------------------------
@@ -4397,9 +5165,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTESTING 'addressOr"
                              "\n==================\n";
 
-        RUN_EACH_TYPE(TestDriver, testCase26, TEST_TYPES);
+        RUN_EACH_TYPE(TestDriver, testCase25, TEST_TYPES);
       } break;
-      case 25: {
+      case 24: {
         // --------------------------------------------------------------------
         // TESTING WITH NON-COPY-ASSIGNABLE TYPES
         //
@@ -4486,36 +5254,13 @@ int main(int argc, char *argv[])
         }
 
       } break;
-      case 24: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING VALUE MOVE-ASSIGNMENT OPERATOR
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTesting Value Move-Assignment"
                              "\n=============================" << endl;
-
-        if (verbose) cout << "\nRun Each Test Type"
-                             "\n==================" << endl;
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase24_withoutAllocator,
-                      TEST_TYPES_NOT_ALLOCATOR_ENABLED);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase24_withAllocator,
-                      TEST_TYPES_ALLOCATOR_ENABLED);
-
-        RUN_EACH_TYPE(TestDriver,
-                      testCase24_withAllocator,
-                      bsltf::MoveOnlyAllocTestType);
-      } break;
-      case 23: {
-        // --------------------------------------------------------------------
-        // TESTING VALUE MOVE CONSTRUCTOR
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting Value Move Constructor"
-                             "\n==============================" << endl;
 
         if (verbose) cout << "\nRun Each Test Type"
                              "\n==================" << endl;
@@ -4534,11 +5279,11 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING MOVE-ASSIGNMENT OPERATOR
+        // TESTING VALUE MOVE CONSTRUCTOR
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Move-Assignment"
-                             "\n=======================" << endl;
+        if (verbose) cout << "\nTesting Value Move Constructor"
+                             "\n==============================" << endl;
 
         if (verbose) cout << "\nRun Each Test Type"
                              "\n==================" << endl;
@@ -4557,11 +5302,11 @@ int main(int argc, char *argv[])
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING MOVE CONSTRUCTOR
+        // TESTING MOVE-ASSIGNMENT OPERATOR
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Move Constructor"
-                             "\n========================" << endl;
+        if (verbose) cout << "\nTesting Move-Assignment"
+                             "\n=======================" << endl;
 
         if (verbose) cout << "\nRun Each Test Type"
                              "\n==================" << endl;
@@ -4580,6 +5325,29 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
+        // TESTING MOVE CONSTRUCTOR
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting Move Constructor"
+                             "\n========================" << endl;
+
+        if (verbose) cout << "\nRun Each Test Type"
+                             "\n==================" << endl;
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase20_withoutAllocator,
+                      TEST_TYPES_NOT_ALLOCATOR_ENABLED);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase20_withAllocator,
+                      TEST_TYPES_ALLOCATOR_ENABLED);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase20_withAllocator,
+                      bsltf::MoveOnlyAllocTestType);
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
         // TESTING: Hashing
         // --------------------------------------------------------------------
 
@@ -4587,10 +5355,10 @@ int main(int argc, char *argv[])
                                "\n================\n";
 
           RUN_EACH_TYPE(TestDriver,
-                        testCase20,
+                        testCase19,
                         BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
       } break;
-      case 19: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING: 'makeValueInplace'
         //   The interface of this method features variadic templates and
@@ -4667,8 +5435,8 @@ int main(int argc, char *argv[])
         //:
         //: 2 Using the 'TEST_TYPES' macro, which defines the set of types in
         //:   the other cases of this test driver, for each type we run either
-        //:   the 'testCase19_withoutAllocator' or the
-        //:   'testCase19_withAllocator' (as appropriate) of the 'TestDriver'
+        //:   the 'testCase18_withoutAllocator' or the
+        //:   'testCase18_withAllocator' (as appropriate) of the 'TestDriver'
         //:   class.  See the function-level documentation of those functions
         //:   for details.
         //:
@@ -5001,14 +5769,14 @@ int main(int argc, char *argv[])
                              "\n==================" << endl;
 
         RUN_EACH_TYPE(TestDriver,
-                     testCase19_withoutAllocator,
+                     testCase18_withoutAllocator,
                      TEST_TYPES_NOT_ALLOCATOR_ENABLED);
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase19_withAllocator,
+                      testCase18_withAllocator,
                       TEST_TYPES_ALLOCATOR_ENABLED);
 
-        TestDriver<bslma::Allocator *>::testCase19_withoutAllocator();
+        TestDriver<bslma::Allocator *>::testCase18_withoutAllocator();
 
         if (verbose) cout << "\nTest With Heterogeneous Parameters"
                              "\n==================================" << endl;
@@ -5210,7 +5978,7 @@ int main(int argc, char *argv[])
 #endif // BDE_BUILD_TARGET_EXC
 
       } break;
-      case 18: {
+      case 17: {
         // --------------------------------------------------------------------
         // NEGATIVE TESTING OF ASSERT ON INVALID USE OF NULL VALUE
         // --------------------------------------------------------------------
@@ -5232,17 +6000,6 @@ int main(int argc, char *argv[])
         mX1 = 5;
 
         ASSERT_SAFE_PASS(X1.value());
-      } break;
-      case 17: {
-        // --------------------------------------------------------------------
-        // Comparison with the contained 'TYPE'
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "\nTesting: Comparison with contained 'TYPE'"
-                             "\n=========================================\n";
-
-        RUN_EACH_TYPE(TestDriver, testCase17, TEST_TYPES);
-
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -6953,109 +7710,162 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING EQUALITY OPERATORS
+        // TESTING EQUALITY AND RELATIONAL OPERATORS
         //
         // Concerns:
-        //   The '==' operator must return 'false' for objects that are very
-        //   similar but still different, but must return 'true' for objects
-        //   that are exactly the same.  Likewise, 'operator!=' must return
-        //   'true' for objects that are very similar but still different, but
-        //   must return 'false' for objects that are exactly the same.
-        //
-        //   That objects of different, but comparable types that have the
-        //   same value compare equal.
+        //: 1 Two objects, 'X' and 'Y', compare equal if and only if their
+        //:   corresponding values compare equal.
+        //:
+        //: 2 'true  == (X == X)' (i.e., identity).
+        //:
+        //: 3 'false == (X != X)' (i.e., identity).
+        //:
+        //: 4 'X == Y' if and only if 'Y == X' (i.e., commutativity).
+        //:
+        //: 5 'X != Y' if and only if 'Y != X' (i.e., commutativity).
+        //:
+        //: 6 'X != Y' if and only if '!(X == Y)'.
+        //:
+        //: 7 Null nullable object does not compare equal to any other
+        //:   non-nullable object.
+        //:
+        //: 8 An object 'X' is in relation to an object 'Y' as the value of 'X'
+        //:   is in relation to the value of 'Y'.
+        //:
+        //: 9 'false == (X <  X)' (i.e., irreflexivity).
+        //:
+        //:10 'true  == (X <= X)' (i.e., reflexivity).
+        //:
+        //:11 'false == (X >  X)' (i.e., irreflexivity).
+        //:
+        //:12 'true  == (X >= X)' (i.e., reflexivity).
+        //:
+        //:13 If 'X < Y', then '!(Y < X)' (i.e., asymmetry).
+        //:
+        //:14 'X <= Y' if and only if 'X < Y' exclusive-or 'X == Y'.
+        //:
+        //:15 If 'X > Y', then '!(Y > X)' (i.e., asymmetry).
+        //:
+        //:16 'X >= Y' if and only if 'X > Y' exclusive-or 'X == Y'.
+        //:
+        //:17 Non-modifiable objects can be compared (i.e., objects or
+        //:   providing only non-modifiable access).
+        //:
+        //:18 Either member comparison function or free comparison function
+        //:   make it possible to compare nullable object and another object.
         //
         // Plan:
-        //   Use 'int' for 'TYPE'.  Construct a set of objects containing
-        //   similar but different values.  Loop through the cross product of
-        //   the test data.  For each tuple, check the correctness of the
-        //   return value of all relational operators (==, !=, <, >, <=, >=).
-        //   Then, use 'int' and 'double' as 'LHS_TYPE' and 'RHS_TYPE'.
-        //   Construct two sets of objects containing similar but different
-        //   values.  Loop through the cross product of the two sets.  For each
-        //   tuple and the tuple where left and right values are swapped, check
-        //   the correctness of the return value of all relational operators
-        //   (==, !=, <, >, <=, >=).
+        //: 1 Create several objects having different values of special types
+        //:   'FirstMethodComparableType' and 'SecondMethodComparableType'
+        //:   which can be compared using member functions.  Then create
+        //:   several 'bdlb::NullableValue' objects having the same values or
+        //:   null value. Loop through the cross product of the test data.  For
+        //:   each couple, check the correctness of the return value of all
+        //:   relational operators (==, !=, <, >, <=, >=).
+        //:
+        //: 2 Create several objects of special types
+        //:   'FirstFunctionComparableType' and 'SecondFunctionComparableType'
+        //:   which can be compared using free functions.  Then create several
+        //:   'bdlb::NullableValue' objects having the same values or null
+        //:   value. Loop through the cross product of the test data.  For each
+        //:   couple, check the correctness of the return value of all
+        //:   relational operators (==, !=, <, >, <=, >=).
+        //:
+        //: 3 Create several objects of integer and long integer types.  Then
+        //:   create several 'bdlb::NullableValue' objects having the same
+        //:   values or null value. Loop through the cross product of the test
+        //:   data.  For each couple, check the correctness of the return value
+        //:   of all relational operators (==, !=, <, >, <=, >=).
+        //:
+        //: 4 Create several objects of comparable 'bsl::string' and
+        //:   'bslstl::StringRef' types.  Then create several
+        //:   'bdlb::NullableValue' objects having the same values or null
+        //:   value. Loop through the cross product of the test data.  For each
+        //:   couple, check the correctness of the return value of all
+        //:   relational operators (==, !=, <, >, <=, >=).  (C-1..18)
         //
         // Testing:
         //   bool operator==(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator==(const NullableValue<TYPE>&, const TYPE&);
-        //   bool operator==(const TYPE&, const NullableValue<TYPE>&);
         //   bool operator!=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator!=(const NullableValue<TYPE>&, const TYPE&);
-        //   bool operator!=(const TYPE&, const NullableValue<TYPE>&);
         //   bool operator< (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator< (const NullableValue<TYPE>&, const TYPE&);
-        //   bool operator< (const TYPE&, const NullableValue<TYPE>&);
         //   bool operator<=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator<=(const NullableValue<TYPE>&, const TYPE&);
-        //   bool operator<=(const TYPE&, const NullableValue<TYPE>&);
         //   bool operator> (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator> (const NullableValue<TYPE>&, const TYPE&);
-        //   bool operator> (const TYPE&, const NullableValue<TYPE>&);
         //   bool operator>=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator>=(const NullableValue<TYPE>&, const TYPE&);
-        //   bool operator>=(const TYPE&, const NullableValue<TYPE>&);
+        //   bool operator==(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator==(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        //   bool operator!=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator!=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        //   bool operator< (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator< (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        //   bool operator<=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator<=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        //   bool operator> (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator> (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        //   bool operator>=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator>=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTesting Equality Operators"
-                             "\n==========================" << endl;
+        if (verbose) cout << "\nTESTING EQUALITY AND RELATIONAL OPERATORS"
+                          << "\n========================================="
+                          << endl;
 
-        typedef int                            ValueType;
-        typedef bdlb::NullableValue<ValueType> Obj;
-
-        const int NUM_VALUES = 3;
-
-        Obj objArray[NUM_VALUES];
-
-        objArray[1].makeValue(123);
-        objArray[2].makeValue(234);
-
-        for (int i = 0; i < NUM_VALUES; ++i) {
-            const Obj& U = objArray[i];
-
-            if (veryVerbose) { T_ P_(i) P(U) }
-
-            for (int j = 0; j < NUM_VALUES; ++j) {
-                const Obj& V = objArray[j];
-
-                if (veryVeryVerbose) { T_ T_ P_(j) P(V) }
-
-                testRelationalOperations(i, j, U, V);
-
-                if (!U.isNull()) {
-                    testRelationalOperations(i, j, U.value(), V);
-                }
-
-                if (!V.isNull()) {
-                    testRelationalOperations(i, j, U, V.value());
-                }
-            }
-        }
-
+        if (verbose) cout << "\tTesting member function comparison" << endl;
         {
-            typedef bdlb::NullableValue<int>    Ni;
-            typedef bdlb::NullableValue<double> Nd;
+            typedef FirstMethodComparableType  M_TYPE_1;
+            typedef SecondMethodComparableType M_TYPE_2;
 
-            Ni niArray[NUM_VALUES] = { Ni(), Ni(1), Ni(2) };
-            Nd ndArray[NUM_VALUES] = { Nd(), Nd(1), Nd(2) };
-
-            for (int i = 0; i < NUM_VALUES; ++i) {
-                const Ni& ni = niArray[i];
-
-                if (veryVerbose) { T_ P_(i) P(ni) }
-
-                for (int j = 0; j < NUM_VALUES; ++j) {
-                    const Nd& nd = ndArray[j];
-
-                    if (veryVeryVerbose) { T_ T_ P_(j) P(nd) }
-
-                    testRelationalOperations(i, j, ni, nd);
-                    testRelationalOperations(j, i, nd, ni);
-                }
-            }
+            testRelationalOperations<M_TYPE_1, M_TYPE_1>(0, 1);
+            testRelationalOperations<M_TYPE_1, M_TYPE_2>(0, 1);
+            testRelationalOperations<M_TYPE_2, M_TYPE_2>(0, 1);
         }
 
+        if (verbose) cout << "\tTesting free   function comparison" << endl;
+        {
+            typedef FirstFunctionComparableType      F_TYPE_1;
+            typedef SecondFunctionComparableType     F_TYPE_2;
+
+            // Note that we do not test '<F_TYPE_2, F_TYPE_2, int> ' scenario
+            // because 'FirstFunctionComparableType' and
+            // 'SecondFunctionComparableType' are totally identical.
+
+            testRelationalOperations<F_TYPE_1, F_TYPE_1>(0, 1);
+            testRelationalOperations<F_TYPE_1, F_TYPE_2>(0, 1);
+            testRelationalOperations<F_TYPE_2, F_TYPE_2>(0, 1);
+        }
+
+        if (verbose) cout << "\tTesting real world examples" << endl;
+        {
+            // Integer types.
+
+            typedef int                              I_TYPE_1;
+            typedef long int                         I_TYPE_2;
+
+            testRelationalOperations<I_TYPE_1, I_TYPE_1>(0, 1);
+            testRelationalOperations<I_TYPE_1, I_TYPE_2>(0, 1);
+            testRelationalOperations<I_TYPE_2, I_TYPE_2>(0, 1);
+
+            // String types.
+
+            typedef bsl::string                      S_TYPE_1;
+            typedef bslstl::StringRef                S_TYPE_2;
+            typedef const char *                     S_TYPE_3;
+
+            // Comparison of two
+            // 'bdlb::NullableValue<const char *>' objects gives confusing
+            // results because pointers are compared instead of c-string
+            // values. So we do not test '<S_TYPE_3, S_TYPE_3'> scenario.
+
+            testRelationalOperations<S_TYPE_1, S_TYPE_1, const char *>("",
+                                                                       "0");
+            testRelationalOperations<S_TYPE_1, S_TYPE_2, const char *>("",
+                                                                       "0");
+            testRelationalOperations<S_TYPE_1, S_TYPE_3, const char *>("",
+                                                                       "0");
+            testRelationalOperations<S_TYPE_2, S_TYPE_2, const char *>("",
+                                                                       "0");
+            testRelationalOperations<S_TYPE_2, S_TYPE_3, const char *>("",
+                                                                       "0");
+         }
       } break;
       case 4: {
         // --------------------------------------------------------------------
