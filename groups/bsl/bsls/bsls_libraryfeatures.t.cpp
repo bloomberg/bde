@@ -69,7 +69,7 @@
 // ----------------------------------------------------------------------------
 // [  ] BSLS_LIBRARYFEATURES_HAS_C90_GETS
 // [  ] BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
-// [  ] BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+// [ 6] BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
 // [ 6] BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
 // [ 1] BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
 // [ 2] BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -78,22 +78,27 @@
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
 // [ 3] BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
+// [12] BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
+// [  ] BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
 // [ 4] BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 // [ 5] BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
-// [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT
-// [ 7] int native_std::isblank(int);
-// [ 7] bool native_std::isblank(char, const native_std::locale&);
 // [ 9] BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-// [12] BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
+// [11] BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
+// [  ] BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
+// [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+// [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT
 // [ 8] BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
+// [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
 // [10] BSLS_LIBRARYFEATURES_STDCPP_LLVM
 // [10] BSLS_LIBRARYFEATURES_STDCPP_MSVC
 // [10] BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
 // [10] BSLS_LIBRARYFEATURES_STDCPP_STLPORT
+// [ 7] int native_std::isblank(int);
+// [ 7] bool native_std::isblank(char, const native_std::locale&);
 // ----------------------------------------------------------------------------
-// [11] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 // [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 
@@ -174,12 +179,51 @@ static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined =
                                                                          false;
 #endif
 
+static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS =
+#if         defined(BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS)
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
 static const bool u_BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE_defined =
 #if         defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
                                                                           true;
 #else
                                                                          false;
 #endif
+
+                    // case 12
+
+namespace case12 {
+    // We need to portably test whether the begin/end free functions are part
+    // of namespace 'std' when the feature macro is NOT defined, as this will
+    // cause failures when BDE code provides its own alternative.
+
+struct TestType {
+    typedef int * iterator;
+
+    int d_data;
+
+    int *begin() { return &d_data; }
+    int *end() { return &d_data; }
+};
+
+template <class CONTAINER>
+typename CONTAINER::iterator begin(CONTAINER & c)
+    // Return 'begin()' for the specified 'c'.
+{
+    return c.begin();
+}
+
+template <class CONTAINER>
+typename CONTAINER::iterator end(CONTAINER & c)
+    // Return 'end()' for the specified 'c'.
+{
+    return c.end();
+}
+
+}  // close namespace case12
 
                     // case 10
 
@@ -848,7 +892,88 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
+      case 13: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+      } break;
       case 12: {
+        // --------------------------------------------------------------------
+        // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS'
+        //
+        // Concerns:
+        //: 1 The 'BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS' flag is
+        //:   defined when the 'begin' and 'end' function templates are
+        //:   provided by the native standard library.
+        //:
+        //: 2 The 'BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS' flag is not
+        //:   defined unless the 'begin' and 'end' function templates are
+        //:   provided by the native standard library.
+        //
+        // Plan:
+        //: 1 Write a test type, 'case13::TestType', that has members 'begin'
+        //:   and 'end', returning a correspondingly defined 'iterator_type'.
+        //:
+        //: 2 If the feature macro is defined, explicitly call 'std::begin' and
+        //:   'std::end' to confirm they exist with a compatible signature.
+        //:
+        //: 3 If the feature macro is NOT defined, apply a 'using namespace' to
+        //:   both namespaces 'std' and 'case13', and then call 'begin' and
+        //:   'end'.  The call will be ambiguous and force a compile-time error
+        //:   only if the 'std' functions are also available, indicating that
+        //:   the feature macro should be defined.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                 "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS'\n"
+                 "========================================================\n");
+
+        if (verbose) {
+         P(u_BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS)
+        }
+
+        case12::TestType mX = { 12 };
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS)
+        {
+            int *from = std::begin(mX);
+            int *to   = std::end(mX);
+        }
+#else
+        {
+            // This will produce ambiguities if 'begin' and 'end' are defined
+            // in both namespaces.
+
+            using namespace std;
+            using namespace case12;
+
+            int *from = begin(mX);
+            int *to   = end(mX);
+        }
+#endif
+
+        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
+
+      } break;
+      case 11: {
         // --------------------------------------------------------------------
         // TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE'
         //
@@ -874,8 +999,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-      "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE'\n"
-      "=========================================================\n");
+                "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE'\n"
+                "=========================================================\n");
 
         if (verbose) {
          P(u_BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE_defined)
@@ -891,27 +1016,6 @@ int main(int argc, char *argv[])
 
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
 
-      } break;
-      case 11: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //   Extracted from component header file.
-        //
-        // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
-        //
-        // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("USAGE EXAMPLE\n"
-                            "=============\n");
       } break;
       case 10: {
         // --------------------------------------------------------------------
