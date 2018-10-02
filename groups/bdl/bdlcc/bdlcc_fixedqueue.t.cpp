@@ -1283,6 +1283,8 @@ int IncorrectlyMatchingMoveConstructorTestType::data() const
             item.d_type = my_WorkRequest::e_STOP;
             queue.pushBack(item);
         }
+
+        consumerThreads.joinAll();
     }
 //..
 
