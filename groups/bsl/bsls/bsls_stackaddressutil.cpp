@@ -14,6 +14,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_bsltestutil.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 #include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -389,7 +390,42 @@ void StackAddressUtil::formatCheapStack(char       *output,
     enum { k_BUFFER_LENGTH = 100 };
     void *buffer[k_BUFFER_LENGTH];
 
-    int numAddresses = getStackAddresses(buffer, k_BUFFER_LENGTH);
+    // We need to prevent the optimizer from inlining the call to
+    // 'getStackAddresses' so that we'll be sure exactly how many frames to
+    // ignore.  So take a ptr to the function, and then do a weird identity
+    // transform on it that the optimizer can't figure out is an identity
+    // transform.
+
+    typedef int (*GSAFunc)(void **, int);    // 'Get Stack Addresses Func type'
+    typedef Types::UintPtr UintPtr;
+
+    // Create 'garbageMask', set to random garbage, low-order bit set.
+
+    UintPtr       uu = reinterpret_cast<UintPtr>(&formatCheapStack);
+    const UintPtr garbageMask = (uu ^ (uu >> 12)) | 1;
+
+    // 'gsa' is, and always will be, a pointer to 'getStackAddresses'.
+
+    GSAFunc gsa  = &getStackAddresses;
+    UintPtr ugsa = reinterpret_cast<UintPtr>(gsa);
+
+    // This loop will toggle some of the low order 4 bits of 'ugsa', but it
+    // will toggle each modified bit 8 times, so we'll finish with 'ugsa'
+    // having the value it started the loop with.
+
+    for (uu = 0; 0 == ((garbageMask << 4) & uu); ++uu) {
+        ugsa ^= garbageMask & uu;
+    }
+
+    // Now we assign 'gsa' to the value it already has, but the optimizer
+    // doesn't understand that.
+
+    gsa = reinterpret_cast<GSAFunc>(ugsa);
+
+    // Now the optimizer has no idea where 'gsa' points to (it points to
+    // '&getStackAddresses'), so it can't possibly inline the call.
+
+    int numAddresses = (*gsa)(buffer, k_BUFFER_LENGTH);
 
     char *out     = output;
     int   rem     = length;
@@ -405,6 +441,7 @@ void StackAddressUtil::formatCheapStack(char       *output,
 
     // We want to use '_snprintf' and make sure if we use all the space we
     // still leave a null terminator at the end of the last buffer.
+
 #   define snprintf _snprintf
     *(out + rem - 1) = '\0';
     rem--;
@@ -413,6 +450,7 @@ void StackAddressUtil::formatCheapStack(char       *output,
 
     if (numAddresses < 0) {
         // 'getStackAddresses' has failed, just output diagnostics.
+
         snprintf(out, rem, "Unable to obtain call stack.");
         return;                                                       // RETURN
     }
