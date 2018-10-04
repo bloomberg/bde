@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
         typedef bsl::unique_ptr<int> Id;
         typedef bsl::pair<int, Id>   Item;
 
-# if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 0x1800
+# if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1800
         bsl::vector<Item> items;
 
         Item item(7, Id(new int(14)));
