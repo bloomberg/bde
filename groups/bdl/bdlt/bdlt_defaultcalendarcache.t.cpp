@@ -712,10 +712,10 @@ int main(int argc, char *argv[])
                                   ASSERT( Util::instance());
                 Util::destroy();  ASSERT(!Util::instance());
 
-                ASSERT_SAFE_FAIL(Util::initialize(  0, &sa));
+                ASSERT_FAIL(Util::initialize(  0, &sa));
                                   ASSERT(!Util::instance());
 
-                ASSERT_SAFE_FAIL(Util::initialize(&mL,   0));
+                ASSERT_FAIL(Util::initialize(&mL,   0));
                                   ASSERT(!Util::instance());
             }
 
@@ -724,10 +724,10 @@ int main(int argc, char *argv[])
                                   ASSERT( Util::instance());
                 Util::destroy();  ASSERT(!Util::instance());
 
-                ASSERT_SAFE_FAIL(Util::initialize(  0, Interval(1), &sa));
+                ASSERT_FAIL(Util::initialize(  0, Interval(1), &sa));
                                   ASSERT(!Util::instance());
 
-                ASSERT_SAFE_FAIL(Util::initialize(&mL, Interval(1),   0));
+                ASSERT_FAIL(Util::initialize(&mL, Interval(1),   0));
                                   ASSERT(!Util::instance());
             }
 
@@ -736,7 +736,7 @@ int main(int argc, char *argv[])
                                   ASSERT( Util::instance());
                 Util::destroy();  ASSERT(!Util::instance());
 
-                ASSERT_SAFE_FAIL(Util::initialize(&mL, Interval(0, -1), &sa));
+                ASSERT_FAIL(Util::initialize(&mL, Interval(0, -1), &sa));
                                   ASSERT(!Util::instance());
 
                 ASSERT_SAFE_PASS(Util::initialize(&mL,
@@ -744,7 +744,7 @@ int main(int argc, char *argv[])
                                   ASSERT( Util::instance());
                 Util::destroy();  ASSERT(!Util::instance());
 
-                ASSERT_SAFE_FAIL(Util::initialize(&mL,
+                ASSERT_FAIL(Util::initialize(&mL,
                                                   Interval(INT_MAX, 1), &sa));
                                   ASSERT(!Util::instance());
             }

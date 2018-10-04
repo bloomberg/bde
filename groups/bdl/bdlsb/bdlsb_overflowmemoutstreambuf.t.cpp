@@ -839,8 +839,8 @@ int main(int argc, char *argv[])
             char buffer[INIT_BUFSIZE];
             Obj  mSB(buffer, INIT_BUFSIZE);
 
-            ASSERT_SAFE_FAIL(mSB.sputn(0, 1));
-            ASSERT_SAFE_FAIL(mSB.sputn(buffer, -1));
+            ASSERT_FAIL(mSB.sputn(0, 1));
+            ASSERT_FAIL(mSB.sputn(buffer, -1));
             ASSERT_SAFE_PASS(mSB.sputn(0, 0));
             ASSERT_SAFE_PASS(mSB.sputn(buffer, 0));
             ASSERT_SAFE_PASS(mSB.sputn(buffer, 1));
@@ -1196,10 +1196,10 @@ int main(int argc, char *argv[])
                                              bsls::AssertTest::failTestDriver);
 
                 char buffer[1];
-                ASSERT_SAFE_FAIL(Obj(     0,  0, &ta));
-                ASSERT_SAFE_FAIL(Obj(     0,  1, &ta));
-                ASSERT_SAFE_FAIL(Obj(buffer,  0, &ta));
-                ASSERT_SAFE_PASS(Obj(buffer,  1, &ta));
+                ASSERT_FAIL(Obj(     0,  0, &ta));
+                ASSERT_FAIL(Obj(     0,  1, &ta));
+                ASSERT_FAIL(Obj(buffer,  0, &ta));
+                ASSERT_PASS(Obj(buffer,  1, &ta));
             }
         }
 

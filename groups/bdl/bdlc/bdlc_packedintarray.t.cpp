@@ -215,8 +215,12 @@ void aSsErT(bool condition, const char *message, int line)
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -3692,7 +3696,7 @@ int main(int argc, char *argv[])
             Obj         mT;
             UnsignedObj mUT;
 
-            mT = mX;  ASSERT_SAFE_FAIL(mT.remove(4));
+            mT = mX;  ASSERT_FAIL(mT.remove(4));
 
             mT = mX;  ASSERT_SAFE_PASS(mT.remove(0, 0));
             mT = mX;  ASSERT_SAFE_PASS(mT.remove(0, 1));
@@ -3710,7 +3714,7 @@ int main(int argc, char *argv[])
             mT = mX;  ASSERT_SAFE_FAIL(mT.remove(3, 1));
             mT = mX;  ASSERT_SAFE_FAIL(mT.remove(4, 0));
 
-            mUT = mUX;  ASSERT_SAFE_FAIL(mUT.remove(4));
+            mUT = mUX;  ASSERT_FAIL(mUT.remove(4));
 
             mUT = mUX;  ASSERT_SAFE_PASS(mUT.remove(0, 0));
             mUT = mUX;  ASSERT_SAFE_PASS(mUT.remove(0, 1));

@@ -2760,66 +2760,66 @@ int main(int argc, char *argv[])
             {
                 ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(   zp, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(zp, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.match(   zp, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.matchRaw(zp, SUBJECT,  9,  1));
 
                 ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(   &p,       0,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(&p,       0,  9,  1));
+                ASSERT_FAIL(X.match(   &p,       0,  9,  1));
+                ASSERT_FAIL(X.matchRaw(&p,       0,  9,  1));
 
                 ASSERT_SAFE_PASS(X.match(   &p,       0,  0,  0));
                 ASSERT_SAFE_PASS(X.matchRaw(&p,       0,  0,  0));
-                ASSERT_SAFE_FAIL(X.match(   &p,       0,  1,  0));
-                ASSERT_SAFE_FAIL(X.matchRaw(&p,       0,  1,  0));
+                ASSERT_FAIL(X.match(   &p,       0,  1,  0));
+                ASSERT_FAIL(X.matchRaw(&p,       0,  1,  0));
 
                 ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  0,  0));
                 ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  0,  0));
-                ASSERT_SAFE_FAIL(X.match(   &p, SUBJECT,  0, -1));
-                ASSERT_SAFE_FAIL(X.matchRaw(&p, SUBJECT,  0, -1));
+                ASSERT_FAIL(X.match(   &p, SUBJECT,  0, -1));
+                ASSERT_FAIL(X.matchRaw(&p, SUBJECT,  0, -1));
 
                 ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  1,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  1,  1));
-                ASSERT_SAFE_FAIL(X.match(   &p, SUBJECT,  1,  2));
-                ASSERT_SAFE_FAIL(X.matchRaw(&p, SUBJECT,  1,  2));
+                ASSERT_FAIL(X.match(   &p, SUBJECT,  1,  2));
+                ASSERT_FAIL(X.matchRaw(&p, SUBJECT,  1,  2));
             }
 
             // 'match' taking 'bsl::vector' of 'StringRef'
             {
                 ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(   zv, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(zv, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.match(   zv, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.matchRaw(zv, SUBJECT,  9,  1));
 
                 ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(   &v,       0,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(&v,       0,  9,  1));
+                ASSERT_FAIL(X.match(   &v,       0,  9,  1));
+                ASSERT_FAIL(X.matchRaw(&v,       0,  9,  1));
 
                 ASSERT_SAFE_PASS(X.match(   &v,       0,  0,  0));
                 ASSERT_SAFE_PASS(X.matchRaw(&v,       0,  0,  0));
-                ASSERT_SAFE_FAIL(X.match(   &v,       0,  1,  0));
-                ASSERT_SAFE_FAIL(X.matchRaw(&v,       0,  1,  0));
+                ASSERT_FAIL(X.match(   &v,       0,  1,  0));
+                ASSERT_FAIL(X.matchRaw(&v,       0,  1,  0));
 
                 ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  0,  0));
                 ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  0,  0));
-                ASSERT_SAFE_FAIL(X.match(   &v, SUBJECT,  0, -1));
-                ASSERT_SAFE_FAIL(X.matchRaw(&v, SUBJECT,  0, -1));
+                ASSERT_FAIL(X.match(   &v, SUBJECT,  0, -1));
+                ASSERT_FAIL(X.matchRaw(&v, SUBJECT,  0, -1));
 
                 ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  1,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  1,  1));
-                ASSERT_SAFE_FAIL(X.match(   &v, SUBJECT,  1,  2));
-                ASSERT_SAFE_FAIL(X.matchRaw(&v, SUBJECT,  1,  2));
+                ASSERT_FAIL(X.match(   &v, SUBJECT,  1,  2));
+                ASSERT_FAIL(X.matchRaw(&v, SUBJECT,  1,  2));
             }
 
             // restore object to unprepared state
             {
                 mX.clear();
 
-                ASSERT_SAFE_FAIL(X.match(   &p, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(   &v, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(&v, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.match(   &p, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.matchRaw(&p, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.match(   &v, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.matchRaw(&v, SUBJECT,  9,  1));
             }
         }
       } break;
@@ -3148,91 +3148,91 @@ int main(int argc, char *argv[])
             {
                 ASSERT_SAFE_PASS(X.match(       SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(    SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(             0,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(          0,  9,  1));
+                ASSERT_FAIL(X.match(             0,  9,  1));
+                ASSERT_FAIL(X.matchRaw(          0,  9,  1));
 
                 ASSERT_SAFE_PASS(X.match(             0,  0));
                 ASSERT_SAFE_PASS(X.matchRaw(          0,  0));
-                ASSERT_SAFE_FAIL(X.match(             0,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(          0,  1));
+                ASSERT_FAIL(X.match(             0,  1));
+                ASSERT_FAIL(X.matchRaw(          0,  1));
 
                 ASSERT_SAFE_PASS(X.match(       SUBJECT,  0,  0));
                 ASSERT_SAFE_PASS(X.matchRaw(    SUBJECT,  0,  0));
-                ASSERT_SAFE_FAIL(X.match(       SUBJECT,  0, -1));
-                ASSERT_SAFE_FAIL(X.matchRaw(    SUBJECT,  0, -1));
+                ASSERT_FAIL(X.match(       SUBJECT,  0, -1));
+                ASSERT_FAIL(X.matchRaw(    SUBJECT,  0, -1));
 
                 ASSERT_SAFE_PASS(X.match(       SUBJECT,  1,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(    SUBJECT,  1,  1));
-                ASSERT_SAFE_FAIL(X.match(       SUBJECT,  1,  2));
-                ASSERT_SAFE_FAIL(X.matchRaw(    SUBJECT,  1,  2));
+                ASSERT_FAIL(X.match(       SUBJECT,  1,  2));
+                ASSERT_FAIL(X.matchRaw(    SUBJECT,  1,  2));
             }
 
             // 'match' taking 'bsl::pair'
             {
                 ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(   zp, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(zp, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.match(   zp, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.matchRaw(zp, SUBJECT,  9,  1));
 
                 ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(   &p,       0,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(&p,       0,  9,  1));
+                ASSERT_FAIL(X.match(   &p,       0,  9,  1));
+                ASSERT_FAIL(X.matchRaw(&p,       0,  9,  1));
 
                 ASSERT_SAFE_PASS(X.match(   &p,       0,  0,  0));
                 ASSERT_SAFE_PASS(X.matchRaw(&p,       0,  0,  0));
-                ASSERT_SAFE_FAIL(X.match(   &p,       0,  1,  0));
-                ASSERT_SAFE_FAIL(X.matchRaw(&p,       0,  1,  0));
+                ASSERT_FAIL(X.match(   &p,       0,  1,  0));
+                ASSERT_FAIL(X.matchRaw(&p,       0,  1,  0));
 
                 ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  0,  0));
                 ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  0,  0));
-                ASSERT_SAFE_FAIL(X.match(   &p, SUBJECT,  0, -1));
-                ASSERT_SAFE_FAIL(X.matchRaw(&p, SUBJECT,  0, -1));
+                ASSERT_FAIL(X.match(   &p, SUBJECT,  0, -1));
+                ASSERT_FAIL(X.matchRaw(&p, SUBJECT,  0, -1));
 
                 ASSERT_SAFE_PASS(X.match(   &p, SUBJECT,  1,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&p, SUBJECT,  1,  1));
-                ASSERT_SAFE_FAIL(X.match(   &p, SUBJECT,  1,  2));
-                ASSERT_SAFE_FAIL(X.matchRaw(&p, SUBJECT,  1,  2));
+                ASSERT_FAIL(X.match(   &p, SUBJECT,  1,  2));
+                ASSERT_FAIL(X.matchRaw(&p, SUBJECT,  1,  2));
             }
 
             // 'match' taking 'bsl::vector'
             {
                 ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(   zv, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(zv, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.match(   zv, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.matchRaw(zv, SUBJECT,  9,  1));
 
                 ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  9,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(   &v,       0,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(&v,       0,  9,  1));
+                ASSERT_FAIL(X.match(   &v,       0,  9,  1));
+                ASSERT_FAIL(X.matchRaw(&v,       0,  9,  1));
 
                 ASSERT_SAFE_PASS(X.match(   &v,       0,  0,  0));
                 ASSERT_SAFE_PASS(X.matchRaw(&v,       0,  0,  0));
-                ASSERT_SAFE_FAIL(X.match(   &v,       0,  1,  0));
-                ASSERT_SAFE_FAIL(X.matchRaw(&v,       0,  1,  0));
+                ASSERT_FAIL(X.match(   &v,       0,  1,  0));
+                ASSERT_FAIL(X.matchRaw(&v,       0,  1,  0));
 
                 ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  0,  0));
                 ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  0,  0));
-                ASSERT_SAFE_FAIL(X.match(   &v, SUBJECT,  0, -1));
-                ASSERT_SAFE_FAIL(X.matchRaw(&v, SUBJECT,  0, -1));
+                ASSERT_FAIL(X.match(   &v, SUBJECT,  0, -1));
+                ASSERT_FAIL(X.matchRaw(&v, SUBJECT,  0, -1));
 
                 ASSERT_SAFE_PASS(X.match(   &v, SUBJECT,  1,  1));
                 ASSERT_SAFE_PASS(X.matchRaw(&v, SUBJECT,  1,  1));
-                ASSERT_SAFE_FAIL(X.match(   &v, SUBJECT,  1,  2));
-                ASSERT_SAFE_FAIL(X.matchRaw(&v, SUBJECT,  1,  2));
+                ASSERT_FAIL(X.match(   &v, SUBJECT,  1,  2));
+                ASSERT_FAIL(X.matchRaw(&v, SUBJECT,  1,  2));
             }
 
             // restore object to unprepared state
             {
                 mX.clear();
 
-                ASSERT_SAFE_FAIL(X.match(       SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(    SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(   &p, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(&p, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.match(   &v, SUBJECT,  9,  1));
-                ASSERT_SAFE_FAIL(X.matchRaw(&v, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.match(       SUBJECT,  9,  1));
+                ASSERT_FAIL(X.matchRaw(    SUBJECT,  9,  1));
+                ASSERT_FAIL(X.match(   &p, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.matchRaw(&p, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.match(   &v, SUBJECT,  9,  1));
+                ASSERT_FAIL(X.matchRaw(&v, SUBJECT,  9,  1));
             }
         }
 
@@ -3433,11 +3433,11 @@ int main(int argc, char *argv[])
             Obj mX(&ta);
 
             ASSERT_SAFE_PASS(mX.prepare(0, 0, PATTERN1, 0, 0));
-            ASSERT_SAFE_FAIL(mX.prepare(0, 0, 0,        0, 0));
+            ASSERT_FAIL(mX.prepare(0, 0, 0,        0, 0));
 
             ASSERT_SAFE_PASS(mX.prepare(0, 0, PATTERN1, 0,               0));
             ASSERT_SAFE_PASS(mX.prepare(0, 0, PATTERN1, Obj::k_FLAG_JIT, 0));
-            ASSERT_SAFE_FAIL(mX.prepare(0, 0, PATTERN1, INVALID_FLAG,    0));
+            ASSERT_FAIL(mX.prepare(0, 0, PATTERN1, INVALID_FLAG,    0));
         }
 
         ASSERTV(da.numAllocations(), 0 == da.numAllocations());

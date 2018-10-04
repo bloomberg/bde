@@ -973,17 +973,17 @@ int main(int argc, char *argv[])
             {
                 int year, month, day;
 
-                ASSERT_SAFE_FAIL(Util::serialToYmd(
+                ASSERT_FAIL(Util::serialToYmd(
                                            0, &month, &day, 1812));
                 ASSERT_SAFE_PASS(Util::serialToYmd(
                                        &year, &month, &day, 1812));
 
-                ASSERT_SAFE_FAIL(Util::serialToYmd(
+                ASSERT_FAIL(Util::serialToYmd(
                                        &year,      0, &day, 1812));
                 ASSERT_SAFE_PASS(Util::serialToYmd(
                                        &year, &month, &day, 1812));
 
-                ASSERT_SAFE_FAIL(Util::serialToYmd(
+                ASSERT_FAIL(Util::serialToYmd(
                                        &year, &month,    0, 1812));
                 ASSERT_SAFE_PASS(Util::serialToYmd(
                                        &year, &month, &day, 1812));
@@ -1300,20 +1300,20 @@ int main(int argc, char *argv[])
             {
                 int year, dayOfYear;
 
-                ASSERT_SAFE_FAIL(Util::serialToYd(    0, &dayOfYear, 1812));
+                ASSERT_FAIL(Util::serialToYd(    0, &dayOfYear, 1812));
                 ASSERT_SAFE_PASS(Util::serialToYd(&year, &dayOfYear, 1812));
 
-                ASSERT_SAFE_FAIL(Util::serialToYd(&year,          0, 1812));
+                ASSERT_FAIL(Util::serialToYd(&year,          0, 1812));
                 ASSERT_SAFE_PASS(Util::serialToYd(&year, &dayOfYear, 1812));
 
-                ASSERT_SAFE_FAIL(Util::serialToYd(
+                ASSERT_FAIL(Util::serialToYd(
                                          &year, &dayOfYear, k_MIN_SERIAL - 1));
                 ASSERT_SAFE_PASS(Util::serialToYd(
                                          &year, &dayOfYear, k_MIN_SERIAL    ));
 
                 ASSERT_SAFE_PASS(Util::serialToYd(
                                          &year, &dayOfYear, k_MAX_SERIAL    ));
-                ASSERT_SAFE_FAIL(Util::serialToYd(
+                ASSERT_FAIL(Util::serialToYd(
                                          &year, &dayOfYear, k_MAX_SERIAL + 1));
             }
 
@@ -1488,20 +1488,20 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\t'ydToSerial'" << endl;
             {
-                ASSERT_SAFE_FAIL(Util::ydToSerial(k_MIN_YEAR - 1, 23));
+                ASSERT_FAIL(Util::ydToSerial(k_MIN_YEAR - 1, 23));
                 ASSERT_SAFE_PASS(Util::ydToSerial(k_MIN_YEAR    , 23));
 
                 ASSERT_SAFE_PASS(Util::ydToSerial(k_MAX_YEAR    , 23));
-                ASSERT_SAFE_FAIL(Util::ydToSerial(k_MAX_YEAR + 1, 23));
+                ASSERT_FAIL(Util::ydToSerial(k_MAX_YEAR + 1, 23));
 
-                ASSERT_SAFE_FAIL(Util::ydToSerial(1812,   0));
+                ASSERT_FAIL(Util::ydToSerial(1812,   0));
                 ASSERT_SAFE_PASS(Util::ydToSerial(1812,   1));
 
                 ASSERT_SAFE_PASS(Util::ydToSerial(1812, 366));
-                ASSERT_SAFE_FAIL(Util::ydToSerial(1812, 367));
+                ASSERT_FAIL(Util::ydToSerial(1812, 367));
 
                 ASSERT_SAFE_PASS(Util::ydToSerial(1813, 365));
-                ASSERT_SAFE_FAIL(Util::ydToSerial(1813, 366));
+                ASSERT_FAIL(Util::ydToSerial(1813, 366));
             }
         }
 
@@ -1679,30 +1679,30 @@ int main(int argc, char *argv[])
             {
                 int month, day;
 
-                ASSERT_SAFE_FAIL(Util::ydToMd(     0, &day, 1812, 23));
+                ASSERT_FAIL(Util::ydToMd(     0, &day, 1812, 23));
                 ASSERT_SAFE_PASS(Util::ydToMd(&month, &day, 1812, 23));
 
-                ASSERT_SAFE_FAIL(Util::ydToMd(&month,    0, 1812, 23));
+                ASSERT_FAIL(Util::ydToMd(&month,    0, 1812, 23));
                 ASSERT_SAFE_PASS(Util::ydToMd(&month, &day, 1812, 23));
 
-                ASSERT_SAFE_FAIL(Util::ydToMd(
+                ASSERT_FAIL(Util::ydToMd(
                                             &month, &day, k_MIN_YEAR - 1, 23));
                 ASSERT_SAFE_PASS(Util::ydToMd(
                                             &month, &day, k_MIN_YEAR    , 23));
 
                 ASSERT_SAFE_PASS(Util::ydToMd(
                                             &month, &day, k_MAX_YEAR    , 23));
-                ASSERT_SAFE_FAIL(Util::ydToMd(
+                ASSERT_FAIL(Util::ydToMd(
                                             &month, &day, k_MAX_YEAR + 1, 23));
 
-                ASSERT_SAFE_FAIL(Util::ydToMd(&month, &day, 1812,   0));
+                ASSERT_FAIL(Util::ydToMd(&month, &day, 1812,   0));
                 ASSERT_SAFE_PASS(Util::ydToMd(&month, &day, 1812,   1));
 
                 ASSERT_SAFE_PASS(Util::ydToMd(&month, &day, 1812, 366));
-                ASSERT_SAFE_FAIL(Util::ydToMd(&month, &day, 1812, 367));
+                ASSERT_FAIL(Util::ydToMd(&month, &day, 1812, 367));
 
                 ASSERT_SAFE_PASS(Util::ydToMd(&month, &day, 1813, 365));
-                ASSERT_SAFE_FAIL(Util::ydToMd(&month, &day, 1813, 366));
+                ASSERT_FAIL(Util::ydToMd(&month, &day, 1813, 366));
             }
 
             if (verbose) cout << "\t'ydToMonth'" << endl;
@@ -1984,33 +1984,33 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\t'ymdToDayOfYear'" << endl;
             {
-                ASSERT_SAFE_FAIL(Util::ymdToDayOfYear(k_MIN_YEAR - 1, 9, 23));
+                ASSERT_FAIL(Util::ymdToDayOfYear(k_MIN_YEAR - 1, 9, 23));
                 ASSERT_SAFE_PASS(Util::ymdToDayOfYear(k_MIN_YEAR    , 9, 23));
 
                 ASSERT_SAFE_PASS(Util::ymdToDayOfYear(k_MAX_YEAR    , 9, 23));
-                ASSERT_SAFE_FAIL(Util::ymdToDayOfYear(k_MAX_YEAR + 1, 9, 23));
+                ASSERT_FAIL(Util::ymdToDayOfYear(k_MAX_YEAR + 1, 9, 23));
 
-                ASSERT_SAFE_FAIL(
+                ASSERT_FAIL(
                               Util::ymdToDayOfYear(1812, k_MIN_MONTH - 1, 23));
                 ASSERT_SAFE_PASS(
                               Util::ymdToDayOfYear(1812, k_MIN_MONTH    , 23));
 
                 ASSERT_SAFE_PASS(
                               Util::ymdToDayOfYear(1812, k_MAX_MONTH    , 23));
-                ASSERT_SAFE_FAIL(
+                ASSERT_FAIL(
                               Util::ymdToDayOfYear(1812, k_MAX_MONTH + 1, 23));
 
-                ASSERT_SAFE_FAIL(Util::ymdToDayOfYear(1812, 9,  0));
+                ASSERT_FAIL(Util::ymdToDayOfYear(1812, 9,  0));
                 ASSERT_SAFE_PASS(Util::ymdToDayOfYear(1812, 9,  1));
 
                 ASSERT_SAFE_PASS(Util::ymdToDayOfYear(1812, 9, 30));
-                ASSERT_SAFE_FAIL(Util::ymdToDayOfYear(1812, 9, 31));
+                ASSERT_FAIL(Util::ymdToDayOfYear(1812, 9, 31));
 
                 ASSERT_SAFE_PASS(Util::ymdToDayOfYear(1812, 2, 29));
-                ASSERT_SAFE_FAIL(Util::ymdToDayOfYear(1812, 2, 30));
+                ASSERT_FAIL(Util::ymdToDayOfYear(1812, 2, 30));
 
                 ASSERT_SAFE_PASS(Util::ymdToDayOfYear(1813, 2, 28));
-                ASSERT_SAFE_FAIL(Util::ymdToDayOfYear(1813, 2, 29));
+                ASSERT_FAIL(Util::ymdToDayOfYear(1813, 2, 29));
             }
         }
 
@@ -2234,64 +2234,64 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\t'ymdToSerial'" << endl;
             {
-                ASSERT_SAFE_FAIL(Util::ymdToSerial(k_MIN_YEAR - 1, 9, 23));
+                ASSERT_FAIL(Util::ymdToSerial(k_MIN_YEAR - 1, 9, 23));
                 ASSERT_SAFE_PASS(Util::ymdToSerial(k_MIN_YEAR    , 9, 23));
 
                 ASSERT_SAFE_PASS(Util::ymdToSerial(k_MAX_YEAR    , 9, 23));
-                ASSERT_SAFE_FAIL(Util::ymdToSerial(k_MAX_YEAR + 1, 9, 23));
+                ASSERT_FAIL(Util::ymdToSerial(k_MAX_YEAR + 1, 9, 23));
 
-                ASSERT_SAFE_FAIL(Util::ymdToSerial(1812, k_MIN_MONTH - 1, 23));
+                ASSERT_FAIL(Util::ymdToSerial(1812, k_MIN_MONTH - 1, 23));
                 ASSERT_SAFE_PASS(Util::ymdToSerial(1812, k_MIN_MONTH    , 23));
 
                 ASSERT_SAFE_PASS(Util::ymdToSerial(1812, k_MAX_MONTH    , 23));
-                ASSERT_SAFE_FAIL(Util::ymdToSerial(1812, k_MAX_MONTH + 1, 23));
+                ASSERT_FAIL(Util::ymdToSerial(1812, k_MAX_MONTH + 1, 23));
 
-                ASSERT_SAFE_FAIL(Util::ymdToSerial(1812, 9,  0));
+                ASSERT_FAIL(Util::ymdToSerial(1812, 9,  0));
                 ASSERT_SAFE_PASS(Util::ymdToSerial(1812, 9,  1));
 
                 ASSERT_SAFE_PASS(Util::ymdToSerial(1812, 9, 30));
-                ASSERT_SAFE_FAIL(Util::ymdToSerial(1812, 9, 31));
+                ASSERT_FAIL(Util::ymdToSerial(1812, 9, 31));
 
                 ASSERT_SAFE_PASS(Util::ymdToSerial(1812, 2, 29));
-                ASSERT_SAFE_FAIL(Util::ymdToSerial(1812, 2, 30));
+                ASSERT_FAIL(Util::ymdToSerial(1812, 2, 30));
 
                 ASSERT_SAFE_PASS(Util::ymdToSerial(1813, 2, 28));
-                ASSERT_SAFE_FAIL(Util::ymdToSerial(1813, 2, 29));
+                ASSERT_FAIL(Util::ymdToSerial(1813, 2, 29));
             }
 
             if (verbose) cout << "\t'ymdToSerialNoCache'" << endl;
             {
-                ASSERT_SAFE_FAIL(
+                ASSERT_FAIL(
                               Util::ymdToSerialNoCache(k_MIN_YEAR - 1, 9, 23));
                 ASSERT_SAFE_PASS(
                               Util::ymdToSerialNoCache(k_MIN_YEAR    , 9, 23));
 
                 ASSERT_SAFE_PASS(
                               Util::ymdToSerialNoCache(k_MAX_YEAR    , 9, 23));
-                ASSERT_SAFE_FAIL(
+                ASSERT_FAIL(
                               Util::ymdToSerialNoCache(k_MAX_YEAR + 1, 9, 23));
 
-                ASSERT_SAFE_FAIL(
+                ASSERT_FAIL(
                           Util::ymdToSerialNoCache(1812, k_MIN_MONTH - 1, 23));
                 ASSERT_SAFE_PASS(
                           Util::ymdToSerialNoCache(1812, k_MIN_MONTH    , 23));
 
                 ASSERT_SAFE_PASS(
                           Util::ymdToSerialNoCache(1812, k_MAX_MONTH    , 23));
-                ASSERT_SAFE_FAIL(
+                ASSERT_FAIL(
                           Util::ymdToSerialNoCache(1812, k_MAX_MONTH + 1, 23));
 
-                ASSERT_SAFE_FAIL(Util::ymdToSerialNoCache(1812, 9,  0));
+                ASSERT_FAIL(Util::ymdToSerialNoCache(1812, 9,  0));
                 ASSERT_SAFE_PASS(Util::ymdToSerialNoCache(1812, 9,  1));
 
                 ASSERT_SAFE_PASS(Util::ymdToSerialNoCache(1812, 9, 30));
-                ASSERT_SAFE_FAIL(Util::ymdToSerialNoCache(1812, 9, 31));
+                ASSERT_FAIL(Util::ymdToSerialNoCache(1812, 9, 31));
 
                 ASSERT_SAFE_PASS(Util::ymdToSerialNoCache(1812, 2, 29));
-                ASSERT_SAFE_FAIL(Util::ymdToSerialNoCache(1812, 2, 30));
+                ASSERT_FAIL(Util::ymdToSerialNoCache(1812, 2, 30));
 
                 ASSERT_SAFE_PASS(Util::ymdToSerialNoCache(1813, 2, 28));
-                ASSERT_SAFE_FAIL(Util::ymdToSerialNoCache(1813, 2, 29));
+                ASSERT_FAIL(Util::ymdToSerialNoCache(1813, 2, 29));
             }
         }
 
@@ -2994,17 +2994,17 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\t'lastDayOfMonth'" << endl;
             {
-                ASSERT_SAFE_FAIL(Util::lastDayOfMonth(k_MIN_YEAR - 1, 9));
+                ASSERT_FAIL(Util::lastDayOfMonth(k_MIN_YEAR - 1, 9));
                 ASSERT_SAFE_PASS(Util::lastDayOfMonth(k_MIN_YEAR    , 9));
 
                 ASSERT_SAFE_PASS(Util::lastDayOfMonth(k_MAX_YEAR    , 9));
-                ASSERT_SAFE_FAIL(Util::lastDayOfMonth(k_MAX_YEAR + 1, 9));
+                ASSERT_FAIL(Util::lastDayOfMonth(k_MAX_YEAR + 1, 9));
 
-                ASSERT_SAFE_FAIL(Util::lastDayOfMonth(1812, k_MIN_MONTH - 1));
+                ASSERT_FAIL(Util::lastDayOfMonth(1812, k_MIN_MONTH - 1));
                 ASSERT_SAFE_PASS(Util::lastDayOfMonth(1812, k_MIN_MONTH    ));
 
                 ASSERT_SAFE_PASS(Util::lastDayOfMonth(1812, k_MAX_MONTH    ));
-                ASSERT_SAFE_FAIL(Util::lastDayOfMonth(1812, k_MAX_MONTH + 1));
+                ASSERT_FAIL(Util::lastDayOfMonth(1812, k_MAX_MONTH + 1));
             }
         }
 
@@ -3173,23 +3173,23 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\t'numLeapYears'" << endl;
             {
-                ASSERT_SAFE_FAIL(Util::numLeapYears(k_MIN_YEAR - 1, 1812));
+                ASSERT_FAIL(Util::numLeapYears(k_MIN_YEAR - 1, 1812));
                 ASSERT_SAFE_PASS(Util::numLeapYears(k_MIN_YEAR    , 1812));
 
                 ASSERT_SAFE_PASS(
                                Util::numLeapYears(k_MAX_YEAR    , k_MAX_YEAR));
-                ASSERT_SAFE_FAIL(
+                ASSERT_FAIL(
                                Util::numLeapYears(k_MAX_YEAR + 1, k_MAX_YEAR));
 
-                ASSERT_SAFE_FAIL(
+                ASSERT_FAIL(
                                Util::numLeapYears(k_MIN_YEAR, k_MIN_YEAR - 1));
                 ASSERT_SAFE_PASS(
                                Util::numLeapYears(k_MIN_YEAR, k_MIN_YEAR    ));
 
                 ASSERT_SAFE_PASS(Util::numLeapYears(1812, k_MAX_YEAR    ));
-                ASSERT_SAFE_FAIL(Util::numLeapYears(1812, k_MAX_YEAR + 1));
+                ASSERT_FAIL(Util::numLeapYears(1812, k_MAX_YEAR + 1));
 
-                ASSERT_SAFE_FAIL(Util::numLeapYears(1813, 1812));
+                ASSERT_FAIL(Util::numLeapYears(1813, 1812));
                 ASSERT_SAFE_PASS(Util::numLeapYears(1812, 1812));
                 ASSERT_SAFE_PASS(Util::numLeapYears(1812, 1813));
             }

@@ -6555,7 +6555,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase18()
             Obj  mX;
             Iter it = mX.insert(VALUES[0]);
 
-            ASSERT_SAFE_FAIL(mX.erase(mX.end()));
+            ASSERT_FAIL(mX.erase(mX.end()));
             ASSERT_SAFE_PASS(mX.erase(it));
         }
     }

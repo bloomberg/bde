@@ -1463,10 +1463,10 @@ int main(int argc, char *argv[])
             const char  *tzId = "America/Mexico_City";
             const char *winId;
 
-            ASSERT_SAFE_PASS(Obj::getWindowsTimeZoneId(&winId, tzId));
-            ASSERT_SAFE_FAIL(Obj::getWindowsTimeZoneId(0,      tzId));
-            ASSERT_SAFE_FAIL(Obj::getWindowsTimeZoneId(&winId, 0));
-            ASSERT_SAFE_FAIL(Obj::getWindowsTimeZoneId(0,      0));
+            ASSERT_PASS(Obj::getWindowsTimeZoneId(&winId, tzId));
+            ASSERT_FAIL(Obj::getWindowsTimeZoneId(0,      tzId));
+            ASSERT_FAIL(Obj::getWindowsTimeZoneId(&winId, 0));
+            ASSERT_FAIL(Obj::getWindowsTimeZoneId(0,      0));
         }
 #else  // BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nDISABLED in this (non-exception) build mode."
@@ -1579,10 +1579,10 @@ int main(int argc, char *argv[])
             const char *winId = "Central Standard Time (Mexico)";
             const char *tzId;
 
-            ASSERT_SAFE_PASS(Obj::getZoneinfoId(&tzId, winId));
-            ASSERT_SAFE_FAIL(Obj::getZoneinfoId(0,     winId));
-            ASSERT_SAFE_FAIL(Obj::getZoneinfoId(&tzId, 0));
-            ASSERT_SAFE_FAIL(Obj::getZoneinfoId(0,     0));
+            ASSERT_PASS(Obj::getZoneinfoId(&tzId, winId));
+            ASSERT_FAIL(Obj::getZoneinfoId(0,     winId));
+            ASSERT_FAIL(Obj::getZoneinfoId(&tzId, 0));
+            ASSERT_FAIL(Obj::getZoneinfoId(0,     0));
         }
 #else  // BDE_BUILD_TARGET_EXC
         if (verbose) cout << "\nDISABLED in this (non-exception) build mode."

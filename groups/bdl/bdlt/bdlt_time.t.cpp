@@ -2337,30 +2337,30 @@ if (veryVerbose)
 
             Obj mX;
 
-            ASSERT_SAFE_FAIL(mX.setHour(-1));
+            ASSERT_FAIL(mX.setHour(-1));
             ASSERT_SAFE_PASS(mX.setHour( 0));
             ASSERT_SAFE_PASS(mX.setHour(24));
-            ASSERT_SAFE_FAIL(mX.setHour(25));
+            ASSERT_FAIL(mX.setHour(25));
 
-            ASSERT_SAFE_FAIL(mX.setMinute(-1));
+            ASSERT_FAIL(mX.setMinute(-1));
             ASSERT_SAFE_PASS(mX.setMinute( 0));
             ASSERT_SAFE_PASS(mX.setMinute(59));
-            ASSERT_SAFE_FAIL(mX.setMinute(60));
+            ASSERT_FAIL(mX.setMinute(60));
 
-            ASSERT_SAFE_FAIL(mX.setSecond(-1));
+            ASSERT_FAIL(mX.setSecond(-1));
             ASSERT_SAFE_PASS(mX.setSecond( 0));
             ASSERT_SAFE_PASS(mX.setSecond(59));
-            ASSERT_SAFE_FAIL(mX.setSecond(60));
+            ASSERT_FAIL(mX.setSecond(60));
 
-            ASSERT_SAFE_FAIL(mX.setMillisecond(  -1));
+            ASSERT_FAIL(mX.setMillisecond(  -1));
             ASSERT_SAFE_PASS(mX.setMillisecond(   0));
             ASSERT_SAFE_PASS(mX.setMillisecond( 999));
-            ASSERT_SAFE_FAIL(mX.setMillisecond(1000));
+            ASSERT_FAIL(mX.setMillisecond(1000));
 
-            ASSERT_SAFE_FAIL(mX.setMicrosecond(  -1));
+            ASSERT_FAIL(mX.setMicrosecond(  -1));
             ASSERT_SAFE_PASS(mX.setMicrosecond(   0));
             ASSERT_SAFE_PASS(mX.setMicrosecond( 999));
-            ASSERT_SAFE_FAIL(mX.setMicrosecond(1000));
+            ASSERT_FAIL(mX.setMicrosecond(1000));
         }
 
       } break;
@@ -4034,11 +4034,11 @@ if (veryVerbose)
                 ASSERT_SAFE_PASS(X.printToBuffer(buf,  0  , PRECISION));
                 ASSERT_SAFE_PASS(X.printToBuffer(buf, SIZE, 0));
 
-                ASSERT_SAFE_FAIL(X.printToBuffer(0,   SIZE, PRECISION));
-                ASSERT_SAFE_FAIL(X.printToBuffer(buf, -1  , PRECISION));
-                ASSERT_SAFE_FAIL(X.printToBuffer(0,   -1  , PRECISION));
-                ASSERT_SAFE_FAIL(X.printToBuffer(buf,  0  , -1));
-                ASSERT_SAFE_FAIL(X.printToBuffer(buf,  0  , PRECISION + 1));
+                ASSERT_FAIL(X.printToBuffer(0,   SIZE, PRECISION));
+                ASSERT_FAIL(X.printToBuffer(buf, -1  , PRECISION));
+                ASSERT_FAIL(X.printToBuffer(0,   -1  , PRECISION));
+                ASSERT_FAIL(X.printToBuffer(buf,  0  , -1));
+                ASSERT_FAIL(X.printToBuffer(buf,  0  , PRECISION + 1));
             }
         }
 
@@ -4446,35 +4446,35 @@ if (veryVerbose)
             Obj mX;
 
             ASSERT_SAFE_PASS(mX.setTime(24, 0, 0, 0, 0));
-            ASSERT_SAFE_FAIL(mX.setTime(24, 0, 0, 0, 1));
-            ASSERT_SAFE_FAIL(mX.setTime(24, 0, 0, 1, 0));
-            ASSERT_SAFE_FAIL(mX.setTime(24, 0, 1, 0, 0));
-            ASSERT_SAFE_FAIL(mX.setTime(24, 1, 0, 0, 0));
+            ASSERT_FAIL(mX.setTime(24, 0, 0, 0, 1));
+            ASSERT_FAIL(mX.setTime(24, 0, 0, 1, 0));
+            ASSERT_FAIL(mX.setTime(24, 0, 1, 0, 0));
+            ASSERT_FAIL(mX.setTime(24, 1, 0, 0, 0));
 
-            ASSERT_SAFE_FAIL(mX.setTime(-1, 0, 0, 0));
+            ASSERT_FAIL(mX.setTime(-1, 0, 0, 0));
             ASSERT_SAFE_PASS(mX.setTime( 0, 0, 0, 0));
             ASSERT_SAFE_PASS(mX.setTime(23, 0, 0, 0));
-            ASSERT_SAFE_FAIL(mX.setTime(25, 0, 0, 0));
+            ASSERT_FAIL(mX.setTime(25, 0, 0, 0));
 
-            ASSERT_SAFE_FAIL(mX.setTime(0, -1, 0, 0));
+            ASSERT_FAIL(mX.setTime(0, -1, 0, 0));
             ASSERT_SAFE_PASS(mX.setTime(0,  0, 0, 0));
             ASSERT_SAFE_PASS(mX.setTime(0, 59, 0, 0));
-            ASSERT_SAFE_FAIL(mX.setTime(0, 60, 0, 0));
+            ASSERT_FAIL(mX.setTime(0, 60, 0, 0));
 
-            ASSERT_SAFE_FAIL(mX.setTime(0, 0, -1, 0));
+            ASSERT_FAIL(mX.setTime(0, 0, -1, 0));
             ASSERT_SAFE_PASS(mX.setTime(0, 0,  0, 0));
             ASSERT_SAFE_PASS(mX.setTime(0, 0, 59, 0));
-            ASSERT_SAFE_FAIL(mX.setTime(0, 0, 60, 0));
+            ASSERT_FAIL(mX.setTime(0, 0, 60, 0));
 
-            ASSERT_SAFE_FAIL(mX.setTime(0, 0, 0,   -1));
+            ASSERT_FAIL(mX.setTime(0, 0, 0,   -1));
             ASSERT_SAFE_PASS(mX.setTime(0, 0, 0,    0));
             ASSERT_SAFE_PASS(mX.setTime(0, 0, 0,  999));
-            ASSERT_SAFE_FAIL(mX.setTime(0, 0, 0, 1000));
+            ASSERT_FAIL(mX.setTime(0, 0, 0, 1000));
 
-            ASSERT_SAFE_FAIL(mX.setTime(0, 0, 0, 0,   -1));
+            ASSERT_FAIL(mX.setTime(0, 0, 0, 0,   -1));
             ASSERT_SAFE_PASS(mX.setTime(0, 0, 0, 0,    0));
             ASSERT_SAFE_PASS(mX.setTime(0, 0, 0, 0,  999));
-            ASSERT_SAFE_FAIL(mX.setTime(0, 0, 0, 0, 1000));
+            ASSERT_FAIL(mX.setTime(0, 0, 0, 0, 1000));
         }
 
       } break;

@@ -2916,17 +2916,15 @@ int main(int argc, char *argv[])
 
                 baltzo::LocalTimePeriod resultPeriod;
 
-                ASSERT_SAFE_PASS(Obj::loadLocalTimePeriodForUtc(
-                                                            &resultPeriod,
-                                                            "America/New_York",
-                                                            TIME));
-                ASSERT_SAFE_FAIL(Obj::loadLocalTimePeriodForUtc(
-                                                            0,
-                                                            "America/New_York",
-                                                            TIME));
-                ASSERT_SAFE_FAIL(Obj::loadLocalTimePeriodForUtc(&resultPeriod,
-                                                                0,
-                                                                TIME));
+                ASSERT_PASS(Obj::loadLocalTimePeriodForUtc(&resultPeriod,
+                                                           "America/New_York",
+                                                           TIME));
+                ASSERT_FAIL(Obj::loadLocalTimePeriodForUtc(0,
+                                                           "America/New_York",
+                                                           TIME));
+                ASSERT_FAIL(Obj::loadLocalTimePeriodForUtc(&resultPeriod,
+                                                           0,
+                                                           TIME));
             }
         }
       } break;

@@ -7339,7 +7339,7 @@ int main(int argc, char* argv[])
                                                0xcf, 0xf3, 0xfc, 0xff,
                                                0xff };
 
-            ASSERT_SAFE_FAIL(
+            ASSERT_FAIL(
                       Util::decimal64FromMultiWidthEncoding(encodedBuffer, 0));
             ASSERT_SAFE_PASS(
                       Util::decimal64FromMultiWidthEncoding(encodedBuffer, 1));
@@ -7351,16 +7351,16 @@ int main(int argc, char* argv[])
                       Util::decimal64FromMultiWidthEncoding(encodedBuffer, 4));
             ASSERT_SAFE_PASS(
                       Util::decimal64FromMultiWidthEncoding(encodedBuffer, 5));
-            ASSERT_SAFE_FAIL(
+            ASSERT_FAIL(
                       Util::decimal64FromMultiWidthEncoding(encodedBuffer, 6));
-            ASSERT_SAFE_FAIL(
+            ASSERT_FAIL(
                       Util::decimal64FromMultiWidthEncoding(encodedBuffer, 7));
             ASSERT_SAFE_PASS(
                       Util::decimal64FromMultiWidthEncoding(encodedBuffer, 8));
-            ASSERT_SAFE_FAIL(
+            ASSERT_FAIL(
                       Util::decimal64FromMultiWidthEncoding(encodedBuffer, 9));
 
-            ASSERT_SAFE_FAIL(
+            ASSERT_FAIL(
                    Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 0));
             ASSERT_SAFE_PASS(
                    Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 1));
@@ -7372,13 +7372,13 @@ int main(int argc, char* argv[])
                    Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 4));
             ASSERT_SAFE_PASS(
                    Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 5));
-            ASSERT_SAFE_FAIL(
+            ASSERT_FAIL(
                    Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 6));
-            ASSERT_SAFE_FAIL(
+            ASSERT_FAIL(
                    Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 7));
-            ASSERT_SAFE_FAIL(
+            ASSERT_FAIL(
                    Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 8));
-            ASSERT_SAFE_FAIL(
+            ASSERT_FAIL(
                    Util::decimal64FromMultiWidthEncodingRaw(encodedBuffer, 9));
 
             Decimal64 decimal;

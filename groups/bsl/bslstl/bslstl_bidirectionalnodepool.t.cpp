@@ -1535,7 +1535,7 @@ void TestDriver<VALUE>::testCase5()
 
             Link *ptr = mX.emplaceIntoNewNode();
 
-            ASSERT_SAFE_FAIL(mX.deleteNode(0));
+            ASSERT_FAIL(mX.deleteNode(0));
             ASSERT_SAFE_PASS(mX.deleteNode(ptr));
         }
     }

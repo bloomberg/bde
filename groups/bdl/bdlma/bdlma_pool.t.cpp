@@ -679,7 +679,7 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(mX.reserveCapacity( 1));
                 ASSERT_SAFE_PASS(mX.reserveCapacity( 0));
 
-                ASSERT_SAFE_FAIL(mX.reserveCapacity(-1));
+                ASSERT_FAIL(mX.reserveCapacity(-1));
             }
         }
       } break;
@@ -1429,7 +1429,7 @@ int main(int argc, char *argv[])
             {
                 ASSERT_SAFE_PASS(Obj( 1));
 
-                ASSERT_SAFE_FAIL(Obj( 0));
+                ASSERT_FAIL(Obj( 0));
             }
 
             if (veryVerbose) cout << "\tThree argument constructor." << endl;
@@ -1438,7 +1438,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(Obj( 1, CON));
 
-                ASSERT_SAFE_FAIL(Obj( 0, CON));
+                ASSERT_FAIL(Obj( 0, CON));
             }
         }
 
@@ -1610,10 +1610,10 @@ int main(int argc, char *argv[])
             {
                 ASSERT_SAFE_PASS(Obj( 1, CON,  1));
 
-                ASSERT_SAFE_FAIL(Obj( 0, CON,  1));
+                ASSERT_FAIL(Obj( 0, CON,  1));
 
-                ASSERT_SAFE_FAIL(Obj( 1, CON,  0));
-                ASSERT_SAFE_FAIL(Obj( 1, CON, -1));
+                ASSERT_FAIL(Obj( 1, CON,  0));
+                ASSERT_FAIL(Obj( 1, CON, -1));
             }
         }
       } break;

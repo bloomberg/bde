@@ -1822,7 +1822,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1));
+                ASSERT_FAIL_RAW(Obj(buffer,  2,  1));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, GS, *ba)'" << endl;
@@ -1834,7 +1834,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2, CON));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1, CON));
+                ASSERT_FAIL_RAW(Obj(buffer,  2,  1, CON));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, AS, *ba)'" << endl;
@@ -1846,7 +1846,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2, MAX));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1, MAX));
+                ASSERT_FAIL_RAW(Obj(buffer,  2,  1, MAX));
             }
 
             if (veryVerbose) cout << "\t'Obj(buf, sz, max, GS, AS, *ba)'"
@@ -1859,7 +1859,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS_RAW(Obj(buffer,  2,  2, CON, MAX));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(buffer,  2,  1, CON, MAX));
+                ASSERT_FAIL_RAW(Obj(buffer,  2,  1, CON, MAX));
             }
         }
 

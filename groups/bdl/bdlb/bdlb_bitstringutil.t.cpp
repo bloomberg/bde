@@ -4396,14 +4396,14 @@ int main(int argc, char *argv[])
             ASSERT_SAFE_PASS(Util::removeAndFill0(bits, 100, 0, 10));
             ASSERT_SAFE_PASS(Util::removeAndFill0(bits, 100, 0, 100));
             ASSERT_SAFE_FAIL(Util::removeAndFill0(   0,   0, 0, 0));
-            ASSERT_SAFE_FAIL(Util::removeAndFill0(bits, 100, 0, 101));
+            ASSERT_FAIL(Util::removeAndFill0(bits, 100, 0, 101));
 
             ASSERT_SAFE_PASS(Util::removeAndFill1(bits,   0, 0, 0));
             ASSERT_SAFE_PASS(Util::removeAndFill1(bits, 100, 0, 0));
             ASSERT_SAFE_PASS(Util::removeAndFill1(bits, 100, 0, 10));
             ASSERT_SAFE_PASS(Util::removeAndFill1(bits, 100, 0, 100));
             ASSERT_SAFE_FAIL(Util::removeAndFill1(   0,  0, 0, 0));
-            ASSERT_SAFE_FAIL(Util::removeAndFill1(bits, 100, 0, 101));
+            ASSERT_FAIL(Util::removeAndFill1(bits, 100, 0, 101));
         }
       } break;
       case 9: {

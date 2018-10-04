@@ -1495,10 +1495,10 @@ int main(int argc, char **argv)
 
             Obj        mT("", "", "");
 
-            ASSERT_SAFE_FAIL(mT.reset(static_cast<const char*>(0)));
-            ASSERT_SAFE_FAIL(mT.reset((StringRef())));
-            ASSERT_SAFE_PASS(mT.reset(""));
-            ASSERT_SAFE_PASS(mT.reset(StringRef("")));
+            ASSERT_FAIL(mT.reset(static_cast<const char*>(0)));
+            ASSERT_FAIL(mT.reset((StringRef())));
+            ASSERT_PASS(mT.reset(""));
+            ASSERT_PASS(mT.reset(StringRef("")));
         }
 
       } break;
@@ -2401,11 +2401,11 @@ int main(int argc, char **argv)
 
             if (verbose) cout << "\tTesting null input." << endl;
 
-            ASSERT_SAFE_FAIL(Obj(static_cast<const char*>(0), "", ""));
-            ASSERT_SAFE_FAIL(Obj((StringRef()), "", ""));
-            ASSERT_SAFE_PASS(Obj("", "", ""));
-            ASSERT_SAFE_PASS(Obj(StringRef(""), (StringRef())));
-            ASSERT_SAFE_PASS(Obj(StringRef(""), (StringRef()), (StringRef())));
+            ASSERT_FAIL(Obj(static_cast<const char*>(0), "", ""));
+            ASSERT_FAIL(Obj((StringRef()), "", ""));
+            ASSERT_PASS(Obj("", "", ""));
+            ASSERT_PASS(Obj(StringRef(""), (StringRef())));
+            ASSERT_PASS(Obj(StringRef(""), (StringRef()), (StringRef())));
 
             if (verbose) cout << "\tTesting iterating from an invalid state"
                               << endl;

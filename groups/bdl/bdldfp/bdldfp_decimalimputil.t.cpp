@@ -8449,8 +8449,8 @@ void TestDriver::testCase18()
                 const Type   V = Util::makeDecimalRaw32(0, 0);
                 const Config CFG(6);
 
-                ASSERT_SAFE_PASS(Util::format(BUFFER, k_SIZE, V, CFG));
-                ASSERT_SAFE_FAIL(Util::format(     0, k_SIZE, V, CFG));
+                ASSERT_PASS(Util::format(BUFFER, k_SIZE, V, CFG));
+                ASSERT_FAIL(Util::format(     0, k_SIZE, V, CFG));
             }
         }
     }
@@ -8908,8 +8908,8 @@ void TestDriver::testCase18()
                 const Type   V = Util::makeDecimalRaw64(0, 0);
                 const Config CFG(6);
 
-                ASSERT_SAFE_PASS(Util::format(BUFFER, k_SIZE, V, CFG));
-                ASSERT_SAFE_FAIL(Util::format(     0, k_SIZE, V, CFG));
+                ASSERT_PASS(Util::format(BUFFER, k_SIZE, V, CFG));
+                ASSERT_FAIL(Util::format(     0, k_SIZE, V, CFG));
             }
         }
     }
@@ -9393,8 +9393,8 @@ void TestDriver::testCase18()
                 const Type   V = Util::makeDecimalRaw128(0, 0);
                 const Config CFG(6);
 
-                ASSERT_SAFE_PASS(Util::format(BUFFER, k_SIZE, V, CFG));
-                ASSERT_SAFE_FAIL(Util::format(     0, k_SIZE, V, CFG));
+                ASSERT_PASS(Util::format(BUFFER, k_SIZE, V, CFG));
+                ASSERT_FAIL(Util::format(     0, k_SIZE, V, CFG));
             }
         }
     }

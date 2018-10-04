@@ -4776,7 +4776,7 @@ int main(int argc, char *argv[]) {
             bsls::AssertTestHandlerGuard guard;
 
             ASSERT_SAFE_PASS(Obj mX(0, 0));
-            ASSERT_SAFE_FAIL(Obj mX(0, 1));
+            ASSERT_FAIL(Obj mX(0, 1));
         }
       } break;
       case 2: {

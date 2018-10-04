@@ -954,7 +954,7 @@ void TestDriver<VALUE>::testCase6()
 
             Obj mX(&oa);
 
-            ASSERT_SAFE_FAIL(mX.reserve(0));
+            ASSERT_FAIL(mX.reserve(0));
             ASSERT_SAFE_PASS(mX.reserve(1));
         }
     }

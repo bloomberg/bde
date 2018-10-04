@@ -2789,21 +2789,21 @@ if (verbose)
             {
                 ASSERT_SAFE_PASS_RAW(Obj(      1,       1));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(      0,       1));
-                ASSERT_SAFE_FAIL_RAW(Obj(     -1,       1));
-                ASSERT_SAFE_FAIL_RAW(Obj(INT_MIN,       1));
+                ASSERT_FAIL_RAW(Obj(      0,       1));
+                ASSERT_FAIL_RAW(Obj(     -1,       1));
+                ASSERT_FAIL_RAW(Obj(INT_MIN,       1));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(      1,       0));
-                ASSERT_SAFE_FAIL_RAW(Obj(      1,      -1));
-                ASSERT_SAFE_FAIL_RAW(Obj(      1, INT_MIN));
+                ASSERT_FAIL_RAW(Obj(      1,       0));
+                ASSERT_FAIL_RAW(Obj(      1,      -1));
+                ASSERT_FAIL_RAW(Obj(      1, INT_MIN));
 
                 ASSERT_SAFE_PASS_RAW(Obj(   9999,     365));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(  10000,     365));
-                ASSERT_SAFE_FAIL_RAW(Obj(INT_MAX,     365));
+                ASSERT_FAIL_RAW(Obj(  10000,     365));
+                ASSERT_FAIL_RAW(Obj(INT_MAX,     365));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(   9999,     366));
-                ASSERT_SAFE_FAIL_RAW(Obj(   9999, INT_MAX));
+                ASSERT_FAIL_RAW(Obj(   9999,     366));
+                ASSERT_FAIL_RAW(Obj(   9999, INT_MAX));
             }
 
             if (verbose) cout << "\t'setYearDay'" << endl;
@@ -4606,37 +4606,37 @@ if (verbose)
             {
                 ASSERT_SAFE_PASS_RAW(Obj(      1,       1,       1));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(      0,       1,       1));
-                ASSERT_SAFE_FAIL_RAW(Obj(     -1,       1,       1));
-                ASSERT_SAFE_FAIL_RAW(Obj(INT_MIN,       1,       1));
+                ASSERT_FAIL_RAW(Obj(      0,       1,       1));
+                ASSERT_FAIL_RAW(Obj(     -1,       1,       1));
+                ASSERT_FAIL_RAW(Obj(INT_MIN,       1,       1));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(      1,      13,       1));
-                ASSERT_SAFE_FAIL_RAW(Obj(      1,       0,       1));
-                ASSERT_SAFE_FAIL_RAW(Obj(      1,      -1,       1));
-                ASSERT_SAFE_FAIL_RAW(Obj(      1, INT_MIN,       1));
+                ASSERT_FAIL_RAW(Obj(      1,      13,       1));
+                ASSERT_FAIL_RAW(Obj(      1,       0,       1));
+                ASSERT_FAIL_RAW(Obj(      1,      -1,       1));
+                ASSERT_FAIL_RAW(Obj(      1, INT_MIN,       1));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(      1,       1,      32));
-                ASSERT_SAFE_FAIL_RAW(Obj(      1,       1,       0));
-                ASSERT_SAFE_FAIL_RAW(Obj(      1,       1,      -1));
-                ASSERT_SAFE_FAIL_RAW(Obj(      1,       1, INT_MIN));
+                ASSERT_FAIL_RAW(Obj(      1,       1,      32));
+                ASSERT_FAIL_RAW(Obj(      1,       1,       0));
+                ASSERT_FAIL_RAW(Obj(      1,       1,      -1));
+                ASSERT_FAIL_RAW(Obj(      1,       1, INT_MIN));
 
                 ASSERT_SAFE_PASS_RAW(Obj(   9999,      12,      31));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(   9999,       0,      31));
+                ASSERT_FAIL_RAW(Obj(   9999,       0,      31));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(   9999,      12,       0));
-                ASSERT_SAFE_FAIL_RAW(Obj(  10000,      12,      31));
-                ASSERT_SAFE_FAIL_RAW(Obj(INT_MAX,      12,      31));
+                ASSERT_FAIL_RAW(Obj(   9999,      12,       0));
+                ASSERT_FAIL_RAW(Obj(  10000,      12,      31));
+                ASSERT_FAIL_RAW(Obj(INT_MAX,      12,      31));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(   9999,      13,      31));
-                ASSERT_SAFE_FAIL_RAW(Obj(   9999, INT_MAX,      31));
+                ASSERT_FAIL_RAW(Obj(   9999,      13,      31));
+                ASSERT_FAIL_RAW(Obj(   9999, INT_MAX,      31));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(   9999,      12,      32));
-                ASSERT_SAFE_FAIL_RAW(Obj(   9999,      12, INT_MAX));
+                ASSERT_FAIL_RAW(Obj(   9999,      12,      32));
+                ASSERT_FAIL_RAW(Obj(   9999,      12, INT_MAX));
 
-                ASSERT_SAFE_FAIL_RAW(Obj(   2000,       4,      31));
-                ASSERT_SAFE_FAIL_RAW(Obj(   2000,       2,      30));
-                ASSERT_SAFE_FAIL_RAW(Obj(   2001,       2,      29));
+                ASSERT_FAIL_RAW(Obj(   2000,       4,      31));
+                ASSERT_FAIL_RAW(Obj(   2000,       2,      30));
+                ASSERT_FAIL_RAW(Obj(   2001,       2,      29));
             }
         }
 

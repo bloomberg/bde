@@ -1279,10 +1279,10 @@ int main(int argc, char *argv[])
                                              bsls::AssertTest::failTestDriver);
 
             Obj mSB(INIT_BUFSIZE);
-            ASSERT_SAFE_PASS(mSB.sputn(0, 0));
-            ASSERT_SAFE_FAIL(mSB.sputn("hello", -1));
-            ASSERT_SAFE_PASS(mSB.sputn("hello", 0));
-            ASSERT_SAFE_PASS(mSB.sputn("hello", 1));
+            ASSERT_PASS(mSB.sputn(0, 0));
+            ASSERT_FAIL(mSB.sputn("hello", -1));
+            ASSERT_PASS(mSB.sputn("hello", 0));
+            ASSERT_PASS(mSB.sputn("hello", 1));
         }
       } break;
       case 5: {

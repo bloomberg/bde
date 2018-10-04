@@ -1580,8 +1580,8 @@ int main(int argc, char* argv[])
 
             if (veryVerbose) cout << "\tPrecision" << endl;
             {
-                ASSERT_SAFE_FAIL(obj.setPrecision(-1));
-                ASSERT_SAFE_PASS(obj.setPrecision(0));
+                ASSERT_FAIL(obj.setPrecision(-1));
+                ASSERT_PASS(obj.setPrecision(0));
             }
         }
       } break;

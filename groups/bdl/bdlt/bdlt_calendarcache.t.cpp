@@ -1412,7 +1412,7 @@ int main(int argc, char *argv[])
             {
                 ASSERT_SAFE_PASS(mX.invalidate(""));
 
-                ASSERT_SAFE_FAIL(mX.invalidate(0));
+                ASSERT_FAIL(mX.invalidate(0));
             }
         }
 
@@ -1748,7 +1748,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(mX.getCalendar(""));
 
-                ASSERT_SAFE_FAIL(mX.getCalendar(0));
+                ASSERT_FAIL(mX.getCalendar(0));
             }
 
             {
@@ -1756,7 +1756,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(X.lookupCalendar(""));
 
-                ASSERT_SAFE_FAIL(X.lookupCalendar(0));
+                ASSERT_FAIL(X.lookupCalendar(0));
             }
 
             {
@@ -1764,7 +1764,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_SAFE_PASS(X.lookupLoadTime(""));
 
-                ASSERT_SAFE_FAIL(X.lookupLoadTime(0));
+                ASSERT_FAIL(X.lookupLoadTime(0));
             }
         }
 
@@ -2047,18 +2047,18 @@ int main(int argc, char *argv[])
             {
                 ASSERT_SAFE_PASS(Obj(&loader, &sa));
 
-                ASSERT_SAFE_FAIL(Obj(      0, &sa));
+                ASSERT_FAIL(Obj(      0, &sa));
             }
 
             {
                 ASSERT_SAFE_PASS(Obj(&loader, Interval(1,       0), &sa));
-                ASSERT_SAFE_FAIL(Obj(      0, Interval(1,       0), &sa));
+                ASSERT_FAIL(Obj(      0, Interval(1,       0), &sa));
 
                 ASSERT_SAFE_PASS(Obj(&loader, Interval(0,       0), &sa));
-                ASSERT_SAFE_FAIL(Obj(&loader, Interval(0,      -1), &sa));
+                ASSERT_FAIL(Obj(&loader, Interval(0,      -1), &sa));
 
                 ASSERT_SAFE_PASS(Obj(&loader, Interval(INT_MAX, 0), &sa));
-                ASSERT_SAFE_FAIL(Obj(&loader, Interval(INT_MAX, 1), &sa));
+                ASSERT_FAIL(Obj(&loader, Interval(INT_MAX, 1), &sa));
             }
         }
 

@@ -318,15 +318,15 @@ int main(int argc, char *argv[])
                                              bsls::AssertTest::failTestDriver);
 
             bdlb::TestInputIterator<int> ni;
-            ASSERT_SAFE_FAIL(++ni);
-            ASSERT_SAFE_FAIL(ni++);
-            ASSERT_SAFE_FAIL(*ni);
+            ASSERT_FAIL(++ni);
+            ASSERT_FAIL(ni++);
+            ASSERT_FAIL(*ni);
 
             bdlb::TestInputIterator<MyClass> nc;
-            ASSERT_SAFE_FAIL(++nc);
-            ASSERT_SAFE_FAIL(nc++);
-            ASSERT_SAFE_FAIL(*nc);
-            ASSERT_SAFE_FAIL(nc->value());
+            ASSERT_FAIL(++nc);
+            ASSERT_FAIL(nc++);
+            ASSERT_FAIL(*nc);
+            ASSERT_FAIL(nc->value());
         }
 
         if (verbose) cout << "\nNegative Testing of expressions" << endl;
@@ -335,15 +335,15 @@ int main(int argc, char *argv[])
                                              bsls::AssertTest::failTestDriver);
 
             bdlb::TestInputIterator<int> ni;
-            ASSERT_SAFE_FAIL(bdlb::TestInputIterator<int>(++ni));
-            ASSERT_SAFE_FAIL(bdlb::TestInputIterator<int>(ni++));
-            ASSERT_SAFE_FAIL(MyClass nmci(*ni));
+            ASSERT_FAIL(bdlb::TestInputIterator<int>(++ni));
+            ASSERT_FAIL(bdlb::TestInputIterator<int>(ni++));
+            ASSERT_FAIL(MyClass nmci(*ni));
 
             bdlb::TestInputIterator<MyClass> nc;
-            ASSERT_SAFE_FAIL(bdlb::TestInputIterator<MyClass> nc2(++nc));
-            ASSERT_SAFE_FAIL(bdlb::TestInputIterator<MyClass> nc3(nc++));
-            ASSERT_SAFE_FAIL(MyClass nmc(*nc));
-            ASSERT_SAFE_FAIL(MyClass(nc->value()));
+            ASSERT_FAIL(bdlb::TestInputIterator<MyClass> nc2(++nc));
+            ASSERT_FAIL(bdlb::TestInputIterator<MyClass> nc3(nc++));
+            ASSERT_FAIL(MyClass nmc(*nc));
+            ASSERT_FAIL(MyClass(nc->value()));
         }
       } break;
       case 2: {

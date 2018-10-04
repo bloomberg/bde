@@ -148,8 +148,8 @@ static void aSsErT(int c, const char *s, int i)
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_FAIL(expr) BSLS_ASSERTTEST_ASSERT_FAIL(expr)
+#define ASSERT_PASS(expr) BSLS_ASSERTTEST_ASSERT_PASS(expr)
 
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1504,19 +1504,19 @@ int main(int argc, char *argv[])
 
             {
 
-                ASSERT_SAFE_FAIL(obj.setTimeZone(
+                ASSERT_FAIL(obj.setTimeZone(
                         0,
                         reinterpret_cast<const char  *>(AMERICA_NEW_YORK_DATA),
                         sizeof(AMERICA_NEW_YORK_DATA)));
-                ASSERT_SAFE_FAIL(obj.setTimeZone(
+                ASSERT_FAIL(obj.setTimeZone(
                                                AMERICA_NEW_YORK_ID,
                                                0,
                                                sizeof(AMERICA_NEW_YORK_DATA)));
-                ASSERT_SAFE_FAIL(obj.setTimeZone(
+                ASSERT_FAIL(obj.setTimeZone(
                         AMERICA_NEW_YORK_ID,
                         reinterpret_cast<const char  *>(AMERICA_NEW_YORK_DATA),
                         -1));
-                ASSERT_SAFE_PASS(obj.setTimeZone(
+                ASSERT_PASS(obj.setTimeZone(
                         AMERICA_NEW_YORK_ID,
                         reinterpret_cast<const char  *>(AMERICA_NEW_YORK_DATA),
                         sizeof(AMERICA_NEW_YORK_DATA)));
@@ -1527,12 +1527,12 @@ int main(int argc, char *argv[])
             {
                 baltzo::Zoneinfo result;
 
-                ASSERT_SAFE_FAIL(obj.loadTimeZone(0,
-                                                  AMERICA_NEW_YORK_ID));
-                ASSERT_SAFE_FAIL(obj.loadTimeZone(&result,
-                                                  0));
-                ASSERT_SAFE_PASS(obj.loadTimeZone(&result,
-                                                  AMERICA_NEW_YORK_ID));
+                ASSERT_FAIL(obj.loadTimeZone(0,
+                                             AMERICA_NEW_YORK_ID));
+                ASSERT_FAIL(obj.loadTimeZone(&result,
+                                             0));
+                ASSERT_PASS(obj.loadTimeZone(&result,
+                                             AMERICA_NEW_YORK_ID));
             }
         }
 

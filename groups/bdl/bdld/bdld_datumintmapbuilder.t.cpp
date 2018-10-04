@@ -945,10 +945,10 @@ int main(int argc, char *argv[])
                 Obj              mB(0, &ta);
                 DatumIntMapEntry entry(1, Datum::createInteger(1));
 
-                ASSERT_SAFE_FAIL(mB.append(0,      0));
-                ASSERT_SAFE_FAIL(mB.append(&entry, 0));
-                ASSERT_SAFE_FAIL(mB.append(0,      1));
-                ASSERT_SAFE_PASS(mB.append(&entry, 1));
+                ASSERT_FAIL(mB.append(0,      0));
+                ASSERT_FAIL(mB.append(&entry, 0));
+                ASSERT_FAIL(mB.append(0,      1));
+                ASSERT_PASS(mB.append(&entry, 1));
             }
 
             if (verbose) cout << "\tTesting 'commit'." << endl;
