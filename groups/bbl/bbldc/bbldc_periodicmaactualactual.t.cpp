@@ -448,8 +448,7 @@ int main(int argc, char *argv[])
         }
 
         { // negative testing
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             // 'periodDate' with no errors.
 

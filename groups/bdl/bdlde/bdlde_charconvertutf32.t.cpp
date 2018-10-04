@@ -4103,8 +4103,7 @@ int main(int argc, char **argv)
         if (verbose) cout << "\nTESTING PRECONDITION TESTS\n"
                                "==========================\n";
 
-        bsls::AssertFailureHandlerGuard guard(
-                                             bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard guard;
 
         const unsigned int    utf32Input[] = { 0x100, 0x1000, 0 };
         const char            utf8Input [] = "woof";

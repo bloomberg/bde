@@ -829,8 +829,7 @@ int main(int argc, char *argv[])
             cout << "\nTesting 'setDateTz' with invalid data (negative test)."
                  << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\t'timeout'" << endl;
             {
@@ -2235,8 +2234,7 @@ int main(int argc, char *argv[])
 
         // Negative Testing
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\t'timeout'" << endl;
             {

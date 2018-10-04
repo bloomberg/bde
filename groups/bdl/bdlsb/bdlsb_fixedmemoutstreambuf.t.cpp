@@ -999,8 +999,7 @@ int main(int argc, char *argv[])
         {
             char buffer[INIT_BUFSIZE];
 
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_FAIL(Obj(     0,  INIT_BUFSIZE));
             ASSERT_SAFE_FAIL(Obj(     0,            -1));

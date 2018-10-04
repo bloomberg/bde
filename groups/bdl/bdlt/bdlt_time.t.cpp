@@ -777,7 +777,7 @@ int main(int argc, char *argv[])
 #endif
       } break;
       case 20: {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         // In SAFE build mode, verify all methods that should ASSERT do ASSERT.
 
@@ -1887,8 +1887,7 @@ if (veryVerbose)
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mV;
             Obj mW;
@@ -2121,8 +2120,7 @@ if (veryVerbose)
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX(1, 0, 0, 0);  const Obj X = mX;  (void)X;
 
@@ -2332,8 +2330,7 @@ if (veryVerbose)
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;
 
@@ -2493,8 +2490,7 @@ if (veryVerbose)
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_PASS(Obj mX(24, 0, 0, 0, 0));
             ASSERT_SAFE_FAIL(Obj mX(24, 0, 0, 0, 1));
@@ -4018,8 +4014,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\t'printToBuffer' method" << endl;
             {
@@ -4440,8 +4435,7 @@ if (veryVerbose)
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;
 

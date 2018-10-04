@@ -1052,8 +1052,7 @@ if (veryVerbose) {
                 ASSERT(exp == result);
             }
             else {
-                bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard hG;
 
                 ASSERT_SAFE_FAIL(Util::convertFromHHMMSSmmm(VALUE));
             }
@@ -1232,8 +1231,7 @@ if (veryVerbose) {
                 ASSERT(exp == result);
             }
             else {
-                bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard hG;
 
                 ASSERT_SAFE_FAIL(Util::convertFromHHMMSS(VALUE));
             }
@@ -1383,8 +1381,7 @@ if (veryVerbose) {
                 ASSERT(exp == result);
             }
             else {
-                bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard hG;
 
                 ASSERT_SAFE_FAIL(Util::convertFromHHMM(VALUE));
             }

@@ -1628,7 +1628,7 @@ void TestDriver<VALUE>::testCase2()
     if (verbose)
         printf("\tNegative Testing\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 

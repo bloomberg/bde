@@ -7332,8 +7332,7 @@ int main(int argc, char* argv[])
 
         // Negative Testing
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             unsigned char encodedBuffer[9] = { 0x77, 0xfc, 0xff, 0x3f,
                                                0xcf, 0xf3, 0xfc, 0xff,

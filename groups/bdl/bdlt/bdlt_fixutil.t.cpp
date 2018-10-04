@@ -1613,8 +1613,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const char *INPUT  = "2013-10-23T01:23:45";
             const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
@@ -2179,8 +2178,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const char *INPUT  = "01:23:45";
             const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
@@ -2568,8 +2566,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const char *INPUT  = "2013-10-23";
             const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
@@ -2974,8 +2971,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const Config C;
 
@@ -3338,8 +3334,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const Config C;
 
@@ -3692,8 +3687,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const Config C;
 
@@ -4058,8 +4052,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const Config C;
 
@@ -4389,8 +4382,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const Config C;
 
@@ -4718,8 +4710,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const Config C;
 

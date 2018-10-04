@@ -275,8 +275,7 @@ if (veryVerbose)
 
         {
             // Test assertions
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_PASS(Util::lastDayInMonth(    1,  1));
             ASSERT_SAFE_PASS(Util::lastDayInMonth( 9999,  1));
@@ -443,8 +442,7 @@ if (veryVerbose)
         }
         {
             // Test assertions
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_PASS(
                             Util::addYearsNoEom(bdlt::Date(  2,   1,  1),  2));
@@ -577,8 +575,7 @@ if (veryVerbose)
         }
         {
             // Test assertions
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_PASS(Util::addYearsEom(bdlt::Date(  2,   1,  1),  2));
             ASSERT_SAFE_FAIL(Util::addYearsEom(bdlt::Date(  2,   1,  1), -2));
@@ -794,8 +791,7 @@ if (veryVerbose)
 
         {
             // Test assertions
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_PASS(Util::addMonthsEom(bdlt::Date(  1,   2,  1), -1));
             ASSERT_SAFE_FAIL(Util::addMonthsEom(bdlt::Date(  1,   2,  1), -2));
@@ -956,8 +952,7 @@ if (veryVerbose)
 
         {
             // Test assertions
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_PASS(
                            Util::addMonthsNoEom(bdlt::Date(  1,   2,  1), -1));
@@ -1042,8 +1037,7 @@ if (veryVerbose)
 
         {
             // Test assertions
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_PASS(Util::lastDayOfWeekInMonth(    1,  1, e_SUN));
             ASSERT_SAFE_PASS(Util::lastDayOfWeekInMonth( 9999,  1, e_SUN));
@@ -1207,8 +1201,7 @@ if (veryVerbose)
 
         {
             // Test assertions
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_PASS(Util::nthDayOfWeekInMonth(    1,  1, e_SUN, 1));
             ASSERT_SAFE_PASS(Util::nthDayOfWeekInMonth( 9999,  1, e_SUN, 1));
@@ -1846,8 +1839,7 @@ if (veryVerbose)
 
         {
             // Test assertions
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bdlt::Date result(1999, 2, 3);
 
@@ -1920,8 +1912,7 @@ if (veryVerbose)
 
         {
             // Test assertions
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_FAIL(Util::convertFromYYYYMMDDRaw(1));
             ASSERT_SAFE_PASS(Util::convertFromYYYYMMDDRaw(20001210));

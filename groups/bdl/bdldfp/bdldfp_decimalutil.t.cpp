@@ -451,7 +451,6 @@ int main(int argc, char* argv[])
     int     veryVeryVerbose = argc > 4;
     int veryVeryVeryVerbose = argc > 5;  // always the last
 
-    using bsls::AssertFailureHandlerGuard;
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
@@ -4315,7 +4314,7 @@ int main(int argc, char* argv[])
 
             // Test that all special cases fail.
             {
-                AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard g;
                 // o sNaN
                 BSLS_ASSERTTEST_ASSERT_FAIL(Util::quantum(sNaN));
 
@@ -4372,7 +4371,7 @@ int main(int argc, char* argv[])
 
             // Test that all special cases fail.
             {
-                AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard g;
 
                 //: o sNaN
 

@@ -18239,8 +18239,7 @@ int main(int argc, char *argv[])
 
             if (verbose) printf("\nNegative Testing.\n");
             {
-                bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard hG;
 
              // ASSERT_SAFE_FAIL(*x);  // TBD: negative testing of 'noexcept's
                 ASSERT_SAFE_FAIL(x[0]);

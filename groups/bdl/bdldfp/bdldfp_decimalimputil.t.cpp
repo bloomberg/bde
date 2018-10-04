@@ -1358,7 +1358,6 @@ static int veryVeryVeryVerbose;
 static bslma::TestAllocator *pa;
 
 struct TestDriver {
-    typedef bsls::AssertFailureHandlerGuard AssertFailureHandlerGuard;
     static void testCase31();
     static void testCase30();
     static void testCase29();
@@ -8439,8 +8438,7 @@ void TestDriver::testCase18()
         }
         if (veryVerbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                         bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\t'buffer == NULL'" << endl;
             {
@@ -8897,8 +8895,7 @@ void TestDriver::testCase18()
 
         if (veryVerbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                         bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
 
             if (veryVerbose) cout << "\t'buffer == NULL'" << endl;
@@ -9383,8 +9380,7 @@ void TestDriver::testCase18()
 
         if (veryVerbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                         bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\t'buffer == NULL'" << endl;
             {
@@ -15666,7 +15662,7 @@ void TestDriver::testCase2()
     // Test that 'makeDecimalRaw32' enforces undefined behavior in the
     // right build mode
     {
-        AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard g;
 
         // Check exponent lower bound
         BSLS_ASSERTTEST_ASSERT_FAIL(
@@ -15696,7 +15692,7 @@ void TestDriver::testCase2()
     // Test that 'makeDecimalRaw64' variants enforce undefined behavior in
     // the right build mode
     {
-        AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard g;
 
         // Test 'makeDecimalRaw64(int, int)':
 
@@ -15778,7 +15774,7 @@ void TestDriver::testCase2()
     // Test that 'makeDecimalRaw128' variants enforce undefined behavior in
     // the right build mode
     {
-        AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard g;
 
         // Test 'makeDecimalRaw128(int, int)':
 
@@ -15860,7 +15856,6 @@ int main(int argc, char* argv[])
         veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;  // always the last
 
-    using bsls::AssertFailureHandlerGuard;
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));

@@ -206,7 +206,7 @@ bool globalVeryVeryVerbose = false;
     void testVectorArrayAccess()
     {
     #ifdef BDE_BUILD_TARGET_EXC
-        bsls::AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard g;
 
         AssertTestVector<void *> mA; const AssertTestVector<void *> &A = mA;
 
@@ -334,8 +334,7 @@ bool globalVeryVeryVerbose = false;
 //..
     #ifdef BDE_BUILD_TARGET_EXC
         {
-            bsls::AssertFailureHandlerGuard g(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard g;
 
 //..
 // Then we build the table of test values, listing the expected build mode for

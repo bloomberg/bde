@@ -957,8 +957,7 @@ void TestDriver<VALUE>::testCase6()
             ObjC mY2(NODE2, BUCKET2); const ObjC& Y2 = mY2;
 
             if (b1 != b2) {
-                bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard hG;
                 // Note that the 'ASSERT_XXX_FAIL' macros are testing whether
                 // an assertion is raised, not the result of the expression.
                 ASSERT_SAFE_FAIL(if(X1 == Y1){});

@@ -6192,7 +6192,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase18()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         {
             const TestValues VALUES;

@@ -218,8 +218,7 @@ int main(int argc, char *argv[])
                           << "TESTING EDGE CASES" << endl
                           << "==================" << endl;
 
-        bsls::AssertFailureHandlerGuard hG(
-                                         bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         {
             bdlsta::LineFit lf;

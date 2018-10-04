@@ -210,8 +210,7 @@ int main(int argc, char *argv[])
                           << "TESTING EDGE CASES" << endl
                           << "==================" << endl;
 
-        bsls::AssertFailureHandlerGuard hG(
-                                         bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         {
             bdlsta::Moment<bdlsta::MomentLevel::e_M1> m1;

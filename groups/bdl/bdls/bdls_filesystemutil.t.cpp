@@ -2182,8 +2182,7 @@ int main(int argc, char *argv[])
 #endif
         }
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                            bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
             ASSERT_PASS(Obj::sync(writeBuffer, SIZE, true));
@@ -4147,8 +4146,7 @@ int main(int argc, char *argv[])
                                    fileName, Obj::e_CREATE, Obj::e_READ_WRITE);
                 ASSERT(Obj::k_INVALID_FD != fd);
 
-                bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard hG;
 
                 ASSERT_PASS(Obj::read(fd, buffer,  1));
                 ASSERT_PASS(Obj::read(fd, buffer,  0));
@@ -5053,8 +5051,7 @@ int main(int argc, char *argv[])
             }
             LOOP_ASSERT(fileName, !Obj::exists(fileName));
 
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             {
                 Obj::FileDescriptor fd = Obj::k_INVALID_FD;

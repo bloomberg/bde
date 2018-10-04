@@ -661,8 +661,7 @@ int main(int argc, char *argv[])
 
             if (verbose) cout << "\tNegative Testing." << endl;
             {
-                bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard hG;
 
                 ASSERT_FAIL((Obj(0)));
                 ASSERT_PASS((Obj(&ta)));
@@ -1093,8 +1092,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
-            bsls::AssertFailureHandlerGuard hG(
-                                           bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (verbose) cout << "\tTesting constructor." << endl;
             {

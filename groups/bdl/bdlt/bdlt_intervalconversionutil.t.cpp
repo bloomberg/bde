@@ -764,8 +764,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bdlt::DatetimeInterval maximalDtI(INT_MAX,  23,  59,  59,  999);
             bdlt::DatetimeInterval minimalDtI(INT_MIN, -23, -59, -59, -999);

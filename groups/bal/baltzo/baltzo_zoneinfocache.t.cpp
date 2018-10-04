@@ -897,8 +897,7 @@ int main(int argc, char *argv[])
             }
         }
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
             TestDriverTestLoader testLoader(Z);
@@ -999,8 +998,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
             TestDriverTestLoader testLoader(Z);
@@ -1302,8 +1300,7 @@ int main(int argc, char *argv[])
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
         }
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
             TestDriverTestLoader testLoader(Z);

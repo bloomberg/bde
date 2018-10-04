@@ -314,8 +314,7 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                             "\nNegative Testing of direct invocation." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bdlb::TestInputIterator<int> ni;
             ASSERT_FAIL(++ni);
@@ -331,8 +330,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing of expressions" << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bdlb::TestInputIterator<int> ni;
             ASSERT_FAIL(bdlb::TestInputIterator<int>(++ni));

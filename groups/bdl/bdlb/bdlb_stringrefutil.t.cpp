@@ -893,9 +893,7 @@ int main(int argc, char *argv[])
 
 #ifdef BDE_BUILD_TARGET_EXC
         {
-            using bsls::AssertFailureHandlerGuard;
-            using bsls::AssertTest;
-            AssertFailureHandlerGuard g(AssertTest::failTestDriver); (void)g;
+            bsls::AssertTestHandlerGuard g; (void)g;
 
             ASSERT_SAFE_FAIL(Util::substr(string, string.length() + 1));
         }

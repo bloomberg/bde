@@ -315,8 +315,7 @@ int main(int argc, char *argv[])
         }
 
         { // negative testing
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             // 'periodDate' with no errors
 
@@ -555,8 +554,7 @@ int main(int argc, char *argv[])
         }
 
         { // negative testing
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_OPT_PASS(Util::daysDiff(
                       bdlt::Date(2015, 1, 5),

@@ -2003,8 +2003,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa;
 
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             unsigned int resultGen, resultIdx, index, generation;
 
@@ -2308,8 +2307,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa;
 
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             unsigned int resultGen, resultIdx, index, generation;
 
@@ -3003,8 +3001,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa;
 
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             unsigned int index, generation;
 
@@ -3173,8 +3170,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator oa, da;
 
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_OPT_PASS(Obj obj(1, &oa));
             ASSERT_OPT_FAIL_RAW(Obj obj(Obj::k_MAX_CAPACITY + 1, &oa));

@@ -692,8 +692,7 @@ int main(int argc, char *argv[])
 
                 // NEGATIVE TEST
                 {
-                    bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+                    bsls::AssertTestHandlerGuard hG;
 
                     ASSERT_SAFE_FAIL(Util::convertToDatetimeInterval(0,
                                                                      INPUT));
@@ -937,8 +936,7 @@ int main(int argc, char *argv[])
 
         // Negative test for null pointers.
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             if (verbose) {
                 cout << "Negative test: convertToDatetimeInterval(null, x)"
                      << endl;
@@ -1336,8 +1334,7 @@ int main(int argc, char *argv[])
 
                 // NEGATIVE TEST
                 {
-                    bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+                    bsls::AssertTestHandlerGuard hG;
 
                     ASSERT_SAFE_FAIL(Util::convertToTimeInterval(0, INPUT));
                 }
@@ -1618,8 +1615,7 @@ int main(int argc, char *argv[])
 
         // Negative test for null pointers.
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             if (verbose) {
                 cout << "Negative test: convertToTimeInterval(null, x)"
                      << endl;
@@ -1982,8 +1978,7 @@ int main(int argc, char *argv[])
 
                 // NEGATIVE TEST
                 {
-                    bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+                    bsls::AssertTestHandlerGuard hG;
 
                     if (veryVerbose) {
                         cout << "Negative test - expect "
@@ -2207,8 +2202,7 @@ int main(int argc, char *argv[])
 
         // Negative test for null pointers.
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             if (verbose) {
                 cout << "Negative test: convertToTimeT(null, x)" << endl;
             }
@@ -2766,8 +2760,7 @@ int main(int argc, char *argv[])
 
                 // NEGATIVE TEST
                 {
-                    bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+                    bsls::AssertTestHandlerGuard hG;
 
                     if (veryVerbose) {
                         cout << "Negative test - expect "
@@ -2848,8 +2841,7 @@ int main(int argc, char *argv[])
 
         // Negative test for null pointers.
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             if (verbose) {
                 cout << "Negative test: convertToTimeT64(null, x)" << endl;
             }

@@ -307,8 +307,7 @@ int main(int argc, char *argv[])
         }
 
         { // negative testing
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_OPT_PASS(Util::yearsDiff(bdlt::Date(2015, 6,  1),
                                             bdlt::Date(2015, 6, 30),
@@ -452,8 +451,7 @@ int main(int argc, char *argv[])
         }
 
         { // negative testing
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_OPT_PASS(Util::daysDiff(bdlt::Date(2015, 6,  1),
                                            bdlt::Date(2015, 6, 30),

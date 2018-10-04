@@ -1024,8 +1024,7 @@ if (verbose) {
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;
 
@@ -2708,8 +2707,7 @@ if (verbose) {
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_FAIL(Obj(bdlt::Datetime(), -1));
             ASSERT_SAFE_PASS(Obj(bdlt::Datetime(),  0));

@@ -699,7 +699,7 @@ int main(int argc, char *argv[])
                           << "NEGATIVE TESTING" << endl
                           << "================" << endl;
 
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         if (verbose) cout << "Construct Iter with invalid index.\n";
         {

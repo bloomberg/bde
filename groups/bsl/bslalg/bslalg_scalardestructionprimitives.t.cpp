@@ -760,8 +760,7 @@ int main(int argc, char *argv[])
 
         if(verbose) printf("\nNegative testing\n");
         {
-            bsls::AssertFailureHandlerGuard g(
-                    bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard g;
 
             int * null = 0;
             (void) null;  // Suppress 'unused variable' warnings

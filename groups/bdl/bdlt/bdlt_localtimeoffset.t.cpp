@@ -723,8 +723,7 @@ int main(int argc, char *argv[])
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             ASSERT_SAFE_FAIL(Obj::setLocalTimeOffsetCallback(0));
             ASSERT_SAFE_PASS(Obj::setLocalTimeOffsetCallback(
                                          &MyLocalTimeOffset::localTimeOffset));
