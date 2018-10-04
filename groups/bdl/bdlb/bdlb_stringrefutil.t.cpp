@@ -7,7 +7,7 @@
 
 #include <bslstl_stringref.h>
 
-#include <bsl_algorithm.h> // 'bsl::transform'
+#include <bsl_algorithm.h> // 'bsl::transform', 'bsl::find'
 #include <bsl_cctype.h>    // 'bsl::toupper', 'bsl::tolower'
 #include <bsl_cstdlib.h>   // 'bsl::atoi',    'bsl::strspn'
 #include <bsl_cstring.h>   // 'bsl::strlen'
@@ -100,8 +100,13 @@ using bsl::hex;
 // [ 4] strrstrCaseless(const bslstl::StringRef& string, subString);
 //
 // [ 5] substr(string, position = 0, numChars = k_NPOS);
+//
+// [ 6] findFirstOf(stringRef, characters, position);
+// [ 6] findLastOf(stringRef, characters, position);
+// [ 6] findFirstNotOf(stringRef, characters, position);
+// [ 6] findLastNotOf(stringRef, characters, position);
 // ----------------------------------------------------------------------------
-// [ 6] USAGE EXAMPLE
+// [ 7] USAGE EXAMPLE
 // [ 1] HELPER FUNCTION: 'whitespaceLabel'
 // [ 1] HELPER FUNCTION: 'isEqual'
 // [ 1] HELPER FUNCTION: 'Local::toLower'
@@ -333,6 +338,127 @@ static void testLocalFunctions()
     }
 }
 
+static void split(std::vector< bslstl::StringRef> *result,
+                  const bslstl::StringRef&         string,
+                  char                             delimiter)
+    // Load into the specified 'result' vector the parts of the specified
+    // 'string' as delimited by the specified 'delimiter'.  So for '"a,b,c"'
+    // return '["a", "b", "c"]'.
+{
+    typedef bslstl::StringRef::const_iterator Cit;
+
+    result->clear();
+    Cit i = string.begin();
+    for (;;) {
+        Cit e = bsl::find(i, string.end(), delimiter);
+        result->emplace_back(i, e);
+        i = e;
+        if (i != string.end()) {
+            ++i;
+        }
+        else {
+            break;                                                     // BREAK
+        }
+    }
+}
+
+namespace case6 {
+
+    // The function codes are the following:
+    //
+    //   "1":  'find_first_of' with default position argument value
+    //   "l":  'find_last_of' with default position argument value
+    //   "!1": 'find_first_not_of' with default position argument value
+    //   "!l": 'find_last_not_of' with default position argument value
+    //   "1p":  'find_first_of' with specified position argument value
+    //   "lp":  'find_last_of' with specified position argument value
+    //   "!1p": 'find_first_not_of' with specified position argument value
+    //   "!lp": 'find_last_not_of' with specified position argument value
+
+static
+bslstl::StringRef functionName(const bslstl::StringRef& code)
+    // Return the name of the function corresponding to the specified 'code'.
+    // See above for the specification of possible 'code' values.
+{
+    if (code == "1") {
+        return "findFirstOf(STRING, CHARACTERS)";                     // RETURN
+    }
+    else if (code == "l") {
+        return "findLastOf(STRING, CHARACTERS)";                      // RETURN
+    }
+    else if (code == "!1") {
+        return "findFirstNotOf(STRING, CHARACTERS)";                  // RETURN
+    }
+    else if (code == "!l") {
+        return "findLastNotOf(STRING, CHARACTERS)";                   // RETURN
+    }
+    else if (code == "1p") {
+        return "findFirstOf(STRING, CHARACTERS, POS)";                // RETURN
+    }
+    else if (code == "lp") {
+        return "findLastOf(STRING, CHARACTERS, POS)";                 // RETURN
+    }
+    else if (code == "!1p") {
+        return "findFirstNotOf(STRING, CHARACTERS, POS)";             // RETURN
+    }
+    else if (code == "!lp") {
+        return "findLastNotOf(STRING, CHARACTERS, POS)";              // RETURN
+    }
+
+    ASSERT(!"UNKNOWN CALL IDENTIFIER");
+    return "*** UNKNOWN FUNCTION ***";
+}
+
+static const Util::size_type k_NPOS  = Util::k_NPOS;
+    // Just a shorthand
+
+static const Util::size_type k_DUMMY = k_NPOS - 1;
+    // For when 'position' is not used
+
+static
+Util::size_type callFunction(const bslstl::StringRef& code,
+                             const bslstl::StringRef& string,
+                             const bslstl::StringRef& characters,
+                             Util::size_type          position)
+    // Call the function identified by the specified 'code' using the specified
+    // 'string', 'characters', and 'position' arguments.  See above for the
+    // specification of possible 'code' values.
+{
+    if (code == "1") {
+        return Util::findFirstOf(string, characters);                 // RETURN
+    }
+    else if (code == "l") {
+        return Util::findLastOf(string, characters);                  // RETURN
+    }
+    else if (code == "!1") {
+        return Util::findFirstNotOf(string, characters);              // RETURN
+    }
+    else if (code == "!l") {
+        return Util::findLastNotOf(string, characters);               // RETURN
+    }
+    else if (code == "1p") {
+        BSLS_ASSERT(k_DUMMY != position);
+        return Util::findFirstOf(string, characters, position);       // RETURN
+    }
+    else if (code == "lp") {
+        BSLS_ASSERT(k_DUMMY != position);
+        return Util::findLastOf(string, characters, position);        // RETURN
+    }
+    else if (code == "!1p") {
+        BSLS_ASSERT(k_DUMMY != position);
+        return Util::findFirstNotOf(string, characters, position);    // RETURN
+    }
+    else if (code == "!lp") {
+        BSLS_ASSERT(k_DUMMY != position);
+        return Util::findLastNotOf(string, characters, position);     // RETURN
+    }
+
+    ASSERT(!"UNKNOWN CALL IDENTIFIER");
+    return 42u;
+}
+
+}  // close namespace case6
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -350,7 +476,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -421,6 +547,309 @@ int main(int argc, char *argv[])
 // world!" sub-sequence within the 'rawInput' byte array while the data at
 // 'rawInput' remains *unchanged*.
 
+    } break;
+    case 6: {
+        // --------------------------------------------------------------------
+        // FIND FIRST/LAST [NOT] OF
+        //
+        // Concerns:
+        //: 1 Any position argument is accepted.
+        //:
+        //: 2 Empty string can be searched.
+        //:
+        //: 3 The "first" function finds the first occurrence according to
+        //:   position.
+        //:
+        //: 4 The "last" function finds the last occurrence according to
+        //:   position.
+        //:
+        //: 5 Default arguments for position are provided.
+        //:
+        //: 6 All the provided search characters are considered.
+        //:
+        //: 7 The provided string is search fully from the specified position.
+        //
+        // Plan:
+        //: 1 Use table based testing to verify all the concerns.
+        //
+        // Testing:
+        //  findFirstOf(stringRef, characters, position);
+        //  findLastOf(stringRef, characters, position);
+        //  findFirstNotOf(stringRef, characters, position);
+        //  findLastNotOf(stringRef, characters, position);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "FIND FIRST/LAST [NOT] OF\n"
+                                     "========================" << endl;
+
+        using bslstl::StringRef;
+
+        typedef StringRef::size_type size_type;
+
+        static const size_type k_NPOS  = case6::k_NPOS;
+        static const size_type k_DUMMY = case6::k_DUMMY;
+
+        static struct TestData {
+            long long d_line;
+            StringRef d_string;
+            StringRef d_chars;
+            StringRef d_calls; // 1, l, !1, !l, 1p, lp, !1p, !lp
+                               // See 'case6::functionName' for meaning.
+            size_type d_pos;
+            size_type d_expected;
+        } k_DATA[] = {
+
+            // Search for nothing in empty string
+
+            { L_, "", "", "1,  l,  !1,  !l",  k_DUMMY, k_NPOS },
+            { L_, "", "", "1p, lp, !1p, !lp",       0, k_NPOS },
+            { L_, "", "", "1p, lp, !1p, !lp",       1, k_NPOS },
+            { L_, "", "", "1p, lp, !1p, !lp",  k_NPOS, k_NPOS },
+
+            // Search for something in empty string
+
+            { L_, "", "a", "1,   l,  !1,  !l", k_DUMMY, k_NPOS },
+            { L_, "", "a", "1p, lp, !1p, !lp",       0, k_NPOS },
+            { L_, "", "a", "1p, lp, !1p, !lp",       1, k_NPOS },
+            { L_, "", "a", "1p, lp, !1p, !lp",  k_NPOS, k_NPOS },
+
+            { L_, "", "ab", "1,   l,  !1,  !l", k_DUMMY, k_NPOS },
+            { L_, "", "ab", "1p, lp, !1p, !lp",       0, k_NPOS },
+            { L_, "", "ab", "1p, lp, !1p, !lp",       1, k_NPOS },
+            { L_, "", "ab", "1p, lp, !1p, !lp",  k_NPOS, k_NPOS },
+
+            // Search for something not found in not empty string
+
+            { L_, "1", "a", "1,     l", k_DUMMY, k_NPOS },
+            { L_, "a", "a", "!1,   !l", k_DUMMY, k_NPOS },
+            { L_, "1", "a", "1p,   lp",       0, k_NPOS },
+            { L_, "a", "a", "!1p, !lp",       0, k_NPOS },
+            { L_, "1", "a", "1p,   lp",       1, k_NPOS },
+            { L_, "a", "a", "!1p, !lp",       1, k_NPOS },
+            { L_, "1", "a", "1p,   lp",  k_NPOS, k_NPOS },
+            { L_, "a", "a", "!1p, !lp",  k_NPOS, k_NPOS },
+
+            { L_, "1", "a2", "1,     l", k_DUMMY, k_NPOS },
+            { L_, "a", "a2", "!1,   !l", k_DUMMY, k_NPOS },
+            { L_, "1", "a2", "1p,   lp",       0, k_NPOS },
+            { L_, "a", "a2", "!1p, !lp",       0, k_NPOS },
+            { L_, "1", "a2", "1p,   lp",       1, k_NPOS },
+            { L_, "a", "a2", "!1p, !lp",       1, k_NPOS },
+            { L_, "1", "a2", "1p,   lp",  k_NPOS, k_NPOS },
+            { L_, "a", "a2", "!1p, !lp",  k_NPOS, k_NPOS },
+
+            // Search for something found in simple string
+
+            { L_, "1", "1", "1,     l", k_DUMMY, 0 },
+            { L_, "a", "1", "!1,   !l", k_DUMMY, 0 },
+            { L_, "1", "1", "1p,   lp",       0, 0 },
+            { L_, "a", "1", "!1p, !lp",       0, 0 },
+            { L_, "1", "1",       "lp",       1, 0 },
+            { L_, "a", "1",      "!lp",       1, 0 },
+            { L_, "1", "1",       "lp",  k_NPOS, 0 },
+            { L_, "a", "1",      "!lp",  k_NPOS, 0 },
+
+            { L_, "1", "12", "1,     l", k_DUMMY, 0 },
+            { L_, "a", "12", "!1,   !l", k_DUMMY, 0 },
+            { L_, "1", "12", "1p,   lp",       0, 0 },
+            { L_, "a", "12", "!1p, !lp",       0, 0 },
+            { L_, "1", "12", "      lp",       1, 0 },
+            { L_, "a", "12",      "!lp",       1, 0 },
+            { L_, "1", "12",       "lp",  k_NPOS, 0 },
+            { L_, "a", "12",      "!lp",  k_NPOS, 0 },
+
+            // Not found due to position
+
+            { L_, "1",  "1",  "1p",      1, k_NPOS },
+            { L_, "a",  "1", "!1p",      1, k_NPOS },
+            { L_, " 1", "1",  "lp",      0, k_NPOS },
+            { L_, "1a", "1", "!lp",      0, k_NPOS },
+            { L_, "1",  "1",  "1p", k_NPOS, k_NPOS },
+            { L_, "a",  "1", "!1p", k_NPOS, k_NPOS },
+
+            { L_, "1", "12",  "1p",      1, k_NPOS },
+            { L_, "a", "12", "!1p",      1, k_NPOS },
+            { L_, " 1", "12",  "lp",     0, k_NPOS },
+            { L_, "1a", "12", "!lp",     0, k_NPOS },
+            { L_, "1", "12",  "1p", k_NPOS, k_NPOS },
+            { L_, "a", "12", "!1p", k_NPOS, k_NPOS },
+
+            // First finds first last finds last (more than one occurrence)
+
+            { L_, "__|__|__",  "|", "1", k_DUMMY, 2 },
+            { L_, "__|__|__",  "|", "l", k_DUMMY, 5 },
+
+            { L_, "__|__|__",  "_", "!1", k_DUMMY, 2 },
+            { L_, "__|__|__",  "_", "!l", k_DUMMY, 5 },
+
+            { L_, "__|__|__",  "|", "1p", 0,      2 },
+            { L_, "__|__|__",  "|", "1p", 1,      2 },
+            { L_, "__|__|__",  "|", "1p", 2,      2 },
+            { L_, "__|__|__",  "|", "1p", 3,      5 },
+            { L_, "__|__|__",  "|", "1p", 4,      5 },
+            { L_, "__|__|__",  "|", "1p", 5,      5 },
+            { L_, "__|__|__",  "|", "1p", 6, k_NPOS },
+
+            { L_, "__|__|__",  "_", "!1p", 0,      2 },
+            { L_, "__|__|__",  "_", "!1p", 1,      2 },
+            { L_, "__|__|__",  "_", "!1p", 2,      2 },
+            { L_, "__|__|__",  "_", "!1p", 3,      5 },
+            { L_, "__|__|__",  "_", "!1p", 4,      5 },
+            { L_, "__|__|__",  "_", "!1p", 5,      5 },
+            { L_, "__|__|__",  "_", "!1p", 6, k_NPOS },
+
+            { L_, "__|__|__",  "|", "lp", k_NPOS,      5 },
+            { L_, "__|__|__",  "|", "lp",      6,      5 },
+            { L_, "__|__|__",  "|", "lp",      5,      5 },
+            { L_, "__|__|__",  "|", "lp",      4,      2 },
+            { L_, "__|__|__",  "|", "lp",      3,      2 },
+            { L_, "__|__|__",  "|", "lp",      2,      2 },
+            { L_, "__|__|__",  "|", "lp",      1, k_NPOS },
+            { L_, "__|__|__",  "|", "lp",      0, k_NPOS },
+
+            { L_, "__|__|__",  "_", "!lp", k_NPOS,      5 },
+            { L_, "__|__|__",  "_", "!lp",      6,      5 },
+            { L_, "__|__|__",  "_", "!lp",      5,      5 },
+            { L_, "__|__|__",  "_", "!lp",      4,      2 },
+            { L_, "__|__|__",  "_", "!lp",      3,      2 },
+            { L_, "__|__|__",  "_", "!lp",      2,      2 },
+            { L_, "__|__|__",  "_", "!lp",      1, k_NPOS },
+            { L_, "__|__|__",  "_", "!lp",      0, k_NPOS },
+
+            // Searching for more than one character
+
+            { L_, "__!@#$__",  "#$@!", "1", k_DUMMY, 2 },
+            { L_, "__!@#$__",  "$#@!", "1", k_DUMMY, 2 },
+            { L_, "__!@#$__",  "$@#!", "1", k_DUMMY, 2 },
+            { L_, "__!@#$__",  "$@!#", "1", k_DUMMY, 2 },
+            { L_, "__!@#$__",  "@$!#", "1", k_DUMMY, 2 },
+            { L_, "__!@#$__",  "@!$#", "1", k_DUMMY, 2 },
+            { L_, "__!@#$__",  "@!#$", "1", k_DUMMY, 2 },
+            { L_, "__!@#$__",  "!@#$", "1", k_DUMMY, 2 },
+            { L_, "__!@#$__",  "!#@$", "1", k_DUMMY, 2 },
+            { L_, "__!@#$__",  "!#$@", "1", k_DUMMY, 2 },
+            { L_, "__!@#$__",  "#!$@", "1", k_DUMMY, 2 },
+            { L_, "__!@#$__",  "#$!@", "1", k_DUMMY, 2 },
+
+            { L_, "__!@#$__",  "#$@!", "l", k_DUMMY, 5 },
+            { L_, "__!@#$__",  "$#@!", "l", k_DUMMY, 5 },
+            { L_, "__!@#$__",  "$@#!", "l", k_DUMMY, 5 },
+            { L_, "__!@#$__",  "$@!#", "l", k_DUMMY, 5 },
+            { L_, "__!@#$__",  "@$!#", "l", k_DUMMY, 5 },
+            { L_, "__!@#$__",  "@!$#", "l", k_DUMMY, 5 },
+            { L_, "__!@#$__",  "@!#$", "l", k_DUMMY, 5 },
+            { L_, "__!@#$__",  "!@#$", "l", k_DUMMY, 5 },
+            { L_, "__!@#$__",  "!#@$", "l", k_DUMMY, 5 },
+            { L_, "__!@#$__",  "!#$@", "l", k_DUMMY, 5 },
+            { L_, "__!@#$__",  "#!$@", "l", k_DUMMY, 5 },
+            { L_, "__!@#$__",  "#$!@", "l", k_DUMMY, 5 },
+
+            { L_, " _!@#$ _",  " _", "!1", k_DUMMY, 2 },
+            { L_, " _!@#$ _",  " _", "!1", k_DUMMY, 2 },
+            { L_, " _!@#$ _",  " _", "!1", k_DUMMY, 2 },
+            { L_, " _!@#$ _",  " _", "!1", k_DUMMY, 2 },
+            { L_, " _!@#$ _",  " _", "!1", k_DUMMY, 2 },
+            { L_, " _!@#$ _",  " _", "!1", k_DUMMY, 2 },
+            { L_, " _!@#$ _",  " _", "!1", k_DUMMY, 2 },
+            { L_, " _!@#$ _",  " _", "!1", k_DUMMY, 2 },
+            { L_, " _!@#$ _",  " _", "!1", k_DUMMY, 2 },
+            { L_, " _!@#$ _",  " _", "!1", k_DUMMY, 2 },
+            { L_, " _!@#$ _",  " _", "!1", k_DUMMY, 2 },
+            { L_, " _!@#$ _",  " _", "!1", k_DUMMY, 2 },
+
+            { L_, " _!@#$ _",  " _", "!l", k_DUMMY, 5 },
+            { L_, " _!@#$ _",  " _", "!l", k_DUMMY, 5 },
+            { L_, " _!@#$ _",  " _", "!l", k_DUMMY, 5 },
+            { L_, " _!@#$ _",  " _", "!l", k_DUMMY, 5 },
+            { L_, " _!@#$ _",  " _", "!l", k_DUMMY, 5 },
+            { L_, " _!@#$ _",  " _", "!l", k_DUMMY, 5 },
+            { L_, " _!@#$ _",  " _", "!l", k_DUMMY, 5 },
+            { L_, " _!@#$ _",  " _", "!l", k_DUMMY, 5 },
+            { L_, " _!@#$ _",  " _", "!l", k_DUMMY, 5 },
+            { L_, " _!@#$ _",  " _", "!l", k_DUMMY, 5 },
+            { L_, " _!@#$ _",  " _", "!l", k_DUMMY, 5 },
+            { L_, " _!@#$ _",  " _", "!l", k_DUMMY, 5 },
+
+            { L_, "__!@#$__",  "#$@!", "1p",      0,      2 },
+            { L_, "__!@#$__",  "#$@!", "1p",      1,      2 },
+            { L_, "__!@#$__",  "#$@!", "1p",      2,      2 },
+            { L_, "__!@#$__",  "#$@!", "1p",      3,      3 },
+            { L_, "__!@#$__",  "#$@!", "1p",      4,      4 },
+            { L_, "__!@#$__",  "#$@!", "1p",      5,      5 },
+            { L_, "__!@#$__",  "#$@!", "1p",      6, k_NPOS },
+            { L_, "__!@#$__",  "#$@!", "1p",      7, k_NPOS },
+            { L_, "__!@#$__",  "#$@!", "1p",      8, k_NPOS },
+            { L_, "__!@#$__",  "#$@!", "1p",      9, k_NPOS },
+            { L_, "__!@#$__",  "#$@!", "1p", k_NPOS, k_NPOS },
+
+            { L_, "__!@#$__",  "#$@!", "lp", k_NPOS,      5 },
+            { L_, "__!@#$__",  "#$@!", "lp",      0, k_NPOS },
+            { L_, "__!@#$__",  "#$@!", "lp",      1, k_NPOS },
+            { L_, "__!@#$__",  "#$@!", "lp",      2,      2 },
+            { L_, "__!@#$__",  "#$@!", "lp",      3,      3 },
+            { L_, "__!@#$__",  "#$@!", "lp",      4,      4 },
+            { L_, "__!@#$__",  "#$@!", "lp",      5,      5 },
+            { L_, "__!@#$__",  "#$@!", "lp",      6,      5 },
+            { L_, "__!@#$__",  "#$@!", "lp",      7,      5 },
+            { L_, "__!@#$__",  "#$@!", "lp",      8,      5 },
+            { L_, "__!@#$__",  "#$@!", "lp",      9,      5 },
+
+            { L_, " _!@#$ _",  " _", "!1p",      0,      2 },
+            { L_, " _!@#$ _",  " _", "!1p",      1,      2 },
+            { L_, " _!@#$ _",  " _", "!1p",      2,      2 },
+            { L_, " _!@#$ _",  " _", "!1p",      3,      3 },
+            { L_, " _!@#$ _",  " _", "!1p",      4,      4 },
+            { L_, " _!@#$ _",  " _", "!1p",      5,      5 },
+            { L_, " _!@#$ _",  " _", "!1p",      6, k_NPOS },
+            { L_, " _!@#$ _",  " _", "!1p",      7, k_NPOS },
+            { L_, " _!@#$ _",  " _", "!1p",      8, k_NPOS },
+            { L_, " _!@#$ _",  " _", "!1p",      9, k_NPOS },
+            { L_, " _!@#$ _",  " _", "!1p", k_NPOS, k_NPOS },
+
+            { L_, " _!@#$ _",  " _", "!lp", k_NPOS,      5 },
+            { L_, " _!@#$ _",  " _", "!lp",      0, k_NPOS },
+            { L_, " _!@#$ _",  " _", "!lp",      1, k_NPOS },
+            { L_, " _!@#$ _",  " _", "!lp",      2,      2 },
+            { L_, " _!@#$ _",  " _", "!lp",      3,      3 },
+            { L_, " _!@#$ _",  " _", "!lp",      4,      4 },
+            { L_, " _!@#$ _",  " _", "!lp",      5,      5 },
+            { L_, " _!@#$ _",  " _", "!lp",      6,      5 },
+            { L_, " _!@#$ _",  " _", "!lp",      7,      5 },
+            { L_, " _!@#$ _",  " _", "!lp",      8,      5 },
+            { L_, " _!@#$ _",  " _", "!lp",      9,      5 },
+        };
+
+        static const bsl::size_t k_NUM_TESTS = sizeof k_DATA / sizeof *k_DATA;
+
+        for (bsl::size_t i = 0; i < k_NUM_TESTS; ++i) {
+            const TestData&  k_TEST     = k_DATA[i];
+            const long long  k_LINE     = k_TEST.d_line;
+            const StringRef& k_STRING   = k_TEST.d_string;
+            const StringRef& k_CHARS    = k_TEST.d_chars;
+            const StringRef& k_CALLS    = k_TEST.d_calls;
+            const size_type  k_POS      = k_TEST.d_pos;
+            const size_type  k_EXPECTED = k_TEST.d_expected;
+
+            std::vector<StringRef> calls;
+            split(&calls, k_CALLS, ',');
+
+            for (bsl::size_t j = 0; j < calls.size(); ++j) {
+                const StringRef& k_CALL = Util::trim(calls[j]);
+
+                size_type result = 42;
+
+                if (veryVerbose) {
+                    cout << case6::functionName(k_CALL) << ": ";
+                    P_(k_LINE); P_(k_STRING); P_(k_CHARS); P_(k_POS);
+                    P(k_EXPECTED);
+                }
+
+                result = case6::callFunction(k_CALL, k_STRING, k_CHARS, k_POS);
+
+                ASSERTV(k_LINE, case6::functionName(k_CALL), result,
+                        k_EXPECTED, k_EXPECTED == result);
+            }
+        }
       } break;
     case 5: {
         // --------------------------------------------------------------------
