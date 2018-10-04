@@ -445,6 +445,11 @@ int main(int argc, char *argv[])
             "Failed to detect the no-deleted-ctor bug, reconsider workaround");
         static_assert(native_std::is_copy_constructible<Item>::value,
             "Failed to detect the no-deleted-ctor bug, reconsider workaround");
+        // These checks are mostly provided as documentation of the exact issue
+        // that needs the workaround.  The 'static_assert' tests verify that
+        // the MSVC 2013 compiler bug is in effect.  If these tests were ever
+        // to fail, that would indicate that the '#ifdef' check above can be
+        // safely removed.
 # endif
 #endif
       } break;
