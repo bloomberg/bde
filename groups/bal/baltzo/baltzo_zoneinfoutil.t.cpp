@@ -1099,8 +1099,7 @@ int main(int argc, char *argv[])
         }
 
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
             bdlt::Datetime   time(2010, 1, 1);
@@ -1382,8 +1381,7 @@ int main(int argc, char *argv[])
             }
         }
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             if (veryVerbose) cout << "\tTest assertions." << endl;
 
             bdlt::Datetime   time(2010, 1, 1);

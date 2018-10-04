@@ -9431,7 +9431,7 @@ void TestDriver<TYPE, ALLOC>::testCase17Negative()
                                                typename Obj::const_iterator();
     (void) badIterator;    // Quell 'unused' warnings in unsafe builds
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     if (veryVerbose) printf("\tNegative testing of 'insert(p, c)'.\n");
 
@@ -9837,7 +9837,7 @@ void TestDriver<TYPE, ALLOC>::testCase15Negative()
 
     if (verbose) printf("\nTesting '%s'.\n", NameOf<TYPE>().name());
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     const TYPE DEFAULT_VALUE = TYPE();
 
@@ -10859,7 +10859,7 @@ void TestDriver<TYPE, ALLOC>::testCase13Negative(const CONTAINER&)
 
     if (verbose) printf("\nTesting '%s'.\n", NameOf<CONTAINER>().name());
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::AssertTest::failTestDriver);
+    bsls::AssertTestHandlerGuard guard;
 
     Obj       mCA;      const Obj&       CA = gg(&mCA, "ABCDE");
     CONTAINER mC(CA);   const CONTAINER& C = mC;

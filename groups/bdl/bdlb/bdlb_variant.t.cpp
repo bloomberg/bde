@@ -26254,7 +26254,7 @@ void TestUtil::testCase16()
 
     if (verbose) cout << "\nNegative Testing 'applyRaw'." << endl;
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         {
             typedef my_UnsetVariantVisitor UVV;
@@ -29784,8 +29784,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing 'the'." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = mX;
 

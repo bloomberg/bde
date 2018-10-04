@@ -1316,8 +1316,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout <<
                          "\t'loadLocalTimePeriodForUtc' class method " << endl;
@@ -1450,8 +1449,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout <<
                              "\t'createLocalTimePeriod' class method " << endl;
@@ -1736,8 +1734,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\tCLASS METHOD 'initLocalTime'" << endl;
             {
@@ -2350,8 +2347,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout <<
                              "\t'resolveLocalTime' class method " << endl;
@@ -2563,8 +2559,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout <<
                              "\tCLASS METHOD 'convertUtcToLocalTime'" << endl;

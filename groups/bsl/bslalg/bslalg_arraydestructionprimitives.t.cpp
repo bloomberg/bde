@@ -766,8 +766,7 @@ int main(int argc, char *argv[])
 
         if(verbose) printf("\nNegative testing\n");
         {
-            bsls::AssertFailureHandlerGuard g(
-                    bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard g;
 
             int * null = 0;
             ASSERT_SAFE_PASS(Obj::destroy(null, null));
@@ -821,8 +820,7 @@ int main(int argc, char *argv[])
         bsltf::StdStatefulAllocator<int> za(Z);
         if(verbose) printf("\nNegative testing\n");
         {
-            bsls::AssertFailureHandlerGuard g(
-                    bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard g;
 
             int * null = 0;
             ASSERT_SAFE_PASS(Obj::destroy(null, null, za));

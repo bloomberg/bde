@@ -373,8 +373,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nNegative Testing." << endl;
         {
 
-            bsls::AssertFailureHandlerGuard g(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard g;
 
             bdlt::Date d(2015,1,23);
 
@@ -527,8 +526,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nNegative Testing." << endl;
         {
 
-            bsls::AssertFailureHandlerGuard g(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard g;
 
             bdlt::Date d(2015,1,23);
 
@@ -739,8 +737,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard g(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard g;
 
             bdlt::Date d(2015, 1, 23);
 
@@ -898,8 +895,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard g(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard g;
 
             bdlt::Date d(2015, 1, 23);
 
@@ -1044,8 +1040,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard g(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard g;
 
             bdlt::Date d(2015, 1, 23);
 

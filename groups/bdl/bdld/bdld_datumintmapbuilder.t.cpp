@@ -938,8 +938,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta("test", veryVeryVerbose);
 
-            bsls::AssertFailureHandlerGuard hG(
-                                           bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             if (verbose) cout << "\tTesting 'append'." << endl;
             {
                 Obj              mB(0, &ta);

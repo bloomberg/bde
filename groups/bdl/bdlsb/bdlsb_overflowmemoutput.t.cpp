@@ -1109,8 +1109,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             char      buffer[INIT_BUFSIZE];
             Obj       mSB(buffer, INIT_BUFSIZE, &oa);
@@ -1980,8 +1979,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             char buffer[1];
             ASSERT_FAIL(Obj(     0,  0, &ta));

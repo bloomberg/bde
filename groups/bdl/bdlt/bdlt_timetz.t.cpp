@@ -898,8 +898,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const bdlt::Time TIME_UNSET;
             const bdlt::Time TIME_SET(23, 59, 59, 999);
@@ -2877,8 +2876,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const bdlt::Time TIME_UNSET;
             const bdlt::Time TIME_SET(23, 59, 59, 999);

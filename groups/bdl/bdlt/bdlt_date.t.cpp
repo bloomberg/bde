@@ -1535,8 +1535,7 @@ if (verbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (verbose) cout << "\t'operator+='" << endl;
             {
@@ -1995,8 +1994,7 @@ if (verbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (verbose) cout << "\tMember 'operator++'" << endl;
             {
@@ -2782,8 +2780,7 @@ if (verbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (verbose) cout << "\t'Date(year, dayOfYear)'" << endl;
             {
@@ -2997,8 +2994,7 @@ if (verbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (verbose) cout << "\t'setYearMonthDay'" << endl;
             {
@@ -4599,8 +4595,7 @@ if (verbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (verbose) cout << "\t'Date(year, month, day)'" << endl;
             {

@@ -1168,8 +1168,7 @@ int main(int argc, char *argv[])
                           << endl;
 
         for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const char CONFIG = cfg;  // (how we specify the allocator)
 

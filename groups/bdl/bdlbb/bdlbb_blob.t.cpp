@@ -969,8 +969,7 @@ int main(int argc, char *argv[])
 
 #ifdef BDE_BUILD_TARGET_EXC
             {
-                using bsls::AssertFailureHandlerGuard;
-                AssertFailureHandlerGuard g(bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard g;
                 (void)g;
 
                 ASSERT_FAIL(aBlob.swap(cBlob));

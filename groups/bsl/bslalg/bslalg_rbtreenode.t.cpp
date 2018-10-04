@@ -1575,8 +1575,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nNegative Testing.\n");
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj obj;
 

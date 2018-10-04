@@ -884,8 +884,7 @@ int main(int argc, char *argv[])
         {
             typedef bslalg::AutoArrayDestructor<int> Obj;
 
-            bsls::AssertFailureHandlerGuard g(
-                    bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard g;
 
             ASSERT_SAFE_PASS(Obj(0, 0));
             int simpleArray[] = { 0, 1, 2, 3, 4 };
@@ -909,8 +908,7 @@ int main(int argc, char *argv[])
         {
             typedef bslalg::AutoArrayDestructor<int> Obj;
 
-            bsls::AssertFailureHandlerGuard g(
-                    bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard g;
 
             Obj emptyGuard(0, 0);
             ASSERT_SAFE_PASS(emptyGuard.moveBegin(0));

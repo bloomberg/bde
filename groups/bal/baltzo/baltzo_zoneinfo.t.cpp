@@ -804,8 +804,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\tWith no transitions" << endl;
             {
@@ -1598,8 +1597,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\t'swap' member function" << endl;
             {
@@ -3581,8 +3579,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout <<
                  "\t'ACCESSOR 'firstTransition' with no transitions" << endl;
@@ -4077,8 +4074,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;
 

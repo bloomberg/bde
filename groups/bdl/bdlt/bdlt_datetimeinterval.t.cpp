@@ -606,8 +606,7 @@ if (veryVerbose)
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_FAIL(-Obj(INT_MIN));
             ASSERT_SAFE_PASS(-Obj(INT_MAX));
@@ -781,8 +780,7 @@ if (veryVerbose)
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_FAIL(Obj(INT_MIN) + Obj(-1));
             ASSERT_PASS(Obj(INT_MIN) + Obj( 0));
@@ -1019,8 +1017,7 @@ if (veryVerbose)
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_FAIL(Obj(INT_MIN) += Obj(-1));
             ASSERT_PASS(Obj(INT_MIN) += Obj( 0));
@@ -1191,8 +1188,7 @@ if (veryVerbose)
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_FAIL(Obj(INT_MIN, -23, -59, -59, -999, -999).addDays(-1));
             ASSERT_PASS(Obj(INT_MIN, -23, -59, -59, -999, -999).addDays( 0));
@@ -1434,8 +1430,7 @@ if (veryVerbose)
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_PASS(Obj().addInterval(0));
 
@@ -1560,8 +1555,7 @@ if (veryVerbose)
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_PASS(Obj(0).totalMicroseconds());
 
@@ -2035,8 +2029,7 @@ if (veryVerbose)
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_PASS(Obj(0));
 
@@ -3750,8 +3743,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\t'printToBuffer' method" << endl;
             {
@@ -4061,8 +4053,7 @@ if (veryVerbose)
         if (verbose)
             cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;
 

@@ -690,8 +690,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = mX;  gg(&mX,  "abc");
 
@@ -816,8 +815,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = mX;  gg(&mX,  "abc");
 
@@ -1091,8 +1089,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = mX;
             mX.append("a");
@@ -1212,8 +1209,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = mX;
             Obj mY;  const Obj& Y = mY;
@@ -1484,8 +1480,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = mX;
             mX.append("a");
@@ -2070,8 +2065,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;
 
@@ -2348,8 +2342,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj        mX;  gg(&mX, "abcd");
             Obj        mY;  gg(&mY, "aa");
@@ -2517,8 +2510,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = mX;  gg(&mX, "abc");
             Obj mT;
@@ -2928,8 +2920,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj        mX;
             Obj        mY;  gg(&mY, "aa");
@@ -3319,8 +3310,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;
             Obj mY;
@@ -3690,8 +3680,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\t'swap' member function" << endl;
             {
@@ -4968,8 +4957,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = mX;
 
@@ -5420,8 +5408,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;
 

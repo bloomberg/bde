@@ -5507,8 +5507,7 @@ void TestDriver<CONTAINER>::testCase4()
                     ASSERTV(LINE, SPEC, CONFIG, EXP[LENGTH - 1] ==  X.top());
                 }
                 else {
-                    bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+                    bsls::AssertTestHandlerGuard hG;
 
                     ASSERT_SAFE_FAIL(mX.top());
                 }
@@ -5860,8 +5859,7 @@ void TestDriver<CONTAINER>::testCase2()
             ASSERTV(LENGTH, CONFIG, X.empty());
 
             {
-                bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard hG;
 
                 ASSERT_SAFE_FAIL(mX.pop());
             }

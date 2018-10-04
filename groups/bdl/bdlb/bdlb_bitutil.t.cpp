@@ -312,8 +312,7 @@ int main(int argc, char *argv[])
         }
 
         { // negative testing
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             // one bit set in 'boundary'
             for (int b = 0; b < 32; ++b) {
@@ -523,8 +522,7 @@ int main(int argc, char *argv[])
         }
 
         { // negative testing
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_FAIL(Util::log2(static_cast<uint32_t>(0)));
             ASSERT_SAFE_FAIL(Util::log2(static_cast<uint64_t>(0)));
@@ -855,8 +853,7 @@ int main(int argc, char *argv[])
         }
 
         { // negative testing
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             uint32_t value32 = 0;
             uint64_t value64 = 0;
@@ -987,8 +984,7 @@ int main(int argc, char *argv[])
         }
 
         { // negative testing
-            bsls::AssertFailureHandlerGuard
-                                          hG(bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             uint32_t value32 = 0;
             uint64_t value64 = 0;

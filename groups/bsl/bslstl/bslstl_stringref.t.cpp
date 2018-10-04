@@ -551,7 +551,7 @@ void TestDriver<CHAR_TYPE>::testCase9()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         const char value[] = "abcdefg";
         CHAR_TYPE  input[sizeof(value)];

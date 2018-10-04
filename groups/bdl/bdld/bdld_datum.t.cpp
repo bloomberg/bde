@@ -2420,8 +2420,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bslma::TestAllocator  oa("object", veryVeryVeryVerbose);
             bslma::Allocator     *nullAllocPtr =
@@ -2496,8 +2495,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bslma::TestAllocator  oa("object", veryVeryVeryVerbose);
             bslma::Allocator     *nullAllocPtr =
@@ -4120,8 +4118,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bslma::TestAllocator  oa("object", veryVeryVeryVerbose);
             bslma::Allocator     *nullAllocPtr =
@@ -5205,8 +5202,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bslma::TestAllocator            oa("object", veryVeryVeryVerbose);
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
@@ -5758,8 +5754,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bslma::TestAllocator            oa("object", veryVeryVeryVerbose);
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
@@ -6071,8 +6066,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bslma::TestAllocator            oa("object", veryVeryVeryVerbose);
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
@@ -6376,8 +6370,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bslma::TestAllocator            oa("object", veryVeryVeryVerbose);
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);
@@ -6938,8 +6931,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (verbose) cout << "\tTesting constructor." << endl;
             {
@@ -7430,8 +7422,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (verbose) cout << "\tTesting constructor." << endl;
             {
@@ -7719,8 +7710,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (verbose) cout << "\tTesting constructor." << endl;
             {
@@ -10603,8 +10593,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nNegative Testing." << endl;
         {
             bslma::TestAllocator            ta("test", veryVeryVerbose);
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bslma::Allocator *nullAllocPtr =
                                             static_cast<bslma::Allocator *>(0);

@@ -4625,8 +4625,7 @@ int main(int argc, char *argv[])
 
                 // Negative testing
 
-                bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard hG;
 
                 ASSERT_SAFE_PASS(prB[2]);
                 ASSERT_SAFE_FAIL(prB[3]);
@@ -4763,8 +4762,7 @@ int main(int argc, char *argv[])
 
                 // Negative testing
 
-                bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+                bsls::AssertTestHandlerGuard hG;
 
                 ASSERT_SAFE_PASS(pr[2]);
                 ASSERT_SAFE_FAIL(pr[3]);

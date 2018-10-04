@@ -2870,7 +2870,7 @@ void TestDriver<VALUE>::testCase7()
     // Concern 9 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if (veryVerbose) printf("\tNegative testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         ASSERT_PASS(Obj::validateRbTree(&en, &em, 0, C));
         ASSERT_FAIL(Obj::validateRbTree(&en,   0, 0, C));
@@ -3399,7 +3399,7 @@ void TestDriver<VALUE>::testCase9()
 
     if (veryVerbose) printf("\tNegative testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         RbTreeAnchor x; const RbTreeAnchor& X = x;
         ASSERT(Obj::isWellFormed(X, C));
@@ -5188,7 +5188,7 @@ void TestDriver<VALUE>::testCase17()
 
     if (veryVerbose) printf("\tNegative testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         RbTreeAnchor x;
         RbTreeNode   n;
@@ -5321,7 +5321,7 @@ void TestDriver<VALUE>::testCase18()
 
     if (veryVerbose) printf("\tNegative testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         RbTreeAnchor x;
         RbTreeNode   n;
@@ -5545,7 +5545,7 @@ void TestDriver<VALUE>::testCase20()
 
     if (veryVerbose) printf("\tNegative testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         RbTreeAnchor x, y;
         Factory f(0, 0, &ta);
@@ -5687,7 +5687,7 @@ void TestDriver<VALUE>::testCase21()
 
     if (veryVerbose) printf("\tNegative testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         RbTreeAnchor x, y;
         Factory f(0, 0, &ta);
@@ -5967,8 +5967,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\tNegative testing.\n");
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             RbTreeNode node; const RbTreeNode& NODE = node;
             (void) NODE;  // Suppress 'unused variable' warnings
@@ -6148,8 +6147,7 @@ int main(int argc, char *argv[])
         }
         if (veryVerbose) printf("\tNegative testing.\n");
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             RbTreeNode sentinel, node, pivot;
 
             sentinel.reset(0, &node, &node, BLACK);
@@ -6259,8 +6257,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\tNegative testing.\n");
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             RbTreeNode x;
             x.reset(0, &x, &x, BLACK);
             ASSERT_SAFE_FAIL(Obj::isLeftChild(0));
@@ -6379,8 +6376,7 @@ int main(int argc, char *argv[])
         {
             DeleteTestNodeFactory testDeleter;
 
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             RbTreeAnchor x;
             ASSERT_SAFE_FAIL(Obj::deleteTree(  0, &testDeleter));
             ASSERT_SAFE_FAIL(Obj::deleteTree( &x,(DeleteTestNodeFactory *)0));
@@ -6629,8 +6625,7 @@ int main(int argc, char *argv[])
         }
         if (veryVerbose) printf("\tNegative Testing\n");
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             RbTreeNode *node = 0; const RbTreeNode *NODE = 0;
 
@@ -6755,8 +6750,7 @@ int main(int argc, char *argv[])
         }
         if (veryVerbose) printf("\tNegative Testing\n");
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             RbTreeNode *node = 0; const RbTreeNode *NODE = 0;
 
@@ -6872,8 +6866,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\tNegative Testing\n");
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             RbTreeNode *node = 0; const RbTreeNode *NODE = 0;
 

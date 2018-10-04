@@ -1352,8 +1352,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = gg(&mX, "@2015/1/1 30 14");
 
@@ -1489,8 +1488,7 @@ int main(int argc, char *argv[])
         // Negative testing.
 
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");
 
@@ -2409,8 +2407,7 @@ int main(int argc, char *argv[])
         // Negative testing.
 
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");
 
@@ -2696,8 +2693,7 @@ int main(int argc, char *argv[])
         // Negative testing.
 
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");
 
@@ -2951,8 +2947,7 @@ int main(int argc, char *argv[])
         // Negative testing.
 
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");
 
@@ -3210,8 +3205,7 @@ int main(int argc, char *argv[])
         // Negative testing.
 
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");
 
@@ -3466,8 +3460,7 @@ int main(int argc, char *argv[])
         // Negative testing.
 
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");
 
@@ -3715,8 +3708,7 @@ int main(int argc, char *argv[])
         // Negative testing.
 
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = gg(&mX, "@2014/1/1 30 14");
 
@@ -4629,8 +4621,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;
 
@@ -4735,8 +4726,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             {
                 Obj mX;
@@ -5034,8 +5024,7 @@ int main(int argc, char *argv[])
         // Negative testing.
 
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_PASS(Obj(bdlt::Date(2012, 1, 5), bdlt::Date(2012, 1, 5)));
             ASSERT_FAIL_RAW(Obj(bdlt::Date(2012, 1, 5),
@@ -6667,8 +6656,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\t'swap' member function" << endl;
             {
@@ -7832,8 +7820,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj mX;  const Obj& X = gg(&mX, "@2012/01/01 30 5A 19");
 
@@ -8908,8 +8895,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             {
                 Obj mX;

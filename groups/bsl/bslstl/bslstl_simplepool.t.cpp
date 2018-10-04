@@ -762,7 +762,7 @@ void TestDriver<VALUE>::testCase8()
 
     if (verbose) printf("\nNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         if (veryVerbose) printf("\t'swap' member function\n");
         {
@@ -946,7 +946,7 @@ void TestDriver<VALUE>::testCase6()
 
     if (verbose) printf("\nNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         if (veryVerbose) printf("\t'reseve'\n");
         {
@@ -1075,7 +1075,7 @@ void TestDriver<VALUE>::testCase5()
 
     if (verbose) printf("\nNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         if (veryVerbose) printf("\t'allocate' member function\n");
         {

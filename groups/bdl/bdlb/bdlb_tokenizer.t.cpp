@@ -643,8 +643,7 @@ int main(int argc, char **argv)
             ASSERT(false == (*it).empty());
 
             // Test the assert
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             ObjIt itw = testData.begin();
             ++itw; ++itw; ++itw;
             ASSERT_SAFE_FAIL("foo" == *itw);
@@ -661,8 +660,7 @@ int main(int argc, char **argv)
             ASSERT(false == it->empty());
 
             // Test the assert
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
             ObjIt itw = testData.begin();
             ++itw; ++itw; ++itw;
             ASSERT_SAFE_FAIL(false == itw->empty());
@@ -1490,8 +1488,7 @@ int main(int argc, char **argv)
 
         if (verbose) cout << "\tNegative Testing."<< endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             Obj        mT("", "", "");
 
@@ -2396,8 +2393,7 @@ int main(int argc, char **argv)
 
         if (verbose) cout << "\nNegative Testing."<< endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (verbose) cout << "\tTesting null input." << endl;
 

@@ -658,7 +658,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         const char   *SPEC = "A";
         const size_t  SIZE = strlen(SPEC);
@@ -771,7 +771,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase14()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         const char *SPEC = "A";
         bool        tBV = true;   // true  boolean value
@@ -893,7 +893,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase13()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         const char *SPEC = "A";
         bool        tBV = true;   // true  boolean value
@@ -1114,7 +1114,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase12()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         const char *SPEC = "A";
         bool        tBV = true;   // true  boolean value
@@ -1230,7 +1230,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase11()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         const char *SPEC = "A";
         bool        tBV = true;   // true  boolean value
@@ -1421,7 +1421,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase10()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         const char *SPEC = "A";
         bool        tBV = true;   // true  boolean value
@@ -1547,7 +1547,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase9()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         const char *SPEC = "A";
         bool        tBV = true;   // true  boolean value
@@ -1691,7 +1691,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase8()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         const char *SPEC = "A";
         bool        tBV = true;   // true  boolean value
@@ -1800,7 +1800,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase7()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         const char *SPEC = "A";
         const Obj   VALUES(SPEC);
@@ -1869,7 +1869,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase6()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         const char   *SPEC = "A";
         const size_t  SIZE = strlen(SPEC);
@@ -2285,7 +2285,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase3()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         const char           *SPEC = "A";
         bslma::TestAllocator  toa("test", veryVeryVeryVerbose);

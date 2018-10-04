@@ -509,8 +509,7 @@ int main(int argc, char *argv[])
         // negative tests
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bdlt::Calendar cdr;
             bdlt::Date     date;
@@ -778,8 +777,7 @@ int main(int argc, char *argv[])
         // negative tests
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bdlt::Calendar cdr;
             bdlt::Date     OUTPUT;
@@ -1064,8 +1062,7 @@ int main(int argc, char *argv[])
         // negative tests
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bdlt::Calendar cdr;
             bdlt::Date     date;
@@ -2265,8 +2262,7 @@ int main(int argc, char *argv[])
         // negative tests
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bdlt::Calendar cdr;
             bdlt::Date     date;
@@ -3447,8 +3443,7 @@ int main(int argc, char *argv[])
         // negative tests
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bdlt::Calendar cdr;
             bdlt::Date     date;
@@ -4634,8 +4629,7 @@ int main(int argc, char *argv[])
         // negative tests
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bdlt::Calendar cdr;
             bdlt::Date     date;
@@ -5825,8 +5819,7 @@ int main(int argc, char *argv[])
         // negative tests
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             bdlt::Calendar cdr;
             bdlt::Date     date;

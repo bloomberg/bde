@@ -2564,7 +2564,7 @@ int main(int argc, char *argv[])
 #endif
       } break;
       case 24: {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         // In SAFE build mode, verify all methods that should ASSERT do ASSERT.
 
@@ -3111,8 +3111,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0,   0);
             const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999, 999);
@@ -4610,8 +4609,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const bsls::TimeInterval zero;
             const bsls::TimeInterval oneUsec(0, 1000);
@@ -4640,8 +4638,7 @@ if (veryVerbose)
             }
         }
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const DatetimeInterval zero;
             const DatetimeInterval oneMsec(0, 0, 0, 0, 1);
@@ -5083,8 +5080,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const Obj startOfEpoch(   1,  1,  1,   0,  0,  0,   0,   0);
             const Obj   endOfEpoch(9999, 12, 31,  23, 59, 59, 999, 999);
@@ -5328,8 +5324,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             const Obj    defaultObject;
             const Obj nonDefaultObject(1, 1, 2);
@@ -5792,8 +5787,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\t'setHour'" << endl;
             {
@@ -6026,8 +6020,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\t'CTOR(y, m, d, h, m, s, ms)'" << endl;
             {
@@ -7736,8 +7729,7 @@ if (veryVerbose)
 
         if (verbose) cout << "\nNegative Testing." << endl;
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             if (veryVerbose) cout << "\t'printToBuffer' method" << endl;
             {

@@ -3554,8 +3554,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase2()
 
         // Negative Testing
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_FAIL(Obj mX(bdlcc::CacheEvictionPolicy::e_FIFO,
                                     0, 0, &scratch));
@@ -3615,8 +3614,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase2()
 
         // Negative Testing
         {
-            bsls::AssertFailureHandlerGuard hG(
-                                             bsls::AssertTest::failTestDriver);
+            bsls::AssertTestHandlerGuard hG;
 
             ASSERT_SAFE_FAIL(Obj mX(bdlcc::CacheEvictionPolicy::e_FIFO,
                                     0, 0, TestHashFunctor<KEYTYPE>(),
