@@ -5657,7 +5657,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING CONCERN: CONSTRUCTOR SFINAE"
                             "\n===================================\n");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)                     \
+ || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+        // MSVC 2013 does not support expression-SFINAE well enough to handle
+        // non-constructible cases.
+
         if (verbose) printf("Test not supported without native type traits\n");
 #else
 
