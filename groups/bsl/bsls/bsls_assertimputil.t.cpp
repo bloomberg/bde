@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-          fprintf( stderr, "WARNING: CASE `%d` NOT FOUND.\n" , test);
+          fprintf( stderr, "WARNING: CASE `%d' NOT FOUND.\n" , test);
           testStatus = -1;
       }
     }

@@ -2,14 +2,16 @@
 
 #include <bsls_cpp11.h>
 
+#include <bsls_bsltestutil.h>
+
+#include <stdio.h>
 #include <stdlib.h>
 #include <cstdlib>
-#include <iostream>
 
 // Warning: the following 'using' declarations interfere with the testing of
 // the macros defined in this component.  Please do not uncomment them.
-// using namespace BloombergLP;
-// using namespace std;
+//  using namespace BloombergLP;
+//  using namespace std;
 
 //=============================================================================
 //                                 TEST PLAN
@@ -31,7 +33,7 @@
 // [ 8] USAGE EXAMPLE
 
 // ============================================================================
-//                     STANDARD BDE ASSERT TEST FUNCTION
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
@@ -41,8 +43,7 @@ int testStatus = 0;
 void aSsErT(bool condition, const char *message, int line)
 {
     if (condition) {
-        std::cout << "Error " __FILE__ "(" << line << "): " << message
-                  << "    (failed)" << std::endl;
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
 
         if (0 <= testStatus && testStatus <= 100) {
             ++testStatus;
@@ -52,7 +53,30 @@ void aSsErT(bool condition, const char *message, int line)
 
 }  // close unnamed namespace
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
+#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+
+#define STRINGIFY2(...) "" #__VA_ARGS__
+#define STRINGIFY(a) STRINGIFY2(a)
 
 //=============================================================================
 
@@ -96,7 +120,7 @@ namespace
                         TestMetafunction<void, false>::value)     {}
     template <class, class>
     void throws4() BSLS_CPP11_NOEXCEPT_SPECIFICATION(false)       {}
-      // 'throws4<T, U>()` is used to test the operator
+      // 'throws4<T, U>()' is used to test the operator
       // 'noexcept(expr-with-commas)'
 
     void throws5() BSLS_CPP11_NOEXCEPT_SPECIFICATION(
@@ -104,36 +128,131 @@ namespace
                                                                   {}
 }  // close unnamed namespace
 
+// ============================================================================
+//                              HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
+
+static void printFlags()
+    // Print a diagnostic message to standard output if any of the preprocessor
+    // flags of interest are defined, and their value if a value had been set.
+    // An "Enter" and "Leave" message is printed unconditionally so there is
+    // some report even if all of the flags are undefined.
+{
+    printf("printFlags: Enter\n");
+
+    printf("\n  printFlags: bsls_cpp11 Macros\n");
+
+    printf("\n  BSLS_CPP11_CONSTEXPR: ");
+#ifdef BSLS_CPP11_CONSTEXPR
+    printf("%s\n", STRINGIFY(BSLS_CPP11_CONSTEXPR) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_CPP11_DELETED: ");
+#ifdef BSLS_CPP11_DELETED
+    printf("%s\n", STRINGIFY(BSLS_CPP11_DELETED) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_CPP11_EXPLICIT: ");
+#ifdef BSLS_CPP11_EXPLICIT
+    printf("%s\n", STRINGIFY(BSLS_CPP11_EXPLICIT) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_CPP11_FINAL: ");
+#ifdef BSLS_CPP11_FINAL
+    printf("%s\n", STRINGIFY(BSLS_CPP11_FINAL) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_CPP11_NOEXCEPT: ");
+#ifdef BSLS_CPP11_NOEXCEPT
+    printf("%s\n", STRINGIFY(BSLS_CPP11_NOEXCEPT) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_CPP11_NOEXCEPT_AVAILABLE: ");
+#ifdef BSLS_CPP11_NOEXCEPT_AVAILABLE
+    printf("%s\n", STRINGIFY(BSLS_CPP11_NOEXCEPT_AVAILABLE) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_CPP11_NOEXCEPT_OPERATOR(...): ");
+#ifdef BSLS_CPP11_NOEXCEPT_OPERATOR
+    printf("%s\n", STRINGIFY(BSLS_CPP11_NOEXCEPT_OPERATOR(...)) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_CPP11_NOEXCEPT_SPECIFICATION(...): ");
+#ifdef BSLS_CPP11_NOEXCEPT_SPECIFICATION
+    printf("%s\n", STRINGIFY(BSLS_CPP11_NOEXCEPT_SPECIFICATION(...)) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_CPP11_OVERRIDE: ");
+#ifdef BSLS_CPP11_OVERRIDE
+    printf("%s\n", STRINGIFY(BSLS_CPP11_OVERRIDE) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_CPP11_PROVISIONALLY_FALSE: ");
+#ifdef BSLS_CPP11_PROVISIONALLY_FALSE
+    printf("%s\n", STRINGIFY(BSLS_CPP11_PROVISIONALLY_FALSE) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n\nprintFlags: Leave\n");
+}
+
 //=============================================================================
 //                                MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
 
-    std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;
+    (void)        veryVerbose;  // unused variable warning
+    (void)    veryVeryVerbose;  // unused variable warning
+
+    printf( "TEST %s CASE %d\n", __FILE__, test);
+
+    if (veryVeryVerbose) {
+        printFlags();
+    }
 
     switch (test) { case 0:
       case 8: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
+        //
         // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
+        //: 1 The usage example provided in the component header file must
+        //:   compile, link, and run on all platforms as shown.
         //
         // Plan:
-        //   Run the usage example.
+        //: 1 Run the usage example.
         //
         // Testing:
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose)
-            std::cout << std::endl
-                      << "TESTING USAGE EXAMPLE" << std::endl
-                      << "=====================" << std::endl;
+        if (verbose) printf("\nTESTING USAGE EXAMPLE"
+                            "\n=====================\n");
 
         Optional<int> value;
         ASSERT(bool(value) == false);
@@ -246,21 +365,20 @@ int main(int argc, char *argv[])
         // TESTING MACRO SAFETY
         //
         // Concerns:
-        //   The macros should be usable outside 'namespace' 'BloombergLP' and
-        //   'namespace' 'std'.
+        //: 1 The macros should be usable outside 'namespace' 'BloombergLP' and
+        //:   'namespace' 'std'.
         //
         // Plan:
-        //   The 'using' declarations at the top of the file are specifically
-        //   commented out to test the concern.  If the concerns is violated,
-        //   the test driver should fail to compile.
+        //: 1 The 'using' declarations at the top of the file are specifically
+        //:   commented out to test the concern.  If the concerns is violated,
+        //:   the test driver should fail to compile.
         //
         // Testing:
         //   MACRO SAFETY
         // --------------------------------------------------------------------
 
-        if (verbose) std::cout << std::endl
-                               << "TESTING MACRO SAFETY" << std::endl
-                               << "====================" << std::endl;
+        if (verbose) printf("\nTESTING MACRO SAFETY"
+                            "\n====================\n");
 
         struct TestBase {
             virtual void f() = 0;
@@ -297,29 +415,29 @@ int main(int argc, char *argv[])
         // TESTING: BSLS_CPP11_OVERRIDE
         //
         // Concerns:
-        //   1) Marking an overriding function as 'override' using
-        //      'BSLS_CPP11_OVERRIDE' shall compile OK both with C++03 and
-        //      C++11 mode.
+        //: 1 Marking an overriding function as 'override' using
+        //:   'BSLS_CPP11_OVERRIDE' shall compile OK both with C++03 and C++11
+        //:   mode.
         //
-        //   2) Marking a function which isn't overriding a 'virtual' function
-        //      as 'override' using 'BSLS_CPP11_OVERRIDE' shall fail to
-        //      compile when compiling using C++11 mode.  It may fail when
-        //      using C++03 mode due to a warning about an overload hiding
-        //      base class functions.
+        //: 2 Marking a function which isn't overriding a 'virtual' function as
+        //:   'override' using 'BSLS_CPP11_OVERRIDE' shall fail to compile when
+        //:   compiling using C++11 mode.  It may fail when using C++03 mode
+        //:   due to a warning about an overload hiding base class functions.
         //
         // Plan:
-        //   Define a base class with a 'virtual' function and two derived
-        //   classes which override the function correctly and incorrectly.  In
-        //   both cases use the 'BSLS_CPP11_OVERRIDE' macro and determine if
-        //   the compilation is successful.  The incorrect use is guarded by a
-        //   the macro 'FAIL_OVERRIDE' to restrict compilation failure to
-        //   compilations with this macro defined.
+        //: 1 Define a base class with a 'virtual' function and two derived
+        //:   classes which override the function correctly and incorrectly.
+        //:   In both cases use the 'BSLS_CPP11_OVERRIDE' macro and determine
+        //:   if the compilation is successful.  The incorrect use is guarded
+        //:   by a the macro 'FAIL_OVERRIDE' to restrict compilation failure to
+        //:   compilations with this macro defined.
+        //
+        // Testing:
+        //   BSLS_CPP11_OVERRIDE
         // --------------------------------------------------------------------
 
-        if (verbose)
-            std::cout << std::endl
-                      << "TESTING: BSLS_CPP11_OVERRIDE" << std::endl
-                      << "============================" << std::endl;
+        if (verbose) printf("\nTESTING: BSLS_CPP11_OVERRIDE"
+                            "\n============================\n");
 
         struct Base
         {
@@ -361,41 +479,46 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_CPP11_NOEXCEPT, BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)
-        // BSLS_CPP11_NOEXCEPT_OPERATOR(expr)
+        // TESTING BSLS_CPP11_NOEXCEPT AND VARIATIONS
         //
         // Concerns:
-        //   1) Marking a function 'noexcept' using 'BSLS_CPP11_NOEXCEPT' or
-        //      'BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)' or
-        //      'BSLS_CPP11_NOEXCEPT_SPECIFICATION(
-        //          BSLS_CPP11_NOEXCEPT_OPERATOR(expr))' should result in a
-        //      successful compilation in C++03 mode.
-        //
-        //   2) Marking a function 'noexcept' or 'noexcept(bool)' using
-        //      'BSLS_CPP11_NOEXCEPT' or
-        //      'BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)' or
-        //      'BSLS_CPP11_NOEXCEPT_SPECIFICATION(
-        //          BSLS_CPP11_NOEXCEPT_OPERATOR(expr))' should be detectable
-        //      using 'BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))`.
-        //
-        //   3) The `BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)` and
-        //       'BSLS_CPP11_NOEXCEPT_OPERATOR(expr)' macros both allow commas
-        //       in template parameter lists.
+        //: 1 Marking a function 'noexcept' using 'BSLS_CPP11_NOEXCEPT' or
+        //:   'BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)' or
+        //:   BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+        //:       BSLS_CPP11_NOEXCEPT_OPERATOR(expr))' should result in a
+        //:   successful compilation in C++03 mode.
+        //:
+        //: 2 Marking a function 'noexcept' or 'noexcept(bool)' using
+        //:   'BSLS_CPP11_NOEXCEPT' or
+        //:   'BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)' or
+        //:   BSLS_CPP11_NOEXCEPT_SPECIFICATION(
+        //:       BSLS_CPP11_NOEXCEPT_OPERATOR(expr))' should be detectable
+        //:   using BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))`.
+        //:
+        //: 3 The `BSLS_CPP11_NOEXCEPT_SPECIFICATION(pred)` and
+        //:   'BSLS_CPP11_NOEXCEPT_OPERATOR(expr)' macros both allow commas in
+        //:   template parameter lists.
         //
         // Plan:
-        //   Define a function marking it 'noexcept' using the various forms of
-        //   the macro. Then use `BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))`
-        //   to check that the function's 'noexcept' specification matches
-        //   the expected specification.
+        //: 1 Define a function marking it 'noexcept' using the various forms
+        //:   of the macro.  Then use
+        //:   `BSLS_CPP11_NOEXCEPT_OPERATOR(function(...))` to check that the
+        //:   function's 'noexcept' specification matches the expected
+        //:   specification.
         //
         // NOTE: The test functions are called only to prevent
         //  '-Wunused-function' warning.
+        //
+        // Testing:
+        //   BSLS_CPP11_NOEXCEPT
+        //   BSLS_CPP11_NOEXCEPT_SPECIFICATION
+        //   BSLS_CPP11_NOEXCEPT_OPERATOR
+        //   BSLS_CPP11_PROVISIONALLY_FALSE
         // --------------------------------------------------------------------
-        if (verbose){
-            std::cout << '\n'
-                      << "TESTING: BSLS_CPP11_NOEXCEPT\n"
-                      << "============================\n";
-        }
+
+        if (verbose) printf("\nTESTING BSLS_CPP11_NOEXCEPT AND VARIATIONS"
+                            "\n==========================================\n");
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
         const bool hasNoexceptSupport = true;
 #else
@@ -443,27 +566,28 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_CPP11_FINAL (function)
+        // TESTING BSLS_CPP11_FINAL (fFUNCTION)
         //
         // Concerns:
-        //   1) Marking a 'virtual' function as 'final' should compile.
-        //
-        //   2) Trying to override a function marked as 'final' shall fail to
-        //      to compile when compiling with C++11 mode.  Since
-        //      'BSLS_CPP11_FINAL' is replaced by nothing when compiling with
-        //      C++03 mode the could should compile in this case.
+        //: 1 Marking a 'virtual' function as 'final' should compile.
+        //:
+        //: 2 Trying to override a function marked as 'final' shall fail to to
+        //:   compile when compiling with C++11 mode.  Since 'BSLS_CPP11_FINAL'
+        //:   is replaced by nothing when compiling with C++03 mode the could
+        //:   should compile in this case.
         //
         // Plan:
-        //   Define a base class with a 'virtual' function and mark it 'final'
-        //   using 'BSLS_CPP11_FINAL' in a derived class.  Creating a further
-        //   derived class which also overrides the function marked as 'final'
-        //   should fail compilation when compiling with C++11 mode.
+        //: 1 Define a base class with a 'virtual' function and mark it 'final'
+        //:   using 'BSLS_CPP11_FINAL' in a derived class.  Creating a further
+        //:   derived class which also overrides the function marked as 'final'
+        //:   should fail compilation when compiling with C++11 mode.
+        //
+        // Testing:
+        //   BSLS_CPP11_FINAL (function)
         // --------------------------------------------------------------------
 
-        if (verbose)
-            std::cout << std::endl
-                      << "TESTING: BSLS_CPP11_FINAL (function)" << std::endl
-                      << "====================================" << std::endl;
+        if (verbose) printf("\nTESTING BSLS_CPP11_FINAL (FUNCTION)"
+                            "\n===================================\n");
 
         struct FinalFunctionBase
         {
@@ -503,27 +627,28 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING: BSLS_CPP11_FINAL (class)
+        // TESTING: BSLS_CPP11_FINAL (CLASS)
         //
         // Concerns:
-        //   1) Marking a class 'final' using 'BSLS_CPP11_FINAL' should result
-        //      in a successful compilation.
-        //
-        //   2) Trying to further derive from a function marked as 'final'
-        //      shall fail to compile when compiling with C++11 mode.  Since
-        //      'BSLS_CPP11_FINAL' is replaced by nothing when compiling with
-        //      C++03 mode the could should compile in this case.
+        //: 1 Marking a class 'final' using 'BSLS_CPP11_FINAL' should result in
+        //:   a successful compilation.
+        //:
+        //: 2 Trying to further derive from a function marked as 'final' shall
+        //:   fail to compile when compiling with C++11 mode.  Since
+        //:   'BSLS_CPP11_FINAL' is replaced by nothing when compiling with
+        //:   C++03 mode the could should compile in this case.
         //
         // Plan:
-        //   Define a class marking it 'final' using 'BSLS_CPP11_FINAL'.
-        //   Creating a derived class from the 'final' class should fail
-        //   compilation when compiling with C++11 mode.
+        //: 1 Define a class marking it 'final' using 'BSLS_CPP11_FINAL'.
+        //:   Creating a derived class from the 'final' class should fail
+        //:   compilation when compiling with C++11 mode.
+        //
+        // Testing:
+        //   BSLS_CPP11_FINAL (class)
         // --------------------------------------------------------------------
 
-        if (verbose)
-            std::cout << std::endl
-                      << "TESTING: BSLS_CPP11_FINAL (class)" << std::endl
-                      << "=================================" << std::endl;
+        if (verbose) printf("\nTESTING: BSLS_CPP11_FINAL (CLASS)"
+                            "\n=================================\n");
 
         class FinalClass BSLS_CPP11_FINAL
         {
@@ -563,25 +688,26 @@ int main(int argc, char *argv[])
         // TESTING: BSLS_CPP11_EXPLICIT
         //
         // Concerns:
-        //   1) Marking a conversion operator 'explicit' using
-        //      'BSLS_CPP11_EXPLICIT' needs to allow explicit conversions.
-        //
-        //   2) Marking a conversion operator 'explicit' using
-        //      'BSLS_CPP11_EXPLICIT' should prevent attempts of implicit
-        //      conversion when compiling with C++11 mode. When compiling with
-        //      C++03 mode compilation will succeed.
+        //: 1 Marking a conversion operator 'explicit' using
+        //:   'BSLS_CPP11_EXPLICIT' needs to allow explicit conversions.
+        //:
+        //: 2 Marking a conversion operator 'explicit' using
+        //:   'BSLS_CPP11_EXPLICIT' should prevent attempts of implicit
+        //:   conversion when compiling with C++11 mode.  When compiling with
+        //:   C++03 mode compilation will succeed.
         //
         // Plan:
-        //   Define a class with an explicit conversion operator and
-        //   verify that explicit and implicit conversions succeed when using
-        //   C++03 mode. When compiling with C++11 mode the implicit conversion
-        //   should fail.
+        //: 1 Define a class with an explicit conversion operator and verify
+        //:   that explicit and implicit conversions succeed when using C++03
+        //:   mode.  When compiling with C++11 mode the implicit conversion
+        //:   should fail.
+        //
+        // Testing:
+        //   BSLS_CPP11_EXPLICIT
         // --------------------------------------------------------------------
 
-        if (verbose)
-            std::cout << std::endl
-                      << "TESTING: BSLS_CPP11_EXPLICIT" << std::endl
-                      << "============================" << std::endl;
+        if (verbose) printf("\nTESTING: BSLS_CPP11_EXPLICIT"
+                            "\n============================\n");
 
         struct Explicit
         {
@@ -606,50 +732,58 @@ int main(int argc, char *argv[])
         // TESTING BSLS_CPP11_CONSTEXPR
         //
         // Concerns:
-        //   1) Marking a function 'constexpr' using 'BSLS_CPP11_CONSTEXPR'
-        //      should result in a successful compilation.
-        //
-        //   2) Marking a function 'constexpr' using 'BSLS_CPP11_CONSTEXPR'
-        //      should make the test driver not compile if the use of the
-        //      resulting constexpr function is used illegally.
+        //: 1 Marking a function 'constexpr' using 'BSLS_CPP11_CONSTEXPR'
+        //:   should result in a successful compilation.
+        //:
+        //: 2 Marking a function 'constexpr' using 'BSLS_CPP11_CONSTEXPR'
+        //:   should make the test driver not compile if the use of the
+        //:   resulting constexpr function is used illegally.
         //
         // Plan:
-        //   Define a struct marking its various member functions as constexprs
-        //   functions. Verify that if the constexpr member functions are not
-        //   used appropriately the program will fail to compile in cpp11 mode.
+        //: 1 Define a struct marking its various member functions as constexpr
+        //:   functions.  Verify that if the constexpr member functions are not
+        //:   used appropriately the program will fail to compile in cpp11
+        //:   mode.
+        //:
+        //: 2 Since the correct behaviour will case the program to not compile,
+        //:   it is rather difficult to create test cases that actually tests
+        //:   the feature and still have the test driver pass.  As such, this
+        //:   tests must be manually checked to ensure that the program does
+        //:   not compile if testStruct is not used correctly.
         //
-        //   Since the correct behaviour will case the program to not compile,
-        //   it is rather difficult to create test cases that actaully tests
-        //   the feature and still have the test driver pass. As such, this
-        //   tests must be manually checked to ensure that the program does not
-        //   compile if testStruct is not used correctly.
+        // Testing:
+        //   BSLS_CPP11_CONSTEXPR
         // --------------------------------------------------------------------
-          struct testStruct {
-              BSLS_CPP11_CONSTEXPR testStruct (int i) : value(i){}
-              BSLS_CPP11_CONSTEXPR operator int() const {return value; }
-              BSLS_CPP11_CONSTEXPR operator long() const {return 1.0; }
-              private:
-                  int value;
-          };
 
-          BSLS_CPP11_CONSTEXPR testStruct B (15);
+        if (verbose) printf("\nTESTING BSLS_CPP11_CONSTEXPR"
+                            "\n============================\n");
+
+        struct testStruct {
+            BSLS_CPP11_CONSTEXPR testStruct (int i) : value(i){}
+            BSLS_CPP11_CONSTEXPR operator int() const {return value; }
+            BSLS_CPP11_CONSTEXPR operator long() const {return 1.0; }
+            private:
+                int value;
+        };
+
+        BSLS_CPP11_CONSTEXPR testStruct B (15);
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-          BSLS_CPP11_CONSTEXPR int X (B);
+        BSLS_CPP11_CONSTEXPR int X (B);
 #else
-          int X (B);
+        int X (B);
 #endif
-          (void)X;  // unused variable warning
+        (void)X;  // unused variable warning
       } break;
       default: {
-        std::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << std::endl;
+        fprintf( stderr, "WARNING: CASE `%d` NOT FOUND.\n" , test);
         testStatus = -1;
       }
     }
 
     if (testStatus > 0) {
-        std::cerr << "Error, non-zero test status = " << testStatus << "."
-                  << std::endl;
+        fprintf( stderr, "Error, non-zero test status = %d.\n", testStatus );
     }
+
     return testStatus;
 }
 

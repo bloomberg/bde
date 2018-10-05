@@ -625,6 +625,8 @@ void TestConfigurationMacros();
     : d_x(x)
     , d_y(y)
     {
+        (void)d_x;
+        (void)d_y;
         BSLS_ASSERT_SAFE(-1000 <= x); BSLS_ASSERT_SAFE(x <= 1000);
         BSLS_ASSERT_SAFE(-1000 <= y); BSLS_ASSERT_SAFE(y <= 1000);
     }
@@ -1118,10 +1120,10 @@ void TestConfigurationMacros();
 
 int main(int argc, char *argv[])
 {
-    int            test = argc > 1 ? atoi(argv[1]) : 0;
-    int         verbose = argc > 2;
-    int     veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
             globalVerbose =         verbose;
         globalVeryVerbose =     veryVerbose;
@@ -3089,8 +3091,8 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-          fprintf( stderr, "WARNING: CASE `%d` NOT FOUND.\n" , test);
-          testStatus = -1;
+        fprintf( stderr, "WARNING: CASE `%d' NOT FOUND.\n" , test);
+        testStatus = -1;
       }
     }
 

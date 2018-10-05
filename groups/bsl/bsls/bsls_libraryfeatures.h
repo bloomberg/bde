@@ -704,8 +704,8 @@ BSLS_IDENT("$Id: $")
 //
 ///'BSLS_LIBRARYFEATURES_STDCPP_GNU_LIBSTDCPP'
 ///-------------------------------------------
-// The 'BSLS_LIBRARYFEATURES_STDCPP_GNU' macro is defined if the C++
-// standard library implementation is GNU libstdc++.
+// The 'BSLS_LIBRARYFEATURES_STDCPP_GNU' macro is defined if the C++ standard
+// library implementation is GNU libstdc++.
 //
 ///'BSLS_LIBRARYFEATURES_STDCPP_IBM'
 ///---------------------------------
@@ -840,30 +840,30 @@ BSLS_IDENT("$Id: $")
 
 # ifdef BSLS_PLATFORM_CMP_MSVC
 #   if !__has_include(<yvals.h>)
-#     error Standard library implementation detection is broken.  The \
-            implementation specific header file <yvals.h> we assumed exists \
+#     error Standard library implementation detection is broken.  The        \
+            implementation specific header file <yvals.h> we assumed exists  \
             is not found.  'bsls_libraryfeatures.h' needs to be updated.
 #   endif
 
 # elif defined(BSLS_PLATFORM_CMP_GNU) || \
        defined(BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP)
 #   if !__has_include(<bits/c++config.h>)
-#     error Standard library implementation detection is broken.  The \
-            implementation specific header file <bits/c++config.h> we assumed \
+#     error Standard library implementation detection is broken.  The        \
+            implementation specific header file <bits/c++config.h> we assumed\
             exists is not found.  'bsls_libraryfeatures.h' needs to be updated.
 #   endif
 
 # elif defined(BSLS_PLATFORM_CMP_SUN)
 #   if !__has_include(<valarray>)
-#     error Standard library implementation detection is broken.  The \
-            standard header file <valarray> we assumed exists is not found. \
+#     error Standard library implementation detection is broken.  The        \
+            standard header file <valarray> we assumed exists is not found.  \
             'bsls_libraryfeatures.h' needs to be updated.
 #   endif
 
 # else
 #   if !__has_include(<ciso646>)
-#     error Standard library implementation detection is broken.  The \
-            standard header file <ciso646> we assumed exists is not found. \
+#     error Standard library implementation detection is broken.  The        \
+            standard header file <ciso646> we assumed exists is not found.   \
             'bsls_libraryfeatures.h' needs to be updated.
 #   endif
 # endif
@@ -892,7 +892,7 @@ BSLS_IDENT("$Id: $")
 // specific (see
 // https://docs.oracle.com/cd/E19205-01/819-5267/6n7c46e4p/index.html 12.7.1),
 // therefore we have to include something that is different between RogueWave
-// and STLPort implementations.  All such headers are large and not cheap. :(
+// and STLPort implementations.  All such headers are large and not cheap.  :(
 
 # include <valarray>
 #else
@@ -948,8 +948,8 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
     #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY                  1
-    #if (__cplusplus >= 201103L) ||                                           \
-           (defined(__GXX_EXPERIMENTAL_CXX0X__) &&                            \
+    #if (__cplusplus >= 201103L) ||                                          \
+           (defined(__GXX_EXPERIMENTAL_CXX0X__) &&                           \
             BSLS_PLATFORM_CMP_VERSION >= 40800)
         // C99 functions are available in C++11 builds.
 
@@ -990,12 +990,12 @@ BSLS_IDENT("$Id: $")
     #endif
     #if defined(__cpp_lib_atomic_is_always_lock_free)
         // There is no pre-processor define declared in libstdc++ to indicate
-        // that precise bitwidth atomics exist, but the libstdc++ shipping
-        // with GCC 7 also includes lock-free support in C++17 mode.  That
-        // feature does include a pre-processor definition, so use it as a
-        // stand-in for detecting precise bitwidth atomics.  This pre-processor
-        // definition will already only be defined when compiling in at least
-        // C++17 standard mode, so there is no need for an additional check.
+        // that precise bitwidth atomics exist, but the libstdc++ shipping with
+        // GCC 7 also includes lock-free support in C++17 mode.  That feature
+        // does include a pre-processor definition, so use it as a stand-in for
+        // detecting precise bitwidth atomics.  This pre-processor definition
+        // will already only be defined when compiling in at least C++17
+        // standard mode, so there is no need for an additional check.
         #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS       1
     #endif
 #endif
@@ -1022,8 +1022,7 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_PLATFORM_CMP_SUN)
     #if __cplusplus >= 201103L
         // It would be simpler if we could simply identify as the corresping
-        // gcc library version:
-        // CC       CMP_VERSION     libstdc++ version
+        // gcc library version: CC CMP_VERSION libstdc++ version
         // 12.4     0x5130          4.8.4
         // 12.5     0x5140          5.1.0
         // 12.6     0x5150          5.4.0
@@ -1086,8 +1085,8 @@ BSLS_IDENT("$Id: $")
 
     #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
 
-    #if defined(__APPLE_CC__) && \
-        __APPLE_CC__ >= 6000  && \
+    #if defined(__APPLE_CC__) &&                                             \
+        __APPLE_CC__ >= 6000  &&                                             \
         BSLS_PLATFORM_CMP_VERSION >= 70300
 
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
@@ -1131,12 +1130,12 @@ BSLS_IDENT("$Id: $")
 
         #if defined(__cpp_lib_atomic_is_always_lock_free)
         // There is no pre-processor define declared in libstdc++ to indicate
-        // that precise bitwidth atomics exist, but the libstdc++ shipping
-        // with GCC 7 also includes lock-free support in C++17 mode.  That
-        // feature does include a pre-processor definition, so use it as a
-        // stand-in for detecting precise bitwidth atomics.  This pre-processor
-        // definition will already only be defined when compiling in at least
-        // C++17 standard mode, so there is no need for an additional check.
+        // that precise bitwidth atomics exist, but the libstdc++ shipping with
+        // GCC 7 also includes lock-free support in C++17 mode.  That feature
+        // does include a pre-processor definition, so use it as a stand-in for
+        // detecting precise bitwidth atomics.  This pre-processor definition
+        // will already only be defined when compiling in at least C++17
+        // standard mode, so there is no need for an additional check.
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS   1
         #endif
 
@@ -1151,9 +1150,9 @@ BSLS_IDENT("$Id: $")
         #endif
     #endif
 
-    // Do not define these until there is a pre-processor definition given
-    // by the build system to indicate at least the major version number of
-    // the GCC toolchain used by Clang.
+    // Do not define these until there is a pre-processor definition given by
+    // the build system to indicate at least the major version number of the
+    // GCC toolchain used by Clang.
     //
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
     // #define BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
@@ -1209,8 +1208,8 @@ BSLS_IDENT("$Id: $")
 //                     POST-DETECTION FIXUPS
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)  && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) && \
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)  &&             \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) &&             \
     defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 
     #define BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE           1

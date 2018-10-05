@@ -450,6 +450,7 @@ inline int FunctionsV1::myFunc(int x, int y)
 {
     int output = 0;
     // ... do stuff with 'x' and 'y'.
+    (void)x; (void)y;
     return output;
 }
 //..
@@ -582,6 +583,7 @@ inline int FunctionsV4::myFunc(int x, int y)
     BSLS_ASSERT(y >= 0);
     int output = 0;
     // ... do stuff with 'x' and 'y'.
+    (void)x; (void)y;
     return output;
 }
 #undef BSLS_ASSERT // Undefine this macro now that the usage example is
@@ -647,6 +649,8 @@ inline int FunctionsV4::myFunc(int x, int y)
     : d_x(x)
     , d_y(y)
     {
+        (void)d_x;
+        (void)d_y;
         BSLS_REVIEW_SAFE(-1000 <= x); BSLS_REVIEW_SAFE(x <= 1000);
         BSLS_REVIEW_SAFE(-1000 <= y); BSLS_REVIEW_SAFE(y <= 1000);
     }
@@ -1143,10 +1147,10 @@ inline int FunctionsV4::myFunc(int x, int y)
 
 int main(int argc, char *argv[])
 {
-    int            test = argc > 1 ? atoi(argv[1]) : 0;
-    int         verbose = argc > 2;
-    int     veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
+    int             test = argc > 1 ? atoi(argv[1]) : 0;
+    bool         verbose = argc > 2;
+    bool     veryVerbose = argc > 3;
+    bool veryVeryVerbose = argc > 4;
 
             globalVerbose =         verbose;
         globalVeryVerbose =     veryVerbose;
@@ -2720,7 +2724,7 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-          fprintf( stderr, "WARNING: CASE `%d` NOT FOUND.\n" , test);
+          fprintf( stderr, "WARNING: CASE `%d' NOT FOUND.\n" , test);
           testStatus = -1;
       }
     }

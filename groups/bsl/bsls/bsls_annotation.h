@@ -22,9 +22,12 @@ BSLS_IDENT("$Id: $")
 //  BSLS_ANNOTATION_NULL_TERMINATED: warn if last argument is non-NULL
 //  BSLS_ANNOTATION_NULL_TERMINATED_AT(x): warn if argument at 'x' is non-NULL
 //  BSLS_ANNOTATION_WARN_UNUSED_RESULT: warn if annotated function result used
+//  BSLS_ANNOTATION_NODISCARD: warn if annotated function result is not used
 //  BSLS_ANNOTATION_DEPRECATED: warn if annotated entity is used
 //  BSLS_ANNOTATION_USED: emit annotated entity even if not referenced
 //  BSLS_ANNOTATION_UNUSED: do not warn if annotated entity is unused
+//  BSLS_ANNOTATION_NORETURN: error if function returns normally
+//  BSLS_ANNOTATION_FALLTHROUGH: do not warn if case fall through
 //
 //@AUTHOR: Andrew Paprocki (apaprock)
 //
@@ -134,12 +137,32 @@ BSLS_IDENT("$Id: $")
 // that index, counting backwards from the end of the argument list.
 //
 //..
-//  BSLS_ANNOTATION_WARN_UNUSED_RESULT
+//  BSLS_ANNOTATION_NODISCARD
 //..
 // This annotation causes a warning to be emitted if the caller of a
 // so-annotated function does not use its return value.  This is useful for
 // functions where not checking the result is either a security problem or
 // always a bug, such as with the 'realloc' function.
+//
+//..
+//  BSLS_ANNOTATION_WARN_UNUSED_RESULT
+//..
+// This deprecated macro is an older name for BSLS_ANNOTATION_NODISCARD.
+//
+//..
+//  BSLS_ANNOTATION_NORETURN
+//..
+// This annotation is used to tell the compiler that a specified function will
+// not return in a normal fashion.  The function can still exit via other means
+// such as throwing an exception or aborting the process.
+//
+//..
+//  BSLS_ANNOTATION_FALLTHROUGH
+//..
+// This annotation should be placed as a the statement before a 'case' in a
+// 'switch' statement that is expceted to allow control to fall through instead
+// of ending with a 'break', 'continue', or 'return'.  This will prevent
+// compilers from warning about fallthrough.
 //
 ///Function, Variable, and Type Annotations
 ///----------------------------------------
@@ -190,13 +213,22 @@ BSLS_IDENT("$Id: $")
 //  int foo BSLS_ANNOTATION_ABC BSLS_ANNOTATION_XYZ;
 //..
 
+#include <bsls_compilerfeatures.h>
+#include <bsls_deprecate.h>
 #include <bsls_platform.h>
 
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLS_ANNOTATION_USED       __attribute__((__used__))
-    #define BSLS_ANNOTATION_UNUSED     __attribute__((__unused__))
 #else
     #define BSLS_ANNOTATION_USED
+#endif
+
+// Note that we could conceivably migrate this to use '[[maybe_unused]]' when
+// available, but that has more specific constraints over where it can be
+// syntactically placed than the older vendor annotations.
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+    #define BSLS_ANNOTATION_UNUSED     __attribute__((__unused__))
+#else
     #define BSLS_ANNOTATION_UNUSED
 #endif
 
@@ -210,7 +242,8 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_WARNING(x)
 #endif
 
-#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300) || \
+#if (defined(BSLS_PLATFORM_CMP_GNU) &&                                       \
+    BSLS_PLATFORM_CMP_VER_MAJOR >= 40300) ||                                 \
     defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLS_ANNOTATION_ALLOC_SIZE(x) __attribute__((__alloc_size__(x)))
     #define BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y) \
@@ -236,8 +269,8 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_DEPRECATED
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU)   || \
-    defined(BSLS_PLATFORM_CMP_CLANG) || \
+#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                      \
+    defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
     defined(BSLS_PLATFORM_CMP_IBM)
     #define BSLS_ANNOTATION_FORMAT(arg) __attribute__((format_arg(arg)))
 #else
@@ -253,9 +286,9 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_NULL_TERMINATED_AT(x)
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU)   || \
-    defined(BSLS_PLATFORM_CMP_CLANG) || \
-    defined(BSLS_PLATFORM_CMP_HP)    || \
+#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                      \
+    defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
+    defined(BSLS_PLATFORM_CMP_HP)    ||                                      \
     defined(BSLS_PLATFORM_CMP_IBM)
     #define BSLS_ANNOTATION_PRINTF(fmt, arg) \
                                       __attribute__((format(printf, fmt, arg)))
@@ -266,11 +299,49 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_SCANF(fmt, arg)
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#if !BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 18)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD)
+    #define BSLS_ANNOTATION_WARN_UNUSED_RESULT [[ nodiscard ]]
+#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLS_ANNOTATION_WARN_UNUSED_RESULT \
                                             __attribute__((warn_unused_result))
 #else
     #define BSLS_ANNOTATION_WARN_UNUSED_RESULT
+#endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD)
+    #define BSLS_ANNOTATION_NODISCARD [[ nodiscard ]]
+#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+    #define BSLS_ANNOTATION_NODISCARD __attribute__((warn_unused_result))
+#else
+    #define BSLS_ANNOTATION_NODISCARD
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
+    #define BSLS_ANNOTATION_NORETURN [[ noreturn ]]
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+    #define BSLS_ANNOTATION_NORETURN __declspec(noreturn)
+#else
+    #define BSLS_ANNOTATION_NORETURN
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH)
+    #define BSLS_ANNOTATION_FALLTHROUGH [[ fallthrough ]]
+#elif defined(BSLS_PLATFORM_CMP_GNU)
+    #if BSLS_PLATFORM_CMP_VERSION >= 70000
+        #define BSLS_ANNOTATION_FALLTHROUGH __attribute__((fallthrough))
+    #endif
+#elif defined(BSLS_PLATFORM_CMP_CLANG)
+    #if __cplusplus >= 201103L && defined(__has_warning)
+        #if  __has_feature(cxx_attributes) && \
+             __has_warning("-Wimplicit-fallthrough")
+            #define BSLS_ANNOTATION_FALLTHROUGH [[clang::fallthrough]]
+        #endif
+    #endif
+#endif
+#ifndef BSLS_ANNOTATION_FALLTHROUGH
+    #define BSLS_ANNOTATION_FALLTHROUGH
 #endif
 
 #endif

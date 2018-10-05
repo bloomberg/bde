@@ -14,6 +14,9 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: flag for alias templates
 //  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: flag for 'alignas'
 //  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: '[[noreturn]]' attribute
+//  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: '[[nodiscard]]'
+//  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH: '[[fallthrough]]'
+//  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED: '[[maybe_unused]]'
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: 'constexpr' specifier
 //  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED: C++14 'constexpr' spec.
 //  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: flag for 'decltype'
@@ -83,6 +86,18 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN':
 //:     This macro is defined if the '[[noreturn]]' attribute is supported by
 //:     the current compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD':
+//:     This macro is defined if the '[[nodiscard]]' attribute is supported by
+//:     the current compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH':
+//:     This macro is defined if the '[[fallthrough]]' attribute is supported
+//:     by the current compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED':
+//:     This macro is defined if the '[[maybe_unused]]' attribute is supported
+//:     by the current compiler settings for this platform.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR':
 //:     This macro is defined if 'constexpr' is supported by the current
@@ -278,6 +293,37 @@ BSLS_IDENT("$Id: $")
 //:   o Clang 3.3
 //:   o IBM xlC 12.1
 //:   o Oracle CC 12.4
+//:   o MSVC 19.10
+//
+///'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD'
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports '[[nodiscard]]' C++17
+// attribute syntax.
+//
+//: o Compiler support:
+//:   o GCC 4.8
+//:   o Clang 3.9
+//:   o MSVC 19.11
+//
+///'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports '[[fallthrough]]' C++17
+// attribute syntax.
+//
+//: o Compiler support:
+//:   o GCC 4.8
+//:   o Clang 3.3
+//:   o MSVC 19.10
+//
+///'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED'
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports '[[maybe_unused]]' C++17
+// attribute syntax.
+//
+//: o Compiler support:
+//:   o GCC 4.8
+//:   o Clang 3.3
+//:   o MSVC 19.11
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR'
 ///- - - - - - - - - - - - - - - - - - - - -
@@ -466,8 +512,8 @@ BSLS_IDENT("$Id: $")
 ///'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE'
 /// - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports use of the 'override' keyword
-// to indicate that a member function is meant to override a 'virtual'
-// function (and cause a failure if that is not the case).
+// to indicate that a member function is meant to override a 'virtual' function
+// (and cause a failure if that is not the case).
 //
 //: o Compiler support:
 //:   o GCC 4.7
@@ -478,11 +524,11 @@ BSLS_IDENT("$Id: $")
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
 ///- - - - - - - - - - - - - - - - - - - - - - - - -
-// This macro is defined if member functions with trailing reference
-// qualifiers (e.g., 'void myfunc(int) &') are supported.  If both this macro
-// and 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' are both defined,
-// then trailing rvalue reference qualifiers (e.g., 'void myfunc(int) &') are
-// also supported.
+// This macro is defined if member functions with trailing reference qualifiers
+// (e.g., 'void myfunc(int) &') are supported.  If both this macro and
+// 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' are both defined, then
+// trailing rvalue reference qualifiers (e.g., 'void myfunc(int) &') are also
+// supported.
 //
 //: o Compiler support:
 //:   o gcc 4.5 (rvalue references v2.1; original draft support in gcc 4.3 is
@@ -568,8 +614,8 @@ BSLS_IDENT("$Id: $")
 //      PLATFORM SPECIFIC FEATURE DETECTION AND MACRO DEFINITIONS
 // ============================================================================
 
-// GCC
-// https://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
+//GCC
+//  https://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
 // As GCC tracked the evolving C++11 standard, earlier versions of the compiler
 // have implementations of earlier specifications of features that can show up
 // as bugs compared to the final standard.  Therefore, BDE does not attempt to
@@ -593,6 +639,9 @@ BSLS_IDENT("$Id: $")
 #    define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // GCC supports __attribute__((noreturn)) in earlier versions
+#    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
+#    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
+#    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
 #    define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #    define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 #    define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
@@ -636,7 +685,7 @@ BSLS_IDENT("$Id: $")
 # endif
 #endif
 
-// Clang
+//Clang
 // http://clang.llvm.org/cxx_status.html
 // http://clang.llvm.org/docs/LanguageExtensions.html
 #if defined(BSLS_PLATFORM_CMP_CLANG)
@@ -644,8 +693,7 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
 #define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #define BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-// clang -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
-// Clang 2.9
+// clang -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x Clang 2.9
 #if __has_feature(cxx_reference_qualified_functions)
 #define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 #endif
@@ -714,9 +762,17 @@ BSLS_IDENT("$Id: $")
 #if __has_feature(cxx_attributes)
 #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // Clang supports __attribute__((noreturn)) in earlier versions
+
+// When available these attributes are usable.
+#ifdef __has_cpp_attribute
+#if __has_cpp_attribute(fallthrough)
+#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
 #endif
-#if (__cplusplus >= 201103L ||                                                \
-    (defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)))           \
+#endif
+
+#endif
+#if (__cplusplus >= 201103L ||                                               \
+    (defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)))          \
     && __has_include(<type_traits>)
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #endif
@@ -725,8 +781,8 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
 #endif
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
-    // When compiling in >= C++11 mode on a non-Darwin platform, assume
-    // Clang >= 3.0 and a minimum GCC 4.8 toolchain, which supports it.
+    // When compiling in >= C++11 mode on a non-Darwin platform, assume Clang
+    // >= 3.0 and a minimum GCC 4.8 toolchain, which supports it.
     #if (!defined(__APPLE_CC__) || __APPLE_CC__ >= 6000)
         #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
     #endif
@@ -734,7 +790,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
-// MSVC (Minimum supported version is MSVC 2013)
+//MSVC (Minimum supported version is MSVC 2013)
 // http://msdn.microsoft.com/en-us/library/hh567368.aspx
 // http://blogs.msdn.com/b/vcblog/archive/2014/06/11/c-11-14-feature-tables-for-visual-studio-14-ctp1.aspx
 // MSVC enables C++11 features automatically in versions that provide the
@@ -764,11 +820,10 @@ BSLS_IDENT("$Id: $")
 # if BSLS_PLATFORM_CMP_VERSION >= 1900  // Microsoft Visual Studio 2015
 // Note that while MSVC 2013 supports variadic templates in principle, there
 // are sufficient problems with the implementation that we defer support until
-// the 2015 compiler where those issues are ironed out.
-// Note that while MSVC 2013 supports deleted functions in principle, the only
-// use we had caused a C1001 compiler internal error.
-// Also note that the variable template C++14 compiler feature is supported
-// since the 2015 update 2 compiler.
+// the 2015 compiler where those issues are ironed out.  Note that while MSVC
+// 2013 supports deleted functions in principle, the only use we had caused a
+// C1001 compiler internal error.  Also note that the variable template C++14
+// compiler feature is supported since the 2015 update 2 compiler.
 #   define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
 #   define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
 #   define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
@@ -782,10 +837,11 @@ BSLS_IDENT("$Id: $")
 # if BSLS_PLATFORM_CMP_VERSION >= 1910  // Microsoft Visual Studio 2017
 #   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+#   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+#if __cplusplus >= 201703L  // C++17
+#   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
+#endif
 # endif
-// MSVC has __declspec(noreturn)
-// (see bsls_bslexceptionutil.h bslstl_stdexceptutil.h)
-//# define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // (not yet supported in MSVC)
 //# define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 
@@ -796,6 +852,10 @@ BSLS_IDENT("$Id: $")
 # if BSLS_PLATFORM_CMP_VERSION >= 1911  // Microsoft Visual Studio 2017
                                         // version 15.3
 #   define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+#if __cplusplus >= 201703L  // C++17
+#   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
+#   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
+#endif
 # endif
 
 # if BSLS_PLATFORM_CMP_VERSION >= 1912  // Microsoft Visual Studio 2017
@@ -808,13 +868,14 @@ BSLS_IDENT("$Id: $")
 #     define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
 #   endif
 # endif
+
 #endif
 
 // IBM Visual Age xlC 11.1 and better include increasing support for C++11
 // http://www-01.ibm.com/support/knowledgecenter/SSGH3R_13.1.0/com.ibm.xlcpp131.aix.doc/compiler_ref/macros_lang_levels.html
 // http://www-01.ibm.com/support/knowledgecenter/SSGH3R_13.1.0/com.ibm.xlcpp131.aix.doc/compiler_ref/opt_langlvl.html
-// xlC_r -qlanglvl=extended    (include next, extern template, noreturn)
-// xlC_r -qlanglvl=extended0x  (additional features)
+//  xlC_r -qlanglvl=extended    (include next, extern template, noreturn)
+//  xlC_r -qlanglvl=extended0x  (additional features)
 #if defined(BSLS_PLATFORM_CMP_IBM)
 #if defined(__IBMCPP_CONSTEXPR)
 #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
@@ -874,13 +935,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
-// Oracle Solaris Studio 12.4 claims C++11 support except for C++11
-// concurrency and atomic operations, and for user-defined literals
-// http://docs.oracle.com/cd/E37069_01/html/E37071/gncix.html#scrolltoc
-// No C++11 features are available by default.  To use any C++11 features,
-// you must use the new -std=c++11 option with the CC compiler.
-// (__cplusplus >= 201103L when Oracle Solaris Studio CC -std=c++11 is invoked)
+// Oracle Solaris Studio 12.4 claims C++11 support except for C++11 concurrency
+// and atomic operations, and for user-defined literals
+// http://docs.oracle.com/cd/E37069_01/html/E37071/gncix.html#scrolltoc 
+// No C++11 features are available by default.  To use any C++11 features, you
+// must use the -std=c++11 option with the CC compiler.
+// ('__cplusplus >= 201103L' when Oracle Solaris Studio 'CC -std=c++11' is
+// invoked)
 #if defined(BSLS_PLATFORM_CMP_SUN)
+
 // CC -std=c++11
 #if  __cplusplus >= 201103L
 # if BSLS_PLATFORM_CMP_VERSION >= 0x5130
@@ -909,8 +972,8 @@ BSLS_IDENT("$Id: $")
 
 #   define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
     // Although this feature might be available in an earlier compiler, we are
-    // asking for trouble if we don't keep this feature together with
-    // rvalue references.
+    // asking for trouble if we don't keep this feature together with rvalue
+    // references.
 
 #   define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // CC 12.4 hits an awkward bug when performing deduction in some corner
@@ -934,18 +997,18 @@ BSLS_IDENT("$Id: $")
 
 # if BSLS_PLATFORM_CMP_VERSION > 0x5150
 #   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-    // CC 12.4 'constexpr' implementation almost satisfies our testing, but
-    // the compiler crashes when for some rare-but-reasonable data structures.
-    // CC 12.5 has different corner cases, although we are still to track down
-    // a narrowed test case.  Both 12.5 and 12.6 have a regresion compared to
-    // 12.4 though with the (implicit) 'constexpr' constructors of aggregates
-    // that have dependent base classes, such as most type traits.
+    // CC 12.4 'constexpr' implementation almost satisfies our testing, but the
+    // compiler crashes when for some rare-but-reasonable data structures.  CC
+    // 12.5 has different corner cases, although we are still trying to track
+    // down a narrowed test case.  Both 12.5 and 12.6 have a regresion compared
+    // to 12.4 though with the (implicit) 'constexpr' constructors of
+    // aggregates that have dependent base classes, such as most type traits.
 
 #   define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
     // CC 12.4, CC 12.5, and 12.6 all fail in a very specific way, which
-    // unfortuntely breaks for 'shared_ptr' in a way that is widely used.
-    // Note that the version check assumes the next revision of the compiler
-    // will have this fix, or the test driver will force us to update again.
+    // unfortuntely breaks for 'shared_ptr' in a way that is widely used.  Note
+    // that the version check assumes the next revision of the compiler will
+    // have this fix, or the test driver will force us to update again.
 # endif
 
 # if BSLS_PLATFORM_CMP_VERSION < 0x5160
@@ -955,10 +1018,12 @@ BSLS_IDENT("$Id: $")
     // # define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
     // # define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 #endif
-// No C++14 features are available by default.  To use any C++14 features,
-// you must use the new -std=c++14 option with the CC compiler.
-// (__cplusplus >= 201402L when Oracle Solaris Studio CC -std=c++14 is invoked)
-// CC -std=c++14
+// No C++14 features are available by default.  To use any C++14 features, you
+// must use the -std=c++14 option with the CC compiler.
+// ('__cplusplus >= 201402L' when Oracle Solaris Studio 'CC -std=c++14' is
+// invoked)
+
+//CC -std=c++14
 #if  __cplusplus >= 201402L
 # if BSLS_PLATFORM_CMP_VERSION > 0x5150
 #   define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
@@ -1042,8 +1107,8 @@ enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
 
 #   define BSLS_COMPILERFEATURES_FORWARD_REF(T) const T&
     // On compilers that support C++11 perfect forwarding, replace with 'T&&',
-    // i.e., an argument that can be perfect-forwarded; otherwise, replace
-    // with 'const T&', the classic way to accept arguments of unknown
+    // i.e., an argument that can be perfect-forwarded; otherwise, replace with
+    // 'const T&', the classic way to accept arguments of unknown
     // rvalue/lvalue-ness.
 
 #   define BSLS_COMPILERFEATURES_FORWARD(T,V) \
@@ -1063,7 +1128,7 @@ enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013-2018 Bloomberg Finance L.P.
+// Copyright 2013 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

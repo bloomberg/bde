@@ -123,10 +123,10 @@ int main(int argc, char *argv[])
 // fails.  The thrown exception will capture the source-code of the expression,
 // the filename and line number of the failing expression.
 //..
-#define TEST_ASSERT(EXPRESSION)                                               \
-    if(!(EXPRESSION)) {                                                       \
-        throw bsls::AssertTestException( #EXPRESSION, __FILE__, __LINE__,     \
-                                         "LEVEL");                            \
+#define TEST_ASSERT(EXPRESSION)                                              \
+    if(!(EXPRESSION)) {                                                      \
+        throw bsls::AssertTestException( #EXPRESSION, __FILE__, __LINE__,    \
+                                         "LEVEL");                           \
     }
 //..
 // Next we use the macro inside a try-block, so that we can catch the exception
@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
         LOOP2_ASSERT(level, x.level(), level == x.level());
       } break;
       default: {
-          fprintf( stderr, "WARNING: CASE `%d` NOT FOUND.\n" , test);
+          fprintf( stderr, "WARNING: CASE `%d' NOT FOUND.\n" , test);
           testStatus = -1;
       }
     }

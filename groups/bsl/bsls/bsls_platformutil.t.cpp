@@ -70,8 +70,8 @@ static void aSsErT(int c, const char *s, int i)
 #define LOOP_ASSERT(I,X) { \
    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n"; \
+#define LOOP2_ASSERT(I,J,X) {                                                \
+   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\n";   \
                aSsErT(1, #X, __LINE__); }}
 
 //=============================================================================
@@ -189,9 +189,9 @@ static bool isLittleEndian()
 //-----------------------------------------------------------------------------
 
 // 'bsls::PlatformUtil::size_type' identifies the preferred integral type
-// denoting the number of elements in a container, and the number of bytes in
-// a single block of memory supplied by an allocator.  For example, a typical
-// use is as a 'typedef' in an STL container:
+// denoting the number of elements in a container, and the number of bytes in a
+// single block of memory supplied by an allocator.  For example, a typical use
+// is as a 'typedef' in an STL container:
 //..
     class vector {
 
@@ -234,8 +234,8 @@ static bool isLittleEndian()
     #endif
     }
 //..
-// Note that in the above usage example, either the macros or the functions
-// can be used to test whether a platform is big- or little-endian.
+// Note that in the above usage example, either the macros or the functions can
+// be used to test whether a platform is big- or little-endian.
 
 //=============================================================================
 //                                MAIN PROGRAM
@@ -270,8 +270,8 @@ int main(int argc, char *argv[])
 
 ///Usage
 ///-----
-// The following illustrates how some of the types and functions supplied
-// by this component might be used.
+// The following illustrates how some of the types and functions supplied by
+// this component might be used.
 //
 ///Types
 ///- - -
@@ -888,7 +888,6 @@ int main(int argc, char *argv[])
 }
 
 #endif  // BDE_OPENSOURCE_PUBLICATION -- DEPRECATED
-
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

@@ -43,7 +43,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
          // Standard library implementation detection verification
 
-// This code  attempts to verify that we have detected the right standard
+// This code attempts to verify that we have detected the right standard
 // library implementation by including a non-standard header that is
 // (hopefully) unique to and part of that implementation we have detected.  To
 // be paranoid, the code also verifies a macro that is defined by the known

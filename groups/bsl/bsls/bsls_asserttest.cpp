@@ -287,7 +287,7 @@ bool AssertTest::catchProbe(char                        expectedResult,
     validArguments = validArguments && exceptionComponent
                                     && *exceptionComponent;
 #endif
-    
+
     if (!validArguments) {
         printError(text, file, caughtException.lineNumber());
     }
