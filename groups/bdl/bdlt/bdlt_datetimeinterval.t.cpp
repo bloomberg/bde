@@ -1060,7 +1060,7 @@ if (veryVerbose)
         //:
         //: 2 At each step in P-1 compare the address of the objected
         //:   referenced by the return value to the address of the object under
-        //:   test.
+        //:   test.  (C-3)
         //:
         //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
@@ -1328,7 +1328,7 @@ if (veryVerbose)
         //:
         //: 2 At each step in P-1 compare the address of the objected
         //:   referenced by the return value to the address of the object under
-        //:   test.
+        //:   test.  (C-2)
         //:
         //: 3 Directly verify the value of defaulted arguments.  (C-3)
         //:

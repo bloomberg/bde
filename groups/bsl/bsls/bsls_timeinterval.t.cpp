@@ -2019,7 +2019,7 @@ int main(int argc, char *argv[])
         //
         //:11 On each invokation of a method under test, compare the address of
         //:   the objected referenced by the return value to the address of the
-        //:   object under test.
+        //:   object under test.  (C-4)
         //:
         //:12 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid time interval values, but not
