@@ -329,40 +329,40 @@ class DatetimeInterval {
         // of positive, negative, and 0 values.
 
     DatetimeInterval& addDays(int days);
-        // Add to this time interval the specified number of 'days' and return
+        // Add to this time interval the specified number of 'days', and return
         // a reference providing modifiable access to this object.  The
         // behavior is undefined unless the resulting time interval value is
         // valid (i.e., the days field must not overflow a 32-bit integer).
 
     DatetimeInterval& addHours(bsls::Types::Int64 hours);
-        // Add to this time interval the specified number of 'hours' and return
-        // a reference providing modifiable access to this object.  The
+        // Add to this time interval the specified number of 'hours', and
+        // return a reference providing modifiable access to this object.  The
         // behavior is undefined unless the resulting time interval value is
         // valid (i.e., the days field must not overflow a 32-bit integer).
 
     DatetimeInterval& addMinutes(bsls::Types::Int64 minutes);
-        // Add to this time interval the specified number of 'minutes' and
+        // Add to this time interval the specified number of 'minutes', and
         // return a reference providing modifiable access to this object.  The
         // behavior is undefined unless the resulting time interval value is
         // valid (i.e., the days field must not overflow a 32-bit integer).
 
     DatetimeInterval& addSeconds(bsls::Types::Int64 seconds);
-        // Add to this time interval the specified number of 'seconds' and
+        // Add to this time interval the specified number of 'seconds', and
         // return a reference providing modifiable access to this object.  The
         // behavior is undefined unless the resulting time interval value is
         // valid (i.e., the days field must not overflow a 32-bit integer).
 
     DatetimeInterval& addMilliseconds(bsls::Types::Int64 milliseconds);
-        // Add to this time interval the specified number of 'milliseconds' and
-        // return a reference providing modifiable access to this object.  The
-        // behavior is undefined unless the resulting time interval value is
-        // valid (i.e., the days field must not overflow a 32-bit integer).
+        // Add to this time interval the specified number of 'milliseconds',
+        // and return a reference providing modifiable access to this object.
+        // The behavior is undefined unless the resulting time interval value
+        // is valid (i.e., the days field must not overflow a 32-bit integer).
 
     DatetimeInterval& addMicroseconds(bsls::Types::Int64 microseconds);
-        // Add to this time interval the specified number of 'microseconds' and
-        // return a reference providing modifiable access to this object.  The
-        // behavior is undefined unless the resulting time interval value is
-        // valid (i.e., the days field must not overflow a 32-bit integer).
+        // Add to this time interval the specified number of 'microseconds',
+        // and return a reference providing modifiable access to this object.
+        // The behavior is undefined unless the resulting time interval value
+        // is valid (i.e., the days field must not overflow a 32-bit integer).
 
                                   // Aspects
 

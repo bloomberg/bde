@@ -2987,8 +2987,6 @@ if (veryVerbose)
         //:
         //: 3 The method does not change the "time" part.
         //
-        //: 3 The method does not change the "time" part.
-        //
         //: 4 The method returns the expected value.
         //:
         //: 5 QoI: Asserted precondition violations are detected when enabled.
@@ -3010,7 +3008,7 @@ if (veryVerbose)
         //:
         //: 3 For each invocation of the 'addDays' method, compare the address
         //:   of the objected referenced by the return value to the address of
-        //:   the object under test.
+        //:   the object under test.  (C-4)
         //:
         //: 4 Verify that, in appropriate build modes, defensive checks are
         //:   triggered when an attempt is made to perform operations that
@@ -4701,7 +4699,7 @@ if (veryVerbose)
         //:   behave as if the object had been constructed with a 'Time' value
         //:   of 00:00:00.000.
         //:
-        //: 4 Invocations of these methods return the expected value.
+        //: 5 Invocations of these methods return the expected value.
         //:
         //: 6 QoI: Asserted precondition violations are detected when enabled.
         //
@@ -4750,7 +4748,7 @@ if (veryVerbose)
         //
         //: 6 On each invocation of a method under test compare the address of
         //:   the objected referenced by the return value to the address of the
-        //:   object under test.
+        //:   object under test.  (C-5)
         //:
         //: 7 Verify that, in appropriate build modes, defensive checks are
         //:   triggered when an attempt is made to perform operations that
