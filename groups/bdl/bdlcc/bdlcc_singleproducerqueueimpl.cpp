@@ -29,6 +29,18 @@ namespace BloombergLP {
 //  |                                                     |
 //  '-----------------------------------------------------'
 //..
+//
+// The state of the queue is stored in 'd_state' as a bit pattern which
+// represents three values:
+//   * available count,
+//   * 'disablePopFront' generation,
+//   * and number of blocked pop threads.
+// The available count is a semaphore-like count.  When the available count is
+// greater than the number of blocked pop threads, a new pop thread will be
+// able to follow a fast execution path.  The 'disablePopFront' generation is
+// used to denote that the queue is or is not pop disable with the additional
+// capability of reliably releasing blocked pop threads when the user is
+// rapidly disabling and enabling pop functionality.
 
 }  // close enterprise namespace
 
