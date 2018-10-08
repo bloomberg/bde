@@ -1,15 +1,17 @@
 // bslstl_unorderedmultiset.cpp                                       -*-C++-*-
 #include <bslstl_unorderedmultiset.h>
 
-#include <bslstl_iterator.h>  // for testing only
-
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-namespace bsl
-{
+#include <bslstl_iterator.h>            // for testing only
+#include <bslstl_pair.h>                // for testing only
 
-}  // close namespace bsl
+namespace BloombergLP {
+namespace bslstl {
+
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

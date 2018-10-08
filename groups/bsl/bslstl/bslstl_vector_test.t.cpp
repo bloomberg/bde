@@ -13659,22 +13659,21 @@ int main(int argc, char *argv[])
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
       } break;
-      case 11:
-      case 10:
-      case  9:
-      case  8:
-      case  7:
-      case  6:
-      case  5:
-      case  4:
-      case  3:
-      case  2:
+      case 11: // falls through
+      case 10: // falls through
+      case  9: // falls through
+      case  8: // falls through
+      case  7: // falls through
+      case  6: // falls through
+      case  5: // falls through
+      case  4: // falls through
+      case  3: // falls through
+      case  2: // falls through
       case  1: {
         if (verbose)
             printf("\nTEST CASE %d IS HANDLED BY PRIMARY TEST DRIVER"
                    "\n==============================================\n",
                    test);
-
       } break;
       case -1: {
         // --------------------------------------------------------------------

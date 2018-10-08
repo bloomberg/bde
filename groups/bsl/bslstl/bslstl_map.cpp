@@ -1,9 +1,10 @@
 // bslstl_map.cpp                                                     -*-C++-*-
 #include <bslstl_map.h>
-#include <bslstl_vector.h>  // for testing only
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
+
+#include <bslstl_vector.h>  // for testing only
 
 namespace BloombergLP {
 namespace bslstl {

@@ -1,19 +1,16 @@
-// bslstl_unorderedset.cpp                                            -*-C++-*-
-#include <bslstl_unorderedset.h>
+// bslstl_deque_test.cpp                                              -*-C++-*-
+#include <bslstl_deque.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bslstl_pair.h>        // for testing only
-
-namespace BloombergLP {
-namespace bslstl {
-
-}  // close package namespace
-}  // close enterprise namespace
+#include <bslstl_forwarditerator.h>            // for testing only
+#include <bslstl_iterator.h>                   // for testing only
+#include <bslstl_randomaccessiterator.h>       // for testing only
+#include <bslstl_vector.h>                     // for testing only
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
