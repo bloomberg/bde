@@ -264,6 +264,34 @@ class SingleProducerQueueImpl {
                                                             MUTEX,
                                                             CONDITION>::Node >;
 
+    // PRIVATE CLASS METHODS
+    static bool allElementsReserved(bsls::Types::Int64 state);
+        // Return 'true' if the specified 'state' implies all elements in the
+        // associated queue will be used to complete currently active dequeue
+        // operations.
+
+    static bool canSupplyBlockedThread(bsls::Types::Int64 state);
+        // Return 'true' if the specified 'state' implies the associated queue
+        // can supply an element to a thread blocked in a dequeue operation.
+
+    static bsls::Types::Int64 getAvailable(bsls::Types::Int64 state);
+        // Return the available attribute from the specified 'state'.
+
+    static bsls::Types::Int64 getGeneration(bsls::Types::Int64 state);
+        // Return the generation attribute from the specified 'state'.
+
+    static bool isEmpty(bsls::Types::Int64 state);
+        // Return 'true' if the specified 'state' implies the associated queue
+        // is empty, and 'false' otherwise.
+
+    static bool isPopFrontDisabled(bsls::Types::Int64 state);
+        // Return 'true' if the specified 'state' implies the associated queue
+        // is dequeue disabled, and 'false' otherwise.
+
+    static bool willHaveBlockedThread(bsls::Types::Int64 state);
+        // Return 'true' if the specified 'state' implies the associated queue
+        // will have one or more threads blocked in a dequeue operation.
+
     // PRIVATE MANIPULATORS
     void popComplete(Node *node, bool isEmpty);
         // Destruct the value stored in the specified 'node', mark the 'node'
@@ -479,6 +507,56 @@ SingleProducerQueueImpl_PopCompleteGuard<TYPE, NODE>::
                       // class SingleProducerQueueImpl
                       // -----------------------------
 
+// PRIVATE CLASS METHODS
+template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
+                                  allElementsReserved(bsls::Types::Int64 state)
+{
+    return (state >> k_AVAILABLE_SHIFT) <= (state & k_BLOCKED_MASK);
+}
+
+template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
+                               canSupplyBlockedThread(bsls::Types::Int64 state)
+{
+    return k_AVAILABLE_INC <= state && (state & k_BLOCKED_MASK);
+}
+
+template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+bsls::Types::Int64 SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
+                                         getAvailable(bsls::Types::Int64 state)
+{
+    return state >> k_AVAILABLE_SHIFT;
+}
+
+template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+bsls::Types::Int64 SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
+                                        getGeneration(bsls::Types::Int64 state)
+{
+    return state & k_GENERATION_MASK;
+}
+
+template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
+                                              isEmpty(bsls::Types::Int64 state)
+{
+    return k_AVAILABLE_INC > state;
+}
+
+template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
+                                   isPopFrontDisabled(bsls::Types::Int64 state)
+{
+    return 0 != (state & k_DISABLED_MASK);
+}
+
+template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
+                                willHaveBlockedThread(bsls::Types::Int64 state)
+{
+    return (state >> k_AVAILABLE_SHIFT) < (state & k_BLOCKED_MASK);
+}
+
 // PRIVATE MANIPULATORS
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 void SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
@@ -572,7 +650,10 @@ SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
 , d_emptyCondition()
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    ATOMIC_OP::initInt64(&d_state, 0);
+    ATOMIC_OP::initInt64(&d_state, 0);  // there are no available elements, the
+                                        // enable/disable generation is
+                                        // initialized to zero, and there are
+                                        // no threads blocked in 'popFront'
 
     ATOMIC_OP::initInt(&d_pushBackDisabled, 0);
 
@@ -611,7 +692,10 @@ SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
 , d_emptyCondition()
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    ATOMIC_OP::initInt64(&d_state, 0);
+    ATOMIC_OP::initInt64(&d_state, 0);  // there are no available elements, the
+                                        // enable/disable generation is
+                                        // initialized to zero, and there are
+                                        // no threads blocked in 'popFront'
 
     ATOMIC_OP::initInt(&d_pushBackDisabled, 0);
 
@@ -665,9 +749,9 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::popFront(
     bsls::Types::Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
                                                            -k_AVAILABLE_INC);
 
-    if (state & k_DISABLED_MASK) {
+    if (isPopFrontDisabled(state)) {
         state = ATOMIC_OP::addInt64NvAcqRel(&d_state, k_AVAILABLE_INC);
-        if (k_AVAILABLE_INC <= state && (state & k_BLOCKED_MASK)) {
+        if (canSupplyBlockedThread(state)) {
             {
                 bslmt::LockGuard<MUTEX> guard(&d_readMutex);
             }
@@ -676,21 +760,20 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::popFront(
         return e_DISABLED;
     }
 
-    if ((state >> k_AVAILABLE_SHIFT) < (state & k_BLOCKED_MASK)) {
-        bsls::Types::Int64 generation = state & k_GENERATION_MASK;
+    if (willHaveBlockedThread(state)) {
+        bsls::Types::Int64 generation = getGeneration(state);
 
         bslmt::LockGuard<MUTEX> guard(&d_readMutex);
 
         state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
                                             k_AVAILABLE_INC + k_BLOCKED_INC);
 
-        while (   generation == (state & k_GENERATION_MASK)
-               && k_AVAILABLE_INC > state) {
+        while (generation == getGeneration(state) && isEmpty(state)) {
             d_readCondition.wait(&d_readMutex);
             state = ATOMIC_OP::getInt64Acquire(&d_state);
         }
 
-        if (generation != (state & k_GENERATION_MASK)) {
+        if (generation != getGeneration(state)) {
             ATOMIC_OP::addInt64AcqRel(&d_state, -k_BLOCKED_INC);
             return e_DISABLED;
         }
@@ -700,7 +783,7 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::popFront(
                                            -(k_AVAILABLE_INC + k_BLOCKED_INC));
     }
 
-    popFrontRaw(value, k_AVAILABLE_INC > state);
+    popFrontRaw(value, isEmpty(state));
 
     return 0;
 }
@@ -744,13 +827,13 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::pushBack(
         // 'd_nextRead' to 'n'.
 
         bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
-        while ((state >> k_AVAILABLE_SHIFT) <= (state & k_BLOCKED_MASK)
+        while (allElementsReserved(state)
                && e_WRITABLE !=
                              ATOMIC_OP::getIntAcquire(&lastWritten->d_state)) {
             bslmt::ThreadUtil::yield();
             state = ATOMIC_OP::getInt64Acquire(&d_state);
         }
-        if ((state >> k_AVAILABLE_SHIFT) <= (state & k_BLOCKED_MASK)) {
+        if (allElementsReserved(state)) {
             ATOMIC_OP::testAndSwapPtrAcqRel(&d_nextRead,
                                             target,
                                             n);
@@ -769,7 +852,7 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::pushBack(
     bsls::Types::Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
                                                            k_AVAILABLE_INC);
 
-    if (k_AVAILABLE_INC <= state && (state & k_BLOCKED_MASK)) {
+    if (canSupplyBlockedThread(state)) {
         {
             bslmt::LockGuard<MUTEX> guard(&d_readMutex);
         }
@@ -819,13 +902,13 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::pushBack(
         // 'd_nextRead' to 'n'.
 
         bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
-        while ((state >> k_AVAILABLE_SHIFT) <= (state & k_BLOCKED_MASK)
+        while (allElementsReserved(state)
                && e_WRITABLE !=
                              ATOMIC_OP::getIntAcquire(&lastWritten->d_state)) {
             bslmt::ThreadUtil::yield();
             state = ATOMIC_OP::getInt64Acquire(&d_state);
         }
-        if ((state >> k_AVAILABLE_SHIFT) <= (state & k_BLOCKED_MASK)) {
+        if (allElementsReserved(state)) {
             ATOMIC_OP::testAndSwapPtrAcqRel(&d_nextRead,
                                             target,
                                             n);
@@ -845,7 +928,7 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::pushBack(
     bsls::Types::Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
                                                            k_AVAILABLE_INC);
 
-    if (k_AVAILABLE_INC <= state && (state & k_BLOCKED_MASK)) {
+    if (canSupplyBlockedThread(state)) {
         {
             bslmt::LockGuard<MUTEX> guard(&d_readMutex);
         }
@@ -862,9 +945,9 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::tryPopFront(
     bsls::Types::Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
                                                            -k_AVAILABLE_INC);
 
-    if (state & k_DISABLED_MASK) {
+    if (isPopFrontDisabled(state)) {
         state = ATOMIC_OP::addInt64NvAcqRel(&d_state, k_AVAILABLE_INC);
-        if (k_AVAILABLE_INC <= state && (state & k_BLOCKED_MASK)) {
+        if (canSupplyBlockedThread(state)) {
             {
                 bslmt::LockGuard<MUTEX> guard(&d_readMutex);
             }
@@ -873,9 +956,9 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::tryPopFront(
         return e_DISABLED;
     }
 
-    if ((state >> k_AVAILABLE_SHIFT) < (state & k_BLOCKED_MASK)) {
+    if (willHaveBlockedThread(state)) {
         state = ATOMIC_OP::addInt64NvAcqRel(&d_state, k_AVAILABLE_INC);
-        if (k_AVAILABLE_INC <= state && (state & k_BLOCKED_MASK)) {
+        if (canSupplyBlockedThread(state)) {
             {
                 bslmt::LockGuard<MUTEX> guard(&d_readMutex);
             }
@@ -884,7 +967,7 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::tryPopFront(
         return e_EMPTY;
     }
 
-    popFrontRaw(value, k_AVAILABLE_INC > state);
+    popFrontRaw(value, isEmpty(state));
 
     return 0;
 }
@@ -910,7 +993,7 @@ void SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::removeAll()
     bsls::Types::Int64 expState;
 
     do {
-        if ((state >> k_AVAILABLE_SHIFT) <= (state & k_BLOCKED_MASK)) {
+        if (allElementsReserved(state)) {
             return;                                                   // RETURN
         }
         expState = state;
@@ -959,7 +1042,7 @@ void SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
     bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
     bsls::Types::Int64 expState = ~state;
 
-    while (expState != state && 0 == (state & k_DISABLED_MASK)) {
+    while (expState != state && !isPopFrontDisabled(state)) {
         expState = state;
         bsls::Types::Int64 generation = (state + k_GENERATION_INC)
                                                            & k_GENERATION_MASK;
@@ -1021,14 +1104,16 @@ template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                                                 isEmpty() const
 {
-    return k_AVAILABLE_INC > ATOMIC_OP::getInt64Acquire(&d_state);
+    bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
+    return isEmpty(state);
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                                      isPopFrontDisabled() const
 {
-    return 0 != (ATOMIC_OP::getInt64Acquire(&d_state) & k_DISABLED_MASK);
+    bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
+    return isPopFrontDisabled(state);
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
@@ -1042,12 +1127,10 @@ template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 bsl::size_t SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                                             numElements() const
 {
-    bsls::Types::Int64 numElements =
-                                    ATOMIC_OP::getInt64Acquire(&d_state);
+    bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
+    bsls::Types::Int64 avail = getAvailable(state);
 
-    return numElements >= 0
-         ? static_cast<bsl::size_t>(numElements >> k_AVAILABLE_SHIFT)
-         : 0;
+    return avail >= 0 ? static_cast<bsl::size_t>(avail) : 0;
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
@@ -1056,7 +1139,7 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
 {
     bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
 
-    bsls::Types::Int64 generation = (state & k_GENERATION_MASK)
+    bsls::Types::Int64 generation = (getGeneration(state))
                                   | ((state & k_DISABLED_MASK) >> 1);
 
     // Note that if the queue is currently disabled, there is no generation
@@ -1064,13 +1147,12 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
 
     bslmt::LockGuard<MUTEX> guard(&d_emptyMutex);
 
-    while (   generation == (state & k_GENERATION_MASK)
-           && k_AVAILABLE_INC <= state) {
+    while (generation == getGeneration(state) && !isEmpty(state)) {
         d_emptyCondition.wait(&d_emptyMutex);
         state = ATOMIC_OP::getInt64Acquire(&d_state);
     }
 
-    if (generation != (state & k_GENERATION_MASK)) {
+    if (generation != getGeneration(state)) {
         return e_DISABLED;                                            // RETURN
     }
 
