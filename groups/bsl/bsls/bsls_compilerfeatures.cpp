@@ -5,6 +5,7 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_bsltestutil.h>   // for testing only
+#include <bsls_buildtarget.h>   // for testing only
 
 #if defined(BSLS_COMPILERFEATURES_INTIIALIZER_LIST_LEAKS_ON_EXCEPTIONS)
 
