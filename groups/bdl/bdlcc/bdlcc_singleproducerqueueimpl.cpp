@@ -38,9 +38,9 @@ namespace BloombergLP {
 // The available count is a semaphore-like count.  When the available count is
 // greater than the number of blocked pop threads, a new pop thread will be
 // able to follow a fast execution path.  The 'disablePopFront' generation is
-// used to denote that the queue is or is not pop disable with the additional
-// capability of reliably releasing blocked pop threads when the user is
-// rapidly disabling and enabling pop functionality.
+// used to denote that the queue is or is not dequeue disabled with the
+// additional capability of reliably releasing blocked pop threads when the
+// user is rapidly disabling and enabling pop functionality.
 
 }  // close enterprise namespace
 
