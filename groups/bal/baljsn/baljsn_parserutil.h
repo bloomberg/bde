@@ -84,9 +84,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace baljsn {
 
-                             // =================
-                             // struct ParserUtil
-                             // =================
+                            // =================
+                            // struct ParserUtil
+                            // =================
 
 struct ParserUtil {
     //This class provides utility functions for decoding data in the JSON
@@ -158,12 +158,12 @@ struct ParserUtil {
 };
 
 // ============================================================================
-//                            INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
-                             // -----------------
-                             // struct ParserUtil
-                             // -----------------
+                            // -----------------
+                            // struct ParserUtil
+                            // -----------------
 
 // CLASS METHODS
 template <class TYPE>
@@ -327,7 +327,9 @@ int ParserUtil::getValue(bsl::string *value, bslstl::StringRef data)
 inline
 int ParserUtil::getValue(bdlt::Date *value, bslstl::StringRef data)
 {
-    return getDateAndTimeValue(value, data, bdlt::Iso8601Util::k_DATE_STRLEN);
+    return getDateAndTimeValue(value,
+                               data,
+                               bdlt::Iso8601Util::k_DATETZ_STRLEN);
 }
 
 inline
@@ -335,7 +337,7 @@ int ParserUtil::getValue(bdlt::Datetime *value, bslstl::StringRef data)
 {
     return getDateAndTimeValue(value,
                                data,
-                               bdlt::Iso8601Util::k_DATETIME_STRLEN);
+                               bdlt::Iso8601Util::k_DATETIMETZ_STRLEN);
 }
 
 inline
@@ -357,7 +359,9 @@ int ParserUtil::getValue(bdlt::DateTz *value, bslstl::StringRef data)
 inline
 int ParserUtil::getValue(bdlt::Time *value, bslstl::StringRef data)
 {
-    return getDateAndTimeValue(value, data, bdlt::Iso8601Util::k_TIME_STRLEN);
+    return getDateAndTimeValue(value,
+                               data,
+                               bdlt::Iso8601Util::k_TIMETZ_STRLEN);
 }
 
 inline
@@ -374,7 +378,7 @@ int ParserUtil::getValue(bdlt::TimeTz *value, bslstl::StringRef data)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
