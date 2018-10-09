@@ -223,8 +223,6 @@ class SingleProducerQueueImpl {
                                            // after the currently pointed to
                                            // node
 
-    // TBD consider padding between values for cache line efficiency
-
     AtomicPointer     d_nextRead;          // pointer to next read from node
 
     MUTEX             d_readMutex;         // blocking point for popping
