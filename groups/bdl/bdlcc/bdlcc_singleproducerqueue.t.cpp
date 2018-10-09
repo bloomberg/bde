@@ -475,8 +475,8 @@ extern "C" void *deferredPopFront(void *arg)
 }
 
 struct OrderingValue {
-    bsls::AtomicOperations::AtomicTypes::Uint64 d_pushThreadId;
-    bsls::AtomicOperations::AtomicTypes::Uint64 d_sequenceNumber;
+    bsls::Types::Uint64 d_pushThreadId;
+    bsls::Types::Uint64 d_sequenceNumber;
 };
 
 typedef bdlcc::SingleProducerQueue<OrderingValue> OrderingObj;
@@ -497,12 +497,8 @@ extern "C" void *orderingPop(void *arg)
 
     while (1 < s_continue) {
         if (0 == mX.popFront(&value)) {
-            bsls::Types::Uint64 pushThreadId =
-                                      bsls::AtomicOperations::getUint64Acquire(
-                                                        &value.d_pushThreadId);
-            bsls::Types::Uint64 sequenceNumber =
-                                      bsls::AtomicOperations::getUint64Acquire(
-                                                      &value.d_sequenceNumber);
+            bsls::Types::Uint64 pushThreadId   = value.d_pushThreadId;
+            bsls::Types::Uint64 sequenceNumber = value.d_sequenceNumber;
 
             bsls::Types::Uint64& lastSequenceNumber =
                                           data->d_sequenceNumber[pushThreadId];
@@ -533,14 +529,12 @@ extern "C" void *orderingPush(void *arg)
 
     OrderingObj::value_type value;
 
-    bsls::AtomicOperations::initUint64(&value.d_pushThreadId,
-                                       bslmt::ThreadUtil::selfIdAsUint64());
-    bsls::AtomicOperations::initUint64(&value.d_sequenceNumber, 1);
+    value.d_pushThreadId   = bslmt::ThreadUtil::selfIdAsUint64();
+    value.d_sequenceNumber = 1;
 
-    while (1 < s_continue) {
+    while (2 < s_continue) {
         if (0 == mX.pushBack(value)) {
-            bsls::AtomicOperations::addUint64AcqRel(&value.d_sequenceNumber,
-                                                    1);
+            value.d_sequenceNumber += 1;
         }
     }
 
@@ -553,7 +547,7 @@ extern "C" void *orderingState(void *arg)
 
     int count = 0;
 
-    while (2 < s_continue) {
+    while (3 < s_continue) {
         bslmt::ThreadUtil::microSleep(100000);
 
         if (3 == count % 10) {
@@ -599,13 +593,13 @@ extern "C" void *watchdog(void *arg)
 
 void orderingGuaranteeTest(const int numPushThread, const int numPopThread)
 {
-    bslmt::ThreadUtil::Handle             watchdogHandle;
-    bslmt::ThreadUtil::Handle             stateHandle;
-    bsl::vector<bslmt::ThreadUtil::Handle>
-                                          handle(numPushThread + numPopThread);
-    bsl::vector<OrderingPopData>          orderingPopData(numPopThread);
+    bslmt::ThreadUtil::Handle              watchdogHandle;
+    bslmt::ThreadUtil::Handle              stateHandle;
+    bsl::vector<bslmt::ThreadUtil::Handle> pushHandle(numPushThread);
+    bsl::vector<bslmt::ThreadUtil::Handle> popHandle(numPopThread);
+    bsl::vector<OrderingPopData>           orderingPopData(numPopThread);
 
-    s_continue = 3;
+    s_continue = 4;
 
     OrderingObj mX;  const OrderingObj& X = mX;
 
@@ -617,20 +611,20 @@ void orderingGuaranteeTest(const int numPushThread, const int numPopThread)
 
     {
         for (int i = 0; i < numPushThread; ++i) {
-            bslmt::ThreadUtil::create(&handle[i], orderingPush, &mX);
+            bslmt::ThreadUtil::create(&pushHandle[i], orderingPush, &mX);
         }
         for (int i = 0; i < numPopThread; ++i) {
             orderingPopData[i].d_obj_p = &mX;
             orderingPopData[i].d_isStrongTest = (   1 == numPushThread
                                                  && 1 == numPopThread);
-            bslmt::ThreadUtil::create(&handle[i + numPushThread],
+            bslmt::ThreadUtil::create(&popHandle[i],
                                       orderingPop,
                                       &orderingPopData[i]);
         }
     }
 
     bslmt::ThreadUtil::microSleep(4000000);
-    s_continue = 2;
+    s_continue = 3;
 
     bslmt::ThreadUtil::join(stateHandle);
 
@@ -638,20 +632,24 @@ void orderingGuaranteeTest(const int numPushThread, const int numPopThread)
     mX.enablePushBack();
 
     bslmt::ThreadUtil::microSleep(1000000);
+    s_continue = 2;
 
     mX.disablePushBack();
 
+    for (int i = 0; i < numPushThread; ++i){
+        bslmt::ThreadUtil::join(pushHandle[i]);
+    }
+
     int rv = X.waitUntilEmpty();
     ASSERT(0 == rv);
-
-    mX.disablePopFront();
+    ASSERT(0 == X.numElements());
 
     s_continue = 1;
 
-    ASSERT(0 == X.numElements());
+    mX.disablePopFront();
 
-    for (int i = 0; i < numPushThread + numPopThread; ++i){
-        bslmt::ThreadUtil::join(handle[i]);
+    for (int i = 0; i < numPopThread; ++i){
+        bslmt::ThreadUtil::join(popHandle[i]);
     }
 
     s_continue = 0;
