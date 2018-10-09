@@ -190,6 +190,9 @@ class SingleProducerQueueImpl {
         e_WRITABLE   // node can be written
     };
 
+    // The following constants are used to maintain the queue's 'd_state'
+    // value.  See {Implementation Note} for details.
+
     static const bsls::Types::Int64 k_BLOCKED_MASK      = 0x000000000000ffffLL;
     static const bsls::Types::Int64 k_BLOCKED_INC       = 0x0000000000000001LL;
     static const bsls::Types::Int64 k_DISABLED_MASK     = 0x0000000000010000LL;
