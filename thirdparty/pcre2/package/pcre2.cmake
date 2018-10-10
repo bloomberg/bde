@@ -25,8 +25,11 @@ function(pcre2_process_standalone_package retUOR listFile isntallOpts)
         ${rootDir}/pcre2_compile.c
         ${rootDir}/pcre2_config.c
         ${rootDir}/pcre2_context.c
+        ${rootDir}/pcre2_convert.c
         ${rootDir}/pcre2_dfa_match.c
         ${rootDir}/pcre2_error.c
+        ${rootDir}/pcre2_extuni.c
+        ${rootDir}/pcre2_find_bracket.c
         ${rootDir}/pcre2_jit_compile.c
         ${rootDir}/pcre2_maketables.c
         ${rootDir}/pcre2_match.c

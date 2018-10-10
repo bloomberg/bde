@@ -7,7 +7,7 @@ and semantics are as close as possible to those of the Perl 5 language.
 
                        Written by Philip Hazel
      Original API code Copyright (c) 1997-2012 University of Cambridge
-         New API code Copyright (c) 2014 University of Cambridge
+          New API code Copyright (c) 2016-2017 University of Cambridge
 
 -----------------------------------------------------------------------------
 Redistribution and use in source and binary forms, with or without
@@ -61,15 +61,16 @@ convenient for user programs that want to test their values. */
 * Return info about what features are configured *
 *************************************************/
 
-/*
+/* If where is NULL, the length of memory required is returned.
+
 Arguments:
   what             what information is required
   where            where to put the information
 
-Returns:           0 if data returned
-                   >= 0 if where is NULL, giving length required
+Returns:           0 if a numerical value is returned
+                   >= 0 if a string value
                    PCRE2_ERROR_BADOPTION if "where" not recognized
-                   or JIT target requested when JIT not enabled
+                     or JIT target requested when JIT not enabled
 */
 
 PCRE2_EXP_DEFN int PCRE2_CALL_CONVENTION
@@ -83,13 +84,16 @@ if (where == NULL)  /* Requests a length */
     return PCRE2_ERROR_BADOPTION;
 
     case PCRE2_CONFIG_BSR:
+    case PCRE2_CONFIG_COMPILED_WIDTHS:
+    case PCRE2_CONFIG_DEPTHLIMIT:
+    case PCRE2_CONFIG_HEAPLIMIT:
     case PCRE2_CONFIG_JIT:
     case PCRE2_CONFIG_LINKSIZE:
     case PCRE2_CONFIG_MATCHLIMIT:
+    case PCRE2_CONFIG_NEVER_BACKSLASH_C:
     case PCRE2_CONFIG_NEWLINE:
     case PCRE2_CONFIG_PARENSLIMIT:
-    case PCRE2_CONFIG_RECURSIONLIMIT:
-    case PCRE2_CONFIG_STACKRECURSE:
+    case PCRE2_CONFIG_STACKRECURSE:    /* Obsolete */
     case PCRE2_CONFIG_UNICODE:
     return sizeof(uint32_t);
 
@@ -115,6 +119,28 @@ switch (what)
 #endif
   break;
 
+  case PCRE2_CONFIG_COMPILED_WIDTHS:
+  *((uint32_t *)where) = 0
+#ifdef SUPPORT_PCRE2_8
+  + 1
+#endif
+#ifdef SUPPORT_PCRE2_16
+  + 2
+#endif
+#ifdef SUPPORT_PCRE2_32
+  + 4
+#endif
+  ;
+  break;
+
+  case PCRE2_CONFIG_DEPTHLIMIT:
+  *((uint32_t *)where) = MATCH_LIMIT_DEPTH;
+  break;
+
+  case PCRE2_CONFIG_HEAPLIMIT:
+  *((uint32_t *)where) = HEAP_LIMIT;
+  break;
+
   case PCRE2_CONFIG_JIT:
 #ifdef SUPPORT_JIT
   *((uint32_t *)where) = 1;
@@ -127,15 +153,15 @@ switch (what)
 #ifdef SUPPORT_JIT
     {
     const char *v = PRIV(jit_get_target)();
-    return 1 + ((where == NULL)?
-      strlen(v) : PRIV(strcpy_c8)((PCRE2_UCHAR *)where, v));
+    return (int)(1 + ((where == NULL)?
+      strlen(v) : PRIV(strcpy_c8)((PCRE2_UCHAR *)where, v)));
     }
 #else
   return PCRE2_ERROR_BADOPTION;
 #endif
 
   case PCRE2_CONFIG_LINKSIZE:
-  *((uint32_t *)where) = configured_link_size;
+  *((uint32_t *)where) = (uint32_t)configured_link_size;
   break;
 
   case PCRE2_CONFIG_MATCHLIMIT:
@@ -146,20 +172,23 @@ switch (what)
   *((uint32_t *)where) = NEWLINE_DEFAULT;
   break;
 
+  case PCRE2_CONFIG_NEVER_BACKSLASH_C:
+#ifdef NEVER_BACKSLASH_C
+  *((uint32_t *)where) = 1;
+#else
+  *((uint32_t *)where) = 0;
+#endif
+  break;
+
   case PCRE2_CONFIG_PARENSLIMIT:
   *((uint32_t *)where) = PARENS_NEST_LIMIT;
   break;
 
-  case PCRE2_CONFIG_RECURSIONLIMIT:
-  *((uint32_t *)where) = MATCH_LIMIT_RECURSION;
-  break;
+  /* This is now obsolete. The stack is no longer used via recursion for
+  handling backtracking in pcre2_match(). */
 
   case PCRE2_CONFIG_STACKRECURSE:
-#ifdef HEAP_MATCH_RECURSE
   *((uint32_t *)where) = 0;
-#else
-  *((uint32_t *)where) = 1;
-#endif
   break;
 
   case PCRE2_CONFIG_UNICODE_VERSION:
@@ -169,8 +198,8 @@ switch (what)
 #else
     const char *v = "Unicode not supported";
 #endif
-    return 1 + ((where == NULL)?
-      strlen(v): PRIV(strcpy_c8)((PCRE2_UCHAR *)where, v));
+    return (int)(1 + ((where == NULL)?
+      strlen(v) : PRIV(strcpy_c8)((PCRE2_UCHAR *)where, v)));
    }
   break;
 
@@ -206,8 +235,8 @@ switch (what)
     const char *v = (XSTRING(Z PCRE2_PRERELEASE)[1] == 0)?
       XSTRING(PCRE2_MAJOR.PCRE2_MINOR PCRE2_DATE) :
       XSTRING(PCRE2_MAJOR.PCRE2_MINOR) XSTRING(PCRE2_PRERELEASE PCRE2_DATE);
-    return 1 + ((where == NULL)?
-      strlen(v) : PRIV(strcpy_c8)((PCRE2_UCHAR *)where, v));
+    return (int)(1 + ((where == NULL)?
+      strlen(v) : PRIV(strcpy_c8)((PCRE2_UCHAR *)where, v)));
     }
   }
 
