@@ -8,9 +8,11 @@
 #include <ball_attributecontext.h>
 #include <ball_scopedattribute.h>
 #include <ball_defaultattributecontainer.h>
+#include <ball_fileobserver2.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_predicate.h>
 #include <ball_record.h>
+#include <ball_recordstringformatter.h>
 #include <ball_rule.h>
 #include <ball_streamobserver.h>
 #include <ball_testobserver.h>
@@ -2533,37 +2535,37 @@ int recurseStreamBasedMacros(BloombergLP::ball::Severity::Level level)
       case Sev::e_FATAL: {
         BALL_LOG_FATAL << "Inner FATAL["
                        << DEPTH
-                       << "]"
+                       << "] "
                        << recurseStreamBasedMacros<DEPTH - 1>(level);
       } break;
       case Sev::e_ERROR: {
         BALL_LOG_ERROR << "Inner ERROR["
                        << DEPTH
-                       << "]"
+                       << "] "
                        << recurseStreamBasedMacros<DEPTH - 1>(level);
       } break;
       case Sev::e_WARN: {
         BALL_LOG_WARN  << "Inner WARN["
                        << DEPTH
-                       << "]"
+                       << "] "
                        << recurseStreamBasedMacros<DEPTH - 1>(level);
       } break;
       case Sev::e_INFO: {
         BALL_LOG_INFO  << "Inner INFO["
                        << DEPTH
-                       << "]"
+                       << "] "
                        << recurseStreamBasedMacros<DEPTH - 1>(level);
       } break;
       case Sev::e_DEBUG: {
         BALL_LOG_DEBUG << "Inner DEBUG["
                        << DEPTH
-                       << "]"
+                       << "] "
                        << recurseStreamBasedMacros<DEPTH - 1>(level);
       } break;
       case Sev::e_TRACE: {
         BALL_LOG_TRACE << "Inner TRACE["
                        << DEPTH
-                       << "]"
+                       << "] "
                        << recurseStreamBasedMacros<DEPTH - 1>(level);
       } break;
       default: {
@@ -2583,22 +2585,22 @@ int recurseStreamBasedMacros<0>(BloombergLP::ball::Severity::Level level)
 
     switch (level) {
       case Sev::e_FATAL: {
-        BALL_LOG_FATAL << "Inner FATAL[0]";
+        BALL_LOG_FATAL << "Inner FATAL[0] " << static_cast<int>(level);
       } break;
       case Sev::e_ERROR: {
-        BALL_LOG_ERROR << "Inner ERROR[0]";
+        BALL_LOG_ERROR << "Inner ERROR[0] " << static_cast<int>(level);
       } break;
       case Sev::e_WARN: {
-        BALL_LOG_WARN  << "Inner WARN[0]";
+        BALL_LOG_WARN  << "Inner WARN[0] "  << static_cast<int>(level);
       } break;
       case Sev::e_INFO: {
-        BALL_LOG_INFO  << "Inner INFO[0]";
+        BALL_LOG_INFO  << "Inner INFO[0] "  << static_cast<int>(level);
       } break;
       case Sev::e_DEBUG: {
-        BALL_LOG_DEBUG << "Inner DEBUG[0]";
+        BALL_LOG_DEBUG << "Inner DEBUG[0] " << static_cast<int>(level);
       } break;
       case Sev::e_TRACE: {
-        BALL_LOG_TRACE << "Inner TRACE[0]";
+        BALL_LOG_TRACE << "Inner TRACE[0] " << static_cast<int>(level);
       } break;
       default: {
         ASSERT("Should not get here!" && 0);
@@ -2664,22 +2666,22 @@ int recursePrintfStyleMacros<0>(BloombergLP::ball::Severity::Level level)
 
     switch (level) {
       case Sev::e_FATAL: {
-        BALL_LOGVA_FATAL("%s", "Inner FATAL[0]");
+        BALL_LOGVA_FATAL("%s %d", "Inner FATAL[0]", static_cast<int>(level));
       } break;
       case Sev::e_ERROR: {
-        BALL_LOGVA_ERROR("%s", "Inner ERROR[0]");
+        BALL_LOGVA_ERROR("%s %d", "Inner ERROR[0]", static_cast<int>(level));
       } break;
       case Sev::e_WARN: {
-        BALL_LOGVA_WARN( "%s", "Inner WARN[0]");
+        BALL_LOGVA_WARN( "%s %d", "Inner WARN[0]",  static_cast<int>(level));
       } break;
       case Sev::e_INFO: {
-        BALL_LOGVA_INFO( "%s", "Inner INFO[0]");
+        BALL_LOGVA_INFO( "%s %d", "Inner INFO[0]",  static_cast<int>(level));
       } break;
       case Sev::e_DEBUG: {
-        BALL_LOGVA_DEBUG("%s", "Inner DEBUG[0]");
+        BALL_LOGVA_DEBUG("%s %d", "Inner DEBUG[0]", static_cast<int>(level));
       } break;
       case Sev::e_TRACE: {
-        BALL_LOGVA_TRACE("%s", "Inner TRACE[0]");
+        BALL_LOGVA_TRACE("%s %d", "Inner TRACE[0]", static_cast<int>(level));
       } break;
       default: {
         ASSERT("Should not get here!" && 0);
@@ -3307,13 +3309,17 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //
         // Concerns:
         //: 1 The various logging macros can be safely invoked recursively.
+        //:
+        //: 2 Log messages are correctly being output during recursive macros
+        //:   invocation.
         //
         // Plan:
         //: 1 Define three functions, 'recurseStreamBasedMacros',
         //:   'recursePrintfStyleMacros' and 'recurseCallbackMacros', that log
         //:   using the stream-based macros, 'printf'-style macros and calback
         //:   macros, respectively.  Call these three functions in the context
-        //:   of invocations of the various logging macros.  (C-1)
+        //:   of invocations of the various logging macros and verify the
+        //:   results.  (C-1, 2)
         //
         // Testing:
         //   CONCERN: The logging macros can be used recursively.
@@ -3325,6 +3331,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         using namespace BALL_LOG_TEST_CASE_32;
 
+        typedef BloombergLP::ball::FileObserver2  FileObserver;
+        typedef BloombergLP::bdls::FilesystemUtil FilesystemUtil;
+
         TestAllocator ta(veryVeryVeryVerbose);
 
         BloombergLP::ball::LoggerManagerConfiguration lmc;
@@ -3332,10 +3341,19 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         LoggerManager& manager = LoggerManager::singleton();
 
-        bsl::shared_ptr<TestObserver> observer(
-                                  new (ta) TestObserver(&bsl::cout, &ta), &ta);
+        TempDirectoryGuard tempDirGuard;
 
-        observer->setVerbose(veryVerbose);
+        bsl::string baseName(tempDirGuard.getTempDirName());
+        BloombergLP::bdls::PathUtil::appendRaw(&baseName, "testLog");
+
+        if (veryVeryVerbose) { T_; T_; P(baseName); }
+
+        bsl::shared_ptr<FileObserver> observer(
+                                              new (ta) FileObserver(&ta), &ta);
+
+        observer->enableFileLogging(baseName.c_str(), false);
+        observer->setLogFileFunctor(
+                             BloombergLP::ball::RecordStringFormatter("%m\n"));
 
         ASSERT(0 == manager.registerObserver(observer, "test"));
         ASSERT(0 != manager.setCategory("Recursion",
@@ -3344,199 +3362,208 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                         Sev::e_OFF,
                                         Sev::e_OFF));
 
+        if (verbose)
+            bsl::cout << "\tTesting correctness of the common buffer usage.\n";
+        {
+            // Each macro call uses common buffer to store message.  We need to
+            // test that valuable data in this buffer aren't overwritten during
+            // recursive logging.  But thorough test produces a large number of
+            // log messages.  To avoid cluttering up the code with a long
+            // sheets of expected messages to compare with, we will test this
+            // concern separately with a few macro invocations.
+
+            const char EXPECTED_LOG[] = "Inner FATAL[0] 32\n"
+                                        "Inner FATAL[1] 32\n"
+                                        "Inner FATAL[2] 32\n"
+                                        "Outer FATAL[2] 32\n"
+                                        "Inner ERROR[0] 64\n"
+                                        "Inner ERROR[1] 64\n"
+                                        "Inner ERROR[2] 64\n"
+                                        "Outer ERROR[2] 64\n"
+                                        "Inner WARN[0] 96\n"
+                                        "Inner WARN[1] 96\n"
+                                        "Inner WARN[2] 96\n"
+                                        "Outer WARN[2] 96\n"
+                                        "Inner INFO[0] 128\n"
+                                        "Inner INFO[1] 128\n"
+                                        "Inner INFO[2] 128\n"
+                                        "Outer INFO[2] 128\n";
+
+            const int EXPECTED_LENGTH =
+                                   static_cast<int>(bsl::strlen(EXPECTED_LOG));
+
+            BALL_LOG_SET_CATEGORY("Recursion");
+
+            BALL_LOG_FATAL << "Outer FATAL[2] "
+                           << recurseStreamBasedMacros<2>(Sev::e_FATAL);
+
+            BALL_LOG_ERROR << "Outer ERROR[2] "
+                           << recursePrintfStyleMacros<2>(Sev::e_ERROR);
+
+            BALL_LOGVA_WARN("%s %d", "Outer WARN[2]",
+                            recurseStreamBasedMacros<2>(Sev::e_WARN));
+
+            BALL_LOGVA_INFO("%s %d", "Outer INFO[2]",
+                            recursePrintfStyleMacros<2>(Sev::e_INFO));
+
+            FilesystemUtil::FileDescriptor fd = FilesystemUtil::open(
+                                                  baseName,
+                                                  FilesystemUtil::e_OPEN,
+                                                  FilesystemUtil::e_READ_ONLY);
+
+            const size_t READ_BUFFER_SIZE = 8192;
+            char         buffer[READ_BUFFER_SIZE];
+            memset(buffer, 0, READ_BUFFER_SIZE);
+
+            int numBytes = static_cast<int>(FilesystemUtil::read(
+                                                fd, buffer, READ_BUFFER_SIZE));
+
+            ASSERTV(EXPECTED_LENGTH, numBytes, EXPECTED_LENGTH == numBytes);
+            ASSERTV(EXPECTED_LOG, buffer,
+                    0 == bsl::strcmp(EXPECTED_LOG, buffer));
+
+            FilesystemUtil::close(fd);
+        }
+
         if (verbose) bsl::cout << "\tStream-based recurses to stream-based.\n";
         {
             BALL_LOG_SET_CATEGORY("Recursion");
 
-            BALL_LOG_FATAL << "Outer FATAL begin[0] "
-                           << recurseStreamBasedMacros<0>(Sev::e_FATAL)
-                           << "Outer FATAL end[0]";
-            BALL_LOG_FATAL << "Outer FATAL begin[1] "
-                           << recurseStreamBasedMacros<1>(Sev::e_FATAL)
-                           << "Outer FATAL end[1]";
-            BALL_LOG_FATAL << "Outer FATAL begin[2] "
-                           << recurseStreamBasedMacros<2>(Sev::e_FATAL)
-                           << "Outer FATAL end[2]";
+            BALL_LOG_FATAL << "Outer FATAL[0] "
+                           << recurseStreamBasedMacros<0>(Sev::e_FATAL);
+            BALL_LOG_FATAL << "Outer FATAL[1] "
+                           << recurseStreamBasedMacros<1>(Sev::e_FATAL);
+            BALL_LOG_FATAL << "Outer FATAL[2] "
+                           << recurseStreamBasedMacros<2>(Sev::e_FATAL);
 
-            BALL_LOG_ERROR << "Outer ERROR begin[0] "
-                           << recurseStreamBasedMacros<0>(Sev::e_ERROR)
-                           << "Outer ERROR end[0]";
-            BALL_LOG_ERROR << "Outer ERROR begin[1] "
-                           << recurseStreamBasedMacros<1>(Sev::e_ERROR)
-                           << "Outer ERROR end[1]";
-            BALL_LOG_ERROR << "Outer ERROR begin[2] "
-                           << recurseStreamBasedMacros<2>(Sev::e_ERROR)
-                           << "Outer ERROR end[2]";
+            BALL_LOG_ERROR << "Outer ERROR[0] "
+                           << recurseStreamBasedMacros<0>(Sev::e_ERROR);
+            BALL_LOG_ERROR << "Outer ERROR[1] "
+                           << recurseStreamBasedMacros<1>(Sev::e_ERROR);
+            BALL_LOG_ERROR << "Outer ERROR[2] "
+                           << recurseStreamBasedMacros<2>(Sev::e_ERROR);
 
-            BALL_LOG_WARN  << "Outer WARN begin[0] "
-                           << recurseStreamBasedMacros<0>(Sev::e_WARN)
-                           << "Outer WARN end[0]";
-            BALL_LOG_WARN  << "Outer WARN begin[1] "
-                           << recurseStreamBasedMacros<1>(Sev::e_WARN)
-                           << "Outer WARN end[1]";
-            BALL_LOG_WARN  << "Outer WARN begin[2] "
-                           << recurseStreamBasedMacros<2>(Sev::e_WARN)
-                           << "Outer WARN end[2]";
+            BALL_LOG_WARN  << "Outer WARN[0] "
+                           << recurseStreamBasedMacros<0>(Sev::e_WARN);
+            BALL_LOG_WARN  << "Outer WARN[1] "
+                           << recurseStreamBasedMacros<1>(Sev::e_WARN);
+            BALL_LOG_WARN  << "Outer WARN[2] "
+                           << recurseStreamBasedMacros<2>(Sev::e_WARN);
 
-            BALL_LOG_INFO  << "Outer INFO begin[0] "
-                           << recurseStreamBasedMacros<0>(Sev::e_INFO)
-                           << "Outer INFO end[0]";
-            BALL_LOG_INFO  << "Outer INFO begin[1] "
-                           << recurseStreamBasedMacros<1>(Sev::e_INFO)
-                           << "Outer INFO end[1]";
-            BALL_LOG_INFO  << "Outer INFO begin[2] "
-                           << recurseStreamBasedMacros<2>(Sev::e_INFO)
-                           << "Outer INFO end[2]";
+            BALL_LOG_INFO  << "Outer INFO[0] "
+                           << recurseStreamBasedMacros<0>(Sev::e_INFO);
+            BALL_LOG_INFO  << "Outer INFO[1] "
+                           << recurseStreamBasedMacros<1>(Sev::e_INFO);
+            BALL_LOG_INFO  << "Outer INFO[2] "
+                           << recurseStreamBasedMacros<2>(Sev::e_INFO);
 
-            BALL_LOG_DEBUG << "Outer DEBUG begin[0] "
-                           << recurseStreamBasedMacros<0>(Sev::e_DEBUG)
-                           << "Outer DEBUG end[0]";
-            BALL_LOG_DEBUG << "Outer DEBUG begin[1] "
-                           << recurseStreamBasedMacros<1>(Sev::e_DEBUG)
-                           << "Outer DEBUG end[1]";
-            BALL_LOG_DEBUG << "Outer DEBUG begin[2] "
-                           << recurseStreamBasedMacros<2>(Sev::e_DEBUG)
-                           << "Outer DEBUG end[2]";
+            BALL_LOG_DEBUG << "Outer DEBUG[0] "
+                           << recurseStreamBasedMacros<0>(Sev::e_DEBUG);
+            BALL_LOG_DEBUG << "Outer DEBUG[1] "
+                           << recurseStreamBasedMacros<1>(Sev::e_DEBUG);
+            BALL_LOG_DEBUG << "Outer DEBUG[2] "
+                           << recurseStreamBasedMacros<2>(Sev::e_DEBUG);
 
-            BALL_LOG_TRACE << "Outer TRACE begin[0] "
-                           << recurseStreamBasedMacros<0>(Sev::e_TRACE)
-                           << "Outer TRACE end[0]";
-            BALL_LOG_TRACE << "Outer TRACE begin[1] "
-                           << recurseStreamBasedMacros<1>(Sev::e_TRACE)
-                           << "Outer TRACE end[1]";
-            BALL_LOG_TRACE << "Outer TRACE begin[2] "
-                           << recurseStreamBasedMacros<2>(Sev::e_TRACE)
-                           << "Outer TRACE end[2]";
+            BALL_LOG_TRACE << "Outer TRACE[0] "
+                           << recurseStreamBasedMacros<0>(Sev::e_TRACE);
+            BALL_LOG_TRACE << "Outer TRACE[1] "
+                           << recurseStreamBasedMacros<1>(Sev::e_TRACE);
+            BALL_LOG_TRACE << "Outer TRACE[2] "
+                           << recurseStreamBasedMacros<2>(Sev::e_TRACE);
         }
 
         if (verbose) bsl::cout << "\tStream-based recurses to printf-style.\n";
         {
             BALL_LOG_SET_CATEGORY("Recursion");
 
-            BALL_LOG_FATAL << "Outer FATAL begin[0] "
-                           << recursePrintfStyleMacros<0>(Sev::e_FATAL)
-                           << "Outer FATAL end[0]";
-            BALL_LOG_FATAL << "Outer FATAL begin[1] "
-                           << recursePrintfStyleMacros<1>(Sev::e_FATAL)
-                           << "Outer FATAL end[1]";
-            BALL_LOG_FATAL << "Outer FATAL begin[2] "
-                           << recursePrintfStyleMacros<2>(Sev::e_FATAL)
-                           << "Outer FATAL end[2]";
+            BALL_LOG_FATAL << "Outer FATAL[0] "
+                           << recursePrintfStyleMacros<0>(Sev::e_FATAL);
+            BALL_LOG_FATAL << "Outer FATAL[1] "
+                           << recursePrintfStyleMacros<1>(Sev::e_FATAL);
+            BALL_LOG_FATAL << "Outer FATAL[2] "
+                           << recursePrintfStyleMacros<2>(Sev::e_FATAL);
 
-            BALL_LOG_ERROR << "Outer ERROR begin[0] "
-                           << recursePrintfStyleMacros<0>(Sev::e_ERROR)
-                           << "Outer ERROR end[0]";
-            BALL_LOG_ERROR << "Outer ERROR begin[1] "
-                           << recursePrintfStyleMacros<1>(Sev::e_ERROR)
-                           << "Outer ERROR end[1]";
-            BALL_LOG_ERROR << "Outer ERROR begin[2] "
-                           << recursePrintfStyleMacros<2>(Sev::e_ERROR)
-                           << "Outer ERROR end[2]";
+            BALL_LOG_ERROR << "Outer ERROR[0] "
+                           << recursePrintfStyleMacros<0>(Sev::e_ERROR);
+            BALL_LOG_ERROR << "Outer ERROR[1] "
+                           << recursePrintfStyleMacros<1>(Sev::e_ERROR);
+            BALL_LOG_ERROR << "Outer ERROR[2] "
+                           << recursePrintfStyleMacros<2>(Sev::e_ERROR);
 
-            BALL_LOG_WARN  << "Outer WARN begin[0] "
-                           << recursePrintfStyleMacros<0>(Sev::e_WARN)
-                           << "Outer WARN end[0]";
-            BALL_LOG_WARN  << "Outer WARN begin[1] "
-                           << recursePrintfStyleMacros<1>(Sev::e_WARN)
-                           << "Outer WARN end[1]";
-            BALL_LOG_WARN  << "Outer WARN begin[2] "
-                           << recursePrintfStyleMacros<2>(Sev::e_WARN)
-                           << "Outer WARN end[2]";
+            BALL_LOG_WARN  << "Outer WARN[0] "
+                           << recursePrintfStyleMacros<0>(Sev::e_WARN);
+            BALL_LOG_WARN  << "Outer WARN[1] "
+                           << recursePrintfStyleMacros<1>(Sev::e_WARN);
+            BALL_LOG_WARN  << "Outer WARN[2] "
+                           << recursePrintfStyleMacros<2>(Sev::e_WARN);
 
-            BALL_LOG_INFO  << "Outer INFO begin[0] "
-                           << recursePrintfStyleMacros<0>(Sev::e_INFO)
-                           << "Outer INFO end[0]";
-            BALL_LOG_INFO  << "Outer INFO begin[1] "
-                           << recursePrintfStyleMacros<1>(Sev::e_INFO)
-                           << "Outer INFO end[1]";
-            BALL_LOG_INFO  << "Outer INFO begin[2] "
-                           << recursePrintfStyleMacros<2>(Sev::e_INFO)
-                           << "Outer INFO end[2]";
+            BALL_LOG_INFO  << "Outer INFO[0] "
+                           << recursePrintfStyleMacros<0>(Sev::e_INFO);
+            BALL_LOG_INFO  << "Outer INFO[1] "
+                           << recursePrintfStyleMacros<1>(Sev::e_INFO);
+            BALL_LOG_INFO  << "Outer INFO[2] "
+                           << recursePrintfStyleMacros<2>(Sev::e_INFO);
 
-            BALL_LOG_DEBUG << "Outer DEBUG begin[0] "
-                           << recursePrintfStyleMacros<0>(Sev::e_DEBUG)
-                           << "Outer DEBUG end[0]";
-            BALL_LOG_DEBUG << "Outer DEBUG begin[1] "
-                           << recursePrintfStyleMacros<1>(Sev::e_DEBUG)
-                           << "Outer DEBUG end[1]";
-            BALL_LOG_DEBUG << "Outer DEBUG begin[2] "
-                           << recursePrintfStyleMacros<2>(Sev::e_DEBUG)
-                           << "Outer DEBUG end[2]";
+            BALL_LOG_DEBUG << "Outer DEBUG[0] "
+                           << recursePrintfStyleMacros<0>(Sev::e_DEBUG);
+            BALL_LOG_DEBUG << "Outer DEBUG[1] "
+                           << recursePrintfStyleMacros<1>(Sev::e_DEBUG);
+            BALL_LOG_DEBUG << "Outer DEBUG[2] "
+                           << recursePrintfStyleMacros<2>(Sev::e_DEBUG);
 
-            BALL_LOG_TRACE << "Outer TRACE begin[0] "
-                           << recursePrintfStyleMacros<0>(Sev::e_TRACE)
-                           << "Outer TRACE end[0]";
-            BALL_LOG_TRACE << "Outer TRACE begin[1] "
-                           << recursePrintfStyleMacros<1>(Sev::e_TRACE)
-                           << "Outer TRACE end[1]";
-            BALL_LOG_TRACE << "Outer TRACE begin[2] "
-                           << recursePrintfStyleMacros<2>(Sev::e_TRACE)
-                           << "Outer TRACE end[2]";
+            BALL_LOG_TRACE << "Outer TRACE[0] "
+                           << recursePrintfStyleMacros<0>(Sev::e_TRACE);
+            BALL_LOG_TRACE << "Outer TRACE[1] "
+                           << recursePrintfStyleMacros<1>(Sev::e_TRACE);
+            BALL_LOG_TRACE << "Outer TRACE[2] "
+                           << recursePrintfStyleMacros<2>(Sev::e_TRACE);
         }
 
         if (verbose) bsl::cout << "\tPrintf-style recurses to stream-based.\n";
         {
             BALL_LOG_SET_CATEGORY("Recursion");
 
-            BALL_LOGVA_FATAL("%s %d %s", "Outer FATAL begin[0]",
-                             recurseStreamBasedMacros<0>(Sev::e_FATAL),
-                             "Outer FATAL end[0]");
-            BALL_LOGVA_FATAL("%s %d %s", "Outer FATAL begin[1]",
-                             recurseStreamBasedMacros<1>(Sev::e_FATAL),
-                             "Outer FATAL end[1]");
-            BALL_LOGVA_FATAL("%s %d %s", "Outer FATAL begin[2]",
-                             recurseStreamBasedMacros<2>(Sev::e_FATAL),
-                             "Outer FATAL end[2]");
+            BALL_LOGVA_FATAL("%s %d", "Outer FATAL[0]",
+                             recurseStreamBasedMacros<0>(Sev::e_FATAL));
+            BALL_LOGVA_FATAL("%s %d", "Outer FATAL[1]",
+                             recurseStreamBasedMacros<1>(Sev::e_FATAL));
+            BALL_LOGVA_FATAL("%s %d", "Outer FATAL[2]",
+                             recurseStreamBasedMacros<2>(Sev::e_FATAL));
 
-            BALL_LOGVA_ERROR("%s %d %s", "Outer ERROR begin[0]",
-                             recurseStreamBasedMacros<0>(Sev::e_ERROR),
-                             "Outer ERROR end[0]");
-            BALL_LOGVA_ERROR("%s %d %s", "Outer ERROR begin[1]",
-                             recurseStreamBasedMacros<1>(Sev::e_ERROR),
-                             "Outer ERROR end[1]");
-            BALL_LOGVA_ERROR("%s %d %s", "Outer ERROR begin[2]",
-                             recurseStreamBasedMacros<2>(Sev::e_ERROR),
-                             "Outer ERROR end[2]");
+            BALL_LOGVA_ERROR("%s %d", "Outer ERROR[0]",
+                             recurseStreamBasedMacros<0>(Sev::e_ERROR));
+            BALL_LOGVA_ERROR("%s %d", "Outer ERROR[1]",
+                             recurseStreamBasedMacros<1>(Sev::e_ERROR));
+            BALL_LOGVA_ERROR("%s %d", "Outer ERROR[2]",
+                             recurseStreamBasedMacros<2>(Sev::e_ERROR));
 
-            BALL_LOGVA_WARN( "%s %d %s", "Outer WARN begin[0]",
-                             recurseStreamBasedMacros<0>(Sev::e_WARN),
-                             "Outer WARN end[0]");
-            BALL_LOGVA_WARN( "%s %d %s", "Outer WARN begin[1]",
-                             recurseStreamBasedMacros<1>(Sev::e_WARN),
-                             "Outer WARN end[1]");
-            BALL_LOGVA_WARN( "%s %d %s", "Outer WARN begin[2]",
-                             recurseStreamBasedMacros<2>(Sev::e_WARN),
-                             "Outer WARN end[2]");
+            BALL_LOGVA_WARN( "%s %d", "Outer WARN[0]",
+                             recurseStreamBasedMacros<0>(Sev::e_WARN));
+            BALL_LOGVA_WARN( "%s %d", "Outer WARN[1]",
+                             recurseStreamBasedMacros<1>(Sev::e_WARN));
+            BALL_LOGVA_WARN( "%s %d", "Outer WARN[2]",
+                             recurseStreamBasedMacros<2>(Sev::e_WARN));
 
-            BALL_LOGVA_INFO( "%s %d %s", "Outer INFO begin[0]",
-                             recurseStreamBasedMacros<0>(Sev::e_INFO),
-                             "Outer INFO end[0]");
-            BALL_LOGVA_INFO( "%s %d %s", "Outer INFO begin[1]",
-                             recurseStreamBasedMacros<1>(Sev::e_INFO),
-                             "Outer INFO end[1]");
-            BALL_LOGVA_INFO( "%s %d %s", "Outer INFO begin[2]",
-                             recurseStreamBasedMacros<2>(Sev::e_INFO),
-                             "Outer INFO end[2]");
+            BALL_LOGVA_INFO( "%s %d", "Outer INFO[0]",
+                             recurseStreamBasedMacros<0>(Sev::e_INFO));
+            BALL_LOGVA_INFO( "%s %d", "Outer INFO[1]",
+                             recurseStreamBasedMacros<1>(Sev::e_INFO));
+            BALL_LOGVA_INFO( "%s %d", "Outer INFO[2]",
+                             recurseStreamBasedMacros<2>(Sev::e_INFO));
 
-            BALL_LOGVA_DEBUG("%s %d %s", "Outer DEBUG begin[0]",
-                             recurseStreamBasedMacros<0>(Sev::e_DEBUG),
-                             "Outer DEBUG end[0]");
-            BALL_LOGVA_DEBUG("%s %d %s", "Outer DEBUG begin[1]",
-                             recurseStreamBasedMacros<1>(Sev::e_DEBUG),
-                             "Outer DEBUG end[1]");
-            BALL_LOGVA_DEBUG("%s %d %s", "Outer DEBUG begin[2]",
-                             recurseStreamBasedMacros<2>(Sev::e_DEBUG),
-                             "Outer DEBUG end[2]");
+            BALL_LOGVA_DEBUG("%s %d", "Outer DEBUG[0]",
+                             recurseStreamBasedMacros<0>(Sev::e_DEBUG));
+            BALL_LOGVA_DEBUG("%s %d", "Outer DEBUG[1]",
+                             recurseStreamBasedMacros<1>(Sev::e_DEBUG));
+            BALL_LOGVA_DEBUG("%s %d", "Outer DEBUG[2]",
+                             recurseStreamBasedMacros<2>(Sev::e_DEBUG));
 
-            BALL_LOGVA_TRACE("%s %d %s", "Outer TRACE begin[0]",
-                             recurseStreamBasedMacros<0>(Sev::e_TRACE),
-                             "Outer TRACE end[0]");
-            BALL_LOGVA_TRACE("%s %d %s", "Outer TRACE begin[1]",
-                             recurseStreamBasedMacros<1>(Sev::e_TRACE),
-                             "Outer TRACE end[1]");
-            BALL_LOGVA_TRACE("%s %d %s", "Outer TRACE begin[2]",
-                             recurseStreamBasedMacros<2>(Sev::e_TRACE),
-                             "Outer TRACE end[2]");
+            BALL_LOGVA_TRACE("%s %d", "Outer TRACE[0]",
+                             recurseStreamBasedMacros<0>(Sev::e_TRACE));
+            BALL_LOGVA_TRACE("%s %d", "Outer TRACE[1]",
+                             recurseStreamBasedMacros<1>(Sev::e_TRACE));
+            BALL_LOGVA_TRACE("%s %d", "Outer TRACE[2]",
+                             recurseStreamBasedMacros<2>(Sev::e_TRACE));
         }
 
         // Deadlock check (DRQS 110401470)
@@ -3545,65 +3572,47 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             BALL_LOG_SET_CATEGORY("Recursion");
 
-            BALL_LOGVA_FATAL("%s %d %s", "Outer FATAL begin[0]",
-                             recursePrintfStyleMacros<0>(Sev::e_FATAL),
-                             "Outer FATAL end[0]");
-            BALL_LOGVA_FATAL("%s %d %s", "Outer FATAL begin[1]",
-                             recursePrintfStyleMacros<1>(Sev::e_FATAL),
-                             "Outer FATAL end[1]");
-            BALL_LOGVA_FATAL("%s %d %s", "Outer FATAL begin[2]",
-                             recursePrintfStyleMacros<2>(Sev::e_FATAL),
-                             "Outer FATAL end[2]");
+            BALL_LOGVA_FATAL("%s %d", "Outer FATAL[0]",
+                             recursePrintfStyleMacros<0>(Sev::e_FATAL));
+            BALL_LOGVA_FATAL("%s %d", "Outer FATAL[1]",
+                             recursePrintfStyleMacros<1>(Sev::e_FATAL));
+            BALL_LOGVA_FATAL("%s %d", "Outer FATAL[2]",
+                             recursePrintfStyleMacros<2>(Sev::e_FATAL));
 
-            BALL_LOGVA_ERROR("%s %d %s", "Outer ERROR begin[0]",
-                             recursePrintfStyleMacros<0>(Sev::e_ERROR),
-                             "Outer ERROR end[0]");
-            BALL_LOGVA_ERROR("%s %d %s", "Outer ERROR begin[1]",
-                             recursePrintfStyleMacros<1>(Sev::e_ERROR),
-                             "Outer ERROR end[1]");
-            BALL_LOGVA_ERROR("%s %d %s", "Outer ERROR begin[2]",
-                             recursePrintfStyleMacros<2>(Sev::e_ERROR),
-                             "Outer ERROR end[2]");
+            BALL_LOGVA_ERROR("%s %d", "Outer ERROR[0]",
+                             recursePrintfStyleMacros<0>(Sev::e_ERROR));
+            BALL_LOGVA_ERROR("%s %d", "Outer ERROR[1]",
+                             recursePrintfStyleMacros<1>(Sev::e_ERROR));
+            BALL_LOGVA_ERROR("%s %d", "Outer ERROR[2]",
+                             recursePrintfStyleMacros<2>(Sev::e_ERROR));
 
-            BALL_LOGVA_WARN( "%s %d %s", "Outer WARN begin[0]",
-                             recursePrintfStyleMacros<0>(Sev::e_WARN),
-                             "Outer WARN end[0]");
-            BALL_LOGVA_WARN( "%s %d %s", "Outer WARN begin[1]",
-                             recursePrintfStyleMacros<1>(Sev::e_WARN),
-                             "Outer WARN end[1]");
-            BALL_LOGVA_WARN( "%s %d %s", "Outer WARN begin[2]",
-                             recursePrintfStyleMacros<2>(Sev::e_WARN),
-                             "Outer WARN end[2]");
+            BALL_LOGVA_WARN( "%s %d", "Outer WARN[0]",
+                             recursePrintfStyleMacros<0>(Sev::e_WARN));
+            BALL_LOGVA_WARN( "%s %d", "Outer WARN[1]",
+                             recursePrintfStyleMacros<1>(Sev::e_WARN));
+            BALL_LOGVA_WARN( "%s %d", "Outer WARN[2]",
+                             recursePrintfStyleMacros<2>(Sev::e_WARN));
 
-            BALL_LOGVA_INFO( "%s %d %s", "Outer INFO begin[0]",
-                             recursePrintfStyleMacros<0>(Sev::e_INFO),
-                             "Outer INFO end[0]");
-            BALL_LOGVA_INFO( "%s %d %s", "Outer INFO begin[1]",
-                             recursePrintfStyleMacros<1>(Sev::e_INFO),
-                             "Outer INFO end[1]");
-            BALL_LOGVA_INFO( "%s %d %s", "Outer INFO begin[2]",
-                             recursePrintfStyleMacros<2>(Sev::e_INFO),
-                             "Outer INFO end[2]");
+            BALL_LOGVA_INFO( "%s %d", "Outer INFO[0]",
+                             recursePrintfStyleMacros<0>(Sev::e_INFO));
+            BALL_LOGVA_INFO( "%s %d", "Outer INFO[1]",
+                             recursePrintfStyleMacros<1>(Sev::e_INFO));
+            BALL_LOGVA_INFO( "%s %d", "Outer INFO[2]",
+                             recursePrintfStyleMacros<2>(Sev::e_INFO));
 
-            BALL_LOGVA_DEBUG("%s %d %s", "Outer DEBUG begin[0]",
-                             recursePrintfStyleMacros<0>(Sev::e_DEBUG),
-                             "Outer DEBUG end[0]");
-            BALL_LOGVA_DEBUG("%s %d %s", "Outer DEBUG begin[1]",
-                             recursePrintfStyleMacros<1>(Sev::e_DEBUG),
-                             "Outer DEBUG end[1]");
-            BALL_LOGVA_DEBUG("%s %d %s", "Outer DEBUG begin[2]",
-                             recursePrintfStyleMacros<2>(Sev::e_DEBUG),
-                             "Outer DEBUG end[2]");
+            BALL_LOGVA_DEBUG("%s %d", "Outer DEBUG[0]",
+                             recursePrintfStyleMacros<0>(Sev::e_DEBUG));
+            BALL_LOGVA_DEBUG("%s %d", "Outer DEBUG[1]",
+                             recursePrintfStyleMacros<1>(Sev::e_DEBUG));
+            BALL_LOGVA_DEBUG("%s %d", "Outer DEBUG[2]",
+                             recursePrintfStyleMacros<2>(Sev::e_DEBUG));
 
-            BALL_LOGVA_TRACE("%s %d %s", "Outer TRACE begin[0]",
-                             recursePrintfStyleMacros<0>(Sev::e_TRACE),
-                             "Outer TRACE end[0]");
-            BALL_LOGVA_TRACE("%s %d %s", "Outer TRACE begin[1]",
-                             recursePrintfStyleMacros<1>(Sev::e_TRACE),
-                             "Outer TRACE end[1]");
-            BALL_LOGVA_TRACE("%s %d %s", "Outer TRACE begin[2]",
-                             recursePrintfStyleMacros<2>(Sev::e_TRACE),
-                             "Outer TRACE end[2]");
+            BALL_LOGVA_TRACE("%s %d", "Outer TRACE[0]",
+                             recursePrintfStyleMacros<0>(Sev::e_TRACE));
+            BALL_LOGVA_TRACE("%s %d", "Outer TRACE[1]",
+                             recursePrintfStyleMacros<1>(Sev::e_TRACE));
+            BALL_LOGVA_TRACE("%s %d", "Outer TRACE[2]",
+                             recursePrintfStyleMacros<2>(Sev::e_TRACE));
         }
 
         if (verbose) bsl::cout << "\tCallback recurses to  printf-style.\n";

@@ -311,10 +311,6 @@ class RecordAttributes {
         // Set the message attribute of this record attributes object to the
         // specified (non-null) 'message'.
 
-    void setMessage(const char *message, int length);
-        // Set the message attribute of this record attributes object to the
-        // specified (non-null) 'message' of the specified 'length'.
-
     void setProcessID(int processID);
         // Set the processID attribute of this record attributes object to the
         // specified 'processID'.
