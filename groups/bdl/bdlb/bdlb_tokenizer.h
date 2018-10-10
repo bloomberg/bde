@@ -527,7 +527,7 @@ class Tokenizer_Data {
     // This component-private class is used to hold delimiter information.
     // Each 'Tokenizer' object will have, as a private data member, an object
     // of this class,  and will pass the address of that member to the
-    // (private) constructor of each 'TockenizerIterator' object it issues:
+    // (private) constructor of each 'TokenizerIterator' object it issues:
     //..
     //  +--------------------------------------+
     //  |   ,--------------.                   |
