@@ -150,14 +150,17 @@ BSLS_IDENT("$Id: $")
 // that is almost identical to the default long format except that the
 // timestamp attribute will be written in ISO 8601 format:
 //..
-//  fileObserver.setLogFormat("%I %p:%t %s %f:%l %c %m %u",
-//                            "%I %p:%t %s %f:%l %c %m %u");
+//  fileObserver.setLogFormat("\n%I %p:%t %s %f:%l %c %m %u\n",
+//                            "\n%I %p:%t %s %f:%l %c %m %u\n");
 //..
 // Once a customized format is specified for 'stdout', calling
 // 'disableStdoutLoggingPrefix' will switch to the default short format, i.e.,
-// "%s %f:%l %c %m %u".  If 'enableStdoutLoggingPrefix' is subsequently called,
-// the customized format specified in the most recent call to 'setLogFormat'
-// will be reinstated.
+// "\n%s %f:%l %c %m %u\n".  If 'enableStdoutLoggingPrefix' is subsequently
+// called, the customized format specified in the most recent call to
+// 'setLogFormat' will be reinstated.  Note that observer emits an extra new
+// line character at the beginning and at the end of a log record by default,
+// but format configurating discards them, so user needs to add them to the
+// format string directly to split log file into several lines.
 //
 // Note that in the sample long-form message above the timestamp has
 // millisecond precision ('18MAY2005_18:58:12.076').  If microsecond precision
@@ -303,8 +306,8 @@ BSLS_IDENT("$Id: $")
 // 'stdout', where timestamps are output with millisecond precision in both
 // cases:
 //..
-//  observer.setLogFormat("%I %p:%t %s %f:%l %c %m",
-//                        "%d %p:%t %s %f:%l %c %m");
+//  observer.setLogFormat("\n%I %p:%t %s %f:%l %c %m\n",
+//                        "\n%d %p:%t %s %f:%l %c %m\n");
 //..
 // Note that both of the above format specifications omit user fields ('%u') in
 // the output.
@@ -498,10 +501,10 @@ class FileObserver : public Observer {
     void disableStdoutLoggingPrefix();
         // Disable this file observer from using the long output format when
         // logging to 'stdout'.  Henceforth, this file observer will use the
-        // default short output format ("%s %f:%l %c %m %u") when logging to
-        // 'stdout'.  This method has no effect if the long output format for
-        // 'stdout' logging is not enabled.  Note that this method omits the
-        // "%d %p:%t " prefix from the default long output format.
+        // default short output format ("\n%s %f:%l %c %m %u\n") when logging
+        // to 'stdout'.  This method has no effect if the long output format
+        // for 'stdout' logging is not enabled.  Note that this method omits
+        // the "%d %p:%t " prefix from the default long output format.
 
     void disableUserFieldsLogging();
         // Disable the logging of user-defined fields by this file observer.
@@ -564,9 +567,9 @@ class FileObserver : public Observer {
         // to 'stdout'.  Henceforth, this file observer will use the output
         // format for 'stdout' logging that was set by the most recent call to
         // 'setLogFormat', or the default long output format
-        // ("%d %p:%t %s %f:%l %c %m %u") if 'setLogFormat' has not yet been
-        // called.  This method has no effect if the long output format for
-        // 'stdout' logging is already enabled.
+        // ("\n%d %p:%t %s %f:%l %c %m %u\n") if 'setLogFormat' has not yet
+        // been called.  This method has no effect if the long output format
+        // for 'stdout' logging is already enabled.
 
     void enableUserFieldsLogging();
         // Enable the logging of user-defined fields by this file observer.
@@ -663,8 +666,11 @@ class FileObserver : public Observer {
         // 'disableStdoutLoggingPrefix').  See {Log Record Formatting} for
         // details on the syntax of format specifications.  Note that default
         // formats are in effect following construction until this method is
-        // called ("%d %p:%t %s %f:%l %c %m %u" for both file and 'stdout'
-        // logging).
+        // called ("\n%d %p:%t %s %f:%l %c %m %u\n" for both file and 'stdout'
+        // logging).  Also note that observer emits an extra new line character
+        // at the beginning and at the end of a log record by default, but
+        // format configurating discards them, so user needs to add them to the
+        // format string directly to split log file into several lines.
 
     // ACCESSORS
     bslma::Allocator *allocator() const;

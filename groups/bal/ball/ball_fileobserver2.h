@@ -117,7 +117,7 @@ BSLS_IDENT("$Id: $")
 // 'ball::RecordStringFormatter' conveniently provides such a functor:
 //..
 //  fileObserver.setLogFileFunctor(
-//                  ball::RecordStringFormatter("%I %p:%t %s %f:%l %c %m %u"));
+//              ball::RecordStringFormatter("\n%I %p:%t %s %f:%l %c %m %u\n"));
 //..
 // The above statement will cause subsequent records to be logged in a format
 // that is almost identical to the default format except that the timestamp
@@ -125,7 +125,12 @@ BSLS_IDENT("$Id: $")
 // {'ball_recordstringformatter'} for information on how format specifications
 // are defined and interpreted.
 //
-// Note that in the sample message above the timestamp has millisecond
+// Note that observer emits an extra new line character at the beginning and at
+// the end of a log record by default, but format configurating discards them,
+// so user needs to add them to the format string directly to split log file
+// into several lines.
+//
+// Also note that in the sample message above the timestamp has millisecond
 // precision ('18MAY2005_18:58:12.076').  If microsecond precision is desired
 // instead, consider using either the '%D' or '%O' format specification
 // supported by 'ball_recordstringformatter'.
@@ -612,8 +617,13 @@ class FileObserver2 : public Observer {
     void setLogFileFunctor(const LogRecordFunctor& logFileFunctor);
         // Set the formatting functor used when writing records to the log file
         // of this file observer to the specified 'logFileFunctor'.  Note that
-        // a default format ("%d %p:%t %s %f:%l %c %m %u") is in effect until
-        // this method is called (see 'ball_recordstringformatter').
+        // a default format ("\n%d %p:%t %s %f:%l %c %m %u\n") is in effect
+        // until this method is called (see 'ball_recordstringformatter').
+        // Also note that observer emits an extra new line character at the
+        // beginning and at the end of a log record by default, but format
+        // configurating discards them, so user needs to add them to the format
+        // string directly to split log file into several lines.
+
 
     void setOnFileRotationCallback(
                              const OnFileRotationCallback& onRotationCallback);
