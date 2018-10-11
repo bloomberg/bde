@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 //:   the supplied allocator to any data-members which themselves accept an
 //:   allocator).
 //:
-//; o If the type defines a move-constructor *with* an allocator argument:
+//: o If the type defines a move-constructor *with* an allocator argument:
 //:   1 If another move-constructor *without* an allocator argument that is
 //:     'noexcept' exists, then if the allocators match, the behavior of those
 //:     two move-constructors will be identical.
