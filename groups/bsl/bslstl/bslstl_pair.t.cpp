@@ -589,8 +589,8 @@ PAIR& initPair(bsls::ObjectBuffer<PAIR> *buffer,
     // 'second' fields of the pair in the 'buffer' according to the specified
     // 'value', and pass the specified allocator 'alloc' as appropriate.
 {
-    BSLS_ASSERT_SAFE(buffer);
-    BSLS_ASSERT_SAFE(0 <= value);  BSLS_ASSERT_SAFE(value < 128);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= value);  BSLS_ASSERT(value < 128);
 
     TTF::emplace(bsls::Util::addressOf(buffer->object().first),
                  value,
@@ -890,7 +890,7 @@ VolatileMovableType::VolatileMovableType(int               value,
 , d_movedFrom(VolatileMovableType::e_NOT_MOVED)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT_SAFE(value >= 0);
+    BSLS_ASSERT(value >= 0);
 
     d_data_p = new (*d_allocator_p) int(value);
 }

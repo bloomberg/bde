@@ -382,9 +382,9 @@ void incInt(int *x, int maxVal)
     // specified 'maxVal', after which it will be set to 'maxVal + 1', causing
     // the loop to terminate.
 
-    BSLS_ASSERT_SAFE(0 <= *x);
-    BSLS_ASSERT_SAFE(     *x <= maxVal);
-    BSLS_ASSERT_SAFE(           maxVal < INT_MAX);
+    BSLS_ASSERT(0 <= *x);
+    BSLS_ASSERT(     *x <= maxVal);
+    BSLS_ASSERT(           maxVal < INT_MAX);
 
     if (maxVal == *x) {
         ++*x;
@@ -409,8 +409,8 @@ void incSizeT(size_t *x, size_t maxVal)
     // specified 'maxVal', after which it will be set to 'maxVal + 1', causing
     // the loop to terminate.
 
-    BSLS_ASSERT_SAFE(*x <= maxVal);
-    BSLS_ASSERT_SAFE(      maxVal < INT_MAX);
+    BSLS_ASSERT(*x <= maxVal);
+    BSLS_ASSERT(      maxVal < INT_MAX);
 
     if (maxVal == *x) {
         ++*x;
@@ -428,7 +428,7 @@ int intAbs(int x)
     // Return the absolute value of the specified 'x'.  The behavior is
     // undefined unless 'INT_MIN != x'.
 {
-    BSLS_ASSERT_SAFE(INT_MIN != x);
+    BSLS_ASSERT(INT_MIN != x);
 
     return x < 0 ? -x : x;
 }
@@ -447,10 +447,10 @@ bool areBitsEqual(const uint64_t *bitStringLhs,
     // simpler but much less efficient than 'BitStringUtil::areEqual', and is
     // used until that routine is vetted.
 
-    BSLS_ASSERT_SAFE(bitStringLhs);
-    BSLS_ASSERT_SAFE(bitStringRhs);
-    BSLS_ASSERT_SAFE(0 <= index);
-    BSLS_ASSERT_SAFE(0 <= numBits);
+    BSLS_ASSERT(bitStringLhs);
+    BSLS_ASSERT(bitStringRhs);
+    BSLS_ASSERT(0 <= index);
+    BSLS_ASSERT(0 <= numBits);
 
     if (! numBits) {
         return true;                                                  // RETURN
@@ -516,7 +516,7 @@ void wordCpy(uint64_t *dst, const uint64_t *src, size_t numBytes)
     // faster, since it assumes it must copy an integral number of aligned
     // 64-bit words.
 {
-    BSLS_ASSERT_SAFE(0 == numBytes % sizeof(uint64_t));
+    BSLS_ASSERT(0 == numBytes % sizeof(uint64_t));
 
     int numWords = static_cast<int>(numBytes / sizeof(uint64_t));
     for (; numWords > 0; --numWords) {
@@ -533,7 +533,7 @@ int wordCmp(const uint64_t *dst, const uint64_t *src, size_t numBytes)
     // faster, since it assumes it must compare an integral number of aligned
     // 64-bit words.
 {
-    BSLS_ASSERT_SAFE(0 == numBytes % sizeof(uint64_t));
+    BSLS_ASSERT(0 == numBytes % sizeof(uint64_t));
 
     int numWords = static_cast<int>(numBytes / sizeof(uint64_t));
     for (; numWords > 0;  ++dst, ++src, --numWords) {

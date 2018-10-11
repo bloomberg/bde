@@ -343,7 +343,7 @@ int populateBufferLengthsSorted(bsl::vector<int> *bufferLengths)
     // increasing sorted order.  Return the maximum length populated.  Note
     // that 'bufferLengths' will be cleared.
 {
-    BSLS_ASSERT_SAFE(bufferLengths);
+    BSLS_ASSERT(bufferLengths);
 
     bufferLengths->clear();
 
@@ -420,7 +420,7 @@ void printTableRows(bsl::ostream&                   out,
     //..
 {
     // PRECONDITIONS
-    BSLS_ASSERT_SAFE(headerCols.size() == 4);
+    BSLS_ASSERT(headerCols.size() == 4);
 
     bsl::ios_base::fmtflags flags = out.flags();
 

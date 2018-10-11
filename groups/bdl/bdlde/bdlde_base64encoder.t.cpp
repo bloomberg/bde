@@ -994,7 +994,7 @@ int u_Base64Decoder_Test::convert(char       *out,
 
 int u_Base64Decoder_Test::endConvert(char *out, int *numOut, int maxNumOut)
 {
-    BSLS_ASSERT_SAFE(numOut);
+    BSLS_ASSERT(numOut);
 
     const int residualBits = ((d_outputLength % 3) * 8 + d_bitsInStack) % 24;
     if (e_ERROR_STATE == d_state || e_NEED_EQUAL_STATE == d_state ||
