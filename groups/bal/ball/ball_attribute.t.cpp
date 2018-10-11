@@ -355,7 +355,7 @@ class MyAttributeValue {
               new (d_stringValue) bsl::string(*string_p, d_allocator_p);
           } break;
           default: {
-              BSLS_ASSERT_SAFE(!"Unreachable by design!");
+              BSLS_ASSERT(!"Unreachable by design!");
           } break;
         }
     }

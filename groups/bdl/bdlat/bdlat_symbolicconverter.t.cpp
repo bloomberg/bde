@@ -353,7 +353,7 @@ void ChoiceA::reset()
         d_selection2.object().~Type();
       } break;
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
     d_selectionId = SELECTION_ID_UNDEFINED;
@@ -436,7 +436,7 @@ ChoiceA::ChoiceA(const ChoiceA& original, bslma::Allocator *basicAllocator)
             bsl::string(original.d_selection2.object(), d_allocator_p);
       } break;
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -460,7 +460,7 @@ ChoiceA::operator=(const ChoiceA& rhs)
             makeSelection2(rhs.d_selection2.object());
           } break;
           default:
-            BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -556,7 +556,7 @@ int ChoiceA::manipulateSelection(MANIPULATOR& manipulator)
                            SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
                                                                       // RETURN
       default:
-        BSLS_ASSERT_SAFE(ChoiceA::SELECTION_ID_UNDEFINED ==
+        BSLS_ASSERT(ChoiceA::SELECTION_ID_UNDEFINED ==
                      d_selectionId);
         return FAILURE;                                               // RETURN
     }
@@ -565,14 +565,14 @@ int ChoiceA::manipulateSelection(MANIPULATOR& manipulator)
 inline
 int& ChoiceA::selection1()
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SELECTION1 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
     return d_selection1.object();
 }
 
 inline
 bsl::string& ChoiceA::selection2()
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SELECTION2 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
     return d_selection2.object();
 }
 
@@ -594,7 +594,7 @@ STREAM& ChoiceA::bdexStreamOut(STREAM& stream, int version) const
                     stream, d_selection2.object(), 1);
               } break;
               default:
-                BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+                BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
             }
       } break;
     }
@@ -623,7 +623,7 @@ int ChoiceA::accessSelection(ACCESSOR& accessor) const
                         SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
                                                                       // RETURN
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
         return FAILURE;                                               // RETURN
     }
 }
@@ -631,14 +631,14 @@ int ChoiceA::accessSelection(ACCESSOR& accessor) const
 inline
 const int& ChoiceA::selection1() const
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SELECTION1 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
     return d_selection1.object();
 }
 
 inline
 const bsl::string& ChoiceA::selection2() const
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SELECTION2 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
     return d_selection2.object();
 }
 
@@ -660,7 +660,7 @@ bool test::operator==(const test::ChoiceA& lhs, const test::ChoiceA& rhs)
             return lhs.selection2() == rhs.selection2();
                                                                     // RETURN
           default:
-            BSLS_ASSERT_SAFE(test::ChoiceA::SELECTION_ID_UNDEFINED
+            BSLS_ASSERT(test::ChoiceA::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
             return true;                                              // RETURN
         }
@@ -1097,7 +1097,7 @@ void ChoiceB::reset()
         // no destruction required
       } break;
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
     d_selectionId = SELECTION_ID_UNDEFINED;
@@ -1180,7 +1180,7 @@ ChoiceB::ChoiceB(const ChoiceB& original, bslma::Allocator *basicAllocator)
             int(original.d_selection1.object());
       } break;
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -1204,7 +1204,7 @@ ChoiceB::operator=(const ChoiceB& rhs)
             makeSelection1(rhs.d_selection1.object());
           } break;
           default:
-            BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -1300,7 +1300,7 @@ int ChoiceB::manipulateSelection(MANIPULATOR& manipulator)
                            SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
                                                                       // RETURN
       default:
-        BSLS_ASSERT_SAFE(ChoiceB::SELECTION_ID_UNDEFINED ==
+        BSLS_ASSERT(ChoiceB::SELECTION_ID_UNDEFINED ==
                      d_selectionId);
         return FAILURE;                                               // RETURN
     }
@@ -1309,14 +1309,14 @@ int ChoiceB::manipulateSelection(MANIPULATOR& manipulator)
 inline
 bsl::string& ChoiceB::selection2()
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SELECTION2 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
     return d_selection2.object();
 }
 
 inline
 int& ChoiceB::selection1()
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SELECTION1 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
     return d_selection1.object();
 }
 
@@ -1338,7 +1338,7 @@ STREAM& ChoiceB::bdexStreamOut(STREAM& stream, int version) const
                     stream, d_selection1.object(), 1);
               } break;
               default:
-                BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+                BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
             }
       } break;
     }
@@ -1367,7 +1367,7 @@ int ChoiceB::accessSelection(ACCESSOR& accessor) const
                         SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
                                                                       // RETURN
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
         return FAILURE;                                               // RETURN
     }
 }
@@ -1375,14 +1375,14 @@ int ChoiceB::accessSelection(ACCESSOR& accessor) const
 inline
 const bsl::string& ChoiceB::selection2() const
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SELECTION2 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
     return d_selection2.object();
 }
 
 inline
 const int& ChoiceB::selection1() const
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SELECTION1 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
     return d_selection1.object();
 }
 
@@ -1402,7 +1402,7 @@ bool test::operator==(const test::ChoiceB& lhs, const test::ChoiceB& rhs)
           case test::ChoiceB::SELECTION_ID_SELECTION1:
             return lhs.selection1() == rhs.selection1();              // RETURN
           default:
-            BSLS_ASSERT_SAFE(test::ChoiceB::SELECTION_ID_UNDEFINED
+            BSLS_ASSERT(test::ChoiceB::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
             return true;                                              // RETURN
         }
@@ -2373,7 +2373,7 @@ const char *EnumerationA::toString(EnumerationA::Value value)
         return "VALUE2";                                              // RETURN
       } break;
       default:
-        BSLS_ASSERT_SAFE(!"encountered out-of-bound enumerated value");
+        BSLS_ASSERT(!"encountered out-of-bound enumerated value");
     }
 
     return 0;
@@ -2694,7 +2694,7 @@ const char *EnumerationB::toString(EnumerationB::Value value)
         return "VALUE2";                                              // RETURN
       } break;
       default:
-        BSLS_ASSERT_SAFE(!"encountered out-of-bound enumerated value");
+        BSLS_ASSERT(!"encountered out-of-bound enumerated value");
     }
 
     return 0;

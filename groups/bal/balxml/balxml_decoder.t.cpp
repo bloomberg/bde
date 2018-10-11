@@ -16603,7 +16603,7 @@ MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
             bsl::string(original.d_myChoice2.object(), d_allocator_p);
       } break;
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -16628,7 +16628,7 @@ MySequenceWithAnonymousChoiceChoice::operator=(
             makeMyChoice2(rhs.d_myChoice2.object());
           } break;
           default:
-            BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -16647,7 +16647,7 @@ void MySequenceWithAnonymousChoiceChoice::reset()
         d_myChoice2.object().~Type();
       } break;
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
     d_selectionId = SELECTION_ID_UNDEFINED;
@@ -16771,7 +16771,7 @@ int MySequenceWithAnonymousChoiceChoice::manipulateSelection(
         return manipulator(&d_myChoice2.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE2]);
       default:
-        BSLS_ASSERT_SAFE(
+        BSLS_ASSERT(
                 MySequenceWithAnonymousChoiceChoice::SELECTION_ID_UNDEFINED
                 == d_selectionId);
         return FAILURE;                                               // RETURN
@@ -16781,14 +16781,14 @@ int MySequenceWithAnonymousChoiceChoice::manipulateSelection(
 inline
 int& MySequenceWithAnonymousChoiceChoice::myChoice1()
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_MY_CHOICE1 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_MY_CHOICE1 == d_selectionId);
     return d_myChoice1.object();
 }
 
 inline
 bsl::string& MySequenceWithAnonymousChoiceChoice::myChoice2()
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_MY_CHOICE2 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_MY_CHOICE2 == d_selectionId);
     return d_myChoice2.object();
 }
 
@@ -16814,7 +16814,7 @@ int MySequenceWithAnonymousChoiceChoice::accessSelection(
         return accessor(d_myChoice2.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE2]);
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
         return FAILURE;                                               // RETURN
     }
 }
@@ -16822,14 +16822,14 @@ int MySequenceWithAnonymousChoiceChoice::accessSelection(
 inline
 const int& MySequenceWithAnonymousChoiceChoice::myChoice1() const
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_MY_CHOICE1 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_MY_CHOICE1 == d_selectionId);
     return d_myChoice1.object();
 }
 
 inline
 const bsl::string& MySequenceWithAnonymousChoiceChoice::myChoice2() const
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_MY_CHOICE2 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_MY_CHOICE2 == d_selectionId);
     return d_myChoice2.object();
 }
 
@@ -17872,7 +17872,7 @@ bool test::operator==(const MySequenceWithAnonymousChoiceChoice& lhs,
             return lhs.myChoice2() == rhs.myChoice2();
                                                                       // RETURN
           default:
-            BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED
                               == rhs.selectionId());
             return true;                                              // RETURN
         }

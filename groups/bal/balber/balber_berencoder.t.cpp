@@ -3342,7 +3342,7 @@ MyChoice::MyChoice(
                 original.d_selection2.object(), d_allocator_p);
       } break;
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -3366,7 +3366,7 @@ MyChoice::operator=(const MyChoice& rhs)
             makeSelection2(rhs.d_selection2.object());
           } break;
           default:
-            BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -3385,7 +3385,7 @@ void MyChoice::reset()
         d_selection2.object().~Type();
       } break;
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
     d_selectionId = SELECTION_ID_UNDEFINED;
@@ -3506,7 +3506,7 @@ int MyChoice::manipulateSelection(MANIPULATOR& manipulator)
         return manipulator(&d_selection2.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);    // RETURN
       default:
-        BSLS_ASSERT_SAFE(MyChoice::SELECTION_ID_UNDEFINED ==
+        BSLS_ASSERT(MyChoice::SELECTION_ID_UNDEFINED ==
                      d_selectionId);
         return FAILURE;                                               // RETURN
     }
@@ -3515,14 +3515,14 @@ int MyChoice::manipulateSelection(MANIPULATOR& manipulator)
 inline
 int& MyChoice::selection1()
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SELECTION1 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
     return d_selection1.object();
 }
 
 inline
 bsl::string& MyChoice::selection2()
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SELECTION2 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
     return d_selection2.object();
 }
 
@@ -3547,7 +3547,7 @@ int MyChoice::accessSelection(ACCESSOR& accessor) const
         return accessor(d_selection2.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);    // RETURN
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
         return FAILURE;                                               // RETURN
     }
 }
@@ -3555,14 +3555,14 @@ int MyChoice::accessSelection(ACCESSOR& accessor) const
 inline
 const int& MyChoice::selection1() const
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SELECTION1 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
     return d_selection1.object();
 }
 
 inline
 const bsl::string& MyChoice::selection2() const
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SELECTION2 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
     return d_selection2.object();
 }
 
@@ -4464,7 +4464,7 @@ const char *MyEnumeration::toString(MyEnumeration::Value value)
         return "VALUE2";                                              // RETURN
       } break;
       default:
-        BSLS_ASSERT_SAFE(!"encountered out-of-bound enumerated value");
+        BSLS_ASSERT(!"encountered out-of-bound enumerated value");
     }
 
     return 0;
@@ -4654,7 +4654,7 @@ CustomizedString::CustomizedString(const bsl::string&  value,
                                    bslma::Allocator   *basicAllocator)
 : d_value(value, basicAllocator)
 {
-    BSLS_ASSERT_SAFE(checkRestrictions(value) == 0);
+    BSLS_ASSERT(checkRestrictions(value) == 0);
 }
 
 inline
@@ -5177,7 +5177,7 @@ MySequenceWithAnonymousChoiceChoice::MySequenceWithAnonymousChoiceChoice(
                 original.d_myChoice2.object(), d_allocator_p);
       } break;
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -5202,7 +5202,7 @@ MySequenceWithAnonymousChoiceChoice::operator=(
             makeMyChoice2(rhs.d_myChoice2.object());
           } break;
           default:
-            BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -5221,7 +5221,7 @@ void MySequenceWithAnonymousChoiceChoice::reset()
         d_myChoice2.object().~Type();
       } break;
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
     d_selectionId = SELECTION_ID_UNDEFINED;
@@ -5345,7 +5345,7 @@ int MySequenceWithAnonymousChoiceChoice::manipulateSelection(
         return manipulator(&d_myChoice2.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE2]);    // RETURN
       default:
-        BSLS_ASSERT_SAFE(MySequenceWithAnonymousChoiceChoice::
+        BSLS_ASSERT(MySequenceWithAnonymousChoiceChoice::
                                                       SELECTION_ID_UNDEFINED ==
                      d_selectionId);
         return FAILURE;                                               // RETURN
@@ -5355,14 +5355,14 @@ int MySequenceWithAnonymousChoiceChoice::manipulateSelection(
 inline
 int& MySequenceWithAnonymousChoiceChoice::myChoice1()
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_MY_CHOICE1 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_MY_CHOICE1 == d_selectionId);
     return d_myChoice1.object();
 }
 
 inline
 bsl::string& MySequenceWithAnonymousChoiceChoice::myChoice2()
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_MY_CHOICE2 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_MY_CHOICE2 == d_selectionId);
     return d_myChoice2.object();
 }
 
@@ -5388,7 +5388,7 @@ int MySequenceWithAnonymousChoiceChoice::accessSelection(ACCESSOR& accessor)
         return accessor(d_myChoice2.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_MY_CHOICE2]);    // RETURN
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
         return FAILURE;                                               // RETURN
     }
 }
@@ -5396,14 +5396,14 @@ int MySequenceWithAnonymousChoiceChoice::accessSelection(ACCESSOR& accessor)
 inline
 const int& MySequenceWithAnonymousChoiceChoice::myChoice1() const
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_MY_CHOICE1 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_MY_CHOICE1 == d_selectionId);
     return d_myChoice1.object();
 }
 
 inline
 const bsl::string& MySequenceWithAnonymousChoiceChoice::myChoice2() const
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_MY_CHOICE2 == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_MY_CHOICE2 == d_selectionId);
     return d_myChoice2.object();
 }
 
@@ -6103,7 +6103,7 @@ TimingRequest::TimingRequest(
                 original.d_big.object(), d_allocator_p);
       } break;
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
     }
 }
 
@@ -6130,7 +6130,7 @@ TimingRequest::operator=(const TimingRequest& rhs)
             makeBig(rhs.d_big.object());
           } break;
           default:
-            BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
             reset();
         }
     }
@@ -6151,7 +6151,7 @@ void TimingRequest::reset()
         d_big.object().~BigRecord();
       } break;
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
     }
 
     d_selectionId = SELECTION_ID_UNDEFINED;
@@ -6311,7 +6311,7 @@ int TimingRequest::manipulateSelection(MANIPULATOR& manipulator)
         return manipulator(&d_big.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_BIG]);           // RETURN
       default:
-        BSLS_ASSERT_SAFE(TimingRequest::SELECTION_ID_UNDEFINED ==
+        BSLS_ASSERT(TimingRequest::SELECTION_ID_UNDEFINED ==
                      d_selectionId);
         return FAILURE;                                               // RETURN
     }
@@ -6320,21 +6320,21 @@ int TimingRequest::manipulateSelection(MANIPULATOR& manipulator)
 inline
 Sqrt& TimingRequest::sqrt()
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SQRT == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SQRT == d_selectionId);
     return d_sqrt.object();
 }
 
 inline
 BasicRecord& TimingRequest::basic()
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_BASIC == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_BASIC == d_selectionId);
     return d_basic.object();
 }
 
 inline
 BigRecord& TimingRequest::big()
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_BIG == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_BIG == d_selectionId);
     return d_big.object();
 }
 
@@ -6362,7 +6362,7 @@ int TimingRequest::accessSelection(ACCESSOR& accessor) const
         return accessor(d_big.object(),
                 SELECTION_INFO_ARRAY[SELECTION_INDEX_BIG]);           // RETURN
       default:
-        BSLS_ASSERT_SAFE(SELECTION_ID_UNDEFINED == d_selectionId);
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
         return FAILURE;                                               // RETURN
     }
 }
@@ -6370,21 +6370,21 @@ int TimingRequest::accessSelection(ACCESSOR& accessor) const
 inline
 const Sqrt& TimingRequest::sqrt() const
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_SQRT == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_SQRT == d_selectionId);
     return d_sqrt.object();
 }
 
 inline
 const BasicRecord& TimingRequest::basic() const
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_BASIC == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_BASIC == d_selectionId);
     return d_basic.object();
 }
 
 inline
 const BigRecord& TimingRequest::big() const
 {
-    BSLS_ASSERT_SAFE(SELECTION_ID_BIG == d_selectionId);
+    BSLS_ASSERT(SELECTION_ID_BIG == d_selectionId);
     return d_big.object();
 }
 
@@ -6431,7 +6431,7 @@ bool test::operator==(
             return lhs.selection2() == rhs.selection2();
                                                                       // RETURN
           default:
-            BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
             return true;                                              // RETURN
         }
@@ -6692,7 +6692,7 @@ bool test::operator==(
             return lhs.myChoice2() == rhs.myChoice2();
                                                                       // RETURN
           default:
-            BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
             return true;                                              // RETURN
         }
@@ -6818,7 +6818,7 @@ bool test::operator==(
             return lhs.big() == rhs.big();
                                                                       // RETURN
           default:
-            BSLS_ASSERT_SAFE(Class::SELECTION_ID_UNDEFINED
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED
                             == rhs.selectionId());
             return true;                                              // RETURN
         }
