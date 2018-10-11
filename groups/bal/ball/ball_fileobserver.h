@@ -157,10 +157,10 @@ BSLS_IDENT("$Id: $")
 // 'disableStdoutLoggingPrefix' will switch to the default short format, i.e.,
 // "\n%s %f:%l %c %m %u\n".  If 'enableStdoutLoggingPrefix' is subsequently
 // called, the customized format specified in the most recent call to
-// 'setLogFormat' will be reinstated.  Note that observer emits an extra new
-// line character at the beginning and at the end of a log record by default,
-// but format configurating discards them, so user needs to add them to the
-// format string directly to split log file into several lines.
+// 'setLogFormat' will be reinstated.  Note that observer emits new line
+// characters at the beginning and at the end of a log record by default, so
+// user needs to add them explicitly to the format string to preserve splitting
+// a log file into several lines.
 //
 // Note that in the sample long-form message above the timestamp has
 // millisecond precision ('18MAY2005_18:58:12.076').  If microsecond precision
@@ -667,10 +667,10 @@ class FileObserver : public Observer {
         // details on the syntax of format specifications.  Note that default
         // formats are in effect following construction until this method is
         // called ("\n%d %p:%t %s %f:%l %c %m %u\n" for both file and 'stdout'
-        // logging).  Also note that observer emits an extra new line character
-        // at the beginning and at the end of a log record by default, but
-        // format configurating discards them, so user needs to add them to the
-        // format string directly to split log file into several lines.
+        // logging).  Also note that observer emits new line characters at the
+        // beginning and at the end of a log record by default, so user needs
+        // to add them explicitly to the format string to preserve splitting a
+        // log file into several lines.
 
     // ACCESSORS
     bslma::Allocator *allocator() const;
