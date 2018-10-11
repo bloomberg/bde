@@ -63,9 +63,17 @@ BSLS_IDENT("$Id: $")
 //:   the supplied allocator to any data-members which themselves accept an
 //:   allocator).
 //:
+//; o If the type defines a move-constructor *with* an allocator argument:
+//:   1 If another move-constructor *without* an allocator argument that is
+//:     'noexcept' exists, then if the allocators match, the move-constructor
+//:     will not throw.
+//:   2 If the type defines a copy-constructor with an allocator argument, then
+//:     the behavior of this move-constructor when allocators don't match will
+//:     be to copy the source object without modifying it.
+//:
 //: o The allocator used by an object is not changed after construction (e.g.,
 //:   the assignment operator does not change the allocator used by a type).
-//
+//:
 //: o Transient memory allocations -- i.e., allocations performed within the
 //:   scope of a function where the resulting memory is de-allocated before
 //:   that function returns -- are generally *not* performed using the object's
