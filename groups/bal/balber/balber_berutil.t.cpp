@@ -138,7 +138,7 @@ int getIntValue(char c)
 }
 
 int compareBuffers(const char *stream, const char *buffer)
-    // Compare the data written to the  specified 'stream' with the data in the
+    // Compare the data written to the specified 'stream' with the data in the
     // specified 'buffer'.  Return 0 on success, and -1 otherwise.
 {
     while (*buffer) {
@@ -196,10 +196,6 @@ void assembleDouble(double *value, int sign, int exponent, long long mantissa)
     if (sign) {
         *longLongValue |= DOUBLE_SIGN_MASK;
     }
-}
-
-void ignoreAssertHandler(const char *, const char *, int)
-{
 }
 
 // ============================================================================
@@ -3701,9 +3697,9 @@ int main(int argc, char *argv[])
                 }
             }
 
-            // Invalid value returns an error
+            // Invalid value returns an error (Testing undefined behavior)
+#ifndef BSLS_ASSERT_IS_ACTIVE
             {
-                bsls::AssertFailureHandlerGuard guard(&ignoreAssertHandler);
                 const Type VALUE1(0, 1, 1);
                 const Type VALUE2(1, 0, 1);
                 const Type VALUE3(1, 1, 0);
@@ -3712,10 +3708,10 @@ int main(int argc, char *argv[])
                 ASSERT(0 != Util::putValue(&osb, VALUE1));
                 ASSERT(0 != Util::putValue(&osb, VALUE1, &options));
 
-                // The date value is converted to a valid date in this case
-                // and the error remains undetected.  This is fine since the
-                // user is already in undefined behavior and our error is at
-                // best a convenience and not contractually required.
+                // The date value is converted to a valid date in this case and
+                // the error remains undetected.  This is fine since the user
+                // is already in undefined behavior and our error is at best a
+                // convenience and not contractually required.
 
 //                 ASSERT(0 != Util::putValue(&osb, VALUE2));
 //                 ASSERT(0 != Util::putValue(&osb, VALUE2, &options));
@@ -3723,6 +3719,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 != Util::putValue(&osb, VALUE3));
                 ASSERT(0 != Util::putValue(&osb, VALUE3, &options));
             }
+#endif
         }
 
         if (verbose) bsl::cout << "\nTesting 'bdlt::DateTz'." << bsl::endl;
@@ -3779,9 +3776,9 @@ int main(int argc, char *argv[])
                 }
             }
 
-            // Invalid value returns an error
+            // Invalid value returns an error (Testing undefined behavior)
+#ifndef BSLS_ASSERT_IS_ACTIVE
             {
-                bsls::AssertFailureHandlerGuard guard(&ignoreAssertHandler);
                 const Type VALUE1(bdlt::Date(0, 1, 1), 0);
                 const Type VALUE2(bdlt::Date(0, 1, 1), 2000);
                 const Type VALUE3(bdlt::Date(1, 0, 1), 0);
@@ -3795,10 +3792,10 @@ int main(int argc, char *argv[])
                 ASSERT(0 != Util::putValue(&osb, VALUE2));
                 ASSERT(0 != Util::putValue(&osb, VALUE2, &options));
 
-                // The date value is converted to a valid date in this case
-                // and the error remains undetected.  This is fine since the
-                // user is already in undefined behavior and our error is at
-                // best a convenience and not contractually required.
+                // The date value is converted to a valid date in this case and
+                // the error remains undetected.  This is fine since the user
+                // is already in undefined behavior and our error is at best a
+                // convenience and not contractually required.
 
 //                 ASSERT(0 != Util::putValue(&osb, VALUE3));
 //                 ASSERT(0 != Util::putValue(&osb, VALUE3, &options));
@@ -3810,6 +3807,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 != Util::putValue(&osb, VALUE6));
                 ASSERT(0 != Util::putValue(&osb, VALUE6, &options));
             }
+#endif
         }
 
         if (verbose) bsl::cout << "\nTesting 'bdlt::Time'." << bsl::endl;
@@ -3980,10 +3978,9 @@ int main(int argc, char *argv[])
                 }
             }
 
-            // Invalid value returns an error
+            // Invalid value returns an error (Testing undefined behavior)
+#ifndef BSLS_ASSERT_IS_ACTIVE
             {
-                bsls::AssertFailureHandlerGuard guard(&ignoreAssertHandler);
-
                 bdlt::Datetime value1(bdlt::Date(1, 1, 1));
                 value1.addDays(-1);
 
@@ -3999,6 +3996,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 != Util::putValue(&osb, VALUE2));
                 ASSERT(0 != Util::putValue(&osb, VALUE2, &options));
             }
+#endif
         }
 
         if (verbose) bsl::cout << "\nTesting 'bdlt::DatetimeTz'." << bsl::endl;
@@ -4060,9 +4058,9 @@ int main(int argc, char *argv[])
                 }
             }
 
-            // Invalid value returns an error
+            // Invalid value returns an error (Testing undefined behavior)
+#ifndef BSLS_ASSERT_IS_ACTIVE
             {
-                bsls::AssertFailureHandlerGuard guard(&ignoreAssertHandler);
                 const Type VALUE1(bdlt::Datetime(bdlt::Date(0, 1, 1),
                                                 bdlt::Time(0, 0, 0, 0)),
                                                 0);
@@ -4088,10 +4086,10 @@ int main(int argc, char *argv[])
                 ASSERT(0 != Util::putValue(&osb, VALUE2));
                 ASSERT(0 != Util::putValue(&osb, VALUE2, &options));
 
-                // The date value is converted to a valid date in this case
-                // and the error remains undetected.  This is fine since the
-                // user is already in undefined behavior and our error is at
-                // best a convenience and not contractually required.
+                // The date value is converted to a valid date in this case and
+                // the error remains undetected.  This is fine since the user
+                // is already in undefined behavior and our error is at best a
+                // convenience and not contractually required.
 
 //                 ASSERT(0 != Util::putValue(&osb, VALUE3));
 //                 ASSERT(0 != Util::putValue(&osb, VALUE3, &options));
@@ -4103,6 +4101,7 @@ int main(int argc, char *argv[])
                 ASSERT(0 != Util::putValue(&osb, VALUE6));
                 ASSERT(0 != Util::putValue(&osb, VALUE6, &options));
             }
+#endif
         }
       } break;
       case 17: {
@@ -4844,8 +4843,8 @@ int main(int argc, char *argv[])
                 int         d_length; // length value
                 const char *d_exp;    // expected output onto the stream
             } DATA[] = {
-                // line        length    exp
-                // ----        ------    ---
+                //  line       length    exp
+                //  ----       ------    ---
                 { L_,              0,    "00"               },
                 { L_,              1,    "01"               },
                 { L_,             15,    "0F"               },
@@ -4924,8 +4923,8 @@ int main(int argc, char *argv[])
                 double      d_value;  // unsigned char value stored in an int
                 const char *d_exp;    // expected output onto the stream
             } DATA[] = {
-                // line        value    exp
-                // ----        -----    ---
+                //  line      value    exp
+                //  ----      -----    ---
                 { L_,           1.1,    "09 80 CD 08 CC CC CC CC CC CD"    },
                 { L_,        99.234,    "09 80 D2 18 CE F9 DB 22 D0 E5"    },
                 { L_,             0,    "00"                               },
@@ -4953,10 +4952,10 @@ int main(int argc, char *argv[])
 
                 // Double precision denormalized numbers
 
-                // Commented test data that are out of range :
-                // DBL_MIN  - DBL_MAX
-                // This is done because we can not guarantee portability
-                // across platforms.
+                // Commented test data that are out of range:
+                //  DBL_MIN  - DBL_MAX
+                // This is done because we can not guarantee portability across
+                // platforms.
 
                 //{ L_,   1E-314,         "07 81 FB CE 78 A4 22 05"          },
                 //{ L_,   -1E-314,        "07 C1 FB CE 78 A4 22 05"          },
@@ -5166,8 +5165,8 @@ int main(int argc, char *argv[])
                 unsigned long long  d_value;  // value
                 const char         *d_exp;    // expected output
             } DATA[] = {
-                // line              value      exp
-                // ----              -----      ---
+                //  line            value      exp
+                //  ----            -----      ---
                { L_,                    0, "01 00"                          },
                { L_,                    1, "01 01"                          },
                { L_,                    5, "01 05"                          },
@@ -5419,68 +5418,68 @@ int main(int argc, char *argv[])
                 long long   d_value;  // value
                 const char *d_exp;    // expected output onto the stream
             } DATA[] = {
-                // line                value  exp
-                // ----                -----  ---
-                {  L_,                    0,  "01 00"                      },
-                {  L_,                    1,  "01 01"                      },
-                {  L_,                    5,  "01 05"                      },
-                {  L_,                   -1,  "01 FF"                      },
-                {  L_,                   -2,  "01 FE"                      },
-                {  L_,                   -5,  "01 FB"                      },
-                {  L_,                  126,  "01 7E"                      },
-                {  L_,                  127,  "01 7F"                      },
-                {  L_,                  128,  "02 00 80"                   },
-                {  L_,                  129,  "02 00 81"                   },
-                {  L_,                 -127,  "01 81"                      },
-                {  L_,                 -128,  "01 80"                      },
-                {  L_,                 -129,  "02 FF 7F"                   },
-                {  L_,                32766,  "02 7F FE"                   },
-                {  L_,                32767,  "02 7F FF"                   },
-                {  L_,                32768,  "03 00 80 00"                },
-                {  L_,                32769,  "03 00 80 01"                },
-                {  L_,               -32767,  "02 80 01"                   },
-                {  L_,               -32768,  "02 80 00"                   },
-                {  L_,               -32769,  "03 FF 7F FF"                },
-                {  L_,              8388606,  "03 7F FF FE"                },
-                {  L_,              8388607,  "03 7F FF FF"                },
-                {  L_,              8388608,  "04 00 80 00 00"             },
-                {  L_,              8388609,  "04 00 80 00 01"             },
-                {  L_,             -8388607,  "03 80 00 01"                },
-                {  L_,             -8388608,  "03 80 00 00"                },
-                {  L_,             -8388609,  "04 FF 7F FF FF"             },
-                {  L_,             -8388610,  "04 FF 7F FF FE"             },
-                {  L_,           2147483646,  "04 7F FF FF FE"             },
-                {  L_,              INT_MAX,  "04 7F FF FF FF"             },
-                {  L_,          -2147483647,  "04 80 00 00 01"             },
-                {  L_,              INT_MIN,  "04 80 00 00 00"             },
-                {  L_,       0x7F12345678LL,  "05 7F 12 34 56 78"          },
-                {  L_,       0x7FFFFFFFFFLL,  "05 7F FF FF FF FF"          },
-                {  L_,       0x8000000000LL,  "06 00 80 00 00 00 00"       },
-                {  L_,       0x8000000001LL,  "06 00 80 00 00 00 01"       },
-                {  L_, static_cast<long long>(0xFFFFFF8000000000LL),
+                //  line                value  exp
+                //  ----                -----  ---
+                {   L_,                    0,  "01 00"                      },
+                {   L_,                    1,  "01 01"                      },
+                {   L_,                    5,  "01 05"                      },
+                {   L_,                   -1,  "01 FF"                      },
+                {   L_,                   -2,  "01 FE"                      },
+                {   L_,                   -5,  "01 FB"                      },
+                {   L_,                  126,  "01 7E"                      },
+                {   L_,                  127,  "01 7F"                      },
+                {   L_,                  128,  "02 00 80"                   },
+                {   L_,                  129,  "02 00 81"                   },
+                {   L_,                 -127,  "01 81"                      },
+                {   L_,                 -128,  "01 80"                      },
+                {   L_,                 -129,  "02 FF 7F"                   },
+                {   L_,                32766,  "02 7F FE"                   },
+                {   L_,                32767,  "02 7F FF"                   },
+                {   L_,                32768,  "03 00 80 00"                },
+                {   L_,                32769,  "03 00 80 01"                },
+                {   L_,               -32767,  "02 80 01"                   },
+                {   L_,               -32768,  "02 80 00"                   },
+                {   L_,               -32769,  "03 FF 7F FF"                },
+                {   L_,              8388606,  "03 7F FF FE"                },
+                {   L_,              8388607,  "03 7F FF FF"                },
+                {   L_,              8388608,  "04 00 80 00 00"             },
+                {   L_,              8388609,  "04 00 80 00 01"             },
+                {   L_,             -8388607,  "03 80 00 01"                },
+                {   L_,             -8388608,  "03 80 00 00"                },
+                {   L_,             -8388609,  "04 FF 7F FF FF"             },
+                {   L_,             -8388610,  "04 FF 7F FF FE"             },
+                {   L_,           2147483646,  "04 7F FF FF FE"             },
+                {   L_,              INT_MAX,  "04 7F FF FF FF"             },
+                {   L_,          -2147483647,  "04 80 00 00 01"             },
+                {   L_,              INT_MIN,  "04 80 00 00 00"             },
+                {   L_,       0x7F12345678LL,  "05 7F 12 34 56 78"          },
+                {   L_,       0x7FFFFFFFFFLL,  "05 7F FF FF FF FF"          },
+                {   L_,       0x8000000000LL,  "06 00 80 00 00 00 00"       },
+                {   L_,       0x8000000001LL,  "06 00 80 00 00 00 01"       },
+                {   L_, static_cast<long long>(0xFFFFFF8000000000LL),
                                               "05 80 00 00 00 00"          },
-                {  L_, static_cast<long long>(0xFFFFFF8000000001LL),
+                {   L_, static_cast<long long>(0xFFFFFF8000000001LL),
                                               "05 80 00 00 00 01"          },
-                {  L_, static_cast<long long>(0xFFFFFF8123456789LL),
+                {   L_, static_cast<long long>(0xFFFFFF8123456789LL),
                                               "05 81 23 45 67 89"          },
-                {  L_, static_cast<long long>(0xFFFFFF7FFFFFFFFFLL),
+                {   L_, static_cast<long long>(0xFFFFFF7FFFFFFFFFLL),
                                               "06 FF 7F FF FF FF FF"       },
-                {  L_,     0x7FFFFFFFFFFFLL,  "06 7F FF FF FF FF FF"       },
-                {  L_,     0x800000000000LL,  "07 00 80 00 00 00 00 00"    },
-                {  L_, static_cast<long long>(0xFFFF800000000000LL),
+                {   L_,     0x7FFFFFFFFFFFLL,  "06 7F FF FF FF FF FF"       },
+                {   L_,     0x800000000000LL,  "07 00 80 00 00 00 00 00"    },
+                {   L_, static_cast<long long>(0xFFFF800000000000LL),
                                               "06 80 00 00 00 00 00"       },
-                {  L_, static_cast<long long>(0xFFFF7FFFFFFFFFFFLL),
+                {   L_, static_cast<long long>(0xFFFF7FFFFFFFFFFFLL),
                                               "07 FF 7F FF FF FF FF FF"    },
-                {  L_,   0x7FFFFFFFFFFFFFLL,  "07 7F FF FF FF FF FF FF"    },
-                {  L_,   0x80000000000000LL,  "08 00 80 00 00 00 00 00 00" },
-                {  L_, static_cast<long long>(0xFF80000000000000LL),
+                {   L_,   0x7FFFFFFFFFFFFFLL,  "07 7F FF FF FF FF FF FF"    },
+                {   L_,   0x80000000000000LL,  "08 00 80 00 00 00 00 00 00" },
+                {   L_, static_cast<long long>(0xFF80000000000000LL),
                                               "07 80 00 00 00 00 00 00"    },
-                {  L_, static_cast<long long>(0xFF7FFFFFFFFFFFFFLL),
+                {   L_, static_cast<long long>(0xFF7FFFFFFFFFFFFFLL),
                                               "08 FF 7F FF FF FF FF FF FF" },
-                {  L_, 0x7FFFFFFFFFFFFFFFLL,  "08 7F FF FF FF FF FF FF FF" },
-                {  L_, static_cast<long long>(0x8000000000000001LL),
+                {   L_, 0x7FFFFFFFFFFFFFFFLL,  "08 7F FF FF FF FF FF FF FF" },
+                {   L_, static_cast<long long>(0x8000000000000001LL),
                                               "08 80 00 00 00 00 00 00 01" },
-                {  L_, static_cast<long long>(0x8000000000000000LL),
+                {   L_, static_cast<long long>(0x8000000000000000LL),
                                               "08 80 00 00 00 00 00 00 00" },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
@@ -5690,8 +5689,8 @@ int main(int argc, char *argv[])
                 int                 d_length; // length
                 const char         *d_exp;    // expected output
             } DATA[] = {
-                // line             value len exp
-                // ----             ----- --- ---
+                //  line            value len exp
+                //  ----            ----- --- ---
                { L_,                    0, 1, "00"                          },
                { L_,                    1, 1, "01"                          },
                { L_,                  127, 1, "7F"                          },
@@ -5912,8 +5911,8 @@ int main(int argc, char *argv[])
                 int         d_length; // length
                 const char *d_exp;    // expected output onto the stream
             } DATA[] = {
-                // line                value len  exp
-                // ----                ----- ---  ---
+                //  line               value len  exp
+                //  ----               ----- ---  ---
                 {  L_,                    0,  1,  "00"                      },
                 {  L_,                    1,  1,  "01"                      },
                 {  L_,                   -2,  1,  "FE"                      },
@@ -6153,8 +6152,8 @@ int main(int argc, char *argv[])
                 unsigned long long d_value;  // integer value
                 int                d_result; // expected result
             } DATA[] = {
-                // line                        value       res
-                // ----                        -----       ---
+                //  line                       value       res
+                //  ----                       -----       ---
                 {  L_,                            0,         1 },
                 {  L_,                            1,         1 },
                 {  L_,                          127,         1 },
@@ -6213,8 +6212,8 @@ int main(int argc, char *argv[])
                 long long d_value;  // integer value
                 int       d_result; // expected result
             } DATA[] = {
-                // line                                        value       res
-                // ----                                        -----       ---
+                //  line                                       value       res
+                //  ----                                       -----       ---
                 {  L_,                                             0,      1 },
                 {  L_,                                             1,      1 },
                 {  L_,                                            -1,      1 },
@@ -6317,8 +6316,8 @@ int main(int argc, char *argv[])
                 unsigned char  d_value;  // unsigned char value
                 const char    *d_exp;    // expected output onto the stream
             } DATA[] = {
-                // line   value       exp
-                // ----   -----       ---
+                //  line  value       exp
+                //  ----  -----       ---
                 {  L_,       0,      "01 00"    },
                 {  L_,       1,      "01 01"    },
                 {  L_,      95,      "01 5F"    },
@@ -6385,8 +6384,8 @@ int main(int argc, char *argv[])
                 char        d_value;  // char value
                 const char *d_exp;    // expected output onto the stream
             } DATA[] = {
-                // line   value       exp
-                // ----   -----       ---
+                //  line  value       exp
+                //  ----  -----       ---
                 {  L_,       0,      "01 00" },
                 {  L_,       1,      "01 01" },
                 {  L_,      -2,      "01 FE" },
@@ -6525,7 +6524,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // PERFORMANCE TEST
         //
-        // Concerns:  There are several concerns about performance.  For one
+        // Concerns: There are several concerns about performance.  For one
         //   thing, the use of 'bsl::streambuf' can slow things down (if the
         //   length of the buffer is known in advance, a direct access through
         //   a 'bdlsb::FixedMemInput' or 'bdlsb::FixedMemOutput' can bypass

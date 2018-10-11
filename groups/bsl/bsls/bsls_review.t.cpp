@@ -53,17 +53,17 @@ using namespace std;
 // [ 1] const char *ReviewViolation::fileName();
 // [ 1] int ReviewViolation::lineNumber();
 // [ 1] const char *ReviewViolation::reviewLevel();
-// [ 1] static void setFailureHandler(bsls::Review::Handler function);
+// [ 1] static void setViolationHandler(ViolationHandler function);
 // [ 1] static void lockReviewAdministration();
-// [ 1] static bsls::Review::Handler failureHandler();
-// [ 1] static void invokeHandler(const char *t, const char *f, int);
+// [ 1] static bsls::Review::ViolationHandler violationHandler();
+// [ 1] static void invokeHandler(const bsls::ReviewViolation&);
 // [ 1] static int updateCount(Count *count);
-// [ 4] static void failLog(const ReviewViolation &violation);
-// [ 4] static void failAbort(const ReviewViolation &violation);
-// [-2] static void failAbort(const ReviewViolation &violation);
-// [ 4] static void failSleep(const ReviewViolation &violation);
-// [-3] static void failSleep(const ReviewViolation &violation);
-// [ 4] static void failThrow(const ReviewViolation &violation);
+// [ 4] static void failByLog(const ReviewViolation& violation);
+// [ 4] static void failByAbort(const ReviewViolation& violation);
+// [-2] static void failByAbort(const ReviewViolation& violation);
+// [ 4] static void failBySleep(const ReviewViolation& violation);
+// [-3] static void failBySleep(const ReviewViolation& violation);
+// [ 4] static void failByThrow(const ReviewViolation& violation);
 // [ 5] class bsls::ReviewFailureHandlerGuard
 // [ 5] ReviewFailureHandlerGuard::ReviewFailureHandlerGuard(Handler)
 // [ 5] ReviewFailureHandlerGuard::~ReviewFailureHandlerGuard()
@@ -82,18 +82,18 @@ using namespace std;
 // [14] ASSERT USAGE EXAMPLE: Using 'BDE_BUILD_TARGET_SAFE_2'
 // [15] USAGE EXAMPLE: Adding 'BSLS_ASSERT' to an existing function
 //
-// [ 1] CONCERN: By default, the 'bsls_review::failAbort' is used
+// [ 1] CONCERN: By default, the 'bsls_review::failByAbort' is used
 // [ 2] CONCERN: REVIEW macros are instantiated properly for build targets
 // [ 2] CONCERN: all combinations of BDE_BUILD_TARGETs are allowed
 // [ 2] CONCERN: any one review mode overrides all BDE_BUILD_TARGETs
 // [ 3] CONCERN: ubiquitously detect multiply-defined review-mode flags
 // [ 5] CONCERN: that locking does not stop the handlerGuard from working
-// [-1] CONCERN: 'bsls::Review::failAbort' aborts
-// [-1] CONCERN: 'bsls::Review::failAbort' prints to 'stderr' not 'stdout'
-// [-2] CONCERN: 'bsls::Review::failThrow' aborts in non-exception build
-// [-2] CONCERN: 'bsls::Review::failThrow' prints to 'stderr' for NON-EXC
-// [-3] CONCERN: 'bsls::Review::failSleep' sleeps forever
-// [-3] CONCERN: 'bsls::Review::failSleep' prints to 'stderr' not 'stdout'
+// [-1] CONCERN: 'bsls::Review::failByAbort' aborts
+// [-1] CONCERN: 'bsls::Review::failByAbort' prints to 'stderr'
+// [-2] CONCERN: 'bsls::Review::failByThrow' aborts in non-exception build
+// [-2] CONCERN: 'bsls::Review::failByThrow' prints to 'stderr' w/o EXC
+// [-3] CONCERN: 'bsls::Review::failBySleep' sleeps forever
+// [-3] CONCERN: 'bsls::Review::failBySleep' prints to 'stderr'
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -189,7 +189,7 @@ static bool globalReturnOnTestAssert = false;
         try {
 
 #define REVIEW_TEST_END                                                      \
-        } catch (const std::exception& ) {                                   \
+        } catch (const std::exception&) {                                    \
             if (verbose) printf( "Exception caught.\n" );                    \
         }
 #else
@@ -220,7 +220,7 @@ struct HandlerLoggingTest {
     static LogProfile &lastProfile();
         // return the last updated profile.
 
-    static void emptyViolationHandler(const bsls::ReviewViolation &violation);
+    static void emptyViolationHandler(const bsls::ReviewViolation& violation);
         // Do nothing with the specified 'violation'.
 
     static void recordingLogMessageHandler(bsls::LogSeverity::Enum  severity,
@@ -254,7 +254,7 @@ LogProfile &HandlerLoggingTest::lastProfile()
 }
 
 void HandlerLoggingTest::emptyViolationHandler(
-                                        const bsls::ReviewViolation &violation)
+                                        const bsls::ReviewViolation& violation)
 {
     (void) violation;
 }
@@ -313,7 +313,7 @@ static void globalReset()
 
 //-----------------------------------------------------------------------------
 
-static void testDriverHandler(const bsls::ReviewViolation &violation)
+static void testDriverHandler(const bsls::ReviewViolation& violation)
     // Set the 'globalReviewFiredFlag' to 'true' and store the specified
     // 'comment', 'file' name, 'line' number and 'count' from the 'violation'
     // into 'globalText', globalFile', 'globalLevel, 'globalLine', and
@@ -347,11 +347,11 @@ static void testDriverHandler(const bsls::ReviewViolation &violation)
 
 //-----------------------------------------------------------------------------
 
-static void testDriverPrint(const bsls::ReviewViolation &violation)
+static void testDriverPrint(const bsls::ReviewViolation& violation)
     // Format, in verbose mode, the specified expression 'text', 'file' name,
     // and 'line' number from the specified 'violation' the same way as the
-    // 'bsls::Review::failAbort' review-failure handler function might, but on
-    // 'cout' instead of 'cerr'.  Then throw an 'std::exception' object
+    // 'bsls::Review::failByAbort' review-failure handler function might, but
+    // on 'cout' instead of 'cerr'.  Then throw an 'std::exception' object
     // provided that 'BDE_BUILD_TARGET_EXC' is defined; otherwise, abort the
     // program.
 {
@@ -386,7 +386,7 @@ static void testDriverPrint(const bsls::ReviewViolation &violation)
 //-----------------------------------------------------------------------------
 
 struct BadBoy {
-    // Bogus 'struct' used for testing: calls 'bsls::Review::failThrow' on
+    // Bogus 'struct' used for testing: calls 'bsls::Review::failByThrow' on
     // destruction to ensure that it does not re-throw with an exception
     // pending (see case -2).
 
@@ -397,12 +397,12 @@ struct BadBoy {
     ~BadBoy() {
         if (globalVeryVerbose) printf( "BadBoy Destroyed!\n" );
         bsls::ReviewViolation violation(
-            "'failThrow' handler called from ~BadBoy",
+            "'failByThrow' handler called from ~BadBoy",
             "f.c",
             9,
             "BADBOY",
             1);
-        bsls::Review::failThrow(violation);
+        bsls::Review::failByThrow(violation);
      }
 };
 
@@ -560,7 +560,7 @@ inline int FunctionsV3::myFunc(int x, int y)
 // ...
 //#include <bsls_assert.h>
 #define BSLS_ASSERT(X) // This usage example references the higher-level
-                       // 'bsls_assert' component which we cannot use here, so
+                       // 'bsls_assert' component that we cannot use here, so
                        // we just define the macro as a no-op for local
                        // testing.
 // ...
@@ -765,7 +765,7 @@ inline int FunctionsV4::myFunc(int x, int y)
 ///3. Runtime Configuration of the 'bsls::Review' Facility
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // By default, any review failure will result in the invocation of the
-// 'bsls::Review::failAbort' handler function.  We can replace this behavior
+// 'bsls::Review::failByAbort' handler function.  We can replace this behavior
 // with that of one of the other static failure handler methods supplied in
 // 'bsls::Review' as follows.  Let's assume we are at the top of our
 // application called 'myMain' (which would typically be 'main'):
@@ -774,20 +774,20 @@ inline int FunctionsV4::myFunc(int x, int y)
     {
 //..
 // First observe that the default review-failure handler function is, in fact,
-// 'bsls::Review::failLog':
+// 'bsls::Review::failByLog':
 //..
-        ASSERT(&bsls::Review::failLog == bsls::Review::failureHandler());
+        ASSERT(&bsls::Review::failByLog == bsls::Review::violationHandler());
 //..
 // Next, we install a new review-failure handler function,
-// 'bsls::Review::failSleep', from the suite of "off-the-shelf" handlers
+// 'bsls::Review::failBySleep', from the suite of "off-the-shelf" handlers
 // provided as 'static' methods of 'bsls::Review':
 //..
-        bsls::Review::setFailureHandler(&bsls::Review::failSleep);
+        bsls::Review::setViolationHandler(&bsls::Review::failBySleep);
 //..
-// Observe that 'bsls::Review::failSleep' is the new, currently-installed
+// Observe that 'bsls::Review::failBySleep' is the new, currently-installed
 // review-failure handler:
 //..
-        ASSERT(&bsls::Review::failSleep == bsls::Review::failureHandler());
+        ASSERT(&bsls::Review::failBySleep == bsls::Review::violationHandler());
 //..
 // Note that if we were to explicitly invoke the current review-failure handler
 // as follows:
@@ -795,11 +795,12 @@ inline int FunctionsV4::myFunc(int x, int y)
 //  bsls::ReviewViolation violation("message", "file", 27, "Test", 1);
 //  bsls::Review::invokeHandler(violation);  // This will hang!
 //..
-// the program will hang since 'bsls::Review::failSleep' repeatedly sleeps for
-// a period of time within an infinite loop.  Thus, this review-failure handler
-// is useful for hanging a process so that a debugger may be attached to it.
+// the program will hang since 'bsls::Review::failBySleep' repeatedly sleeps
+// for a period of time within an infinite loop.  Thus, this review-failure
+// handler is useful for hanging a process so that a debugger may be attached
+// to it.
 //
-// We may now decide to disable the 'setFailureHandler' method using the
+// We may now decide to disable the 'setViolationHandler' method using the
 // 'bsls::Review::lockReviewAdministration()' method to ensure that no one else
 // will override our decision globally.  Note, however, that the
 // 'bsls::ReviewFailureHandlerGuard' is not affected, and can still be used to
@@ -809,11 +810,11 @@ inline int FunctionsV4::myFunc(int x, int y)
 //..
 // Attempting to change the currently installed handler now will fail:
 //..
-        bsls::Review::setFailureHandler(&bsls::Review::failAbort);
+        bsls::Review::setViolationHandler(&bsls::Review::failByAbort);
 
-        ASSERT(&bsls::Review::failAbort != bsls::Review::failureHandler());
+        ASSERT(&bsls::Review::failByAbort != bsls::Review::violationHandler());
 
-        ASSERT(&bsls::Review::failSleep == bsls::Review::failureHandler());
+        ASSERT(&bsls::Review::failBySleep == bsls::Review::violationHandler());
     }
 //..
 //
@@ -831,7 +832,7 @@ inline int FunctionsV4::myFunc(int x, int y)
 //..
     static bool globalEnableOurPrintingFlag = true;
 
-    static void ourFailureHandler(const bsls::ReviewViolation &violation)
+    static void ourFailureHandler(const bsls::ReviewViolation& violation)
         // Print the expression 'text', 'file' name, and 'count' number from
         // the specified 'violation' to 'stdout' as a comma-separated list,
         // replacing null string-argument values with empty strings (unless
@@ -863,13 +864,13 @@ inline int FunctionsV4::myFunc(int x, int y)
     {
 //..
 // First, let's observe that we can assign this new function to a function
-// pointer of type 'bsls::Review::Handler':
+// pointer of type 'bsls::Review::ViolationHandler':
 //..
-        bsls::Review::Handler f = &ourFailureHandler;
+        bsls::Review::ViolationHandler f = &ourFailureHandler;
 //..
 // Now we can install it just as we would any any other handler:
 //..
-        bsls::Review::setFailureHandler(f);
+        bsls::Review::setViolationHandler(f);
 //..
 // Then we can create a violation instance to represent the violation we are
 // about to invoke
@@ -920,17 +921,17 @@ inline int FunctionsV4::myFunc(int x, int y)
 // below this function to be handled by throwing an exception, which is then
 // caught by the wrapper and reported to the caller as a "bad" status.  Hence,
 // when within the runtime scope of this function, we want to install,
-// temporarily, the review-failure handler 'bsls::Review::failThrow', which,
+// temporarily, the review-failure handler 'bsls::Review::failByThrow', which,
 // when invoked, causes an 'bsls::AssertTestException' object to be thrown.
 // (Note that we are not advocating this approach for "recovery", but rather
 // for an orderly shut-down, or perhaps during testing.)  The
 // 'bsls::ReviewFailureHandlerGuard' class is provided for just this purpose:
 //..
-    ASSERT(&bsls::Review::failLog == bsls::Review::failureHandler());
+    ASSERT(&bsls::Review::failByLog == bsls::Review::violationHandler());
 
-    bsls::ReviewFailureHandlerGuard guard(&bsls::Review::failThrow);
+    bsls::ReviewFailureHandlerGuard guard(&bsls::Review::failByThrow);
 
-    ASSERT(&bsls::Review::failThrow == bsls::Review::failureHandler());
+    ASSERT(&bsls::Review::failByThrow == bsls::Review::violationHandler());
 //..
 // Next we open up a 'try' block, and somewhere within the 'try' we
 // "accidentally" invoke 'fact' with an out-of-contract value (i.e., '-1'):
@@ -968,8 +969,9 @@ inline int FunctionsV4::myFunc(int x, int y)
 //  Internal Error: bsls_review.t.cpp:500: 0 <= n
 //..
 // and the 'wrapperFunc' function will return a bad status (i.e., 1) to its
-// caller.  Note that if exceptions are not enabled, 'bsls::Review::failThrow'
-// will behave as 'bsls::Review::failAbort', and dump core immediately:
+// caller.  Note that if exceptions are not enabled,
+// 'bsls::Review::failByThrow' will behave as 'bsls::Review::failByAbort', and
+// dump core immediately:
 //..
 // Review failed: 0 <= n, file bsls_review.t.cpp, line 500 Abort (core dumped)
 //..
@@ -1173,10 +1175,10 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n1. introducing a new bsls_assert.\n");
 
-        ASSERT(&bsls::Review::failLog == bsls::Review::failureHandler());
+        ASSERT(&bsls::Review::failByLog == bsls::Review::violationHandler());
 
-        bsls::ReviewFailureHandlerGuard guard(&bsls::Review::failThrow);
-        ASSERT(&bsls::Review::failThrow == bsls::Review::failureHandler());
+        bsls::ReviewFailureHandlerGuard guard(&bsls::Review::failByThrow);
+        ASSERT(&bsls::Review::failByThrow == bsls::Review::violationHandler());
 
 
         if (verbose) printf("\n2. Running myFunc with valid arguments.\n");
@@ -1216,9 +1218,9 @@ int main(int argc, char *argv[])
 #else
         if (veryVerbose) printf( "\tSAFE MODE 2 *is* defined.\n" );
 
-        // bsls::Review::setFailureHandler(::testDriverPrint);
+        // bsls::Review::setViolationHandler(::testDriverPrint);
                                                           // for usage example
-        bsls::Review::setFailureHandler(::testDriverHandler);
+        bsls::Review::setViolationHandler(::testDriverHandler);
                                                           // for regression
         globalReset();
         ASSERT(false == globalReviewFiredFlag);
@@ -1262,7 +1264,7 @@ int main(int argc, char *argv[])
 
         // See usage examples section at top of this file.
 
-        ASSERT(&bsls::Review::failLog == bsls::Review::failureHandler());
+        ASSERT(&bsls::Review::failByLog == bsls::Review::violationHandler());
 
 #ifndef BDE_BUILD_TARGET_OPT
     #if defined(BDE_BUILD_TARGET_EXC) ||                                      \
@@ -1275,7 +1277,7 @@ int main(int argc, char *argv[])
 
     #endif
 #endif
-        ASSERT(&bsls::Review::failLog == bsls::Review::failureHandler());
+        ASSERT(&bsls::Review::failByLog == bsls::Review::violationHandler());
 
       } break;
       case 12: {
@@ -1368,7 +1370,7 @@ int main(int argc, char *argv[])
 
         // See usage examples section at top of this file.
 
-        bsls::Review::setFailureHandler(::testDriverPrint);
+        bsls::Review::setViolationHandler(::testDriverPrint);
 
 #ifndef BDE_BUILD_TARGET_EXC
         globalReturnOnTestReview = true;
@@ -1413,7 +1415,7 @@ int main(int argc, char *argv[])
         // DEFAULT HANDLER LOG: BACKOFF
         //
         // Concerns:
-        //: 1 The default (failLog) handler should back off exponentially.
+        //: 1 The default (failByLog) handler should back off exponentially.
         //
         // Plan:
         //: 1 Covered by test case 7 and -4
@@ -1434,8 +1436,8 @@ int main(int argc, char *argv[])
         // DEFAULT HANDLER LOG: CONTENT
         //
         // Concerns:
-        //: 1 'failLog' should log log a message via 'bsls_log' containing call
-        //:   site information.
+        //: 1 'failByLog' should log log a message via 'bsls_log' containing
+        //:   call site information.
         //:
         //: 2 The log message should identify the file and line where the
         //:   failed review occurred.
@@ -1456,7 +1458,7 @@ int main(int argc, char *argv[])
         if (verbose) printf( "\nDEFAULT HANDLER LOG: CONTENT"
                              "\n============================\n" );
 
-        bsls::ReviewFailureHandlerGuard guard(bsls::Review::failLog);
+        bsls::ReviewFailureHandlerGuard guard(bsls::Review::failByLog);
         bsls::Log::setLogMessageHandler(
             HandlerLoggingTest::recordingLogMessageHandler);
 
@@ -1571,8 +1573,8 @@ int main(int argc, char *argv[])
         //: 1 Create a guard, passing it the 'testDriverHandler' handler, and
         //:   verify, using 'failureHandler', that this new handler was
         //:   installed.  Then lock the administration, and repeat in nested
-        //:   fashion with the 'failSleep' handler.  Verify restoration on the
-        //:   way out.
+        //:   fashion with the 'failBySleep' handler.  Verify restoration on
+        //:   the way out.
         //
         // Testing:
         //   class bsls::ReviewFailureHandlerGuard
@@ -1586,7 +1588,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf( "\nVerify initial review failure handler.\n" );
 
-        ASSERT(bsls::Review::failLog == bsls::Review::failureHandler());
+        ASSERT(bsls::Review::failByLog == bsls::Review::violationHandler());
 
         if (verbose) printf( "\nCreate guard with 'testDriverHandler' "
                              "handler.\n" );
@@ -1595,7 +1597,7 @@ int main(int argc, char *argv[])
 
             if (verbose) printf( "\nVerify new review handler.\n" );
 
-            ASSERT(::testDriverHandler == bsls::Review::failureHandler());
+            ASSERT(::testDriverHandler == bsls::Review::violationHandler());
 
             if (verbose) printf( "\nLock administration.\n" );
 
@@ -1603,26 +1605,27 @@ int main(int argc, char *argv[])
 
             if (verbose) printf( "\nRe-verify new review handler.\n" );
 
-            ASSERT(testDriverHandler == bsls::Review::failureHandler());
+            ASSERT(testDriverHandler == bsls::Review::violationHandler());
 
-            if (verbose) printf( "\nCreate second guard with 'failSleep' "
+            if (verbose) printf( "\nCreate second guard with 'failBySleep' "
                                  "handler.\n");
 
             {
-                bsls::ReviewFailureHandlerGuard guard(bsls::Review::failSleep);
+                bsls::ReviewFailureHandlerGuard guard(
+                                                    bsls::Review::failBySleep);
 
                 if (verbose) printf( "\nVerify newer review handler.\n" );
 
-                ASSERT(bsls::Review::failSleep ==
-                                               bsls::Review::failureHandler());
+                ASSERT(bsls::Review::failBySleep ==
+                                             bsls::Review::violationHandler());
 
                 if (verbose) printf( "\nDestroy guard created with "
-                                     "'::failSleep' handler.\n" );
+                                     "'::failBySleep' handler.\n" );
             }
 
             if (verbose) printf( "\nVerify new review handler.\n" );
 
-            ASSERT(::testDriverHandler == bsls::Review::failureHandler());
+            ASSERT(::testDriverHandler == bsls::Review::violationHandler());
 
             if (verbose) printf( "\nDestroy guard created with "
                                  "'::testDriverHandler' handler.\n" );
@@ -1630,7 +1633,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf( "\nVerify initial review handler.\n" );
 
-        ASSERT(bsls::Review::failLog == bsls::Review::failureHandler());
+        ASSERT(bsls::Review::failByLog == bsls::Review::violationHandler());
 
 
       } break;
@@ -1641,7 +1644,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 That each of the review failure handlers provided herein behaves
         //:   as advertised and (at least) matches the signature of the
-        //:   'bsls::Review::Handler' 'typedef'
+        //:   'bsls::Review::ViolationHandler' 'typedef'
         //
         // Plan:
         //: 1 Verify each handler's behavior.  Unfortunately, we cannot test
@@ -1651,19 +1654,19 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   typedef void (*Handler)(const char *, const char *, int);
-        //   static void failLog(const ReviewViolation &violation);
-        //   static void failAbort(const ReviewViolation &violation);
-        //   static void failThrow(const ReviewViolation &violation);
-        //   static void failSleep(const ReviewViolation &violation);
+        //   static void failByLog(const ReviewViolation& violation);
+        //   static void failByAbort(const ReviewViolation& violation);
+        //   static void failByThrow(const ReviewViolation& violation);
+        //   static void failBySleep(const ReviewViolation& violation);
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nREVIEW FAILURE HANDLERS"
                              "\n=======================\n" );
 
-        if (verbose) printf( "\nTesting 'void failLog(const char *t, "
+        if (verbose) printf( "\nTesting 'void failByLog(const char *t, "
                              "const char *f, int line);'\n" );
         {
-            bsls::Review::Handler f = bsls::Review::failLog;
+            bsls::Review::ViolationHandler f = bsls::Review::failByLog;
             (void) f;
 
             if (veryVerbose) {
@@ -1672,10 +1675,10 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf( "\nTesting 'void failAbort(const char *t, "
+        if (verbose) printf( "\nTesting 'void failByAbort(const char *t, "
                              "const char *f, int line);'\n" );
         {
-            bsls::Review::Handler f = bsls::Review::failAbort;
+            bsls::Review::ViolationHandler f = bsls::Review::failByAbort;
             (void) f;
 
             if (veryVerbose) {
@@ -1683,11 +1686,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf( "\nTesting 'void failThrow(const char *t, "
+        if (verbose) printf( "\nTesting 'void failByThrow(const char *t, "
                              "const char *f, int line);'\n" );
         {
 
-            bsls::Review::Handler f = bsls::Review::failThrow;
+            bsls::Review::ViolationHandler f = bsls::Review::failByThrow;
 
 #ifdef BDE_BUILD_TARGET_EXC
             const char *text = "Test text";
@@ -1833,8 +1836,8 @@ int main(int argc, char *argv[])
         if (verbose) printf( "\nInstall 'testDriverHandler' "
                              "review-handler.\n" );
 
-        bsls::Review::setFailureHandler(&testDriverHandler);
-        ASSERT(::testDriverHandler == bsls::Review::failureHandler());
+        bsls::Review::setViolationHandler(&testDriverHandler);
+        ASSERT(::testDriverHandler == bsls::Review::violationHandler());
 
         if (veryVerbose) printf( "\tSet up all but line numbers now. \n" );
 
@@ -2255,12 +2258,12 @@ int main(int argc, char *argv[])
         //   const char *ReviewViolation::fileName();
         //   int ReviewViolation::lineNumber();
         //   const char *ReviewViolation::reviewLevel();
-        //   static void setFailureHandler(bsls::Review::Handler function);
-        //   static bsls::Review::Handler failureHandler();
-        //   static void invokeHandler(const char *t, const char *f, int);
+        //   static void setViolationHandler(ViolationHandler function);
+        //   static bsls::Review::ViolationHandler violationHandler();
+        //   static void invokeHandler(const bsls::ReviewViolation&);
         //   static int updateCount(Count *count);
         //   static void lockReviewAdministration();
-        //   CONCERN: By default, the 'bsls_review::failAbort' is used
+        //   CONCERN: By default, the 'bsls_review::failByAbort' is used
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nBREATHING TEST"
@@ -2270,13 +2273,13 @@ int main(int argc, char *argv[])
                              "installed by default.\n" );
 
 
-        ASSERT(bsls::Review::failLog == bsls::Review::failureHandler());
+        ASSERT(bsls::Review::failByLog == bsls::Review::violationHandler());
 
         if (verbose) printf( "\nVerify that we can install a new review "
                              "callback.\n" );
 
-        bsls::Review::setFailureHandler(&testDriverHandler);
-        ASSERT(::testDriverHandler == bsls::Review::failureHandler());
+        bsls::Review::setViolationHandler(&testDriverHandler);
+        ASSERT(::testDriverHandler == bsls::Review::violationHandler());
 
         if (verbose) printf( "\nVerify that 'invokeHandler' properly "
                              "transmits its arguments.\n" );
@@ -2342,8 +2345,8 @@ int main(int argc, char *argv[])
 
         bsls::Review::lockReviewAdministration();
 
-        bsls::Review::setFailureHandler(&bsls::Review::failAbort);
-        ASSERT(::testDriverHandler == bsls::Review::failureHandler());
+        bsls::Review::setViolationHandler(&bsls::Review::failByAbort);
+        ASSERT(::testDriverHandler == bsls::Review::violationHandler());
 
 #ifdef BSLS_REVIEW_LEVEL_NONE
         if (verbose) printf( "\n'BSLS_REVIEW_LEVEL_NONE' is defined; exit "
@@ -2470,11 +2473,11 @@ int main(int argc, char *argv[])
         //: 2 That it prints a message to 'stderr'.
         //
         // Plan:
-        //: 1 Call 'bsls::Review::failAbort' after blocking the signal.
+        //: 1 Call 'bsls::Review::failByAbort' after blocking the signal.
         //
         // Testing:
-        //   CONCERN: 'bsls::Review::failAbort' aborts
-        //   CONCERN: 'bsls::Review::failAbort' prints to 'stderr' not 'stdout'
+        //   CONCERN: 'bsls::Review::failByAbort' aborts
+        //   CONCERN: 'bsls::Review::failByAbort' prints to 'stderr'
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nCALL FAIL ABORT HANDLER"
@@ -2495,7 +2498,7 @@ int main(int argc, char *argv[])
                 "Review failed: 0 != 0, file myfile.cpp, line 123\n" );
 
         bsls::ReviewViolation violation("0 != 0", "myfile.cpp", 123, "TST", 1);
-        bsls::Review::failAbort(violation);
+        bsls::Review::failByAbort(violation);
 
         ASSERT(0 && "Should not be reached");
       } break;
@@ -2507,18 +2510,18 @@ int main(int argc, char *argv[])
         //: 1 That it does *not* throw for an exception build when there is an
         //:   exception pending.
         //:
-        //: 2 That it behaves as failAbort for non-exception builds.
+        //: 2 That it behaves as failByAbort for non-exception builds.
         //
         // Plan:
-        //: 1 Call bsls::Review::failThrow from within the destructor of a test
-        //:   object on the stack after a throw.
+        //: 1 Call bsls::Review::failByThrow from within the destructor of a
+        //:   test object on the stack after a throw.
         //:
-        //: 1 Call 'bsls::Review::failAbort' after blocking the signal.
+        //: 1 Call 'bsls::Review::failByAbort' after blocking the signal.
         //
         // Testing:
-        //   static void failAbort(const ReviewViolation &violation);
-        //   CONCERN: 'bsls::Review::failThrow' aborts in non-exception build
-        //   CONCERN: 'bsls::Review::failThrow' prints to 'stderr' for NON-EXC
+        //   static void failByAbort(const ReviewViolation& violation);
+        //   CONCERN: 'bsls::Review::failByThrow' aborts in non-exception build
+        //   CONCERN: 'bsls::Review::failByThrow' prints to 'stderr' w/o EXC
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nCALL FAIL THROW HANDLER"
@@ -2531,11 +2534,11 @@ int main(int argc, char *argv[])
         fprintf( stderr, "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"
                 "BSLS_REVIEW: An uncaught exception is pending;"
                 " cannot throw 'bsls_reviewtestexception'.\n" );
-        fprintf( stderr, "review failed: 'failThrow' handler called "
+        fprintf( stderr, "review failed: 'failByThrow' handler called "
                  "from ~BadBoy, file f.c, line 9\n" );
 
         try {
-            BadBoy bad;       // calls 'bsls::Review::failThrow' on destruction
+            BadBoy bad;     // calls 'bsls::Review::failByThrow' on destruction
 
             if (veryVerbose) printf( "About to throw \"stuff\"\n" );
 
@@ -2564,7 +2567,7 @@ int main(int argc, char *argv[])
                 "Review failed: 0 != 0, file myfile.cpp, line 123\n" );
 
         bsls::ReviewViolation violation("0 != 0", "myfile.cpp", 123, "TST", 1);
-        bsls::Review::failAbort(violation);
+        bsls::Review::failByAbort(violation);
 
         ASSERT(0 && "Should not be reached");
 #endif
@@ -2579,13 +2582,13 @@ int main(int argc, char *argv[])
         //: 2 That it prints a message to 'stderr'.
         //
         // Plan:
-        //: 1 Call 'bsls::Review::failSleep'.  Then observe that a diagnostic
+        //: 1 Call 'bsls::Review::failBySleep'.  Then observe that a diagnostic
         //:   is printed to 'stderr' and the program hangs.
         //
         // Testing:
-        //   static void failSleep(const ReviewViolation &violation);
-        //   CONCERN: 'bsls::Review::failSleep' sleeps forever
-        //   CONCERN: 'bsls::Review::failSleep' prints to 'stderr' not 'stdout'
+        //   static void failBySleep(const ReviewViolation& violation);
+        //   CONCERN: 'bsls::Review::failBySleep' sleeps forever
+        //   CONCERN: 'bsls::Review::failBySleep' prints to 'stderr'
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nCALL FAIL SLEEP HANDLER"
@@ -2596,7 +2599,7 @@ int main(int argc, char *argv[])
                  "Review failed: 0 != 0, file myfile.cpp, line 123\n" );
 
         bsls::ReviewViolation violation("0 != 0", "myfile.cpp", 123, "TST", 1);
-        bsls::Review::failSleep(violation);
+        bsls::Review::failBySleep(violation);
 
         ASSERT(0 && "Should not be reached");
       } break;
@@ -2608,7 +2611,7 @@ int main(int argc, char *argv[])
         //: 1 Log messages should stabilize at a period of 2^29.
         //
         // Plan:
-        //: 1 Invoke a review with the default ('bsls::Review::failLog')
+        //: 1 Invoke a review with the default ('bsls::Review::failByLog')
         //:   handler repeatedly, checking that skipped count of 2^29 repeats
         //:
         //: 2 This is the same as test case 7 with MUCH higher total count.
@@ -2620,7 +2623,7 @@ int main(int argc, char *argv[])
         if (verbose) printf( "\nDEFAULT HANDLER LOG: LIMITS"
                              "\n===========================\n" );
 
-        bsls::ReviewFailureHandlerGuard guard(bsls::Review::failLog);
+        bsls::ReviewFailureHandlerGuard guard(bsls::Review::failByLog);
         bsls::Log::setLogMessageHandler(
             HandlerLoggingTest::recordingLogMessageHandler);
 
@@ -2898,7 +2901,7 @@ struct ReviewFailed {
     // review handler, and provides a distinct "empty" type that may be thrown
     // from the handler and caught within the test cases below, in order to
     // confirm if the appropriate 'BSLS_REVIEW_*' macros are enabled or not.
-    static void failMacroTest(const bsls::ReviewViolation &) {
+    static void failMacroTest(const bsls::ReviewViolation&) {
         throw ReviewFailed();
     }
 };
@@ -2923,7 +2926,7 @@ void TestConfigurationMacros()
 #else
     if (globalVerbose) printf( "\nWe need to write a running commentary\n" );
 
-    bsls::Review::setFailureHandler(&ReviewFailed::failMacroTest);
+    bsls::Review::setViolationHandler(&ReviewFailed::failMacroTest);
 
 //========================== (NO BUILD FLAGS SET) ===========================//
 
@@ -2936,7 +2939,7 @@ void TestConfigurationMacros()
 
     // (THIS LINE INTENTIONALLY LEFT BLANK)
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -2977,7 +2980,7 @@ void TestConfigurationMacros()
 
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3020,7 +3023,7 @@ void TestConfigurationMacros()
 
 #define BDE_BUILD_TARGET_DBG
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3065,7 +3068,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3109,7 +3112,7 @@ void TestConfigurationMacros()
 
 #define BDE_BUILD_TARGET_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3154,7 +3157,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3199,7 +3202,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_DBG
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3245,7 +3248,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3289,7 +3292,7 @@ void TestConfigurationMacros()
 
 #define BDE_BUILD_TARGET_SAFE_2
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3334,7 +3337,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BDE_BUILD_TARGET_SAFE_2
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3379,7 +3382,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_SAFE_2
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3425,7 +3428,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3471,7 +3474,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BDE_BUILD_TARGET_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3517,7 +3520,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3563,7 +3566,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_DBG
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3610,7 +3613,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3656,7 +3659,7 @@ void TestConfigurationMacros()
 
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3698,7 +3701,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3740,7 +3743,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3783,7 +3786,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3825,7 +3828,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3868,7 +3871,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3911,7 +3914,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3955,7 +3958,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -3997,7 +4000,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4040,7 +4043,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4083,7 +4086,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4128,7 +4131,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4171,7 +4174,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4215,7 +4218,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4259,7 +4262,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4304,7 +4307,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4347,7 +4350,7 @@ void TestConfigurationMacros()
 
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4392,7 +4395,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4437,7 +4440,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4483,7 +4486,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4528,7 +4531,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4574,7 +4577,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4620,7 +4623,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4667,7 +4670,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4712,7 +4715,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4758,7 +4761,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4804,7 +4807,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4851,7 +4854,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4897,7 +4900,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4944,7 +4947,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -4991,7 +4994,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5039,7 +5042,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5085,7 +5088,7 @@ void TestConfigurationMacros()
 
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5130,7 +5133,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5175,7 +5178,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5221,7 +5224,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5266,7 +5269,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5312,7 +5315,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5358,7 +5361,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5405,7 +5408,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5450,7 +5453,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5496,7 +5499,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5542,7 +5545,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5589,7 +5592,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5635,7 +5638,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5682,7 +5685,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5729,7 +5732,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5777,7 +5780,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5823,7 +5826,7 @@ void TestConfigurationMacros()
 
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5868,7 +5871,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5913,7 +5916,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -5959,7 +5962,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6004,7 +6007,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6050,7 +6053,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6096,7 +6099,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6143,7 +6146,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6188,7 +6191,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6234,7 +6237,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6280,7 +6283,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6327,7 +6330,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6373,7 +6376,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6420,7 +6423,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6467,7 +6470,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6515,7 +6518,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6561,7 +6564,7 @@ void TestConfigurationMacros()
 
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6603,7 +6606,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6645,7 +6648,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6688,7 +6691,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6730,7 +6733,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6773,7 +6776,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6816,7 +6819,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6860,7 +6863,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6902,7 +6905,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6945,7 +6948,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -6988,7 +6991,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7033,7 +7036,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7076,7 +7079,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7120,7 +7123,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7164,7 +7167,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7209,7 +7212,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7252,7 +7255,7 @@ void TestConfigurationMacros()
 
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7297,7 +7300,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7342,7 +7345,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7388,7 +7391,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7433,7 +7436,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7479,7 +7482,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7525,7 +7528,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7572,7 +7575,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7617,7 +7620,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7663,7 +7666,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7709,7 +7712,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7756,7 +7759,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7802,7 +7805,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7849,7 +7852,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7896,7 +7899,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7944,7 +7947,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -7990,7 +7993,7 @@ void TestConfigurationMacros()
 
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8035,7 +8038,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8080,7 +8083,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8126,7 +8129,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8171,7 +8174,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8217,7 +8220,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8263,7 +8266,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8310,7 +8313,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8355,7 +8358,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8401,7 +8404,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8447,7 +8450,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8494,7 +8497,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8540,7 +8543,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8587,7 +8590,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8634,7 +8637,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8682,7 +8685,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8728,7 +8731,7 @@ void TestConfigurationMacros()
 
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8773,7 +8776,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8818,7 +8821,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8864,7 +8867,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8909,7 +8912,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -8955,7 +8958,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -9001,7 +9004,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -9048,7 +9051,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -9093,7 +9096,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -9139,7 +9142,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -9185,7 +9188,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -9232,7 +9235,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -9278,7 +9281,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -9325,7 +9328,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -9372,7 +9375,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -9420,7 +9423,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_review header.
+// [3] Re-include the 'bsls_review.h' header.
 
 #include <bsls_review.h>
 
@@ -10168,6 +10171,7 @@ void TestConfigurationMacros()
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -//
 #endif  // defined BDE_BUILD_TARGET_EXC
 }
+
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.
 //

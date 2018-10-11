@@ -247,15 +247,15 @@ BSLS_IDENT("$Id: $")
 #include <bsls_libraryfeatures.h>
 #endif
 
-                        // ======
-                        // macros
-                        // ======
+                                 // ======
+                                 // macros
+                                 // ======
 
 #ifdef BDE_BUILD_TARGET_EXC
 
-        // ------------------
-        // Exceptions enabled
-        // ------------------
+                           // ------------------
+                           // Exceptions enabled
+                           // ------------------
 
 #   define BSLS_TRY try
         // Start a try block.
@@ -317,22 +317,20 @@ BSLS_IDENT("$Id: $")
 
 #else // If exceptions are disabled
 
-        // -------------------
-        // Exceptions disabled
-        // -------------------
+                           // -------------------
+                           // Exceptions disabled
+                           // -------------------
 
 #   define BSLS_TRY if (1)
 
 #   define BSLS_CATCH(X) else if (0)
 
-#   define BSLS_THROW(X)                                                    \
-    BloombergLP::bsls::Assert::invokeHandler("Tried to throw " #X           \
-                                            " with exceptions disabled",    \
+#   define BSLS_THROW(X) BSLS_ASSERT_INVOKE("Tried to throw " #X             \
+                                            " with exceptions disabled",     \
                                             __FILE__, __LINE__)
 
-#   define BSLS_RETHROW                                                     \
-    BloombergLP::bsls::Assert::invokeHandler("Tried to re-throw exception " \
-                                            "with exceptions disabled",     \
+#   define BSLS_RETHROW BSLS_ASSERT_INVOKE("Tried to re-throw exception "    \
+                                            "with exceptions disabled",      \
                                             __FILE__, __LINE__)
 
 #   define BSLS_EXCEPTION_SPEC(SPEC)

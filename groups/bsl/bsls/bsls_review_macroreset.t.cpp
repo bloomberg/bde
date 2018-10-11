@@ -151,11 +151,11 @@ int main(int argc, char *argv[])
 //  HEADERS=( bsls_review.h )
 //  RESETHEADERS=( bsls_review_macroreset.h )
 //
-//  UNDEFINED=( $(cat ${HEADERS[@]} | grep "#\\s*undef" |
+//  UNDEFINED=( $(cat ${HEADERS[@]} | grep "^#\\s*undef" |
 //                    sed -e "s/.*undef //") )
 //
 //  DEFINED=( $(cat ${HEADERS[@]} ${RESETHEADERS} |
-//                  egrep "#\\s*(define|undef)" |
+//                  egrep "^#\\s*(define|undef)" |
 //                  sed -e "s/.*define //" -e "s/.*undef //" -e "s/[( ].*//" |
 //                  grep -v "TESTDRIVER_GUARD" |
 //                  grep -v "MACRORESET" |

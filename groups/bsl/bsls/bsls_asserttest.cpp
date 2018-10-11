@@ -30,6 +30,11 @@ BSLS_IDENT("$Id$ $CSID$")
 
 //-----------------------------------------------------------------------------
 // STATIC HELPER FUNCTIONS
+
+namespace BloombergLP {
+
+namespace {
+
 static
 void printError(const char *text, const char *file, int line)
     // Print a formatted error message to 'stderr' using the specified
@@ -66,6 +71,8 @@ void printError(const char *text, const char *file, int line)
 
 static
 bool isPathSeparator(char c)
+    // Return 'true' if the specified 'c' is a valid path separator on the
+    // current platform, otherwise return 'false'.
 {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     static const char pathSeparators[] = { ':', '/', '\\' };
@@ -81,15 +88,18 @@ bool isPathSeparator(char c)
 }
 
 static
-bool extractComponentName(const char **componentName,
-                          int         *length,
-                          const char  *filename)
+bool extractTestedComponentName(const char **testedComponentName,
+                                int         *length,
+                                const char  *filename)
     // Return 'true' if the specified 'filename' corresponds to a valid
     // filename for a BDE component, and 'false' otherwise.  If 'filename'
-    // corresponds to a valid component name, 'componentName' will be set to
-    // point to the start of that component name within 'filename', and
-    // 'length' will store the length of that component name.  Note that this
-    // sub-string will *not* be null-terminated.
+    // corresponds to a valid component name, the specified
+    // 'testedComponentName' will be set to point to the start of the "tested"
+    // component name within 'filename', and the specified 'length' will store
+    // the length of that component name.  The "Tested" component is generally
+    // the full component name, but for subordinate test components (those
+    // where the subordinate part begins with "test") it is the parent
+    // component.  Note that this sub-string will *not* be null-terminated.
 {
     // A component filename is a filename ending in one of the following set of
     // file extensions: '.h', '.cpp', '.t.cpp'.  The component name is the
@@ -103,9 +113,12 @@ bool extractComponentName(const char **componentName,
     // path separator (if any) and the period starting the file extension mark
     // out the component name to be returned.
 
-    if (!componentName || !length || !filename) {
-         printf("passed at least one null pointer\n");
-         return false;                                                // RETURN
+    // After the full component name is found check to see if it is a
+    // subordinate test component and remove the '_test.*' part if it is.
+
+    if (!testedComponentName || !length || !filename) {
+        printf("passed at least one null pointer\n");
+        return false;                                                 // RETURN
     }
 
     const char *end = filename;
@@ -120,29 +133,29 @@ bool extractComponentName(const char **componentName,
     --end;
     if ('h' == *end) {
         if ('.' != *--end) {
-             printf("filename is not a header\n");
-             return false;                                            // RETURN
+            printf("filename is not a header\n");
+            return false;                                             // RETURN
         }
     }
     else if ('p' == *end) {
         if (4 > (end - filename)) {
-             printf("filename is not long enough for a .cpp\n");
-             return false;                                            // RETURN
+            printf("filename is not long enough for a .cpp\n");
+            return false;                                             // RETURN
         }
 
         if ('p' != *--end) {
-             printf("filename is not a .cpp(1)\n");
-             return false;                                            // RETURN
+            printf("filename is not a .cpp(1)\n");
+            return false;                                             // RETURN
         }
 
         if ('c' != *--end) {
-             printf("filename is not a .cpp(2)\n");
-             return false;                                            // RETURN
+            printf("filename is not a .cpp(2)\n");
+            return false;                                             // RETURN
         }
 
         if ('.' != *--end) {
-             printf("filename is not a .cpp(3)\n");
-             return false;                                            // RETURN
+            printf("filename is not a .cpp(3)\n");
+            return false;                                             // RETURN
         }
 
         if (2 < (end - filename)) {
@@ -155,8 +168,8 @@ bool extractComponentName(const char **componentName,
         }
     }
     else {
-         printf("filename is not recognized\n");
-         return false;                                                // RETURN
+        printf("filename is not recognized\n");
+        return false;                                                 // RETURN
     }
 
     const char *cursor = end;
@@ -168,14 +181,46 @@ bool extractComponentName(const char **componentName,
         }
     }
 
-    *componentName = cursor;
+    // after
+    int underscorecount = 0;
+    for (const char *c = cursor; c != end; ++c)
+    {
+        if (*c  == '_') { ++underscorecount; }
+    }
+
+    if (underscorecount >= 2)
+    {
+        // this is a subordinate component.
+
+        const char *subordcursor = end;
+        while (subordcursor != cursor) {
+            --subordcursor;
+            if (*subordcursor == '_') {
+                ++subordcursor;
+                break;
+            }
+        }
+
+        if (end - subordcursor >= 4
+            && subordcursor[0] == 't'
+            && subordcursor[1] == 'e'
+            && subordcursor[2] == 's'
+            && subordcursor[3] == 't')
+        {
+            // This is a subordinate test component.
+            end = subordcursor;
+            --end;
+        }
+    }
+
+    *testedComponentName = cursor;
     *length = static_cast<int>(end - cursor);
     return true;
 }
 
-//-----------------------------------------------------------------------------
+}  // close unnamed namespace
 
-namespace BloombergLP {
+//-----------------------------------------------------------------------------
 
 namespace bsls {
 
@@ -203,41 +248,31 @@ bool AssertTest::isValidExpected(char specChar)
     return 'F' == specChar || 'P' == specChar;
 }
 
-                        // Testing Apparatus
-
-bool AssertTest::tryProbe(char expectedResult)
+bool AssertTest::isValidExpectedLevel(char specChar)
 {
-    if (!isValidExpected(expectedResult)) {
-        printf("Invalid 'expectedResult' passed to 'tryProbe': '%c'\n",
-               expectedResult);
-    }
-
-    return 'P' == expectedResult;
+    return 'S' == specChar || 'A' == specChar || 'O' == specChar;
 }
 
+                            // Testing Apparatus
+
 bool AssertTest::catchProbe(char                        expectedResult,
+                            bool                        checkLevel,
+                            char                        expectedLevel,
                             const AssertTestException&  caughtException,
                             const char                 *componentFileName)
 {
-    // First we must validate each argument, in order to write a diagnostic
-    // message to the console.
+    // First we see if the component names passed in are valid.
 
     bool validArguments = true;
-
-    if (!isValidExpected(expectedResult)) {
-        printf("Invalid 'expectedResult' passed to 'catchProbe': '%c'\n",
-               expectedResult);
-        validArguments = false;
-    }
 
     const char *text = caughtException.expression();
     const char *file = caughtException.filename();
 
     const char *exceptionComponent;
-    int exceptionNameLength;
-    if (file && !extractComponentName(&exceptionComponent,
-                                      &exceptionNameLength,
-                                      file)) {
+    int         exceptionNameLength;
+    if (file && !extractTestedComponentName(&exceptionComponent,
+                                            &exceptionNameLength,
+                                            file)) {
         printf("Bad component name in exception caught by catchProbe: %s\n",
                file);
         validArguments = false;
@@ -254,18 +289,26 @@ bool AssertTest::catchProbe(char                        expectedResult,
     // Note that 'componentFileName' is permitted to be NULL.
 
     const char *thisComponent;
-    int thisNameLength;
-    if (componentFileName && !extractComponentName(&thisComponent,
-                                                   &thisNameLength,
-                                                   componentFileName)) {
+    int         thisNameLength;
+    if (componentFileName && !extractTestedComponentName(&thisComponent,
+                                                         &thisNameLength,
+                                                         componentFileName)) {
         printf("Bad component name for test driver in catchProbe: %s\n",
                componentFileName);
         validArguments = false;
     }
 
-    // After diagnosing any invalid arguments, we can now return a result.
+    if (!validArguments) {
+        return false;                                                 // RETURN
+    }
 
-    if ('F' != expectedResult || !validArguments) {
+    // After diagnosing any invalid component-related arguments we can delegate
+    // to catchProbeRaw to check the common issues.
+
+    if (!catchProbeRaw(expectedResult,
+                       checkLevel,
+                       expectedLevel,
+                       caughtException)) {
         return false;                                                 // RETURN
     }
 
@@ -277,6 +320,12 @@ bool AssertTest::catchProbe(char                        expectedResult,
 
         if (thisNameLength != exceptionNameLength
          || 0 != strncmp(thisComponent, exceptionComponent, thisNameLength)) {
+
+            printf("Failure in component %.*s but expected component %.*s\n",
+                   exceptionNameLength,
+                   exceptionComponent,
+                   thisNameLength,
+                   thisComponent);
             return false;                                             // RETURN
         }
     }
@@ -284,44 +333,152 @@ bool AssertTest::catchProbe(char                        expectedResult,
     return true;
 }
 
-bool AssertTest::tryProbeRaw(char expectedResult)
-{
-    if (!isValidExpected(expectedResult)) {
-        printf("Invalid 'expectedResult' passed to a 'tryProbeRaw': '%c'\n",
-               expectedResult);
-    }
-
-    return 'P' == expectedResult;
-}
-
-bool AssertTest::catchProbeRaw(char expectedResult)
+bool AssertTest::catchProbeRaw(
+                              char                             expectedResult,
+                              bool                             checkLevel,
+                              char                             expectedLevel,
+                              const bsls::AssertTestException &caughtException)
 {
     if (!isValidExpected(expectedResult)) {
         printf("Invalid 'expectedResult' passed to a 'catchProbeRaw': '%c'\n",
                expectedResult);
+        return false;                                                 // RETURN
     }
 
-    return 'F' == expectedResult;
+    if (!isValidExpectedLevel(expectedLevel)) {
+        printf("Invalid 'expectedLevel' passed to 'catchProbeRaw': '%c'\n",
+               expectedLevel);
+        return false;                                                 // RETURN
+    }
+
+    if ('F' != expectedResult)
+    {
+        printf("Unexpected assertion failure.\n");
+        return false;                                                 // RETURN
+    }
+
+    if (checkLevel)
+    {
+        const char *level = caughtException.level();
+        switch (expectedLevel)
+        {
+          case 'S':
+            if (strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
+                strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
+            {
+                printf("Expected SAFE failure but got level:%s\n",level);
+                return false;                                         // RETURN
+            }
+            break;
+          case 'A':
+            // if built in safe mode it's possible for a 'BSLS_ASSERT_SAFE' to
+            // prevent execution from reaching a 'BSLS_ASSERT', so both levels
+            // are allowed
+            if (strcmp(level,bsls::Review::k_LEVEL_REVIEW) != 0 &&
+                strcmp(level,bsls::Assert::k_LEVEL_ASSERT) != 0 &&
+                strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
+                strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
+            {
+                printf("Expected ASSERT failure but got level:%s\n",level);
+                return false;                                         // RETURN
+            }
+            break;
+          case 'O':
+            // if built in safe mode it's possible for a 'BSLS_ASSERT_SAFE' or
+            // 'BSLS_ASSERT' to prevent execution from reaching a
+            // 'BSLS_ASSERT_OPT', so all levels are allowed
+            if (strcmp(level,bsls::Review::k_LEVEL_OPT) != 0 &&
+                strcmp(level,bsls::Assert::k_LEVEL_OPT) != 0 &&
+                strcmp(level,bsls::Review::k_LEVEL_REVIEW) != 0 &&
+                strcmp(level,bsls::Assert::k_LEVEL_ASSERT) != 0 &&
+                strcmp(level,bsls::Review::k_LEVEL_SAFE) != 0 &&
+                strcmp(level,bsls::Assert::k_LEVEL_SAFE) != 0)
+            {
+                printf("Expected OPT failure but got level:%s\n",level);
+                return false;                                         // RETURN
+            }
+            break;
+        }
+    }
+
+    return true;
 }
 
+bool AssertTest::tryProbe(char expectedResult, char expectedLevel)
+{
+    if (!isValidExpected(expectedResult)) {
+        printf("Invalid 'expectedResult' passed to 'tryProbe': '%c'\n",
+               expectedResult);
+        return false;                                                 // RETURN
+    }
+
+    if (!isValidExpectedLevel(expectedLevel)) {
+        printf("Invalid 'expectedLevel' passed to 'tryProbe': '%c'\n",
+               expectedLevel);
+        return false;                                                 // RETURN
+    }
+
+    if ('P' != expectedResult) {
+        printf("Expression passed that was expected to fail.\n");
+        return false;                                                 // RETURN
+    }
+
+    return true;
+}
+
+bool AssertTest::tryProbeRaw(char expectedResult, char expectedLevel)
+{
+    if (!isValidExpected(expectedResult)) {
+        printf("Invalid 'expectedResult' passed to 'tryProbeRaw': '%c'\n",
+               expectedResult);
+        return false;                                                 // RETURN
+    }
+
+    if (!isValidExpectedLevel(expectedLevel)) {
+        printf("Invalid 'expectedLevel' passed to 'tryProbeRaw': '%c'\n",
+               expectedLevel);
+        return false;                                                 // RETURN
+    }
+
+    if ('P' != expectedResult) {
+        printf("Expression passed that was expected to fail.\n");
+        return false;                                                 // RETURN
+    }
+
+    return true;
+}
+
+                        // Testing Failure Handlers
+
 BSLS_ASSERTTEST_NORETURN
-void AssertTest::failTestDriver(const char *text,
-                                const char *file,
-                                int         line)
+void AssertTest::failTestDriver(const AssertViolation &violation)
 {
 #ifdef BDE_BUILD_TARGET_EXC
-    throw AssertTestException(text, file, line);
+    throw AssertTestException(violation.comment(),
+                              violation.fileName(),
+                              violation.lineNumber(),
+                              violation.assertLevel());
 #else
-    printError(text, file, line);
+    printError(violation.comment(),
+               violation.fileName(),
+               violation.lineNumber());
     abort();
 #endif
 }
 
 void AssertTest::failTestDriverByReview(const ReviewViolation &violation)
 {
-    failTestDriver(violation.comment(),
-                   violation.fileName(),
-                   violation.lineNumber());
+#ifdef BDE_BUILD_TARGET_EXC
+    throw AssertTestException(violation.comment(),
+                              violation.fileName(),
+                              violation.lineNumber(),
+                              violation.reviewLevel());
+#else
+    printError(violation.comment(),
+               violation.fileName(),
+               violation.lineNumber());
+    abort();
+#endif
 }
 
 }  // close package namespace

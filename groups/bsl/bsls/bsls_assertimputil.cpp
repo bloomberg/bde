@@ -49,7 +49,7 @@ namespace bsls {
                           // --------------------
 
 BSLS_ASSERTIMPUTIL_NORETURN
-void AssertImpUtil::failAbort()
+void AssertImpUtil::failByAbort()
 {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // See DRQS 8923441: The following is a work-around for a Fortran compiler
@@ -87,7 +87,7 @@ void AssertImpUtil::failAbort()
 }
 
 BSLS_ASSERTIMPUTIL_NORETURN
-void AssertImpUtil::failSleep()
+void AssertImpUtil::failBySleep()
 {
     volatile int sleepDuration = 1;
 

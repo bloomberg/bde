@@ -26,11 +26,11 @@ BSLS_IDENT("$Id: $")
 ///- - - - - - - - - - - - - - - - - - - -
 // Suppose you are implementing an assertion handler that should cause a
 // process to terminate when invoked.  In order to stop the process
-// immediately, you would call 'failAbort' like this:
+// immediately, you would call 'failByAbort' like this:
 //..
 //  void myAbort()
 //  {
-//      bsls::AssertImpUtil::failAbort();
+//      bsls::AssertImpUtil::failByAbort();
 //      // This code should never be reached.
 //  }
 //..
@@ -41,11 +41,11 @@ BSLS_IDENT("$Id: $")
 // Suppose you want a process to no longer continue doing anything, but you
 // want to leave it running in order to attach a debugger to it and diagnose
 // the full state of your system.  In order to have your process sleep forever,
-// you might call 'failSleep' like this:
+// you might call 'failBySleep' like this:
 //..
 //  void mySleep()
 //  {
-//      bsls::AssertImpUtil::failSleep();
+//      bsls::AssertImpUtil::failBySleep();
 //      // This code should never be reached.
 //  }
 //..
@@ -93,13 +93,13 @@ struct AssertImpUtil {
   public:
     // CLASS METHODS
     BSLS_ASSERTIMPUTIL_NORETURN
-    static void failAbort();
+    static void failByAbort();
         // Unconditionally abort the current application.  It is up to the
         // caller to first output a useful message describing the location of
         // the failure.
 
     BSLS_ASSERTIMPUTIL_NORETURN
-    static void failSleep();
+    static void failBySleep();
         // Spin in an infinite loop.  It is up to the caller to first output a
         // useful message describing the location of the failure.
 };

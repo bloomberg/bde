@@ -144,8 +144,9 @@
 //..
 //  namespace {
 //  balb::AssertionTracker theTracker;
-//  #define TRACK_ASSERT(condition) do { if (!(condition)) { \  /*Squash Warn*/
-//  theTracker.assertionDetected(#condition, __FILE__, __LINE__); } } while (0)
+//  #define TRACK_ASSERT(condition) do { if (!(condition)) {                 \$
+//  theTracker.assertionDetected(bsls::AssertViolation(#condition,           \$
+//                               __FILE__, __LINE__, "L")); } } while (0)
 //  }  // close unnamed namespace
 //..
 // Then, we define the function to be traced, and use the modified assertions.
@@ -277,46 +278,46 @@ class AssertionTracker {
 
   private:
     // PRIVATE DATA
-    bsls::Assert::Handler   d_fallbackHandler;
+    bsls::Assert::ViolationHandler d_fallbackHandler;
         // handler invoked when assertions occur beyond configured limits
 
-    bslma::Allocator       *d_allocator_p;
-        // allocator used by this object
+    bslma::Allocator              *d_allocator_p;
+        // allocator used by this object     
 
-    bsls::AtomicInt         d_maxAssertions;
+    bsls::AtomicInt                d_maxAssertions;
         // configured limit of assertions that will be processed
 
-    bsls::AtomicInt         d_maxLocations;
+    bsls::AtomicInt                d_maxLocations;
         // configured limit of assertion locations that will be processed
 
-    bsls::AtomicInt         d_maxStackTracesPerLocation;
+    bsls::AtomicInt                d_maxStackTracesPerLocation;
         // configured limit of per-location stack traces that will be processed
 
-    bsls::AtomicInt         d_reportingSeverity;
+    bsls::AtomicInt                d_reportingSeverity;
         // configured severity, passed to reporting callback
 
-    bsls::AtomicInt         d_assertionCount;
+    bsls::AtomicInt                d_assertionCount;
         // number of assertions seen, including unprocessed ones
 
-    TrackingData            d_trackingData;
+    TrackingData                   d_trackingData;
         // database tracking all processed assertions so far seen
 
-    bslmt::ThreadUtil::Key  d_recursionCheck;
+    bslmt::ThreadUtil::Key         d_recursionCheck;
         // key for thread-local data, used to prevent recursive invocation of
         // the assertion handler if a callback itself triggers an assertion
 
-    mutable bslmt::Mutex    d_mutex;
+    mutable bslmt::Mutex           d_mutex;
         // lock used to serialize concurrent access to the callback members
         // 'd_configurationCallback' and 'd_reportingCallback' and to the
         // accumulated assertion data 'd_trackingData' and 'd_assertionCount'
 
-    ConfigurationCallback   d_configurationCallback;
+    ConfigurationCallback          d_configurationCallback;
         // callback invoked to reconfigure reporting parameters
 
-    ReportingCallback       d_reportingCallback;
+    ReportingCallback              d_reportingCallback;
         // callback invoked to report an assertion
 
-    bsls::AtomicInt         d_reportingFrequency;
+    bsls::AtomicInt                d_reportingFrequency;
         // configured reporting frequency
 
     // PRIVATE CREATORS
@@ -362,9 +363,12 @@ class AssertionTracker {
 
     // CREATORS
     explicit AssertionTracker(
-        bsls::Assert::Handler  fallback       = bsls::Assert::failureHandler(),
-        ConfigurationCallback  configure      = preserveConfiguration,
-        bslma::Allocator      *basicAllocator = 0);
+        bsls::Assert::ViolationHandler fallback       =
+                                              bsls::Assert::violationHandler(),
+        ConfigurationCallback          configure      =
+                                              preserveConfiguration,
+        bslma::Allocator              *basicAllocator =
+                                              0);
         // Create an object of this type.  Optionally specify a 'fallback' used
         // to handle assertions that exceed configured limits.  If 'fallback'
         // is not given, the currently installed failure handler is used.
@@ -375,19 +379,20 @@ class AssertionTracker {
         // the currently installed default allocator is used.
 
     // MANIPULATORS
-    void assertionDetected(const char *text, const char *file, int line);
+    void assertionDetected(const bsls::AssertViolation &violation);
         // This function is invoked to inform this object that an assertion
-        // described by the specified 'text', 'file', and 'line' has occurred.
-        // This object will refresh its configuration via its configuration
-        // callback.  Depending on the configuration and the number and types
-        // of assertions that have already been reported previously, this
+        // described by the specified 'violation' has occurred. This object
+        // will refresh its configuration via its configuration callback.
+        // Depending on the configuration and the number and types of
+        // assertions that have already been reported previously, this
         // assertion and its stack trace may be stored, and it may be reported
         // through the reporting callback, the fallback handler, or not at all.
         // See the description above for how configuration controls this
-        // behavior.  The behavior is undefined unless 'text' and 'file' have a
-        // lifetime exceeding this object and their contents do not change once
-        // this method has been called.  (In typical use, both are string
-        // constants, and this requirement is trivially met.)
+        // behavior.  The behavior is undefined unless 'comment' and 'file'
+        // from the 'violation' have a lifetime exceeding this object and their
+        // contents do not change once this method has been called.  (In
+        // typical use, both are string constants, and this requirement is
+        // trivially met.)
 
     void setConfigurationCallback(ConfigurationCallback cb);
         // Set the configuration callback function, invoked when an assertion

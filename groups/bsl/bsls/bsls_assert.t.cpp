@@ -15,7 +15,7 @@
 
 #include <cstdio>    // 'fprintf'
 #include <cstdlib>   // 'atoi'
-#include <cstring>   // 'strcmp'
+#include <cstring>   // 'strcmp', 'strcpy'
 #include <exception> // 'exception'
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -52,52 +52,80 @@ using namespace std;
 // also have to be done by hand (see negative case numbers).
 //
 // ----------------------------------------------------------------------------
-// [ 6] BSLS_ASSERT_SAFE_IS_ACTIVE
-// [ 6] BSLS_ASSERT_IS_ACTIVE
-// [ 6] BSLS_ASSERT_OPT_IS_ACTIVE
+// [ 7] BSLS_ASSERT_SAFE_IS_ACTIVE
+// [ 7] BSLS_ASSERT_IS_ACTIVE
+// [ 7] BSLS_ASSERT_OPT_IS_ACTIVE
 // [ 2] BSLS_ASSERT_SAFE(X)
 // [ 2] BSLS_ASSERT(X)
 // [ 2] BSLS_ASSERT_OPT(X)
 // [ 2] BSLS_ASSERT_INVOKE(X)
-// [ 4] typedef void (*Handler)(const char *, const char *, int);
-// [ 1] static void setFailureHandler(bsls::Assert::Handler function);
-// [ 1] static void lockAssertAdministration();
-// [ 1] static bsls::Assert::Handler failureHandler();
-// [ 1] static void invokeHandler(const char *t, const char *f, int);
-// [ 4] static void failAbort(const char *t, const char *f, int line);
-// [-2] static void failAbort(const char *t, const char *f, int line);
-// [ 4] static void failSleep(const char *t, const char *f, int line);
-// [-3] static void failSleep(const char *t, const char *f, int line);
-// [ 4] static void failThrow(const char *t, const char *f, int line);
-// [ 5] class bsls::AssertFailureHandlerGuard
-// [ 5] AssertFailureHandlerGuard::AssertFailureHandlerGuard(Handler)
-// [ 5] AssertFailureHandlerGuard::~AssertFailureHandlerGuard()
+// [ 4] typedef void (*ViolationHandler)(const AssertViolation&);
+// [ 1] AssertViolation::AssertViolation(...);
+// [ 1] const char *AssertViolation::comment();
+// [ 1] const char *AssertViolation::fileName();
+// [ 1] int AssertViolation::lineNumber();
+// [ 1] const char *AssertViolation::assertLevel();
+// [ 1] void setViolationHandler(ViolationHandler function);
+// [ 1] void lockAssertAdministration();
+// [ 1] bsls::Assert::ViolationHandler violationHandler();
+// [ 1] void invokeHandler(const char *t, const char *f, int);
+// [ 1] void invokeHandler(const AssertViolation&);
+// [ 4] void failAbort(const char *, const char *, int);
+// [-2] void failAbort(const char *, const char *, int);
+// [ 4] void failByAbort(const AssertViolation& violation);
+// [-1] void failByAbort(const AssertViolation& violation);
+// [ 4] void failSleep(const char *, const char *, int);
+// [-6] void failSleep(const char *, const char *, int);
+// [ 4] void failBySleep(const AssertViolation& violation);
+// [-5] void failBySleep(const AssertViolation& violation);
+// [ 4] void failThrow(const char *, const char *, int);
+// [-4] void failThrow(const char *, const char *, int);
+// [ 4] void failByThrow(const AssertViolation& violation);
+// [-3] void failByThrow(const AssertViolation& violation);
+// [ 5] void permitOutOfPolicyReturningFailureHandler();
+// [-8] void permitOutOfPolicyReturningFailureHandler();
+// [ 5] static k_permitOutOfPolicyReturningAssertionBuildKey
+// [ 5] bool abortUponReturningAssertionFailureHandler();
+// [-8] bool abortUponReturningAssertionFailureHandler();
+// [ 6] class bsls::AssertFailureHandlerGuard
+// [ 6] AssertFailureHandlerGuard(Handler)
+// [ 6] ~AssertFailureHandlerGuard()
+// [10] typedef void (*Handler)(const char *, const char *, int);
+// [10] void setFailureHandler(Handler function);
+// [10] bsls::Assert::Handler failureHandler();
+// [10] AssertFailureHandlerGuard(Handler)
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] CONCERN: Returning handler log: content
-// [ 8] CONCERN: Returning handler log: backoff
-// [-4] CONCERN: Returning handler log: limits
+// [ 8] CONCERN: Returning handler log: content
+// [ 9] CONCERN: Returning handler log: backoff
+// [-7] CONCERN: Returning handler log: limits
 //
-// [ 9] USAGE EXAMPLE: Using Assert Macros
-// [10] USAGE EXAMPLE: Invoking an assert handler directly
-// [11] USAGE EXAMPLE: Using Administration Functions
-// [11] USAGE EXAMPLE: Installing Prefabricated Assert-Handlers
-// [12] USAGE EXAMPLE: Creating Your Own Assert-Handler
-// [13] USAGE EXAMPLE: Using Scoped Guard
-// [14] USAGE EXAMPLE: Using "ASSERT" with 'BDE_BUILD_TARGET_SAFE_2'
+// [11] USAGE EXAMPLE: Using Assert Macros
+// [12] USAGE EXAMPLE: Invoking an assert handler directly
+// [13] USAGE EXAMPLE: Using Administration Functions
+// [13] USAGE EXAMPLE: Installing Prefabricated Assert-Handlers
+// [14] USAGE EXAMPLE: Creating Your Own Assert-Handler
+// [15] USAGE EXAMPLE: Using Scoped Guard
+// [16] USAGE EXAMPLE: Using "ASSERT" with 'BDE_BUILD_TARGET_SAFE_2'
 //
-// [ 1] CONCERN: By default, the 'bsls::Assert::failAbort' is used.
+// [ 1] CONCERN: By default, the 'bsls::Assert::failByAbort' is used.
 // [ 2] CONCERN: ASSERT macros are instantiated properly for build targets
 // [ 2] CONCERN: all combinations of BDE_BUILD_TARGETs are allowed
 // [ 2] CONCERN: any one assert mode overrides all BDE_BUILD_TARGETs
 // [ 3] CONCERN: ubiquitously detect multiply-defined assertion-mode flags
-// [ 5] CONCERN: that locking does not stop the handlerGuard from working
-// [-1] CONCERN: 'bsls::Assert::failAbort' aborts
-// [-1] CONCERN: 'bsls::Assert::failAbort' prints to 'stderr' not 'stdout'
-// [-2] CONCERN: 'bsls::Assert::failThrow' aborts in non-exception build
-// [-2] CONCERN: 'bsls::Assert::failThrow' prints to 'stderr' for NON-EXC
-// [-3] CONCERN: 'bsls::Assert::failSleep' sleeps forever
-// [-3] CONCERN: 'bsls::Assert::failSleep' prints to 'stderr' not 'stdout'
+// [ 6] CONCERN: that locking does not stop the handlerGuard from working
+// [-1] CONCERN: 'bsls::Assert::failByAbort' aborts
+// [-1] CONCERN: 'bsls::Assert::failByAbort' prints to 'stderr'
+// [-2] CONCERN: 'bsls::Assert::failAbort' aborts
+// [-2] CONCERN: 'bsls::Assert::failAbort' prints to 'stderr'
+// [-3] CONCERN: 'bsls::Assert::failByThrow' aborts in non-exception build
+// [-3] CONCERN: 'bsls::Assert::failByThrow' prints to 'stderr' w/o EXC
+// [-4] CONCERN: 'bsls::Assert::failThrow' aborts in non-exception build
+// [-4] CONCERN: 'bsls::Assert::failThrow' prints to 'stderr' w/o EXC
+// [-5] CONCERN: 'bsls::Assert::failBySleep' sleeps forever
+// [-5] CONCERN: 'bsls::Assert::failBySleep' prints to 'stderr'
+// [-6] CONCERN: 'bsls::Assert::failSleep' sleeps forever
+// [-6] CONCERN: 'bsls::Assert::failSleep' prints to 'stderr'
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -151,6 +179,7 @@ bool globalVeryVerbose     = false;
 bool globalVeryVeryVerbose = false;
 
 static bool        globalAssertFiredFlag = false;
+static bool        globalLegacyAssertFiredFlag = false;
 static const char *globalText = "";
 static const char *globalFile = "";
 static int         globalLine = -1;
@@ -190,7 +219,7 @@ static bool globalReturnOnTestAssert = false;
         try {
 
 #define ASSERTION_TEST_END                                                   \
-        } catch (const std::exception& ) {                                   \
+        } catch (const std::exception&) {                                    \
             if (verbose) printf( "\nException caught." );                    \
         }
 #else
@@ -253,7 +282,9 @@ struct HandlerReturnTest {
                                           const char              *file,
                                           int                      line,
                                           const char              *message);
-        // Increment the 's_loggerInvocationCount' counter.
+        // Increment the 's_loggerInvocationCount' counter.  If
+        // 'globalVeryVeryVerbose' is 'true' then log the specified 'severity',
+        // 'file', 'line', and 'message';
 };
 
 LogProfile         HandlerReturnTest::s_firstProfile;
@@ -357,11 +388,14 @@ static void globalReset()
         printf( "*** globalReset()\n" );
 
     globalAssertFiredFlag = false;
+    globalLegacyAssertFiredFlag = false;
     globalText = "";
     globalFile = "";
     globalLine = -1;
     globalLevel = "";
 
+    ASSERT( !globalAssertFiredFlag );
+    ASSERT( !globalLegacyAssertFiredFlag );
     ASSERT( 0 == std::strcmp("", globalText));
     ASSERT( 0 == std::strcmp("", globalFile));
     ASSERT(-1 == globalLine);
@@ -371,21 +405,29 @@ static void globalReset()
 //-----------------------------------------------------------------------------
 
 BSLS_ASSERT_NORETURN
-static void testDriverHandler(const char *text, const char *file, int line)
-    // Set the 'globalAssertFiredFlag' to 'true' and store the specified
-    // expression 'text', 'file' name, and 'line' number values in
-    // 'globalText', globalFile', and 'globalLine', respectively.  Then throw
-    // an 'std::exception' object provided that 'BDE_BUILD_TARGET_EXC' is
-    // defined; otherwise, abort the program.
+static void testDriverHandler(const bsls::AssertViolation& violation)
+    // Set the 'globalAssertFiredFlag' to 'true', the
+    // 'globalLegacyAssertFiredFlag' to 'false', and store the expression
+    // 'text', 'file' name, 'line' number, and 'assertLlevel' values from the
+    // specified 'violation' in 'globalText', 'globalFile', 'globalLine', and
+    // 'globalLevel' respectively.  Then throw an 'std::exception' object
+    // provided that 'BDE_BUILD_TARGET_EXC' is defined; otherwise, abort the
+    // program.
 {
     if (globalVeryVeryVerbose) {
-        printf( "*** testDriverHandler: "); P_(text) P_(file) P(line)
+        printf( "*** testDriverHandler: ");
+        P_(violation.comment());
+        P_(violation.fileName());
+        P_(violation.lineNumber());
+        P(violation.assertLevel());
     }
 
     globalAssertFiredFlag = true;
-    globalText = text;
-    globalFile = file;
-    globalLine = line;
+    globalLegacyAssertFiredFlag = false;
+    globalText = violation.comment();
+    globalFile = violation.fileName();
+    globalLine = violation.lineNumber();
+    globalLevel = violation.assertLevel();
 
 #ifdef BDE_BUILD_TARGET_EXC
     throw std::exception();
@@ -400,22 +442,82 @@ static void testDriverHandler(const char *text, const char *file, int line)
 //-----------------------------------------------------------------------------
 
 BSLS_ASSERT_NORETURN
-static void testDriverPrint(const char *text, const char *file, int line)
-    // Format, in verbose mode, the specified expression 'text', 'file' name,
-    // and 'line' number the same way as the 'bsls::Assert::failAbort'
-    // assertion-failure handler function might, but on 'cout' instead of
-    // 'cerr'.  Then throw an 'std::exception' object provided that
-    // 'BDE_BUILD_TARGET_EXC' is defined; otherwise, abort the program.
+static void legacyTestDriverHandler(const char *text,
+                                    const char *file,
+                                    int         line)
+    // Set the 'globalAssertFiredFlag' to 'true', the
+    // 'globalLegacyAssertFiredFlag' to 'true', the 'globalLevel' to '""', and
+    // store the specified expression 'text', 'file' name, and 'line' number in
+    // 'globalText', 'globalFile', and 'globalLine'.  Then throw an
+    // 'std::exception' object provided that 'BDE_BUILD_TARGET_EXC' is defined;
+    // otherwise, abort the program.
+{
+    if (globalVeryVeryVerbose) {
+        printf( "*** legacyTestDriverHandler: "); P_(text) P_(file) P(line)
+    }
+
+    globalAssertFiredFlag = true;
+    globalLegacyAssertFiredFlag = true;
+    globalText = text;
+    globalFile = file;
+    globalLine = line;
+    globalLevel = "";
+
+#ifdef BDE_BUILD_TARGET_EXC
+    throw std::exception();
+#else
+    if (globalReturnOnTestAssert) {
+        return;                                                       // RETURN
+    }
+    std::abort();
+#endif
+}
+
+//-----------------------------------------------------------------------------
+
+static void returningHandler(const bsls::AssertViolation& violation)
+    // Print the 'comment', 'file', 'line' and 'assertLevel' from the specified
+    // 'violation' to standard output if 'globalVeryVeryVerbose' is non-zero
+    // and return.  NOTE THAT this handler is against Bloomberg default policy
+    // and under normal circumstances such a handler will result in termination
+    // of the program anyway.
+{
+    if (globalVeryVeryVerbose) {
+        printf( "*** returningHandler: ");
+        P_(violation.comment());
+        P_(violation.fileName());
+        P_(violation.lineNumber());
+        P(violation.assertLevel());
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+BSLS_ASSERT_NORETURN
+static void testDriverPrint(const bsls::AssertViolation& violation)
+    // Format, in verbose mode, the expression 'comment', 'file' name, 'line'
+    // number, and 'assertLevel' from the specified 'violation' in the same way
+    // as the 'bsls::Assert::failByAbort' assertion-failure handler function
+    // might, but on 'cout' instead of 'cerr'.  Then throw an 'std::exception'
+    // object provided that 'BDE_BUILD_TARGET_EXC' is defined; otherwise, abort
+    // the program.
 
 {
     if (globalVeryVeryVerbose) {
-        printf( "*** testDriverPrint: "); P_(text) P_(file) P(line)
+        printf( "*** testDriverPrint: ");
+        P_(violation.comment());
+        P_(violation.fileName());
+        P_(violation.lineNumber());
+        P(violation.assertLevel());
     }
 
     if (globalVeryVerbose) {
         std::fprintf(stdout,
-                     "Assertion failed: %s, file %s, line %d\n",
-                     text, file, line);
+                     "Assertion failed: %s, file %s, line %d, level: %s\n",
+                     violation.comment(),
+                     violation.fileName(),
+                     violation.lineNumber(),
+                     violation.assertLevel() );
 
         std::fflush(stdout);
     }
@@ -435,7 +537,7 @@ static void testDriverPrint(const char *text, const char *file, int line)
 //-----------------------------------------------------------------------------
 
 struct BadBoy {
-    // Bogus 'struct' used for testing: calls 'bsls::Assert::failThrow' on
+    // Bogus 'struct' used for testing: calls 'bsls::Assert::failByThrow' on
     // destruction to ensure that it does not re-throw with an exception
     // pending (see case -2).
 
@@ -445,9 +547,10 @@ struct BadBoy {
 
     ~BadBoy() {
         if (globalVeryVerbose) printf( "BadBoy Destroyed!\n" );
-        bsls::Assert::failThrow("'failThrow' handler called from ~BadBoy",
-                                "f.c",
-                                9);
+        bsls::Assert::failByThrow(bsls::AssertViolation(
+                                   "'failByThrow' handler called from ~BadBoy",
+                                   "f.c",
+                                   9,"L"));
      }
 };
 
@@ -640,7 +743,7 @@ void TestConfigurationMacros();
 ///3. Runtime Configuration of the 'bsls::Assert' Facility
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // By default, any assertion failure will result in the invocation of the
-// 'bsls::Assert::failAbort' handler function.  We can replace this behavior
+// 'bsls::Assert::failByAbort' handler function.  We can replace this behavior
 // with that of one of the other static failure handler methods supplied in
 // 'bsls::Assert' as follows.  Let's assume we are at the top of our
 // application called 'myMain' (which would typically be 'main'):
@@ -649,32 +752,32 @@ void TestConfigurationMacros();
     {
 //..
 // First observe that the default assertion-failure handler function is, in
-// fact, 'bsls::Assert::failAbort':
+// fact, 'bsls::Assert::failByAbort':
 //..
-        ASSERT(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
+        ASSERT(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
 //..
 // Next, we install a new assertion-failure handler function,
-// 'bsls::Assert::failSleep', from the suite of "off-the-shelf" handlers
+// 'bsls::Assert::failBySleep', from the suite of "off-the-shelf" handlers
 // provided as 'static' methods of 'bsls::Assert':
 //..
-        bsls::Assert::setFailureHandler(&bsls::Assert::failSleep);
+        bsls::Assert::setViolationHandler(&bsls::Assert::failBySleep);
 //..
-// Observe that 'bsls::Assert::failSleep' is the new, currently-installed
+// Observe that 'bsls::Assert::failBySleep' is the new, currently-installed
 // assertion-failure handler:
 //..
-        ASSERT(&bsls::Assert::failSleep == bsls::Assert::failureHandler());
+        ASSERT(&bsls::Assert::failBySleep == bsls::Assert::violationHandler());
 //..
 // Note that if we were to explicitly invoke the current assertion-failure
 // handler as follows:
 //..
 //  bsls::Assert::invokeHandler("message", "file", 27);  // This will hang!
 //..
-// the program will hang since 'bsls::Assert::failSleep' repeatedly sleeps for
-// a period of time within an infinite loop.  Thus, this assertion-failure
+// the program will hang since 'bsls::Assert::failBySleep' repeatedly sleeps
+// for a period of time within an infinite loop.  Thus, this assertion-failure
 // handler is useful for hanging a process so that a debugger may be attached
 // to it.
 //
-// We may now decide to disable the 'setFailureHandler' method using the
+// We may now decide to disable the 'setViolationHandler' method using the
 // 'bsls::Assert::lockAssertAdministration()' method to ensure that no one else
 // will override our decision globally.  Note, however, that the
 // 'bsls::AssertFailureHandlerGuard' is not affected, and can still be used to
@@ -684,11 +787,11 @@ void TestConfigurationMacros();
 //..
 // Attempting to change the currently installed handler now will fail:
 //..
-        bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
+        bsls::Assert::setViolationHandler(&bsls::Assert::failByAbort);
 
-        ASSERT(&bsls::Assert::failAbort != bsls::Assert::failureHandler());
+        ASSERT(&bsls::Assert::failByAbort != bsls::Assert::violationHandler());
 
-        ASSERT(&bsls::Assert::failSleep == bsls::Assert::failureHandler());
+        ASSERT(&bsls::Assert::failBySleep == bsls::Assert::violationHandler());
     }
 //..
 //
@@ -707,19 +810,22 @@ void TestConfigurationMacros();
     static bool globalEnableOurPrintingFlag = true;
 
     BSLS_ASSERT_NORETURN
-    static void ourFailureHandler(const char *text, const char *file, int line)
+    static void ourFailureHandler(const bsls::AssertViolation& violation)
         // Print the specified expression 'text', 'file' name, and 'line'
         // number to 'stdout' as a comma-separated list, replacing null
         // string-argument values with empty strings (unless printing has been
         // disabled by the 'globalEnableOurPrintingFlag' variable), then
         // unconditionally abort.
     {
+        const char *text = violation.comment();
         if (!text) {
             text = "";
         }
+        const char *file = violation.fileName();
         if (!file) {
             file = "";
         }
+        int line = violation.lineNumber();
         if (globalEnableOurPrintingFlag) {
             std::printf("%s, %s, %d\n", text, file, line);
         }
@@ -736,22 +842,22 @@ void TestConfigurationMacros();
     {
 //..
 // First, let's observe that we can assign this new function to a function
-// pointer of type 'bsls::Assert::Handler':
+// pointer of type 'bsls::Assert::ViolationHandler':
 //..
-        bsls::Assert::Handler f = &ourFailureHandler;
+        bsls::Assert::ViolationHandler f = &ourFailureHandler;
 //..
 // Now we can install it just as we would any any other handler:
 //..
-        bsls::Assert::setFailureHandler(f);
+        bsls::Assert::setViolationHandler(f);
 //..
 // We can now invoke the default handler directly:
 //..
-        bsls::Assert::invokeHandler("str1", "str2", 3);
+        BSLS_ASSERT_INVOKE("str1");
     }
 //..
 // With the resulting output as follows:
 //..
-//  str1, str2, 3
+//  str1, my_file.cpp, 17
 //  Abort (core dumped)
 //..
 //
@@ -788,17 +894,17 @@ void TestConfigurationMacros();
 // calls below this function to be handled by throwing an exception, which is
 // then caught by the wrapper and reported to the caller as a "bad" status.
 // Hence, when within the runtime scope of this function, we want to install,
-// temporarily, the assertion-failure handler 'bsls::Assert::failThrow', which,
-// when invoked, causes an 'bsls::AssertTestException' object to be thrown.
-// (Note that we are not advocating this approach for "recovery", but rather
-// for an orderly shut-down, or perhaps during testing.)  The
+// temporarily, the assertion-failure handler 'bsls::Assert::failByThrow',
+// which, when invoked, causes an 'bsls::AssertTestException' object to be
+// thrown.  (Note that we are not advocating this approach for "recovery", but
+// rather for an orderly shut-down, or perhaps during testing.)  The
 // 'bsls::AssertFailureHandlerGuard' class is provided for just this purpose:
 //..
-    ASSERT(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
+    ASSERT(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
 
-    bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failThrow);
+    bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failByThrow);
 
-    ASSERT(&bsls::Assert::failThrow == bsls::Assert::failureHandler());
+    ASSERT(&bsls::Assert::failByThrow == bsls::Assert::violationHandler());
 //..
 // Next we open up a 'try' block, and somewhere within the 'try' we
 // "accidentally" invoke 'fact' with an out-of-contract value (i.e., '-1'):
@@ -836,8 +942,9 @@ void TestConfigurationMacros();
 //  Internal Error: bsls_assert.t.cpp:500: 0 <= n
 //..
 // and the 'wrapperFunc' function will return a bad status (i.e., 1) to its
-// caller.  Note that if exceptions are not enabled, 'bsls::Assert::failThrow'
-// will behave as 'bsls::Assert::failAbort', and dump core immediately:
+// caller.  Note that if exceptions are not enabled,
+// 'bsls::Assert::failByThrow' will behave as 'bsls::Assert::failByAbort', and
+// dump core immediately:
 //..
 // Assertion failed: 0 <= n, file bsls_assert.t.cpp, line 500 Abort (core
 // dumped)
@@ -1022,7 +1129,7 @@ int main(int argc, char *argv[])
     printf( "TEST %s CASE %d\n", __FILE__, test);
 
     switch (test) { case 0:  // zero is always the leading case
-      case 14: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #6
         //
@@ -1052,9 +1159,9 @@ int main(int argc, char *argv[])
 #else
         if (veryVerbose) printf( "\tSAFE MODE 2 *is* defined.\n" );
 
-        // bsls::Assert::setFailureHandler(::testDriverPrint);
+        // bsls::Assert::setViolationHandler(::testDriverPrint);
                                                           // for usage example
-        bsls::Assert::setFailureHandler(::testDriverHandler);
+        bsls::Assert::setViolationHandler(::testDriverHandler);
                                                           // for regression
         globalReset();
         ASSERT(false == globalAssertFiredFlag);
@@ -1073,7 +1180,7 @@ int main(int argc, char *argv[])
 #endif  // BDE_BUILD_TARGET_EXC
 #endif  // BDE_BUILD_TARGET_SAFE_2
       } break;
-      case 13: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #5
         //
@@ -1097,7 +1204,7 @@ int main(int argc, char *argv[])
 
         // See usage examples section at top of this file.
 
-        ASSERT(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
+        ASSERT(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
 
 #ifndef BDE_BUILD_TARGET_OPT
     #if defined(BDE_BUILD_TARGET_EXC) ||                                      \
@@ -1111,10 +1218,10 @@ int main(int argc, char *argv[])
 
     #endif
 #endif
-        ASSERT(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
+        ASSERT(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
 
       } break;
-      case 12: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #4
         //
@@ -1153,7 +1260,7 @@ int main(int argc, char *argv[])
         ASSERTION_TEST_END
 #endif
       } break;
-      case 11: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #3
         //
@@ -1181,7 +1288,7 @@ int main(int argc, char *argv[])
         myMain();
 
       } break;
-      case 10: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #2
         //
@@ -1205,7 +1312,7 @@ int main(int argc, char *argv[])
 
         // See usage examples section at top of this file.
 
-        bsls::Assert::setFailureHandler(::testDriverPrint);
+        bsls::Assert::setViolationHandler(::testDriverPrint);
 
 #ifndef BDE_BUILD_TARGET_EXC
         globalReturnOnTestAssert = true;
@@ -1220,7 +1327,7 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 9: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #1
         //
@@ -1245,7 +1352,152 @@ int main(int argc, char *argv[])
         // See usage examples section at top of this file.
 
       } break;
-      case 8: {
+      case 10: {
+        // --------------------------------------------------------------------
+        // LEGACY FAILURE HANDLER
+        //
+        // Concerns:
+        //: 1 Failure handlers with the 'legacy' signature should continue to
+        //:   work properly and use the new overloads for that signature.
+        //
+        // Plan:
+        //: 1 Set the failure handler to 'legacyTestDriverHandler'
+        //:
+        //: 2 Verify that the 'failureHandler' function returns the correct
+        //:   expected function pointer, and that 'failureHandler' now returns
+        //:   a different value (pointing to a 'private' function that we
+        //:   cannot name.)
+        //:
+        //: 3 Directly invoke the handler using both overloads of
+        //:   'invokeHandler' in a manner paralleling the breathing test for
+        //:   the newer functions.
+        //:
+        //: 4 Verify that a handler guard created with a 'Handler' still works
+        //:   as expected.
+        //
+        // Testing:
+        //   typedef void (*Handler)(const char *, const char *, int);
+        //   void setFailureHandler(Handler function);
+        //   bsls::Assert::Handler failureHandler();
+        //   AssertFailureHandlerGuard(Handler)
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nLEGACY FAILURE HANDLER"
+                             "\n======================\n" );
+
+        if (verbose) printf(
+                "\nVerify that the correct assert callback is installed "
+                "by default.\n" );
+
+        ASSERT(bsls::Assert::failByAbort == bsls::Assert::violationHandler());
+
+        bsls::Assert::setFailureHandler(&legacyTestDriverHandler);
+
+        // This should now be the 'private' method 'bsls::Assert::legacyFail',
+        // so we just verify that the value has changed.
+        ASSERT(bsls::Assert::failByAbort != bsls::Assert::violationHandler());
+
+        // Store the pointer to this 'private' function for future comparisons.
+        bsls::Assert::Handler legacyFailPtr = bsls::Assert::failureHandler();
+
+        ASSERT(::legacyTestDriverHandler ==
+                                         bsls::Assert::failureHandler());
+
+        if (verbose) printf(
+                "\nVerify that the 'invokeHandler' properly transmits "
+                "its arguments to a 'Handler'.\n" );
+        {
+
+            globalReset();
+            ASSERT(false == globalAssertFiredFlag);
+            ASSERT(false == globalLegacyAssertFiredFlag);
+
+#ifndef BDE_BUILD_TARGET_EXC
+            globalReturnOnTestAssert = true;
+#endif
+
+            bsls::AssertViolation violation("ExPrEsSiOn",
+                                            "FiLe",
+                                            -12345678,
+                                            "LeVeL");
+            ASSERTION_TEST_BEGIN
+                bsls::Assert::invokeHandler(violation);
+            ASSERTION_TEST_END
+
+            ASSERT(     true == globalAssertFiredFlag);
+            ASSERT(     true == globalLegacyAssertFiredFlag);
+            ASSERT(        0 == std::strcmp("ExPrEsSiOn", globalText));
+            ASSERT(        0 == std::strcmp("FiLe",       globalFile));
+            ASSERT(        0 == std::strcmp("",           globalLevel));
+            ASSERT(-12345678 == globalLine);
+
+#ifndef BDE_BUILD_TARGET_EXC
+            globalReturnOnTestAssert = false;
+#endif
+        }
+
+        if (verbose) printf(
+                "\nVerify that the legacy 'invokeHandler' properly transmits "
+                "its arguments to a 'Handler'.\n" );
+        {
+
+            globalReset();
+            ASSERT(false == globalAssertFiredFlag);
+            ASSERT(false == globalLegacyAssertFiredFlag);
+
+#ifndef BDE_BUILD_TARGET_EXC
+            globalReturnOnTestAssert = true;
+#endif
+
+            ASSERTION_TEST_BEGIN
+                bsls::Assert::invokeHandler("ExPrEsSiOn", "FiLe", -12345678);
+            ASSERTION_TEST_END
+
+            ASSERT(     true == globalAssertFiredFlag);
+            ASSERT(     true == globalLegacyAssertFiredFlag);
+            ASSERT(        0 == std::strcmp("ExPrEsSiOn", globalText));
+            ASSERT(        0 == std::strcmp("FiLe",       globalFile));
+            ASSERT(        0 == std::strcmp("",           globalLevel));
+            ASSERT(-12345678 == globalLine);
+
+#ifndef BDE_BUILD_TARGET_EXC
+            globalReturnOnTestAssert = false;
+#endif
+        }
+
+        if (verbose) printf("\nRestoring the handler to the default.\n");
+
+        bsls::Assert::setViolationHandler(&bsls::Assert::failByAbort);
+        ASSERT(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
+        ASSERT(NULL == bsls::Assert::failureHandler());
+
+        {
+            bsls::AssertFailureHandlerGuard guard(::legacyTestDriverHandler);
+
+            ASSERT(legacyFailPtr == bsls::Assert::failureHandler());
+            ASSERT(::legacyTestDriverHandler ==
+                                               bsls::Assert::failureHandler());
+
+            {
+                bsls::AssertFailureHandlerGuard guard2(::testDriverHandler);
+
+                ASSERT(::testDriverHandler ==
+                                             bsls::Assert::violationHandler());
+                ASSERT(NULL == bsls::Assert::failureHandler());
+            }
+
+            if (verbose) printf("\nVerifying that a legacy handler gets "
+                                "properly restored.\n");
+
+            ASSERT(legacyFailPtr == bsls::Assert::failureHandler());
+            ASSERT(::legacyTestDriverHandler ==
+                                         bsls::Assert::failureHandler());
+        }
+
+        ASSERT(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
+
+      } break;
+      case 9: {
         // --------------------------------------------------------------------
         // RETURNING HANDLER LOG: BACKOFF
         //
@@ -1275,6 +1527,18 @@ int main(int argc, char *argv[])
 
         typedef HandlerReturnTest Test;
 
+        // Change the handler return policy not to abort.
+        {
+            // Enable assertions to return (in violation of policy) for testing
+            // purposes only.
+
+            char *key = const_cast<char*>(
+                  bsls::Assert::k_permitOutOfPolicyReturningAssertionBuildKey);
+            strcpy(key, "bsls-PermitOutOfPolicyReturn");
+
+            bsls::Assert::permitOutOfPolicyReturningFailureHandler();
+        }
+
         bsls::AssertFailureHandlerGuard guard(Test::countingViolationHandler);
         bsls::Log::setLogMessageHandler(Test::countingLogMessageHandler);
 
@@ -1301,7 +1565,7 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // RETURNING HANDLER LOG: CONTENT
         //
@@ -1354,6 +1618,18 @@ int main(int argc, char *argv[])
 
         typedef HandlerReturnTest Test;
 
+        // Change the handler return policy not to abort.
+        {
+            // Enable assertions to return (in violation of policy) for testing
+            // purposes only.
+
+            char *key = const_cast<char*>(
+                  bsls::Assert::k_permitOutOfPolicyReturningAssertionBuildKey);
+            strcpy(key, "bsls-PermitOutOfPolicyReturn");
+
+            bsls::Assert::permitOutOfPolicyReturningFailureHandler();
+        }
+
         bsls::AssertFailureHandlerGuard guard(Test::emptyViolationHandler);
         bsls::Log::setLogMessageHandler(Test::recordingLogMessageHandler);
 
@@ -1402,7 +1678,7 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // CONFIGURATION MACROS
         //
@@ -1427,7 +1703,7 @@ int main(int argc, char *argv[])
 
         TestConfigurationMacros();
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // FAILURE HANDLER GUARD
         //
@@ -1444,13 +1720,13 @@ int main(int argc, char *argv[])
         //: 1 Create a guard, passing it the 'testDriverHandler' handler, and
         //:   verify, using 'failureHandler', that this new handler was
         //:   installed.  Then lock the administration, and repeat in nested
-        //:   fashion with the 'failSleep' handler.  Verify restoration on the
-        //:   way out.
+        //:   fashion with the 'failBySleep' handler.  Verify restoration on
+        //:   the way out.
         //
         // Testing:
         //   class bsls::AssertFailureHandlerGuard
-        //   AssertFailureHandlerGuard::AssertFailureHandlerGuard(Handler)
-        //   AssertFailureHandlerGuard::~AssertFailureHandlerGuard()
+        //   AssertFailureHandlerGuard(Handler)
+        //   ~AssertFailureHandlerGuard()
         //   CONCERN: that locking does not stop the handlerGuard from working
         // --------------------------------------------------------------------
 
@@ -1459,7 +1735,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf( "\nVerify initial assert handler.\n" );
 
-        ASSERT(bsls::Assert::failAbort == bsls::Assert::failureHandler());
+        ASSERT(bsls::Assert::failByAbort == bsls::Assert::violationHandler());
 
         if (verbose) printf( "\nCreate guard with 'testDriverHandler' "
                              "handler.\n" );
@@ -1469,7 +1745,7 @@ int main(int argc, char *argv[])
 
             if (verbose) printf( "\nVerify new assert handler.\n" );
 
-            ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
+            ASSERT(::testDriverHandler == bsls::Assert::violationHandler());
 
             if (verbose) printf( "\nLock administration.\n" );
 
@@ -1477,25 +1753,26 @@ int main(int argc, char *argv[])
 
             if (verbose) printf( "\nRe-verify new assert handler.\n" );
 
-            ASSERT(testDriverHandler == bsls::Assert::failureHandler());
+            ASSERT(testDriverHandler == bsls::Assert::violationHandler());
 
             if (verbose) printf(
-                     "\nCreate second guard with 'failSleep' handler.\n" );
+                     "\nCreate second guard with 'failBySleep' handler.\n" );
             {
-                bsls::AssertFailureHandlerGuard guard(bsls::Assert::failSleep);
+                bsls::AssertFailureHandlerGuard guard(
+                                                    bsls::Assert::failBySleep);
 
                 if (verbose) printf( "\nVerify newer assert handler.\n" );
 
-                ASSERT(bsls::Assert::failSleep ==
-                                               bsls::Assert::failureHandler());
+                ASSERT(bsls::Assert::failBySleep ==
+                                             bsls::Assert::violationHandler());
 
                 if (verbose) printf(
-                     "\nDestroy guard created with '::failSleep' handler.\n" );
+                   "\nDestroy guard created with '::failBySleep' handler.\n" );
             }
 
             if (verbose) printf( "\nVerify new assert handler.\n" );
 
-            ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
+            ASSERT(::testDriverHandler == bsls::Assert::violationHandler());
 
             if (verbose) printf(
                     "\nDestroy guard created with '::testDriverHandler' "
@@ -1504,7 +1781,107 @@ int main(int argc, char *argv[])
 
         if (verbose) printf( "\nVerify initial assert handler.\n" );
 
-        ASSERT(bsls::Assert::failAbort == bsls::Assert::failureHandler());
+        ASSERT(bsls::Assert::failByAbort == bsls::Assert::violationHandler());
+
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // ASSERTION HANDLER RETURN POLICY
+        //
+        // Concerns:
+        //: 1 'abortUponReturningAssertionFailureHandler' returns 'true', with
+        //:   default settings/build.
+        //:
+        //: 2 If 'permitOutOfPolicyReturningFailureHandler' is *not* called but
+        //:   'k_permitOutOfPolicyReturningAssertionBuildKey' is set to
+        //:   "bsls-PermitOutOfPolicyReturn"
+        //:   'abortUponReturningAssertionFailureHandler' returns 'true'.
+        //:
+        //: 3 If 'permitOutOfPolicyReturningFailureHandler' is called but
+        //:   'k_permitOutOfPolicyReturningAssertionBuildKey' is not set to
+        //:   "bsls-PermitOutOfPolicyReturn"
+        //:   'abortUponReturningAssertionFailureHandler' returns 'true'.
+        //:
+        //: 4 If 'permitOutOfPolicyReturningFailureHandler' is called and
+        //:   'k_permitOutOfPolicyReturningAssertionBuildKey' is set to
+        //:   "bsls-PermitOutOfPolicyReturn" and the provided assertion failure
+        //:   handler does not return, the program is not aborted.
+        //
+        // Plan:
+        //: 1 We cannot test behavior that aborts except by hand (see negative
+        //:   test cases) therefore we use the
+        //:   'abortUponReturningAssertionFailureHandler' method to verify that
+        //:   the default behavior would be termination.  (C-1..3)
+        //:
+        //: 2 Set 'k_permitOutOfPolicyReturningAssertionBuildKey' to
+        //:   "bsls-PermitOutOfPolicyReturn" (use const cast) and call
+        //:   'permitOutOfPolicyReturningFailureHandler'.  Use
+        //:   'returningHandler' assertion handler and fire an assert.  (C-4)
+        //
+        // Testing:
+        //   void permitOutOfPolicyReturningFailureHandler();
+        //   static k_permitOutOfPolicyReturningAssertionBuildKey
+        //   bool abortUponReturningAssertionFailureHandler();
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nASSERTION HANDLER RETURN POLICY"
+                             "\n===============================\n" );
+
+        if (verbose) printf( "\nTesting default behavior.\n" );
+        {
+            ASSERT(bsls::Assert::abortUponReturningAssertionFailureHandler()
+                                                                      == true);
+        }
+
+        if (verbose) printf( "\nOnly AssertionBuildKey is set.\n" );
+        {
+
+            // Half enable assertions to return (in violation of policy) for
+            // testing purposes only.
+            char *key = const_cast<char*>(
+                  bsls::Assert::k_permitOutOfPolicyReturningAssertionBuildKey);
+            strcpy(key, "bsls-PermitOutOfPolicyReturn");
+
+            ASSERT(bsls::Assert::abortUponReturningAssertionFailureHandler()
+                                                                      == true);
+
+            // Disable assertions to return.
+            strcpy(key, "No");
+
+        }
+
+        if (verbose) {
+            printf( "\nOnly permitOutOfPolicyReturningFailureHandler"
+                    "called.\n");
+        }
+
+        {
+            bsls::Assert::permitOutOfPolicyReturningFailureHandler();
+            ASSERT(bsls::Assert::abortUponReturningAssertionFailureHandler()
+                                                                      == true);
+        }
+
+        if (verbose) printf("\nTesting exceptional behavior\n");
+        {
+            // Set up the exceptional behavior
+
+            // Enable assertions to return (in violation of policy) for testing
+            // purposes only.
+
+            char *key = const_cast<char*>(
+                  bsls::Assert::k_permitOutOfPolicyReturningAssertionBuildKey);
+            strcpy(key, "bsls-PermitOutOfPolicyReturn");
+
+            bsls::Assert::permitOutOfPolicyReturningFailureHandler();
+
+            // Set up the misbehaving handler
+
+            bsls::Assert::setViolationHandler(returningHandler);
+
+            // Fire an assertion
+
+            BSLS_ASSERT(!"This is an intentional assert");
+        }
 
       } break;
       case 4: {
@@ -1514,7 +1891,8 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 That each of the assertion failure handlers provided herein
         //:   behaves as advertised and (at least) matches the signature of the
-        //:   'bsls::Assert::Handler' 'typedef'
+        //:   'bsls::Assert::ViolationHandler' or 'bsls::Assert::Handler'
+        //:   'typedef's.
         //
         // Plan:
         //: 1 Verify each handler's behavior.  Unfortunately, we cannot test
@@ -1523,17 +1901,20 @@ int main(int argc, char *argv[])
         //: 2 Assign each handler function to a pointer of type 'Handler'.
         //
         // Testing:
-        //   typedef void (*Handler)(const char *, const char *, int);
-        //   static void failAbort(const char *t, const char *f, int line);
-        //   static void failThrow(const char *t, const char *f, int line);
-        //   static void failSleep(const char *t, const char *f, int line);
+        //   typedef void (*ViolationHandler)(const AssertViolation&);
+        //   void failAbort(const char *, const char *, int);
+        //   void failByAbort(const AssertViolation& violation);
+        //   void failSleep(const char *, const char *, int);
+        //   void failBySleep(const AssertViolation& violation);
+        //   void failThrow(const char *, const char *, int);
+        //   void failByThrow(const AssertViolation& violation);
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nASSERTION FAILURE HANDLERS"
                              "\n==========================\n" );
 
-        if (verbose) printf( "\nTesting 'void failAbort(const char *t, "
-                             "const char *f, int line);'\n" );
+        if (verbose) printf( "\nTesting 'void failAbort("
+                             "const char *, const char *, int);'\n" );
         {
             bsls::Assert::Handler f = bsls::Assert::failAbort;
             (void) f;
@@ -1543,8 +1924,41 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf( "\nTesting 'void failThrow(const char *t, "
-                             "const char *f, int line);'\n" );
+        if (verbose) printf( "\nTesting 'void failByAbort("
+                             "const AssertViolation& violation);'\n" );
+        {
+            bsls::Assert::ViolationHandler f = bsls::Assert::failByAbort;
+            (void) f;
+
+            if (veryVerbose) {
+                printf( "\t(Aborting behavior must be tested by hand.)\n" );
+            }
+        }
+
+        if (verbose) printf( "\nTesting 'void failSleep("
+                             "const char *, const hcar *, int);'\n" );
+        {
+            bsls::Assert::Handler f = bsls::Assert::failSleep;
+            (void) f;
+
+            if (veryVerbose) {
+                printf( "\t(Sleeping behavior must be tested by hand.)\n" );
+            }
+        }
+
+        if (verbose) printf( "\nTesting 'void failBySleep("
+                             "const AssertViolation& violation);'\n" );
+        {
+            bsls::Assert::ViolationHandler f = bsls::Assert::failBySleep;
+            (void) f;
+
+            if (veryVerbose) {
+                printf( "\t(Sleeping behavior must be tested by hand.)\n" );
+            }
+        }
+
+        if (verbose) printf( "\nTesting 'void failThrow("
+                             "const char *, const char *, int);'\n" );
         {
 
             bsls::Assert::Handler f = bsls::Assert::failThrow;
@@ -1559,13 +1973,13 @@ int main(int argc, char *argv[])
             }
 
             try {
-                f(text, file, line);
+                f(text,file,line);
             }
             catch (bsls::AssertTestException) {
                 if (veryVerbose) printf( "\tException Text Succeeded!\n" );
             }
             catch (...) {
-                ASSERT("Through wrong exception!" && 0);
+                ASSERT("Threw wrong exception!" && 0);
             }
 #else
             if (veryVerbose) {
@@ -1574,16 +1988,38 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (verbose) printf( "\nTesting 'void failSleep(const char *t, "
-                             "const char *f, int line);'\n" );
+        if (verbose) printf( "\nTesting 'void failByThrow("
+                             "const AssertViolation& violation);'\n" );
         {
-            bsls::Assert::Handler f = bsls::Assert::failSleep;
-            (void) f;
+
+            bsls::Assert::ViolationHandler f = bsls::Assert::failByThrow;
+
+#ifdef BDE_BUILD_TARGET_EXC
+            const char *text = "Test text";
+            const char *file = "bsls_assert.t.cpp";
+            int         line = 101;
 
             if (veryVerbose) {
-                printf( "\t(Sleeping behavior must be tested by hand.)\n" );
+                printf( "\tExceptions ARE enabled.\n" );
             }
+
+            try {
+                f(bsls::AssertViolation(text, file, line, "L"));
+            }
+            catch (bsls::AssertTestException) {
+                if (veryVerbose) printf( "\tException Text Succeeded!\n" );
+            }
+            catch (...) {
+                ASSERT("Threw wrong exception!" && 0);
+            }
+#else
+            if (veryVerbose) {
+                printf( "\tExceptions are NOT enabled.\n" );
+            }
+#endif
         }
+
+
 
       } break;
       case 3: {
@@ -1703,8 +2139,8 @@ int main(int argc, char *argv[])
         if (verbose) printf( "\nInstall 'testDriverHandler' "
                              "assertion-handler.\n" );
 
-        bsls::Assert::setFailureHandler(&testDriverHandler);
-        ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
+        bsls::Assert::setViolationHandler(&testDriverHandler);
+        ASSERT(::testDriverHandler == bsls::Assert::violationHandler());
 
         if (veryVerbose) printf( "\tSet up all but line numbers now. \n" );
 
@@ -2076,11 +2512,17 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   BREATHING TEST
-        //   CONCERN: By default, the 'bsls::Assert::failAbort' is used.
-        //   static void setFailureHandler(bsls::Assert::Handler function);
-        //   static bsls::Assert::Handler failureHandler();
-        //   static void invokeHandler(const char *t, const char *f, int);
-        //   static void lockAssertAdministration();
+        //   CONCERN: By default, the 'bsls::Assert::failByAbort' is used.
+        //   AssertViolation::AssertViolation(...);
+        //   const char *AssertViolation::comment();
+        //   const char *AssertViolation::fileName();
+        //   int AssertViolation::lineNumber();
+        //   const char *AssertViolation::assertLevel();
+        //   void setViolationHandler(ViolationHandler function);
+        //   bsls::Assert::ViolationHandler violationHandler();
+        //   void invokeHandler(const char *t, const char *f, int);
+        //   void invokeHandler(const AssertViolation&);
+        //   void lockAssertAdministration();
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nBREATHING TEST"
@@ -2090,37 +2532,75 @@ int main(int argc, char *argv[])
                 "\nVerify that the correct assert callback is installed "
                 "by default.\n" );
 
-        ASSERT(bsls::Assert::failAbort == bsls::Assert::failureHandler());
+        ASSERT(bsls::Assert::failByAbort == bsls::Assert::violationHandler());
 
         if (verbose) printf(
                      "\nVerify that we can install a new assert callback.\n" );
 
-        bsls::Assert::setFailureHandler(&testDriverHandler);
-        ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
+        bsls::Assert::setViolationHandler(&testDriverHandler);
+        ASSERT(::testDriverHandler == bsls::Assert::violationHandler());
 
         if (verbose) printf(
-                "\nVerify that 'invokeHandler' properly transmits "
+                "\nVerify that the 'invokeHandler' properly transmits "
                 "its arguments.\n" );
+        {
 
-        globalReset();
-        ASSERT(false        == globalAssertFiredFlag);
-
-#ifndef BDE_BUILD_TARGET_EXC
-        globalReturnOnTestAssert = true;
-#endif
-
-        ASSERTION_TEST_BEGIN
-        bsls::Assert::invokeHandler("ExPrEsSiOn", "FiLe", -12345678);
-        ASSERTION_TEST_END
-
-        ASSERT(     true == globalAssertFiredFlag);
-        ASSERT(        0 == std::strcmp("ExPrEsSiOn", globalText));
-        ASSERT(        0 == std::strcmp("FiLe",       globalFile));
-        ASSERT(-12345678 == globalLine);
+            globalReset();
+            ASSERT(false        == globalAssertFiredFlag);
+            ASSERT(false        == globalLegacyAssertFiredFlag);
 
 #ifndef BDE_BUILD_TARGET_EXC
-        globalReturnOnTestAssert = false;
+            globalReturnOnTestAssert = true;
 #endif
+
+            bsls::AssertViolation violation("ExPrEsSiOn",
+                                            "FiLe",
+                                            -12345678,
+                                            "LeVeL");
+            ASSERTION_TEST_BEGIN
+                bsls::Assert::invokeHandler(violation);
+            ASSERTION_TEST_END
+
+            ASSERT(     true == globalAssertFiredFlag);
+            ASSERT(    false == globalLegacyAssertFiredFlag);
+            ASSERT(        0 == std::strcmp("ExPrEsSiOn", globalText));
+            ASSERT(        0 == std::strcmp("FiLe",       globalFile));
+            ASSERT(        0 == std::strcmp("LeVeL",      globalLevel));
+            ASSERT(-12345678 == globalLine);
+
+#ifndef BDE_BUILD_TARGET_EXC
+            globalReturnOnTestAssert = false;
+#endif
+        }
+
+        if (verbose) printf(
+                "\nVerify that the legacy 'invokeHandler' properly transmits "
+                "its arguments.\n" );
+        {
+
+            globalReset();
+            ASSERT(false        == globalAssertFiredFlag);
+            ASSERT(false        == globalLegacyAssertFiredFlag);
+
+#ifndef BDE_BUILD_TARGET_EXC
+            globalReturnOnTestAssert = true;
+#endif
+
+            ASSERTION_TEST_BEGIN
+                bsls::Assert::invokeHandler("ExPrEsSiOn", "FiLe", -12345678);
+            ASSERTION_TEST_END
+
+            ASSERT(     true == globalAssertFiredFlag);
+            ASSERT(    false == globalLegacyAssertFiredFlag);
+            ASSERT(        0 == std::strcmp("ExPrEsSiOn", globalText));
+            ASSERT(        0 == std::strcmp("FiLe",       globalFile));
+            ASSERT(        0 == std::strcmp("INV",        globalLevel));
+            ASSERT(-12345678 == globalLine);
+
+#ifndef BDE_BUILD_TARGET_EXC
+            globalReturnOnTestAssert = false;
+#endif
+        }
 
         if (verbose) printf(
                 "\nVerify that 'lockAssertAdministration' blocks callback "
@@ -2128,8 +2608,8 @@ int main(int argc, char *argv[])
 
         bsls::Assert::lockAssertAdministration();
 
-        bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
-        ASSERT(::testDriverHandler == bsls::Assert::failureHandler());
+        bsls::Assert::setViolationHandler(&bsls::Assert::failByAbort);
+        ASSERT(::testDriverHandler == bsls::Assert::violationHandler());
 
 #ifdef BSLS_ASSERT_LEVEL_NONE
         if (verbose) printf(
@@ -2222,11 +2702,12 @@ int main(int argc, char *argv[])
         //: 2 That it prints a message to 'stderr'.
         //
         // Plan:
-        //: 1 Call 'bsls::Assert::failAbort' after blocking the signal.
+        //: 1 Call 'bsls::Assert::failByAbort' after blocking the signal.
         //
         // Testing:
-        //   CONCERN: 'bsls::Assert::failAbort' aborts
-        //   CONCERN: 'bsls::Assert::failAbort' prints to 'stderr' not 'stdout'
+        //   void failByAbort(const AssertViolation& violation);
+        //   CONCERN: 'bsls::Assert::failByAbort' aborts
+        //   CONCERN: 'bsls::Assert::failByAbort' prints to 'stderr'
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nCALL FAIL ABORT HANDLER"
@@ -2246,13 +2727,124 @@ int main(int argc, char *argv[])
         fprintf( stderr, "THE FOLLOWING SHOULD PRINT ON STDERR:\n"
                 "Assertion failed: 0 != 0, file myfile.cpp, line 123\n" );
 
-        bsls::Assert::failAbort("0 != 0", "myfile.cpp", 123);
+        bsls::Assert::failByAbort(bsls::AssertViolation("0 != 0", "myfile.cpp",
+                                                      123, "L"));
 
         ASSERT(0 && "Should not be reached");
       } break;
       case -2: {
         // --------------------------------------------------------------------
+        // CALL DEPRECATED FAIL ABORT HANDLER
+        //
+        // Concerns:
+        //: 1 That it does abort the program.
+        //:
+        //: 2 That it prints a message to 'stderr'.
+        //
+        // Plan:
+        //: 1 Call 'bsls::Assert::failAbort' after blocking the signal.
+        //
+        // Testing:
+        //   void failAbort(const char *, const char *, int);
+        //   CONCERN: 'bsls::Assert::failAbort' aborts
+        //   CONCERN: 'bsls::Assert::failAbort' prints to 'stderr'
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nCALL DEPRECATED FAIL ABORT HANDLER"
+                             "\n==================================\n" );
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+        sigset_t newset;
+        sigaddset(&newset, SIGABRT);
+
+    #if defined(BDE_BUILD_TARGET_MT)
+        pthread_sigmask(SIG_BLOCK, &newset, 0);
+    #else
+        sigprocmask(SIG_BLOCK, &newset, 0);
+    #endif
+
+#endif
+        fprintf( stderr, "THE FOLLOWING SHOULD PRINT ON STDERR:\n"
+                "Assertion failed: 0 != 0, file myfile.cpp, line 123\n" );
+
+        bsls::Assert::failAbort("0 != 0", "myfile.cpp", 123);
+
+        ASSERT(0 && "Should not be reached");
+      } break;
+      case -3: {
+        // --------------------------------------------------------------------
         // CALL FAIL THROW HANDLER
+        //
+        // Concerns:
+        //: 1 That it does *not* throw for an exception build when there is an
+        //:   exception pending.
+        //:
+        //: 1 That it behaves as failByAbort for non-exception builds.
+        //
+        // Plan:
+        //: 1 Call bsls::Assert::failByThrow from within the destructor of a
+        //:   test object on the stack after a throw.
+        //:
+        //: 2 Call 'bsls::Assert::failByAbort' after blocking the signal.
+        //
+        // Testing:
+        //   void failByThrow(const AssertViolation& violation);
+        //   CONCERN: 'bsls::Assert::failByThrow' aborts in non-exception build
+        //   CONCERN: 'bsls::Assert::failByThrow' prints to 'stderr' w/o EXC
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nCALL FAIL THROW HANDLER"
+                             "\n=======================\n" );
+
+#if BDE_BUILD_TARGET_EXC
+
+        printf( "\nEXCEPTION BUILD\n" );
+
+        fprintf(stderr, "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"
+                "BSLS_ASSERT: An uncaught exception is pending;"
+                " cannot throw 'bsls_asserttestexception'.\n" );
+        fprintf(stderr, "assertion failed: 'failByThrow' handler called from "
+                "~BadBoy, file f.c, line 9" );
+
+
+        try {
+            BadBoy bad;     // calls 'bsls::Assert::failByThrow' on destruction
+
+            if (veryVerbose) printf( "About to throw \"stuff\"\n" );
+
+            throw "stuff";
+        }
+        catch (...) {
+            ASSERT("We should not have caught this exception." && 0);
+        }
+
+        ASSERT("We should not have made it to here either." && 0);
+#else
+        printf( "\nNON-EXCEPTION BUILD\n" );
+
+  #ifdef BSLS_PLATFORM_OS_UNIX
+        sigset_t newset;
+        sigaddset(&newset, SIGABRT);
+
+    #if defined(BDE_BUILD_TARGET_MT)
+        pthread_sigmask(SIG_BLOCK, &newset, 0);
+    #else
+        sigprocmask(SIG_BLOCK, &newset, 0);
+    #endif
+
+  #endif
+        fprintf( stderr,  "THE FOLLOWING SHOULD PRINT ON STDERR:\n"
+                "Assertion failed: 0 != 0, file myfile.cpp, line 123\n" );
+
+        bsls::Assert::failByAbort(bsls::AssertViolation("0 != 0", "myfile.cpp",
+                                                      123,"L"));
+
+        ASSERT(0 && "Should not be reached");
+#endif
+      } break;
+      case -4: {
+        // --------------------------------------------------------------------
+        // CALL DEPRECATED FAIL THROW HANDLER
         //
         // Concerns:
         //: 1 That it does *not* throw for an exception build when there is an
@@ -2267,13 +2859,13 @@ int main(int argc, char *argv[])
         //: 2 Call 'bsls::Assert::failAbort' after blocking the signal.
         //
         // Testing:
-        //   static void failAbort(const char *t, const char *f, int line);
+        //   void failThrow(const char *, const char *, int);
         //   CONCERN: 'bsls::Assert::failThrow' aborts in non-exception build
-        //   CONCERN: 'bsls::Assert::failThrow' prints to 'stderr' for NON-EXC
+        //   CONCERN: 'bsls::Assert::failThrow' prints to 'stderr' w/o EXC
         // --------------------------------------------------------------------
 
-        if (verbose) printf( "\nCALL FAIL THROW HANDLER"
-                             "\n=======================\n" );
+        if (verbose) printf( "\nCALL DEPRECATED FAIL THROW HANDLER"
+                             "\n==================================\n" );
 
 #if BDE_BUILD_TARGET_EXC
 
@@ -2320,9 +2912,40 @@ int main(int argc, char *argv[])
         ASSERT(0 && "Should not be reached");
 #endif
       } break;
-      case -3: {
+      case -5: {
         // --------------------------------------------------------------------
         // CALL FAIL SLEEP HANDLER
+        //
+        // Concerns:
+        //: 1 That it does sleep forever.
+        //:
+        //: 2 That it prints a message to 'stderr'.
+        //
+        // Plan:
+        //: 1 Call 'bsls::Assert::failBySleep'.  Then observe that a diagnostic
+        //:   is printed to 'stderr' and the program hangs.
+        //
+        // Testing:
+        //   void failBySleep(const AssertViolation& violation);
+        //   CONCERN: 'bsls::Assert::failBySleep' sleeps forever
+        //   CONCERN: 'bsls::Assert::failBySleep' prints to 'stderr'
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nCALL FAIL SLEEP HANDLER"
+                             "\n=======================\n" );
+
+        fprintf( stderr, "THE FOLLOWING SHOULD PRINT ON STDERR"
+                 "(BEFORE HANGING):\n"
+                 "Assertion failed: 0 != 0, file myfile.cpp, line 123\n" );
+
+        bsls::Assert::failBySleep(bsls::AssertViolation("0 != 0", "myfile.cpp",
+                                                      123, "L"));
+
+        ASSERT(0 && "Should not be reached");
+      } break;
+      case -6: {
+        // --------------------------------------------------------------------
+        // CALL DEPRECATED FAIL SLEEP HANDLER
         //
         // Concerns:
         //: 1 That it does sleep forever.
@@ -2334,13 +2957,13 @@ int main(int argc, char *argv[])
         //:   is printed to 'stderr' and the program hangs.
         //
         // Testing:
-        //   static void failSleep(const char *t, const char *f, int line);
+        //   void failSleep(const char *, const char *, int);
         //   CONCERN: 'bsls::Assert::failSleep' sleeps forever
-        //   CONCERN: 'bsls::Assert::failSleep' prints to 'stderr' not 'stdout'
+        //   CONCERN: 'bsls::Assert::failSleep' prints to 'stderr'
         // --------------------------------------------------------------------
 
-        if (verbose) printf( "\nCALL FAIL SLEEP HANDLER"
-                             "\n=======================\n" );
+        if (verbose) printf( "\nCALL DEPRECATED FAIL SLEEP HANDLER"
+                             "\n==================================\n" );
 
         fprintf( stderr, "THE FOLLOWING SHOULD PRINT ON STDERR"
                  "(BEFORE HANGING):\n"
@@ -2350,7 +2973,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 && "Should not be reached");
       } break;
-      case -4: {
+      case -7: {
         // --------------------------------------------------------------------
         // RETURNING HANDLER LOG: LIMITS
         //
@@ -2431,6 +3054,37 @@ int main(int argc, char *argv[])
         }
 #endif
       } break;
+      case -8: {
+        // --------------------------------------------------------------------
+        // RETURNING HANDLER ABORTS
+        //
+        // Concerns:
+        //: 1 With default settings/build, if the provided assertion failure
+        //:    handlers does not return, the program is aborted.
+        //
+        // Plan:
+        //: 1 Verify the default behavior by firing an assertion followed by a
+        //:   printout that should not be seen.
+        //
+        // Testing:
+        //   void permitOutOfPolicyReturningFailureHandler();
+        //   bool abortUponReturningAssertionFailureHandler();
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nRETURNING HANDLER ABORTS"
+                             "\n========================\n" );
+
+        // Set up the misbehaving handler
+
+        bsls::Assert::setViolationHandler(returningHandler);
+
+        // Fire an assertion
+
+        BSLS_ASSERT(!"This is an intentional assert");
+
+        printf( "This message should not be seen.\n" );
+
+      } break;
       default: {
           fprintf( stderr, "WARNING: CASE `%d` NOT FOUND.\n" , test);
           testStatus = -1;
@@ -2494,7 +3148,7 @@ int main(int argc, char *argv[])
 //   BSLS_ASSERT_SAFE
 //   BSLS_ASSERT
 //   BSLS_ASSERT_OPT
-//   BSLS_ASSERT_ASSERT
+//   BSLS_ASSERT_ASSERT_IMP
 //   BSLS_ASSERT_DISABLED_IMP
 //   BSLS_ASSERT_INVOKE
 //   BSLS_REVIEW_SAFE
@@ -2640,7 +3294,7 @@ struct AssertFailed {
     // confirm if the appropriate 'BSLS_ASSERT_*' macros are enabled properly
     // or not.
     BSLS_ASSERT_NORETURN
-    static void failMacroTest(const char *, const char *, int) {
+    static void failMacroTest(const bsls::AssertViolation&) {
         throw AssertFailed();
     }
 };
@@ -2681,8 +3335,8 @@ void TestConfigurationMacros()
 #else
     if (globalVerbose) printf( "\nWe need to write a running commentary\n" );
 
-    bsls::Assert::setFailureHandler(&AssertFailed::failMacroTest);
-    bsls::Review::setFailureHandler(&ReviewFailed::failReviewMacroTest);
+    bsls::Assert::setViolationHandler(&AssertFailed::failMacroTest);
+    bsls::Review::setViolationHandler(&ReviewFailed::failReviewMacroTest);
 
 //========================== (NO BUILD FLAGS SET) ===========================//
 
@@ -2695,7 +3349,7 @@ void TestConfigurationMacros()
 
     // (THIS LINE INTENTIONALLY LEFT BLANK)
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -2739,7 +3393,7 @@ void TestConfigurationMacros()
 
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -2783,7 +3437,7 @@ void TestConfigurationMacros()
 
 #define BDE_BUILD_TARGET_DBG
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -2828,7 +3482,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -2872,7 +3526,7 @@ void TestConfigurationMacros()
 
 #define BDE_BUILD_TARGET_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -2917,7 +3571,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -2962,7 +3616,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_DBG
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3008,7 +3662,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3052,7 +3706,7 @@ void TestConfigurationMacros()
 
 #define BDE_BUILD_TARGET_SAFE_2
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3097,7 +3751,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BDE_BUILD_TARGET_SAFE_2
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3142,7 +3796,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_SAFE_2
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3188,7 +3842,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3234,7 +3888,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BDE_BUILD_TARGET_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3280,7 +3934,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3326,7 +3980,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BDE_BUILD_TARGET_DBG
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3373,7 +4027,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BDE_BUILD_TARGET_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3419,7 +4073,7 @@ void TestConfigurationMacros()
 
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3461,7 +4115,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3503,7 +4157,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3546,7 +4200,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3588,7 +4242,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3631,7 +4285,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3674,7 +4328,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3718,7 +4372,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3760,7 +4414,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3803,7 +4457,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3846,7 +4500,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3891,7 +4545,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3934,7 +4588,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -3978,7 +4632,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4022,7 +4676,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4067,7 +4721,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4110,7 +4764,7 @@ void TestConfigurationMacros()
 
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4155,7 +4809,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4200,7 +4854,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4246,7 +4900,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4291,7 +4945,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4337,7 +4991,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4383,7 +5037,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4430,7 +5084,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4475,7 +5129,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4521,7 +5175,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4567,7 +5221,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4614,7 +5268,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4660,7 +5314,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4707,7 +5361,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4754,7 +5408,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4802,7 +5456,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4848,7 +5502,7 @@ void TestConfigurationMacros()
 
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4893,7 +5547,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4938,7 +5592,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -4984,7 +5638,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5029,7 +5683,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5075,7 +5729,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5121,7 +5775,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5168,7 +5822,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5213,7 +5867,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5259,7 +5913,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5305,7 +5959,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5352,7 +6006,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5398,7 +6052,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5445,7 +6099,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5492,7 +6146,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5540,7 +6194,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5586,7 +6240,7 @@ void TestConfigurationMacros()
 
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5631,7 +6285,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5676,7 +6330,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5722,7 +6376,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5767,7 +6421,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5813,7 +6467,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5859,7 +6513,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5906,7 +6560,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5951,7 +6605,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE_2
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -5997,7 +6651,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6043,7 +6697,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6090,7 +6744,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6136,7 +6790,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_SAFE
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6183,7 +6837,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6230,7 +6884,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_DBG
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6278,7 +6932,7 @@ void TestConfigurationMacros()
 #define BDE_BUILD_TARGET_OPT
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6325,7 +6979,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_NONE
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6401,7 +7055,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6477,7 +7131,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6553,7 +7207,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 #define BSLS_REVIEW_LEVEL_NONE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6631,7 +7285,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_NONE
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6707,7 +7361,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6783,7 +7437,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6859,7 +7513,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW_OPT
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -6937,7 +7591,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_NONE
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -7013,7 +7667,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -7089,7 +7743,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -7165,7 +7819,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -7243,7 +7897,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_NONE
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -7319,7 +7973,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_OPT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -7395,7 +8049,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -7471,7 +8125,7 @@ void TestConfigurationMacros()
 #define BSLS_ASSERT_LEVEL_ASSERT_SAFE
 #define BSLS_REVIEW_LEVEL_REVIEW_SAFE
 
-// [3] Re-include the bsls_assert header.
+// [3] Re-include the 'bsls_assert.h' header.
 
 #include <bsls_assert.h>
 
@@ -7538,6 +8192,7 @@ void TestConfigurationMacros()
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -//
 #endif  // defined BDE_BUILD_TARGET_EXC
 }
+
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.
 //

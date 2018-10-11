@@ -12,6 +12,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::Assert: namespace for "assert" management functions
 //  bsls::AssertFailureHandlerGuard: scoped guard for changing handlers safely
+//  bsls::AssertViolation: attributes describing a failed assertion
 //
 //@MACROS:
 //  BSLS_ASSERT: runtime check typically enabled in non-opt build modes
@@ -27,8 +28,9 @@ BSLS_IDENT("$Id: $")
 // 'BSLS_ASSERT', 'BSLS_ASSERT_SAFE', and 'BSLS_ASSERT_OPT', that can be used
 // to enable optional *redundant* runtime checks in corresponding build modes.
 // If an assertion argument evaluates to 0, a runtime-configurable "handler"
-// function is invoked with the current filename, line number, and (0-valued
-// expression) argument text.
+// function is invoked with a 'bsls::AssertViolation', a value-semantic class
+// that encapsulates the current filename, line number, level of failed check,
+// and (0-valued expression) argument text.
 //
 // The class 'bsls::Assert' provides functions for manipulating the globally
 // configured "handler".  A scoped guard for setting and restoring the assert
@@ -104,7 +106,7 @@ BSLS_IDENT("$Id: $")
 // assertions in review mode and suggested workflows for using this behavior.
 //
 ///Detailed Behavior
-///- - - - - - - - -
+///-----------------
 // If an assertion fires (i.e., due to a 0-valued expression argument in an
 // assert macro that is enabled or in review mode), there is a violation of the
 // contract that the assertion is checking.  If the assertion is enabled, the
@@ -116,14 +118,19 @@ BSLS_IDENT("$Id: $")
 //
 // When enabled, the assert macros will all do essentially the same thing: Each
 // macro tests the predicate expression 'X', and if '!(X)' is 'true', invokes
-// the currently installed assertion failure handler.  A textual rendering of
-// the predicate ('#X'), the current '__FILE__', and the current '__LINE__'
-// will be passed to the currently installed assertion failure handler (a
-// function pointer with the type 'bsls::Assert::Handler' having the signature
-// 'void(const char *, const char *, int)').
+// the currently installed assertion failure handler.  An instance of
+// 'bsls::AssertViolation' will be created and populated with a textual
+// rendering of the predicate ('#X'), the current '__FILE__', the current
+// '__LINE__', and a string representing which particular type of assertion has
+// failed.  This 'violation' is then passed to the currently installed
+// assertion failure handler (a function pointer with the type
+// 'bsls::Assert::ViolationHandler' having the signature:
+//..
+//  void(const bsls::AssertViolation&);
+//..
 //
 ///Selecting Which ASSERT Macro to Use
-///- - - - - - - - - - - - - - - - - -
+///-----------------------------------
 // The choice of which specific macro to use is governed primarily by the
 // impact that enabling the assertion (in either assert mode or review mode)
 // will have on the runtime performance of the function, and in some cases on
@@ -150,7 +157,7 @@ BSLS_IDENT("$Id: $")
 //:   critical code.
 //
 ///Assertion and Review Levels
-///- - - - - - - - - - - - - -
+///---------------------------
 // There are a few macros available to control which of the 'bsls_assert'
 // macros are disabled, enabled in review mode, or enabled in assert mode (see
 // {Assertion Modes} above).  These macros are for the compilation and build
@@ -243,7 +250,7 @@ BSLS_IDENT("$Id: $")
 // assert level is set to 'ASSERT_SAFE' and ALL assert macros will be enabled.
 //
 ///Runtime-Configurable Assertion-Failure Behavior
-///- - - - - - - - - - - - - - - - - - - - - - - -
+///-----------------------------------------------
 // In addition to the three (BSLS) "ASSERT" macros, 'BSLS_ASSERT',
 // 'BSLS_ASSERT_SAFE', and 'BSLS_ASSERT_OPT', and the immediate invocation
 // macro 'BSLS_ASSERT_INVOKE', this component provides (1) an 'invokeHandler'
@@ -257,30 +264,78 @@ BSLS_IDENT("$Id: $")
 //
 // When an enabled assertion fails, the currently installed *failure* *handler*
 // ("callback") function is invoked.  The default handler is the ('static')
-// 'bsls::Assert::failAbort' method; a user may replace this default handler by
-// using the ('static') 'bsls::Assert::setFailureHandler' administrative method
-// and passing it (the address of) a function whose signature conforms to the
-// 'bsls::Assert::Handler' 'typedef'.  This handler may be one of the other
-// handler methods provided in 'bsls::Assert', or a new "custom" function,
-// written by the user (see {Usage} below).
+// 'bsls::Assert::failByAbort' method; a user may replace this default handler
+// by using the ('static') 'bsls::Assert::setViolationHandler' administrative
+// method and passing it (the address of) a function whose signature conforms
+// to the 'bsls::Assert::ViolationHandler' 'typedef'.  This handler may be one
+// of the other handler methods provided in 'bsls::Assert', or a new "custom"
+// function, written by the user (see {Usage} below).
 //
 ///Exception-Throwing Failure Handlers and 'bsls::AssertFailureHandlerGuard'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// Among the failure handlers provided is 'bsls::Assert::failThrow', which
+///-------------------------------------------------------------------------
+// Among the failure handlers provided is 'bsls::Assert::failBySleep', which
 // throws an 'bsls::AssertTestException' object.  Throwing an exception,
 // however, is not safe in all environments and deliberately aborting is more
 // useful in a debugging context than throwing an unhandled exception.  Hence,
 // in order for an 'bsls::AssertTestException' object to be thrown on an
-// assertion failure, the user must first install the 'bsls::Assert::failThrow'
-// handler (or another exception-throwing handler) explicitly.
+// assertion failure, the user must first install the
+// 'bsls::Assert::failBySleep' handler (or another exception-throwing handler)
+// explicitly.
 //
 // Note that an object of type 'bsls::AssertFailureHandlerGuard' can be used to
 // temporarily set an exception-throwing handler within a 'try' block,
 // automatically restoring the previous handler when the 'try' block exits (see
 // {Usage} below).
 //
+///Assertion Handler Policy
+///------------------------
+// Bloomberg policy is that (by default) tasks may not install an assertion
+// handler that returns control to the point immediately following the
+// detection of a failed assertion.  So an assertion handler may, for example,
+// terminate the task or throw an exception, but may not log the problem and
+// return.  'bsls_assert', by default, enforces that policy by terminating the
+// task if an installed assertion handler function chooses to returns normally.
+//
+///Configuring an Exception to the Assertion Handler Policy
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// 'bsls_assert' provides a two-part mechanism to permit returning after the
+// detection of failed assertions.
+//
+// It is a violation of Bloomberg policy to modify this default configuration
+// without permission from senior management.  (Internal Bloomberg users should
+// contact the BDE team if you feel your application needs an exception to this
+// policy).
+//
+// The intention is to provide a means to override the assertion failure policy
+// that can be enabled quickly, but requires the explicit (and obvious) choice
+// from both the owner of the application's 'main' function, and the person
+// responsible for building the application.  In order to enable a policy
+// exception, 'permitOutOfPolicyReturningFailureHandler' must be called, and
+// the task must be linked with a special build of 'bsls_assert.o' (in which
+// the 'k_permitOutOfPolicyReturningAssertionBuildKey' constant has the value
+// "bsls-PermitOutOfPolicyReturn").
+//
+///Legacy Handler Functions
+///------------------------
+// Prior to the introduction of 'bsls::AssertViolation', the signature for
+// 'bsls::Assert::ViolationHandler' was this:
+//..
+//  void(const char*, const char*,int)
+//..
+// This signature for a handler is still supported (though deprecated) under
+// its original name 'bsls::Assert::Handler'.  Overloads that take a
+// 'bsls::Assert::Handler' exist for 'bsls::AssertFailureHandler' and the
+// constructor for 'bsls::AssertFailureHandlerGuard', so code that uses the old
+// handler signature should work without changes.
+//
+// If a legacy handler is set as the current handler, the function
+// 'bsls::Assert::failureHandler()' will return a pointer to that function,
+// while 'bsls::Assert::violationHandler()' will return an internal function
+// that extracts the appropriate arguments from the the generated
+// 'bsls::AssertViolation' object and passes them to the installed 'Handler'.
+//
 ///Assertions in Header Files (Mixing Build Options Across Translation Units)
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///--------------------------------------------------------------------------
 // Mixing build modes across translation units, although not strictly
 // conformant with the C++ language standard, is permissible in practice;
 // however, the defensive checks that are enabled may be unpredictable.  The
@@ -367,7 +422,7 @@ BSLS_IDENT("$Id: $")
 // otherwise be expected.
 //
 ///Conditional Compilation
-///- - - - - - - - - - - -
+///-----------------------
 // To recap, there are three (mutually compatible) general *build* *targets*:
 //: o 'BDE_BUILD_TARGET_OPT'
 //: o 'BDE_BUILD_TARGET_SAFE'
@@ -441,7 +496,7 @@ BSLS_IDENT("$Id: $")
 // be used profitably in practice.
 //
 ///Validating Disabled Macro Expressions
-///- - - - - - - - - - - - - - - - - - -
+///-------------------------------------
 // An additional external macro, 'BSLS_ASSERT_VALIDATE_DISABLED_MACROS', can be
 // defined to control the compile time behavior of 'bsls_assert'.  Enabling
 // this macro configures all *disabled* assert macros to still instantiate
@@ -598,13 +653,14 @@ BSLS_IDENT("$Id: $")
 ///Example 2: When and How to Call the 'invokeHandler' Method Directly
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // There *may* be times (but this is yet to be demonstrated) when we might
-// reasonably choose to invoke the currently installed assertion-failure
-// handler directly -- i.e., instead of via one of the three (BSLS) "ASSERT"
-// macros provided in this component.  Suppose that we are currently in the
-// body of some function 'someFunc' and, for whatever reason, feel compelled to
-// invoke the currently installed assertion-failure handler based on some
-// criteria other than the current build mode.  'BSLS_ASSERT_INVOKE' is
-// provided for this purpose.  The call might look as follows:
+// reasonably choose to unconditionally invoke the currently installed
+// assertion-failure handler directly -- i.e., instead of via one of the three
+// (BSLS) "ASSERT" macros provided in this component.  Suppose that we are
+// currently in the body of some function 'someFunc' and, for whatever reason,
+// feel compelled to invoke the currently installed assertion-failure handler
+// based on some criteria other than the current build mode.
+// 'BSLS_ASSERT_INVOKE' is provided for this purpose.  The call might look as
+// follows:
 //..
 //  void someFunc(bool a, bool b, bool c)
 //  {
@@ -625,7 +681,7 @@ BSLS_IDENT("$Id: $")
 ///Example 3: Runtime Configuration of the 'bsls::Assert' Facility
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // By default, any assertion failure will result in the invocation of the
-// 'bsls::Assert::failAbort' handler function.  We can replace this behavior
+// 'bsls::Assert::failByAbort' handler function.  We can replace this behavior
 // with that of one of the other static failure handler methods supplied in
 // 'bsls::Assert' as follows.  Let's assume we are at the top of our
 // application called 'myMain' (which would typically be 'main'):
@@ -634,32 +690,32 @@ BSLS_IDENT("$Id: $")
 //  {
 //..
 // First observe that the default assertion-failure handler function is, in
-// fact, 'bsls::Assert::failAbort':
+// fact, 'bsls::Assert::failByAbort':
 //..
-//  assert(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
+//  assert(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
 //..
 // Next, we install a new assertion-failure handler function,
-// 'bsls::Assert::failSleep', from the suite of "off-the-shelf" handlers
+// 'bsls::Assert::failBySleep', from the suite of "off-the-shelf" handlers
 // provided as 'static' methods of 'bsls::Assert':
 //..
-//  bsls::Assert::setFailureHandler(&bsls::Assert::failSleep);
+//  bsls::Assert::setViolationHandler(&bsls::Assert::failBySleep);
 //..
-// Observe that 'bsls::Assert::failSleep' is the new, currently-installed
+// Observe that 'bsls::Assert::failBySleep' is the new, currently-installed
 // assertion-failure handler:
 //..
-//  assert(&bsls::Assert::failSleep == bsls::Assert::failureHandler());
+//  assert(&bsls::Assert::failBySleep == bsls::Assert::violationHandler());
 //..
 // Note that if we were to explicitly invoke the current assertion-failure
 // handler as follows:
 //..
-//  bsls::Assert::invokeHandler("message", "file", 27);  // This will hang!
+//  BSLS_ASSERT_INVOKE("message");  // This will hang!
 //..
-// the program will hang since 'bsls::Assert::failSleep' repeatedly sleeps for
-// a period of time within an infinite loop.  Thus, this assertion-failure
+// the program will hang since 'bsls::Assert::failBySleep' repeatedly sleeps
+// for a period of time within an infinite loop.  Thus, this assertion-failure
 // handler is useful for hanging a process so that a debugger may be attached
 // to it.
 //
-// We may now decide to disable the 'setFailureHandler' method using the
+// We may now decide to disable the 'setViolationHandler' method using the
 // 'bsls::Assert::lockAssertAdministration()' method to ensure that no one else
 // will override our decision globally.  Note, however, that the
 // 'bsls::AssertFailureHandlerGuard' is not affected, and can still be used to
@@ -669,11 +725,11 @@ BSLS_IDENT("$Id: $")
 //..
 // Attempting to change the currently installed handler now will fail:
 //..
-//      bsls::Assert::setFailureHandler(&bsls::Assert::failAbort);
+//      bsls::Assert::setViolationHandler(&bsls::Assert::failByAbort);
 //
-//      assert(&bsls::Assert::failAbort != bsls::Assert::failureHandler());
+//      assert(&bsls::Assert::failByAbort != bsls::Assert::violationHandler());
 //
-//      assert(&bsls::Assert::failSleep == bsls::Assert::failureHandler());
+//      assert(&bsls::Assert::failBySleep == bsls::Assert::violationHandler());
 //  }
 //..
 //
@@ -692,21 +748,24 @@ BSLS_IDENT("$Id: $")
 //  static bool globalEnableOurPrintingFlag = true;
 //
 //  static
-//  void ourFailureHandler(const char *text, const char *file, int line)
-//      // Print the specified expression 'text', 'file' name, and 'line'
-//      // number to 'stdout' as a comma-separated list, replacing null
-//      // string-argument values with empty strings (unless printing has been
-//      // disabled by the 'globalEnableOurPrintingFlag' variable), then
-//      // unconditionally abort.
+//  void ourFailureHandler(const bsls::AssertViolation& violation)
+//      // Print the expression 'comment', 'file' name, and 'line' number from
+//      // the specified 'violation' to 'stdout' as a comma-separated list,
+//      // replacing null string-argument values with empty strings (unless
+//      // printing has been disabled by the 'globalEnableOurPrintingFlag'
+//      // variable), then unconditionally abort.
 //  {
-//      if (!text) {
-//          text = "";
+//      const char *comment = violation.comment();
+//      if (!comment) {
+//          comment = "";
 //      }
+//      const char *file = violation.fileName();
 //      if (!file) {
 //          file = "";
 //      }
+//      int line = violation.lineNumber();
 //      if (globalEnableOurPrintingFlag) {
-//          std::printf("%s, %s, %d\n", text, file, line);
+//          std::printf("%s, %s, %d\n", comment, file, line);
 //      }
 //      std::abort();
 //  }
@@ -719,20 +778,20 @@ BSLS_IDENT("$Id: $")
 // First, let's observe that we can assign this new function to a function
 // pointer of type 'bsls::Assert::Handler':
 //..
-//  bsls::Assert::Handler f = &::ourFailureHandler;
+//  bsls::Assert::ViolationHandler f = &::ourFailureHandler;
 //..
 // Now we can install it just as we would any other handler:
 //..
-//  bsls::Assert::setFailureHandler(&::ourFailureHandler);
+//  bsls::Assert::setViolationHandler(&::ourFailureHandler);
 //..
 // We can now invoke the default handler directly:
 //..
-//      bsls::Assert::invokeHandler("str1", "str2", 3);
+//      BSLS_ASSERT_INVOKE("str1");
 //  }
 //..
-// With the resulting output as follows:
+// With the resulting output something like as follows:
 //..
-//  str1, str2, 3
+//  str1, my_file.cpp, 17
 //  Abort (core dumped)
 //..
 //
@@ -769,17 +828,17 @@ BSLS_IDENT("$Id: $")
 // calls below this function to be handled by throwing an exception, which is
 // then caught by the wrapper and reported to the caller as a "bad" status.
 // Hence, when within the runtime scope of this function, we want to install,
-// temporarily, the assertion-failure handler 'bsls::Assert::failThrow', which,
-// when invoked, causes an 'bsls::AssertTestException' object to be thrown.
-// (Note that we are not advocating this approach for "recovery", but rather
-// for an orderly shut-down, or perhaps during testing.)  The
+// temporarily, the assertion-failure handler 'bsls::Assert::failBySleep',
+// which, when invoked, causes an 'bsls::AssertTestException' object to be
+// thrown.  (Note that we are not advocating this approach for "recovery", but
+// rather for an orderly shut-down, or perhaps during testing.)  The
 // 'bsls::AssertFailureHandlerGuard' class is provided for just this purpose:
 //..
-//      assert(&bsls::Assert::failAbort == bsls::Assert::failureHandler());
+//      assert(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
 //
-//      bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failThrow);
+//      bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failBySleep);
 //
-//      assert(&bsls::Assert::failThrow == bsls::Assert::failureHandler());
+//      assert(&bsls::Assert::failBySleep == bsls::Assert::violationHandler());
 //..
 // Next we open up a 'try' block, and somewhere within the 'try' we
 // "accidentally" invoke 'fact' with an out-of-contract value (i.e., '-1'):
@@ -816,8 +875,9 @@ BSLS_IDENT("$Id: $")
 //  Internal Error: bsls_assert.t.cpp:500: 0 <= n
 //..
 // and the 'wrapperFunc' function will return a bad status (i.e., 1) to its
-// caller.  Note that if exceptions are not enabled, 'bsls::Assert::failThrow'
-// will behave as 'bsls::Assert::failAbort', and dump core immediately:
+// caller.  Note that if exceptions are not enabled,
+// 'bsls::Assert::failBySleep' will behave as 'bsls::Assert::failByAbort', and
+// dump core immediately:
 //..
 //  Assertion failed: 0 <= n, file bsls_assert.t.cpp, line 500
 //  Abort (core dumped)
@@ -1240,10 +1300,14 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED 0
 #endif
 
-#define BSLS_ASSERT_ASSERT(X) do {                                           \
+#define BSLS_ASSERT_ASSERT_IMP(X,LVL) do {                                   \
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                   \
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                              \
-            BloombergLP::bsls::Assert::invokeHandler(#X, __FILE__, __LINE__);\
+            BloombergLP::bsls::AssertViolation violation(#X,                 \
+                                                         __FILE__,           \
+                                                         __LINE__,           \
+                                                         LVL);               \
+            BloombergLP::bsls::Assert::invokeHandler(violation);             \
         }                                                                    \
     } while (false)
 
@@ -1270,7 +1334,9 @@ BSLS_IDENT("$Id: $")
 // Define 'BSLS_ASSERT_SAFE' accordingly.
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    #define BSLS_ASSERT_SAFE(X) BSLS_ASSERT_ASSERT(X)
+    #define BSLS_ASSERT_SAFE(X) BSLS_ASSERT_ASSERT_IMP(                      \
+                                     X,                                      \
+                                     BloombergLP::bsls::Assert::k_LEVEL_SAFE)
 #elif defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
     #define BSLS_ASSERT_SAFE(X) BSLS_REVIEW_REVIEW_IMP(                      \
                                      X,                                      \
@@ -1298,7 +1364,9 @@ BSLS_IDENT("$Id: $")
 // Define 'BSLS_ASSERT' accordingly.
 
 #if defined(BSLS_ASSERT_IS_ACTIVE)
-    #define BSLS_ASSERT(X) BSLS_ASSERT_ASSERT(X)
+    #define BSLS_ASSERT(X) BSLS_ASSERT_ASSERT_IMP(                           \
+                                   X,                                        \
+                                   BloombergLP::bsls::Assert::k_LEVEL_ASSERT)
 #elif defined(BSLS_REVIEW_IS_ACTIVE)
     #define BSLS_ASSERT(X) BSLS_REVIEW_REVIEW_IMP(                           \
                                    X,                                        \
@@ -1320,7 +1388,9 @@ BSLS_IDENT("$Id: $")
 // Define 'BSLS_ASSERT_OPT' accordingly.
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
-    #define BSLS_ASSERT_OPT(X) BSLS_ASSERT_ASSERT(X)
+    #define BSLS_ASSERT_OPT(X) BSLS_ASSERT_ASSERT_IMP(                       \
+                                      X,                                     \
+                                      BloombergLP::bsls::Assert::k_LEVEL_OPT)
 #elif defined(BSLS_REVIEW_OPT_IS_ACTIVE)
     #define BSLS_ASSERT_OPT(X) BSLS_REVIEW_REVIEW_IMP(                       \
                                       X,                                     \
@@ -1335,7 +1405,12 @@ BSLS_IDENT("$Id: $")
 
 // 'BSLS_ASSERT_INVOKE' is always active and never in review mode or disabled.
 #define BSLS_ASSERT_INVOKE(X) do {                                           \
-        BloombergLP::bsls::Assert::invokeHandler(X, __FILE__, __LINE__);     \
+        BloombergLP::bsls::AssertViolation violation(                        \
+                                  X,                                         \
+                                  __FILE__,                                  \
+                                  __LINE__,                                  \
+                                  BloombergLP::bsls::Assert::k_LEVEL_INVOKE);\
+        BloombergLP::bsls::Assert::invokeHandler(violation);                 \
     } while (false)
 
                           // ====================
@@ -1371,22 +1446,72 @@ namespace BloombergLP {
 
 namespace bsls {
 
+                          // =====================
+                          // class AssertViolation
+                          // =====================
+
+class AssertViolation {
+    // This class is an unconstrained *in-core* value-semantic class that
+    // characterizes the details of a assert failure that has occurred.
+
+    // DATA
+    const char *d_comment_p;      // the comment associated with the violation,
+                                  // generally representing the expression that
+                                  // failed
+
+    const char *d_fileName_p;     // the name of the file where the violation
+                                  // occurred
+
+    int         d_lineNumber;     // the line number where the violation
+                                  // occurred
+
+    const char *d_assertLevel_p;  // the level and type of the violation that
+                                  // occurred, generally one of the 'k_LEVEL'
+                                  // constants defined in 'bsls::Review' or
+                                  // 'bsls::Assert'
+
+  public:
+    // CREATORS
+    AssertViolation(const char *comment,
+                    const char *fileName,
+                    int         lineNumber,
+                    const char *assertLevel);
+        // Create a 'AssertViolation' with the specified 'comment', 'fileName',
+        // 'lineNumber', and 'assertLevel'.  Note that the supplied
+        // 'assertLevel' will usually be one of the 'k_LEVEL' constants defined
+        // in 'bsls::Assert'
+
+    // ACCESSORS
+    const char *assertLevel() const;
+        // Return the 'assertLevel' attribute of this object.
+
+    const char *comment() const;
+        // Return the 'comment' attribute of this object.
+
+    const char *fileName() const;
+        // Return the 'fileName' attribute of this object.
+
+    int lineNumber() const;
+        // Return the 'lineNumber' attribute of this object.
+};
+
                               // ============
                               // class Assert
                               // ============
 
 class Assert {
     // This "utility" class maintains a pointer containing the address of the
-    // current assertion-failure handler function (of type 'Assert::Handler')
-    // and provides methods to administer this function pointer.  The
-    // 'invokeHandler' method calls the currently-installed failure handler.
-    // This class also provides a suite of standard failure-handler functions
-    // that are suitable to be installed as the current 'Assert::Handler'
-    // function.  Note that clients are free to install any of these
-    // ("off-the-shelf") handlers, or to provide their own ("custom")
-    // assertion-failure handler functions when using this facility.  Also note
-    // that assertion-failure handler functions must not return (i.e., they
-    // must 'abort', 'exit', 'terminate', 'throw', or hang).
+    // current assertion-failure handler function (of type
+    // 'Assert::ViolationHandler') and provides methods to administer this
+    // function pointer.  The 'invokeHandler' method calls the
+    // currently-installed failure handler.  This class also provides a suite
+    // of standard failure-handler functions that are suitable to be installed
+    // as the current 'Assert::ViolationHandler' function.  Note that clients
+    // are free to install any of these ("off-the-shelf") handlers, or to
+    // provide their own ("custom") assertion-failure handler functions when
+    // using this facility.  Also note that assertion-failure handler functions
+    // must not return (i.e., they must 'abort', 'exit', 'terminate', 'throw',
+    // or hang).
     //
     // Finally, this class defines the constant strings that are passed as the
     // 'reviewLevel' to the 'bsls_review' handler for checks that failed in
@@ -1394,6 +1519,14 @@ class Assert {
 
   public:
     // TYPES
+    typedef void (*ViolationHandler)(const AssertViolation&);
+        // 'ViolationHandler' is an alias for a pointer to a function returning
+        // 'void', and taking, as a parameter a single 'const' reference to a
+        // 'bsls::AssertViolation' -- e.g.,
+        //..
+        //  void myHandler(const bsls::AssertViolation&);
+        //..
+
     typedef void (*Handler)(const char *, const char *, int);
         // 'Handler' is an alias for a pointer to a function returning 'void',
         // and taking, as parameters, two null-terminated strings and an 'int',
@@ -1409,14 +1542,26 @@ class Assert {
 
     // CLASS DATA
     static bsls::AtomicOperations::AtomicTypes::Pointer
-                        s_handler;     // assertion-failure handler function
+                  s_violationHandler; // assertion-failure handler function
+    static bsls::AtomicOperations::AtomicTypes::Pointer
+                  s_handler;          // legacy assertion-failure handler
     static bsls::AtomicOperations::AtomicTypes::Int
-                        s_lockedFlag;  // lock to disable 'setFailureHandler'
+                  s_lockedFlag;       // lock to disable 'setFailureHandler'
 
     // PRIVATE CLASS METHODS
-    static void setFailureHandlerRaw(Assert::Handler function);
+    static void setViolationHandlerRaw(Assert::ViolationHandler function);
         // Make the specified handler 'function' the current assertion-failure
         // handler.
+
+    static void setFailureHandlerRaw(Assert::Handler function);
+        // Make the specified 'function' the current legacy handler and set the
+        // current assertion-failure handler to 'failOnViolation'.
+
+    static void failOnViolation(const AssertViolation& violation);
+        // Get the 'comment', 'fileName', and 'lineNumber' from the specified
+        // 'violation' and pass them to the registered 'Handler'.  This
+        // function exists to provide support for the older signature for
+        // assertion-failure handlers specified by 'Handler'.
 
   public:
     // PUBLIC CONSTANTS
@@ -1428,9 +1573,19 @@ class Assert {
     static const char k_LEVEL_ASSERT[];
     static const char k_LEVEL_INVOKE[];
 
+    // PUBLIC CLASS DATA
+    static const char *k_permitOutOfPolicyReturningAssertionBuildKey;
+                                       // This constant has the value "No".
+                                       // See {Assertion Handler Policy}.
+
     // CLASS METHODS
 
                       // Administrative Methods
+
+    static void setViolationHandler(Assert::ViolationHandler function);
+        // Make the specified violation handler 'function' the current
+        // assertion-failure handler.  This method has no effect if the
+        // 'lockAssertAdministration' method has been called.
 
     static void setFailureHandler(Assert::Handler function);
         // Make the specified handler 'function' the current assertion-failure
@@ -1444,50 +1599,123 @@ class Assert {
 
     static Assert::Handler failureHandler();
         // Return the address of the currently installed assertion-failure
-        // handler function.
+        // handler function if it is a 'Handler' (and not a
+        // 'ViolationHandler').
 
-                      // Dispatcher Method (called from within macros)
+    static Assert::ViolationHandler violationHandler();
+        // Return the address of the currently installed assertion-failure
+        // handler function
+
+                // Dispatcher Method (called from within macros)
+
+    BSLS_ASSERT_NORETURN_INVOKE_HANDLER
+    static void invokeHandler(const AssertViolation& violation);
+        // Invoke the currently installed assertion-failure handler function
+        // with the specified 'violation'.  The behavior is undefined if the
+        // macro 'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is defined,
+        // and the currently installed assertion-failure handler function
+        // returns to the caller (i.e., the assertion handler does *not*
+        // 'abort', 'exit', 'terminate', 'throw', or hang).  Note that this
+        // function is intended for use by the (BSLS) "ASSERT" macros, but may
+        // also be called by clients directly as needed.  Also note that the
+        // configuration macro 'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER'
+        // is intended to support static analysis tools, which require an
+        // annotation to see that a failed "ASSERT" prevents further execution
+        // of a function with "bad" values.
 
     BSLS_ASSERT_NORETURN_INVOKE_HANDLER
     static void invokeHandler(const char *text, const char *file, int line);
+        // !DEPRECATED!: Use 'invokeHandler(const AssertViolation&)' instead.
+        //
         // Invoke the currently installed assertion-failure handler function
         // with the specified expression 'text', 'file' name, and 'line' number
         // as its arguments.  The behavior is undefined if the macro
         // 'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is defined, and the
         // currently installed assertion-failure handler function returns to
         // the caller (i.e., the assertion handler does *not* 'abort', 'exit',
-        // 'terminate', 'throw', or hang).  Note that this function is intended
-        // for use by the (BSLS) "ASSERT" macros, but may also be called by
-        // clients directly as needed.  Also note that the configuration macro
-        // 'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is intended to
-        // support static analysis tools, which require an annotation to see
-        // that a failed "ASSERT" prevents further execution of a function with
-        // "bad" values.
+        // 'terminate', 'throw', or hang).  Note that this function is
+        // deprecated, as the (BSLS) "ASSERT" macros all now use the
+        // 'bssl::AssertViolation' overload of 'invokeHandler' instead.
 
                       // Standard Assertion-Failure Handlers
 
     BSLS_ASSERT_NORETURN
-    static void failAbort(const char *text, const char *file, int line);
+    static void failByAbort(const AssertViolation& violation);
         // (Default Handler) Emulate the invocation of the standard 'assert'
-        // macro with a 'false' argument, using the specified expression
-        // 'text', 'file' name, and 'line' number to generate a helpful output
-        // message and then, after logging, unconditionally aborting.  Note
-        // that this handler function is initially the currently installed one
-        // by default.
+        // macro with a 'false' argument, using the expression 'comment',
+        // 'file' name, and 'line' number from the specified 'violation' to
+        // generate a helpful output message and then, after logging,
+        // unconditionally aborting.  Note that this handler function is the
+        // default installed assertion handler.
 
     BSLS_ASSERT_NORETURN
-    static void failSleep(const char *text, const char *file, int line);
-        // Use the specified expression 'text', 'file' name, and 'line' number
-        // to generate a helpful output message and then, after logging, spin
-        // in an infinite loop.  Note that this handler function is useful for
-        // hanging a process so that a debugger may be attached to it.
+    static void failBySleep(const AssertViolation& violation);
+        // Use the expression 'comment', 'file' name, and 'line' number from
+        // the specified 'violation' to generate a helpful output message and
+        // then, after logging, spin in an infinite loop.  Note that this
+        // handler function is useful for hanging a process so that a debugger
+        // may be attached to it.
 
     BSLS_ASSERT_NORETURN
-    static void failThrow(const char *text, const char *file, int line);
+    static void failByThrow(const AssertViolation& violation);
+        // Throw an 'AssertTestException' whose attributes are the 'comemnt',
+        // 'file', 'line', and 'level' from the specified 'violation' provided
+        // that 'BDE_BUILD_TARGET_EXC' is defined; otherwise, log an
+        // appropriate message and abort the program (similar to
+        // 'failByAbort').
+
+    BSLS_ASSERT_NORETURN
+    static void failAbort(const char *comment, const char *file, int line);
+        // !DEPRECATED!: Use 'failByAbort' instead.
+        //
+        // Emulate the invocation of the standard 'assert' macro with a 'false'
+        // argument, using the expression specified 'comment', 'file' name, and
+        // 'line' number to generate a helpful output message and then, after
+        // logging, unconditionally aborting.
+
+    BSLS_ASSERT_NORETURN
+    static void failSleep(const char *comment, const char *file, int line);
+        // !DEPRECATED!: Use 'failBySleep' instead.
+        //
+        // Use the specified expression 'comment', 'file' name, and 'line'
+        // number to generate a helpful output message and then, after logging,
+        // spin in an infinite loop.  Note that this handler function is useful
+        // for hanging a process so that a debugger may be attached to it.
+
+    BSLS_ASSERT_NORETURN
+    static void failThrow(const char *comment, const char *file, int line);
+        // !DEPRECATED!: Use 'failByThrow' instead.
+        //
         // Throw an 'AssertTestException' whose attributes are the specified
-        // 'text', 'file', and 'line', provided that 'BDE_BUILD_TARGET_EXC' is
-        // defined; otherwise, log an appropriate message and abort the program
-        // (similar to 'failAbort').
+        // 'comemnt', 'file', 'line', and 'level' provided that
+        // 'BDE_BUILD_TARGET_EXC' is defined; otherwise, log an appropriate
+        // message and abort the program (similar to 'failAbort').
+
+
+                    // Assertion Handler Policy Enforcement
+
+    static bool abortUponReturningAssertionFailureHandler();
+        // Return 'true' if 'k_permitOutOfPolicyReturningAssertionBuildKey'
+        // does not have the value "bsls-PermitOutOfPolicyReturn" or
+        // 'permitOutOfPolicyReturningFailureHandler' has not previously been
+        // invoked, and 'false' otherwise.  Note that returning 'true'
+        // indicates that 'bsls::Assert' should abort the task if the currently
+        // installed assertion-failure handler returns normally (after the
+        // detection of a failed assertion).
+
+    static void permitOutOfPolicyReturningFailureHandler();
+        // DO NOT USE! It is a violation of Bloomberg policy to invoke this
+        // function without having prior authorization from senior management.
+        //
+        // Allow an assertion handler to return control to the calling function
+        // (after a failed assertion).  Note that, by default, an assertion
+        // handler that attempts to return normally will cause the program to
+        // be aborted.
+        //
+        // Internal Bloomberg users should contact the BDE team if they feel
+        // their application might need to violate Bloomberg policy by allowing
+        // the currently installed assertion handler to return normally (after
+        // a failed assertion).
 };
 
                      // ===============================
@@ -1506,7 +1734,8 @@ class AssertFailureHandlerGuard {
     // whether that method has been invoked.)
 
     // DATA
-    Assert::Handler d_original;  // original (restored at destruction)
+    Assert::ViolationHandler d_original;       // original handler
+    Assert::Handler          d_legacyOriginal; // original legacy handler
 
   private:
     // NOT IMPLEMENTED
@@ -1515,6 +1744,7 @@ class AssertFailureHandlerGuard {
 
   public:
     // CREATORS
+    explicit AssertFailureHandlerGuard(Assert::ViolationHandler temporary);
     explicit AssertFailureHandlerGuard(Assert::Handler temporary);
         // Create a guard object that installs the specified 'temporary'
         // failure handler and automatically restores the original handler on
@@ -1564,6 +1794,16 @@ typedef bsls::Assert bdes_Assert;
 typedef bsls::AssertFailureHandlerGuard bdes_AssertFailureHandlerGuard;
     // This alias is defined for backward compatibility.
 
+                       // ==========================
+                       // BSLS_ASSERT_H (deprecated)
+                       // ==========================
+
+// Old 'BSLS_ASSERT' implementation macro that was incorrectly used externally.
+
+#define BSLS_ASSERT_ASSERT(X) BSLS_ASSERT_ASSERT_IMP(                        \
+                                   X,                                        \
+                                   BloombergLP::bsls::Assert::k_LEVEL_ASSERT)
+
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 typedef bsls::Assert bsls_Assert;
@@ -1580,6 +1820,37 @@ typedef bsls::AssertFailureHandlerGuard bsls_AssertFailureHandlerGuard;
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+                          // ---------------------
+                          // class AssertViolation
+                          // ---------------------
+namespace bsls {
+
+// ACCESSORS
+inline
+const char *AssertViolation::assertLevel() const
+{
+    return d_assertLevel_p;
+}
+
+inline
+const char *AssertViolation::comment() const
+{
+    return d_comment_p;
+}
+
+inline
+const char *AssertViolation::fileName() const
+{
+    return d_fileName_p;
+}
+
+inline
+int AssertViolation::lineNumber() const
+{
+    return d_lineNumber;
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif // deeper include guard

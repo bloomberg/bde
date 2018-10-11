@@ -18,8 +18,8 @@ using namespace BloombergLP;
 // in a separate test case.  Any significant test machinery will be tested
 // before any function whose test case relies upon it.
 //-----------------------------------------------------------------------------
-// [-1] void AssertImpUtil::failAbort();
-// [-2] void AssertImpUtil::failSleep();
+// [-1] void AssertImpUtil::failByAbort();
+// [-2] void AssertImpUtil::failBySleep();
 //-----------------------------------------------------------------------------
 // [ 1] USAGE EXAMPLE: myAbort
 // [ 2] USAGE EXAMPLE: mySleep
@@ -86,11 +86,11 @@ bool globalVeryVeryVerbose = false;
 ///- - - - - - - - - - - - - - - - - - - -
 // Suppose you are implementing an assertion handler that should cause a
 // process to terminate when invoked.  In order to stop the process
-// immediately, you would call 'failAbort' like this:
+// immediately, you would call 'failByAbort' like this:
 //..
 void myAbort()
 {
-    bsls::AssertImpUtil::failAbort();
+    bsls::AssertImpUtil::failByAbort();
     // This code should never be reached.
 }
 //..
@@ -101,11 +101,11 @@ void myAbort()
 // Suppose you want a process to no longer continue doing anything, but you
 // want to leave it running in order to attach a debugger to it and diagnose
 // the full state of your system.  In order to have your process sleep forever,
-// you might call 'failSleep' like this:
+// you might call 'failBySleep' like this:
 //..
 void mySleep()
 {
-    bsls::AssertImpUtil::failSleep();
+    bsls::AssertImpUtil::failBySleep();
     // This code should never be reached.
 }
 //..
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 See above for usage example code compiling.
         //:
-        //: 2 See case -2 for manual testing of 'failSleep'.
+        //: 2 See case -2 for manual testing of 'failBySleep'.
         //
         // Testing:
         //   USAGE EXAMPLE: mySleep
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
         // Plan:
         //: 1 See above for usage example code compiling.
         //:
-        //: 2 See case -1 for manual testing of 'failAbort'.
+        //: 2 See case -1 for manual testing of 'failByAbort'.
         //
         // Testing:
         //   USAGE EXAMPLE: myAbort
@@ -180,15 +180,15 @@ int main(int argc, char *argv[])
         // CALL ABORT FUNCTION
         //
         // Concerns:
-        //: 1 The 'failAbort' function should abort immediately; this can't be
-        //:   tested by a normally run unit test.
+        //: 1 The 'failByAbort' function should abort immediately; this can't
+        //:   be tested by a normally run unit test.
         //
         // Plan:
-        //: 1 Run 'failAbort' so the caller can manually witness that the test
-        //:   has aborted.
+        //: 1 Run 'failByAbort' so the caller can manually witness that the
+        //:   test has aborted.
         //
         // Testing:
-        //   void AssertImpUtil::failAbort();
+        //   void AssertImpUtil::failByAbort();
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nCALL ABORT FUNCTION"
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
 
         fprintf(stderr, "THIS TEST SHOULD NOW ABORT.\n");
 
-        bsls::AssertImpUtil::failAbort();
+        bsls::AssertImpUtil::failByAbort();
 
         ASSERT(0 && "Should not be reached");
 
@@ -206,15 +206,15 @@ int main(int argc, char *argv[])
         // CALL SLEEP FUNCTION
         //
         // Concerns:
-        //: 1 The 'failSleep' function should sleep immediately; this can't be
-        //:   tested by a normally run unit test.
+        //: 1 The 'failBySleep' function should sleep immediately; this can't
+        //:   be tested by a normally run unit test.
         //
         // Plan:
-        //: 1 Run 'failSleep' so the caller can manually witness that the test
-        //:   has slept.
+        //: 1 Run 'failBySleep' so the caller can manually witness that the
+        //:   test has slept.
         //
         // Testing:
-        //   void AssertImpUtil::failSleep();
+        //   void AssertImpUtil::failBySleep();
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nCALL SLEEP FUNCTION"
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
 
         fprintf(stderr, "THIS TEST SHOULD NOW HANG INDEFINITELY.\n");
 
-        bsls::AssertImpUtil::failSleep();
+        bsls::AssertImpUtil::failBySleep();
 
         ASSERT(0 && "Should not be reached");
 
@@ -239,6 +239,7 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.
 //

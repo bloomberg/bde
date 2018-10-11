@@ -19,7 +19,7 @@ namespace {
 
 // STATIC HELPER FUNCTIONS
 static
-void printError(const bsls::ReviewViolation &violation)
+void printError(const bsls::ReviewViolation& violation)
     // Log a formatted message with the contents of the specified 'violation'
     // and a severity of 'e_ERROR'.
 {
@@ -76,7 +76,8 @@ ReviewViolation::ReviewViolation(const char *comment,
 , d_lineNumber(lineNumber)
 , d_reviewLevel_p(reviewLevel)
 , d_count(count)
-{}
+{
+}
 
                               // ------------
                               // class Review
@@ -84,7 +85,7 @@ ReviewViolation::ReviewViolation(const char *comment,
 
 // CLASS DATA
 bsls::AtomicOperations::AtomicTypes::Pointer
-    Review::s_handler = {(void *) &Review::failLog};
+    Review::s_violationHandler = {(void *) &Review::failByLog};
 bsls::AtomicOperations::AtomicTypes::Int Review::s_lockedFlag = {0};
 
 // PUBLIC CONSTANTS
@@ -94,33 +95,34 @@ const char Review::k_LEVEL_REVIEW[] = "R-DBG";
 const char Review::k_LEVEL_INVOKE[] = "R-INV";
 
 // PRIVATE CLASS METHODS
-void Review::setFailureHandlerRaw(Review::Handler function)
+void Review::setViolationHandlerRaw(Review::ViolationHandler function)
 {
     bsls::AtomicOperations::setPtrRelease(
-        &s_handler, PointerCastUtil::cast<void *>(function));
+        &s_violationHandler, PointerCastUtil::cast<void *>(function));
 }
 
 // CLASS METHODS
                       // Administrative Methods
 
-void Review::setFailureHandler(Review::Handler function)
-{
-    if (!bsls::AtomicOperations::getIntRelaxed(&s_lockedFlag)) {
-        setFailureHandlerRaw(function);
-    }
-}
-
-Review::Handler Review::failureHandler()
-{
-    // BDE_VERIFY pragma: push
-    // BDE_VERIFY pragma: -CC01 // AIX only allows this cast as a C-style cast
-    return (Handler) bsls::AtomicOperations::getPtrAcquire(&s_handler);
-    // BDE_VERIFY pragma: pop
-}
-
 void Review::lockReviewAdministration()
 {
     bsls::AtomicOperations::setIntRelaxed(&s_lockedFlag, 1);
+}
+
+void Review::setViolationHandler(Review::ViolationHandler function)
+{
+    if (!bsls::AtomicOperations::getIntRelaxed(&s_lockedFlag)) {
+        setViolationHandlerRaw(function);
+    }
+}
+
+Review::ViolationHandler Review::violationHandler()
+{
+    // BDE_VERIFY pragma: push
+    // BDE_VERIFY pragma: -CC01 // AIX only allows this cast as a C-style cast
+    return (ViolationHandler) bsls::AtomicOperations::getPtrAcquire(
+                                                &s_violationHandler); // RETURN
+    // BDE_VERIFY pragma: pop
 }
 
                       // Dispatcher Methods (called from within macros)
@@ -138,18 +140,24 @@ int Review::updateCount(Count *count)
     return lastCount;
 }
 
-void Review::invokeHandler(const ReviewViolation &violation)
+void Review::invokeHandler(const ReviewViolation& violation)
 {
-    Review::Handler failureHandlerPtr = failureHandler();
+    Review::ViolationHandler violationHandlerPtr = violationHandler();
 
-    failureHandlerPtr(violation);
+    violationHandlerPtr(violation);
 }
 
                       // Standard Review-Failure Handlers
 
+void Review::failByAbort(const ReviewViolation& violation)
+{
+    printError(violation);
+    AssertImpUtil::failByAbort();
+}
+
 #define IS_POWER_OF_TWO(X) (0 == ((X) & ((X) - 1)))
 
-void Review::failLog(const ReviewViolation &violation)
+void Review::failByLog(const ReviewViolation& violation)
 {
     int count = violation.count();
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(IS_POWER_OF_TWO(count))) {
@@ -181,25 +189,20 @@ void Review::failLog(const ReviewViolation &violation)
     }
 }
 
-void Review::failAbort(const ReviewViolation &violation)
+void Review::failBySleep(const ReviewViolation& violation)
 {
     printError(violation);
-    AssertImpUtil::failAbort();
+    AssertImpUtil::failBySleep();
 }
 
-void Review::failSleep(const ReviewViolation &violation)
-{
-    printError(violation);
-    AssertImpUtil::failSleep();
-}
-
-void Review::failThrow(const ReviewViolation &violation)
+void Review::failByThrow(const ReviewViolation& violation)
 {
 #ifdef BDE_BUILD_TARGET_EXC
     if (!std::uncaught_exception()) {
         throw AssertTestException(violation.comment(),
                                   violation.fileName(),
-                                  violation.lineNumber());
+                                  violation.lineNumber(),
+                                  violation.reviewLevel());
     }
     else {
         bsls::Log::logMessage(bsls::LogSeverity::e_ERROR,
@@ -210,7 +213,7 @@ void Review::failThrow(const ReviewViolation &violation)
     }
 #endif
 
-    failAbort(violation);
+    failByAbort(violation);
 }
 
                      // -------------------------------
@@ -218,15 +221,16 @@ void Review::failThrow(const ReviewViolation &violation)
                      // -------------------------------
 
 // CREATORS
-ReviewFailureHandlerGuard::ReviewFailureHandlerGuard(Review::Handler temporary)
-: d_original(Review::failureHandler())
+ReviewFailureHandlerGuard::ReviewFailureHandlerGuard(
+                                            Review::ViolationHandler temporary)
+: d_original(Review::violationHandler())
 {
-    Review::setFailureHandlerRaw(temporary);
+    Review::setViolationHandlerRaw(temporary);
 }
 
 ReviewFailureHandlerGuard::~ReviewFailureHandlerGuard()
 {
-    Review::setFailureHandlerRaw(d_original);
+    Review::setViolationHandlerRaw(d_original);
 }
 
 }  // close package namespace

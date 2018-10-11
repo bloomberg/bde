@@ -1,43 +1,46 @@
-// bsls_assert_macroreset.h                                           -*-C++-*-
-#ifndef INCLUDED_BSLS_ASSERT_MACRORESET
-#define INCLUDED_BSLS_ASSERT_MACRORESET
+// bsls_asserttest_macroreset.h                                       -*-C++-*-
+#ifndef INCLUDED_BSLS_ASSERTTEST_MACRORESET
+#define INCLUDED_BSLS_ASSERTTEST_MACRORESET
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Undefine all macros from 'bsls_assert.h' and 'bsls_review.h'.
+//@PURPOSE: Undefine macros related to 'bsls_asserttest.h'.
 //
 //@DESCRIPTION: This component provides a header that is *included* to undefine
-// all macros defined in 'bsls_assert.h' and 'bsls_review.h'; it is designed to
-// be *re*-includable.  This is for the use of the 'bsls_assert' test driver to
-// enable it to re-include the 'bsls_assert.h' header with different input
-// macros and verify that they output the correct resulting macro definitions.
+// all macros defined in 'bsls_asserttest.h', 'bsls_assert.h', and
+// 'bsls_review.h'; it is designed to be *re*-includable.  This is for the use
+// of the 'bsls_assertest' test driver to enable it to re-include the
+// 'bsls_asserttest.h' header with different input macros and verify that they
+// output the correct resulting macro definitions.
 //
 ///Usage
 ///-----
-// To undefine all macros defined in 'bsls_assert.h' and 'bsls_review.h', first
-// disable the header include guard for this header
-// ('bsls_assert_macroreset.h'):
+// To undefine all macros defined in 'bsls_asserttest.h', 'bsls_assert.h' and
+// 'bsls_review.h', first disable the header include guard for this header
+// ('bsls_asserttest_macroreset.h'):
 //..
-//  #undef INCLUDED_BSLS_ASSERT_MACRORESET
+//  #undef INCLUDED_BSLS_ASSERTTEST_MACRORESET
 //..
 // Then re-include this header, which will undefine the macros that were
-// defined by 'bsls_assert.h' and 'bsls_review.h':
+// defined by 'bsls_asserttest.h', 'bsls_assert.h' and 'bsls_review.h':
 //..
-//  #include <bsls_assert_macroreset.h>
+//  #include <bsls_asserttest_macroreset.h>
 //..
-// Then define any macros that control the behaviors of 'bsls_assert.h' and
-// 'bsls_review.h' for this particular test, then re-include 'bsls_assert.h':
+// Then define any macros that control the behaviors of 'bsls_asserttest.h',
+// 'bsls_assert.h' and 'bsls_review.h' for this particular test, then
+// re-include 'bsls_asserttest.h':
 //..
-//  #include <bsls_assert.h>
+//  #include <bsls_asserttest.h>
 //..
 
 // Undefine the external header guards so that the component headers can be
 // re-included and re-evaluated.
 #undef INCLUDED_BSLS_REVIEW
 #undef INCLUDED_BSLS_ASSERT
+#undef INCLUDED_BSLS_ASSERTTEST
 
 // Undefine the build mode so it can be set to whatever the test wants to
 // verify next.
@@ -78,6 +81,34 @@ BSLS_IDENT("$Id: $")
 #undef BSLS_ASSERT_OPT_IS_ACTIVE
 #undef BSLS_ASSERT_SAFE
 #undef BSLS_ASSERT_SAFE_IS_ACTIVE
+
+// Undefine the macros actually defined by 'bsls_asserttest.h'.
+#undef BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG
+#undef BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG
+#undef BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG
+#undef BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG
+
+#undef BSLS_ASSERTTEST_ASSERT_FAIL
+#undef BSLS_ASSERTTEST_ASSERT_FAIL_RAW
+#undef BSLS_ASSERTTEST_ASSERT_OPT_FAIL
+#undef BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW
+#undef BSLS_ASSERTTEST_ASSERT_SAFE_FAIL
+#undef BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW
+
+#undef BSLS_ASSERTTEST_ASSERT_PASS
+#undef BSLS_ASSERTTEST_ASSERT_PASS_RAW
+#undef BSLS_ASSERTTEST_ASSERT_OPT_PASS
+#undef BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW
+#undef BSLS_ASSERTTEST_ASSERT_SAFE_PASS
+#undef BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW
+
+#undef BSLS_ASSERTTEST_BRUTE_FORCE_IMP
+#undef BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW
+#undef BSLS_ASSERTTEST_DISABLED_IMP
+#undef BSLS_ASSERTTEST_IS_ACTIVE
+
+#undef BSLS_ASSERTTEST_CHECK_LEVEL
+#undef BSLS_ASSERTTEST_CHECK_LEVEL_ARG
 
 #endif
 

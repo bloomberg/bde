@@ -1,6 +1,6 @@
-// bsls_assert_macroreset.t.cpp                                       -*-C++-*-
+// bsls_asserttest_macroreset.t.cpp                                   -*-C++-*-
 
-#include <bsls_assert_macroreset.h>
+#include <bsls_asserttest_macroreset.h>
 
 #include <bsls_bsltestutil.h>
 #include <cstdio>    // 'fprintf'
@@ -14,11 +14,12 @@ using namespace std;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// This component undefines macros from 'bsls_assert.h' and 'bsls_review.h'.
-// We will validate that those macros are not defined, then define them, then
-// include the header and validate again that they are not defined.
+// This component undefines macros from 'bsls_asserttest.h', 'bsls_assert.h',
+// and 'bsls_review.h'.  We will validate that those macros are not defined,
+// then define them, then include the header and validate again that they are
+// not defined.
 //-----------------------------------------------------------------------------
-// [1] bsls_assert_macroreset.h
+// [1] bsls_asserttest_macroreset.h
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -76,7 +77,7 @@ bool globalVeryVeryVerbose = false;
 // and header re-inclusion impact on code.
 void testMacroHandling();
     // Assert test failures if any component macros are defined or if any do
-    // not get undefined by including 'bsls_assert_macroreset.h'.
+    // not get undefined by including 'bsls_asserttest_macroreset.h'.
 
 int main(int argc, char *argv[])
 {
@@ -97,16 +98,18 @@ int main(int argc, char *argv[])
         // MACRO TEST
         //
         // Concerns:
-        //: 1 The macros that 'bsls_assert_macroreset.h' purports to undefine
-        //:   are indeed undefined immediately following its inclusion.
+        //: 1 The macros that 'bsls_asserttest_macroreset.h' purports to
+        //:   undefine are indeed undefined immediately following its
+        //:   inclusion.
         //
         //: 2 These macros should include all macros that are defined and leak
-        //:   out of 'bsls_review.h' and 'bsls_assert.h'.
+        //:   out of 'bsls_asserttest.h', 'bsls_review.h' and 'bsls_assert.h'.
         //
         // Plan:
         //: 1 Use a script to generate the list of macros that either leak out
-        //:   of 'bsls_review.h' and 'bsls_assert.h' or that are undefined by
-        //:   'bsls_review_macroreset.h' or 'bsls_assert_macroreset.h'.
+        //:   of 'bsls_asserttest.h', 'bsls_review.h', and 'bsls_assert.h' or
+        //:   that are undefined by 'bsls_asserttest.h',
+        //:   'bsls_review_macroreset.h', or 'bsls_assert_macroreset.h'.
         //:
         //: 2 Call a function defined at the end of this file that contains the
         //:   generated code to do the remaining steps of this plan.
@@ -115,12 +118,12 @@ int main(int argc, char *argv[])
         //:
         //: 4 Define all component macros with a fixed value.
         //:
-        //: 5 *Re*-include 'bsls_assert_macroreset.h'.
+        //: 5 *Re*-include 'bsls_asserttest_macroreset.h'.
         //:
         //: 6 Check that all component macros are not defined again.
         //
         // Testing:
-        //   bsls_assert_macroreset.h
+        //   bsls_asserttest_macroreset.h
         // --------------------------------------------------------------------
 
         if (verbose) printf( "\nMACRO TEST"
@@ -144,13 +147,15 @@ int main(int argc, char *argv[])
 
 
 // The following 'bash' script generates all of the checks for the macros that
-// are defined in 'bsls_assert.h' and 'bsls_review.h' or undefined in
-// 'bsls_assert_macroreset.h' and 'bsls_review_macroreset.h'.
+// are defined in 'bsls_asserttest.h', 'bsls_assert.h', and 'bsls_review.h' or
+// undefined in 'bsls_asserttest_macroreset.h', 'bsls_assert_macroreset.h', and
+// 'bsls_review_macroreset.h'.
 //..
 //  #!/bin/bash
 //
-//  HEADERS=( bsls_assert.h bsls_review.h )
-//  RESETHEADERS=( bsls_assert_macroreset.h bsls_review_macroreset.h )
+//  HEADERS=( bsls_asserttest.h bsls_assert.h bsls_review.h )
+//  RESETHEADERS=( bsls_asserttest_macroreset.h )
+//  RESETHEADERS+=( bsls_assert_macroreset.h bsls_review_macroreset.h )
 //
 //  UNDEFINED=( $(cat ${HEADERS[@]} | grep "^#\\s*undef" |
 //                    sed -e "s/.*undef //") )
@@ -183,8 +188,8 @@ int main(int argc, char *argv[])
 //
 //  cat <<EOF
 //
-//      #undef INCLUDED_BSLS_ASSERT_MACRORESET
-//      #include <bsls_assert_macroreset.h>
+//      #undef INCLUDED_BSLS_ASSERTTEST_MACRORESET
+//      #include <bsls_asserttest_macroreset.h>
 //
 //  EOF
 //
@@ -206,8 +211,8 @@ void testMacroHandling()
     ASSERT(true);
 
     // smoke test
-    #ifndef INCLUDED_BSLS_ASSERT_MACRORESET
-        ASSERT(!"INCLUDED_BSLS_ASSERT_MACRORESET is NOT defined!");
+    #ifndef INCLUDED_BSLS_ASSERTTEST_MACRORESET
+        ASSERT(!"INCLUDED_BSLS_ASSERTTEST_MACRORESET is NOT defined!");
     #endif
 
     // Generated checks.
@@ -225,6 +230,72 @@ void testMacroHandling()
     #endif
     #ifdef BSLS_ASSERT
         ASSERT(!"BSLS_ASSERT is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_FAIL
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_FAIL is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_FAIL_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_FAIL_RAW is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_OPT_FAIL
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_FAIL is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_OPT_PASS
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_PASS is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_PASS
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_PASS is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_PASS_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_PASS_RAW is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_FAIL
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_FAIL is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_PASS
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_PASS is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_BRUTE_FORCE_IMP
+        ASSERT(!"BSLS_ASSERTTEST_BRUTE_FORCE_IMP is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW
+        ASSERT(!"BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_CHECK_LEVEL
+        ASSERT(!"BSLS_ASSERTTEST_CHECK_LEVEL is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_CHECK_LEVEL_ARG
+        ASSERT(!"BSLS_ASSERTTEST_CHECK_LEVEL_ARG is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_DISABLED_IMP
+        ASSERT(!"BSLS_ASSERTTEST_DISABLED_IMP is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_IS_ACTIVE
+        ASSERT(!"BSLS_ASSERTTEST_IS_ACTIVE is already defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG
+        ASSERT(!"BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG is already defined!");
     #endif
     #ifdef BSLS_ASSERT_ASSERT_IMP
         ASSERT(!"BSLS_ASSERT_ASSERT_IMP is already defined!");
@@ -304,6 +375,9 @@ void testMacroHandling()
     #ifdef INCLUDED_BSLS_ASSERT
         ASSERT(!"INCLUDED_BSLS_ASSERT is already defined!");
     #endif
+    #ifdef INCLUDED_BSLS_ASSERTTEST
+        ASSERT(!"INCLUDED_BSLS_ASSERTTEST is already defined!");
+    #endif
     #ifdef INCLUDED_BSLS_REVIEW
         ASSERT(!"INCLUDED_BSLS_REVIEW is already defined!");
     #endif
@@ -313,6 +387,28 @@ void testMacroHandling()
     #define BDE_BUILD_TARGET_SAFE 17
     #define BDE_BUILD_TARGET_SAFE_2 17
     #define BSLS_ASSERT 17
+    #define BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG 17
+    #define BSLS_ASSERTTEST_ASSERT_FAIL 17
+    #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW 17
+    #define BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG 17
+    #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL 17
+    #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW 17
+    #define BSLS_ASSERTTEST_ASSERT_OPT_PASS 17
+    #define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW 17
+    #define BSLS_ASSERTTEST_ASSERT_PASS 17
+    #define BSLS_ASSERTTEST_ASSERT_PASS_RAW 17
+    #define BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG 17
+    #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL 17
+    #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW 17
+    #define BSLS_ASSERTTEST_ASSERT_SAFE_PASS 17
+    #define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW 17
+    #define BSLS_ASSERTTEST_BRUTE_FORCE_IMP 17
+    #define BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW 17
+    #define BSLS_ASSERTTEST_CHECK_LEVEL 17
+    #define BSLS_ASSERTTEST_CHECK_LEVEL_ARG 17
+    #define BSLS_ASSERTTEST_DISABLED_IMP 17
+    #define BSLS_ASSERTTEST_IS_ACTIVE 17
+    #define BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG 17
     #define BSLS_ASSERT_ASSERT_IMP 17
     #define BSLS_ASSERT_DISABLED_IMP 17
     #define BSLS_ASSERT_INVOKE 17
@@ -339,10 +435,11 @@ void testMacroHandling()
     #define BSLS_REVIEW_SAFE 17
     #define BSLS_REVIEW_SAFE_IS_ACTIVE 17
     #define INCLUDED_BSLS_ASSERT 17
+    #define INCLUDED_BSLS_ASSERTTEST 17
     #define INCLUDED_BSLS_REVIEW 17
 
-    #undef INCLUDED_BSLS_ASSERT_MACRORESET
-    #include <bsls_assert_macroreset.h>
+    #undef INCLUDED_BSLS_ASSERTTEST_MACRORESET
+    #include <bsls_asserttest_macroreset.h>
 
     #ifdef BDE_BUILD_TARGET_DBG
         ASSERT(!"BDE_BUILD_TARGET_DBG is still defined!");
@@ -358,6 +455,72 @@ void testMacroHandling()
     #endif
     #ifdef BSLS_ASSERT
         ASSERT(!"BSLS_ASSERT is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_ACTIVE_FLAG is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_FAIL
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_FAIL is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_FAIL_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_FAIL_RAW is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_ACTIVE_FLAG is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_OPT_FAIL
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_FAIL is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_OPT_PASS
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_PASS is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_PASS
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_PASS is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_PASS_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_PASS_RAW is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_ACTIVE_FLAG is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_FAIL
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_FAIL is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_PASS
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_PASS is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW
+        ASSERT(!"BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_BRUTE_FORCE_IMP
+        ASSERT(!"BSLS_ASSERTTEST_BRUTE_FORCE_IMP is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW
+        ASSERT(!"BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_CHECK_LEVEL
+        ASSERT(!"BSLS_ASSERTTEST_CHECK_LEVEL is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_CHECK_LEVEL_ARG
+        ASSERT(!"BSLS_ASSERTTEST_CHECK_LEVEL_ARG is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_DISABLED_IMP
+        ASSERT(!"BSLS_ASSERTTEST_DISABLED_IMP is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_IS_ACTIVE
+        ASSERT(!"BSLS_ASSERTTEST_IS_ACTIVE is still defined!");
+    #endif
+    #ifdef BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG
+        ASSERT(!"BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG is still defined!");
     #endif
     #ifdef BSLS_ASSERT_ASSERT_IMP
         ASSERT(!"BSLS_ASSERT_ASSERT_IMP is still defined!");
@@ -436,6 +599,9 @@ void testMacroHandling()
     #endif
     #ifdef INCLUDED_BSLS_ASSERT
         ASSERT(!"INCLUDED_BSLS_ASSERT is still defined!");
+    #endif
+    #ifdef INCLUDED_BSLS_ASSERTTEST
+        ASSERT(!"INCLUDED_BSLS_ASSERTTEST is still defined!");
     #endif
     #ifdef INCLUDED_BSLS_REVIEW
         ASSERT(!"INCLUDED_BSLS_REVIEW is still defined!");
