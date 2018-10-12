@@ -635,10 +635,11 @@ class RegEx {
         // 'pattern()', (2) load elements of 'result' in the range
         // '[ 1 .. numSubpatterns() ]' with the pairs indicating the respective
         // matches of sub-patterns (unmatched sub-patterns have their
-        // respective 'result' elements loaded with '(-1, 0)' pair;
-        // sub-patterns matching multiple times have their respective 'result'
-        // elements loaded with the pairs indicating the rightmost match).
-        // 'result' will contain exactly 'numSubpatterns() + 1' elements.
+        // respective 'result' elements loaded with '(k_INVALID_OFFSET, 0)'
+        // pair; sub-patterns matching multiple times have their respective
+        // 'result' elements loaded with the pairs indicating the rightmost
+        // match).  'result' will contain exactly 'numSubpatterns() + 1'
+        // elements.
 
     void extractMatchResult(pcre2_match_data               *matchData,
                             bsl::vector<bslstl::StringRef> *result,
@@ -675,6 +676,11 @@ class RegEx {
     };
         // This enumeration defines the flags that may be supplied to the
         // 'prepare' method to effect specific pattern matching behavior.
+
+    // PUBLIC CLASS DATA
+    static const size_t k_INVALID_OFFSET = ~(size_t)0;
+        // Value used to denote an invalid offset for match methods returning
+        // pairs.
 
     // CLASS METHODS
     static int defaultDepthLimit();
@@ -849,20 +855,20 @@ class RegEx {
         // range '[ 1 .. numSubpatterns() ]' with the pairs
         // ('bslstl::StringRef') indicating the respective matches of
         // sub-patterns (unmatched sub-patterns have their respective 'result'
-        // elements loaded with '(-1, 0)' pair (empty 'StringRef');
-        // sub-patterns matching multiple times have their respective 'result'
-        // elements loaded with the pairs indicating the rightmost match), and
-        // (3) return 0.  Otherwise, return a non-zero value with no effect on
-        // 'result'.  The return value is 1 if the failure is caused by
-        // exceeding the depth limit, and 2 if memory available for the JIT
-        // stack is not large enough (applicable only if 'pattern()' was
-        // prepared with 'k_FLAG_JIT').  The behavior is undefined unless
-        // 'isPrepared() == true', 'subject || subjectLength == 0', and
-        // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
-        // 'pattern()' was prepared with 'k_FLAG_UTF8', but 'subject' is not
-        // valid UTF-8.  Note that 'subject' need not be null-terminated and
-        // may contain embedded null characters.  Also note that after a
-        // successful call, 'result' will contain exactly
+        // elements loaded with '(k_INVALID_OFFSET, 0)' pair (empty
+        // 'StringRef'); sub-patterns matching multiple times have their
+        // respective 'result' elements loaded with the pairs indicating the
+        // rightmost match), and (3) return 0.  Otherwise, return a non-zero
+        // value with no effect on 'result'.  The return value is 1 if the
+        // failure is caused by exceeding the depth limit, and 2 if memory
+        // available for the JIT stack is not large enough (applicable only if
+        // 'pattern()' was prepared with 'k_FLAG_JIT').  The behavior is
+        // undefined unless 'isPrepared() == true', 'subject || subjectLength
+        // == 0', and 'subjectOffset <= subjectLength'.  The behavior is also
+        // undefined if 'pattern()' was prepared with 'k_FLAG_UTF8', but
+        // 'subject' is not valid UTF-8.  Note that 'subject' need not be
+        // null-terminated and may contain embedded null characters.  Also note
+        // that after a successful call, 'result' will contain exactly
         // 'numSubpatterns() + 1' elements.
 
     int matchRaw(const char *subject,
@@ -933,21 +939,21 @@ class RegEx {
         // '[ 1 .. numSubpatterns() ]' with the pairs ('bslstl::StringRef')
         // indicating the respective matches of sub-patterns (unmatched
         // sub-patterns have their respective 'result' elements loaded with
-        // '(-1, 0)' pair (empty 'StringRef'); sub-patterns matching multiple
-        // times have their respective 'result' elements loaded with the pairs
-        // indicating the rightmost match), and (3) return 0.  Otherwise,
-        // return a non-zero value with no effect on 'result'.  The return
-        // value is 1 if the failure is caused by exceeding the depth limit,
-        // and 2 if memory available for the JIT stack is not large enough
-        // (applicable only if 'pattern()' was prepared with 'k_FLAG_JIT').
-        // The behavior is undefined unless 'isPrepared() == true',
-        // 'subject || subjectLength == 0', and
+        // '(k_INVALID_OFFSET, 0)' pair (empty 'StringRef'); sub-patterns
+        // matching multiple times have their respective 'result' elements
+        // loaded with the pairs indicating the rightmost match), and (3)
+        // return 0.  Otherwise, return a non-zero value with no effect on
+        // 'result'.  The return value is 1 if the failure is caused by
+        // exceeding the depth limit, and 2 if memory available for the JIT
+        // stack is not large enough (applicable only if 'pattern()' was
+        // prepared with 'k_FLAG_JIT').  The behavior is undefined unless
+        // 'isPrepared() == true', 'subject || subjectLength == 0', and
         // 'subjectOffset <= subjectLength'.  The behavior is also undefined if
         // 'pattern()' was prepared with 'k_FLAG_UTF8', but 'subject' is not
         // valid UTF-8.  Note that 'subject' need not be null-terminated and
         // may contain embedded null characters.  Also note that after a
-        // successful call, 'result' will contain exactly
-        // 'numSubpatterns() + 1' elements.
+        // successful call, 'result' will contain exactly 'numSubpatterns() +
+        // 1' elements.
 
     int numSubpatterns() const;
         // Return the number of sub-patterns in the pattern held by this

@@ -1632,9 +1632,12 @@ int main(int argc, char *argv[])
                         // If NUM_WORDS is 4, that means the last subpattern
                         // was not matched (only 4 words in the subject).  So
                         // make sure that the last element in the vector
-                        // contains (as per doc): pair<size_t, size_t>(-1, 0).
+                        // contains (as per doc):
+                        // pair<size_t,size_t>(k_INVALID_OFFSET, 0).
 
-                        const pair<size_t, size_t> NOT_FOUND(-1, 0);
+                        const pair<size_t, size_t> NOT_FOUND(
+                                                         Obj::k_INVALID_OFFSET,
+                                                         0);
                         const pair<size_t, size_t> lastElement =
                                                        vMatch[vMatch.size()-1];
 
