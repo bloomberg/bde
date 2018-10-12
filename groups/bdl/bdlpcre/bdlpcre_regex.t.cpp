@@ -827,7 +827,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&oa);  const Obj& X = mX;
 
-                int retCode;
+                int retCode = -1;
 
                 switch (cfg) {
                   case 'a': {
@@ -1647,6 +1647,9 @@ int main(int argc, char *argv[])
 
                         ASSERTV(LINE, lastElement.first, lastElement.second,
                                 NOT_FOUND == lastElement);
+
+                        ASSERTV(LINE, lastElement.first,
+                                Obj::k_INVALID_OFFSET == lastElement.first);
                     }
                     else {
                         // Check that the last (unnamed) substring at the end

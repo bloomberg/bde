@@ -311,6 +311,7 @@ void RegEx_MatchContext::releaseMatchContext(
 
 // CLASS DATA
 bsls::AtomicOperations::AtomicTypes::Int RegEx::s_depthLimit = {10000000};
+const size_t RegEx::k_INVALID_OFFSET = ~(size_t)0;
 
 // PRIVATE ACCESSORS
 int RegEx::privateMatch(const char          *subject,
