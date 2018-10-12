@@ -38,7 +38,9 @@ BSLS_IDENT("$Id: $")
 // variants that accepts a 'bslma::Allocator *' as the last parameter
 // (typically this is an optional parameter).  If such a type provides a
 // copy-constructor, it must similarly provide a variant that takes a
-// (optional) 'bslma::Allocator *' as the last parameter.
+// (optional) 'bslma::Allocator *' as the last parameter.  If such a type
+// provides a move-constructor, it must similarly provide a variant that takes
+// a 'bslma::Allocator *' as the last parameter.
 //
 // Template types (such as 'bsl' containers), where the template parameter
 // 'TYPE' represents some element type encapsulated by the class template,
@@ -63,9 +65,17 @@ BSLS_IDENT("$Id: $")
 //:   the supplied allocator to any data-members which themselves accept an
 //:   allocator).
 //:
+//: o If the type defines a move-constructor *with* an allocator argument:
+//:   1 If another move-constructor *without* an allocator argument that is
+//:     'noexcept' exists, then if the allocators match, the behavior of those
+//:     two move-constructors will be identical.
+//:   2 If the type defines a copy-constructor, then the behavior of this
+//:     move-constructor when allocators don't match will be the same as the
+//:     behavior of the copy constructor.
+//:
 //: o The allocator used by an object is not changed after construction (e.g.,
 //:   the assignment operator does not change the allocator used by a type).
-//
+//:
 //: o Transient memory allocations -- i.e., allocations performed within the
 //:   scope of a function where the resulting memory is de-allocated before
 //:   that function returns -- are generally *not* performed using the object's
@@ -81,6 +91,10 @@ BSLS_IDENT("$Id: $")
 //:
 //: o If an allocator is not supplied at construction, then the currently
 //:   installed default allocator will typically be used (see 'bslma_default').
+//:
+//: o If a move-constructor is called with no allocator argument, the allocator
+//:   used by the new object will be the same as the allocator used by the
+//:   source object.
 //:
 //: o Singleton objects, when necessary, allocate memory from the global
 //:   allocator (see 'bslma_default')
