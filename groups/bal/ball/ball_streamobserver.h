@@ -77,6 +77,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_mutex.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
 
@@ -143,7 +144,7 @@ inline
 StreamObserver::StreamObserver(bsl::ostream *stream)
 : d_stream_p(stream)
 {
-    BSLS_ASSERT_SAFE(d_stream_p);
+    BSLS_REVIEW(d_stream_p);
 }
 
 // MANIPULATORS

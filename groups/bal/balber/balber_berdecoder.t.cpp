@@ -24,6 +24,7 @@
 #include <bslma_allocator.h>
 
 #include <bsls_objectbuffer.h>
+#include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
@@ -10837,6 +10838,9 @@ int main(int argc, char *argv[])
             verbose = argc > 2;
         veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     balber::BerDecoderOptions  options;
 

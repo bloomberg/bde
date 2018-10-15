@@ -106,6 +106,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iterator.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 namespace BloombergLP {
 
@@ -184,7 +185,7 @@ Base64Parser<TYPE>::Base64Parser()
 template <class TYPE>
 int Base64Parser<TYPE>::beginParse(TYPE *object)
 {
-    BSLS_ASSERT_SAFE(object);
+    BSLS_REVIEW(object);
 
     enum { k_SUCCESS = 0 };
 
@@ -199,7 +200,7 @@ int Base64Parser<TYPE>::beginParse(TYPE *object)
 template <class TYPE>
 int Base64Parser<TYPE>::endParse()
 {
-    BSLS_ASSERT_SAFE(d_object_p);
+    BSLS_REVIEW(d_object_p);
 
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -211,7 +212,7 @@ int Base64Parser<TYPE>::endParse()
         return k_FAILURE;                                             // RETURN
     }
 
-    BSLS_ASSERT_SAFE(0 == status);  // nothing should be retained by decoder
+    BSLS_REVIEW(0 == status);  // nothing should be retained by decoder
 
     d_object_p = 0;
 
@@ -223,7 +224,7 @@ template <class INPUT_ITERATOR>
 int Base64Parser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
                                        INPUT_ITERATOR end)
 {
-    BSLS_ASSERT_SAFE(d_object_p);
+    BSLS_REVIEW(d_object_p);
 
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -235,7 +236,7 @@ int Base64Parser<TYPE>::pushCharacters(INPUT_ITERATOR begin,
         return k_FAILURE;                                             // RETURN
     }
 
-    BSLS_ASSERT_SAFE(0 == status);  // nothing should be retained by decoder
+    BSLS_REVIEW(0 == status);  // nothing should be retained by decoder
 
     return k_SUCCESS;
 }

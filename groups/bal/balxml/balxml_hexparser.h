@@ -120,6 +120,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_chartype.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 namespace BloombergLP {
 
@@ -205,8 +206,8 @@ class HexParser_Helper {
 template <class TYPE>
 void HexParser<TYPE>::appendOctet(char firstDigit, char secondDigit)
 {
-    BSLS_ASSERT_SAFE(bdlb::CharType::isXdigit((unsigned char) firstDigit));
-    BSLS_ASSERT_SAFE(bdlb::CharType::isXdigit((unsigned char) secondDigit));
+    BSLS_REVIEW(bdlb::CharType::isXdigit((unsigned char) firstDigit));
+    BSLS_REVIEW(bdlb::CharType::isXdigit((unsigned char) secondDigit));
 
     char value =
         (char)((HexParser_Helper::s_hexValueTable[(int)firstDigit] << 4)
@@ -227,7 +228,7 @@ HexParser<TYPE>::HexParser()
 template <class TYPE>
 int HexParser<TYPE>::beginParse(TYPE *object)
 {
-    BSLS_ASSERT_SAFE(object);
+    BSLS_REVIEW(object);
 
     enum { k_SUCCESS = 0 };
 
@@ -242,7 +243,7 @@ int HexParser<TYPE>::beginParse(TYPE *object)
 template <class TYPE>
 int HexParser<TYPE>::endParse()
 {
-    BSLS_ASSERT_SAFE(d_object_p);
+    BSLS_REVIEW(d_object_p);
 
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -255,7 +256,7 @@ template <class TYPE>
 template <class INPUT_ITERATOR>
 int HexParser<TYPE>::pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end)
 {
-    BSLS_ASSERT_SAFE(d_object_p);
+    BSLS_REVIEW(d_object_p);
 
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 

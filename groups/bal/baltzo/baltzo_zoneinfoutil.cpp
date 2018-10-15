@@ -16,6 +16,7 @@ BSLS_IDENT_RCSID(baltzo_zoneinfoutil_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_log.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 namespace BloombergLP {
@@ -174,7 +175,7 @@ void ZoneinfoUtil::loadRelevantTransitions(
             // 'currentOffset' cannot equal 'nextOffset', otherwise the
             // previous condition 'localTimeT < T1' would have been true.
 
-            BSLS_ASSERT_SAFE(prevOffset != currentOffset);
+            BSLS_REVIEW(prevOffset != currentOffset);
 
             *resultValidity         = prevOffset < currentOffset
                                     ? Validity::e_INVALID
@@ -214,7 +215,7 @@ void ZoneinfoUtil::loadRelevantTransitions(
             // 'currentOffset' cannot equal 'nextOffset', otherwise the
             // previous condition 'localTimeT >= T2Prime' would have been true.
 
-            BSLS_ASSERT_SAFE(currentOffset != nextOffset);
+            BSLS_REVIEW(currentOffset != nextOffset);
             *resultValidity         = currentOffset < nextOffset
                                     ? Validity::e_INVALID
                                     : Validity::e_VALID_AMBIGUOUS;

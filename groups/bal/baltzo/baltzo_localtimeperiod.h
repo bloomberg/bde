@@ -144,6 +144,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
 
@@ -352,7 +353,7 @@ LocalTimePeriod::LocalTimePeriod(const LocalTimeDescriptor&  descriptor,
 , d_utcStartTime(utcStartTime)
 , d_utcEndTime(utcEndTime)
 {
-    BSLS_ASSERT_SAFE(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
+    BSLS_REVIEW(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
 }
 
 inline
@@ -362,13 +363,13 @@ LocalTimePeriod::LocalTimePeriod(const LocalTimePeriod&  original,
 , d_utcStartTime(original.d_utcStartTime)
 , d_utcEndTime(original.d_utcEndTime)
 {
-    BSLS_ASSERT_SAFE(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
+    BSLS_REVIEW(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
 }
 
 inline
 LocalTimePeriod::~LocalTimePeriod()
 {
-    BSLS_ASSERT_SAFE(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
+    BSLS_REVIEW(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
 }
 
 // MANIPULATORS
@@ -402,7 +403,7 @@ void LocalTimePeriod::swap(LocalTimePeriod& other)
 {
     // 'swap' is undefined for objects with non-equal allocators.
 
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_REVIEW(allocator() == other.allocator());
 
     bslalg::SwapUtil::swap(&d_descriptor,   &other.d_descriptor);
     bslalg::SwapUtil::swap(&d_utcStartTime, &other.d_utcStartTime);

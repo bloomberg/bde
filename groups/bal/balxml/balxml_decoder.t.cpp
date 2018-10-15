@@ -60,6 +60,7 @@
 #include <bslmf_issame.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -19911,6 +19912,9 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 17: {
         // --------------------------------------------------------------------
@@ -28008,7 +28012,7 @@ int main(int argc, char *argv[])
         "</xs:schema>";
 
         (void)SCHEMA;
-    
+
         balxml::MiniReader reader;
 
         for (int i = 0; i < NUM_DATA; ++i) {

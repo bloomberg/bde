@@ -63,7 +63,7 @@ void Formatter::closeObject()
         d_outputStream << '\n';
         indent();
 
-        BSLS_ASSERT_SAFE(false == isArrayElement());
+        BSLS_REVIEW(false == isArrayElement());
         d_callSequence.remove(d_callSequence.length() - 1);
     }
 
@@ -88,7 +88,7 @@ void Formatter::closeArray(bool formatAsEmptyArrayFlag)
         d_outputStream << '\n';
         indent();
 
-        BSLS_ASSERT_SAFE(true == isArrayElement());
+        BSLS_REVIEW(true == isArrayElement());
         d_callSequence.remove(d_callSequence.length() - 1);
     }
 

@@ -13,6 +13,8 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslmf_assert.h>
+
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -327,6 +329,9 @@ int main(int argc, char *argv[])
 //  bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // Remove any leftover temporary directories created by this test driver
     // over 24 hours ago.  Note that we try to clean up the temporary directory

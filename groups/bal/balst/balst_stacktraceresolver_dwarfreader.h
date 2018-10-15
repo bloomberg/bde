@@ -51,6 +51,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_cstddef.h>
@@ -570,7 +571,7 @@ int StackTraceResolver_DwarfReader::needBytes(bsl::size_t numBytes)
     IntPtr diff = d_endPtr - d_readPtr;
 
     if (diff < static_cast<IntPtr>(numBytes)) {
-        BSLS_ASSERT_SAFE(0 <= diff);
+        BSLS_REVIEW(0 <= diff);
 
         return reload(numBytes);                                      // RETURN
     }
@@ -679,7 +680,7 @@ int StackTraceResolver_DwarfReader::readValue(TYPE *dst)
 inline
 int StackTraceResolver_DwarfReader::skipBytes(Offset bytes)
 {
-    BSLS_ASSERT_SAFE(bytes >= 0);
+    BSLS_REVIEW(bytes >= 0);
 
     if (bytes > d_endPtr - d_readPtr) {
         Offset off = offset();

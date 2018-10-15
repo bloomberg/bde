@@ -14,6 +14,7 @@
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_timeinterval.h>
 
 #include <bsl_cstdlib.h>  // getenv
@@ -133,7 +134,7 @@ int LocalTimeOffsetUtil::configure()
 
 int LocalTimeOffsetUtil::configure(const char *timezone)
 {
-    BSLS_ASSERT_SAFE(timezone);
+    BSLS_REVIEW(timezone);
 
     bslmt::WriteLockGuard<bslmt::RWMutex> writeLockGuard(privateLock());
     return configureImp(timezone, bdlt::CurrentTime::utc());
@@ -142,7 +143,7 @@ int LocalTimeOffsetUtil::configure(const char *timezone)
 int LocalTimeOffsetUtil::configure(const char            *timezone,
                                    const bdlt::Datetime&  utcDatetime)
 {
-    BSLS_ASSERT_SAFE(timezone);
+    BSLS_REVIEW(timezone);
 
     bslmt::WriteLockGuard<bslmt::RWMutex> writeLockGuard(privateLock());
     return configureImp(timezone, utcDatetime);

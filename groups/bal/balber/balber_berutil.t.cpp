@@ -19,6 +19,7 @@
 #include <bdlat_valuetypefunctions.h>
 
 #include <bsls_objectbuffer.h>
+#include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
@@ -215,6 +216,9 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 23: {

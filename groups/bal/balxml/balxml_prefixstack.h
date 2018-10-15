@@ -80,6 +80,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_string.h>
@@ -224,7 +225,7 @@ void PrefixStack::reset()
 inline
 void PrefixStack::restoreToSize(int size)
 {
-    BSLS_ASSERT_SAFE(size <= d_numPrefixes);
+    BSLS_REVIEW(size <= d_numPrefixes);
     d_numPrefixes = size;
 }
 
@@ -245,7 +246,7 @@ inline
 const char *PrefixStack::namespacePrefixByIndex(int index) const
 {
     index = (index < 0 ? d_numPrefixes + index : index);
-    BSLS_ASSERT_SAFE(0 <= index && index < d_numPrefixes);
+    BSLS_REVIEW(0 <= index && index < d_numPrefixes);
     return d_prefixes[index].first.c_str();
 }
 
@@ -253,7 +254,7 @@ inline
 int PrefixStack::namespaceIdByIndex(int index) const
 {
     index = (index < 0 ? d_numPrefixes + index : index);
-    BSLS_ASSERT_SAFE(0 <= index && index < d_numPrefixes);
+    BSLS_REVIEW(0 <= index && index < d_numPrefixes);
     return d_prefixes[index].second;
 }
 }  // close package namespace

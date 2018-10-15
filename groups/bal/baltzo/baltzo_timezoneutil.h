@@ -432,6 +432,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetimetz.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_timeinterval.h>
 
 #include <bsl_iosfwd.h>
@@ -686,8 +687,8 @@ int TimeZoneUtil::convertUtcToLocalTime(
                                        const char            *targetTimeZoneId,
                                        const bdlt::Datetime&  utcTime)
 {
-    BSLS_ASSERT_SAFE(result);
-    BSLS_ASSERT_SAFE(targetTimeZoneId);
+    BSLS_REVIEW(result);
+    BSLS_REVIEW(targetTimeZoneId);
 
     return TimeZoneUtilImp::convertUtcToLocalTime(
                                          result,
@@ -702,8 +703,8 @@ int TimeZoneUtil::convertLocalToLocalTime(
                                         const char           *targetTimeZoneId,
                                         const LocalDatetime&  srcTime)
 {
-    BSLS_ASSERT_SAFE(result);
-    BSLS_ASSERT_SAFE(targetTimeZoneId);
+    BSLS_REVIEW(result);
+    BSLS_REVIEW(targetTimeZoneId);
 
     return convertUtcToLocalTime(result,
                                  targetTimeZoneId,
@@ -716,8 +717,8 @@ int TimeZoneUtil::convertLocalToLocalTime(
                                      const char              *targetTimeZoneId,
                                      const bdlt::DatetimeTz&  srcTime)
 {
-    BSLS_ASSERT_SAFE(result);
-    BSLS_ASSERT_SAFE(targetTimeZoneId);
+    BSLS_REVIEW(result);
+    BSLS_REVIEW(targetTimeZoneId);
 
     return convertUtcToLocalTime(result,
                                  targetTimeZoneId,
@@ -730,8 +731,8 @@ int TimeZoneUtil::convertLocalToLocalTime(
                                         const char           *targetTimeZoneId,
                                         const LocalDatetime&  srcTime)
 {
-    BSLS_ASSERT_SAFE(result);
-    BSLS_ASSERT_SAFE(targetTimeZoneId);
+    BSLS_REVIEW(result);
+    BSLS_REVIEW(targetTimeZoneId);
 
     return convertUtcToLocalTime(result,
                                  targetTimeZoneId,
@@ -744,8 +745,8 @@ int TimeZoneUtil::convertLocalToLocalTime(
                                      const char              *targetTimeZoneId,
                                      const bdlt::DatetimeTz&  srcTime)
 {
-    BSLS_ASSERT_SAFE(result);
-    BSLS_ASSERT_SAFE(targetTimeZoneId);
+    BSLS_REVIEW(result);
+    BSLS_REVIEW(targetTimeZoneId);
 
     return convertUtcToLocalTime(result,
                                  targetTimeZoneId,
@@ -759,9 +760,9 @@ int TimeZoneUtil::initLocalTime(bdlt::DatetimeTz        *result,
                                 const char              *timeZoneId,
                                 DstPolicy::Enum          dstPolicy)
 {
-    BSLS_ASSERT_SAFE(result);
-    BSLS_ASSERT_SAFE(resultValidity);
-    BSLS_ASSERT_SAFE(timeZoneId);
+    BSLS_REVIEW(result);
+    BSLS_REVIEW(resultValidity);
+    BSLS_REVIEW(timeZoneId);
 
     return TimeZoneUtilImp::initLocalTime(
                                          result,
@@ -778,8 +779,8 @@ int TimeZoneUtil::initLocalTime(bdlt::DatetimeTz     *result,
                                const char            *timeZoneId,
                                DstPolicy::Enum        dstPolicy)
 {
-    BSLS_ASSERT_SAFE(result);
-    BSLS_ASSERT_SAFE(timeZoneId);
+    BSLS_REVIEW(result);
+    BSLS_REVIEW(timeZoneId);
 
     LocalTimeValidity::Enum validityStatus;
     return initLocalTime(result,
@@ -793,7 +794,7 @@ inline
 int TimeZoneUtil::loadLocalTimePeriod(LocalTimePeriod      *result,
                                       const LocalDatetime&  localTime)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_REVIEW(result);
 
     return loadLocalTimePeriod(result,
                                localTime.datetimeTz(),
@@ -805,8 +806,8 @@ int TimeZoneUtil::loadLocalTimePeriod(LocalTimePeriod         *result,
                                       const bdlt::DatetimeTz&  localTime,
                                       const char              *timeZoneId)
 {
-    BSLS_ASSERT_SAFE(result);
-    BSLS_ASSERT_SAFE(timeZoneId);
+    BSLS_REVIEW(result);
+    BSLS_REVIEW(timeZoneId);
 
     return loadLocalTimePeriodForUtc(result,
                                      timeZoneId,
@@ -816,8 +817,8 @@ int TimeZoneUtil::loadLocalTimePeriod(LocalTimePeriod         *result,
 inline
 int TimeZoneUtil::now(bdlt::DatetimeTz *result, const char *timeZoneId)
 {
-    BSLS_ASSERT_SAFE(result);
-    BSLS_ASSERT_SAFE(timeZoneId);
+    BSLS_REVIEW(result);
+    BSLS_REVIEW(timeZoneId);
 
     bdlt::Datetime utcNow = bdlt::CurrentTime::utc();
     return convertUtcToLocalTime(result, timeZoneId, utcNow);
@@ -837,7 +838,7 @@ inline
 int TimeZoneUtil::validateLocalTime(bool                 *result,
                                     const LocalDatetime&  localTime)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_REVIEW(result);
 
     return validateLocalTime(result,
                              localTime.datetimeTz(),

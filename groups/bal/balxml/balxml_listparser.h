@@ -135,6 +135,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_chartype.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_functional.h>
 #include <bsl_memory.h>
@@ -228,8 +229,8 @@ class ListParser {
 template <class TYPE>
 int ListParser<TYPE>::appendElement(const char *data, int dataLength)
 {
-    BSLS_ASSERT_SAFE(data);
-    BSLS_ASSERT_SAFE(0 < dataLength);
+    BSLS_REVIEW(data);
+    BSLS_REVIEW(0 < dataLength);
 
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -276,7 +277,7 @@ ListParser<TYPE>::ListParser(ParseElementCallback  parseElementCallback,
 template <class TYPE>
 int ListParser<TYPE>::beginParse(TYPE *object)
 {
-    BSLS_ASSERT_SAFE(object);
+    BSLS_REVIEW(object);
 
     enum { k_SUCCESS = 0 };
 
@@ -291,7 +292,7 @@ int ListParser<TYPE>::beginParse(TYPE *object)
 template <class TYPE>
 int ListParser<TYPE>::endParse()
 {
-    BSLS_ASSERT_SAFE(d_object_p);
+    BSLS_REVIEW(d_object_p);
 
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -311,7 +312,7 @@ template <class TYPE>
 template <class INPUT_ITERATOR>
 int ListParser<TYPE>::pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end)
 {
-    BSLS_ASSERT_SAFE(d_object_p);
+    BSLS_REVIEW(d_object_p);
 
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 

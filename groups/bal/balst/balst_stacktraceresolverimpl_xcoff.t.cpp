@@ -14,6 +14,8 @@
 #include <bdlma_sequentialallocator.h>
 
 #include <bslma_testallocator.h>
+
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdio.h>
@@ -265,6 +267,9 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
       case 3: {

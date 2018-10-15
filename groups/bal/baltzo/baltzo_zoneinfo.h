@@ -252,6 +252,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_cstring.h>
@@ -612,14 +613,14 @@ ZoneinfoTransition::ZoneinfoTransition(bdlt::EpochUtil::TimeT64   utcTime,
 : d_utcTime(utcTime)
 , d_descriptor_p(descriptor)
 {
-    BSLS_ASSERT_SAFE(descriptor);
+    BSLS_REVIEW(descriptor);
 }
 
 // CREATORS
 inline
 ZoneinfoTransition::~ZoneinfoTransition()
 {
-    BSLS_ASSERT_SAFE(d_descriptor_p);
+    BSLS_REVIEW(d_descriptor_p);
 }
 
 // ACCESSORS
@@ -688,7 +689,7 @@ Zoneinfo& Zoneinfo::operator=(const Zoneinfo& rhs)
 inline
 void Zoneinfo::setIdentifier(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(0 != value.data());
+    BSLS_REVIEW(0 != value.data());
 
     d_identifier.assign(value.begin(), value.end());
 }
@@ -696,7 +697,7 @@ void Zoneinfo::setIdentifier(const bslstl::StringRef& value)
 inline
 void Zoneinfo::setIdentifier(const char *value)
 {
-    BSLS_ASSERT_SAFE(value);
+    BSLS_REVIEW(value);
 
     bsl::string(value, d_identifier.allocator()).swap(d_identifier);
 }
@@ -704,7 +705,7 @@ void Zoneinfo::setIdentifier(const char *value)
 inline
 void Zoneinfo::setPosixExtendedRangeDescription(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(0 != value.data());
+    BSLS_REVIEW(0 != value.data());
 
     d_posixExtendedRangeDescription.assign(value.begin(), value.end());
 }
@@ -712,7 +713,7 @@ void Zoneinfo::setPosixExtendedRangeDescription(const bslstl::StringRef& value)
 inline
 void Zoneinfo::setPosixExtendedRangeDescription(const char *value)
 {
-    BSLS_ASSERT_SAFE(value);
+    BSLS_REVIEW(value);
 
     d_posixExtendedRangeDescription.assign(value, value + bsl::strlen(value));
 }
@@ -720,7 +721,7 @@ void Zoneinfo::setPosixExtendedRangeDescription(const char *value)
 inline
 void Zoneinfo::swap(Zoneinfo& other)
 {
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_REVIEW(allocator() == other.allocator());
 
     bslalg::SwapUtil::swap(&d_identifier,  &other.d_identifier);
     bslalg::SwapUtil::swap(&d_descriptors, &other.d_descriptors);
@@ -739,7 +740,7 @@ bslma::Allocator *Zoneinfo::allocator() const
 inline
 const ZoneinfoTransition& Zoneinfo::firstTransition() const
 {
-    BSLS_ASSERT_SAFE(numTransitions() > 0);
+    BSLS_REVIEW(numTransitions() > 0);
 
     return d_transitions.front();
 }

@@ -27,6 +27,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
@@ -919,7 +920,7 @@ static TYPE approxAbs(TYPE x)
     x = x < 0 ? ~x : x;     // in the case of, i.e., INT_MIN, ~x is close
                             // enough
 
-    BSLS_ASSERT_SAFE(0 <= x);
+    BSLS_REVIEW(0 <= x);
 
     return x;
 }
@@ -2857,7 +2858,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
         int ii = 0;    (void) ii;
 #undef  CHECK_ARG_COUNT
 #define CHECK_ARG_COUNT(argCount, id)                                         \
-        BSLS_ASSERT_SAFE(ii++ == id);                                         \
+        BSLS_REVIEW(ii++ == id);                                         \
         u_ASSERT_BAIL(id >= opcodeBase || argCount == opcodeLengths[id]);
 
         CHECK_ARG_COUNT(0, 0);
@@ -2918,7 +2919,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
         if (ii) {
             fileNames.push_back(nullString);
 
-            BSLS_ASSERT_SAFE(ii + 1 == fileNames.size());
+            BSLS_REVIEW(ii + 1 == fileNames.size());
 
             rc = d_lineReader.readString(&fileNames[ii]);
             u_ASSERT_BAIL(0 == rc);
@@ -2929,7 +2930,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
 
             dirIndexes.push_back(-1);
 
-            BSLS_ASSERT_SAFE(dirIndexes.size() == fileNames.size());
+            BSLS_REVIEW(dirIndexes.size() == fileNames.size());
 
             rc = d_lineReader.readULEB128(&dirIndexes[ii]);
             u_ASSERT_BAIL(0 == rc);
@@ -2949,7 +2950,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
     }
     u_ASSERT_BAIL(2 <= fileNames.size());
     fileNames.resize(fileNames.size() - 1);    // chomp empty entry
-    BSLS_ASSERT_SAFE(dirIndexes.size() == fileNames.size());
+    BSLS_REVIEW(dirIndexes.size() == fileNames.size());
 
     bsl::string  definedFile(d_allocator_p);     // in case a file is defined
     unsigned int definedDirIndex;                // by the e_DW_LNE_define_file
@@ -3134,7 +3135,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
             }
         }
         else {
-            BSLS_ASSERT_SAFE(0 == opcode);
+            BSLS_REVIEW(0 == opcode);
 
             // expect extended opcode        // DWARF doc 6.2.5.3
 

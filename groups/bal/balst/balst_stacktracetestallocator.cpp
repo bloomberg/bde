@@ -20,10 +20,12 @@ BSLS_IDENT_RCSID(balst_stacktracetestallocator_cpp,"$Id$ $CSID$")
 #include <bslma_allocator.h>
 #include <bslma_mallocfreeallocator.h>
 #include <bslmf_assert.h>
-#include <bsls_alignmentutil.h>
+
 #include <bsls_alignmentfromtype.h>
+#include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_stackaddressutil.h>
 #include <bsls_types.h>
 
@@ -278,8 +280,8 @@ StackTraceTestAllocator::StackTraceTestAllocator(
 , d_allocator_p(basicAllocator ? basicAllocator
                                : &bslma::MallocFreeAllocator::singleton())
 {
-    BSLS_ASSERT_SAFE(d_maxRecordedFrames >= k_DEFAULT_NUM_RECORDED_FRAMES);
-    BSLS_ASSERT_SAFE(d_traceBufferLength >= d_maxRecordedFrames);
+    BSLS_REVIEW(d_maxRecordedFrames >= k_DEFAULT_NUM_RECORDED_FRAMES);
+    BSLS_REVIEW(d_traceBufferLength >= d_maxRecordedFrames);
 
     // This must be assigned in a statement in the body of the c'tor rather
     // than in the initializer list to work around a microsoft bug with
@@ -362,7 +364,7 @@ void *StackTraceTestAllocator::allocate(size_type size)
                         k_FIXED_ALIGN,
                         bsls::AlignmentUtil::calculateAlignmentFromSize(size));
     const int lowBits = align - 1;
-    BSLS_ASSERT_SAFE(0 == (align & lowBits));   // verify 'align' is power of 2
+    BSLS_REVIEW(0 == (align & lowBits));   // verify 'align' is power of 2
     size = (size + lowBits) & ~lowBits;     // round 'size' up to multiple of
                                             // 'align'
 

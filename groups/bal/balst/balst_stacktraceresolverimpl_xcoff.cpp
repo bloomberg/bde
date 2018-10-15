@@ -27,9 +27,11 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 #include <bdlb_string.h>
 
 #include <bslma_default.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
@@ -1048,7 +1050,7 @@ int u::StackTraceResolver::findLineNumber(int         *outLineNumber,
             const unsigned readSize = static_cast<unsigned>(bsl::min<Offset>(
                                                   k_SHORT_BUF_LEN,
                                                   maxLineOffset - lineOffset));
-            BSLS_ASSERT_SAFE(0 == readSize % LINESZ);
+            BSLS_REVIEW(0 == readSize % LINESZ);
             int rc = d_helper->readExact(d_scratchBuf_p,
                                          readSize,
                                          d_archiveMemberOffset + lineOffset);

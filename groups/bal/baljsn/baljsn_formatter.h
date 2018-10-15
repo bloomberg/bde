@@ -134,6 +134,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_ostream.h>
 
+#include <bsls_assert.h>
+#include <bsls_review.h>
+
 namespace BloombergLP {
 namespace baljsn {
 
@@ -286,7 +289,7 @@ void Formatter::indent()
 inline
 bool Formatter::isArrayElement() const
 {
-    BSLS_ASSERT_SAFE(d_callSequence.length() >= 1);
+    BSLS_REVIEW(d_callSequence.length() >= 1);
 
     return d_callSequence[d_callSequence.length() - 1];
 }
