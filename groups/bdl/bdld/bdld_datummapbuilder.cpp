@@ -143,7 +143,7 @@ void DatumMapBuilder::append(const DatumMapEntry *entries,
         // Copy the existing data and dispose the old map.
 
         *mapping.size() = *d_mapping.size();
-        bsl::memcpy((void*)mapping.data(),
+        bsl::memcpy((void *)mapping.data(),
                     d_mapping.data(),
                     sizeof(DatumMapEntry) * (*d_mapping.size()));
         Datum::disposeUninitializedMap(d_mapping, d_allocator_p);
@@ -152,7 +152,7 @@ void DatumMapBuilder::append(const DatumMapEntry *entries,
 
     // Copy the new elements.
 
-    bsl::memcpy((void*)(d_mapping.data() + *d_mapping.size()),
+    bsl::memcpy((void *)(d_mapping.data() + *d_mapping.size()),
                 entries,
                 sizeof(DatumMapEntry) * size);
     *d_mapping.size() += size;

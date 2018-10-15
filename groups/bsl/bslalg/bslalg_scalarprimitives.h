@@ -2665,7 +2665,9 @@ ScalarPrimitives_Imp::copyConstruct(
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
-        memcpy((void*)address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
+        memcpy((void *)address,
+               BSLS_UTIL_ADDRESSOF(original),
+               sizeof original);
 #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 50000
 #pragma GCC diagnostic pop
 #endif
@@ -2708,7 +2710,9 @@ ScalarPrimitives_Imp::copyConstruct(
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
-        memcpy((void*)address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
+        memcpy((void *)address,
+               BSLS_UTIL_ADDRESSOF(original),
+               sizeof original);
 #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 50000
 #pragma GCC diagnostic pop
 #endif
@@ -2819,7 +2823,9 @@ ScalarPrimitives_Imp::moveConstruct(
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
-        memcpy((void*)address, BSLS_UTIL_ADDRESSOF(original), sizeof original);
+        memcpy((void *)address,
+               BSLS_UTIL_ADDRESSOF(original),
+               sizeof original);
 #if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 50000
 #pragma GCC diagnostic pop
 #endif
@@ -2906,7 +2912,7 @@ ScalarPrimitives_Imp::construct(
         BSLALG_SCALARPRIMITIVES_XLC_PLACEMENT_NEW_FIX;
     } else {
         BSLMF_ASSERT(sizeof (TARGET_TYPE) == sizeof(a1));
-        memcpy((void*)address, BSLS_UTIL_ADDRESSOF(a1), sizeof a1);
+        memcpy((void *)address, BSLS_UTIL_ADDRESSOF(a1), sizeof a1);
                                                                   // no overlap
     }
 }
@@ -3855,12 +3861,11 @@ void ScalarPrimitives_Imp::swap(
         // Note that assignment can throw only for types that use allocators.
 
         char arena[sizeof lhs];
-        memcpy(arena, BSLS_UTIL_ADDRESSOF(lhs),  sizeof lhs);
-        memcpy((void*)BSLS_UTIL_ADDRESSOF(lhs),
+        memcpy(arena, BSLS_UTIL_ADDRESSOF(lhs), sizeof lhs);
+        memcpy((void *)BSLS_UTIL_ADDRESSOF(lhs),
                BSLS_UTIL_ADDRESSOF(rhs),
-               sizeof lhs);
-                                                    // no overlap, or identical
-        memcpy((void*)BSLS_UTIL_ADDRESSOF(rhs),  arena, sizeof lhs);
+               sizeof lhs);                         // no overlap, or identical
+        memcpy((void *)BSLS_UTIL_ADDRESSOF(rhs), arena, sizeof lhs);
     } else {
         LHS_TYPE temp(lhs);
         lhs = rhs;

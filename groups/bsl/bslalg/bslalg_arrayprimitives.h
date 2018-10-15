@@ -6190,12 +6190,12 @@ void ArrayPrimitives_Imp::uninitializedFillN(
 
     if (index == sizeof value) {
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(numElements != 0)) {
-            std::memset((void*)begin,
+            std::memset((void *)begin,
                         valueBuffer[0],
                         sizeof(TARGET_TYPE) * numElements);
         }
     } else {
-        std::memcpy((void*)begin, valueBuffer, sizeof(TARGET_TYPE));
+        std::memcpy((void *)begin, valueBuffer, sizeof(TARGET_TYPE));
         bitwiseFillN(reinterpret_cast<char *>(begin),
                      sizeof(TARGET_TYPE),
                      sizeof(TARGET_TYPE) * numElements);
@@ -6311,7 +6311,7 @@ void ArrayPrimitives_Imp::copyConstruct(
     const size_type numBytes = reinterpret_cast<const char*>(fromEnd)
                              - reinterpret_cast<const char*>(fromBegin);
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(numBytes != 0)) {
-        std::memcpy((void*)toBegin, fromBegin, numBytes);
+        std::memcpy((void *)toBegin, fromBegin, numBytes);
     }
 }
 
@@ -6494,7 +6494,7 @@ void ArrayPrimitives_Imp::destructiveMove(
     const size_type numBytes = reinterpret_cast<const char*>(fromEnd)
                              - reinterpret_cast<const char*>(fromBegin);
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(numBytes != 0)) {
-        std::memcpy((void*)toBegin, fromBegin, numBytes);
+        std::memcpy((void *)toBegin, fromBegin, numBytes);
     }
 }
 
@@ -6577,7 +6577,9 @@ void ArrayPrimitives_Imp::emplace(
 
     TARGET_TYPE *destBegin = toBegin + numElements;
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(tailLen != 0)) {
-        std::memmove((void*)destBegin, toBegin, tailLen * sizeof(TARGET_TYPE));
+        std::memmove((void *)destBegin,
+                     toBegin,
+                     tailLen * sizeof(TARGET_TYPE));
     }
 
     //..
@@ -8824,7 +8826,7 @@ void ArrayPrimitives_Imp::erase(
     size_type numBytes = reinterpret_cast<const char *>(last)
                        - reinterpret_cast<const char *>(middle);
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(numBytes != 0)) {
-        std::memmove((void*)first, middle, numBytes);
+        std::memmove((void *)first, middle, numBytes);
     }
 }
 
@@ -9070,7 +9072,9 @@ void ArrayPrimitives_Imp::insert(
 
     TARGET_TYPE *destBegin = toBegin + numElements;
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(tailLen != 0)) {
-        std::memmove((void*)destBegin, toBegin, tailLen * sizeof(TARGET_TYPE));
+        std::memmove((void *)destBegin,
+                     toBegin,
+                     tailLen * sizeof(TARGET_TYPE));
     }
 
     //..
@@ -9333,7 +9337,7 @@ void ArrayPrimitives_Imp::insert(
     const size_type numBytes = reinterpret_cast<const char*>(toEnd)
                              - reinterpret_cast<const char*>(toBegin);
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(numBytes != 0)) {
-        std::memmove((void*)(toBegin + numElements), toBegin, numBytes);
+        std::memmove((void *)(toBegin + numElements), toBegin, numBytes);
     }
 
     //..
@@ -9341,7 +9345,7 @@ void ArrayPrimitives_Imp::insert(
     //..
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(numElements != 0)) {
-        std::memcpy((void*)toBegin,
+        std::memcpy((void *)toBegin,
                     fromBegin,
                     numElements * sizeof(TARGET_TYPE));
     }
@@ -9392,7 +9396,9 @@ void ArrayPrimitives_Imp::insert(
 
     TARGET_TYPE *destBegin = toBegin + numElements;
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(tailLen != 0)) {
-        std::memmove((void*)destBegin, toBegin, tailLen * sizeof(TARGET_TYPE));
+        std::memmove((void *)destBegin,
+                     toBegin,
+                     tailLen * sizeof(TARGET_TYPE));
     }
 
     //..

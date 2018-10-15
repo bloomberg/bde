@@ -173,7 +173,7 @@ void DestructionUtil::destroy(TYPE *address, bsl::true_type)
 {
     // No-op.
 #ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-    memset((void*)address, 0xa5, sizeof *address);
+    memset((void *)address, 0xa5, sizeof *address);
 #else
     (void) address;
 #endif
