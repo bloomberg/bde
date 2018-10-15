@@ -537,17 +537,6 @@ copyAssignTo(bsltf::MoveOnlyAllocTestType        *dst,
     return *dst;
 }
 
-void deleteFromSpec(char *spec, char toRemove)
-    // Remove all instances of the specified character 'toRemove' from the
-    // specified 'SPEC'.
-{
-    char *el;
-    while ((el = strchr(spec, toRemove))) {
-        char *end = spec + strlen(spec);
-        memmove(el, el + 1, end + 1 - (el + 1));
-    }
-}
-
 template <class KEY, class VALUE>
 inline
 bool eq(const bsl::pair<KEY, VALUE>& a,
@@ -604,62 +593,6 @@ int valueOf(const TYPE& value)
     return TTF::getIdentifier(value);
 }
 }  // close namespace u
-
-void testCase39(const bsl::unordered_map<int, int>& m)
-    // Iterate through the specified map 'm'.  Note that the real test is
-    // seeing whether this function compiles, not what it does.
-{
-    for (bsl::unordered_map<int, int>::const_iterator
-         it = m.begin(); it != m.end(); ++it) {
-    }
-}
-
-                       // =============================
-                       // struct EraseAmbiguityTestType
-                       // =============================
-
-struct EraseAmbiguityTestType
-    // This test type has a template constructor that can accept iterator.
-{
-    // CREATORS
-    template <class T>
-    EraseAmbiguityTestType(T&)
-        // Construct an object.
-    {}
-};
-
-bool operator==(const EraseAmbiguityTestType&,
-                const EraseAmbiguityTestType&)
-    // This operator is no-op and written only to satisfy requirements for
-    // 'key_type' class.
-{
-    return true;
-}
-
-template <class HASHALG>
-inline
-void hashAppend(HASHALG& hashAlg, const EraseAmbiguityTestType& object)
-    // This function is no-op and written only to satisfy requirements for
-    // 'key_type' class.
-{
-    using ::BloombergLP::bslh::hashAppend;
-    (void) object;  // suppress 'unused variable' warning
-    hashAppend(hashAlg, 0);
-}
-
-void runErasure(bsl::unordered_map<EraseAmbiguityTestType, int>& container,
-                EraseAmbiguityTestType                           element)
-    // Look for the specified 'element' in the specified 'container' and delete
-    // it if found.  Code is written in such a way as to reveal the ambiguity
-    // of the 'erase' method call.
-{
-    bsl::unordered_map<EraseAmbiguityTestType, int>::iterator it =
-                                                       container.find(element);
-    if (it != container.end()) {
-        container.erase(it);
-    }
-}
-
 
 }  // close unnamed namespace
 
@@ -6777,7 +6710,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -7205,7 +7138,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -7780,7 +7713,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     for (int ti = 0; ti < NUM_SPECS; ++ti) {
         const char *const SPEC   = SPECS[ti];
@@ -7911,8 +7844,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
             "BC",
             "CDE",
         };
-        const int NUM_SPECS =
-                          static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+        const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
         for (int ti = 0; ti < NUM_SPECS; ++ti) {
             const char *const SPEC   = SPECS[ti];

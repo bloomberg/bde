@@ -420,6 +420,17 @@ void aSsErT(bool condition, const char *message, int line)
     // family of functions, and consequently calling 'terminate'.
 #endif
 
+#if defined(BSLS_PLATFORM_OS_SOLARIS) ||                                   \
+   !(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 800000)
+# define BSLS_STRING_DISABLE_S_LITERALS 1
+    // The Solaris platform has a function-like '_S' macro that conflicts with
+    // the BDE '_S' literal operator on gcc, at least for early versions of the
+    // compiler that do not correctly parse '""_S' as a single token, which
+    // would avoid the problem of being parsed as a macro.  This is the same
+    // trick that allows '""if' for complex floats, but appears to persist into
+    // later compiler versions as the interaction with the preprocessor occurs
+    // earlier in the parsing.
+#endif
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -4349,9 +4360,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24Negative()
 
     const TYPE *nullStr = NULL;
     // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
     (void) nullStr;
-#endif
 
     if (veryVerbose) printf("\tcompare(s)\n");
 
@@ -4625,9 +4634,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23Negative()
 
         TYPE *nullStr = NULL;
         // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
         (void) nullStr;
-#endif
 
         TYPE dest[10];
         ASSERT(sizeof dest / sizeof *dest > X.size());
@@ -5353,9 +5360,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
 
     const TYPE *nullStr = NULL;
     // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
     (void) nullStr;
-#endif
 
     if (veryVerbose) printf("\tfind(s, pos, n)\n");
 
@@ -7251,9 +7256,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
 
         const TYPE *nullStr = NULL;
         // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
         (void) nullStr;
-#endif
 
         // characterString == NULL
         ASSERT_SAFE_FAIL(mX.replace(0, X.size(), nullStr, 10));
@@ -7270,9 +7273,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
 
         const TYPE *nullStr = NULL;
         // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
        (void) nullStr;
-#endif
 
         // first < begin()
         ASSERT_SAFE_FAIL(mX.replace(X.begin() - 1, X.end(), X.c_str()));
@@ -7304,9 +7305,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
 
         const TYPE *nullStr = NULL;
         // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
         (void) nullStr;
-#endif
 
         // first < begin()
         ASSERT_SAFE_FAIL(
@@ -9205,9 +9204,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
         Obj mX(g("ABCDE"));
         const TYPE *nullStr = 0;
         // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
         (void) nullStr;
-#endif
 
         ASSERT_SAFE_FAIL(mX.insert(1, nullStr));
         ASSERT_SAFE_FAIL(mX.insert(mX.length() + 1, nullStr));
@@ -9221,9 +9218,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
         Obj mX(g("ABCDE"));
         const TYPE *nullStr = 0;
         // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
         (void) nullStr;
-#endif
 
         ASSERT_SAFE_PASS(mX.insert(1, nullStr, 0));
         ASSERT_SAFE_FAIL(mX.insert(mX.length() + 1, nullStr, 10));
@@ -14804,6 +14799,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(dam.isTotalUp());
             }
+# if !defined(BSLS_STRING_DISABLE_S_LITERALS)
             { // C-4
                 const int GLOBAL_NUM_BYTES_IN_USE =
                                             globalAllocator_p->numBytesInUse();
@@ -14821,26 +14817,33 @@ int main(int argc, char *argv[])
                 ASSERT(GLOBAL_NUM_BYTES_IN_USE ==
                        globalAllocator_p->numBytesInUse());
             }
+# endif
             { // C-5
                 using namespace bsl::literals;
                 Obj mX = "test"_s;
                 (void) mX;
+# if !defined(BSLS_STRING_DISABLE_S_LITERALS)
                 const Obj mY = "test"_S;
                 (void) mY;
+# endif
             }
             { // C-5
                 using namespace bsl::string_literals;
                 Obj mX = "test"_s;
                 (void) mX;
+# if !defined(BSLS_STRING_DISABLE_S_LITERALS)
                 const Obj mY = "test"_S;
                 (void) mY;
+# endif
             }
             { // C-5
                 using namespace bsl::literals::string_literals;
                 Obj mX = "test"_s;
                 (void) mX;
+# if !defined(BSLS_STRING_DISABLE_S_LITERALS)
                 const Obj mY = "test"_S;
                 (void) mY;
+# endif
             }
 
             if (veryVerbose) printf("\tnegative testing\n");
@@ -14854,11 +14857,13 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(operator ""_s(static_cast<char*>(0), 0));
                 ASSERT_SAFE_FAIL(operator ""_s(static_cast<char*>(0), 5));
 
+# if !defined(BSLS_STRING_DISABLE_S_LITERALS)
                 ASSERT_SAFE_PASS(operator ""_S("12345", 0));
                 ASSERT_SAFE_PASS(operator ""_S("12345", 5));
 
                 ASSERT_SAFE_PASS(operator ""_S(static_cast<char*>(0), 0));
                 ASSERT_SAFE_FAIL(operator ""_S(static_cast<char*>(0), 5));
+# endif
             }
         }
 
@@ -14920,6 +14925,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(dam.isTotalUp());
             }
+# if !defined(BSLS_STRING_DISABLE_S_LITERALS)
             { // C-4
                 const int GLOBAL_NUM_BYTES_IN_USE =
                                             globalAllocator_p->numBytesInUse();
@@ -14937,26 +14943,33 @@ int main(int argc, char *argv[])
                 ASSERT(GLOBAL_NUM_BYTES_IN_USE ==
                        globalAllocator_p->numBytesInUse());
             }
+# endif
             { // C-5
                 using namespace bsl::literals;
                 Obj mX = L"test"_s;
                 (void) mX;
+# if !defined(BSLS_STRING_DISABLE_S_LITERALS)
                 const Obj mY = L"test"_S;
                 (void) mY;
+# endif
             }
             { // C-5
                 using namespace bsl::string_literals;
                 Obj mX = L"test"_s;
                 (void) mX;
+# if !defined(BSLS_STRING_DISABLE_S_LITERALS)
                 const Obj mY = L"test"_S;
                 (void) mY;
+# endif
             }
             { // C-5
                 using namespace bsl::literals::string_literals;
                 Obj mX = L"test"_s;
                 (void) mX;
+# if !defined(BSLS_STRING_DISABLE_S_LITERALS)
                 const Obj mY = L"test"_S;
                 (void) mY;
+# endif
             }
 
             if (veryVerbose) printf("\tnegative testing\n");
@@ -14970,11 +14983,13 @@ int main(int argc, char *argv[])
                 ASSERT_SAFE_PASS(operator ""_s(static_cast<char*>(0), 0));
                 ASSERT_SAFE_FAIL(operator ""_s(static_cast<char*>(0), 5));
 
+# if !defined(BSLS_STRING_DISABLE_S_LITERALS)
                 ASSERT_SAFE_PASS(operator ""_S(L"12345", 0));
                 ASSERT_SAFE_PASS(operator ""_S(L"12345", 5));
 
                 ASSERT_SAFE_PASS(operator ""_S(static_cast<char*>(0), 0));
                 ASSERT_SAFE_FAIL(operator ""_S(static_cast<char*>(0), 5));
+# endif
             }
         }
 #else

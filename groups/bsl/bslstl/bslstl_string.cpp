@@ -967,6 +967,8 @@ bsl::wstring operator ""_s(const wchar_t *characterString, std::size_t length)
     return bsl::wstring(characterString, length);
 }
 
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) ||                                   \
+    (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 800000)
 bsl::string operator ""_S(const char *characterString, std::size_t length)
 {
     BSLS_ASSERT_SAFE(characterString || 0 == length);
@@ -982,6 +984,7 @@ bsl::wstring operator ""_S(const wchar_t *characterString, std::size_t length)
                         length,
                         BloombergLP::bslma::Default::globalAllocator());
 }
+#endif
 
 }
 }

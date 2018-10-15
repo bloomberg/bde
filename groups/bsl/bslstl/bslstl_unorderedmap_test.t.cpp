@@ -7058,7 +7058,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase18()
 
     if (verbose) printf("    Negative Testing.\n");
     {
-        bsls::AssertFailureHandlerGuard hG(bsls::AssertTest::failTestDriver);
+        bsls::AssertTestHandlerGuard hG;
 
         Obj mXC;
         Obj mX;

@@ -325,7 +325,7 @@ void aSsErT(bool condition, const char *message, int line)
 // We note that certain test cases rely on the reference collapsing rules that
 // were adopted shortly after C++03, and so are not a feature of older
 // compilers, or perhaps compilers in strictly conforming modes.
-#  define BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING 1
+# define BSLSTL_HASHTABLE_NO_REFERENCE_COLLAPSING 1
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
@@ -349,8 +349,8 @@ void aSsErT(bool condition, const char *message, int line)
 // support the more complete set of test types.
 
 #if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN) \
- && !(defined(BSLS_PLATFORM_CMP_GCC) && defined(BSLS_PLATFORM_OS_SOLARIS))
-#  define BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
+ && !(defined(BSLS_PLATFORM_CMP_GNU) && defined(BSLS_PLATFORM_OS_SOLARIS))
+# define BSLS_HASHTABLE_TEST_ALL_TYPE_CONCERNS
 #endif
 
 #if defined(BSLS_HASHTABLE_SIMPLIFY_TEST_COVERAGE_TO_SPEED_FEEDBACK)
