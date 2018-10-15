@@ -621,8 +621,8 @@ ByteInStream::ByteInStream(const char *buffer, int numBytes)
 , d_inputLimit(-1)
 , d_cursor(0)
 {
-    BSLS_ASSERT_SAFE(buffer || 0 == numBytes);
-    BSLS_ASSERT_SAFE(0 <= numBytes);
+    BSLS_ASSERT(buffer || 0 == numBytes);
+    BSLS_ASSERT(0 <= numBytes);
 }
 
 inline

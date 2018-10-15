@@ -321,13 +321,13 @@ void MyList<PAYLOAD>::pushBack(const PAYLOAD& value)
                                             d_allocator_p);
 
     if (d_end) {
-        BSLS_ASSERT_SAFE(d_begin);
+        BSLS_ASSERT(d_begin);
 
         d_end->setNextLink(node);
         d_end = node;
     }
     else {
-        BSLS_ASSERT_SAFE(0 == d_begin);
+        BSLS_ASSERT(0 == d_begin);
 
         d_begin = d_end = node;
     }
@@ -336,17 +336,17 @@ void MyList<PAYLOAD>::pushBack(const PAYLOAD& value)
 template <class PAYLOAD>
 void MyList<PAYLOAD>::popBack()
 {
-    BSLS_ASSERT_SAFE(d_begin && d_end);
+    BSLS_ASSERT(d_begin && d_end);
 
     Node *toDelete = d_end;
     d_end = (Node *) d_end->previousLink();
 
     if (d_begin != toDelete) {
-        BSLS_ASSERT_SAFE(0 != d_end);
+        BSLS_ASSERT(0 != d_end);
         d_end->setNextLink(0);
     }
     else {
-        BSLS_ASSERT_SAFE(0 == d_end);
+        BSLS_ASSERT(0 == d_end);
         d_begin = 0;
     }
 

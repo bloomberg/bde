@@ -2094,7 +2094,7 @@ void appendRand1Byte(bsl::string *dst)
 
     unsigned val = randUnsigned() % k_MOD_BY + k_LOW_BOUND;
 
-    BSLS_ASSERT_SAFE(val <= k_HIGH_BOUND);
+    BSLS_ASSERT(val <= k_HIGH_BOUND);
 
     unsigned char buf[2];
     buf[0] = static_cast<unsigned char>(val);
@@ -2113,7 +2113,7 @@ void appendRand2Byte(bsl::string *dst)
 
     unsigned val = randUnsigned() % k_MOD_BY + k_LOW_BOUND;
 
-    BSLS_ASSERT_SAFE(val <= k_HIGH_BOUND);
+    BSLS_ASSERT(val <= k_HIGH_BOUND);
 
     unsigned char buf[3];
     buf[0] = static_cast<unsigned char>(((val & 0x7c0) >> 6) | 0xc0);
@@ -2136,7 +2136,7 @@ void appendRand3Byte(bsl::string *dst)
         val = randUnsigned() % k_MOD_BY + k_LOW_BOUND;
     } while (val >= 0xd800 && val <= 0xdfff);
 
-    BSLS_ASSERT_SAFE(val <= k_HIGH_BOUND);
+    BSLS_ASSERT(val <= k_HIGH_BOUND);
 
     unsigned char buf[4];
     buf[0] = static_cast<unsigned char>(((val & 0xf000) >> 12) | 0xe0);
@@ -2157,7 +2157,7 @@ void appendRand4Byte(bsl::string *dst)
 
     unsigned val = randUnsigned() % k_MOD_BY + k_LOW_BOUND;
 
-    BSLS_ASSERT_SAFE(val <= k_HIGH_BOUND);
+    BSLS_ASSERT(val <= k_HIGH_BOUND);
 
     unsigned char buf[5];
     buf[0] = static_cast<unsigned char>(((val & 0x1c0000) >> 18) | 0xf0);

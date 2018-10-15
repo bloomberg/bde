@@ -789,7 +789,6 @@ int main(int argc, char *argv[])
             }
         }
 
-#if !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
         // non-generated enum
         {
             Test value = TEST_A;
@@ -862,7 +861,6 @@ int main(int argc, char *argv[])
                 ASSERT(!ss.good());
             }
         }
-#endif // !defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
       } break;
       case 21: {
         // --------------------------------------------------------------------

@@ -394,7 +394,7 @@ uint64_t x8(unsigned int x)
     // Return a 'uint64_t' filled with 8 repetitions of the low-order 8 bits of
     // the specified 'x'.  The behavior is undefined unless 'x < 256'.
 {
-    BSLS_ASSERT_SAFE(x < 256);
+    BSLS_ASSERT(x < 256);
 
     x |= x <<  8;
     x |= x << 16;

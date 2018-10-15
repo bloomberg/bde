@@ -145,7 +145,7 @@ bdlt::Calendar parseCalendar(const char *input, const bdlt::Date& startDate)
     // business day, symbol '.' representing date outside of calendar range and
     // symbol '|' representing month boundaries.
 {
-    BSLS_ASSERT_SAFE(input);
+    BSLS_ASSERT(input);
 
     int inputLen = static_cast<int>(strlen(input));
 
@@ -167,7 +167,7 @@ bdlt::Calendar parseCalendar(const char *input, const bdlt::Date& startDate)
     }
 
     for (; i < inputLen; ++i) {
-        BSLS_ASSERT_SAFE(   input[i] == 'n'
+        BSLS_ASSERT(   input[i] == 'n'
                          || input[i] == 'B'
                          || input[i] == '.'
                          || input[i] == '|');
@@ -206,7 +206,7 @@ int getStartDate(const char *input)
     // added to the returned value.  If there is no occurrence of 'n' or 'B',
     // return 999.
 {
-    BSLS_ASSERT_SAFE(input);
+    BSLS_ASSERT(input);
     int inputLen = static_cast<int>(strlen(input));
 
     int daysBeforeMonth = 0;

@@ -4406,9 +4406,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24Negative()
 
     const TYPE *nullStr = NULL;
     // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
     (void) nullStr;
-#endif
 
     if (veryVerbose) printf("\tcompare(s)\n");
 
@@ -4682,9 +4680,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23Negative()
 
         TYPE *nullStr = NULL;
         // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
         (void) nullStr;
-#endif
 
         TYPE dest[10];
         ASSERT(sizeof dest / sizeof *dest > X.size());
@@ -5410,9 +5406,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase22Negative()
 
     const TYPE *nullStr = NULL;
     // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
     (void) nullStr;
-#endif
 
     if (veryVerbose) printf("\tfind(s, pos, n)\n");
 
@@ -7308,9 +7302,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
 
         const TYPE *nullStr = NULL;
         // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
         (void) nullStr;
-#endif
 
         // characterString == NULL
         ASSERT_SAFE_FAIL(mX.replace(0, X.size(), nullStr, 10));
@@ -7327,9 +7319,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
 
         const TYPE *nullStr = NULL;
         // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
        (void) nullStr;
-#endif
 
         // first < begin()
         ASSERT_SAFE_FAIL(mX.replace(X.begin() - 1, X.end(), X.c_str()));
@@ -7361,9 +7351,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
 
         const TYPE *nullStr = NULL;
         // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
         (void) nullStr;
-#endif
 
         // first < begin()
         ASSERT_SAFE_FAIL(
@@ -9262,9 +9250,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
         Obj mX(g("ABCDE"));
         const TYPE *nullStr = 0;
         // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
         (void) nullStr;
-#endif
 
         ASSERT_SAFE_FAIL(mX.insert(1, nullStr));
         ASSERT_SAFE_FAIL(mX.insert(mX.length() + 1, nullStr));
@@ -9278,9 +9264,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Negative()
         Obj mX(g("ABCDE"));
         const TYPE *nullStr = 0;
         // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
         (void) nullStr;
-#endif
 
         ASSERT_SAFE_PASS(mX.insert(1, nullStr, 0));
         ASSERT_SAFE_FAIL(mX.insert(mX.length() + 1, nullStr, 10));
@@ -16362,9 +16346,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase6Negative()
 
     TYPE *nullStr = NULL;
     // disable "unused variable" warning in non-safe mode:
-#if !defined BSLS_ASSERT_SAFE_IS_ACTIVE
     (void) nullStr;
-#endif
 
     if (veryVerbose) printf("\toperator==(s, str)\n");
 

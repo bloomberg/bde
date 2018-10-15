@@ -1596,7 +1596,7 @@ if (veryVerbose)
  || BSLS_PLATFORM_CMP_VERSION >= 0x5140
 
             // Older versions of the Sun compiler (e.g., 5.12.3 and 5.12.4)
-            // fail to compile the 'BSLS_ASSERT_SAFE' corresponding to the
+            // fail to compile the 'BSLS_ASSERT' corresponding to the
             // following 'ASSERT_SAFE_FAIL' correctly in optimized builds.
 
             ASSERT_SAFE_FAIL(Obj(0,
