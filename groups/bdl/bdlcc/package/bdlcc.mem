@@ -7,5 +7,7 @@ bdlcc_objectcatalog
 bdlcc_objectpool
 bdlcc_queue
 bdlcc_sharedobjectpool
+bdlcc_singleproducerqueue
+bdlcc_singleproducerqueueimpl
 bdlcc_skiplist
 bdlcc_timequeue
