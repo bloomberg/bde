@@ -86,6 +86,13 @@ BSLS_IDENT("$Id: $")
 // access the same 'bdlcc::TimeQueue' object (except 'length').  Such attempts
 // generally lead to a deadlock.
 //
+///Ordering
+/// - - - -
+// For a given 'bsls::TimeInterval' value, the order of item removal (via
+// 'popFront', 'popLE', 'removeAll', etc.) is guaranteed to match the order of
+// item insertion (via 'add') for a particular insertion thread or group of
+// externally synchronized insertion threads.
+//
 ///Usage
 ///-----
 // The following shows a typical usage of the 'bdlcc::TimeQueue' class,
@@ -712,8 +719,9 @@ class TimeQueue {
         // having the same time value.  This struct provides the node in the
         // list.
 
+        // PUBLIC DATA MEMBERS
         int                       d_index;
-        bsls::TimeInterval         d_time;
+        bsls::TimeInterval        d_time;
         Key                       d_key;
         Node                     *d_prev_p;
         Node                     *d_next_p;
@@ -753,25 +761,23 @@ class TimeQueue {
     const int                d_indexIterationInc;
 
     mutable bslmt::Mutex      d_mutex;          // used for synchronizing
-                                                // access
-                                               // to this queue
+                                                // access to this queue
 
-    bsl::vector<Node*>       d_nodeArray;      // array of nodes in this queue
+    bsl::vector<Node*>        d_nodeArray;      // array of nodes in this queue
 
     bsls::AtomicPointer<Node> d_nextFreeNode_p; // pointer to the next free
-                                                // node
-                                               // in this queue (the free list
-                                               // is singly linked only, using
-                                               // d_next_p)
+                                                // node in this queue (the free
+                                                // list is singly linked only,
+                                                // using d_next_p)
 
-    NodeMap                  d_map;            // list of time values in
-                                               // increasing time order
+    NodeMap                   d_map;            // list of time values in
+                                                // increasing time order
 
     bsls::AtomicInt           d_length;         // number of items currently in
-                                               // this queue (not necessarily
-                                               // equal to d_map.size())
+                                                // this queue (not necessarily
+                                                // equal to d_map.size())
 
-    bslma::Allocator        *d_allocator_p;    // allocator (held, not owned)
+    bslma::Allocator         *d_allocator_p;    // allocator (held, not owned)
 
     // PRIVATE MANIPULATORS
     void freeNode(Node *node);
@@ -984,7 +990,7 @@ class TimeQueueItem {
     typedef typename TimeQueue<DATA>::Key    Key;
 
   private:
-    bsls::TimeInterval             d_time;    // Time value
+    bsls::TimeInterval            d_time;    // Time value
     DATA                          d_data;    // Associated data value
     Handle                        d_handle;  // Associated handle
     Key                           d_key;     // Associated key
