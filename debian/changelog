@@ -1,5 +1,12 @@
-bsl-internal (3.14.0.0) unstable; urgency=low
+bsl-internal (3.14.1.0) unstable; urgency=low
 
+  * 65dbab05e Bump bdl version to 3.14.1
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 15 Oct 2018 10:05:36 -0400
+
+bsl-internal (3.14.0.0) git; urgency=low
+
+  * 400f66e9f Changelog for version 3.14.0.0
   * 590af32dc Merge pull request #2102 from mgiroux/review/bump-version-to-3.14.0
   * 03fb21727 Bump version to 3.14.0
   * dc4950bd9 Merge pull request #2079 from mgiroux/review/bump-version-to-3.13.0
@@ -12,7 +19,7 @@ bsl-internal (3.14.0.0) unstable; urgency=low
   * 3c8f87c15 bdlt_intervalconversionutil -- support microseconds
   * d97567343 drqs-124673692: master: Format fixes for 'bdedox' conversion.
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 1 Oct 2018 08:30:26 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 1 Oct 2018 08:39:30 -0400
 
 bsl-internal (3.11.0.0) git; urgency=low
 
