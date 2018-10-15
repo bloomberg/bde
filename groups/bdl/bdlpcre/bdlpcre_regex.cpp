@@ -311,6 +311,8 @@ void RegEx_MatchContext::releaseMatchContext(
 
 // CLASS DATA
 bsls::AtomicOperations::AtomicTypes::Int RegEx::s_depthLimit = {10000000};
+
+// CONSTANTS
 const size_t RegEx::k_INVALID_OFFSET = ~(size_t)0;
 
 // PRIVATE ACCESSORS

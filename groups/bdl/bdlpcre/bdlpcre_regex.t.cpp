@@ -3250,7 +3250,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The object correctly handles valid and invalid patterns.
         //:
-        //: 2 The compiled patterns are correctly cleared by ether 'clear'
+        //: 2 The compiled patterns are correctly cleared by either 'clear'
         //:   method or when calling 'prepare' with different pattern.
         //:
         //: 3 The object correctly reports the state of the pattern via

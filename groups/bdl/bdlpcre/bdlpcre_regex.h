@@ -30,7 +30,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //:   value otherwise.
 //:
 //: 2 The second group of 'match' overloads returns the substring of the
-//:   subject that was matched, ether as a 'bslstl::StringRef', or as a
+//:   subject that was matched, either as a 'bslstl::StringRef', or as a
 //:   'bsl::pair<size_t, size_t>' holding the (offset, length) pair.
 //:
 //: 3 The third group of 'match' overloads returns a vector of either
@@ -854,7 +854,7 @@ class RegEx {
         // range '[ 1 .. numSubpatterns() ]' with the pairs
         // ('bslstl::StringRef') indicating the respective matches of
         // sub-patterns (unmatched sub-patterns have their respective 'result'
-        // elements loaded with ether the '(k_INVALID_OFFSET, 0)' pair or an
+        // elements loaded with either the '(k_INVALID_OFFSET, 0)' pair or an
         // empty 'StringRef'; sub-patterns matching multiple times have their
         // respective 'result' elements loaded with the pairs indicating the
         // rightmost match), and (3) return 0.  Otherwise, return a non-zero
@@ -938,7 +938,7 @@ class RegEx {
         // '[ 1 .. numSubpatterns() ]' with the pairs ('bslstl::StringRef')
         // indicating the respective matches of sub-patterns (unmatched
         // sub-patterns have their respective 'result' elements loaded with
-        // ether the '(k_INVALID_OFFSET, 0)' pair or an empty 'StringRef';
+        // either the '(k_INVALID_OFFSET, 0)' pair or an empty 'StringRef';
         // sub-patterns matching multiple times have their respective 'result'
         // elements loaded with the pairs indicating the rightmost match), and
         // (3) return 0.  Otherwise, return a non-zero value with no effect on
