@@ -1014,9 +1014,9 @@ TimetableTransition::TimetableTransition(const Datetime& datetime, int code)
 : d_datetime(datetime)
 , d_code(code)
 {
-    BSLS_ASSERT_SAFE(24 > datetime.hour());
+    BSLS_REVIEW(24 > datetime.hour());
 
-    BSLS_ASSERT_SAFE(0 <= code || k_UNSET_TRANSITION_CODE == code);
+    BSLS_REVIEW(0 <= code || k_UNSET_TRANSITION_CODE == code);
 }
 
 // CREATORS
@@ -1079,7 +1079,7 @@ bool bdlt::operator<(const TimetableTransition& lhs,
 inline
 bool bdlt::operator<(const TimetableTransition& lhs, const Datetime& rhs)
 {
-    BSLS_ASSERT_SAFE(24 > rhs.hour());
+    BSLS_REVIEW(24 > rhs.hour());
 
     return lhs.datetime() < rhs;
 }
@@ -1087,7 +1087,7 @@ bool bdlt::operator<(const TimetableTransition& lhs, const Datetime& rhs)
 inline
 bool bdlt::operator<(const Datetime& lhs, const TimetableTransition& rhs)
 {
-    BSLS_ASSERT_SAFE(24 > lhs.hour());
+    BSLS_REVIEW(24 > lhs.hour());
 
     return lhs < rhs.datetime();
 }
@@ -1161,9 +1161,9 @@ Timetable_CompactableTransition::Timetable_CompactableTransition(
 : d_time(time)
 , d_code(code)
 {
-    BSLS_ASSERT_SAFE(24 > time.hour());
+    BSLS_REVIEW(24 > time.hour());
 
-    BSLS_ASSERT_SAFE(0 <= code || k_UNSET_TRANSITION_CODE == code);
+    BSLS_REVIEW(0 <= code || k_UNSET_TRANSITION_CODE == code);
 }
 
 inline
@@ -1227,7 +1227,7 @@ inline
 bool bdlt::operator<(const Timetable_CompactableTransition& lhs,
                      const Time&                            rhs)
 {
-    BSLS_ASSERT_SAFE(24 > rhs.hour());
+    BSLS_REVIEW(24 > rhs.hour());
 
     return lhs.time() < rhs;
 }
@@ -1236,7 +1236,7 @@ inline
 bool bdlt::operator<(const Time&                            lhs,
                      const Timetable_CompactableTransition& rhs)
 {
-    BSLS_ASSERT_SAFE(24 > lhs.hour());
+    BSLS_REVIEW(24 > lhs.hour());
 
     return lhs < rhs.time();
 }
@@ -1298,7 +1298,7 @@ bool Timetable_Day::removeAllTransitions()
 inline
 bool Timetable_Day::setInitialTransitionCode(int code)
 {
-    BSLS_ASSERT_SAFE(0 <= code || k_UNSET_TRANSITION_CODE == code);
+    BSLS_REVIEW(0 <= code || k_UNSET_TRANSITION_CODE == code);
 
     bool rv = d_initialTransitionCode != code && d_transitions.empty();
 
@@ -1426,7 +1426,7 @@ void Timetable::swap(Timetable& other)
 {
     // Member 'swap' is undefined for objects with non-equal allocators.
 
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_REVIEW(allocator() == other.allocator());
 
     bslalg::SwapUtil::swap(&d_initialTransitionCode,
                            &other.d_initialTransitionCode);
@@ -1446,7 +1446,7 @@ Timetable::const_iterator Timetable::end() const
 inline
 const Date& Timetable::firstDate() const
 {
-    BSLS_ASSERT_SAFE(0 < length());
+    BSLS_REVIEW(0 < length());
 
     return d_firstDate;
 }
@@ -1466,7 +1466,7 @@ bool Timetable::isInRange(const Date& date) const
 inline
 const Date& Timetable::lastDate() const
 {
-    BSLS_ASSERT_SAFE(0 < length());
+    BSLS_REVIEW(0 < length());
 
     return d_lastDate;
 }
@@ -1480,8 +1480,8 @@ int Timetable::length() const
 inline
 int Timetable::transitionCodeInEffect(const Date& date, const Time& time) const
 {
-    BSLS_ASSERT_SAFE(24 > time.hour());
-    BSLS_ASSERT_SAFE(isInRange(date));
+    BSLS_REVIEW(24 > time.hour());
+    BSLS_REVIEW(isInRange(date));
 
     bsl::size_t          index = date - d_firstDate;
     const Timetable_Day& daily = d_timetable[index];
@@ -1613,10 +1613,10 @@ Timetable_ConstIterator& Timetable_ConstIterator::
 inline
 TimetableTransition Timetable_ConstIterator::operator*() const
 {
-    BSLS_ASSERT_SAFE(d_timetable_p);
-    BSLS_ASSERT_SAFE(d_dayIndex
+    BSLS_REVIEW(d_timetable_p);
+    BSLS_REVIEW(d_dayIndex
                           < static_cast<bsl::size_t>(d_timetable_p->length()));
-    BSLS_ASSERT_SAFE(d_transitionIndex
+    BSLS_REVIEW(d_transitionIndex
                               < d_timetable_p->d_timetable[d_dayIndex].size());
 
     const Timetable_CompactableTransition& transition =
@@ -1631,8 +1631,8 @@ TimetableTransition Timetable_ConstIterator::operator*() const
 inline
 const TimetableTransition_Ref *Timetable_ConstIterator::operator->() const
 {
-    BSLS_ASSERT_SAFE(d_timetable_p);
-    BSLS_ASSERT_SAFE(d_dayIndex
+    BSLS_REVIEW(d_timetable_p);
+    BSLS_REVIEW(d_dayIndex
                           < static_cast<bsl::size_t>(d_timetable_p->length()));
 
     d_ref = this->operator*();

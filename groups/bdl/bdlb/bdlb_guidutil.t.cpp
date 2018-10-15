@@ -14,6 +14,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_byteorder.h>
+#include <bsls_review.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -282,6 +283,9 @@ int main(int argc, char *argv[])
     bool verbose         = argc > 2;
     bool veryVerbose     = argc > 3;
     bool veryVeryVerbose = argc > 4;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVerbose);
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));

@@ -435,7 +435,7 @@ int PathUtil::getBasename(bsl::string              *leaf,
                           const bslstl::StringRef&  path,
                           int                       rootEnd)
 {
-    BSLS_ASSERT_SAFE(leaf);
+    BSLS_REVIEW(leaf);
 
     return getLeaf(leaf, path, rootEnd);
 }

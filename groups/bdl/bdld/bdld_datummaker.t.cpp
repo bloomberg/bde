@@ -9,8 +9,9 @@
 #include <bslma_testallocator.h>            // to verify that we do not
 #include <bslma_testallocatormonitor.h>     // allocate any memory
 
-#include <bsls_bsltestutil.h>
 #include <bsls_asserttest.h>
+#include <bsls_bsltestutil.h>
+#include <bsls_review.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -187,6 +188,9 @@ int main(int argc, char *argv[])
     bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: DOES NOT ALLOCATE MEMORY
 

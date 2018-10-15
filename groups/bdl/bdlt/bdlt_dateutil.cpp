@@ -38,8 +38,8 @@ Date DateUtil::addYearsEomEndOfFebruary(const Date& original, int numYears)
     // using gcc-4.8.2, with optimization level -O2, on a machine with an
     // Intel(R) Xeon(R) CPU X5670 @ 2.93GHz processor.
 
-    BSLS_ASSERT_SAFE(2 == original.month());
-    BSLS_ASSERT_SAFE(28 == original.day() || 29 == original.day());
+    BSLS_REVIEW(2 == original.month());
+    BSLS_REVIEW(28 == original.day() || 29 == original.day());
 
     const int newYear = original.year() + numYears;
     const int eom     = SerialDateImpUtil::isLeapYear(original.year())
@@ -67,8 +67,8 @@ Date DateUtil::addMonthsEom(const Date& original, int numMonths)
     const int newYear  = totalMonths / 12;
     const int newMonth = totalMonths % 12 + 1;
 
-    BSLS_ASSERT_SAFE(1 <= newYear);
-    BSLS_ASSERT_SAFE(newYear <= 9999);
+    BSLS_REVIEW(1 <= newYear);
+    BSLS_REVIEW(newYear <= 9999);
 
     const int eom    = SerialDateImpUtil::lastDayOfMonth(original.year(),
                                                          original.month());
@@ -96,8 +96,8 @@ Date DateUtil::addMonthsNoEom(const Date& original, int numMonths)
     const int newYear  = totalMonths / 12;
     const int newMonth = totalMonths % 12 + 1;
 
-    BSLS_ASSERT_SAFE(1 <= newYear);
-    BSLS_ASSERT_SAFE(newYear <= 9999);
+    BSLS_REVIEW(1 <= newYear);
+    BSLS_REVIEW(newYear <= 9999);
 
     const int newEom = SerialDateImpUtil::lastDayOfMonth(newYear, newMonth);
 
@@ -113,8 +113,8 @@ Date DateUtil::lastDayOfWeekInMonth(int             year,
                                     int             month,
                                     DayOfWeek::Enum dayOfWeek)
 {
-    BSLS_ASSERT_SAFE(1 <= year);   BSLS_ASSERT_SAFE(year  <= 9999);
-    BSLS_ASSERT_SAFE(1 <= month);  BSLS_ASSERT_SAFE(month <= 12);
+    BSLS_REVIEW(1 <= year);   BSLS_REVIEW(year  <= 9999);
+    BSLS_REVIEW(1 <= month);  BSLS_REVIEW(month <= 12);
 
     const int eom = SerialDateImpUtil::lastDayOfMonth(year, month);
 
@@ -139,10 +139,10 @@ Date DateUtil::nthDayOfWeekInMonth(int             year,
                                    DayOfWeek::Enum dayOfWeek,
                                    int             n)
 {
-    BSLS_ASSERT_SAFE( 1 <= year);   BSLS_ASSERT_SAFE(year  <= 9999);
-    BSLS_ASSERT_SAFE( 1 <= month);  BSLS_ASSERT_SAFE(month <= 12);
-    BSLS_ASSERT_SAFE( 0 != n);
-    BSLS_ASSERT_SAFE(-5 <= n);      BSLS_ASSERT_SAFE(n     <= 5);
+    BSLS_REVIEW( 1 <= year);   BSLS_REVIEW(year  <= 9999);
+    BSLS_REVIEW( 1 <= month);  BSLS_REVIEW(month <= 12);
+    BSLS_REVIEW( 0 != n);
+    BSLS_REVIEW(-5 <= n);      BSLS_REVIEW(n     <= 5);
 
     if (n > 0) {
         const Date date = nextDayOfWeekInclusive(dayOfWeek,

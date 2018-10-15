@@ -696,7 +696,7 @@ void *SequentialPool::allocate(bsls::Types::size_type size)
 inline
 void *SequentialPool::allocateAndExpand(bsls::Types::size_type *size)
 {
-    BSLS_ASSERT_SAFE(size);
+    BSLS_REVIEW(size);
 
     void *result = allocate(*size);
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(result)) {
@@ -732,8 +732,8 @@ bsls::Types::size_type SequentialPool::truncate(
                                           bsls::Types::size_type  originalSize,
                                           bsls::Types::size_type  newSize)
 {
-    BSLS_ASSERT_SAFE(address);
-    BSLS_ASSERT_SAFE(newSize <= originalSize);
+    BSLS_REVIEW(address);
+    BSLS_REVIEW(newSize <= originalSize);
 
     return d_bufferManager.truncate(address, originalSize, newSize);
 }

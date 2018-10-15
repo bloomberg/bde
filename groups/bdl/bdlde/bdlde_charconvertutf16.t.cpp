@@ -17,7 +17,9 @@
 #include <bslma_testallocator.h>
 
 #include <bslim_testutil.h>
+
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_stopwatch.h>
 
 #include <bsl_algorithm.h>
@@ -4438,6 +4440,9 @@ int main(int argc, char**argv)
     veryVeryVeryVeryVerbose = argc > 6;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard daGuard(&da);

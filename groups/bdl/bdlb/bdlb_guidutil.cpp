@@ -158,8 +158,8 @@ int GuidUtil::guidFromString(Guid *result, bslstl::StringRef guidString)
         return -1;                                                    // RETURN
     }
     // CHECK ASCII
-    BSLS_ASSERT_SAFE('f' - 'a' == 5);
-    BSLS_ASSERT_SAFE('F' - 'A' == 5);
+    BSLS_REVIEW('f' - 'a' == 5);
+    BSLS_REVIEW('F' - 'A' == 5);
 
     unsigned char        t_guid[Guid::k_GUID_NUM_BYTES];
     const unsigned char *curr_p =

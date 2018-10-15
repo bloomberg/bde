@@ -427,7 +427,7 @@ Datum ManagedDatum::release()
 inline
 void ManagedDatum::swap(ManagedDatum& other)
 {
-    BSLS_ASSERT_SAFE(d_allocator_p == other.d_allocator_p);
+    BSLS_REVIEW(d_allocator_p == other.d_allocator_p);
     using bsl::swap;
     swap(d_data, other.d_data);
 }

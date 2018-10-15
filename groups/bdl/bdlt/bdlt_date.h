@@ -687,7 +687,7 @@ inline
 Date::Date(int serialDate)
 : d_serialDate(serialDate)
 {
-    BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate));
+    BSLS_REVIEW(Date::isValidSerial(d_serialDate));
 }
 
 // CLASS METHODS
@@ -741,7 +741,7 @@ Date::Date(const Date& original)
 inline
 Date::~Date()
 {
-    BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate));
+    BSLS_REVIEW(Date::isValidSerial(d_serialDate));
 }
 
 // MANIPULATORS
@@ -755,7 +755,7 @@ Date& Date::operator=(const Date& rhs)
 inline
 Date& Date::operator+=(int numDays)
 {
-    BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate + numDays));
+    BSLS_REVIEW(Date::isValidSerial(d_serialDate + numDays));
 
     d_serialDate += numDays;
     return *this;
@@ -764,7 +764,7 @@ Date& Date::operator+=(int numDays)
 inline
 Date& Date::operator-=(int numDays)
 {
-    BSLS_ASSERT_SAFE(Date::isValidSerial(d_serialDate - numDays));
+    BSLS_REVIEW(Date::isValidSerial(d_serialDate - numDays));
 
     d_serialDate -= numDays;
     return *this;
@@ -773,7 +773,7 @@ Date& Date::operator-=(int numDays)
 inline
 Date& Date::operator++()
 {
-    BSLS_ASSERT_SAFE(*this != Date(9999, 12, 31));
+    BSLS_REVIEW(*this != Date(9999, 12, 31));
 
     ++d_serialDate;
     return *this;
@@ -782,7 +782,7 @@ Date& Date::operator++()
 inline
 Date& Date::operator--()
 {
-    BSLS_ASSERT_SAFE(*this != Date(1, 1, 1));
+    BSLS_REVIEW(*this != Date(1, 1, 1));
 
     --d_serialDate;
     return *this;
@@ -885,8 +885,8 @@ int Date::dayOfYear() const
 inline
 void Date::getYearDay(int *year, int *dayOfYear) const
 {
-    BSLS_ASSERT_SAFE(year);
-    BSLS_ASSERT_SAFE(dayOfYear);
+    BSLS_REVIEW(year);
+    BSLS_REVIEW(dayOfYear);
 
     SerialDateImpUtil::serialToYd(year, dayOfYear, d_serialDate);
 }
@@ -894,9 +894,9 @@ void Date::getYearDay(int *year, int *dayOfYear) const
 inline
 void Date::getYearMonthDay(int *year, int *month, int *day) const
 {
-    BSLS_ASSERT_SAFE(year);
-    BSLS_ASSERT_SAFE(month);
-    BSLS_ASSERT_SAFE(day);
+    BSLS_REVIEW(year);
+    BSLS_REVIEW(month);
+    BSLS_REVIEW(day);
 
     SerialDateImpUtil::serialToYmd(year, month, day, d_serialDate);
 }
@@ -1046,7 +1046,7 @@ bool bdlt::operator>=(const Date& lhs, const Date& rhs)
 inline
 bdlt::Date bdlt::operator++(Date& date, int)
 {
-    BSLS_ASSERT_SAFE(date != Date(9999, 12, 31));
+    BSLS_REVIEW(date != Date(9999, 12, 31));
 
     Date tmp(date);
     ++date;
@@ -1056,7 +1056,7 @@ bdlt::Date bdlt::operator++(Date& date, int)
 inline
 bdlt::Date bdlt::operator--(Date& date, int)
 {
-    BSLS_ASSERT_SAFE(date != Date(1, 1, 1));
+    BSLS_REVIEW(date != Date(1, 1, 1));
 
     Date tmp(date);
     --date;
@@ -1066,7 +1066,7 @@ bdlt::Date bdlt::operator--(Date& date, int)
 inline
 bdlt::Date bdlt::operator+(const Date& date, int numDays)
 {
-    BSLS_ASSERT_SAFE(Date::isValidSerial(date.d_serialDate + numDays));
+    BSLS_REVIEW(Date::isValidSerial(date.d_serialDate + numDays));
 
     return Date(date.d_serialDate + numDays);
 }
@@ -1074,7 +1074,7 @@ bdlt::Date bdlt::operator+(const Date& date, int numDays)
 inline
 bdlt::Date bdlt::operator+(int numDays, const Date& date)
 {
-    BSLS_ASSERT_SAFE(Date::isValidSerial(numDays + date.d_serialDate));
+    BSLS_REVIEW(Date::isValidSerial(numDays + date.d_serialDate));
 
     return Date(numDays + date.d_serialDate);
 }
@@ -1082,7 +1082,7 @@ bdlt::Date bdlt::operator+(int numDays, const Date& date)
 inline
 bdlt::Date bdlt::operator-(const Date& date, int numDays)
 {
-    BSLS_ASSERT_SAFE(Date::isValidSerial(date.d_serialDate - numDays));
+    BSLS_REVIEW(Date::isValidSerial(date.d_serialDate - numDays));
 
     return Date(date.d_serialDate - numDays);
 }

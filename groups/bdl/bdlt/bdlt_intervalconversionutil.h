@@ -90,7 +90,6 @@ struct IntervalConversionUtil {
     typedef TimeUnitRatio      Ratio;
     typedef bsls::Types::Int64 Int64;
 
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
     // PRIVATE CLASS DATA
     static const Int64 k_INT_MAX = INT_MAX;
     static const Int64 k_INT_MIN = INT_MIN;
@@ -103,7 +102,6 @@ struct IntervalConversionUtil {
                                         * Ratio::k_NANOSECONDS_PER_MICROSECOND;
     static const Int64 k_DATETIME_INTERVAL_NSEC_REMAINDER_MIN =
                                        -k_DATETIME_INTERVAL_NSEC_REMAINDER_MAX;
-#endif
 
   public:
     // CLASS METHODS
@@ -144,12 +142,12 @@ DatetimeInterval IntervalConversionUtil::convertToDatetimeInterval(
     // Check that the value of 'interval' is within the valid range supported
     // by 'Dateinterval'.
 
-    BSLS_ASSERT_SAFE(   k_DATETIME_INTERVAL_SECONDS_MIN  < interval.seconds()
+    BSLS_REVIEW(   k_DATETIME_INTERVAL_SECONDS_MIN  < interval.seconds()
                     || (k_DATETIME_INTERVAL_SECONDS_MIN == interval.seconds()
                        && k_DATETIME_INTERVAL_NSEC_REMAINDER_MIN <=
                                                       interval.nanoseconds()));
 
-    BSLS_ASSERT_SAFE(   interval.seconds() <  k_DATETIME_INTERVAL_SECONDS_MAX
+    BSLS_REVIEW(   interval.seconds() <  k_DATETIME_INTERVAL_SECONDS_MAX
                     || (interval.seconds() == k_DATETIME_INTERVAL_SECONDS_MAX
                        && interval.nanoseconds() <=
                                       k_DATETIME_INTERVAL_NSEC_REMAINDER_MAX));

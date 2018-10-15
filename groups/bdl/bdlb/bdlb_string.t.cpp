@@ -12,7 +12,9 @@
 #include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>
+
 #include <bsls_platform.h>
+#include <bsls_review.h>
 
 #include <bsl_iostream.h>
 #include <bsl_algorithm.h>   // 'bsl::transform'
@@ -182,6 +184,9 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
       case 11: {

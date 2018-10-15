@@ -13,6 +13,7 @@
 #include <bsls_alignedbuffer.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_asserttest.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdlib.h>
@@ -444,6 +445,9 @@ int main(int argc, char *argv[])
     int veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // As part of our overall allocator testing strategy, we will create three
     // test allocators.

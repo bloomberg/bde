@@ -526,7 +526,7 @@ int bdlat_NullableValueFunctions::bdlat_nullableValueManipulateValue(
                                         bdlb::NullableValue<TYPE> *object,
                                         MANIPULATOR&               manipulator)
 {
-    BSLS_ASSERT_SAFE(!object->isNull());
+    BSLS_REVIEW(!object->isNull());
 
     return manipulator(&object->value());
 }
@@ -539,7 +539,7 @@ int bdlat_NullableValueFunctions::bdlat_nullableValueAccessValue(
                                      const bdlb::NullableValue<TYPE>& object,
                                      ACCESSOR&                        accessor)
 {
-    BSLS_ASSERT_SAFE(!object.isNull());
+    BSLS_REVIEW(!object.isNull());
 
     return accessor(object.value());
 }
@@ -572,7 +572,7 @@ int bdlat_NullableValueFunctions::bdlat_nullableValueManipulateValue(
                                bdlb::NullableAllocatedValue<TYPE> *object,
                                MANIPULATOR&                        manipulator)
 {
-    BSLS_ASSERT_SAFE(!object->isNull());
+    BSLS_REVIEW(!object->isNull());
 
     return manipulator(&object->value());
 }
@@ -585,7 +585,7 @@ int bdlat_NullableValueFunctions::bdlat_nullableValueAccessValue(
                             const bdlb::NullableAllocatedValue<TYPE>& object,
                             ACCESSOR&                                 accessor)
 {
-    BSLS_ASSERT_SAFE(!object.isNull());
+    BSLS_REVIEW(!object.isNull());
 
     return accessor(object.value());
 }

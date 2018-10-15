@@ -20,6 +20,8 @@
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
 
+#include <bsls_review.h>
+
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>      // 'isdigit' 'isupper' 'islower'
 #include <bsl_cstdlib.h>     // 'atoi'
@@ -182,6 +184,9 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 8: {

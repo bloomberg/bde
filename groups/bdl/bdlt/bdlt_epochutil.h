@@ -338,7 +338,7 @@ const Datetime& EpochUtil::epoch()
 inline
 Datetime EpochUtil::convertFromTimeT(bsl::time_t time)
 {
-    BSLS_ASSERT_SAFE(0 <= time);
+    BSLS_REVIEW(0 <= time);
 
     Datetime datetime(epoch());
     datetime.addSeconds(time);
@@ -349,8 +349,8 @@ Datetime EpochUtil::convertFromTimeT(bsl::time_t time)
 inline
 void EpochUtil::convertFromTimeT(Datetime *result, bsl::time_t time)
 {
-    BSLS_ASSERT_SAFE(result);
-    BSLS_ASSERT_SAFE(0 <= time);
+    BSLS_REVIEW(result);
+    BSLS_REVIEW(0 <= time);
 
     *result = epoch();
     result->addSeconds(time);
@@ -361,8 +361,8 @@ bsl::time_t EpochUtil::convertToTimeT(const Datetime& datetime)
 {
     const DatetimeInterval dti = datetime - epoch();
 
-    BSLS_ASSERT_SAFE(dti                >= DatetimeInterval());
-    BSLS_ASSERT_SAFE(dti.totalSeconds() <= 0x7fffffffLL);
+    BSLS_REVIEW(dti                >= DatetimeInterval());
+    BSLS_REVIEW(dti.totalSeconds() <= 0x7fffffffLL);
 
     // Note that, with safe-assertions disabled, the representation of
     // 'bsl::time_t' must not affect the resultant 'bsl::time_t' (i.e., in case
@@ -374,7 +374,7 @@ bsl::time_t EpochUtil::convertToTimeT(const Datetime& datetime)
 inline
 int EpochUtil::convertToTimeT(bsl::time_t *result, const Datetime& datetime)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_REVIEW(result);
 
     const DatetimeInterval dti = datetime - epoch();
 
@@ -398,8 +398,8 @@ int EpochUtil::convertToTimeT(bsl::time_t *result, const Datetime& datetime)
 inline
 Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 {
-    BSLS_ASSERT_SAFE(s_earliestAsTimeT64 <= time);
-    BSLS_ASSERT_SAFE(                       time <= s_latestAsTimeT64);
+    BSLS_REVIEW(s_earliestAsTimeT64 <= time);
+    BSLS_REVIEW(                       time <= s_latestAsTimeT64);
 
     Datetime datetime(epoch());
     datetime.addSeconds(time);
@@ -410,7 +410,7 @@ Datetime EpochUtil::convertFromTimeT64(TimeT64 time)
 inline
 int EpochUtil::convertFromTimeT64(Datetime *result, TimeT64 time)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_REVIEW(result);
 
     if (time < s_earliestAsTimeT64 || time > s_latestAsTimeT64) {
         return 1;                                                     // RETURN
@@ -441,7 +441,7 @@ EpochUtil::convertToTimeT64(const Datetime& datetime)
 inline
 void EpochUtil::convertToTimeT64(TimeT64 *result, const Datetime& datetime)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_REVIEW(result);
 
     *result = EpochUtil::convertToTimeT64(datetime);
 }
@@ -460,7 +460,7 @@ void EpochUtil::convertFromTimeInterval(
                                        Datetime                  *result,
                                        const bsls::TimeInterval&  timeInterval)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_REVIEW(result);
 
     *result = epoch() + timeInterval;
 }
@@ -489,7 +489,7 @@ void EpochUtil::convertFromDatetimeInterval(
                                      Datetime                *result,
                                      const DatetimeInterval&  datetimeInterval)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_REVIEW(result);
 
     *result = epoch() + datetimeInterval;
 }
@@ -505,7 +505,7 @@ inline
 int EpochUtil::convertToTimeInterval(bsls::TimeInterval *result,
                                      const Datetime&     datetime)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_REVIEW(result);
 
     const DatetimeInterval dti = datetime - epoch();
 
@@ -523,7 +523,7 @@ inline
 int EpochUtil::convertToDatetimeInterval(DatetimeInterval *result,
                                          const Datetime&   datetime)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_REVIEW(result);
 
     if (datetime - epoch() < DatetimeInterval()) {
         return 1;                                                     // RETURN

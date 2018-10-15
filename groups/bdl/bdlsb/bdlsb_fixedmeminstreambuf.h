@@ -250,8 +250,8 @@ FixedMemInStreamBuf *FixedMemInStreamBuf::setbuf(char            *buffer,
                                                  bsl::streamsize  length)
 
 {
-    BSLS_ASSERT_SAFE(buffer || 0 == length);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_REVIEW(buffer || 0 == length);
+    BSLS_REVIEW(0 <= length);
 
     // Reset pointers and length.
     d_buffer_p    = buffer;
@@ -264,8 +264,8 @@ inline
 FixedMemInStreamBuf *FixedMemInStreamBuf::setbuf(const char      *buffer,
                                                  bsl::streamsize  length)
 {
-    BSLS_ASSERT_SAFE(buffer || 0 == length);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_REVIEW(buffer || 0 == length);
+    BSLS_REVIEW(0 <= length);
 
     return setbuf(const_cast<char *>(buffer), length);
 }
@@ -284,8 +284,8 @@ inline
 bsl::streamsize FixedMemInStreamBuf::xsgetn(char_type       *destination,
                                             bsl::streamsize  length)
 {
-    BSLS_ASSERT_SAFE(destination);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_REVIEW(destination);
+    BSLS_REVIEW(0 <= length);
 
     bsl::streamsize charsLeft = egptr() - gptr();
 
@@ -303,7 +303,7 @@ FixedMemInStreamBuf::FixedMemInStreamBuf(const char  *buffer,
 : d_buffer_p(const_cast<char *>(buffer))
 , d_bufferSize(length)
 {
-    BSLS_ASSERT_SAFE(buffer || 0 == length);
+    BSLS_REVIEW(buffer || 0 == length);
 
     setg(d_buffer_p, d_buffer_p, d_buffer_p + d_bufferSize);
 }
@@ -318,8 +318,8 @@ inline
 FixedMemInStreamBuf *FixedMemInStreamBuf::pubsetbuf(const char     *buffer,
                                                     bsl::streamsize length)
 {
-    BSLS_ASSERT_SAFE(buffer || 0 == length);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_REVIEW(buffer || 0 == length);
+    BSLS_REVIEW(0 <= length);
 
     return setbuf(buffer, length);
 }
@@ -328,8 +328,8 @@ inline
 FixedMemInStreamBuf *FixedMemInStreamBuf::pubsetbuf(char           *buffer,
                                                     bsl::streamsize length)
 {
-    BSLS_ASSERT_SAFE(buffer || 0 == length);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_REVIEW(buffer || 0 == length);
+    BSLS_REVIEW(0 <= length);
 
     return setbuf(buffer, length);
 }

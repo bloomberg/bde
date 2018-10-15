@@ -234,7 +234,7 @@ const char *String::strstr(const char *string,
         return 0;                                                     // RETURN
     }
 
-    BSLS_ASSERT_SAFE(string);    // impossible to fail
+    BSLS_REVIEW(string);    // impossible to fail
 
     const char *end = string + stringLen - subStringLen;
 
@@ -265,7 +265,7 @@ const char *String::strstrCaseless(const char *string,
         return 0;                                                     // RETURN
     }
 
-    BSLS_ASSERT_SAFE(string);    // impossible to fail
+    BSLS_REVIEW(string);    // impossible to fail
 
     const char *end = string + stringLen - subStringLen;
 
@@ -296,7 +296,7 @@ const char *String::strrstr(const char *string,
         return 0;                                                     // RETURN
     }
 
-    BSLS_ASSERT_SAFE(string);    // impossible to fail
+    BSLS_REVIEW(string);    // impossible to fail
 
     for (int i = stringLen; i >= subStringLen; --i) {
         const char *p = string + i - subStringLen;
@@ -327,7 +327,7 @@ const char *String::strrstrCaseless(const char *string,
         return 0;                                                     // RETURN
     }
 
-    BSLS_ASSERT_SAFE(string);    // impossible to fail
+    BSLS_REVIEW(string);    // impossible to fail
 
     for (int i = stringLen; i >= subStringLen; --i) {
         const char *p = string + i - subStringLen;

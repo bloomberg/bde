@@ -14,6 +14,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bsls_review.h>
+
 #include <bsl_iostream.h>
 #include <bsl_cstdlib.h>   // atoi()
 #include <bsl_cstring.h>   // memset()
@@ -5603,6 +5605,9 @@ int main(int argc, char *argv[])
     int veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
 #define CASE(NUMBER)                                                          \

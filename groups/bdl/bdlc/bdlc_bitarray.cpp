@@ -31,8 +31,8 @@ uint64_t rawLt64(int numBits)
     // that this is a faster version of 'bdlb::BitMaskUtil::lt64' with a
     // narrower contract.
 {
-    BSLS_ASSERT_SAFE(0 <= numBits);
-    BSLS_ASSERT_SAFE(     numBits < BitArray::k_BITS_PER_UINT64);
+    BSLS_REVIEW(0 <= numBits);
+    BSLS_REVIEW(     numBits < BitArray::k_BITS_PER_UINT64);
 
     return (static_cast<uint64_t>(1) << numBits) - 1;
 }
@@ -75,7 +75,7 @@ BitArray::BitArray(const BitArray&   original,
 : d_array(original.d_array, basicAllocator)
 , d_length(original.d_length)
 {
-    BSLS_ASSERT_SAFE(!d_array.empty());
+    BSLS_REVIEW(!d_array.empty());
 }
 
 BitArray::~BitArray()
@@ -188,7 +188,7 @@ void BitArray::setLength(size_t newLength, bool value)
     const size_t oldLength = d_length;
     const int    oldPos    = static_cast<unsigned>(oldLength) %
                                                              k_BITS_PER_UINT64;
-    BSLS_ASSERT_SAFE((!oldPos && oldLength) ||
+    BSLS_REVIEW((!oldPos && oldLength) ||
                           !(d_array.back() & bdlb::BitMaskUtil::ge64(oldPos)));
 
     if (oldLength < newLength) {

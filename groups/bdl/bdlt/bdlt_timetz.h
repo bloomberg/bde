@@ -383,7 +383,7 @@ TimeTz::TimeTz(const Time& localTime, int offset)
 : d_localTime(localTime)
 , d_offset(offset)
 {
-    BSLS_ASSERT_SAFE(isValid(localTime, offset));
+    BSLS_REVIEW(isValid(localTime, offset));
 }
 
 inline
@@ -396,7 +396,7 @@ TimeTz::TimeTz(const TimeTz& original)
 inline
 TimeTz::~TimeTz()
 {
-    BSLS_ASSERT_SAFE(isValid(d_localTime, d_offset));
+    BSLS_REVIEW(isValid(d_localTime, d_offset));
 }
 
 // MANIPULATORS
@@ -412,7 +412,7 @@ TimeTz& TimeTz::operator=(const TimeTz& rhs)
 inline
 void TimeTz::setTimeTz(const Time& localTime, int offset)
 {
-    BSLS_ASSERT_SAFE(isValid(localTime, offset));
+    BSLS_REVIEW(isValid(localTime, offset));
 
     d_localTime = localTime;
     d_offset    = offset;

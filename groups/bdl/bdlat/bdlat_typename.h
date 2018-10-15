@@ -757,7 +757,7 @@ const char *bdlat_TypeName_Imp::xsdName(const TYPE *object, int)
 inline
 const char *bdlat_TypeName_Imp::xsdName(const bool *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
                   || FMode::e_DEC     == (format & FMode::e_TYPE_MASK)
                   || FMode::e_TEXT    == (format & FMode::e_TYPE_MASK));
 
@@ -775,7 +775,7 @@ inline
 const char*
 bdlat_TypeName_Imp::xsdName(const unsigned short *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
                   || FMode::e_DEC     == (format & FMode::e_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
@@ -785,7 +785,7 @@ bdlat_TypeName_Imp::xsdName(const unsigned short *, int format)
 inline
 const char *bdlat_TypeName_Imp::xsdName(const int *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
                   || FMode::e_DEC     == (format & FMode::e_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
@@ -795,7 +795,7 @@ const char *bdlat_TypeName_Imp::xsdName(const int *, int format)
 inline
 const char *bdlat_TypeName_Imp::xsdName(const unsigned int *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
                   || FMode::e_DEC     == (format & FMode::e_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
@@ -805,7 +805,7 @@ const char *bdlat_TypeName_Imp::xsdName(const unsigned int *, int format)
 inline
 const char *bdlat_TypeName_Imp::xsdName(const long *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
                   || FMode::e_DEC     == (format & FMode::e_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
@@ -816,7 +816,7 @@ inline
 const char*
 bdlat_TypeName_Imp::xsdName(const unsigned long *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
                   || FMode::e_DEC     == (format & FMode::e_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
@@ -827,7 +827,7 @@ inline
 const char*
 bdlat_TypeName_Imp::xsdName(const bsls::Types::Int64 *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
                   || FMode::e_DEC     == (format & FMode::e_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
@@ -838,7 +838,7 @@ inline
 const char*
 bdlat_TypeName_Imp::xsdName(const bsls::Types::Uint64 *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK)
                   || FMode::e_DEC     == (format & FMode::e_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
@@ -869,7 +869,7 @@ bdlat_TypeName_Imp::xsdName(const unsigned char *const *, int format)
 inline
 const char *bdlat_TypeName_Imp::xsdName(const bdlt::Date *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK));
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
     return BDLAT_XSDNAME_DATE;
@@ -878,7 +878,7 @@ const char *bdlat_TypeName_Imp::xsdName(const bdlt::Date *, int format)
 inline
 const char *bdlat_TypeName_Imp::xsdName(const bdlt::DateTz *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK));
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
     return BDLAT_XSDNAME_DATE;
@@ -888,7 +888,7 @@ inline
 const char*
 bdlat_TypeName_Imp::xsdName(const bdlt::Datetime *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK));
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
     return BDLAT_XSDNAME_DATETIME;
@@ -898,7 +898,7 @@ inline
 const char*
 bdlat_TypeName_Imp::xsdName(const bdlt::DatetimeTz *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK));
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
     return BDLAT_XSDNAME_DATETIME;
@@ -907,7 +907,7 @@ bdlat_TypeName_Imp::xsdName(const bdlt::DatetimeTz *, int format)
 inline
 const char *bdlat_TypeName_Imp::xsdName(const bdlt::Time *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK));
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
     return BDLAT_XSDNAME_TIME;
@@ -916,7 +916,7 @@ const char *bdlat_TypeName_Imp::xsdName(const bdlt::Time *, int format)
 inline
 const char *bdlat_TypeName_Imp::xsdName(const bdlt::TimeTz *, int format)
 {
-    BSLS_ASSERT_SAFE(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK));
+    BSLS_REVIEW(FMode::e_DEFAULT == (format & FMode::e_TYPE_MASK));
 
     (void)format;  // suppress warning if assert is disabled
     return BDLAT_XSDNAME_TIME;

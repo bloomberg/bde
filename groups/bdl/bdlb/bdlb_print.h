@@ -351,8 +351,8 @@ bsl::ostream& Print::singleLineHexDump(bsl::ostream&  stream,
                                        const char    *buffer,
                                        int            length)
 {
-    BSLS_ASSERT_SAFE(buffer);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_REVIEW(buffer);
+    BSLS_REVIEW(0 <= length);
 
     return singleLineHexDump(stream, buffer, buffer + length);
 }
@@ -368,8 +368,8 @@ PrintStringHexDumper::PrintStringHexDumper(const char *data,
 : d_data_p(data)
 , d_length(length)
 {
-    BSLS_ASSERT_SAFE(data);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_REVIEW(data);
+    BSLS_REVIEW(0 <= length);
 
 }
 }  // close package namespace
@@ -395,8 +395,8 @@ PrintStringSingleLineHexDumper::PrintStringSingleLineHexDumper(
 : d_data_p(data)
 , d_length(length)
 {
-    BSLS_ASSERT_SAFE(data);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_REVIEW(data);
+    BSLS_REVIEW(0 <= length);
 }
 }  // close package namespace
 

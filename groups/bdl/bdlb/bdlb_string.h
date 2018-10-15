@@ -344,7 +344,7 @@ inline
 bool String::areEqualCaseless(const char         *lhsString,
                               const bsl::string&  rhsString)
 {
-    BSLS_ASSERT_SAFE(lhsString);
+    BSLS_REVIEW(lhsString);
 
     return areEqualCaseless(lhsString,
                             &rhsString[0],
@@ -356,9 +356,9 @@ bool String::areEqualCaseless(const char *lhsString,
                               int         lhsLength,
                               const char *rhsString)
 {
-    BSLS_ASSERT_SAFE(lhsString || 0 == lhsLength);
-    BSLS_ASSERT_SAFE(0 <= lhsLength);
-    BSLS_ASSERT_SAFE(rhsString);
+    BSLS_REVIEW(lhsString || 0 == lhsLength);
+    BSLS_REVIEW(0 <= lhsLength);
+    BSLS_REVIEW(rhsString);
 
     return areEqualCaseless(rhsString, lhsString, lhsLength);
 }
@@ -368,8 +368,8 @@ bool String::areEqualCaseless(const char         *lhsString,
                               int                 lhsLength,
                               const bsl::string&  rhsString)
 {
-    BSLS_ASSERT_SAFE(lhsString || 0 == lhsLength);
-    BSLS_ASSERT_SAFE(0 <= lhsLength);
+    BSLS_REVIEW(lhsString || 0 == lhsLength);
+    BSLS_REVIEW(0 <= lhsLength);
 
     return areEqualCaseless(lhsString,
                             lhsLength,
@@ -381,7 +381,7 @@ inline
 bool String::areEqualCaseless(const bsl::string&  lhsString,
                               const char         *rhsString)
 {
-    BSLS_ASSERT_SAFE(rhsString);
+    BSLS_REVIEW(rhsString);
 
     return areEqualCaseless(rhsString,
                             lhsString.data(),
@@ -393,8 +393,8 @@ bool String::areEqualCaseless(const bsl::string&  lhsString,
                               const char         *rhsString,
                               int                 rhsLength)
 {
-    BSLS_ASSERT_SAFE(rhsString || 0 == rhsLength);
-    BSLS_ASSERT_SAFE(0 <= rhsLength);
+    BSLS_REVIEW(rhsString || 0 == rhsLength);
+    BSLS_REVIEW(0 <= rhsLength);
 
     return areEqualCaseless(lhsString.data(),
                             static_cast<int>(lhsString.size()),
@@ -415,8 +415,8 @@ bool String::areEqualCaseless(const bsl::string& lhsString,
 inline
 char *String::copy(const char *string, bslma::Allocator *basicAllocator)
 {
-    BSLS_ASSERT_SAFE(string);
-    BSLS_ASSERT_SAFE(basicAllocator);
+    BSLS_REVIEW(string);
+    BSLS_REVIEW(basicAllocator);
 
     return copy(string,
                 static_cast<int>(bsl::strlen(string)),
@@ -427,7 +427,7 @@ inline
 char *String::copy(const bsl::string&  string,
                    bslma::Allocator   *basicAllocator)
 {
-    BSLS_ASSERT_SAFE(basicAllocator);
+    BSLS_REVIEW(basicAllocator);
 
     return copy(string.data(),
                 static_cast<int>(string.length()),
@@ -438,7 +438,7 @@ inline
 int String::lowerCaseCmp(const char         *lhsString,
                          const bsl::string&  rhsString)
 {
-    BSLS_ASSERT_SAFE(lhsString);
+    BSLS_REVIEW(lhsString);
 
     return lowerCaseCmp(lhsString,
                         &rhsString[0],
@@ -450,9 +450,9 @@ int String::lowerCaseCmp(const char *lhsString,
                          int         lhsLength,
                          const char *rhsString)
 {
-    BSLS_ASSERT_SAFE(lhsString || 0 == lhsLength);
-    BSLS_ASSERT_SAFE(0 <= lhsLength);
-    BSLS_ASSERT_SAFE(rhsString);
+    BSLS_REVIEW(lhsString || 0 == lhsLength);
+    BSLS_REVIEW(0 <= lhsLength);
+    BSLS_REVIEW(rhsString);
 
     return -lowerCaseCmp(rhsString, lhsString, lhsLength);
 }
@@ -462,8 +462,8 @@ int String::lowerCaseCmp(const char         *lhsString,
                          int                 lhsLength,
                          const bsl::string&  rhsString)
 {
-    BSLS_ASSERT_SAFE(lhsString || 0 == lhsLength);
-    BSLS_ASSERT_SAFE(0 <= lhsLength);
+    BSLS_REVIEW(lhsString || 0 == lhsLength);
+    BSLS_REVIEW(0 <= lhsLength);
 
     return lowerCaseCmp(lhsString,
                         lhsLength,
@@ -475,7 +475,7 @@ inline
 int String::lowerCaseCmp(const bsl::string&  lhsString,
                          const char         *rhsString)
 {
-    BSLS_ASSERT_SAFE(rhsString);
+    BSLS_REVIEW(rhsString);
 
     return -lowerCaseCmp(rhsString,
                          lhsString.data(),
@@ -487,8 +487,8 @@ int String::lowerCaseCmp(const bsl::string&  lhsString,
                          const char         *rhsString,
                          int                 rhsLength)
 {
-    BSLS_ASSERT_SAFE(rhsString || 0 == rhsLength);
-    BSLS_ASSERT_SAFE(0 <= rhsLength);
+    BSLS_REVIEW(rhsString || 0 == rhsLength);
+    BSLS_REVIEW(0 <= rhsLength);
 
     return lowerCaseCmp(lhsString.data(),
                         static_cast<int>(lhsString.size()),
@@ -509,7 +509,7 @@ int String::lowerCaseCmp(const bsl::string& lhsString,
 inline
 void String::ltrim(bsl::string *string)
 {
-    BSLS_ASSERT_SAFE(string);
+    BSLS_REVIEW(string);
 
     int length = static_cast<int>(string->size());
     if (length > 0) {
@@ -521,8 +521,8 @@ void String::ltrim(bsl::string *string)
 inline
 void String::pad(bsl::string *string, int numChars, char padChar)
 {
-    BSLS_ASSERT_SAFE(string);
-    BSLS_ASSERT_SAFE(0 <= numChars);
+    BSLS_REVIEW(string);
+    BSLS_REVIEW(0 <= numChars);
 
     if (string->size() < static_cast<bsl::size_t>(numChars)) {
         string->resize(numChars, padChar);
@@ -532,7 +532,7 @@ void String::pad(bsl::string *string, int numChars, char padChar)
 inline
 void String::rtrim(bsl::string *string)
 {
-    BSLS_ASSERT_SAFE(string);
+    BSLS_REVIEW(string);
 
     int length = static_cast<int>(string->size());
     if (length > 0) {
@@ -544,7 +544,7 @@ void String::rtrim(bsl::string *string)
 inline
 void String::toLower(bsl::string *string)
 {
-    BSLS_ASSERT_SAFE(string);
+    BSLS_REVIEW(string);
 
     int length = static_cast<int>(string->size());
     if (length > 0) {
@@ -555,7 +555,7 @@ void String::toLower(bsl::string *string)
 inline
 void String::toUpper(bsl::string *string)
 {
-    BSLS_ASSERT_SAFE(string);
+    BSLS_REVIEW(string);
 
     int length = static_cast<int>(string->size());
     if (length > 0) {
@@ -566,9 +566,9 @@ void String::toUpper(bsl::string *string)
 inline
 void String::trim(char *string, int *length)
 {
-    BSLS_ASSERT_SAFE(string);
-    BSLS_ASSERT_SAFE(length);
-    BSLS_ASSERT_SAFE(0 <= *length);
+    BSLS_REVIEW(string);
+    BSLS_REVIEW(length);
+    BSLS_REVIEW(0 <= *length);
 
     rtrim(string, length);
     ltrim(string, length);
@@ -577,7 +577,7 @@ void String::trim(char *string, int *length)
 inline
 void String::trim(bsl::string *string)
 {
-    BSLS_ASSERT_SAFE(string);
+    BSLS_REVIEW(string);
 
     int length = static_cast<int>(string->size());
     if (length > 0) {
@@ -591,7 +591,7 @@ inline
 int String::upperCaseCmp(const char         *lhsString,
                          const bsl::string&  rhsString)
 {
-    BSLS_ASSERT_SAFE(lhsString);
+    BSLS_REVIEW(lhsString);
 
     return upperCaseCmp(lhsString,
                         &rhsString[0],
@@ -603,9 +603,9 @@ int String::upperCaseCmp(const char *lhsString,
                          int         lhsLength,
                          const char *rhsString)
 {
-    BSLS_ASSERT_SAFE(lhsString || 0 == lhsLength);
-    BSLS_ASSERT_SAFE(0 <= lhsLength);
-    BSLS_ASSERT_SAFE(rhsString);
+    BSLS_REVIEW(lhsString || 0 == lhsLength);
+    BSLS_REVIEW(0 <= lhsLength);
+    BSLS_REVIEW(rhsString);
 
     return -upperCaseCmp(rhsString, lhsString, lhsLength);
 }
@@ -615,8 +615,8 @@ int String::upperCaseCmp(const char         *lhsString,
                          int                 lhsLength,
                          const bsl::string&  rhsString)
 {
-    BSLS_ASSERT_SAFE(lhsString || 0 == lhsLength);
-    BSLS_ASSERT_SAFE(0 <= lhsLength);
+    BSLS_REVIEW(lhsString || 0 == lhsLength);
+    BSLS_REVIEW(0 <= lhsLength);
 
     return upperCaseCmp(lhsString,
                         lhsLength,
@@ -628,7 +628,7 @@ inline
 int String::upperCaseCmp(const bsl::string&  lhsString,
                          const char         *rhsString)
 {
-    BSLS_ASSERT_SAFE(rhsString);
+    BSLS_REVIEW(rhsString);
 
     return -upperCaseCmp(rhsString,
                          lhsString.data(),
@@ -640,8 +640,8 @@ int String::upperCaseCmp(const bsl::string&  lhsString,
                          const char         *rhsString,
                          int                 rhsLength)
 {
-    BSLS_ASSERT_SAFE(rhsString || 0 == rhsLength);
-    BSLS_ASSERT_SAFE(0 <= rhsLength);
+    BSLS_REVIEW(rhsString || 0 == rhsLength);
+    BSLS_REVIEW(0 <= rhsLength);
 
     return upperCaseCmp(lhsString.data(),
                         static_cast<int>(lhsString.size()),

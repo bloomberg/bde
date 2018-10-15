@@ -593,7 +593,7 @@ inline
 TYPE *ObjectCatalog<TYPE>::getNodeValue(
                                       typename ObjectCatalog<TYPE>::Node *node)
 {
-    BSLS_ASSERT_SAFE(node);
+    BSLS_REVIEW(node);
 
     return node->d_payload.d_value.address();
 }
@@ -667,7 +667,7 @@ int ObjectCatalog<TYPE>::add(const TYPE& object)
         // If 'd_nodes' grows as big as the flags used to indicate BUSY and
         // generations, then the handle will be all mixed up!
 
-        BSLS_ASSERT_SAFE(d_nodes.size() < k_BUSY_INDICATOR);
+        BSLS_REVIEW(d_nodes.size() < k_BUSY_INDICATOR);
 
         node = (Node *)d_nodePool.allocate();
         proctor.manageNode(node, true);
@@ -798,24 +798,24 @@ void ObjectCatalog<TYPE>::verifyState() const
 {
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_lock);
 
-    BSLS_ASSERT_SAFE((int)d_nodes.size() >= d_length);
-    BSLS_ASSERT_SAFE(d_length >= 0);
+    BSLS_REVIEW((int)d_nodes.size() >= d_length);
+    BSLS_REVIEW(d_length >= 0);
 
     int nBusy = 0;
     for (int i = 0; i < (int)d_nodes.size(); i++) {
-        BSLS_ASSERT_SAFE((d_nodes[i]->d_handle & k_INDEX_MASK) == (unsigned)i);
+        BSLS_REVIEW((d_nodes[i]->d_handle & k_INDEX_MASK) == (unsigned)i);
         if (d_nodes[i]->d_handle & k_BUSY_INDICATOR) {
             nBusy++;
         }
     }
-    BSLS_ASSERT_SAFE(d_length == nBusy);
+    BSLS_REVIEW(d_length == nBusy);
 
     int nFree = 0;
     for (Node *p = d_nextFreeNode_p; p; p = p->d_payload.d_next_p) {
         nFree++;
     }
 
-    BSLS_ASSERT_SAFE(nFree+nBusy == (int)d_nodes.size());
+    BSLS_REVIEW(nFree+nBusy == (int)d_nodes.size());
 }
 
                             // -----------------

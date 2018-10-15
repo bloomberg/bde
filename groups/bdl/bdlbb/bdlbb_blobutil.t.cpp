@@ -21,6 +21,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_cstddef.h>
@@ -340,6 +341,9 @@ int main(int argc, char *argv[]) {
     veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
       case 10: {

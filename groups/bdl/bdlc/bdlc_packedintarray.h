@@ -1443,7 +1443,7 @@ inline
 bsl::size_t PackedIntArrayImp<STORAGE>::nextCapacityGE(bsl::size_t minValue,
                                                        bsl::size_t value)
 {
-    BSLS_ASSERT_SAFE(minValue <= k_MAX_CAPACITY);
+    BSLS_REVIEW(minValue <= k_MAX_CAPACITY);
 
     static const bsl::size_t k_TOP_CAPACITY = k_MAX_CAPACITY / 3 * 2 - 3;
 
@@ -1591,7 +1591,7 @@ void PackedIntArrayImp<STORAGE>::insert(
                                     bsl::size_t                       dstIndex,
                                     const PackedIntArrayImp<STORAGE>& srcArray)
 {
-    BSLS_ASSERT_SAFE(dstIndex <= d_length);
+    BSLS_REVIEW(dstIndex <= d_length);
 
     insert(dstIndex, srcArray, 0, srcArray.length());
 }
@@ -1616,7 +1616,7 @@ template <class STORAGE>
 inline
 void PackedIntArrayImp<STORAGE>::remove(bsl::size_t dstIndex)
 {
-    BSLS_ASSERT_SAFE(dstIndex < d_length);
+    BSLS_REVIEW(dstIndex < d_length);
 
     remove(dstIndex, 1);
 }
@@ -1627,8 +1627,8 @@ void PackedIntArrayImp<STORAGE>::remove(bsl::size_t dstIndex,
                                         bsl::size_t numElements)
 {
     // Assert 'dstIndex + numElements <= d_length' without risk of overflow.
-    BSLS_ASSERT_SAFE(numElements <= d_length);
-    BSLS_ASSERT_SAFE(dstIndex    <= d_length - numElements);
+    BSLS_REVIEW(numElements <= d_length);
+    BSLS_REVIEW(dstIndex    <= d_length - numElements);
 
     d_length -= numElements;
 
@@ -1650,7 +1650,7 @@ inline
 void PackedIntArrayImp<STORAGE>::reserveCapacity(bsl::size_t numElements)
 {
     // Test for potential overflow.
-    BSLS_ASSERT_SAFE(k_MAX_CAPACITY / d_bytesPerElement >= numElements);
+    BSLS_REVIEW(k_MAX_CAPACITY / d_bytesPerElement >= numElements);
 
     size_t requiredCapacityInBytes = d_bytesPerElement * numElements;
     if (requiredCapacityInBytes > d_capacityInBytes) {
@@ -1663,7 +1663,7 @@ inline
 void PackedIntArrayImp<STORAGE>::reserveCapacity(bsl::size_t numElements,
                                                  ElementType maxValue)
 {
-    BSLS_ASSERT_SAFE(0 <= maxValue);
+    BSLS_REVIEW(0 <= maxValue);
 
     int requiredBytesPerElement = d_bytesPerElement;
 
@@ -1673,7 +1673,7 @@ void PackedIntArrayImp<STORAGE>::reserveCapacity(bsl::size_t numElements,
     }
 
     // Test for potential overflow.
-    BSLS_ASSERT_SAFE(k_MAX_CAPACITY / requiredBytesPerElement >= numElements);
+    BSLS_REVIEW(k_MAX_CAPACITY / requiredBytesPerElement >= numElements);
 
     size_t requiredCapacityInBytes = requiredBytesPerElement * numElements;
 
@@ -1696,7 +1696,7 @@ void PackedIntArrayImp<PackedIntArrayImp_Unsigned>::
     }
 
     // Test for potential overflow.
-    BSLS_ASSERT_SAFE(k_MAX_CAPACITY / requiredBytesPerElement >= numElements);
+    BSLS_REVIEW(k_MAX_CAPACITY / requiredBytesPerElement >= numElements);
 
     size_t requiredCapacityInBytes = requiredBytesPerElement * numElements;
 
@@ -1711,7 +1711,7 @@ void PackedIntArrayImp<STORAGE>::reserveCapacity(bsl::size_t numElements,
                                                  ElementType minValue,
                                                  ElementType maxValue)
 {
-    BSLS_ASSERT_SAFE(minValue <= maxValue);
+    BSLS_REVIEW(minValue <= maxValue);
 
     int requiredBytesPerElement = d_bytesPerElement;
 
@@ -1726,7 +1726,7 @@ void PackedIntArrayImp<STORAGE>::reserveCapacity(bsl::size_t numElements,
     }
 
     // Test for potential overflow.
-    BSLS_ASSERT_SAFE(k_MAX_CAPACITY / requiredBytesPerElement >= numElements);
+    BSLS_REVIEW(k_MAX_CAPACITY / requiredBytesPerElement >= numElements);
 
     size_t requiredCapacityInBytes = requiredBytesPerElement * numElements;
 
@@ -1752,7 +1752,7 @@ template <class STORAGE>
 inline
 void PackedIntArrayImp<STORAGE>::swap(PackedIntArrayImp<STORAGE>& other)
 {
-    BSLS_ASSERT_SAFE(d_allocator_p == other.d_allocator_p);
+    BSLS_REVIEW(d_allocator_p == other.d_allocator_p);
 
     bslalg::SwapUtil::swap(&d_storage_p,        &other.d_storage_p);
     bslalg::SwapUtil::swap(&d_length,           &other.d_length);
@@ -1878,7 +1878,7 @@ PackedIntArrayConstIterator<TYPE>::PackedIntArrayConstIterator(
 : d_array_p(array)
 , d_index(index)
 {
-    BSLS_ASSERT_SAFE(d_index <= d_array_p->length());
+    BSLS_REVIEW(d_index <= d_array_p->length());
 }
 
 // CREATORS
@@ -2089,9 +2089,9 @@ inline
 bsl::ptrdiff_t bdlc::operator-(const PackedIntArrayConstIterator<TYPE>& lhs,
                                const PackedIntArrayConstIterator<TYPE>& rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
+    BSLS_REVIEW(lhs.d_array_p == rhs.d_array_p);
 
-    BSLS_ASSERT_SAFE(
+    BSLS_REVIEW(
           lhs.d_index >= rhs.d_index
         ? lhs.d_index - rhs.d_index <=
                         bsl::size_t(bsl::numeric_limits<bsl::ptrdiff_t>::max())
@@ -2106,7 +2106,7 @@ inline
 bool bdlc::operator<(const PackedIntArrayConstIterator<TYPE>& lhs,
                      const PackedIntArrayConstIterator<TYPE>& rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
+    BSLS_REVIEW(lhs.d_array_p == rhs.d_array_p);
 
     return lhs.d_index < rhs.d_index;
 }
@@ -2116,7 +2116,7 @@ inline
 bool bdlc::operator<=(const PackedIntArrayConstIterator<TYPE>& lhs,
                       const PackedIntArrayConstIterator<TYPE>& rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
+    BSLS_REVIEW(lhs.d_array_p == rhs.d_array_p);
 
     return lhs.d_index <= rhs.d_index;
 }
@@ -2126,7 +2126,7 @@ inline
 bool bdlc::operator>(const PackedIntArrayConstIterator<TYPE>& lhs,
                      const PackedIntArrayConstIterator<TYPE>& rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
+    BSLS_REVIEW(lhs.d_array_p == rhs.d_array_p);
 
     return lhs.d_index > rhs.d_index;
 }
@@ -2136,7 +2136,7 @@ inline
 bool bdlc::operator>=(const PackedIntArrayConstIterator<TYPE>& lhs,
                       const PackedIntArrayConstIterator<TYPE>& rhs)
 {
-    BSLS_ASSERT_SAFE(lhs.d_array_p == rhs.d_array_p);
+    BSLS_REVIEW(lhs.d_array_p == rhs.d_array_p);
 
     return lhs.d_index >= rhs.d_index;
 }
@@ -2221,8 +2221,8 @@ void PackedIntArray<TYPE>::append(const PackedIntArray<TYPE>& srcArray,
 {
     // Assert 'srcIndex + numElements <= srcArray.length()' without risk of
     // overflow.
-    BSLS_ASSERT_SAFE(numElements <= srcArray.length());
-    BSLS_ASSERT_SAFE(srcIndex    <= srcArray.length() - numElements);
+    BSLS_REVIEW(numElements <= srcArray.length());
+    BSLS_REVIEW(srcIndex    <= srcArray.length() - numElements);
 
     d_imp.append(srcArray.d_imp, srcIndex, numElements);
 }
@@ -2258,7 +2258,7 @@ inline
 void PackedIntArray<TYPE>::insert(bsl::size_t                 dstIndex,
                                   const PackedIntArray<TYPE>& srcArray)
 {
-    BSLS_ASSERT_SAFE(dstIndex <= length());
+    BSLS_REVIEW(dstIndex <= length());
 
     d_imp.insert(dstIndex, srcArray.d_imp);
 }
@@ -2270,12 +2270,12 @@ void PackedIntArray<TYPE>::insert(bsl::size_t                 dstIndex,
                                   bsl::size_t                 srcIndex,
                                   bsl::size_t                 numElements)
 {
-    BSLS_ASSERT_SAFE(dstIndex <= length());
+    BSLS_REVIEW(dstIndex <= length());
 
     // Assert 'srcIndex + numElements <= srcArray.length()' without risk of
     // overflow.
-    BSLS_ASSERT_SAFE(numElements <= srcArray.length());
-    BSLS_ASSERT_SAFE(srcIndex    <= srcArray.length() - numElements);
+    BSLS_REVIEW(numElements <= srcArray.length());
+    BSLS_REVIEW(srcIndex    <= srcArray.length() - numElements);
 
     d_imp.insert(dstIndex, srcArray.d_imp, srcIndex, numElements);
 }
@@ -2311,8 +2311,8 @@ void PackedIntArray<TYPE>::remove(bsl::size_t dstIndex,
                                   bsl::size_t numElements)
 {
     // Assert 'dstIndex + numElements <= length()' without risk of overflow.
-    BSLS_ASSERT_SAFE(numElements <= length());
-    BSLS_ASSERT_SAFE(dstIndex    <= length() - numElements);
+    BSLS_REVIEW(numElements <= length());
+    BSLS_REVIEW(dstIndex    <= length() - numElements);
 
     d_imp.remove(dstIndex, numElements);
 }
@@ -2322,7 +2322,7 @@ inline
 typename PackedIntArray<TYPE>::const_iterator
   PackedIntArray<TYPE>::remove(const_iterator dstFirst, const_iterator dstLast)
 {
-    BSLS_ASSERT_SAFE(dstFirst <= dstLast);
+    BSLS_REVIEW(dstFirst <= dstLast);
 
     remove(dstFirst.d_index, dstLast.d_index - dstFirst.d_index);
     return dstFirst;
@@ -2352,13 +2352,13 @@ void PackedIntArray<TYPE>::replace(bsl::size_t                 dstIndex,
                                    bsl::size_t                 numElements)
 {
     // Assert 'dstIndex + numElements <= length()' without risk of overflow.
-    BSLS_ASSERT_SAFE(numElements <= length());
-    BSLS_ASSERT_SAFE(dstIndex    <= length() - numElements);
+    BSLS_REVIEW(numElements <= length());
+    BSLS_REVIEW(dstIndex    <= length() - numElements);
 
     // Assert 'srcIndex + numElements <= srcArray.length()' without risk of
     // overflow.
-    BSLS_ASSERT_SAFE(numElements <= srcArray.length());
-    BSLS_ASSERT_SAFE(srcIndex    <= srcArray.length() - numElements);
+    BSLS_REVIEW(numElements <= srcArray.length());
+    BSLS_REVIEW(srcIndex    <= srcArray.length() - numElements);
 
     d_imp.replace(dstIndex, srcArray.d_imp, srcIndex, numElements);
 }
@@ -2368,7 +2368,7 @@ inline
 void PackedIntArray<TYPE>::reserveCapacity(bsl::size_t numElements)
 {
     // Test for potential overflow.
-    BSLS_ASSERT_SAFE(
+    BSLS_REVIEW(
              ImpType::k_MAX_CAPACITY / k_MAX_BYTES_PER_ELEMENT >= numElements);
 
     d_imp.reserveCapacityImp(numElements * k_MAX_BYTES_PER_ELEMENT);
@@ -2391,7 +2391,7 @@ void PackedIntArray<TYPE>::reserveCapacity(bsl::size_t numElements,
                                            TYPE        minValue,
                                            TYPE        maxValue)
 {
-    BSLS_ASSERT_SAFE(minValue <= maxValue);
+    BSLS_REVIEW(minValue <= maxValue);
 
     d_imp.reserveCapacity(numElements, minValue, maxValue);
 }
@@ -2407,7 +2407,7 @@ template <class TYPE>
 inline
 void PackedIntArray<TYPE>::swap(PackedIntArray<TYPE>& other)
 {
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_REVIEW(allocator() == other.allocator());
 
     d_imp.swap(other.d_imp);
 }

@@ -220,7 +220,7 @@ inline
 int DatetimeUtil::convertFromTm(Datetime       *result,
                                 const bsl::tm&  timeStruct)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_REVIEW(result);
 
     bool isLeapSecond = false;
     int  seconds      = timeStruct.tm_sec;
@@ -279,7 +279,7 @@ bsl::tm DatetimeUtil::convertToTm(const Datetime& datetime)
 inline
 void DatetimeUtil::convertToTm(bsl::tm *result, const Datetime& datetime)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_REVIEW(result);
 
     *result = convertToTm(datetime);
 }

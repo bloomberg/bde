@@ -353,8 +353,8 @@ Date DateUtil::addYears(const Date& original, int numYears, bool eomFlag)
 inline
 Date DateUtil::addYearsEom(const Date& original, int numYears)
 {
-    BSLS_ASSERT_SAFE(   1 <= original.year() + numYears);
-    BSLS_ASSERT_SAFE(9999 >= original.year() + numYears);
+    BSLS_REVIEW(   1 <= original.year() + numYears);
+    BSLS_REVIEW(9999 >= original.year() + numYears);
 
     if (2 == original.month() && 28 <= original.day()) {
         return addYearsEomEndOfFebruary(original, numYears);          // RETURN
@@ -365,8 +365,8 @@ Date DateUtil::addYearsEom(const Date& original, int numYears)
 inline
 Date DateUtil::addYearsNoEom(const Date& original, int numYears)
 {
-    BSLS_ASSERT_SAFE(   1 <= original.year() + numYears);
-    BSLS_ASSERT_SAFE(9999 >= original.year() + numYears);
+    BSLS_REVIEW(   1 <= original.year() + numYears);
+    BSLS_REVIEW(9999 >= original.year() + numYears);
 
     const int newYear = original.year() + numYears;
 
@@ -383,7 +383,7 @@ Date DateUtil::addYearsNoEom(const Date& original, int numYears)
 inline
 int DateUtil::convertFromYYYYMMDD(Date *result, int yyyymmddValue)
 {
-    BSLS_ASSERT_SAFE(result);
+    BSLS_REVIEW(result);
 
     if (!isValidYYYYMMDD(yyyymmddValue)) {
         return 1;                                                     // RETURN
@@ -424,8 +424,8 @@ bool DateUtil::isValidYYYYMMDD(int yyyymmddValue)
 inline
 Date DateUtil::lastDayInMonth(int year, int month)
 {
-    BSLS_ASSERT_SAFE(1 <= year);   BSLS_ASSERT_SAFE(year  <= 9999);
-    BSLS_ASSERT_SAFE(1 <= month);  BSLS_ASSERT_SAFE(month <= 12);
+    BSLS_REVIEW(1 <= year);   BSLS_REVIEW(year  <= 9999);
+    BSLS_REVIEW(1 <= month);  BSLS_REVIEW(month <= 12);
 
     return Date(year,
                 month,

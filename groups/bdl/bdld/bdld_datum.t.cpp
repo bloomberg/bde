@@ -2,8 +2,10 @@
 #include <bdld_datum.h>
 
 #include <bslim_testutil.h>
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_review.h>
 
 #include <bslma_default.h>                      // for testing only
 #include <bslma_defaultallocatorguard.h>        // for testing only
@@ -1610,6 +1612,9 @@ int main(int argc, char *argv[])
     const bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     srand(static_cast<unsigned int>(time(static_cast<time_t *>(0))));
 

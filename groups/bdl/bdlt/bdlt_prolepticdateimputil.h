@@ -565,8 +565,8 @@ struct ProlepticDateImpUtil {
 inline
 bool ProlepticDateImpUtil::isLeapYear(int year)
 {
-    BSLS_ASSERT_SAFE(1 <= year);
-    BSLS_ASSERT_SAFE(     year <= 9999);
+    BSLS_REVIEW(1 <= year);
+    BSLS_REVIEW(     year <= 9999);
 
     // Note the relative probabilities, from most likely to least likely:
     //: o Is not a leap year.
@@ -607,7 +607,7 @@ bool ProlepticDateImpUtil::isValidYearMonthDay(int year, int month, int day)
 inline
 int ProlepticDateImpUtil::serialToDayOfYear(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     int dayOfYear, year;
     serialToYd(&year, &dayOfYear, serialDay);
@@ -619,7 +619,7 @@ int ProlepticDateImpUtil::serialToDayOfYear(int serialDay)
 inline
 int ProlepticDateImpUtil::serialToDayNoCache(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     int year, month, day;
     serialToYmdNoCache(&year, &month, &day, serialDay);
@@ -629,7 +629,7 @@ int ProlepticDateImpUtil::serialToDayNoCache(int serialDay)
 inline
 int ProlepticDateImpUtil::serialToMonthNoCache(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     int year, month, day;
     serialToYmdNoCache(&year, &month, &day, serialDay);
@@ -639,7 +639,7 @@ int ProlepticDateImpUtil::serialToMonthNoCache(int serialDay)
 inline
 int ProlepticDateImpUtil::serialToYearNoCache(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     int year, dayOfYear;
     serialToYd(&year, &dayOfYear, serialDay);
@@ -652,10 +652,10 @@ void ProlepticDateImpUtil::serialToYmdNoCache(int *year,
                                               int *day,
                                               int  serialDay)
 {
-    BSLS_ASSERT_SAFE(year);
-    BSLS_ASSERT_SAFE(month);
-    BSLS_ASSERT_SAFE(day);
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(year);
+    BSLS_REVIEW(month);
+    BSLS_REVIEW(day);
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     int dayOfYear;
     serialToYd(year, &dayOfYear, serialDay);
@@ -687,7 +687,7 @@ int ProlepticDateImpUtil::ydToMonth(int year, int dayOfYear)
 inline
 int ProlepticDateImpUtil::serialToDayOfWeek(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     // 0001/01/01 was a Monday (MON == 2).
 

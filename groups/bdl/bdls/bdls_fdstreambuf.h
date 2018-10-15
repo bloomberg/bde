@@ -1028,7 +1028,7 @@ inline
 bsl::streamoff
 FdStreamBuf_FileHandler::getOffset(char *first, char *last) const
 {
-    BSLS_ASSERT_SAFE(first <= last);
+    BSLS_REVIEW(first <= last);
 
     return d_openModeFlags & bsl::ios_base::binary
            ? last - first

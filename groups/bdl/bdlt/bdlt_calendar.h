@@ -1511,7 +1511,7 @@ void Calendar::reserveHolidayCodeCapacity(int numHolidayCodes)
 inline
 void Calendar::setValidRange(const Date& firstDate, const Date& lastDate)
 {
-    BSLS_ASSERT_SAFE(firstDate <= lastDate);
+    BSLS_REVIEW(firstDate <= lastDate);
 
     if (firstDate <= lastDate) {
         // For backwards compatibility, 'firstDate > lastDate' results in an
@@ -1560,7 +1560,7 @@ void Calendar::swap(Calendar& other)
 {
     // 'swap' is undefined for objects with non-equal allocators.
 
-    BSLS_ASSERT_SAFE(d_packedCalendar.allocator() ==
+    BSLS_REVIEW(d_packedCalendar.allocator() ==
                                            other.d_packedCalendar.allocator());
 
     bslalg::SwapUtil::swap(&d_packedCalendar,  &other.d_packedCalendar);

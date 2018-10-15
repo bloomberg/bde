@@ -3044,8 +3044,8 @@ Datum Datum::createArrayReference(const Datum      *array,
                                   SizeType          length,
                                   bslma::Allocator *basicAllocator)
 {
-    BSLS_ASSERT_SAFE(array || 0 == length);
-    BSLS_ASSERT_SAFE(basicAllocator);
+    BSLS_REVIEW(array || 0 == length);
+    BSLS_REVIEW(basicAllocator);
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     // If the length will fit in the 'd_ushort' area, store everything inline;
@@ -3067,7 +3067,7 @@ Datum Datum::createArrayReference(const Datum      *array,
 #else   // BSLS_PLATFORM_CPU_32_BIT
     (void)basicAllocator;
 
-    BSLS_ASSERT_SAFE(length <= bsl::numeric_limits<unsigned int>::max());
+    BSLS_REVIEW(length <= bsl::numeric_limits<unsigned int>::max());
 
     Datum result;
     result.d_as.d_type  = e_INTERNAL_ARRAY_REFERENCE;
@@ -3081,7 +3081,7 @@ inline
 Datum Datum::createArrayReference(const DatumArrayRef&  value,
                                   bslma::Allocator     *basicAllocator)
 {
-    BSLS_ASSERT_SAFE(basicAllocator);
+    BSLS_REVIEW(basicAllocator);
     return createArrayReference(value.data(), value.length(), basicAllocator);
 }
 
@@ -3284,8 +3284,8 @@ Datum Datum::createStringRef(const char       *string,
                              SizeType          length,
                              bslma::Allocator *basicAllocator)
 {
-    BSLS_ASSERT_SAFE(string || 0 == length);
-    BSLS_ASSERT_SAFE(basicAllocator);
+    BSLS_REVIEW(string || 0 == length);
+    BSLS_REVIEW(basicAllocator);
 
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
@@ -3308,7 +3308,7 @@ Datum Datum::createStringRef(const char       *string,
 #else   // BSLS_PLATFORM_CPU_32_BIT
     (void)basicAllocator;
 
-    BSLS_ASSERT_SAFE(length <= bsl::numeric_limits<unsigned int>::max());
+    BSLS_REVIEW(length <= bsl::numeric_limits<unsigned int>::max());
 
     Datum result;
     result.d_as.d_type  = e_INTERNAL_STRING_REFERENCE;
@@ -3322,8 +3322,8 @@ inline
 Datum Datum::createStringRef(const char       *string,
                              bslma::Allocator *basicAllocator)
 {
-    BSLS_ASSERT_SAFE(string);
-    BSLS_ASSERT_SAFE(basicAllocator);
+    BSLS_REVIEW(string);
+    BSLS_REVIEW(basicAllocator);
 
     return createStringRef(string, bsl::strlen(string), basicAllocator);
 }
@@ -3332,7 +3332,7 @@ inline
 Datum Datum::createStringRef(const bslstl::StringRef&  value,
                              bslma::Allocator         *basicAllocator)
 {
-    BSLS_ASSERT_SAFE(basicAllocator);
+    BSLS_REVIEW(basicAllocator);
     return createStringRef(value.data(), value.length(), basicAllocator);
 }
 
@@ -3349,7 +3349,7 @@ Datum Datum::createTime(const bdlt::Time& value)
     const bool rc = Datum_Helpers32::storeInt48(rawTime,
                                                 &result.d_as.d_short,
                                                 &result.d_as.d_int);
-    BSLS_ASSERT_SAFE(rc);  (void)rc;
+    BSLS_REVIEW(rc);  (void)rc;
 #else   // BSLS_PLATFORM_CPU_32_BIT
     result.d_as.d_type = e_INTERNAL_TIME;
     new (result.theInlineStorage()) bdlt::Time(value);
@@ -3360,7 +3360,7 @@ Datum Datum::createTime(const bdlt::Time& value)
 inline
 Datum Datum::createUdt(void *data, int type)
 {
-    BSLS_ASSERT_SAFE(0 <= type && type <= 65535);
+    BSLS_REVIEW(0 <= type && type <= 65535);
 
     Datum result;
 #ifdef BSLS_PLATFORM_CPU_32_BIT
@@ -3450,7 +3450,7 @@ void Datum::disposeUninitializedArray(
                                    const DatumMutableArrayRef&  array,
                                    bslma::Allocator            *basicAllocator)
 {
-    BSLS_ASSERT_SAFE(basicAllocator);
+    BSLS_REVIEW(basicAllocator);
     basicAllocator->deallocate(array.length());
 }
 
@@ -3459,7 +3459,7 @@ void Datum::disposeUninitializedIntMap(
                                   const DatumMutableIntMapRef&  map,
                                   bslma::Allocator             *basicAllocator)
 {
-    BSLS_ASSERT_SAFE(basicAllocator);
+    BSLS_REVIEW(basicAllocator);
     basicAllocator->deallocate(map.size());
 }
 
@@ -3467,7 +3467,7 @@ inline
 void Datum::disposeUninitializedMap(const DatumMutableMapRef&  map,
 bslma::Allocator          *basicAllocator)
 {
-    BSLS_ASSERT_SAFE(basicAllocator);
+    BSLS_REVIEW(basicAllocator);
     basicAllocator->deallocate(map.size());
 }
 
@@ -3476,7 +3476,7 @@ void Datum::disposeUninitializedMap(
                            const DatumMutableMapOwningKeysRef&  map,
                            bslma::Allocator                    *basicAllocator)
 {
-    BSLS_ASSERT_SAFE(basicAllocator);
+    BSLS_REVIEW(basicAllocator);
     basicAllocator->deallocate(map.size());
 }
 
@@ -3655,7 +3655,7 @@ DatumBinaryRef Datum::theBinary() const
       case e_INTERNAL_BINARY_ALLOC:
         return DatumBinaryRef(d_as.d_ptr, d_as.d_int32);              // RETURN
       default:
-        BSLS_ASSERT_SAFE(!"NOT A BINARY");
+        BSLS_REVIEW(!"NOT A BINARY");
     }
     return DatumBinaryRef();
 #endif // BSLS_PLATFORM_CPU_32_BIT
@@ -3769,7 +3769,7 @@ double Datum::theDouble() const
 inline
 DatumError Datum::theError() const
 {
-    BSLS_ASSERT_SAFE(isError());
+    BSLS_REVIEW(isError());
 
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     // If the extended type is 'e_EXTENDED_INTERNAL_ERROR', we are storing
@@ -4231,7 +4231,7 @@ DatumArrayRef::DatumArrayRef(const Datum *data,
 : d_data_p(data)
 , d_length(length)
 {
-    BSLS_ASSERT_SAFE(data || 0 == length);
+    BSLS_REVIEW(data || 0 == length);
 }
 
 // ACCESSORS
@@ -4309,7 +4309,7 @@ DatumIntMapRef::DatumIntMapRef(const DatumIntMapEntry *data,
 , d_size(size)
 , d_sorted(sorted)
 {
-    BSLS_ASSERT_SAFE((size && data) || !size);
+    BSLS_REVIEW((size && data) || !size);
 }
 
 // ACCESSORS
@@ -4395,7 +4395,7 @@ DatumMapRef::DatumMapRef(const DatumMapEntry *data,
 , d_sorted(sorted)
 , d_ownsKeys(ownsKeys)
 {
-    BSLS_ASSERT_SAFE((size && data) || !size);
+    BSLS_REVIEW((size && data) || !size);
     if (0 == size) {
         d_ownsKeys = false;
     }
