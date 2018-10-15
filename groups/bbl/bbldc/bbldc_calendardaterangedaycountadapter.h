@@ -95,6 +95,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 namespace BloombergLP {
 namespace bbldc {
@@ -206,10 +207,10 @@ int CalendarDateRangeDayCountAdapter<CONVENTION>::daysDiff(
                                                const bdlt::Date& beginDate,
                                                const bdlt::Date& endDate) const
 {
-    BSLS_ASSERT_SAFE(d_calendar.firstDate() <= beginDate);
-    BSLS_ASSERT_SAFE(                      beginDate <= d_calendar.lastDate());
-    BSLS_ASSERT_SAFE(d_calendar.firstDate() <= endDate);
-    BSLS_ASSERT_SAFE(                        endDate <= d_calendar.lastDate());
+    BSLS_REVIEW(d_calendar.firstDate() <= beginDate);
+    BSLS_REVIEW(                          beginDate <= d_calendar.lastDate());
+    BSLS_REVIEW(d_calendar.firstDate() <= endDate);
+    BSLS_REVIEW(                          endDate   <= d_calendar.lastDate());
 
     return CONVENTION::daysDiff(beginDate, endDate, d_calendar);
 }
@@ -236,10 +237,10 @@ double CalendarDateRangeDayCountAdapter<CONVENTION>::yearsDiff(
                                                const bdlt::Date& beginDate,
                                                const bdlt::Date& endDate) const
 {
-    BSLS_ASSERT_SAFE(d_calendar.firstDate() <= beginDate);
-    BSLS_ASSERT_SAFE(                      beginDate <= d_calendar.lastDate());
-    BSLS_ASSERT_SAFE(d_calendar.firstDate() <= endDate);
-    BSLS_ASSERT_SAFE(                        endDate <= d_calendar.lastDate());
+    BSLS_REVIEW(d_calendar.firstDate() <= beginDate);
+    BSLS_REVIEW(                          beginDate <= d_calendar.lastDate());
+    BSLS_REVIEW(d_calendar.firstDate() <= endDate);
+    BSLS_REVIEW(                          endDate   <= d_calendar.lastDate());
 
     return CONVENTION::yearsDiff(beginDate, endDate, d_calendar);
 }
