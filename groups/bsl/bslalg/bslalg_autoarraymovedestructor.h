@@ -406,7 +406,7 @@ AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::~AutoArrayMoveDestructor()
 
     if (d_middle_p != d_end_p) {
         std::size_t numBytes = (char *)d_end_p - (char *)d_middle_p;
-        std::memcpy(d_dst_p, d_middle_p, numBytes);
+        std::memcpy((void *)d_dst_p, d_middle_p, numBytes);
         ArrayDestructionPrimitives::destroy(d_begin_p,
                                             d_middle_p,
                                             d_allocator);

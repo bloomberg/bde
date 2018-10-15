@@ -8482,7 +8482,7 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
 
         *destination -= numElements;
         *source      -= numElements;
-        std::memmove(destination->valuePtr(),
+        std::memmove((void *)destination->valuePtr(),
                      source->valuePtr(),
                      numElements * sizeof(VALUE_TYPE));
 
@@ -8555,7 +8555,7 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
     *source      -= firstSegment;
     numElements  -= firstSegment;
 
-    std::memmove(destination->valuePtr(),
+    std::memmove((void *)destination->valuePtr(),
                  source->valuePtr(),
                  firstSegment * sizeof(VALUE_TYPE));
 
@@ -8564,14 +8564,14 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
         *destination -= secondSegment;
         *source      -= secondSegment;
 
-        std::memmove(destination->valuePtr(),
+        std::memmove((void *)destination->valuePtr(),
                      source->valuePtr(),
                      secondSegment * sizeof(VALUE_TYPE));
 
         *destination -= thirdSegment;
         *source      -= thirdSegment;
 
-        std::memmove(destination->valuePtr(),
+        std::memmove((void *)destination->valuePtr(),
                      source->valuePtr(),
                      thirdSegment * sizeof(VALUE_TYPE));
     }
@@ -8584,14 +8584,14 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
     *source      -= remaining;
     numElements  -= remaining;
 
-    std::memmove(destination->valuePtr(),
+    std::memmove((void *)destination->valuePtr(),
                  source->valuePtr(),
                  remaining * sizeof(VALUE_TYPE));
 
     *destination -= numElements;
     *source      -= numElements;
 
-    std::memmove(destination->valuePtr(),
+    std::memmove((void *)destination->valuePtr(),
                  source->valuePtr(),
                  numElements * sizeof(VALUE_TYPE));
 }
@@ -8606,7 +8606,7 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
         && source->remainingInBlock() > numElements) {
             // There is enough room to move everything at once
 
-        std::memmove(destination->valuePtr(),
+        std::memmove((void *)destination->valuePtr(),
                      source->valuePtr(),
                      numElements * sizeof(VALUE_TYPE));
         *destination += numElements;
@@ -8677,7 +8677,7 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
 
     size_type thirdSegment = BLOCK_LENGTH - secondSegment;
 
-    std::memmove(destination->valuePtr(),
+    std::memmove((void *)destination->valuePtr(),
                  source->valuePtr(),
                  firstSegment * sizeof(VALUE_TYPE));
 
@@ -8687,14 +8687,14 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
 
     for (; numElements >= BLOCK_LENGTH; numElements -= BLOCK_LENGTH) {
 
-        std::memmove(destination->valuePtr(),
+        std::memmove((void *)destination->valuePtr(),
                      source->valuePtr(),
                      secondSegment * sizeof(VALUE_TYPE));
 
         *destination += secondSegment;
         *source      += secondSegment;
 
-        std::memmove(destination->valuePtr(),
+        std::memmove((void *)destination->valuePtr(),
                      source->valuePtr(),
                      thirdSegment * sizeof(VALUE_TYPE));
 
@@ -8706,7 +8706,7 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                         ? secondSegment
                         : numElements;
 
-    std::memmove(destination->valuePtr(),
+    std::memmove((void *)destination->valuePtr(),
                  source->valuePtr(),
                  remaining * sizeof(VALUE_TYPE));
 
@@ -8714,7 +8714,7 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
     *source      += remaining;
     numElements  -= remaining;
 
-    std::memmove(destination->valuePtr(),
+    std::memmove((void *)destination->valuePtr(),
                  source->valuePtr(),
                  numElements * sizeof(VALUE_TYPE));
 
