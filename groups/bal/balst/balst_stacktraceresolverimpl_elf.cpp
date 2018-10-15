@@ -20,6 +20,7 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #include <bdlb_string.h>
 #include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
 
 #include <bslma_usesbslmaallocator.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -2416,6 +2417,20 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
     *addressMatched = !!(obtained & k_OBTAINED_ADDRESS_MATCH);
     if (!*addressMatched) {
         return 0;                                                     // RETURN
+    }
+
+    if (dirName.empty() && !baseName.empty() && '/' == baseName[0]) {
+        // In some instances, the compiler will give 'baseName' as a full path
+        // and not bother with 'dirName'.
+
+        dirName = baseName;
+        rc = bdls::PathUtil::popLeaf(&dirName);
+        u_ASSERT_BAIL(0 == rc && "no dirname && basename had no leaf");
+        u_ASSERT_BAIL(!dirName.empty() && "confused dirName from baseName");
+        if ('/' != dirName[dirName.length() - 1]) {
+            dirName += '/';
+        }
+        obtained |= k_OBTAINED_DIR_NAME;
     }
 
     u_ASSERT_BAIL((k_OBTAINED_LINE_OFFSET & obtained) || u_P(index));
