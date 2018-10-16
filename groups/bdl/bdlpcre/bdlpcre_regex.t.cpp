@@ -827,7 +827,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&oa);  const Obj& X = mX;
 
-                int retCode;
+                int retCode = -1;
 
                 switch (cfg) {
                   case 'a': {
@@ -1632,9 +1632,12 @@ int main(int argc, char *argv[])
                         // If NUM_WORDS is 4, that means the last subpattern
                         // was not matched (only 4 words in the subject).  So
                         // make sure that the last element in the vector
-                        // contains (as per doc): pair<size_t, size_t>(-1, 0).
+                        // contains (as per doc):
+                        // pair<size_t,size_t>(k_INVALID_OFFSET, 0).
 
-                        const pair<size_t, size_t> NOT_FOUND(-1, 0);
+                        const pair<size_t, size_t> NOT_FOUND(
+                                                         Obj::k_INVALID_OFFSET,
+                                                         0);
                         const pair<size_t, size_t> lastElement =
                                                        vMatch[vMatch.size()-1];
 
@@ -1644,6 +1647,9 @@ int main(int argc, char *argv[])
 
                         ASSERTV(LINE, lastElement.first, lastElement.second,
                                 NOT_FOUND == lastElement);
+
+                        ASSERTV(LINE, lastElement.first,
+                                Obj::k_INVALID_OFFSET == lastElement.first);
                     }
                     else {
                         // Check that the last (unnamed) substring at the end
@@ -3244,7 +3250,7 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 The object correctly handles valid and invalid patterns.
         //:
-        //: 2 The compiled patterns are correctly cleared by ether 'clear'
+        //: 2 The compiled patterns are correctly cleared by either 'clear'
         //:   method or when calling 'prepare' with different pattern.
         //:
         //: 3 The object correctly reports the state of the pattern via
