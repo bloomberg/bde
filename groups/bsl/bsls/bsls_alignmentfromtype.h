@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #define INCLUDED_BSLS_ALIGNMENTFROMTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function that maps a 'TYPE' to its alignment.
@@ -315,13 +313,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLS_ALIGNMENTIMP
 #include <bsls_alignmentimp.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ALIGNMENTTOTYPE
 #include <bsls_alignmenttotype.h>
-#endif
 
 namespace BloombergLP {
 

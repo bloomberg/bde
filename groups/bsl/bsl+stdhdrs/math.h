@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_C_MATH
 #define INCLUDED_NATIVE_C_MATH
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 /*
@@ -30,13 +28,8 @@ BSLS_IDENT("$Id: $")
 
 #endif  /* INCLUDED_NATIVE_C_MATH */
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 // '<math.h>' on Sun defines 'struct exception', which interferes with
 // 'std::exception'.  The RW library has a workaround for this, but STLPort
@@ -46,10 +39,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
-
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
-#   endif
 
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <math.h>
@@ -67,10 +57,7 @@ BSLS_IDENT("$Id: $")
 #   define BSL_STDHDRS_RUN_EPILOGUE
 #   define BSL_STDHDRS_EPILOGUE_RUN_BY_c_math
 #   endif
-
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
-#   endif
 
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <math.h>

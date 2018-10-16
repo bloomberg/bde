@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_DEGENERATEFUNCTOR
 #define INCLUDED_BSLTF_DEGENERATEFUNCTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an awkward type to adapt a user-supplied functor.
@@ -35,26 +33,14 @@ BSLS_IDENT("$Id: $")
 ///Example 1: TBD
 /// - - - - - - -
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
-#ifndef INCLUDED_NEW
 #include <new>
-#define INCLUDED_NEW
-#endif
 
 namespace BloombergLP {
 

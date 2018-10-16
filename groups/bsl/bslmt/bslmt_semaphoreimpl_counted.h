@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_COUNTED
 #define INCLUDED_BSLMT_SEMAPHOREIMPL_COUNTED
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an implementation of 'bslmt::Semaphore' with count.
@@ -46,21 +44,15 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
 
 #ifdef BSLMT_PLATFORM_COUNTED_SEMAPHORE
 
 // Platform-specific implementation starts here.
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
 #ifndef BSLMT_SEMAPHOREIMPL_PTHREAD
 #include <bslmt_semaphoreimpl_pthread.h>

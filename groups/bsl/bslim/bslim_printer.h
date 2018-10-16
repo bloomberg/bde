@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLIM_PRINTER
 #define INCLUDED_BSLIM_PRINTER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a mechanism to implement standard 'print' methods.
@@ -525,57 +523,23 @@ BSLS_IDENT("$Id: $")
 //  01JAN2011-0500<\n>
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISARRAY
 #include <bslmf_isarray.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_SELECTTRAIT
 #include <bslmf_selecttrait.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_MEMORY
 #include <bsl_memory.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_UTILITY
 #include <bsl_utility.h>
-#endif
 
 namespace BloombergLP {
 

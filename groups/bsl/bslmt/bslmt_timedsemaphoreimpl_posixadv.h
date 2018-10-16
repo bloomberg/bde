@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_POSIXADV
 #define INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_POSIXADV
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide "advanced" POSIX implementation of 'bslmt::TimedSemaphore'.
@@ -57,30 +55,18 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
 
 #ifdef BSLMT_PLATFORM_POSIXADV_TIMEDSEMAPHORE
 
 // Platform-specific implementation starts here.
 
-#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
-#ifndef INCLUDED_SEMAPHORE
 #include <semaphore.h>
-#define INCLUDED_SEMAPHORE
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

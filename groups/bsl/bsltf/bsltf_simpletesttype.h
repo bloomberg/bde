@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_SIMPLETESTTYPE
 #define INCLUDED_BSLTF_SIMPLETESTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a non-allocating test class without type traits.
@@ -75,9 +73,7 @@ BSLS_IDENT("$Id: $")
 //  Type does not define bslmf::IsBitwiseMoveable.
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

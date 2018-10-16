@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_ITERATORUTIL
 #define INCLUDED_BSLSTL_ITERATORUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities operating on iterators and iterator ranges.
@@ -47,21 +45,12 @@ BSLS_IDENT("$Id: $")
 //  assert(3 == distance);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>  // iterator tags, distance
-#endif
 
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 namespace bslstl {

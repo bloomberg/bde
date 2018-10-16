@@ -50,68 +50,28 @@
 #ifdef BDE_OPENSOURCE_PUBLICATION // STP
 #error "bslstp_hashtable is not for publication"
 #endif
-
-#ifndef INCLUDED_BSLSTP_ALLOC
 #include <bslstp_alloc.h>
-#endif
-
-#ifndef INCLUDED_BSLSTP_ITERATOR
 #include <bslstp_iterator.h> // const and nonconst traits for iterator
-#endif
-
-#ifndef INCLUDED_BSLSTP_UTIL
 #include <bslstp_util.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
 #include <bslma_destructionutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #include <bsls_exceptionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_HASH
 #include <bslstl_hash.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_VECTOR
 #include <bslstl_vector.h>
-#endif
 
-#ifndef INCLUDED_ALGORITHM
 #include <algorithm>
-#define INCLUDED_ALGORITHM
-#endif
 
-#ifndef INCLUDED_ITERATOR
 #include <iterator>
-#define INCLUDED_ITERATOR
-#endif
 
-#ifndef INCLUDED_FUNCTIONAL
 #include <functional>
-#define INCLUDED_FUNCTIONAL
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
-
 #endif
 
 // Hashtable class, used to implement the hashed associative containers

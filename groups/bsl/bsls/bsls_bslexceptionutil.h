@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_BSLEXCEPTIONUTIL
 #define INCLUDED_BSLS_BSLEXCEPTIONUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functions for use in 'bsl' that throw standard exceptions.
@@ -80,13 +78,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #ifdef BSLS_BSLEXCEPTIONUTIL_NORETURN
 #error BSLS_BSLEXCEPTIONUTIL_NORETURN \

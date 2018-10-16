@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_X86_ALL_GCC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_X86_ALL_GCC
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide implementations of atomic operations for X86/GCC.
@@ -19,17 +17,9 @@ BSLS_IDENT("$Id: $")
 // See 'bsls_atomicoperations' and 'bsls_atomic' for the public interface to
 // atomics.
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 #if defined(BSLS_PLATFORM_CPU_X86) \
     && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG))

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_UNORDEREDMULTISET
 #define INCLUDED_BSLSTL_UNORDEREDMULTISET
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant 'unordered_multiset' container.
@@ -641,102 +639,42 @@ BSLS_IDENT("$Id: $")
 #error "<bslstl_unorderedmultiset.h> header can't be included directly in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_EQUALTO
 #include <bslstl_equalto.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_HASH
 #include <bslstl_hash.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_HASHTABLE
 #include <bslstl_hashtable.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_HASHTABLEBUCKETITERATOR
 #include <bslstl_hashtablebucketiterator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_HASHTABLEITERATOR
 #include <bslstl_hashtableiterator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_ITERATORUTIL
 #include <bslstl_iteratorutil.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>  // result type of 'equal_range' method
-#endif
-
-#ifndef INCLUDED_BSLSTL_UNORDEREDSETKEYCONFIGURATION
 #include <bslstl_unorderedsetkeyconfiguration.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
 #include <bslalg_bidirectionallink.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
 #include <bslalg_bidirectionalnode.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
 
 #ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>        // Can probably escape with a fwd-decl,
 #endif                                 // but not very user friendly
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-#ifndef INCLUDED_INITIALIZER_LIST
+
 #include <initializer_list>
-#define INCLUDED_INITIALIZER_LIST
-#endif
 #endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace bsl {
 

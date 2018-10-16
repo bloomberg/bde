@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_TYPETRAITNIL
 #define INCLUDED_BSLALG_TYPETRAITNIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as having no other traits.
@@ -25,20 +23,12 @@ BSLS_IDENT("$Id: $")
 ///-----
 // No Usage example is provided since this component is deprecated.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {

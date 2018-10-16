@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_ALLOCATOR
 #define INCLUDED_BSLSTL_ALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compatible proxy for 'bslma::Allocator' objects.
@@ -345,13 +343,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
 
 namespace BloombergLP {
 

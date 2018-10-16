@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_STDSTATEFULALLOCATOR
 #define INCLUDED_BSLTF_STDSTATEFULALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a minimal standard compliant allocator.
@@ -138,38 +136,17 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == oa.numBytesInUse());
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_UTIL
 #include <bslmf_util.h>
-#endif
 
-#ifndef INCLUDED_NEW
 #include <new>
-#define INCLUDED_NEW
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

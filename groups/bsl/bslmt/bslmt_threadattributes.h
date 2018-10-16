@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_THREADATTRIBUTES
 #define INCLUDED_BSLMT_THREADATTRIBUTES
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a description of the attributes of a thread.
@@ -260,29 +258,16 @@ BSLS_IDENT("$Id: $")
 // Notice that a new value derived from the 'stackSize' attribute is used so
 // that the meaning of the attribute is platform neutral.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSL_C_LIMITS
 #include <bsl_c_limits.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

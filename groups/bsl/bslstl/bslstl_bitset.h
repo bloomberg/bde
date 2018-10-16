@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_BITSET
 #define INCLUDED_BSLSTL_BITSET
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant bitset class.
@@ -144,76 +142,29 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_bitset.h> instead of <bslstl_bitset.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
 #include <bslstl_stdexceptutil.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_STRING
 #include <bslstl_string.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_ALGORITHM
 #include <algorithm>    // 'min'
-#define INCLUDED_ALGORITHM
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>
-#define INCLUDED_CSTDDEF
-#endif
 
-#ifndef INCLUDED_IOSFWD
 #include <iosfwd>
-#define INCLUDED_IOSFWD
-#endif
 
-#ifndef INCLUDED_STRING
 #include <string>
-#define INCLUDED_STRING
-#endif
-
-#ifndef INCLUDED_LIMITS_H
 #include <limits.h>
-#define INCLUDED_LIMITS_H
-#endif
-
-#ifndef INCLUDED_STRING_H
 #include <string.h>
-#define INCLUDED_STRING_H
-#endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) ||                                        \
    (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 40400)

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_MOVABLEALLOCTESTTYPE
 #define INCLUDED_BSLTF_MOVABLEALLOCTESTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an allocating test class that records when moved from.
@@ -77,21 +75,13 @@ BSLS_IDENT("$Id: $")
 //  Type does not define bslmf::IsBitwiseMoveable.
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLTF_MOVESTATE
 #include <bsltf_movestate.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
 
 namespace BloombergLP {
 

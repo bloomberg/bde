@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSCM_VERSION
 #define INCLUDED_BSLSCM_VERSION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide source control management (versioning) information.
@@ -38,21 +36,11 @@ BSLS_IDENT("$Id: $")
 //  std::printf("BSL version: %s\n", bslscm::Version::version());
 //..
 
-#ifndef INCLUDED_BSLS_BUILDTARGET
 #include <bsls_buildtarget.h>      // need to ensure consistent build options
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_LINKCOERCION
 #include <bsls_linkcoercion.h>
-#endif
 
-#ifndef INCLUDED_BSLSCM_VERSIONTAG
 #include <bslscm_versiontag.h> // BSL_VERSION_MAJOR, BSL_VERSION_MINOR
-#endif
 
 #ifdef BDE_OPENSOURCE_PUBLICATION  // internal policy enforcement
 #error "BDE_OPENSOURCE_PUBLICATION incompatible with internal code base"

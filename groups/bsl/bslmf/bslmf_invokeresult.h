@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_INVOKERESULT
 #define INCLUDED_BSLMF_INVOKERESULT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Determine the result type of an invocable expression.
@@ -185,89 +183,29 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ADDCONST
 #include <bslmf_addconst.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
 #include <bslmf_addlvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ADDPOINTER
 #include <bslmf_addpointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ADDRVALUEREFERENCE
 #include <bslmf_addrvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ADDVOLATILE
 #include <bslmf_addvolatile.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_DECAY
 #include <bslmf_decay.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISMEMBEROBJECTPOINTER
 #include <bslmf_ismemberobjectpointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISRVALUEREFERENCE
 #include <bslmf_isrvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISVOID
 #include <bslmf_isvoid.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MEMBERFUNCTIONPOINTERTRAITS
 #include <bslmf_memberfunctionpointertraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_RESULTTYPE
 #include <bslmf_resulttype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_TAG
 #include <bslmf_tag.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NULLPTR
 #include <bsls_nullptr.h>
-#endif
 
 namespace BloombergLP {
 

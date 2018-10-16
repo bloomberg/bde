@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_MEMBERFUNCTIONPOINTERTRAITS
 #define INCLUDED_BSLMF_MEMBERFUNCTIONPOINTERTRAITS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide meta-functions to detect member function pointer traits.
@@ -81,29 +79,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_IF
 #include <bslmf_if.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_TAG
 #include <bslmf_tag.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_TYPELIST
 #include <bslmf_typelist.h>
-#endif
 
 namespace BloombergLP {
 

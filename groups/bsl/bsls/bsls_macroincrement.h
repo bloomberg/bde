@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_MACROINCREMENT
 #define INCLUDED_BSLS_MACROINCREMENT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a macro to increment preprocessor numbers.

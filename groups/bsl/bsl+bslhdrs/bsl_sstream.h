@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSL_SSTREAM
 #define INCLUDED_BSL_SSTREAM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -19,9 +17,7 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
 #include <sstream>
 
@@ -31,21 +27,11 @@ BSLS_IDENT("$Id: $")
 // the Bloomberg supplied standard header file.
 
 #ifndef BSL_OVERRIDES_STD
-# ifndef INCLUDED_BSLSTL_ISTRINGSTREAM
 # include <bslstl_istringstream.h>
-# endif
 
-# ifndef INCLUDED_BSLSTL_OSTRINGSTREAM
 # include <bslstl_ostringstream.h>
-# endif
-
-# ifndef INCLUDED_BSLSTL_STRINGBUF
 # include <bslstl_stringbuf.h>
-# endif
-
-# ifndef INCLUDED_BSLSTL_STRINGSTREAM
 # include <bslstl_stringstream.h>
-# endif
 #endif // BSL_OVERRIDES_STD
 
 #endif

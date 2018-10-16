@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_MUTEXASSERT
 #define INCLUDED_BSLMT_MUTEXASSERT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an assert macro for verifying that a mutex is locked.
@@ -252,13 +250,9 @@ BSLS_IDENT("$Id: $")
 // different results, but in all cases should prevent the program from
 // proceeding normally.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 #if defined(BSLS_ASSERT_IS_ACTIVE)
     #define BSLMT_MUTEXASSERT_IS_LOCKED(mutex_p) do {                         \

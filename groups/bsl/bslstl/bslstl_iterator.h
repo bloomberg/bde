@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_ITERATOR
 #define INCLUDED_BSLSTL_ITERATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide basic iterator traits, adaptors, and utilities.
@@ -172,39 +170,20 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_iterator.h> instead of <bslstl_iterator.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>
-#define INCLUDED_CSTDDEF
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-#ifndef INCLUDED_INITIALIZER_LIST
+
 #include <initializer_list>
-#define INCLUDED_INITIALIZER_LIST
-#endif
 #endif
 
-#ifndef INCLUDED_ITERATOR
 #include <iterator>
-#define INCLUDED_ITERATOR
-#endif
 
 #if (__cplusplus < 201103L) && defined(BSLS_PLATFORM_CMP_SUN) \
   && !defined(BDE_BUILD_TARGET_STLPORT)

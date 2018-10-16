@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_STDTESTALLOCATOR
 #define INCLUDED_BSLMA_STDTESTALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide stl-compatible, 'bslma'-style allocator to track usage.
@@ -20,45 +18,18 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: TBD
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_CONSTRUCTIONUTIL
 #include <bslma_constructionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
 #include <bslma_destructionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_TESTALLOCATOR
 #include <bslma_testallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
 #include <bslmf_isbitwiseequalitycomparable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
 namespace BloombergLP {
 namespace bslma {

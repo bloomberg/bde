@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_TAG
 #define INCLUDED_BSLMF_TAG
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an integral-constant-to-type conversion.
@@ -105,13 +103,9 @@ BSLS_IDENT("$Id: $")
 //  assert( 0 == BSLMF_TAG_TO_BOOL(bslmf::Tag<0>()));
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_OWNERLESS
 #define INCLUDED_BSLSTL_OWNERLESS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide an ordering for shared and weak pointers.
@@ -27,14 +25,9 @@ BSLS_IDENT("$Id$ $CSID$")
 #error "include <bsl_memory.h> instead of <bslstl_ownerless.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_SHAREDPTR
 #include <bslstl_sharedptr.h>
-#endif
 
 namespace bsl {
 

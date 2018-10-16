@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_AUTODESTRUCTOR
 #define INCLUDED_BSLMA_AUTODESTRUCTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a range proctor to manage an array of objects.
@@ -221,17 +219,10 @@ BSLS_IDENT("$Id: $")
 // that checks the traits of 'TYPE' (to determine whether 'TYPE' indeed uses
 // 'bslma::Allocator') should be used (see 'bslalg_constructorproxy').
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
 
 namespace BloombergLP {
 

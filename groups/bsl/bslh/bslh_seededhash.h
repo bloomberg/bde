@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLH_SEEDEDHASH
 #define INCLUDED_BSLH_SEEDEDHASH
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a struct to run seeded 'bslh' hash algorithms on types.
@@ -245,22 +243,12 @@ BSLS_IDENT("$Id: $")
 //      ASSERT(!hashTable.contains("asdfqwerzx"));
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLH_DEFAULTSEEDEDHASHALGORITHM
 #include <bslh_defaultseededhashalgorithm.h>
-#endif
-
-#ifndef INCLUDED_BSLH_HASH
 #include <bslh_hash.h>
-#endif
 
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>  // for 'size_t'
-#define INCLUDED_STDDEF_H
-#endif
 
 namespace BloombergLP {
 

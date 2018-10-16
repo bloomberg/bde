@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLX_TESTINSTREAMEXCEPTION
 #define INCLUDED_BSLX_TESTINSTREAMEXCEPTION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an exception class for unexternalization operations.
@@ -41,13 +39,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLX_TYPECODE
 #include <bslx_typecode.h>
-#endif
 
 namespace BloombergLP {
 namespace bslx {

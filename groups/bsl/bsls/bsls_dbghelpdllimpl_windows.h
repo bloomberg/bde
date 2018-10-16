@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLS_DBGHELPDLLIMPL_WINDOWS
 #define INCLUDED_BSLS_DBGHELPDLLIMPL_WINDOWS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide access to the 'dbghelp.dll' shared library on Windows.
@@ -110,15 +108,10 @@ BSLS_IDENT("$Id: $")
 //  bsl::cout << "Line #: " << line.LineNumber << bsl::endl;
 //..
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-
-#ifndef INCLUDED_BSLS_BSLLOCK
 #include <bsls_bsllock.h>
-#endif
 
 #ifndef INCLUDED_WINDOWS
 // windows.h defaults to include winsock.h unless WIN32_LEAN_AND_MEAN is
@@ -129,16 +122,9 @@ BSLS_IDENT("$Id: $")
 #include <windows.h>
 #define INCLUDED_WINDOWS
 #endif
-
-#ifndef INCLUDED_INTRIN
 #include <intrin.h>
-#define INCLUDED_INTRIN
-#endif
 
-#ifndef INCLUDED_DBGHELP
 #include <dbghelp.h>
-#define INCLUDED_DBGHELP
-#endif
 
 namespace BloombergLP {
 

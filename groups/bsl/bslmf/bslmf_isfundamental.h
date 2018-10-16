@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #define INCLUDED_BSLMF_ISFUNDAMENTAL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time check for determining fundamental types.
@@ -106,37 +104,16 @@ BSLS_IDENT("$Id: $")
 //#endif
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISARITHMETIC
 #include <bslmf_isarithmetic.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISVOID
 #include <bslmf_isvoid.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NULLPTR
 #include <bsls_nullptr.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmf {

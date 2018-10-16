@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_MANAGEDPTRDELETER
 #define INCLUDED_BSLMA_MANAGEDPTRDELETER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide an in-core value-semantic class to call a delete function.
@@ -42,17 +40,11 @@ BSLS_IDENT("$Id$ $CSID$")
 //:            'object' and 'factory', and invokes the 'factory' method to
 //:            destroy 'object'.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bslma {

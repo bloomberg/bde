@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_UNIONTESTTYPE
 #define INCLUDED_BSLTF_UNIONTESTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an union test type.
@@ -53,9 +51,7 @@ BSLS_IDENT("$Id: $")
 // assert(Z == X);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

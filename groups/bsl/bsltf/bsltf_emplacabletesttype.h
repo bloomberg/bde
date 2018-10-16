@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_EMPLACABLETESTTYPE
 #define INCLUDED_BSLTF_EMPLACABLETESTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a non-allocating test class used to test 'emplace' methods.
@@ -49,13 +47,9 @@ BSLS_IDENT("$Id: $")
 //
 // See 'bsltf_allocemplacabletesttype' for usage example.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLTF_ARGUMENTTYPE
 #include <bsltf_argumenttype.h>
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

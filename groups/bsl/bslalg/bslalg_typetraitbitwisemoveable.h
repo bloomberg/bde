@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
 #define INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as bit-wise moveable.
@@ -28,17 +26,10 @@ BSLS_IDENT("$Id: $")
 ///-----
 // No Usage example is provided since this component is deprecated.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
 namespace BloombergLP {
 

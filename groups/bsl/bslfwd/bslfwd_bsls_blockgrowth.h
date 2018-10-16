@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLFWD_BSLS_BLOCKGROWTH
 #define INCLUDED_BSLFWD_BSLS_BLOCKGROWTH
 
-#ifndef INCLUDED_BSLFWD_BUILDTARGET
 #include <bslfwd_buildtarget.h>
-#endif
 
 //@PURPOSE: Provide a forward-declaration for the corresponding BDE type.
 //

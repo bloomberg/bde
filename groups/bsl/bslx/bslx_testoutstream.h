@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLX_TESTOUTSTREAM
 #define INCLUDED_BSLX_TESTOUTSTREAM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Enable externalization of fundamental types with identification.
@@ -150,33 +148,16 @@ BSLS_IDENT("$Id: $")
 // See the 'bslx_testinstream' component usage example for a more practical
 // example of using this test output stream.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLX_BYTEOUTSTREAM
 #include <bslx_byteoutstream.h>
-#endif
-
-#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
 #include <bslx_outstreamfunctions.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_ALLOCARGUMENTTYPE
 #define INCLUDED_BSLTF_ALLOCARGUMENTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an allocating test class to represent function arguments.
@@ -40,33 +38,17 @@ BSLS_IDENT("$Id: $")
 //
 // See 'bsltf_argumenttype' for usage example.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLTF_MOVESTATE
 #include <bsltf_movestate.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_TYPELIST
 #define INCLUDED_BSLMF_TYPELIST
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a typelist component.
@@ -68,17 +66,11 @@ BSLS_IDENT("$Id: $")
 //  assert(1 == bsl::is_same<char,   my_Type3>::value)
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \

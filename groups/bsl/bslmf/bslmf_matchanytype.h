@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #define INCLUDED_BSLMF_MATCHANYTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a generic type to which any type can be converted.
@@ -94,21 +92,12 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == METAINT_TO_UINT(isX("The king is a fink!")));
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ADDRVALUEREFERENCE
 #include <bslmf_addrvaluereference.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmf {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_MAPCOMPARATOR
 #define INCLUDED_BSLSTL_MAPCOMPARATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a comparator for 'TreeNode' objects and a lookup key.
@@ -116,30 +114,15 @@ BSLS_IDENT("$Id: $")
 #error "<bslstl_mapcomparator.h> header can't be included directly in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_TREENODE
 #include <bslstl_treenode.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_FUNCTORADAPTER
 #include <bslalg_functoradapter.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
 namespace BloombergLP {
 namespace bslstl {

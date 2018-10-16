@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_PTHREAD
 #define INCLUDED_BSLMT_SEMAPHOREIMPL_PTHREAD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a POSIX implementation of 'bslmt::Semaphore'.
@@ -39,26 +37,17 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
 
 #if defined(BSLMT_PLATFORM_POSIX_SEMAPHORE)
 
 // Platform-specific implementation starts here.
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_SEMAPHORE
 #include <semaphore.h>
-#define INCLUDED_SEMAPHORE
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

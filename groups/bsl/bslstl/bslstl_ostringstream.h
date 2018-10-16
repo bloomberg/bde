@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_OSTRINGSTREAM
 #define INCLUDED_BSLSTL_OSTRINGSTREAM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a C++03-compatible 'ostringstream' class.
@@ -98,38 +96,20 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_sstream.h> instead of <bslstl_ostringstream.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_STRING
 #include <bslstl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_STRINGBUF
 #include <bslstl_stringbuf.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_IOS
 #include <ios>
-#define INCLUDED_IOS
-#endif
 
-#ifndef INCLUDED_OSTREAM
 #include <ostream>
-#define INCLUDED_OSTREAM
-#endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
-#ifndef INCLUDED_UTILITY
+
 #include <utility>
-#define INCLUDED_UTILITY
-#endif
 #endif
 
 namespace bsl {

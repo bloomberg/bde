@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_REMOVECVQ
 #define INCLUDED_BSLMF_REMOVECVQ
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function for removing 'const'/'volatile' qualifiers.
@@ -90,13 +88,9 @@ BSLS_IDENT("$Id: $")
 //  assert(  isSortaSame(vi, cvi));
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
-#endif
 
 namespace BloombergLP {
 

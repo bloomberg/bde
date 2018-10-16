@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_REVIEW
 #define INCLUDED_BSLS_REVIEW
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide assertion macros to safely identify contract violations.
@@ -615,21 +613,10 @@ BSLS_IDENT("$Id: $")
 // At this point, any contract violations in the use of 'myFunc' in new code
 // will be caught immediately (i.e., in appropriate build modes).
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
                     // =================================
                     // (BSLS) "REVIEW" Macro Definitions

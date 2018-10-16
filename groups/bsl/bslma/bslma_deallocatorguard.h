@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_DEALLOCATORGUARD
 #define INCLUDED_BSLMA_DEALLOCATORGUARD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a guard to unconditionally manage a block of memory.
@@ -106,13 +104,9 @@ BSLS_IDENT("$Id: $")
 // are fully addressed, and the top-level routine is also *exception* *neutral*
 // as desired.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 

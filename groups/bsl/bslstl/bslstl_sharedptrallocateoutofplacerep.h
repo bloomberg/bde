@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_SHAREDPTRALLOCATEOUTOFPLACEREP
 #define INCLUDED_BSLSTL_SHAREDPTRALLOCATEOUTOFPLACEREP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide an out-of-place implementation of 'bslma::SharedPtrRep'.
@@ -195,26 +193,14 @@ BSLS_IDENT("$Id$ $CSID$")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_SHAREDPTRREP
 #include <bslma_sharedptrrep.h>
-#endif
 
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
-#ifndef INCLUDED_TYPEINFO
 #include <typeinfo>
-#define INCLUDED_TYPEINFO
-#endif
 
 namespace BloombergLP {
 namespace bslstl {

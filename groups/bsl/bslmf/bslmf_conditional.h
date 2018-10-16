@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_CONDITIONAL
 #define INCLUDED_BSLMF_CONDITIONAL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time conditional type selector.
@@ -62,13 +60,9 @@ BSLS_IDENT("$Id: $")
 // 'typename' prefix when we want to use the result of the 'bsl::conditional'
 // meta-function in templates.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 namespace bsl {
                            // ==================

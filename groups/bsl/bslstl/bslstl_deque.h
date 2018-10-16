@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_DEQUE
 #define INCLUDED_BSLSTL_DEQUE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant deque class.
@@ -402,134 +400,49 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_deque.h> instead of <bslstl_deque.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_RANDOMACCESSITERATOR
 #include <bslstl_randomaccessiterator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
 #include <bslstl_stdexceptutil.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_CONTAINERBASE
 #include <bslalg_containerbase.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_DEQUEIMPUTIL
 #include <bslalg_dequeimputil.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_DEQUEITERATOR
 #include <bslalg_dequeiterator.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_DEQUEPRIMITIVES
 #include <bslalg_dequeprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_RANGECOMPARE
 #include <bslalg_rangecompare.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
 #include <bslma_destructionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
 #include <bslmf_matcharithmetictype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
-#ifndef INCLUDED_CSTRING
 #include <cstring>
-#define INCLUDED_CSTRING
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-#ifndef INCLUDED_INITIALIZER_LIST
+
 #include <initializer_list>
-#define INCLUDED_INITIALIZER_LIST
-#endif
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#ifndef INCLUDED_STDEXCEPT
 #include <stdexcept>
-#define INCLUDED_STDEXCEPT
-#endif
-
 #endif
 
 namespace bsl {

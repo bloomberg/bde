@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_METEREDMUTEX
 #define INCLUDED_BSLMT_METEREDMUTEX
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a mutex capable of keeping track of wait and hold time.
@@ -166,25 +164,13 @@ BSLS_IDENT("$Id: $")
 // waitTimeForStrategy2 = 880765000
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEUTIL
 #include <bsls_timeutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

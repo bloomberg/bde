@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_REMOVEVOLATILE
 #define INCLUDED_BSLMF_REMOVEVOLATILE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function for removing 'volatile'-qualifier.
@@ -63,22 +61,12 @@ BSLS_IDENT("$Id: $")
 // 'typename' prefix when we want to use the result of the  'bsl::remove_const'
 // meta-function in templates.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
-#define INCLUDED_STDDEF_H
-#endif
 
 // Several compiler tool-chains have problems removing the 'volatile'
 // qualifiers from arrays.

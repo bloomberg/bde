@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_STRINGBUF
 #define INCLUDED_BSLSTL_STRINGBUF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a C++03-compatible 'stringbuf' class.
@@ -144,84 +142,38 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_sstream.h> instead of <bslstl_stringbuf.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_IOSFWD
 #include <bslstl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_STRING
 #include <bslstl_string.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
-#endif
 
-#ifndef INCLUDED_ALGORITHM
 #include <algorithm>
-#define INCLUDED_ALGORITHM
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>       // for 'std::size_t', 'std::ptrdiff_t'
-#define INCLUDED_CSTDDEF
-#endif
 
-#ifndef INCLUDED_IOS
 #include <ios>
-#define INCLUDED_IOS
-#endif
 
-#ifndef INCLUDED_ISTREAM
 #include <istream>
-#define INCLUDED_ISTREAM
-#endif
 
-#ifndef INCLUDED_OSTREAM
 #include <ostream>
-#define INCLUDED_OSTREAM
-#endif
 
-#ifndef INCLUDED_STREAMBUF
 #include <streambuf>
-#define INCLUDED_STREAMBUF
-#endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
-#ifndef INCLUDED_UTILITY
-#include <utility>
-#define INCLUDED_UTILITY
-#endif
-#endif
 
-#ifndef INCLUDED_LIMITS_H
-#include <limits.h>      // for 'INT_MAX', 'INT_MIN'
-#define INCLUDED_LIMITS_H
+#include <utility>
 #endif
+#include <limits.h>      // for 'INT_MAX', 'INT_MIN'
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 

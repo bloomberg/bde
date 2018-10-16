@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_MANAGEDPTR
 #define INCLUDED_BSLMA_MANAGEDPTR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide a managed pointer class.
@@ -672,97 +670,32 @@ BSLS_IDENT("$Id$ $CSID$")
 // stated, the managed object will be destroyed correctly regardless of how it
 // is cast.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_MANAGEDPTR_FACTORYDELETER
 #include <bslma_managedptr_factorydeleter.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_MANAGEDPTR_MEMBERS
 #include <bslma_managedptr_members.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_MANAGEDPTR_PAIRPROXY
 #include <bslma_managedptr_pairproxy.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_MANAGEDPTRDELETER
 #include <bslma_managedptrdeleter.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ADDREFERENCE
 #include <bslmf_addreference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_HASPOINTERSEMANTICS
 #include <bslmf_haspointersemantics.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISNOTHROWMOVECONSTRUCTIBLE
 #include <bslmf_isnothrowmoveconstructible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISVOID
 #include <bslmf_isvoid.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NULLPTR
 #include <bsls_nullptr.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
 #include <bsls_unspecifiedbool.h>
-#endif
 
 namespace BloombergLP {
 namespace bslma {

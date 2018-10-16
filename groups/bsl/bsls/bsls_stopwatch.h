@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_STOPWATCH
 #define INCLUDED_BSLS_STOPWATCH
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide access to user, system, and wall times of current process.
@@ -82,13 +80,8 @@ BSLS_IDENT("$Id: $")
 //  const double t5w = s.accumulatedWallTime();    assert(0.0 == t5w);
 //..
 
-#ifndef INCLUDED_BSLS_TIMEUTIL
 #include <bsls_timeutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 #ifndef INCLUDED_STRING_H
 #include <string.h>

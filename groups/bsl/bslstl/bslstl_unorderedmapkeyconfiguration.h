@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_UNORDEREDMAPKEYCONFIGURATION
 #define INCLUDED_BSLSTL_UNORDEREDMAPKEYCONFIGURATION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a class template to extract keys as the 'first' attribute.
@@ -247,9 +245,7 @@ BSLS_IDENT("$Id: $")
 //  Eric   15.00
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bslstl {

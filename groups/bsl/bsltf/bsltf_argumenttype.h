@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_ARGUMENTTYPE
 #define INCLUDED_BSLTF_ARGUMENTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a non-allocating class to test variadic function arguments.
@@ -122,17 +120,11 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLTF_MOVESTATE
 #include <bsltf_movestate.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

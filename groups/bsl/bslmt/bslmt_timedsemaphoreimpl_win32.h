@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_WIN32
 #define INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_WIN32
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a win32 implementation of 'bslmt::TimedSemaphore'.
@@ -53,29 +51,18 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
 
 #ifdef BSLMT_PLATFORM_WIN32_THREADS
 
 // Platform-specific implementation starts here.
 
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
-
-#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
-#endif
 
-#ifndef INCLUDED_BSL_C_LIMITS
 #include <bsl_c_limits.h>
-#endif
 
 struct _SECURITY_ATTRIBUTES;
 typedef struct _SECURITY_ATTRIBUTES  SECURITY_ATTRIBUTES;

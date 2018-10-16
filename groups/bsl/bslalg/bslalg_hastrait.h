@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_HASTRAIT
 #define INCLUDED_BSLALG_HASTRAIT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to detect if a type has a given trait.
@@ -58,28 +56,14 @@ BSLS_IDENT("$Id: $")
 ///-----
 // No Usage example is provided since this component is deprecated.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {

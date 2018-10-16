@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ADDREFERENCE
 #define INCLUDED_BSLMF_ADDREFERENCE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function for adding "reference-ness" to a type.
@@ -125,13 +123,9 @@ BSLS_IDENT("$Id: $")
 //  bslmf::AddReference<void *          >::Type     // void *&
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
 #include <bslmf_addlvaluereference.h>
-#endif
 
 namespace BloombergLP {
 

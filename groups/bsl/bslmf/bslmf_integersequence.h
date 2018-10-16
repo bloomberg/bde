@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_INTEGERSEQUENCE
 #define INCLUDED_BSLMF_INTEGERSEQUENCE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a template parameter pack of integers.
@@ -118,22 +116,13 @@ BSLS_IDENT("$Id: $")
 // read element #4
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
 
-#ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 

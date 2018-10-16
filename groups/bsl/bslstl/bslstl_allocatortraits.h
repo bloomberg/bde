@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_ALLOCATORTRAITS
 #define INCLUDED_BSLSTL_ALLOCATORTRAITS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a uniform interface to standard allocator types.
@@ -466,14 +464,9 @@ BSLS_IDENT("$Id: $")
 BSL_OVERRIDES_STD mode"
 #endif
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
 
 namespace BloombergLP {
 

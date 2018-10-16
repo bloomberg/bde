@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_MANAGEDPTR_FACTORYDELETER
 #define INCLUDED_BSLMA_MANAGEDPTR_FACTORYDELETER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide a factory-based deleter for the managed pointer class.
@@ -22,13 +20,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // an object of (template parameter) 'OBJECT_TYPE', using a factory of
 // (template parameter) 'FACTORY' type that provides a 'deleteObject' method.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bslma {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ISARRAY
 #define INCLUDED_BSLMF_ISARRAY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time check for array types.
@@ -72,34 +70,18 @@ BSLS_IDENT("$Id: $")
 //#endif
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>       // 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#ifndef INCLUDED_CSTDLIB
 #include <cstdlib>  // Robo transitively needs this for 'bsl::atoi', etc.
-#define INCLUDED_CSTDLIB
-#endif
-
 #endif
 
 namespace bsl {

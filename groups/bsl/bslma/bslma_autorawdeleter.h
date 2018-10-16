@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_AUTORAWDELETER
 #define INCLUDED_BSLMA_AUTORAWDELETER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a range proctor to manage a sequence objects.
@@ -308,21 +306,12 @@ BSLS_IDENT("$Id: $")
 // the first implementation will retain all the elements copied prior to the
 // exception, whereas the second implementation will remove them.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_DELETERHELPER
 #include <bslma_deleterhelper.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
 
 namespace BloombergLP {
 

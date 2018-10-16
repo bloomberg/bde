@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLFWD_BSLMA_SEQUENTIALPOOL
 #define INCLUDED_BSLFWD_BSLMA_SEQUENTIALPOOL
 
-#ifndef INCLUDED_BSLFWD_BUILDTARGET
 #include <bslfwd_buildtarget.h>
-#endif
 
 //@PURPOSE: Provide a forward-declaration for the corresponding BDE type.
 //

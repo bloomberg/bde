@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_TYPES
 #define INCLUDED_BSLS_TYPES
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a consistent interface for platform-dependent types.
@@ -69,10 +67,7 @@ BSLS_IDENT("$Id: $")
 //            << std::numeric_limits<bsls::Types::Int64>::max() << std::endl;
 //..
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace BloombergLP {
 

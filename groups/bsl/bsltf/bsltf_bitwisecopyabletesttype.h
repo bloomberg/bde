@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_BITWISECOPYABLETESTTYPE
 #define INCLUDED_BSLTF_BITWISECOPYABLETESTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a bitwise-copyable test class.
@@ -72,17 +70,11 @@ BSLS_IDENT("$Id: $")
 //  Type defines bsl::is_trivially_copyable.
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

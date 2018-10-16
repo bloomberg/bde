@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_DEQUEIMPUTIL
 #define INCLUDED_BSLALG_DEQUEIMPUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide basic parameters and primitive data structures for deques.
@@ -74,9 +72,7 @@ BSLS_IDENT("$Id: $")
 // This component is for use by the 'bslalg' package.  Other clients should use
 // the STL deque (in header '<deque>').
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 

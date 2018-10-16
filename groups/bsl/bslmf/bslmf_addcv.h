@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ADDCV
 #define INCLUDED_BSLMF_ADDCV
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function for adding top-level cv-qualifiers.
@@ -61,21 +59,12 @@ BSLS_IDENT("$Id: $")
 // prefix when we want to use the result of the 'bsl::add_cv' meta-function in
 // templates.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ADDCONST
 #include <bslmf_addconst.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ADDVOLATILE
 #include <bslmf_addvolatile.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 namespace bsl {
 

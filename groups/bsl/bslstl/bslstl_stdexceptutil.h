@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
 #define INCLUDED_BSLSTL_STDEXCEPTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility to throw standard exceptions.
@@ -70,18 +68,10 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_stdexcept.h> instead of <bslstl_stdexceptutil.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #ifdef BSLSTL_STDEXCEPTUTIL_NORETURN
 #error BSLSTL_STDEXCEPTUTIL_NORETURN \

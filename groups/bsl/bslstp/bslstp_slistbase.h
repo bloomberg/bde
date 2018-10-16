@@ -48,10 +48,7 @@
 #error "bslstp_slistbase is not for publication"
 #endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for std::size_t
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace bsl {
 

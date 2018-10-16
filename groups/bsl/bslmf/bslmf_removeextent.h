@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_REMOVEEXTENT
 #define INCLUDED_BSLMF_REMOVEEXTENT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a metafunction to return an array type's element type.
@@ -72,18 +70,11 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
-#ifndef INCLUDED_CSTDLIB
 #include <cstdlib>
-#define INCLUDED_CSTDLIB
-#endif
 
 namespace bsl {
 

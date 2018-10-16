@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ALIGNMENT
 #define INCLUDED_BSLS_ALIGNMENT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a namespace for enumerating memory alignment strategies.
@@ -165,28 +163,12 @@ BSLS_IDENT("$Id: $")
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ALIGNMENTIMP
 #include <bsls_alignmentimp.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ALIGNMENTTOTYPE
 #include <bsls_alignmenttotype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>      // for std::size_t
-#define INCLUDED_CSTDDEF
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 // Temporarily define the legacy 'bsls_AlignmentOf' to refer to its
@@ -197,10 +179,8 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // required for some code below wrapped in ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
-#include <bsls_alignmentutil.h>
-#endif
 
+#include <bsls_alignmentutil.h>
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace BloombergLP {

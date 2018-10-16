@@ -73,43 +73,22 @@
 #ifdef BDE_OPENSOURCE_PUBLICATION // STP
 #error "bslstp_hashmap is not for publication"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTP_ALLOC
 #include <bslstp_alloc.h>
-#endif
 
 #ifndef INCLUDED_BSLSTL_EXFUNCTIONAL
 #include <bslstp_exfunctional.h>
 #endif
-
-#ifndef INCLUDED_BSLSTP_HASH
 #include <bslstp_hash.h>
-#endif
-
-#ifndef INCLUDED_BSLSTP_HASHTABLE
 #include <bslstp_hashtable.h>
-#endif
-
-#ifndef INCLUDED_BSLSTP_ITERATOR
 #include <bslstp_iterator.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_FUNCTIONAL
 #include <functional>
-#define INCLUDED_FUNCTIONAL
-#endif
 
 namespace bsl {
 

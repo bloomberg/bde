@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_REFERENCEWRAPPER
 #define INCLUDED_BSLSTL_REFERENCEWRAPPER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide copyable, assignable object wrapper for references.
@@ -96,22 +94,12 @@ BSLS_IDENT("$Id: $")
 #error "<bslstl_referencewrapper.h> header can't be included directly in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>  // for BloombergLP::bsls::Util::addressOf
-#endif
 
 namespace bsl {
 

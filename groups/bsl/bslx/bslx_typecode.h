@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLX_TYPECODE
 #define INCLUDED_BSLX_TYPECODE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Enumerate the fundamental types supported by BDEX.
@@ -91,13 +89,9 @@ BSLS_IDENT("$Id: $")
 //  INT32
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
 
 namespace BloombergLP {
 namespace bslx {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_SPARC32_SUN_CC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_SPARC32_SUN_CC
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide implementations of atomic operations for Sparc/Sun (32bit).
@@ -19,21 +17,10 @@ BSLS_IDENT("$Id: $")
 // are for private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for
 // the public interface to atomics.
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_SPARC_SUN_CC_DEFAULT
 #include <bsls_atomicoperations_sparc_sun_cc_default.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 #if defined(BSLS_PLATFORM_CPU_SPARC_32) \
     && (defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_SUN))

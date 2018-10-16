@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_REVIEW_MACRORESET
 #define INCLUDED_BSLS_REVIEW_MACRORESET
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Test driver utility to undefine all macros from 'bsls_review.h'.

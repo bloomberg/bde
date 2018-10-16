@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_RANDOMACCESSITERATOR
 #define INCLUDED_BSLSTL_RANDOMACCESSITERATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a template to create STL-compliant random access iterators.
@@ -203,32 +201,16 @@ BSLS_IDENT("$Id: $")
 #error "<bslstl_randomaccessiterator.h> header can't be included directly in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_BIDIRECTIONALITERATOR
 #include <bslstl_bidirectionaliterator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
-#endif
 
-#ifndef INCLUDED_ITERATOR
 #include <iterator>
-#define INCLUDED_ITERATOR
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // 'ptrdiff_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace BloombergLP {
 

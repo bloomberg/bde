@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSL_IOSTREAM
 #define INCLUDED_BSL_IOSTREAM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -19,25 +17,12 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#ifndef INCLUDED_BSL_IOS
 #include <bsl_ios.h>
-#endif
-
-#ifndef INCLUDED_BSL_ISTREAM
 #include <bsl_istream.h>
-#endif
-
-#ifndef INCLUDED_BSL_OSTREAM
 #include <bsl_ostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
-#endif
 
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
 #include <iostream>
 

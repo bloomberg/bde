@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_SATURATEDTIMECONVERSIONIMPUTIL
 #define INCLUDED_BSLMT_SATURATEDTIMECONVERSIONIMPUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide special narrowing conversions for time types.
@@ -97,54 +95,24 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == destinationInterval);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_LIMITS
 #include <bsl_limits.h>
-#endif
-
-#ifndef INCLUDED_BSL_CTIME
 #include <bsl_ctime.h>
-#endif
 
-#ifndef INCLUDED_TIME_H
 #include <time.h>   // POSIX timespec
-#define INCLUDED_TIME_H
-#endif
 
 #ifdef BSLS_PLATFORM_OS_DARWIN
-
-#ifndef INCLUDED_MACH_CLOCK_TYPES
 #include <mach/clock_types.h>    // for 'mach_timespec_t'
-#define INCLUDED_MACH_CLOCK_TYPES
-#endif
-
 #endif
 
 namespace BloombergLP {

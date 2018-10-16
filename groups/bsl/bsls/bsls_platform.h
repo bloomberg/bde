@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_PLATFORM
 #define INCLUDED_BSLS_PLATFORM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide compile-time support for platform/attribute identification.

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_MANAGEDALLOCATOR
 #define INCLUDED_BSLMA_MANAGEDALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a protocol for memory allocators that support 'release'.
@@ -47,14 +45,9 @@ BSLS_IDENT("$Id: $")
 #ifdef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 #error "bslma_managedallocator is deprecated"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
 namespace BloombergLP {
 

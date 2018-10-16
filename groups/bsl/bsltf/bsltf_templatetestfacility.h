@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_TEMPLATETESTFACILITY
 #define INCLUDED_BSLTF_TEMPLATETESTFACILITY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities to help with testing templates.
@@ -495,136 +493,44 @@ BSLS_IDENT("$Id: $")
 //  } break;
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLTF_ALLOCBITWISEMOVEABLETESTTYPE
 #include <bsltf_allocbitwisemoveabletesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_ALLOCEMPLACABLETESTTYPE
 #include <bsltf_allocemplacabletesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_ALLOCTESTTYPE
 #include <bsltf_alloctesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_BITWISECOPYABLETESTTYPE
 #include <bsltf_bitwisecopyabletesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_BITWISEMOVEABLETESTTYPE
 #include <bsltf_bitwisemoveabletesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_EMPLACABLETESTTYPE
 #include <bsltf_emplacabletesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_ENUMERATEDTESTTYPE
 #include <bsltf_enumeratedtesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_MOVABLEALLOCTESTTYPE
 #include <bsltf_movablealloctesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_MOVABLETESTTYPE
 #include <bsltf_movabletesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_MOVEONLYALLOCTESTTYPE
 #include <bsltf_moveonlyalloctesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_NONASSIGNABLETESTTYPE
 #include <bsltf_nonassignabletesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_NONCOPYCONSTRUCTIBLETESTTYPE
 #include <bsltf_noncopyconstructibletesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_NONDEFAULTCONSTRUCTIBLETESTTYPE
 #include <bsltf_nondefaultconstructibletesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_NONEQUALCOMPARABLETESTTYPE
 #include <bsltf_nonequalcomparabletesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_NONOPTIONALALLOCTESTTYPE
 #include <bsltf_nonoptionalalloctesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_NONTYPICALOVERLOADSTESTTYPE
 #include <bsltf_nontypicaloverloadstesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_SIMPLETESTTYPE
 #include <bsltf_simpletesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_STDALLOCTESTTYPE
 #include <bsltf_stdalloctesttype.h>
-#endif
-
-#ifndef INCLUDED_BSLTF_UNIONTESTTYPE
 #include <bsltf_uniontesttype.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_MALLOCFREEALLOCATOR
 #include <bslma_mallocfreeallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>  // for 'size_t'
-#define INCLUDED_STDDEF_H
-#endif
-
-#ifndef INCLUDED_STDIO_H
 #include <stdio.h>  // for 'printf'
-#define INCLUDED_STDIO_H
-#endif
 
-#ifndef INCLUDED_STDLIB_H
 #include <stdlib.h>  // for 'atoi'
-#define INCLUDED_STDLIB_H
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

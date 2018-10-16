@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ISCONVERTIBLETOANY
 #define INCLUDED_BSLMF_ISCONVERTIBLETOANY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time check for types convertible to any type.
@@ -43,17 +41,10 @@ BSLS_IDENT("$Id: $")
 //  assert(bslmf::IsConvertibleToAny<TypeWithTemplateConversion>::value);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
 
 namespace BloombergLP {
 

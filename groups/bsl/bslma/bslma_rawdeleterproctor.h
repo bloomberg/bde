@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_RAWDELETERPROCTOR
 #define INCLUDED_BSLMA_RAWDELETERPROCTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a proctor to conditionally manage an object.
@@ -175,21 +173,12 @@ BSLS_IDENT("$Id: $")
 // that checks the traits of 'TYPE' (to determine whether 'TYPE' uses
 // 'bslma::Allocator') should be used (see 'bslalg_constructorproxy').
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_DELETERHELPER
 #include <bslma_deleterhelper.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
 
 namespace BloombergLP {
 

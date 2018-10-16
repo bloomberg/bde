@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
 #define INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide primitive algorithms that destroy arrays.
@@ -93,35 +91,18 @@ BSLS_IDENT("$Id: $")
 //                                              scalarIntegers + 5);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // 'size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
-#ifndef INCLUDED_CSTRING
 #include <cstring>  // 'memset', 'memcpy', and 'memmove'
-#define INCLUDED_CSTRING
-#endif
 
 namespace BloombergLP {
 

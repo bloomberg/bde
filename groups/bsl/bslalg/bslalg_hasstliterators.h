@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_HASSTLITERATORS
 #define INCLUDED_BSLALG_HASSTLITERATORS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a tag type used to detect STL-like iterators traits.
@@ -44,13 +42,9 @@ BSLS_IDENT("$Id: $")
 //  X.cend()             const_iterator
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
-#endif
 
 namespace BloombergLP {
 

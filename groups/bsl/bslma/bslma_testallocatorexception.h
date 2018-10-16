@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_TESTALLOCATOREXCEPTION
 #define INCLUDED_BSLMA_TESTALLOCATOREXCEPTION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an exception class for memory allocation operations.
@@ -200,26 +198,14 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #include <bsls_exceptionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
 
-#ifndef INCLUDED_NEW
 #include <new>          // For 'std::bad_alloc'
-#define INCLUDED_NEW
-#endif
 
 namespace BloombergLP {
 

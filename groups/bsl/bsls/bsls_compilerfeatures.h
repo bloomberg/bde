@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_COMPILERFEATURES
 #define INCLUDED_BSLS_COMPILERFEATURES
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide macros to identify compiler support for C++11 features.
@@ -544,13 +542,8 @@ BSLS_IDENT("$Id: $")
 //:   o MSVC 2015
 //:   o Oracle CC 12.4
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_MACROREPEAT
 #include <bsls_macrorepeat.h>
-#endif
 
 // ============================================================================
 //                      UNIVERSAL MACRO DEFINITIONS

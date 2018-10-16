@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_BUFFERALLOCATOR
 #define INCLUDED_BSLMA_BUFFERALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Support efficient memory allocations from a user-supplied buffer.
@@ -205,14 +203,9 @@ BSLS_IDENT("$Id: $")
 #ifdef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 #error "bslma_bufferallocator is deprecated"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
 namespace BloombergLP {
 

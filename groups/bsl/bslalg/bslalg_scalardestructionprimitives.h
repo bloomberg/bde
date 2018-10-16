@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
 #define INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide primitive algorithms that destroy scalars.
@@ -92,21 +90,13 @@ BSLS_IDENT("$Id: $")
 //  bslalg::ScalarDestructionPrimitives::destroy(&scalarInteger);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
 #include <bslma_destructionutil.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#ifndef INCLUDED_CSTRING
 #include <cstring>  // 'memset', 'memcpy', 'memmove'
-#define INCLUDED_CSTRING
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_TREENODEPOOL
 #define INCLUDED_BSLSTL_TREENODEPOOL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide efficient creation of nodes used in tree-based container.
@@ -215,38 +213,19 @@ BSLS_IDENT("$Id: $")
 #error "<bslstl_treenodepool.h> header can't be included directly in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_SIMPLEPOOL
 #include <bslstl_simplepool.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_TREENODE
 #include <bslstl_treenode.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_RBTREENODE
 #include <bslalg_rbtreenode.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
 #include <bslma_deallocatorproctor.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
 
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
 namespace BloombergLP {
 namespace bslstl {

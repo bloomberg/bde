@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_TIMEDSEMAPHORE
 #define INCLUDED_BSLMT_TIMEDSEMAPHORE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a timed semaphore class.
@@ -141,33 +139,15 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_POSIXADV
 #include <bslmt_timedsemaphoreimpl_posixadv.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_PTHREAD
 #include <bslmt_timedsemaphoreimpl_pthread.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_TIMEDSEMAPHOREIMPL_WIN32
 #include <bslmt_timedsemaphoreimpl_win32.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
 
-#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

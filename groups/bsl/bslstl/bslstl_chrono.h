@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_CHRONO
 #define INCLUDED_BSLSTL_CHRONO
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -62,32 +60,18 @@ BSLS_IDENT("$Id: $")
 //  half an hour is 0.5 hours
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 #ifndef INCLUDED_BSLS_RATIO
 #include <bslstl_ratio.h>
 #endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
-#ifndef INCLUDED_CHRONO
 #include <chrono>
-#define INCLUDED_CHRONO
-#endif
 
 namespace bsl {
 

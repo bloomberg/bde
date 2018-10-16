@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_UTIL
 #define INCLUDED_BSLS_UTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide essential, low-level support for portable generic code.
@@ -117,17 +115,9 @@ BSLS_IDENT("$Id: $")
 //  assert(3 == p->bitpos());
 //..
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 

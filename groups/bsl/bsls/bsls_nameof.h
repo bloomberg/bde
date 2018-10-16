@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_NAMEOF
 #define INCLUDED_BSLS_NAMEOF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a 'NameOf' type for displaying template type at run-time.
@@ -153,21 +151,10 @@ BSLS_IDENT("$Id: $")
 //  assert(s2 == nameOfType(Nos()));
 //..
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_BSLONCE
 #include <bsls_bslonce.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 namespace bsls {

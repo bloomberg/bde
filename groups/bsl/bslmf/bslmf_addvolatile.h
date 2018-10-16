@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ADDVOLATILE
 #define INCLUDED_BSLMF_ADDVOLATILE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function for adding a 'volatile'-qualifier.
@@ -61,25 +59,13 @@ BSLS_IDENT("$Id: $")
 // 'typename' prefix when we want to use the result of the 'bsl::add_volatile'
 // meta-function in templates.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISFUNCTION
 #include <bslmf_isfunction.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISVOLATILE
 #include <bslmf_isvolatile.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 
 namespace BloombergLP {

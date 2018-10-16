@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_SWAPUTIL
 #define INCLUDED_BSLALG_SWAPUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a simple to use 'swap' algorithm.
@@ -102,18 +100,11 @@ BSLS_IDENT("$Id: $")
 // The above code correctly calls the 'xyz::swap' overload for the 'Container'
 // class.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_ALGORITHM
 #include <algorithm>
-#define INCLUDED_ALGORITHM
-#endif
 
 namespace BloombergLP {
 

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC64_AIX_XLC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC64_AIX_XLC
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide implementations of atomic operations for PowerPC/AIX-64bit.
@@ -19,21 +17,12 @@ BSLS_IDENT("$Id: $")
 // classes are for private use only.  See 'bsls_atomicoperations' and
 // 'bsls_atomic' for the public interface to atomics.
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC_AIX_XLC_DEFAULT
 #include <bsls_atomicoperations_powerpc_aix_xlc_default.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 #if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_IBM) \
     && defined(BSLS_PLATFORM_CPU_64_BIT)
-
 #include <builtins.h>
 
 namespace BloombergLP {

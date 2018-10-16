@@ -64,77 +64,32 @@
 #ifdef BDE_OPENSOURCE_PUBLICATION // STP
 #error "bslstp_slist is not for publication"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTP_ALLOC
 #include <bslstp_alloc.h>
-#endif
-
-#ifndef INCLUDED_BSLSTP_ITERATOR
 #include <bslstp_iterator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTP_SLISTBASE
 #include <bslstp_slistbase.h>
-#endif
-
-#ifndef INCLUDED_BSLSTP_UTIL
 #include <bslstp_util.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_ARRAYPRIMITIVES
 #include <bslalg_arrayprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_AUTODESTRUCTOR
 #include <bslma_autodestructor.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
 #include <bslma_destructionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #include <bsls_exceptionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
-#ifndef INCLUDED_ALGORITHM
 #include <algorithm>
-#define INCLUDED_ALGORITHM
-#endif
 
-#ifndef INCLUDED_ITERATOR
 #include <iterator>
-#define INCLUDED_ITERATOR
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>
-#define INCLUDED_CSTDDEF
-#endif
 
 //# undef slist
 //# define  slist  __WORKAROUND_DBG_RENAME(slist)

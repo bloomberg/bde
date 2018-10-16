@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ANNOTATION
 #define INCLUDED_BSLS_ANNOTATION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide support for compiler annotations for compile-time safety.
@@ -192,9 +190,7 @@ BSLS_IDENT("$Id: $")
 //  int foo BSLS_ANNOTATION_ABC BSLS_ANNOTATION_XYZ;
 //..
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLS_ANNOTATION_USED       __attribute__((__used__))

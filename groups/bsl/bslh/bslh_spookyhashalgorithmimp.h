@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHMIMP
 #define INCLUDED_BSLH_SPOOKYHASHALGORITHMIMP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide BDE style encapsulation of 3rd party SpookyHash code.
@@ -230,22 +228,12 @@ BSLS_IDENT("$Id: $")
 // slower than MD5.
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>    // 'size_t'
-#define INCLUDED_STDDEF_H
-#endif
 
 namespace BloombergLP {
 

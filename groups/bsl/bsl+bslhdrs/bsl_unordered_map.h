@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSL_UNORDERED_MAP
 #define INCLUDED_BSL_UNORDERED_MAP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -19,17 +17,13 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
 #ifdef BSL_OVERRIDES_STD
 // BDE configuration requires 'bsl+stdhdrs' be in the search path, so this
 // #include is guaranteed to succeed.
+
 # include <unordered_map>
 #else
 // The unordered containers are a feature of the C++11 library, rather than
@@ -37,6 +31,7 @@ BSLS_IDENT("$Id: $")
 // support.  Currently the 'BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS' is
 // never defined, but this sketches out our plan for future support.
 # ifdef BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS
+
 #  include <unordered_map>
 # endif
 #endif
@@ -50,10 +45,8 @@ BSLS_IDENT("$Id: $")
 // cbegin() etc.) must be available not only via inclusion of the <iterator>
 // header, but also when <unordered_map> is included. To satisfy this
 // requirement the following inclusion is added.
-#ifndef INCLUDED_BSLSTL_ITERATOR
-#include <bslstl_iterator.h>
-#endif
 
+#include <bslstl_iterator.h>
 # include <bslstl_unorderedmap.h>
 # include <bslstl_unorderedmultimap.h>
 #endif  // BSL_OVERRIDES_STD

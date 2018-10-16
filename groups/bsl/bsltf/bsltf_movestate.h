@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLTF_MOVESTATE
 #define INCLUDED_BDLTF_MOVESTATE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an enumeration of move-state, including unsupported.
@@ -59,14 +57,9 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == strcmp(asciiValue, "MOVED"));
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_STDIO_H
 #include <stdio.h>  // for 'printf'
-#define INCLUDED_STDIO_H
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

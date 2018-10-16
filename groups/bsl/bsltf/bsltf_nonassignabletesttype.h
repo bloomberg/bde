@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_NONASSIGNABLETESTTYPE
 #define INCLUDED_BSLTF_NONASSIGNABLETESTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an attribute class to which can not be assigned.
@@ -48,9 +46,7 @@ BSLS_IDENT("$Id: $")
 //  X = Y; // This will not compile
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_PAIR
 #define INCLUDED_BSLSTL_PAIR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a simple 'struct' with two members that may use allocators.
@@ -242,125 +240,50 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_utility.h> instead of <bslstl_pair.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_HASH
 #include <bslstl_hash.h>
-#endif
 
-#ifndef INCLUDED_BSLH_HASH
 #include <bslh_hash.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-#ifndef INCLUDED_BSLMA_MANAGEDPTR_PAIRPROXY
 #include <bslma_managedptr_pairproxy.h>
-#endif
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
 #include <bslmf_addlvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ALLOCATORARGT
 #include <bslmf_allocatorargt.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGERSEQUENCE
 #include <bslmf_integersequence.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
 #include <bslmf_isbitwiseequalitycomparable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPAIR
 #include <bslmf_ispair.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 #include <bslmf_istriviallydefaultconstructible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MAKEINTEGERSEQUENCE
 #include <bslmf_makeintegersequence.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_USESALLOCATORARGT
 #include <bslmf_usesallocatorargt.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_UTIL
 #include <bslmf_util.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-# ifndef INCLUDED_TUPLE
+
 #  include <tuple>  // 'std::tuple'
-#  define INCLUDED_TUPLE
-# endif
 #endif
 
-#ifndef INCLUDED_UTILITY
 #include <utility> // 'std::pair' and (in C++11 mode) 'std::swap'
-#define INCLUDED_UTILITY
-#endif
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && !defined(BSLS_PLATFORM_CMP_CLANG)

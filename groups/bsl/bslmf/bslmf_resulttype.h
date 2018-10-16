@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_RESULTTYPE
 #define INCLUDED_BSLMF_RESULTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide access to 'result_type' or 'ResultType' nested type.
@@ -176,17 +174,10 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_VOIDTYPE
 #include <bslmf_voidtype.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmf {

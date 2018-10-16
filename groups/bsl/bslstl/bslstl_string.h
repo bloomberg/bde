@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_STRING
 #define INCLUDED_BSLSTL_STRING
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a standard-compliant 'basic_string' class template.
@@ -616,199 +614,75 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_string.h> instead of <bslstl_string.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_HASH
 #include <bslstl_hash.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
 #include <bslstl_stdexceptutil.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_STRINGREFDATA
 #include <bslstl_stringrefdata.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_CONTAINERBASE
 #include <bslalg_containerbase.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
-#endif
 
-#ifndef INCLUDED_BSLH_HASH
 #include <bslh_hash.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
 #include <bslmf_matcharithmetictype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNEDBUFFER
 #include <bsls_alignedbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ALIGNMENT
 #include <bsls_alignment.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-#ifndef INCLUDED_INITIALIZER_LIST
+
 #include <initializer_list>
-#define INCLUDED_INITIALIZER_LIST
-#endif
 #endif
 
-#ifndef INCLUDED_ISTREAM
 #include <istream>  // for 'std::basic_istream', 'sentry'
-#define INCLUDED_ISTREAM
-#endif
 
-#ifndef INCLUDED_LIMITS
 #include <limits>   // for 'std::numeric_limits'
-#define INCLUDED_LIMITS
-#endif
 
-#ifndef INCLUDED_LOCALE
 #include <locale>   // for 'std::ctype', 'locale'
-#define INCLUDED_LOCALE
-#endif
 
-#ifndef INCLUDED_OSTREAM
 #include <ostream>  // for 'std::basic_ostream', 'sentry'
-#define INCLUDED_OSTREAM
-#endif
 
-#ifndef INCLUDED_STRING
 #include <string>  // for 'native_std::char_traits'
-#define INCLUDED_STRING
-#endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#ifndef INCLUDED_ALGORITHM
 #include <algorithm>
-#define INCLUDED_ALGORITHM
-#endif
 
-#ifndef INCLUDED_EXCEPTION
 #include <exception>
-#define INCLUDED_EXCEPTION
-#endif
 
-#ifndef INCLUDED_STDEXCEPT
 #include <stdexcept>
-#define INCLUDED_STDEXCEPT
-#endif
 
 #if defined(BDE_BUILD_TARGET_STLPORT)
 // Code in Robo depends on these headers included transitively with <string>
 // and it fails to build otherwise in the stlport4 mode on Sun.
-#ifndef INCLUDED_STDIO_H
+
 #include <stdio.h>
-#define INCLUDED_STDIO_H
-#endif
-
-#ifndef INCLUDED_STDLIB_H
 #include <stdlib.h>
-#define INCLUDED_STDLIB_H
-#endif
-
-#ifndef INCLUDED_STRING_H
 #include <string.h>
-#define INCLUDED_STRING_H
-#endif
-
 #endif
 
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES

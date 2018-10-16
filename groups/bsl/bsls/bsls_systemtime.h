@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_SYSTEMTIME
 #define INCLUDED_BSLS_SYSTEMTIME
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities to retrieve the system time.
@@ -85,17 +83,9 @@ BSLS_IDENT("$Id: $")
 //                                   interval <= bsls::TimeInterval(1.1));
 //..
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
 namespace BloombergLP {
 namespace bsls {

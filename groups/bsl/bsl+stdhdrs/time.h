@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_C_TIME
 #define INCLUDED_NATIVE_C_TIME
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 /*
@@ -30,19 +28,14 @@ BSLS_IDENT("$Id: $")
 
 #endif  /* INCLUDED_NATIVE_C_TIME */
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus) \
     || defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
         // Don't run the prologue/epilogue pair if we're being included when
         // the prologue is already in effect.  It can happen because 'time.h'
         // is designed for multiple inclusion.
-
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
-#   endif
 
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <time.h>
@@ -60,10 +53,7 @@ BSLS_IDENT("$Id: $")
 #   define BSL_STDHDRS_RUN_EPILOGUE
 #   define BSL_STDHDRS_EPILOGUE_RUN_BY_c_time
 #   endif
-
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
-#   endif
 
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <time.h>

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_X64_WIN_MSVC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_X64_WIN_MSVC
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide implementations of atomic operations for X86_64/MSVC/Win64.
@@ -20,20 +18,11 @@ BSLS_IDENT("$Id: $")
 // private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the
 // public interface to atomics.
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 #if defined(BSLS_PLATFORM_CPU_X86_64) && defined(BSLS_PLATFORM_CMP_MSVC)
-
 #include <intrin.h>
 
 // Visual C++ implementation exploits the fact that 'volatile' loads and stores

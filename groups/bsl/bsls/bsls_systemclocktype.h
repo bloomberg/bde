@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #define INCLUDED_BSLS_SYSTEMCLOCKTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Enumerate the set of system clock types.

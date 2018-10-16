@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_FORWARDITERATOR
 #define INCLUDED_BSLSTL_FORWARDITERATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a template to create STL-compliant forward iterators.
@@ -86,40 +84,19 @@ BSLS_IDENT("$Id: $")
 #error "<bslstl_forwarditerator.h> header can't be included directly in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISLVALUEREFERENCE
 #include <bslmf_islvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_UTIL
 #include <bslmf_util.h>
-#endif
 
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
-#ifndef INCLUDED_ITERATOR
 #include <iterator>
-#define INCLUDED_ITERATOR
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // 'ptrdiff_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace BloombergLP {
 

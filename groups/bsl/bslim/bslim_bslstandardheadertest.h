@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLIM_BSLSTANDARDHEADERTEST
 #define INCLUDED_BSLIM_BSLSTANDARDHEADERTEST
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a location for testing 'bsl' standard library headers.
@@ -20,10 +18,7 @@ BSLS_IDENT("$Id: $")
 // '<bsl_*.h>' headers.  Note that this component does not define any types or
 // functions.
 
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 #endif
 

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLS_STACKADDRESSUTIL
 #define INCLUDED_BSLS_STACKADDRESSUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility for obtaining return addresses from the stack.
@@ -309,9 +307,7 @@ BSLS_IDENT("$Id: $")
 //                                          ... 400F49" to see the stack trace.
 //..
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
                       // ============================
                       // class bsls::StackAddressUtil

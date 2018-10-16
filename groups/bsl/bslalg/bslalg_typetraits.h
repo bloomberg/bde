@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_TYPETRAITS
 #define INCLUDED_BSLALG_TYPETRAITS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide compile-time traits that can be associated with types.
@@ -350,49 +348,18 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
 #include <bslalg_hastrait.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISECOPYABLE
 #include <bslalg_typetraitbitwisecopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEEQUALITYCOMPARABLE
 #include <bslalg_typetraitbitwiseequalitycomparable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITBITWISEMOVEABLE
 #include <bslalg_typetraitbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITHASPOINTERSEMANTICS
 #include <bslalg_typetraithaspointersemantics.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITHASTRIVIALDEFAULTCONSTRUCTOR
 #include <bslalg_typetraithastrivialdefaultconstructor.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITNIL
 #include <bslalg_typetraitnil.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITPAIR
 #include <bslalg_typetraitpair.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITUSESBSLMAALLOCATOR
 #include <bslalg_typetraitusesbslmaallocator.h>
-#endif
 
 namespace BloombergLP {
 

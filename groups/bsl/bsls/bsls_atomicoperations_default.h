@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #define INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide default implementation for atomic operations.
@@ -282,9 +280,7 @@ BSLS_IDENT("$Id: $")
 // This component is a private implementation type of 'bsls_atomicoperations';
 // see 'bsls_atomicoperations' for a usage example.
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_LOG
 #define INCLUDED_BSLS_LOG
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a namespace for low-level logging functions.
@@ -210,21 +208,10 @@ BSLS_IDENT("$Id: $")
 // specifiers but the expected substitutions are not present, it will lead to
 // undefined behavior.
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
-
-#ifndef INCLUDED_BSLS_LOGSEVERITY
 #include <bsls_logseverity.h>
-#endif
-
-#ifndef INCLUDED_BSLS_POINTERCASTUTIL
 #include <bsls_pointercastutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bsls {

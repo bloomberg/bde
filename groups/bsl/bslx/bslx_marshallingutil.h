@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLX_MARSHALLINGUTIL
 #define INCLUDED_BSLX_MARSHALLINGUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Support platform-independent marshalling of fundamental types.
@@ -197,25 +195,13 @@ BSLS_IDENT("$Id: $")
 //  assert(newValues[2] == values[2]);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTRING
 #include <bsl_cstring.h>           // for 'bsl::memcpy'
-#endif
 
 namespace BloombergLP {
 namespace bslx {

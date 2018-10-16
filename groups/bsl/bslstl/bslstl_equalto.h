@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_EQUALTO
 #define INCLUDED_BSLSTL_EQUALTO
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a binary functor conforming to the C++11 'equal_to' spec.
@@ -254,18 +252,10 @@ BSLS_IDENT("$Id: $")
 #error "<bslstl_equalto.h> header can't be included directly in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 #include <bslmf_istriviallydefaultconstructible.h>
-#endif
 
 namespace bsl {
 

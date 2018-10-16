@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_HASH
 #define INCLUDED_BSLSTL_HASH
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a namespace for hash functions.
@@ -414,39 +412,19 @@ BSLS_IDENT("$Id: $")
 #error "<bslstl_hash.h> header can't be included directly in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_HASHUTIL
 #include <bslalg_hashutil.h>
-#endif
 
-#ifndef INCLUDED_BSLH_HASH
 #include <bslh_hash.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 #include <bslmf_istriviallydefaultconstructible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 
 namespace bsl {

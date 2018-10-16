@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_CONDITION
 #define INCLUDED_BSLMT_CONDITION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a portable, efficient condition variable.
@@ -147,29 +145,14 @@ BSLS_IDENT("$Id: $")
 //    // ...
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_CONDITIONIMPL_PTHREAD
 #include <bslmt_conditionimpl_pthread.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_CONDITIONIMPL_WIN32
 #include <bslmt_conditionimpl_win32.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
-
-#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

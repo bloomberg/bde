@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_COMPLEX
 #define INCLUDED_BSLSTL_COMPLEX
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -57,26 +55,13 @@ BSLS_IDENT("$Id: $")
 //  abs(1.0,1.0) = 1.414214
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
-#ifndef INCLUDED_COMPLEX
 #include <complex>
-#define INCLUDED_COMPLEX
-#endif
 
 namespace bsl {
 

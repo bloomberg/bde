@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_LOCKGUARD
 #define INCLUDED_BSLMT_LOCKGUARD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a generic proctor for synchronization objects.
@@ -184,9 +182,7 @@ BSLS_IDENT("$Id: $")
 // cause an illegal sequence of calls on a lock (two sequential lock calls or
 // two sequential unlock calls on a non-recursive mutex).
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

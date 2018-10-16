@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_BLOCKGROWTH
 #define INCLUDED_BSLS_BLOCKGROWTH
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a namespace for memory block growth strategies.

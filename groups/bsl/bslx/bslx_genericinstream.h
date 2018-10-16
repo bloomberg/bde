@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLX_GENERICINSTREAM
 #define INCLUDED_BSLX_GENERICINSTREAM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Unexternalization of fundamental types from a parameterized stream.
@@ -506,41 +504,18 @@ BSLS_IDENT("$Id: $")
 //  assert(janeCopy2 == janeSmith2);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
 #include <bslx_instreamfunctions.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace bslx {

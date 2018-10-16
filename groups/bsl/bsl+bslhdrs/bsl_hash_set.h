@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSL_HASH_SET
 #define INCLUDED_BSL_HASH_SET
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -24,19 +22,14 @@ BSLS_IDENT("$Id: $")
 #ifdef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 #error "bsl_hash_set is deprecated"
 #endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
 #ifndef BSL_OVERRIDES_STD
-
 #include <bslstp_hashset.h>
 
 #else   // BSL_OVERRIDES_STD
 
 #include <hash_set>
-
 #endif  // BSL_OVERRIDES_STD
 
 #endif  // INCLUDED_BSL_HASH_SET

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_USESALLOCATORARGT
 #define INCLUDED_BSLMF_USESALLOCATORARGT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a metafunction for 'allocator_arg_t' construction
@@ -47,13 +45,9 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
-#endif
 
 namespace BloombergLP {
 

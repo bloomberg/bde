@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_SPARC_SUN_CC_DEFAULT
 #define INCLUDED_BSLS_ATOMICOPERATIONS_SPARC_SUN_CC_DEFAULT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide default base implementations of atomics for Sparc/Sun.
@@ -20,17 +18,9 @@ BSLS_IDENT("$Id: $")
 // classes are for private use only.  See 'bsls_atomicoperations' and
 // 'bsls_atomic' for the public interface to atomics.
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 #if (defined(BSLS_PLATFORM_CPU_SPARC_V9)                                     \
                                      || defined(BSLS_PLATFORM_CPU_SPARC_32)) \

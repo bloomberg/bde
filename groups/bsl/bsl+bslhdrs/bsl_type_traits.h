@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSL_TYPE_TRAITS
 #define INCLUDED_BSL_TYPE_TRAITS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -19,25 +17,11 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #if __cplusplus < 201103L \
     && (defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_IBM))
@@ -45,10 +29,7 @@ BSLS_IDENT("$Id: $")
           the ISO C++ 2011 standard.
 #endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>       // for 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 #include <type_traits>
 
@@ -501,7 +482,6 @@ constexpr bool is_base_of_v = native_std::is_base_of<TYPE1, TYPE2>::value;
 
 // standard traits
 #ifndef BSL_OVERRIDES_STD
-
 #include <bslmf_addconst.h>
 #include <bslmf_addcv.h>
 #include <bslmf_addlvaluereference.h>
@@ -546,7 +526,6 @@ constexpr bool is_base_of_v = native_std::is_base_of<TYPE1, TYPE2>::value;
 #include <bslmf_removepointer.h>
 #include <bslmf_removereference.h>
 #include <bslmf_removevolatile.h>
-
 #endif  // BSL_OVERRIDES_STD
 
 #endif

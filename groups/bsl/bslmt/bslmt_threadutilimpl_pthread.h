@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_THREADUTILIMPL_PTHREAD
 #define INCLUDED_BSLMT_THREADUTILIMPL_PTHREAD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a POSIX implementation of 'bslmt::ThreadUtil'.
@@ -52,46 +50,24 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
 
 #ifdef BSLMT_PLATFORM_POSIX_THREADS
 
 // Platform-specific implementation starts here.
 
-#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
 #include <bslmt_threadattributes.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
-#ifndef INCLUDED_PTHREAD
 #include <pthread.h>
-#define INCLUDED_PTHREAD
-#endif
 
 namespace BloombergLP {
 

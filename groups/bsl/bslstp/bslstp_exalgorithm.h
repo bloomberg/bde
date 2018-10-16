@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTP_EXALGORITHM
 #define INCLUDED_BSLSTP_EXALGORITHM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a namespace for algorithm extensions.
@@ -65,31 +63,15 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_algorithm.h> instead of <bslstp_exalgorithm.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>  // iterator tags
-#endif
-
-#ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>
-#endif
 
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_ALGORITHM
 #include <algorithm>          // 'copy'
-#define INCLUDED_ALGORITHM
-#endif
 
 namespace bsl {
 

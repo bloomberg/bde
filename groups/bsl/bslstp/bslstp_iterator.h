@@ -51,10 +51,7 @@
 #error "bslstp_iterator is not for publication"
 #endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace bsl {
 

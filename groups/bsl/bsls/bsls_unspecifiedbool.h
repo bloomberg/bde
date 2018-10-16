@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
 #define INCLUDED_BSLS_UNSPECIFIEDBOOL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a class supporting the 'unspecified bool' idiom.

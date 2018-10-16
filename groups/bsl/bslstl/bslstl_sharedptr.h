@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_SHAREDPTR
 #define INCLUDED_BSLSTL_SHAREDPTR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide a generic reference-counted shared pointer wrapper.
@@ -1452,166 +1450,53 @@ BSLS_IDENT("$Id$ $CSID$")
 #error "include <bsl_memory.h> instead of <bslstl_sharedptr.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_HASH
 #include <bslstl_hash.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_REFERENCEWRAPPER
 #include <bslstl_referencewrapper.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_SHAREDPTRALLOCATEINPLACEREP
 #include <bslstl_sharedptrallocateinplacerep.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_SHAREDPTRALLOCATEOUTOFPLACEREP
 #include <bslstl_sharedptrallocateoutofplacerep.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_MANAGEDPTR
 #include <bslma_managedptr.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_SHAREDPTRINPLACEREP
 #include <bslma_sharedptrinplacerep.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_SHAREDPTROUTOFPLACEREP
 #include <bslma_sharedptroutofplacerep.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_SHAREDPTRREP
 #include <bslma_sharedptrrep.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
 #include <bslmf_addlvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ADDPOINTER
 #include <bslmf_addpointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_HASPOINTERSEMANTICS
 #include <bslmf_haspointersemantics.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNCTION
 #include <bslmf_isfunction.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_UTIL
 #include <bslmf_util.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NULLPTR
 #include <bsls_nullptr.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
 #include <bsls_unspecifiedbool.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
-#ifndef INCLUDED_FUNCTIONAL
 #include <functional>           // use 'std::less' to order pointers
-#define INCLUDED_FUNCTIONAL
-#endif
 
-#ifndef INCLUDED_MEMORY
 #include <memory>               // 'std::auto_ptr', 'std::unique_ptr'
-#define INCLUDED_MEMORY
-#endif
 
-#ifndef INCLUDED_OSTREAM
 #include <ostream>              // 'std::basic_ostream'
-#define INCLUDED_OSTREAM
-#endif
 
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>             // 'size_t', 'ptrdiff_t'
-#define INCLUDED_STDDEF_H
-#endif
 
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
         // Here and throughout the file wherever 'auto_ptr' is used, suspend

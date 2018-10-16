@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLFWD_BSLMF_NIL
 #define INCLUDED_BSLFWD_BSLMF_NIL
 
-#ifndef INCLUDED_BSLFWD_BUILDTARGET
 #include <bslfwd_buildtarget.h>
-#endif
 
 //@PURPOSE: Provide a forward-declaration for the corresponding BDE type.
 //

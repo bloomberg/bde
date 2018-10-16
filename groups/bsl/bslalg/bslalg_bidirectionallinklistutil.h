@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKLISTUTIL
 #define INCLUDED_BSLALG_BIDIRECTIONALLINKLISTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities to maintain bidirectional list data structures.
@@ -183,9 +181,7 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == p->previousLink());
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_CONTAINERBASE
 #define INCLUDED_BSLALG_CONTAINERBASE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a wrapper for STL allocators, respecting 'bslma' semantics.
@@ -87,21 +85,12 @@ BSLS_IDENT("$Id: $")
 //  assert(fixedArray[2] == 3);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
 
 namespace BloombergLP {
 

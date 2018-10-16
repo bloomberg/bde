@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_BUILDTARGET
 #define INCLUDED_BSLS_BUILDTARGET
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide build-target information in object files.
@@ -103,9 +101,7 @@ BSLS_IDENT("$Id: $")
 // There is no usage example for this component since it is not meant for
 // direct client use.
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 

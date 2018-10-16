@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_OUTPUTREDIRECTOR
 #define INCLUDED_BSLS_OUTPUTREDIRECTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a means for test drivers to redirect and inspect output.
@@ -27,30 +25,12 @@ BSLS_IDENT("$Id: $")
 // This section illustrates the intended use of this component, or at least, it
 // will once the usage example is written.
 
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_LIMITS_H
 #include <limits.h>
-#define INCLUDED_LIMITS_H
-#endif
-
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
-#define INCLUDED_STDDEF_H
-#endif
-
-#ifndef INCLUDED_STDIO_H
 #include <stdio.h>
-#define INCLUDED_STDIO_H
-#endif
-
-#ifndef INCLUDED_SYS_STAT_H
 #include <sys/stat.h>  // 'struct stat[64]': required on Sun and Windows only
-#define INCLUDED_SYS_STAT_H
-#endif
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
 # ifndef INCLUDED_WINDOWS_H

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
 #define INCLUDED_BSLMF_MATCHARITHMETICTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a class supporting "do-the-right-thing clause" dispatch.
@@ -390,9 +388,7 @@ BSLS_IDENT("$Id: $")
 // for the second object, but called via 'privateInitDispatch' for the
 // third object.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 

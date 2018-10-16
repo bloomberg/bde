@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_FUNCTORADAPTER
 #define INCLUDED_BSLALG_FUNCTORADAPTER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an utility that adapts callable objects to functors.
@@ -129,21 +127,12 @@ BSLS_IDENT("$Id: $")
 //  assert(!functionLessThan10(12));
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bslalg {

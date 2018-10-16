@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_NONCOPYCONSTRUCTIBLETESTTYPE
 #define INCLUDED_BSLTF_NONCOPYCONSTRUCTIBLETESTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an attribute class that is not copy constructible.
@@ -49,9 +47,7 @@ BSLS_IDENT("$Id: $")
 //  NonCopyConstructibleTestType Y(X); // This will not compile
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

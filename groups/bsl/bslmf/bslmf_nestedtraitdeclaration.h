@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #define INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a nested declaration to associate a class with a trait.
@@ -150,9 +148,7 @@ BSLS_IDENT("$Id: $")
 // trait.  See 'bslmf_detectnestedtrait' for an example of how generic code
 // would use such a trait.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 

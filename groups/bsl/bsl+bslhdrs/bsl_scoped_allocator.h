@@ -1,10 +1,7 @@
 // bsl_scoped_allocator.h                                             -*-C++-*-
 #ifndef INCLUDED_BSL_scoped_allocator
 #define INCLUDED_BSL_scoped_allocator
-
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -17,9 +14,7 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
 #include <scoped_allocator>
 
