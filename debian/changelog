@@ -1,8 +1,14 @@
-bsl-internal (3.14.1.0) unstable; urgency=low
+bsl-internal (3.14.1.1) unstable; urgency=low
 
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 16 Oct 2018 09:24:53 -0400
+
+bsl-internal (3.14.1.0) git; urgency=low
+
+  * 8f0d840bd Changelog for version 3.14.1.0
   * 65dbab05e Bump bdl version to 3.14.1
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 15 Oct 2018 10:05:36 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 15 Oct 2018 10:08:06 -0400
 
 bsl-internal (3.14.0.0) git; urgency=low
 
