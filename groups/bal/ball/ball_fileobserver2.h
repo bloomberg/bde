@@ -125,9 +125,9 @@ BSLS_IDENT("$Id: $")
 // {'ball_recordstringformatter'} for information on how format specifications
 // are defined and interpreted.
 //
-// Note that observer emits new line characters at the beginning and at the end
-// of a log record by default, so user needs to add them explicitly to the
-// format string to preserve splitting a log file into several lines.
+// Note that the observer emits newline characters at the beginning and at the
+// end of a log record by default, so the user needs to add them explicitly to
+// the format string to preserve this behavior.
 //
 // Also note that in the sample message above the timestamp has millisecond
 // precision ('18MAY2005_18:58:12.076').  If microsecond precision is desired
@@ -618,10 +618,10 @@ class FileObserver2 : public Observer {
         // of this file observer to the specified 'logFileFunctor'.  Note that
         // a default format ("\n%d %p:%t %s %f:%l %c %m %u\n") is in effect
         // until this method is called (see 'ball_recordstringformatter').
-        // Also note that observer emits new line characters at the beginning
-        // and at the end of a log record by default, so user needs to add them
-        // explicitly to the format string to preserve splitting a log file
-        // into several lines.
+        // Also note that the observer emits newline characters at the
+        // beginning and at the end of a log record by default, so the user
+        // needs to add them explicitly to the format string to preserve this
+        // behavior.
 
 
     void setOnFileRotationCallback(

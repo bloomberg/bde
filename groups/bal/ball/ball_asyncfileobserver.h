@@ -206,9 +206,9 @@ BSLS_IDENT("$Id: $")
 // called, the customized format specified in the most recent call to
 // 'setLogFormat' will be reinstated.
 //
-// Note that observer emits new line characters at the beginning and at the end
-// of a log record by default, so user needs to add them explicitly to the
-// format string to preserve splitting a log file into several lines.
+// Note that the observer emits newline characters at the beginning and at the
+// end of a log record by default, so the user needs to add them explicitly to
+// the format string to preserve this behavior.
 //
 // Also note that in the sample long-form message above the timestamp has
 // millisecond precision ('18MAY2005_18:58:12.076').  If microsecond precision
@@ -839,12 +839,12 @@ class AsyncFileObserver : public Observer {
         // details on the syntax of format specifications.  Note that default
         // formats are in effect following construction until this method is
         // called ("\n%d %p:%t %s %f:%l %c %m %u\n" for both file and 'stdout'
-        // logging).  Also note that observer emits new line characters at the
-        // beginning and at the end of a log record by default, so user needs
-        // to add them explicitly to the format string to preserve splitting a
-        // log file into several lines.  Also note that this method affects
-        // records subsequently received through the 'publish' method as well
-        // as those that are currently on the queue.
+        // logging).  Also note that the observer emits newline characters at
+        // the beginning and at the end of a log record by default, so the user
+        // needs to add them explicitly to the format string to preserve this
+        // behavior.  Also note that this method affects records subsequently
+        // received through the 'publish' method as well as those that are
+        // currently on the queue.
 
     void setOnFileRotationCallback(
               const FileObserver2::OnFileRotationCallback& onRotationCallback);
