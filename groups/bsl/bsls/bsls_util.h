@@ -222,6 +222,14 @@ struct Util {
     BSLS_KEYWORD_CONSTEXPR
     TYPE&& forward(typename Util_RemoveReference<TYPE>::type&& t)
                                                          BSLS_KEYWORD_NOEXCEPT;
+        // Return a reference to the specified 't' of non-deduced 'TYPE'.  If
+        // 'TYPE' is an lvalue-reference type, then the result will be an
+        // lvalue-reference, and an rvalue-refernce otherwise.  Note that as
+        // 'TYPE' is not deduced, it must be explicitly specified by the caller
+        // of this function.  Also note that while this function may return an
+        // rvalue-reference, it cannot extend the lifetime of temporaries
+        // beyond the expression that calls this function; storing an rvalue
+        // reference to the result will lead to undefined behavior.
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 };
 
