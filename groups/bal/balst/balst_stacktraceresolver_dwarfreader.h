@@ -583,9 +583,13 @@ int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
 {
     BSLMF_ASSERT(static_cast<TYPE>(-1) < 0);    // 'TYPE' must be signed
 
+    *dst = 0;                         // Silence warnings that confused
+                                      // optimizers give in calling functions
+                                      // about them accessing '*dst' in the
+                                      // path where we return an error code.
     int rc;
 
-    Uint64 tmpDst = 0;                // workaround to silence warnings
+    Uint64 tmpDst = 0;
 
     unsigned char u = 0x80;
 
@@ -620,7 +624,11 @@ int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
 template <class TYPE>
 int StackTraceResolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
 {
-    Uint64 tmpDst = 0;                // workaround to silence warnings
+    *dst = 0;                         // Silence warnings that confused
+                                      // optimizers give in calling functions
+                                      // about them accessing '*dst' in the
+                                      // path where we return an error code.
+    Uint64 tmpDst = 0;
 
     unsigned char u = 0x80;
 
@@ -649,6 +657,11 @@ template <class TYPE>
 inline
 int StackTraceResolver_DwarfReader::readValue(TYPE *dst)
 {
+    *dst = 0;                         // Silence warnings that confused
+                                      // optimizers give in calling functions
+                                      // about them accessing '*dst' in the
+                                      // path where we return an error code.
+
     int rc = needBytes(sizeof(*dst));
     if (rc) {
         return -1;                                                    // RETURN
