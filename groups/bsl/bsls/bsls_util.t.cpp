@@ -384,11 +384,6 @@ int main(int argc, char *argv[])
         ASSERT((TestAreSame<int&&,
                          decltype(bsls::Util::forward<int>(rvalue))>::test()));
 
-        int&& rvalueResult2 = bsls::Util::forward<int>(42);
-        ASSERTV(rvalueResult2, 42 == rvalueResult2);
-        ASSERT((TestAreSame<int&&,
-                            decltype(bsls::Util::forward<int>(42))>::test()));
-
         // 'const' values
 
         const int clvalue = 42;
@@ -402,11 +397,6 @@ int main(int argc, char *argv[])
         ASSERTV(&crvalue, &crvalueResult, &crvalue == &crvalueResult);
         ASSERT((TestAreSame<const int&&,
                   decltype(bsls::Util::forward<const int>(crvalue))>::test()));
-
-        const int&& crvalueResult2 = bsls::Util::forward<const int>(42);
-        ASSERTV(crvalueResult2, 42 == crvalueResult2);
-        ASSERT((TestAreSame<const int&&,
-                       decltype(bsls::Util::forward<const int>(42))>::test()));
 
         // 'volatile' values
 
@@ -424,11 +414,6 @@ int main(int argc, char *argv[])
         ASSERT((TestAreSame<volatile int&&,
                decltype(bsls::Util::forward<volatile int>(vrvalue))>::test()));
 
-        volatile int&& vrvalueResult2 = bsls::Util::forward<volatile int>(42);
-        ASSERTV(vrvalueResult2, 42 == vrvalueResult2);
-        ASSERT((TestAreSame<volatile int&&,
-                    decltype(bsls::Util::forward<volatile int>(42))>::test()));
-
         // 'const' 'volatile' values
 
         typedef const volatile int cvint;
@@ -444,11 +429,6 @@ int main(int argc, char *argv[])
         ASSERTV(&cvrvalue, &cvrvalueResult, &cvrvalue == &cvrvalueResult);
         ASSERT((TestAreSame<cvint&&,
                      decltype(bsls::Util::forward<cvint>(cvrvalue))>::test()));
-
-        cvint&& cvrvalueResult2 = bsls::Util::forward<cvint>(42);
-        ASSERTV(cvrvalueResult2, 42 == cvrvalueResult2);
-        ASSERT((TestAreSame<cvint&&,
-                           decltype(bsls::Util::forward<cvint>(42))>::test()));
 
 # ifdef BSLS_UTIL_COMPILE_FAIL_FORWARD_RVALUE_AS_LVALUE
         bsls::Util::forward<int&>(42);                             // Concern 6
