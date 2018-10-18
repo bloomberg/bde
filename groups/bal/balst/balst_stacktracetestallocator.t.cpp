@@ -697,8 +697,8 @@ static
 const UintPtr my_HIGH_ONES = 0;
 #endif
 
-static const UintPtr my_UNFREED_BLOCK_MAGIC = 1222222221 + my_HIGH_ONES;
-static const UintPtr my_FREED_BLOCK_MAGIC   = 1999999991 + my_HIGH_ONES;
+const UintPtr my_UNFREED_BLOCK_MAGIC = 1222222221 + my_HIGH_ONES;
+const UintPtr my_FREED_BLOCK_MAGIC   = 1999999991 + my_HIGH_ONES;
 
 struct my_BlockHeader {
     // It was felt that we should go totally white box and test the internal

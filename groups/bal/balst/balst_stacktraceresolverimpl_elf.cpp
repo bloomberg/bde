@@ -1305,7 +1305,7 @@ struct AddressRange {
 inline
 void u::AddressRange::operator=(int zero)
 {
-    BSLS_ASSERT_SAFE(!zero);
+    BSLS_ASSERT_SAFE(!zero);    (void) zero;
 
     d_address = 0;
     d_size    = 0;
@@ -2246,6 +2246,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
     const u::UintPtr addressToMatch =
                              reinterpret_cast<u::UintPtr>(frameRec->address());
     u::UintPtr loPtr = u::minusOne, hiPtr = 0;
+#else
+    (void) u::minusOne;    // silence unused warning
 #endif
 
     const int index = frameRec->index(); (void) index;
