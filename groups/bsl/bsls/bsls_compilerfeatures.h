@@ -736,6 +736,10 @@ BSLS_IDENT("$Id: $")
 //: * extern template is not supported. It is documented as being
 //:   "supported" but behaves in a non-conforming manner.
 #if defined(BSLS_PLATFORM_CMP_MSVC)
+# undef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+// MSVC has never properly implemented this feature, even before it was removed
+// by C++17.  It would parse the syntax, but the runtime behavior simply would
+// simply ignore the exception specification.
 # define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 # define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 # define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
