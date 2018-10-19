@@ -159,7 +159,7 @@ static int         globalCount = 0;
 #define IS_POWER_OF_TWO(X) (0 == ((X) & ((X) - 1)))
 
 #ifndef BDE_BUILD_TARGET_EXC
-static bool globalReturnOnTestAssert = false;
+static bool globalReturnOnTestReview = false;
     // This flag is very dangerous, as it will cause the test-driver review
     // handler to simple 'return' by default, exposing any additional function
     // under test to the subsequent undefined behavior.  In general, exception-
@@ -338,7 +338,7 @@ static void testDriverHandler(const bsls::ReviewViolation& violation)
 #ifdef BDE_BUILD_TARGET_EXC
     throw std::exception();
 #else
-    if (globalReturnOnTestAssert) {
+    if (globalReturnOnTestReview) {
         return;                                                       // RETURN
     }
     std::abort();
@@ -374,7 +374,7 @@ static void testDriverPrint(const bsls::ReviewViolation& violation)
 #ifdef BDE_BUILD_TARGET_EXC
     throw std::exception();
 #else
-    if (globalReturnOnTestAssert) {
+    if (globalReturnOnTestReview) {
         return;                                                       // RETURN
     }
     std::abort();
@@ -1689,8 +1689,8 @@ int main(int argc, char *argv[])
         if (verbose) printf( "\nTesting 'void failByThrow(const char *t, "
                              "const char *f, int line);'\n" );
         {
-
             bsls::Review::ViolationHandler f = bsls::Review::failByThrow;
+            (void)f;
 
 #ifdef BDE_BUILD_TARGET_EXC
             const char *text = "Test text";
@@ -2459,7 +2459,7 @@ int main(int argc, char *argv[])
         }
 
 #ifndef BDE_BUILD_TARGET_EXC
-            globalReturnOnTestReview = false;
+        globalReturnOnTestReview = false;
 #endif
 
       } break;
@@ -2528,7 +2528,6 @@ int main(int argc, char *argv[])
                              "\n=======================\n" );
 
 #if BDE_BUILD_TARGET_EXC
-
         printf( "\nEXCEPTION BUILD\n" );
 
         fprintf( stderr, "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"

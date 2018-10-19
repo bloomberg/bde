@@ -1128,6 +1128,20 @@ int main(int argc, char *argv[])
 
     printf( "TEST %s CASE %d\n", __FILE__, test);
 
+    // Change the handler return policy not to abort, except for manual tests
+    // and tests that deal directly with the policy check.
+    if (test > 0 && test != 5)
+    {
+        // Enable assertions to return (in violation of policy) for testing
+        // purposes only.
+
+        char *key = const_cast<char*>(
+            bsls::Assert::k_permitOutOfPolicyReturningAssertionBuildKey);
+        strcpy(key, "bsls-PermitOutOfPolicyReturn");
+
+        bsls::Assert::permitOutOfPolicyReturningFailureHandler();
+    }
+
     switch (test) { case 0:  // zero is always the leading case
       case 16: {
         // --------------------------------------------------------------------
@@ -1418,18 +1432,18 @@ int main(int argc, char *argv[])
 
             bsls::AssertViolation violation("ExPrEsSiOn",
                                             "FiLe",
-                                            -12345678,
+                                            12345678,
                                             "LeVeL");
             ASSERTION_TEST_BEGIN
                 bsls::Assert::invokeHandler(violation);
             ASSERTION_TEST_END
 
-            ASSERT(     true == globalAssertFiredFlag);
-            ASSERT(     true == globalLegacyAssertFiredFlag);
-            ASSERT(        0 == std::strcmp("ExPrEsSiOn", globalText));
-            ASSERT(        0 == std::strcmp("FiLe",       globalFile));
-            ASSERT(        0 == std::strcmp("",           globalLevel));
-            ASSERT(-12345678 == globalLine);
+            ASSERT(    true == globalAssertFiredFlag);
+            ASSERT(    true == globalLegacyAssertFiredFlag);
+            ASSERT(       0 == std::strcmp("ExPrEsSiOn", globalText));
+            ASSERT(       0 == std::strcmp("FiLe",       globalFile));
+            ASSERT(       0 == std::strcmp("",           globalLevel));
+            ASSERT(12345678 == globalLine);
 
 #ifndef BDE_BUILD_TARGET_EXC
             globalReturnOnTestAssert = false;
@@ -1450,15 +1464,15 @@ int main(int argc, char *argv[])
 #endif
 
             ASSERTION_TEST_BEGIN
-                bsls::Assert::invokeHandler("ExPrEsSiOn", "FiLe", -12345678);
+                bsls::Assert::invokeHandler("ExPrEsSiOn", "FiLe", 12345678);
             ASSERTION_TEST_END
 
-            ASSERT(     true == globalAssertFiredFlag);
-            ASSERT(     true == globalLegacyAssertFiredFlag);
-            ASSERT(        0 == std::strcmp("ExPrEsSiOn", globalText));
-            ASSERT(        0 == std::strcmp("FiLe",       globalFile));
-            ASSERT(        0 == std::strcmp("",           globalLevel));
-            ASSERT(-12345678 == globalLine);
+            ASSERT(    true == globalAssertFiredFlag);
+            ASSERT(    true == globalLegacyAssertFiredFlag);
+            ASSERT(       0 == std::strcmp("ExPrEsSiOn", globalText));
+            ASSERT(       0 == std::strcmp("FiLe",       globalFile));
+            ASSERT(       0 == std::strcmp("",           globalLevel));
+            ASSERT(12345678 == globalLine);
 
 #ifndef BDE_BUILD_TARGET_EXC
             globalReturnOnTestAssert = false;
@@ -1526,18 +1540,6 @@ int main(int argc, char *argv[])
         // '...ENABLE_NORETURN...' flag turned on.
 
         typedef HandlerReturnTest Test;
-
-        // Change the handler return policy not to abort.
-        {
-            // Enable assertions to return (in violation of policy) for testing
-            // purposes only.
-
-            char *key = const_cast<char*>(
-                  bsls::Assert::k_permitOutOfPolicyReturningAssertionBuildKey);
-            strcpy(key, "bsls-PermitOutOfPolicyReturn");
-
-            bsls::Assert::permitOutOfPolicyReturningFailureHandler();
-        }
 
         bsls::AssertFailureHandlerGuard guard(Test::countingViolationHandler);
         bsls::Log::setLogMessageHandler(Test::countingLogMessageHandler);
@@ -1617,18 +1619,6 @@ int main(int argc, char *argv[])
         enum { NUM_DATA = sizeof(DATA) / sizeof(*DATA) };
 
         typedef HandlerReturnTest Test;
-
-        // Change the handler return policy not to abort.
-        {
-            // Enable assertions to return (in violation of policy) for testing
-            // purposes only.
-
-            char *key = const_cast<char*>(
-                  bsls::Assert::k_permitOutOfPolicyReturningAssertionBuildKey);
-            strcpy(key, "bsls-PermitOutOfPolicyReturn");
-
-            bsls::Assert::permitOutOfPolicyReturningFailureHandler();
-        }
 
         bsls::AssertFailureHandlerGuard guard(Test::emptyViolationHandler);
         bsls::Log::setLogMessageHandler(Test::recordingLogMessageHandler);
@@ -1962,6 +1952,7 @@ int main(int argc, char *argv[])
         {
 
             bsls::Assert::Handler f = bsls::Assert::failThrow;
+            (void) f;
 
 #ifdef BDE_BUILD_TARGET_EXC
             const char *text = "Test text";
@@ -1993,6 +1984,7 @@ int main(int argc, char *argv[])
         {
 
             bsls::Assert::ViolationHandler f = bsls::Assert::failByThrow;
+            (void) f;
 
 #ifdef BDE_BUILD_TARGET_EXC
             const char *text = "Test text";
@@ -2138,6 +2130,18 @@ int main(int argc, char *argv[])
 
         if (verbose) printf( "\nInstall 'testDriverHandler' "
                              "assertion-handler.\n" );
+
+        // Change the handler return policy not to abort.
+        {
+            // Enable assertions to return (in violation of policy) for testing
+            // purposes only.
+
+            char *key = const_cast<char*>(
+                  bsls::Assert::k_permitOutOfPolicyReturningAssertionBuildKey);
+            strcpy(key, "bsls-PermitOutOfPolicyReturn");
+
+            bsls::Assert::permitOutOfPolicyReturningFailureHandler();
+        }
 
         bsls::Assert::setViolationHandler(&testDriverHandler);
         ASSERT(::testDriverHandler == bsls::Assert::violationHandler());
@@ -2555,18 +2559,18 @@ int main(int argc, char *argv[])
 
             bsls::AssertViolation violation("ExPrEsSiOn",
                                             "FiLe",
-                                            -12345678,
+                                            12345678,
                                             "LeVeL");
             ASSERTION_TEST_BEGIN
                 bsls::Assert::invokeHandler(violation);
             ASSERTION_TEST_END
 
-            ASSERT(     true == globalAssertFiredFlag);
-            ASSERT(    false == globalLegacyAssertFiredFlag);
-            ASSERT(        0 == std::strcmp("ExPrEsSiOn", globalText));
-            ASSERT(        0 == std::strcmp("FiLe",       globalFile));
-            ASSERT(        0 == std::strcmp("LeVeL",      globalLevel));
-            ASSERT(-12345678 == globalLine);
+            ASSERT(    true == globalAssertFiredFlag);
+            ASSERT(   false == globalLegacyAssertFiredFlag);
+            ASSERT(       0 == std::strcmp("ExPrEsSiOn", globalText));
+            ASSERT(       0 == std::strcmp("FiLe",       globalFile));
+            ASSERT(       0 == std::strcmp("LeVeL",      globalLevel));
+            ASSERT(12345678 == globalLine);
 
 #ifndef BDE_BUILD_TARGET_EXC
             globalReturnOnTestAssert = false;
@@ -2587,15 +2591,15 @@ int main(int argc, char *argv[])
 #endif
 
             ASSERTION_TEST_BEGIN
-                bsls::Assert::invokeHandler("ExPrEsSiOn", "FiLe", -12345678);
+                bsls::Assert::invokeHandler("ExPrEsSiOn", "FiLe", 12345678);
             ASSERTION_TEST_END
 
-            ASSERT(     true == globalAssertFiredFlag);
-            ASSERT(    false == globalLegacyAssertFiredFlag);
-            ASSERT(        0 == std::strcmp("ExPrEsSiOn", globalText));
-            ASSERT(        0 == std::strcmp("FiLe",       globalFile));
-            ASSERT(        0 == std::strcmp("INV",        globalLevel));
-            ASSERT(-12345678 == globalLine);
+            ASSERT(    true == globalAssertFiredFlag);
+            ASSERT(   false == globalLegacyAssertFiredFlag);
+            ASSERT(       0 == std::strcmp("ExPrEsSiOn", globalText));
+            ASSERT(       0 == std::strcmp("FiLe",       globalFile));
+            ASSERT(       0 == std::strcmp("INV",        globalLevel));
+            ASSERT(12345678 == globalLine);
 
 #ifndef BDE_BUILD_TARGET_EXC
             globalReturnOnTestAssert = false;
@@ -2797,7 +2801,6 @@ int main(int argc, char *argv[])
                              "\n=======================\n" );
 
 #if BDE_BUILD_TARGET_EXC
-
         printf( "\nEXCEPTION BUILD\n" );
 
         fprintf(stderr, "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"
@@ -2868,7 +2871,6 @@ int main(int argc, char *argv[])
                              "\n==================================\n" );
 
 #if BDE_BUILD_TARGET_EXC
-
         printf( "\nEXCEPTION BUILD\n" );
 
         fprintf(stderr, "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"

@@ -19,6 +19,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_ASSERT_SAFE: runtime check typically only enabled in safe build modes
 //  BSLS_ASSERT_OPT: runtime check typically enabled in all build modes
 //  BSLS_ASSERT_INVOKE: for directly invoking the current failure handler
+//  BSLS_ASSERT_INVOKE_NORETURN: direct invocation always marked to not return
 //
 //@SEE_ALSO: bsls_review
 //
@@ -677,6 +678,12 @@ BSLS_IDENT("$Id: $")
 //  Assertion failed: Bad News, file bsls_assert.t.cpp, line 609
 //  Abort (core dumped)
 //..
+// If a piece of code needs to be guaranteed to not return, the additional
+// macro 'BSLS_ASSERT_INVOKE_NORETURN' is also available.  It behaves the same
+// way as 'BSLS_ASSERT_INVOKE', but if the installed handler *does* return
+// 'failByAbort' will be immediately called.  On supported platforms it is
+// marked appropriately to not return to support compiler requirements and
+// static analysis tools.
 //
 ///Example 3: Runtime Configuration of the 'bsls::Assert' Facility
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1413,6 +1420,18 @@ BSLS_IDENT("$Id: $")
         BloombergLP::bsls::Assert::invokeHandler(violation);                 \
     } while (false)
 
+// 'BSLS_ASSERT_INVOKE_NORETURN' is always active and guaranteed to never
+// return (by calling 'bsls::Assert::failByAbort') even if the installed
+// handler does return.
+#define BSLS_ASSERT_INVOKE_NORETURN(X) do {                                  \
+        BloombergLP::bsls::AssertViolation violation(                        \
+                                  X,                                         \
+                                  __FILE__,                                  \
+                                  __LINE__,                                  \
+                                  BloombergLP::bsls::Assert::k_LEVEL_INVOKE);\
+        BloombergLP::bsls::Assert::invokeHandlerNoReturn(violation);         \
+    } while (false)
+
                           // ====================
                           // BSLS_ASSERT_NORETURN
                           // ====================
@@ -1617,11 +1636,12 @@ class Assert {
         // returns to the caller (i.e., the assertion handler does *not*
         // 'abort', 'exit', 'terminate', 'throw', or hang).  Note that this
         // function is intended for use by the (BSLS) "ASSERT" macros, but may
-        // also be called by clients directly as needed.  Also note that the
-        // configuration macro 'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER'
-        // is intended to support static analysis tools, which require an
-        // annotation to see that a failed "ASSERT" prevents further execution
-        // of a function with "bad" values.
+        // also be called by clients directly as needed (preferably with
+        // 'BSLS_ASSERT_INVOKE').  Also note that the configuration macro
+        // 'BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER' is intended to
+        // support static analysis tools, which require an annotation to see
+        // that a failed "ASSERT" prevents further execution of a function with
+        // "bad" values.
 
     BSLS_ASSERT_NORETURN_INVOKE_HANDLER
     static void invokeHandler(const char *text, const char *file, int line);
@@ -1636,6 +1656,12 @@ class Assert {
         // 'terminate', 'throw', or hang).  Note that this function is
         // deprecated, as the (BSLS) "ASSERT" macros all now use the
         // 'bssl::AssertViolation' overload of 'invokeHandler' instead.
+
+    BSLS_ASSERT_NORETURN
+    static void invokeHandlerNoReturn(const AssertViolation &violation);
+        // Invoke the currently installed assertion-failure handler function
+        // with the specified 'violation'.  If the handler returns normally,
+        // invoke 'bsls::Assert::failByAbort'.
 
                       // Standard Assertion-Failure Handlers
 
