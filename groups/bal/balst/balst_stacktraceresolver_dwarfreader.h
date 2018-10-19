@@ -583,10 +583,6 @@ int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
 {
     BSLMF_ASSERT(static_cast<TYPE>(-1) < 0);    // 'TYPE' must be signed
 
-    *dst = 0;                         // Silence warnings that confused
-                                      // optimizers give in calling functions
-                                      // about them accessing '*dst' in the
-                                      // path where we return an error code.
     int rc;
 
     Uint64 tmpDst = 0;
@@ -599,6 +595,10 @@ int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
     do {
         rc = readValue(&u);
         if (rc) {
+            // Assign to '*dst' to silence the confused optimizer complaining
+            // about 'maybe used before set' in caller.
+
+            *dst = 0;
             return -1;                                                // RETURN
         }
 
@@ -624,10 +624,6 @@ int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
 template <class TYPE>
 int StackTraceResolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
 {
-    *dst = 0;                         // Silence warnings that confused
-                                      // optimizers give in calling functions
-                                      // about them accessing '*dst' in the
-                                      // path where we return an error code.
     Uint64 tmpDst = 0;
 
     unsigned char u = 0x80;
@@ -636,6 +632,10 @@ int StackTraceResolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
     for (; (0x80 & u); shift += 7) {
         int rc = readValue(&u);
         if (0 != rc) {
+            // Assign to '*dst' to silence the confused optimizer complaining
+            // about 'maybe used before set' in caller.
+
+            *dst = 0;
             return -1;                                                // RETURN
         }
 
@@ -644,6 +644,10 @@ int StackTraceResolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
     }
 #if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE)
     if (shift >= sizeof(*dst) * 8 + 7) {
+        // Assign to '*dst' to silence the confused optimizer complaining about
+        // 'maybe used before set' in caller.
+
+        *dst = 0;
         return -1;                                                    // RETURN
     }
 #endif
@@ -657,13 +661,12 @@ template <class TYPE>
 inline
 int StackTraceResolver_DwarfReader::readValue(TYPE *dst)
 {
-    *dst = 0;                         // Silence warnings that confused
-                                      // optimizers give in calling functions
-                                      // about them accessing '*dst' in the
-                                      // path where we return an error code.
-
     int rc = needBytes(sizeof(*dst));
     if (rc) {
+        // Assign to '*dst' to silence the confused optimizer complaining about
+        // 'maybe used before set' in caller.
+
+        *dst = 0;
         return -1;                                                    // RETURN
     }
 
