@@ -35,6 +35,7 @@
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>     // strcpy()
 #include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_set.h>
@@ -1075,6 +1076,18 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // Change the handler return policy not to abort.
+    {
+        // Enable assertions to return (in violation of policy) for testing
+        // purposes only.
+
+        char *key = const_cast<char*>(
+                  bsls::Assert::k_permitOutOfPolicyReturningAssertionBuildKey);
+        strcpy(key, "bsls-PermitOutOfPolicyReturn");
+
+        bsls::Assert::permitOutOfPolicyReturningFailureHandler();
+    }
 
     bslma::TestAllocator da;
     bslma::DefaultAllocatorGuard guard(&da);

@@ -9,6 +9,7 @@ bsls_assert
 bsls_assert_macroreset
 bsls_assertimputil
 bsls_asserttest
+bsls_asserttest_macroreset
 bsls_asserttestexception
 bsls_atomic
 bsls_atomicoperations

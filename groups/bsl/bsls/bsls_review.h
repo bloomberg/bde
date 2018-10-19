@@ -44,12 +44,12 @@ BSLS_IDENT("$Id: $")
 // If the argument of a review macro evaluates to 0, a runtime-configurable
 // "handler" function is invoked with a 'bsls::ReviewViolation', a
 // value-semantic class that encapsulates the current filename, line number,
-// (0-valued expression) argument text, and a count of how many times that
-// check has already failed.  The default handler logs that a failure has
-// occurred and then allows processing to continue, thus not adversely
-// impacting the running program.  The class 'bsls::Review' provides functions
-// for manipulating the globally configured "handler".  A scoped guard for
-// setting and restoring the review handler is provided by
+// level of failed check, (0-valued expression) argument text, and a count of
+// how many times that check has already failed.  The default handler logs that
+// a failure has occurred and then allows processing to continue, thus not
+// adversely impacting the running program.  The class 'bsls::Review' provides
+// functions for manipulating the globally configured "handler".  A scoped
+// guard for setting and restoring the review handler is provided by
 // 'bsls::ReviewFailureHandlerGuard'.
 //
 // An additional macro, 'BSLS_REVIEW_INVOKE', is included for directly invoking
@@ -78,12 +78,12 @@ BSLS_IDENT("$Id: $")
 // currently installed review handler.  An instance of 'bsls::ReviewViolation'
 // will be created and populated with a textual rendering of the predicate
 // ('#X'), the current '__FILE__', the current '__LINE__', a string
-// representing which particular type of review or assertion level has failed,
-// and the current count of how many times this predicate has failed (used
+// representing which particular type of review or assertion has failed, and
+// the current count of how many times this predicate has failed (used
 // primarily to throttle repeated logging of violations from the same
 // location).  This 'violation' is then passed to the currently installed
 // review failure handler, a function pointer with the type
-// 'bsls::Review::Handler' having the signature:
+// 'bsls::Review::ViolationHandler' having the signature:
 //..
 //  void(const bsls::ReviewViolation&)
 //..
@@ -194,15 +194,15 @@ BSLS_IDENT("$Id: $")
 //
 // When an enabled review fails, the currently installed *failure* *handler*
 // ("callback") function is invoked.  The default handler is the ('static')
-// 'bsls::Review::failLog' method, which will log the failure and the current
+// 'bsls::Review::failByLog' method, which will log the failure and the current
 // callstack when invoked for the first time, and exponentially less frequently
 // as additional failures of the same review site occur.  A user may replace
 // this default handler by using the ('static')
-// 'bsls::Review::setFailureHandler' administrative method and passing it (the
-// address of) a function whose signature conforms to the
-// 'bsls::Review::Handler' 'typedef'.  This handler may be one of the other
-// handler methods provided in 'bsls::Review', or a "custom" function written
-// by the user.
+// 'bsls::Review::setViolationHandler' administrative method and passing it
+// (the address of) a function whose signature conforms to the
+// 'bsls::Review::ViolationHandler' 'typedef'.  This handler may be one of the
+// other handler methods provided in 'bsls::Review', or a "custom" function
+// written by the user.
 //
 // One additional provided class, 'bsls::ReviewFailureHandlerGuard', can be
 // used to override the review handler within a specific block of code.  Note
@@ -854,18 +854,19 @@ class ReviewViolation {
 
 class Review {
     // This "utility" class maintains a pointer containing the address of the
-    // current review-failure handler function (of type 'Review::Handler') and
-    // provides methods to administer this function pointer.  The
-    // 'invokeHandler' method calls the currently-installed failure handler.
-    // The default installed handler is the 'Review::failLog' function.
+    // current review-failure handler function (of type
+    // 'Review::ViolationHandler') and provides methods to administer this
+    // function pointer.  The 'invokeHandler' method calls the
+    // currently-installed failure handler.  The default installed handler is
+    // the 'Review::failByLog' function.
     //
     // This class also provides a suite of standard failure-handler functions
-    // that are suitable to be installed as the current 'Review::Handler'
-    // function.  Note that clients are free to install any of these
-    // ("off-the-shelf") handlers, or to provide their own ("custom")
-    // review-failure handler function when using this facility.  Also note
-    // that review-failure handlers CAN return, unlike assertion failure
-    // handlers, though not returning (thus escalating review behavior
+    // that are suitable to be installed as the current
+    // 'Review::ViolationHandler' function.  Note that clients are free to
+    // install any of these ("off-the-shelf") handlers, or to provide their own
+    // ("custom") review-failure handler function when using this facility.
+    // Also note that review-failure handlers CAN return, unlike assertion
+    // failure handlers, though not returning (thus escalating review behavior
     // implicitly to the level of asserts) is acceptable.
     //
     // Finally, this class defines the constant strings that are used as the
@@ -880,9 +881,9 @@ class Review {
         // many times that review has failed.  This count gets updated through
         // the 'bsls::Review::updateCount' function.
 
-    typedef void (*Handler)(const ReviewViolation&);
-        // 'Handler' is an alias for a pointer to a function returning 'void',
-        // and taking, as a parameter, a 'const' reference to a
+    typedef void (*ViolationHandler)(const ReviewViolation&);
+        // 'ViolationHandler' is an alias for a pointer to a function returning
+        // 'void', and taking, as a parameter, a 'const' reference to a
         // 'ReviewViolation' instance.  For example:
         //..
         //  void myHandler(const ReviewViolation& violation);
@@ -894,12 +895,12 @@ class Review {
 
     // CLASS DATA
     static bsls::AtomicOperations::AtomicTypes::Pointer
-                      s_handler;         // review-failure handler function
+                   s_violationHandler; // review-failure handler function
     static bsls::AtomicOperations::AtomicTypes::Int
-                      s_lockedFlag;      // lock to disable 'setFailureHandler'
+                   s_lockedFlag;       // lock to disable 'setViolationHandler'
 
     // PRIVATE CLASS METHODS
-    static void setFailureHandlerRaw(Review::Handler function);
+    static void setViolationHandlerRaw(Review::ViolationHandler function);
         // Make the specified handler 'function' the current review-failure
         // handler.  This method has effect regardless of whether the
         // 'lockReviewAdministration' method has been called.
@@ -920,19 +921,19 @@ class Review {
 
                       // Administrative Methods
 
-    static void setFailureHandler(Review::Handler function);
+    static void setViolationHandler(Review::ViolationHandler function);
         // Make the specified handler 'function' the current review-failure
         // handler.  This method has no effect if the
         // 'lockReviewAdministration' method has been called.
 
-    static Review::Handler failureHandler();
+    static Review::ViolationHandler violationHandler();
         // Return the address of the currently installed review-failure handler
         // function.  Note that the initial value of the review-failure handler
-        // is the 'Review::failLog' method.
+        // is the 'Review::failByLog' method.
 
     static void lockReviewAdministration();
-        // Disable all subsequent calls to 'setFailureHandler'.  Note that this
-        // method has no effect on the behavior of a
+        // Disable all subsequent calls to 'setViolationHandler'.  Note that
+        // this method has no effect on the behavior of a
         // 'ReviewFailureHandlerGuard' object.
 
                       // Dispatcher Methods (called from within macros)
@@ -942,7 +943,7 @@ class Review {
         // of overflowing, when the value is sufficiently large, decrement the
         // value so that large values repeat periodically.
 
-    static void invokeHandler(const ReviewViolation &violation);
+    static void invokeHandler(const ReviewViolation& violation);
         // Invoke the currently installed review-failure handler function with
         // the specified 'violation' as its argument.  Note that this function
         // is intended for use by the (BSLS) "REVIEW" macros, but may also be
@@ -950,28 +951,29 @@ class Review {
 
                       // Standard Review-Failure Handlers
 
-    static void failLog(const ReviewViolation &violation);
+    static void failByLog(const ReviewViolation& violation);
         // Log a message to 'stdout' that an assertion has failed with
         // information on the failure from the specified 'violation'.  A
         // suitably formatted "cheap stack" is included in the log message that
         // identifies the call site where the failure occurred.
 
-    static void failAbort(const ReviewViolation &violation);
+    static void failByAbort(const ReviewViolation& violation);
         // Emulate the invocation of the standard 'assert' macro with a 'false'
         // argument, using the specified 'violation' to generate an output
         // message and then, after logging, unconditionally abort.
 
-    static void failSleep(const ReviewViolation &violation);
+    static void failBySleep(const ReviewViolation& violation);
         // Use the specified 'violation' to generate an output message and
         // then, after logging, spin in an infinite loop.  Note that this
         // handler function is useful for hanging a process so that a debugger
         // may be attached to it.
 
-    static void failThrow(const ReviewViolation &violation);
+    static void failByThrow(const ReviewViolation& violation);
         // Throw an 'AssertTestException' (whose attributes are 'comment',
         // 'filename', and 'lineNumber' from the specified 'violation'),
         // provided that 'BDE_BUILD_TARGET_EXC' is defined; otherwise, log an
-        // appropriate message and abort the program (similar to 'failAbort').
+        // appropriate message and abort the program (similar to
+        // 'failByAbort').
 };
 
                      // ===============================
@@ -990,7 +992,7 @@ class ReviewFailureHandlerGuard {
     // whether that method has been invoked).
 
     // DATA
-    Review::Handler d_original;  // original (restored at destruction)
+    Review::ViolationHandler d_original;  // original (restored at destruction)
 
   private:
     // NOT IMPLEMENTED
@@ -999,7 +1001,7 @@ class ReviewFailureHandlerGuard {
 
   public:
     // CREATORS
-    explicit ReviewFailureHandlerGuard(Review::Handler temporary);
+    explicit ReviewFailureHandlerGuard(Review::ViolationHandler temporary);
         // Create a guard object that installs the specified 'temporary' review
         // failure handler and automatically restores the original handler on
         // destruction.

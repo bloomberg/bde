@@ -109,9 +109,9 @@ bsl::string formatAssertion(int                         count,
 
 }  // close unnamed namespace
 
-                            // ----------------------
-                            // class AssertionTracker
-                            // ----------------------
+                         // ----------------------
+                         // class AssertionTracker
+                         // ----------------------
 
 // CLASS METHODS
 void AssertionTracker::preserveConfiguration(int *, int *, int *, int *, int *)
@@ -141,9 +141,10 @@ void AssertionTracker::reportAssertion(bsl::ostream               *out,
 }
 
 // CREATORS
-AssertionTracker::AssertionTracker(bsls::Assert::Handler  fallback,
-                                   ConfigurationCallback  configure,
-                                   bslma::Allocator      *basicAllocator)
+AssertionTracker::AssertionTracker(
+                                 bsls::Assert::ViolationHandler fallback,
+                                 ConfigurationCallback          configure,
+                                 bslma::Allocator              *basicAllocator)
 : d_fallbackHandler(fallback)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_maxAssertions(-1)
@@ -164,17 +165,19 @@ AssertionTracker::AssertionTracker(bsls::Assert::Handler  fallback,
 , d_reportingFrequency(e_onNewStackTrace)
 {
     if (bslmt::ThreadUtil::createKey(&d_recursionCheck, 0) != 0) {
-        d_fallbackHandler("Cannot get thread-local key", __FILE__, __LINE__);
+        d_fallbackHandler(bsls::AssertViolation("Cannot get thread-local key",
+                                                __FILE__,
+                                                __LINE__,
+                                                bsls::Assert::k_LEVEL_INVOKE));
     }
 }
 
 // MANIPULATORS
-void AssertionTracker::assertionDetected(const char *text,
-                                         const char *file,
-                                         int         line)
+void AssertionTracker::assertionDetected(
+                                        const bsls::AssertViolation &violation)
 {
     if (bslmt::ThreadUtil::getSpecific(d_recursionCheck)) {
-        d_fallbackHandler(text, file, line);
+        d_fallbackHandler(violation);
         return;                                                       // RETURN
     }
 
@@ -201,7 +204,7 @@ void AssertionTracker::assertionDetected(const char *text,
     }
 
     if (++d_assertionCount > d_maxAssertions && d_maxAssertions >= 0) {
-        d_fallbackHandler(text, file, line);
+        d_fallbackHandler(violation);
         return;                                                       // RETURN
     }
 
@@ -209,17 +212,19 @@ void AssertionTracker::assertionDetected(const char *text,
     bool newLocation = false;
 
     AssertionLocation      location          =
-        bsl::make_pair(text, bsl::make_pair(file, line));
+        bsl::make_pair(violation.comment(),
+                       bsl::make_pair(violation.fileName(),
+                                      violation.lineNumber()));
     TrackingData::iterator location_iterator = d_trackingData.find(location);
     if (location_iterator == d_trackingData.end())
     {
         if (d_maxLocations >= 0 &&
             int(d_trackingData.size()) >= d_maxLocations) {
-            d_fallbackHandler(text, file, line);
+            d_fallbackHandler(violation);
             return;                                                   // RETURN
         }
         if (d_maxStackTracesPerLocation == 0) {
-            d_fallbackHandler(text, file, line);
+            d_fallbackHandler(violation);
             return;                                                   // RETURN
         }
         location_iterator =
@@ -243,7 +248,7 @@ void AssertionTracker::assertionDetected(const char *text,
     if (counts_iterator == counts.end()) {
         if (d_maxStackTracesPerLocation >= 0 &&
             int(counts.size()) >= d_maxStackTracesPerLocation) {
-            d_fallbackHandler(text, file, line);
+            d_fallbackHandler(violation);
             return;                                                   // RETURN
         }
         counts_iterator = counts.emplace(trace, 0).first;

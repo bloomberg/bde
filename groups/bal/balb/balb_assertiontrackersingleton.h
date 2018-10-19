@@ -77,8 +77,8 @@
 //
 //    public:
 //      // PUBLIC CREATORS
-//      explicit AssertionCounter(bsls::Assert::Handler   = 0,
-//                                bslma::Allocator      * = 0);
+//      explicit AssertionCounter(bsls::Assert::ViolationHandler   = 0,
+//                                bslma::Allocator               * = 0);
 //          // Create an 'AssertionCounter' object.  We ignore the fallback
 //          // handler and optional allocator parameters.
 //
@@ -94,7 +94,7 @@
 //..
 // Then, we implement the member functions of the 'AssertionCounter' class.
 //..
-//  AssertionCounter::AssertionCounter(bsls::Assert::Handler,
+//  AssertionCounter::AssertionCounter(bsls::Assert::ViolationHandler,
 //                                     bslma::Allocator *)
 //  : d_assertion_counter(0)
 //  {
@@ -179,9 +179,9 @@ class AssertionTrackerSingleton {
     //:   'ConfigurationCallback'.
     //:
     //: 2 A 'TRACKER' object can be constructed from three arguments, the first
-    //:   of type 'bsls::Assert::Handler', the second a configuration handler
-    //:   of type 'TRACKER::ConfigurationCallback', and the third of type
-    //:   'bslma::Allocator*'.
+    //:   of type 'bsls::Assert::ViolationHandler', the second a configuration
+    //:   handler of type 'TRACKER::ConfigurationCallback', and the third of
+    //:   type 'bslma::Allocator*'.
     //:
     //: 3 A 'TRACKER' object has an 'assertionDetected' function taking three
     //:   arguments, the first two of type 'const char *' and the third of type
@@ -259,7 +259,7 @@ class AssertionTrackerSingleton {
         // constructor argument.  If 'basicAllocator' is not provided, a null
         // pointer is passed instead.
 
-    static void failTracker(const char *text, const char *file, int line);
+    static void failTracker(const bsls::AssertViolation &violation);
         // Forward the specified 'text', 'file', and 'line' corresponding to a
         // failed assertion to the singleton object managed by this class via
         // function-call operator.  The behavior is undefined unless the
@@ -322,11 +322,11 @@ TRACKER *AssertionTrackerSingleton<TRACKER>::createAndInstallSingleton(
     BSLMT_ONCE_DO
     {
         static TRACKER theSingleton(
-            bsls::Assert::failureHandler(),
+            bsls::Assert::violationHandler(),
             configure,
             bslma::Default::globalAllocator(basicAllocator));
         s_singleton_p = &theSingleton;
-        bsls::Assert::setFailureHandler(&failTracker);
+        bsls::Assert::setViolationHandler(&failTracker);
     }
 
     return s_singleton_p;
@@ -345,11 +345,10 @@ TRACKER *AssertionTrackerSingleton<TRACKER>::createAndInstallSingleton(
 }
 
 template <class TRACKER>
-void AssertionTrackerSingleton<TRACKER>::failTracker(const char *text,
-                                                     const char *file,
-                                                     int         line)
+void AssertionTrackerSingleton<TRACKER>::failTracker(
+                                        const bsls::AssertViolation &violation)
 {
-    s_singleton_p->assertionDetected(text, file, line);
+    s_singleton_p->assertionDetected(violation);
 }
 
 template <class TRACKER>

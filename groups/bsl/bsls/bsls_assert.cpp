@@ -36,28 +36,18 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-// We want to print the error message to 'stderr', not 'stdout'.  The old
-// documentation for 'printError' is:
-//..
-//  Print a formatted error message to standard output.  (Most Bloomberg
-//  processes will send standard output to a log file.)
-//..
-// TBD: find out whether 'stderr' goes to 'act.log'.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
+namespace {
 
 static
-void printError(const char *text, const char *file, int line)
-    // Print a formatted error message to 'stderr' using the specified
-    // expression 'text', 'file' name, and 'line' number.  If either 'text' or
-    // 'file' is empty ("") or null (0), replace it with some informative,
-    // "human-readable" text, before formatting.
+void printError(const char *comment, const char *file, int line)
+    // Log a formatted message with the contents of the specified 'comment',
+    // 'file', 'line' number, and a severity of 'e_ERROR'.
 {
-    if (!text) {
-        text = "(* Unspecified Expression Text *)";
+    if (!comment) {
+        comment = "(* Unspecified Comment Text *)";
     }
-    else if (!*text) {
-        text = "(* Empty Expression Text *)";
+    else if (!*comment) {
+        comment = "(* Empty Comment Text *)";
     }
 
     if (!file) {
@@ -67,11 +57,82 @@ void printError(const char *text, const char *file, int line)
         file = "(* Empty File Name *)";
     }
 
-    bsls::Log::logFormattedMessage(
-        bsls::LogSeverity::e_ERROR, file, line, "Assertion failed: %s", text);
+    bsls::Log::logFormattedMessage(bsls::LogSeverity::e_ERROR,
+                                   file,
+                                   line,
+                                   "Assertion failed: %s",
+                                   comment);
 }
 
+static
+void printError(const bsls::AssertViolation& violation)
+    // Log a formatted message with the contents of the specified 'violation'
+    // and a severity of 'e_ERROR'.
+{
+    const char *comment = violation.comment();
+    if (!comment) {
+        comment = "(* Unspecified Comment Text *)";
+    }
+    else if (!*comment) {
+        comment = "(* Empty Comment Text *)";
+    }
+
+    const char *file = violation.fileName();
+    if (!file) {
+        file = "(* Unspecified File Name *)";
+    }
+    else if (!*file) {
+        file = "(* Empty File Name *)";
+    }
+
+    // Note: level not in output until we are ready to change what gets logged
+    // by failed assertions
+//    const char *level = violation.assertLevel();
+//    if (!level) {
+//        level = "(* Unspecified Level *)";
+//    }
+//    else if (!*level) {
+//        level = "(* Empty Level *)";
+//    }
+
+    int line = violation.lineNumber();
+
+
+    bsls::Log::logFormattedMessage(bsls::LogSeverity::e_ERROR,
+                                   file,
+                                   line,
+                                   "Assertion failed: %s",
+                                   comment);
+}
+
+// STATIC DATA
+
+static const int k_KeyBufferSize = 29;
+static char      g_KeyBuffer[k_KeyBufferSize] = "No";
+    // Buffer for 'k_permitOutOfPolicyReturningAssertionBuildKey'.
+
+static bool g_permitReturningHandlerRuntimeFlag = false;
+    // Flag for method 'permitOutOfPolicyReturningFailureHandler'.
+
+}  // close unnamed namespace
+
 namespace bsls {
+
+                          // ---------------------
+                          // class AssertViolation
+                          // ---------------------
+
+// CREATORS
+AssertViolation::AssertViolation(const char *comment,
+                                 const char *fileName,
+                                 int         lineNumber,
+                                 const char *assertLevel)
+: d_comment_p(comment)
+, d_fileName_p(fileName)
+, d_lineNumber(lineNumber)
+, d_assertLevel_p(assertLevel)
+{
+}
 
                               // ------------
                               // class Assert
@@ -79,8 +140,18 @@ namespace bsls {
 
 // CLASS DATA
 bsls::AtomicOperations::AtomicTypes::Pointer
-    Assert::s_handler = {(void *) &Assert::failAbort};
+    Assert::s_violationHandler = {(void *) &Assert::failByAbort};
+bsls::AtomicOperations::AtomicTypes::Pointer
+    Assert::s_handler = {(void *) NULL};
+
 bsls::AtomicOperations::AtomicTypes::Int Assert::s_lockedFlag = {0};
+
+// Install 'k_permitOutOfPolicyReturningAssertionBuildKey' in writable memory
+// for testing.
+
+// PUBLIC CLASS DATA
+const char *Assert::k_permitOutOfPolicyReturningAssertionBuildKey =
+                                                                   g_KeyBuffer;
 
 // PUBLIC CONSTANTS
 const char Assert::k_LEVEL_SAFE[]   = "SAF";
@@ -89,10 +160,28 @@ const char Assert::k_LEVEL_ASSERT[] = "DBG";
 const char Assert::k_LEVEL_INVOKE[] = "INV";
 
 // CLASS METHODS
+void Assert::failOnViolation(const bsls::AssertViolation& violation)
+{
+    Assert::Handler failureHandlerPtr = failureHandler();
+    failureHandlerPtr(violation.comment(),
+                      violation.fileName(),
+                      violation.lineNumber());
+}
+
 void Assert::setFailureHandlerRaw(Assert::Handler function)
 {
     bsls::AtomicOperations::setPtrRelease(
         &s_handler, PointerCastUtil::cast<void *>(function));
+    bsls::AtomicOperations::setPtrRelease(
+        &s_violationHandler, PointerCastUtil::cast<void*>(&failOnViolation));
+}
+
+void Assert::setViolationHandlerRaw(Assert::ViolationHandler function)
+{
+    // explicitly leave whatever might be there in legacyHandler to avoid
+    // worrying about atomicity of the multiple pointer changes.
+    bsls::AtomicOperations::setPtrRelease(
+        &s_violationHandler, PointerCastUtil::cast<void *>(function));
 }
 
 void Assert::setFailureHandler(Assert::Handler function)
@@ -102,17 +191,41 @@ void Assert::setFailureHandler(Assert::Handler function)
     }
 }
 
+void Assert::setViolationHandler(Assert::ViolationHandler function)
+{
+    if (!bsls::AtomicOperations::getIntRelaxed(&s_lockedFlag)) {
+        setViolationHandlerRaw(function);
+    }
+}
+
 void Assert::lockAssertAdministration()
 {
     bsls::AtomicOperations::setIntRelaxed(&s_lockedFlag, 1);
 }
 
-Assert::Handler Assert::failureHandler()
+Assert::ViolationHandler Assert::violationHandler()
 {
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -CC01 // AIX only allows this cast as a C-Style cast
-    return (Handler) bsls::AtomicOperations::getPtrAcquire(&s_handler);
+    return (ViolationHandler) bsls::AtomicOperations::getPtrAcquire(
+                                                &s_violationHandler); // RETURN
     // BDE_VERIFY pragma: pop
+}
+
+Assert::Handler Assert::failureHandler()
+{
+    if (violationHandler() != &failOnViolation)
+    {
+        return NULL;                                                  // RETURN
+    }
+    else
+    {
+        // BDE_VERIFY pragma: push
+        // BDE_VERIFY pragma: -CC01 // AIX only allows this as a C-Style cast
+        return (Handler) bsls::AtomicOperations::getPtrAcquire(
+                                                         &s_handler); // RETURN
+        // BDE_VERIFY pragma: pop
+    }
 }
 
                        // Macro Dispatcher Method
@@ -122,15 +235,25 @@ Assert::Handler Assert::failureHandler()
 BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 void Assert::invokeHandler(const char *text, const char *file, int line)
 {
+    AssertViolation violation(text, file, line, k_LEVEL_INVOKE);
+    invokeHandler(violation);
+}
+
+void Assert::invokeHandler(const bsls::AssertViolation& violation)
+{
     static AtomicOperations::AtomicTypes::Int failureReturnCount = {0};
 
-    Assert::Handler failureHandlerPtr = failureHandler();
+    Assert::ViolationHandler failureHandlerPtr = violationHandler();
 
-    failureHandlerPtr(text, file, line);
+    failureHandlerPtr(violation);
+
+    if (abortUponReturningAssertionFailureHandler()) {
+        failByAbort(violation);
+    }
 
     // The failure handler should not return.  If a returning failure handler
-    // has been installed, alert the user that the program is continuing to
-    // run.
+    // has been installed and the out of policy override has been enabled,
+    // alert the user that the program is continuing to run.
 
     unsigned count = static_cast<unsigned>(
                 AtomicOperations::incrementIntNvAcqRel(&failureReturnCount));
@@ -147,10 +270,10 @@ void Assert::invokeHandler(const char *text, const char *file, int line)
         }
 
         Log::logFormattedMessage(LogSeverity::e_ERROR,
-                                 file,
-                                 line,
+                                 violation.fileName(),
+                                 violation.lineNumber(),
                                  "BSLS_ASSERT failure: '%s'",
-                                 text);
+                                 violation.comment());
 
         // Do not use %p to print pointers.  On some platform it automatically
         // prefixes with '0x', on AIX it does not.
@@ -161,40 +284,117 @@ void Assert::invokeHandler(const char *text, const char *file, int line)
     }
 }
 
+                    // Assertion Handler Policy Enforcement
+
+bool Assert::abortUponReturningAssertionFailureHandler()
+{
+    if (!g_permitReturningHandlerRuntimeFlag) {
+        return true;                                                  // RETURN
+    }
+
+    // Encoding the key string as integers below allows us to search for the
+    // unique C-string text "bsls-PermitOutOfPolicyReturn" within a task.
+
+    static const int permissionKey[k_KeyBufferSize] =
+    { 'b', 's', 'l', 's', '-', 'P', 'e', 'r', 'm', 'i', 't', 'O', 'u', 't',
+    'O', 'f', 'P', 'o', 'l', 'i', 'c', 'y', 'R', 'e', 't', 'u', 'r', 'n',
+    0 };
+
+    const int  *keyPtr = permissionKey;
+    const char *permissionText = k_permitOutOfPolicyReturningAssertionBuildKey;
+    while (*permissionText && (*permissionText == *keyPtr)) {
+        ++permissionText;
+        ++keyPtr;
+    }
+    return *permissionText != *keyPtr;
+}
+
+void Assert::permitOutOfPolicyReturningFailureHandler()
+{
+    g_permitReturningHandlerRuntimeFlag = true;
+}
+
+
                      // Standard Assertion-Failure Handlers
 
 BSLS_ASSERT_NORETURN
-void Assert::failAbort(const char *text, const char *file, int line)
+void Assert::failByAbort(const bsls::AssertViolation& violation)
 {
-    printError(text, file, line);
+    printError(violation);
 
-    AssertImpUtil::failAbort();
+    AssertImpUtil::failByAbort();
 }
 
 BSLS_ASSERT_NORETURN
-void Assert::failSleep(const char *text, const char *file, int line)
+void Assert::failBySleep(const bsls::AssertViolation& violation)
 {
-    printError(text, file, line);
+    printError(violation);
 
-    AssertImpUtil::failSleep();
+    AssertImpUtil::failBySleep();
 }
 
 BSLS_ASSERT_NORETURN
-void Assert::failThrow(const char *text, const char *file, int line)
+void Assert::failByThrow(const bsls::AssertViolation& violation)
 {
 
 #ifdef BDE_BUILD_TARGET_EXC
     if (!std::uncaught_exception()) {
-        throw AssertTestException(text, file, line);
+        throw AssertTestException(violation.comment(),
+                                  violation.fileName(),
+                                  violation.lineNumber(),
+                                  violation.assertLevel());
     }
     else {
-        bsls::Log::logMessage(bsls::LogSeverity::e_ERROR, file, line,
+        bsls::Log::logMessage(bsls::LogSeverity::e_ERROR,
+                              violation.fileName(),
+                              violation.lineNumber(),
                               "BSLS_ASSERT: An uncaught exception is pending;"
                               " cannot throw 'AssertTestException'.");
     }
 #endif
 
-    failAbort(text, file, line);
+    failByAbort(violation);
+}
+
+                  // Deprecated Assertion-Failure Handlers
+
+BSLS_ASSERT_NORETURN
+void Assert::failAbort(const char *comment, const char *file, int line)
+{
+    printError(comment,file,line);
+
+    AssertImpUtil::failByAbort();
+}
+
+BSLS_ASSERT_NORETURN
+void Assert::failSleep(const char *comment, const char *file, int line)
+{
+    printError(comment,file,line);
+
+    AssertImpUtil::failBySleep();
+}
+
+BSLS_ASSERT_NORETURN
+void Assert::failThrow(const char *comment, const char *file, int line)
+{
+
+#ifdef BDE_BUILD_TARGET_EXC
+    if (!std::uncaught_exception()) {
+        throw AssertTestException(comment,
+                                  file,
+                                  line,
+                                  "LEGACY");
+    }
+    else {
+        bsls::Log::logMessage(bsls::LogSeverity::e_ERROR,
+                              file,
+                              line,
+                              "BSLS_ASSERT: An uncaught exception is pending;"
+                              " cannot throw 'AssertTestException'.");
+    }
+#endif
+
+    failAbort(comment,file,line);
 }
 
 }  // close package namespace
@@ -208,14 +408,30 @@ namespace bsls {
                      // -------------------------------
 
 AssertFailureHandlerGuard::AssertFailureHandlerGuard(Assert::Handler temporary)
-: d_original(Assert::failureHandler())
+: d_original(Assert::violationHandler())
+, d_legacyOriginal(Assert::failureHandler())
 {
     Assert::setFailureHandlerRaw(temporary);
 }
 
+AssertFailureHandlerGuard::AssertFailureHandlerGuard(
+                                            Assert::ViolationHandler temporary)
+: d_original(Assert::violationHandler())
+, d_legacyOriginal(Assert::failureHandler())
+{
+    Assert::setViolationHandlerRaw(temporary);
+}
+
 AssertFailureHandlerGuard::~AssertFailureHandlerGuard()
 {
-    Assert::setFailureHandlerRaw(d_original);
+    if (d_legacyOriginal != NULL)
+    {
+        Assert::setFailureHandlerRaw(d_legacyOriginal);
+    }
+    else
+    {
+        Assert::setViolationHandlerRaw(d_original);
+    }
 }
 
 }  // close package namespace

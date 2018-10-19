@@ -40,7 +40,7 @@ using namespace bdlf::PlaceHolders;
 // ----------------------------------------------------------------------------
 // [ 2] AssertionTracker(bsls::Assert::Handler, bslma::Allocator *);
 // [ 2] bslma::Allocator *allocator() const;
-// [ 2] void assertionDetected(const char *, const char *, int);
+// [ 2] void assertionDetected(const bsls::AssertViolation &);
 // [ 2] void setReportingCallback(ReportingCallback cb);
 // [ 2] void setMaxAssertions(int value);
 // [ 2] void setMaxLocations(int value);
@@ -128,7 +128,7 @@ typedef balb::AssertionTracker Obj;
 #endif
 
 int defaultAssertionCount;
-void defaultHandler(const char *, const char *, int)
+void defaultHandler(const bsls::AssertViolation &)
     // Function to be installed as the default handler.
 {
     ++defaultAssertionCount;
@@ -150,7 +150,7 @@ void trigger1(Obj& t, const char *a, const char *f, int l, ...)
     // Invoke the specified 't' with the specified 'a', 'f', and 'l';
 {
     volatile int n = l;
-    t.assertionDetected(a, f, n);
+    t.assertionDetected(bsls::AssertViolation(a, f, n, "L"));
 }
 
 void trigger2(Obj& t, const char *a, const char *f, int l, ...)
@@ -177,7 +177,7 @@ void assertingReporter(Obj                        *t,
     // A reporter that itself triggers an assertion, invoking the specified 't'
     // with the specified 'a', 'f', and 'l'.
 {
-    t->assertionDetected(a, f, l);
+    t->assertionDetected(bsls::AssertViolation(a, f, l, "L"));
 }
 
 static bool localConfigurationCalled;
@@ -202,8 +202,8 @@ void localConfiguration(int *, int *, int *, int *, int *)
 // assertions and fix the places that are causing them to trigger, but we do
 // not want the program to abort each time an assertion occurs because it will
 // slow down the task of information gathering, and because we need to gather
-// the information in production.  We can use 'bsls::AssertionTracker' for
-// this purpose.
+// the information in production.  We can use 'bsls::AssertionTracker' for this
+// purpose.
 //
 // First, we will place a local static 'AssertionTracker' object ahead of the
 // function we want to instrument, and create custom assertion macros just for
@@ -211,8 +211,9 @@ void localConfiguration(int *, int *, int *, int *, int *)
 //..
     namespace {
     balb::AssertionTracker theTracker;
-    #define TRACK_ASSERT(condition) do { if (!(condition)) { \
-    theTracker.assertionDetected(#condition, __FILE__, __LINE__); } } while (0)
+    #define TRACK_ASSERT(condition) do { if (!(condition)) {                 \
+    theTracker.assertionDetected(bsls::AssertViolation(#condition,           \
+                                 __FILE__, __LINE__, "L")); } } while (0)
     }  // close unnamed namespace
 //..
 // Then, we define the function to be traced, and use the modified assertions.
@@ -319,7 +320,10 @@ int main(int argc, char *argv[])
                                assertingReporter, &Z, _1, _2, _3, _4, _5, _6));
         handledAssertionCount = 0;
         defaultAssertionCount = 0;
-        Z.assertionDetected("recursion", __FILE__, __LINE__);
+        Z.assertionDetected(bsls::AssertViolation("recursion",
+                                                  __FILE__,
+                                                  __LINE__,
+                                                  "L"));
         ASSERTV(handledAssertionCount, 0 == handledAssertionCount);
         ASSERTV(defaultAssertionCount, 1 == defaultAssertionCount);
       } break;
@@ -350,7 +354,9 @@ int main(int argc, char *argv[])
 
         bsl::ostringstream os;
 
-        Obj Z(bsls::Assert::failureHandler(), Obj::preserveConfiguration, &ta);
+        Obj Z(bsls::Assert::violationHandler(),
+              Obj::preserveConfiguration,
+              &ta);
 
         Z.setReportingCallback(bdlf::BindUtil::bind(
                           &Obj::reportAssertion, &os, _1, _2, _3, _4, _5, _6));
@@ -359,12 +365,18 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 P_(i) Q("assert 1")
             }
-            Z.assertionDetected("0 && \"assert 1\"", __FILE__, __LINE__);
+            Z.assertionDetected(bsls::AssertViolation("0 && \"assert 1\"",
+                                                      __FILE__,
+                                                      __LINE__,
+                                                      "L"));
             for (int j = 0; j < 10; ++j) {
                 if (veryVerbose) {
                     P_(i) P_(j) Q("assert 2")
                 }
-                Z.assertionDetected("0 && \"assert 2\"", __FILE__, __LINE__);
+                Z.assertionDetected(bsls::AssertViolation("0 && \"assert 2\"",
+                                                          __FILE__,
+                                                          __LINE__,
+                                                          "L"));
             }
         }
 
@@ -430,7 +442,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   AssertionTracker(bsls::Assert::Handler, bslma::Allocator *);
         //   bslma::Allocator *allocator() const;
-        //   void assertionDetected(const char *, const char *, int);
+        //   void assertionDetected(const bsls::AssertViolation &);
         //   void setReportingCallback(ReportingCallback cb);
         //   void setMaxAssertions(int value);
         //   void setMaxLocations(int value);
@@ -595,17 +607,25 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBREATHING TEST"
                              "\n==============\n";
 
-        Obj Z(bsls::Assert::failureHandler(), Obj::preserveConfiguration, &ta);
+        Obj Z(bsls::Assert::violationHandler(),
+              Obj::preserveConfiguration,
+              &ta);
         for (int i = 0; i < 10; ++i) {
             if (veryVerbose) {
                 P_(i) Q("assertion 1")
             }
-            Z.assertionDetected("assertion 1", __FILE__, __LINE__);
+            Z.assertionDetected(bsls::AssertViolation("assertion 1",
+                                                      __FILE__,
+                                                      __LINE__,
+                                                      "L"));
             for (int j = 0; j < 10; ++j) {
                 if (veryVerbose) {
                     P_(i) P_(j) Q("assertion 2")
                 }
-                Z.assertionDetected("assertion 2", __FILE__, __LINE__);
+                Z.assertionDetected(bsls::AssertViolation("assertion 2",
+                                                          __FILE__,
+                                                          __LINE__,
+                                                          "L"));
             }
         }
         Z.reportAllRecordedStackTraces();

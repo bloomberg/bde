@@ -20,8 +20,9 @@ BSLS_IDENT("$Id: $")
 // 'bsls::AssertTestException', that provides a mechanism to convey context
 // information from a failing assertion to a test handler.  The context that is
 // captured consists of the program source of the failing expression, the name
-// of the file containing the assertion, and the line number within that file
-// where the asserted expression may be found.
+// of the file containing the assertion, the line number within that file where
+// the asserted expression may be found, and the level of the assertion that
+// has failed.
 //
 ///Usage
 ///-----
@@ -32,7 +33,8 @@ BSLS_IDENT("$Id: $")
 //..
 //  #define TEST_ASSERT(EXPRESSION)                                          \$
 //      if (!(EXPRESSION)) {                                                 \$
-//          throw bsls::AssertTestException(#EXPRESSION, __FILE__, __LINE__);\$
+//          throw bsls::AssertTestException(#EXPRESSION, __FILE__, __LINE__, \$
+//                                          "LEVEL");                        \$
 //  }
 //..
 // Next we use the macro inside a 'try'-block, so that we can catch the
@@ -50,6 +52,7 @@ BSLS_IDENT("$Id: $")
 //      assert(0 == strcmp("0 != p", exception.expression()));
 //      assert(0 == strcmp(__FILE__, exception.filename()));
 //      assert(9 == __LINE__ - exception.lineNumber());
+//      assert(0 == strcmp("LEVEL", exception.level());
 //  }
 //..
 
@@ -71,6 +74,7 @@ class AssertTestException {
     const char *d_expression;  // expression that failed to assert as 'true'
     const char *d_filename;    // name of file where the assert failed
     const int   d_lineNumber;  // line number in file where the assert failed
+    const char *d_level;       // level of failed assertion or review
 
   private:
     // NOT IMPLEMENTED
@@ -80,12 +84,14 @@ class AssertTestException {
     // CREATORS
     AssertTestException(const char *expression,
                         const char *filename,
-                        int         lineNumber);
+                        int         lineNumber,
+                        const char *level = "UNKNOWN");
         // Create a 'AssertTestException' object with the specified
-        // 'expression', 'filename', and 'lineNumber'.  The behavior is
-        // undefined unless '0 < line' and both 'expression' and 'filename'
-        // point to valid null-terminated character strings that will remain
-        // unmodified for the lifetime of this object (e.g., string literals).
+        // 'expression', 'filename', 'lineNumber', and 'level'.  The behavior
+        // is undefined unless '0 < line' and all of 'expression', 'filename',
+        // and 'level' point to valid null-terminated character strings that
+        // will remain unmodified for the lifetime of this object (e.g., string
+        // literals).
 
     //! AssertTestException(const AssertTestException& original);
         // Create a 'AssertTestException' object that is a copy of the
@@ -106,9 +112,14 @@ class AssertTestException {
         // Return a string containing the filename of the source file
         // containing the assertion that has failed.
 
+    const char *level() const;
+        // Return a string containing a representation of the level of
+        // assertion or review macro that failed.
+
     int lineNumber() const;
         // Return the number of the line within the file 'filename' containing
         // the assertion that failed.
+
 };
 
 // ============================================================================
@@ -123,10 +134,12 @@ class AssertTestException {
 inline
 AssertTestException::AssertTestException(const char *expression,
                                          const char *filename,
-                                         int         lineNumber)
+                                         int         lineNumber,
+                                         const char *level)
 : d_expression(expression)
 , d_filename(filename)
 , d_lineNumber(lineNumber)
+, d_level(level)
 {
 }
 
@@ -141,6 +154,12 @@ inline
 const char *AssertTestException::filename() const
 {
     return d_filename;
+}
+
+inline
+const char *AssertTestException::level() const
+{
+    return d_level;
 }
 
 inline

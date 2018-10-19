@@ -171,7 +171,7 @@ enum { DEFAULT_NUM_VALUES = sizeof DEFAULT_VALUES / sizeof *DEFAULT_VALUES };
 // ----------------------------------------------------------------------------
 
 static
-void exitHandler(const char *, const char *, int)
+void exitHandler(const bsls::AssertViolation&)
     // Call 'exit' with the current 'testStatus' of this test driver.  This
     // function is intended to be used as an assertion handler, registered with
     // 'bsls_assert'.  To check that an assertion is triggered (when expected)

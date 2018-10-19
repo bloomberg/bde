@@ -11,7 +11,10 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bsls_assert.h>
+
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_utility.h>
@@ -134,14 +137,14 @@ void bregSimulator(int *b1, int *b2, int *b3)
         typedef void *ConfigurationCallback;  // We're not using it.
 
         // PUBLIC CREATORS
-        explicit AssertionCounter(bsls::Assert::Handler   = 0,
-                                  void                  * = 0,
-                                  void                  * = 0);
+        explicit AssertionCounter(bsls::Assert::ViolationHandler   = 0,
+                                  void                           * = 0,
+                                  void                           * = 0);
             // Create an 'AssertionCounter' object.  We ignore the fallback
             // handler, configuration callback, and allocator parameters.
 
         // PUBLIC MANIPULATORS
-        void assertionDetected(const char *, const char *, int);
+        void assertionDetected(const bsls::AssertViolation &violation);
             // Function called when assertion failure occurs.  We ignore the
             // text, file, and line parameters.
 
@@ -152,12 +155,14 @@ void bregSimulator(int *b1, int *b2, int *b3)
 //..
 // Then, we implement the member functions of the 'AssertionCounter' class.
 //..
-    AssertionCounter::AssertionCounter(bsls::Assert::Handler, void *, void *)
+    AssertionCounter::AssertionCounter(bsls::Assert::ViolationHandler,
+                                       void *,
+                                       void *)
     : d_assertion_counter(0)
     {
     }
 
-    void AssertionCounter::assertionDetected(const char *, const char *, int)
+    void AssertionCounter::assertionDetected(const bsls::AssertViolation &)
     {
         ++d_assertion_counter;
     }
@@ -180,6 +185,18 @@ int main(int argc, char *argv[])
     bool veryVeryVeryVerbose = (argc > 5); (void)veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // Change the handler return policy not to abort.
+    {
+        // Enable assertions to return (in violation of policy) for testing
+        // purposes only.
+
+        char *key = const_cast<char*>(
+                  bsls::Assert::k_permitOutOfPolicyReturningAssertionBuildKey);
+        strcpy(key, "bsls-PermitOutOfPolicyReturn");
+
+        bsls::Assert::permitOutOfPolicyReturningFailureHandler();
+    }
 
     switch (test) { case 0:
       case 3: {
@@ -215,8 +232,8 @@ int main(int argc, char *argv[])
 // Finally, we will trigger some assertions and verify that we are counting
 // them correctly.
 //..
-    BSLS_ASSERT_ASSERT(0 && "assertion 1");
-    BSLS_ASSERT_ASSERT(0 && "assertion 2");
+    BSLS_ASSERT_INVOKE("assertion 1");
+    BSLS_ASSERT_INVOKE("assertion 2");
     ASSERT(ac_p->getAssertionCount() == 2);
 //..
       } break;
@@ -263,33 +280,36 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < 10; ++i) {
                 if (veryVeryVerbose) { P_(i) Q("assert 1") }
-                BSLS_ASSERT_ASSERT(0 && "assert 1");
+                BSLS_ASSERT_INVOKE("assert 1");
                 for (int j = 0; j < 10; ++j) {
                     if (veryVeryVerbose) { P_(i) P_(j) Q("assert 2") }
-                    BSLS_ASSERT_ASSERT(0 && "assert 2");
+                    BSLS_ASSERT_INVOKE("assert 2");
                 }
             }
 
             for (int i = 0; i < 2; ++i) {
                 if (veryVeryVerbose) { P_(i) Q("assert 3") }
-                Obj::failTracker("0 && \"assert 3\"", __FILE__, __LINE__);
+                Obj::failTracker(bsls::AssertViolation("assert 3",
+                                                       __FILE__,
+                                                       __LINE__,
+                                                       "L"));
             }
 
             bsl::string s = os.str();
 
             ASSERTV(s, s.npos != s.find(__FILE__));
 
-            ASSERTV(s, s.npos != s.find(":1:0 && \"assert 1\":"))
-            ASSERTV(s, s.npos != s.find(":1:0 && \"assert 2\":"))
-            ASSERTV(s, s.npos != s.find(":1:0 && \"assert 3\":"))
+            ASSERTV(s, s.npos != s.find(":1:assert 1:"))
+            ASSERTV(s, s.npos != s.find(":1:assert 2:"))
+            ASSERTV(s, s.npos != s.find(":1:assert 3:"))
 
             os.str("");
             at_p->reportAllRecordedStackTraces();
             s = os.str();
 
-            ASSERTV(s, s.npos != s.find(":10:0 && \"assert 1\":"))
-            ASSERTV(s, s.npos != s.find(":100:0 && \"assert 2\":"))
-            ASSERTV(s, s.npos != s.find(":2:0 && \"assert 3\":"))
+            ASSERTV(s, s.npos != s.find(":10:assert 1:"))
+            ASSERTV(s, s.npos != s.find(":100:assert 2:"))
+            ASSERTV(s, s.npos != s.find(":2:assert 3:"))
         }
       } break;
       case 1: {
@@ -328,33 +348,36 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < 10; ++i) {
                 if (veryVeryVerbose) { P_(i) Q("assert 1") }
-                BSLS_ASSERT_ASSERT(0 && "assert 1");
+                BSLS_ASSERT_INVOKE("assert 1");
                 for (int j = 0; j < 10; ++j) {
                     if (veryVeryVerbose) { P_(i) P_(j) Q("assert 2") }
-                    BSLS_ASSERT_ASSERT(0 && "assert 2");
+                    BSLS_ASSERT_INVOKE("assert 2");
                 }
             }
 
             for (int i = 0; i < 2; ++i) {
                 if (veryVeryVerbose) { P_(i) Q("assert 3") }
-                Obj::failTracker("0 && \"assert 3\"", __FILE__, __LINE__);
+                Obj::failTracker(bsls::AssertViolation("assert 3",
+                                                       __FILE__,
+                                                       __LINE__,
+                                                       "L"));
             }
 
             bsl::string s = os.str();
 
             ASSERTV(s, s.npos != s.find(__FILE__));
 
-            ASSERTV(s, s.npos != s.find(":1:0 && \"assert 1\":"))
-            ASSERTV(s, s.npos != s.find(":1:0 && \"assert 2\":"))
-            ASSERTV(s, s.npos != s.find(":1:0 && \"assert 3\":"))
+            ASSERTV(s, s.npos != s.find(":1:assert 1:"))
+            ASSERTV(s, s.npos != s.find(":1:assert 2:"))
+            ASSERTV(s, s.npos != s.find(":1:assert 3:"))
 
             os.str("");
             at_p->reportAllRecordedStackTraces();
             s = os.str();
 
-            ASSERTV(s, s.npos != s.find(":10:0 && \"assert 1\":"))
-            ASSERTV(s, s.npos != s.find(":100:0 && \"assert 2\":"))
-            ASSERTV(s, s.npos != s.find(":2:0 && \"assert 3\":"))
+            ASSERTV(s, s.npos != s.find(":10:assert 1:"))
+            ASSERTV(s, s.npos != s.find(":100:assert 2:"))
+            ASSERTV(s, s.npos != s.find(":2:assert 3:"))
         }
       } break;
       default: {
