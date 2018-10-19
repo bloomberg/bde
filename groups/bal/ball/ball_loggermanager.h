@@ -881,6 +881,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlcc_objectpool.h>
 
+#include <bdlma_pool.h>
+
 #include <bslma_allocator.h>
 #include <bslma_managedptr.h>
 
@@ -949,8 +951,9 @@ class Logger {
     char        *d_scratchBuffer_p;             // buffer for formatting log
                                                 // messages (owned)
 
-    char        *d_recursiveScratchBuffer_p;    // buffer for formatting log
-                                                // messages allowing recursive
+    bdlma::Pool  d_bufferPool;                  // pool of buffers for
+                                                // formatting log messages
+                                                // allowing recursive
                                                 // access(owned)
 
     int          d_scratchBufferSize;           // message buffer size (bytes)
@@ -958,10 +961,9 @@ class Logger {
     bslmt::Mutex d_scratchBufferMutex;          // ensure thread-safety of
                                                 // message buffer
 
-    bslmt::RecursiveMutex
-                 d_recursiveScratchBufferMutex; // ensure thread-safety of
-                                                // message buffer allowing
-                                                // recursive access
+    bslmt::Mutex d_bufferPoolMutex;             // ensure thread-safety of
+                                                // pool of message buffers
+                                                // allowing recursive access
 
     LoggerManagerConfiguration::LogOrder
                  d_logOrder;                    // logging order
@@ -1104,7 +1106,6 @@ class Logger {
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
     char *obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize);
-    char *obtainMessageBuffer(bslmt::RecursiveMutex **mutex, int *bufferSize);
         // Block until access to the buffer of this logger used for formatting
         // messages is available.  Return the address of the modifiable buffer
         // to which this thread of execution has exclusive access, load the
@@ -1117,6 +1118,20 @@ class Logger {
         // the buffer is intended to be used *only* for formatting log messages
         // immediately before calling 'logMessage'; other use may adversely
         // affect performance for the entire program.
+
+    char *obtainPoolMessageBuffer(int *bufferSize);
+        // Return the address of the memory block obtained from the pool to
+        // which this thread of execution has exclusive access and load the
+        // size (in bytes) of this buffer into the specified 'bufferSize'
+        // address.  The address remains valid until the
+        // 'releasePoolMessageBuffer' method is called.  Note that the buffer
+        // is intended to be used *only* for formatting log messages
+        // immediately before a call to 'Log::logMessage'; other use may
+        // adversely affect performance for the entire program.
+
+    void releasePoolMessageBuffer(char *buffer);
+        // Relinquish the memory block at the specified 'buffer' address back
+        // to the pool object for reuse.
 
     void publish();
         // Publish to the observer held by this logger all records stored in
@@ -1428,8 +1443,6 @@ class LoggerManager {
         // 'LoggerManager::getRecord' method.
 
     static char *obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize);
-    static char *obtainMessageBuffer(bslmt::RecursiveMutex **mutex,
-                                     int                    *bufferSize);
         // Block until access to the static buffer used for formatting messages
         // is available.  Return the address of the modifiable buffer to which
         // this thread of execution has exclusive access, load the address of
@@ -1442,6 +1455,15 @@ class LoggerManager {
         // buffer is intended to be used *only* for formatting log messages
         // immediately before calling 'logMessage'; other use may adversely
         // affect performance for the entire program.
+
+    static char *obtainPoolMessageBuffer(int *bufferSize);
+        // Return the address of the memory block obtained from the static
+        // 'bdlma::Pool' object to which this thread of execution has exclusive
+        // access and load the size (in bytes) of this buffer into the
+        // specified 'bufferSize' address.  Note that the buffer is intended to
+        // be used *only* for formatting log messages immediately before a call
+        // to 'Log::logMessage'; other use may adversely affect performance for
+        // the entire program.
 
     static void shutDownSingleton();
         // Destroy the logger manager singleton and release all resources used

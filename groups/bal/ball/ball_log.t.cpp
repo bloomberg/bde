@@ -46,6 +46,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
@@ -357,9 +358,9 @@ const int FILL = 0xbb;
 inline
 char *messageBuffer()
 {
-    BloombergLP::bslmt::RecursiveMutex *mutex = 0;
-    int                                 bufferSize = 0;
-    char                               *buffer =
+    BloombergLP::bslmt::Mutex *mutex = 0;
+    int                        bufferSize = 0;
+    char                      *buffer =
                                  Obj::obtainMessageBuffer(&mutex, &bufferSize);
     Obj::releaseMessageBuffer(mutex);
     return buffer;
@@ -368,8 +369,8 @@ char *messageBuffer()
 inline
 int messageBufferSize()
 {
-    BloombergLP::bslmt::RecursiveMutex *mutex = 0;
-    int                                 bufferSize = 0;
+    BloombergLP::bslmt::Mutex *mutex = 0;
+    int                        bufferSize = 0;
     Obj::obtainMessageBuffer(&mutex, &bufferSize);
     Obj::releaseMessageBuffer(mutex);
     return bufferSize;

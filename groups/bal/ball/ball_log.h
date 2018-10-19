@@ -1365,8 +1365,8 @@ struct Log {
         // obtained by a call to 'Log::getRecord', and, if 'category' is not
         // 0, the logger manager singleton is initialized.
 
-    static char *obtainMessageBuffer(bslmt::RecursiveMutex **mutex,
-                                     int                    *bufferSize);
+    static char *obtainMessageBuffer(bslmt::Mutex **mutex,
+                                     int           *bufferSize);
         // Block until access to the buffer used for formatting messages in
         // this thread of execution is available.  Return the address of the
         // modifiable buffer to which this thread of execution has exclusive
@@ -1381,11 +1381,25 @@ struct Log {
         // 'Log::logMessage'; other use may adversely affect performance for
         // the entire program.
 
-    static void releaseMessageBuffer(bslmt::RecursiveMutex *mutex);
+    static void releaseMessageBuffer(bslmt::Mutex *mutex);
         // Unlock the specified 'mutex' that guards the buffer used for
         // formatting messages in this thread of execution.  The behavior is
         // undefined unless 'mutex' was obtained by a call to
         // 'Log::obtainMessageBuffer' and has not yet been unlocked.
+
+    static char *obtainPoolMessageBuffer(int *bufferSize);
+        // Return the address of the memory block obtained from the pool to
+        // which this thread of execution has exclusive access and load the
+        // size (in bytes) of this buffer into the specified 'bufferSize'
+        // address.  The address remains valid until the
+        // 'Log::releasePoolMessageBuffer' method is called.  Note that the
+        // buffer is intended to be used *only* for formatting log messages
+        // immediately before a call to 'Log::logMessage'; other use may
+        // adversely affect performance for the entire program.
+
+    static void releasePoolMessageBuffer(char *buffer);
+        // Relinquish the memory block at the specified 'buffer' address back
+        // to the pool object for reuse.
 
     static const Category *setCategory(const char *categoryName);
         // Return from the logger manager singleton's category registry the
@@ -1571,7 +1585,7 @@ class Log_Formatter {
 
     int                    d_bufferLen;   // length of buffer
 
-    bslmt::RecursiveMutex *d_mutex_p;     // mutex to lock buffer (held, not
+    bslmt::Mutex          *d_mutex_p;     // mutex to lock buffer (held, not
                                           // owned)
 
   private:

@@ -275,6 +275,7 @@ Logger::Logger(const bsl::shared_ptr<Observer>&            observer,
 , d_recordBuffer_p(recordBuffer)
 , d_populator(populator)
 , d_publishAll(publishAllCallback)
+, d_bufferPool(scratchBufferSize, globalAllocator)
 , d_scratchBufferSize(scratchBufferSize)
 , d_logOrder(logOrder)
 , d_triggerMarkers(triggerMarkers)
@@ -286,8 +287,7 @@ Logger::Logger(const bsl::shared_ptr<Observer>&            observer,
 
     // 'snprintf' message buffer
     d_scratchBuffer_p = (char *)d_allocator_p->allocate(d_scratchBufferSize);
-    d_recursiveScratchBuffer_p = (char *)d_allocator_p->allocate(
-                                                          d_scratchBufferSize);
+    d_bufferPool.reserveCapacity(5);
 }
 
 Logger::~Logger()
@@ -296,13 +296,11 @@ Logger::~Logger()
     BSLS_ASSERT(d_recordBuffer_p);
     BSLS_ASSERT(d_publishAll);
     BSLS_ASSERT(d_scratchBuffer_p);
-    BSLS_ASSERT(d_recursiveScratchBuffer_p);
     BSLS_ASSERT(d_allocator_p);
 
     d_observer->releaseRecords();
     d_recordBuffer_p->removeAll();
     d_allocator_p->deallocate(d_scratchBuffer_p);
-    d_allocator_p->deallocate(d_recursiveScratchBuffer_p);
 }
 
 // PRIVATE MANIPULATORS
@@ -497,15 +495,18 @@ char *Logger::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
     return d_scratchBuffer_p;
 }
 
-char *Logger::obtainMessageBuffer(bslmt::RecursiveMutex **mutex,
-                                  int                    *bufferSize)
+char *Logger::obtainPoolMessageBuffer(int *bufferSize)
 {
-    d_recursiveScratchBufferMutex.lock();
-    *mutex      = &d_recursiveScratchBufferMutex;
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_bufferPoolMutex);
     *bufferSize = d_scratchBufferSize;
-    return d_recursiveScratchBuffer_p;
+    return static_cast<char *>(d_bufferPool.allocate());
 }
 
+void Logger::releasePoolMessageBuffer(char *buffer)
+{
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_bufferPoolMutex);
+    d_bufferPool.deallocate(static_cast<void *>(buffer));
+}
                            // -------------------
                            // class LoggerManager
                            // -------------------
@@ -882,24 +883,29 @@ char *LoggerManager::obtainMessageBuffer(bslmt::Mutex **mutex,
     return buffer;
 }
 
-char *LoggerManager::obtainMessageBuffer(bslmt::RecursiveMutex **mutex,
-                                         int                    *bufferSize)
+char *LoggerManager::obtainPoolMessageBuffer(int *bufferSize)
 {
-    const int   k_DEFAULT_LOGGER_BUFFER_SIZE = 8192;
-    static char buffer[k_DEFAULT_LOGGER_BUFFER_SIZE];
+    const int k_DEFAULT_LOGGER_BUFFER_SIZE = 8192;
 
-    static bsls::ObjectBuffer<bslmt::RecursiveMutex> staticMutex;
+    static bsls::ObjectBuffer<bslmt::Mutex> staticMutex;
+    static bsls::ObjectBuffer<bdlma::Pool>  staticPool;
+
     BSLMT_ONCE_DO {
-        // This mutex must remain valid for the lifetime of the task, and is
-        // intentionally never destroyed.  This function may be called on
+        // These objects must remain valid for the lifetime of the task, and
+        // are intentionally never destroyed.  This function may be called on
         // program termination, e.g., if a statically initialized object
         // performs logging during its destruction.
-
         new (staticMutex.buffer()) bslmt::Mutex();
+        new (staticPool.buffer()) bdlma::Pool(k_DEFAULT_LOGGER_BUFFER_SIZE);
+        staticPool.object().reserveCapacity(5);
     }
 
+    char *buffer;
+
     staticMutex.object().lock();
-    *mutex      = &staticMutex.object();
+    buffer = static_cast<char *>(staticPool.object().allocate());
+    staticMutex.object().unlock();
+
     *bufferSize = k_DEFAULT_LOGGER_BUFFER_SIZE;
 
     return buffer;
