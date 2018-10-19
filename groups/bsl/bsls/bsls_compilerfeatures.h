@@ -93,9 +93,9 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED':
 //:     This macro is defined if 'constexpr' with C++14 semantics is supported
 //:     by the current compiler settings for this platform.  In particular,
-//:     this allows multiple statements in a constexpr function; changing state
-//:     of local variables within the function; and making 'non-const' member
-//:     functions 'constexpr'.
+//:     this allows multiple statements in a 'constexpr' function; changing
+//:     state of local variables within the function; and making 'non-const'
+//:     member functions 'constexpr'.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE':
 //:     This macro is defined if 'decltype' is supported by the current
@@ -980,7 +980,7 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bsls {
 
-    enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
+enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
 
 #   define BSLS_COMPILERFEATURES_NILT BloombergLP::bsls::CompilerFeaturesNilT
 #   define BSLS_COMPILERFEATURES_NILV BloombergLP::bsls::CompilerFeaturesNilV
@@ -993,8 +993,8 @@ namespace bsls {
 #   define BSLS_COMPILERFEATURES_FILLV(n)  \
      BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILVR) BSLS_COMPILERFEATURES_NILV
 
-} // close package namespace
-} // close enterprise namespace
+}  // close package namespace
+}  // close enterprise namespace
 
 #       endif // __cplusplus
 #   endif // BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES

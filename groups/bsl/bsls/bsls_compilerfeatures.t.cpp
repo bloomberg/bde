@@ -6,7 +6,6 @@
 #include <bsls_buildtarget.h>
 
 #include <exception>    // testing exception specifications
-#include <utility>      // 'declval'
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -14,6 +13,10 @@
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #include <initializer_list>
 #endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+# include_next<cstdio>  // Preprocessor feature test: this *IS* the check.
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 
 //=============================================================================
 //                             TEST PLAN
@@ -117,13 +120,13 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace {
 
-template <class T, class U>
+template <class TYPE, class OTHER>
 struct alias_base {};
 
 using my_own_int = int;
 using alias_nontemplate = alias_base<int, char>;
-template <class T> using alias_template1 = alias_base<T, int>;
-template <class T> using alias_template2 = alias_base<char, T>;
+template <class TYPE> using alias_template1 = alias_base<TYPE, int>;
+template <class TYPE> using alias_template2 = alias_base<char, TYPE>;
 
 }  // close unnamed namespace
 
@@ -167,10 +170,10 @@ void test_dependent_constexpr_aggregate() {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
 
-// libc++ #define's decltype when it is not provided by the compiler.
-// Our test should not depend on this #define.
+// libc++ defines 'decltype' as a function-like macro when it is not provided
+// by the compiler.  Our test should not be fooled by this macro.
 #if defined(decltype)
-#undef decltype
+# undef decltype
 #endif
 
 namespace {
@@ -258,7 +261,7 @@ struct ClassWithDeletedOps {
 namespace {
 
 // define class template
-template <class T>
+template <class TYPE>
 class ExternTemplateClass {};
 
 // don't instantiate in this translation unit
@@ -270,13 +273,6 @@ template class ExternTemplateClass<char>;
 }  // close unnamed namespace
 
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-
-#include_next<cstdio>
-
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -348,43 +344,43 @@ namespace {
 
 // Check support for the perfect forwaring idiom
 //
-template <class T>
+template <class TYPE>
 struct my_remove_reference {
-    typedef T type;
+    typedef TYPE type;
 };
 
-template <class T>
-struct my_remove_reference<T&> {
-    typedef T type;
+template <class TYPE>
+struct my_remove_reference<TYPE&> {
+    typedef TYPE type;
 };
 
-template <class T>
-struct my_remove_reference<T&&> {
-    typedef T type;
+template <class TYPE>
+struct my_remove_reference<TYPE&&> {
+    typedef TYPE type;
 };
 
-template <class T>
-T&& my_forward(typename my_remove_reference<T>::type& t)
+template <class TYPE>
+TYPE&& my_forward(typename my_remove_reference<TYPE>::type& t)
 {
-    return static_cast<T&&>(t);
+    return static_cast<TYPE&&>(t);
 }
 
-template <class T>
-T&& my_forward(typename my_remove_reference<T>::type&& t)
+template <class TYPE>
+TYPE&& my_forward(typename my_remove_reference<TYPE>::type&& t)
 {
-    return static_cast<T&&>(t);
+    return static_cast<TYPE&&>(t);
 }
 
-template <class T>
-typename my_remove_reference<T>::type&& my_move(T&& t)
+template <class TYPE>
+typename my_remove_reference<TYPE>::type&& my_move(TYPE&& t)
 {
-    return static_cast<typename my_remove_reference<T>::type&&>(t);
+    return static_cast<typename my_remove_reference<TYPE>::type&&>(t);
 }
 
-template <class T, class ARG>
-T my_factory(ARG&& arg)
+template <class TYPE, class ARG>
+TYPE my_factory(ARG&& arg)
 {
-    return my_move(T(my_forward<ARG>(arg)));
+    return my_move(TYPE(my_forward<ARG>(arg)));
 }
 
 struct RvalueArg {};
@@ -566,6 +562,9 @@ void test_func() {
 
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+    // Note that the tests below also rely on the use of rvalue-references and
+    // the 'decltype' operator.  This has not been a problem on any tested
+    // platform that also supports at least the C++11 level of 'constexpr'.
 namespace {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)
@@ -603,7 +602,7 @@ struct TrueType {
     char d_dummy[13];
 };
 
-template <int N>
+template <int VALUE>
 struct TypeN {
     // This class template turns a compile time constant into a distinct type.
 };
@@ -614,33 +613,39 @@ struct Sniffer {
 
     template <class TARGET>
     static FalseType test(...);
-    // The "catch all" overload that gets selected when
-    // 'TARGET{}.call(true)' is not a compile time constant.
+        // The "catch all" overload that gets selected when
+        // 'TARGET{}.call(true)' is not a compile time constant.
 
     template <class TARGET>
     static TrueType test(TARGET *, TypeN < TARGET{}.call(true) > * = 0);
-    // The overload that gets selected when 'TARGET{}.call(true)' is a
-    // valid compile time constant ('constexpr').
+        // The overload that gets selected when 'TARGET{}.call(true)' is a
+        // valid compile time constant ('constexpr').
 };
 
 struct ConstexprConst {
     // This class uses expression SFINAE to detect if the expression
     // 'const TARGET{}.call(true)' is a valid compile time constant expression.
 
+    template<class TYPE>
+    static TYPE&& declval();
+        // Return an rvalue-reference to the (temmplate parameter) 'TYPE'.
+        // Note that this function is never defined, and should be called only
+        // from unevaluated contexts, such as 'decltype' and 'sizeof'.
+
     template <class TARGET>
     static TrueType test(...);
-    // The "catch all" overload that gets selected when
-    // 'const TARGET{}.call(true)' is not a valid compile time constant
-    // expression.  Notice that since in 'Feature14' the function 'call' is
-    // not defined explicitly 'const', therefore this catch all function
-    // returns 'TrueType', because in C++14 'constexpr' does not make
-    // member functions implicitly 'const'.
+        // The "catch all" overload that gets selected when 'const
+        // TARGET{}.call(true)' is not a valid compile time constant
+        // expression.  Notice that since in 'Feature14' the function 'call' is
+        // not defined explicitly 'const', therefore this catch all function
+        // returns 'TrueType', because in C++14 'constexpr' does not make
+        // member functions implicitly 'const'.
 
     template <class TARGET,
-        class = decltype(std::declval<const TARGET>().call(true))>
-        static FalseType test(TARGET *);
-    // The overload that gets selected when 'TARGET{}.call(true)' is a
-    // valid expression.
+              class = decltype(declval<const TARGET>().call(true))>
+    static FalseType test(TARGET *);
+        // The overload that gets selected when 'TARGET{}.call(true)' is a
+        // valid expression.
 };
 
 struct Feature11 {
@@ -648,11 +653,11 @@ struct Feature11 {
 
     // CREATORS
     constexpr Feature11();
-    // Create a, possibly 'constexpr', 'Feature11' object.
+        // Create a, possibly 'constexpr', 'Feature11' object.
 
     // MANIPULATORS
     constexpr int call(bool) const;
-    // Return an integer usable in constant expressions.
+        // Return an integer usable in constant expressions.
 };
 
 constexpr Feature11::Feature11()
@@ -673,12 +678,12 @@ struct Feature14 {
 
     // CREATORS
     constexpr Feature14();
-    // Create a, possibly 'constexpr', 'Feature14' object.
+        // Create a, possibly 'constexpr', 'Feature14' object.
 
     constexpr int call(bool b);
-    // Return, a possibly 'constexpr' integer value that depends on the
-    // specified 'b' flag.  This method is "complex", cannot be 'constexpr'
-    // in C++11, only in C++14 and onwards.
+        // Return, a possibly 'constexpr' integer value that depends on the
+        // specified 'b' flag.  This method is "complex", cannot be 'constexpr'
+        // in C++11, only in C++14 and onwards.
 
 };
 
@@ -715,8 +720,6 @@ static const bool
 #endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-
-#include <initializer_list>
 
 namespace test_case_22 {
 
@@ -805,7 +808,7 @@ int main(int argc, char *argv[])
     switch (test) { case 0:
       case 23: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS' is defined
@@ -824,13 +827,13 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS)
-        if (verbose) printf("Testing exception specifications skipped\n"
-                            "========================================\n");
-#else
-        if (verbose) printf("Testing exception specifications\n"
-                            "================================\n");
+        if (verbose) printf(
+           "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS'"
+           "\n============================================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         struct LocalClass {
             static void test() throw (std::bad_exception, double) {
                 throw 13;
@@ -850,6 +853,12 @@ int main(int argc, char *argv[])
         }
         catch (const std::bad_exception&) {
             caughtBadException = true;
+        }
+        catch(int) {
+            ASSERTV(!"Exception specifications are ignored");
+        }
+        catch(...) {
+            ASSERTV(!"Exception translated to unknown type");
         }
 
         ASSERTV(caughtBadException, caughtBadException);
@@ -886,9 +895,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-       "TESTING 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS'\n"
-       "====================================================================\n"
-        );
+   "\nTESTING 'BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS'"
+   "\n====================================================================\n");
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #    if defined(BDE_BUILD_TARGET_EXC)
@@ -903,12 +911,14 @@ int main(int argc, char *argv[])
           u_BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS_defined)
         }
 
-        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
+        if (veryVeryVerbose) {
+            P(BSLS_PLATFORM_CMP_VERSION);
+        }
 
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE'
         //
         // Concerns:
         //: 1 When 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE' is defined
@@ -928,12 +938,13 @@ int main(int argc, char *argv[])
         //:   is not available.
         //
         // Testing:
-        //   BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+        //   BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
         // --------------------------------------------------------------------
-        if (verbose)
-            printf("TESTING BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE\n"
-                   "=================================================\n"
-                );
+
+        if (verbose) printf(
+                    "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE'"
+                    "\n===================================================\n");
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
 # if !__has_include(<stddef.h>)
 #   error '__has_include' appears not to be working.
@@ -949,7 +960,7 @@ int main(int argc, char *argv[])
       } break;
       case 20: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES' is
@@ -975,18 +986,13 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
-        if (verbose)
-            printf("TESTING BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES"
-                   " skipped\n"
-                   "========================================================"
-                   "========\n");
-#else
-        if (verbose)
-            printf("TESTING BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES\n"
-                   "========================================================\n"
-                );
+        if (verbose) printf(
+             "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES'"
+             "\n==========================================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         const char16_t leftArrow   = u'\u2190';
         const char16_t rightArrow  = u'\u2192';
         const char16_t leftRight[] = u"\u2190\u2192";
@@ -1009,7 +1015,7 @@ int main(int argc, char *argv[])
       } break;
       case 19: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS' is
@@ -1017,7 +1023,7 @@ int main(int argc, char *argv[])
         //:   ref-qualified functions.
         //: 2 If rvalue references are also supported, then functions can be
         //:   qualified with rvalue references.
-        //: 3 Ref qualification is orthogonal to cv qualification.
+        //: 3 Ref qualification is orthogonal to cv-qualification.
         //
         // Plan:
         //: 1 For concern 1, if 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
@@ -1033,13 +1039,13 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
-        if (verbose) printf("Testing ref-qualified functions skipped\n"
-                            "=======================================\n");
-#else
-        if (verbose) printf("Testing ref-qualified functions\n"
-                            "===============================\n");
+        if (verbose) printf(
+                 "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'"
+                 "\n======================================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         struct TestClass {
             // This class defines reference-qualified member functions
 
@@ -1059,7 +1065,7 @@ int main(int argc, char *argv[])
       } break;
       case 18: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS' is defined
@@ -1074,19 +1080,19 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
-        if (verbose) printf("Testing 'alignas' skipped\n"
-                            "=========================\n");
-#else
-        if (verbose) printf("Testing 'alignas' specifier\n"
-                            "===========================\n");
+        if (verbose) printf(
+                        "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS'"
+                        "\n===============================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         alignas(8) int foo; (void) foo;
 #endif
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES' is defined
@@ -1102,19 +1108,19 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-        if (verbose) printf("Testing variadic template parameters skipped\n"
-                            "============================================\n");
-#else
-        if (verbose) printf("Testing variadic template parameters\n"
-                            "====================================\n");
+        if (verbose) printf(
+             "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES'"
+             "\n==========================================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         ASSERT((PackSize<int, char, double, void>::VALUE == 4));
 #endif
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT' is defined only
@@ -1128,20 +1134,20 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
-        if (verbose) printf("Testing static_assert skipped\n"
-                            "=============================\n");
-#else
-        if (verbose) printf("Testing static_assert\n"
-                            "=====================\n");
+        if (verbose) printf(
+                  "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT'"
+                  "\n=====================================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         static_assert(true, "static_assert with bool");
         static_assert(1,    "static_assert with int");
 #endif
       } break;
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES' is defined only
@@ -1156,13 +1162,13 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        if (verbose) printf("Testing rvalue references skipped\n"
-                            "=================================\n");
-#else
-        if (verbose) printf("Testing rvalue references\n"
-                            "=========================\n");
+        if (verbose) printf(
+              "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'"
+              "\n=========================================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         RvalueTest obj(my_factory<RvalueTest>(RvalueArg()));
 
         TemplateType<int> x = make_rvalue<TemplateType<int> >();
@@ -1174,7 +1180,7 @@ int main(int argc, char *argv[])
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE' is defined only when the
@@ -1192,20 +1198,20 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE)
-        if (verbose) printf("Testing override skipped\n"
-                            "========================\n");
-#else
-        if (verbose) printf("Testing override\n"
-                            "================\n");
+        if (verbose) printf(
+                       "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE'"
+                       "\n================================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         struct OverrideBase { virtual void f() const {} };
         struct Override: OverrideBase { void f() const override {} };
 #endif
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT' is defined only
@@ -1221,13 +1227,13 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
-        if (verbose) printf("Testing operator explicit skipped\n"
-                            "=================================\n");
-#else
-        if (verbose) printf("Testing operator explicit\n"
-                            "=========================\n");
+        if (verbose) printf(
+              "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT'"
+              "\n=========================================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         struct Explicit {
             static bool match(int)  { return false; }
             static bool match(char) { return true; }
@@ -1243,7 +1249,7 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR' is defined only when the
@@ -1257,13 +1263,13 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
-        if (verbose) printf("Testing nullptr skipped\n"
-                            "=======================\n");
-#else
-        if (verbose) printf("Testing nullptr\n"
-                            "===============\n");
+        if (verbose) printf(
+                        "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR'"
+                        "\n===============================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         void *p = nullptr;
         if (p == nullptr) {}
         OverloadForNullptr(nullptr);
@@ -1271,7 +1277,7 @@ int main(int argc, char *argv[])
       } break;
       case 11:{
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT' is defined only when
@@ -1284,12 +1290,14 @@ int main(int argc, char *argv[])
         // Testing:
         //   BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
         // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                       "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'"
+                       "\n================================================\n");
+
 #if !defined (BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-        if (verbose) printf("Testing noexcept skipped\n"
-                              "========================\n");
+        if (verbose) printf("Feature not supported in this configuration.\n");
 #else
-        if (verbose) printf("Testing noexcept\n"
-                              "================\n");
         noexceptTest1();
         noexceptTest2();
         notNoexceptTest1();
@@ -1303,7 +1311,7 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT' is defined only when
@@ -1318,17 +1326,19 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
         // --------------------------------------------------------------------
 
+        if (verbose) printf(
+                   "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT'"
+                   "\n====================================================\n");
+
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-        if (verbose) printf("Testing include_next skipped\n"
-                            "============================\n");
+        if (verbose) printf("Feature not supported in this configuration.\n");
 #else
-        if (verbose) printf("Testing include_next\n"
-                            "====================\n");
+        if (verbose) printf("#include_next is tested at global scope.\n");
 #endif
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS' is
@@ -1344,12 +1354,13 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
         // --------------------------------------------------------------------
 
+        if (verbose) printf(
+       "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS'"
+       "\n================================================================\n");
+
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-        if (verbose) printf("Testing generalized initializers skipped\n"
-                            "============================\n");
+        if (verbose) printf("Feature not supported in this configuration.\n");
 #else
-        if (verbose) printf("Testing generalized initializers\n"
-                            "================================\n");
         std::initializer_list<int> il = {10,20,30,40,50}; (void) il;
 
         using namespace initializer_feature_test;
@@ -1359,7 +1370,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_FINAL
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_FINAL'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_FINAL' is defined only when the
@@ -1377,13 +1388,13 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_FINAL
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_FINAL)
-        if (verbose) printf("Testing final skipped\n"
-                            "=====================\n");
-#else
-        if (verbose) printf("Testing final\n"
-                            "=============\n");
+        if (verbose) printf(
+                          "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_FINAL'"
+                          "\n=============================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_FINAL)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         struct Final final {};
         struct FinalMember { virtual void f() final {} };
 #endif
@@ -1391,7 +1402,7 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE' is defined only
@@ -1407,20 +1418,20 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
-        if (verbose) printf("Testing extern template skipped\n"
-                            "===============================\n");
-#else
-        if (verbose) printf("Testing extern template\n"
-                            "=======================\n");
+        if (verbose) printf(
+                "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE'"
+                "\n=======================================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         ExternTemplateClass<char> obj; (void) obj;
 #endif
 
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS' is defined only
@@ -1436,18 +1447,19 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
         // --------------------------------------------------------------------
 
+        if (verbose) printf(
+              "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS'"
+              "\n=========================================================\n");
+
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS)
-        if (verbose) printf("Testing deleted functions skipped\n"
-                            "=================================\n");
+        if (verbose) printf("Feature not supported in this configuration.\n");
 #else
-        if (verbose) printf("Testing deleted functions template\n"
-                            "==================================\n");
         ClassWithDeletedOps* p; (void)p;
 #endif
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS' is defined
@@ -1463,13 +1475,13 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
-        if (verbose) printf("Testing defaulted functions skipped\n"
-                            "=================================\n");
-#else
-        if (verbose) printf("Testing defaulted functions template\n"
-              "==================================\n");
+        if (verbose) printf(
+            "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS'"
+            "\n===========================================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         const ClassWithDefaultOps original(42);
 
         // test default construction.
@@ -1495,7 +1507,7 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE' is defined only when
@@ -1510,18 +1522,19 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
-        if (verbose) printf("Testing decltype skipped\n"
-                            "========================\n");
-#else
-        if (verbose) printf("Testing decltype\n"
-                            "================\n");
+        if (verbose) printf(
+                       "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE'"
+                       "\n================================================\n");
 
-        int obj1; (void) obj1;
-        decltype(obj1) obj2; (void) obj2;
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
+        int                               obj1; (void) obj1;
+        decltype(obj1)                    obj2; (void) obj2;
         decltype(testFuncForDecltype(10)) obj3; (void) obj3;
 
         auto maxVal = my_max(short(10), 'a');
+
         ASSERT(sizeof(maxVal) == sizeof(int));
         ASSERT(maxVal == 'a');
 #endif
@@ -1529,7 +1542,7 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED' is defined only
@@ -1554,17 +1567,13 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)
-        if (verbose) {
-   printf("TESTING BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED SKIPPED\n"
-          "===============================================================\n");
-        }
-#else
-        if (verbose) {
-           printf("TESTING BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED\n"
-                  "=======================================================\n");
-        }
+        if (verbose) printf(
+              "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED'"
+              "\n=========================================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         static_assert(relaxedConstExprFunc(true) == 42,
                       "Relaxed (C++14) 'constexpr' is not supported");
 
@@ -1584,7 +1593,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR' is defined only when
@@ -1599,13 +1608,13 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-        if (verbose) printf("Testing constexpr skipped\n"
-                            "=========================\n");
-#else
-        if (verbose) printf("Testing constexpr\n"
-                            "=================\n");
+        if (verbose) printf(
+                      "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR'"
+                      "\n=================================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         constexpr OracleMiscompile d; // Just declaring 'd' crashes CC 12.4.
 
         constexpr int v = A(true).m;
@@ -1619,7 +1628,7 @@ int main(int argc, char *argv[])
       } break;
       case 1: {
         // --------------------------------------------------------------------
-        // TESTING BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+        // TESTING 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES'
         //
         // Concerns:
         //: 1 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES' is defined only
@@ -1635,13 +1644,13 @@ int main(int argc, char *argv[])
         //   BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
         // --------------------------------------------------------------------
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-        if (verbose) printf("Testing alias templates skipped\n"
-                            "===============================\n");
-#else
-        if (verbose) printf("Testing alias templates\n"
-                            "=======================\n");
+        if (verbose) printf(
+                "\nTESTING 'BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES'"
+                "\n=======================================================\n");
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+        if (verbose) printf("Feature not supported in this configuration.\n");
+#else
         my_own_int intObj; (void) intObj;
         alias_nontemplate nontemplateObj; (void) nontemplateObj;
         alias_template1<char> templateObj1; (void) templateObj1;
