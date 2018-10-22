@@ -25,12 +25,11 @@ BSLS_IDENT("$Id: $")
 // #include is guaranteed to succeed.
 
 # include <unordered_map>
-#else
+#elif defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
 // The unordered containers are a feature of the C++11 library, rather than
 // C++03, so might not be present in all native libraries on the platforms we
-// support.  Currently the 'BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS' is
-// never defined, but this sketches out our plan for future support.
-# ifdef BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS
+// support.  Detect the native header using '__has_include' where available.
+# if __has_include(<unordered_map>)
 #  include <unordered_map>
 # endif
 #endif

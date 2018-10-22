@@ -81,10 +81,10 @@ BSLS_IDENT("$Id: $")
 
 #endif  // BSL_OVERRIDES_STD
 
-#endif  // INCLUDED_NATIVE_MAP
+#endif  // INCLUDED_NATIVE_UNORDERED_MAP
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
