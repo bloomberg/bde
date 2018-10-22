@@ -10,6 +10,7 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_outputredirector.h>
+#include <bsls_util.h>
 
 #include <bsltf_movabletesttype.h>
 #include <bsltf_templatetestfacility.h>
@@ -657,8 +658,10 @@ void TestDriver<TYPE, SIZE>::testCase21()
     const Obj& W = gg(&mW, SPEC);
 
     if (SIZE != 0) {
-        ASSERTV(&bsl::get<SIZE-1>(mW) == &mW[SIZE-1]);
-        ASSERTV(&bsl::get<SIZE-1>(W) == &W[SIZE-1]);
+        ASSERTV(bsls::Util::addressOf(bsl::get<SIZE-1>(mW))
+             == bsls::Util::addressOf(mW[SIZE-1]));
+        ASSERTV(bsls::Util::addressOf(bsl::get<SIZE-1>(W))
+             == bsls::Util::addressOf(W[SIZE-1]));
     }
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     if (verbose) printf("\nTesting 'get' free function with rvalues.\n");
@@ -1363,7 +1366,7 @@ void TestDriver<TYPE, SIZE>::testCase14()
 
     if (verbose) printf("\nTesting iterator goes through entire array.\n");
     for (typename Obj::iterator it = mW.begin(); it != mW.end(); ++it){
-        ASSERTV(LINE, &(*it) == W.d_data + count);
+        ASSERTV(LINE, bsls::Util::addressOf(*it) == W.d_data + count);
         ++count;
         ASSERTV(LINE, TestFacility::getIdentifier(*it)==SPEC[it - mW.begin()]);
 
@@ -1386,7 +1389,8 @@ void TestDriver<TYPE, SIZE>::testCase14()
         if (verbose) printf("\tTest reverse iter changes elems correctly.\n");
 
         *it = TestFacility::create<TYPE>(V);
-        ASSERTV(LINE, &(*it) == W.d_data + SIZE - 1 - count);
+        ASSERTV(LINE,
+                bsls::Util::addressOf(*it) == W.d_data + SIZE - 1 - count);
         ASSERTV(LINE, W[SIZE - 1 - count] == TestFacility::create<TYPE>(V));
 
         ++count;
@@ -2754,10 +2758,10 @@ void TestDriver<TYPE, SIZE>::testCase1()
 
 int main(int argc, char *argv[])
 {
-    int  test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose             = argc > 2;
-    veryVerbose         = argc > 3;
-    veryVeryVerbose     = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
@@ -2773,6 +2777,9 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP17
 // BDE_VERIFY pragma: -TP30
     switch (test){ case 0:
+      case 22: {
+          UsageExample::usageExample();
+      } break;
       case 21: {
         // Test tuple interface.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
