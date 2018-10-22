@@ -2760,10 +2760,12 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_SOLARIS)
-            const      int NaN = ~(-1u >> 1);
-#else
+#if defined(BSLS_PLATFORM_CPU_X86_64)                                        \
+ || defined(BSLS_PLATFORM_CPU_IA64)                                          \
+ || (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT))
             const long int NaN = ~(-1ul >> 1);
+#else
+            const      int NaN = ~(-1u >> 1);
 #endif
 
             struct {
@@ -2985,10 +2987,12 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_SOLARIS)
-            const      int NaN = ~(-1u >> 1);
-#else
+#if defined(BSLS_PLATFORM_CPU_X86_64)                                        \
+ || defined(BSLS_PLATFORM_CPU_IA64)                                          \
+ || (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT))
             const long int NaN = ~(-1ul >> 1);
+#else
+            const      int NaN = ~(-1u >> 1);
 #endif
 
             struct {
@@ -3802,10 +3806,12 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_SOLARIS)
-            const      int NaN = ~(-1u >> 1);
-#else
+#if defined(BSLS_PLATFORM_CPU_X86_64)                                        \
+ || defined(BSLS_PLATFORM_CPU_IA64)                                          \
+ || (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT))
             const long int NaN = ~(-1ul >> 1);
+#else
+            const      int NaN = ~(-1u >> 1);
 #endif
 
             struct {
@@ -4028,11 +4034,14 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_SOLARIS)
-            const      int NaN = ~(-1u >> 1);
-#else
+#if defined(BSLS_PLATFORM_CPU_X86_64)                                        \
+ || defined(BSLS_PLATFORM_CPU_IA64)                                          \
+ || (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT))
             const long int NaN = ~(-1ul >> 1);
+#else
+            const      int NaN = ~(-1u >> 1);
 #endif
+
             struct {
                 int          d_line;
                 Obj          d_x;
@@ -4729,10 +4738,12 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_SOLARIS)
-            const      int NaN = ~(-1u >> 1);
-#else
+#if defined(BSLS_PLATFORM_CPU_X86_64)                                        \
+ || defined(BSLS_PLATFORM_CPU_IA64)                                          \
+ || (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT))
             const long int NaN = ~(-1ul >> 1);
+#else
+            const      int NaN = ~(-1u >> 1);
 #endif
             const Obj           DEC_X = DEC(-9223372036854775809.0);
 
@@ -4966,10 +4977,12 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_SOLARIS)
-            const      int NaN = ~(-1u >> 1);
-#else
+#if defined(BSLS_PLATFORM_CPU_X86_64)                                        \
+ || defined(BSLS_PLATFORM_CPU_IA64)                                          \
+ || (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT))
             const long int NaN = ~(-1ul >> 1);
+#else
+            const      int NaN = ~(-1u >> 1);
 #endif
             const Obj      DEC_X = DEC(2.4999999999999999);
 
