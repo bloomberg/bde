@@ -7,6 +7,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_outputredirector.h>
@@ -178,6 +179,12 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+// ============================================================================
+//                  PRINTF FORMAT MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
+
+#define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
 //=============================================================================
 //                       GLOBAL OBJECTS SHARED BY TEST CASES
 //-----------------------------------------------------------------------------
@@ -187,8 +194,10 @@ static bool             verbose;
 static bool         veryVerbose;
 static bool     veryVeryVerbose;
 static bool veryVeryVeryVerbose;
+
 //track number of objects constructed with default constructor
 static int s_numConstructed = 0;
+
 //track if comparison operators use any operators other than <
 static bool s_operators = false;
 
@@ -275,14 +284,14 @@ void debugprint(const array<TYPE, SIZE>& v)
         printf("<empty>");
     }
     else {
-        putchar('"');
+        putchar('{');
         const size_t sz = v.size();
         for (size_t ii = 0; ii < sz; ++ii) {
             const char c = static_cast<char>(
                             bsltf::TemplateTestFacility::getIdentifier(v[ii]));
             putchar(c ? c : '@');
         }
-        putchar('"');
+        putchar('}');
     }
     fflush(stdout);
 }
@@ -485,13 +494,11 @@ struct TestDriver {
     static void testCase13();
         // Test 'fill' member.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     static void testCase12();
         // Test move assignment operator.
 
     static void testCase11();
         // Test move constructor.
-#endif
 
     static void testCase10();
         // Test streaming functionality.  This test case tests nothing.
@@ -554,13 +561,11 @@ struct TestDriverWrapper{
     static void testCase13();
         // Test 'fill' member.
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     static void testCase12();
         // Test move assignment operator.
 
     static void testCase11();
         // Test move constructor.
-#endif
 
     static void testCase10();
         // Test streaming functionality.  This test case tests nothing.
@@ -592,13 +597,18 @@ struct TestDriverWrapper{
     static void testCase1();
         // Breathing Test. Exercises basic functionality.
 };
+
                                 // ----------
                                 // Test Cases
                                 // ----------
 
-
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase21(){
+void TestDriverWrapper<TYPE>::testCase21()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase21();
     TestDriver<TYPE, 1>::testCase21();
     TestDriver<TYPE, 2>::testCase21();
@@ -632,6 +642,13 @@ void TestDriver<TYPE, SIZE>::testCase21()
     // T&& get(array<T, N>&& p)
     // ------------------------------------------------------------------------
 
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
+
+    if (0 == SIZE) {
+        if (verbose) printf("\t\tNo valid index to test");
+        return;
+    }
+
     static const struct {
         int         d_line;     // source line number
         const char *d_spec_p;     // specification string
@@ -650,33 +667,33 @@ void TestDriver<TYPE, SIZE>::testCase21()
 
     const char* const   SPEC   = DATA[SIZE].d_spec_p;
 
-    if (verbose) printf("\nTESTING TUPLE INTERFACE.\n");
+    Obj mW; const Obj& W = gg(&mW, SPEC);
 
     if (verbose) printf("\nTesting 'get' free function.\n");
 
-    Obj mW;
-    const Obj& W = gg(&mW, SPEC);
+    ASSERTV(bsls::Util::addressOf(bsl::get<SIZE-1>(mW))
+         == bsls::Util::addressOf(mW[SIZE-1]));
+    ASSERTV(bsls::Util::addressOf(bsl::get<SIZE-1>(W))
+         == bsls::Util::addressOf(W[SIZE-1]));
 
-    if (SIZE != 0) {
-        ASSERTV(bsls::Util::addressOf(bsl::get<SIZE-1>(mW))
-             == bsls::Util::addressOf(mW[SIZE-1]));
-        ASSERTV(bsls::Util::addressOf(bsl::get<SIZE-1>(W))
-             == bsls::Util::addressOf(W[SIZE-1]));
-    }
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     if (verbose) printf("\nTesting 'get' free function with rvalues.\n");
-    if (SIZE != 0) {
+    {
         TYPE&& mX       = bsl::get<SIZE-1>(std::move(mW));
         const TYPE&& X  = bsl::get<SIZE-1>(std::move(W));
         ASSERTV(mX == TestFacility::create<TYPE>(SPEC[SIZE-1]));
         ASSERTV(X  == TestFacility::create<TYPE>(SPEC[SIZE-1]));
     }
-
 #endif
 }
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase20(){
+void TestDriverWrapper<TYPE>::testCase20()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase20();
     TestDriver<TYPE, 1>::testCase20();
     TestDriver<TYPE, 2>::testCase20();
@@ -688,7 +705,7 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase20()
 {
     // ------------------------------------------------------------------------
-    // TESTING DATA MEMBER FUNCTION
+    // TESTING 'data'
     //
     // Concerns:
     //: 1 'data' member returns a pointer to the raw array in the object.
@@ -707,7 +724,7 @@ void TestDriver<TYPE, SIZE>::testCase20()
     //  const_pointer data() const;
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\nTESTING DATA MEMBER FUNCTION.\n");
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
 
     Obj mW;
     const Obj& W = mW;
@@ -718,7 +735,12 @@ void TestDriver<TYPE, SIZE>::testCase20()
 }
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase19(){
+void TestDriverWrapper<TYPE>::testCase19()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 1>::testCase19();
     TestDriver<TYPE, 2>::testCase19();
     TestDriver<TYPE, 3>::testCase19();
@@ -729,7 +751,7 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase19()
 {
     // ------------------------------------------------------------------------
-    // TESTING FRONT AND BACK MEMBERS
+    // TESTING 'front' AND 'back'
     //
     // Concerns:
     //: 1 'front' member modifies last elememt of object correctly
@@ -754,6 +776,8 @@ void TestDriver<TYPE, SIZE>::testCase19()
     //  const_reference back() const;
     // ------------------------------------------------------------------------
 
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
+
     static const struct {
         int         d_line;     // source line number
         const char *d_spec_p;     // specification string
@@ -770,17 +794,12 @@ void TestDriver<TYPE, SIZE>::testCase19()
     //------v
     };
 
-    const char* const   SPEC   = DATA[SIZE].d_spec_p;
-
-    if (verbose) printf("\nTESTING FRONT AND BACK MEMBERS.\n");
-
-    const char V = 'V';
-
+    const char* const SPEC = DATA[SIZE].d_spec_p;
+    const char        V    = 'V';
 
     if (verbose) printf("\nGenerating array from spec string %s.\n", SPEC);
 
-    Obj        mW;
-    const Obj& W = gg(&mW, SPEC);
+    Obj mW; const Obj& W = gg(&mW, SPEC);
 
     if (verbose) printf("\nTest 'front' and 'back' access correctly.\n");
 
@@ -799,7 +818,12 @@ void TestDriver<TYPE, SIZE>::testCase19()
 
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase18(){
+void TestDriverWrapper<TYPE>::testCase18()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase18();
     TestDriver<TYPE, 1>::testCase18();
     TestDriver<TYPE, 2>::testCase18();
@@ -811,7 +835,7 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase18()
 {
     // ------------------------------------------------------------------------
-    // TESTING AT MEMBER
+    // TESTING 'at'
     //
     // Concerns:
     //: 1 'at' member accesses state of object correctly
@@ -836,6 +860,8 @@ void TestDriver<TYPE, SIZE>::testCase18()
     //  const_reference at();
     // ------------------------------------------------------------------------
 
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
+
     static const struct {
         int         d_line;     // source line number
         const char *d_spec_p;     // specification string
@@ -852,8 +878,6 @@ void TestDriver<TYPE, SIZE>::testCase18()
     //------v
     };
 
-    if (verbose) printf("\nTESTING AT MEMBER.\n");
-
     const int           LINE   = DATA[SIZE].d_line;
     const char* const   SPEC   = DATA[SIZE].d_spec_p;
     const size_t        LENGTH = strlen(DATA[SIZE].d_spec_p);
@@ -861,7 +885,7 @@ void TestDriver<TYPE, SIZE>::testCase18()
 
     const char V = 'V';
 
-    if (verbose) printf("\nTesting 'at' accesses state of object correctly\n");
+    if (verbose) printf("Testing 'at' accesses state of object correctly\n");
     {
         Obj        mW;
         const Obj& W = gg(&mW, SPEC);
@@ -876,7 +900,7 @@ void TestDriver<TYPE, SIZE>::testCase18()
         }
     }
 
-    if (verbose) printf("\nTesting modifying container values.\n");
+    if (verbose) printf("Testing modifying container values.\n");
     {
         Obj        mW;
         const Obj& W  = gg(&mW, SPEC);
@@ -896,8 +920,13 @@ void TestDriver<TYPE, SIZE>::testCase18()
         }
     }
 
-    if (verbose) printf("\nTesting for out_of_range exceptions thrown\n"
-                        "\nby at() when pos >= size().\n");
+#if defined(BDE_BUILD_TARGET_NO_EXC)
+    if (verbose) {
+        printf("No testing for 'out_of_range' as exceptions are disbaled.\n");
+    }
+#else
+    if (verbose) printf("Testing for out_of_range exceptions thrown by at() "
+                        "when pos >= size().\n");
     {
         Obj        mW;
         const Obj& W = gg(&mW, SPEC);
@@ -941,11 +970,17 @@ void TestDriver<TYPE, SIZE>::testCase18()
         }
         ASSERTV(exceptions, trials, exceptions == trials);
     }
+#endif
 }
 
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase17(){
+void TestDriverWrapper<TYPE>::testCase17()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase17();
     TestDriver<TYPE, 1>::testCase17();
     TestDriver<TYPE, 2>::testCase17();
@@ -957,7 +992,7 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase17()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'empty' AND 'max_size' MEMBERS
+    // TESTING CAPACITY
     //
     // Concerns:
     //: 1 'empty' returns 'true' if and only if the array has a size of 0.
@@ -979,10 +1014,9 @@ void TestDriver<TYPE, SIZE>::testCase17()
     //  size_type max_size() const;
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\nTESTING 'empty' AND 'max_size' MEMBERS\n");
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
 
-    Obj        mW;
-    const Obj& W = mW;
+    Obj mW; const Obj& W = mW;
 
     ASSERT(W.empty() == (0 == SIZE));
     ASSERT(W.max_size() == SIZE);
@@ -990,7 +1024,12 @@ void TestDriver<TYPE, SIZE>::testCase17()
 
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase16(){
+void TestDriverWrapper<TYPE>::testCase16()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase16();
     TestDriver<TYPE, 1>::testCase16();
     TestDriver<TYPE, 2>::testCase16();
@@ -1026,6 +1065,8 @@ void TestDriver<TYPE, SIZE>::testCase16()
 
     // ------------------------------------------------------------------------
 
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
+
     static const struct {
         int         d_line;     // source line number
         const char *d_spec_p;  // specification string
@@ -1048,30 +1089,27 @@ void TestDriver<TYPE, SIZE>::testCase16()
 
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    if (verbose) printf("\nTESTING COMPARISON OPERATORS.\n");
-
+    if (verbose) printf("\nValidating all four relational operators.\n");
     {
-        for(size_t i = 0; i < NUM_DATA; ++i){
-            if(strlen(DATA[i].d_spec_p) > SIZE){
+        for (size_t i = 0; i < NUM_DATA; ++i) {
+            if (strlen(DATA[i].d_spec_p) > SIZE) {
                 continue;
             }
 
-            Obj        mW;
-            const Obj& W = gg(&mW, DATA[i].d_spec_p);
+            Obj mW; const Obj& W = gg(&mW, DATA[i].d_spec_p);
 
             ASSERTV(W <= W);
             ASSERTV(W >= W);
 
-            for(size_t j = 0; j < i; ++j){
-                if(strlen(DATA[j].d_spec_p) > SIZE){
+            for (size_t j = 0; j != i; ++j) {
+                if(strlen(DATA[j].d_spec_p) > SIZE) {
                     continue;
                 }
 
                 if (veryVerbose) printf("\tComparing %s and %s.\n",
                         DATA[j].d_spec_p, DATA[i].d_spec_p);
 
-                Obj        mX;
-                const Obj& X = gg(&mX, DATA[j].d_spec_p);
+                Obj mX; const Obj& X = gg(&mX, DATA[j].d_spec_p);
 
                 ASSERTV(DATA[j].d_spec_p, DATA[i].d_spec_p, X, W, X < W);
                 ASSERTV(DATA[j].d_spec_p, DATA[i].d_spec_p, X, W, X <= W);
@@ -1079,16 +1117,15 @@ void TestDriver<TYPE, SIZE>::testCase16()
                 ASSERTV(DATA[i].d_spec_p, DATA[j].d_spec_p, W, X, W >= X);
             }
 
-            for(size_t j = i+1; j < NUM_DATA; ++j){
-                if(strlen(DATA[j].d_spec_p) > SIZE){
+            for (size_t j = i+1; j < NUM_DATA; ++j) {
+                if(strlen(DATA[j].d_spec_p) > SIZE) {
                     continue;
                 }
 
                 if (veryVerbose) printf("\tComparing %s and %s.\n",
                         DATA[j].d_spec_p, DATA[i].d_spec_p);
 
-                Obj        mX;
-                const Obj& X = gg(&mX, DATA[j].d_spec_p);
+                Obj mX; const Obj& X = gg(&mX, DATA[j].d_spec_p);
 
                 ASSERTV(DATA[i].d_spec_p, DATA[j].d_spec_p, W, X, W < X);
                 ASSERTV(DATA[i].d_spec_p, DATA[j].d_spec_p, W, X, W <= X);
@@ -1097,25 +1134,32 @@ void TestDriver<TYPE, SIZE>::testCase16()
             }
         }
     }
-    if (verbose) printf("\nTesting comparisons only use < operator.\n");
 
+    if (verbose) printf("\nConfirming comparisons use only 'operator<'.\n");
     {
-        bsl::array<LessThan, 3> mX;
-        bsl::array<LessThan, 3>& X = mX;
+        bsl::array<LessThan, 3>        mX;
+        const bsl::array<LessThan, 3>& X = mX;
         mX[0] = LessThan(1);
         mX[1] = LessThan(2);
         mX[2] = LessThan(3);
+
         (void) (X < X);
         (void) (X <= X);
         (void) (X > X);
         (void) (X >= X);
+
         ASSERTV(s_operators == false);
     }
 }
 
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase15(){
+void TestDriverWrapper<TYPE>::testCase15()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase15();
     TestDriver<TYPE, 1>::testCase15();
     TestDriver<TYPE, 2>::testCase15();
@@ -1203,6 +1247,7 @@ void TestDriver<TYPE, SIZE>::testCase15()
 
     // ------------------------------------------------------------------------
 
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
 
     static const struct {
         int         d_line;     // source line number
@@ -1224,8 +1269,7 @@ void TestDriver<TYPE, SIZE>::testCase15()
 
     const char* const   SPEC   = DATA[SIZE].d_spec_p;
 
-    if (verbose) printf("\nTESTING AGGREGATE INITIALIZATION.\n");
-
+    if (verbose) printf("\ntesting initialization of all elemenets.\n");
     {
         Obj        mW;
         const Obj& W = mW;
@@ -1240,7 +1284,7 @@ void TestDriver<TYPE, SIZE>::testCase15()
         ASSERTV(W==X);
     }
 
-    if (verbose) printf("\nTest that extra elements are value initialized.\n");
+    if (verbose) printf("\ntest that extra elements are value-initialized.\n");
 
     if(SIZE == 4)
     {
@@ -1257,7 +1301,12 @@ void TestDriver<TYPE, SIZE>::testCase15()
 
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase14(){
+void TestDriverWrapper<TYPE>::testCase14()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase14();
     TestDriver<TYPE, 1>::testCase14();
     TestDriver<TYPE, 2>::testCase14();
@@ -1320,6 +1369,7 @@ void TestDriver<TYPE, SIZE>::testCase14()
 
     // ------------------------------------------------------------------------
 
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
 
     if (verbose) printf("\nTesting iterators are correct types.\n");
     ASSERT( (bsl::is_same<iterator, TYPE *>::value));
@@ -1439,7 +1489,12 @@ void TestDriver<TYPE, SIZE>::testCase14()
 }
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase13(){
+void TestDriverWrapper<TYPE>::testCase13()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase13();
     TestDriver<TYPE, 1>::testCase13();
     TestDriver<TYPE, 2>::testCase13();
@@ -1451,7 +1506,7 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase13()
 {
     // ------------------------------------------------------------------------
-    // TESTING FILL MEMBER FUNCTION
+    // TESTING 'fill'
     //
     // Concerns:
     //: 1 Fill function sets all elements in the array to the supplied value.
@@ -1477,6 +1532,8 @@ void TestDriver<TYPE, SIZE>::testCase13()
     //   void fill(const T& value)
     // ------------------------------------------------------------------------
 
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
+
     static const struct {
         int         d_line;     // source line number
         const char *d_spec_p;     // specification string
@@ -1500,16 +1557,13 @@ void TestDriver<TYPE, SIZE>::testCase13()
 
     const char* const   SPEC   = DATA[SIZE].d_spec_p;
 
-    if (verbose) printf("\nTesting fill member function\n");
-
     for(size_t i = 0; i < strlen(TEST_VALS); ++i){
 
-        //Array default constructed to test fill on.
-        Obj        mW;
-        const Obj& W = mW;
-        //Array generated from a spec to test fill on.
-        Obj        mX;
-        const Obj& X = gg(&mX, SPEC);
+        // Array default constructed to test fill on.
+        Obj mW; const Obj& W = mW;
+
+        // Array generated from a spec to test fill on.
+        Obj mX; const Obj& X = gg(&mX, SPEC);
 
         //Values to fill arrays with
         const char V = TEST_VALS[i];
@@ -1528,15 +1582,15 @@ void TestDriver<TYPE, SIZE>::testCase13()
         //Value to change single elements to for testing.
         const char N = 'W';
 
-        for (size_t i = 0; i < SIZE; i++) {
-            if (verbose)
-                printf("\tTesting changes to W have no side effects\n");
+        if (verbose) printf("\tTesting changes to W have no side effects\n");
+        for (size_t i = 0; i != SIZE; ++i) {
             mW[i] = TestFacility::create<TYPE>(N);
-            for (size_t j = 0; j < SIZE; j++) {
+            for (size_t j = 0; j != SIZE; ++j) {
                 if(j != i) ASSERT(TestFacility::getIdentifier(W[j]) == V);
             }
+
             //check changes to W didnt change X.
-            for(size_t j = 0; j < SIZE; ++j){
+            for(size_t j = 0; j != SIZE; ++j){
                 ASSERTV(X[j] == TestFacility::create<TYPE>(V));
             }
             mW[i] = TestFacility::create<TYPE>(V);
@@ -1544,10 +1598,13 @@ void TestDriver<TYPE, SIZE>::testCase13()
     }
 }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase12(){
+void TestDriverWrapper<TYPE>::testCase12()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase12();
     TestDriver<TYPE, 1>::testCase12();
     TestDriver<TYPE, 2>::testCase12();
@@ -1559,7 +1616,7 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase12()
 {
     // ------------------------------------------------------------------------
-    // TESTING MOVE ASSIGNMENT OPERATOR
+    // TESTING MOVE ASSIGNMENT
     //
     // Concerns:
     //: 1 A class with a compiler generated move assignment operator will be
@@ -1581,6 +1638,9 @@ void TestDriver<TYPE, SIZE>::testCase12()
     //
     // ------------------------------------------------------------------------
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
+
     static const struct {
         int         d_line;     // source line number
         const char *d_spec_p;     // specification string
@@ -1597,16 +1657,12 @@ void TestDriver<TYPE, SIZE>::testCase12()
     //------v
     };
 
-    if (verbose) printf("\nTESTING MOVE ASSIGNMENT OPERATOR.\n");
-    if (verbose) printf("\nTYPE: %s\n", bsls::NameOf<TYPE>().name());
-
     const char* const SPEC = DATA[SIZE].d_spec_p;
 
     Obj mW;
     gg(&mW, SPEC);
 
-    Obj        mX;
-    const Obj& X = mX;
+    Obj mX; const Obj& X = mX;
 
     if(verbose) printf("\nTesting that lhs is properly set.\n");
 
@@ -1631,13 +1687,17 @@ void TestDriver<TYPE, SIZE>::testCase12()
         ASSERTV(bsltf::MoveState::e_NOT_MOVED  == Z[i].movedFrom());
         ASSERTV(bsltf::MoveState::e_MOVED      == Z[i].movedInto());
     }
+#endif
 }
 
-#endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase11(){
+void TestDriverWrapper<TYPE>::testCase11()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase11();
     TestDriver<TYPE, 1>::testCase11();
     TestDriver<TYPE, 2>::testCase11();
@@ -1672,6 +1732,9 @@ void TestDriver<TYPE, SIZE>::testCase11()
     //
     // ------------------------------------------------------------------------
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
+
     static const struct {
         int         d_line;     // source line number
         const char *d_spec_p;     // specification string
@@ -1688,15 +1751,13 @@ void TestDriver<TYPE, SIZE>::testCase11()
     //------v
     };
 
-    if (verbose) printf("\nTESTING MOVE ASSIGNMENT OPERATOR.\n");
-    if (verbose) printf("\nTYPE: %s\n", bsls::NameOf<TYPE>().name());
-
     const char* const   SPEC   = DATA[SIZE].d_spec_p;
 
     Obj mW;
     gg(&mW, SPEC);
 
-    Obj        mX = std::move(mW);
+    Obj mX = std::move(mW);  // Construction being tested
+
     const Obj& X  = mX;
 
     if(verbose) printf("\nTesting that lhs is properly set.\n");
@@ -1719,11 +1780,16 @@ void TestDriver<TYPE, SIZE>::testCase11()
         ASSERTV(bsltf::MoveState::e_NOT_MOVED  == Z[i].movedFrom());
         ASSERTV(bsltf::MoveState::e_MOVED      == Z[i].movedInto());
     }
-}
 #endif
+}
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase9(){
+void TestDriverWrapper<TYPE>::testCase9()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase9();
     TestDriver<TYPE, 1>::testCase9();
     TestDriver<TYPE, 2>::testCase9();
@@ -1735,7 +1801,7 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase9()
 {
     // ------------------------------------------------------------------------
-    // TESTING ASSIGNMENT OPERATOR
+    // TESTING COPY ASSIGNMENT
     //
     // Concerns:
     //: 1 The value of any array can be assigned to any other array of the same
@@ -1768,6 +1834,8 @@ void TestDriver<TYPE, SIZE>::testCase9()
     //   array& operator=(const array& rhs);
     // ------------------------------------------------------------------------
 
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
+
     static const struct {
         int         d_line;     // source line number
         const char *d_spec_p;     // specification string
@@ -1796,16 +1864,13 @@ void TestDriver<TYPE, SIZE>::testCase9()
 
     if (verbose) printf("\nConstructing arrays from different specs\n");
 
-    Obj        mW;
-    const Obj& W = mW;
-    Obj        mZ;
-    const Obj& Z = mZ;
+    Obj mW; const Obj& W = mW;
+    Obj mZ; const Obj& Z = mZ;
     {
-        Obj        mY;
-        const Obj& Y = mY;
-        mW           = gg(&mW, SPEC);
-        mY           = gg(&mY, SPEC2);
-        mZ           = gg(&mZ, SPEC2);
+        Obj mY; const Obj& Y = mY;
+        mW  = gg(&mW, SPEC);
+        mY  = gg(&mY, SPEC2);
+        mZ  = gg(&mZ, SPEC2);
 
         if (verbose) printf("\tTesting operator= does not modify 'rhs'\n");
         mW = mY;
@@ -1826,9 +1891,13 @@ void TestDriver<TYPE, SIZE>::testCase9()
     ASSERTV(LINE, W == Z);
 }
 
-
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase8(){
+void TestDriverWrapper<TYPE>::testCase8()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase8();
     TestDriver<TYPE, 1>::testCase8();
     TestDriver<TYPE, 2>::testCase8();
@@ -1840,7 +1909,7 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase8()
 {
     // ------------------------------------------------------------------------
-    // SWAP MEMBER AND FREE FUNCTIONS
+    // TESTING SWAP
     //
     // Note that self swap is undefined behavior according to a strict
     // interpretation of the ISO standard.
@@ -1868,6 +1937,8 @@ void TestDriver<TYPE, SIZE>::testCase8()
     //   void swap(array<T,A>& lhs, array<T,A>& rhs);
     // ------------------------------------------------------------------------
 
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
+
     static const struct {
         int         d_line;     // source line number
         const char *d_spec_p;     // specification string
@@ -1894,14 +1965,10 @@ void TestDriver<TYPE, SIZE>::testCase8()
     const char* const   SPEC   = DATA[SIZE].d_spec_p;
     const char* const   SPEC2  = DATA2[SIZE];
 
-    Obj        mW;
-    const Obj& W = mW;
-    Obj        mX;
-    const Obj& X = mX;
-    Obj        mY;
-    const Obj& Y = mY;
-    Obj        mZ;
-    const Obj& Z = mZ;
+    Obj mW; const Obj& W = mW;
+    Obj mX; const Obj& X = mX;
+    Obj mY; const Obj& Y = mY;
+    Obj mZ; const Obj& Z = mZ;
 
     if (verbose) printf("\nConstructing arrays from the different specs");
 
@@ -1929,7 +1996,12 @@ void TestDriver<TYPE, SIZE>::testCase8()
 
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase7(){
+void TestDriverWrapper<TYPE>::testCase7()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase7();
     TestDriver<TYPE, 1>::testCase7();
     TestDriver<TYPE, 2>::testCase7();
@@ -1941,7 +2013,7 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase7()
 {
     // ------------------------------------------------------------------------
-    // COPY CONSTRUCTOR
+    // TESTING COPY CONSTRUCTOR
     //
     // Concerns:
     //: 1 The new object's value is the same as that of the original object
@@ -1976,6 +2048,8 @@ void TestDriver<TYPE, SIZE>::testCase7()
     //   array<T,S>(const array<T,S>& original);
     // ------------------------------------------------------------------------
 
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
+
     static const struct {
         int         d_line;     // source line number
         const char *d_spec_p;     // specification string
@@ -1998,60 +2072,52 @@ void TestDriver<TYPE, SIZE>::testCase7()
     const char* const   SPEC   = DATA[SIZE].d_spec_p;
     const size_t        LENGTH = strlen(DATA[SIZE].d_results_p);
 
-    Obj        mW;
-    const Obj& W = mW;
-    mW           = gg(&mW, SPEC);
+    Obj mW; const Obj& W = gg(&mW, SPEC);
+    Obj mX; const Obj& X = gg(&mX, SPEC);
 
-    Obj        mX;
-    const Obj& X = mX;
-    mX           = gg(&mX, SPEC);
+    Obj mY = Obj(W); const Obj& Y  = mY;
 
-    if (verbose) printf("\nTesting copy-constructor.\n");
+    if (verbose) printf("\tTesting copy compares as equal to original.\n");
 
-    {
-        Obj        mY = Obj(W);
-        const Obj& Y  = mY;
+    ASSERTV(LINE, mY == mW);
+    ASSERTV(LINE, Y == W);
+    ASSERTV(LINE, mY == mX);
+    ASSERTV(LINE, Y == X);
 
-        if (verbose) printf("\tTesting copy compares as equal to original.\n");
+    if (verbose) printf(
+                   "\tTesting modifications to copy do not affect original\n");
 
-        ASSERTV(LINE, mY == mW);
-        ASSERTV(LINE, Y == W);
-        ASSERTV(LINE, mY == mX);
-        ASSERTV(LINE, Y == X);
+    for (size_t i = 0; i < LENGTH; ++i){
+        const char s = SPEC[i];
+        mY[i] = TestFacility::create<TYPE>(s+1);
 
-        if (verbose) printf("\tTesting modifications to copy do not affect\n"
-                            "\toriginal\n");
+        ASSERTV(LINE, !(Y == X));
+        ASSERTV(LINE, !(Y == W));
+        ASSERTV(LINE, !(mY == mX));
+        ASSERTV(LINE, !(mY == mW));
+    }
 
-        for (size_t i = 0; i < LENGTH; ++i){
-            const char s = SPEC[i];
-            mY[i] = TestFacility::create<TYPE>(s+1);
+    Obj mZ = Obj(X); const Obj& Z  = mZ;
 
-            ASSERTV(LINE, !(Y == X));
-            ASSERTV(LINE, !(Y == W));
-            ASSERTV(LINE, !(mY == mX));
-            ASSERTV(LINE, !(mY == mW));
-        }
-        Obj        mZ = Obj(X);
-        const Obj& Z  = mZ;
+    if (verbose) printf(
+                   "\tTesting modifications to original do not affect copy\n");
 
-        if (verbose) printf("\tTesting modifications to original do not\n"
-                            "\taffect copy\n");
+    for (size_t i = 0; i < LENGTH; ++i){
+        const char s = SPEC[i];
+        mX[i] = TestFacility::create<TYPE>(s+1);
 
-        for (size_t i = 0; i < LENGTH; ++i){
-            const char s = SPEC[i];
-            mX[i] = TestFacility::create<TYPE>(s+1);
-
-            ASSERTV(Z, X, LINE, !(Z == X));
-            ASSERTV(Z, X, LINE, !(mZ == mX));
-        }
+        ASSERTV(Z, X, LINE, !(Z == X));
+        ASSERTV(Z, X, LINE, !(mZ == mX));
     }
 }
 
-
-
-
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase6(){
+void TestDriverWrapper<TYPE>::testCase6()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase6();
     TestDriver<TYPE, 1>::testCase6();
     TestDriver<TYPE, 2>::testCase6();
@@ -2063,31 +2129,31 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase6()
 {
     // ------------------------------------------------------------------------
-    // == OPERATOR
+    // TESTING 'OPERATOR=='
     //   Ensure operator== properly compares equality.
     //
     // Concerns:
     //: 1 Arrays constructed with the same values are returned as equal.
     //:
     //: 2 Unequal arrays are always returned as unequal
-    //:
     //
     // Plan:
     //: 1 For each set of 'SPEC' of different length:
     //:
-    //:     1 Default construct two instances of the array
+    //:   1 Default construct two instances of the array.
     //:
-    //:     2 Use the 'gg' function to populate the arrays based on the same
-    //:       SPEC.
+    //:   2 Populate the arrays based on the same SPEC Using the 'gg' function.
     //:
-    //:     3 Verify that operator== returns true when comparing the arrays
+    //:   3 Verify that operator== returns true when comparing the arrays.
     //:
-    //:     4 Modify an element in one of the arrays.
+    //:   4 Modify an element in one of the arrays.
     //:
-    //:     3 Verify that operator== returns false when comparing the arrays
+    //:   5 Verify that operator== returns false when comparing the arrays
     // Testing:
     //   bool operator==(const array& rhs, const array& lhs);
     // ------------------------------------------------------------------------
+
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
 
     static const struct {
         int         d_line;     // source line number
@@ -2111,45 +2177,39 @@ void TestDriver<TYPE, SIZE>::testCase6()
     const char* const   SPEC   = DATA[SIZE].d_spec_p;
     const size_t        LENGTH = strlen(DATA[SIZE].d_results_p);
 
-    if (verbose) printf("\nTesting arrays with the same values compare as"
-                        "\nequal.\n");
+    if (verbose) printf(
+                    "Testing arrays with the same values compare as equal.\n");
     {
-        Obj        mY;
-        const Obj& Y = mY;
-        Obj        mZ;
-        const Obj& Z = mZ;
+        Obj mY; const Obj& Y = mY;
+        Obj mZ; const Obj& Z = mZ;
 
-        if (veryVerbose) printf("\tVerify default constructed array equals\n"
-                                "\titself.\n");
+        if (veryVerbose) printf(
+                        "\tVerify default constructed array equals itself.\n");
         ASSERTV(LINE, mY == mY);
         ASSERTV(LINE, Y == Y);
         ASSERTV(LINE, mZ == mZ);
         ASSERTV(LINE, Z == Z);
 
-        if (veryVerbose) printf("\tVerify arrays generated with the same\n"
-                                "\t'SPEC' are equal.\n");
-        Obj        mW;
-        const Obj& W = gg(&mW, SPEC);
-        Obj        mX;
-        const Obj& X = gg(&mX, SPEC);
+        if (veryVerbose) printf(
+                "\tVerify arrays generated with the same 'SPEC' are equal.\n");
+        Obj mW; const Obj& W = gg(&mW, SPEC);
+        Obj mX; const Obj& X = gg(&mX, SPEC);
 
         ASSERTV(LINE, mW == mW);
-        ASSERTV(LINE, W == mW);
-        ASSERTV(LINE, W == X);
-        ASSERTV(LINE, mW == X);
+        ASSERTV(LINE,  W == mW);
+        ASSERTV(LINE,  W ==  X);
+        ASSERTV(LINE, mW ==  X);
     }
 
-    if (verbose) printf("\nTesting arrays do not compare equal after modifying"
-                        "\nelements in one of the arrays.\n");
+    if (verbose) printf("Testing arrays do not compare equal after modifying "
+                        "elements in one of the arrays.\n");
     {
         typedef bsltf::TemplateTestFacility TestFacility;
 
-        Obj        mW;
-        const Obj& W = gg(&mW, SPEC);
+        Obj mW; const Obj& W = gg(&mW, SPEC);
 
         for (size_t i = 0; i < LENGTH; ++i) {
-            Obj        mX;
-            const Obj& X = gg(&mX, SPEC);
+            Obj mX; const Obj& X = gg(&mX, SPEC);
 
             const char s = SPEC[i];
             mW[i]        = TestFacility::create<TYPE>(s + 1);
@@ -2160,10 +2220,13 @@ void TestDriver<TYPE, SIZE>::testCase6()
     }
 }
 
-
-
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase5(){
+void TestDriverWrapper<TYPE>::testCase5()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase5();
     TestDriver<TYPE, 1>::testCase5();
     TestDriver<TYPE, 2>::testCase5();
@@ -2197,29 +2260,40 @@ void TestDriver<TYPE, SIZE>::testCase5()
     // Testing:
     //  CONCERN: all values in the array are printable with 'P()' macro
     // ------------------------------------------------------------------------
+
     using bsls::NameOf;
 
-    if (verbose) printf("\nTYPE: %s\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
 
-    const int range = 'Y' - 'A';
-
-    char specBuffer[range] = {};
-    for (int i = 'A'; i < 'Y'; ++i) {
-        specBuffer[i - 'A'] = static_cast<char>(i);
-    }
-
-    printf("spec: %s\n", specBuffer);
-
-    const char   *SPEC = specBuffer;
+    const char   *SPEC = "ABCDEFGHIJKLMNOPQRSTUVWXY";
     Obj           mW;
     const Obj     VALUES     = gg(&mW, SPEC);
     const size_t  NUM_VALUES = VALUES.size();
 
-    bsls::OutputRedirector redirector(bsls::OutputRedirector::e_STDOUT_STREAM,
-                                      verbose,
-                                      veryVerbose);
+    if (verbose) {
+        printf("\tPrinting test values for manual validation\n");
+        printf("\t\tSPEC: %s\n", SPEC);
+        // Rely on manual inspection, no automatic validation in verbose mode.
 
-    if (!verbose) {
+        { T_ P(VALUES) }
+        for (size_t i = 0; i != NUM_VALUES; ++i) {
+            { T_ T_ P_(i) P_(SPEC[i]) P(VALUES[i]) }
+        }
+        puts("\n");
+    }
+    else {
+        // Intercept stdout and read back formatted results to validate for the
+        // test result.
+#if 0
+
+        bsls::OutputRedirector redirector(
+                                      bsls::OutputRedirector::e_STDOUT_STREAM,
+                                      true,
+                                      true);
+
+#if 1
+        redirector.disable();
+#else
         // Write just the test values, and parse them back as integers, with
         // adjustments for known corner cases.
 
@@ -2248,7 +2322,7 @@ void TestDriver<TYPE, SIZE>::testCase5()
             ASSERT(0 == strncmp("VALUES[i] = ", printedText, 12));
 
             printedText += 12;
-            if ('"' == *printedText) {
+            if ('{' == *printedText) {
                 ++printedText;
             }
 
@@ -2313,21 +2387,19 @@ void TestDriver<TYPE, SIZE>::testCase5()
                 }
             }
         }
-    }
-    else {
-        // Write out each test value in a formatted line using the various
-        // BDE test driver macros.  This format is intended to be readable by a
-        // manual audit.
-
-        for (size_t i = 0; i != NUM_VALUES; ++i) {
-            if (verbose) { T_ P_(i) P_(SPEC[i]) P_(VALUES[i]) P(VALUES[i]) }
-        }
+#endif
+#endif
     }
 }
 
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase4(){
+void TestDriverWrapper<TYPE>::testCase4()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase4();
     TestDriver<TYPE, 1>::testCase4();
     TestDriver<TYPE, 2>::testCase4();
@@ -2339,7 +2411,7 @@ template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase4()
 {
     // ------------------------------------------------------------------------
-    // BASIC ACCESSORS
+    // TESTING BASIC ACCESSORS
     //   Ensure each basic accessor:
     //     - operator[]
     //     - size
@@ -2364,6 +2436,8 @@ void TestDriver<TYPE, SIZE>::testCase4()
     //   reference at(size_type position) const;
     //   size_type size();
     // ------------------------------------------------------------------------
+
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
 
     static const struct {
         int         d_line;       // source line number
@@ -2409,7 +2483,12 @@ void TestDriver<TYPE, SIZE>::testCase4()
 }
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase3(){
+void TestDriverWrapper<TYPE>::testCase3()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase3();
     TestDriver<TYPE, 1>::testCase3();
     TestDriver<TYPE, 2>::testCase3();
@@ -2444,6 +2523,7 @@ void TestDriver<TYPE, SIZE>::testCase3()
     //   array<T,A>& gg(array<T,A> *object, const char *spec);
     // ------------------------------------------------------------------------
 
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
 
     if (verbose) printf("\nTesting generator on valid specs.\n");
     {
@@ -2537,18 +2617,24 @@ void TestDriver<TYPE, SIZE>::testCase3()
 
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase2(){
+void TestDriverWrapper<TYPE>::testCase2()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase2();
     TestDriver<TYPE, 1>::testCase2();
     TestDriver<TYPE, 2>::testCase2();
     TestDriver<TYPE, 3>::testCase2();
     TestDriver<TYPE, 4>::testCase2();
 }
+
 template<class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase2()
 {
     // --------------------------------------------------------------------
-    // DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR
+    // TESTING DEFAULT CTOR, PRIMARY MANIPULATORS, AND DTOR
     //   Ensure that we can use the default constructor to create an
     //   object (having the default-constructed value), use the primary
     //   manipulators to put that object into any state relevant for
@@ -2585,6 +2671,8 @@ void TestDriver<TYPE, SIZE>::testCase2()
     //   reference operator[](size_type position);
     // --------------------------------------------------------------------
 
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
+
     static const struct {
         int         d_line;     // source line number
         const char *d_spec_p;     // specification string
@@ -2604,13 +2692,10 @@ void TestDriver<TYPE, SIZE>::testCase2()
     };
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    if (verbose) printf("\nCTOR, MANIPULATORS, AND DTOR TEST\n"
-                          "=================================\n");
-
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (verbose) printf("\tCreate an object 'c' using CountedDefault to count how \n"
-                        "\tmany elements are constructed (default ctor).\n");
+    if (verbose) printf("\tCreate an object 'c' using CountedDefault to count "
+                        "how many elements are constructed (default ctor).\n");
     {
     ASSERT(s_numConstructed == 0);
     bsl::array<CountedDefault<TYPE>, SIZE> c;
@@ -2654,8 +2739,10 @@ void TestDriver<TYPE, SIZE>::testCase2()
             ASSERTV(LINE, i, EXP[i] == W.d_data[i]);
         }
 
-        if (veryVerbose) printf("\t\tTesting modifying container values from\n"
-                                "\t\t%s to %s.\n", SPEC, SPEC2);
+        if (veryVerbose) printf(
+                     "\t\tTesting modifying container values from %s to %s.\n",
+                     SPEC,
+                     SPEC2);
 
         for (size_t i = 0; i < LENGTH; ++i) {
             mW[i] = TestFacility::create<TYPE>(SPEC2[i]);
@@ -2673,7 +2760,12 @@ void TestDriver<TYPE, SIZE>::testCase2()
 }
 
 template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase1(){
+void TestDriverWrapper<TYPE>::testCase1()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+
     TestDriver<TYPE, 0>::testCase1();
     TestDriver<TYPE, 1>::testCase1();
     TestDriver<TYPE, 2>::testCase1();
@@ -2702,16 +2794,14 @@ void TestDriver<TYPE, SIZE>::testCase1()
     //   BREATHING TEST
     // --------------------------------------------------------------------
 
-    if (verbose) printf("\nBREATHING TEST\n"
-                          "==============\n");
+    if (verbose) printf("\tof length " ZU "\n", SIZE);
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     if (verbose) printf("\n 1. Create an object 'w' (default ctor)."
                         "\t\t{ w:D           }\n");
 
-    Obj        mW;
-    const Obj& W = mW;
+    Obj mW; const Obj& W = mW;
 
     ASSERT(SIZE == mW.size());
     ASSERT(SIZE == mW.max_size());
@@ -2726,7 +2816,7 @@ void TestDriver<TYPE, SIZE>::testCase1()
     if (verbose) printf("\n 2. Test mutation methods on 'w' "
                         "\t\t{ w:D x:V        }\n");
 
-    for (size_t i = 0; i < SIZE; ++i){
+    for (size_t i = 0; i < SIZE; ++i) {
         mW[i] = i;
     }
 
@@ -2737,10 +2827,9 @@ void TestDriver<TYPE, SIZE>::testCase1()
     if (verbose) printf("\n 3. Create an object 'x' (copy from 'w') "
                         "\t\t{ w:D x:V        }\n");
 
-    Obj        mX(mW);
-    const Obj& X = mX;
+    Obj mX(mW); const Obj& X = mX;
 
-    for (size_t i = 0; i < SIZE; ++i){
+    for (size_t i = 0; i < SIZE; ++i) {
         ASSERT(X[i] == W[i]);
     }
 
@@ -2778,39 +2867,100 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP30
     switch (test){ case 0:
       case 22: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+
           UsageExample::usageExample();
       } break;
       case 21: {
+        // --------------------------------------------------------------------
+        // TESTING TUPLE INTERFACE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING TUPLE INTERFACE"
+                            "\n=======================\n");
+
         // Test tuple interface.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase21,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 20: {
+        // --------------------------------------------------------------------
+        // TESTING 'data'
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'data'"
+                            "\n==============\n");
+
         // Test 'data' member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase20,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 19: {
+        // --------------------------------------------------------------------
+        // TESTING 'front' AND 'back'
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'front' AND 'back'"
+                            "\n==========================\n");
+
         // Test 'front' and 'back' members.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase19,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 18: {
+        // --------------------------------------------------------------------
+        // TESTING 'at'
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'at'"
+                            "\n============\n");
+
         // Test 'at' member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase18,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 17: {
+        // --------------------------------------------------------------------
+        // TESTING CAPACITY
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING CAPACITY"
+                            "\n================\n");
+
         // Test 'empty' and 'max_size' members.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase17,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 16: {
+        // --------------------------------------------------------------------
+        // TESTING COMPARISON OPERATORS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING COMPARISON OPERATORS"
+                            "\n============================\n");
+
         // Test comparison operators.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase16,
@@ -2820,34 +2970,71 @@ int main(int argc, char *argv[])
                       bsltf::TemplateTestFacility::FunctionPtr);
       } break;
       case 15: {
+        // --------------------------------------------------------------------
+        // TESTING AGGREGATE INITIALIZATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING AGGREGATE INITIALIZATION"
+                            "\n================================\n");
+
         // Test aggregate initialization.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase15,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 14: {
+        // --------------------------------------------------------------------
+        // TESTING ITERATORS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING ITERATORS"
+                            "\n=================\n");
+
         // Test iterators.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase14,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 13: {
+        // --------------------------------------------------------------------
+        // TESTING 'fill'
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'fill'"
+                            "\n==============\n");
+
         // Test 'fill' member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase13,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 12: {
-        // Test move assignment operator.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        // --------------------------------------------------------------------
+        // TESTING MOVE ASSIGNMENT
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING MOVE ASSIGNMENT"
+                            "\n=======================\n");
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        if (verbose) printf("move semantics not supported on this compiler\n");
+#else
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase12,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 #endif
       } break;
       case 11: {
-        // Test move constructor.
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        // --------------------------------------------------------------------
+        // TESTING MOVE CONSTRUCTOR
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING MOVE CONSTRUCTOR"
+                            "\n========================\n");
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        if (verbose) printf("move semantics not supported on this compiler\n");
+#else
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase11,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -2866,55 +3053,113 @@ int main(int argc, char *argv[])
 
       } break;
       case 9: {
+        // --------------------------------------------------------------------
+        // TESTING COPY ASSIGNMENT
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING COPY ASSIGNMENT"
+                            "\n=======================\n");
+
         // Test assignment operator ('operator=').
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase9,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 8: {
+        // --------------------------------------------------------------------
+        // TESTING SWAP
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING SWAP"
+                            "\n============\n");
+
         // Test 'swap' member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase8,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 7: {
+        // --------------------------------------------------------------------
+        // TESTING COPY CONSTRUCTOR
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING COPY CONSTRUCTOR"
+                            "\n====================\n");
+
         // Test copy constructor.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase7,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 6: {
-        // Test equality operator ('operator==').
+        // --------------------------------------------------------------------
+        // TESTING 'OPERATOR=='
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'OPERATOR=='"
+                            "\n====================\n");
+
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase6,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 5: {
-        // Test debug print.
+        // --------------------------------------------------------------------
+        // TESTING PRINT CONCERNS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING PRINT CONCERNS"
+                            "\n======================\n");
+
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase5,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 4: {
-        // Test basic accessors ('size' and 'operator[]').
+        // --------------------------------------------------------------------
+        // TESTING BASIC ACCESSORS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING BASIC ACCESSORS"
+                            "\n=======================\n");
+
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase4,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 3: {
-        // Test generator functions 'ggg' and 'gg'.
+        // --------------------------------------------------------------------
+        // TESTING GENERATOR FUNCTIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING GENERATOR FUNCTIONS"
+                            "\n===========================\n");
+
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase3,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 2: {
-        // Test primary manipulators, ctor, dtor.
+        // --------------------------------------------------------------------
+        // TESTING DEFAULT CTOR, PRIMARY MANIPULATORS, AND DTOR
+        // --------------------------------------------------------------------
+
+        if (verbose) printf(
+                   "\nTESTING DEFAULT CTOR, PRIMARY MANIPULATORS, AND DTOR"
+                   "\n====================================================\n");
+
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase2,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 1: {
-        // Breathing Test. Exercises basic functionality.
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
+
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase1,
                       unsigned int);
