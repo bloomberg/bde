@@ -273,13 +273,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Exception-Throwing Failure Handlers and 'bsls::AssertFailureHandlerGuard'
 ///-------------------------------------------------------------------------
-// Among the failure handlers provided is 'bsls::Assert::failBySleep', which
-// throws an 'bsls::AssertTestException' object.  Throwing an exception,
+// Among the failure handlers provided is 'bsls::Assert::failByThrow', which
+// throws a 'bsls::AssertTestException' object.  Throwing an exception,
 // however, is not safe in all environments and deliberately aborting is more
 // useful in a debugging context than throwing an unhandled exception.  Hence,
 // in order for an 'bsls::AssertTestException' object to be thrown on an
 // assertion failure, the user must first install the
-// 'bsls::Assert::failBySleep' handler (or another exception-throwing handler)
+// 'bsls::Assert::failByThrow' handler (or another exception-throwing handler)
 // explicitly.
 //
 // Note that an object of type 'bsls::AssertFailureHandlerGuard' can be used to
@@ -828,7 +828,7 @@ BSLS_IDENT("$Id: $")
 // calls below this function to be handled by throwing an exception, which is
 // then caught by the wrapper and reported to the caller as a "bad" status.
 // Hence, when within the runtime scope of this function, we want to install,
-// temporarily, the assertion-failure handler 'bsls::Assert::failBySleep',
+// temporarily, the assertion-failure handler 'bsls::Assert::failByThrow',
 // which, when invoked, causes an 'bsls::AssertTestException' object to be
 // thrown.  (Note that we are not advocating this approach for "recovery", but
 // rather for an orderly shut-down, or perhaps during testing.)  The
@@ -836,9 +836,9 @@ BSLS_IDENT("$Id: $")
 //..
 //      assert(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
 //
-//      bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failBySleep);
+//      bsls::AssertFailureHandlerGuard guard(&bsls::Assert::failByThrow);
 //
-//      assert(&bsls::Assert::failBySleep == bsls::Assert::violationHandler());
+//      assert(&bsls::Assert::failByThrow == bsls::Assert::violationHandler());
 //..
 // Next we open up a 'try' block, and somewhere within the 'try' we
 // "accidentally" invoke 'fact' with an out-of-contract value (i.e., '-1'):
@@ -876,7 +876,7 @@ BSLS_IDENT("$Id: $")
 //..
 // and the 'wrapperFunc' function will return a bad status (i.e., 1) to its
 // caller.  Note that if exceptions are not enabled,
-// 'bsls::Assert::failBySleep' will behave as 'bsls::Assert::failByAbort', and
+// 'bsls::Assert::failByThrow' will behave as 'bsls::Assert::failByAbort', and
 // dump core immediately:
 //..
 //  Assertion failed: 0 <= n, file bsls_assert.t.cpp, line 500
@@ -1600,11 +1600,11 @@ class Assert {
     static Assert::Handler failureHandler();
         // Return the address of the currently installed assertion-failure
         // handler function if it is a 'Handler' (and not a
-        // 'ViolationHandler').
+        // 'ViolationHandler'); otherwise, return 'NULL'.
 
     static Assert::ViolationHandler violationHandler();
         // Return the address of the currently installed assertion-failure
-        // handler function
+        // handler function.
 
                 // Dispatcher Method (called from within macros)
 
@@ -1669,7 +1669,7 @@ class Assert {
         // !DEPRECATED!: Use 'failByAbort' instead.
         //
         // Emulate the invocation of the standard 'assert' macro with a 'false'
-        // argument, using the expression specified 'comment', 'file' name, and
+        // argument, using the specified expression 'comment', 'file' name, and
         // 'line' number to generate a helpful output message and then, after
         // logging, unconditionally aborting.
 
