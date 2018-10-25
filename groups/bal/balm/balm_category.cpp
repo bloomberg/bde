@@ -35,6 +35,10 @@ Category::~Category()
 // MANIPULATORS
 void Category::setEnabled(bool enabledFlag)
 {
+    // Note that in practice, this is only called by
+    // 'MetricsManager::setCategoryEnabled', which performs the function under
+    // a lock.
+
     if (d_enabled != enabledFlag) {
 
         // Update the linked-list of category holder's registered with this
