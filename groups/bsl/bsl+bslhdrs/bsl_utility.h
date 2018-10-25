@@ -19,6 +19,10 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#ifndef INCLUDED_BSLMF_INTEGERSEQUENCE
+#include <bslmf_integersequence.h>
+#endif
+
 #ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
 #endif
@@ -62,6 +66,32 @@ namespace bsl {
     using native_std::exchange;
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+    using native_std::integer_sequence;
+    using native_std::index_sequence;
+    using native_std::make_integer_sequence;
+    using native_std::make_index_sequence;
+    using native_std::index_sequence_for;
+#else
+    template <class T, T ...INTS>
+    using integer_sequence = BloombergLP::bslmf::IntegerSequence<T, INTS...>;
+
+    template <std::size_t... INTS>
+    using index_sequence = BloombergLP::bslmf::IndexSequence<INTS...>;
+
+    template <class T, T N>
+    using make_integer_sequence =
+                                 BloombergLP::bslmf::MakeIntegerSequence<T, N>;
+
+    template <std::size_t N>
+    using make_index_sequence = BloombergLP::bslmf::MakeIndexSequence<N>;
+
+    template <class... T>
+    using index_sequence_for = BloombergLP::bslmf::IndexSequenceFor<T...>;
+#endif
+#endif
+
 }  // close package namespace
 
 // Include Bloomberg's implementation, unless compilation is configured to
@@ -70,7 +100,6 @@ namespace bsl {
 // the Bloomberg supplied standard header file.
 
 #ifndef BSL_OVERRIDES_STD
-#include <bslmf_integersequence.h>
 #include <bslstl_pair.h>
 #endif
 

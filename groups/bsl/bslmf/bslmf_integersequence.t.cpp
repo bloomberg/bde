@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 using namespace BloombergLP;
-using namespace bsl;
+using namespace bslmf;
 
 //=============================================================================
 //                                TEST PLAN
@@ -19,20 +19,21 @@ using namespace bsl;
 //                                Overview
 //                                --------
 // The component under test defines meta-functions that represent a
-// compile-time integer sequences 'bsl::integer_sequence' and
-// 'bsl::index_sequence', an index sequence make-function
-// 'bsl::make_index_sequence' and a helper template alias
-// 'bsl::make_sequence_for'.  Thus, we need to ensure that an integer sequences
-// represent collections of integer values of the specified length and an index
-// sequences returned by the factory functions represent enumerated collection
-// of increasing integer values of the specified length starting with 0 value.
+// compile-time integer sequences 'bslmf::IntegerSequence' and
+// 'bslmf::IndexSequence', an index sequence make-function
+// 'bslmf::MakeIndexSequence' and a helper template alias
+// 'bslmf::IndexSequenceFor'.  Thus, we need to ensure that an integer
+// sequences represent collections of integer values of the specified length
+// and an index sequences returned by the factory functions represent
+// enumerated collection of increasing integer values of the specified length
+// starting with 0 value.
 // ----------------------------------------------------------------------------
 // PUBLIC TYPES
-// [ 3] bsl::index_sequence<std::size_t ...Ints>
-// [ 2] bsl::integer_sequence<class T, T ...Ints>
-// [ 5] bsl::make_index_sequence<std::size_t N>
-// [ 4] bsl::make_integer_sequence<std::size_t N>
-// [ 6] bsl::make_sequence_for<class... T>
+// [ 3] bslmf::IndexSequence<std::size_t ...Ints>
+// [ 2] bslmf::IntegerSequence<class T, T ...Ints>
+// [ 5] bslmf::MakeIndexSequence<std::size_t N>
+// [ 4] bslmf::MakeIntegerSequence<std::size_t N>
+// [ 6] bslmf::IndexSequenceFor<class... T>
 //
 // ----------------------------------------------------------------------------
 // [ 7] USAGE EXAMPLE
@@ -90,79 +91,79 @@ void aSsErT(bool condition, const char *message, int line)
 enum   EnumTestType {
     // This user-defined 'enum' type is intended to be used during testing as
     // an argument for the template parameter 'class ...T' of
-    // 'bsl::make_sequence_for'.
+    // 'bslmf::IndexSequenceFor'.
 };
 
 enum class EnumClassTestType {
     // This user-defined 'enum class' type is intended to be used during
     // testing as an argument for the template parameter 'class ...T' of
-    // 'bsl::make_sequence_for'.
+    // 'bslmf::IndexSequenceFor'.
 };
 
 struct StructTestType {
     // This user-defined 'struct' type is intended to be used during testing as
     // an argument for the template parameter 'class ...T' of
-    // 'bsl::make_sequence_for'.
+    // 'bslmf::IndexSequenceFor'.
 };
 
 union  UnionTestType {
     // This user-defined 'union' type is intended to be used during testing as
     // an argument for the template parameter 'class ...T' of
-    // 'bsl::make_sequence_for'.
+    // 'bslmf::IndexSequenceFor'.
 };
 
 class  BaseClassTestType {
     // This user-defined base class type is intended to be used during testing
     // as an argument for the template parameter 'class ...T' of
-    // 'bsl::make_sequence_for'.
+    // 'bslmf::IndexSequenceFor'.
 };
 
 class  DerivedClassTestType : public BaseClassTestType {
     // This user-defined derived class type is intended to be used during
     // testing as an argument for the template parameter 'class ...T' of
-    // 'bsl::make_sequence_for'.
+    // 'bslmf::IndexSequenceFor'.
 };
 
 class FinalClassTestType final : public BaseClassTestType {
     // This user-defined derived class type is intended to be used during
     // testing as an argument for the template parameter 'class ...T' of
-    // 'bsl::make_sequence_for'.
+    // 'bslmf::IndexSequenceFor'.
 };
 
 using MethodPtrTestType = int StructTestType::*();
     // This non-static function member type is intended to be used during
     // testing as an argument for the template parameter 'class ...T' of
-    // 'bsl::make_sequence_for'.
+    // 'bslmf::IndexSequenceFor'.
 
 using FunctionTestType = void();
     // This function type is intended to be used during testing as an
     // argument as an argument for the template parameter 'class ...T' of
-    // 'bsl::make_sequence_for'.
+    // 'bslmf::IndexSequenceFor'.
 
 using DataMemberPtrTestType = int StructTestType::*;
     // This class public data member pointer type is intended to be used during
     // testing as an argument as an argument for the template parameter
-    // 'class ...T' of 'bsl::make_sequence_for'.
+    // 'class ...T' of 'bslmf::IndexSequenceFor'.
 
 using AbominableFunctionType = void() const &&;
     // This abominable function type is intended to be used during testing as
     // an argument as an argument for the template parameter 'class ...T' of
-    // 'bsl::make_sequence_for'.
+    // 'bslmf::IndexSequenceFor'.
 
 typedef char ArrayTestType[5];
     // This array type is intended to be used during testing as an argument as
     // an argument for the template parameter 'class ...T' of
-    // 'bsl::make_sequence_for'.
+    // 'bslmf::IndexSequenceFor'.
 
 typedef char ArrayOfUnknownBoundTestType[];
     // This array type is intended to be used during testing as an argument as
     // an argument for the template parameter 'class ...T' of
-    // 'bsl::make_sequence_for'.
+    // 'bslmf::IndexSequenceFor'.
 
 struct Incomplete;
     // This incomplete 'struct' type is intended to be used during testing as
     // an argument as an argument for the template parameter 'class ...T' of
-    // 'bsl::make_sequence_for'.
+    // 'bslmf::IndexSequenceFor'.
 
 //=============================================================================
 //                  COMPONENT SPECIFIC MACROS FOR TESTING
@@ -170,44 +171,44 @@ struct Incomplete;
 
 #define TEST_EMPTY_INTEGER_SEQUENCE(T)                                   \
 {                                                                        \
-    using Obj1 = integer_sequence<                   T>;                 \
-    ASSERT((is_same<Obj1::value_type,                T>::value));        \
+    using Obj1 = IntegerSequence<                         T>;            \
+    ASSERT((bsl::is_same<Obj1::value_type,                T>::value));   \
     ASSERT(0 == Obj1::size());                                           \
-    using Obj2 = integer_sequence<    const          T>;                 \
-    ASSERT((is_same<Obj2::value_type, const          T>::value));        \
+    using Obj2 = IntegerSequence<          const          T>;            \
+    ASSERT((bsl::is_same<Obj2::value_type, const          T>::value));   \
     ASSERT(0 == Obj2::size());                                           \
-    using Obj3 = integer_sequence<          volatile T>;                 \
-    ASSERT((is_same<Obj3::value_type,       volatile T>::value));        \
+    using Obj3 = IntegerSequence<                volatile T>;            \
+    ASSERT((bsl::is_same<Obj3::value_type,       volatile T>::value));   \
     ASSERT(0 == Obj3::size());                                           \
-    using Obj4 = integer_sequence<    const volatile T>;                 \
-    ASSERT((is_same<Obj4::value_type, const volatile T>::value));        \
+    using Obj4 = IntegerSequence<          const volatile T>;            \
+    ASSERT((bsl::is_same<Obj4::value_type, const volatile T>::value));   \
     ASSERT(0 == Obj4::size());                                           \
 }
 // Test all cv-qualified combination on the specified 'T'.
 
 #define TEST_MAKE_SEQUENCE_FOR(T)                                        \
 {                                                                        \
-    using Obj = make_sequence_for<T,                                     \
-                                  T&,                                    \
-                                  T&&,                                   \
-                                  T *,                                   \
-                                  T * *,                                 \
-                                  T *&,                                  \
-                                  T *&&>;                                \
-    using EXPECTED = make_index_sequence<7>;                             \
-    ASSERTV(L_, (is_same<Obj, EXPECTED>::value));                        \
+    using Obj = IndexSequenceFor<T,                                      \
+                                 T&,                                     \
+                                 T&&,                                    \
+                                 T *,                                    \
+                                 T * *,                                  \
+                                 T *&,                                   \
+                                 T *&&>;                                 \
+    using EXPECTED = MakeIndexSequence<7>;                               \
+    ASSERTV(L_, (bsl::is_same<Obj, EXPECTED>::value));                   \
 }
 // Test a variety of pointer and reference types of the specified 'T'.
 
 #define TEST_MAKE_SEQUENCE_FOR_VOID()                                    \
 {                                                                        \
-    using Obj = make_sequence_for<void,                                  \
-                                  void *,                                \
-                                  void * *,                              \
-                                  void *&,                               \
-                                  void *&&>;                             \
-    using EXPECTED = make_index_sequence<5>;                             \
-    ASSERTV(L_, (is_same<Obj, EXPECTED>::value));                        \
+    using Obj = IndexSequenceFor<void,                                   \
+                                 void *,                                 \
+                                 void * *,                               \
+                                 void *&,                                \
+                                 void *&&>;                              \
+    using EXPECTED = MakeIndexSequence<5>;                               \
+    ASSERTV(L_, (bsl::is_same<Obj, EXPECTED>::value));                   \
 }
 // Test void types separately since a reference to void does not exist.
 
@@ -282,7 +283,7 @@ public:
 };
 
 template <std::size_t N, class T, T... IS>
-constexpr T getValue(integer_sequence<T, IS...>)
+constexpr T getValue(IntegerSequence<T, IS...>)
     // Return the N-th item of the specified integer sequence.
 {
     static_assert(N < sizeof...(IS), "");
@@ -302,11 +303,11 @@ struct LargeSequenceUtil
     // limits.
 {
     static void test()
-        // Ensure that 'make_integer_sequence<T, 1023>' factory-function
+        // Ensure that 'MakeIntegerSequence<T, 1023>' factory-function
         // generates correct integer sequence type.
     {
-        using Obj = make_integer_sequence<T, 1023>;
-        using SEQ_TYPE = integer_sequence<T,
+        using Obj = MakeIntegerSequence<T, 1023>;
+        using SEQ_TYPE = IntegerSequence<T,
                        0,    1,    2,    3,    4,    5,    6,    7,    8,    9,
                       10,   11,   12,   13,   14,   15,   16,   17,   18,   19,
                       20,   21,   22,   23,   24,   25,   26,   27,   28,   29,
@@ -419,11 +420,11 @@ struct LargeSequenceUtil
 };
 
 template <class T,
-          class MAX = typename
-                      bsl::integral_constant<T, std::numeric_limits<T>::max()>>
+          class MAX =
+            typename bsl::integral_constant<T, std::numeric_limits<T>::max()> >
 struct LargeSequenceUtil_Impl;
     // This class template declares an interface for a meta-function that tests
-    // the 'bslmf::integer_sequences' instantiated for the specified template
+    // the 'bslmf::IntegerSequences' instantiated for the specified template
     // parameter 'T' which 'std::numeric_limits<T>::max()' value does not
     // exceed 1024.
 
@@ -436,17 +437,17 @@ struct LargeSequenceUtil<T, false> : LargeSequenceUtil_Impl<T>
 };
 
 template <class T>
-struct LargeSequenceUtil_Impl<T, bsl::integral_constant<T, 127>>
+struct LargeSequenceUtil_Impl<T, bsl::integral_constant<T, 127> >
     // This partial specialization of 'LargeSequenceUtil_Impl' tests
     // performance characteristics and internal recursion limits for types
     // that 'std::numeric_limits<T>::max() == 127'.
 {
     static void test()
-        // Ensure that 'make_integer_sequence<T, 1023>' factory-function
+        // Ensure that 'MakeIntegerSequence<T, 1023>' factory-function
         // generates correct integer sequence type.
     {
-        using Obj = make_integer_sequence<T, 127>;
-        using SEQ_TYPE = integer_sequence<T,
+        using Obj = MakeIntegerSequence<T, 127>;
+        using SEQ_TYPE = IntegerSequence<T,
                                0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
                               10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
                               20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -469,17 +470,17 @@ struct LargeSequenceUtil_Impl<T, bsl::integral_constant<T, 127>>
 };
 
 template <class T>
-struct LargeSequenceUtil_Impl<T, bsl::integral_constant<T, 255>>
+struct LargeSequenceUtil_Impl<T, bsl::integral_constant<T, 255> >
     // This partial specialization of 'LargeSequenceUtil_Impl' tests
     // performance characteristics and internal recursion limits for types
     // that 'std::numeric_limits<T>::max() == 255'.
 {
     static void test()
-        // Ensure that 'make_integer_sequence<T, 1023>' factory-function
+        // Ensure that 'MakeIntegerSequence<T, 1023>' factory-function
         // generates correct integer sequence type.
     {
-        using Obj = make_integer_sequence<T, 255>;
-        using SEQ_TYPE = integer_sequence<T,
+        using Obj = MakeIntegerSequence<T, 255>;
+        using SEQ_TYPE = IntegerSequence<T,
                                0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
                               10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
                               20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -521,16 +522,16 @@ struct LargeSequenceUtil_Impl<T, bsl::integral_constant<T, 255>>
 template <class T>
 void testCase4()
     // ------------------------------------------------------------------------
-    // 'bsl::make_integer_sequence'
+    // 'bslmf::MakeIntegerSequence'
     //
     // Concerns:
-    //: 1 That the 'bsl::make_integer_sequence' resultant type represent
+    //: 1 That the 'bslmf::MakeIntegerSequence' resultant type represent
     //:   enumerated collection of increasing integer values of the specified
     //:   length 'N' starting with 0 value.
     //:
     //: 2 That 'T' can be any integer type.
     //:
-    //: 3 That an instantiation of the 'bsl::make_integer_sequence' template on
+    //: 3 That an instantiation of the 'bslmf::MakeIntegerSequence' template on
     //:   large index number does not hit internal recursion limit.
     //
     // Plan:
@@ -549,116 +550,116 @@ void testCase4()
     //:   and find rounding errors.
     //
     // Testing:
-    //   bsl::integer_sequence<size_t N>
+    //   bslmf::IntegerSequence<size_t N>
     // ------------------------------------------------------------------------
 {
     {
-        using Obj      = make_integer_sequence<T, 0>;
-        using SEQ_TYPE = integer_sequence<T>;
+        using Obj      = MakeIntegerSequence<T, 0>;
+        using SEQ_TYPE = IntegerSequence<T>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 1>;
-        using SEQ_TYPE = integer_sequence<T, 0>;
+        using Obj      = MakeIntegerSequence<T, 1>;
+        using SEQ_TYPE = IntegerSequence<T, 0>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 2>;
-        using SEQ_TYPE = integer_sequence<T, 0, 1>;
+        using Obj      = MakeIntegerSequence<T, 2>;
+        using SEQ_TYPE = IntegerSequence<T, 0, 1>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 3>;
-        using SEQ_TYPE = integer_sequence<T, 0, 1, 2>;
+        using Obj      = MakeIntegerSequence<T, 3>;
+        using SEQ_TYPE = IntegerSequence<T, 0, 1, 2>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 4>;
-        using SEQ_TYPE = integer_sequence<T, 0, 1, 2, 3>;
+        using Obj      = MakeIntegerSequence<T, 4>;
+        using SEQ_TYPE = IntegerSequence<T, 0, 1, 2, 3>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 5>;
-        using SEQ_TYPE = integer_sequence<T, 0, 1, 2, 3, 4>;
+        using Obj      = MakeIntegerSequence<T, 5>;
+        using SEQ_TYPE = IntegerSequence<T, 0, 1, 2, 3, 4>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 6>;
-        using SEQ_TYPE = integer_sequence<T, 0, 1, 2, 3, 4, 5>;
+        using Obj      = MakeIntegerSequence<T, 6>;
+        using SEQ_TYPE = IntegerSequence<T, 0, 1, 2, 3, 4, 5>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 7>;
-        using SEQ_TYPE = integer_sequence<T, 0, 1, 2, 3, 4, 5, 6>;
+        using Obj      = MakeIntegerSequence<T, 7>;
+        using SEQ_TYPE = IntegerSequence<T, 0, 1, 2, 3, 4, 5, 6>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 8>;
-        using SEQ_TYPE = integer_sequence<T, 0, 1, 2, 3, 4, 5, 6, 7>;
+        using Obj      = MakeIntegerSequence<T, 8>;
+        using SEQ_TYPE = IntegerSequence<T, 0, 1, 2, 3, 4, 5, 6, 7>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 9>;
-        using SEQ_TYPE = integer_sequence<T, 0, 1, 2, 3, 4, 5, 6, 7, 8>;
+        using Obj      = MakeIntegerSequence<T, 9>;
+        using SEQ_TYPE = IntegerSequence<T, 0, 1, 2, 3, 4, 5, 6, 7, 8>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 10>;
-        using SEQ_TYPE = integer_sequence<T, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9>;
+        using Obj      = MakeIntegerSequence<T, 10>;
+        using SEQ_TYPE = IntegerSequence<T, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 11>;
-        using SEQ_TYPE = integer_sequence<T, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10>;
+        using Obj      = MakeIntegerSequence<T, 11>;
+        using SEQ_TYPE = IntegerSequence<T, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 15>;
-        using SEQ_TYPE = integer_sequence<T,
+        using Obj      = MakeIntegerSequence<T, 15>;
+        using SEQ_TYPE = IntegerSequence<T,
                                          0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
                                         10, 11, 12, 13, 14>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 16>;
-        using SEQ_TYPE = integer_sequence<T,
+        using Obj      = MakeIntegerSequence<T, 16>;
+        using SEQ_TYPE = IntegerSequence<T,
                                          0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
                                         10, 11, 12, 13, 14, 15>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 17>;
-        using SEQ_TYPE = integer_sequence<T,
+        using Obj      = MakeIntegerSequence<T, 17>;
+        using SEQ_TYPE = IntegerSequence<T,
                                          0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
                                         10, 11, 12, 13, 14, 15, 16>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 18>;
-        using SEQ_TYPE = integer_sequence<T,
+        using Obj      = MakeIntegerSequence<T, 18>;
+        using SEQ_TYPE = IntegerSequence<T,
                                          0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
                                         10, 11, 12, 13, 14, 15, 16, 17>;
 
         ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
     }
     {
-        using Obj      = make_integer_sequence<T, 19>;
-        using SEQ_TYPE = integer_sequence<T,
+        using Obj      = MakeIntegerSequence<T, 19>;
+        using SEQ_TYPE = IntegerSequence<T,
                                          0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
                                         10, 11, 12, 13, 14, 15, 16, 17, 18>;
 
@@ -723,7 +724,7 @@ private:
 //..
 namespace {
 template<class R, class T, std::size_t... I>
-void readData(const R& reader, T *data, bsl::index_sequence<I...>)
+void readData(const R& reader, T *data, bslmf::IndexSequence<I...>)
 {
     reader.read(&data[I]...);
         // In pseudocode, this is equivalent to:
@@ -736,15 +737,15 @@ void readData(const R& reader, T *data, bsl::index_sequence<I...>)
 }
 //..
 // Now, define function template 'readData' that invokes the helper function
-// Note, that the 'bsl::make_index_sequence<N>' function generates an object
-// of an integer sequence class instantiated with a template parameter pack of
+// Note, that the 'bslmf::MakeIndexSequence<N>' function generates an object of
+// an integer sequence class instantiated with a template parameter pack of
 // integers that will be expanded and used as an array's indices in the helper
 // function when calling the 'Reader::read(T*...)' variadic template function.
 //..
 template<class T, std::size_t N>
 void readData(const DataReader<N>& reader, T *data)
 {
-    readData(reader, data, bsl::make_index_sequence<N>());
+    readData(reader, data, bslmf::MakeIndexSequence<N>());
 }
 }  // close unnamed namespace
 
@@ -789,12 +790,12 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE\n"
                               "=============\n");
 
-// Finally, define a 'data' C-Array and 'reader' variables and pass them to
-// the 'readData' function as parameters.
+// Finally, define a 'data' C-Array and 'reader' variables and pass them to the
+// 'readData' function as parameters.
 //..
-        constexpr int k_SIZE = 5;
+        constexpr int      k_SIZE = 5;
         DataReader<k_SIZE> reader;
-        int data[k_SIZE] = {0};
+        int                data[k_SIZE] = {0};
 
         readData(reader, data);
 //..
@@ -809,12 +810,12 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // 'bsl::make_sequence_for'
+        // 'bslmf::IndexSequenceFor'
         //
         // Concerns:
-        //: 1 That the 'bsl::make_sequence_for' resultant type represents the
-        //:   'bsl::index_sequence' type having the length equal to the size of
-        //:    of the specified parameter pack.
+        //: 1 That the 'bslmf::IndexSequenceFor' resultant type represents the
+        //:   'bslmf::IndexSequence' type having the length equal to the size
+        //:   of of the specified parameter pack.
         //:
         //: 2 That an empty parameter pack results in an empty index sequence.
         //:
@@ -822,7 +823,7 @@ int main(int argc, char *argv[])
         //:   including void types, abominable function types, and repeated
         //:   types.
         //:
-        //: 4 That including an 'index_sequence' in the list of types counts
+        //: 4 That including an 'IndexSequence' in the list of types counts
         //:   only as a single type, and does not recurse or concatenate.
         //
         // Plan:
@@ -832,41 +833,41 @@ int main(int argc, char *argv[])
         //:   having the length of the packs.
         //
         // Testing:
-        //   bsl::make_sequence_for<class... T>
+        //   bslmf::IndexSequenceFor<class... T>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::make_sequence_for'\n"
-                              "========================\n");
+        if (verbose) printf("\n'bslmf::IndexSequenceFor'\n"
+                              "=========================\n");
 
         {   // C-1,2
-            using Obj = make_sequence_for<>;
             const int LENGTH = 0;
-            using EXPECTED = make_index_sequence<LENGTH>;
-            ASSERTV(L_, (is_same<Obj, EXPECTED>::value));
+            using Obj      = IndexSequenceFor<>;
+            using EXPECTED = MakeIndexSequence<LENGTH>;
+            ASSERTV(L_, (bsl::is_same<Obj, EXPECTED>::value));
             ASSERTV(L_, LENGTH, Obj::size(), LENGTH == Obj::size());
         }
         {   // C-1,3
-            using Obj = make_sequence_for<void,
-                                          int,
-                                          float,
-                                          bsl::nullptr_t,
-                                          EnumTestType,
-                                          EnumClassTestType,
-                                          UnionTestType,
-                                          BaseClassTestType,
-                                          DerivedClassTestType,
-                                          FinalClassTestType,
-                                          MethodPtrTestType,
-                                          FunctionTestType,
-                                          DataMemberPtrTestType,
-                                          AbominableFunctionType,
-                                          ArrayTestType,
-                                          ArrayOfUnknownBoundTestType,
-                                          Incomplete>;
-
             const int LENGTH = 17;
-            using EXPECTED = make_index_sequence<LENGTH>;
-            ASSERTV(L_, (is_same<Obj, EXPECTED>::value));
+            using Obj      = IndexSequenceFor<void,
+                                              int,
+                                              float,
+                                              bsl::nullptr_t,
+                                              EnumTestType,
+                                              EnumClassTestType,
+                                              UnionTestType,
+                                              BaseClassTestType,
+                                              DerivedClassTestType,
+                                              FinalClassTestType,
+                                              MethodPtrTestType,
+                                              FunctionTestType,
+                                              DataMemberPtrTestType,
+                                              AbominableFunctionType,
+                                              ArrayTestType,
+                                              ArrayOfUnknownBoundTestType,
+                                              Incomplete>;
+
+            using EXPECTED = MakeIndexSequence<LENGTH>;
+            ASSERTV(L_, (bsl::is_same<Obj, EXPECTED>::value));
             ASSERTV(L_, LENGTH, Obj::size(), LENGTH == Obj::size());
         }
         {   // C-3
@@ -888,31 +889,31 @@ int main(int argc, char *argv[])
             TEST_MAKE_SEQUENCE_FOR(Incomplete);
         }
         {   // C-3
-            using Obj = make_sequence_for<bool, bool, bool, bool>;
-            using EXPECTED = make_index_sequence<4>;
-            ASSERTV(L_, (is_same<Obj, EXPECTED>::value));
+            using Obj      = IndexSequenceFor<bool, bool, bool, bool>;
+            using EXPECTED = MakeIndexSequence<4>;
+            ASSERTV(L_, (bsl::is_same<Obj, EXPECTED>::value));
         }
         {   // C-4
-            using SEQUENCE_0   = index_sequence<>;
-            using SEQUENCE_1   = index_sequence<0>;
-            using SEQUENCE_2   = index_sequence<0, 1>;
-            using SEQUENCE_128 = make_index_sequence<128>;
+            using SEQUENCE_0   = IndexSequence<>;
+            using SEQUENCE_1   = IndexSequence<0>;
+            using SEQUENCE_2   = IndexSequence<0, 1>;
+            using SEQUENCE_128 = MakeIndexSequence<128>;
 
-            using Obj = make_sequence_for<SEQUENCE_0,
-                                          SEQUENCE_1,
-                                          SEQUENCE_2,
-                                          SEQUENCE_128>;
-            using EXPECTED = index_sequence<0, 1, 2, 3>;
-            ASSERTV(L_, (is_same<Obj, EXPECTED>::value));
+            using Obj      = IndexSequenceFor<SEQUENCE_0,
+                                              SEQUENCE_1,
+                                              SEQUENCE_2,
+                                              SEQUENCE_128>;
+            using EXPECTED = IndexSequence<0, 1, 2, 3>;
+            ASSERTV(L_, (bsl::is_same<Obj, EXPECTED>::value));
         }
 
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // 'bsl::make_index_sequence'
+        // 'bslmf::MakeIndexSequence'
         //
         // Concerns:
-        //: 1 That the 'bsl::make_index_sequence' resultant type represent
+        //: 1 That the 'bslmf::MakeIndexSequence' resultant type represent
         //:   enumerated collection of increasing 'std::size_t' values of the
         //:   specified length 'N' starting with 0 value.
         //
@@ -925,15 +926,15 @@ int main(int argc, char *argv[])
         //:   handle higher-level boundary cases.
         //
         // Testing:
-        //   bsl::make_index_sequence<size_t N>
+        //   bslmf::MakeIndexSequence<size_t N>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::make_index_sequence'\n"
+        if (verbose) printf("\n'bslmf::MakeIndexSequence'\n"
                               "==========================\n");
 
         {
-            using Obj      = make_index_sequence<127>;
-            using SEQ_TYPE = index_sequence<
+            using Obj      = MakeIndexSequence<127>;
+            using SEQ_TYPE = IndexSequence<
                                 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
                                10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
                                20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -951,8 +952,8 @@ int main(int argc, char *argv[])
             ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
         }
         {
-            using Obj      = make_index_sequence<128>;
-            using SEQ_TYPE = index_sequence<
+            using Obj      = MakeIndexSequence<128>;
+            using SEQ_TYPE = IndexSequence<
                                0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
                               10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
                               20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -970,8 +971,8 @@ int main(int argc, char *argv[])
             ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
         }
         {
-            using Obj      = make_index_sequence<129>;
-            using SEQ_TYPE = index_sequence<
+            using Obj      = MakeIndexSequence<129>;
+            using SEQ_TYPE = IndexSequence<
                                0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
                               10,  11,  12,  13,  14,  15,  16,  17,  18,  19,
                               20,  21,  22,  23,  24,  25,  26,  27,  28,  29,
@@ -991,10 +992,10 @@ int main(int argc, char *argv[])
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // 'bsl::make_integer_sequence'
+        // 'bslmf::MakeIntegerSequence'
         //
         // Concerns:
-        //: 1 That the 'bsl::make_integer_sequence' resultant type represent
+        //: 1 That the 'bslmf::MakeIntegerSequence' resultant type represent
         //:   enumerated collection of increasing integer values of the
         //:   specified length 'N' starting with 0 value.
         //:
@@ -1004,40 +1005,40 @@ int main(int argc, char *argv[])
         //: 1 Invoke 'testCase4' for each integer type.
         //
         // Testing:
-        //   bsl::integer_sequence<size_t N>
+        //   bslmf::IntegerSequence<size_t N>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::make_integer_sequence'\n"
+        if (verbose) printf("\n'bslmf::MakeIntegerSequence'\n"
                               "===========================\n");
 
-        testCase4<         char>();
-        testCase4<  signed char>();
-        testCase4<unsigned char>();
-        testCase4<         wchar_t>();
+        testCase4<         char     >();
+        testCase4<  signed char     >();
+        testCase4<unsigned char     >();
+        testCase4<         wchar_t  >();
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-        testCase4<         char16_t>();
-        testCase4<         char32_t>();
+        testCase4<         char16_t >();
+        testCase4<         char32_t >();
 #endif
-        testCase4<         short>();
-        testCase4<unsigned short>();
-        testCase4<         int>();
-        testCase4<unsigned int>();
-        testCase4<         long>();
-        testCase4<unsigned long>();
+        testCase4<         short    >();
+        testCase4<unsigned short    >();
+        testCase4<         int      >();
+        testCase4<unsigned int      >();
+        testCase4<         long     >();
+        testCase4<unsigned long     >();
         testCase4<         long long>();
         testCase4<unsigned long long>();
 
         {
-            using Obj      = make_integer_sequence<bool, 0>;
-            using SEQ_TYPE = integer_sequence<bool>;
+            using Obj      = MakeIntegerSequence<bool, 0>;
+            using SEQ_TYPE = IntegerSequence<bool>;
 
             ASSERTV(L_, SEQ_TYPE::size(),   Obj::size(),
                         SEQ_TYPE::size() == Obj::size());
             ASSERTV(L_, (bsl::is_same<Obj, SEQ_TYPE>::value));
         }
         {
-            using Obj      = make_integer_sequence<bool, 1>;
-            using SEQ_TYPE = integer_sequence<bool, 0>;
+            using Obj      = MakeIntegerSequence<bool, 1>;
+            using SEQ_TYPE = IntegerSequence<bool, 0>;
 
             ASSERTV(L_, SEQ_TYPE::size(),   Obj::size(),
                         SEQ_TYPE::size() == Obj::size());
@@ -1046,11 +1047,11 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // 'bsl::index_sequence'
+        // 'bslmf::IndexSequence'
         //
         // Concerns:
         //: 1 That the type of an index sequence is an alias ('is_same') as the
-        //:   corresponding 'integer_sequence<size_t, ...>'.
+        //:   corresponding 'IntegerSequence<size_t, ...>'.
         //
         // Plan:
         //: 1 Define a number of index sequences having distinct lengths and
@@ -1058,49 +1059,49 @@ int main(int argc, char *argv[])
         //:   'std::size_t' values having the specified length.
         //
         // Testing:
-        //   bsl::index_sequence<size_t N>
+        //   bslmf::IndexSequence<size_t N>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::index_sequence'\n"
-                              "=====================\n");
+        if (verbose) printf("\n'bslmf::IndexSequence'\n"
+                              "======================\n");
         {
-            using Obj      = index_sequence<>;
-            using SEQUENCE = integer_sequence<std::size_t>;
+            using Obj      = IndexSequence<>;
+            using SEQUENCE = IntegerSequence<std::size_t>;
 
             ASSERTV(L_, (bsl::is_same<Obj, SEQUENCE>::value));
         }
         {
-            using Obj      = index_sequence<               0>;
-            using SEQUENCE = integer_sequence<std::size_t, 0>;
+            using Obj      = IndexSequence<               0>;
+            using SEQUENCE = IntegerSequence<std::size_t, 0>;
 
             ASSERTV(L_, (bsl::is_same<Obj, SEQUENCE>::value));
         }
         {
-            using Obj      = index_sequence<               0, 0>;
-            using SEQUENCE = integer_sequence<std::size_t, 0, 0>;
+            using Obj      = IndexSequence<               0, 0>;
+            using SEQUENCE = IntegerSequence<std::size_t, 0, 0>;
 
             ASSERTV(L_, (bsl::is_same<Obj, SEQUENCE>::value));
         }
         {
-            using Obj      = index_sequence<               0, 0, 0>;
-            using SEQUENCE = integer_sequence<std::size_t, 0, 0, 0>;
+            using Obj      = IndexSequence<               0, 0, 0>;
+            using SEQUENCE = IntegerSequence<std::size_t, 0, 0, 0>;
 
             ASSERTV(L_, (bsl::is_same<Obj, SEQUENCE>::value));
         }
         {
-            using Obj      = index_sequence<               0, 10, 20, 30>;
-            using SEQUENCE = integer_sequence<std::size_t, 0, 10, 20, 30>;
+            using Obj      = IndexSequence<               0, 10, 20, 30>;
+            using SEQUENCE = IntegerSequence<std::size_t, 0, 10, 20, 30>;
 
             ASSERTV(L_, (bsl::is_same<Obj, SEQUENCE>::value));
         }
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // 'bsl::integer_sequence'
+        // 'bslmf::IntegerSequence'
         //
         // Concerns:
         //: 1 That the 'value_type' is the same as the template parameter of
-        //:   the template 'struct' 'bsl::integer_sequence'.
+        //:   the template 'struct' 'bslmf::IntegerSequence'.
         //:
         //: 2 That the length of an integer sequence equals to the size of the
         //:   template parameter pack.
@@ -1110,10 +1111,10 @@ int main(int argc, char *argv[])
         //: 4 That 'T' can be any integer type.
         //:
         //: 5 That repeated values are supported, i.e.
-        //:  'bsl::integer_sequence<int, 0, 0, 0, 0, 0>'.
+        //:  'bslmf::IntegerSequence<int, 0, 0, 0, 0, 0>'.
         //:
         //: 6 That both positive and negative if any values of the parameter
-        //:   type 'T' are supported, i.e. 'integer_sequence<int, -1, 0, 1>'.
+        //:   type 'T' are supported, i.e. 'IntegerSequence<int, -1, 0, 1>'.
         //:
         //: 7 That a super-long sequences (having 1024 paramnetrs) are
         //:   supported.
@@ -1130,33 +1131,33 @@ int main(int argc, char *argv[])
         //:   to 1023.
         //
         // Testing:
-        //   bsl::integer_sequence<class T, T... Ints>
+        //   bslmf::IntegerSequence<class T, T... Ints>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'bsl::integer_sequence'\n"
-                              "=======================\n");
+        if (verbose) printf("\n'bslmf::IntegerSequence'\n"
+                              "========================\n");
 
         { // C-3
-            using Obj = integer_sequence<int>;
+            using Obj = IntegerSequence<int>;
             ASSERTV(L_, noexcept(Obj::size()));
         }
 
         { // C-4
-            TEST_EMPTY_INTEGER_SEQUENCE(         bool);
-            TEST_EMPTY_INTEGER_SEQUENCE(         char);
-            TEST_EMPTY_INTEGER_SEQUENCE(  signed char);
-            TEST_EMPTY_INTEGER_SEQUENCE(unsigned char);
-            TEST_EMPTY_INTEGER_SEQUENCE(         wchar_t);
+            TEST_EMPTY_INTEGER_SEQUENCE(         bool     );
+            TEST_EMPTY_INTEGER_SEQUENCE(         char     );
+            TEST_EMPTY_INTEGER_SEQUENCE(  signed char     );
+            TEST_EMPTY_INTEGER_SEQUENCE(unsigned char     );
+            TEST_EMPTY_INTEGER_SEQUENCE(         wchar_t  );
 #if defined BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-            TEST_EMPTY_INTEGER_SEQUENCE(         char16_t);
-            TEST_EMPTY_INTEGER_SEQUENCE(         char32_t);
+            TEST_EMPTY_INTEGER_SEQUENCE(         char16_t );
+            TEST_EMPTY_INTEGER_SEQUENCE(         char32_t );
 #endif
-            TEST_EMPTY_INTEGER_SEQUENCE(         short);
-            TEST_EMPTY_INTEGER_SEQUENCE(unsigned short);
-            TEST_EMPTY_INTEGER_SEQUENCE(         int);
-            TEST_EMPTY_INTEGER_SEQUENCE(unsigned int);
-            TEST_EMPTY_INTEGER_SEQUENCE(         long);
-            TEST_EMPTY_INTEGER_SEQUENCE(unsigned long);
+            TEST_EMPTY_INTEGER_SEQUENCE(         short    );
+            TEST_EMPTY_INTEGER_SEQUENCE(unsigned short    );
+            TEST_EMPTY_INTEGER_SEQUENCE(         int      );
+            TEST_EMPTY_INTEGER_SEQUENCE(unsigned int      );
+            TEST_EMPTY_INTEGER_SEQUENCE(         long     );
+            TEST_EMPTY_INTEGER_SEQUENCE(unsigned long     );
             TEST_EMPTY_INTEGER_SEQUENCE(         long long);
             TEST_EMPTY_INTEGER_SEQUENCE(unsigned long long);
         }
@@ -1164,29 +1165,29 @@ int main(int argc, char *argv[])
         { // C-1,2,5,6
             using Type = int;
 
-            using Obj0  = integer_sequence<Type>;
+            using Obj0 = IntegerSequence<Type>;
             ASSERTV(L_, (bsl::is_same<Type, Obj0::value_type>::value));
             ASSERTV(L_, 0 == Obj0::size());
 
-            using Obj1  = integer_sequence<Type, 0>;
+            using Obj1 = IntegerSequence<Type, 0>;
             ASSERTV(L_, (bsl::is_same<Type, Obj1::value_type>::value));
             ASSERTV(L_, 1 == Obj1::size());
             ASSERTV(L_, 0 == getValue<0>(Obj1()));
 
-            using Obj2  = integer_sequence<Type, 0, 0>;
+            using Obj2 = IntegerSequence<Type, 0, 0>;
             ASSERTV(L_, (bsl::is_same<Type, Obj2::value_type>::value));
             ASSERTV(L_, 2 == Obj2::size());
             ASSERTV(L_, 0 == getValue<0>(Obj2()));
             ASSERTV(L_, 0 == getValue<1>(Obj2()));
 
-            using Obj3  = integer_sequence<Type, 0, 0, 0>;
+            using Obj3 = IntegerSequence<Type, 0, 0, 0>;
             ASSERTV(L_, (bsl::is_same<Type, Obj3::value_type>::value));
             ASSERTV(L_, 3 == Obj3::size());
             ASSERTV(L_, 0 == getValue<0>(Obj3()));
             ASSERTV(L_, 0 == getValue<1>(Obj3()));
             ASSERTV(L_, 0 == getValue<2>(Obj3()));
 
-            using Obj4  = integer_sequence<Type, 0, 0, 0, 0>;
+            using Obj4 = IntegerSequence<Type, 0, 0, 0, 0>;
             ASSERTV(L_, (bsl::is_same<Type, Obj4::value_type>::value));
             ASSERTV(L_, 4 == Obj4::size());
             ASSERTV(L_, 0 == getValue<0>(Obj4()));
@@ -1194,7 +1195,7 @@ int main(int argc, char *argv[])
             ASSERTV(L_, 0 == getValue<2>(Obj4()));
             ASSERTV(L_, 0 == getValue<3>(Obj4()));
 
-            using Obj5  = integer_sequence<Type, -2, -1, 0, 1, 2>;
+            using Obj5 = IntegerSequence<Type, -2, -1, 0, 1, 2>;
             ASSERTV(L_, (bsl::is_same<Type, Obj5::value_type>::value));
             ASSERTV(L_,  5 == Obj5::size());
             ASSERTV(L_, -2 == getValue<0>(Obj5()));
@@ -1204,7 +1205,7 @@ int main(int argc, char *argv[])
             ASSERTV(L_,  2 == getValue<4>(Obj5()));
 
             const Type k_MAX = std::numeric_limits<Type>::max();
-            using Obj6  = integer_sequence<Type, k_MAX, 11, 0, 0, -11, -k_MAX>;
+            using Obj6 = IntegerSequence<Type, k_MAX, 11, 0, 0, -11, -k_MAX>;
             ASSERTV(L_, (bsl::is_same<Type, Obj6::value_type>::value));
             ASSERTV(L_,      6 == Obj6::size());
             ASSERTV(L_,  k_MAX == getValue<0>(Obj6()));
@@ -1215,109 +1216,109 @@ int main(int argc, char *argv[])
             ASSERTV(L_, -k_MAX == getValue<5>(Obj6()));
         }
         {  // C-7
-           using Obj  = integer_sequence<int, 0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,  100,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,  200,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,  300,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,  400,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,  500,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,  600,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,  700,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,  800,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,  900,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0, 1000,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
-                                              0, 0,                      1023>;
+           using Obj  = IntegerSequence<int, 0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,  100,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,  200,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,  300,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,  400,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,  500,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,  600,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,  700,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,  800,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,  900,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   30,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   40,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   50,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   60,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   70,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   80,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   90,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 1000,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   10,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0,   20,
+                                             0, 0,                      1023>;
             ASSERTV(L_, (bsl::is_same<int, Obj::value_type>::value));
             ASSERTV(L_, 1023 == Obj::size());
         }
@@ -1346,7 +1347,7 @@ int main(int argc, char *argv[])
         //   template <size_t N, class T>
         //       template <class IS> T ItemUtil::value(IS... s);
         //   template <size_t N, class T, T... IS>
-        //       T getValue(integer_sequence<T, IS...>);
+        //       T getValue(IntegerSequence<T, IS...>);
         // --------------------------------------------------------------------
 
           if (verbose) printf("\nHELPER CLASS TEST\n"
@@ -1402,7 +1403,7 @@ int main(int argc, char *argv[])
           // ------------------------------------------------------------------
           // C-2              Index:         0  1  2  3  4  5  6
           // ------------------------------------------------------------------
-          using Obj = integer_sequence<Type, 7, 6, 2, 1, 5, 3, 9>;
+          using Obj = IntegerSequence<Type, 7, 6, 2, 1, 5, 3, 9>;
           ASSERTV(L_, getValue<0>(Obj()) ==  7                   );
           ASSERTV(L_, getValue<1>(Obj()) ==     6                );
           ASSERTV(L_, getValue<2>(Obj()) ==        2             );
@@ -1429,7 +1430,10 @@ int main(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    printf("Cannot test 'bsl::integer_sequence' in pre-C++11 mode.\n");
+    (void) argc;
+    (void) argv;
+
+    printf("Cannot test 'bslmf::IntegerSequence' in pre-C++11 mode.\n");
     return -1;
 }
 
