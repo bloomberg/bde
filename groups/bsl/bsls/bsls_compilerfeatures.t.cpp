@@ -3,7 +3,7 @@
 #include <bsls_compilerfeatures.h>
 
 #include <bsls_bsltestutil.h>
-#include <bsls_exceptionutil.h>
+#include <bsls_buildtarget.h>
 
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
@@ -710,7 +710,11 @@ class MyType {
   private:
     static void addToLiveCount() {
         if (s_liveCount > 5) {
-            BSLS_THROW(s_liveCount);
+#ifdef BDE_BUILD_TARGET_EXC
+            throw s_liveCount;
+#else
+            ASSERT(!"Exceptions not supported");
+#endif
         }
         else {
             ++s_liveCount;
@@ -818,7 +822,11 @@ int main(int argc, char *argv[])
         );
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+#    if defined(BDE_BUILD_TARGET_EXC)
         test_case_22::runTest();
+#    else
+        if (verbose) printf("Test disabled as exceptions are NOT enabled.\n");
+#    endif
 #endif
 
         if (verbose) {
@@ -940,7 +948,7 @@ int main(int argc, char *argv[])
         //:   ref-qualified functions.
         //: 2 If rvalue references are also supported, then functions can be
         //:   qualified with rvalue references.
-        //: 3 Ref qualification is orthoganol to cv qualification.
+        //: 3 Ref qualification is orthogonal to cv qualification.
         //
         // Plan:
         //: 1 For concern 1, if 'BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS'
