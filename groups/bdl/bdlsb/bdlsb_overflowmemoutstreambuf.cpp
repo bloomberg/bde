@@ -92,8 +92,8 @@ OverflowMemOutStreamBuf::seekoff(off_type                offset,
     (void)length;
 
     BSLS_ASSERT(length ==
-            d_inOverflowBufferFlag ? (d_dataLength - d_initialBufferSize)
-                                   : d_dataLength);
+               (d_inOverflowBufferFlag ? (d_dataLength - d_initialBufferSize)
+                                       : d_dataLength));
 
     bsl::size_t totalCapacity = d_initialBufferSize + d_overflowBufferSize;
 
