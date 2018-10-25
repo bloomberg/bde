@@ -2164,7 +2164,7 @@ int main(int argc, char *argv[])
 
             // Note that, experimentally, the only sane way to force an error
             // code from sync is to pass a address that is not aligned on a
-            // page boundary.  This can only be done when assertions are not
+            // page boundary.  This can be done only when assertions are not
             // enabled.
 
             int address;

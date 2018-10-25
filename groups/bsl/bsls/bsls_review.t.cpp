@@ -3,6 +3,7 @@
 
 #include <bsls_asserttestexception.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_keyword.h>
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
 #include <bsls_platform.h>
@@ -394,7 +395,7 @@ struct BadBoy {
         if (globalVeryVerbose) printf( "BadBoy Created!\n" );
     }
 
-    ~BadBoy() {
+    ~BadBoy() BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false) {
         if (globalVeryVerbose) printf( "BadBoy Destroyed!\n" );
         bsls::ReviewViolation violation(
             "'failByThrow' handler called from ~BadBoy",
@@ -2510,13 +2511,13 @@ int main(int argc, char *argv[])
         //: 1 That it does *not* throw for an exception build when there is an
         //:   exception pending.
         //:
-        //: 2 That it behaves as failByAbort for non-exception builds.
+        //: 2 That it behaves as 'failByAbort' for non-exception builds.
         //
         // Plan:
-        //: 1 Call bsls::Review::failByThrow from within the destructor of a
+        //: 1 Call 'bsls::Review::failByThrow' from within the destructor of a
         //:   test object on the stack after a throw.
         //:
-        //: 1 Call 'bsls::Review::failByAbort' after blocking the signal.
+        //: 2 Call 'bsls::Review::failByAbort' after blocking the signal.
         //
         // Testing:
         //   static void failByAbort(const ReviewViolation& violation);
