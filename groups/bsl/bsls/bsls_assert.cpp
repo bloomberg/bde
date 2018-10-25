@@ -285,6 +285,18 @@ void Assert::invokeHandler(const bsls::AssertViolation& violation)
     }
 }
 
+BSLS_ASSERT_NORETURN
+void Assert::invokeHandlerNoReturn(const bsls::AssertViolation &violation)
+{
+    Assert::ViolationHandler failureHandlerPtr = violationHandler();
+
+    failureHandlerPtr(violation);
+
+    // In order to be sure we don't return, abort immediately if the installed
+    // handler does return.
+    failByAbort(violation);
+}
+
                     // Assertion Handler Policy Enforcement
 
 bool Assert::abortUponReturningAssertionFailureHandler()

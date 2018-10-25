@@ -55,7 +55,7 @@ using namespace BloombergLP;
 // [ 6] BSLS_RETHROW
 // [ 7] BSLS_NOTHROW_SPEC
 // [ 7] BSLS_EXCEPTION_SPEC
-// [ 7] BSLS_EXCEPTION_WHAT_NOTHROW_SPEC
+// [ 7] BSLS_EXCEPTION_WHAT_NOTHROW
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 8] USAGE EXAMPLE
@@ -526,6 +526,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   BSLS_EXCEPTION_SPEC
         //   BSLS_NOTHROW_SPEC
+        //   BSLS_EXCEPTION_WHAT_NOTHROW
         // --------------------------------------------------------------------
 
         if (verbose) printf(

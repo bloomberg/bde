@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_RETHROW: re-'throw' the current exception
 //  BSLS_EXCEPTION_SPEC(SPEC): add 'SPEC' to function exception specification
 //  BSLS_NOTHROW_SPEC: declare that a function throws no exceptions
-//  BSLS_EXCEPTION_WHAT_NOTHROW_SPEC: 'exception::what()' except. spec.
+//  BSLS_EXCEPTION_WHAT_NOTHROW: 'exception::what()' except. spec.
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
@@ -325,19 +325,21 @@ BSLS_IDENT("$Id: $")
 
 #   define BSLS_CATCH(X) else if (0)
 
-#   define BSLS_THROW(X) BSLS_ASSERT_INVOKE("Tried to throw " #X             \
-                                            " with exceptions disabled",     \
-                                            __FILE__, __LINE__)
+#   define BSLS_THROW(X) BSLS_ASSERT_INVOKE_NORETURN(                        \
+                                                "Tried to throw " #X         \
+                                                " with exceptions disabled");
 
-#   define BSLS_RETHROW BSLS_ASSERT_INVOKE("Tried to re-throw exception "    \
-                                            "with exceptions disabled",      \
-                                            __FILE__, __LINE__)
+#   define BSLS_RETHROW BSLS_ASSERT_INVOKE_NORETURN(                         \
+                                           "Tried to re-throw exception "    \
+                                           "with exceptions disabled");
 
 #   define BSLS_EXCEPTION_SPEC(SPEC)
 
 #   define BSLS_NOTHROW_SPEC
 
-#   ifdef BSLS_LIBRARYFEATURES_STDCPP_GNU
+#   if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) || \
+       defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD) || \
+       defined(BSLS_LIBRARYFEATURES_STDCPP_IBM)
 #       if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 #           define BSLS_EXCEPTION_WHAT_NOTHROW noexcept
 #       else
