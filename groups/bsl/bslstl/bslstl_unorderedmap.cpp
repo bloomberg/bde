@@ -1,18 +1,16 @@
 // bslstl_unorderedmap.cpp                                            -*-C++-*-
 #include <bslstl_unorderedmap.h>
 
-#include <bslstl_hash.h>    // for testing only
-#include <bslstl_pair.h>    // for testing only
-#include <bslstl_string.h>  // for testing only
-#include <bslstl_vector.h>  // for testing only
+#include <bslstl_iterator.h>            // for testing only
+#include <bslstl_string.h>              // for testing only
+#include <bslstl_vector.h>              // for testing only
 
-#include <bsls_ident.h>
-BSLS_IDENT("$Id$ $CSID$")
+namespace BloombergLP {
+namespace bslstl {
 
-namespace bsl
-{
+}  // close package namespace
+}  // close enterprise namespace
 
-}  // close namespace bsl
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

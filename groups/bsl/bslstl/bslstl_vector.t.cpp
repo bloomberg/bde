@@ -59,6 +59,10 @@
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
+// NOTICE: To reduce the compilation time, this test driver has been broken
+// into 2 parts, 'bslstl_vector.t.cpp' (cases 1-11, plus the usage example),
+// and 'bslstl_vector_test.cpp' (cases 12 and higher).
+//
 //                              Overview
 //                              --------
 // The component under test defines a container whose interface and contract is
@@ -3764,7 +3768,7 @@ void TestDriver<TYPE, ALLOC>::testCase4a()
                     try {
                         mX.at(LENGTH + trials);
                     }
-                    catch (std::out_of_range) {
+                    catch (const std::out_of_range&) {
                         ++exceptions;
                         if (veryVerbose) {
                             printf("\t\tIn out_of_range exception.\n");
@@ -3782,7 +3786,7 @@ void TestDriver<TYPE, ALLOC>::testCase4a()
                 {
                     try {
                         X.at(LENGTH + trials);
-                    } catch (std::out_of_range) {
+                    } catch (const std::out_of_range&) {
                         ++exceptions;
                         if (veryVerbose) {
                             printf("\t\tIn out_of_range exception." );
@@ -5269,30 +5273,30 @@ int main(int argc, char *argv[])
             ASSERT(4 == m1.theValue(1, 1));
         }
       } break;
-      case 36:
-      case 35:
-      case 34:
-      case 33:
-      case 32:
-      case 31:
-      case 30:
-      case 29:
-      case 28:
-      case 27:
-      case 26:
-      case 25:
-      case 24:
-      case 23:
-      case 22:
-      case 21:
-      case 20:
-      case 19:
-      case 18:
-      case 17:
-      case 16:
-      case 15:
-      case 14:
-      case 13:
+      case 36: // falls through
+      case 35: // falls through
+      case 34: // falls through
+      case 33: // falls through
+      case 32: // falls through
+      case 31: // falls through
+      case 30: // falls through
+      case 29: // falls through
+      case 28: // falls through
+      case 27: // falls through
+      case 26: // falls through
+      case 25: // falls through
+      case 24: // falls through
+      case 23: // falls through
+      case 22: // falls through
+      case 21: // falls through
+      case 20: // falls through
+      case 19: // falls through
+      case 18: // falls through
+      case 17: // falls through
+      case 16: // falls through
+      case 15: // falls through
+      case 14: // falls through
+      case 13: // falls through
       case 12: {
         if (verbose) printf(
                  "\nTEST CASE %d IS DELEGATED TO 'bslstl_vector_test.t.cpp'"

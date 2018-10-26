@@ -2797,6 +2797,8 @@ wstring operator ""_s(const wchar_t *characterString, std::size_t length);
     //     assert(7 == str3.size());
     //..
 
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) ||                                   \
+    (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 800000)
  string operator ""_S(const char    *characterString, std::size_t length);
 wstring operator ""_S(const wchar_t *characterString, std::size_t length);
     // Convert a character sequence of the specified 'length' excluding the
@@ -2812,6 +2814,7 @@ wstring operator ""_S(const wchar_t *characterString, std::size_t length);
     //     static const bsl::string  g_str1 =  "123\0abc"_S;
     //     static const bsl::wstring g_str2 = L"123\0abc"_S;
     //..
+#endif
 }
 }
 

@@ -1,29 +1,29 @@
-// bslstl_vector_test.h                                               -*-C++-*-
-#ifndef INCLUDED_BSLSTL_VECTOR_TEST
-#define INCLUDED_BSLSTL_VECTOR_TEST
+// bslstl_string_test.h                                               -*-C++-*-
+#ifndef INCLUDED_BSLSTL_STRING_TEST
+#define INCLUDED_BSLSTL_STRING_TEST
 
 #ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
 #endif
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide support for the 'bslstl_vector.t.cpp' test driver.
+//@PURPOSE: Provide support for the 'bslstl_string.t.cpp' test driver.
 //
 //@CLASSES:
 //
-//@SEE_ALSO: bslstl_vector
+//@SEE_ALSO: bslstl_string
 //
 //@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim),
 //         Alisdair Meredith (ameredit)
 //
-//@DESCRIPTION: This component provides a second translation unit for 'vector'
+//@DESCRIPTION: This component provides a second translation unit for 'string'
 // test cases to reduce the test-driver's build time.  Test cases 1-11, plus
 // the usage example test, are in the original component test driver, the
 // remaining tests (11 and higher) are in this subordinate components test
 // driver.
 //
 // As the number of test concerns grows, and the number of types to instantiate
-// 'vector' with in order to gain complete code coverage grows, we have
+// 'string' with in order to gain complete code coverage grows, we have
 // exceeded the limits of certain compilers.  For example, gcc will not produce
 // a valid '.o' file as the number of template instantiations exceeds some
 // internal tables.  In order to continue providing full coverage, the standard
@@ -31,13 +31,13 @@ BSLS_IDENT("$Id: $")
 // test driver, and the tests for all remaining functionality are moved into
 // this component, that comprises only a test driver.
 
-#ifndef INCLUDED_BSLSTL_VECTOR
-#include <bslstl_vector.h>
+#ifndef INCLUDED_BSLSTL_STRING
+#include <bslstl_string.h>
 #endif
 
 #endif
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
