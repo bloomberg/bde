@@ -61,6 +61,10 @@
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
+// NOTICE: To reduce the compilation time, this test driver has been broken
+// into 2 parts, 'bslstl_vector.t.cpp' (cases 1-11, plus the usage example),
+// and 'bslstl_vector_test.cpp' (cases 12 and higher).
+//
 //                              Overview
 //                              --------
 // The component under test defines a container whose interface and contract is
@@ -246,9 +250,12 @@ void aSsErT(bool condition, const char *message, int line)
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-// As this is a break-out testing component for another component (without the
-// '_test' suffix) all negative testing must use '_RAW' macros, or fail on
-// validating the component name.
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 #define ASSERT_SAFE_PASS_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
 #define ASSERT_SAFE_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)

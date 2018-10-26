@@ -3,6 +3,7 @@
 #include <bslstl_unorderedset_test.h>
 
 #include <bslstl_pair.h>
+#include <bslstl_unorderedset.h>
 
 #include <bslalg_rangecompare.h>
 #include <bslalg_swaputil.h>
@@ -45,6 +46,10 @@ using bsls::NameOf;
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
+// NOTICE: To reduce the compilation time, this test driver has been broken
+// into 2 parts, 'bslstl_unorderedset.t.cpp' (cases 1-11, plus the usage
+// example), and 'bslstl_unorderedset_test.cpp' (cases 12 and higher).
+//
 //                             Overview
 //                             --------
 // The object under test is a container whose interface and contract is
@@ -254,16 +259,12 @@ void aSsErT(bool b, const char *s, int i)
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-// As this is a break-out testing component for another component (without the
-// '_test' suffix) all negative testing must use the '_RAW' macros, or fail on
-// validating the component name.
-
-#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPR)
-#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPR)
-#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPR)
-#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPR)
-#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPR)
-#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
+#define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
+#define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
+#define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
+#define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
 // ============================================================================
 //                  PRINTF FORMAT MACRO ABBREVIATIONS

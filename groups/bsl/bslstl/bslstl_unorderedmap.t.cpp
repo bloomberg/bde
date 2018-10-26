@@ -66,6 +66,10 @@ using bsl::pair;
 // ============================================================================
 //                                  TEST PLAN
 // ----------------------------------------------------------------------------
+// NOTICE: To reduce the compilation time, this test driver has been broken
+// into 2 parts, 'bslstl_unorderedmap.t.cpp' (cases 1-11, plus the usage
+// example), and 'bslstl_unorderedmap_test.cpp' (cases 12 and higher).
+//
 //                                  Overview
 //                                  --------
 // The object under test is a container whose interface and contract is

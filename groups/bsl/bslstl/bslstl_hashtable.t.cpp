@@ -51,6 +51,10 @@ using bslstl::CallableVariable;
 // ============================================================================
 //                                  TEST PLAN
 // ----------------------------------------------------------------------------
+// NOTICE: To reduce the compilation time, this test driver has been broken
+// into 2 parts, 'bslstl_hashtable.t.cpp' (cases 1-10, plus the usage example),
+// and 'bslstl_hashtable_test.cpp' (cases 11 and higher).
+//
 //                                  Overview
 //                                  --------
 // The component under test is a value-semantic container class template, whose

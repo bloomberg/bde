@@ -15,10 +15,14 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
 //
-//@DESCRIPTION: This component provides a second translation unit to spread the
-// load of building and running the 'unorderedset' test cases.  As the number
-// of test concerns grows, and the number of types to instantiate
-// 'unorderedset' with in order to gain complete code coverage grows, we have
+//@DESCRIPTION: This component provides a second translation unit for
+// 'unordered_set' test cases to reduce the test-driver's build time.  Test
+// cases 1-11, plus the usage example test, are in the original component test
+// driver, the remaining tests (11 and higher) are in this subordinate
+// components test driver.
+//
+// As the number of test concerns grows, and the number of types to instantiate
+// 'unordered_set' with in order to gain complete code coverage grows, we have
 // exceeded the limits of certain compilers.  For example, gcc will not produce
 // a valid '.o' file as the number of template instantiations exceeds some
 // internal tables.  In order to continue providing full coverage, the standard

@@ -1,11 +1,11 @@
 // bslstl_deque.t.cpp                                                 -*-C++-*-
 #include <bslstl_deque.h>
 
-#include <bslstl_forwarditerator.h>        // for testing only
+#include <bslstl_forwarditerator.h>
 #include <bslstl_iterator.h>
 #include <bslstl_randomaccessiterator.h>
-#include <bslstl_string.h>                 // for testing only
-#include <bslstl_vector.h>                 // for testing only
+#include <bslstl_string.h>
+#include <bslstl_vector.h>
 
 #include <bslma_allocator.h>
 #include <bslma_constructionutil.h>
@@ -86,6 +86,10 @@ enum {
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
+// NOTICE: To reduce the compilation time, this test driver has been broken
+// into 2 parts, 'bslstl_deque.t.cpp' (cases 1-11, plus the usage example), and
+// 'bslstl_deque_test.cpp' (cases 12 and higher).
+//
 //                              Overview
 //                              --------
 // The class under test is a container whose interface and contract is dictated
