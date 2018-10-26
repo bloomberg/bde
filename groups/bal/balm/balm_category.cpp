@@ -39,7 +39,7 @@ void Category::setEnabled(bool enabledFlag)
     // 'MetricsManager::setCategoryEnabled', which performs the function under
     // a lock.
 
-    if (d_enabled != enabledFlag) {
+    if (static_cast<bool>(d_enabled) != enabledFlag) {
 
         // Update the linked-list of category holder's registered with this
         // category.
