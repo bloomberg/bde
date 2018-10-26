@@ -1059,13 +1059,8 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_CPU_X86_64)                                        \
- || defined(BSLS_PLATFORM_CPU_IA64)                                          \
- || (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT))
             const long int NaN = ~(-1ul >> 1);
-#else
-            const      int NaN = ~(-1u >> 1);
-#endif
+
             struct {
                 int      d_line;
                 Obj      d_x;
@@ -1265,13 +1260,8 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lround()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_CPU_X86_64)                                        \
- || defined(BSLS_PLATFORM_CPU_IA64)                                          \
- || (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT))
             const long int NaN = ~(-1ul >> 1);
-#else
-            const      int NaN = ~(-1u >> 1);
-#endif
+
             struct {
                 int      d_line;
                 Obj      d_x;
@@ -1818,13 +1808,7 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_CPU_X86_64)                                        \
- || defined(BSLS_PLATFORM_CPU_IA64)                                          \
- || (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT))
             const long int NaN = ~(-1ul >> 1);
-#else
-            const      int NaN = ~(-1u >> 1);
-#endif
 
             struct {
                 int      d_line;
@@ -2035,13 +2019,7 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lround()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_CPU_X86_64)                                        \
- || defined(BSLS_PLATFORM_CPU_IA64)                                          \
- || (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT))
             const long int NaN = ~(-1ul >> 1);
-#else
-            const      int NaN = ~(-1u >> 1);
-#endif
 
             struct {
                 int      d_line;
@@ -2586,13 +2564,8 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_CPU_X86_64)                                        \
- || defined(BSLS_PLATFORM_CPU_IA64)                                          \
- || (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT))
             const long int NaN = ~(-1ul >> 1);
-#else
-            const      int NaN = ~(-1u >> 1);
-#endif
+
             struct {
                 int      d_line;
                 Obj      d_x;
@@ -2792,13 +2765,7 @@ int main(int argc, char* argv[])
         }
         if (veryVerbose) { T_ bsl::cout << "lround()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_CPU_X86_64)                                        \
- || defined(BSLS_PLATFORM_CPU_IA64)                                          \
- || (defined(BSLS_PLATFORM_OS_HPUX) && defined(BSLS_PLATFORM_CPU_64_BIT))
             const long int NaN = ~(-1ul >> 1);
-#else
-            const      int NaN = ~(-1u >> 1);
-#endif
             const Obj      DEC_1 = DEC(2.4999999999999999);
 
             struct {
