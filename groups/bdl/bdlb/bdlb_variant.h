@@ -2191,9 +2191,9 @@ class VariantImp : public VariantImp_Traits<TYPES>::BaseType {
         // by this variant shall be printable with 'bdlb::PrintMethods'
         // (typically meaning that they either declare the
         // 'bdlb::HasPrintMethods' trait or provide the '<<' output streaming
-        // operator). See {bdlb_printmethods}.  The compiler will emit an error
-        // if 'bdlb::PrintMethods::print' cannot be instantiated for each type
-        // that may be contained by this variant.
+        // operator).  See {'bdlb_printmethods'}.  The compiler will emit an
+        // error if 'bdlb::PrintMethods::print' cannot be instantiated for each
+        // type that may be contained by this variant.
 
     template <class TYPE>
     const TYPE& the() const;

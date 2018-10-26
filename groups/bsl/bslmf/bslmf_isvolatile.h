@@ -59,10 +59,11 @@ BSLS_IDENT("$Id: $")
 //..
 // Note that if the current compiler supports the variable templates C++14
 // feature, then we can re-write the snippet of code above as follows:
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+//..
+//  #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 //  assert(false == bsl::is_volatile_v<MyType>);
 //  assert(true  == bsl::is_volatile_v<MyVolatileType>);
-//#endif
+//  #endif
 //..
 
 #ifndef INCLUDED_BSLSCM_VERSION

@@ -540,7 +540,7 @@ BSLS_IDENT("$Id: $")
 //..
 // If the values returned by 'receiver.yield()' match those from Usage Example
 // 1, then the output will be identical to that example.
-//..
+//
 ///Example 3: 'printf'-Style Throttling Macro Usage
 /// - - - - - - - - - - - - - - - - - - - - - - - -
 // Here, we again repeat exactly the same code, using the 'printf'-style
