@@ -750,8 +750,8 @@ int main(int argc, char *argv[])
 // file and in 'bdlt'-style (default) format to 'stdout', where timestamps are
 // output with millisecond precision in both cases:
 //..
-    observerPtr->setLogFormat("%I %p:%t %s %f:%l %c %m",
-                              "%d %p:%t %s %f:%l %c %m");
+    observerPtr->setLogFormat("\n%I %p:%t %s %f:%l %c %m\n",
+                              "\n%d %p:%t %s %f:%l %c %m\n");
 //..
 // Note that both of the above format specifications omit user fields ('%u') in
 // the output.
