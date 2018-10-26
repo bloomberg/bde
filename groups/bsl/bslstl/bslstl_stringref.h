@@ -1059,38 +1059,36 @@ int StringRefImp<CHAR_TYPE>::compare(const_iterator other) const
 {
     // Not inline.
 
-    // Imitate the behavior of the other 'compare' -- if one string is shorter,
-    // but they match up to that point, the longer string is always greater,
-    // even if the next character of the longer string is negative.
+    // Imitate the behavior of the other 'compare' and
+    // 'basic_string::privateCompareRaw' -- if one string is shorter, but they
+    // match up to that point, the longer string is always greater, even if the
+    // next character of the longer string is negative.
 
-    const const_iterator end = this->end();
-
-    for (const_iterator pc = this->begin();
+    for (const_iterator pc = this->begin(), end = this->end();
                 BSLS_PERFORMANCEHINT_PREDICT_LIKELY(pc < end); ++pc, ++other) {
-        const CHAR_TYPE left = *pc, right = *other;
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == right)) {
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == *other)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
             return +1;                                                // RETURN
         }
 
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(left != right)) {
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(*pc != *other)) {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            // If 'sizeof(CHAR_TYPE) < sizeof(int)', then all possible values
-            // of 'left - right' can be represented as an 'int', and
-            // 'left - right' can be calculated without a branch, so it's
-            // faster.
+            // 'native_std::char_traits::compare' is a mess, usually
+            // implemented with specialized templates, with behavior that
+            // varies tremendously depending upon the platform, the compiler
+            // and 'CHAR_TYPE'.  In theory it should compare individual
+            // elements with 'native_std::char_traits::lt', but in practice
+            // that's often not the case.  So we delegate directly to
+            // 'native_std::char_traits::compare' to compare individual
+            // elements known to differ, guaranteeing behavior matching the
+            // 'compare' between two 'StringRefImp's and comparisons between
+            // two 'basic_string's.
 
-            // Note that unlike 'char_traits<CHAR_TYPE>:compare', we always
-            // compare 'left' and 'right' with a signed or unsigned comparison
-            // depending only upon whether 'CHAR_TYPE' is signed or unsigned.
-
-            return sizeof(CHAR_TYPE) < sizeof(int)
-                   ? static_cast<int>(left) - static_cast<int>(right)
-                   : left > right
-                   ? +1
-                   : -1;                                              // RETURN
+            return native_std::char_traits<CHAR_TYPE>::compare(pc,
+                                                               other,
+                                                               1);    // RETURN
         }
     }
     BSLS_PERFORMANCEHINT_UNLIKELY_HINT;

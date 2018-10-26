@@ -733,20 +733,22 @@ void testBasicAccessors(bool verbose)
                            << std::endl;
 
     {
-        bslstl::StringRefImp<CHAR> s1(TestData<CHAR>::s_stringValue1_p);
-        bslstl::StringRefImp<CHAR> s2(TestData<CHAR>::s_stringValue2_p);
-        bslstl::StringRefImp<CHAR> s3(TestData<CHAR>::s_stringValue2_p, 3);
-        bslstl::StringRefImp<CHAR> s4(TestData<CHAR>::s_stringValue1_p, 3);
-        bslstl::StringRefImp<CHAR> s5;
-        bslstl::StringRefImp<CHAR> s6(TestData<CHAR>::s_maxString_p);
-        bslstl::StringRefImp<CHAR> s7(TestData<CHAR>::s_minString_p);
-        bslstl::StringRefImp<CHAR> s8(TestData<CHAR>::s_emptyString_p);
+        const bslstl::StringRefImp<CHAR> s1(TestData<CHAR>::s_stringValue1_p);
+        const bslstl::StringRefImp<CHAR> s2(TestData<CHAR>::s_stringValue2_p);
+        const bslstl::StringRefImp<CHAR> s3(TestData<CHAR>::s_stringValue2_p,
+                                            3);
+        const bslstl::StringRefImp<CHAR> s4(TestData<CHAR>::s_stringValue1_p,
+                                            3);
+        const bslstl::StringRefImp<CHAR> s5;
+        const bslstl::StringRefImp<CHAR> s6(TestData<CHAR>::s_maxString_p);
+        const bslstl::StringRefImp<CHAR> s7(TestData<CHAR>::s_minString_p);
+        const bslstl::StringRefImp<CHAR> s8(TestData<CHAR>::s_emptyString_p);
 
         const CHAR *pc1 = TestData<CHAR>::s_stringValue1_p;
         const CHAR *pc2 = TestData<CHAR>::s_stringValue2_p;
-        bsl::basic_string<CHAR> ss3(s3);
+        const bsl::basic_string<CHAR> ss3(s3);
         const CHAR *pc3 = ss3.c_str();
-        bsl::basic_string<CHAR> ss4(s4);
+        const bsl::basic_string<CHAR> ss4(s4);
         const CHAR *pc4 = ss4.c_str();
         const CHAR *pc5 = TestData<CHAR>::s_emptyString_p;
         const CHAR *pc6 = TestData<CHAR>::s_maxString_p;
@@ -760,6 +762,9 @@ void testBasicAccessors(bool verbose)
         if (verbose) {
             P_(*pc6);  P_(int(*pc6));  P_(u6);
             P_(*pc7);  P_(int(*pc7));  P(u7);
+
+            P_((*pc7 < *pc6));
+            P(native_std::char_traits<CHAR>::lt(*pc7, *pc6));
         }
 
         ASSERT(s1.compare(s1) == 0);
@@ -873,18 +878,6 @@ void testBasicAccessors(bool verbose)
         //:   casting them (the behavior of
         //:   'native_std::char_traits<CHAR_TYPE>::compare' on Solaris).
 
-        ASSERT(s1.compare(pc7) > 0);
-        ASSERT(s2.compare(pc7) > 0);
-        ASSERT(s3.compare(pc7) > 0);
-        ASSERT(s4.compare(pc7) > 0);
-        ASSERT(s6.compare(pc7) > 0);
-
-        ASSERT(s7.compare(pc1) < 0);
-        ASSERT(s7.compare(pc2) < 0);
-        ASSERT(s7.compare(pc3) < 0);
-        ASSERT(s7.compare(pc4) < 0);
-        ASSERT(s7.compare(pc6) < 0);
-
         // If the 'CHAR' type is unsigned, 's7' and 'pc7' just represent null
         // strings.
 
@@ -943,6 +936,18 @@ void testBasicAccessors(bool verbose)
             ASSERT(s3.compare(s7) > 0);
             ASSERT(s4.compare(s7) > 0);
             ASSERT(s6.compare(s7) > 0);
+
+            ASSERT(s1.compare(pc7) > 0);
+            ASSERT(s2.compare(pc7) > 0);
+            ASSERT(s3.compare(pc7) > 0);
+            ASSERT(s4.compare(pc7) > 0);
+            ASSERT(s6.compare(pc7) > 0);
+
+            ASSERT(s7.compare(pc1) < 0);
+            ASSERT(s7.compare(pc2) < 0);
+            ASSERT(s7.compare(pc3) < 0);
+            ASSERT(s7.compare(pc4) < 0);
+            ASSERT(s7.compare(pc6) < 0);
         }
         else {
             // 'CHAR_TYPE' is signed, and
@@ -951,6 +956,7 @@ void testBasicAccessors(bool verbose)
             // comparing them, therefore the first element of 's7' compares
             // greater than the first element of any other string in this test
             // case.
+
 
             ASSERT(s7.compare(s1) > 0);
             ASSERT(s7.compare(s2) > 0);
@@ -963,6 +969,18 @@ void testBasicAccessors(bool verbose)
             ASSERT(s3.compare(s7) < 0);
             ASSERT(s4.compare(s7) < 0);
             ASSERT(s6.compare(s7) < 0);
+
+            ASSERT(s7.compare(pc1) > 0);
+            ASSERT(s7.compare(pc2) > 0);
+            ASSERT(s7.compare(pc3) > 0);
+            ASSERT(s7.compare(pc4) > 0);
+            ASSERT(s7.compare(pc6) > 0);
+
+            ASSERT(s1.compare(pc7) < 0);
+            ASSERT(s2.compare(pc7) < 0);
+            ASSERT(s3.compare(pc7) < 0);
+            ASSERT(s4.compare(pc7) < 0);
+            ASSERT(s6.compare(pc7) < 0);
         }
 
         ASSERT(s8.compare(s1) < 0);
