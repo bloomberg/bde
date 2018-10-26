@@ -423,7 +423,7 @@
 : o Whether or not the allocator supports multi-threading.
 
  All 'bslma' allocators are fully thread-safe but not thread-enabled (see the
-'bsldoc_glossary.h' for terminology).
+ {'bsldoc_glossary'} for terminology).
 
  The BDE allocators have two more differentiating properties.  First, whether
  the allocator is intended to be part of a chain (or other grouping) of
@@ -475,7 +475,7 @@
 :   memory or object under management.
 :
 : o Proctors or Guards: The object managers in this package can be divided
-:   into guards and proctors.  See {bsldoc_glossary} for definitions of
+:   into guards and proctors.  See {'bsldoc_glossary'} for definitions of
 :   "proctor" and "guard".  Proctors provide a mechanism to release the
 :   managed object, whereas, at least within 'bslma', guards do not provide a
 :   release mechanism (and so are slightly more efficient on destruction if a
