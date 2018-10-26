@@ -634,8 +634,8 @@ struct ConstexprConst {
 
     template <class TARGET>
     static TrueType test(...);
-        // The "catch all" overload that gets selected when 'const
-        // TARGET{}.call(true)' is not a valid compile time constant
+        // The "catch all" overload that gets selected when
+        // 'const TARGET{}.call(true)' is not a valid compile time constant
         // expression.  Notice that since in 'Feature14' the function 'call' is
         // not defined explicitly 'const', therefore this catch all function
         // returns 'TrueType', because in C++14 'constexpr' does not make
@@ -817,7 +817,10 @@ int main(int argc, char *argv[])
         //:    properly implemented by Microsoft.
         //
         // Plan:
-        //: 1 If 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS' is
+        //: 1 If exceptions are disabled, then there is nothing to test, and
+        //:   any reasonable attempt at testing will fail to compile.  Report
+        //:   an supported configuration and return.
+        //: 2 If 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS' is
         //:   defined then compile code that attempts to throw an invalid
         //:   exception out of a function that has an exception specification
         //:   that permits 'std::bad_exception', and confirm it is translated
@@ -833,6 +836,8 @@ int main(int argc, char *argv[])
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS)
         if (verbose) printf("Feature not supported in this configuration.\n");
+#elif !defined(BDE_BUILD_TARGET_EXC)
+        if (verbose) printf("Test disabled as exceptions are NOT enabled.\n");
 #else
         struct LocalClass {
             static void test() throw (std::bad_exception, double) {
