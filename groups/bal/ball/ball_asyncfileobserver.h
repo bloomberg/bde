@@ -197,16 +197,20 @@ BSLS_IDENT("$Id: $")
 // to the default long format except that the timestamp attribute will be
 // written in ISO 8601 format:
 //..
-//  asyncFileObserver.setLogFormat("%I %p:%t %s %f:%l %c %m %u",
-//                                 "%I %p:%t %s %f:%l %c %m %u");
+//  asyncFileObserver.setLogFormat("\n%I %p:%t %s %f:%l %c %m %u\n",
+//                                 "\n%I %p:%t %s %f:%l %c %m %u\n");
 //..
 // Once a customized format is specified for 'stdout', calling
 // 'disableStdoutLoggingPrefix' will switch to the default short format, i.e.,
-// "%s %f:%l %c %m %u".  If 'enableStdoutLoggingPrefix' is subsequently called,
-// the customized format specified in the most recent call to 'setLogFormat'
-// will be reinstated.
+// "\n%s %f:%l %c %m %u\n".  If 'enableStdoutLoggingPrefix' is subsequently
+// called, the customized format specified in the most recent call to
+// 'setLogFormat' will be reinstated.
 //
-// Note that in the sample long-form message above the timestamp has
+// Note that the observer emits newline characters at the beginning and at the
+// end of a log record by default, so the user needs to add them explicitly to
+// the format string to preserve this behavior.
+//
+// Also note that in the sample long-form message above the timestamp has
 // millisecond precision ('18MAY2005_18:58:12.076').  If microsecond precision
 // is desired instead, consider using either the '%D' or '%O' format
 // specification supported by 'ball_recordstringformatter'.
@@ -371,8 +375,8 @@ BSLS_IDENT("$Id: $")
 // file and in 'bdlt'-style (default) format to 'stdout', where timestamps are
 // output with millisecond precision in both cases:
 //..
-//  observerPtr->setLogFormat("%I %p:%t %s %f:%l %c %m",
-//                            "%d %p:%t %s %f:%l %c %m");
+//  observerPtr->setLogFormat("\n%I %p:%t %s %f:%l %c %m\n",
+//                            "\n%d %p:%t %s %f:%l %c %m\n");
 //..
 // Note that both of the above format specifications omit user fields ('%u') in
 // the output.
@@ -712,7 +716,7 @@ class AsyncFileObserver : public Observer {
     void disableStdoutLoggingPrefix();
         // Disable this async file observer from using the long output format
         // when logging to 'stdout'.  Henceforth, this async file observer will
-        // use the default short output format ("%s %f:%l %c %m %u") when
+        // use the default short output format ("\n%s %f:%l %c %m %u\n") when
         // logging to 'stdout'.  This method has no effect if the long output
         // format for 'stdout' logging is not enabled.  Note that this method
         // omits the "%d %p:%t " prefix from the default long output format.
@@ -758,11 +762,11 @@ class AsyncFileObserver : public Observer {
         // logging to 'stdout'.  Henceforth, this async file observer will use
         // the output format for 'stdout' logging that was set by the most
         // recent call to 'setLogFormat', or the default long output format
-        // ("%d %p:%t %s %f:%l %c %m %u") if 'setLogFormat' has not yet been
-        // called.  This method has no effect if the long output format for
-        // 'stdout' logging is already enabled.  Note that this method affects
-        // records subsequently received through the 'publish' method as well
-        // as those that are currently on the queue.
+        // ("\n%d %p:%t %s %f:%l %c %m %u\n") if 'setLogFormat' has not yet
+        // been called.  This method has no effect if the long output format
+        // for 'stdout' logging is already enabled.  Note that this method
+        // affects records subsequently received through the 'publish' method
+        // as well as those that are currently on the queue.
 
     void enablePublishInLocalTime();
         // Enable publishing of the timestamp attribute of records in local
@@ -834,8 +838,11 @@ class AsyncFileObserver : public Observer {
         // 'disableStdoutLoggingPrefix').  See {Log Record Formatting} for
         // details on the syntax of format specifications.  Note that default
         // formats are in effect following construction until this method is
-        // called ("%d %p:%t %s %f:%l %c %m %u" for both file and 'stdout'
-        // logging).  Also note that this method affects records subsequently
+        // called ("\n%d %p:%t %s %f:%l %c %m %u\n" for both file and 'stdout'
+        // logging).  Also note that the observer emits newline characters at
+        // the beginning and at the end of a log record by default, so the user
+        // needs to add them explicitly to the format string to preserve this
+        // behavior.  Also note that this method affects records subsequently
         // received through the 'publish' method as well as those that are
         // currently on the queue.
 
