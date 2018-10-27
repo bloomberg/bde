@@ -328,6 +328,32 @@ void debugprint(const StringRefWide& value)
 
 }  // close package namespace
 }  // close enterprise namespace
+
+namespace bsl {
+
+template <class CHAR_TYPE>
+void debugprint(const basic_string<CHAR_TYPE>& value);
+
+template <>
+void debugprint(const basic_string<char>& value)
+    // Print the specified 'value'.
+{
+    for (size_t i = 0; i != value.length(); ++i) {
+        putchar(value[i]);
+    }
+}
+
+template <>
+void debugprint(const basic_string<wchar_t>& value)
+    // Print the specified 'value'.
+{
+    for (size_t i = 0; i != value.length(); ++i) {
+        printf("%s%d", (i ? ", " : ""), static_cast<int>(value[i]));
+    }
+}
+
+}  // close namespace bsl
+
 // ============================================================================
 //                 Test Case 11: Testing 'bsl::string;;operator='
 // ----------------------------------------------------------------------------
@@ -733,272 +759,210 @@ void testBasicAccessors(bool verbose)
                            << std::endl;
 
     {
-        const bslstl::StringRefImp<CHAR> s1(TestData<CHAR>::s_stringValue1_p);
-        const bslstl::StringRefImp<CHAR> s2(TestData<CHAR>::s_stringValue2_p);
-        const bslstl::StringRefImp<CHAR> s3(TestData<CHAR>::s_stringValue2_p,
-                                            3);
-        const bslstl::StringRefImp<CHAR> s4(TestData<CHAR>::s_stringValue1_p,
-                                            3);
-        const bslstl::StringRefImp<CHAR> s5;
-        const bslstl::StringRefImp<CHAR> s6(TestData<CHAR>::s_maxString_p);
-        const bslstl::StringRefImp<CHAR> s7(TestData<CHAR>::s_minString_p);
-        const bslstl::StringRefImp<CHAR> s8(TestData<CHAR>::s_emptyString_p);
-
-        const CHAR *pc1 = TestData<CHAR>::s_stringValue1_p;
-        const CHAR *pc2 = TestData<CHAR>::s_stringValue2_p;
-        const bsl::basic_string<CHAR> ss3(s3);
-        const CHAR *pc3 = ss3.c_str();
-        const bsl::basic_string<CHAR> ss4(s4);
-        const CHAR *pc4 = ss4.c_str();
-        const CHAR *pc5 = TestData<CHAR>::s_emptyString_p;
-        const CHAR *pc6 = TestData<CHAR>::s_maxString_p;
-        const CHAR *pc7 = TestData<CHAR>::s_minString_p;
-        const CHAR   c8 = 0;
-        const CHAR *pc8 = &c8;
-
-        const bsls::Types::Uint64 u6 = *pc6 & ~CHAR(0);
-        const bsls::Types::Uint64 u7 = *pc7 & ~CHAR(0);
+        // We test to ensure that all comparisons between 'basic_strings',
+        // 'StringRefImp's, and 'const CHAR *'s yield matching results.  We
+        // have no strings with embedded '\0's in this example.
 
         if (verbose) {
-            P_(*pc6);  P_(int(*pc6));  P_(u6);
-            P_(*pc7);  P_(int(*pc7));  P(u7);
-
-            P_((*pc7 < *pc6));
-            P(native_std::char_traits<CHAR>::lt(*pc7, *pc6));
+            P(*TestData<CHAR>::s_minString_p);
         }
 
-        ASSERT(s1.compare(s1) == 0);
-        ASSERT(s1.compare(s2) < 0);
-        ASSERT(s1.compare(s3) > 0);
-        ASSERT(s1.compare(s4) > 0);
-        ASSERT(s1.compare(s5) > 0);
-        ASSERT(s1.compare(s6) < 0);
-        ASSERT(s1.compare(s8) > 0);
+        struct Data {
+            const int   d_line;
+            const CHAR *d_str_p;
+            const int   d_len;    // -2:  default construct string & string ref
+                                  // -1:  pass ptr but no length to string
+                                  //      c'tor
+                                  // non -ve: pass ptr and length to string
+                                  //          c'tor
+        } DATA[] = {
+            { L_, TestData<CHAR>::s_emptyString_p,    -1 },
+            { L_, TestData<CHAR>::s_emptyString_p,    -2 },
+            { L_, TestData<CHAR>::s_nonEmptyString_p, -1 },
+            { L_, TestData<CHAR>::s_nonEmptyString_p, 10 },
+            { L_, TestData<CHAR>::s_stringValue1_p,    0 },
+            { L_, TestData<CHAR>::s_stringValue1_p,   -1 },
+            { L_, TestData<CHAR>::s_stringValue1_p,    3 },
+            { L_, TestData<CHAR>::s_stringValue2_p,   -1 },
+            { L_, TestData<CHAR>::s_stringValue2_p,    3 },
+            { L_, TestData<CHAR>::s_maxString_p,      -1 },
+            { L_, TestData<CHAR>::s_minString_p,      -1 }
+        };
+        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        ASSERT(s1.compare(pc1) == 0);
-        ASSERT(s1.compare(pc2) < 0);
-        ASSERT(s1.compare(pc3) > 0);
-        ASSERT(s1.compare(pc4) > 0);
-        ASSERT(s1.compare(pc5) > 0);
-        ASSERT(s1.compare(pc6) < 0);
-        ASSERT(s1.compare(pc8) > 0);
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const Data& idata = DATA[ti];
+            const int   IL    = idata.d_line;
+            const CHAR *IPC   = idata.d_str_p;
+            const int   ILEN  = idata.d_len;
 
-        ASSERT(s2.compare(s1) > 0);
-        ASSERT(s2.compare(s2) == 0);
-        ASSERT(s2.compare(s3) > 0);
-        ASSERT(s2.compare(s4) > 0);
-        ASSERT(s2.compare(s5) > 0);
-        ASSERT(s2.compare(s6) < 0);
-        ASSERT(s2.compare(s8) > 0);
+            const bsl::basic_string<CHAR>& IS =
+                                       -2 == ILEN
+                                       ? bsl::basic_string<CHAR>()
+                                       : -1 == ILEN
+                                       ? bsl::basic_string<CHAR>(IPC)
+                                       : bsl::basic_string<CHAR>(IPC, ILEN);
+            const bslstl::StringRefImp<CHAR>& ISR =
+                                       -2 == ILEN
+                                       ? bslstl::StringRefImp<CHAR>()
+                                       : -1 == ILEN
+                                       ? bslstl::StringRefImp<CHAR>(IPC)
+                                       : bslstl::StringRefImp<CHAR>(IPC, ILEN);
 
-        ASSERT(s2.compare(pc1) > 0);
-        ASSERT(s2.compare(pc2) == 0);
-        ASSERT(s2.compare(pc3) > 0);
-        ASSERT(s2.compare(pc4) > 0);
-        ASSERT(s2.compare(pc5) > 0);
-        ASSERT(s2.compare(pc6) < 0);
-        ASSERT(s2.compare(pc8) > 0);
+            const basic_string<CHAR> ICOPY(IS);
+            if (0 <= ILEN) {
+                IPC = ICOPY.c_str();
+            }
 
-        ASSERT(s3.compare(s1) < 0);
-        ASSERT(s3.compare(s2) < 0);
-        ASSERT(s3.compare(s3) == 0);
-        ASSERT(s3.compare(s4) == 0);
-        ASSERT(s3.compare(s5) > 0);
-        ASSERT(s3.compare(s6) < 0);
-        ASSERT(s3.compare(s8) > 0);
+            for (int tj = 0; tj < k_NUM_DATA; ++tj) {
+                const Data& jdata = DATA[tj];
+                const int   JL    = jdata.d_line;
+                const CHAR *JPC   = jdata.d_str_p;
+                const int   JLEN  = jdata.d_len;
 
-        ASSERT(s3.compare(pc1) < 0);
-        ASSERT(s3.compare(pc2) < 0);
-        ASSERT(s3.compare(pc3) == 0);
-        ASSERT(s3.compare(pc4) == 0);
-        ASSERT(s3.compare(pc5) > 0);
-        ASSERT(s3.compare(pc6) < 0);
-        ASSERT(s3.compare(pc8) > 0);
+                const bsl::basic_string<CHAR>& JS =
+                                       -2 == JLEN
+                                       ? bsl::basic_string<CHAR>()
+                                       : -1 == JLEN
+                                       ? bsl::basic_string<CHAR>(JPC)
+                                       : bsl::basic_string<CHAR>(JPC, JLEN);
+                const bslstl::StringRefImp<CHAR>& JSR =
+                                       -2 == JLEN
+                                       ? bslstl::StringRefImp<CHAR>()
+                                       : -1 == JLEN
+                                       ? bslstl::StringRefImp<CHAR>(JPC)
+                                       : bslstl::StringRefImp<CHAR>(JPC, JLEN);
 
-        ASSERT(s4.compare(s1) < 0);
-        ASSERT(s4.compare(s2) < 0);
-        ASSERT(s4.compare(s3) == 0);
-        ASSERT(s4.compare(s4) == 0);
-        ASSERT(s4.compare(s5) > 0);
-        ASSERT(s4.compare(s6) < 0);
-        ASSERT(s4.compare(s8) > 0);
+                const basic_string<CHAR> JCOPY(JS);
+                if (0 <= JLEN) {
+                    JPC = JCOPY.c_str();
+                }
 
-        ASSERT(s4.compare(pc1) < 0);
-        ASSERT(s4.compare(pc2) < 0);
-        ASSERT(s4.compare(pc3) == 0);
-        ASSERT(s4.compare(pc4) == 0);
-        ASSERT(s4.compare(pc5) > 0);
-        ASSERT(s4.compare(pc6) < 0);
-        ASSERT(s4.compare(pc8) > 0);
+                const bool EQ = IS == JS, NE = !EQ;
+                const bool LT = IS <  JS, GE = !LT;
+                const bool GT = IS >  JS, LE = !GT;
 
-        ASSERT(s5.compare(s1) < 0);
-        ASSERT(s5.compare(s2) < 0);
-        ASSERT(s5.compare(s3) < 0);
-        ASSERT(s5.compare(s4) < 0);
-        ASSERT(s5.compare(s5) == 0);
-        ASSERT(s5.compare(s6) < 0);
-        ASSERT(s5.compare(s8) == 0);
+                ASSERTV(IL, JL, IS, JS, EQ, IL != JL || EQ);
 
-        ASSERT(s5.compare(pc1) < 0);
-        ASSERT(s5.compare(pc2) < 0);
-        ASSERT(s5.compare(pc3) < 0);
-        ASSERT(s5.compare(pc4) < 0);
-        ASSERT(s5.compare(pc5) == 0);
-        ASSERT(s5.compare(pc6) < 0);
-        ASSERT(s5.compare(pc8) == 0);
+                // Call the two 'compare' methods directly:
 
-        ASSERT(s6.compare(s1) > 0);
-        ASSERT(s6.compare(s2) > 0);
-        ASSERT(s6.compare(s3) > 0);
-        ASSERT(s6.compare(s4) > 0);
-        ASSERT(s6.compare(s5) > 0);
-        ASSERT(s6.compare(s6) == 0);
-        ASSERT(s6.compare(s8) > 0);
+                int COMPARE_PC = ISR.compare(JPC);
+                int COMPARE_SR = ISR.compare(JSR);
 
-        ASSERT(s6.compare(pc1) > 0);
-        ASSERT(s6.compare(pc2) > 0);
-        ASSERT(s6.compare(pc3) > 0);
-        ASSERT(s6.compare(pc4) > 0);
-        ASSERT(s6.compare(pc5) > 0);
-        ASSERT(s6.compare(pc6) == 0);
-        ASSERT(s6.compare(pc8) > 0);
+                ASSERTV(IL, JL, IS, JS, EQ == (COMPARE_PC == 0));
+                ASSERTV(IL, JL, IS, JS, EQ == (COMPARE_SR == 0));
 
-        // Object 7 poses difficulties.  Two issues crop up:
-        //: o If 'CHAR' is an unsigned type, '*pc7' is 0, meaning that object 7
-        //:   matches objects 5 and 8.
-        //:
-        //: o If 'CHAR' is signed, the first element of object 7 is negative,
-        //:   and the imp of our comparison of two 'StringRefImp' objects
-        //:   delegates to 'native_std::char_traits<CHAR_TYPE>::compare', which
-        //:   does a weird thing on some but not all platforms, namely casting
-        //:   'CHAR' elements to their unsigned equivalent while comparing,
-        //:   thus we get different results for different platforms.  The
-        //:   comparison between a string ref and a 'const CHAR *' is coded by
-        //:   us and always does the comparison of two 'CHAR' objects without
-        //:   casting them (the behavior of
-        //:   'native_std::char_traits<CHAR_TYPE>::compare' on Solaris).
+                ASSERTV(IL, JL, IS, JS, NE == (COMPARE_PC != 0));
+                ASSERTV(IL, JL, IS, JS, NE == (COMPARE_SR != 0));
 
-        // If the 'CHAR' type is unsigned, 's7' and 'pc7' just represent null
-        // strings.
+                ASSERTV(IL, JL, IS, JS, LT == (COMPARE_PC <  0));
+                ASSERTV(IL, JL, IS, JS, LT == (COMPARE_SR <  0));
 
-        if (static_cast<CHAR>(-1) > 0) {
-            ASSERT(s5.compare(s7) == 0);
-            ASSERT(s8.compare(s7) == 0);
+                ASSERTV(IL, JL, IS, JS, GE == (COMPARE_PC >= 0));
+                ASSERTV(IL, JL, IS, JS, GE == (COMPARE_SR >= 0));
 
-            ASSERT(s7.compare(s5) == 0);
-            ASSERT(s7.compare(s8) == 0);
+                ASSERTV(IL, JL, IS, JS, GT == (COMPARE_PC >  0));
+                ASSERTV(IL, JL, IS, JS, GT == (COMPARE_SR >  0));
 
-            ASSERT(s5.compare(pc7) == 0);
-            ASSERT(s8.compare(pc7) == 0);
+                ASSERTV(IL, JL, IS, JS, LE == (COMPARE_PC <= 0));
+                ASSERTV(IL, JL, IS, JS, LE == (COMPARE_SR <= 0));
 
-            ASSERT(s7.compare(pc5) == 0);
-            ASSERT(s7.compare(pc8) == 0);
+                // Normalize 'COMPARE_PC' & 'COMPARE_SR', at which point they
+                // should be equal, if they weren't equal to begin with.
+
+                COMPARE_PC = COMPARE_PC < 0
+                           ? -1
+                           : COMPARE_PC > 0
+                           ? +1 : 0;
+                COMPARE_SR = COMPARE_SR < 0
+                           ? -1
+                           : COMPARE_SR > 0
+                           ? +1 : 0;
+
+                ASSERTV(IL, JL, IS, JS, COMPARE_PC, COMPARE_SR,
+                                                     COMPARE_PC == COMPARE_SR);
+
+                // 'operator=='
+
+                ASSERTV(IL, JL, IS, JS, EQ, (IS == JPC), EQ == (IS == JPC));
+                ASSERTV(IL, JL, IS, JS, EQ, (IS == JS),  EQ == (IS == JS));
+                ASSERTV(IL, JL, IS, JS, EQ, (IS == JSR), EQ == (IS == JSR));
+
+                ASSERTV(IL, JL, IS, JS, EQ, (ISR == JPC), EQ == (IS == JPC));
+                ASSERTV(IL, JL, IS, JS, EQ, (ISR == JS),  EQ == (IS == JS));
+                ASSERTV(IL, JL, IS, JS, EQ, (ISR == JSR), EQ == (IS == JSR));
+
+                ASSERTV(IL, JL, IS, JS, EQ, (IPC == JS),  EQ == (IS == JS));
+                ASSERTV(IL, JL, IS, JS, EQ, (IPC == JSR), EQ == (IS == JSR));
+
+                // 'operator!='
+
+                ASSERTV(IL, JL, IS, JS, NE, (IS != JPC), NE == (IS != JPC));
+                ASSERTV(IL, JL, IS, JS, NE, (IS != JS),  NE == (IS != JS));
+                ASSERTV(IL, JL, IS, JS, NE, (IS != JSR), NE == (IS != JSR));
+
+                ASSERTV(IL, JL, IS, JS, NE, (ISR != JPC), NE == (IS != JPC));
+                ASSERTV(IL, JL, IS, JS, NE, (ISR != JS),  NE == (IS != JS));
+                ASSERTV(IL, JL, IS, JS, NE, (ISR != JSR), NE == (IS != JSR));
+
+                ASSERTV(IL, JL, IS, JS, NE, (IPC != JS),  NE == (IS != JS));
+                ASSERTV(IL, JL, IS, JS, NE, (IPC != JSR), NE == (IS != JSR));
+
+                // 'operator<'
+
+                ASSERTV(IL, JL, IS, JS, LT, (IS < JPC), LT == (IS < JPC));
+                ASSERTV(IL, JL, IS, JS, LT, (IS < JS),  LT == (IS < JS));
+                ASSERTV(IL, JL, IS, JS, LT, (IS < JSR), LT == (IS < JSR));
+
+                ASSERTV(IL, JL, IS, JS, LT, (ISR < JPC), LT == (ISR < JPC));
+                ASSERTV(IL, JL, IS, JS, LT, (ISR < JS),  LT == (ISR < JS));
+                ASSERTV(IL, JL, IS, JS, LT, (ISR < JSR), LT == (ISR < JSR));
+
+                ASSERTV(IL, JL, IS, JS, LT, (IPC < JS),  LT == (IPC < JS));
+                ASSERTV(IL, JL, IS, JS, LT, (IPC < JSR), LT == (IPC < JSR));
+
+                // 'operator>='
+
+                ASSERTV(IL, JL, IS, JS, GE, (IS >= JPC), GE == (IS >= JPC));
+                ASSERTV(IL, JL, IS, JS, GE, (IS >= JS),  GE == (IS >= JS));
+                ASSERTV(IL, JL, IS, JS, GE, (IS >= JSR), GE == (IS >= JSR));
+
+                ASSERTV(IL, JL, IS, JS, GE, (ISR >= JPC), GE == (ISR >= JPC));
+                ASSERTV(IL, JL, IS, JS, GE, (ISR >= JS),  GE == (ISR >= JS));
+                ASSERTV(IL, JL, IS, JS, GE, (ISR >= JSR), GE == (ISR >= JSR));
+
+                ASSERTV(IL, JL, IS, JS, GE, (IPC >= JS),  GE == (IPC >= JS));
+                ASSERTV(IL, JL, IS, JS, GE, (IPC >= JSR), GE == (IPC >= JSR));
+
+                // 'operator>'
+
+                ASSERTV(IL, JL, IS, JS, GT, (IS > JPC), GT == (IS > JPC));
+                ASSERTV(IL, JL, IS, JS, GT, (IS > JS),  GT == (IS > JS));
+                ASSERTV(IL, JL, IS, JS, GT, (IS > JSR), GT == (IS > JSR));
+
+                ASSERTV(IL, JL, IS, JS, GT, (ISR > JPC), GT == (ISR > JPC));
+                ASSERTV(IL, JL, IS, JS, GT, (ISR > JS),  GT == (ISR > JS));
+                ASSERTV(IL, JL, IS, JS, GT, (ISR > JSR), GT == (ISR > JSR));
+
+                ASSERTV(IL, JL, IS, JS, GT, (IPC > JS),  GT == (IPC > JS));
+                ASSERTV(IL, JL, IS, JS, GT, (IPC > JSR), GT == (IPC > JSR));
+
+                // 'operator<='
+
+                ASSERTV(IL, JL, IS, JS, LE, (IS <= JPC), LE == (IS <= JPC));
+                ASSERTV(IL, JL, IS, JS, LE, (IS <= JS),  LE == (IS <= JS));
+                ASSERTV(IL, JL, IS, JS, LE, (IS <= JSR), LE == (IS <= JSR));
+
+                ASSERTV(IL, JL, IS, JS, LE, (ISR <= JPC), LE == (ISR <= JPC));
+                ASSERTV(IL, JL, IS, JS, LE, (ISR <= JS),  LE == (ISR <= JS));
+                ASSERTV(IL, JL, IS, JS, LE, (ISR <= JSR), LE == (ISR <= JSR));
+
+                ASSERTV(IL, JL, IS, JS, LE, (IPC <= JS),  LE == (IPC <= JS));
+                ASSERTV(IL, JL, IS, JS, LE, (IPC <= JSR), LE == (IPC <= JSR));
+            }
         }
-        else {
-            // When two strings match up to the end of one of them, the longer
-            // string is always greater, therefore a null string is always less
-            // than a non-null string, even if the first element of the
-            // non-null string is negative.
-
-            ASSERT(s5.compare(s7) < 0);
-            ASSERT(s8.compare(s7) < 0);
-
-            ASSERT(s7.compare(s5) > 0);
-            ASSERT(s7.compare(s8) > 0);
-
-            ASSERT(s5.compare(pc7) < 0);
-            ASSERT(s8.compare(pc7) < 0);
-
-            ASSERT(s7.compare(pc5) > 0);
-            ASSERT(s7.compare(pc8) > 0);
-        }
-
-        ASSERT(s7.compare(s7) == 0);
-        ASSERT(s7.compare(pc7) == 0);
-
-        // The behavior of 'native_std::char_traits<CHAR_TYPE>::compare', which
-        // our 'StringRefImp' comparisons use for 'char' and 'wchar_t', varies
-        // from one platform to another, so the test driver has to adapt.
-
-        if (s6.compare(s7) > 0) {
-            // Either 'CHAR_TYPE' is unsigned, or
-            // 'native_std::char_traits<CHAR_TYPE>::compare' is doing a signed
-            // comparison of the 'CHAR_TYPE' elements.
-
-            ASSERT(s7.compare(s1) < 0);
-            ASSERT(s7.compare(s2) < 0);
-            ASSERT(s7.compare(s3) < 0);
-            ASSERT(s7.compare(s4) < 0);
-            ASSERT(s7.compare(s6) < 0);
-
-            ASSERT(s1.compare(s7) > 0);
-            ASSERT(s2.compare(s7) > 0);
-            ASSERT(s3.compare(s7) > 0);
-            ASSERT(s4.compare(s7) > 0);
-            ASSERT(s6.compare(s7) > 0);
-
-            ASSERT(s1.compare(pc7) > 0);
-            ASSERT(s2.compare(pc7) > 0);
-            ASSERT(s3.compare(pc7) > 0);
-            ASSERT(s4.compare(pc7) > 0);
-            ASSERT(s6.compare(pc7) > 0);
-
-            ASSERT(s7.compare(pc1) < 0);
-            ASSERT(s7.compare(pc2) < 0);
-            ASSERT(s7.compare(pc3) < 0);
-            ASSERT(s7.compare(pc4) < 0);
-            ASSERT(s7.compare(pc6) < 0);
-        }
-        else {
-            // 'CHAR_TYPE' is signed, and
-            // 'native_std::char_traits<CHAR_TYPE>::compare' is casting the
-            // 'CHAR_TYPE' elements to their unsigned equivalents before
-            // comparing them, therefore the first element of 's7' compares
-            // greater than the first element of any other string in this test
-            // case.
-
-
-            ASSERT(s7.compare(s1) > 0);
-            ASSERT(s7.compare(s2) > 0);
-            ASSERT(s7.compare(s3) > 0);
-            ASSERT(s7.compare(s4) > 0);
-            ASSERT(s7.compare(s6) > 0);
-
-            ASSERT(s1.compare(s7) < 0);
-            ASSERT(s2.compare(s7) < 0);
-            ASSERT(s3.compare(s7) < 0);
-            ASSERT(s4.compare(s7) < 0);
-            ASSERT(s6.compare(s7) < 0);
-
-            ASSERT(s7.compare(pc1) > 0);
-            ASSERT(s7.compare(pc2) > 0);
-            ASSERT(s7.compare(pc3) > 0);
-            ASSERT(s7.compare(pc4) > 0);
-            ASSERT(s7.compare(pc6) > 0);
-
-            ASSERT(s1.compare(pc7) < 0);
-            ASSERT(s2.compare(pc7) < 0);
-            ASSERT(s3.compare(pc7) < 0);
-            ASSERT(s4.compare(pc7) < 0);
-            ASSERT(s6.compare(pc7) < 0);
-        }
-
-        ASSERT(s8.compare(s1) < 0);
-        ASSERT(s8.compare(s2) < 0);
-        ASSERT(s8.compare(s3) < 0);
-        ASSERT(s8.compare(s4) < 0);
-        ASSERT(s8.compare(s5) == 0);
-        ASSERT(s8.compare(s6) < 0);
-        ASSERT(s8.compare(s8) == 0);
-
-        ASSERT(s8.compare(pc1) < 0);
-        ASSERT(s8.compare(pc2) < 0);
-        ASSERT(s8.compare(pc3) < 0);
-        ASSERT(s8.compare(pc4) < 0);
-        ASSERT(s8.compare(pc5) == 0);
-        ASSERT(s8.compare(pc6) < 0);
-        ASSERT(s8.compare(pc8) == 0);
     }
+
 
     if (verbose) std::cout << "\nTesting: 'operator[]()'"
                            << "\n= = = = = = = = = = = ="

@@ -1059,10 +1059,10 @@ int StringRefImp<CHAR_TYPE>::compare(const_iterator other) const
 {
     // Not inline.
 
-    // Imitate the behavior of the other 'compare' and
+    // Imitate the behavior of the other 'StringRefImp::compare' and
     // 'basic_string::privateCompareRaw' -- if one string is shorter, but they
     // match up to that point, the longer string is always greater, even if the
-    // next character of the longer string is negative.
+    // next character of the longer string has a negative value.
 
     for (const_iterator pc = this->begin(), end = this->end();
                 BSLS_PERFORMANCEHINT_PREDICT_LIKELY(pc < end); ++pc, ++other) {
@@ -1077,14 +1077,17 @@ int StringRefImp<CHAR_TYPE>::compare(const_iterator other) const
 
             // 'native_std::char_traits::compare' is a mess, usually
             // implemented with specialized templates, with behavior that
-            // varies tremendously depending upon the platform, the compiler
-            // and 'CHAR_TYPE'.  In theory it should compare individual
-            // elements with 'native_std::char_traits::lt', but in practice
-            // that's often not the case.  So we delegate directly to
+            // varies tremendously depending upon the platform, the compiler,
+            // and 'CHAR_TYPE'.  In theory, it should compare individual
+            // characters with 'native_std::char_traits::lt', but in practice
+            // that's very often not the case.  Attempting to exactly
+            // anticipate its behavior under all circumstances quickly turned
+            // into a hopeless, brittle horror show of '#ifdef's and template
+            // programming.  So we delegate directly to
             // 'native_std::char_traits::compare' to compare individual
-            // elements known to differ, guaranteeing behavior matching the
-            // 'compare' between two 'StringRefImp's and comparisons between
-            // two 'basic_string's.
+            // characters known to differ, guaranteeing that compares between
+            // 'basic_string's, 'StringRefImp's, and null-terminated 'const
+            // CHAR_TYPE *'s all yield matching results.
 
             return native_std::char_traits<CHAR_TYPE>::compare(pc,
                                                                other,
