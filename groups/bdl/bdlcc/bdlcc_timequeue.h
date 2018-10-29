@@ -848,8 +848,8 @@ class TimeQueue {
         // value otherwise.  If specified, load into the optionally specified
         // 'newLength', the new number of items in this queue.  Return a value
         // that may be used to identify the newly added item in future calls to
-        // time queue on success, and
-        // -1 if the maximum queue length has been reached.
+        // time queue on success, and -1 if the maximum queue length has been
+        // reached.
 
     Handle add(const TimeQueueItem<DATA>&  item,
                int                        *isNewTop = 0,
@@ -859,8 +859,9 @@ class TimeQueue {
         // the replaces is now the lowest element in this queue, and a 0 value
         // otherwise.  If specified, load into the optionally specified
         // 'newLength', the new number of elements in this queue.  Return a
-        // value that may be used to identify the newly added element in future
-        // calls to time queue.
+        // value that may be used to identify the newly added item in future
+        // calls to time queue on success, and -1 if the maximum queue length
+        // has been reached.
 
     int popFront(TimeQueueItem<DATA> *buffer = 0,
                  int                 *newLength = 0,
