@@ -12,6 +12,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
 #include <bsls_nativestd.h>
 #include <bsls_platform.h>
 
@@ -64,61 +65,63 @@ using namespace bsl;  // automatically added by script
 // [ 6] void assign(const bsl::string& begin);
 //
 // ACCESSORS
-// [ 3] const_iterator         begin() const;
-// [ 3] const_iterator         data() const;
-// [ 3] const_iterator         end() const;
+// [ 3] const_iterator begin() const;
+// [ 3] const_iterator data() const;
+// [ 3] const_iterator end() const;
+// [ 3] size_type      length() const;
+// [ 3] size_type      size() const;
+// [ 3] int            empty() const;
+// [ 3] int            isEmpty() const;
+// [ 3] int            compare(const StringRefImp&) const;
+// [ 3] int            compare(const CHAR *) const;
+// [ 3]                operator bsl::string() const;
+// [ 3] const char&    operator[](size_type index) const;
 // [10] const_reverse_iterator rbegin() const;
 // [10] const_reverse_iterator rend() const;
-// [ 3] size_type              length() const;
-// [ 3] size_type              size() const;
-// [ 3] int                    isEmpty() const;
-// [ 3]                        operator bsl::string() const;
-// [ 3]                        operator native_std::string() const;
-// [ 3] const char&            operator[](size_type index) const;
 //
 // FREE OPERATORS
-// [ 5] bool operator==(const StringRef& lhs, const StringRef& rhs);
-// [ 5] bool operator==(const bsl::string& lhs, const StringRef& rhs);
-// [ 5] bool operator==(const StringRef& lhs, const bsl::string& rhs);
-// [ 5] bool operator==(const native_std::string& lhs, const StringRef& rhs);
-// [ 5] bool operator==(const StringRef& lhs, const native_std::string& rhs);
-// [ 5] bool operator==(const char *lhs, const StringRef& rhs);
-// [ 5] bool operator==(const StringRef& lhs, const char *rhs);
-// [ 5] bool operator!=(const StringRef& lhs, const StringRef& rhs);
-// [ 5] bool operator!=(const bsl::string& lhs, const StringRef& rhs);
-// [ 5] bool operator!=(const StringRef& lhs, const bsl::string& rhs);
-// [ 5] bool operator!=(const native_std::string& lhs, const StringRef& rhs);
-// [ 5] bool operator!=(const StringRef& lhs, const native_std::string& rhs);
-// [ 5] bool operator!=(const char *lhs, const StringRef& rhs);
-// [ 5] bool operator!=(const StringRef& lhs, const char *rhs);
-// [ 5] bool operator<(const StringRef& lhs, const StringRef& rhs);
-// [ 5] bool operator<(const bsl::string& lhs, const StringRef& rhs);
-// [ 5] bool operator<(const StringRef& lhs, const bsl::string& rhs);
-// [ 5] bool operator<(const native_std::string& lhs, const StringRef& rhs);
-// [ 5] bool operator<(const StringRef& lhs, const native_std::string& rhs);
-// [ 5] bool operator<(const char *lhs, const StringRef& rhs);
-// [ 5] bool operator<(const StringRef& lhs, const char *rhs);
-// [ 5] bool operator>(const StringRef& lhs, const StringRef& rhs);
-// [ 5] bool operator>(const bsl::string& lhs, const StringRef& rhs);
-// [ 5] bool operator>(const StringRef& lhs, const bsl::string& rhs);
-// [ 5] bool operator>(const native_std::string& lhs, const StringRef& rhs);
-// [ 5] bool operator>(const StringRef& lhs, const native_std::string& rhs);
-// [ 5] bool operator>(const char *lhs, const StringRef& rhs);
-// [ 5] bool operator>(const StringRef& lhs, const char *rhs);
-// [ 5] bool operator<=(const StringRef& lhs, const StringRef& rhs);
-// [ 5] bool operator<=(const bsl::string& lhs, const StringRef& rhs);
-// [ 5] bool operator<=(const StringRef& lhs, const bsl::string& rhs);
-// [ 5] bool operator<=(const native_std::string& lhs, const StringRef& rhs);
-// [ 5] bool operator<=(const StringRef& lhs, const native_std::string& rhs);
-// [ 5] bool operator<=(const char *lhs, const StringRef& rhs);
-// [ 5] bool operator<=(const StringRef& lhs, const char *rhs);
-// [ 5] bool operator>=(const StringRef& lhs, const StringRef& rhs);
-// [ 5] bool operator>=(const bsl::string& lhs, const StringRef& rhs);
-// [ 5] bool operator>=(const StringRef& lhs, const bsl::string& rhs);
-// [ 5] bool operator>=(const native_std::string& lhs, const StringRef& rhs);
-// [ 5] bool operator>=(const StringRef& lhs, const native_std::string& rhs);
-// [ 5] bool operator>=(const char *lhs, const StringRef& rhs);
-// [ 5] bool operator>=(const StringRef& lhs, const char *rhs);
+// [ 3] bool operator==(const StringRef& lhs, const StringRef& rhs);
+// [ 3] bool operator==(const bsl::string& lhs, const StringRef& rhs);
+// [ 3] bool operator==(const StringRef& lhs, const bsl::string& rhs);
+// [ 3] bool operator==(const native_std::string& lhs, const StringRef& rhs);
+// [ 3] bool operator==(const StringRef& lhs, const native_std::string& rhs);
+// [ 3] bool operator==(const char *lhs, const StringRef& rhs);
+// [ 3] bool operator==(const StringRef& lhs, const char *rhs);
+// [ 3] bool operator!=(const StringRef& lhs, const StringRef& rhs);
+// [ 3] bool operator!=(const bsl::string& lhs, const StringRef& rhs);
+// [ 3] bool operator!=(const StringRef& lhs, const bsl::string& rhs);
+// [ 3] bool operator!=(const native_std::string& lhs, const StringRef& rhs);
+// [ 3] bool operator!=(const StringRef& lhs, const native_std::string& rhs);
+// [ 3] bool operator!=(const char *lhs, const StringRef& rhs);
+// [ 3] bool operator!=(const StringRef& lhs, const char *rhs);
+// [ 3] bool operator<(const StringRef& lhs, const StringRef& rhs);
+// [ 3] bool operator<(const bsl::string& lhs, const StringRef& rhs);
+// [ 3] bool operator<(const StringRef& lhs, const bsl::string& rhs);
+// [ 3] bool operator<(const native_std::string& lhs, const StringRef& rhs);
+// [ 3] bool operator<(const StringRef& lhs, const native_std::string& rhs);
+// [ 3] bool operator<(const char *lhs, const StringRef& rhs);
+// [ 3] bool operator<(const StringRef& lhs, const char *rhs);
+// [ 3] bool operator>(const StringRef& lhs, const StringRef& rhs);
+// [ 3] bool operator>(const bsl::string& lhs, const StringRef& rhs);
+// [ 3] bool operator>(const StringRef& lhs, const bsl::string& rhs);
+// [ 3] bool operator>(const native_std::string& lhs, const StringRef& rhs);
+// [ 3] bool operator>(const StringRef& lhs, const native_std::string& rhs);
+// [ 3] bool operator>(const char *lhs, const StringRef& rhs);
+// [ 3] bool operator>(const StringRef& lhs, const char *rhs);
+// [ 3] bool operator<=(const StringRef& lhs, const StringRef& rhs);
+// [ 3] bool operator<=(const bsl::string& lhs, const StringRef& rhs);
+// [ 3] bool operator<=(const StringRef& lhs, const bsl::string& rhs);
+// [ 3] bool operator<=(const native_std::string& lhs, const StringRef& rhs);
+// [ 3] bool operator<=(const StringRef& lhs, const native_std::string& rhs);
+// [ 3] bool operator<=(const char *lhs, const StringRef& rhs);
+// [ 3] bool operator<=(const StringRef& lhs, const char *rhs);
+// [ 3] bool operator>=(const StringRef& lhs, const StringRef& rhs);
+// [ 3] bool operator>=(const bsl::string& lhs, const StringRef& rhs);
+// [ 3] bool operator>=(const StringRef& lhs, const bsl::string& rhs);
+// [ 3] bool operator>=(const native_std::string& lhs, const StringRef& rhs);
+// [ 3] bool operator>=(const StringRef& lhs, const native_std::string& rhs);
+// [ 3] bool operator>=(const char *lhs, const StringRef& rhs);
+// [ 3] bool operator>=(const StringRef& lhs, const char *rhs);
 // [ 4] operator<<(ostream&, const StringRef& string);
 // [ 7] operator+(const StringRef& lhs, const StringRef& rhs);
 // [ 7] operator+(const bsl::string& lhs, const StringRef& rhs);
@@ -207,15 +210,14 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
-
 // ============================================================================
 //                       GLOBAL TEST VALUES
 // ----------------------------------------------------------------------------
 
-static bool             verbose;
-static bool         veryVerbose;
-static bool     veryVeryVerbose;
-static bool veryVeryVeryVerbose;
+bool             verbose;
+bool         veryVerbose;
+bool     veryVeryVerbose;
+bool veryVeryVeryVerbose;
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -236,92 +238,130 @@ struct TestData
     static CHAR const * s_nonEmptyString_p;
     static CHAR const * s_stringValue1_p;
     static CHAR const * s_stringValue2_p;
-    static CHAR         s_maxStringBuf[2];
     static CHAR const * s_maxString_p;
-    static CHAR         s_minStringBuf[2];
     static CHAR const * s_minString_p;
 
     enum Enum { k_ENUM_ZERO_VALUE, k_ENUM_MAX = 0xFFFF };
     enum      { k_ZERO_VALUE,      k_MAX      = 0xFFFF };
+
+    static
+    CHAR const *emptyStringFunc()
+    {
+        static CHAR buf[] = { 0 };
+        return &buf[0];
+    }
+
+    static
+    CHAR const *nonEmptyStringFunc()
+    {
+        const char origString[] = { "Tangled Up in Blue - Bob Dylan" };
+        static CHAR buf[sizeof(origString)];
+        for (unsigned uu = 0; uu < sizeof(origString); ++uu) {
+            buf[uu] = origString[uu];
+        }
+        return &buf[0];
+    }
+
+    static
+    CHAR const *stringValue1Func()
+    {
+        const char origString[] = { "abcde" };
+        static CHAR buf[sizeof(origString)];
+        for (unsigned uu = 0; uu < sizeof(origString); ++uu) {
+            buf[uu] = origString[uu];
+        }
+        return &buf[0];
+    }
+
+    static
+    CHAR const *stringValue2Func()
+    {
+        const char origString[] = { "abcfg" };
+        static CHAR buf[sizeof(origString)];
+        for (unsigned uu = 0; uu < sizeof(origString); ++uu) {
+            buf[uu] = origString[uu];
+        }
+        return &buf[0];
+    }
+
+    static
+    CHAR const *maxStringFunc()
+    {
+        static CHAR buf[2] = { native_std::numeric_limits<CHAR>::max(), 0 };
+        return &buf[0];
+    }
+
+    static
+    CHAR const *minStringFunc()
+    {
+        static CHAR buf[2] = { native_std::numeric_limits<CHAR>::min(), 0 };
+        return &buf[0];
+    }
 };
 
 template <>
 char const * TestData<char>::s_emptyString_p = "";
-
 template <>
 char const * TestData<char>::s_nonEmptyString_p =
                                               "Tangled Up in Blue - Bob Dylan";
-
 template <>
 char const * TestData<char>::s_stringValue1_p = "abcde";
-
 template <>
 char const * TestData<char>::s_stringValue2_p = "abcfg";
 
 template <>
-char TestData<char>::s_maxStringBuf[2] = {
-                                  native_std::numeric_limits<char>::max(), 0 };
-template <>
-char const * TestData<char>::s_maxString_p =
-                                            &TestData<char>::s_maxStringBuf[0];
-
-template <>
-char TestData<char>::s_minStringBuf[2] = {
-                                  native_std::numeric_limits<char>::min(), 0 };
-template <>
-char const * TestData<char>::s_minString_p =&TestData<char>::s_minStringBuf[0];
-
-template <>
 wchar_t const * TestData<wchar_t>::s_emptyString_p = L"";
-
 template <>
 wchar_t const * TestData<wchar_t>::s_nonEmptyString_p
-    = L"Tangled Up in Blue - Bob Dylan";
-
+                                           = L"Tangled Up in Blue - Bob Dylan";
 template <>
 wchar_t const * TestData<wchar_t>::s_stringValue1_p = L"abcde";
-
 template <>
 wchar_t const * TestData<wchar_t>::s_stringValue2_p = L"abcfg";
-
-template <>
-wchar_t TestData<wchar_t>::s_maxStringBuf[2] = {
-                               native_std::numeric_limits<wchar_t>::max(), 0 };
-template <>
-wchar_t const * TestData<wchar_t>::s_maxString_p =
-                                         &TestData<wchar_t>::s_maxStringBuf[0];
-
-template <>
-wchar_t TestData<wchar_t>::s_minStringBuf[2] = {
-                               native_std::numeric_limits<wchar_t>::min(), 0 };
-template <>
-wchar_t const * TestData<wchar_t>::s_minString_p =
-                                         &TestData<wchar_t>::s_minStringBuf[0];
 
 char const * EMPTY_STRING     = TestData<char>::s_emptyString_p;
 char const * NON_EMPTY_STRING = TestData<char>::s_nonEmptyString_p;
 
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                        GLOBAL FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+template <class CHAR>
+void printChar(CHAR c, bool notFirst)
+    // Print the specified 'c'.  If '1 < sizeof(c)' and 'notFirst', precede it
+    // with ", ".
+{
+    if (1 == sizeof(CHAR)) {
+        if (0 < c && 0 == (c & 0x80)) {
+            putchar(static_cast<char>(c));
+        }
+        else {
+            printf("\\x%x", static_cast<int>(c & 0xff));
+        }
+    }
+    else {
+        const char *space = notFirst ? ", " : "";
+        if (static_cast<CHAR>(-1) < 0) {
+            printf("%s%d", space, static_cast<int>(c));
+        }
+        else {
+            printf("%s%u", space, static_cast<unsigned>(c));
+        }
+    }
+}
 
 namespace BloombergLP {
 namespace bslstl {
 
-void debugprint(const StringRef& value)
+template <class CHAR>
+void debugprint(const StringRefImp<CHAR>& value)
     // Print the specified 'value'.
 {
-    for (size_t i = 0; i != value.length(); ++i) {
-        putchar(value[i]);
-    }
-}
+    BSLMF_ASSERT(sizeof(CHAR) <= sizeof(int));
 
-void debugprint(const StringRefWide& value)
-    // Print the specified 'value'.
-{
-    printf("{");
+    printf("{ ");
     for (size_t i = 0; i != value.length(); ++i) {
-        printf("%s%d", (i ? ", " : " "), value[i]);
+        printChar(value[i], 0 != i);
     }
     printf(" }");
 }
@@ -331,29 +371,30 @@ void debugprint(const StringRefWide& value)
 
 namespace bsl {
 
-template <class CHAR_TYPE>
-void debugprint(const basic_string<CHAR_TYPE>& value);
-
-template <>
-void debugprint(const basic_string<char>& value)
-    // Print the specified 'value'.
+template <class CHAR>
+void debugprint(const basic_string<CHAR>& value)
 {
-    for (size_t i = 0; i != value.length(); ++i) {
-        putchar(value[i]);
-    }
-}
+    BSLMF_ASSERT(sizeof(CHAR) <= sizeof(int));
 
-template <>
-void debugprint(const basic_string<wchar_t>& value)
-    // Print the specified 'value'.
-{
+    printf("{");
     for (size_t i = 0; i != value.length(); ++i) {
-        printf("%s%d", (i ? ", " : ""), static_cast<int>(value[i]));
+        printChar(value[i], 0 != i);
     }
+    printf(" }");
 }
 
 }  // close namespace bsl
 
+int normalizeCompare(int value)
+    // Return the specified 'value' normalized to -1, 0, or +1 depending upon
+    // whether value was negative, zero, or positive, respectively.
+{
+    return value > 0
+         ? +1
+         : value < 0
+         ? -1
+         : 0;
+}
 // ============================================================================
 //                 Test Case 11: Testing 'bsl::string;;operator='
 // ----------------------------------------------------------------------------
@@ -693,292 +734,322 @@ void TestDriver<CHAR_TYPE>::testCase9()
 // provided by the 'begin' and 'end' accessors.
 
 template <class CHAR>
-void testBasicAccessors(bool verbose)
-    // Test the basic accessors of 'const Obj'.  If the specified 'verbose' is
-    // 'true', output verbose traces.
+void testAccessorsComparisons()
+    // Test all the accessor methods, especially including both 'compare'
+    // methods, and test all free comparison operators between 'bsl::string's,
+    // 'native_std::strings's, 'StringRefImp's, and 'const CHAR *'s.
 {
-    if (verbose) std::cout << "\nTESTING BASIC ACCESSORS"
-                           << "\n======================="
-                           << std::endl;
+    namespace nstd = native_std;
 
-    if (verbose) std::cout << "\nTesting:\n\t'begin'\n\t'data'\n\t'end'"
-                              "\n\t'length\n\t'size''\n\t'empty'"
-                              "\n\t'operator bsl::string'"
-                              "\n\t'operator native_std::string'"
-                           << "\n= = = = = = = = = = = = = = = = = = = ="
-                           << std::endl;
+    const char *charTypeName = bsls::NameOf<CHAR>();
 
-    {
-        // EMPTY STRING
-        bslstl::StringRefImp<CHAR> es(TestData<CHAR>::s_emptyString_p);
-        const bslstl::StringRefImp<CHAR>& ES = es;
+    if (verbose) std::cout << "TESTING ACCESSORS AND COMPARISONS: "
+                           <<  charTypeName << "\n"
+                              "=================================\n";
 
-        ASSERT(ES.begin()   == TestData<CHAR>::s_emptyString_p);
-        ASSERT(ES.data()    == TestData<CHAR>::s_emptyString_p);
-        ASSERT(ES.data()    == ES.begin());
-        ASSERT(ES.end()     == TestData<CHAR>::s_emptyString_p);
-        ASSERT(ES.length()  == native_std::char_traits<CHAR>::length(
-                                             TestData<CHAR>::s_emptyString_p));
-        ASSERT(ES.size()    == native_std::char_traits<CHAR>::length(
-                                             TestData<CHAR>::s_emptyString_p));
-        ASSERT(ES.empty());
-        ASSERT(ES.isEmpty());
+    // We test to ensure that all comparisons between 'basic_strings',
+    // 'StringRefImp's, and 'const CHAR *'s yield matching results.  We
+    // have no strings with embedded '\0's in this example.
 
-        bsl::basic_string<CHAR> EString(TestData<CHAR>::s_emptyString_p);
-        ASSERT(EString  == static_cast<bsl::basic_string<CHAR> >(ES));
+    if (verbose) {
+        const CHAR minChar = *TestData<CHAR>::minStringFunc();
+        const CHAR maxChar = *TestData<CHAR>::maxStringFunc();
 
-        native_std::basic_string<CHAR> EString2(
-                                              TestData<CHAR>::s_emptyString_p);
-        ASSERT(EString2 == static_cast<native_std::basic_string<CHAR> >(ES));
-
-        // NON-EMPTY STRING
-        bslstl::StringRefImp<CHAR> nes(TestData<CHAR>::s_nonEmptyString_p);
-        const bslstl::StringRefImp<CHAR>& NES = nes;
-        std::size_t LEN = native_std::char_traits<CHAR>::length(
-                                           TestData<CHAR>::s_nonEmptyString_p);
-
-        ASSERT(NES.begin()   == TestData<CHAR>::s_nonEmptyString_p);
-        ASSERT(NES.data()    == TestData<CHAR>::s_nonEmptyString_p);
-        ASSERT(NES.data()    == NES.begin());
-        ASSERT(NES.end()     == TestData<CHAR>::s_nonEmptyString_p + LEN);
-        ASSERT(NES.length()  == LEN);
-        ASSERT(NES.size()    == LEN);
-        ASSERT(!NES.empty());
-        ASSERT(!NES.isEmpty());
-
-        bsl::basic_string<CHAR> NEString(TestData<CHAR>::s_nonEmptyString_p);
-        ASSERT(NEString  == static_cast<bsl::basic_string<CHAR> >(NES));
-
-        native_std::basic_string<CHAR>
-            NEString2(TestData<CHAR>::s_nonEmptyString_p);
-        ASSERT(NEString2 == static_cast<native_std::basic_string<CHAR> >(NES));
+        P_(minChar);    P(maxChar);
     }
 
-    if (verbose) std::cout << "\nTesting: 'compare'"
-                           << "\n= = = = = = = = = "
-                           << std::endl;
+    static struct Data {
+        const int   d_line;
+        const CHAR *d_str_p;
+        const int   d_len;    // -2:  default construct string & string ref
+                              // -1:  pass ptr but no length to string
+                              //      c'tor
+                              // non -ve: pass ptr and length to string
+                              //          c'tor
+    } DATA[] = {
+        { L_, TestData<CHAR>::emptyStringFunc(),    -1 },
+        { L_, TestData<CHAR>::emptyStringFunc(),    -2 },
+        { L_, TestData<CHAR>::nonEmptyStringFunc(), -1 },
+        { L_, TestData<CHAR>::nonEmptyStringFunc(), 10 },
+        { L_, TestData<CHAR>::stringValue1Func(),    0 },
+        { L_, TestData<CHAR>::stringValue1Func(),   -1 },
+        { L_, TestData<CHAR>::stringValue1Func(),    3 },
+        { L_, TestData<CHAR>::stringValue2Func(),   -1 },
+        { L_, TestData<CHAR>::stringValue2Func(),    3 },
+        { L_, TestData<CHAR>::maxStringFunc(),      -1 },
+        { L_, TestData<CHAR>::minStringFunc(),      -1 }
+    };
+    enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    {
-        // We test to ensure that all comparisons between 'basic_strings',
-        // 'StringRefImp's, and 'const CHAR *'s yield matching results.  We
-        // have no strings with embedded '\0's in this example.
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data& idata = DATA[ti];
+        const int   IL    = idata.d_line;
+        const CHAR *IPC   = idata.d_str_p;
+        const int   ILEN  = idata.d_len;
 
-        if (verbose) {
-            P(*TestData<CHAR>::s_minString_p);
-        }
-
-        struct Data {
-            const int   d_line;
-            const CHAR *d_str_p;
-            const int   d_len;    // -2:  default construct string & string ref
-                                  // -1:  pass ptr but no length to string
-                                  //      c'tor
-                                  // non -ve: pass ptr and length to string
-                                  //          c'tor
-        } DATA[] = {
-            { L_, TestData<CHAR>::s_emptyString_p,    -1 },
-            { L_, TestData<CHAR>::s_emptyString_p,    -2 },
-            { L_, TestData<CHAR>::s_nonEmptyString_p, -1 },
-            { L_, TestData<CHAR>::s_nonEmptyString_p, 10 },
-            { L_, TestData<CHAR>::s_stringValue1_p,    0 },
-            { L_, TestData<CHAR>::s_stringValue1_p,   -1 },
-            { L_, TestData<CHAR>::s_stringValue1_p,    3 },
-            { L_, TestData<CHAR>::s_stringValue2_p,   -1 },
-            { L_, TestData<CHAR>::s_stringValue2_p,    3 },
-            { L_, TestData<CHAR>::s_maxString_p,      -1 },
-            { L_, TestData<CHAR>::s_minString_p,      -1 }
-        };
-        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
-
-        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
-            const Data& idata = DATA[ti];
-            const int   IL    = idata.d_line;
-            const CHAR *IPC   = idata.d_str_p;
-            const int   ILEN  = idata.d_len;
-
-            const bsl::basic_string<CHAR>& IS =
+        const bsl::basic_string<CHAR>& IS =
                                        -2 == ILEN
                                        ? bsl::basic_string<CHAR>()
                                        : -1 == ILEN
                                        ? bsl::basic_string<CHAR>(IPC)
                                        : bsl::basic_string<CHAR>(IPC, ILEN);
-            const bslstl::StringRefImp<CHAR>& ISR =
+        const nstd::basic_string<CHAR>& INS =
+                                       -2 == ILEN
+                                       ? nstd::basic_string<CHAR>()
+                                       : -1 == ILEN
+                                       ? nstd::basic_string<CHAR>(IPC)
+                                       : nstd::basic_string<CHAR>(IPC, ILEN);
+        const bslstl::StringRefImp<CHAR>& ISR =
                                        -2 == ILEN
                                        ? bslstl::StringRefImp<CHAR>()
                                        : -1 == ILEN
                                        ? bslstl::StringRefImp<CHAR>(IPC)
                                        : bslstl::StringRefImp<CHAR>(IPC, ILEN);
 
-            const basic_string<CHAR> ICOPY(IS);
-            if (0 <= ILEN) {
-                IPC = ICOPY.c_str();
+        const basic_string<CHAR> ICOPY(IS);
+        if (0 <= ILEN) {
+            IPC = ICOPY.c_str();
+        }
+
+        if (veryVerbose) { std::cout << "Testing:";    P_(IL);    P(IS); }
+        {
+            const std::size_t ACTUAL_LEN =
+                              -2 == ILEN
+                              ? 0
+                              : -1 == ILEN
+                              ? native_std::char_traits<CHAR>::length(IPC)
+                              : ILEN;
+
+            // Test all the named accessors:
+
+            if      (-2 == ILEN) {
+                ASSERTV(IL, IS, ISR.begin() == 0);
+                ASSERTV(IL, IS, ISR.data()  == 0);
+                ASSERTV(IL, IS, ISR.end()   == 0);
             }
+            else {
+                ASSERTV(IL, IS, ISR.begin() == idata.d_str_p);
+                ASSERTV(IL, IS, ISR.data()  == idata.d_str_p);
+                ASSERTV(IL, IS, ISR.end()   == idata.d_str_p + ACTUAL_LEN);
+            }
+            ASSERTV(IL, IS, ISR.data()   == ISR.begin());
+            ASSERTV(IL, IS, ISR.length() == ACTUAL_LEN);
+            ASSERTV(IL, IS, ISR.size()   == ACTUAL_LEN);
+            ASSERTV(IL, IS, (ACTUAL_LEN == 0) == ISR.isEmpty());
+            ASSERTV(IL, IS, (ACTUAL_LEN == 0) == ISR.empty());
 
-            for (int tj = 0; tj < k_NUM_DATA; ++tj) {
-                const Data& jdata = DATA[tj];
-                const int   JL    = jdata.d_line;
-                const CHAR *JPC   = jdata.d_str_p;
-                const int   JLEN  = jdata.d_len;
+            // Test 'operator[]':
 
-                const bsl::basic_string<CHAR>& JS =
+            for (std::size_t ii = 0; ii < ACTUAL_LEN; ++ii) {
+                ASSERTV(IL, IS, ii, IPC[ii], ISR[ii], IPC[ii] == ISR[ii]);
+            }
+        }
+
+        for (int tj = 0; tj < k_NUM_DATA; ++tj) {
+            const Data& jdata = DATA[tj];
+            const int   JL    = jdata.d_line;
+            const CHAR *JPC   = jdata.d_str_p;
+            const int   JLEN  = jdata.d_len;
+
+            const bsl::basic_string<CHAR>& JS =
                                        -2 == JLEN
                                        ? bsl::basic_string<CHAR>()
                                        : -1 == JLEN
                                        ? bsl::basic_string<CHAR>(JPC)
                                        : bsl::basic_string<CHAR>(JPC, JLEN);
-                const bslstl::StringRefImp<CHAR>& JSR =
+            const nstd::basic_string<CHAR>& JNS =
+                                       -2 == JLEN
+                                       ? nstd::basic_string<CHAR>()
+                                       : -1 == JLEN
+                                       ? nstd::basic_string<CHAR>(JPC)
+                                       : nstd::basic_string<CHAR>(JPC, JLEN);
+            const bslstl::StringRefImp<CHAR>& JSR =
                                        -2 == JLEN
                                        ? bslstl::StringRefImp<CHAR>()
                                        : -1 == JLEN
                                        ? bslstl::StringRefImp<CHAR>(JPC)
                                        : bslstl::StringRefImp<CHAR>(JPC, JLEN);
 
-                const basic_string<CHAR> JCOPY(JS);
-                if (0 <= JLEN) {
-                    JPC = JCOPY.c_str();
-                }
+            const basic_string<CHAR> JCOPY(JS);
+            if (0 <= JLEN) {
+                JPC = JCOPY.c_str();
+            }
 
-                const bool EQ = IS == JS, NE = !EQ;
-                const bool LT = IS <  JS, GE = !LT;
-                const bool GT = IS >  JS, LE = !GT;
+            const bool EQ = IS == JS, NE = !EQ;
+            const bool LT = IS <  JS, GE = !LT;
+            const bool GT = IS >  JS, LE = !GT;
 
-                ASSERTV(IL, JL, IS, JS, EQ, IL != JL || EQ);
+            if (veryVeryVerbose) {
+                std::cout << "J values:"; P_(JL); P_(JS);
+                P_(EQ);    P_(LT);    P(GT);
+            }
 
-                // Call the two 'compare' methods directly:
+            ASSERTV(IL, JL, IS, JS, EQ, IL != JL || EQ);
 
-                int COMPARE_PC = ISR.compare(JPC);
-                int COMPARE_SR = ISR.compare(JSR);
+            // Call the two 'compare' methods directly:
 
-                ASSERTV(IL, JL, IS, JS, EQ == (COMPARE_PC == 0));
-                ASSERTV(IL, JL, IS, JS, EQ == (COMPARE_SR == 0));
+            int COMPARE_PC = ISR.compare(JPC);
+            int COMPARE_SR = ISR.compare(JSR);
 
-                ASSERTV(IL, JL, IS, JS, NE == (COMPARE_PC != 0));
-                ASSERTV(IL, JL, IS, JS, NE == (COMPARE_SR != 0));
+            ASSERTV(IL, JL, IS, JS, EQ == (COMPARE_PC == 0));
+            ASSERTV(IL, JL, IS, JS, EQ == (COMPARE_SR == 0));
 
-                ASSERTV(IL, JL, IS, JS, LT == (COMPARE_PC <  0));
-                ASSERTV(IL, JL, IS, JS, LT == (COMPARE_SR <  0));
+            ASSERTV(IL, JL, IS, JS, NE == (COMPARE_PC != 0));
+            ASSERTV(IL, JL, IS, JS, NE == (COMPARE_SR != 0));
 
-                ASSERTV(IL, JL, IS, JS, GE == (COMPARE_PC >= 0));
-                ASSERTV(IL, JL, IS, JS, GE == (COMPARE_SR >= 0));
+            ASSERTV(IL, JL, IS, JS, LT == (COMPARE_PC <  0));
+            ASSERTV(IL, JL, IS, JS, LT == (COMPARE_SR <  0));
 
-                ASSERTV(IL, JL, IS, JS, GT == (COMPARE_PC >  0));
-                ASSERTV(IL, JL, IS, JS, GT == (COMPARE_SR >  0));
+            ASSERTV(IL, JL, IS, JS, GE == (COMPARE_PC >= 0));
+            ASSERTV(IL, JL, IS, JS, GE == (COMPARE_SR >= 0));
 
-                ASSERTV(IL, JL, IS, JS, LE == (COMPARE_PC <= 0));
-                ASSERTV(IL, JL, IS, JS, LE == (COMPARE_SR <= 0));
+            ASSERTV(IL, JL, IS, JS, GT == (COMPARE_PC >  0));
+            ASSERTV(IL, JL, IS, JS, GT == (COMPARE_SR >  0));
 
-                // Normalize 'COMPARE_PC' & 'COMPARE_SR', at which point they
-                // should be equal, if they weren't equal to begin with.
+            ASSERTV(IL, JL, IS, JS, LE == (COMPARE_PC <= 0));
+            ASSERTV(IL, JL, IS, JS, LE == (COMPARE_SR <= 0));
 
-                COMPARE_PC = COMPARE_PC < 0
-                           ? -1
-                           : COMPARE_PC > 0
-                           ? +1 : 0;
-                COMPARE_SR = COMPARE_SR < 0
-                           ? -1
-                           : COMPARE_SR > 0
-                           ? +1 : 0;
+            // Normalize 'COMPARE_PC' & 'COMPARE_SR' to +1, -1, or 0, at which
+            // point they should be equal, if they weren't equal to begin with.
 
-                ASSERTV(IL, JL, IS, JS, COMPARE_PC, COMPARE_SR,
+            COMPARE_PC = normalizeCompare(COMPARE_PC);
+            COMPARE_SR = normalizeCompare(COMPARE_SR);
+
+            ASSERTV(IL, JL, IS, JS, COMPARE_PC, COMPARE_SR,
                                                      COMPARE_PC == COMPARE_SR);
 
-                // 'operator=='
+            // 'operator=='
 
-                ASSERTV(IL, JL, IS, JS, EQ, (IS == JPC), EQ == (IS == JPC));
-                ASSERTV(IL, JL, IS, JS, EQ, (IS == JS),  EQ == (IS == JS));
-                ASSERTV(IL, JL, IS, JS, EQ, (IS == JSR), EQ == (IS == JSR));
+            ASSERTV(IL, JL, IS, JS, EQ, (IS  == JPC), EQ == (IS  == JPC));
+            ASSERTV(IL, JL, IS, JS, EQ, (IS  == JS),  EQ == (IS  == JS));
+            ASSERTV(IL, JL, IS, JS, EQ, (IS  == JNS), EQ == (IS  == JNS));
+            ASSERTV(IL, JL, IS, JS, EQ, (IS  == JSR), EQ == (IS  == JSR));
 
-                ASSERTV(IL, JL, IS, JS, EQ, (ISR == JPC), EQ == (IS == JPC));
-                ASSERTV(IL, JL, IS, JS, EQ, (ISR == JS),  EQ == (IS == JS));
-                ASSERTV(IL, JL, IS, JS, EQ, (ISR == JSR), EQ == (IS == JSR));
+            ASSERTV(IL, JL, IS, JS, EQ, (INS == JPC), EQ == (INS == JPC));
+            ASSERTV(IL, JL, IS, JS, EQ, (INS == JS),  EQ == (INS == JS));
+            ASSERTV(IL, JL, IS, JS, EQ, (INS == JNS), EQ == (INS == JNS));
+            ASSERTV(IL, JL, IS, JS, EQ, (INS == JSR), EQ == (INS == JSR));
 
-                ASSERTV(IL, JL, IS, JS, EQ, (IPC == JS),  EQ == (IS == JS));
-                ASSERTV(IL, JL, IS, JS, EQ, (IPC == JSR), EQ == (IS == JSR));
+            ASSERTV(IL, JL, IS, JS, EQ, (ISR == JPC), EQ == (ISR == JPC));
+            ASSERTV(IL, JL, IS, JS, EQ, (ISR == JS),  EQ == (ISR == JS));
+            ASSERTV(IL, JL, IS, JS, EQ, (ISR == JNS), EQ == (ISR == JNS));
+            ASSERTV(IL, JL, IS, JS, EQ, (ISR == JSR), EQ == (ISR == JSR));
 
-                // 'operator!='
+            ASSERTV(IL, JL, IS, JS, EQ, (IPC == JNS), EQ == (IPC == JS));
+            ASSERTV(IL, JL, IS, JS, EQ, (IPC == JS),  EQ == (IPC == JNS));
+            ASSERTV(IL, JL, IS, JS, EQ, (IPC == JSR), EQ == (IPC == JSR));
 
-                ASSERTV(IL, JL, IS, JS, NE, (IS != JPC), NE == (IS != JPC));
-                ASSERTV(IL, JL, IS, JS, NE, (IS != JS),  NE == (IS != JS));
-                ASSERTV(IL, JL, IS, JS, NE, (IS != JSR), NE == (IS != JSR));
+            // 'operator!='
 
-                ASSERTV(IL, JL, IS, JS, NE, (ISR != JPC), NE == (IS != JPC));
-                ASSERTV(IL, JL, IS, JS, NE, (ISR != JS),  NE == (IS != JS));
-                ASSERTV(IL, JL, IS, JS, NE, (ISR != JSR), NE == (IS != JSR));
+            ASSERTV(IL, JL, IS, JS, NE, (IS  != JPC), NE == (IS  != JPC));
+            ASSERTV(IL, JL, IS, JS, NE, (IS  != JS),  NE == (IS  != JS));
+            ASSERTV(IL, JL, IS, JS, NE, (IS  != JNS), NE == (IS  != JNS));
+            ASSERTV(IL, JL, IS, JS, NE, (IS  != JSR), NE == (IS  != JSR));
 
-                ASSERTV(IL, JL, IS, JS, NE, (IPC != JS),  NE == (IS != JS));
-                ASSERTV(IL, JL, IS, JS, NE, (IPC != JSR), NE == (IS != JSR));
+            ASSERTV(IL, JL, IS, JS, NE, (INS != JPC), NE == (INS != JPC));
+            ASSERTV(IL, JL, IS, JS, NE, (INS != JS),  NE == (INS != JS));
+            ASSERTV(IL, JL, IS, JS, NE, (INS != JNS), NE == (INS != JNS));
+            ASSERTV(IL, JL, IS, JS, NE, (INS != JSR), NE == (INS != JSR));
 
-                // 'operator<'
+            ASSERTV(IL, JL, IS, JS, NE, (ISR != JPC), NE == (ISR != JPC));
+            ASSERTV(IL, JL, IS, JS, NE, (ISR != JS),  NE == (ISR != JS));
+            ASSERTV(IL, JL, IS, JS, NE, (ISR != JNS), NE == (ISR != JNS));
+            ASSERTV(IL, JL, IS, JS, NE, (ISR != JSR), NE == (ISR != JSR));
 
-                ASSERTV(IL, JL, IS, JS, LT, (IS < JPC), LT == (IS < JPC));
-                ASSERTV(IL, JL, IS, JS, LT, (IS < JS),  LT == (IS < JS));
-                ASSERTV(IL, JL, IS, JS, LT, (IS < JSR), LT == (IS < JSR));
+            ASSERTV(IL, JL, IS, JS, NE, (IPC != JS),  NE == (IPC != JS));
+            ASSERTV(IL, JL, IS, JS, NE, (IPC != JNS), NE == (IPC != JNS));
+            ASSERTV(IL, JL, IS, JS, NE, (IPC != JSR), NE == (IPC != JSR));
 
-                ASSERTV(IL, JL, IS, JS, LT, (ISR < JPC), LT == (ISR < JPC));
-                ASSERTV(IL, JL, IS, JS, LT, (ISR < JS),  LT == (ISR < JS));
-                ASSERTV(IL, JL, IS, JS, LT, (ISR < JSR), LT == (ISR < JSR));
+            // 'operator<'
 
-                ASSERTV(IL, JL, IS, JS, LT, (IPC < JS),  LT == (IPC < JS));
-                ASSERTV(IL, JL, IS, JS, LT, (IPC < JSR), LT == (IPC < JSR));
+            ASSERTV(IL, JL, IS, JS, LT, (IS  <  JPC), LT == (IS  <  JPC));
+            ASSERTV(IL, JL, IS, JS, LT, (IS  <  JS),  LT == (IS  <  JS));
+            ASSERTV(IL, JL, IS, JS, LT, (IS  <  JNS), LT == (IS  <  JNS));
+            ASSERTV(IL, JL, IS, JS, LT, (IS  <  JSR), LT == (IS  <  JSR));
 
-                // 'operator>='
+            ASSERTV(IL, JL, IS, JS, LT, (INS <  JPC), LT == (INS <  JPC));
+            ASSERTV(IL, JL, IS, JS, LT, (INS <  JS),  LT == (INS <  JS));
+            ASSERTV(IL, JL, IS, JS, LT, (INS <  JNS), LT == (INS <  JNS));
+            ASSERTV(IL, JL, IS, JS, LT, (INS <  JSR), LT == (INS <  JSR));
 
-                ASSERTV(IL, JL, IS, JS, GE, (IS >= JPC), GE == (IS >= JPC));
-                ASSERTV(IL, JL, IS, JS, GE, (IS >= JS),  GE == (IS >= JS));
-                ASSERTV(IL, JL, IS, JS, GE, (IS >= JSR), GE == (IS >= JSR));
+            ASSERTV(IL, JL, IS, JS, LT, (ISR <  JPC), LT == (ISR <  JPC));
+            ASSERTV(IL, JL, IS, JS, LT, (ISR <  JS),  LT == (ISR <  JS));
+            ASSERTV(IL, JL, IS, JS, LT, (ISR <  JNS), LT == (ISR <  JNS));
+            ASSERTV(IL, JL, IS, JS, LT, (ISR <  JSR), LT == (ISR <  JSR));
 
-                ASSERTV(IL, JL, IS, JS, GE, (ISR >= JPC), GE == (ISR >= JPC));
-                ASSERTV(IL, JL, IS, JS, GE, (ISR >= JS),  GE == (ISR >= JS));
-                ASSERTV(IL, JL, IS, JS, GE, (ISR >= JSR), GE == (ISR >= JSR));
+            ASSERTV(IL, JL, IS, JS, LT, (IPC <  JS),  LT == (IPC <  JS));
+            ASSERTV(IL, JL, IS, JS, LT, (IPC <  JNS), LT == (IPC <  JNS));
+            ASSERTV(IL, JL, IS, JS, LT, (IPC <  JSR), LT == (IPC <  JSR));
 
-                ASSERTV(IL, JL, IS, JS, GE, (IPC >= JS),  GE == (IPC >= JS));
-                ASSERTV(IL, JL, IS, JS, GE, (IPC >= JSR), GE == (IPC >= JSR));
+            // 'operator>='
 
-                // 'operator>'
+            ASSERTV(IL, JL, IS, JS, GE, (IS  >= JPC), GE == (IS  >= JPC));
+            ASSERTV(IL, JL, IS, JS, GE, (IS  >= JS),  GE == (IS  >= JS));
+            ASSERTV(IL, JL, IS, JS, GE, (IS  >= JNS), GE == (IS  >= JNS));
+            ASSERTV(IL, JL, IS, JS, GE, (IS  >= JSR), GE == (IS  >= JSR));
 
-                ASSERTV(IL, JL, IS, JS, GT, (IS > JPC), GT == (IS > JPC));
-                ASSERTV(IL, JL, IS, JS, GT, (IS > JS),  GT == (IS > JS));
-                ASSERTV(IL, JL, IS, JS, GT, (IS > JSR), GT == (IS > JSR));
+            ASSERTV(IL, JL, IS, JS, GE, (INS >= JPC), GE == (INS >= JPC));
+            ASSERTV(IL, JL, IS, JS, GE, (INS >= JS),  GE == (INS >= JS));
+            ASSERTV(IL, JL, IS, JS, GE, (INS >= JNS), GE == (INS >= JNS));
+            ASSERTV(IL, JL, IS, JS, GE, (INS >= JSR), GE == (INS >= JSR));
 
-                ASSERTV(IL, JL, IS, JS, GT, (ISR > JPC), GT == (ISR > JPC));
-                ASSERTV(IL, JL, IS, JS, GT, (ISR > JS),  GT == (ISR > JS));
-                ASSERTV(IL, JL, IS, JS, GT, (ISR > JSR), GT == (ISR > JSR));
+            ASSERTV(IL, JL, IS, JS, GE, (ISR >= JPC), GE == (ISR >= JPC));
+            ASSERTV(IL, JL, IS, JS, GE, (ISR >= JS),  GE == (ISR >= JS));
+            ASSERTV(IL, JL, IS, JS, GE, (ISR >= JNS), GE == (ISR >= JNS));
+            ASSERTV(IL, JL, IS, JS, GE, (ISR >= JSR), GE == (ISR >= JSR));
 
-                ASSERTV(IL, JL, IS, JS, GT, (IPC > JS),  GT == (IPC > JS));
-                ASSERTV(IL, JL, IS, JS, GT, (IPC > JSR), GT == (IPC > JSR));
+            ASSERTV(IL, JL, IS, JS, GE, (IPC >= JS),  GE == (IPC >= JS));
+            ASSERTV(IL, JL, IS, JS, GE, (IPC >= JNS), GE == (IPC >= JNS));
+            ASSERTV(IL, JL, IS, JS, GE, (IPC >= JSR), GE == (IPC >= JSR));
 
-                // 'operator<='
+            // 'operator>'
 
-                ASSERTV(IL, JL, IS, JS, LE, (IS <= JPC), LE == (IS <= JPC));
-                ASSERTV(IL, JL, IS, JS, LE, (IS <= JS),  LE == (IS <= JS));
-                ASSERTV(IL, JL, IS, JS, LE, (IS <= JSR), LE == (IS <= JSR));
+            ASSERTV(IL, JL, IS, JS, GT, (IS  >  JPC), GT == (IS  >  JPC));
+            ASSERTV(IL, JL, IS, JS, GT, (IS  >  JS),  GT == (IS  >  JS));
+            ASSERTV(IL, JL, IS, JS, GT, (IS  >  JNS), GT == (IS  >  JNS));
+            ASSERTV(IL, JL, IS, JS, GT, (IS  >  JSR), GT == (IS  >  JSR));
 
-                ASSERTV(IL, JL, IS, JS, LE, (ISR <= JPC), LE == (ISR <= JPC));
-                ASSERTV(IL, JL, IS, JS, LE, (ISR <= JS),  LE == (ISR <= JS));
-                ASSERTV(IL, JL, IS, JS, LE, (ISR <= JSR), LE == (ISR <= JSR));
+            ASSERTV(IL, JL, IS, JS, GT, (INS >  JPC), GT == (INS >  JPC));
+            ASSERTV(IL, JL, IS, JS, GT, (INS >  JS),  GT == (INS >  JS));
+            ASSERTV(IL, JL, IS, JS, GT, (INS >  JNS), GT == (INS >  JNS));
+            ASSERTV(IL, JL, IS, JS, GT, (INS >  JSR), GT == (INS >  JSR));
 
-                ASSERTV(IL, JL, IS, JS, LE, (IPC <= JS),  LE == (IPC <= JS));
-                ASSERTV(IL, JL, IS, JS, LE, (IPC <= JSR), LE == (IPC <= JSR));
+            ASSERTV(IL, JL, IS, JS, GT, (ISR >  JPC), GT == (ISR >  JPC));
+            ASSERTV(IL, JL, IS, JS, GT, (ISR >  JS),  GT == (ISR >  JS));
+            ASSERTV(IL, JL, IS, JS, GT, (ISR >  JNS), GT == (ISR >  JNS));
+            ASSERTV(IL, JL, IS, JS, GT, (ISR >  JSR), GT == (ISR >  JSR));
+
+            ASSERTV(IL, JL, IS, JS, GT, (IPC >  JS),  GT == (IPC >  JS));
+            ASSERTV(IL, JL, IS, JS, GT, (IPC >  JNS), GT == (IPC >  JNS));
+            ASSERTV(IL, JL, IS, JS, GT, (IPC >  JSR), GT == (IPC >  JSR));
+
+            // 'operator<='
+
+            ASSERTV(IL, JL, IS, JS, LE, (IS  <= JPC), LE == (IS  <= JPC));
+            ASSERTV(IL, JL, IS, JS, LE, (IS  <= JS),  LE == (IS  <= JS));
+            ASSERTV(IL, JL, IS, JS, LE, (IS  <= JNS), LE == (IS  <= JNS));
+            ASSERTV(IL, JL, IS, JS, LE, (IS  <= JSR), LE == (IS  <= JSR));
+
+            ASSERTV(IL, JL, IS, JS, LE, (INS <= JPC), LE == (INS <= JPC));
+            ASSERTV(IL, JL, IS, JS, LE, (INS <= JS),  LE == (INS <= JS));
+            ASSERTV(IL, JL, IS, JS, LE, (INS <= JNS), LE == (INS <= JNS));
+            ASSERTV(IL, JL, IS, JS, LE, (INS <= JSR), LE == (INS <= JSR));
+
+            ASSERTV(IL, JL, IS, JS, LE, (ISR <= JPC), LE == (ISR <= JPC));
+            ASSERTV(IL, JL, IS, JS, LE, (ISR <= JS),  LE == (ISR <= JS));
+            ASSERTV(IL, JL, IS, JS, LE, (ISR <= JNS), LE == (ISR <= JNS));
+            ASSERTV(IL, JL, IS, JS, LE, (ISR <= JSR), LE == (ISR <= JSR));
+
+            ASSERTV(IL, JL, IS, JS, LE, (IPC <= JS),  LE == (IPC <= JS));
+            ASSERTV(IL, JL, IS, JS, LE, (IPC <= JNS), LE == (IPC <= JNS));
+            ASSERTV(IL, JL, IS, JS, LE, (IPC <= JSR), LE == (IPC <= JSR));
+
+            if      ( IS.empty() && !JS.empty()) {
+                ASSERT(LT);
             }
-        }
-    }
-
-
-    if (verbose) std::cout << "\nTesting: 'operator[]()'"
-                           << "\n= = = = = = = = = = = ="
-                           << std::endl;
-
-    {
-        bslstl::StringRefImp<CHAR> x2(TestData<CHAR>::s_nonEmptyString_p);
-        const bslstl::StringRefImp<CHAR>& X2 = x2;
-
-        // NON-EMPTY STRING
-        bslstl::StringRef::size_type Len =
-            native_std::char_traits<CHAR>::length(
-                TestData<CHAR>::s_nonEmptyString_p);
-        for (bslstl::StringRef::size_type idx = 0; idx < Len; ++idx) {
-            LOOP_ASSERT(idx, X2[idx] ==
-                                      TestData<CHAR>::s_nonEmptyString_p[idx]);
+            else if (!IS.empty() &&  JS.empty()) {
+                ASSERT(GT);
+            }
         }
     }
 }
@@ -3017,55 +3088,12 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Any subtle variation in value must be detected by the comparison
-        //   operators.
+        //   operators.  This test is now redundant, and less thorough, than
+        //   testing done in test case 3.
         //
         // Plan:
         //   Specify a set of strings and the assert comparison operators
         //   return the correct results.
-        //
-        // Testing:
-        //   bool operator==(const StringRef& lhs, const StringRef& rhs);
-        //   bool operator==(const bsl::string& lhs, const StringRef& rhs);
-        //   bool operator==(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator==(const native_std::string& l, const StringRef& r);
-        //   bool operator==(const StringRef& l, const native_std::string& r);
-        //   bool operator==(const char *lhs, const StringRef& rhs);
-        //   bool operator==(const StringRef& lhs, const char *rhs);
-        //   bool operator!=(const StringRef& lhs, const StringRef& rhs);
-        //   bool operator!=(const bsl::string& lhs, const StringRef& rhs);
-        //   bool operator!=(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator!=(const native_std::string& l, const StringRef& r);
-        //   bool operator!=(const StringRef& l, const native_std::string& r);
-        //   bool operator!=(const char *lhs, const StringRef& rhs);
-        //   bool operator!=(const StringRef& lhs, const char *rhs);
-        //   bool operator<(const StringRef& lhs, const StringRef& rhs);
-        //   bool operator<(const bsl::string& lhs, const StringRef& rhs);
-        //   bool operator<(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator<(const native_std::string& l, const StringRef& r);
-        //   bool operator<(const StringRef& l, const native_std::string& r);
-        //   bool operator<(const char *lhs, const StringRef& rhs);
-        //   bool operator<(const StringRef& lhs, const char *rhs);
-        //   bool operator>(const StringRef& lhs, const StringRef& rhs);
-        //   bool operator>(const bsl::string& lhs, const StringRef& rhs);
-        //   bool operator>(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator>(const native_std::string& l, const StringRef& r);
-        //   bool operator>(const StringRef& l, const native_std::string& r);
-        //   bool operator>(const char *lhs, const StringRef& rhs);
-        //   bool operator>(const StringRef& lhs, const char *rhs);
-        //   bool operator<=(const StringRef& lhs, const StringRef& rhs);
-        //   bool operator<=(const bsl::string& lhs, const StringRef& rhs);
-        //   bool operator<=(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator<=(const native_std::string& l, const StringRef& r);
-        //   bool operator<=(const StringRef& l, const native_std::string& r);
-        //   bool operator<=(const char *lhs, const StringRef& rhs);
-        //   bool operator<=(const StringRef& lhs, const char *rhs);
-        //   bool operator>=(const StringRef& lhs, const StringRef& rhs);
-        //   bool operator>=(const bsl::string& lhs, const StringRef& rhs);
-        //   bool operator>=(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator>=(const native_std::string& l, const StringRef& r);
-        //   bool operator>=(const StringRef& l, const native_std::string& r);
-        //   bool operator>=(const char *lhs, const StringRef& rhs);
-        //   bool operator>=(const StringRef& lhs, const char *rhs);
         // --------------------------------------------------------------------
 
         if (verbose) std::cout << "TESTING COMPARISON OPERATORS:\n"
@@ -3373,34 +3401,118 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING BASIC ACCESSORS:
+        // TESTING BASIC ACCESSORS AND COMPARISONS
         //
         // Concerns:
-        //   Each individual 'stringRef' field must be correctly forwarded from
-        //   the fully-tested underlying constructor.
+        //: 1 Each individual 'stringRef' field must be correctly forwarded
+        //:   from the fully-tested underlying constructor.
         //
         // Plan:
-        //   For each of a sequence of unique string values, verify that each
-        //   of the direct accessors returns the correct value.
+        //: 1 Define a table of string, 'conat CHAR *', and 'StringRegImp'
+        //:   values that refer to the 'TestData' template class of
+        //:   null-terminated strings.
+        //:
+        //: 2 Have a 'length' field in the table to indicate that a
+        //:   'StringRefImp' refers only to a subset of a null-terminated
+        //:   string, or can be default-constructed.
+        //:
+        //: 3 Loop 'I' through the table creating I-values of
+        //:   'bsl::basic_string', a 'native_std::basic_string', a
+        //:   'StringRefImp', and 'const char *' all having the value indicated
+        //:   by the table.
+        //:
+        //: 4 Probe the accessors of the created 'StringRefImp' to verify that
+        //:   they have the proper values.
+        //:
+        //: 5 Do a nested loop 'J' through the table, creating J-values of all
+        //:   the types created in the I-Loop.
+        //:
+        //: 6 Compare the 'bsl::string' I and J values to determine the
+        //:   booleans 'EQ', 'NE', 'LT', 'GT', 'LE', and 'GE' to indicate all
+        //:   the comparison values of comparing the I-value and J-value.
+        //:
+        //: 7 Us the 'compare' methods to compare the I 'StringRefImp' to both
+        //:   the J 'StringRefImp' and the J 'const CHAR *', observe that the
+        //:   comparisons match the results from comparing the two
+        //:   'bsl::string's.
+        //:
+        //: 8 Use the '==', '!=', '<', '>=', '>', and '<=' operators to do all
+        //:   possible comparisons with the various I values on the left and
+        //:   J values on the right and confirm they all match the initial
+        //:   results of comparing the two 'bsl::string's.
         //
         // Testing:
-        //    const_iterator begin() const;
-        //    const_iterator data() const;
-        //    const_iterator end() const;
-        //    size_type      length() const;
-        //    size_type      size() const;
-        //    int            empty() const;
-        //    int            isEmpty() const;
-        //    int            compare(other) const;
-        //                   operator bsl::string() const;
-        //    const char&    operator[](size_type index) const;
+        //   const_iterator begin() const;
+        //   const_iterator data() const;
+        //   const_iterator end() const;
+        //   size_type      length() const;
+        //   size_type      size() const;
+        //   int            empty() const;
+        //   int            isEmpty() const;
+        //   int            compare(const StringRefImp&) const;
+        //   int            compare(const CHAR *) const;
+        //                  operator bsl::string() const;
+        //   const char&    operator[](size_type index) const;
+        //   bool operator==(const StringRef& lhs, const StringRef& rhs);
+        //   bool operator==(const bsl::string& lhs, const StringRef& rhs);
+        //   bool operator==(const StringRef& lhs, const bsl::string& rhs);
+        //   bool operator==(const native_std::string& l, const StringRef& r);
+        //   bool operator==(const StringRef& l, const native_std::string& r);
+        //   bool operator==(const char *lhs, const StringRef& rhs);
+        //   bool operator==(const StringRef& lhs, const char *rhs);
+        //   bool operator!=(const StringRef& lhs, const StringRef& rhs);
+        //   bool operator!=(const bsl::string& lhs, const StringRef& rhs);
+        //   bool operator!=(const StringRef& lhs, const bsl::string& rhs);
+        //   bool operator!=(const native_std::string& l, const StringRef& r);
+        //   bool operator!=(const StringRef& l, const native_std::string& r);
+        //   bool operator!=(const char *lhs, const StringRef& rhs);
+        //   bool operator!=(const StringRef& lhs, const char *rhs);
+        //   bool operator<(const StringRef& lhs, const StringRef& rhs);
+        //   bool operator<(const bsl::string& lhs, const StringRef& rhs);
+        //   bool operator<(const StringRef& lhs, const bsl::string& rhs);
+        //   bool operator<(const native_std::string& l, const StringRef& r);
+        //   bool operator<(const StringRef& l, const native_std::string& r);
+        //   bool operator<(const char *lhs, const StringRef& rhs);
+        //   bool operator<(const StringRef& lhs, const char *rhs);
+        //   bool operator>(const StringRef& lhs, const StringRef& rhs);
+        //   bool operator>(const bsl::string& lhs, const StringRef& rhs);
+        //   bool operator>(const StringRef& lhs, const bsl::string& rhs);
+        //   bool operator>(const native_std::string& l, const StringRef& r);
+        //   bool operator>(const StringRef& l, const native_std::string& r);
+        //   bool operator>(const char *lhs, const StringRef& rhs);
+        //   bool operator>(const StringRef& lhs, const char *rhs);
+        //   bool operator<=(const StringRef& lhs, const StringRef& rhs);
+        //   bool operator<=(const bsl::string& lhs, const StringRef& rhs);
+        //   bool operator<=(const StringRef& lhs, const bsl::string& rhs);
+        //   bool operator<=(const native_std::string& l, const StringRef& r);
+        //   bool operator<=(const StringRef& l, const native_std::string& r);
+        //   bool operator<=(const char *lhs, const StringRef& rhs);
+        //   bool operator<=(const StringRef& lhs, const char *rhs);
+        //   bool operator>=(const StringRef& lhs, const StringRef& rhs);
+        //   bool operator>=(const bsl::string& lhs, const StringRef& rhs);
+        //   bool operator>=(const StringRef& lhs, const bsl::string& rhs);
+        //   bool operator>=(const native_std::string& l, const StringRef& r);
+        //   bool operator>=(const StringRef& l, const native_std::string& r);
+        //   bool operator>=(const char *lhs, const StringRef& rhs);
+        //   bool operator>=(const StringRef& lhs, const char *rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) std::cout << "TESTING BASIC ACCESSORS:\n"
-                                  "=======================\n";
+        testAccessorsComparisons<char>();
+        testAccessorsComparisons<unsigned char>();
+        testAccessorsComparisons<signed char>();
 
-        testBasicAccessors<char>(verbose);
-        testBasicAccessors<wchar_t>(verbose);
+        // The size of 'wchar_t', and whether it is signed, varies by platform,
+        // like 'char', and some platforms seem to support only one of
+        // 'signed wchar_t' or 'unsigned wchar_t', depending which is the
+        // opposite signedness of 'wchar_t'.
+
+        testAccessorsComparisons<wchar_t>();
+
+        testAccessorsComparisons<unsigned short>();
+        testAccessorsComparisons<short>();
+
+        testAccessorsComparisons<unsigned int>();
+        testAccessorsComparisons<int>();
       } break;
       case 2: {
         // --------------------------------------------------------------------
