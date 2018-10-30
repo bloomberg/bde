@@ -585,7 +585,7 @@ int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
 
     int rc;
 
-    Uint64 tmpDst = 0;                // workaround to silence warnings
+    Uint64 tmpDst = 0;
 
     unsigned char u = 0x80;
 
@@ -595,6 +595,10 @@ int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
     do {
         rc = readValue(&u);
         if (rc) {
+            // Assign to '*dst' to silence the confused optimizer complaining
+            // about 'maybe used before set' in caller.
+
+            *dst = 0;
             return -1;                                                // RETURN
         }
 
@@ -620,7 +624,7 @@ int StackTraceResolver_DwarfReader::readLEB128(TYPE *dst)      // DWARF doc 7.6
 template <class TYPE>
 int StackTraceResolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
 {
-    Uint64 tmpDst = 0;                // workaround to silence warnings
+    Uint64 tmpDst = 0;
 
     unsigned char u = 0x80;
 
@@ -628,6 +632,10 @@ int StackTraceResolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
     for (; (0x80 & u); shift += 7) {
         int rc = readValue(&u);
         if (0 != rc) {
+            // Assign to '*dst' to silence the confused optimizer complaining
+            // about 'maybe used before set' in caller.
+
+            *dst = 0;
             return -1;                                                // RETURN
         }
 
@@ -636,6 +644,10 @@ int StackTraceResolver_DwarfReader::readULEB128(TYPE *dst)     // DWARF doc 7.6
     }
 #if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE)
     if (shift >= sizeof(*dst) * 8 + 7) {
+        // Assign to '*dst' to silence the confused optimizer complaining about
+        // 'maybe used before set' in caller.
+
+        *dst = 0;
         return -1;                                                    // RETURN
     }
 #endif
@@ -651,6 +663,10 @@ int StackTraceResolver_DwarfReader::readValue(TYPE *dst)
 {
     int rc = needBytes(sizeof(*dst));
     if (rc) {
+        // Assign to '*dst' to silence the confused optimizer complaining about
+        // 'maybe used before set' in caller.
+
+        *dst = 0;
         return -1;                                                    // RETURN
     }
 

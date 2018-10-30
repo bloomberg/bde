@@ -1275,6 +1275,11 @@ struct AddressRange {
     u::UintPtr d_address;
     u::UintPtr d_size;
 
+    // MANIPULATOR
+    void operator=(int zero);
+        // Allow template functions to assign an integer value of 0 to this
+        // object, resetting it.  The behavior is undefined if '0 != zero';
+
     // ACCESSORS
     bool contains(const void *address) const;
         // Return 'true' if this address range contains the specified 'address'
@@ -1295,6 +1300,16 @@ struct AddressRange {
                                 // ------------
                                 // AddressRange
                                 // ------------
+
+// MANIPULATOR
+inline
+void u::AddressRange::operator=(int zero)
+{
+    BSLS_ASSERT_SAFE(!zero);    (void) zero;
+
+    d_address = 0;
+    d_size    = 0;
+}
 
 // ACCESSORS
 bool u::AddressRange::contains(const void *address) const
@@ -2231,6 +2246,8 @@ int u::StackTraceResolver::HiddenRec::dwarfReadCompileOrPartialUnit(
     const u::UintPtr addressToMatch =
                              reinterpret_cast<u::UintPtr>(frameRec->address());
     u::UintPtr loPtr = u::minusOne, hiPtr = 0;
+#else
+    (void) u::minusOne;    // silence unused warning
 #endif
 
     const int index = frameRec->index(); (void) index;
@@ -2685,7 +2702,6 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLine()
 {
     static const char rn[] = { "HiddenRec::dwarfDebugLine:" };    (void) rn;
 
-    
     const u::FrameRecVecIt end = d_frameRecsEnd;
     for (u::FrameRecVecIt it = d_frameRecsBegin, prev = end; it < end;
                                                              prev = it, ++it) {

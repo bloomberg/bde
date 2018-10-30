@@ -2719,7 +2719,6 @@ int main(int argc, char *argv[])
             char x = 12;
             rc = mX.readValue(&x);
             ASSERT(0 != rc);    // fails
-            ASSERT(12 == x);    // unchanged
             ASSERTV(X.offset(), endPos, X.offset() == endPos);    // unchanged
         }
       } break;

@@ -698,8 +698,8 @@ static
 const UintPtr my_HIGH_ONES = 0;
 #endif
 
-static const UintPtr my_UNFREED_BLOCK_MAGIC = 1222222221 + my_HIGH_ONES;
-static const UintPtr my_FREED_BLOCK_MAGIC   = 1999999991 + my_HIGH_ONES;
+const UintPtr my_UNFREED_BLOCK_MAGIC = 1222222221 + my_HIGH_ONES;
+const UintPtr my_FREED_BLOCK_MAGIC   = 1999999991 + my_HIGH_ONES;
 
 struct my_BlockHeader {
     // It was felt that we should go totally white box and test the internal
@@ -2696,17 +2696,19 @@ int main(int argc, char *argv[])
         enum { k_NUM_EXPECTED_STRINGS = sizeof expectedStrings /
                                                      sizeof *expectedStrings };
         bsl::size_t pos = 0;
-        for (int i = 0; i < k_NUM_EXPECTED_STRINGS; ++i) {
-            bsl::size_t nextPos = otherStr.find(expectedStrings[i], pos);
-            LOOP3_ASSERT(otherStr, i, expectedStrings[i], npos != nextPos);
-            if (e_WINDOWS && '\n' != *expectedStrings[i]) {
-                // On Windows, the demangler intermittently fails and the
-                // mangled symbols have all the sections delimited by "::"
-                // backwards.
+        if (e_CAN_FIND_SYMBOLS) {
+            for (int i = 0; i < k_NUM_EXPECTED_STRINGS; ++i) {
+                bsl::size_t nextPos = otherStr.find(expectedStrings[i], pos);
+                LOOP3_ASSERT(otherStr, i, expectedStrings[i], npos != nextPos);
+                if (e_WINDOWS && '\n' != *expectedStrings[i]) {
+                    // On Windows, the demangler intermittently fails and the
+                    // mangled symbols have all the sections delimited by "::"
+                    // backwards.
 
-                nextPos = otherStr.rfind("\n", nextPos);
+                    nextPos = otherStr.rfind("\n", nextPos);
+                }
+                pos = npos != nextPos ? nextPos : pos;
             }
-            pos = npos != nextPos ? nextPos : pos;
         }
         if (veryVerbose) {
             cout << "Report of blocks in use\n" << otherStr;

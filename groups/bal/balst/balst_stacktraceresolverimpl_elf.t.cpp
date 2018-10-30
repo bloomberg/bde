@@ -14,6 +14,7 @@
 #include <balst_objectfileformat.h>
 
 #include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
 
 #include <bslim_testutil.h>
 
@@ -312,6 +313,7 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    bslma::TestAllocator ta;
     bslma::TestAllocator defaultAllocator;
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
@@ -469,7 +471,9 @@ int main(int argc, char *argv[])
 #undef IS_KNOWN
 
             const char *libName = stackTrace[0].libraryFileName().c_str();
-            const char *thisLib = "balst_stacktraceresolverimpl_elf.t";
+            bsl::string progName(&ta);
+            bdls::PathUtil::getBasename(&progName, argv[0]);
+            const char *thisLib = progName.c_str();
 #undef  GOOD_LIBNAME
 #define GOOD_LIBNAME(func, exp, match) \
             ASSERTV(#func, exp, ng(match), func(ng(exp), match));

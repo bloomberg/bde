@@ -287,6 +287,16 @@ TYPE approxAbs(TYPE x)
     return x;
 }
 
+bool fileExists(const char *fileName)
+{
+    // On Windows 'exists' uses the default allocator when it converts the
+    // source file name to a wide string.
+
+    bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
+    return bdls::FilesystemUtil::exists(fileName);
+}
+
 static inline
 bool problem()
 {
@@ -1152,7 +1162,7 @@ void case_5_top(bool demangle, bool useTestAllocator)
 
                     ASSERT(!FORMAT_DWARF || '/' == sfn[0]);
                     if ('/' == sfn[0]) {
-                        LOOP_ASSERT(sfn, bdls::FilesystemUtil::exists(sfn));
+                        LOOP_ASSERT(sfn, fileExists(sfn));
                     }
 
                     int sfnMatchLen = (int) bsl::strlen(sfnMatch);
@@ -2101,7 +2111,7 @@ int main(int argc, char *argv[])
                     }
 
                     ASSERTV(expName, frame.sourceFileName(),
-                        bdls::FilesystemUtil::exists(frame.sourceFileName()));
+                                   fileExists(frame.sourceFileName().c_str()));
                 }
 
                 ASSERTV(LINE, expName, frame.lineNumber(),
