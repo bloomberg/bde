@@ -23,6 +23,10 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integersequence.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_MAKEINTEGERSEQUENCE
+#include <bslmf_makeintegersequence.h>
+#endif
+
 #ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
 #endif
@@ -78,17 +82,20 @@ namespace bsl {
     using integer_sequence = BloombergLP::bslmf::IntegerSequence<T, INTS...>;
 
     template <std::size_t... INTS>
-    using index_sequence = BloombergLP::bslmf::IndexSequence<INTS...>;
+    using index_sequence =
+                     BloombergLP::bslmf::IntegerSequence<std::size_t, INTS...>;
 
     template <class T, T N>
     using make_integer_sequence =
                                  BloombergLP::bslmf::MakeIntegerSequence<T, N>;
 
     template <std::size_t N>
-    using make_index_sequence = BloombergLP::bslmf::MakeIndexSequence<N>;
+    using make_index_sequence =
+                       BloombergLP::bslmf::MakeIntegerSequence<std::size_t, N>;
 
     template <class... T>
-    using index_sequence_for = BloombergLP::bslmf::IndexSequenceFor<T...>;
+    using index_sequence_for =
+            BloombergLP::bslmf::MakeIntegerSequence<std::size_t, sizeof...(T)>;
 #endif
 #endif
 

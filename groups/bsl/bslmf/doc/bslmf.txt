@@ -119,6 +119,7 @@
       bslmf_addreference
       bslmf_functionpointertraits
       bslmf_if
+      bslmf_makeintegersequence
       bslmf_removecv
       bslmf_resulttype
 
@@ -310,6 +311,9 @@
 :
 : 'bslmf_isvolatile':
 :      Provide a compile-time check for 'volatile'-qualified types.
+:
+: 'bslmf_makeintegersequence':
+:      Provaide a compile-time integer sequence factory function.
 :
 : 'bslmf_matchanytype':
 :      Provide a generic type to which any type can be converted.

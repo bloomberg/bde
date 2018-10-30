@@ -51,6 +51,7 @@ bslmf_istriviallycopyable
 bslmf_istriviallydefaultconstructible
 bslmf_isvoid
 bslmf_isvolatile
+bslmf_makeintegersequence
 bslmf_matchanytype
 bslmf_matcharithmetictype
 bslmf_memberfunctionpointertraits
