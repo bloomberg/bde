@@ -864,11 +864,9 @@ BSLS_IDENT("$Id: $")
 // http://en.cppreference.com/w/cpp/header/version
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
-
 # include <cstddef>
 #elif defined(BSLS_PLATFORM_CMP_GNU) || \
       defined(BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP)
-
 # include <cstddef>
 # if defined(BSLS_LIBRARYFEATURES_SUSPECT_CLANG_WITH_GLIBCPP)
   // No macro pollution
@@ -885,7 +883,6 @@ BSLS_IDENT("$Id: $")
 
 # include <valarray>
 #else
-
 # include <ciso646>
 #endif
 #undef BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS

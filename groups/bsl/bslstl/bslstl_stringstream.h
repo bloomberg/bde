@@ -117,8 +117,7 @@ BSL_OVERRIDES_STD mode"
 #include <iostream>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
-
-#include <utility>
+# include <utility>
 #endif
 
 namespace bsl {

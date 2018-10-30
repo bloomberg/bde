@@ -29,7 +29,6 @@ BSLS_IDENT("$Id: $")
 // by Bloomberg-specific wrappers that do the right thing.
 
 #ifdef BSL_OVERRIDES_STD
-
 #include <slist>
 #endif
 

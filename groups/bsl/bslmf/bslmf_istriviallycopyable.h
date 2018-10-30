@@ -137,14 +137,8 @@ BSLS_IDENT("$Id: $")
 
 // This set of includes must come last, due to usage of 'bsls_nativestd'
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-#include <bsls_nativestd.h>
-
-#ifndef INCLUDED_TYPE_TRAITS
-# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
-
+# include <bsls_nativestd.h>
 # include <type_traits>
-#endif
-
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER

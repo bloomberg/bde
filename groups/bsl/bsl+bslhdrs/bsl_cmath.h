@@ -30,6 +30,7 @@ BSLS_IDENT("$Id: $")
 // fails to build otherwise in the stlport4 mode on Sun.
 
 #include <math.h>
+
 #endif
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 

@@ -26,9 +26,7 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BSL_OVERRIDES_STD
 #include <bslstp_hashset.h>
-
 #else   // BSL_OVERRIDES_STD
-
 #include <hash_set>
 #endif  // BSL_OVERRIDES_STD
 

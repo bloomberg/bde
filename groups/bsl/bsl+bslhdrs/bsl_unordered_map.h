@@ -31,7 +31,6 @@ BSLS_IDENT("$Id: $")
 // support.  Currently the 'BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS' is
 // never defined, but this sketches out our plan for future support.
 # ifdef BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS
-
 #  include <unordered_map>
 # endif
 #endif
@@ -46,7 +45,7 @@ BSLS_IDENT("$Id: $")
 // header, but also when <unordered_map> is included. To satisfy this
 // requirement the following inclusion is added.
 
-#include <bslstl_iterator.h>
+# include <bslstl_iterator.h>
 # include <bslstl_unorderedmap.h>
 # include <bslstl_unorderedmultimap.h>
 #endif  // BSL_OVERRIDES_STD

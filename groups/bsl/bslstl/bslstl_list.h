@@ -615,7 +615,6 @@ BSL_OVERRIDES_STD mode"
 #include <algorithm>   // for std::swap in C++03 or earlier
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-
 #include <initializer_list>
 #endif
 

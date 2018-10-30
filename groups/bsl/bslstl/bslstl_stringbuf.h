@@ -166,8 +166,7 @@ BSL_OVERRIDES_STD mode"
 #include <streambuf>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
-
-#include <utility>
+# include <utility>
 #endif
 #include <limits.h>      // for 'INT_MAX', 'INT_MIN'
 

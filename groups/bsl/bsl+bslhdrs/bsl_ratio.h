@@ -18,6 +18,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 
 #include <ratio>
+
 #include <bslstl_ratio.h>
 
 #endif

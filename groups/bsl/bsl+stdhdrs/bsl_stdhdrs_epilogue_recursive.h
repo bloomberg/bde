@@ -209,7 +209,6 @@
 // graph of the native headers.
 #if defined(INCLUDED_NATIVE_STDEXCEPT) && defined(BSL_INCLUDE_NATIVE_STRING)
 # ifndef INCLUDED_NATIVE_STRING
-
 #   include <string>
 #   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # endif
@@ -328,23 +327,18 @@
 // type traits.
 #ifdef INCLUDED_NATIVE_TYPE_TRAITS
 // level 1
-
 #   include <bslmf_integralconstant.h>    // This must be included first
 // level 2
-
 #   include <bslmf_isarray.h>
 #   include <bslmf_isconst.h>
 #   include <bslmf_islvaluereference.h>
 #   include <bslmf_isrvaluereference.h>
 #   include <bslmf_isvolatile.h>
 // level 3
-
 #   include <bslmf_isreference.h>
 // level 4
-
 #   include <bslmf_issame.h>
 // level 5
-
 #   include <bslmf_addlvaluereference.h>
 #   include <bslmf_addrvaluereference.h>
 #   include <bslmf_conditional.h>
@@ -353,12 +347,10 @@
 #   include <bslmf_removereference.h>
 #   include <bslmf_removevolatile.h>
 // level 6
-
 #   include <bslmf_addpointer.h>
 #   include <bslmf_addreference.h>
 #   include <bslmf_removecv.h>
 // level 7
-
 #   include <bslmf_isclass.h>
 #   include <bslmf_isfloatingpoint.h>
 #   include <bslmf_isfunction.h>
@@ -367,7 +359,6 @@
 #   include <bslmf_ispointer.h>
 #   include <bslmf_isvoid.h>
 // level 8
-
 #   include <bslmf_addconst.h>
 #   include <bslmf_addvolatile.h>
 #   include <bslmf_decay.h>
@@ -377,25 +368,18 @@
 #   include <bslmf_ispolymorphic.h>
 #   include <bslmf_removepointer.h>
 // level 9
-
 #   include <bslmf_addcv.h>
 #   include <bslmf_isfundamental.h>
 #   include <bslmf_ismemberpointer.h>
 // level 10
-
 #   include <bslmf_enableif.h>
 // level 11
-
 #   include <bslmf_isconvertible.h>
 // level 12
-# ifndef INCLUDED_BSLMF_INOVOKERESULT
 #   include <bslmf_invokeresult.h>
-# endif
 // level 13
-
 #   include <bslmf_isenum.h>
 // level 14
-
 #   include <bslmf_iscopyconstructible.h>
 #   include <bslmf_isnothrowmoveconstructible.h>
 #   include <bslmf_istriviallycopyable.h>
@@ -410,7 +394,6 @@
 #if defined(INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE)
 # undef INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
 # include <bsl_stdhdrs_epilogue_recursive.h>
-
 #endif
 
 // ----------------------------------------------------------------------------

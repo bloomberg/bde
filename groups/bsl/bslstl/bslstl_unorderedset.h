@@ -602,8 +602,7 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_keyword.h>
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-
-#include <initializer_list>
+# include <initializer_list>
 #endif
 
 #include <cstddef>  // for 'std::size_t'

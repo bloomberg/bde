@@ -279,7 +279,6 @@ BSL_OVERRIDES_STD mode"
 #include <cstddef>  // 'std::size_t'
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-
 #  include <tuple>  // 'std::tuple'
 #endif
 

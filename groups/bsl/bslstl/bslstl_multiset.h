@@ -511,8 +511,7 @@ BSL_OVERRIDES_STD mode"
 #include <functional>
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-
-#include <initializer_list>
+# include <initializer_list>
 #endif
 
 namespace bsl {

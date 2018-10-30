@@ -436,7 +436,6 @@ BSL_OVERRIDES_STD mode"
 #include <cstring>
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-
 #include <initializer_list>
 #endif
 
