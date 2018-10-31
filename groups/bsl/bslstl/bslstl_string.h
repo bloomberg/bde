@@ -2556,13 +2556,19 @@ class basic_string
                 // *** BDE compatibility with platform libraries: ***
 
     template <class ALLOC2>
-    operator native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>() const;
+    operator native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>() const
         // Convert this object to a string type native to the compiler's
         // library, instantiated with the same character type and traits type,
         // but not necessarily the same allocator type.  The return string will
         // contain the same sequence of characters as 'orig' and will have a
         // default-constructed allocator.  Note that this conversion operator
         // can be invoked implicitly (e.g., during argument passing).
+    {
+        // See {DRQS 131792157} for why this is inline.
+        native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2> result;
+        result.assign(data(), length());
+        return result;
+    }
 };
 
 // FREE OPERATORS
@@ -3119,7 +3125,7 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 String_Imp<CHAR_TYPE, SIZE_TYPE>::String_Imp()
 : d_start_p(0)
 , d_length(0)
-, d_capacity(SHORT_BUFFER_CAPACITY)
+, d_capacity(this->SHORT_BUFFER_CAPACITY)  // See {DRQS 131792157} for 'this'.
 {
 }
 
@@ -3129,9 +3135,9 @@ String_Imp<CHAR_TYPE, SIZE_TYPE>::String_Imp(SIZE_TYPE length,
                                              SIZE_TYPE capacity)
 : d_start_p(0)
 , d_length(length)
-, d_capacity(capacity <= static_cast<SIZE_TYPE>(SHORT_BUFFER_CAPACITY)
-                      ?  static_cast<SIZE_TYPE>(SHORT_BUFFER_CAPACITY)
-                      :  capacity)
+, d_capacity(capacity <= static_cast<SIZE_TYPE>(this->SHORT_BUFFER_CAPACITY)
+                      ?  static_cast<SIZE_TYPE>(this->SHORT_BUFFER_CAPACITY)
+                      :  capacity)         // See {DRQS 131792157} for 'this'.
 {
 }
 
@@ -3161,7 +3167,8 @@ void String_Imp<CHAR_TYPE, SIZE_TYPE>::resetFields()
 {
     d_start_p  = 0;
     d_length   = 0;
-    d_capacity = SHORT_BUFFER_CAPACITY;
+    d_capacity = this->SHORT_BUFFER_CAPACITY;
+                                           // See {DRQS 131792157} for 'this'.
 }
 
 template <class CHAR_TYPE, class SIZE_TYPE>
@@ -3178,7 +3185,8 @@ template <class CHAR_TYPE, class SIZE_TYPE>
 inline
 bool String_Imp<CHAR_TYPE, SIZE_TYPE>::isShortString() const
 {
-    return d_capacity == SHORT_BUFFER_CAPACITY;
+    return d_capacity == this->SHORT_BUFFER_CAPACITY;
+                                           // See {DRQS 131792157} for 'this'.
 }
 
 template <class CHAR_TYPE, class SIZE_TYPE>
@@ -4469,17 +4477,6 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::back()
     BSLS_ASSERT_SAFE(!empty());
 
     return *(begin() + length() - 1);
-}
-
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-template <class ALLOC2>
-inline
-basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::
-    operator native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2>() const
-{
-    native_std::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC2> result;
-    result.assign(data(), length());
-    return result;
 }
 
                      // *** 21.3.6 modifiers: ***

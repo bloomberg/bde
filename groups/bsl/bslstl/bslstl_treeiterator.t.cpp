@@ -1293,8 +1293,10 @@ int main(int argc, char *argv[])
 
             // Verify that the signatures and return types are standard.
 
-            operatorPtr operatorEq = operator==;
-            operatorPtr operatorNe = operator!=;
+            operatorPtr operatorEq = bslstl::operator==;
+                                        // See {DRQS 131792157} for 'bslstl::'.
+            operatorPtr operatorNe = bslstl::operator!=;
+                                        // See {DRQS 131792157} for 'bslstl::'.
 
             (void) operatorEq;  // quash potential compiler warnings
             (void) operatorNe;
