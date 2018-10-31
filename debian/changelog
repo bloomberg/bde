@@ -1,12 +1,20 @@
-bsl-internal (3.15.0.0) unstable; urgency=low
+bsl-internal (3.16.0.0) unstable; urgency=low
 
+  * 58b56a7b9 Bump version to 3.16.0
+  * 15433c332 drqs-131350232: 3.15.0.0: Format fixes for 'bdedox' conversion.
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 31 Oct 2018 12:33:31 -0400
+
+bsl-internal (3.15.0.0) git; urgency=low
+
+  * 24ba60b0e Changelog for version 3.15.0.0
   * 966cbd2d8 Bump version to 3.15.0
   * 8f30d1c35 Merge pull request #2126 from osubbotin/review/pcre2-version-update
   * 3e9dae347 Merge pull request #2123 from osubbotin/review/pcre2-version-update
   * b9757735c Merge pull request #2111 from ameredit/fix_hex_version_check_for_MSVC
   * ac047782f Fix hex version check for MSVC compiler
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 20 Oct 2018 21:32:42 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 22 Oct 2018 10:43:35 -0400
 
 bsl-internal (3.14.0.0) git; urgency=low
 
