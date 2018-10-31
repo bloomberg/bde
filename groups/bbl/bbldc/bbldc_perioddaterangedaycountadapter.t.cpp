@@ -111,6 +111,9 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
+
     // CONCERN: In no case does memory come from the global allocator.
 
     bslma::TestAllocator globalAllocator("global", veryVerbose);

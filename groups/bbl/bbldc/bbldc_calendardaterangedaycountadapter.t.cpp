@@ -114,6 +114,9 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the global allocator.
 
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
+
     bslma::TestAllocator globalAllocator("global", veryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
