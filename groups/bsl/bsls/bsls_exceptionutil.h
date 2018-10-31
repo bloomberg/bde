@@ -283,7 +283,7 @@ BSLS_IDENT("$Id: $")
         // Exceptions enabled: 'throw'
         // Exceptions disabled: abort with a message
 
-# if !BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 16)
+# if !BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 17)
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS)
 #     define BSLS_EXCEPTION_SPEC(SPEC) throw SPEC
         // DEPRECATED: This macro is deprecated, as the language feature itself
@@ -347,7 +347,7 @@ BSLS_IDENT("$Id: $")
                                            "Tried to re-throw exception "    \
                                            "with exceptions disabled");
 
-# if !BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 16)
+# if !BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 17)
 #   define BSLS_EXCEPTION_SPEC(SPEC)
 # endif // BSLS_DEPRECATE_IS_ACTIVE
 

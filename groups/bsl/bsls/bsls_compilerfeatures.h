@@ -142,8 +142,10 @@ BSLS_IDENT("$Id: $")
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
 //:     This macro is defined if the 'noexcept' keyword is supported by the
-//:     current compiler settings for this platform, both for designating a
-//:     function as not throwing and for testing if an expression may throw.
+//:     current compiler, both for designating a function as not throwing and
+//:     for testing if an expression may throw.  The definition of this macro
+//:     does not depend on whether the current compiler configuration has
+//:     disabled support for exceptions.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR':
 //:    This macro is defined if 'nullptr' is supported by the current compiler
@@ -170,6 +172,13 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT'
 //:     This macro is defined if 'static_assert' is supported by the current
 //:     compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS'
+//:     This macro is defined if dynamic exception specifications are supported
+//:     by the current compiler.  Dynamic exception specifications were
+//:     deprecated in C++11, and actively removed from the  language in C++17.
+//:     The definition of this macro does not depend on whether the current
+//:     compiler configuration has disabled support for exceptions.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER'
 //:     This macro is defined if the standard library for the current compiler
@@ -543,6 +552,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_macrorepeat.h>
 #endif
 
+// ============================================================================
+//                      UNIVERSAL MACRO DEFINITIONS
+// ============================================================================
 
 // First, define feature macros for any C++98 features that should be available
 // on all compilers, until removed by a later standard.  These macros will be
@@ -550,16 +562,18 @@ BSLS_IDENT("$Id: $")
 // modern build mode.
 #define BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
 
-// Use the standard compiler-independent feature-test macros (SD-6).
+// Use the standard compiler-independent feature-test macros (SD-6) for
+// compilers that support them.  This support will be mandated by C++20, and it
+// is expected that, at some point, future compilers will need only these
+// universal definitions, and the platoform-specific detection below will need
+// no further maintenance.
 #if defined(__cpp_unicode_characters) && defined(__cpp_unicode_literals)
 # define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 #endif
 
-// Remove macros defined for earlier dialacts (including C++98) that are
-// removed from later editions of the C++ Standard.
-#if __cplusplus >= 201703L
-# undef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
-#endif
+// ============================================================================
+//      PLATFORM SPECIFIC FEATURE DETECTION AND MACRO DEFINITIONS
+// ============================================================================
 
 // GCC
 // https://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
@@ -568,7 +582,7 @@ BSLS_IDENT("$Id: $")
 // as bugs compared to the final standard.  Therefore, BDE does not attempt to
 // support C++11 in GCC compilers prior to the 4.8 release.
 #if defined(BSLS_PLATFORM_CMP_GNU)
-#define BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
+# define BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
 
 # define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 
@@ -960,7 +974,21 @@ BSLS_IDENT("$Id: $")
 // # define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
 #endif
 
-// Feature interactions
+// ============================================================================
+//              DISABLE FEATURES REMOVED BY LATER STANDARDS
+// ============================================================================
+
+// Undefine macros defined for earlier dialacts (including C++98) that are
+// removed from later editions of the C++ Standard.
+
+#if __cplusplus >= 201703L
+# undef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+#endif
+
+// ============================================================================
+//                      ENFORCE FEATURE INTERACTIONS
+// ============================================================================
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&  \
    !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 #   undef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -969,7 +997,9 @@ BSLS_IDENT("$Id: $")
     // supports implicit-move from rvalues.
 #endif
 
-    //  *** Simulate various C++11 features ***
+// ============================================================================
+//                      SIMULATE VARIOUS C++11 FEATURES
+// ============================================================================
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #   define BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES 1

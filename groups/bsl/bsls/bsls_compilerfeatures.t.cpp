@@ -847,7 +847,6 @@ int main(int argc, char *argv[])
             static void throwBadException() {
                 throw std::bad_exception();
             }
-
         };
 
         std::set_unexpected(&LocalClass::throwBadException);

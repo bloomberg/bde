@@ -250,7 +250,7 @@ void noThrowFunction() BSLS_NOTHROW_SPEC
 {
 }
 
-#if !BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 16)
+#if !BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 17)
 void exceptionSpecFunction() BSLS_EXCEPTION_SPEC((TestExceptionClass))
 {
 }
