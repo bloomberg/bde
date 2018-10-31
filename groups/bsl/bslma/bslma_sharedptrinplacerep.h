@@ -193,6 +193,11 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_util.h>
 #endif
 
+#ifndef INCLUDED_STDDEF_H
+#include <stddef.h>
+#define INCLUDED_STDDEF_H
+#endif
+
 #ifndef INCLUDED_TYPEINFO
 #include <typeinfo>
 #define INCLUDED_TYPEINFO
@@ -563,8 +568,8 @@ struct SharedPtrInplaceRep_ImpUtil {
     static void dispose(const TYPE& object);
         // Destroy the specifed 'object'.
 
-    template <class TYPE, size_t N>
-    static void dispose(const TYPE (&object)[N]);
+    template <class TYPE, size_t SIZE>
+    static void dispose(const TYPE (&object)[SIZE]);
         // Destroy each element of the specified 'object'.
 };
 
@@ -606,11 +611,11 @@ void SharedPtrInplaceRep_ImpUtil::dispose(const TYPE& object)
     object.~TYPE();
 }
 
-template <class TYPE, size_t N>
+template <class TYPE, size_t SIZE>
 inline
-void SharedPtrInplaceRep_ImpUtil::dispose(const TYPE (&object)[N])
+void SharedPtrInplaceRep_ImpUtil::dispose(const TYPE (&object)[SIZE])
 {
-    for (size_t i = 0; i < N; ++i) {
+    for (size_t i = 0; i < SIZE; ++i) {
         dispose(object[i]);
     }
 }
