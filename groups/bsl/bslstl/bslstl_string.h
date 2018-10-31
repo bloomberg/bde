@@ -679,9 +679,9 @@ BSL_OVERRIDES_STD mode"
 // Code in Robo depends on these headers included transitively with <string>
 // and it fails to build otherwise in the stlport4 mode on Sun.
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
 #endif
 
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES

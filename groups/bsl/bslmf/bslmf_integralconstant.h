@@ -151,9 +151,9 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 # include <bsls_nativestd.h>
+
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-
 
 // Detect need for compiler workarounds
 
