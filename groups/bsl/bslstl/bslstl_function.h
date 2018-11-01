@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_FUNCTION
 #define INCLUDED_BSLSTL_FUNCTION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a polymorphic function object with a specific prototype.
@@ -37,188 +35,58 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_functional.h> instead of <bslstl_function.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATORADAPTOR
 #include <bslma_allocatoradaptor.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_CONSTRUCTIONUTIL
 #include <bslma_constructionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
 #include <bslma_destructionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
 #include <bslmf_addlvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ADDRVALUEREFERENCE
 #include <bslmf_addrvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ALLOCATORARGT
 #include <bslmf_allocatorargt.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_FORWARDINGTYPE
 #include <bslmf_forwardingtype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISEMPTY
 #include <bslmf_isempty.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISRVALUEREFERENCE
 #include <bslmf_isrvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MEMBERFUNCTIONPOINTERTRAITS
 #include <bslmf_memberfunctionpointertraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NTHPARAMETER
 #include <bslmf_nthparameter.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECONST
 #include <bslmf_removeconst.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_USESALLOCATORARGT
 #include <bslmf_usesallocatorargt.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_BUILDTARGET
 #include <bsls_buildtarget.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #include <bsls_exceptionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NULLPTR
 #include <bsls_nullptr.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UNSPECIFIEDBOOL
 #include <bsls_unspecifiedbool.h>
-#endif
 
-#ifndef INCLUDED_CSTDLIB
 #include <cstdlib>
-#define INCLUDED_CSTDLIB
-#endif
 
-#ifndef INCLUDED_NEW
 #include <new>
-#define INCLUDED_NEW
-#endif
-
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
-#define INCLUDED_STDDEF_H
-#endif
-
-#ifndef INCLUDED_STDLIB_H
 #include <stdlib.h>
-#define INCLUDED_STDLIB_H
-#endif
 
-#ifndef INCLUDED_TYPEINFO
 #include <typeinfo>
-#define INCLUDED_TYPEINFO
-#endif
 
-#ifndef INCLUDED_UTILITY
 #include <utility>
-#define INCLUDED_UTILITY
-#endif
 
                         // ---------------------
                         // COMPILER DEFECT FLAGS

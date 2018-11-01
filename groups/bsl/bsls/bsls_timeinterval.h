@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_TIMEINTERVAL
 #define INCLUDED_BSLS_TIMEINTERVAL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a representation of a time interval.
@@ -91,27 +89,12 @@ BSLS_IDENT("$Id: $")
 //  assert(870000000 == intervalPrime.nanoseconds());
 //..
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_IOSFWD
 #include <iosfwd>
-#define INCLUDED_IOSFWD
-#endif
-
-#ifndef INCLUDED_LIMITS_H
 #include <limits.h>  // 'LLONG_MIN', 'LLONG_MAX'
-#define INCLUDED_LIMITS_H
-#endif
 
 // BDE_VERIFY pragma: push
 // BDE_VERIFY pragma: -FABC01  // 'add*' operations are ordered by time unit

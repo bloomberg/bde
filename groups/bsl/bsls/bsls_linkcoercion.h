@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_LINKCOERCION
 #define INCLUDED_BSLS_LINKCOERCION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a way to force a link-time dependency into an object.
@@ -50,9 +48,7 @@ BSLS_IDENT("$Id: $")
 //  const char *s_coerce = "Link me in!";
 //..
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 

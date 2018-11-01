@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_PROTOCOLTEST
 #define INCLUDED_BSLS_PROTOCOLTEST
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide classes and macros for testing abstract protocols.
@@ -175,10 +173,7 @@ BSLS_IDENT("$Id: $")
 // will be reported via standard test driver assertions (i.e., the standard
 // 'ASSERT' macro).
 
-#ifndef INCLUDED_CSTDIO
 #include <cstdio>
-#define INCLUDED_CSTDIO
-#endif
 
 namespace BloombergLP {
 

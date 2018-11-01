@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_BSLLOCK
 #define INCLUDED_BSLS_BSLLOCK
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a platform-independent mutex for use below 'bslmt'.
@@ -103,9 +101,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 
@@ -120,12 +116,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #else
-
-#ifndef INCLUDED_PTHREAD
 #include <pthread.h>
-#define INCLUDED_PTHREAD
-#endif
-
 #endif
 
 #ifdef BDE_BUILD_TARGET_SAFE

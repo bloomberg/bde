@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_NATIVESTD
 #define INCLUDED_BSLS_NATIVESTD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Define the namespace 'native_std' as an alias for '::std'.
@@ -45,9 +43,7 @@ BSLS_IDENT("$Id: $")
 //  native_std::string s2;  // guaranteed to be the compiler's native string
 //..
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 // '<bsls_platform.h>' is included early in the header sequence, as it contains
 // several macros that control the configuration of the native STL on the

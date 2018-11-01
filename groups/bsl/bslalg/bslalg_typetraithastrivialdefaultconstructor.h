@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_TYPETRAITHASTRIVIALDEFAULTCONSTRUCTOR
 #define INCLUDED_BSLALG_TYPETRAITHASTRIVIALDEFAULTCONSTRUCTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as having a trivial default ctor.
@@ -28,17 +26,10 @@ BSLS_IDENT("$Id: $")
 ///-----
 // No Usage example is provided since this component is deprecated.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 #include <bslmf_istriviallydefaultconstructible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
 namespace BloombergLP {
 

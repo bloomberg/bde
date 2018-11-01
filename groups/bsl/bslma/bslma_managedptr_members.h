@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_MANAGEDPTR_MEMBERS
 #define INCLUDED_BSLMA_MANAGEDPTR_MEMBERS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide the internal state of a managed pointer class.
@@ -25,21 +23,13 @@ BSLS_IDENT("$Id: $")
 //:
 //: o deleter - address of a function used to destroy the managed object
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_MANAGEDPTRDELETER
 #include <bslma_managedptrdeleter.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bslma {

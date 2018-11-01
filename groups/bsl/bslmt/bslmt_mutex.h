@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_MUTEX
 #define INCLUDED_BSLMT_MUTEX
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a platform-independent mutex.
@@ -249,21 +247,11 @@ BSLS_IDENT("$Id: $")
 //  handle.unlock();
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEXIMPL_PTHREAD
 #include <bslmt_muteximpl_pthread.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEXIMPL_WIN32
 #include <bslmt_muteximpl_win32.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

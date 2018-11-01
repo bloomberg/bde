@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSL_FUNCTIONAL
 #define INCLUDED_BSL_FUNCTIONAL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -19,13 +17,8 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
 #include <functional>
 
@@ -115,12 +108,10 @@ namespace bsl {
 #ifndef BDE_OPENSOURCE_PUBLICATION // STP
 #include <bslstp_exfunctional.h>
 #endif  // BDE_OPENSOURCE_PUBLICATION -- STP
-
 #include <bslstl_equalto.h>
 #include <bslstl_function.h>
 #include <bslstl_hash.h>
 #include <bslstl_referencewrapper.h>
-
 #endif
 
 #endif // INCLUDED_BSL_FUNCTIONAL

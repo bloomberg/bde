@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_VECTOR
 #define INCLUDED_BSLSTL_VECTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant vector class.
@@ -544,156 +542,55 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_vector.h> instead of <bslstl_vector.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_HASH
 #include <bslstl_hash.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
 #include <bslstl_stdexceptutil.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
 #include <bslalg_arraydestructionprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_ARRAYPRIMITIVES
 #include <bslalg_arrayprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_CONTAINERBASE
 #include <bslalg_containerbase.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_RANGECOMPARE
 #include <bslalg_rangecompare.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
-#endif
 
-#ifndef INCLUDED_BSLH_HASH
 #include <bslh_hash.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_AUTODESTRUCTOR
 #include <bslma_autodestructor.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISINTEGRAL
 #include <bslmf_isintegral.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MATCHARITHMETICTYPE
 #include <bslmf_matcharithmetictype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>
-#define INCLUDED_CSTDDEF
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 
-#ifndef INCLUDED_INITIALIZER_LIST
 #include <initializer_list>
-#define INCLUDED_INITIALIZER_LIST
-#endif
-
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#ifndef INCLUDED_STDEXCEPT
 #include <stdexcept>
-#define INCLUDED_STDEXCEPT
-#endif
-
 #endif
 
 namespace bsl {

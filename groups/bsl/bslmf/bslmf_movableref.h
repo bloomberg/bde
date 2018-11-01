@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_MOVABLEREF
 #define INCLUDED_BSLMF_MOVABLEREF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a vocabulary type to enable move semantics.
@@ -466,41 +464,17 @@ BSLS_IDENT("$Id: $")
 // no need for conditional compilation in when using 'MovableRef<TYPE>' while
 // move semantics is enabled in both modes.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCOPYCONSTRUCTIBLE
 #include <bslmf_iscopyconstructible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISNOTHROWMOVECONSTRUCTIBLE
 #include <bslmf_isnothrowmoveconstructible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
 namespace BloombergLP {
 

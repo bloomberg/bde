@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_RWMUTEX
 #define INCLUDED_BSLMT_RWMUTEX
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a platform-independent RW mutex class.
@@ -37,38 +35,21 @@ BSLS_IDENT("$Id: $")
 ///-----
 // TBD
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #if defined(BSLMT_PLATFORM_WIN32_THREADS) || defined(BSLS_PLATFORM_OS_AIX)
-#ifndef INCLUDED_BSLMT_READERWRITERLOCK
 #include <bslmt_readerwriterlock.h>
-#endif
 #endif
 
 #ifdef BSLMT_PLATFORM_POSIX_THREADS
-#ifndef INCLUDED_PTHREAD
 #include <pthread.h>
-#define INCLUDED_PTHREAD
 #endif
-#endif
-
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

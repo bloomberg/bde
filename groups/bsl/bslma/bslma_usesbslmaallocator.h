@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #define INCLUDED_BSLMA_USESBSLMAALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a metafunction that indicates the use of bslma allocators.
@@ -201,25 +199,13 @@ BSLS_IDENT("$Id: $")
 //               bslma::UsesBslmaAllocator<UsesAllocatorType2>::value);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
 
 namespace BloombergLP {
 

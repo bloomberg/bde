@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
 #define INCLUDED_BSLMA_DESTRUCTIONUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide routines that destroy objects efficiently.
@@ -89,34 +87,16 @@ BSLS_IDENT("$Id: $")
 //  bslma::DestructionUtil::destroy(&scalarInteger);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_STRING_H
 #include <string.h>  // 'memset'
-#define INCLUDED_STRING_H
-#endif
 
 namespace BloombergLP {
 

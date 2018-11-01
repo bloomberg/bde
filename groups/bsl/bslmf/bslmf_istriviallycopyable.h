@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #define INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function for determining trivially copyable types.
@@ -117,73 +115,32 @@ BSLS_IDENT("$Id: $")
 //  #endif
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISENUM
 #include <bslmf_isenum.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
 #include <bslmf_ismemberpointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
 
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
-#define INCLUDED_STDDEF_H
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
 #include <bslmf_ispointertomember.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 // This set of includes must come last, due to usage of 'bsls_nativestd'
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-#ifndef INCLUDED_BSLS_NATIVESTD
-#include <bsls_nativestd.h>
-#endif
 
-#ifndef INCLUDED_TYPE_TRAITS
-# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
+# include <bsls_nativestd.h>
+
 # include <type_traits>
-#endif
 
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
@@ -204,9 +161,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #ifndef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
-#ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
 #endif
 
 namespace bsl {

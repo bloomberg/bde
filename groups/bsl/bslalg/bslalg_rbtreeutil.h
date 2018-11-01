@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_RBTREEUTIL
 #define INCLUDED_BSLALG_RBTREEUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide a suite of primitive algorithms on red-black trees.
@@ -677,34 +675,18 @@ BSLS_IDENT("$Id$ $CSID$")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_RBTREEANCHOR
 #include <bslalg_rbtreeanchor.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_RBTREENODE
 #include <bslalg_rbtreenode.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_STDIO_H
 #include <stdio.h>
-#define INCLUDED_STDIO_H
-#endif
 
 namespace BloombergLP {
 namespace bslalg {

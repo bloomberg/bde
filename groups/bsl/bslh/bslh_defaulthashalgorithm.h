@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLH_DEFAULTHASHALGORITHM
 #define INCLUDED_BSLH_DEFAULTHASHALGORITHM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a reasonable hashing algorithm for default use.
@@ -277,17 +275,11 @@ BSLS_IDENT("$Id: $")
 //      ASSERT(!hashTable.contains(Future("US Dollar", 'F', 2014)));
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSLH_SPOOKYHASHALGORITHM
 #include <bslh_spookyhashalgorithm.h>
-#endif
 
 namespace BloombergLP {
 

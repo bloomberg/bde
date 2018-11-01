@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMT_ENTRYPOINTFUNCTORADAPTER
 #define INCLUDED_BSLMT_ENTRYPOINTFUNCTORADAPTER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$: $")
 
 //@PURPOSE: Provide types and utilities to simplify thread creation.
@@ -152,45 +150,20 @@ BSLS_IDENT("$: $")
 //  assert(9 == result);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTILIMPL_PTHREAD
 #include <bslmt_threadutilimpl_pthread.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTILIMPL_WIN32
 #include <bslmt_threadutilimpl_win32.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
 #include <bslalg_constructorproxy.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_MANAGEDPTR
 #include <bslma_managedptr.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_RAWDELETERGUARD
 #include <bslma_rawdeleterguard.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 

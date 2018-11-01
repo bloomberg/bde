@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_STRINGREF
 #define INCLUDED_BSLSTL_STRINGREF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a reference to a 'const' string.
@@ -266,60 +264,25 @@ BSLS_IDENT("$Id: $")
 //  assert(42 == numBlanks);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISINTEGRAL
 #include <bslmf_isintegral.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_STRING
 #include <bslstl_string.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_STRINGREFDATA
 #include <bslstl_stringrefdata.h>
-#endif
 
-#ifndef INCLUDED_IOSFWD
 #include <iosfwd>
-#define INCLUDED_IOSFWD
-#endif
 
-#ifndef INCLUDED_ALGORITHM
 #include <algorithm>
-#define INCLUDED_ALGORITHM
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>              // for 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace BloombergLP {
 

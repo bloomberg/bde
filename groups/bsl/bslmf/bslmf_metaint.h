@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_METAINT
 #define INCLUDED_BSLMF_METAINT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to map integral constants to unique types.
@@ -100,21 +98,12 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_TAG
 #include <bslmf_tag.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 namespace BloombergLP {
 

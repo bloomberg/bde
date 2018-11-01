@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #define INCLUDED_BSLS_ATOMICOPERATIONS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide platform-independent atomic operations.
@@ -685,13 +683,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Notice that if the stack was empty, a NULL pointer is returned.
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
 #if __has_extension(c_atomic) || __has_extension(cxx_atomic)  // clang 3.1+

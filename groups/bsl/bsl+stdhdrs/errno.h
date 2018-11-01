@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_C_ERRNO
 #define INCLUDED_NATIVE_C_ERRNO
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 /*
@@ -24,10 +22,7 @@ BSLS_IDENT("$Id: $")
 */
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
-
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
-#   endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION >= 1900
 #   include <../ucrt/errno.h>  // MSVC 2015 or later
@@ -45,10 +40,7 @@ BSLS_IDENT("$Id: $")
 #   define BSL_STDHDRS_RUN_EPILOGUE
 #   define BSL_STDHDRS_EPILOGUE_RUN_BY_c_errno
 #   endif
-
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
-#   endif
 
 // Direct inclusion since 'errno' is a macro.
 

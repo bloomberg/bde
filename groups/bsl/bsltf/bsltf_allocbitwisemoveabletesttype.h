@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_ALLOCBITWISEMOVEABLETESTTYPE
 #define INCLUDED_BSLTF_ALLOCBITWISEMOVEABLETESTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a class that allocates memory and is bitwise-moveable.
@@ -72,25 +70,13 @@ BSLS_IDENT("$Id: $")
 //  Type defines bslmf::IsBitwiseMoveable.
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

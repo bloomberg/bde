@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSL_STREAMBUF
 #define INCLUDED_BSL_STREAMBUF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -19,9 +17,7 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
 #include <streambuf>
 
@@ -31,6 +27,7 @@ BSLS_IDENT("$Id: $")
 
 // Code in Robo depends on <ios> included transitively with <streambuf> and it
 // fails to build otherwise in the stlport4 mode on Sun.
+
 #include <bsl_ios.h>
 
 #endif

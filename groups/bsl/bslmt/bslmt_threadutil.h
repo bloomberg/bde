@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_THREADUTIL
 #define INCLUDED_BSLMT_THREADUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide platform-independent utilities related to threading.
@@ -276,57 +274,23 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_ENTRYPOINTFUNCTORADAPTER
 #include <bslmt_entrypointfunctoradapter.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
 #include <bslmt_threadattributes.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTILIMPL_PTHREAD
 #include <bslmt_threadutilimpl_pthread.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTILIMPL_WIN32
 #include <bslmt_threadutilimpl_win32.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_SYSTEMCLOCKTYPE
 #include <bsls_systemclocktype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 namespace BloombergLP {
 

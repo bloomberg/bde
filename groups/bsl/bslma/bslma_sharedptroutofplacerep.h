@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_SHAREDPTROUTOFPLACEREP
 #define INCLUDED_BSLMA_SHAREDPTROUTOFPLACEREP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide an out-of-place implementation of 'bslma::SharedPtrRep'.
@@ -194,62 +192,24 @@ BSLS_IDENT("$Id$ $CSID$")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_SHAREDPTRREP
 #include <bslma_sharedptrrep.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNCTION
 #include <bslmf_isfunction.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
-#endif
 
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
-#ifndef INCLUDED_TYPEINFO
 #include <typeinfo>
-#define INCLUDED_TYPEINFO
-#endif
 
 namespace BloombergLP {
 namespace bslma {

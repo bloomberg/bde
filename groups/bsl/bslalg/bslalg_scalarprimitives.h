@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #define INCLUDED_BSLALG_SCALARPRIMITIVES
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide primitive algorithms that operate on single elements.
@@ -83,103 +81,37 @@ BSLS_IDENT("$Id: $")
 // This component is for use primarily by the 'bslstl' package.  Other clients
 // should use the STL algorithms provided in '<algorithm>' and '<memory>'.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_AUTOSCALARDESTRUCTOR
 #include <bslalg_autoscalardestructor.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
 #include <bslma_destructionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ALLOCATORARGT
 #include <bslmf_allocatorargt.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 #include <bslmf_istriviallydefaultconstructible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_USESALLOCATORARGT
 #include <bslmf_usesallocatorargt.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_UTIL
 #include <bslmf_util.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
-#define INCLUDED_STDDEF_H
-#endif
-
-#ifndef INCLUDED_STRING_H
 #include <string.h>
-#define INCLUDED_STRING_H
-#endif
 
-#ifndef INCLUDED_NEW
 #include <new>          // placement 'new'
-#define INCLUDED_NEW
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_REMOVECVQ
 #include <bslmf_removecvq.h>
-#endif
-
 #endif
 
 namespace BloombergLP {

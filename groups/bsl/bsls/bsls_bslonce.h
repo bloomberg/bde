@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_BSLONCE
 #define INCLUDED_BSLS_BSLONCE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide BSL a thread-safe way to execute code once per process.
@@ -77,9 +75,7 @@ BSLS_IDENT("$Id: $")
 // that 'singleton' is a function scoped static variable to avoid allocating
 // it on the 'heap' (which might be reported as leaked memory).
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
 
 #ifdef BDE_BUILD_TARGET_SAFE
 // This component needs to be below bsls_assert in the physical hierarchy, so

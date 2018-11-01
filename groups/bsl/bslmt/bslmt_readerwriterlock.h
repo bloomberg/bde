@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_READERWRITERLOCK
 #define INCLUDED_BSLMT_READERWRITERLOCK
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a multi-reader/single-writer lock.
@@ -210,25 +208,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_CONDITION
 #include <bslmt_condition.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

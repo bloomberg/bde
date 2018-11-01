@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_AUTOARRAYDESTRUCTOR
 #define INCLUDED_BSLALG_AUTOARRAYDESTRUCTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a proctor for destroying arrays.
@@ -167,26 +165,15 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == ta.numBlocksInUse());
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
 #include <bslalg_arraydestructionprimitives.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // size_t
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace BloombergLP {
 

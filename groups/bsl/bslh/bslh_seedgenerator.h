@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLH_SEEDGENERATOR
 #define INCLUDED_BSLH_SEEDGENERATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a class to generate arbitrary length seeds for algorithms.
@@ -203,23 +201,12 @@ BSLS_IDENT("$Id: $")
 //      }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_STRING_H
 #include <string.h>  // for 'memcpy'
-#define INCLUDED_STRING_H
-#endif
-
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>  // for 'size_t'
-#define INCLUDED_STDDEF_H
-#endif
 
 namespace BloombergLP {
 

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_KEYWORD
 #define INCLUDED_BSLS_KEYWORD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide macros for forward language dialect compatibility.
@@ -278,9 +276,7 @@ BSLS_IDENT("$Id: $")
 // assert(42 == result);
 //..
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #define BSLS_KEYWORD_CONSTEXPR constexpr

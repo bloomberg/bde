@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ASSERTIMPUTIL
 #define INCLUDED_BSLS_ASSERTIMPUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities to implement 'bsls_assert' and 'bsls_review'.
@@ -51,14 +49,8 @@ BSLS_IDENT("$Id: $")
 //..
 // This function would then sleep forever and never return.
 
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
                        // ===========================
                        // BSLS_ASSERTIMPUTIL_NORETURN

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ISTRANSPARENTPREDICATE
 #define INCLUDED_BSLMF_ISTRANSPARENTPREDICATE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Support detection of whether a predicate functor is transparent.
@@ -403,13 +401,8 @@ BSLS_IDENT("$Id: $")
 //  assert(OBJECTS_NUMBER     == String::numObjectsCreated());
 //..
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_VOIDTYPE
 #include <bslmf_voidtype.h>
-#endif
 
 
 namespace BloombergLP {

@@ -3,9 +3,7 @@
 #ifndef INCLUDED_BSLMT_READERWRITERMUTEX
 #define INCLUDED_BSLMT_READERWRITERMUTEX
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a multi-reader/single-writer lock.
@@ -166,25 +164,13 @@ BSLS_IDENT("$Id: $")
 //  assert(15075 == account.balanceInPennies());
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_READERWRITERMUTEXIMPL
 #include <bslmt_readerwritermuteximpl.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_SEMAPHORE
 #include <bslmt_semaphore.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

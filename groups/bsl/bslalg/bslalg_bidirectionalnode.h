@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
 #define INCLUDED_BSLALG_BIDIRECTIONALNODE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a node holding a value in a doubly-linked list.
@@ -292,13 +290,9 @@ BSLS_IDENT("$Id: $")
 //  assert(intList.end() == ++it);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
 #include <bslalg_bidirectionallink.h>
-#endif
 
 namespace BloombergLP {
 namespace bslalg {

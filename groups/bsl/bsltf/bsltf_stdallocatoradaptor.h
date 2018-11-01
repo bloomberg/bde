@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_STDALLOCATORADAPTOR
 #define INCLUDED_BSLTF_STDALLOCATORADAPTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a mechanism to propagate standard allocator state.
@@ -87,43 +85,19 @@ BSLS_IDENT("$Id: $")
 //  StdBslmaTestDriver<StdAllocTestType<bsl::allocator<int> > >::testCase();
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_USESALLOCATOR
 #include <bslmf_usesallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_UTIL
 #include <bslmf_util.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
-#ifndef INCLUDED_NEW
 #include <new>
-#define INCLUDED_NEW
-#endif
-
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
-#define INCLUDED_STDDEF_H
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

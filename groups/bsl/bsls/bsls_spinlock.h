@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_SPINLOCK
 #define INCLUDED_BSLS_SPINLOCK
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$: $")
 
 //@PURPOSE: Provide a spin lock.
@@ -265,14 +263,8 @@ BSLS_IDENT("$: $")
 //..
 //
 
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
 
 #define BSLS_SPINLOCK_UNLOCKED  { {0} }
     // Use this macro as the value for initializing an object of type

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_RBTREEANCHOR
 #define INCLUDED_BSLALG_RBTREEANCHOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Encapsulate root, first, and last nodes of a tree with a count.
@@ -280,21 +278,13 @@ BSLS_IDENT("$Id$ $CSID$")
 //  assert(3 == static_cast<IntTreeNode *>(anchor.rootNode())->d_value);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_RBTREENODE
 #include <bslalg_rbtreenode.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bslalg {

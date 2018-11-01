@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_REMOVECV
 #define INCLUDED_BSLMF_REMOVECV
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function for removing top-level cv-qualifiers.
@@ -60,21 +58,12 @@ BSLS_IDENT("$Id: $")
 // prefix when we want to use the result of the 'bsl::remove_cv' meta-function
 // in templates.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_REMOVECONST
 #include <bslmf_removeconst.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVEVOLATILE
 #include <bslmf_removevolatile.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 namespace bsl {
 

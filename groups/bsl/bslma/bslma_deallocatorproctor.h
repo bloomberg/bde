@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_DEALLOCATORPROCTOR
 #define INCLUDED_BSLMA_DEALLOCATORPROCTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a proctor to conditionally manage a block memory.
@@ -244,17 +242,10 @@ BSLS_IDENT("$Id: $")
 // that checks the traits of 'TYPE' (to see whether 'TYPE' uses
 // 'bslma::Allocator') should be used (see 'bslalg::ConstructorProxy').
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
 
 namespace BloombergLP {
 

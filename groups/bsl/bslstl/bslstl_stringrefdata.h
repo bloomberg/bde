@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_STRINGREFDATA
 #define INCLUDED_BSLSTL_STRINGREFDATA
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an attribute-only base class for 'bslstl::StringRef'.
@@ -157,25 +155,13 @@ BSLS_IDENT("$Id: $")
 //  assert(&*strObj.end()   == strRf2.end());
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
 namespace BloombergLP {
 

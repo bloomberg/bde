@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_IF
 #define INCLUDED_BSLMF_IF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time 'if/else' (conditional) meta-function.
@@ -99,17 +97,10 @@ BSLS_IDENT("$Id: $")
 //  assert(T_NIL == whatType(Type2()));
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
 
 namespace BloombergLP {
 

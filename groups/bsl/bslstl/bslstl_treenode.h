@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_TREENODE
 #define INCLUDED_BSLSTL_TREENODE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a POD-like tree node type holding a parameterized value.
@@ -333,9 +331,7 @@ BSLS_IDENT("$Id: $")
 //  assert(2 == set.numElements());
 //..
 
-#ifndef INCLUDED_BSLALG_RBTREENODE
 #include <bslalg_rbtreenode.h>
-#endif
 
 namespace BloombergLP {
 namespace bslstl {

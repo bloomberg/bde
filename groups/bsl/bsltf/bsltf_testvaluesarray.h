@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_TESTVALUESARRAY
 #define INCLUDED_BSLTF_TESTVALUESARRAY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a container for values used for testing.
@@ -142,40 +140,18 @@ BSLS_IDENT("$Id: $")
 //  runTest<char>();
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLTF_TEMPLATETESTFACILITY
 #include <bsltf_templatetestfacility.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
-#ifndef INCLUDED_ITERATOR
 #include <iterator>
-#define INCLUDED_ITERATOR
-#endif
-
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
-#define INCLUDED_STDDEF_H
-#endif
-
-#ifndef INCLUDED_STRING_H
 #include <string.h>
-#define INCLUDED_STRING_H
-#endif
 
 namespace BloombergLP {
 

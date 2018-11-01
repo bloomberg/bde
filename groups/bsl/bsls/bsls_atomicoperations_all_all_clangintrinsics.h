@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_ALL_ALL_CLANGINTRINSICS
 #define INCLUDED_BSLS_ATOMICOPERATIONS_ALL_ALL_CLANGINTRINSICS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Implement atomic operations using clang '__c11_atomic_*' intrinsics
@@ -18,17 +16,9 @@ BSLS_IDENT("$Id: $")
 // private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the
 // public interface to atomics.
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
 #if __has_extension(c_atomic) || __has_extension(cxx_atomic)

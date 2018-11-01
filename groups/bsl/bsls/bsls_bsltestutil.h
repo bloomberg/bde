@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_BSLTESTUTIL
 #define INCLUDED_BSLS_BSLTESTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide test utilities for 'bsl' that do not use <iostream>.
@@ -399,20 +397,12 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#   ifndef INCLUDED_STDDEF_H
 #   include <stddef.h>
-#   define INCLUDED_STDDEF_H
-#   endif
 #else
-#   ifndef INCLUDED_STDINT_H
 #   include <stdint.h>
-#   define INCLUDED_STDINT_H
-#   endif
 #endif
 
                             // =================

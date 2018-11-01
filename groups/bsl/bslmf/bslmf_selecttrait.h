@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_SELECTTRAIT
 #define INCLUDED_BSLMF_SELECTTRAIT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide clean compile-time dispatch based on multiple traits
@@ -362,17 +360,10 @@ BSLS_IDENT("$Id: $")
 // the overloaded functions.  When inlining is in effect, the result is very
 // efficient.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_SWITCH
 #include <bslmf_switch.h>
-#endif
 
 namespace BloombergLP {
 

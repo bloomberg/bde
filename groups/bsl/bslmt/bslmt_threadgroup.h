@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_THREADGROUP
 #define INCLUDED_BSLMT_THREADGROUP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a container for managing a group of threads.
@@ -92,41 +90,19 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == ta.numBytesInUse());
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADATTRIBUTES
 #include <bslmt_threadattributes.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_THREADUTIL
 #include <bslmt_threadutil.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

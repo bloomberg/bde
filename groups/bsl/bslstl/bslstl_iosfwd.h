@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_IOSFWD
 #define INCLUDED_BSLSTL_IOSFWD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide forward declarations for Standard stream classes.
@@ -31,10 +29,7 @@ BSLS_IDENT("$Id: $")
 #define BSLSTL_IOSFWD_STD_DEFINED
 #undef std
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 #include <iosfwd>
 

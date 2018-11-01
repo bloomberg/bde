@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMT_LATCH
 #define INCLUDED_BSLMT_LATCH
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a single-use mechanism for synchronizing on an event count.
@@ -273,25 +271,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_CONDITION
 #include <bslmt_condition.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

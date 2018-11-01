@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_NEWDELETEALLOCATOR
 #define INCLUDED_BSLMA_NEWDELETEALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide singleton new/delete adaptor to 'bslma::Allocator' protocol.
@@ -237,13 +235,9 @@ BSLS_IDENT("$Id: $")
 // Finally note that this entire component is *not* intended for direct use by
 // typical clients: See 'bslma_default' for more information or proper usage.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
 namespace BloombergLP {
 

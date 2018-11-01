@@ -40,18 +40,10 @@
 #ifndef INCLUDED_BSL_STDHDRS_PROLOGUE
 #define INCLUDED_BSL_STDHDRS_PROLOGUE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 // When a standard C header file (e.g., 'stddef.h') is included within an
 // 'extern "C"' block, this file will be included transitively.  To avoid

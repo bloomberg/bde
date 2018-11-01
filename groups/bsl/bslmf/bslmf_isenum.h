@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ISENUM
 #define INCLUDED_BSLMF_ISENUM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide compile-time check for determining enumerated types.
@@ -74,61 +72,24 @@ BSLS_IDENT("$Id: $")
 //#endif
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCLASS
 #include <bslmf_isclass.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLETOANY
 #include <bslmf_isconvertibletoany.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+# include <bsls_nativestd.h>
 
-#ifndef INCLUDED_BSLS_NATIVESTD
-#include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_TYPE_TRAITS
-# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
 # include <type_traits>
-#endif
-
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)

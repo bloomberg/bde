@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_CPP11
 #define INCLUDED_BSLS_CPP11
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide macros for C++11 forward compatibility.
@@ -242,9 +240,7 @@ BSLS_IDENT("$Id: $")
 // };
 //..
 
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
 
 #define BSLS_CPP11_CONSTEXPR BSLS_KEYWORD_CONSTEXPR
 

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
 #define INCLUDED_BSLALG_CONSTRUCTORPROXY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a proxy for constructing and destroying objects.
@@ -278,29 +276,15 @@ BSLS_IDENT("$Id: $")
 //               == containedContainer.getObject().getObject().getAllocator());
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
 #include <bslma_destructionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
 namespace BloombergLP {
 

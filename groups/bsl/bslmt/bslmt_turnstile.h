@@ -3,9 +3,7 @@
 #ifndef INCLUDED_BSLMT_TURNSTILE
 #define INCLUDED_BSLMT_TURNSTILE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a mechanism to meter time.
@@ -99,21 +97,11 @@ BSLS_IDENT("$Id: $")
 // executing the sleep call, are encapsulated in the turnstile component, which
 // improves the overall readability of the program.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TIMEINTERVAL
 #include <bsls_timeinterval.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

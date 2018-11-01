@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_DEFAULT
 #define INCLUDED_BSLMA_DEFAULT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities to set/fetch the default and global allocators.
@@ -641,17 +639,11 @@ BSLS_IDENT("$Id: $")
 //  assert(1 == globalCountingAllocator.numBlocksTotal());
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_NEWDELETEALLOCATOR
 #include <bslma_newdeleteallocator.h>
-#endif
 
 namespace BloombergLP {
 

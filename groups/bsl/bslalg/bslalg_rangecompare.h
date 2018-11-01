@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_RANGECOMPARE
 #define INCLUDED_BSLALG_RANGECOMPARE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide algorithms to compare iterator-ranges of elements.
@@ -321,45 +319,20 @@ BSLS_IDENT("$Id: $")
 //  assert(c5 == c6);  // potentially optimized
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEEQUALITYCOMPARABLE
 #include <bslmf_isbitwiseequalitycomparable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
-#endif
 
-#ifndef INCLUDED_CLIMITS
 #include <climits>
-#define INCLUDED_CLIMITS
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>
-#define INCLUDED_CSTDDEF
-#endif
 
-#ifndef INCLUDED_CSTRING
 #include <cstring>
-#define INCLUDED_CSTRING
-#endif
 
-#ifndef INCLUDED_CWCHAR
 #include <cwchar>
-#define INCLUDED_CWCHAR
-#endif
 
 namespace BloombergLP {
 

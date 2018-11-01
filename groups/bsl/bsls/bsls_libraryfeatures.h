@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #define INCLUDED_BSLS_LIBRARYFEATURES
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide macros to identify native standard library features.
@@ -792,13 +790,8 @@ BSLS_IDENT("$Id: $")
 // versions of the native standard library that provide a 'tuple' type, *and*
 // those that do not.  Of course, in the later case the interface that returns
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 // Library implementation detection block
 
@@ -887,6 +880,7 @@ BSLS_IDENT("$Id: $")
 // https://docs.oracle.com/cd/E19205-01/819-5267/6n7c46e4p/index.html 12.7.1),
 // therefore we have to include something that is different between RogueWave
 // and STLPort implementations.  All such headers are large and not cheap. :(
+
 # include <valarray>
 #else
 # include <ciso646>

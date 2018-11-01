@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ALIGNMENTIMP
 #define INCLUDED_BSLS_ALIGNMENTIMP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide implementation meta-functions for alignment computation.
@@ -208,9 +206,7 @@ BSLS_IDENT("$Id: $")
 //  assert(B_ALIGNMENT   == sizeof(ThatAlignType));
 //..
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 

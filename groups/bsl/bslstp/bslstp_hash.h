@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTP_HASH
 #define INCLUDED_BSLSTP_HASH
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a namespace for hash functions.
@@ -56,38 +54,20 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This component is for internal use only.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_HASH
 #include <bslstl_hash.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // for 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 

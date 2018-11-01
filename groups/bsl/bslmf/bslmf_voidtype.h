@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_VOIDTYPE
 #define INCLUDED_BSLMF_VOIDTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a helper for implementing SFINAE-based metafunctions.
@@ -142,9 +140,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmf {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_SET
 #define INCLUDED_BSLSTL_SET
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant set class.
@@ -519,105 +517,38 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_set.h> instead of <bslstl_set.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_PAIR
 #include <bslstl_pair.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_SETCOMPARATOR
 #include <bslstl_setcomparator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_STDEXCEPTUTIL
 #include <bslstl_stdexceptutil.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_TREEITERATOR
 #include <bslstl_treeiterator.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_TREENODE
 #include <bslstl_treenode.h>
-#endif
-
-#ifndef INCLUDED_BSLSTL_TREENODEPOOL
 #include <bslstl_treenodepool.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_RANGECOMPARE
 #include <bslalg_rangecompare.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_RBTREEANCHOR
 #include <bslalg_rbtreeanchor.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_RBTREENODE
 #include <bslalg_rbtreenode.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_RBTREEUTIL
 #include <bslalg_rbtreeutil.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISTRANSPARENTPREDICATE
 #include <bslmf_istransparentpredicate.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
 
-#ifndef INCLUDED_FUNCTIONAL
 #include <functional>
-#define INCLUDED_FUNCTIONAL
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-#ifndef INCLUDED_INITIALIZER_LIST
-#include <initializer_list>
-#define INCLUDED_INITIALIZER_LIST
-#endif
+# include <initializer_list>
 #endif
 
 namespace bsl {

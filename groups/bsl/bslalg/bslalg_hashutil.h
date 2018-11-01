@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_HASHUTIL
 #define INCLUDED_BSLALG_HASHUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility of hash functions.
@@ -211,17 +209,10 @@ BSLS_IDENT("$Id: $")
 //        237,   255,   383,   573,   706,   834,   539,   715
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 

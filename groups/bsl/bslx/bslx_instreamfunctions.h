@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLX_INSTREAMFUNCTIONS
 #define INCLUDED_BSLX_INSTREAMFUNCTIONS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Facilitate uniform unexternalization of user and fundamental types.
@@ -470,33 +468,17 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLX_VERSIONFUNCTIONS
 #include <bslx_versionfunctions.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_IF
 #include <bslmf_if.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISENUM
 #include <bslmf_isenum.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace bslx {

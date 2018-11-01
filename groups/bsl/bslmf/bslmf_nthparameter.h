@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_NTHPARAMETER
 #define INCLUDED_BSLMF_NTHPARAMETER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Metafunction to return the Nth type parameter in a parameter pack
@@ -63,18 +61,11 @@ BSLS_IDENT("$Id: $")
 // }
 //..
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
 
-#ifndef INCLUDED_CSTDLIB
 #include <cstdlib>
-#define INCLUDED_CSTDLIB
-#endif
 
 namespace BloombergLP {
 

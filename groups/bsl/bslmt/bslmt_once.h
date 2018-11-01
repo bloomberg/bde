@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_ONCE
 #define INCLUDED_BSLMT_ONCE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a thread-safe way to execute code once per process.
@@ -343,25 +341,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_QLOCK
 #include <bslmt_qlock.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_BUILDTARGET
 #include <bsls_buildtarget.h>
-#endif
 
 namespace BloombergLP {
 

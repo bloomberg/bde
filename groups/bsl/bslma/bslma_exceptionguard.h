@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_EXCEPTIONGUARD
 #define INCLUDED_BSLMA_EXCEPTIONGUARD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a check that objects throwing exceptions do not change.
@@ -40,13 +38,9 @@ BSLS_IDENT("$Id: $")
 ///-----
 // TBD ...
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 

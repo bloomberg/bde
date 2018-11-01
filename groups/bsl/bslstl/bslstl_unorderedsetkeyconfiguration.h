@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_UNORDEREDSETKEYCONFIGURATION
 #define INCLUDED_BSLSTL_UNORDEREDSETKEYCONFIGURATION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a configuration class to use a whole object as its own key.
@@ -218,9 +216,7 @@ BSLS_IDENT("$Id: $")
 //  -2837, -3, 8, 34, 2919, 3728, 18282, 27438
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 

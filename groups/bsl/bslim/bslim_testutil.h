@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLIM_TESTUTIL
 #define INCLUDED_BSLIM_TESTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide test utilities for components above 'bsl'.
@@ -155,21 +153,12 @@ BSLS_IDENT("$Id: $")
 //  10
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLTF_TEMPLATETESTFACILITY
 #include <bsltf_templatetestfacility.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSTREAM
 #include <bsl_iostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
 
                        // =================

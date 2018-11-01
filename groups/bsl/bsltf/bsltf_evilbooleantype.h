@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_EVILBOOLEANTYPE
 #define INCLUDED_BSLTF_EVILBOOLEANTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide the most awkward type that is convertible to 'bool'.
@@ -51,9 +49,7 @@ BSLS_IDENT("$Id: $")
 //  assert(false == (bool)falseValue);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 

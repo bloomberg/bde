@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLH_HASH
 #define INCLUDED_BSLH_HASH
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a struct to run 'bslh' hash algorithms on supported types.
@@ -407,62 +405,24 @@ BSLS_IDENT("$Id: $")
 // ASSERT(!hashTable.contains(Box(Point(3, 3), 3, 3)));
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLH_DEFAULTHASHALGORITHM
 #include <bslh_defaulthashalgorithm.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISENUM
 #include <bslmf_isenum.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFLOATINGPOINT
 #include <bslmf_isfloatingpoint.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISINTEGRAL
 #include <bslmf_isintegral.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 #include <bslmf_istriviallydefaultconstructible.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>  // for 'size_t'
-#define INCLUDED_STDDEF_H
-#endif
 
 namespace BloombergLP {
 

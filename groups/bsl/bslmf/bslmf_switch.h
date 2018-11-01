@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_SWITCH
 #define INCLUDED_BSLMF_SWITCH
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time 'switch' meta-function.
@@ -210,22 +208,13 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_NIL
 #include <bslmf_nil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
-#define INCLUDED_STDDEF_H
-#endif
 
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \

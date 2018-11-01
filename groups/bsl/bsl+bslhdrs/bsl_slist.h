@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSL_SLIST
 #define INCLUDED_BSL_SLIST
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -24,10 +22,7 @@ BSLS_IDENT("$Id: $")
 #ifdef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 #error "bsl_slist is deprecated"
 #endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
 // Include the "standard" implementation of 'slist'.  There is no standard
 // 'slist' but in BSL_OVERRIDES_STD mode the standard headers are intercepted

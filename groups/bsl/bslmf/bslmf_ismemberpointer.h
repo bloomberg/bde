@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
 #define INCLUDED_BSLMF_ISMEMBERPOINTER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time check for non-static member pointer types.
@@ -78,36 +76,17 @@ BSLS_IDENT("$Id: $")
 //#endif
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
 #include <bslmf_ismemberfunctionpointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISMEMBEROBJECTPOINTER
 #include <bslmf_ismemberobjectpointer.h>
-#endif
-
 #endif
 
 namespace bsl {

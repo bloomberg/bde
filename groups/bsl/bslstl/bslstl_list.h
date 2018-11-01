@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_LIST
 #define INCLUDED_BSLSTL_LIST
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an STL-compliant list class.
@@ -584,119 +582,43 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_list.h> instead of <bslstl_list.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_ITERATOR
 #include <bslstl_iterator.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_RANGECOMPARE
 #include <bslalg_rangecompare.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITHASSTLITERATORS
 #include <bslalg_typetraithasstliterators.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ENABLEIF
 #include <bslmf_enableif.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISARITHMETIC
 #include <bslmf_isarithmetic.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISENUM
 #include <bslmf_isenum.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
-#ifndef INCLUDED_ALGORITHM
 #include <algorithm>   // for std::swap in C++03 or earlier
-#define INCLUDED_ALGORITHM
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-#ifndef INCLUDED_INITIALIZER_LIST
 #include <initializer_list>
-#define INCLUDED_INITIALIZER_LIST
-#endif
 #endif
 
-#ifndef INCLUDED_UTILITY
 #include <utility>   // for std::swap in C++11 or later
-#define INCLUDED_UTILITY
-#endif
 
 namespace bsl {
 

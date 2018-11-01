@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_QLOCK
 #define INCLUDED_BSLMT_QLOCK
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide small, statically-initializable mutex lock.
@@ -210,21 +208,11 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_NULLPTR
 #define INCLUDED_BSLS_NULLPTR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a distinct type for null pointer literals.
@@ -176,13 +174,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR)
 #  if defined nullptr

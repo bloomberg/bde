@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ALIGNEDBUFFER
 #define INCLUDED_BSLS_ALIGNEDBUFFER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide raw buffers with user-specified size and alignment.
@@ -118,21 +116,10 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLS_ALIGNMENTTOTYPE
 #include <bsls_alignmenttotype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 

@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_MUTEXIMPL_WIN32
 #define INCLUDED_BSLMT_MUTEXIMPL_WIN32
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a win32 implementation of 'bslmt::Mutex'.
@@ -39,17 +37,11 @@ BSLS_IDENT("$Id: $")
 // for direct client use.  It is subject to change without notice.  As such, a
 // usage example is not provided.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #ifdef BSLMT_PLATFORM_WIN32_THREADS
 

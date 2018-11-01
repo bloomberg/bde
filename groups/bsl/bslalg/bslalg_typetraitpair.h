@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_TYPETRAITPAIR
 #define INCLUDED_BSLALG_TYPETRAITPAIR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a trait to mark classes as similar to 'std::pair'.
@@ -27,24 +25,13 @@ BSLS_IDENT("$Id: $")
 ///-----
 // No Usage example is provided since this component is deprecated.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISPAIR
 #include <bslmf_ispair.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {

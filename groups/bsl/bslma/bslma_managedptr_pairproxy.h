@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_MANAGEDPTR_PAIRPROXY
 #define INCLUDED_BSLMA_MANAGEDPTR_PAIRPROXY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide the internal state of a managed pointer class.
@@ -25,17 +23,11 @@ BSLS_IDENT("$Id: $")
 // implicitly convertible to 'pair'.  Note that this implies that an implicit
 // constructor has been added to 'bsl::pair'.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bslma {

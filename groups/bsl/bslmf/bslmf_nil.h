@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_NIL
 #define INCLUDED_BSLMF_NIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a nil type.
@@ -81,13 +79,9 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == bslmf::IsNil<char>::value)
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
 
 namespace BloombergLP {
 

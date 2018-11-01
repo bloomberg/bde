@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ARRAYTOPOINTER
 #define INCLUDED_BSLMF_ARRAYTOPOINTER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to convert array types to pointer types.
@@ -41,14 +39,9 @@ BSLS_IDENT("$Id: $")
 //                          , int **>::value);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>       // for 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace BloombergLP {
 

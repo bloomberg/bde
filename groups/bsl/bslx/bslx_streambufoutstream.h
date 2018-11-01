@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLX_STREAMBUFOUTSTREAM
 #define INCLUDED_BSLX_STREAMBUFOUTSTREAM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Externalization of fundamental types to a 'bsl::streambuf'.
@@ -138,17 +136,11 @@ BSLS_IDENT("$Id: $")
 // See the 'bslx_streambufinstream' component usage example for a more
 // practical example of using 'bslx' streams.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLX_GENERICOUTSTREAM
 #include <bslx_genericoutstream.h>
-#endif
 
-#ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
-#endif
 
 namespace BloombergLP {
 namespace bslx {

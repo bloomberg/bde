@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_HASHTABLEANCHOR
 #define INCLUDED_BSLALG_HASHTABLEANCHOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a type holding the constituent parts of a hash table.
@@ -453,38 +451,18 @@ BSLS_IDENT("$Id: $")
 //  ta.deallocate(pc);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
 #include <bslalg_bidirectionallink.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_SCALARPRIMITIVES
 #include <bslalg_scalarprimitives.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace BloombergLP {
 

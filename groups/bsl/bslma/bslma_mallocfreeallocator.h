@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_MALLOCFREEALLOCATOR
 #define INCLUDED_BSLMA_MALLOCFREEALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide malloc/free adaptor to 'bslma::Allocator' protocol.
@@ -112,18 +110,11 @@ BSLS_IDENT("$Id: $")
 // will be used.  That allocator then then calls 'std::malloc' and 'std::free'
 // for allocating and deallocating memory.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_CSTDLIB
 #include <cstdlib>  // 'std::malloc', 'std::free'
-#define INCLUDED_CSTDLIB
-#endif
 
 namespace BloombergLP {
 

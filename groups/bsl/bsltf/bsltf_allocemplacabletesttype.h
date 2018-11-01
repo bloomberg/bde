@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_ALLOCEMPLACABLETESTTYPE
 #define INCLUDED_BSLTF_ALLOCEMPLACABLETESTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an allocating test class used to test 'emplace' methods.
@@ -175,17 +173,11 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLTF_ALLOCARGUMENTTYPE
 #include <bsltf_allocargumenttype.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
 namespace BloombergLP {
 

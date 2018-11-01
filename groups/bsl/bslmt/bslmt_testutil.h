@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMT_TESTUTIL
 #define INCLUDED_BSLMT_TESTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide thread-safe test utilities for components above 'bsl'.
@@ -272,21 +270,12 @@ BSLS_IDENT("$Id: $")
 // output is intact (rather than being interleaved with output from asserts in
 // other threads).
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_MUTEX
 #include <bslmt_mutex.h>
-#endif
 
-#ifndef INCLUDED_BSL_IOSTREAM
 #include <bsl_iostream.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
 
                            // =================
                            // Global Definition

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_DEQUEITERATOR
 #define INCLUDED_BSLALG_DEQUEITERATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a primitive iterator over deque data structures.
@@ -87,26 +85,15 @@ BSLS_IDENT("$Id: $")
 // This component is for use by the 'bslstl' package.  Other clients should use
 // the STL deque (in header '<deque>').
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_DEQUEIMPUTIL
 #include <bslalg_dequeimputil.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // std::size_t, std::ptrdiff_t
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace BloombergLP {
 

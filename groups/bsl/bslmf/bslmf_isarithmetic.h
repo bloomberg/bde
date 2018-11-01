@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ISARITHMETIC
 #define INCLUDED_BSLMF_ISARITHMETIC
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time check for determining arithmetic types.
@@ -61,29 +59,14 @@ BSLS_IDENT("$Id: $")
 //#endif
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFLOATINGPOINT
 #include <bslmf_isfloatingpoint.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISINTEGRAL
 #include <bslmf_isintegral.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
 
 namespace bsl {
 

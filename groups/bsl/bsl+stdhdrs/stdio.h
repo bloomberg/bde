@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_C_STDIO
 #define INCLUDED_NATIVE_C_STDIO
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 /*
@@ -30,15 +28,10 @@ BSLS_IDENT("$Id: $")
 
 #endif  /* INCLUDED_NATIVE_C_STDIO */
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
-
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
-#   endif
 
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <stdio.h>
@@ -56,10 +49,7 @@ BSLS_IDENT("$Id: $")
 #   define BSL_STDHDRS_RUN_EPILOGUE
 #   define BSL_STDHDRS_EPILOGUE_RUN_BY_c_stdio
 #   endif
-
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
-#   endif
 
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <stdio.h>

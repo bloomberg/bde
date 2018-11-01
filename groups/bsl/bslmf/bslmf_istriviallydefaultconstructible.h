@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 #define INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time check for trivially default-constructible.
@@ -140,61 +138,24 @@ BSLS_IDENT("$Id: $")
 //#endif
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISENUM
 #include <bslmf_isenum.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
 #include <bslmf_ismemberpointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISREFERENCE
 #include <bslmf_isreference.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
-#define INCLUDED_STDDEF_H
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
 #include <bslmf_ispointertomember.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_BYTEORDERUTIL_IMPL
 #define INCLUDED_BSLS_BYTEORDERUTIL_IMPL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide implementation of byte-order manipulation functions.
@@ -36,25 +34,12 @@ BSLS_IDENT("$Id: $")
 // on all platforms and are meant to be called when the other macros are not
 // available, and are also used for benchmarking.
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 #ifdef BSLS_PLATFORM_CMP_MSVC
-
-#ifndef INCLUDED_STDLIB_H
 #include <stdlib.h>        // '_byteswap_*'
-#define INCLUDED_STDLIB_H
-#endif
-
 #endif
 
 namespace BloombergLP {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTP_EXFUNCTIONAL
 #define INCLUDED_BSLSTP_EXFUNCTIONAL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a namespace for functional extensions.
@@ -69,43 +67,21 @@ BSLS_IDENT("$Id: $")
 #error "include <bsl_functional.h> instead of <bslstp_exfunctional.h> in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_EQUALTO
 #include <bslstl_equalto.h>
-#endif
 
-#ifndef INCLUDED_FUNCTIONAL
 #include <functional>  // for 'std::unary_function'
-#define INCLUDED_FUNCTIONAL
-#endif
 
-#ifndef INCLUDED_CSTRING
 #include <cstring>
-#define INCLUDED_CSTRING
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_TYPETRAITS
 #include <bslalg_typetraits.h>
-#endif
-
 #endif
 
 namespace bsl {

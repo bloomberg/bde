@@ -3,10 +3,7 @@
 #define INCLUDED_BSL_STDHDRS_INCPATHS
 
 #ifdef __cplusplus
-
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Define paths where native headers can be found.
@@ -119,17 +116,10 @@ extern "C++" {
 // the third party headers, we protect the file that is ubiquitously included
 // when intercepting headers.
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
 
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 } // extern "C++"
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)

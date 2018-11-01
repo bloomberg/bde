@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #define INCLUDED_BSLMF_INTEGRALCONSTANT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a mapping from integral constants to unique types.
@@ -147,27 +145,15 @@ BSLS_IDENT("$Id: $")
 //    }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+# include <bsls_nativestd.h>
 
-#ifndef INCLUDED_BSLS_NATIVESTD
-#include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_TYPE_TRAITS
-# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
 # include <type_traits>
-#endif
-
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-
 
 // Detect need for compiler workarounds
 

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_ENUMERATEDTESTTYPE
 #define INCLUDED_BSLTF_ENUMERATEDTESTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an enumerated test type.
@@ -38,9 +36,7 @@ BSLS_IDENT("$Id: $")
 // assert(static_cast<int>(last) == 127);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 

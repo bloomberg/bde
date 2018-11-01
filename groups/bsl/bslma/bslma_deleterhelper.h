@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_DELETERHELPER
 #define INCLUDED_BSLMA_DELETERHELPER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide namespace for functions used to delete objects.
@@ -82,21 +80,12 @@ BSLS_IDENT("$Id: $")
 // Note that we have denoted our guard to be a "raw" guard in keeping with this
 // use of 'deleteObjectRaw' (as opposed to 'deleteObject').
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISPOLYMORPHIC
 #include <bslmf_ispolymorphic.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 namespace BloombergLP {
 

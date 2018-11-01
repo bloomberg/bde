@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSL_C_STDDEF
 #define INCLUDED_BSL_C_STDDEF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 /*
@@ -24,14 +22,9 @@ BSLS_IDENT("$Id: $")
 #include <stddef.h>
 
 #ifdef __cplusplus
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #ifdef BSLS_PLATFORM_CMP_SUN
 

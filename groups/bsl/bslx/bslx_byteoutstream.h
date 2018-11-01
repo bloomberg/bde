@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLX_BYTEOUTSTREAM
 #define INCLUDED_BSLX_BYTEOUTSTREAM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a stream class for externalization of fundamental types.
@@ -137,49 +135,21 @@ BSLS_IDENT("$Id: $")
 // See the 'bslx_byteinstream' component usage example for a more practical
 // example of using 'bslx' streams.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLX_MARSHALLINGUTIL
 #include <bslx_marshallingutil.h>
-#endif
-
-#ifndef INCLUDED_BSLX_OUTSTREAMFUNCTIONS
 #include <bslx_outstreamfunctions.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
-
-#ifndef INCLUDED_BSL_IOSFWD
 #include <bsl_iosfwd.h>
-#endif
-
-#ifndef INCLUDED_BSL_STRING
 #include <bsl_string.h>
-#endif
-
-#ifndef INCLUDED_BSL_VECTOR
 #include <bsl_vector.h>
-#endif
 
 namespace BloombergLP {
 namespace bslx {

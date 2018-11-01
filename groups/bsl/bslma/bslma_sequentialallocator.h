@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_SEQUENTIALALLOCATOR
 #define INCLUDED_BSLMA_SEQUENTIALALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Support fast memory allocation for objects of varying sizes.
@@ -262,22 +260,11 @@ BSLS_IDENT("$Id: $")
 #ifdef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 #error "bslma_sequentialallocator is deprecated"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_BUFFERALLOCATOR
 #include <bslma_bufferallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_MANAGEDALLOCATOR
 #include <bslma_managedallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_SEQUENTIALPOOL
 #include <bslma_sequentialpool.h>
-#endif
 
 namespace BloombergLP {
 

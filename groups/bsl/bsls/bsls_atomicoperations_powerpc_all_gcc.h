@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC_ALL_GCC
 #define INCLUDED_BSLS_ATOMICOPERATIONS_POWERPC_ALL_GCC
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide implementations of atomic operations for gcc on PowerPC
@@ -33,17 +31,9 @@ BSLS_IDENT("$Id: $")
 // IMPLEMENTATION NOTE: there are likely excess explicit barriers since gcc
 // __sync_* intrinsics may provide their own barriers
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS_DEFAULT
 #include <bsls_atomicoperations_default.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 #if defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_GNU)
 

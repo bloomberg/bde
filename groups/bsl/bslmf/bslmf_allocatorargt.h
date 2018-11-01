@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ALLOCATORARGT
 #define INCLUDED_BSLMF_ALLOCATORARGT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a tag type to precede allocator arguments.
@@ -366,9 +364,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace bsl {
 

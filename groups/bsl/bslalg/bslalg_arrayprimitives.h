@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_ARRAYPRIMITIVES
 #define INCLUDED_BSLALG_ARRAYPRIMITIVES
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide primitive algorithms that operate on arrays.
@@ -288,171 +286,55 @@ BSLS_IDENT("$Id$ $CSID$")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
 #include <bslalg_arraydestructionprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_AUTOARRAYDESTRUCTOR
 #include <bslalg_autoarraydestructor.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_AUTOARRAYMOVEDESTRUCTOR
 #include <bslalg_autoarraymovedestructor.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_CONSTRUCTIONUTIL
 #include <bslma_constructionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DESTRUCTORPROCTOR
 #include <bslma_destructorproctor.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISENUM
 #include <bslmf_isenum.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
 #include <bslmf_ismemberpointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISSAME
 #include <bslmf_issame.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYCOPYABLE
 #include <bslmf_istriviallycopyable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISTRIVIALLYDEFAULTCONSTRUCTIBLE
 #include <bslmf_istriviallydefaultconstructible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISVOID
 #include <bslmf_isvoid.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECONST
 #include <bslmf_removeconst.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVEPOINTER
 #include <bslmf_removepointer.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #include <bsls_alignmentutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
-
-#ifndef INCLUDED_BSLS_UTIL
 #include <bsls_util.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
-#ifndef INCLUDED_CSTRING
 #include <cstring>  // 'memset', 'memcpy', 'memmove'
-#define INCLUDED_CSTRING
-#endif
 
-#ifndef INCLUDED_CWCHAR
 #include <cwchar>   // 'wmemset'
-#define INCLUDED_CWCHAR
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_CONSTRUCTORPROXY
 #include <bslalg_constructorproxy.h>
-#endif
-
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)

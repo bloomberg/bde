@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ISPAIR
 #define INCLUDED_BSLMF_ISPAIR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time check for the bsl::pair type.
@@ -40,13 +38,9 @@ BSLS_IDENT("$Id: $")
 // have a printing method, but it is possible to use the trait to forward the
 // call to 'print' to its two members if they both have the printable trait).
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
 
 namespace BloombergLP {
 

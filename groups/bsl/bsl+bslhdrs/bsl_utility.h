@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSL_UTILITY
 #define INCLUDED_BSL_UTILITY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -19,21 +17,10 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#ifndef INCLUDED_BSLMF_INTEGERSEQUENCE
 #include <bslmf_integersequence.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MAKEINTEGERSEQUENCE
 #include <bslmf_makeintegersequence.h>
-#endif
-
-#ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
 #include <utility>
 

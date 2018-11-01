@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_TESTALLOCATOR
 #define INCLUDED_BSLMA_TESTALLOCATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide instrumented malloc/free allocator to track memory usage.
@@ -281,38 +279,17 @@ BSLS_IDENT("$Id: $")
 // Note that the 'BDE_BUILD_TARGET_EXC' macro is defined at compile-time to
 // indicate whether or not exceptions are enabled.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_TESTALLOCATOREXCEPTION
 #include <bslma_testallocatorexception.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
-
-#ifndef INCLUDED_BSLS_BSLLOCK
 #include <bsls_bsllock.h>
-#endif
-
-#ifndef INCLUDED_BSLS_BUILDTARGET
 #include <bsls_buildtarget.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_CSTDIO
 #include <cstdio>     // for printing in macros
-#define INCLUDED_CSTDIO
-#endif
 
 namespace BloombergLP {
 namespace bslma {

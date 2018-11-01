@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_BYTEORDER
 #define INCLUDED_BSLS_BYTEORDER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide byte-order manipulation macros.
@@ -169,13 +167,8 @@ BSLS_IDENT("$Id: $")
 //..
 // The other macros can be used in a similar manner.
 
-#ifndef INCLUDED_BSLS_BYTEORDERUTIL
 #include <bsls_byteorderutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 // ============================================================================
 //                                  MACROS

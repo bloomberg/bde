@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTP_UTIL
 #define INCLUDED_BSLSTP_UTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a namespace for utility functions for STL functionality.
@@ -30,18 +28,11 @@ BSLS_IDENT("$Id: $")
 #error "<bslstp_util.h> header can't be included directly in \
 BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
 
 namespace BloombergLP {
 

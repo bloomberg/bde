@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_SEMAPHORE
 #define INCLUDED_BSLMT_SEMAPHORE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a semaphore class.
@@ -109,25 +107,12 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_COUNTED
 #include <bslmt_semaphoreimpl_counted.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_PTHREAD
 #include <bslmt_semaphoreimpl_pthread.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_SEMAPHOREIMPL_WIN32
 #include <bslmt_semaphoreimpl_win32.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

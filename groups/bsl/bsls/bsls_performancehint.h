@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #define INCLUDED_BSLS_PERFORMANCEHINT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide performance hints for code optimization.
@@ -349,61 +347,31 @@ BSLS_IDENT("$Id: $")
 // far away from the data use, the data might be removed from the cache before
 // it is looked at and the prefetch is wasted.
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
-
-#ifndef INCLUDED_BUILTINS
 #include <builtins.h>      // for 'dcbt', '__builtin_expect'
-#define INCLUDED_BUILTINS
-#endif
-
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_HP)
-
-#ifndef INCLUDED_MACHINE_SYS_BUILTINS
 #include <machine/sys/builtins.h>
-#define INCLUDED_MACHINE_SYS_BUILTINS
-#endif
 
-#ifndef INCLUDED_MACHINE_SYS_INLINE
 #include <machine/sys/inline.h>
-#define INCLUDED_MACHINE_SYS_INLINE
-#endif
-
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
-
-#ifndef INCLUDED_SUN_PREFETCH
 #include <sun_prefetch.h>  // for 'sparc_prefetch_write|read_many'
-#define INCLUDED_SUN_PREFETCH
-#endif
 
 #if BSLS_PLATFORM_CMP_VERSION >= 0x5110
-#ifndef INCLUDED_SUN_MBARRIER
 #include <mbarrier.h>
-#define INCLUDED_SUN_MBARRIER
-#endif
 #endif
 
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-
-#ifndef INCLUDED_XMMINTRIN
 #include <xmmintrin.h>     // for '_mm_prefetch', '_MM_HINT_T0'
-#define INCLUDED_XMMINTRIN
-#endif
 
-#ifndef INCLUDED_INTRIN
 #include <intrin.h>
-#define INCLUDED_INTRIN
-#endif
-
 #endif
 
 namespace BloombergLP {

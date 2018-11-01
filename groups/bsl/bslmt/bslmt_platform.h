@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_PLATFORM
 #define INCLUDED_BSLMT_PLATFORM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide platform-dependent thread-related trait definitions.
@@ -41,17 +39,10 @@ BSLS_IDENT("$Id: $")
 // have a native timed-wait for semaphores require a custom (pthread-based)
 // implementation.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

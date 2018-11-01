@@ -47,10 +47,7 @@
 #ifdef BDE_OPENSOURCE_PUBLICATION // STP
 #error "bslstp_alloc is not for publication"
 #endif
-
-#ifndef INCLUDED_BSLALG_CONTAINERBASE
 #include <bslalg_containerbase.h>
-#endif
 
 namespace bsl {
 

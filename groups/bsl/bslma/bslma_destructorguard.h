@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_DESTRUCTORGUARD
 #define INCLUDED_BSLMA_DESTRUCTORGUARD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a guard to unconditionally manage an object.
@@ -78,13 +76,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 

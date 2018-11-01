@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_TESTALLOCATORMONITOR
 #define INCLUDED_BSLMA_TESTALLOCATORMONITOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a mechanism to summarize 'bslma::TestAllocator' object use.
@@ -414,17 +412,11 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_TESTALLOCATOR
 #include <bslma_testallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 

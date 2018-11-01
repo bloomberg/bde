@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ENABLEIF
 #define INCLUDED_BSLMF_ENABLEIF
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a utility to set up SFINAE conditions in type deduction.
@@ -463,13 +461,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 namespace bsl {
 

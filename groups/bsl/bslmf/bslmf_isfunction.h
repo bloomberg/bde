@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ISFUNCTION
 #define INCLUDED_BSLMF_ISFUNCTION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time check for determining function types.
@@ -60,40 +58,18 @@ BSLS_IDENT("$Id: $")
 //#endif
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONST
 #include <bslmf_isconst.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_ADDPOINTER
 #include <bslmf_addpointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if defined(BSLS_PLATFORM_CMP_IBM)

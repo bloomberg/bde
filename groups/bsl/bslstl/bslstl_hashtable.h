@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_HASHTABLE
 #define INCLUDED_BSLSTL_HASHTABLE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a hash-container with support for duplicate values.
@@ -1502,130 +1500,45 @@ BSLS_IDENT("$Id: $")
 #error "<bslstl_hashtable.h> header can't be included directly in \
         BSL_OVERRIDES_STD mode"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLSTL_BIDIRECTIONALNODEPOOL
 #include <bslstl_bidirectionalnodepool.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
 #include <bslalg_bidirectionallink.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
 #include <bslalg_bidirectionalnode.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_FUNCTORADAPTER
 #include <bslalg_functoradapter.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_HASHTABLEANCHOR
 #include <bslalg_hashtableanchor.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_HASHTABLEBUCKET
 #include <bslalg_hashtablebucket.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_HASHTABLEIMPUTIL
 #include <bslalg_hashtableimputil.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_SWAPUTIL
 #include <bslalg_swaputil.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DESTRUCTORGUARD
 #include <bslma_destructorguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
 #include <bslmf_addlvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNCTION
 #include <bslmf_isfunction.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_BSLEXCEPTIONUTIL
 #include <bsls_bslexceptionutil.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_ALGORITHM
 #include <algorithm>  // for fill_n, max
-#define INCLUDED_ALGORITHM
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef> // for 'size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
-#ifndef INCLUDED_CSTRING
 #include <cstring> // for 'memset'
-#define INCLUDED_CSTRING
-#endif
 
-#ifndef INCLUDED_LIMITS
 #include <limits>  // for numeric_limits
-#define INCLUDED_LIMITS
-#endif
 
 namespace BloombergLP {
 

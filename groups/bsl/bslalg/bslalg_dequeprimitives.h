@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_DEQUEPRIMITIVES
 #define INCLUDED_BSLALG_DEQUEPRIMITIVES
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide primitive algorithms that operate on deques.
@@ -118,67 +116,27 @@ BSLS_IDENT("$Id: $")
 // This component is for use by the 'bslstl' package.  Other clients should use
 // the STL deque (in header '<deque>').
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_ARRAYPRIMITIVES
 #include <bslalg_arrayprimitives.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_DEQUEIMPUTIL
 #include <bslalg_dequeimputil.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_DEQUEITERATOR
 #include <bslalg_dequeiterator.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_CONSTRUCTIONUTIL
 #include <bslma_constructionutil.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_FUNCTIONPOINTERTRAITS
 #include <bslmf_functionpointertraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNDAMENTAL
 #include <bslmf_isfundamental.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>  // std::size_t
-#define INCLUDED_CSTDDEF
-#endif
 
-#ifndef INCLUDED_CSTRING
 #include <cstring>  // memmove
-#define INCLUDED_CSTRING
-#endif
 
 namespace BloombergLP {
 

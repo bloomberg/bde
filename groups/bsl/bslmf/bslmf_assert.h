@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ASSERT
 #define INCLUDED_BSLMF_ASSERT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time assertion facility.
@@ -89,21 +87,11 @@ BSLS_IDENT("$Id: $")
 //        | }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ANNOTATION
 #include <bsls_annotation.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 #define BSLMF_ASSERT(BSLMF_CONSTANT_EXPRESSION) \

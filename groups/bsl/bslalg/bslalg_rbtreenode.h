@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_RBTREENODE
 #define INCLUDED_BSLALG_RBTREENODE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide a base class for a red-black binary tree node.
@@ -300,22 +298,12 @@ BSLS_IDENT("$Id$ $CSID$")
 //  }
 //..
 
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 namespace bslalg {

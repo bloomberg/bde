@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_CONFIGURATION
 #define INCLUDED_BSLMT_CONFIGURATION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide utilities to allow configuration of values for BCE.
@@ -80,9 +78,7 @@ BSLS_IDENT("$Id: $")
 //  assert(bslmt::Configuration::defaultThreadStackSize() != nativeDefault);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_BYTEORDERUTIL
 #define INCLUDED_BSLS_BYTEORDERUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide byte-order swapping functions.
@@ -62,17 +60,9 @@ BSLS_IDENT("$Id: $")
 //  assert(0x02010f0e0d0c0b0aLL == Util::swapBytes(i64));
 //..
 
-#ifndef INCLUDED_BSLS_BYTEORDERUTIL_IMPL
 #include <bsls_byteorderutil_impl.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bsls {

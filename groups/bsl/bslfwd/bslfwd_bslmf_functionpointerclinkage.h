@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLFWD_BSLMF_FUNCTIONPOINTERCLINKAGE
 #define INCLUDED_BSLFWD_BSLMF_FUNCTIONPOINTERCLINKAGE
 
-#ifndef INCLUDED_BSLFWD_BUILDTARGET
 #include <bslfwd_buildtarget.h>
-#endif
 
 //@PURPOSE: Provide a forward-declaration for the corresponding BDE type.
 //

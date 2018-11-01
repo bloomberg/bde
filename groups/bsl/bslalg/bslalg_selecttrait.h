@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_SELECTTRAIT
 #define INCLUDED_BSLALG_SELECTTRAIT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to select a suitable trait on a type.
@@ -25,25 +23,13 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_HASTRAIT
 #include <bslalg_hastrait.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_TYPETRAITNIL
 #include <bslalg_typetraitnil.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_SWITCH
 #include <bslmf_switch.h>
-#endif
 
 namespace BloombergLP {
 

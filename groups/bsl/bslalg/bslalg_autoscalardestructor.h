@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_AUTOSCALARDESTRUCTOR
 #define INCLUDED_BSLALG_AUTOSCALARDESTRUCTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a proctor for destroying an object.
@@ -25,24 +23,14 @@ BSLS_IDENT("$Id: $")
 ///Usage
 ///-----
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_DESTRUCTIONUTIL
 #include <bslma_destructionutil.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLALG_SCALARDESTRUCTIONPRIMITIVES
 #include <bslalg_scalardestructionprimitives.h>
-#endif
-
 #endif
 
 namespace BloombergLP {

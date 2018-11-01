@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #define INCLUDED_BSLMF_DETECTNESTEDTRAIT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a facility for defining traits and detecting legacy traits.
@@ -328,45 +326,18 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLE
 #include <bslmf_isconvertible.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISCONVERTIBLETOANY
 #include <bslmf_isconvertibletoany.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNCTION
 #include <bslmf_isfunction.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MATCHANYTYPE
 #include <bslmf_matchanytype.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_METAINT
 #include <bslmf_metaint.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_NESTEDTRAITDECLARATION
 #include <bslmf_nestedtraitdeclaration.h>
-#endif
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)                                            \
  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5150)

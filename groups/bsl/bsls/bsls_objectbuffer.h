@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_OBJECTBUFFER
 #define INCLUDED_BSLS_OBJECTBUFFER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide raw buffer with size and alignment of user-specified type.
@@ -212,9 +210,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
-#endif
 
 namespace BloombergLP {
 

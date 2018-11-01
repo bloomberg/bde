@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ADDRVALUEREFERENCE
 #define INCLUDED_BSLMF_ADDRVALUEREFERENCE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time type transformation to rvalue reference.
@@ -73,13 +71,9 @@ BSLS_IDENT("$Id: $")
 // and 'typename' prefix when we want to use the result of
 // 'bsl::add_rvalue_reference' meta-function in templates.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 namespace bsl {
 

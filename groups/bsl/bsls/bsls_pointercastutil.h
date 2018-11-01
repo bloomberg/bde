@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_POINTERCASTUTIL
 #define INCLUDED_BSLS_POINTERCASTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide function to cast between function and data pointers.
@@ -70,13 +68,8 @@ BSLS_IDENT("$Id: $")
 //  assert(counter == 2);
 //..
 
-#ifndef INCLUDED_BSLS_ANNOTATION
 #include <bsls_annotation.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bsls {

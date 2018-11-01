@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_DEFAULTALLOCATORGUARD
 #define INCLUDED_BSLMA_DEFAULTALLOCATORGUARD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide scoped guard to temporarily change the default allocator.
@@ -129,9 +127,7 @@ BSLS_IDENT("$Id: $")
 // re-installed as the default allocator, and the program will proceed to the
 // next block of code.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 namespace BloombergLP {
 

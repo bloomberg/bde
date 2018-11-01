@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLH_SIPHASHALGORITHM
 #define INCLUDED_BSLH_SIPHASHALGORITHM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an implementation of the SipHash algorithm.
@@ -370,22 +368,13 @@ BSLS_IDENT("$Id: $")
 //
 //-----------------------------------------------------------------------------
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
 
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>  // for 'size_t'
-#define INCLUDED_STDDEF_H
-#endif
 
 
 namespace BloombergLP {

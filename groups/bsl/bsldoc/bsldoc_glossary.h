@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLDOC_GLOSSARY
 #define INCLUDED_BSLDOC_GLOSSARY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide definitions for terms used throughout BDE documentation.
@@ -314,9 +312,7 @@ BSLS_IDENT("$Id: $")
 //:   o 'bsl::string' is a vocabulary type because it is used in the interface
 //:     of many types to communicate the value of a character string.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
 #endif
 

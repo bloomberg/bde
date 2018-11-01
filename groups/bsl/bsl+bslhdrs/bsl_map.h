@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSL_MAP
 #define INCLUDED_BSL_MAP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -19,9 +17,7 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
 
 #include <map>
 
@@ -35,10 +31,8 @@ BSLS_IDENT("$Id: $")
 // cbegin() etc.) must be available not only via inclusion of the <iterator>
 // header, but also when <map> is included. To satisfy this requirement the
 // following inclusion is added.
-#ifndef INCLUDED_BSLSTL_ITERATOR
-#include <bslstl_iterator.h>
-#endif
 
+#include <bslstl_iterator.h>
 #include <bslstl_map.h>
 #include <bslstl_multimap.h>
 #endif

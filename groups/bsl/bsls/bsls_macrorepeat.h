@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_MACROREPEAT
 #define INCLUDED_BSLS_MACROREPEAT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: repeat a macro invocation with different numeric arguments.

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ASSERTTESTEXCEPTION
 #define INCLUDED_BSLS_ASSERTTESTEXCEPTION
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide an exception type to support testing for failed assertions.

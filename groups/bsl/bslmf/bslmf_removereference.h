@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #define INCLUDED_BSLMF_REMOVEREFERENCE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function for stripping reference-ness from types.
@@ -83,17 +81,10 @@ BSLS_IDENT("$Id: $")
 // 'typename' prefix when we want to use the result of the
 // 'bsl::remove_reference' meta-function in templates.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
                          // =======================
                          // struct remove_reference

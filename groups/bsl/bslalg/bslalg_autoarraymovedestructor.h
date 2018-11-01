@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_AUTOARRAYMOVEDESTRUCTOR
 #define INCLUDED_BSLALG_AUTOARRAYMOVEDESTRUCTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a proctor for destroying arrays.
@@ -240,39 +238,20 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_ARRAYDESTRUCTIONPRIMITIVES
 #include <bslalg_arraydestructionprimitives.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISBITWISEMOVEABLE
 #include <bslmf_isbitwisemoveable.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>        // std::size_t
-#define INCLUDED_CSTDDEF
-#endif
 
-#ifndef INCLUDED_CSTRING
 #include <cstring>        // memset, memcpy, memmove
-#define INCLUDED_CSTRING
-#endif
 
 namespace BloombergLP {
 

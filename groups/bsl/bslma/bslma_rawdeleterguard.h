@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_RAWDELETERGUARD
 #define INCLUDED_BSLMA_RAWDELETERGUARD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a guard to unconditionally manage an object.
@@ -152,17 +150,11 @@ BSLS_IDENT("$Id: $")
 // 'bslma::RawDeleterGuard' is used to automatically delete the copy the queue
 // manages when the guard goes out of scope (i.e., when the function returns).
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_DELETERHELPER
 #include <bslma_deleterhelper.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 
 namespace BloombergLP {
 

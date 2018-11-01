@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ISPOINTERTOMEMBER
 #define INCLUDED_BSLMF_ISPOINTERTOMEMBER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time check for pointer-to-member types.
@@ -57,21 +55,11 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == bslmf::IsPointerToMemberFunction<int MyClass::*>::value);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ISMEMBERFUNCTIONPOINTER
 #include <bslmf_ismemberfunctionpointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISMEMBEROBJECTPOINTER
 #include <bslmf_ismemberobjectpointer.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISMEMBERPOINTER
 #include <bslmf_ismemberpointer.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmf {

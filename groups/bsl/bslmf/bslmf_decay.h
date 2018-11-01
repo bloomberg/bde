@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_DECAY
 #define INCLUDED_BSLMF_DECAY
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Convert a type to the type used for pass-by-value.
@@ -92,37 +90,16 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ASSERT
 #include <bslmf_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISARRAY
 #include <bslmf_isarray.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISFUNCTION
 #include <bslmf_isfunction.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVECV
 #include <bslmf_removecv.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVEEXTENT
 #include <bslmf_removeextent.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 namespace bsl {
 

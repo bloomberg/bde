@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLX_STREAMBUFINSTREAM
 #define INCLUDED_BSLX_STREAMBUFINSTREAM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Unexternalization of fundamental types from a 'bsl::streambuf'.
@@ -317,17 +315,11 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLX_GENERICINSTREAM
 #include <bslx_genericinstream.h>
-#endif
 
-#ifndef INCLUDED_BSL_STREAMBUF
 #include <bsl_streambuf.h>
-#endif
 
 namespace BloombergLP {
 namespace bslx {

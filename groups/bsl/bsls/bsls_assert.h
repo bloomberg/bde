@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ASSERT
 #define INCLUDED_BSLS_ASSERT
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide build-specific, runtime-configurable assertion macros.
@@ -1264,25 +1262,11 @@ BSLS_IDENT("$Id: $")
 //
 //..
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
-
-#ifndef INCLUDED_BSLS_REVIEW
 #include <bsls_review.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PERFORMANCEHINT
 #include <bsls_performancehint.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
                     // =================================
                     // (BSLS) "ASSERT" Macro Definitions

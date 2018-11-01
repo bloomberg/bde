@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ASSERTTEST
 #define INCLUDED_BSLS_ASSERTTEST
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a test facility for assertion macros.
@@ -325,25 +323,11 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERTTESTEXCEPTION
 #include <bsls_asserttestexception.h>
-#endif
-
-#ifndef INCLUDED_BSLS_BUILDTARGET
 #include <bsls_buildtarget.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_REVIEW
 #include <bsls_review.h>
-#endif
 
 #ifdef BSLS_ASSERTTEST_NORETURN
 #error BSLS_ASSERTTEST_NORETURN must be a macro scoped locally to this file

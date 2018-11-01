@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_TIMEUTIL
 #define INCLUDED_BSLS_TIMEUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a platform-neutral functional interface to system clocks.
@@ -190,26 +188,15 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-    #ifndef INCLUDED_TIME_H
     #include <time.h>
-    #define INCLUDED_TIME_H
-    #endif
 #endif
 
 #if defined(BSLS_PLATFORM_OS_AIX) || defined(BSLS_PLATFORM_OS_FREEBSD) || defined(BSLS_PLATFORM_OS_DARWIN)
-    #ifndef INCLUDED_SYS_TIME_H
     #include <sys/time.h>
-    #define INCLUDED_SYS_TIME_H
-    #endif
 #endif
 
 namespace BloombergLP {

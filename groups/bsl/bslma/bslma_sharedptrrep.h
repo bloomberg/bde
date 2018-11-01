@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_SHAREDPTRREP
 #define INCLUDED_BSLMA_SHAREDPTRREP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide an abstract class for a shared object manager.
@@ -272,22 +270,12 @@ BSLS_IDENT("$Id$ $CSID$")
 //  }
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMIC
 #include <bsls_atomic.h>
-#endif
 
-#ifndef INCLUDED_TYPEINFO
 #include <typeinfo>
-#define INCLUDED_TYPEINFO
-#endif
 
 namespace BloombergLP {
 namespace bslma {

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLTF_NONTYPICALOVERLOADSTESTTYPE
 #define INCLUDED_BSLTF_NONTYPICALOVERLOADSTESTTYPE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a class that overloads the non-typical operators.
@@ -51,26 +49,13 @@ BSLS_IDENT("$Id: $")
 //  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(delete obj);
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>       // for 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace BloombergLP {
 namespace bsltf {

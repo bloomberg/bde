@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMA_SEQUENTIALPOOL
 #define INCLUDED_BSLMA_SEQUENTIALPOOL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide fast variable-size memory pool with allocation methods.
@@ -368,23 +366,12 @@ BSLS_IDENT("$Id: $")
 #ifdef BDE_OPENSOURCE_PUBLICATION // DEPRECATED
 #error "bslma_sequentialpool is deprecated"
 #endif
-
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_BUFFERALLOCATOR
 #include <bslma_bufferallocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_INFREQUENTDELETEBLOCKLIST
 #include <bslma_infrequentdeleteblocklist.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>         // for 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace BloombergLP {
 

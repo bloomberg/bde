@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLALG_HASHTABLEIMPUTIL
 #define INCLUDED_BSLALG_HASHTABLEIMPUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide algorithms for implementing a hash table.
@@ -497,62 +495,25 @@ BSLS_IDENT("$Id: $")
 //  assert(0 == da.numAllocations());
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINK
 #include <bslalg_bidirectionallink.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALLINKLISTUTIL
 #include <bslalg_bidirectionallinklistutil.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_BIDIRECTIONALNODE
 #include <bslalg_bidirectionalnode.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_HASHTABLEANCHOR
 #include <bslalg_hashtableanchor.h>
-#endif
-
-#ifndef INCLUDED_BSLALG_HASHTABLEBUCKET
 #include <bslalg_hashtablebucket.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATOR
 #include <bslma_allocator.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEALLOCATORGUARD
 #include <bslma_deallocatorguard.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_DEFAULT
 #include <bslma_default.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_CONDITIONAL
 #include <bslmf_conditional.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_NATIVESTD
 #include <bsls_nativestd.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace BloombergLP {
 namespace bslalg {

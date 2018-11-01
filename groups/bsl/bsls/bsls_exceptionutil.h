@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_EXCEPTIONUTIL
 #define INCLUDED_BSLS_EXCEPTIONUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide simplified exception constructs for non-exception builds.
@@ -233,25 +231,11 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_BUILDTARGET
 #include <bsls_buildtarget.h>
-#endif
-
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_DEPRECATE
 #include <bsls_deprecate.h>
-#endif
-
-#ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
-#endif
 
                                  // ======
                                  // macros

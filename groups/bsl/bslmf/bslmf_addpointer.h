@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ADDPOINTER
 #define INCLUDED_BSLMF_ADDPOINTER
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide meta-function to transform a type to pointer to that type.
@@ -54,28 +52,17 @@ BSLS_IDENT("$Id: $")
 // 'typename' prefix when we want to use the result of the 'bsl::add_pointer'
 // meta-function in templates.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
 
 #ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
 #endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {

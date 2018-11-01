@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_SHAREDPTRALLOCATEINPLACEREP
 #define INCLUDED_BSLSTL_SHAREDPTRALLOCATEINPLACEREP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$ $CSID$")
 
 //@PURPOSE: Provide an in-place implementation of 'bslma::SharedPtrRep'.
@@ -37,39 +35,18 @@ BSLS_IDENT("$Id$ $CSID$")
 // guarantees for operations on the managed object contained in
 // 'bslstl::SharedPtrAllocateInplaceRep'.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMA_ALLOCATORTRAITS
 #include <bslma_allocatortraits.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_SHAREDPTRREP
 #include <bslma_sharedptrrep.h>
-#endif
-
-#ifndef INCLUDED_BSLMA_USESBSLMAALLOCATOR
 #include <bslma_usesbslmaallocator.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_OBJECTBUFFER
 #include <bsls_objectbuffer.h>
-#endif
 
-#ifndef INCLUDED_NEW
 #include <new>
-#define INCLUDED_NEW
-#endif
 
-#ifndef INCLUDED_TYPEINFO
 #include <typeinfo>
-#define INCLUDED_TYPEINFO
-#endif
 
 namespace BloombergLP {
 namespace bslstl {

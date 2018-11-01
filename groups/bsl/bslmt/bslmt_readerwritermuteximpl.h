@@ -3,9 +3,7 @@
 #ifndef INCLUDED_BSLMT_READERWRITERMUTEXIMPL
 #define INCLUDED_BSLMT_READERWRITERMUTEXIMPL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a multi-reader/single-writer lock.
@@ -40,21 +38,11 @@ BSLS_IDENT("$Id: $")
 // There is no usage example for this component since it is not meant for
 // direct client use.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

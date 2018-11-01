@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_UTIL
 #define INCLUDED_BSLMF_UTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide low-level functions on 'bslmf' types.
@@ -27,33 +25,15 @@ BSLS_IDENT("$Id: $")
 ///-----
 // TBD...
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_ADDLVALUEREFERENCE
 #include <bslmf_addlvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ADDRVALUEREFERENCE
 #include <bslmf_addrvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_REMOVEREFERENCE
 #include <bslmf_removereference.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
 
 namespace BloombergLP {
 

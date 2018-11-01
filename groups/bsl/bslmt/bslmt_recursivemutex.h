@@ -10,9 +10,7 @@
 #ifndef INCLUDED_BSLMT_RECURSIVEMUTEX
 #define INCLUDED_BSLMT_RECURSIVEMUTEX
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a platform-independent recursive mutex.
@@ -69,21 +67,11 @@ BSLS_IDENT("$Id: $")
 // 'bslmt::Mutex'.  Consequently, the latter should be used unless recursive
 // locking is truly warranted.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMT_RECURSIVEMUTEXIMPL_PTHREAD
 #include <bslmt_recursivemuteximpl_pthread.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_RECURSIVEMUTEXIMPL_WIN32
 #include <bslmt_recursivemuteximpl_win32.h>
-#endif
-
-#ifndef INCLUDED_BSLMT_PLATFORM
 #include <bslmt_platform.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmt {

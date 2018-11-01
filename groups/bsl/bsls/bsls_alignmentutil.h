@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ALIGNMENTUTIL
 #define INCLUDED_BSLS_ALIGNMENTUTIL
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide constants, types, and operations related to alignment.
@@ -169,39 +167,16 @@ BSLS_IDENT("$Id: $")
 // would have an actual (and therefore natural) alignment of 4 on a 64-bit
 // platform when using default compiler settings.
 
-#ifndef INCLUDED_BSLS_ALIGNMENTFROMTYPE
 #include <bsls_alignmentfromtype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ALIGNMENTIMP
 #include <bsls_alignmentimp.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ALIGNMENTTOTYPE
 #include <bsls_alignmenttotype.h>
-#endif
-
-#ifndef INCLUDED_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
-
-#ifndef INCLUDED_BSLS_PLATFORM
 #include <bsls_platform.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
-#ifndef INCLUDED_LIMITS
 #include <limits>           // 'std::numeric_limits'
-#define INCLUDED_LIMITS
-#endif
 
-#ifndef INCLUDED_CSTDDEF
 #include <cstddef>           // 'std::size_t'
-#define INCLUDED_CSTDDEF
-#endif
 
 namespace BloombergLP {
 

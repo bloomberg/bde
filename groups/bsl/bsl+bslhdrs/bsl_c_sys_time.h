@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSL_C_SYS_TIME
 #define INCLUDED_BSL_C_SYS_TIME
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 /*

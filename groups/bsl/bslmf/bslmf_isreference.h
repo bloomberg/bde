@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_ISREFERENCE
 #define INCLUDED_BSLMF_ISREFERENCE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a meta-function to test reference types.
@@ -68,32 +66,16 @@ BSLS_IDENT("$Id: $")
 //#endif
 //..
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
-
-#ifndef INCLUDED_BSLS_KEYWORD
 #include <bsls_keyword.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifndef INCLUDED_BSLMF_ISLVALUEREFERENCE
 #include <bslmf_islvaluereference.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISRVALUEREFERENCE
 #include <bslmf_isrvaluereference.h>
-#endif
-
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {

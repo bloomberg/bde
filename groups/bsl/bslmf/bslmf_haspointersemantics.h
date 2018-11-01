@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLMF_HASPOINTERSEMANTICS
 #define INCLUDED_BSLMF_HASPOINTERSEMANTICS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a type trait for pointer semantics.
@@ -25,21 +23,11 @@ BSLS_IDENT("$Id: $")
 // with the macro 'BSLMF_NESTED_TRAIT_DECLARATION', or by explicit template
 // specialization.
 
-#ifndef INCLUDED_BSLSCM_VERSION
 #include <bslscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSLMF_DETECTNESTEDTRAIT
 #include <bslmf_detectnestedtrait.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_INTEGRALCONSTANT
 #include <bslmf_integralconstant.h>
-#endif
-
-#ifndef INCLUDED_BSLMF_ISPOINTER
 #include <bslmf_ispointer.h>
-#endif
 
 namespace BloombergLP {
 namespace bslmf {

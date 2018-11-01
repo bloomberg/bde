@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ATOMIC
 #define INCLUDED_BSLS_ATOMIC
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide types with atomic operations.
@@ -672,13 +670,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Notice that if the stack was empty, a NULL pointer is returned.
 
-#ifndef INCLUDED_BSLS_ATOMICOPERATIONS
 #include <bsls_atomicoperations.h>
-#endif
-
-#ifndef INCLUDED_BSLS_TYPES
 #include <bsls_types.h>
-#endif
 
 namespace BloombergLP {
 
