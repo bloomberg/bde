@@ -1,5 +1,5 @@
-// bslmf_integersequence.cpp                                          -*-C++-*-
-#include <bslmf_integersequence.h>
+// bslmf_makeintegersequence.cpp                                      -*-C++-*-
+#include <bslmf_makeintegersequence.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

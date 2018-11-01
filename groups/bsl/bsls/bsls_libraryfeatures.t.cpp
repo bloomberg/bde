@@ -225,6 +225,19 @@ typename CONTAINER::iterator end(CONTAINER & c)
 
 }  // close namespace case12
 
+                    // case 11
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY) || \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY_FORCE)
+
+    #include <memory>
+    using Obj1 = native_std::integer_sequence<int>;
+    using Obj2 = native_std::index_sequence<1>;
+    using Obj3 = native_std::make_integer_sequence<int, 1>;
+    using Obj4 = native_std::make_index_sequence<1>;
+    using Obj5 = native_std::index_sequence_for<int>;
+#endif
+
                     // case 10
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY) || \

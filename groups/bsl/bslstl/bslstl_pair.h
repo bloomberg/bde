@@ -305,6 +305,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_istriviallydefaultconstructible.h>
 #endif
 
+#ifndef INCLUDED_BSLMF_MAKEINTEGERSEQUENCE
+#include <bslmf_makeintegersequence.h>
+#endif
+
 #ifndef INCLUDED_BSLMF_MOVABLEREF
 #include <bslmf_movableref.h>
 #endif
@@ -409,6 +413,26 @@ void swap(TYPE& a, TYPE& b);
 # define BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR 1
 #endif
 
+namespace BloombergLP {
+namespace bslstl {
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
+template <std::size_t... INTS>
+using Pair_IndexSequence = bslmf::IntegerSequence<std::size_t, INTS...>;
+    // 'Pair_IndexSequence' is an alias to the 'bslmf::IntegerSequence' class
+    // template specialized for the common case of the integer sequence were
+    // the element type 'T' is 'std::size_t'.
+
+
+template <std::size_t N>
+using Pair_MakeIndexSequence = bslmf::MakeIntegerSequence<std::size_t, N>;
+    // 'Pair_MakeIndexSequence' is an alias template to the
+    // 'bslmf::MakeIntegerSequence' meta-function specialized for the common
+    // case of the integer sequence were the element type 'T' is 'std::size_t'.
+#endif
+
+}  // close package namespace
+}  // close enterprise namespace
 
 namespace bsl {
                         // =========================
@@ -646,16 +670,17 @@ struct Pair_First {
         // 'TYPE' takes a 'bslma'-style allocator as the second constructor
         // argument preceded by 'bsl::allocator_arg'.
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)                            \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
     template <class ...ARGS, size_t ...I>
     Pair_First(native_std::tuple<ARGS...>&& argsPack,
-               bsl::index_sequence<I...>);
+               BloombergLP::bslstl::Pair_IndexSequence<I...>);
         // Construct the 'first' member of a 'pair', forwarding in order the
         // elements in the specified 'argsPack' to the corresponding
         // constructor of (template parameter) 'TYPE'.  The length of the
         // 'argsPack' is equal to the lenght of the specified (template
         // parameter pack) 'I...' and passed to the constructor via the
-        // 'bsl::index_sequence' object.
+        // 'Pair_IndexSequence' object.
 #endif
 
     //! Pair_First(const Pair_First&) = default;
@@ -714,16 +739,18 @@ struct Pair_First<TYPE&> {
         // Bind the specified 'value' into the 'first' reference-member.  The
         // specified 'basicAllocator' is not used.
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)                            \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
     template <class ARG>
     BSLS_KEYWORD_CONSTEXPR
-    Pair_First(native_std::tuple<ARG>&& arg, bsl::index_sequence<0u>);
+    Pair_First(native_std::tuple<ARG>&& arg,
+               BloombergLP::bslstl::Pair_IndexSequence<0u>);
         // Construct the 'first' member of a 'pair', forwarding in order the
         // elements in the specified 'argsPack' to the corresponding
         // constructor of (template parameter) 'TYPE'.  The length of the
         // 'argsPack' is equal to the lenght of the specified (template
         // parameter pack) 'I...' and passed to the constructor via the
-        // 'bsl::index_sequence' object.
+        // 'Pair_IndexSequence' object.
 #endif
 
     //! ~Pair_First() = default;
@@ -779,16 +806,18 @@ struct Pair_First<TYPE&&> {
         // 'TYPE' takes a 'bslma'-style allocator as the second constructor
         // argument preceded by 'bsl::allocator_arg'.
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)                            \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
     template <class ARG>
     BSLS_KEYWORD_CONSTEXPR
-    Pair_First(native_std::tuple<ARG>&& arg, bsl::index_sequence<0u>);
+    Pair_First(native_std::tuple<ARG>&& arg,
+               BloombergLP::bslstl::Pair_IndexSequence<0u>);
         // Construct the 'first' member of a 'pair', forwarding in order the
         // elements in the specified 'argsPack' to the corresponding
         // constructor of (template parameter) 'TYPE'.  The length of the
         // 'argsPack' is equal to the lenght of the specified (template
         // parameter pack) 'I...' and passed to the constructor via the
-        // 'bsl::index_sequence' object.
+        // 'Pair_IndexSequence' object.
 #endif
 
     //! ~Pair_First() = default;
@@ -917,16 +946,17 @@ struct Pair_Second {
         // 'TYPE' takes a 'bslma'-style allocator as the second constructor
         // argument preceded by 'bsl::allocator_arg'.
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)                            \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
     template <class ...ARGS, size_t ...I>
     Pair_Second(native_std::tuple<ARGS...>&& argsPack,
-                bsl::index_sequence<I...>);
+                BloombergLP::bslstl::Pair_IndexSequence<I...>);
         // Construct the 'second' member of a 'pair', forwarding in order the
         // elements in the specified 'argsPack' to the corresponding
         // constructor of (template parameter) 'TYPE'.  The length of the
         // 'argsPack' is equal to the lenght of the specified (template
         // parameter pack) 'I...' and passed to the constructor via the
-        // 'bsl::index_sequence' object.
+        // 'Pair_IndexSequence' object.
 #endif
 
     //! Pair_Second(const Pair_Second&) = default;
@@ -995,17 +1025,18 @@ struct Pair_Second<TYPE&> {
         // 'TYPE' takes a 'bslma'-style allocator as the second constructor
         // argument preceded by 'bsl::allocator_arg'.
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)                            \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
     template <class ARG>
     BSLS_KEYWORD_CONSTEXPR
     Pair_Second(native_std::tuple<ARG>&& arg,
-                bsl::index_sequence<0u>);
+                BloombergLP::bslstl::Pair_IndexSequence<0u>);
         // Construct the 'second' member of a 'pair', forwarding in order the
         // elements in the specified 'argsPack' to the corresponding
         // constructor of (template parameter) 'TYPE'.  The length of the
         // 'argsPack' is equal to the lenght of the specified (template
         // parameter pack) 'I...' and passed to the constructor via the
-        // 'bsl::index_sequence' object.
+        // 'Pair_IndexSequence' object.
 #endif
 
     //! ~Pair_Second() = default;
@@ -1057,17 +1088,18 @@ struct Pair_Second<TYPE&&> {
         // 'TYPE' takes a 'bslma'-style allocator as the second constructor
         // argument preceded by 'bsl::allocator_arg'.
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)                            \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
     template <class ARG>
     BSLS_KEYWORD_CONSTEXPR
     Pair_Second(native_std::tuple<ARG>&& arg,
-                bsl::index_sequence<0u>);
+                BloombergLP::bslstl::Pair_IndexSequence<0u>);
         // Construct the 'second' member of a 'pair', forwarding in order the
         // elements in the specified 'argsPack' to the corresponding
         // constructor of (template parameter) 'TYPE'.  The length of the
         // 'argsPack' is equal to the lenght of the specified (template
         // parameter pack) 'I...' and passed to the constructor via the
-        // 'bsl::index_sequence' object.
+        // 'Pair_IndexSequence' object.
 #endif
 
     //! ~Pair_Second() = default;
@@ -2082,13 +2114,14 @@ Pair_First<TYPE>::Pair_First(PARAM&                         value,
 }
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)                            \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
 template <class TYPE>
 template <class ...ARGS, size_t ...I>
 inline
 
 Pair_First<TYPE>::Pair_First(native_std::tuple<ARGS...>&& argsPack,
-                             bsl::index_sequence<I...>)
+                             BloombergLP::bslstl::Pair_IndexSequence<I...>)
 : first(native_std::get<I>(native_std::move(argsPack))...)
 {
 }
@@ -2172,13 +2205,14 @@ Pair_First<TYPE&>::Pair_First(PARAM&                         value,
 }
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)                            \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
 template <class TYPE>
 template <class ARG>
 BSLS_KEYWORD_CONSTEXPR
 inline
 Pair_First<TYPE&>::Pair_First(native_std::tuple<ARG>&& arg,
-                              bsl::index_sequence<0u>     )
+                              BloombergLP::bslstl::Pair_IndexSequence<0u>)
 : first(std::get<0u>(arg))
 {
 }
@@ -2230,13 +2264,14 @@ Pair_First<TYPE&&>::Pair_First(PARAM&&                        value,
 {
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)                            \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
 template <class TYPE>
 template <class ARG>
 BSLS_KEYWORD_CONSTEXPR
 inline
 Pair_First<TYPE&&>::Pair_First(native_std::tuple<ARG>&& arg,
-                               bsl::index_sequence<0u>     )
+                               BloombergLP::bslstl::Pair_IndexSequence<0u>)
 : first(std::get<0u>(arg))
 {
 }
@@ -2421,12 +2456,13 @@ Pair_Second<TYPE>::Pair_Second(PARAM&                         value,
 }
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)                            \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
 template <class TYPE>
 template <class ...ARGS, size_t ...I>
 inline
 Pair_Second<TYPE>::Pair_Second(native_std::tuple<ARGS...>&& argsPack,
-                               bsl::index_sequence<I...>)
+                               BloombergLP::bslstl::Pair_IndexSequence<I...>)
 : second(native_std::get<I>(native_std::move(argsPack))...)
 {
 }
@@ -2509,13 +2545,14 @@ Pair_Second<TYPE&>::Pair_Second(PARAM&                         value,
 }
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)                            \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
 template <class TYPE>
 template <class ARG>
 BSLS_KEYWORD_CONSTEXPR
 inline
 Pair_Second<TYPE&>::Pair_Second(native_std::tuple<ARG>&& arg,
-                                bsl::index_sequence<0u>     )
+                                BloombergLP::bslstl::Pair_IndexSequence<0u>)
 : second(std::get<0u>(arg))
 {
 }
@@ -2565,13 +2602,14 @@ Pair_Second<TYPE&&>::Pair_Second(PARAM&&                        value,
 {
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)                            \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
 template <class TYPE>
 template <class ARG>
 BSLS_KEYWORD_CONSTEXPR
 inline
 Pair_Second<TYPE&&>::Pair_Second(native_std::tuple<ARG>&& arg,
-                               bsl::index_sequence<0u>     )
+                                 BloombergLP::bslstl::Pair_IndexSequence<0u>)
 : second(std::get<0u>(arg))
 {
 }
@@ -2685,7 +2723,8 @@ pair<T1, T2>::pair(PARAM_1& a, PARAM_2& b, AllocatorPtr basicAllocator)
 }
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)        \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
 template <class T1, class T2>
 template<class ...ARGS_1, class ...ARGS_2>
 inline
@@ -2693,11 +2732,11 @@ pair<T1, T2>::pair(native_std::piecewise_construct_t,
                    native_std::tuple<ARGS_1...>      first_args,
                    native_std::tuple<ARGS_2...>      second_args)
 : FirstBase(native_std::move(first_args),
-            typename bsl::make_index_sequence<
+            typename BloombergLP::bslstl::Pair_MakeIndexSequence<
                    native_std::tuple_size<native_std::tuple<ARGS_1...> >::value
                                               >())
 , SecondBase(native_std::move(second_args),
-            typename bsl::make_index_sequence<
+            typename BloombergLP::bslstl::Pair_MakeIndexSequence<
                    native_std::tuple_size<native_std::tuple<ARGS_2...> >::value
                                               >())
 {
@@ -2713,12 +2752,12 @@ pair<T1, T2>::pair(native_std::piecewise_construct_t,
 : FirstBase(Pair_ImpUtil::concatAllocator(native_std::move(first_args),
                                           basicAllocator,
                                           FirstBslmaIdiom()),
-            typename bsl::make_index_sequence<
+            typename BloombergLP::bslstl::Pair_MakeIndexSequence<
                 Pair_ConstructionParametersPackLength<T1, ARGS_1...>::value>())
 , SecondBase(Pair_ImpUtil::concatAllocator(native_std::move(second_args),
                                            basicAllocator,
                                            SecondBslmaIdiom()),
-             typename bsl::make_index_sequence<
+             typename BloombergLP::bslstl::Pair_MakeIndexSequence<
                 Pair_ConstructionParametersPackLength<T2, ARGS_2...>::value>())
 {
 }
