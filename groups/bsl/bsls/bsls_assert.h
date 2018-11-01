@@ -1263,6 +1263,7 @@ BSLS_IDENT("$Id: $")
 //..
 
 #include <bsls_annotation.h>
+#include <bsls_assertimputil.h>
 #include <bsls_atomicoperations.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -1270,9 +1271,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_review.h>
 
-                    // =================================
-                    // (BSLS) "ASSERT" Macro Definitions
-                    // =================================
+                     // =================================
+                     // (BSLS) "ASSERT" Macro Definitions
+                     // =================================
 
 // Implementation Note: We wrap the 'if' statement below in a (seemingly
 // redundant) do-while-false loop to require, syntactically, a trailing
@@ -1280,28 +1281,29 @@ BSLS_IDENT("$Id: $")
 // context -- even if one forgets to wrap, with curly braces, the body of an
 // 'if' having just a single 'BSLS_ASSERT*' statement.
 
-              // =============================================
-              // Factored Implementation for Internal Use Only
-              // =============================================
+               // =============================================
+               // Factored Implementation for Internal Use Only
+               // =============================================
 
-#if !(defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) ||                              \
-      defined(BSLS_ASSERT_LEVEL_ASSERT) ||                                   \
-      defined(BSLS_ASSERT_LEVEL_ASSERT_OPT) ||                               \
+#if !(defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) ||                               \
+      defined(BSLS_ASSERT_LEVEL_ASSERT) ||                                    \
+      defined(BSLS_ASSERT_LEVEL_ASSERT_OPT) ||                                \
       defined(BSLS_ASSERT_LEVEL_NONE))
     #define BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED 1
 #else
     #define BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED 0
 #endif
 
-#define BSLS_ASSERT_ASSERT_IMP(X,LVL) do {                                   \
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                   \
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                              \
-            BloombergLP::bsls::AssertViolation violation(#X,                 \
-                                                         __FILE__,           \
-                                                         __LINE__,           \
-                                                         LVL);               \
-            BloombergLP::bsls::Assert::invokeHandler(violation);             \
-        }                                                                    \
+#define BSLS_ASSERT_ASSERT_IMP(X,LVL) do {                                    \
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                    \
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                               \
+            BloombergLP::bsls::AssertViolation violation(                     \
+                                                     #X,                      \
+                                                     BSLS_ASSERTIMPUTIL_FILE, \
+                                                     BSLS_ASSERTIMPUTIL_LINE, \
+                                                     LVL);                    \
+            BloombergLP::bsls::Assert::invokeHandler(violation);              \
+        }                                                                     \
     } while (false)
 
 #ifdef BSLS_ASSERT_VALIDATE_DISABLED_MACROS
@@ -1310,15 +1312,15 @@ BSLS_IDENT("$Id: $")
 #define BSLS_ASSERT_DISABLED_IMP(X)
 #endif
 
-                            // ================
-                            // BSLS_ASSERT_SAFE
-                            // ================
+                              // ================
+                              // BSLS_ASSERT_SAFE
+                              // ================
 
 // Determine if 'BSLS_ASSERT_SAFE' should be active.
 
-#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE)                                   \
-    || BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED && (                          \
-           defined(BDE_BUILD_TARGET_SAFE_2) ||                               \
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE)                                    \
+    || BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED && (                           \
+           defined(BDE_BUILD_TARGET_SAFE_2) ||                                \
            defined(BDE_BUILD_TARGET_SAFE)         )
 
     #define BSLS_ASSERT_SAFE_IS_ACTIVE  // also usable directly in client code
@@ -1327,28 +1329,28 @@ BSLS_IDENT("$Id: $")
 // Define 'BSLS_ASSERT_SAFE' accordingly.
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    #define BSLS_ASSERT_SAFE(X) BSLS_ASSERT_ASSERT_IMP(                      \
-                                     X,                                      \
+    #define BSLS_ASSERT_SAFE(X) BSLS_ASSERT_ASSERT_IMP(                       \
+                                     X,                                       \
                                      BloombergLP::bsls::Assert::k_LEVEL_SAFE)
 #elif defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
-    #define BSLS_ASSERT_SAFE(X) BSLS_REVIEW_REVIEW_IMP(                      \
-                                     X,                                      \
+    #define BSLS_ASSERT_SAFE(X) BSLS_REVIEW_REVIEW_IMP(                       \
+                                     X,                                       \
                                      BloombergLP::bsls::Assert::k_LEVEL_SAFE)
 #else
     #define BSLS_ASSERT_SAFE(X) BSLS_ASSERT_DISABLED_IMP(X)
 #endif
 
-                               // ===========
-                               // BSLS_ASSERT
-                               // ===========
+                                // ===========
+                                // BSLS_ASSERT
+                                // ===========
 
 // Determine if 'BSLS_ASSERT' should be active.
 
-#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) ||                                \
-    defined(BSLS_ASSERT_LEVEL_ASSERT)                                        \
-    || BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED && (                          \
-           defined(BDE_BUILD_TARGET_SAFE_2) ||                               \
-           defined(BDE_BUILD_TARGET_SAFE)   ||                               \
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) ||                                 \
+    defined(BSLS_ASSERT_LEVEL_ASSERT)                                         \
+    || BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED && (                           \
+           defined(BDE_BUILD_TARGET_SAFE_2) ||                                \
+           defined(BDE_BUILD_TARGET_SAFE)   ||                                \
            !defined(BDE_BUILD_TARGET_OPT)         )
 
     #define BSLS_ASSERT_IS_ACTIVE       // also usable directly in client code
@@ -1357,20 +1359,20 @@ BSLS_IDENT("$Id: $")
 // Define 'BSLS_ASSERT' accordingly.
 
 #if defined(BSLS_ASSERT_IS_ACTIVE)
-    #define BSLS_ASSERT(X) BSLS_ASSERT_ASSERT_IMP(                           \
-                                   X,                                        \
+    #define BSLS_ASSERT(X) BSLS_ASSERT_ASSERT_IMP(                            \
+                                   X,                                         \
                                    BloombergLP::bsls::Assert::k_LEVEL_ASSERT)
 #elif defined(BSLS_REVIEW_IS_ACTIVE)
-    #define BSLS_ASSERT(X) BSLS_REVIEW_REVIEW_IMP(                           \
-                                   X,                                        \
+    #define BSLS_ASSERT(X) BSLS_REVIEW_REVIEW_IMP(                            \
+                                   X,                                         \
                                    BloombergLP::bsls::Assert::k_LEVEL_ASSERT)
 #else
     #define BSLS_ASSERT(X) BSLS_ASSERT_DISABLED_IMP(X)
 #endif
 
-                             // ===============
-                             // BSLS_ASSERT_OPT
-                             // ===============
+                              // ===============
+                              // BSLS_ASSERT_OPT
+                              // ===============
 
 // Determine if 'BSLS_ASSERT_OPT' should be active.
 
@@ -1381,46 +1383,46 @@ BSLS_IDENT("$Id: $")
 // Define 'BSLS_ASSERT_OPT' accordingly.
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
-    #define BSLS_ASSERT_OPT(X) BSLS_ASSERT_ASSERT_IMP(                       \
-                                      X,                                     \
+    #define BSLS_ASSERT_OPT(X) BSLS_ASSERT_ASSERT_IMP(                        \
+                                      X,                                      \
                                       BloombergLP::bsls::Assert::k_LEVEL_OPT)
 #elif defined(BSLS_REVIEW_OPT_IS_ACTIVE)
-    #define BSLS_ASSERT_OPT(X) BSLS_REVIEW_REVIEW_IMP(                       \
-                                      X,                                     \
+    #define BSLS_ASSERT_OPT(X) BSLS_REVIEW_REVIEW_IMP(                        \
+                                      X,                                      \
                                       BloombergLP::bsls::Assert::k_LEVEL_OPT)
 #else
     #define BSLS_ASSERT_OPT(X) BSLS_ASSERT_DISABLED_IMP(X)
 #endif
 
-                           // ==================
-                           // BSLS_ASSERT_INVOKE
-                           // ==================
+                             // ==================
+                             // BSLS_ASSERT_INVOKE
+                             // ==================
 
 // 'BSLS_ASSERT_INVOKE' is always active and never in review mode or disabled.
-#define BSLS_ASSERT_INVOKE(X) do {                                           \
-        BloombergLP::bsls::AssertViolation violation(                        \
-                                  X,                                         \
-                                  __FILE__,                                  \
-                                  __LINE__,                                  \
-                                  BloombergLP::bsls::Assert::k_LEVEL_INVOKE);\
-        BloombergLP::bsls::Assert::invokeHandler(violation);                 \
+#define BSLS_ASSERT_INVOKE(X) do {                                            \
+        BloombergLP::bsls::AssertViolation violation(                         \
+                                  X,                                          \
+                                  BSLS_ASSERTIMPUTIL_FILE,                    \
+                                  BSLS_ASSERTIMPUTIL_LINE,                    \
+                                  BloombergLP::bsls::Assert::k_LEVEL_INVOKE); \
+        BloombergLP::bsls::Assert::invokeHandler(violation);                  \
     } while (false)
 
 // 'BSLS_ASSERT_INVOKE_NORETURN' is always active and guaranteed to never
 // return (by calling 'bsls::Assert::failByAbort') even if the installed
 // handler does return.
-#define BSLS_ASSERT_INVOKE_NORETURN(X) do {                                  \
-        BloombergLP::bsls::AssertViolation violation(                        \
-                                  X,                                         \
-                                  __FILE__,                                  \
-                                  __LINE__,                                  \
-                                  BloombergLP::bsls::Assert::k_LEVEL_INVOKE);\
-        BloombergLP::bsls::Assert::invokeHandlerNoReturn(violation);         \
+#define BSLS_ASSERT_INVOKE_NORETURN(X) do {                                   \
+        BloombergLP::bsls::AssertViolation violation(                         \
+                                  X,                                          \
+                                  BSLS_ASSERTIMPUTIL_FILE,                    \
+                                  BSLS_ASSERTIMPUTIL_LINE,                    \
+                                  BloombergLP::bsls::Assert::k_LEVEL_INVOKE); \
+        BloombergLP::bsls::Assert::invokeHandlerNoReturn(violation);          \
     } while (false)
 
-                   // ===================================
-                   // BSLS_ASSERT_NORETURN_INVOKE_HANDLER
-                   // ===================================
+                    // ===================================
+                    // BSLS_ASSERT_NORETURN_INVOKE_HANDLER
+                    // ===================================
 
 #ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
 #define BSLS_ASSERT_NORETURN_INVOKE_HANDLER  BSLS_ANNOTATION_NORETURN
@@ -1438,9 +1440,9 @@ namespace BloombergLP {
 
 namespace bsls {
 
-                          // =====================
-                          // class AssertViolation
-                          // =====================
+                           // =====================
+                           // class AssertViolation
+                           // =====================
 
 class AssertViolation {
     // This class is an unconstrained *in-core* value-semantic class that
@@ -1488,9 +1490,9 @@ class AssertViolation {
         // Return the 'lineNumber' attribute of this object.
 };
 
-                              // ============
-                              // class Assert
-                              // ============
+                                // ============
+                                // class Assert
+                                // ============
 
 class Assert {
     // This "utility" class maintains a pointer containing the address of the
@@ -1704,7 +1706,7 @@ class Assert {
         // detection of a failed assertion).
 
     static void permitOutOfPolicyReturningFailureHandler();
-        // DO NOT USE! It is a violation of Bloomberg policy to invoke this
+        // DO NOT USE!  It is a violation of Bloomberg policy to invoke this
         // function without having prior authorization from senior management.
         //
         // Allow an assertion handler to return control to the calling function
@@ -1718,9 +1720,9 @@ class Assert {
         // a failed assertion).
 };
 
-                     // ===============================
-                     // class AssertFailureHandlerGuard
-                     // ===============================
+                      // ===============================
+                      // class AssertFailureHandlerGuard
+                      // ===============================
 
 class AssertFailureHandlerGuard {
     // An object of this class saves the current assert handler and installs
@@ -1770,18 +1772,18 @@ class AssertFailureHandlerGuard {
 // BDE_VERIFY pragma: -TR17
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-                        // =========================
-                        // BDE_ASSERT_H (deprecated)
-                        // =========================
+                         // =========================
+                         // BDE_ASSERT_H (deprecated)
+                         // =========================
 
 // Active in "Safe Mode"
 
 #define BDE_ASSERT_H(X) BSLS_ASSERT_SAFE(X)
 #define BSL_ASSERT_H(X) BSLS_ASSERT_SAFE(X)    // introduced during migration
 
-                       // ===========================
-                       // BDE_ASSERT_CPP (deprecated)
-                       // ===========================
+                        // ===========================
+                        // BDE_ASSERT_CPP (deprecated)
+                        // ===========================
 
 // Active in "Safe Mode" and "Debug Mode"
 
@@ -1794,14 +1796,14 @@ typedef bsls::Assert bdes_Assert;
 typedef bsls::AssertFailureHandlerGuard bdes_AssertFailureHandlerGuard;
     // This alias is defined for backward compatibility.
 
-                       // ==========================
-                       // BSLS_ASSERT_H (deprecated)
-                       // ==========================
+                         // ==========================
+                         // BSLS_ASSERT_H (deprecated)
+                         // ==========================
 
 // Old 'BSLS_ASSERT' implementation macro that was incorrectly used externally.
 
-#define BSLS_ASSERT_ASSERT(X) BSLS_ASSERT_ASSERT_IMP(                        \
-                                   X,                                        \
+#define BSLS_ASSERT_ASSERT(X) BSLS_ASSERT_ASSERT_IMP(                         \
+                                   X,                                         \
                                    BloombergLP::bsls::Assert::k_LEVEL_ASSERT)
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
@@ -1821,9 +1823,9 @@ typedef bsls::AssertFailureHandlerGuard bsls_AssertFailureHandlerGuard;
 // ============================================================================
 
 namespace bsls {
-                          // ---------------------
-                          // class AssertViolation
-                          // ---------------------
+                           // ---------------------
+                           // class AssertViolation
+                           // ---------------------
 
 // CREATORS
 BSLS_KEYWORD_CONSTEXPR
@@ -1869,16 +1871,16 @@ int AssertViolation::lineNumber() const
 
 #endif // deeper include guard
 
-        // ========================================================
-        // UNDEFINE THE LOCALLY-SCOPED IMPLEMENTATION DETAIL MACROS
-        // ========================================================
+          // ========================================================
+          // UNDEFINE THE LOCALLY-SCOPED IMPLEMENTATION DETAIL MACROS
+          // ========================================================
 
 #undef BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 #undef BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED
 
-                // =========================================
-                // IMPLEMENTATION USING THE C++ PREPROCESSOR
-                // =========================================
+                 // =========================================
+                 // IMPLEMENTATION USING THE C++ PREPROCESSOR
+                 // =========================================
 //
 // At most one of the following build options may be set during the compilation
 // of any component that includes 'bsls_assert.h':

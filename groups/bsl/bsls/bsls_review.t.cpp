@@ -74,14 +74,14 @@ using namespace std;
 // [ 8] CONCERN: default handler log: backoff
 // [-4] CONCERN: default handler log: limits
 //
-// [ 9] ASSERT USAGE EXAMPLE: Using Review Macros
-// [10] ASSERT USAGE EXAMPLE: Invoking an review handler directly
-// [11] ASSERT USAGE EXAMPLE: Using Administration Functions
-// [11] ASSERT USAGE EXAMPLE: Installing Prefabricated Review-Handlers
-// [12] ASSERT USAGE EXAMPLE: Creating Your Own Review-Handler
-// [13] ASSERT USAGE EXAMPLE: Using Scoped Guard
-// [14] ASSERT USAGE EXAMPLE: Using 'BDE_BUILD_TARGET_SAFE_2'
-// [15] USAGE EXAMPLE: Adding 'BSLS_ASSERT' to an existing function
+// [10] ASSERT USAGE EXAMPLE: Using Review Macros
+// [11] ASSERT USAGE EXAMPLE: Invoking an review handler directly
+// [12] ASSERT USAGE EXAMPLE: Using Administration Functions
+// [12] ASSERT USAGE EXAMPLE: Installing Prefabricated Review-Handlers
+// [13] ASSERT USAGE EXAMPLE: Creating Your Own Review-Handler
+// [14] ASSERT USAGE EXAMPLE: Using Scoped Guard
+// [15] ASSERT USAGE EXAMPLE: Using 'BDE_BUILD_TARGET_SAFE_2'
+// [16] USAGE EXAMPLE: Adding 'BSLS_ASSERT' to an existing function
 //
 // [ 1] CONCERN: By default, the 'bsls_review::failByAbort' is used
 // [ 2] CONCERN: REVIEW macros are instantiated properly for build targets
@@ -95,6 +95,7 @@ using namespace std;
 // [-2] CONCERN: 'bsls::Review::failByThrow' prints to 'stderr' w/o EXC
 // [-3] CONCERN: 'bsls::Review::failBySleep' sleeps forever
 // [-3] CONCERN: 'bsls::Review::failBySleep' prints to 'stderr'
+// [ 9] CONCERN: 'BSLS_ASSERTIMPUTIL_FILE' interaction
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -176,9 +177,9 @@ static bool globalReturnOnTestReview = false;
 //                  GLOBAL HELPER MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#if (defined(BSLS_REVIEW_LEVEL_REVIEW_SAFE) ||                               \
-     defined(BSLS_REVIEW_LEVEL_REVIEW)      ||                               \
-     defined(BSLS_REVIEW_LEVEL_REVIEW_OPT)  ||                               \
+#if (defined(BSLS_REVIEW_LEVEL_REVIEW_SAFE) ||                                \
+     defined(BSLS_REVIEW_LEVEL_REVIEW)      ||                                \
+     defined(BSLS_REVIEW_LEVEL_REVIEW_OPT)  ||                                \
      defined(BSLS_REVIEW_LEVEL_NONE) )
     #define IS_BSLS_REVIEW_MODE_FLAG_DEFINED 1
 #else
@@ -189,9 +190,9 @@ static bool globalReturnOnTestReview = false;
 #define REVIEW_TEST_BEGIN                                    \
         try {
 
-#define REVIEW_TEST_END                                                      \
-        } catch (const std::exception&) {                                    \
-            if (verbose) printf( "Exception caught.\n" );                    \
+#define REVIEW_TEST_END                                                       \
+        } catch (const std::exception&) {                                     \
+            if (verbose) printf( "Exception caught.\n" );                     \
         }
 #else
 #define REVIEW_TEST_BEGIN
@@ -1159,7 +1160,7 @@ int main(int argc, char *argv[])
     printf( "TEST %s CASE %d\n", __FILE__, test);
 
     switch (test) { case 0:  // zero is always the leading case
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #1
         //
@@ -1193,7 +1194,7 @@ int main(int argc, char *argv[])
         FunctionsV4::myFunc(1,1);
 
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // ASSERT USAGE EXAMPLE #6
         //
@@ -1244,7 +1245,7 @@ int main(int argc, char *argv[])
 #endif  // BDE_BUILD_TARGET_EXC
 #endif  // BDE_BUILD_TARGET_SAFE_2
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // ASSERT USAGE EXAMPLE #5
         //
@@ -1285,7 +1286,7 @@ int main(int argc, char *argv[])
         ASSERT(&bsls::Review::failByLog == bsls::Review::violationHandler());
 
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // ASSERT USAGE EXAMPLE #4
         //
@@ -1323,7 +1324,7 @@ int main(int argc, char *argv[])
         REVIEW_TEST_END
 #endif
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // ASSERT USAGE EXAMPLE #3
         //
@@ -1351,7 +1352,7 @@ int main(int argc, char *argv[])
         myMain();
 
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // ASSERT USAGE EXAMPLE #2
         //
@@ -1390,7 +1391,7 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // ASSERT USAGE EXAMPLE #1
         //
@@ -1413,6 +1414,161 @@ int main(int argc, char *argv[])
                              "BSLS_REVIEW_OPT\n");
 
         // See usage examples section at top of this file.
+
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // FILE NAME OVERRIDE
+        //
+        // Concerns:
+        //: 1 The file name logged can be overridden with the
+        //:   'BSLS_ASSERTIMPUTIL_FILE' macro.
+        //
+        // Plan:
+        //: 1 Only test the macros that are enabled in the current build level.
+        //:
+        //: 2 Test that the macros by default log the current '__FILE__'.
+        //:
+        //: 3 Test that the 'BSLS_ASSERTIMPUTIL_FILE' can be changed and all
+        //:   enabled macros log the new value.
+        //:
+        //: 4 Test that reverting back to 'BSLS_ASSERTIMPUTIL_DEFAULTFILE'
+        //:   returns to the original behavior.
+        //
+        // Testing:
+        //   CONCERN: 'BSLS_ASSERTIMPUTIL_FILE' interaction
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nFILE NAME OVERRIDE"
+                             "\n==================\n" );
+
+        if (verbose) printf( "\nInstall 'testDriverHandler' "
+                             "review-handler.\n" );
+
+        bsls::Review::setViolationHandler(&testDriverHandler);
+        ASSERT(::testDriverHandler == bsls::Review::violationHandler());
+
+        if (veryVerbose) printf( "\tSet up expected file names. \n" );
+
+        const char *file = __FILE__;
+        const char *altf = "injected_file.t.cpp";
+
+#ifndef BDE_BUILD_TARGET_EXC
+        globalReturnOnTestReview = true;
+#endif
+
+        if (verbose) printf(
+            "\tVerify that the correct file is logged by default.\n");
+
+#ifdef BSLS_REVIEW_SAFE_IS_ACTIVE
+        globalReset();
+        REVIEW_TEST_BEGIN
+        BSLS_REVIEW_SAFE(false);
+        REVIEW_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+#endif
+
+#ifdef BSLS_REVIEW_IS_ACTIVE
+        globalReset();
+        REVIEW_TEST_BEGIN
+        BSLS_REVIEW(false);
+        REVIEW_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+#endif
+
+#ifdef BSLS_REVIEW_OPT_IS_ACTIVE
+        globalReset();
+        REVIEW_TEST_BEGIN
+        BSLS_REVIEW_OPT(false);
+        REVIEW_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+#endif
+
+        globalReset();
+        REVIEW_TEST_BEGIN
+        BSLS_REVIEW_INVOKE("false");
+        REVIEW_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+
+        if (veryVerbose) printf(
+            "\tRedefine 'BSLS_ASSERTIMPUTIL_FILE'.\n");
+
+#undef BSLS_ASSERTIMPUTIL_FILE
+#define BSLS_ASSERTIMPUTIL_FILE altf
+
+        if (veryVerbose) printf(
+            "\tVerify that the alternate file text is logged by "
+            "enabled macros.\n");
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+        globalReset();
+        REVIEW_TEST_BEGIN
+        BSLS_REVIEW_SAFE(false);
+        REVIEW_TEST_END
+        LOOP2_ASSERT(altf, globalFile,    0 == std::strcmp(altf, globalFile));
+#endif
+
+#ifdef BSLS_ASSERT_IS_ACTIVE
+        globalReset();
+        REVIEW_TEST_BEGIN
+        BSLS_REVIEW(false);
+        REVIEW_TEST_END
+        LOOP2_ASSERT(altf, globalFile,    0 == std::strcmp(altf, globalFile));
+#endif
+
+#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
+        globalReset();
+        REVIEW_TEST_BEGIN
+        BSLS_REVIEW_OPT(false);
+        REVIEW_TEST_END
+        LOOP2_ASSERT(altf, globalFile,    0 == std::strcmp(altf, globalFile));
+#endif
+
+        globalReset();
+        REVIEW_TEST_BEGIN
+        BSLS_REVIEW_INVOKE("false");
+        REVIEW_TEST_END
+        LOOP2_ASSERT(altf, globalFile,    0 == std::strcmp(altf, globalFile));
+
+        if (veryVerbose) printf(
+            "\tRevert 'BSLS_ASSERTIMPUTIL_FILE' to "
+            "'BSLS_ASSERTIMPUTIL_DEFAULTFILE'.\n");
+
+#undef BSLS_ASSERTIMPUTIL_FILE
+#define BSLS_ASSERTIMPUTIL_FILE BSLS_ASSERTIMPUTIL_DEFAULTFILE
+
+        if (verbose) printf(
+            "\tVerify that the correct file is logged again.\n");
+
+#ifdef BSLS_REVIEW_SAFE_IS_ACTIVE
+        globalReset();
+        REVIEW_TEST_BEGIN
+        BSLS_REVIEW_SAFE(false);
+        REVIEW_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+#endif
+
+#ifdef BSLS_REVIEW_IS_ACTIVE
+        globalReset();
+        REVIEW_TEST_BEGIN
+        BSLS_REVIEW(false);
+        REVIEW_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+#endif
+
+#ifdef BSLS_REVIEW_OPT_IS_ACTIVE
+        globalReset();
+        REVIEW_TEST_BEGIN
+        BSLS_REVIEW_OPT(false);
+        REVIEW_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+#endif
+
+        globalReset();
+        REVIEW_TEST_BEGIN
+        BSLS_REVIEW_INVOKE("false");
+        REVIEW_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
 
       } break;
       case 8: {
@@ -1507,9 +1663,6 @@ int main(int argc, char *argv[])
 
                 const char *file = __FILE__;
 
-#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
-                file = "(* Empty File Name *)";
-#endif
                 LOOP2_ASSERT(file, profile.d_file,
                              0 == std::strcmp(file, profile.d_file));
 
@@ -1850,19 +2003,15 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf( "\tSet up all but line numbers now. \n" );
 
-        const void *p      = 0;
-        const char *text   = "p";
-        const char *file   = __FILE__;
+        const void *p     = 0;
+        const char *istr  = "0";
+        const char *pstr  = "p";
+        const char *estr  = "false == true";
+        const char *file  = __FILE__;
         const char *level = bsls::Review::k_LEVEL_SAFE;
-        int         line   = -1;
-        int         count  = 1; // always first review call for all of these
+        int         line  = -1;
+        int         count = 1; // always first review call for all of these
                                  // invocations.
-
-#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
-        file = "";
-#endif
-
-        const char *expr = "false == true";
 
 #ifndef BDE_BUILD_TARGET_EXC
         globalReturnOnTestReview = true;
@@ -1930,9 +2079,9 @@ int main(int argc, char *argv[])
         //            BSLS_REVIEW_SAFE, BSLS_REVIEW, BSLS_REVIEW_OPT
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#if defined(BSLS_REVIEW_LEVEL_REVIEW_SAFE)                                   \
- || !IS_BSLS_REVIEW_MODE_FLAG_DEFINED && (                                   \
-        defined(BDE_BUILD_TARGET_SAFE_2) ||                                  \
+#if defined(BSLS_REVIEW_LEVEL_REVIEW_SAFE)                                    \
+ || !IS_BSLS_REVIEW_MODE_FLAG_DEFINED && (                                    \
+        defined(BDE_BUILD_TARGET_SAFE_2) ||                                   \
         defined(BDE_BUILD_TARGET_SAFE)   )
 
         if (verbose) printf( "\nEnabled: REVIEW_SAFE, REVIEW, REVIEW_OPT\n" );
@@ -1940,22 +2089,43 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf( "\tCheck for integer expression.\n" );
 
         globalReset();
+        level = bsls::Review::k_LEVEL_SAFE;
+        line = L_ + 2;
         REVIEW_TEST_BEGIN
         BSLS_REVIEW_SAFE(0);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
+        LOOP2_ASSERT(istr,  globalText,  0 == std::strcmp(istr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
+        LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         globalReset();
+        level = bsls::Review::k_LEVEL_REVIEW;
+        line = L_ + 2;
         REVIEW_TEST_BEGIN
         BSLS_REVIEW     (0);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
+        LOOP2_ASSERT(istr,  globalText,  0 == std::strcmp(istr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
+        LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         globalReset();
+        level = bsls::Review::k_LEVEL_OPT;
+        line = L_ + 2;
         REVIEW_TEST_BEGIN
         BSLS_REVIEW_OPT (0);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
+        LOOP2_ASSERT(istr,  globalText,  0 == std::strcmp(istr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
+        LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         if (veryVerbose) printf( "\tCheck for pointer expression.\n" );
 
@@ -1966,10 +2136,10 @@ int main(int argc, char *argv[])
         BSLS_REVIEW_SAFE(p);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
-        LOOP2_ASSERT(text, globalText,   0 == std::strcmp(text, globalText));
-        LOOP2_ASSERT(file, globalFile,   0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(pstr,  globalText,  0 == std::strcmp(pstr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
-        LOOP2_ASSERT(line, globalLine, line == globalLine);
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
         LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         globalReset();
@@ -1979,10 +2149,10 @@ int main(int argc, char *argv[])
         BSLS_REVIEW     (p);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
-        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(pstr,  globalText,  0 == std::strcmp(pstr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
-        LOOP2_ASSERT(line, globalLine, line == globalLine);
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
         LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         globalReset();
@@ -1992,10 +2162,10 @@ int main(int argc, char *argv[])
         BSLS_REVIEW_OPT (p);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
-        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(pstr,  globalText,  0 == std::strcmp(pstr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
-        LOOP2_ASSERT(line, globalLine, line == globalLine);
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
         LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         if (veryVerbose) printf( "\tCheck for expression with spaces.\n" );
@@ -2007,10 +2177,10 @@ int main(int argc, char *argv[])
         BSLS_REVIEW_SAFE(false == true);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
-        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
-        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(estr,  globalText,  0 == std::strcmp(estr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
-        LOOP2_ASSERT(line, globalLine, line == globalLine);
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
         LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         globalReset();
@@ -2020,10 +2190,10 @@ int main(int argc, char *argv[])
         BSLS_REVIEW     (false == true);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
-        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
-        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(estr,  globalText,  0 == std::strcmp(estr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
-        LOOP2_ASSERT(line, globalLine, line == globalLine);
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
         LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         globalReset();
@@ -2033,10 +2203,10 @@ int main(int argc, char *argv[])
         BSLS_REVIEW_OPT (false == true);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
-        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
-        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(estr,  globalText,  0 == std::strcmp(estr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
-        LOOP2_ASSERT(line, globalLine, line == globalLine);
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
         LOOP2_ASSERT(count, globalCount, count == globalCount);
 #endif
 
@@ -2044,10 +2214,10 @@ int main(int argc, char *argv[])
         //                    BSLS_REVIEW, BSLS_REVIEW_OPT
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#if defined(BSLS_REVIEW_LEVEL_REVIEW)                                        \
- || !IS_BSLS_REVIEW_MODE_FLAG_DEFINED &&                                     \
-        !defined(BDE_BUILD_TARGET_OPT) &&                                    \
-        !defined(BDE_BUILD_TARGET_SAFE) &&                                   \
+#if defined(BSLS_REVIEW_LEVEL_REVIEW)                                         \
+ || !IS_BSLS_REVIEW_MODE_FLAG_DEFINED &&                                      \
+        !defined(BDE_BUILD_TARGET_OPT) &&                                     \
+        !defined(BDE_BUILD_TARGET_SAFE) &&                                    \
         !defined(BDE_BUILD_TARGET_SAFE_2)
 
         if (verbose) printf( "\nEnabled: REVIEW, REVIEW_OPT\n" );
@@ -2057,16 +2227,30 @@ int main(int argc, char *argv[])
         globalReset(); BSLS_REVIEW_SAFE(0); ASSERT(0 == globalReviewFiredFlag);
 
         globalReset();
+        level = bsls::Review::k_LEVEL_REVIEW;
+        line = L_ + 2;
         REVIEW_TEST_BEGIN
         BSLS_REVIEW     (0);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
+        LOOP2_ASSERT(istr,  globalText,  0 == std::strcmp(istr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
+        LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         globalReset();
+        level = bsls::Review::k_LEVEL_OPT;
+        line = L_ + 2;
         REVIEW_TEST_BEGIN
         BSLS_REVIEW_OPT (0);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
+        LOOP2_ASSERT(istr,  globalText,  0 == std::strcmp(istr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
+        LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         if (veryVerbose) printf( "\tCheck for pointer expression.\n" );
 
@@ -2079,10 +2263,10 @@ int main(int argc, char *argv[])
         BSLS_REVIEW     (p);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
-        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(pstr,  globalText,  0 == std::strcmp(pstr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
-        LOOP2_ASSERT(line, globalLine, line == globalLine);
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
         LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         globalReset();
@@ -2092,10 +2276,10 @@ int main(int argc, char *argv[])
         BSLS_REVIEW_OPT (p);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
-        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(pstr,  globalText,  0 == std::strcmp(pstr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
-        LOOP2_ASSERT(line, globalLine, line == globalLine);
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
         LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         if (veryVerbose) printf( "\tCheck for expression with spaces.\n" );
@@ -2110,10 +2294,10 @@ int main(int argc, char *argv[])
         BSLS_REVIEW     (false == true);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
-        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
-        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(estr,  globalText,  0 == std::strcmp(estr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
-        LOOP2_ASSERT(line, globalLine, line == globalLine);
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
         LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         globalReset();
@@ -2123,10 +2307,10 @@ int main(int argc, char *argv[])
         BSLS_REVIEW_OPT (false == true);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
-        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
-        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(estr,  globalText,  0 == std::strcmp(estr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
-        LOOP2_ASSERT(line, globalLine, line == globalLine);
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
         LOOP2_ASSERT(count, globalCount, count == globalCount);
 #endif
 
@@ -2134,10 +2318,10 @@ int main(int argc, char *argv[])
         //                         BSLS_REVIEW_OPT
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#if defined(BSLS_REVIEW_LEVEL_REVIEW_OPT)                                    \
- || !IS_BSLS_REVIEW_MODE_FLAG_DEFINED &&                                     \
-        defined(BDE_BUILD_TARGET_OPT) &&                                     \
-        !defined(BDE_BUILD_TARGET_SAFE) &&                                   \
+#if defined(BSLS_REVIEW_LEVEL_REVIEW_OPT)                                     \
+ || !IS_BSLS_REVIEW_MODE_FLAG_DEFINED &&                                      \
+        defined(BDE_BUILD_TARGET_OPT) &&                                      \
+        !defined(BDE_BUILD_TARGET_SAFE) &&                                    \
         !defined(BDE_BUILD_TARGET_SAFE_2)
 
         if (verbose) printf( "\nEnabled: REVIEW_OPT\n" );
@@ -2148,10 +2332,17 @@ int main(int argc, char *argv[])
         globalReset(); BSLS_REVIEW     (0); ASSERT(0 == globalReviewFiredFlag);
 
         globalReset();
+        level = bsls::Review::k_LEVEL_OPT;
+        line = L_ + 2;
         REVIEW_TEST_BEGIN
         BSLS_REVIEW_OPT (0);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
+        LOOP2_ASSERT(istr,  globalText,  0 == std::strcmp(istr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
+        LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         if (veryVerbose) printf( "\tCheck for pointer expression.\n" );
 
@@ -2165,10 +2356,10 @@ int main(int argc, char *argv[])
         BSLS_REVIEW_OPT (p);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
-        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(pstr,  globalText,  0 == std::strcmp(pstr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
-        LOOP2_ASSERT(line, globalLine, line == globalLine);
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
         LOOP2_ASSERT(count, globalCount, count == globalCount);
 
         if (veryVerbose) printf( "\tCheck for expression with spaces.\n" );
@@ -2186,10 +2377,10 @@ int main(int argc, char *argv[])
         BSLS_REVIEW_OPT (false == true);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
-        LOOP2_ASSERT(expr, globalText, 0 == std::strcmp(expr, globalText));
-        LOOP2_ASSERT(file, globalFile, 0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(estr,  globalText,  0 == std::strcmp(estr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
-        LOOP2_ASSERT(line, globalLine, line == globalLine);
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
         LOOP2_ASSERT(count, globalCount, count == globalCount);
 #endif
 
@@ -2237,13 +2428,13 @@ int main(int argc, char *argv[])
         level = bsls::Review::k_LEVEL_INVOKE;
         line = L_ + 2;
         REVIEW_TEST_BEGIN
-        BSLS_REVIEW_INVOKE(text);
+        BSLS_REVIEW_INVOKE(pstr);
         REVIEW_TEST_END
         ASSERT(1 == globalReviewFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
-        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(pstr,  globalText,  0 == std::strcmp(pstr, globalText));
+        LOOP2_ASSERT(file,  globalFile,  0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(level, globalLevel, 0 == std::strcmp(level, globalLevel));
-        LOOP2_ASSERT(line, globalLine, line == globalLine);
+        LOOP2_ASSERT(line,  globalLine,  line == globalLine);
         LOOP2_ASSERT(count, globalCount, count == globalCount);
 
 
@@ -2406,10 +2597,6 @@ int main(int argc, char *argv[])
             const char *level = bsls::Review::k_LEVEL_OPT;
             int         count = 1;
 
-#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
-            file = "";
-#endif
-
             line = L_ + 2;
             REVIEW_TEST_BEGIN
             BSLS_REVIEW_OPT(true == false);
@@ -2434,10 +2621,6 @@ int main(int argc, char *argv[])
             int         line  = -1;
             const char *level = bsls::Review::k_LEVEL_OPT;
             int         count = 1;
-
-#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
-            file = "";
-#endif
 
             line = L_ + 2;
             REVIEW_TEST_BEGIN
@@ -2464,10 +2647,6 @@ int main(int argc, char *argv[])
             int         line  = -1;
             const char *level = bsls::Review::k_LEVEL_OPT;
             int         count = c;
-
-#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
-            file = "";
-#endif
 
             line = L_ + 2;
             REVIEW_TEST_BEGIN
@@ -2698,9 +2877,6 @@ int main(int argc, char *argv[])
 
 
                 const char *file = __FILE__;
-#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
-                file = "(* Empty File Name *)";;
-#endif
                 LOOP2_ASSERT(file, profile.d_file,
                              0 == std::strcmp(file, profile.d_file));
 

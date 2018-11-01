@@ -4,6 +4,13 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+namespace BloombergLP {
+// 'BSLS_ASSERT' filename fix -- See {'bsls_assertimputil'}
+#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+extern const char s_bslstl_stringbuf_h[] = "bslstl_stringbuf.h";
+#endif
+}
+
 namespace bsl {
 
 // Force instantiation of 'stringbuf' classes.

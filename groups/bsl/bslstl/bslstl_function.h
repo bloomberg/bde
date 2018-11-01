@@ -89,6 +89,15 @@ BSL_OVERRIDES_STD mode"
 
 #include <utility>
 
+namespace BloombergLP {
+// 'BSLS_ASSERT' filename fix -- See {'bsls_assertimputil'}
+#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+extern const char s_bslstl_function_h[];
+#undef BSLS_ASSERTIMPUTIL_FILE
+#define BSLS_ASSERTIMPUTIL_FILE BloombergLP::s_bslstl_function_h
+#endif
+}
+
                         // ---------------------
                         // COMPILER DEFECT FLAGS
                         // ---------------------
@@ -19337,6 +19346,12 @@ struct IsBitwiseMoveable<bsl::Function_NothrowWrapper<FUNC> >
 
 }  // close namespace bslmf
 }  // close enterprise namespace
+
+// Undo 'BSLS_ASSERT' filename fix -- See {'bsls_assertimputil'}
+#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+#undef BSlS_ASSERTIMPUTIL_FILE
+#define BSLS_ASSERTIMPUTIL_FILE BSLS_ASSERTIMPUTIL_DEFAULTFILE
+#endif
 
 #endif // ! defined(INCLUDED_BSLSTL_FUNCTION)
 

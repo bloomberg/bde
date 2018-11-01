@@ -32,9 +32,9 @@ extern "C" {
 namespace BloombergLP {
 namespace bsls {
 
-                          // --------------------
-                          // struct AssertImpUtil
-                          // --------------------
+                            // --------------------
+                            // struct AssertImpUtil
+                            // --------------------
 
 BSLS_ANNOTATION_NORETURN
 void AssertImpUtil::failByAbort()

@@ -89,13 +89,13 @@ using namespace std;
 // [ 9] CONCERN: Returning handler log: backoff
 // [-7] CONCERN: Returning handler log: limits
 //
-// [11] USAGE EXAMPLE: Using Assert Macros
-// [12] USAGE EXAMPLE: Invoking an assert handler directly
-// [13] USAGE EXAMPLE: Using Administration Functions
-// [13] USAGE EXAMPLE: Installing Prefabricated Assert-Handlers
-// [14] USAGE EXAMPLE: Creating Your Own Assert-Handler
-// [15] USAGE EXAMPLE: Using Scoped Guard
-// [16] USAGE EXAMPLE: Using "ASSERT" with 'BDE_BUILD_TARGET_SAFE_2'
+// [12] USAGE EXAMPLE: Using Assert Macros
+// [13] USAGE EXAMPLE: Invoking an assert handler directly
+// [14] USAGE EXAMPLE: Using Administration Functions
+// [14] USAGE EXAMPLE: Installing Prefabricated Assert-Handlers
+// [15] USAGE EXAMPLE: Creating Your Own Assert-Handler
+// [16] USAGE EXAMPLE: Using Scoped Guard
+// [17] USAGE EXAMPLE: Using "ASSERT" with 'BDE_BUILD_TARGET_SAFE_2'
 //
 // [ 1] CONCERN: By default, the 'bsls::Assert::failByAbort' is used.
 // [ 2] CONCERN: ASSERT macros are instantiated properly for build targets
@@ -115,6 +115,7 @@ using namespace std;
 // [-5] CONCERN: 'bsls::Assert::failBySleep' prints to 'stderr'
 // [-6] CONCERN: 'bsls::Assert::failSleep' sleeps forever
 // [-6] CONCERN: 'bsls::Assert::failSleep' prints to 'stderr'
+// [11] CONCERN: 'BSLS_ASSERTIMPUTIL_FILE' interaction
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -194,9 +195,9 @@ static bool globalReturnOnTestAssert = false;
 //                  GLOBAL HELPER MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#if (defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) ||                               \
-     defined(BSLS_ASSERT_LEVEL_ASSERT)      ||                               \
-     defined(BSLS_ASSERT_LEVEL_ASSERT_OPT)  ||                               \
+#if (defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE) ||                                \
+     defined(BSLS_ASSERT_LEVEL_ASSERT)      ||                                \
+     defined(BSLS_ASSERT_LEVEL_ASSERT_OPT)  ||                                \
      defined(BSLS_ASSERT_LEVEL_NONE) )
     #define IS_BSLS_ASSERT_MODE_FLAG_DEFINED 1
 #else
@@ -207,9 +208,9 @@ static bool globalReturnOnTestAssert = false;
 #define ASSERTION_TEST_BEGIN                                    \
         try {
 
-#define ASSERTION_TEST_END                                                   \
-        } catch (const std::exception&) {                                    \
-            if (verbose) printf( "\nException caught." );                    \
+#define ASSERTION_TEST_END                                                    \
+        } catch (const std::exception&) {                                     \
+            if (verbose) printf( "\nException caught." );                     \
         }
 #else
 #define ASSERTION_TEST_BEGIN
@@ -1134,7 +1135,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:  // zero is always the leading case
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #6
         //
@@ -1185,7 +1186,7 @@ int main(int argc, char *argv[])
 #endif  // BDE_BUILD_TARGET_EXC
 #endif  // BDE_BUILD_TARGET_SAFE_2
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #5
         //
@@ -1226,7 +1227,7 @@ int main(int argc, char *argv[])
         ASSERT(&bsls::Assert::failByAbort == bsls::Assert::violationHandler());
 
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #4
         //
@@ -1265,7 +1266,7 @@ int main(int argc, char *argv[])
         ASSERTION_TEST_END
 #endif
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #3
         //
@@ -1293,7 +1294,7 @@ int main(int argc, char *argv[])
         myMain();
 
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #2
         //
@@ -1332,7 +1333,7 @@ int main(int argc, char *argv[])
 #endif
 
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #1
         //
@@ -1355,6 +1356,173 @@ int main(int argc, char *argv[])
                              "BSLS_ASSERT_OPT\n" );
 
         // See usage examples section at top of this file.
+
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // FILE NAME OVERRIDE
+        //
+        // Concerns:
+        //: 1 The file name logged can be overridden with the
+        //:   'BSLS_ASSERTIMPUTIL_FILE' macro.
+        //
+        // Plan:
+        //: 1 Only test the macros that are enabled in the current build level.
+        //:
+        //: 2 Test that the macros by default log the current '__FILE__'.
+        //:
+        //: 3 Test that the 'BSLS_ASSERTIMPUTIL_FILE' can be changed and all
+        //:   enabled macros log the new value.
+        //:
+        //: 4 Test that reverting back to 'BSLS_ASSERTIMPUTIL_DEFAULTFILE'
+        //:   returns to the original behavior.
+        //
+        // Testing:
+        //   CONCERN: 'BSLS_ASSERTIMPUTIL_FILE' interaction
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nFILE NAME OVERRIDE"
+                             "\n==================\n" );
+
+        if (verbose) printf( "\nInstall 'testDriverHandler' "
+                             "assertion-handler.\n" );
+
+        // Change the handler return policy not to abort.
+        {
+            // Enable assertions to return (in violation of policy) for testing
+            // purposes only.
+
+            char *key = const_cast<char*>(
+                  bsls::Assert::k_permitOutOfPolicyReturningAssertionBuildKey);
+            strcpy(key, "bsls-PermitOutOfPolicyReturn");
+
+            bsls::Assert::permitOutOfPolicyReturningFailureHandler();
+        }
+
+        bsls::Assert::setViolationHandler(&testDriverHandler);
+        ASSERT(::testDriverHandler == bsls::Assert::violationHandler());
+
+        if (veryVerbose) printf( "\tSet up expected file names. \n" );
+
+        const char *file = __FILE__;
+        const char *altf = "injected_file.t.cpp";
+
+#ifndef BDE_BUILD_TARGET_EXC
+        globalReturnOnTestAssert = true;
+#endif
+
+        if (verbose) printf(
+            "\tVerify that the correct file is logged by default.\n");
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+        globalReset();
+        ASSERTION_TEST_BEGIN
+        BSLS_ASSERT_SAFE(false);
+        ASSERTION_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+#endif
+
+#ifdef BSLS_ASSERT_IS_ACTIVE
+        globalReset();
+        ASSERTION_TEST_BEGIN
+        BSLS_ASSERT(false);
+        ASSERTION_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+#endif
+
+#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
+        globalReset();
+        ASSERTION_TEST_BEGIN
+        BSLS_ASSERT_OPT(false);
+        ASSERTION_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+#endif
+
+        globalReset();
+        ASSERTION_TEST_BEGIN
+        BSLS_ASSERT_INVOKE("false");
+        ASSERTION_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+
+        if (veryVerbose) printf(
+            "\tRedefine 'BSLS_ASSERTIMPUTIL_FILE'.\n");
+
+#undef BSLS_ASSERTIMPUTIL_FILE
+#define BSLS_ASSERTIMPUTIL_FILE altf
+
+        if (veryVerbose) printf(
+            "\tVerify that the alternate file text is logged by "
+            "enabled macros.\n");
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+        globalReset();
+        ASSERTION_TEST_BEGIN
+        BSLS_ASSERT_SAFE(false);
+        ASSERTION_TEST_END
+        LOOP2_ASSERT(altf, globalFile,    0 == std::strcmp(altf, globalFile));
+#endif
+
+#ifdef BSLS_ASSERT_IS_ACTIVE
+        globalReset();
+        ASSERTION_TEST_BEGIN
+        BSLS_ASSERT(false);
+        ASSERTION_TEST_END
+        LOOP2_ASSERT(altf, globalFile,    0 == std::strcmp(altf, globalFile));
+#endif
+
+#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
+        globalReset();
+        ASSERTION_TEST_BEGIN
+        BSLS_ASSERT_OPT(false);
+        ASSERTION_TEST_END
+        LOOP2_ASSERT(altf, globalFile,    0 == std::strcmp(altf, globalFile));
+#endif
+
+        globalReset();
+        ASSERTION_TEST_BEGIN
+        BSLS_ASSERT_INVOKE("false");
+        ASSERTION_TEST_END
+        LOOP2_ASSERT(altf, globalFile,    0 == std::strcmp(altf, globalFile));
+
+        if (veryVerbose) printf(
+            "\tRevert 'BSLS_ASSERTIMPUTIL_FILE' to "
+            "'BSLS_ASSERTIMPUTIL_DEFAULTFILE'.\n");
+
+#undef BSLS_ASSERTIMPUTIL_FILE
+#define BSLS_ASSERTIMPUTIL_FILE BSLS_ASSERTIMPUTIL_DEFAULTFILE
+
+        if (verbose) printf(
+            "\tVerify that the correct file is logged again.\n");
+
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
+        globalReset();
+        ASSERTION_TEST_BEGIN
+        BSLS_ASSERT_SAFE(false);
+        ASSERTION_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+#endif
+
+#ifdef BSLS_ASSERT_IS_ACTIVE
+        globalReset();
+        ASSERTION_TEST_BEGIN
+        BSLS_ASSERT(false);
+        ASSERTION_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+#endif
+
+#ifdef BSLS_ASSERT_OPT_IS_ACTIVE
+        globalReset();
+        ASSERTION_TEST_BEGIN
+        BSLS_ASSERT_OPT(false);
+        ASSERTION_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+#endif
+
+        globalReset();
+        ASSERTION_TEST_BEGIN
+        BSLS_ASSERT_INVOKE("false");
+        ASSERTION_TEST_END
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
 
       } break;
       case 10: {
@@ -1504,7 +1672,7 @@ int main(int argc, char *argv[])
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // RETURNING HANDLER LOG: BACKOFF
+                                                                      // RETURN
         //
         // Concerns:
         //: 1 Log messages should back off exponentially.
@@ -1560,7 +1728,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // RETURNING HANDLER LOG: CONTENT
+                                                                      // RETURN
         //
         // Concerns:
         //: 1 'invokeHandler' should log a message via 'bsls_log' if the
@@ -2139,12 +2307,14 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf( "\tSet up all but line numbers now. \n" );
 
-        const void *p    = 0;
-        const char *text = "p";
+        const void *p     = 0;
+
+        const char *istr = "0";
+        const char *pstr = "p";
+        const char *estr = "false == true";
         const char *file = __FILE__;
         int         line;                    // initialized each time
 
-        const char *expr = "false == true";
 
 #ifndef BDE_BUILD_TARGET_EXC
         globalReturnOnTestAssert = true;
@@ -2212,9 +2382,9 @@ int main(int argc, char *argv[])
         //            BSLS_ASSERT_SAFE, BSLS_ASSERT, BSLS_ASSERT_OPT
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE)                                   \
- || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED && (                                   \
-        defined(BDE_BUILD_TARGET_SAFE_2) ||                                  \
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_SAFE)                                    \
+ || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED && (                                    \
+        defined(BDE_BUILD_TARGET_SAFE_2) ||                                   \
         defined(BDE_BUILD_TARGET_SAFE)   )
 
         if (verbose) printf(
@@ -2223,22 +2393,34 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf( "\tCheck for integer expression.\n" );
 
         globalReset();
+        line = L_ + 2;
         ASSERTION_TEST_BEGIN
         BSLS_ASSERT_SAFE(0);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
+        LOOP2_ASSERT(istr, globalText,    0 == std::strcmp(istr, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         globalReset();
+        line = L_ + 2;
         ASSERTION_TEST_BEGIN
         BSLS_ASSERT     (0);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
+        LOOP2_ASSERT(istr, globalText,    0 == std::strcmp(istr, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         globalReset();
+        line = L_ + 2;
         ASSERTION_TEST_BEGIN
         BSLS_ASSERT_OPT (0);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
+        LOOP2_ASSERT(istr, globalText,    0 == std::strcmp(istr, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         if (veryVerbose) printf( "\tCheck for pointer expression.\n" );
 
@@ -2248,7 +2430,7 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_SAFE(p);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(pstr, globalText,    0 == std::strcmp(pstr, globalText));
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
@@ -2258,7 +2440,7 @@ int main(int argc, char *argv[])
         BSLS_ASSERT     (p);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(pstr, globalText,    0 == std::strcmp(pstr, globalText));
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
@@ -2268,7 +2450,7 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (p);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(pstr, globalText,    0 == std::strcmp(pstr, globalText));
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
@@ -2280,7 +2462,7 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_SAFE(false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
+        LOOP2_ASSERT(estr, globalText,    0 == std::strcmp(estr, globalText));
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
@@ -2290,7 +2472,7 @@ int main(int argc, char *argv[])
         BSLS_ASSERT     (false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
+        LOOP2_ASSERT(estr, globalText,    0 == std::strcmp(estr, globalText));
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
@@ -2300,7 +2482,7 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
+        LOOP2_ASSERT(estr, globalText,    0 == std::strcmp(estr, globalText));
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 #endif
@@ -2309,10 +2491,10 @@ int main(int argc, char *argv[])
         //                    BSLS_ASSERT, BSLS_ASSERT_OPT
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#if defined(BSLS_ASSERT_LEVEL_ASSERT)                                        \
- || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED &&                                     \
-        !defined(BDE_BUILD_TARGET_OPT) &&                                    \
-        !defined(BDE_BUILD_TARGET_SAFE) &&                                   \
+#if defined(BSLS_ASSERT_LEVEL_ASSERT)                                         \
+ || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED &&                                      \
+        !defined(BDE_BUILD_TARGET_OPT) &&                                     \
+        !defined(BDE_BUILD_TARGET_SAFE) &&                                    \
         !defined(BDE_BUILD_TARGET_SAFE_2)
 
         if (verbose) printf( "\nEnabled: ASSERT, ASSERT_OPT\n" );
@@ -2322,16 +2504,24 @@ int main(int argc, char *argv[])
         globalReset(); BSLS_ASSERT_SAFE(0); ASSERT(0 == globalAssertFiredFlag);
 
         globalReset();
+        line = L_ + 2;
         ASSERTION_TEST_BEGIN
         BSLS_ASSERT     (0);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
+        LOOP2_ASSERT(istr, globalText,    0 == std::strcmp(istr, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         globalReset();
+        line = L_ + 2;
         ASSERTION_TEST_BEGIN
         BSLS_ASSERT_OPT (0);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
+        LOOP2_ASSERT(istr, globalText,    0 == std::strcmp(istr, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         if (veryVerbose) printf( "\tCheck for pointer expression.\n" );
 
@@ -2343,7 +2533,7 @@ int main(int argc, char *argv[])
         BSLS_ASSERT     (p);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(pstr, globalText,    0 == std::strcmp(pstr, globalText));
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
@@ -2353,7 +2543,7 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (p);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(pstr, globalText,    0 == std::strcmp(pstr, globalText));
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
@@ -2368,7 +2558,7 @@ int main(int argc, char *argv[])
         BSLS_ASSERT     (false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
+        LOOP2_ASSERT(estr, globalText,    0 == std::strcmp(estr, globalText));
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
@@ -2378,7 +2568,7 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(expr, globalText,    0 == std::strcmp(expr, globalText));
+        LOOP2_ASSERT(estr, globalText,    0 == std::strcmp(estr, globalText));
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 #endif
@@ -2387,10 +2577,10 @@ int main(int argc, char *argv[])
         //                         BSLS_ASSERT_OPT
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#if defined(BSLS_ASSERT_LEVEL_ASSERT_OPT)                                    \
- || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED &&                                     \
-        defined(BDE_BUILD_TARGET_OPT) &&                                     \
-        !defined(BDE_BUILD_TARGET_SAFE) &&                                   \
+#if defined(BSLS_ASSERT_LEVEL_ASSERT_OPT)                                     \
+ || !IS_BSLS_ASSERT_MODE_FLAG_DEFINED &&                                      \
+        defined(BDE_BUILD_TARGET_OPT) &&                                      \
+        !defined(BDE_BUILD_TARGET_SAFE) &&                                    \
         !defined(BDE_BUILD_TARGET_SAFE_2)
 
         if (verbose) printf( "\nEnabled: ASSERT_OPT\n" );
@@ -2401,10 +2591,14 @@ int main(int argc, char *argv[])
         globalReset(); BSLS_ASSERT     (0); ASSERT(0 == globalAssertFiredFlag);
 
         globalReset();
+        line = L_ + 2;
         ASSERTION_TEST_BEGIN
         BSLS_ASSERT_OPT (0);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
+        LOOP2_ASSERT(istr, globalText,    0 == std::strcmp(istr, globalText));
+        LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
+        LOOP2_ASSERT(line, globalLine, line == globalLine);
 
         if (veryVerbose) printf( "\tCheck for pointer expression.\n" );
 
@@ -2417,7 +2611,7 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (p);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(pstr, globalText,    0 == std::strcmp(pstr, globalText));
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 
@@ -2435,7 +2629,7 @@ int main(int argc, char *argv[])
         BSLS_ASSERT_OPT (false == true);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(expr, globalText, 0 == std::strcmp(expr, globalText));
+        LOOP2_ASSERT(estr, globalText, 0 == std::strcmp(estr, globalText));
         LOOP2_ASSERT(file, globalFile, 0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
 #endif
@@ -2475,20 +2669,19 @@ int main(int argc, char *argv[])
 #endif
 
         //_____________________________________________________________________
-        //                  *** BSLS_ASSERT_INVOKE (always instantiate) ***
+        //           *** BSLS_ASSERT_INVOKE (always instantiate) ***
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (verbose) printf( "\nChecking BSLS_INVOKE\n" );
 
         globalReset();
         line = L_ + 2;
         ASSERTION_TEST_BEGIN
-        BSLS_ASSERT_INVOKE(text);
+        BSLS_ASSERT_INVOKE(pstr);
         ASSERTION_TEST_END
         ASSERT(1 == globalAssertFiredFlag);
-        LOOP2_ASSERT(text, globalText,    0 == std::strcmp(text, globalText));
+        LOOP2_ASSERT(pstr, globalText,    0 == std::strcmp(pstr, globalText));
         LOOP2_ASSERT(file, globalFile,    0 == std::strcmp(file, globalFile));
         LOOP2_ASSERT(line, globalLine, line == globalLine);
-
 
       } break;
       case 1: {
@@ -2968,7 +3161,7 @@ int main(int argc, char *argv[])
       } break;
       case -7: {
         // --------------------------------------------------------------------
-        // RETURNING HANDLER LOG: LIMITS
+                                                                      // RETURN
         //
         // Concerns:
         //: 1 Log messages should stabilize at a period of 2^29.
@@ -3049,7 +3242,7 @@ int main(int argc, char *argv[])
       } break;
       case -8: {
         // --------------------------------------------------------------------
-        // RETURNING HANDLER ABORTS
+                                                                      // RETURN
         //
         // Concerns:
         //: 1 With default settings/build, if the provided assertion failure

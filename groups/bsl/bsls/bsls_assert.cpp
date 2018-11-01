@@ -106,9 +106,9 @@ static bool g_permitReturningHandlerRuntimeFlag = false;
 
 namespace bsls {
 
-                              // ------------
-                              // class Assert
-                              // ------------
+                                // ------------
+                                // class Assert
+                                // ------------
 
 // CLASS DATA
 bsls::AtomicOperations::AtomicTypes::Pointer
@@ -385,9 +385,9 @@ void Assert::failThrow(const char *comment, const char *file, int line)
 
 namespace bsls {
 
-                     // -------------------------------
-                     // class AssertFailureHandlerGuard
-                     // -------------------------------
+                      // -------------------------------
+                      // class AssertFailureHandlerGuard
+                      // -------------------------------
 
 AssertFailureHandlerGuard::AssertFailureHandlerGuard(Assert::Handler temporary)
 : d_original(Assert::violationHandler())
