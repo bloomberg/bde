@@ -91,19 +91,6 @@ BSLS_IDENT("$Id: $")
 // }
 // }
 //..
-// Now, define function template 'readData' that invokes the helper function
-// Note, that the 'bslmf::MakeIntegerSequence<std::size_t, N>' function
-// generates an object of an integer sequence class instantiated with a
-// template parameter pack of integers that will be expanded and used as an
-// array's indices in the helper function when calling the
-// 'Reader::read(T*...)' variadic template function.
-//..
-// template<class T, std::size_t N>
-// void readData(const DataReader<N>& reader, T *data)
-// {
-//     readData(reader, data, bslmf::MakeIntegerSequence<std::size_t, N>());
-// }
-//..
 // Finally, define a 'data' C-Array and 'reader' variables and pass them to the
 // 'readData' function as parameters.
 //..
@@ -111,8 +98,17 @@ BSLS_IDENT("$Id: $")
 // DataReader<k_SIZE> reader;
 // int                data[k_SIZE] = {0};
 //
-// readData(reader, data);
+// readData(reader,
+//          data,
+//          bslmf::IntegerSequence<size_t, 0, 1, 2, 3, 4>());
 //..
+// Note that using a direct call to the 'bslmf::IntegerSequence' constructor
+// looks a bit clumsy here.  The better approach is to use alias template
+// 'bslmf::MakeIntegerSequence', that creates a collection of increasing
+// integer values, having the specified N-value length.  The usage example in
+// that component shows this method more clearly.  But we can not afford its
+// presence here to avoid a cycle/levelization violation.
+//
 // The streaming operator produces output in the following format on 'stdout':
 //..
 // read element #0

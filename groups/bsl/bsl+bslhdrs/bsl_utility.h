@@ -82,20 +82,17 @@ namespace bsl {
     using integer_sequence = BloombergLP::bslmf::IntegerSequence<T, INTS...>;
 
     template <std::size_t... INTS>
-    using index_sequence =
-                     BloombergLP::bslmf::IntegerSequence<std::size_t, INTS...>;
+    using index_sequence = integer_sequence<std::size_t, INTS...>;
 
     template <class T, T N>
     using make_integer_sequence =
                                  BloombergLP::bslmf::MakeIntegerSequence<T, N>;
 
     template <std::size_t N>
-    using make_index_sequence =
-                       BloombergLP::bslmf::MakeIntegerSequence<std::size_t, N>;
+    using make_index_sequence = make_integer_sequence<std::size_t, N>;
 
     template <class... T>
-    using index_sequence_for =
-            BloombergLP::bslmf::MakeIntegerSequence<std::size_t, sizeof...(T)>;
+    using index_sequence_for = make_index_sequence<sizeof...(T)>;
 #endif
 #endif
 
