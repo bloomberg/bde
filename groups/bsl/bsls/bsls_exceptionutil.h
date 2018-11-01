@@ -22,6 +22,8 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Pablo Halpern (phalpern)
 //
+//@SEE_ALSO: bsls_compilerfeatures, bsls_cpp11
+//
 //@DESCRIPTION: Code that uses 'try', 'throw' and 'catch' constructs will
 // often fail to compile when exceptions are disabled using a compiler switch,
 // even if the 'throw' statement is unlikely to be executed at run-time or if
@@ -243,6 +245,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #endif
 
+#ifndef INCLUDED_BSLS_DEPRECATE
+#include <bsls_deprecate.h>
+#endif
+
 #ifndef INCLUDED_BSLS_LIBRARYFEATURES
 #include <bsls_libraryfeatures.h>
 #endif
@@ -277,7 +283,9 @@ BSLS_IDENT("$Id: $")
         // Exceptions enabled: 'throw'
         // Exceptions disabled: abort with a message
 
-#   define BSLS_EXCEPTION_SPEC(SPEC) throw SPEC
+# if !BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 17)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS)
+#     define BSLS_EXCEPTION_SPEC(SPEC) throw SPEC
         // DEPRECATED: This macro is deprecated, as the language feature itself
         // is deprecated in C++11, and is entirely removed in C++17.  It is
         // recommended to simply document the potential set of exceptions that
@@ -294,6 +302,12 @@ BSLS_IDENT("$Id: $")
         // throw.
         // Exceptions enabled: 'throw SPEC'
         // Exceptions disabled: empty
+#   else
+#     define BSLS_EXCEPTION_SPEC(SPEC)
+        // DEPRECATED: This macro is deprecated, and cannot expand to a
+        // supported syntax on the current platform.
+#   endif  // BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+# endif // BSLS_DEPRECATE_IS_ACTIVE
 
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 #       define BSLS_NOTHROW_SPEC noexcept
@@ -333,7 +347,9 @@ BSLS_IDENT("$Id: $")
                                            "Tried to re-throw exception "    \
                                            "with exceptions disabled");
 
+# if !BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 17)
 #   define BSLS_EXCEPTION_SPEC(SPEC)
+# endif // BSLS_DEPRECATE_IS_ACTIVE
 
 #   define BSLS_NOTHROW_SPEC
 

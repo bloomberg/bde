@@ -93,9 +93,9 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED':
 //:     This macro is defined if 'constexpr' with C++14 semantics is supported
 //:     by the current compiler settings for this platform.  In particular,
-//:     this allows multiple statements in a constexpr function; changing state
-//:     of local variables within the function; and making 'non-const' member
-//:     functions 'constexpr'.
+//:     this allows multiple statements in a 'constexpr' function; changing
+//:     state of local variables within the function; and making 'non-const'
+//:     member functions 'constexpr'.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE':
 //:     This macro is defined if 'decltype' is supported by the current
@@ -142,8 +142,10 @@ BSLS_IDENT("$Id: $")
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT'
 //:     This macro is defined if the 'noexcept' keyword is supported by the
-//:     current compiler settings for this platform, both for designating a
-//:     function as not throwing and for testing if an expression may throw.
+//:     current compiler, both for designating a function as not throwing and
+//:     for testing if an expression may throw.  The definition of this macro
+//:     does not depend on whether the current compiler configuration has
+//:     disabled support for exceptions.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_NULLPTR':
 //:    This macro is defined if 'nullptr' is supported by the current compiler
@@ -170,6 +172,13 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT'
 //:     This macro is defined if 'static_assert' is supported by the current
 //:     compiler settings for this platform.
+//:
+//: 'BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS'
+//:     This macro is defined if dynamic exception specifications are supported
+//:     by the current compiler.  Dynamic exception specifications were
+//:     deprecated in C++11, and actively removed from the  language in C++17.
+//:     The definition of this macro does not depend on whether the current
+//:     compiler configuration has disabled support for exceptions.
 //:
 //: 'BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER'
 //:     This macro is defined if the standard library for the current compiler
@@ -543,6 +552,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_macrorepeat.h>
 #endif
 
+// ============================================================================
+//                      UNIVERSAL MACRO DEFINITIONS
+// ============================================================================
 
 // First, define feature macros for any C++98 features that should be available
 // on all compilers, until removed by a later standard.  These macros will be
@@ -550,10 +562,18 @@ BSLS_IDENT("$Id: $")
 // modern build mode.
 #define BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
 
-// Use the standard compiler-independent feature-test macros (SD-6).
+// Use the standard compiler-independent feature-test macros (SD-6) for
+// compilers that support them.  This support will be mandated by C++20, and it
+// is expected that, at some point, future compilers will need only these
+// universal definitions, and the platoform-specific detection below will need
+// no further maintenance.
 #if defined(__cpp_unicode_characters) && defined(__cpp_unicode_literals)
 # define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
 #endif
+
+// ============================================================================
+//      PLATFORM SPECIFIC FEATURE DETECTION AND MACRO DEFINITIONS
+// ============================================================================
 
 // GCC
 // https://wiki.apache.org/stdcxx/C%2B%2B0xCompilerSupport
@@ -562,7 +582,7 @@ BSLS_IDENT("$Id: $")
 // as bugs compared to the final standard.  Therefore, BDE does not attempt to
 // support C++11 in GCC compilers prior to the 4.8 release.
 #if defined(BSLS_PLATFORM_CMP_GNU)
-#define BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
+# define BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS 1
 
 # define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 
@@ -721,7 +741,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
-// MSVC
+// MSVC (Minimum supported version is MSVC 2013)
 // http://msdn.microsoft.com/en-us/library/hh567368.aspx
 // http://blogs.msdn.com/b/vcblog/archive/2014/06/11/c-11-14-feature-tables-for-visual-studio-14-ctp1.aspx
 // MSVC enables C++11 features automatically in versions that provide the
@@ -730,24 +750,24 @@ BSLS_IDENT("$Id: $")
 //: * extern template is not supported. It is documented as being
 //:   "supported" but behaves in a non-conforming manner.
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-#define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-#define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-#define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-#define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-#if BSLS_PLATFORM_CMP_VERSION >= 1700  // Microsoft Visual Studio 2012
-#define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
-#endif
-#if BSLS_PLATFORM_CMP_VERSION >= 1800  // Microsoft Visual Studio 2013
-#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
-#define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-#define BSLS_COMPILERFEATURES_SUPPORT_FINAL
-#define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-#define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-#define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-#endif
-#if BSLS_PLATFORM_CMP_VERSION >= 1900  // Microsoft Visual Studio 2015
+# undef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+// MSVC has never properly implemented this feature, even before it was removed
+// by C++17.  It would parse the syntax, but the runtime behavior simply would
+// simply ignore the exception specification.
+# define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+# define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+# define BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
+# define BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+# define BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
+# define BSLS_COMPILERFEATURES_SUPPORT_FINAL
+# define BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+# define BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+# define BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+# define BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+# define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+# define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+# define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+# if BSLS_PLATFORM_CMP_VERSION >= 1900  // Microsoft Visual Studio 2015
 // Note that while MSVC 2013 supports variadic templates in principle, there
 // are sufficient problems with the implementation that we defer support until
 // the 2015 compiler where those issues are ironed out.
@@ -755,44 +775,44 @@ BSLS_IDENT("$Id: $")
 // use we had caused a C1001 compiler internal error.
 // Also note that the variable template C++14 compiler feature is supported
 // since the 2015 update 2 compiler.
-#define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
-#define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
-#define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-#define BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
-#define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-#define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-#define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-#define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-#endif
-#if BSLS_PLATFORM_CMP_VERSION >= 1910  // Microsoft Visual Studio 2017
-#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-#define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-#endif
+#   define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
+#   define BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#   define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#   define BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
+#   define BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+#   define BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+#   define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+#   define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+# endif
+# if BSLS_PLATFORM_CMP_VERSION >= 1910  // Microsoft Visual Studio 2017
+#   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+#   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+# endif
 // MSVC has __declspec(noreturn)
 // (see bsls_bslexceptionutil.h bslstl_stdexceptutil.h)
-//#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+//# define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // (not yet supported in MSVC)
-//#define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+//# define BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
 
 // Not yet enabling C++17 support, but pro-active test drivers may want to add
 // coverage.
 // # define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 
-#if BSLS_PLATFORM_CMP_VERSION >= 1911  // Microsoft Visual Studio 2017
-                                       // version 15.3
-#define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-#endif
+# if BSLS_PLATFORM_CMP_VERSION >= 1911  // Microsoft Visual Studio 2017
+                                        // version 15.3
+#   define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+# endif
 
-#if BSLS_PLATFORM_CMP_VERSION >= 1912  // Microsoft Visual Studio 2017
-                                       // version 15.5
-#if _MSVC_LANG >= 201703L  // C++17
+# if BSLS_PLATFORM_CMP_VERSION >= 1912  // Microsoft Visual Studio 2017
+                                        // version 15.5
+#   if _MSVC_LANG >= 201703L  // C++17
 // Microsoft does not always report the language dialect properly in
 // '__cplusplus', therefore we need to use the Microsoft specific predefined
 // macro.  See https://goo.gl/ikfyDw and
 // https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros
-#define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-#endif
-#endif
+#     define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
+#   endif
+# endif
 #endif
 
 // IBM Visual Age xlC 11.1 and better include increasing support for C++11
@@ -954,7 +974,21 @@ BSLS_IDENT("$Id: $")
 // # define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
 #endif
 
-// Feature interactions
+// ============================================================================
+//              DISABLE FEATURES REMOVED BY LATER STANDARDS
+// ============================================================================
+
+// Undefine macros defined for earlier dialacts (including C++98) that are
+// removed from later editions of the C++ Standard.
+
+#if __cplusplus >= 201703L
+# undef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+#endif
+
+// ============================================================================
+//                      ENFORCE FEATURE INTERACTIONS
+// ============================================================================
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&  \
    !defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 #   undef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
@@ -963,7 +997,9 @@ BSLS_IDENT("$Id: $")
     // supports implicit-move from rvalues.
 #endif
 
-    //  *** Simulate various C++11 features ***
+// ============================================================================
+//                      SIMULATE VARIOUS C++11 FEATURES
+// ============================================================================
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #   define BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES 1
@@ -978,7 +1014,7 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bsls {
 
-    enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
+enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
 
 #   define BSLS_COMPILERFEATURES_NILT BloombergLP::bsls::CompilerFeaturesNilT
 #   define BSLS_COMPILERFEATURES_NILV BloombergLP::bsls::CompilerFeaturesNilV
@@ -991,8 +1027,8 @@ namespace bsls {
 #   define BSLS_COMPILERFEATURES_FILLV(n)  \
      BSLS_MACROREPEAT(n,BSLS_COMPILERFEATURES_NILVR) BSLS_COMPILERFEATURES_NILV
 
-} // close package namespace
-} // close enterprise namespace
+}  // close package namespace
+}  // close enterprise namespace
 
 #       endif // __cplusplus
 #   endif // BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
