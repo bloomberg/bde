@@ -429,10 +429,13 @@ int benchmarkSpeed (LOCK       *lock,
       start = bsls::SystemTime::nowRealtimeClock();
       int numCycles = 0;
       while (true) {
-         for_each(lockArray, lockEnd,
-                  mem_fun_ref(&LOCK::lockWrite));
-         for_each(lockArray, lockEnd,
-                  mem_fun_ref(&LOCK::unlock));
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+         for_each(lockArray, lockEnd, bsl::mem_fn(&LOCK::lockWrite));
+         for_each(lockArray, lockEnd, bsl::mem_fn(&LOCK::unlock));
+#else
+         for_each(lockArray, lockEnd, mem_fun_ref(&LOCK::lockWrite));
+         for_each(lockArray, lockEnd, smem_fun_ref(&LOCK::unlock));
+#endif
          ++numCycles;
          if (0 == (++numCycles % 4)) {
             stop = bsls::SystemTime::nowRealtimeClock();

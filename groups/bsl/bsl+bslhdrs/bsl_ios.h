@@ -38,7 +38,45 @@ namespace bsl {
     using native_std::streampos;
     using native_std::wstreampos;
 
+    using native_std::boolalpha;
+    using native_std::dec;
+    using native_std::fixed;
+    using native_std::hex;
+    using native_std::internal;
+    using native_std::left;
+    using native_std::oct;
+    using native_std::right;
+    using native_std::scientific;
+    using native_std::showbase;
+    using native_std::showpoint;
+    using native_std::showpos;
+    using native_std::skipws;
+    using native_std::unitbuf;
+    using native_std::uppercase;
+    using native_std::noboolalpha;
+    using native_std::noshowbase;
+    using native_std::noshowpoint;
+    using native_std::noshowpos;
+    using native_std::noskipws;
+    using native_std::nounitbuf;
+    using native_std::nouppercase;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    // C++11 extensions
+    using native_std::hexfloat;
+    using native_std::io_errc;
+    using native_std::is_error_code_enum;
+    using native_std::iostream_category;
+    using native_std::make_error_code;
+    using native_std::make_error_condition;
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
+    // Additional symbols leaked to support transitive dependencies in higher
+    // level (non BDE) Bloomberg code.
+# if !defined(BSLS_PLATFORM_CMP_MSVC) && __cplusplus < 201703L
+    // As some of these names are removed from C++17, take a sledgehammer to
+    // crack this nut, and remove all non-standard exports.
     using native_std::bad_exception;
     using native_std::basic_streambuf;
     using native_std::bidirectional_iterator_tag;
@@ -72,135 +110,8 @@ namespace bsl {
     using native_std::unexpected;
     using native_std::unexpected_handler;
     using native_std::use_facet;
+# endif // MSVC, or C++2017
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    using native_std::io_errc;
-    using native_std::is_error_code_enum;
-    using native_std::iostream_category;
-    using native_std::make_error_code;
-    using native_std::make_error_condition;
-    using native_std::hexfloat;
-    using native_std::hexfloat;
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-
-    // The following using declarations result in link time errors with the
-    // gcc 4.1.2 compiler (due to a compiler bug).  See DRQS 31108406.
-#if !(defined(BSLS_PLATFORM_CMP_GNU)               \
-    && (BSLS_PLATFORM_CMP_VER_MAJOR >= 40000)      \
-    && (BSLS_PLATFORM_CMP_VER_MAJOR  < 40300))
-
-    using native_std::boolalpha;
-    using native_std::dec;
-    using native_std::fixed;
-    using native_std::hex;
-    using native_std::internal;
-    using native_std::left;
-    using native_std::oct;
-    using native_std::right;
-    using native_std::scientific;
-    using native_std::showbase;
-    using native_std::showpoint;
-    using native_std::showpos;
-    using native_std::skipws;
-    using native_std::unitbuf;
-    using native_std::uppercase;
-    using native_std::noboolalpha;
-    using native_std::noshowbase;
-    using native_std::noshowpoint;
-    using native_std::noshowpos;
-    using native_std::noskipws;
-    using native_std::nounitbuf;
-    using native_std::nouppercase;
-#else
-    inline bsl::ios_base& boolalpha(ios_base& str) {
-        return native_std::boolalpha(str);
-    }
-
-    inline bsl::ios_base& dec(ios_base& str) {
-        return native_std::dec(str);
-    }
-
-    inline bsl::ios_base& fixed(ios_base& str) {
-        return native_std::fixed(str);
-    }
-
-    inline bsl::ios_base& hex(ios_base& str) {
-        return native_std::hex(str);
-    }
-
-    inline bsl::ios_base& internal(ios_base& str) {
-        return native_std::internal(str);
-    }
-
-    inline bsl::ios_base& left(ios_base& str) {
-        return native_std::left(str);
-    }
-
-    inline bsl::ios_base& oct(ios_base& str) {
-        return native_std::oct(str);
-    }
-
-    inline bsl::ios_base& right(ios_base& str) {
-        return native_std::right(str);
-    }
-
-    inline bsl::ios_base& scientific(ios_base& str) {
-        return native_std::scientific(str);
-    }
-
-    inline bsl::ios_base& showbase(ios_base& str) {
-        return native_std::showbase(str);
-    }
-
-    inline bsl::ios_base& showpoint(ios_base& str) {
-        return native_std::showpoint(str);
-    }
-
-    inline bsl::ios_base& showpos(ios_base& str) {
-        return native_std::showpos(str);
-    }
-
-    inline bsl::ios_base& skipws(ios_base& str) {
-        return native_std::skipws(str);
-    }
-
-    inline bsl::ios_base& unitbuf(ios_base& str) {
-        return native_std::unitbuf(str);
-    }
-
-    inline bsl::ios_base& uppercase(ios_base& str) {
-        return native_std::uppercase(str);
-    }
-
-    inline bsl::ios_base& noboolalpha(ios_base& str) {
-        return native_std::noboolalpha(str);
-    }
-
-    inline bsl::ios_base& noshowbase(ios_base& str) {
-        return native_std::noshowbase(str);
-    }
-
-    inline bsl::ios_base& noshowpoint(ios_base& str) {
-        return native_std::noshowpoint(str);
-    }
-
-    inline bsl::ios_base& noshowpos(ios_base& str) {
-        return native_std::noshowpos(str);
-    }
-
-    inline bsl::ios_base& noskipws(ios_base& str) {
-        return native_std::noskipws(str);
-    }
-
-    inline bsl::ios_base& nounitbuf(ios_base& str) {
-        return native_std::nounitbuf(str);
-    }
-
-    inline bsl::ios_base& nouppercase(ios_base& str) {
-        return native_std::nouppercase(str);
-    }
-#endif
 }  // close package namespace
 
 #endif

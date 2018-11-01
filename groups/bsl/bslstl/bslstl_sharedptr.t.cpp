@@ -10252,8 +10252,15 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\n\tTest with un-owned pointer\n");
         {
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
+            // Prefer 'unique_ptr' as future-proof solution after 'auto_ptr'
+            // is removed by C++17.
+            native_std::unique_ptr<ShareThis> originalPtr(
+                                              new ShareThis(&destructorCount));
+#else
             native_std::auto_ptr<ShareThis> originalPtr(
                                               new ShareThis(&destructorCount));
+#endif
             SharedPtr unownedPtr(SharedPtr(), originalPtr.get());
 
             {

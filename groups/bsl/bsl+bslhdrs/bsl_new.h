@@ -20,6 +20,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 
+#ifndef INCLUDED_BSLS_PLATFORM
+#include <bsls_platform.h>
+#endif
+
 #include <new>
 
 namespace bsl {
@@ -41,6 +45,9 @@ namespace bsl {
     // the standard header.  This may get tricky if some standard library
     // happens to not require any of these names for its native implementation
     // of the <memory> header.
+# if !defined(BSLS_PLATFORM_CMP_MSVC) && __cplusplus < 201703L
+    // As some of these names are removed from C++17, take a sledgehammer to
+    // crack this nut, and remove all non-standard exports.
     using native_std::bad_exception;
     using native_std::exception;
     using native_std::set_terminate;
@@ -50,6 +57,7 @@ namespace bsl {
     using native_std::uncaught_exception;
     using native_std::unexpected;
     using native_std::unexpected_handler;
+# endif // MSVC, or C++2017
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }  // close package namespace
 
