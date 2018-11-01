@@ -21,8 +21,8 @@ using namespace BloombergLP;
 // resolution as the mechanism to discriminate among types.
 //-----------------------------------------------------------------------------
 //
-// [ 2] bslmf::SwitchN<SELECTOR,T0,. . .,T{N-1}>::Type
-// [ 1] bslmf::Switch<SELECTOR,T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>::Type
+// [ 2] bslmf::SwitchN<SWITCH_SELECTOR,T0,. . .,T{N-1}>::Type
+// [ 1] bslmf::Switch<SWITCH_SELECTOR,T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>::Type
 //-----------------------------------------------------------------------------
 // [ 1] FUNCTIONALITY TEST (CLASS 'bslmf::Switch')
 // [ 2] CLASSES 'bslmf::SwitchN'
@@ -81,7 +81,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 // Assume an external server API for storing and retrieving data:
 //..
-    class data_Server {
+    class Data_Server {
         // Dummy implementation of data server
 
         int d_data;
@@ -116,10 +116,10 @@ void aSsErT(bool condition, const char *message, int line)
             // optionally specified NTCS 's', and having an empty string value
             // otherwise.
 
-        void retrieve(data_Server *server);
+        void retrieve(Data_Server *server);
             // Retrieve this string from the specified data 'server'.
 
-        void store(data_Server *server) const;
+        void store(Data_Server *server) const;
             // Store this string to the specified data 'server'.
 
         char operator[](int n) const { return d_buffer[n]; }
@@ -156,7 +156,7 @@ void aSsErT(bool condition, const char *message, int line)
 // which integral type to use for each 'ShortString' type:
 //..
     template <int LEN>
-    void ShortString<LEN>::retrieve(data_Server *server)
+    void ShortString<LEN>::retrieve(Data_Server *server)
     {
         // 'transferType will be 'char' if 'LEN' is 1, 'short' if 'LEN' is 2,
         // and 'int' if 'LEN' 4.  Will choose 'void' and thus not compile if
@@ -170,7 +170,7 @@ void aSsErT(bool condition, const char *message, int line)
     }
 
     template <int LEN>
-    void ShortString<LEN>::store(data_Server *server) const
+    void ShortString<LEN>::store(Data_Server *server) const
     {
         // 'transferType will be 'char' if 'LEN' is 1, 'short' if 'LEN' is 2,
         // and 'int' if 'LEN' 4.  Will choose 'void' and thus not compile if
@@ -191,7 +191,7 @@ void aSsErT(bool condition, const char *message, int line)
         ASSERT(2 == sizeof(short));
         ASSERT(4 == sizeof(int));
 
-        data_Server server;
+        Data_Server server;
 
         ShortString<1> a("A");
         ShortString<1> b("B");
@@ -306,19 +306,20 @@ int main(int argc, char *argv[])
         // TESTING CLASSES 'bslmf::SwitchN'
         //
         // Concerns:
-        //   Returns the right type for 'SELECTOR' values 0-N.
-        //   Returns 'bslmf::Nil' for 'SELECTOR' < 0 or N < 'SELECTOR'
+        //   Returns the right type for 'SWITCH_SELECTOR' values 0-N.
+        //   Returns 'bslmf::Nil' for 'SWITCH_SELECTOR' < 0 or N <
+        //           'SWITCH_SELECTOR'
         //
         // Plan:  For each 'N' between 2 and 9:
         //   Instantiate with N different types each value in the range 0-(N-1)
-        //       as 'SELECTOR'.  Call an 'f' function on the result to verify
-        //       the type.  Instantiate with 'SELECTOR' out of range 0-(N-1)
-        //       and verify that 'f' returns '0'.
+        //       as 'SWITCH_SELECTOR'.  Call an 'f' function on the result to
+        //       verify the type.  Instantiate with 'SWITCH_SELECTOR' out of
+        //       range 0-(N-1) and verify that 'f' returns '0'.
         //   Note that, compared to case 1, we do not worry about defaulted nor
         //   repeated template arguments.
         //
         // Testing:
-        //   bslmf::SwitchN<SELECTOR,T0,. . .,T{N-1}>::Type
+        //   bslmf::SwitchN<SWITCH_SELECTOR,T0,. . .,T{N-1}>::Type
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CLASSES 'bslmf::SwitchN'"
@@ -336,11 +337,11 @@ int main(int argc, char *argv[])
 #ifdef BSLMF_SWITCH_TEST_SWITCH_WITH_NAMED_LENGTH
         if (verbose) printf("\tTesting 'bslmf_Switch2.\n");
         {
-            if (verbose) printf("Testing SELECTOR in range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR in range\n");
             ASSERT('A' == f(bslmf::Switch2<0,A,B>::Type()));
             ASSERT('B' == f(bslmf::Switch2<1,A,B>::Type()));
 
-            if (verbose) printf("Testing SELECTOR out of range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch2<2,A,B>::Type()));
             ASSERT('0' == f(bslmf::Switch2<10,A,B>::Type()));
             ASSERT('0' ==
@@ -349,12 +350,12 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting 'bslmf_Switch3.\n");
         {
-            if (verbose) printf("Testing SELECTOR in range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR in range\n");
             ASSERT('A' == f(bslmf::Switch3<0,A,B,C>::Type()));
             ASSERT('B' == f(bslmf::Switch3<1,A,B,C>::Type()));
             ASSERT('C' == f(bslmf::Switch3<2,A,B,C>::Type()));
 
-            if (verbose) printf("Testing SELECTOR out of range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch3<3,A,B,C>::Type()));
             ASSERT('0' == f(bslmf::Switch3<10,A,B,C>::Type()));
             ASSERT('0' ==
@@ -363,13 +364,13 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting 'bslmf_Switch4.\n");
         {
-            if (verbose) printf("Testing SELECTOR in range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR in range\n");
             ASSERT('A' == f(bslmf::Switch4<0,A,B,C,D>::Type()));
             ASSERT('B' == f(bslmf::Switch4<1,A,B,C,D>::Type()));
             ASSERT('C' == f(bslmf::Switch4<2,A,B,C,D>::Type()));
             ASSERT('D' == f(bslmf::Switch4<3,A,B,C,D>::Type()));
 
-            if (verbose) printf("Testing SELECTOR out of range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch4<4,A,B,C,D>::Type()));
             ASSERT('0' == f(bslmf::Switch4<10,A,B,C,D>::Type()));
             ASSERT('0' ==
@@ -378,14 +379,14 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting 'bslmf_Switch5.\n");
         {
-            if (verbose) printf("Testing SELECTOR in range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR in range\n");
             ASSERT('A' == f(bslmf::Switch5<0,A,B,C,D,E>::Type()));
             ASSERT('B' == f(bslmf::Switch5<1,A,B,C,D,E>::Type()));
             ASSERT('C' == f(bslmf::Switch5<2,A,B,C,D,E>::Type()));
             ASSERT('D' == f(bslmf::Switch5<3,A,B,C,D,E>::Type()));
             ASSERT('E' == f(bslmf::Switch5<4,A,B,C,D,E>::Type()));
 
-            if (verbose) printf("Testing SELECTOR out of range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch5<5,A,B,C,D,E>::Type()));
             ASSERT('0' == f(bslmf::Switch5<10,A,B,C,D,E>::Type()));
             ASSERT('0' ==
@@ -394,7 +395,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting 'bslmf_Switch6.\n");
         {
-            if (verbose) printf("Testing SELECTOR in range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR in range\n");
             ASSERT('A' == f(bslmf::Switch6<0,A,B,C,D,E,F>::Type()));
             ASSERT('B' == f(bslmf::Switch6<1,A,B,C,D,E,F>::Type()));
             ASSERT('C' == f(bslmf::Switch6<2,A,B,C,D,E,F>::Type()));
@@ -402,7 +403,7 @@ int main(int argc, char *argv[])
             ASSERT('E' == f(bslmf::Switch6<4,A,B,C,D,E,F>::Type()));
             ASSERT('F' == f(bslmf::Switch6<5,A,B,C,D,E,F>::Type()));
 
-            if (verbose) printf("Testing SELECTOR out of range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch6<6,A,B,C,D,E,F>::Type()));
             ASSERT('0' == f(bslmf::Switch6<10,A,B,C,D,E,F>::Type()));
             ASSERT('0' ==
@@ -411,7 +412,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting 'bslmf_Switch7.\n");
         {
-            if (verbose) printf("Testing SELECTOR in range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR in range\n");
             ASSERT('A' == f(bslmf::Switch7<0,A,B,C,D,E,F,G>::Type()));
             ASSERT('B' == f(bslmf::Switch7<1,A,B,C,D,E,F,G>::Type()));
             ASSERT('C' == f(bslmf::Switch7<2,A,B,C,D,E,F,G>::Type()));
@@ -420,7 +421,7 @@ int main(int argc, char *argv[])
             ASSERT('F' == f(bslmf::Switch7<5,A,B,C,D,E,F,G>::Type()));
             ASSERT('G' == f(bslmf::Switch7<6,A,B,C,D,E,F,G>::Type()));
 
-            if (verbose) printf("Testing SELECTOR out of range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch7<7,A,B,C,D,E,F,G>::Type()));
             ASSERT('0' == f(bslmf::Switch7<10,A,B,C,D,E,F,G>::Type()));
             ASSERT('0' ==
@@ -429,7 +430,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting 'bslmf_Switch8.\n");
         {
-            if (verbose) printf("Testing SELECTOR in range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR in range\n");
             ASSERT('A' == f(bslmf::Switch8<0,A,B,C,D,E,F,G,H>::Type()));
             ASSERT('B' == f(bslmf::Switch8<1,A,B,C,D,E,F,G,H>::Type()));
             ASSERT('C' == f(bslmf::Switch8<2,A,B,C,D,E,F,G,H>::Type()));
@@ -439,7 +440,7 @@ int main(int argc, char *argv[])
             ASSERT('G' == f(bslmf::Switch8<6,A,B,C,D,E,F,G,H>::Type()));
             ASSERT('H' == f(bslmf::Switch8<7,A,B,C,D,E,F,G,H>::Type()));
 
-            if (verbose) printf("Testing SELECTOR out of range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch8<8,A,B,C,D,E,F,G,H>::Type()));
             ASSERT('0' == f(bslmf::Switch8<10,A,B,C,D,E,F,G,H>::Type()));
             ASSERT('0' ==
@@ -448,7 +449,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\tTesting 'bslmf_Switch9.\n");
         {
-            if (verbose) printf("Testing SELECTOR in range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR in range\n");
             ASSERT('A' == f(bslmf::Switch9<0,A,B,C,D,E,F,G,H,I>::Type()));
             ASSERT('B' == f(bslmf::Switch9<1,A,B,C,D,E,F,G,H,I>::Type()));
             ASSERT('C' == f(bslmf::Switch9<2,A,B,C,D,E,F,G,H,I>::Type()));
@@ -459,7 +460,7 @@ int main(int argc, char *argv[])
             ASSERT('H' == f(bslmf::Switch9<7,A,B,C,D,E,F,G,H,I>::Type()));
             ASSERT('I' == f(bslmf::Switch9<8,A,B,C,D,E,F,G,H,I>::Type()));
 
-            if (verbose) printf("Testing SELECTOR out of range\n");
+            if (verbose) printf("Testing SWITCH_SELECTOR out of range\n");
             ASSERT('0' == f(bslmf::Switch9<9,A,B,C,D,E,F,G,H,I>::Type()));
             ASSERT('0' == f(bslmf::Switch9<10,A,B,C,D,E,F,G,H,I>::Type()));
             ASSERT('0' ==
@@ -472,28 +473,30 @@ int main(int argc, char *argv[])
         // FUNCTIONALITY TEST
         //
         // Concerns:
-        //   Returns the right type for 'SELECTOR' values 0-4.
-        //   Returns 'bslmf::Nil' for 'SELECTOR' < 0 or 4 < 'SELECTOR'
-        //   Returns 'bslmf::Nil' if 'SELECTOR' > number of template arguments
+        //   Returns the right type for 'SWITCH_SELECTOR' values 0-4.
+        //   Returns 'bslmf::Nil' for 'SWITCH_SELECTOR' < 0 or 4 <
+        //           'SWITCH_SELECTOR'
+        //   Returns 'bslmf::Nil' if 'SWITCH_SELECTOR' > number of template
+        //           arguments
         //
         // Plan:
         //   Define 10 overloaded versions of a function, 'f' returning
         //       a different letter for each of the types 'A' - 'J' and
         //       returning '0' for 'bslmf::Nil'.
         //   Instantiate with 10 different types each value in the range 0-9 as
-        //       'SELECTOR'.  Call an 'f' function on the result to verify the
-        //       type.  Instantiate with 'SELECTOR' out of range 0-9 and verify
-        //       that 'f' returns '0'.
+        //       'SWITCH_SELECTOR'.  Call an 'f' function on the result to
+        //       verify the type.  Instantiate with 'SWITCH_SELECTOR' out of
+        //       range 0-9 and verify that 'f' returns '0'.
         //   Instantiate with fewer than 9 different types and verify results.
         //
         // Testing:
-        //   bslmf::Switch<SELECTOR,T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>::Type
+        //   bslmf::Switch<SWITCH_SELECTOR,T0,T1,T2,T3,T4,T5,T6,T7,T8,T9>::Type
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nFUNCTIONALITY TEST"
                             "\n==================\n");
 
-        if (verbose) printf("Testing SELECTOR in range\n");
+        if (verbose) printf("Testing SWITCH_SELECTOR in range\n");
         ASSERT('A' == f(bslmf::Switch<0,A,B,C,D,E,F,G,H,I,J>::Type()));
         ASSERT('B' == f(bslmf::Switch<1,A,B,C,D,E,F,G,H,I,J>::Type()));
         ASSERT('C' == f(bslmf::Switch<2,A,B,C,D,E,F,G,H,I,J>::Type()));
@@ -505,7 +508,7 @@ int main(int argc, char *argv[])
         ASSERT('I' == f(bslmf::Switch<8,A,B,C,D,E,F,G,H,I,J>::Type()));
         ASSERT('J' == f(bslmf::Switch<9,A,B,C,D,E,F,G,H,I,J>::Type()));
 
-        if (verbose) printf("Testing SELECTOR out of range\n");
+        if (verbose) printf("Testing SWITCH_SELECTOR out of range\n");
         ASSERT('0' == f(bslmf::Switch<10,A,B,C,D,E,F,G,H,I,J>::Type()));
         ASSERT('0' == f(bslmf::Switch<100,A,B,C,D,E,F,G,H,I,J>::Type()));
         ASSERT('0' ==
