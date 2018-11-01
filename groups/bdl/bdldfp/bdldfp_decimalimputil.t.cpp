@@ -9496,7 +9496,7 @@ void TestDriver::testCase17()
             { L_, DEC(1e-101),     101 + 96,   DEC(1e+96),            0 },
             { L_, DEC(1e+96),     -96 - 101,   DEC(1e-101),           0 },
             { L_, DEC(1),          INT_MAX,    INF_P,            ERANGE },
-            { L_, DEC(1),         -INT_MAX,    0,                     0 },
+            { L_, DEC(1),         -INT_MAX,    DEC(0),                0 },
 
             { L_, DEC(9999999.0),   89,        DEC(9999999e+89),      0 },
             { L_, DEC(9999999.0),   90,        DEC(9999999e+90),      0 },
@@ -9569,7 +9569,7 @@ void TestDriver::testCase17()
             { L_, DEC(1e-398),   398 + 369,   DEC(1e+369),          0 },
             { L_, DEC(1e+369),  -369 - 398,   DEC(1e-398),          0 },
             { L_, DEC(1),        INT_MAX,     INF_P,           ERANGE },
-            { L_, DEC(1),       -INT_MAX,     0,                    0 },
+            { L_, DEC(1),       -INT_MAX,     DEC(0),              0 },
 
         //--------------------------------------------------------------------
         // LINE |    X                  | EXP |    EXPECTED      |     | ERRNO
