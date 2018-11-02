@@ -59,30 +59,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND) \
- && (defined(BSLS_PLATFORM_CMP_IBM)   \
-  || defined(BSLS_PLATFORM_CMP_CLANG) \
-  || defined(BSLS_PLATFORM_CMP_MSVC)  \
-  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130) \
-     )
-# define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
-// Some compilers produce ambiguities when trying to construct our test types
-// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
-// compiler bug triggering in lower level components, so we simply disable
-// those aspects of testing, and rely on the extensive test coverage on other
-// platforms.
-#endif
-
-enum {
-// The following enum is set to 1 when exceptions are enabled and to 0
-// otherwise.  It's here to avoid having preprocessor macros throughout.
-#if defined(BDE_BUILD_TARGET_EXC)
-    PLAT_EXC = 1
-#else
-    PLAT_EXC = 0
-#endif
-};
-
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
@@ -294,6 +270,33 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
+// ============================================================================
+//                  TARGET SPECIFIC CONFIGURATION
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND) \
+ && (defined(BSLS_PLATFORM_CMP_IBM)   \
+  || defined(BSLS_PLATFORM_CMP_CLANG) \
+  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130) \
+     )
+# define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
+// Some compilers produce ambiguities when trying to construct our test types
+// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
+// compiler bug triggering in lower level components, so we simply disable
+// those aspects of testing, and rely on the extensive test coverage on other
+// platforms.
+#endif
+
+enum {
+// The following enum is set to 1 when exceptions are enabled and to 0
+// otherwise.  It's here to avoid having preprocessor macros throughout.
+#if defined(BDE_BUILD_TARGET_EXC)
+    PLAT_EXC = 1
+#else
+    PLAT_EXC = 0
+#endif
+};
 
 // ============================================================================
 //              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
