@@ -80,7 +80,8 @@ BSL_OVERRIDES_STD mode"
 #include <functional>  // for 'std::unary_function'
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslalg_typetraits.h>
+# include <bslalg_typetraits.h>
+# include <functional>
 #endif
 
 namespace bsl {
@@ -247,7 +248,7 @@ compose2(const OPERATION1& fn1,
          const OPERATION2& fn2,
          const OPERATION3& fn3)
     // Return a 'binary_compose' function object constructed using the
-    // specified 'fn1' binary_function, and the specified 'fn2' and 'fn3' unary
+    // specified 'fn1' binary function, and the specified 'fn2' and 'fn3' unary
     // functions.  The returned function object is equivalent to
     // 'fn1(fn2(x), fn3(x))'.
 {

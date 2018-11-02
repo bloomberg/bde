@@ -141,6 +141,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlat_bdeatoverrides.h>
 #include <bdlat_valuetypefunctions.h>
 
+#include <bsls_libraryfeatures.h>
+
 #include <bsl_iterator.h>
 
 
@@ -158,15 +160,27 @@ namespace bdlat_ArrayIterators {
 
 template <class TYPE>
 class BackInsertIterator
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
+// Sun CC workaround: iterators must be derived from 'std::iterator' to work
+// with the native std library algorithms.  However, 'std::iterator' is
+// deprecated in C++17, so do not rely on derivation unless required, to avoid
+// deprecation warnings on modern compilers.
         : public bsl::iterator<
                         bsl::output_iterator_tag,
                         typename bdlat_ArrayFunctions::ElementType<TYPE>::Type,
-                        void, void, void> {
+                        void, void, void>
+#endif  // BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
+{
     // TBD doc
 
   public:
     // TYPES
-    typedef typename bdlat_ArrayFunctions::ElementType<TYPE>::Type value_type;
+    typedef bsl::output_iterator_tag                         iterator_category;
+    typedef typename bdlat_ArrayFunctions::ElementType<TYPE>::Type
+                                                             value_type;
+    typedef void                                             difference_type;
+    typedef void                                             pointer;
+    typedef void                                             reference;
 
   private:
     // Random-access iterator for any type that meets the requirements of a

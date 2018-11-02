@@ -913,7 +913,7 @@ BSLS_IDENT("$Id: $")
 // absent from later standards.  All removed libraries will have their macros
 // undefined in a consistent manner at the end of this header
 
-# define BSLS_LIBRARYFEATURES_HAS_C90_GETS
+# define BSLS_LIBRARYFEATURES_HAS_C90_GETS                            1
     // Set unconditionally for compilers supporting an earlier standard than
     // C++14; this feature macro will be undefined for those platforms with
     // partial support for C++14, implementing the removal of this dangerous

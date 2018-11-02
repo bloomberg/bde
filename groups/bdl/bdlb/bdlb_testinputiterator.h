@@ -74,9 +74,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bsl_iterator.h>
-
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
+
+#include <bsl_iterator.h>
 
 namespace BloombergLP {
 namespace bdlb {
@@ -86,11 +87,27 @@ namespace bdlb {
                         // =======================
 
 template <class TYPE>
-class TestInputIterator : public bsl::iterator<bsl::input_iterator_tag, TYPE> {
+class TestInputIterator
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
+// Sun CC workaround: iterators must be derived from 'std::iterator' to work
+// with the native std library algorithms.  However, 'std::iterator' is
+// deprecated in C++17, so do not rely on derivation unless required, to avoid
+// deprecation warnings on modern compilers.
+    : public bsl::iterator<bsl::input_iterator_tag, TYPE>
+#endif
+{
     // Provide an input iterator that iterates over an empty sequence.  All
     // 'TestInputIterator' objects compare equal.  Since the iteration sequence
     // is empty, incrementing or de-referencing this iterator yields undefined
     // behavior.
+
+  public:
+    // PUBLIC TYPES
+    typedef bsl::input_iterator_tag  iterator_category;
+    typedef TYPE                     value_type;
+    typedef bsl::ptrdiff_t           difference_type;
+    typedef TYPE *                   pointer;
+    typedef TYPE                     reference;
 
   public:
     // CREATORS

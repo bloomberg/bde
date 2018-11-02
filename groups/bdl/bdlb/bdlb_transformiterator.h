@@ -27,8 +27,8 @@ BSLS_IDENT("$Id: $")
 // determine the result type of invoking the functor (see
 // {'bslmf_resulttype'}).  The second parameter, designated 'ITERATOR', is the
 // type of an object that models an iterator from which values may be obtained,
-// i.e., a type such that 'bsl::iterator<ITERATOR>' exists and for which
-// 'bsl::iterator<ITERATOR>::iterator_category' derives from
+// i.e., a type such that 'bsl::iterator_traits<ITERATOR>' exists and for which
+// 'typename bsl::iterator_traits<ITERATOR>::iterator_category' derives from
 // 'bsl::input_iterator_tag' (see {'bslstl_iterator'}).  Note that object
 // pointer types qualify.
 //
@@ -195,6 +195,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_removereference.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_util.h>
 
 #include <bsl_algorithm.h>
@@ -256,13 +257,18 @@ struct TransformIterator_Traits {
         // iterator tag (because all the other tags require that dereferencing
         // produces a reference).
 
-    typedef typename BaseIteratorTraits::difference_type difference_type;
     typedef typename bsl::remove_cv<
         typename bsl::remove_reference<ResultType>::type>::type  value_type;
-    typedef ResultType                                           reference;
+    typedef typename BaseIteratorTraits::difference_type difference_type;
     typedef typename bsl::remove_reference<ResultType>::type    *pointer;
+    typedef ResultType                                           reference;
         // Define the remaining standard types of the transform iterator.
 
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
+// Sun CC workaround: iterators must be derived from 'std::iterator' to work
+// with the native std library algorithms.  However, 'std::iterator' is
+// deprecated in C++17, so do not rely on derivation unless required, to avoid
+// deprecation warnings on modern compilers.
     typedef bsl::iterator<iterator_category,
                           value_type,
                           difference_type,
@@ -270,6 +276,7 @@ struct TransformIterator_Traits {
                           ResultType>        Iterator;
         // Define the standard iterator specialization that will apply to the
         // transform iterator.
+#endif
 };
 
 // Specialize the transform iterator traits template for functors that are
@@ -346,11 +353,19 @@ template <class FUNCTOR, class ITERATOR>
 class TransformIterator
 : public TransformIterator_AllocatorOfIteratorMethod<
       TransformIterator<FUNCTOR, ITERATOR>,
-      bslma::UsesBslmaAllocator<ITERATOR>::value>,
-  public TransformIterator_AllocatorOfFunctorMethod<
+      bslma::UsesBslmaAllocator<ITERATOR>::value>
+, public TransformIterator_AllocatorOfFunctorMethod<
       TransformIterator<FUNCTOR, ITERATOR>,
       !bslma::UsesBslmaAllocator<ITERATOR>::value &&
-          bslma::UsesBslmaAllocator<FUNCTOR>::value> {
+          bslma::UsesBslmaAllocator<FUNCTOR>::value>
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
+// Sun CC workaround: iterators must be derived from 'std::iterator' to work
+// with the native std library algorithms.  However, 'std::iterator' is
+// deprecated in C++17, so do not rely on derivation unless required, to avoid
+// deprecation warnings on modern compilers.
+, public TransformIterator_Traits<FUNCTOR, ITERATOR>::Iterator
+#endif
+{
     // The transform iterator class itself.  Its job is to hold a functor and
     // an iterator, pass through all iterator-related operations to the held
     // iterator, and on dereference, call the functor on the result of
@@ -359,7 +374,6 @@ class TransformIterator
   private:
     // PRIVATE TYPES
     typedef TransformIterator_Traits<FUNCTOR, ITERATOR> Traits;
-    typedef typename Traits::Iterator                   Iterator;
 
     // DATA
     bslalg::ConstructorProxy<ITERATOR> d_iterator;  // underlying iterator
@@ -367,11 +381,11 @@ class TransformIterator
 
   public:
     // PUBLIC TYPES
-    typedef typename Iterator::difference_type   difference_type;
-    typedef typename Iterator::reference         reference;
-    typedef typename Iterator::pointer           pointer;
-    typedef typename Iterator::value_type        value_type;
-    typedef typename Iterator::iterator_category iterator_category;
+    typedef typename Traits::iterator_category iterator_category;
+    typedef typename Traits::value_type        value_type;
+    typedef typename Traits::difference_type   difference_type;
+    typedef typename Traits::pointer           pointer;
+    typedef typename Traits::reference         reference;
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(

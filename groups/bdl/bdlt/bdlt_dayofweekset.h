@@ -224,6 +224,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_iterator.h>
@@ -235,11 +236,27 @@ namespace bdlt {
                           // class DayOfWeekSet_Iter
                           // =======================
 
-class DayOfWeekSet_Iter : public bsl::iterator<bsl::bidirectional_iterator_tag,
-                                               const DayOfWeek::Enum> {
+class DayOfWeekSet_Iter
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
+// Sun CC workaround: iterators must be derived from 'std::iterator' to work
+// with the native std library algorithms.  However, 'std::iterator' is
+// deprecated in C++17, so do not rely on derivation unless required, to avoid
+// deprecation warnings on modern compilers.
+    : public bsl::iterator<bsl::bidirectional_iterator_tag,
+                                               const DayOfWeek::Enum>
+#endif  // BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
+{
     // Implementation of standard bidirectional iterator for 'DayOfWeekSet'.
     // Any modification of a 'DayOfWeekSet' will invalidate any iterators
     // referring to that 'DayOfWeekSet'.
+
+  public:
+    // PUBLIC TYPES
+    typedef bsl::bidirectional_iterator_tag  iterator_category;
+    typedef DayOfWeek::Enum                  value_type;
+    typedef bsl::ptrdiff_t                   difference_type;
+    typedef const DayOfWeek::Enum           *pointer;
+    typedef const DayOfWeek::Enum&           reference;
 
     // CLASS DATA
     static const DayOfWeek::Enum s_dayOfWeekArray[9];  // = { ???, SUN, ...

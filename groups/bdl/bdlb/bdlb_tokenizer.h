@@ -512,6 +512,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
 #include <bsl_iterator.h>
@@ -624,15 +625,17 @@ class Tokenizer_Proxy {
                         // =======================
 
 class TokenizerIterator
-#if defined(BSLS_PLATFORM_CMP_SUN)
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
+// Sun CC workaround: iterators must be derived from 'std::iterator' to work
+// with the native std library algorithms.  However, 'std::iterator' is
+// deprecated in C++17, so do not rely on derivation unless required, to avoid
+// deprecation warnings on modern compilers.
     : public bsl::iterator<bsl::input_iterator_tag,
                            bslstl::StringRef,
                            int,
                            Tokenizer_Proxy,
                            const bslstl::StringRef>
-    // On Solaris/SunOS just to keep studio compilers happy, since algorithms
-    // take only iterators inheriting from 'std::iterator'.
-#endif  // BSLS_PLATFORM_CMP_SUN
+#endif  // BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
 {
     // This class provides a C++-standards-conforming input iterator over the
     // tokens in the input string suppled at construction (along with the

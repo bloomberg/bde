@@ -434,7 +434,7 @@ int benchmarkSpeed (LOCK       *lock,
          for_each(lockArray, lockEnd, bsl::mem_fn(&LOCK::unlock));
 #else
          for_each(lockArray, lockEnd, mem_fun_ref(&LOCK::lockWrite));
-         for_each(lockArray, lockEnd, smem_fun_ref(&LOCK::unlock));
+         for_each(lockArray, lockEnd, mem_fun_ref(&LOCK::unlock));
 #endif
          ++numCycles;
          if (0 == (++numCycles % 4)) {
