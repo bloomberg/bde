@@ -116,6 +116,7 @@ BSLS_IDENT("$Id: $")
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 # include <bsls_nativestd.h>
 
+# define BSLMF_INCLUDE_ONLY_NATIVE_TRAITS
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
