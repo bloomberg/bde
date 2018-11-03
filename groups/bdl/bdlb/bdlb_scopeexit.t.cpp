@@ -11,6 +11,7 @@
 #include <bslmf_movableref.h>
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -219,7 +220,7 @@ void ExitFunction::operator()() const
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-#if (__cplusplus >= 201103L) || (defined(_MSC_VER) && _MSC_VER >= 1800)
+#if (__cplusplus >= 201103L) || (defined(BSLS_PLATFORM_CMP_MSVC)
 #define BDLB_SCOPEEXIT_HAVE_CPP11
     // 'BDLB_SCOPEEXIT_HAVE_CPP11' is defined if the compiler supports basic
     // C++11 features, such as 'auto' and lambdas.
