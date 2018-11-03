@@ -220,18 +220,17 @@ void ExitFunction::operator()() const
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
-#if (__cplusplus >= 201103L) || (defined(BSLS_PLATFORM_CMP_MSVC)
-#define BDLB_SCOPEEXIT_HAVE_CPP11
+#if (__cplusplus >= 201103L) || defined(BSLS_PLATFORM_CMP_MSVC)
+# define BDLB_SCOPEEXIT_HAVE_CPP11
     // 'BDLB_SCOPEEXIT_HAVE_CPP11' is defined if the compiler supports basic
     // C++11 features, such as 'auto' and lambdas.
 #endif
 
-#if defined(BDE_BUILD_TARGET_EXC) && defined(BDLB_SCOPEEXIT_HAVE_CPP11) &&    \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-#define BDLB_SCOPEEXIT_COMPILE_CPP11_EXAMPLE
+#if defined(BDE_BUILD_TARGET_EXC) && defined(BDLB_SCOPEEXIT_HAVE_CPP11)
+# define BDLB_SCOPEEXIT_COMPILE_CPP11_EXAMPLE
     // 'BDLB_SCOPEEXIT_COMPILE_CPP11_EXAMPLE' is defined if all compilers
-    // features (exceptions, C++11 'auto' and lambdas, and R-value references)
-    // are present that are needed to compile the C++11 usage example.
+    // features (exceptions, C++11 'auto' and lambdas) are present that are
+    // needed to compile the C++11 usage example.
 #endif
 
 #ifdef BDE_BUILD_TARGET_EXC
