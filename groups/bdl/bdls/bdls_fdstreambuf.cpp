@@ -1199,6 +1199,7 @@ bsl::streamsize FdStreamBuf::xsgetn(char *buffer, bsl::streamsize numBytes)
     const int  eof   = traits_type::eof();
 
     #ifdef BSLS_PLATFORM_OS_WINDOWS
+    bool rethrow_seh = false;
     __try  { // Catch page mapping errors on memory-mapped files.
     #endif
     while (buffer < end) {
@@ -1223,6 +1224,9 @@ bsl::streamsize FdStreamBuf::xsgetn(char *buffer, bsl::streamsize numBytes)
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     } __except(GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ?
                EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
+        rethrow_seh = true;
+    }
+    if (rethrow_seh) {
         throw bsl::ios_base::failure(
             "FdStreamBuf::xsgetn EXCEPTION_IN_PAGE_ERROR");
     }
@@ -1249,6 +1253,7 @@ bsl::streamsize FdStreamBuf::xsputn(const char      *buffer,
     }
 
     #ifdef BSLS_PLATFORM_OS_WINDOWS
+    bool rethrow_seh = false;
     __try  { // Catch page mapping errors on memory-mapped files.
     #endif
     while (buffer < end) {
@@ -1269,6 +1274,9 @@ bsl::streamsize FdStreamBuf::xsputn(const char      *buffer,
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     } __except(GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ?
                EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
+        rethrow_seh = true;
+    }
+    if (rethrow_seh) {
         throw bsl::ios_base::failure(
             "FdStreamBuf::xsputn EXCEPTION_IN_PAGE_ERROR");
     }
