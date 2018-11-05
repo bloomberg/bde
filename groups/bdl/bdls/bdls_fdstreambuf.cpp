@@ -1223,6 +1223,8 @@ bsl::streamsize FdStreamBuf::xsgetn(char *buffer, bsl::streamsize numBytes)
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     } __except(GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ?
                EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
+        throw bsl::ios_base::failure(
+            "FdStreamBuf::xsgetn EXCEPTION_IN_PAGE_ERROR");
     }
     #endif
 
@@ -1267,6 +1269,8 @@ bsl::streamsize FdStreamBuf::xsputn(const char      *buffer,
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     } __except(GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ?
                EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
+        throw bsl::ios_base::failure(
+            "FdStreamBuf::xsputn EXCEPTION_IN_PAGE_ERROR");
     }
     #endif
 
