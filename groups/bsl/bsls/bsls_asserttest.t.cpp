@@ -629,8 +629,9 @@ int main(int argc, char *argv[])
                                                     sizeof *INCOMPATIBLE_NAMES;
 
         static const char *const INVALID_NAMES[] = {
-            "",
+#ifndef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
             "a",
+#endif
             "a.",
             "a.hh",
             "a.cppp",

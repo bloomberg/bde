@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_assertimputil.h>
 #include <bsls_asserttestexception.h>
 #include <bsls_bsltestutil.h>   // for testing purposes only
 #include <bsls_platform.h>
@@ -268,11 +269,11 @@ bool AssertTest::catchProbe(char                        expectedResult,
     const char *text = caughtException.expression();
     const char *file = caughtException.filename();
 
-    const char *exceptionComponent;
-    int         exceptionNameLength;
-    if (file && !extractTestedComponentName(&exceptionComponent,
-                                            &exceptionNameLength,
-                                            file)) {
+    const char *exceptionComponent = NULL;
+    int         exceptionNameLength = 0;
+    if (file && *file && !extractTestedComponentName(&exceptionComponent,
+                                                     &exceptionNameLength,
+                                                     file)) {
         printf("Bad component name in exception caught by catchProbe: %s\n",
                file);
         validArguments = false;
@@ -282,6 +283,11 @@ bool AssertTest::catchProbe(char                        expectedResult,
                                     && text
                                     && *text;
 
+#ifndef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+    validArguments = validArguments && exceptionComponent
+                                    && *exceptionComponent;
+#endif
+    
     if (!validArguments) {
         printError(text, file, caughtException.lineNumber());
     }
@@ -312,9 +318,13 @@ bool AssertTest::catchProbe(char                        expectedResult,
         return false;                                                 // RETURN
     }
 
+    // If 'exceptionComponent' is null (only when macros are built in a more
+    // limitted mode that does not include the full filename) we cannot do any
+    // additional component checking.
+
     // If 'componentFilename' is null then it is deemed to match any filename.
 
-    if (0 != componentFileName) {
+    if ((0 != exceptionComponent) && (0 != componentFileName)) {
         // Two component filenames match if they are the same component name,
         // regardless of path, and regardless of file-extension.
 

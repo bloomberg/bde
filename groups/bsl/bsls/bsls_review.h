@@ -613,6 +613,7 @@ BSLS_IDENT("$Id: $")
 // At this point, any contract violations in the use of 'myFunc' in new code
 // will be caught immediately (i.e., in appropriate build modes).
 
+#include <bsls_assertimputil.h>
 #include <bsls_atomicoperations.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_performancehint.h>
@@ -631,6 +632,16 @@ BSLS_IDENT("$Id: $")
               // =============================================
               // Factored Implementation for Internal Use Only
               // =============================================
+
+#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+// As a workaroudn when we need to minimize string constants in 'bsls_review'
+// macros we just skip passing the filename entirely.
+#define BSLS_REVIEW_FILE static_cast<const char *>(0)
+#else
+#define BSLS_REVIEW_FILE __FILE__
+#endif
+
+#define BSLS_REVIEW_LINE __LINE__
 
 #if !(defined(BSLS_REVIEW_LEVEL_REVIEW_SAFE) ||                              \
       defined(BSLS_REVIEW_LEVEL_REVIEW) ||                                   \
@@ -667,8 +678,8 @@ BSLS_IDENT("$Id: $")
         int lastCount = BloombergLP::bsls::Review::updateCount(&count);      \
         BloombergLP::bsls::ReviewViolation violation(                        \
                                   X,                                         \
-                                  __FILE__,                                  \
-                                  __LINE__,                                  \
+                                  BSLS_REVIEW_FILE,                          \
+                                  BSLS_REVIEW_LINE,                          \
                                   BloombergLP::bsls::Review::k_LEVEL_INVOKE, \
                                   lastCount);                                \
         BloombergLP::bsls::Review::invokeHandler(violation);                 \
@@ -680,8 +691,8 @@ BSLS_IDENT("$Id: $")
             static BloombergLP::bsls::Review::Count count = {0};             \
             int lastCount = BloombergLP::bsls::Review::updateCount(&count);  \
             BloombergLP::bsls::ReviewViolation violation(#X,                 \
-                                                         __FILE__,           \
-                                                         __LINE__,           \
+                                                         BSLS_REVIEW_FILE,   \
+                                                         BSLS_REVIEW_LINE,   \
                                                          LVL,                \
                                                          lastCount);         \
             BloombergLP::bsls::Review::invokeHandler(violation);             \
