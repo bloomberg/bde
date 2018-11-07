@@ -168,6 +168,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_compilerfeatures.h>
 #include <bsls_util.h>
 
+#include <stddef.h>
 #include <typeinfo>
 
 namespace BloombergLP {
@@ -530,6 +531,14 @@ struct SharedPtrInplaceRep_ImpUtil {
     static void *voidify(TYPE *address);
         // Return the specified 'address' cast as a pointer to 'void', even if
         // (the template parameter) 'TYPE' is cv-qualified.
+
+    template <class TYPE>
+    static void dispose(const TYPE& object);
+        // Destroy the specified 'object'.
+
+    template <class TYPE, size_t SIZE>
+    static void dispose(const TYPE (&object)[SIZE]);
+        // Destroy each element of the specified 'object'.
 };
 
 // ============================================================================
@@ -561,6 +570,22 @@ inline
 void *SharedPtrInplaceRep_ImpUtil::voidify(TYPE *address) {
     return static_cast<void *>(
             const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
+}
+
+template <class TYPE>
+inline
+void SharedPtrInplaceRep_ImpUtil::dispose(const TYPE& object)
+{
+    object.~TYPE();
+}
+
+template <class TYPE, size_t SIZE>
+inline
+void SharedPtrInplaceRep_ImpUtil::dispose(const TYPE (&object)[SIZE])
+{
+    for (size_t i = 0; i < SIZE; ++i) {
+        dispose(object[i]);
+    }
 }
 
                         // -------------------------
@@ -1012,7 +1037,7 @@ template <class TYPE>
 inline
 void SharedPtrInplaceRep<TYPE>::disposeObject()
 {
-    d_instance.~TYPE();
+    SharedPtrInplaceRep_ImpUtil::dispose(d_instance);
 }
 
 template <class TYPE>

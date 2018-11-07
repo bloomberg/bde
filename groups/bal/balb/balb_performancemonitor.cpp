@@ -1237,11 +1237,11 @@ int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
     {
         PDH_COUNTER_PATH_ELEMENTS cpe = {
             0,
-            "Process",
+            (LPSTR) "Process",
             (LPSTR) moduleName.c_str(),
             0,
             index,
-            "ID Process"
+            (LPSTR) "ID Process"
         };
 
         char  fullPath[MAX_PATH];
@@ -1308,15 +1308,18 @@ int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 
     counters->resize(COUNTER_MAX);
 
+#undef  CP
+#define CP(E) { 0, (LPSTR)"Process", (char *)name, 0, instanceIndex, (LPSTR)E }
     PDH_COUNTER_PATH_ELEMENTS counterPathElements[COUNTER_MAX] = {
-        { 0, "Process", (char*) name, 0, instanceIndex, "% Processor Time" },
-        { 0, "Process", (char*) name, 0, instanceIndex, "% User Time"      },
-        { 0, "Process", (char*) name, 0, instanceIndex, "Thread Count"     },
-        { 0, "Process", (char*) name, 0, instanceIndex, "Working Set"      },
-        { 0, "Process", (char*) name, 0, instanceIndex, "Virtual Bytes"    },
-        { 0, "Process", (char*) name, 0, instanceIndex, "Page Faults/sec"  },
-        { 0, "Process", (char*) name, 0, instanceIndex, "Elapsed Time"     }
+        CP("% Processor Time"),
+        CP("% User Time"     ),
+        CP("Thread Count"    ),
+        CP("Working Set"     ),
+        CP("Virtual Bytes"   ),
+        CP("Page Faults/sec" ),
+        CP("Elapsed Time"    )
     };
+#undef  CP
 
     PDH_STATUS rc;
 

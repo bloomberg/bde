@@ -4810,7 +4810,7 @@ struct SharedPtr_TestIsCallable<RESULT(PARAM)> {
     template <class ARG>
     static FalseType test(...);
     template <class ARG>
-    static TrueType test(typename bsl::enable_if<sizeof(
+    static TrueType test(typename bsl::enable_if<(bool)sizeof(
                                         ((void)callMe(Util::declval<ARG>())), 0
                                                        )>::type *);
         // This function is never defined.  It provides a property-checker that
