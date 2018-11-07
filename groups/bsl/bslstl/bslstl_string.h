@@ -2922,6 +2922,40 @@ struct hash<basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >
         // value of a 'basic_string' constructed from 'input'.
 };
 
+#if defined(BSLS_PLATFORM_CMP_SUN)  // {DRQS 132030795}
+
+// Sun CC 12.3 has trouble with the partial specializations above in certain
+// circumstances (see {DRQS 132030795}).  Adding these explicit specializations
+// for 'string' and 'wstring' makes the problematic cases work.
+
+template <>
+struct hash<string> : ::BloombergLP::bslh::Hash<>
+{
+    // PUBLIC ACCESSORS
+    std::size_t operator()(const string& input) const;
+        // Compute and return the hash value of the specified 'input'.
+
+    std::size_t operator()(const char *input) const;
+        // Compute and return the hash value of the contents of the specified
+        // null-terminated 'input'.  This value will be the same as the hash
+        // value of a 'basic_string' constructed from 'input'.
+};
+
+template <>
+struct hash<wstring> : ::BloombergLP::bslh::Hash<>
+{
+    // PUBLIC ACCESSORS
+    std::size_t operator()(const wstring& input) const;
+        // Compute and return the hash value of the specified 'input'.
+
+    std::size_t operator()(const wchar_t *input) const;
+        // Compute and return the hash value of the contents of the specified
+        // null-terminated 'input'.  This value will be the same as the hash
+        // value of a 'basic_string' constructed from 'input'.
+};
+
+#endif
+
 }  // close namespace bsl
 
 namespace BloombergLP {
@@ -5844,6 +5878,54 @@ operator()(const CHAR_TYPE *input) const
     hashAppend(hashAlg, length);
     return static_cast<std::size_t>(hashAlg.computeHash());
 }
+
+#if defined(BSLS_PLATFORM_CMP_SUN)  // {DRQS 132030795}
+
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+std::size_t hash<string>::operator()(const string& input) const
+{
+    using ::BloombergLP::bslh::hashAppend;
+    ::BloombergLP::bslh::Hash<>::HashAlgorithm hashAlg;
+    hashAlg(input.data(), input.size());
+    hashAppend(hashAlg, input.size());
+    return static_cast<std::size_t>(hashAlg.computeHash());
+}
+
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+std::size_t hash<string>::operator()(const char *input) const
+{
+    BSLS_ASSERT_SAFE(input);
+    using ::BloombergLP::bslh::hashAppend;
+    std::size_t length = char_traits<char>::length(input);
+    ::BloombergLP::bslh::Hash<>::HashAlgorithm hashAlg;
+    hashAlg(input, length);
+    hashAppend(hashAlg, length);
+    return static_cast<std::size_t>(hashAlg.computeHash());
+}
+
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+std::size_t hash<wstring>::operator()(const wstring& input) const
+{
+    using ::BloombergLP::bslh::hashAppend;
+    ::BloombergLP::bslh::Hash<>::HashAlgorithm hashAlg;
+    hashAlg(input.data(), sizeof(wchar_t) * input.size());
+    hashAppend(hashAlg, input.size());
+    return static_cast<std::size_t>(hashAlg.computeHash());
+}
+
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+std::size_t hash<wstring>::operator()(const wchar_t *input) const
+{
+    BSLS_ASSERT_SAFE(input);
+    using ::BloombergLP::bslh::hashAppend;
+    std::size_t length = char_traits<wchar_t>::length(input);
+    ::BloombergLP::bslh::Hash<>::HashAlgorithm hashAlg;
+    hashAlg(input, sizeof(wchar_t) * length);
+    hashAppend(hashAlg, length);
+    return static_cast<std::size_t>(hashAlg.computeHash());
+}
+
+#endif
 
 }  // close namespace bsl
 

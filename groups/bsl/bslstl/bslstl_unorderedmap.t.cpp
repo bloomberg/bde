@@ -10371,6 +10371,42 @@ void testImplicitInsert(CONTAINER& mX)
 }  // close namespace BREATHING_TEST
 
 //=============================================================================
+//                            {DRQS 132030795}
+//-----------------------------------------------------------------------------
+namespace drqs132030795 {
+
+// DRQS 132030795 deals with an error in Sun CC 12.3 (fixed in later versions)
+// triggered by hash partial specializations for string.  The triggering code
+// involves 'unordered_map' so we place the test here.  This code will not
+// compile if the problem is present.
+
+template <class TYPE>
+void test1(bsl::unordered_map<bsl::string, TYPE> &)
+    // Do nothing.
+{
+}
+
+template <>
+void test1(bsl::unordered_map<bsl::string, int> &)
+    // Do nothing.
+{
+}
+
+template <class TYPE>
+void test2(bsl::unordered_map<bsl::wstring, TYPE> &)
+    // Do nothing.
+{
+}
+
+template <>
+void test2(bsl::unordered_map<bsl::wstring, int> &)
+    // Do nothing.
+{
+}
+
+}
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
