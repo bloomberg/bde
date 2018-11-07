@@ -1186,6 +1186,23 @@ bsl::streamsize FdStreamBuf::showmanyc()
     return static_cast<bsl::streamsize>(pos >= 0 && sz > pos ? sz - pos : 0);
 }
 
+// ----------------------------------------------------------------------------
+// IMPLEMENTATION NOTE
+//
+// This component in some cases uses memory mapping to perform file I/O.  In
+// Windows, the mapping can fail during data transfer, causing a Windows
+// Structured Exception, which crashes the program if unhandled.  (See
+// {DRQS 131475652}.)  In order to deal with this, we wrap the I/O
+// code in a '__try/__except' handler, and if an exception occurs, we in turn
+// throw a C++ 'ios_base::failure' exception.  The invoking stream code catches
+// this and sets the stream state to bad.
+//
+// We have not seen such a problem reported on Unix systems, but in principle
+// it could happen there too, and would require catching SIGBBUS signals in a
+// handler.  We may eventually decide to eliminate using memory mapping
+// in this component altogether.
+// ----------------------------------------------------------------------------
+
 bsl::streamsize FdStreamBuf::xsgetn(char *buffer, bsl::streamsize numBytes)
 {
     BSLS_ASSERT(0 <= numBytes);
@@ -1224,6 +1241,7 @@ bsl::streamsize FdStreamBuf::xsgetn(char *buffer, bsl::streamsize numBytes)
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     } __except(GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ?
                EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
+        // In an abundance of caution, do not 'throw' from inside '__except'.
         rethrow_seh = true;
     }
     if (rethrow_seh) {
@@ -1274,6 +1292,7 @@ bsl::streamsize FdStreamBuf::xsputn(const char      *buffer,
     #ifdef BSLS_PLATFORM_OS_WINDOWS
     } __except(GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ?
                EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
+        // In an abundance of caution, do not 'throw' from inside '__except'.
         rethrow_seh = true;
     }
     if (rethrow_seh) {
