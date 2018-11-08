@@ -5881,7 +5881,7 @@ operator()(const CHAR_TYPE *input) const
 
 #if defined(BSLS_PLATFORM_CMP_SUN)  // {DRQS 132030795}
 
-BSLS_PLATFORM_AGGRESSIVE_INLINE
+inline
 std::size_t hash<string>::operator()(const string& input) const
 {
     using ::BloombergLP::bslh::hashAppend;
@@ -5891,7 +5891,7 @@ std::size_t hash<string>::operator()(const string& input) const
     return static_cast<std::size_t>(hashAlg.computeHash());
 }
 
-BSLS_PLATFORM_AGGRESSIVE_INLINE
+inline
 std::size_t hash<string>::operator()(const char *input) const
 {
     BSLS_ASSERT_SAFE(input);
@@ -5903,7 +5903,7 @@ std::size_t hash<string>::operator()(const char *input) const
     return static_cast<std::size_t>(hashAlg.computeHash());
 }
 
-BSLS_PLATFORM_AGGRESSIVE_INLINE
+inline
 std::size_t hash<wstring>::operator()(const wstring& input) const
 {
     using ::BloombergLP::bslh::hashAppend;
@@ -5913,7 +5913,7 @@ std::size_t hash<wstring>::operator()(const wstring& input) const
     return static_cast<std::size_t>(hashAlg.computeHash());
 }
 
-BSLS_PLATFORM_AGGRESSIVE_INLINE
+inline
 std::size_t hash<wstring>::operator()(const wchar_t *input) const
 {
     BSLS_ASSERT_SAFE(input);
