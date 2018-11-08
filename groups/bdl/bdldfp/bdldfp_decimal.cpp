@@ -704,7 +704,8 @@ bsl::basic_ostream<CHARTYPE, TRAITS>&
 bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
                    Decimal32                             object)
 {
-    return printImpl(stream, object);
+    return bdldfp::printImpl(stream, object);
+                                         // See {DRQS 131792157} for 'bdldfp::'.
 }
 
 template <class CHARTYPE, class TRAITS>
@@ -712,7 +713,8 @@ bsl::basic_ostream<CHARTYPE, TRAITS>&
 bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
                    Decimal64                             object)
 {
-    return printImpl(stream, object);
+    return bdldfp::printImpl(stream, object);
+                                        // See {DRQS 131792157} for 'bdldfp::'.
 }
 
 template <class CHARTYPE, class TRAITS>
@@ -720,7 +722,8 @@ bsl::basic_ostream<CHARTYPE, TRAITS>&
 bdldfp::operator<<(bsl::basic_ostream<CHARTYPE, TRAITS>& stream,
                    Decimal128                            object)
 {
-    return printImpl(stream, object);
+    return bdldfp::printImpl(stream, object);
+                                        // See {DRQS 131792157} for 'bdldfp::'.
 }
 
                                   // Input
@@ -730,7 +733,8 @@ bsl::basic_istream<CHARTYPE, TRAITS>&
 bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
                    Decimal32&                            object)
 {
-    return read(stream, object);
+    return bdldfp::read(stream, object);
+                                        // See {DRQS 131792157} for 'bdldfp::'.
 }
 
 template <class CHARTYPE, class TRAITS>
@@ -738,7 +742,8 @@ bsl::basic_istream<CHARTYPE, TRAITS>&
 bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
                    Decimal64&                            object)
 {
-    return read(stream, object);
+    return bdldfp::read(stream, object);
+                                        // See {DRQS 131792157} for 'bdldfp::'.
 }
 
 template <class CHARTYPE, class TRAITS>
@@ -746,7 +751,8 @@ bsl::basic_istream<CHARTYPE, TRAITS>&
 bdldfp::operator>>(bsl::basic_istream<CHARTYPE, TRAITS>& stream,
                    Decimal128&                           object)
 {
-    return read(stream, object);
+    return bdldfp::read(stream, object);
+                                        // See {DRQS 131792157} for 'bdldfp::'.
 }
 
                 // Streaming operators explicit instantiations
