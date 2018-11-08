@@ -1191,12 +1191,12 @@ void testFma()
     ASSERT( Util::notEqual(NaN, NaN));
 
     struct {
-        int          d_line;
-        DECIMAL      d_x;
-        DECIMAL      d_y;
-        DECIMAL      d_z;
-        DECIMAL      d_expected;
-        unsigned int d_errno;
+        int     d_line;
+        DECIMAL d_x;
+        DECIMAL d_y;
+        DECIMAL d_z;
+        DECIMAL d_expected;
+        int     d_errno;
     } DATA[] = {
      //------------------------------------------------
      //LINE |   A  |   B   |   C    | EXPECTED
@@ -1300,7 +1300,7 @@ void testFma()
         const DECIMAL X     = DATA[ti].d_x;
         const DECIMAL Y     = DATA[ti].d_y;
         const DECIMAL Z     = DATA[ti].d_z;
-        unsigned int& ERRNO = DATA[ti].d_errno;
+        const int     ERRNO = DATA[ti].d_errno;
 
         errno = 0;
         const DECIMAL EXPECTED = DATA[ti].d_expected;
@@ -2506,10 +2506,10 @@ void TestDriver::testCase27()
         if (veryVeryVerbose) { T_ T_ bsl::cout << "exp()" << bsl::endl; }
         {
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //--------------------------------------------------
             // LINE |     X         | EXPECTED        |  ERRNO
@@ -2530,10 +2530,10 @@ void TestDriver::testCase27()
 
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
 
                 errno = 0;
@@ -2547,10 +2547,10 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "log()" << bsl::endl; }
         {
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //-------------------------------------------
             // LINE |     X     | EXPECTED     |  ERRNO
@@ -2569,10 +2569,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE           = DATA[ti].d_line;
-                const Obj& X              = DATA[ti].d_x;
-                const Obj& EXPECTED       = DATA[ti].d_expected;
-                const unsigned int& ERRNO = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::log(X);
@@ -2585,10 +2585,10 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "logB()" << bsl::endl; }
         {
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //---------------------------------------
             // LINE |     X     | EXPECTED |  ERRNO
@@ -2610,10 +2610,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::logB(X);
@@ -2626,10 +2626,10 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "log10()" << bsl::endl; }
         {
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //-------------------------------------------
             // LINE |     X     | EXPECTED     |  ERRNO
@@ -2649,10 +2649,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::log10(X);
@@ -2665,11 +2665,11 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "fmod()" << bsl::endl; }
         {
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_y;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //----------------------------------------------
             // LINE |     X    |     Y   | EXPECTED | ERRNO
@@ -2695,11 +2695,11 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          Y        = DATA[ti].d_y;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::fmod(X, Y);
@@ -2712,11 +2712,11 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "remainder()" << bsl::endl; }
         {
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_y;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //-----------------------------------------------
             // LINE |     X    |     Y   | EXPECTED  | ERRNO
@@ -2744,11 +2744,11 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          Y        = DATA[ti].d_y;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::remainder(X, Y);
@@ -2763,10 +2763,10 @@ void TestDriver::testCase27()
             const long int NaN = ~(-1ul >> 1);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                long int     d_expected;
-                unsigned int d_errno;
+                int      d_line;
+                Obj      d_x;
+                long int d_expected;
+                int      d_errno;
             } DATA[] = {
             //-----------------------------------
             // LINE |     X    | EXPECTED | ERRNO
@@ -2790,10 +2790,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE     = DATA[ti].d_line;
-                const Obj&         X        = DATA[ti].d_x;
-                const long int&    EXPECTED = DATA[ti].d_expected;
-                const unsigned int ERRNO    = DATA[ti].d_errno;
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const int       ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const long int RESULT = Util::lrint(X);
@@ -2811,7 +2811,7 @@ void TestDriver::testCase27()
                 int           d_line;
                 Obj           d_x;
                 long long int d_expected;
-                unsigned int  d_errno;
+                int           d_errno;
             } DATA[] = {
             //-----------------------------------
             // LINE |     X    | EXPECTED | ERRNO
@@ -2838,7 +2838,7 @@ void TestDriver::testCase27()
                 const int            LINE     = DATA[ti].d_line;
                 const Obj&           X        = DATA[ti].d_x;
                 const long long int& EXPECTED = DATA[ti].d_expected;
-                const unsigned int   ERRNO    = DATA[ti].d_errno;
+                const int            ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const long long int RESULT = Util::llrint(X);
@@ -2851,11 +2851,11 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "nextafter()" << bsl::endl; }
         {
             struct {
-                int          d_line;
-                Obj          d_from;
-                Obj          d_to;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_from;
+                Obj d_to;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //-----------------------------------------------------------
             // LINE |   FROM       |    TO   | EXPECTED        |  ERRNO
@@ -2881,11 +2881,11 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE     = DATA[ti].d_line;
-                const Obj&         FROM     = DATA[ti].d_from;
-                const Obj&         TO       = DATA[ti].d_to;
-                const Obj&         EXPECTED = DATA[ti].d_expected;
-                const unsigned int ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& FROM     = DATA[ti].d_from;
+                const Obj& TO       = DATA[ti].d_to;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj  RESULT = Util::nextafter(FROM, TO);
@@ -2902,7 +2902,7 @@ void TestDriver::testCase27()
                 Obj                d_from;
                 Util::ValueType128 d_to;
                 Obj                d_expected;
-                unsigned int       d_errno;
+                int                d_errno;
             } DATA[] = {
     //------------------------------------------------------------------------
     //LINE | FROM    |          TO            | EXPECTED           |  ERRNO
@@ -2923,7 +2923,7 @@ void TestDriver::testCase27()
                 const Obj&                FROM     = DATA[ti].d_from;
                 const Util::ValueType128& TO       = DATA[ti].d_to;
                 const Obj&                EXPECTED = DATA[ti].d_expected;
-                const unsigned int&       ERRNO    = DATA[ti].d_errno;
+                const int                 ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::nexttoward(FROM,TO);
@@ -2936,11 +2936,11 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "pow()" << bsl::endl; }
         {
             struct {
-                int          d_line;
-                Obj          d_base;
-                Obj          d_exponent;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_base;
+                Obj d_exponent;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
 
           //------------------------------------------------------------------
@@ -2965,11 +2965,11 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          BASE     = DATA[ti].d_base;
-                const Obj&          EXPONENT = DATA[ti].d_exponent;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& BASE     = DATA[ti].d_base;
+                const Obj& EXPONENT = DATA[ti].d_exponent;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj  RESULT = Util::pow(BASE, EXPONENT);
@@ -2984,10 +2984,10 @@ void TestDriver::testCase27()
             const long int NaN = ~(-1ul >> 1);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                long int     d_expected;
-                unsigned int d_errno;
+                int      d_line;
+                Obj      d_x;
+                long int d_expected;
+                int      d_errno;
             } DATA[] = {
             //-----------------------------------
             // LINE |     X    | EXPECTED | ERRNO
@@ -3009,10 +3009,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const long int&     EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const int       ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const long int RESULT = Util::lround(X);
@@ -3029,7 +3029,7 @@ void TestDriver::testCase27()
                 Obj          d_x;
                 unsigned int d_precision;
                 Obj          d_expected;
-                unsigned int d_errno;
+                int          d_errno;
             } DATA[] = {
             //--------------------------------------------------------------
             // LINE |      X          | PRECISION | EXPECTED        | ERRNO
@@ -3132,7 +3132,7 @@ void TestDriver::testCase27()
                 const Obj&          X         = DATA[ti].d_x;
                 const unsigned int& PRECISION = DATA[ti].d_precision;
                 const Obj&          EXPECTED  = DATA[ti].d_expected;
-                const unsigned int& ERRNO     = DATA[ti].d_errno;
+                const int           ERRNO     = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::round(X, PRECISION);
@@ -3149,7 +3149,7 @@ void TestDriver::testCase27()
                 Obj          d_x;
                 unsigned int d_precision;
                 Obj          d_expected;
-                unsigned int d_errno;
+                int          d_errno;
             } DATA[] = {
             //--------------------------------------------------------------
             // LINE |      X          | PRECISION | EXPECTED        | ERRNO
@@ -3242,7 +3242,7 @@ void TestDriver::testCase27()
                 const Obj&          X         = DATA[ti].d_x;
                 const unsigned int& PRECISION = DATA[ti].d_precision;
                 const Obj&          EXPECTED  = DATA[ti].d_expected;
-                const unsigned int& ERRNO     = DATA[ti].d_errno;
+                const int           ERRNO     = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::round(X, PRECISION);
@@ -3255,10 +3255,10 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "sqrt()" << bsl::endl; }
         {
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //------------------------------------------
             // LINE |     X     | EXPECTED     | ERRNO
@@ -3278,10 +3278,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::sqrt(X);
@@ -3530,7 +3530,7 @@ void TestDriver::testCase27()
                 int d_line;
                 Obj d_x;
                 Obj d_expected;
-                unsigned int d_errno;
+                int d_errno;
             } DATA[] = {
             //-------------------------------------------
             // LINE |     X         | EXPECTED |  ERRNO
@@ -3553,7 +3553,7 @@ void TestDriver::testCase27()
                 const int  LINE     = DATA[ti].d_line;
                 const Obj& X        = DATA[ti].d_x;
                 const Obj& EXPECTED = DATA[ti].d_expected;
-                unsigned int& ERRNO = DATA[ti].d_errno;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj  RESULT   = Util::exp(X);
@@ -3569,10 +3569,10 @@ void TestDriver::testCase27()
             const Obj RES_1 = DEC( 2.484910483113986);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //---------------------------------------
             // LINE |     X     | EXPECTED |  ERRNO
@@ -3592,10 +3592,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj  RESULT   = Util::log(X);
@@ -3608,10 +3608,10 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "logB()" << bsl::endl; }
         {
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //---------------------------------------------
             // LINE |       X        | EXPECTED |  ERRNO
@@ -3632,13 +3632,13 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int  LINE           = DATA[ti].d_line;
-                const Obj& X              = DATA[ti].d_x;
-                const Obj& EXPECTED       = DATA[ti].d_expected;
-                const unsigned int& ERRNO = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
-                const Obj RESULT    = Util::logB(X);
+                const Obj  RESULT   = Util::logB(X);
 
                 LOOP_ASSERT(LINE, nanEqual(RESULT, EXPECTED));
                 LOOP3_ASSERT(LINE, ERRNO, errno, ERRNO == errno);
@@ -3651,10 +3651,10 @@ void TestDriver::testCase27()
             const Obj RES_1 = DEC(1.079182910839948);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //---------------------------------------
             // LINE |     X     | EXPECTED |  ERRNO
@@ -3674,10 +3674,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::log10(X);
@@ -3697,11 +3697,11 @@ void TestDriver::testCase27()
             const Obj DEC_R_N = DEC(-2.0000001);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_y;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //------------------------------------------
             // LINE |    X   |    Y   | EXPECTED | ERRNO
@@ -3726,11 +3726,11 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          Y        = DATA[ti].d_y;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::fmod(X, Y);
@@ -3750,11 +3750,11 @@ void TestDriver::testCase27()
             const Obj DEC_R_N = DEC(-0.9999999);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_y;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //-------------------------------------------
             // LINE |    X   |    Y   | EXPECTED | ERRNO
@@ -3778,11 +3778,11 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          Y        = DATA[ti].d_y;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::remainder(X, Y);
@@ -3797,10 +3797,10 @@ void TestDriver::testCase27()
             const long int NaN = ~(-1ul >> 1);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                long int     d_expected;
-                unsigned int d_errno;
+                int      d_line;
+                Obj      d_x;
+                long int d_expected;
+                int      d_errno;
             } DATA[] = {
             //-------------------------------------------
             // LINE |       X        | EXPECTED | ERRNO
@@ -3828,7 +3828,7 @@ void TestDriver::testCase27()
                 const int       LINE     = DATA[ti].d_line;
                 const Obj&      X        = DATA[ti].d_x;
                 const long int& EXPECTED = DATA[ti].d_expected;
-                const unsigned int ERRNO = DATA[ti].d_errno;
+                const int       ERRNO = DATA[ti].d_errno;
 
                 errno = 0;
                 const long int  RESULT   = Util::lrint(X);
@@ -3846,7 +3846,7 @@ void TestDriver::testCase27()
                 int           d_line;
                 Obj           d_x;
                 long long int d_expected;
-                unsigned int  d_errno;
+                int           d_errno;
             } DATA[] = {
             //-------------------------------------------
             // LINE |       X        | EXPECTED | ERRNO
@@ -3874,7 +3874,7 @@ void TestDriver::testCase27()
                 const int            LINE     = DATA[ti].d_line;
                 const Obj&           X        = DATA[ti].d_x;
                 const long long int& EXPECTED = DATA[ti].d_expected;
-                const unsigned int   ERRNO = DATA[ti].d_errno;
+                const int            ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const long long int  RESULT   = Util::llrint(X);
@@ -3887,11 +3887,11 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "nextafter()" << bsl::endl; }
         {
             struct {
-                int          d_line;
-                Obj          d_from;
-                Obj          d_to;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_from;
+                Obj d_to;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //---------------------------------------------------------------
             // LINE |   FROM  |     TO   |       EXPECTED          |  ERRNO
@@ -3913,11 +3913,11 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE     = DATA[ti].d_line;
-                const Obj&         FROM     = DATA[ti].d_from;
-                const Obj&         TO       = DATA[ti].d_to;
-                const Obj&         EXPECTED = DATA[ti].d_expected;
-                const unsigned int ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& FROM     = DATA[ti].d_from;
+                const Obj& TO       = DATA[ti].d_to;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj  RESULT   = Util::nextafter(FROM, TO);
@@ -3934,7 +3934,7 @@ void TestDriver::testCase27()
                 Obj                d_from;
                 Util::ValueType128 d_to;
                 Obj                d_expected;
-                unsigned int       d_errno;
+                int                d_errno;
             } DATA[] = {
    //-------------------------------------------------------------------------
    // LINE | FROM    |          TO            | EXPECTED           |  ERRNO
@@ -3955,7 +3955,7 @@ void TestDriver::testCase27()
                 const Obj&                FROM     = DATA[ti].d_from;
                 const Util::ValueType128& TO       = DATA[ti].d_to;
                 const Obj&                EXPECTED = DATA[ti].d_expected;
-                const unsigned int        ERRNO    = DATA[ti].d_errno;
+                const int                 ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::nexttoward(FROM, TO);
@@ -3971,11 +3971,11 @@ void TestDriver::testCase27()
             const Obj DEC_Y  = DEC(0.333333333333333);
 
             struct {
-                int          d_line;
-                Obj          d_base;
-                Obj          d_exponent;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_base;
+                Obj d_exponent;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //--------------------------------------------------------------
             // LINE |   BASE             |  EXPONENT | EXPECTED   |  ERRNO
@@ -4000,11 +4000,11 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE     = DATA[ti].d_line;
-                const Obj&         BASE     = DATA[ti].d_base;
-                const Obj&         EXPONENT = DATA[ti].d_exponent;
-                const Obj&         EXPECTED = DATA[ti].d_expected;
-                const unsigned int ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& BASE     = DATA[ti].d_base;
+                const Obj& EXPONENT = DATA[ti].d_exponent;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj  RESULT = Util::pow(BASE, EXPONENT);
@@ -4017,11 +4017,12 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
             const long int NaN = ~(-1ul >> 1);
+
             struct {
-                int          d_line;
-                Obj          d_x;
-                long int     d_expected;
-                unsigned int d_errno;
+                int      d_line;
+                Obj      d_x;
+                long int d_expected;
+                int      d_errno;
             } DATA[] = {
             //-------------------------------------------
             // LINE |     X          | EXPECTED | ERRNO
@@ -4044,10 +4045,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const long int&     EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const int       ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const long int RESULT = Util::lround(X);
@@ -4064,7 +4065,7 @@ void TestDriver::testCase27()
                 Obj          d_x;
                 unsigned int d_precision;
                 Obj          d_expected;
-                unsigned int d_errno;
+                int          d_errno;
             } DATA[] = {
             //--------------------------------------------------------------
             // LINE |      X          | PRECISION | EXPECTED        | ERRNO
@@ -4157,7 +4158,7 @@ void TestDriver::testCase27()
                 const Obj&          X         = DATA[ti].d_x;
                 const unsigned int& PRECISION = DATA[ti].d_precision;
                 const Obj&          EXPECTED  = DATA[ti].d_expected;
-                const unsigned int& ERRNO     = DATA[ti].d_errno;
+                const int           ERRNO     = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::round(X, PRECISION);
@@ -4174,10 +4175,10 @@ void TestDriver::testCase27()
             const Obj RES_1  = DEC(2.999999999999999);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //------------------------------------------
             // LINE |     X     | EXPECTED | ERRNO
@@ -4198,10 +4199,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj  RESULT = Util::sqrt(X);
@@ -4446,10 +4447,10 @@ void TestDriver::testCase27()
             const Obj RES_2  = DEC(1.670170079024489103439916607792290e-5);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //-------------------------------------------
             // LINE |     X         | EXPECTED |  ERRNO
@@ -4469,10 +4470,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::exp(X);
@@ -4488,10 +4489,10 @@ void TestDriver::testCase27()
             const Obj RES_1 = DEC(2.484906649788004143563042813164865);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //---------------------------------------
             // LINE |     X     | EXPECTED |  ERRNO
@@ -4514,7 +4515,7 @@ void TestDriver::testCase27()
                 const int  LINE     = DATA[ti].d_line;
                 const Obj& X        = DATA[ti].d_x;
                 const Obj& EXPECTED = DATA[ti].d_expected;
-                unsigned int& ERRNO = DATA[ti].d_errno;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj  RESULT   = Util::log(X);
@@ -4527,10 +4528,10 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "logB()" << bsl::endl; }
         {
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //------------------------------------------------------
             // LINE |       X                  | EXPECTED |  ERRNO
@@ -4551,10 +4552,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj  RESULT   = Util::logB(X);
@@ -4570,10 +4571,10 @@ void TestDriver::testCase27()
             const Obj RES_1 = DEC(1.079181246047626492518019655166250);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //---------------------------------------
             // LINE |     X     | EXPECTED |  ERRNO
@@ -4593,10 +4594,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::log10(X);
@@ -4616,11 +4617,11 @@ void TestDriver::testCase27()
             const Obj DEC_R_N = DEC(-2.0000000000000001);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_y;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //------------------------------------------
             // LINE |    X   |    Y   | EXPECTED | ERRNO
@@ -4645,11 +4646,11 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          Y        = DATA[ti].d_y;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::fmod(X, Y);
@@ -4669,11 +4670,11 @@ void TestDriver::testCase27()
             const Obj DEC_R_N = DEC(-0.9999999999999999);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_y;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_y;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //-------------------------------------------
             // LINE |    X   |    Y   | EXPECTED | ERRNO
@@ -4697,11 +4698,11 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const Obj&          Y        = DATA[ti].d_y;
-                const Obj&          EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& Y        = DATA[ti].d_y;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::remainder(X, Y);
@@ -4714,13 +4715,13 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "lrint()" << bsl::endl; }
         {
             const long int NaN = ~(-1ul >> 1);
-            const Obj           DEC_X = DEC(-9223372036854775809.0);
+            const Obj      DEC_X = DEC(-9223372036854775809.0);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                long int     d_expected;
-                unsigned int d_errno;
+                int      d_line;
+                Obj      d_x;
+                long int d_expected;
+                int      d_errno;
             } DATA[] = {
             //---------------------------------------------------------------
             // LINE |     X                   | EXPECTED             | ERRNO
@@ -4747,13 +4748,13 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE     = DATA[ti].d_line;
-                const Obj&         X        = DATA[ti].d_x;
-                const long int&    EXPECTED = DATA[ti].d_expected;
-                const unsigned int ERRNO    = DATA[ti].d_errno;
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const int       ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
-                const long int     RESULT   = Util::lrint(X);
+                const long int  RESULT   = Util::lrint(X);
 
                 LOOP3_ASSERT(LINE, EXPECTED, RESULT, EXPECTED == RESULT);
                 LOOP3_ASSERT(LINE, ERRNO, errno,  ERRNO == errno);
@@ -4769,7 +4770,7 @@ void TestDriver::testCase27()
                 int           d_line;
                 Obj           d_x;
                 long long int d_expected;
-                unsigned int  d_errno;
+                int           d_errno;
             } DATA[] = {
             //---------------------------------------------------
             // LINE |       X                 | EXPECTED | ERRNO
@@ -4798,7 +4799,7 @@ void TestDriver::testCase27()
                 const int            LINE     = DATA[ti].d_line;
                 const Obj&           X        = DATA[ti].d_x;
                 const long long int& EXPECTED = DATA[ti].d_expected;
-                const unsigned int   ERRNO    = DATA[ti].d_errno;
+                const int            ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const long long int  RESULT   = Util::llrint(X);
@@ -4814,11 +4815,11 @@ void TestDriver::testCase27()
             const Obj DEC_9 = DEC( 9.999999999999999999999999999999999e-1);
 
             struct {
-                int          d_line;
-                Obj          d_from;
-                Obj          d_to;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_from;
+                Obj d_to;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //---------------------------------------------------
             // LINE |   FROM  |     TO   |       EXPECTED
@@ -4840,11 +4841,11 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE     = DATA[ti].d_line;
-                const Obj&         FROM     = DATA[ti].d_from;
-                const Obj&         TO       = DATA[ti].d_to;
-                const Obj&         EXPECTED = DATA[ti].d_expected;
-                const unsigned int ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& FROM     = DATA[ti].d_from;
+                const Obj& TO       = DATA[ti].d_to;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj  RESULT = Util::nextafter(FROM, TO);
@@ -4857,11 +4858,11 @@ void TestDriver::testCase27()
         if (veryVerbose) { T_ T_ bsl::cout << "nexttoward()" << bsl::endl; }
         {
             struct {
-                int          d_line;
-                Obj          d_from;
-                Obj          d_to;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_from;
+                Obj d_to;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
   //-------------------------------------------------------------------------
   // LINE | FROM    |          TO          | EXPECTED           |  ERRNO
@@ -4878,11 +4879,11 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE     = DATA[ti].d_line;
-                const Obj&         FROM     = DATA[ti].d_from;
-                const Obj&         TO       = DATA[ti].d_to;
-                const Obj&         EXPECTED = DATA[ti].d_expected;
-                const unsigned int ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& FROM     = DATA[ti].d_from;
+                const Obj& TO       = DATA[ti].d_to;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj RESULT = Util::nexttoward(FROM, TO);
@@ -4900,11 +4901,11 @@ void TestDriver::testCase27()
             const Obj DEC_R1 = DEC(7.999999999999999445482255552043771);
 
             struct {
-                int          d_line;
-                Obj          d_base;
-                Obj          d_exponent;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_base;
+                Obj d_exponent;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //---------------------------------------------------------------
             // LINE |   BASE              |  EXPONENT | EXPECTED   |  ERRNO
@@ -4930,11 +4931,11 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE     = DATA[ti].d_line;
-                const Obj&         BASE     = DATA[ti].d_base;
-                const Obj&         EXPONENT = DATA[ti].d_exponent;
-                const Obj&         EXPECTED = DATA[ti].d_expected;
-                const unsigned int ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& BASE     = DATA[ti].d_base;
+                const Obj& EXPONENT = DATA[ti].d_exponent;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj  RESULT = Util::pow(BASE, EXPONENT);
@@ -4946,14 +4947,14 @@ void TestDriver::testCase27()
 
         if (veryVerbose) { T_ T_ bsl::cout << "lround()" << bsl::endl; }
         {
-            const long int NaN   = ~(-1ul >> 1);
+            const long int NaN = ~(-1ul >> 1);
             const Obj      DEC_X = DEC(2.4999999999999999);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                long int     d_expected;
-                unsigned int d_errno;
+                int      d_line;
+                Obj      d_x;
+                long int d_expected;
+                int      d_errno;
             } DATA[] = {
             //------------------------------------
             // LINE |    X     | EXPECTED | ERRNO
@@ -4976,10 +4977,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int           LINE     = DATA[ti].d_line;
-                const Obj&          X        = DATA[ti].d_x;
-                const long int&     EXPECTED = DATA[ti].d_expected;
-                const unsigned int& ERRNO    = DATA[ti].d_errno;
+                const int       LINE     = DATA[ti].d_line;
+                const Obj&      X        = DATA[ti].d_x;
+                const long int& EXPECTED = DATA[ti].d_expected;
+                const int       ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const long int RESULT = Util::lround(X);
@@ -4996,10 +4997,10 @@ void TestDriver::testCase27()
             const Obj RES_1  = DEC(2.999999999999999999999999999999999);
 
             struct {
-                int          d_line;
-                Obj          d_x;
-                Obj          d_expected;
-                unsigned int d_errno;
+                int d_line;
+                Obj d_x;
+                Obj d_expected;
+                int d_errno;
             } DATA[] = {
             //------------------------------------------
             // LINE |     X     | EXPECTED | ERRNO
@@ -5020,10 +5021,10 @@ void TestDriver::testCase27()
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int          LINE     = DATA[ti].d_line;
-                const Obj&         X        = DATA[ti].d_x;
-                const Obj&         EXPECTED = DATA[ti].d_expected;
-                const unsigned int ERRNO    = DATA[ti].d_errno;
+                const int  LINE     = DATA[ti].d_line;
+                const Obj& X        = DATA[ti].d_x;
+                const Obj& EXPECTED = DATA[ti].d_expected;
+                const int  ERRNO    = DATA[ti].d_errno;
 
                 errno = 0;
                 const Obj  RESULT = Util::sqrt(X);
@@ -9474,11 +9475,11 @@ void TestDriver::testCase17()
         const Obj SNAN_P  =              Util::signalingNaN32();
 
         struct {
-            int          d_line;
-            Obj          d_x;
-            int          d_exponent;
-            Obj          d_expected;
-            unsigned int d_errno;
+            int d_line;
+            Obj d_x;
+            int d_exponent;
+            Obj d_expected;
+            int d_errno;
         } DATA[] = {
         //----------------------------------------------------------------
         // LINE |     X         | EXPONENT   | EXPECTED        | ERRNO
@@ -9495,7 +9496,7 @@ void TestDriver::testCase17()
             { L_, DEC(1e-101),     101 + 96,   DEC(1e+96),            0 },
             { L_, DEC(1e+96),     -96 - 101,   DEC(1e-101),           0 },
             { L_, DEC(1),          INT_MAX,    INF_P,            ERANGE },
-            { L_, DEC(1),         -INT_MAX,    0,                     0 },
+            { L_, DEC(1),         -INT_MAX,    DEC(0),                0 },
 
             { L_, DEC(9999999.0),   89,        DEC(9999999e+89),      0 },
             { L_, DEC(9999999.0),   90,        DEC(9999999e+90),      0 },
@@ -9520,11 +9521,11 @@ void TestDriver::testCase17()
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int           LINE     = DATA[ti].d_line;
-            const Obj&          X        = DATA[ti].d_x;
-            const int&          EXPONENT = DATA[ti].d_exponent;
-            const Obj&          EXPECTED = DATA[ti].d_expected;
-            const unsigned int& ERRNO    = DATA[ti].d_errno;
+            const int  LINE     = DATA[ti].d_line;
+            const Obj& X        = DATA[ti].d_x;
+            const int  EXPONENT = DATA[ti].d_exponent;
+            const Obj& EXPECTED = DATA[ti].d_expected;
+            const int  ERRNO    = DATA[ti].d_errno;
 
             errno = 0;
             const Obj RESULT = Util::scaleB(X, EXPONENT);
@@ -9547,11 +9548,11 @@ void TestDriver::testCase17()
         const Obj SNAN_P  =              Util::signalingNaN64();
 
         struct {
-            int          d_line;
-            Obj          d_x;
-            int          d_exponent;
-            Obj          d_expected;
-            unsigned int d_errno;
+            int d_line;
+            Obj d_x;
+            int d_exponent;
+            Obj d_expected;
+            int d_errno;
         } DATA[] = {
         //-------------------------------------------------------------
         // LINE |     X       |  EXPONENT   | EXPECTED        | ERRNO
@@ -9568,7 +9569,7 @@ void TestDriver::testCase17()
             { L_, DEC(1e-398),   398 + 369,   DEC(1e+369),          0 },
             { L_, DEC(1e+369),  -369 - 398,   DEC(1e-398),          0 },
             { L_, DEC(1),        INT_MAX,     INF_P,           ERANGE },
-            { L_, DEC(1),       -INT_MAX,     0,                    0 },
+            { L_, DEC(1),       -INT_MAX,     DEC(0),              0 },
 
         //--------------------------------------------------------------------
         // LINE |    X                  | EXP |    EXPECTED      |     | ERRNO
@@ -9614,11 +9615,11 @@ void TestDriver::testCase17()
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int           LINE     = DATA[ti].d_line;
-            const Obj&          X        = DATA[ti].d_x;
-            const int&          EXPONENT = DATA[ti].d_exponent;
-            const Obj&          EXPECTED = DATA[ti].d_expected;
-            const unsigned int& ERRNO    = DATA[ti].d_errno;
+            const int  LINE     = DATA[ti].d_line;
+            const Obj& X        = DATA[ti].d_x;
+            const int  EXPONENT = DATA[ti].d_exponent;
+            const Obj& EXPECTED = DATA[ti].d_expected;
+            const int  ERRNO    = DATA[ti].d_errno;
 
             errno = 0;
             const Obj RESULT = Util::scaleB(X, EXPONENT);
@@ -9641,11 +9642,11 @@ void TestDriver::testCase17()
         const Obj SNAN_P  =              Util::signalingNaN128();
 
         struct {
-            int          d_line;
-            Obj          d_x;
-            int          d_exponent;
-            Obj          d_expected;
-            unsigned int d_errno;
+            int d_line;
+            Obj d_x;
+            int d_exponent;
+            Obj d_expected;
+            int d_errno;
         } DATA[] = {
         //-------------------------------------------------------------
         // LINE |     X       |  EXPONENT   | EXPECTED        | ERRNO
@@ -9785,11 +9786,11 @@ void TestDriver::testCase17()
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int           LINE     = DATA[ti].d_line;
-            const Obj&          X        = DATA[ti].d_x;
-            const int&          EXPONENT = DATA[ti].d_exponent;
-            const Obj&          EXPECTED = DATA[ti].d_expected;
-            const unsigned int& ERRNO    = DATA[ti].d_errno;
+            const int  LINE     = DATA[ti].d_line;
+            const Obj& X        = DATA[ti].d_x;
+            const int  EXPONENT = DATA[ti].d_exponent;
+            const Obj& EXPECTED = DATA[ti].d_expected;
+            const int  ERRNO    = DATA[ti].d_errno;
 
             errno = 0;
             const Obj RESULT = Util::scaleB(X, EXPONENT);

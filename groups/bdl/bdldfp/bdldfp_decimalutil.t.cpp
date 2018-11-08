@@ -1059,11 +1059,8 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lrint()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_OS_AIX)
-            const      int NaN = ~(-1u  >> 1);
-#else
             const long int NaN = ~(-1ul >> 1);
-#endif
+
             struct {
                 int      d_line;
                 Obj      d_x;
@@ -1263,11 +1260,8 @@ int main(int argc, char* argv[])
 
         if (veryVerbose) { T_ bsl::cout << "lround()" << bsl::endl; }
         {
-#if defined(BSLS_PLATFORM_OS_AIX)
-            const      int NaN = ~(-1u >> 1);
-#else
             const long int NaN = ~(-1ul >> 1);
-#endif
+
             struct {
                 int      d_line;
                 Obj      d_x;
@@ -2026,6 +2020,7 @@ int main(int argc, char* argv[])
         if (veryVerbose) { T_ bsl::cout << "lround()" << bsl::endl; }
         {
             const long int NaN = ~(-1ul >> 1);
+
             struct {
                 int      d_line;
                 Obj      d_x;
@@ -2570,6 +2565,7 @@ int main(int argc, char* argv[])
         if (veryVerbose) { T_ bsl::cout << "lrint()" << bsl::endl; }
         {
             const long int NaN = ~(-1ul >> 1);
+
             struct {
                 int      d_line;
                 Obj      d_x;

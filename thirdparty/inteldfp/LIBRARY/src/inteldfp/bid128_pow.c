@@ -812,9 +812,13 @@ BID_UINT64 CY, PL0, PL1, PL2;                                       \
    (lo) = (lo) << (c)                                           \
   )
 
+// MSVC compiler incorrectly performs addition operation in some modes, so the
+// addition operator is replaced with the bitwise OR operator in the following
+// macro.
+
 #define srl192(x2,x1,x0,c)                                      \
-  ((x0) = ((x1) << (64 - (c))) + ((x0) >> (c)),                 \
-   (x1) = ((x2) << (64 - (c))) + ((x1) >> (c)),                 \
+  ((x0) = ((x1) << (64 - (c))) | ((x0) >> (c)),                 \
+   (x1) = ((x2) << (64 - (c))) | ((x1) >> (c)),                 \
    (x2) = ((x2) >> c)                                           \
   )
 

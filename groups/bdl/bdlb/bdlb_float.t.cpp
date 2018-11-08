@@ -476,10 +476,10 @@ int main(int argc, char *argv[])
 { L_, -1.0F / fzero()                     , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, 2.0F * -fmax()                      , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, -8388608.0F / fmin()                , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
-#if defined(OMIT_SNAN_TESTS)
-{ L_, FSNAN1                              , 0,0,0,0,1,X,0,0,1, SNAN          },
-{ L_, FSNAN2                              , 0,0,0,0,1,X,0,0,1, SNAN          },
-{ L_, FSNAN3                              , 0,0,0,0,1,X,0,0,1, SNAN          },
+#if !defined(OMIT_SNAN_TESTS)
+{ L_, 0.0F + FSNAN1                       , 0,0,0,0,1,X,0,0,1, SNAN          },
+{ L_, 0.0F + FSNAN2                       , 0,0,0,0,1,X,0,0,1, SNAN          },
+{ L_, 0.0F + FSNAN3                       , 0,0,0,0,1,X,0,0,1, SNAN          },
 #endif
         };
 //--------------------v
@@ -517,7 +517,9 @@ int main(int argc, char *argv[])
             if (! hasFSNan) {
                 // If signaling NaN not supported, convert SNaN results to
                 // equivalent QNaN results.
+
                 isQuietNan     |= isSignalingNan;
+
                 isSignalingNan  = 0;
                 classifyFine   &= ~Obj::k_SIGNALING;
             }
@@ -605,10 +607,10 @@ int main(int argc, char *argv[])
 { L_, -1.0 / dzero()                      , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, 2.0 * -dmax()                       , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, 4503599627370496.0 / -dmin()        , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
-#if defined(OMIT_SNAN_TESTS)
-{ L_, DSNAN1                              , 0,0,0,0,1,X,0,0,1, SNAN          },
-{ L_, DSNAN2                              , 0,0,0,0,1,X,0,0,1, SNAN          },
-{ L_, DSNAN3                              , 0,0,0,0,1,X,0,0,1, SNAN          },
+#if !defined(OMIT_SNAN_TESTS)
+{ L_, 0.0 + DSNAN1                        , 0,0,0,0,1,X,0,0,1, SNAN          },
+{ L_, 0.0 + DSNAN2                        , 0,0,0,0,1,X,0,0,1, SNAN          },
+{ L_, 0.0 + DSNAN3                        , 0,0,0,0,1,X,0,0,1, SNAN          },
 #endif
         };
 //--------------------v
@@ -720,8 +722,11 @@ int main(int argc, char *argv[])
         // representation.
         const unsigned int       fsnan_rep = floatToRep(finf) | 1;
         const unsigned long long dsnan_rep = doubleToRep(dinf) | 1;
-        const float              fsnan     = repToFloat(fsnan_rep);
-        const double             dsnan     = repToDouble(dsnan_rep);
+        // Convert SNaN to QNaN if SNaNs are not supported by the current
+        // platform by performing an operation on sNaN and a floating-point
+        // value that results with SNaN source operand converted into a QNaN.
+        const float              fsnan     = repToFloat(fsnan_rep)  + 0.0F;
+        const double             dsnan     = repToDouble(dsnan_rep) + 0.0;
 
         float  f =   3.0;
         double d = -34;
@@ -749,7 +754,7 @@ int main(int argc, char *argv[])
         ASSERT(  Obj::isQuietNan(fnan));
         ASSERT(  Obj::isQuietNan(dnan));
 
-#if defined(OMIT_SNAN_TESTS)
+#if !defined(OMIT_SNAN_TESTS)
         LOOP_ASSERT(hasFSNan, hasFSNan != Obj::isQuietNan(fsnan));
         LOOP_ASSERT(hasDSNan, hasDSNan != Obj::isQuietNan(dsnan));
 #endif
@@ -761,7 +766,7 @@ int main(int argc, char *argv[])
         ASSERT(! Obj::isSignalingNan(fnan));
         ASSERT(! Obj::isSignalingNan(dnan));
 
-#if defined(OMIT_SNAN_TESTS)
+#if !defined(OMIT_SNAN_TESTS)
         LOOP_ASSERT(hasFSNan, hasFSNan == Obj::isSignalingNan(fsnan));
         LOOP_ASSERT(hasDSNan, hasDSNan == Obj::isSignalingNan(dsnan));
 #endif
