@@ -789,6 +789,7 @@ int main(int argc, char *argv[])
             }
         }
 
+#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
         // non-generated enum
         {
             Test value = TEST_A;
@@ -827,7 +828,7 @@ int main(int argc, char *argv[])
         // invalid formatting mode
         {
             int value = 1;
-            int mode  = 0xFFFFFFFF;
+            int mode  = 0x7;
 
             {
                 bsl::ostringstream ss;
@@ -861,6 +862,7 @@ int main(int argc, char *argv[])
                 ASSERT(!ss.good());
             }
         }
+#endif
       } break;
       case 21: {
         // --------------------------------------------------------------------
