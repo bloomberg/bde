@@ -77,9 +77,10 @@ using namespace bsl;
 // [ 8] int putValue(const TYPE& value, const EncoderOptions *options);
 // [ 8] int putNullValue();
 // [ 9] void closeMember();
+// [11] void addArrayElementSeparator();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1472,9 +1473,10 @@ void testPutValue(int            line,
         // i == 0, output as the value of an element, i.e. without indentation
         // i == 1, output as an array element, i.e. with indentation
 
-        bsl::ostringstream os, exp;
+        bsl::ostringstream os;
+        bsl::ostringstream exp;
 
-        Obj mX = g(os, style, indent, spl);  const Obj& X = mX;
+        Obj mX = g(os, style, indent, spl);
 
         if (0 == i) {
             mX.openObject();
@@ -1529,6 +1531,7 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose = argc > 4;
 
     (void)veryVerbose;
+    (void)veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -1771,8 +1774,7 @@ int main(int argc, char *argv[])
 
             bsl::ostringstream os;
 
-            Obj        mX = g(os, STYLE, INDENT, SPL);
-            const Obj& X  = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             for (int k = 0; k < NT; ++k) {
                 mX.addArrayElementSeparator();
@@ -1905,7 +1907,7 @@ int main(int argc, char *argv[])
 
             bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             for (size_t j = 0; j < CALLS.size(); ++j) {
                 switch (CALLS[j]) {
@@ -2001,9 +2003,9 @@ int main(int argc, char *argv[])
             const int         NT     = DATA[i].d_numTimesCloseMemberCalled;
             const bsl::string EXP    = DATA[i].d_expected;
 
-            bsl::ostringstream     os;
+            bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             for (int k = 0; k < NT; ++k) mX.closeMember();
 
@@ -2114,51 +2116,51 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int         L  = DATA[i].d_line;
-            const int         E  = DATA[i].d_encodingStyle;
-            const int         I  = DATA[i].d_initialIndentLevel;
-            const int         S  = DATA[i].d_spacesPerLevel;
+            const int         LINE = DATA[i].d_line;
+            const int         ES   = DATA[i].d_encodingStyle;
+            const int         IIL  = DATA[i].d_initialIndentLevel;
+            const int         SPL  = DATA[i].d_spacesPerLevel;
 
-            testPutValue(L, E, I, S, A, DP, true);
-            testPutValue(L, E, I, S, B, DP, true);
-            testPutValue(L, E, I, S, C, DP, true);
-            testPutValue(L, E, I, S, D, DP, true);
-            testPutValue(L, E, I, S, E, DP, true);
-            testPutValue(L, E, I, S, F, DP, true);
-            testPutValue(L, E, I, S, G, DP, true);
-            testPutValue(L, E, I, S, H, DP, true);
-            testPutValue(L, E, I, S, I, DP, true);
-            testPutValue(L, E, I, S, J, DP, true);
-            testPutValue(L, E, I, S, K, DP, true);
-            testPutValue(L, E, I, S, L, DP, true);
-            testPutValue(L, E, I, S, M, DP, true);
-            testPutValue(L, E, I, S, N, DP, true);
-            testPutValue(L, E, I, S, O, DP, true);
-            testPutValue(L, E, I, S, PA, DP, true);
-            testPutValue(L, E, I, S, QA, DP, true);
-            testPutValue(L, E, I, S, R, DP, true);
-            testPutValue(L, E, I, S, S, DP, true);
-            testPutValue(L, E, I, S, T, DP, true);
-            testPutValue(L, E, I, S, U, DP, true);
+            testPutValue(LINE, ES, IIL, SPL, A,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, B,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, C,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, D,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, E,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, F,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, G,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, H,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, I,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, J,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, K,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, L,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, M,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, N,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, O,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, PA,   DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, QA,   DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, R,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, S,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, T,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, U,    DP,   true);
 
-            testPutValue(L, E, I, S, INV1, DP, false);
-            testPutValue(L, E, I, S, INV2, DP, false);
-            testPutValue(L, E, I, S, INV3, DP, false);
-            testPutValue(L, E, I, S, INV4, DP, false);
+            testPutValue(LINE, ES, IIL, SPL, INV1, DP,   false);
+            testPutValue(LINE, ES, IIL, SPL, INV2, DP,   false);
+            testPutValue(LINE, ES, IIL, SPL, INV3, DP,   false);
+            testPutValue(LINE, ES, IIL, SPL, INV4, DP,   false);
 
             Options opts;  const Options *OPTS = &opts;
             opts.setEncodeInfAndNaNAsStrings(true);
 
-            testPutValue(L, E, I, S, INV1, OPTS, true);
-            testPutValue(L, E, I, S, INV2, OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, INV1, OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, INV2, OPTS, true);
 
             opts.setDatetimeFractionalSecondPrecision(6);
-            testPutValue(L, E, I, S, PA, OPTS, true);
-            testPutValue(L, E, I, S, QA, OPTS, true);
-            testPutValue(L, E, I, S, R, OPTS, true);
-            testPutValue(L, E, I, S, S, OPTS, true);
-            testPutValue(L, E, I, S, T, OPTS, true);
-            testPutValue(L, E, I, S, U, OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, PA,   OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, QA,   OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, R,    OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, S,    OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, T,    OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, U,    OPTS, true);
 
             // testPutNullValue
             {
@@ -2166,23 +2168,24 @@ int main(int argc, char *argv[])
                     // j == 0, output as value of element, i.e. w/o indentation
                     // j == 1, output as array element, i.e. with indentation
 
-                    bsl::ostringstream os, exp;
+                    bsl::ostringstream os;
+                    bsl::ostringstream exp;
 
-                    Obj mX = g(os, E, I, S);  const Obj& X = mX;
+                    Obj mX = g(os, ES, IIL, SPL);
 
                     if (0 == j) {
                         mX.openObject();
                         exp << '{';
-                        if (1 == E) {
+                        if (1 == ES) {
                             exp << '\n';
                         }
                     }
                     else {
                         mX.openArray();
                         exp << '[';
-                        if (1 == E) {
+                        if (1 == ES) {
                             exp << '\n';
-                            bdlb::Print::indent(exp, I + 1, S);
+                            bdlb::Print::indent(exp, IIL + 1, SPL);
                         }
                     }
 
@@ -2190,7 +2193,7 @@ int main(int argc, char *argv[])
 
                     exp << "null";
 
-                    ASSERTV(L, os.str(), exp.str(), os.str() == exp.str());
+                    ASSERTV(LINE, os.str(), exp.str(), os.str() == exp.str());
 
                     // Restore object to a valid state
 
@@ -2284,9 +2287,9 @@ int main(int argc, char *argv[])
             const int         EXP_RC = DATA[i].d_expRetCode;
             const bsl::string EXP    = DATA[i].d_expected;
 
-            bsl::ostringstream     os;
+            bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             const int rc = mX.openMember(NAME);
 
@@ -2382,9 +2385,9 @@ int main(int argc, char *argv[])
             const int         NT     = DATA[i].d_numTimesCloseArrayCalled;
             const bsl::string EXP    = DATA[i].d_expected;
 
-            bsl::ostringstream     os;
+            bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             for (int k = 0; k < NT; ++k) {
                 mX.openArray(FAEA);
@@ -2480,9 +2483,9 @@ int main(int argc, char *argv[])
             const int         NT     = DATA[i].d_numTimesOpenArrayCalled;
             const bsl::string EXP    = DATA[i].d_expected;
 
-            bsl::ostringstream     os;
+            bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             for (int k = 0; k < NT; ++k) mX.openArray(FAEA);
 
@@ -2575,9 +2578,9 @@ int main(int argc, char *argv[])
             const int         NT     = DATA[i].d_numTimesCloseObjectCalled;
             const bsl::string EXP    = DATA[i].d_expected;
 
-            bsl::ostringstream     os;
+            bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             for (int k = 0; k < NT; ++k) {
                 mX.openObject();
@@ -2666,9 +2669,9 @@ int main(int argc, char *argv[])
             const int         NT     = DATA[i].d_numTimesOpenObjectCalled;
             const bsl::string EXP    = DATA[i].d_expected;
 
-            bsl::ostringstream     os;
+            bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             for (int k = 0; k < NT; ++k) mX.openObject();
 
@@ -2774,8 +2777,8 @@ int main(int argc, char *argv[])
             bdlsb::MemOutStreamBuf mosb;
             bsl::ostream           os2(&mosb);
 
-            Obj mX = g(os1, STYLE, INDENT, SPL);  const Obj& X = mX;
-            Obj mY = g(os2, STYLE, INDENT, SPL);  const Obj& Y = mY;
+            Obj mX = g(os1, STYLE, INDENT, SPL);
+            Obj mY = g(os2, STYLE, INDENT, SPL);
 
             mX.openObject();
             mX.openMember("A"); mX.putValue(1); mX.closeMember();
@@ -2821,7 +2824,7 @@ int main(int argc, char *argv[])
 
         bsl::ostringstream os;
 
-        Obj mX(os);  const Obj& X = mX;
+        Obj mX(os);
 
         bsl::string exp;
 
