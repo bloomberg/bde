@@ -31,8 +31,8 @@ BSLS_IDENT("$Id: $")
 //: o Arrays: JSON arrays are specified as an ordered list of values.  The
 //:   'Formatter' 'class' provides the 'openArray' and 'closeArray' method to
 //:   open and close an array.  Additionally the 'Formatter' 'class' allows of
-//:   separation of array items by the comma providing the
-//:   'addArrayElementSeparator' method.
+//:   separation of array items by a comma via the 'addArrayElementSeparator'
+//:   method.
 //
 // The 'Formatter' 'class' also provides the ability to specify formatting
 // options at construction.  The options that can be provided include the
@@ -327,9 +327,9 @@ class Formatter {
 
     void addArrayElementSeparator();
         // Print onto the stream supplied at construction the sequence of
-        // characters designating the array element separation.  The behavior
-        // is undefined unless this 'Formatter' is currently formatting a
-        // member.
+        // characters designating an array element separator (i.e., ',').  The
+        // behavior is undefined unless this 'Formatter' is currently
+        // formatting a member.
 
 };
 
