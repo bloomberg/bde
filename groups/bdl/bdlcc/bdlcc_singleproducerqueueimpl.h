@@ -31,10 +31,10 @@ BSLS_IDENT("$Id: $")
 // provided.  The 'tryPopFront' method fails immediately, returning a non-zero
 // value, if the queue is empty.
 //
-// The queue may be placed into a "enqueue disabled" state using the 'disable'
-// method.  When disabled, 'pushBack' and 'tryPushBack' fail immediately and
-// return an error code.  The queue may be restored to normal operation with
-// the 'enablePushBack' method.
+// The queue may be placed into a "enqueue disabled" state using the
+// 'disablePushBack' method.  When disabled, 'pushBack' and 'tryPushBack' fail
+// immediately and return an error code.  The queue may be restored to normal
+// operation with the 'enablePushBack' method.
 //
 // The queue may be placed into a "dequeue disabled" state using the
 // 'disablePopFront' method.  When dequeue disabled, 'popFront' and
@@ -190,6 +190,10 @@ class SingleProducerQueueImpl {
         e_WRITABLE   // node can be written
     };
 
+    static const int k_POP_YIELD_SPIN = 10;  // number of yield-spins to
+                                             // attempt before acquiring
+                                             // 'd_readMutex'
+
     // The following constants are used to maintain the queue's 'd_state'
     // value.  See *Implementation* *Note* for details.
 
@@ -225,11 +229,9 @@ class SingleProducerQueueImpl {
 
     AtomicPointer     d_nextRead;          // pointer to next read from node
 
-    MUTEX             d_readMutex;         // blocking point for popping
-                                           // threads, protects 'd_readRelease'
-
-    int               d_readRelease;       // number of blocked popping threads
-                                           // that can now read
+    MUTEX             d_readMutex;         // used with 'd_readCondition' to
+                                           // block until an element is
+                                           // available for popping
 
     CONDITION         d_readCondition;     // condition variable for popping
                                            // threads
@@ -422,6 +424,11 @@ class SingleProducerQueueImpl {
     bool isEmpty() const;
         // Return 'true' if this queue is empty (has no elements), or 'false'
         // otherwise.
+
+    bool isFull() const;
+        // Return 'true' if this queue is full (has no available capacity), or
+        // 'false' otherwise.  Note that for unbounded queues, this method
+        // always returns 'false'.
 
     bool isPopFrontDisabled() const;
         // Return 'true' if this queue is dequeue disabled, and 'false'
@@ -645,7 +652,6 @@ template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                       SingleProducerQueueImpl(bslma::Allocator *basicAllocator)
 : d_readMutex()
-, d_readRelease(0)
 , d_readCondition()
 , d_emptyMutex()
 , d_emptyCondition()
@@ -687,7 +693,6 @@ SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                       SingleProducerQueueImpl(bsl::size_t       capacity,
                                               bslma::Allocator *basicAllocator)
 : d_readMutex()
-, d_readRelease(0)
 , d_readCondition()
 , d_emptyMutex()
 , d_emptyCondition()
@@ -764,24 +769,30 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::popFront(
     if (willHaveBlockedThread(state)) {
         bsls::Types::Int64 generation = getGeneration(state);
 
-        bslmt::LockGuard<MUTEX> guard(&d_readMutex);
+        bslmt::ThreadUtil::yield();
+        state = ATOMIC_OP::getInt64Acquire(&d_state);
 
-        state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
-                                            k_AVAILABLE_INC + k_BLOCKED_INC);
+        if (willHaveBlockedThread(state)) {
+            bslmt::LockGuard<MUTEX> guard(&d_readMutex);
 
-        while (generation == getGeneration(state) && isEmpty(state)) {
-            d_readCondition.wait(&d_readMutex);
-            state = ATOMIC_OP::getInt64Acquire(&d_state);
-        }
+            state = ATOMIC_OP::addInt64NvAcqRel(
+                                              &d_state,
+                                              k_AVAILABLE_INC + k_BLOCKED_INC);
 
-        if (generation != getGeneration(state)) {
-            ATOMIC_OP::addInt64AcqRel(&d_state, -k_BLOCKED_INC);
-            return e_DISABLED;
-        }
+            while (generation == getGeneration(state) && isEmpty(state)) {
+                d_readCondition.wait(&d_readMutex);
+                state = ATOMIC_OP::getInt64Acquire(&d_state);
+            }
 
-        state = ATOMIC_OP::addInt64NvAcqRel(
+            if (generation != getGeneration(state)) {
+                ATOMIC_OP::addInt64AcqRel(&d_state, -k_BLOCKED_INC);
+                return e_DISABLED;
+            }
+
+            state = ATOMIC_OP::addInt64NvAcqRel(
                                            &d_state,
                                            -(k_AVAILABLE_INC + k_BLOCKED_INC));
+        }
     }
 
     popFrontRaw(value, isEmpty(state));
@@ -1107,6 +1118,12 @@ bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
 {
     bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
     return isEmpty(state);
+}
+
+template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::isFull() const
+{
+    return false;
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>

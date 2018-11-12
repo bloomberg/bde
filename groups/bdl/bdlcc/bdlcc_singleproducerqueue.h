@@ -31,10 +31,10 @@ BSLS_IDENT("$Id: $")
 // provided.  The 'tryPopFront' method fails immediately, returning a non-zero
 // value, if the queue is empty.
 //
-// The queue may be placed into a "enqueue disabled" state using the 'disable'
-// method.  When disabled, 'pushBack' and 'tryPushBack' fail immediately and
-// return an error code.  The queue may be restored to normal operation with
-// the 'enablePushBack' method.
+// The queue may be placed into a "enqueue disabled" state using the
+// 'disablePushBack' method.  When disabled, 'pushBack' and 'tryPushBack' fail
+// immediately and return an error code.  The queue may be restored to normal
+// operation with the 'enablePushBack' method.
 //
 // The queue may be placed into a "dequeue disabled" state using the
 // 'disablePopFront' method.  When dequeue disabled, 'popFront' and
@@ -316,6 +316,11 @@ class SingleProducerQueue {
         // Return 'true' if this queue is empty (has no elements), or 'false'
         // otherwise.
 
+    bool isFull() const;
+        // Return 'true' if this queue is full (has no available capacity), or
+        // 'false' otherwise.  Note that for unbounded queues, this method
+        // always returns 'false'.
+
     bool isPopFrontDisabled() const;
         // Return 'true' if this queue is dequeue disabled, and 'false'
         // otherwise.  Note that the queue is created in the "dequeue enabled"
@@ -446,6 +451,12 @@ template <class TYPE>
 bool SingleProducerQueue<TYPE>::isEmpty() const
 {
     return d_impl.isEmpty();
+}
+
+template <class TYPE>
+bool SingleProducerQueue<TYPE>::isFull() const
+{
+    return d_impl.isFull();
 }
 
 template <class TYPE>

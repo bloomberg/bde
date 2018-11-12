@@ -87,6 +87,7 @@ using namespace bsl;
 // [ 6] void enablePopFront();
 // [ 6] void enablePushBack();
 // [ 4] bool isEmpty() const;
+// [ 4] bool isFull() const;
 // [ 6] bool isPopFrontDisabled() const;
 // [ 6] bool isPushBackDisabled() const;
 // [ 4] bsl::size_t numElements() const;
@@ -463,8 +464,13 @@ extern "C" void *deferredDisablePopFront(void *arg)
     return 0;
 }
 
+static bsls::TimeInterval s_deferredPopFrontInterval;
+
 extern "C" void *deferredPopFront(void *arg)
 {
+    s_deferredPopFrontInterval =
+                      bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME);
+
     Obj& mX = *static_cast<Obj *>(arg);
 
     bslmt::ThreadUtil::microSleep(1000000);
@@ -472,6 +478,10 @@ extern "C" void *deferredPopFront(void *arg)
     Obj::value_type value;
 
     mX.popFront(&value);
+
+    s_deferredPopFrontInterval =
+                       bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
+                     - s_deferredPopFrontInterval;
 
     return 0;
 }
@@ -1259,8 +1269,10 @@ int main(int argc, char *argv[])
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
                      - interval;
 
-            ASSERT(   bsls::TimeInterval(0.8) <= interval
-                   && bsls::TimeInterval(1.2) >= interval);
+            ASSERT(   s_deferredPopFrontInterval.totalSecondsAsDouble() * 0.8
+                                           <= interval.totalSecondsAsDouble()
+                   && s_deferredPopFrontInterval.totalSecondsAsDouble() * 1.2
+                                           >= interval.totalSecondsAsDouble());
 
             bslmt::ThreadUtil::join(handle);
 
@@ -1859,6 +1871,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   bslma::Allocator *allocator() const;
         //   bool isEmpty() const;
+        //   bool isFull() const;
         //   bsl::size_t numElements() const;
         // --------------------------------------------------------------------
 
@@ -1928,6 +1941,7 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(LINE, NE        == X.numElements());
                 LOOP_ASSERT(LINE, (0 == NE) == X.isEmpty());
+                LOOP_ASSERT(LINE, false     == X.isFull());
 
                 LOOP_ASSERT(LINE,
                             defaultAllocator.numAllocations() == allocations);
