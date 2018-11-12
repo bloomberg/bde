@@ -690,7 +690,7 @@ int main(int argc, char *argv[])
                               << endl;
 
         #if (defined(BSLS_PLATFORM_CMP_AIX) || defined(BSLS_PLATFORM_CMP_SUN))\
-            && !defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
+            || defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
         ASSERT(0 == strlen(STRINGIFY(BSLS_PLATFORM_AGGRESSIVE_INLINE)));
         #else
         ASSERT(0 == strcmp(STRINGIFY(BSLS_PLATFORM_AGGRESSIVE_INLINE),
