@@ -533,11 +533,13 @@ int main(int argc, char *argv[])
 
 #define MACRO_TESTEQ(X, Y)                                    \
         ASSERT(Y == X);                                       \
-        if (veryVerbose) cout << "\t"#X" = " << X << endl;
+        if (veryVerbose) cout << "\t"#X" = " << (X) << " (0x" \
+                         << hex << (X) << ")" << dec << endl;
 
 #define MACRO_TESTGT(X, Y)                                    \
         ASSERT(Y <= X);                                       \
-        if (veryVerbose) cout << "\t"#X" = " << X << endl;
+        if (veryVerbose) cout << "\t"#X" = " << (X) << " (0x" \
+                         << hex << (X) << ")" << dec << endl;
 
 #define STRINGIFY2(a) #a
 #define STRINGIFY(a) STRINGIFY2(a)
