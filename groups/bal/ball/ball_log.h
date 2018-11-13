@@ -863,9 +863,31 @@ const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(
                                             CATEGORY);                        \
     }
 
+#define BALL_LOG_SET_CATEGORY_HIERARCHICALLY(CATEGORY)                        \
+    static BloombergLP::ball::CategoryHolder BALL_LOG_CATEGORYHOLDER = {      \
+        { BloombergLP::ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },      \
+                                                             { 0 }, { 0 }     \
+    };                                                                        \
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!BALL_LOG_CATEGORY)) {          \
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                                   \
+        BloombergLP::ball::Log::setCategoryHierarchically(                    \
+                                            &BALL_LOG_CATEGORYHOLDER,         \
+                                            CATEGORY);                        \
+    }
+
 #define BALL_LOG_SET_DYNAMIC_CATEGORY(CATEGORY)                               \
     const BloombergLP::ball::Category *BALL_LOG_DYNAMIC_CATEGORY =            \
                                BloombergLP::ball::Log::setCategory(CATEGORY); \
+    BloombergLP::ball::CategoryHolder BALL_LOG_CATEGORYHOLDER = {             \
+        { BloombergLP::ball::CategoryHolder::e_DYNAMIC_CATEGORY },            \
+        { const_cast<BloombergLP::ball::Category *>(                          \
+                                                BALL_LOG_DYNAMIC_CATEGORY) }, \
+        { 0 }                                                                 \
+    };
+
+#define BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(CATEGORY)                \
+    const BloombergLP::ball::Category *BALL_LOG_DYNAMIC_CATEGORY =            \
+                 BloombergLP::ball::Log::setCategoryHierarchically(CATEGORY); \
     BloombergLP::ball::CategoryHolder BALL_LOG_CATEGORYHOLDER = {             \
         { BloombergLP::ball::CategoryHolder::e_DYNAMIC_CATEGORY },            \
         { const_cast<BloombergLP::ball::Category *>(                          \
@@ -894,6 +916,29 @@ const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!holder.category())) {      \
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                               \
             BloombergLP::ball::Log::setCategory(&holder, CATEGORY);           \
+        }                                                                     \
+        return &holder;                                                       \
+    }                                                                         \
+    enum { BALL_LOG_CATEGORYHOLDER = 0 }
+
+#define BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(CATEGORY)                  \
+    static                                                                    \
+    const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(      \
+                     const BloombergLP::ball::CategoryHolder& categoryHolder) \
+    {                                                                         \
+        return &categoryHolder;                                               \
+    }                                                                         \
+    static                                                                    \
+    const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(int)  \
+    {                                                                         \
+        static BloombergLP::ball::CategoryHolder holder = {                   \
+            { BloombergLP::ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },  \
+                                                                 { 0 }, { 0 } \
+        };                                                                    \
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!holder.category())) {      \
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                               \
+            BloombergLP::ball::Log::setCategoryHierarchically(&holder,        \
+                                                              CATEGORY);      \
         }                                                                     \
         return &holder;                                                       \
     }                                                                         \
@@ -1319,6 +1364,33 @@ struct Log {
         // ultimately loaded into 'categoryHolder'.  This method has no effect
         // if the logger manager singleton is not initialized.
 
+    static const Category *setCategoryHierarchically(
+                                                const char     *categoryName);
+        // If the logger manager singleton is not initialized, return 0.
+        // Otherwise, if a category with the specified 'categoryName' exists,
+        // the return value will be a pointer to that category.  Otherwise,
+        // attempt to create a new category with that name.  If there is a
+        // previously existing category other than the default category, all of
+        // whose name matches the beginning of 'categoryName', use the logging
+        // thresholds of that category for the newly created category.  If the
+        // logger manager singleton has no room for more categories, the return
+        // value will be a pointer to the default category.
+
+    static const Category *setCategoryHierarchically(
+                                                CategoryHolder *categoryHolder,
+                                                const char     *categoryName);
+        // If the logger manager singleton is not initialized, return 0 with no
+        // other effect.  Otherwise, if a category with the specified
+        // 'categoryName' exists, the return value will be a pointer to that
+        // category.  Otherwise, attempt to create a new category with that
+        // name.  If there is a previously existing category other than the
+        // default category, all of whose name matches the beginning of
+        // 'categoryName', use the logging thresholds of that category for the
+        // newly created category.  If the logger manager singleton has no room
+        // for more categories, the return value will be a pointer to the
+        // default category.  If a non-zero category pointer is being returned,
+        // link it into 'categoryHolder', unless '0 == categoryHolder'.
+
     static bool isCategoryEnabled(const CategoryHolder *categoryHolder,
                                   int                   severity);
         // Return 'true' if logging to the category associated with the
@@ -1499,6 +1571,7 @@ class Log_Formatter {
                                  // class Log
                                  // ---------
 
+// MANIPULATORS
 template <int SEVERITY>
 inline
 const CategoryHolder *Log::categoryHolderIfEnabled(
@@ -1538,6 +1611,12 @@ const CategoryHolder *Log::categoryHolderIfEnabled(
     }
 
     return 0;
+}
+
+inline
+const Category *Log::setCategoryHierarchically(const char *categoryName)
+{
+    return setCategoryHierarchically(0, categoryName);
 }
 
                              // ----------------
