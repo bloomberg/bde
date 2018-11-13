@@ -133,13 +133,10 @@ void aSsErT(bool condition, const char *message, int line)
     // type is never an 'enum'.
 
 
-#if defined(BSLS_PLATFORM_CMP_IBM)                                    \
- || defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
+#if defined(BSLS_PLATFORM_CMP_IBM)
 # define BSLMF_ISENUM_DO_NOT_TEST_ARRAY_OF_UNKNOWN_BOUND 1
         // The IBM xlC compiler does not handle arrays of unknown bounds as
-        // template type parameters.  Older Microsoft compilers have problems
-        // with references to arrays of unknown bound that fall out of the
-        // template metaprograms used to implement this trait.
+        // template type parameters.
 #endif
 
 //=============================================================================

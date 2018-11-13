@@ -198,8 +198,7 @@ void aSsErT(bool condition, const char *message, int line)
     // type is never fundamental, but do not test references to such a type.
 
 
-#if defined(BSLS_PLATFORM_CMP_IBM)                                    \
- || defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
+#if defined(BSLS_PLATFORM_CMP_IBM)
 # define BSLMF_ISFUNDAMENTAL_DO_NOT_TEST_ARRAY_OF_UNKNOWN_BOUND 1
         // The IBM xlC compiler does not handle arrays of unknown bounds as
         // template type parameters.  Older Microsoft compilers have problems

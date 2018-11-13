@@ -72,16 +72,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
-//                  COMPONENT SPECIFIC MACROS FOR TESTING
-//-----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
-# define BSLMF_REMOVEEXTENT_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND 1
-// Old microsoft compilers do not support references to arrays of unknown
-// bound.
-#endif
-
-//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -276,10 +266,8 @@ int main(int argc, char *argv[])
         TEST(const int&             , const int&           );
         TEST(double(&)[10]          , double(&)[10]        );
         TEST(long(&)[10][30]        , long(&)[10][30]      );
-#if !defined(BSLMF_REMOVEEXTENT_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND)
         TEST(short(&)[]             , short(&)[]           );
         TEST(const char(&)[][20]    , const char(&)[][20]  );
-#endif // BSLMF_REMOVEEXTENT_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         TEST(int&&                  , int&&                );   // 8
         TEST(const int&&            , const int&&          );

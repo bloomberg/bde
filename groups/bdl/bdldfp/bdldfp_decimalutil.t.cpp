@@ -18,6 +18,7 @@
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>
 #include <bsl_cmath.h>
+#include <bsl_cstdint.h>
 #include <bsl_cstdlib.h>
 #include <bsl_fstream.h>
 #include <bsl_limits.h>

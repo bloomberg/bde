@@ -118,8 +118,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                      COMPILER FEATURE DETECTION MACROS
 // ----------------------------------------------------------------------------
 
-#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700) \
-  || defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)
 # define BSLSTL_OWNERLESS_WANT_RETURN_AFTER_ABORT 1
 #endif
 

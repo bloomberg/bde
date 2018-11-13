@@ -154,22 +154,6 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(bsl::add_volatile<TYPE>::type, RESULT); \
     ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(bsl::add_cv<TYPE>::type, RESULT);
 
-// Two additional macros will allow testing on old MSVC compilers when 'TYPE'
-// is an array of unknown bound.
-
-#define ASSERT_IS_TRIVIALLY_COPYABLE_TYPE_NO_REF(TYPE, RESULT)                \
-    ASSERT( bsl::is_trivially_copyable<TYPE>::value == RESULT);               \
-    ASSERT( bsl::is_trivially_copyable<bsl::add_pointer<TYPE>::type>::value);
-
-#define ASSERT_IS_TRIVIALLY_COPYABLE_CV_TYPE_NO_REF(TYPE, RESULT)             \
-    ASSERT_IS_TRIVIALLY_COPYABLE_TYPE_NO_REF(TYPE, RESULT);                   \
-    ASSERT_IS_TRIVIALLY_COPYABLE_TYPE_NO_REF(                                 \
-                                         bsl::add_const<TYPE>::type, RESULT); \
-    ASSERT_IS_TRIVIALLY_COPYABLE_TYPE_NO_REF(                                 \
-                                      bsl::add_volatile<TYPE>::type, RESULT); \
-    ASSERT_IS_TRIVIALLY_COPYABLE_TYPE_NO_REF(bsl::add_cv<TYPE>::type, RESULT);
-
-
 #if defined(BSLS_PLATFORM_CMP_IBM)
 // Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
 // correctly handling arrays of unknown bound as template parameters.

@@ -127,23 +127,6 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_TYPE(                           \
                                       bsl::add_cv<TYPE>::type, RESULT);
 
-// Two additional macros will allow testing on old MSVC compilers when 'TYPE'
-// is an array of unknown bound.
-
-#define ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_TYPE_NO_REF(TYPE, RESULT)   \
-    ASSERT( bsl::is_trivially_default_constructible<TYPE>::value == RESULT);  \
-    ASSERT( bsl::is_trivially_default_constructible<                          \
-                                       bsl::add_pointer<TYPE>::type>::value);
-
-#define ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE, RESULT)\
-    ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_TYPE_NO_REF(TYPE, RESULT);      \
-    ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_TYPE_NO_REF(                    \
-                                      bsl::add_const<TYPE>::type, RESULT);    \
-    ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_TYPE_NO_REF(                    \
-                                      bsl::add_volatile<TYPE>::type, RESULT); \
-    ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_TYPE_NO_REF(                    \
-                                      bsl::add_cv<TYPE>::type, RESULT);
-
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
 // Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
@@ -153,17 +136,6 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)           \
     ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE[128], RESULT)      \
     ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], RESULT)
-
-#elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
-// Old microsoft compilers compilers do not support references to arrays of
-// unknown bound.
-
-# define ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)  \
-    ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE, RESULT)           \
-    ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE[128], RESULT)      \
-    ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE(TYPE[12][8], RESULT)    \
-    ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE[], RESULT)  \
-    ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_CV_TYPE_NO_REF(TYPE[][8], RESULT)
 
 #else
 #define ASSERT_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE_OBJECT_TYPE(TYPE, RESULT)   \

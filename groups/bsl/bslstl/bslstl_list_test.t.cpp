@@ -2193,16 +2193,8 @@ struct TestDriver {
     static void test15_elementAccess();
         // Test element access.
 
-    static void test16_iterators_dispatch();
-    static void test16_iterators(bsl::false_type);
-    static void test16_iterators(bsl::true_type);
-        // Test iterators.  There is a problem in that reverse iterators won't
-        // work with some types on some platforms, 'test16_iterators_dispatch'
-        // has some template logic to determine if 'TYPE' is such a type, and
-        // in that case the dispatch function calls 'test16_iterators' with
-        // 'false_type' and no tests are performed for that type.  For all
-        // other types and/or all other platforms, 'true_type' is passed and
-        // the tests are performed.
+    static void test16_iterators();
+        // Test iterators.
 
     static void test17_emplace();
         // Test 'emplace', 'emplace_front', and 'emplace_back' members.  The
@@ -7990,31 +7982,7 @@ void TestDriver<TYPE,ALLOC>::test17_insertRange()
 }
 
 template <class TYPE, class ALLOC>
-void TestDriver<TYPE,ALLOC>::test16_iterators_dispatch()
-{
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
-    // On MSVC prior to version 'cl-17.00, the native implementation of
-    // std::reverse_iterator does a '&**this' which is does 'operator&' on
-    // type 'TYPE', which won't work for the non-typical overloads type.
-
-    typedef bsl::is_same<TYPE, bsltf::NonTypicalOverloadsTestType>::type
-                                                                   IsTabooType;
-    test16_iterators(bsl::is_same<bsl::false_type, IsTabooType>::type());
-#else
-    test16_iterators(bsl::true_type());
-#endif
-}
-
-template <class TYPE, class ALLOC>
-void TestDriver<TYPE,ALLOC>::test16_iterators(bsl::false_type)
-{
-    // Something about 'TYPE' is such that this test should not be run.
-    if (verbose) printf("test16_iterators<%s>: not tested\n",
-                        NameOf<TYPE>().name());
-}
-
-template <class TYPE, class ALLOC>
-void TestDriver<TYPE,ALLOC>::test16_iterators(bsl::true_type)
+void TestDriver<TYPE,ALLOC>::test16_iterators()
 {
     // ------------------------------------------------------------------------
     // TESTING ITERATORS
@@ -11255,14 +11223,14 @@ int main(int argc, char *argv[])
                             "=================\n");
 
         RUN_EACH_TYPE(TestDriver,
-                      test16_iterators_dispatch,
+                      test16_iterators,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       T,
                       TNA,
                       bsltf::MoveOnlyAllocTestType);
 
         RUN_EACH_TYPE(StdBslmaTestDriver,
-                      test16_iterators_dispatch,
+                      test16_iterators,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
       } break;

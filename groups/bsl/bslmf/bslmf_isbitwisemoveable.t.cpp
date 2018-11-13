@@ -143,17 +143,6 @@ void aSsErT(bool condition, const char *message, int line)
     ASSERT_IS_BITWISE_MOVEABLE_CV_TYPE(TYPE[128], RESULT)                     \
     ASSERT_IS_BITWISE_MOVEABLE_CV_TYPE(TYPE[12][8], RESULT)
 
-#elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
-// Old microsoft compilers do not support references to arrays of unknown
-// bound.
-
-# define ASSERT_IS_BITWISE_MOVEABLE_OBJECT_TYPE(TYPE, RESULT)                 \
-    ASSERT_IS_BITWISE_MOVEABLE_CV_TYPE(TYPE, RESULT)                          \
-    ASSERT_IS_BITWISE_MOVEABLE_CV_TYPE(TYPE[128], RESULT)                     \
-    ASSERT_IS_BITWISE_MOVEABLE_CV_TYPE(TYPE[12][8], RESULT)                   \
-    ASSERT_IS_BITWISE_MOVEABLE_CV_TYPE_NO_REF(TYPE[], RESULT)                 \
-    ASSERT_IS_BITWISE_MOVEABLE_CV_TYPE_NO_REF(TYPE[][8], RESULT)
-
 #else
 # define ASSERT_IS_BITWISE_MOVEABLE_OBJECT_TYPE(TYPE, RESULT)                 \
     ASSERT_IS_BITWISE_MOVEABLE_CV_TYPE(TYPE, RESULT)                          \

@@ -1123,28 +1123,21 @@ BSLS_IDENT("$Id: $")
     // Notice that BDE does not support C99 and C++11 library features prior to
     // Microsoft C++ compiler version 1800 (MSVC 2013)
 
-    #if BSLS_PLATFORM_CMP_VERSION >= 1800  // Visual Studio 2013
-        #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
-        #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
-        #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
-        #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
-            // Note that 'unique_ptr' appears as early as version 1600 (MSVC
-            // 2010) 'BSLS_COMPILER_FEATURES_HAS_RVALUE_REFERENCES', also
-            // required for this macro, is not defined until version 1800 (MSVC
-            // 2013).
-            //
-            // Also note that 'cbegin()'/'cend()', 'rbegin()'/'rend()', and
-            // 'crbegin()'/crend()' non-member functions are implemented in
-            // 1800 version (MSVC 2013), so the
-            // 'BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS' macro is
-            // defined in this section.
-            // https://msdn.microsoft.com/en-us/library/hh567368.aspx
-    #endif
+    // We assume at least Visual Studio 2013
+    #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY
+    #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+    #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    #define BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+    #define BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+    #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
+    #define BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
+    #define BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
+    #define BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
+        // Note that 'cbegin()'/'cend()', 'rbegin()'/'rend()', and
+        // 'crbegin()'/crend()' non-member functions are implemented in the
+        // library for MSVC 2013 (version 1800), so the macro
+        // 'BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS' is defined in this
+        // section.  See https://msdn.microsoft.com/en-us/library/hh567368.aspx
 
     #if BSLS_PLATFORM_CMP_VERSION >= 1900  // Visual Studio 2015
 

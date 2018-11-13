@@ -85,8 +85,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if defined(BSLS_PLATFORM_CMP_SUN)                                            \
  || defined(BSLS_PLATFORM_CMP_IBM)                                            \
- ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION < 40300)     \
- ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700)
+ ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION < 40300)
 
 # define BSLMF_ISCONVERTIBLE_NO_ARRAY_REF_OF_UNKNOWN_BOUND
     // This macro signifies that this compiler rejects 'Type[]' as incomplete,

@@ -409,10 +409,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_util.h>
 
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
-#define INCLUDED_CSTDDEF
-#endif
 #include <string.h>
 
 #include <new>          // placement 'new'

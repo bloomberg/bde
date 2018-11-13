@@ -971,7 +971,7 @@ int main(int argc, char *argv[])
                 { L_,  "/a/b/c//", "/e/f/g//", false, "" },
 
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
                 // Test a path starting with a drive letter.
                 { L_,  "z:"    , "b" , true ,  "z:/b" },
                 { L_,  "z:/"   , "b" , true ,  "z:/b" },
@@ -1014,7 +1014,7 @@ int main(int argc, char *argv[])
                 const bool success = VALUES[i].d_expectSuccess;
 
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
                 convertToWindowsSeparator(&path);
                 convertToWindowsSeparator(&filename);
                 convertToWindowsSeparator(&expectedResult);
@@ -1075,7 +1075,7 @@ int main(int argc, char *argv[])
                         expectedResult+=
                             bsl::string(filename.data(), filename.length());
 
-#ifdef BSLS_PLATFORM__OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
                         convertToWindowsSeparator(&path);
                         convertToWindowsSeparator(&expectedResult);
 #endif

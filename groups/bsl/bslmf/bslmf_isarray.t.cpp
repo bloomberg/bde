@@ -74,16 +74,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
-//                  COMPONENT SPECIFIC MACROS FOR TESTING
-//-----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
-# define BSLMF_ISARRAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND 1
-// Old microsoft compilers compilers do not support references to arrays of
-// unknown bound.
-#endif
-
-//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -281,7 +271,6 @@ int main(int argc, char *argv[])
         ASSERT(1 == bslmf::IsArray<int *const    [][7]>::VALUE);
         ASSERT(0 == bslmf::IsArray<int *const (*)[][7]>::VALUE);
 
-#if !defined(BSLMF_ISARRAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND)
         ASSERT(0 == bslmf::IsArray<int                (&)[]>::value);
         ASSERT(0 == bslmf::IsArray<int const          (&)[]>::value);
         ASSERT(0 == bslmf::IsArray<int volatile       (&)[]>::value);
@@ -295,7 +284,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == bslmf::IsArray<int const volatile (*&)[]>::value);
         ASSERT(0 == bslmf::IsArray<int                (*&)[][7]>::value);
         ASSERT(0 == bslmf::IsArray<int *const         (*&)[][7]>::value);
-#endif // BSLMF_DECAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND
 
         ASSERT(1 == bslmf::IsArray<Enum          [8]>::VALUE);
         ASSERT(0 == bslmf::IsArray<Enum       (&)[8]>::VALUE);
@@ -420,7 +408,6 @@ int main(int argc, char *argv[])
         ASSERT(1 == bsl::is_array<int *const    [][7]>::value);
         ASSERT(0 == bsl::is_array<int *const (*)[][7]>::value);
 
-#if !defined(BSLMF_ISARRAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND)
         ASSERT(0 == bsl::is_array<int                (&)[]>::value);
         ASSERT(0 == bsl::is_array<int const          (&)[]>::value);
         ASSERT(0 == bsl::is_array<int volatile       (&)[]>::value);
@@ -434,7 +421,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == bsl::is_array<int const volatile (*&)[]>::value);
         ASSERT(0 == bsl::is_array<int                (*&)[][7]>::value);
         ASSERT(0 == bsl::is_array<int *const         (*&)[][7]>::value);
-#endif // BSLMF_DECAY_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND
 
         ASSERT(1 == bsl::is_array<Enum          [8]>::value);
         ASSERT(0 == bsl::is_array<Enum       (&)[8]>::value);

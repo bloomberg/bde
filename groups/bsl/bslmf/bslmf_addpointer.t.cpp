@@ -90,13 +90,6 @@ typedef AbominableFunction* BadFunctionPointer;
     // Test to confirm that this compiler supports the buggy syntax.
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
-# define BSLMF_ADDPOINTER_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND 1
-// Old microsoft compilers do not support references to arrays of unknown
-// bound.
-#endif
-
-
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -253,18 +246,14 @@ int main(int argc, char *argv[])
         // C-3
         typedef int   IntArray    [];
         typedef int (*IntArrayPtr)[];
-#if !BSLMF_ADDPOINTER_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND
         typedef int (&IntArrayRef)[];
-#endif
 
         typedef int   IntArray5    [5];
         typedef int (*IntArrayPtr5)[5];
         typedef int (&IntArrayRef5)[5];
 
         ASSERT((is_same<add_pointer<IntArray>::type,    IntArrayPtr >::value));
-#if !BSLMF_ADDPOINTER_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND
         ASSERT((is_same<add_pointer<IntArrayRef>::type, IntArrayPtr >::value));
-#endif
         ASSERT((is_same<add_pointer<IntArrayPtr>::type, IntArrayPtr*>::value));
 
         ASSERT((is_same<add_pointer<IntArray5>::type, IntArrayPtr5>::value));

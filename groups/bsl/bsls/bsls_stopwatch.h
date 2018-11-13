@@ -83,9 +83,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
-#ifndef INCLUDED_STRING_H
 #include <string.h>
-#endif
 
 namespace BloombergLP {
 namespace bsls {

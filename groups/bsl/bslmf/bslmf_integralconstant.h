@@ -156,12 +156,6 @@ BSLS_IDENT("$Id: $")
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
-// Detect need for compiler workarounds
-
-#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700)
-# define BSLMF_INTEGRALCONSTANT_EARLY_TRAITS_LACK_CONVERISION_OPERATOR  1
-#endif
-
 namespace BloombergLP {
 namespace bslmf {
 template <int> struct MetaInt;
@@ -178,10 +172,6 @@ namespace bsl {
 template <class TYPE, TYPE VAL>
 struct integral_constant : ::native_std::integral_constant<TYPE, VAL> {
     typedef integral_constant type;
-
-#if defined(BSLMF_INTEGRALCONSTANT_EARLY_TRAITS_LACK_CONVERISION_OPERATOR)
-    operator TYPE() const { return this->value; }
-#endif
 };
 
 template <>
@@ -192,10 +182,6 @@ struct integral_constant<bool, false> : ::native_std::false_type
     // COMPATIBILITY MEMBERS
     typedef BloombergLP::bslmf::MetaInt<false> Type;
     static const bool VALUE = false;
-
-#if defined(BSLMF_INTEGRALCONSTANT_EARLY_TRAITS_LACK_CONVERISION_OPERATOR)
-    operator bool() const { return false; }
-#endif
 };
 
 template <>
@@ -206,10 +192,6 @@ struct integral_constant<bool, true> : ::native_std::true_type
     // COMPATIBILITY MEMBERS
     typedef BloombergLP::bslmf::MetaInt<true> Type;
     static const bool VALUE = true;
-
-#if defined(BSLMF_INTEGRALCONSTANT_EARLY_TRAITS_LACK_CONVERISION_OPERATOR)
-    operator bool() const { return true; }
-#endif
 };
 
 #else

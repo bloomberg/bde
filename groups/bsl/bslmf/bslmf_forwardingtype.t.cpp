@@ -104,8 +104,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if defined(BSLS_PLATFORM_CMP_SUN)                                            \
  || defined(BSLS_PLATFORM_CMP_IBM)                                            \
- ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION < 40300)     \
- ||(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700)
+ ||(defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION < 40300)
 
 # define BSLMF_FORWARDINGTYPE_NO_ARRAY_OF_UNKNOWN_BOUND 1
     // This macro signifies that this compiler rejects 'Type[]' as incomplete,
@@ -1294,11 +1293,8 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("Function types\n");
 
-#if (!defined(BSLS_PLATFORM_CMP_MSVC) || (BSLS_PLATFORM_CMP_VERSION < 1700))  \
- || (!defined(BSLS_PLATFORM_CMP_IBM)  || (BSLS_PLATFORM_CMP_VERSION < 0x0800))
-        // xlc-8 seems to have problems with function types.  Similarly, older
-        // MS Visual C++ compilers have problem binding functions types to
-        // function references, rather than decaying to function pointers.
+#if (!defined(BSLS_PLATFORM_CMP_IBM)  || (BSLS_PLATFORM_CMP_VERSION < 0x0800))
+        // xlc-8 seems to have problems with function types.
         TEST_FWD_TYPE(void()        , void(&)());
         TEST_FWD_TYPE(int(int)      , int(&)(int));
         TEST_FWD_TYPE(void(int&)    , void(&)(int&));

@@ -18,11 +18,7 @@ BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_cpp,"$Id$ $CSID$")
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #   define snprintf _snprintf
 #   define copysign _copysign
-    #if BSLS_PLATFORM_CMP_VERSION >= 1800
-        #define copysignf _copysignf
-    #else
-        #define copysignf _copysign
-    #endif
+#   define copysignf _copysignf
 #endif
 
 #include <bsl_algorithm.h>

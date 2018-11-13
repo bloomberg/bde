@@ -124,9 +124,7 @@ BSLS_IDENT("$Id: $")
 // 'BSLS_ASSERT' macros can't be used here.  To workaround this issue, we use
 // the C 'assert' instead.
 
-#ifndef INCLUDED_ASSERT_H
 #include <assert.h>
-#endif
 #define BSLS_BSLLOCK_ASSERT_SAFE(x) assert((x))
 
 #else

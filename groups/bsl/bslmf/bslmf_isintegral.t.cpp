@@ -80,12 +80,6 @@ void aSsErT(bool condition, const char *message, int line)
 //                  COMPONENT SPECIFIC MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1700
-# define BSLMF_ISINTEGRAL_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND 1
-    // Old microsoft compilers compilers do not support references to arrays of
-    // unknown bound.
-#endif
-
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 #define ASSERT_V_SAME(TYPE)                                                   \
     ASSERT(bsl::is_integral<TYPE>::value == bsl::is_integral_v<TYPE>)
@@ -309,10 +303,8 @@ int main(int argc, char *argv[])
 
         TYPE_ASSERT_CVQ(bsl::is_integral, value, bool(&)[5], false);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, int(&)[5][4], false);
-#if !defined(BSLMF_ISINTEGRAL_NO_REFERENCES_TO_ARRAY_OF_UNKNOWN_BOUND)
         TYPE_ASSERT_CVQ(bsl::is_integral, value, unsigned long(&)[], false);
         TYPE_ASSERT_CVQ(bsl::is_integral, value, short(&)[][12], false);
-#endif
 
         // C-7
         TYPE_ASSERT_CVQ(bsl::is_integral,

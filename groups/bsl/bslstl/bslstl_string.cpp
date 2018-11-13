@@ -411,11 +411,7 @@ long long bsl::stoll(const string& str, std::size_t *pos, int base)
     int   original_errno = errno;
 
     errno = 0;
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
     long long value = strtoll(str.c_str(), &ptr, base);
-#else
-    long long value = _strtoi64(str.c_str(), &ptr, base);
-#endif
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoll");
@@ -452,11 +448,7 @@ long long bsl::stoll(const wstring& str, std::size_t *pos, int base)
     int      original_errno = errno;
 
     errno = 0;
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
     long long value = wcstoll(str.c_str(), &ptr, base);
-#else
-    long long value = _wcstoi64(str.c_str(), &ptr, base);
-#endif
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoll");
@@ -493,11 +485,7 @@ unsigned long long bsl::stoull(const string& str, std::size_t *pos, int base)
     int   original_errno = errno;
 
     errno = 0;
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
     unsigned long long value = strtoull(str.c_str(), &ptr, base);
-#else
-    unsigned long long value = _strtoui64(str.c_str(), &ptr, base);
-#endif
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoull");
@@ -534,11 +522,7 @@ unsigned long long bsl::stoull(const wstring& str, std::size_t *pos, int base)
     int      original_errno = errno;
 
     errno = 0;
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VER_MAJOR < 1800)
     unsigned long long value = wcstoull(str.c_str(), &ptr, base);
-#else
-    unsigned long long value = _wcstoui64(str.c_str(), &ptr, base);
-#endif
 
     if (errno == ERANGE){
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stoull");

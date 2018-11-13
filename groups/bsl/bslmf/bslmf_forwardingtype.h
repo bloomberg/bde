@@ -465,7 +465,6 @@ struct ForwardingType_Imp<UNREF_TYPE [k_NUM_ELEMENTS],
         { return reinterpret_cast<TargetType>(*v); }
 };
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION >= 1700
 template <class UNREF_TYPE, bool k_IS_REFERENCE>
 struct ForwardingType_Imp<UNREF_TYPE [],
                           ForwardingType_Dispatch::e_ARRAY, k_IS_REFERENCE> {
@@ -479,7 +478,6 @@ struct ForwardingType_Imp<UNREF_TYPE [],
         // unknown size.
         { return reinterpret_cast<TargetType>(*v); }
 };
-#endif
 
 template <class UNREF_TYPE>
 struct ForwardingType_Imp<UNREF_TYPE,
