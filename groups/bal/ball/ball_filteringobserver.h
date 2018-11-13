@@ -100,6 +100,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_functional.h>
 #include <bsl_memory.h>
@@ -202,7 +203,7 @@ FilteringObserver::FilteringObserver(
                  bsl::allocator<RecordFilterCallback>(basicAllocator),
                  recordFilterCallback)
 {
-    BSLS_ASSERT_SAFE(observer);
+    BSLS_REVIEW(observer);
 }
 
 // MANIPULATORS

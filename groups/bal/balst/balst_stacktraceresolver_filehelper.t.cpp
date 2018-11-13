@@ -16,6 +16,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_review.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
@@ -161,6 +162,9 @@ int main(int argc, char *argv[])
     // int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // Note that we only have to create a tmp file on Unix platforms -- this
     // component is not used and thus is not tested on Windows.

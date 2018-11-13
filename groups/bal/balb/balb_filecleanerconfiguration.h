@@ -90,6 +90,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_timeinterval.h>
 
 #include <bsl_iosfwd.h>
@@ -295,7 +296,7 @@ void FileCleanerConfiguration::setMaxFileAge(const bsls::TimeInterval& maxAge)
 inline
 void FileCleanerConfiguration::setMinNumFiles(int minNumber)
 {
-    BSLS_ASSERT_SAFE(0 <= minNumber);
+    BSLS_REVIEW(0 <= minNumber);
     d_minNumFiles = minNumber;
 }
 

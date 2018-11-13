@@ -150,6 +150,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_vector.h>
@@ -347,8 +348,8 @@ StackTrace& StackTrace::operator=(const StackTrace& rhs)
 inline
 StackTraceFrame& StackTrace::operator[](int index)
 {
-    BSLS_ASSERT_SAFE(index >= 0);
-    BSLS_ASSERT_SAFE(index < length());
+    BSLS_REVIEW(index >= 0);
+    BSLS_REVIEW(index < length());
 
     return d_frames[index];
 }
@@ -368,7 +369,7 @@ void StackTrace::removeAll()
 inline
 void StackTrace::resize(int newLength)
 {
-    BSLS_ASSERT_SAFE(newLength >= 0);
+    BSLS_REVIEW(newLength >= 0);
 
     d_frames.resize(newLength);
 }
@@ -378,7 +379,7 @@ void StackTrace::swap(StackTrace& other)
 {
     // 'swap' is undefined for objects with non-equal allocators.
 
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_REVIEW(allocator() == other.allocator());
 
     d_frames.swap(other.d_frames);
 }
@@ -387,8 +388,8 @@ void StackTrace::swap(StackTrace& other)
 inline
 const StackTraceFrame& StackTrace::operator[](int index) const
 {
-    BSLS_ASSERT_SAFE(index >= 0);
-    BSLS_ASSERT_SAFE(index < length());
+    BSLS_REVIEW(index >= 0);
+    BSLS_REVIEW(index < length());
 
     return d_frames[index];
 }

@@ -21,7 +21,8 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
-#include <bsls_stopwatch.h>      // case -2, -3
+#include <bsls_review.h>
+#include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdio.h>
@@ -1251,6 +1252,9 @@ int main(int argc, char *argv[])
     g_veryVeryVeryVerbose = veryVeryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator allocator("Test", veryVeryVeryVerbose);
     bslma::TestAllocator defaultAllocator("Default", veryVeryVeryVerbose);

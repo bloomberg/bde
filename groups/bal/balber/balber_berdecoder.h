@@ -118,6 +118,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_review.h>
 
 #include <bsl_istream.h>
 #include <bsl_ostream.h>
@@ -667,7 +668,7 @@ int BerDecoder::decode(bsl::streambuf *streamBuf, TYPE *variable)
 inline
 void BerDecoder::setNumUnknownElementsSkipped(int value)
 {
-    BSLS_ASSERT_SAFE(0 <= value);
+    BSLS_REVIEW(0 <= value);
 
     d_numUnknownElementsSkipped = value;
 }
@@ -751,7 +752,7 @@ inline
 bool
 BerDecoder_Node::hasMore()
 {
-    BSLS_ASSERT_SAFE(d_tagType == BerConstants::e_CONSTRUCTED);
+    BSLS_REVIEW(d_tagType == BerConstants::e_CONSTRUCTED);
 
     if (BerUtil::e_INDEFINITE_LENGTH == d_expectedLength) {
         return 0 != d_decoder->d_streamBuf->sgetc();

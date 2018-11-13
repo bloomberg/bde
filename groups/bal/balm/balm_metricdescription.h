@@ -90,6 +90,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_mutex.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_memory.h>
@@ -297,7 +298,7 @@ void MetricDescription::setFormat(
 inline
 void MetricDescription::setUserData(UserDataKey key, const void *value)
 {
-    BSLS_ASSERT_SAFE(key >= 0);
+    BSLS_REVIEW(key >= 0);
 
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     if ((unsigned int)key >= d_userData.size()) {
@@ -340,7 +341,7 @@ MetricDescription::format() const
 inline
 const void *MetricDescription::userData(UserDataKey key) const
 {
-    BSLS_ASSERT_SAFE(key >= 0);
+    BSLS_REVIEW(key >= 0);
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return ((unsigned int)key < d_userData.size()) ? d_userData[key] : 0;
 }

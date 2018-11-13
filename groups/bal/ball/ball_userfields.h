@@ -79,6 +79,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_vector.h>
@@ -324,7 +325,7 @@ UserFieldValue& UserFields::value(int index)
 inline
 void UserFields::swap(UserFields& other)
 {
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_REVIEW(allocator() == other.allocator());
 
     d_values.swap(other.d_values);
 }

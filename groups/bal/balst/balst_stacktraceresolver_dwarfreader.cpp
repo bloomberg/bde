@@ -10,8 +10,10 @@ BSLS_IDENT_RCSID(balst_stacktraceresolver_dwarfreader_cpp,"$Id$ $CSID$")
 #ifdef BALST_OBJECTFILEFORMAT_RESOLVER_DWARF
 
 #include <bslmf_assert.h>
+
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstring.h>
@@ -207,7 +209,7 @@ int StackTraceResolver_DwarfReader::reload(bsl::size_t numBytes)
 
     u_ASSERT_BAIL(static_cast<Offset>(numBytes) <= d_endOffset - offset());
 
-    BSLS_ASSERT_SAFE(d_buffer_p);
+    BSLS_REVIEW(d_buffer_p);
     u_ASSERT_BAIL_SAFE(numBytes <= k_SCRATCH_BUF_LEN);
     u_ASSERT_BAIL_SAFE(d_readPtr <= d_endPtr);
 

@@ -30,6 +30,7 @@ BSLS_IDENT_RCSID(baltzo_zoneinfobinaryreader_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_byteorder.h>
 #include <bsls_log.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 ///Implementation Notes
@@ -213,7 +214,7 @@ int decode32(const char *address)
     // specified 'address' and return that value.  The behavior is undefined
     // unless 'address' points to an accessible memory location.
 {
-    BSLS_ASSERT_SAFE(address);
+    BSLS_REVIEW(address);
 
     int temp;
     bsl::memcpy(&temp, address, sizeof(temp));

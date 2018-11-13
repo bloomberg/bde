@@ -14,6 +14,7 @@ BSLS_IDENT_RCSID(baltzo_zoneinfo_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_ostream.h>
 
@@ -206,7 +207,7 @@ void Zoneinfo::addTransition(bdlt::EpochUtil::TimeT64   utcTime,
         // from 'd_descriptors'.
 
         DescriptorSet::iterator descIt = d_descriptors.find(it->descriptor());
-        BSLS_ASSERT_SAFE(descIt != d_descriptors.end());
+        BSLS_REVIEW(descIt != d_descriptors.end());
 
         *it = newTransition;
         if (!containsDescriptor(d_transitions, *descIt)) {
@@ -225,8 +226,8 @@ void Zoneinfo::addTransition(bdlt::EpochUtil::TimeT64   utcTime,
 Zoneinfo::TransitionConstIterator
 Zoneinfo::findTransitionForUtcTime(const bdlt::Datetime& utcTime) const
 {
-    BSLS_ASSERT_SAFE(numTransitions() > 0);
-    BSLS_ASSERT_SAFE(d_transitions.front().utcTime() <=
+    BSLS_REVIEW(numTransitions() > 0);
+    BSLS_REVIEW(d_transitions.front().utcTime() <=
                                    bdlt::EpochUtil::convertToTimeT64(utcTime));
 
     LocalTimeDescriptor dummyDescriptor;

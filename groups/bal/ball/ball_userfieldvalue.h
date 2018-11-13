@@ -74,6 +74,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_string.h>
@@ -398,7 +399,7 @@ void UserFieldValue::setCharArray(const bsl::vector<char>& value)
 inline
 void UserFieldValue::swap(UserFieldValue& other)
 {
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_REVIEW(allocator() == other.allocator());
 
     d_value.swap(other.d_value);
 }

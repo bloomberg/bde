@@ -85,6 +85,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_string.h>
@@ -237,7 +238,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Predicate& predicate);
 inline
 int Predicate::hash(const Predicate& predicate, int size)
 {
-    BSLS_ASSERT_SAFE(0 < size);
+    BSLS_REVIEW(0 < size);
 
     return Attribute::hash(predicate.d_attribute, size);
 }

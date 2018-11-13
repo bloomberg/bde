@@ -123,6 +123,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_iosfwd.h>
@@ -338,7 +339,7 @@ LocalTimeDescriptor::LocalTimeDescriptor(
 , d_dstInEffectFlag(dstInEffectFlag)
 , d_description(description.begin(), description.end(), basicAllocator)
 {
-    BSLS_ASSERT_SAFE(isValidUtcOffsetInSeconds(utcOffsetInSeconds));
+    BSLS_REVIEW(isValidUtcOffsetInSeconds(utcOffsetInSeconds));
 }
 
 inline
@@ -354,7 +355,7 @@ LocalTimeDescriptor::LocalTimeDescriptor(
 inline
 LocalTimeDescriptor::~LocalTimeDescriptor()
 {
-    BSLS_ASSERT_SAFE(isValidUtcOffsetInSeconds(d_utcOffsetInSeconds));
+    BSLS_REVIEW(isValidUtcOffsetInSeconds(d_utcOffsetInSeconds));
 }
 
 // MANIPULATORS
@@ -384,7 +385,7 @@ void LocalTimeDescriptor::setDstInEffectFlag(bool value)
 inline
 void LocalTimeDescriptor::setUtcOffsetInSeconds(int value)
 {
-    BSLS_ASSERT_SAFE(isValidUtcOffsetInSeconds(value));
+    BSLS_REVIEW(isValidUtcOffsetInSeconds(value));
 
     d_utcOffsetInSeconds = value;
 }
@@ -394,7 +395,7 @@ void LocalTimeDescriptor::setUtcOffsetInSeconds(int value)
 inline
 void LocalTimeDescriptor::swap(LocalTimeDescriptor& other)
 {
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_REVIEW(allocator() == other.allocator());
 
     bslalg::SwapUtil::swap(&d_description,        &other.d_description);
     bslalg::SwapUtil::swap(&d_dstInEffectFlag,    &other.d_dstInEffectFlag);

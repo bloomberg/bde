@@ -151,6 +151,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_review.h>
 
 #include <bsl_ostream.h>
 #include <bsl_string.h>
@@ -1206,7 +1207,7 @@ inline
 Encoder_EncodeObject::Encoder_EncodeObject(Encoder_Context *context)
 : d_context_p(context)
 {
-    BSLS_ASSERT_SAFE(d_context_p);
+    BSLS_REVIEW(d_context_p);
 }
 
 // MANIPULATORS
@@ -1337,7 +1338,7 @@ inline
 Encoder_EncodeValue::Encoder_EncodeValue(Encoder_Context *context)
 : d_context_p(context)
 {
-    BSLS_ASSERT_SAFE(d_context_p);
+    BSLS_REVIEW(d_context_p);
 }
 
 // MANIPULATORS
@@ -1444,8 +1445,8 @@ Encoder_SequenceFirstPass::Encoder_SequenceFirstPass(Encoder_Context *context)
 : d_context_p(context)
 , d_hasSubElements(false)
 {
-    BSLS_ASSERT_SAFE(d_context_p);
-    BSLS_ASSERT_SAFE(d_simpleContentId.isNull());
+    BSLS_REVIEW(d_context_p);
+    BSLS_REVIEW(d_simpleContentId.isNull());
 }
 
 // MANIPULATORS
@@ -1461,9 +1462,9 @@ int Encoder_SequenceFirstPass::operator()(const TYPE&      object,
     bool isAttribute     = formattingMode & bdlat_FormattingMode::e_ATTRIBUTE;
 
     if (isSimpleContent) {
-        BSLS_ASSERT_SAFE(!isAttribute);
-        BSLS_ASSERT_SAFE(!d_hasSubElements);
-        BSLS_ASSERT_SAFE(d_simpleContentId.isNull());
+        BSLS_REVIEW(!isAttribute);
+        BSLS_REVIEW(!d_hasSubElements);
+        BSLS_REVIEW(d_simpleContentId.isNull());
 
         d_simpleContentId.makeValue(info.id());
     }
@@ -1473,7 +1474,7 @@ int Encoder_SequenceFirstPass::operator()(const TYPE&      object,
         return addAttribute(object, name, formattingMode);            // RETURN
     }
     else {
-        BSLS_ASSERT_SAFE(d_simpleContentId.isNull());
+        BSLS_REVIEW(d_simpleContentId.isNull());
 
         d_hasSubElements = true;
     }
@@ -1516,7 +1517,7 @@ int Encoder_SequenceSecondPass::operator()(const TYPE&      object,
 
     int formattingMode = info.formattingMode();
 
-    BSLS_ASSERT_SAFE(
+    BSLS_REVIEW(
                !(formattingMode & bdlat_FormattingMode::e_SIMPLE_CONTENT));
 
     if (!(formattingMode & bdlat_FormattingMode::e_ATTRIBUTE)) {

@@ -29,8 +29,10 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_newdeleteallocator.h>
 #include <bslma_testallocatorexception.h>  // for testing only
+
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -1088,6 +1090,9 @@ int main(int argc, char *argv[])
 
         bsls::Assert::permitOutOfPolicyReturningFailureHandler();
     }
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator da;
     bslma::DefaultAllocatorGuard guard(&da);

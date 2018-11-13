@@ -130,6 +130,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 namespace BloombergLP {
@@ -219,8 +220,8 @@ int StackTraceResolver_FileHelper::readExact(void    *buf,
                                              UintPtr  numBytes,
                                              Offset   offset) const
 {
-    BSLS_ASSERT_SAFE(buf);
-    BSLS_ASSERT_SAFE(offset >= 0);
+    BSLS_REVIEW(buf);
+    BSLS_REVIEW(offset >= 0);
 
     UintPtr res = readBytes(buf, numBytes, offset);
     return res != numBytes ? -1 : 0;

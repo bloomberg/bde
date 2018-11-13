@@ -114,6 +114,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
@@ -953,7 +954,7 @@ int BerUtil_Imp::numBytesToStream(TYPE value)
         }
     }
 
-    BSLS_ASSERT_SAFE(numBytes > 0);
+    BSLS_REVIEW(numBytes > 0);
     return numBytes;
 }
 

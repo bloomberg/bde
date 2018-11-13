@@ -157,6 +157,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_cstddef.h>      // bsl::size_t
 #include <bsl_iosfwd.h>
@@ -476,11 +477,11 @@ StackTraceFrame::StackTraceFrame(const void               *address,
                    basicAllocator)
 , d_symbolName(symbolName.begin(), symbolName.end(), basicAllocator)
 {
-    BSLS_ASSERT_SAFE(0 != libraryFileName.data());
-    BSLS_ASSERT_SAFE(-1 <= lineNumber);
-    BSLS_ASSERT_SAFE(0 != mangledSymbolName.data());
-    BSLS_ASSERT_SAFE(0 != sourceFileName.data());
-    BSLS_ASSERT_SAFE(0 != symbolName.data());
+    BSLS_REVIEW(0 != libraryFileName.data());
+    BSLS_REVIEW(-1 <= lineNumber);
+    BSLS_REVIEW(0 != mangledSymbolName.data());
+    BSLS_REVIEW(0 != sourceFileName.data());
+    BSLS_REVIEW(0 != symbolName.data());
 }
 
 inline
@@ -499,7 +500,7 @@ StackTraceFrame::StackTraceFrame(const StackTraceFrame&  original,
 inline
 StackTraceFrame::~StackTraceFrame()
 {
-    BSLS_ASSERT_SAFE(-1 <= d_lineNumber);
+    BSLS_REVIEW(-1 <= d_lineNumber);
 }
 
 // MANIPULATORS
@@ -524,7 +525,7 @@ void StackTraceFrame::setAddress(const void *value)
 inline
 void StackTraceFrame::setLibraryFileName(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(0 != value.data());
+    BSLS_REVIEW(0 != value.data());
 
     d_libraryFileName.assign(value.begin(), value.end());
 }
@@ -532,7 +533,7 @@ void StackTraceFrame::setLibraryFileName(const bslstl::StringRef& value)
 inline
 void StackTraceFrame::setLineNumber(int value)
 {
-    BSLS_ASSERT_SAFE(-1 <= value);
+    BSLS_REVIEW(-1 <= value);
 
     d_lineNumber = value;
 }
@@ -540,7 +541,7 @@ void StackTraceFrame::setLineNumber(int value)
 inline
 void StackTraceFrame::setMangledSymbolName(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(0 != value.data());
+    BSLS_REVIEW(0 != value.data());
 
     d_mangledSymbolName.assign(value.begin(), value.end());
 }
@@ -554,7 +555,7 @@ void StackTraceFrame::setOffsetFromSymbol(bsl::size_t value)
 inline
 void StackTraceFrame::setSourceFileName(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(0 != value.data());
+    BSLS_REVIEW(0 != value.data());
 
     d_sourceFileName.assign(value.begin(), value.end());
 }
@@ -562,7 +563,7 @@ void StackTraceFrame::setSourceFileName(const bslstl::StringRef& value)
 inline
 void StackTraceFrame::setSymbolName(const bslstl::StringRef& value)
 {
-    BSLS_ASSERT_SAFE(0 != value.data());
+    BSLS_REVIEW(0 != value.data());
 
     d_symbolName.assign(value.begin(), value.end());
 }

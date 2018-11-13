@@ -306,6 +306,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_threadutil.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_iosfwd.h>
@@ -740,7 +741,7 @@ inline
 AttributeContext::iterator
 AttributeContext::addAttributes(const AttributeContainer *attributes)
 {
-    BSLS_ASSERT_SAFE(attributes);
+    BSLS_REVIEW(attributes);
 
     d_ruleCache_p.clear();
     return d_containerList.pushFront(attributes);

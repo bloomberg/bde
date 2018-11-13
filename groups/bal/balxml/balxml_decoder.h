@@ -288,6 +288,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_review.h>
 
 #include <bsl_algorithm.h>            // bsl::min
 #include <bsl_istream.h>
@@ -1896,7 +1897,7 @@ namespace balxml {
 inline
 void Decoder::setNumUnknownElementsSkipped(int value)
 {
-    BSLS_ASSERT_SAFE(0 <= value);
+    BSLS_REVIEW(0 <= value);
 
     d_numUnknownElementsSkipped = value;
 }
@@ -2089,7 +2090,7 @@ Decoder_ChoiceContext<TYPE>::Decoder_ChoiceContext(TYPE *object,
 , d_selectionName()
 {
     (void) formattingMode;
-    BSLS_ASSERT_SAFE(bdlat_FormattingMode::e_DEFAULT ==
+    BSLS_REVIEW(bdlat_FormattingMode::e_DEFAULT ==
                      (formattingMode & bdlat_FormattingMode::e_TYPE_MASK));
 }
 
@@ -2128,7 +2129,7 @@ int Decoder_ChoiceContext<TYPE>::addCharacters(const char   *chars,
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    BSLS_ASSERT_SAFE(0 != length);
+    BSLS_REVIEW(0 != length);
 
     const char *begin = chars;
     const char *end   = begin + length;
@@ -2325,7 +2326,7 @@ Decoder_SequenceContext<TYPE>::Decoder_SequenceContext(TYPE *object,
 : d_object_p(object)
 {
     (void) formattingMode;
-    BSLS_ASSERT_SAFE(bdlat_FormattingMode::e_DEFAULT ==
+    BSLS_REVIEW(bdlat_FormattingMode::e_DEFAULT ==
                      (formattingMode & bdlat_FormattingMode::e_TYPE_MASK));
 }
 
@@ -2366,7 +2367,7 @@ int Decoder_SequenceContext<TYPE>::addCharacters(const char   *chars,
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    BSLS_ASSERT_SAFE(0 != length);
+    BSLS_REVIEW(0 != length);
 
     if (d_simpleContentId.isNull()) {
 
@@ -2714,8 +2715,8 @@ Decoder_ParseSequenceSimpleContent::Decoder_ParseSequenceSimpleContent(
                                                           bsl::size_t  len)
 : d_chars_p(chars), d_len(len), d_decoder(decoder)
 {
-    BSLS_ASSERT_SAFE(d_chars_p);
-    BSLS_ASSERT_SAFE(d_decoder);
+    BSLS_REVIEW(d_chars_p);
+    BSLS_REVIEW(d_decoder);
 }
 
 // MANIPULATORS
@@ -2887,9 +2888,9 @@ Decoder_ParseAttribute::Decoder_ParseAttribute(Decoder     *decoder,
 , d_value_p(value)
 , d_value_length(lengthValue)
 {
-    BSLS_ASSERT_SAFE(d_decoder);
-    BSLS_ASSERT_SAFE(d_name_p);
-    BSLS_ASSERT_SAFE(d_value_p);
+    BSLS_REVIEW(d_decoder);
+    BSLS_REVIEW(d_name_p);
+    BSLS_REVIEW(d_value_p);
 }
 
 // MANIPULATORS
@@ -3148,7 +3149,7 @@ template <class TYPE>
 int Decoder_ParseObject::executeArrayRepetitionImp(TYPE *object,
                                                    int   formattingMode)
 {
-    BSLS_ASSERT_SAFE(! (formattingMode & bdlat_FormattingMode::e_TYPE_MASK
+    BSLS_REVIEW(! (formattingMode & bdlat_FormattingMode::e_TYPE_MASK
                                    & bdlat_FormattingMode::e_LIST));
 
     Decoder_ParseObject_executeProxy proxy = { this, formattingMode };
@@ -3169,8 +3170,8 @@ Decoder_ParseObject::Decoder_ParseObject(Decoder     *decoder,
 , d_elementName_p(elementName)
 , d_lenName(lenName)
 {
-    BSLS_ASSERT_SAFE(d_elementName_p);
-    BSLS_ASSERT_SAFE(d_decoder);
+    BSLS_REVIEW(d_elementName_p);
+    BSLS_REVIEW(d_decoder);
 }
 
 // MANIPULATORS

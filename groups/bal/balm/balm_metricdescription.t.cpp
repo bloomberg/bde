@@ -16,9 +16,12 @@
 #include <bslmt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
 #include <bdlf_bind.h>
+#include <bslim_testutil.h>
 #include <bslma_allocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_defaultallocatorguard.h>
+
+#include <bsls_review.h>
 
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -26,8 +29,6 @@
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
-
-#include <bslim_testutil.h>
 
 using namespace BloombergLP;
 
@@ -227,6 +228,9 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator testAlloc; bslma::TestAllocator *Z = &testAlloc;
     bslma::TestAllocator defaultAllocator;

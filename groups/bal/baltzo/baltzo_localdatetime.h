@@ -104,6 +104,7 @@ BSLS_IDENT("$Id: $ $CSID: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bslx_instreamfunctions.h>
 #include <bslx_outstreamfunctions.h>
@@ -419,7 +420,7 @@ STREAM& LocalDatetime::bdexStreamIn(STREAM& stream, int version)
 inline
 void LocalDatetime::swap(LocalDatetime& other)
 {
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_REVIEW(allocator() == other.allocator());
 
     bslalg::SwapUtil::swap(&d_datetimeTz, &other.d_datetimeTz);
     bslalg::SwapUtil::swap(&d_timeZoneId, &other.d_timeZoneId);

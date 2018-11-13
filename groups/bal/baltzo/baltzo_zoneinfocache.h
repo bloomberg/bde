@@ -161,8 +161,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmt_rwmutex.h>
 
-#include <bsls_atomic.h>
 #include <bsls_assert.h>
+#include <bsls_atomic.h>
+#include <bsls_review.h>
 
 #include <bsl_map.h>
 
@@ -274,14 +275,14 @@ ZoneinfoCache::ZoneinfoCache(Loader *loader, bslma::Allocator *basicAllocator)
 , d_loader_p(loader)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    BSLS_ASSERT_SAFE(0 != loader);
+    BSLS_REVIEW(0 != loader);
 }
 
 // MANIPULATORS
 inline
 const Zoneinfo *ZoneinfoCache::getZoneinfo(const char *timeZoneId)
 {
-    BSLS_ASSERT_SAFE(0 != timeZoneId);
+    BSLS_REVIEW(0 != timeZoneId);
 
     int rc;
     return getZoneinfo(&rc, timeZoneId);

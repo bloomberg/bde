@@ -150,6 +150,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_memory.h>
@@ -327,7 +328,7 @@ TestObserver::TestObserver(bsl::ostream     *stream,
 , d_numRecords(0)
 , d_numReleases(0)
 {
-    BSLS_ASSERT_SAFE(d_stream_p);
+    BSLS_REVIEW(d_stream_p);
 }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

@@ -32,6 +32,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -1305,6 +1306,9 @@ int main(int argc, char *argv[])
     veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator  testAllocator("test", veryVeryVeryVerbose);
     bslma::TestAllocator *Z = &testAllocator;
