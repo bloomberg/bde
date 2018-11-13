@@ -865,7 +865,7 @@ struct bsls_Platform_Assert;
 #endif
 
 #if !(defined(BSLS_PLATFORM_CMP_AIX) || defined(BSLS_PLATFORM_CMP_SUN)) \
-                                && !defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
+                                || defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
     #define BSLS_PLATFORM_AGGRESSIVE_INLINE inline
 #else
     #define BSLS_PLATFORM_AGGRESSIVE_INLINE
