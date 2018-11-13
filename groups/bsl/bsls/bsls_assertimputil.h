@@ -70,6 +70,18 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_ASSERTIMPUTIL_NORETURN
 #endif
 
+#ifdef BSLS_PLATFORM_CMP_SUN
+// On sun, string constants are not deduplicated, so uses of 'BSLS_ASSERT' and
+// 'BSLS_REVIEW' macros in inlined functions lead to massive executable size
+// bloat.  This flag indicates that a workaround should be enabled to minimize
+// references to strings literals in these macros.  Currently, that workaround
+// is to not include the file at all in 'BSLS_REVIEW' macros.
+
+#define BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+
+#endif
+
+
 namespace BloombergLP {
 namespace bsls {
 

@@ -128,10 +128,10 @@ AssertViolation::AssertViolation(const char *comment,
                                  const char *fileName,
                                  int         lineNumber,
                                  const char *assertLevel)
-: d_comment_p(comment)
-, d_fileName_p(fileName)
+: d_comment_p((comment == 0) ? "" : comment)
+, d_fileName_p((fileName == 0) ? "" : fileName)
 , d_lineNumber(lineNumber)
-, d_assertLevel_p(assertLevel)
+, d_assertLevel_p((assertLevel == 0) ? "" : assertLevel)
 {
 }
 

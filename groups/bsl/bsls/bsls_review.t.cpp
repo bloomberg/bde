@@ -1502,6 +1502,10 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT( line, profile.d_line, line == profile.d_line );
 
                 const char *file = __FILE__;
+
+#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+                file = "";
+#endif
                 LOOP2_ASSERT(file, profile.d_file,
                              0 == std::strcmp(file, profile.d_file));
 
@@ -1849,6 +1853,10 @@ int main(int argc, char *argv[])
         int         line   = -1;
         int         count  = 1; // always first review call for all of these
                                  // invocations.
+
+#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+        file = "";
+#endif
 
         const char *expr = "false == true";
 
@@ -2388,11 +2396,15 @@ int main(int argc, char *argv[])
             globalReset();
             ASSERT(false == globalReviewFiredFlag);
 
-            const char *const text  = "true == false";
-            const char *const file  = __FILE__;
-            int               line  = -1;
-            const char *const level = bsls::Review::k_LEVEL_OPT;
-            int               count = 1;
+            const char *text  = "true == false";
+            const char *file  = __FILE__;
+            int         line  = -1;
+            const char *level = bsls::Review::k_LEVEL_OPT;
+            int         count = 1;
+
+#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+            file = "";
+#endif
 
             line = L_ + 2;
             REVIEW_TEST_BEGIN
@@ -2413,11 +2425,15 @@ int main(int argc, char *argv[])
             globalReset();
             ASSERT(false == globalReviewFiredFlag);
 
-            const char *const text  = "(void *)(0)";
-            const char *const file  = __FILE__;
-            int               line  = -1;
-            const char *const level = bsls::Review::k_LEVEL_OPT;
-            int               count = 1;
+            const char *text  = "(void *)(0)";
+            const char *file  = __FILE__;
+            int         line  = -1;
+            const char *level = bsls::Review::k_LEVEL_OPT;
+            int         count = 1;
+
+#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+            file = "";
+#endif
 
             line = L_ + 2;
             REVIEW_TEST_BEGIN
@@ -2439,11 +2455,15 @@ int main(int argc, char *argv[])
             globalReset();
             ASSERT(false == globalReviewFiredFlag);
 
-            const char *const text  = "true == false";
-            const char *const file  = __FILE__;
-            int               line  = -1;
-            const char *const level = bsls::Review::k_LEVEL_OPT;
-            int               count = c;
+            const char *text  = "true == false";
+            const char *file  = __FILE__;
+            int         line  = -1;
+            const char *level = bsls::Review::k_LEVEL_OPT;
+            int         count = c;
+
+#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+            file = "";
+#endif
 
             line = L_ + 2;
             REVIEW_TEST_BEGIN
@@ -2672,7 +2692,11 @@ int main(int argc, char *argv[])
                 LogProfile &profile = HandlerLoggingTest::lastProfile();
                 LOOP2_ASSERT( line, profile.d_line, line == profile.d_line );
 
+
                 const char *file = __FILE__;
+#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+                file = "";
+#endif
                 LOOP2_ASSERT(file, profile.d_file,
                              0 == std::strcmp(file, profile.d_file));
 

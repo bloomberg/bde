@@ -72,10 +72,10 @@ ReviewViolation::ReviewViolation(const char *comment,
                                  int         lineNumber,
                                  const char *reviewLevel,
                                  int         count)
-: d_comment_p(comment)
-, d_fileName_p(fileName)
+: d_comment_p((comment == 0) ? "" : comment)
+, d_fileName_p((fileName == 0) ? "" : fileName)
 , d_lineNumber(lineNumber)
-, d_reviewLevel_p(reviewLevel)
+, d_reviewLevel_p((reviewLevel == 0) ? "" : reviewLevel)
 , d_count(count)
 {
 }
