@@ -51,12 +51,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_versiontag.h>
 
-// For the 3.15.x release series, 'bal' is being versioned independently of
-// 'bsl'.
-#define BAL_VERSION_MAJOR 3
+#define BAL_VERSION_MAJOR BSL_VERSION_MAJOR
     // BAL release major version
 
-#define BAL_VERSION_MINOR 16
+#define BAL_VERSION_MINOR BSL_VERSION_MINOR
     // BAL release major version
 
 #define BAL_VERSION BSL_MAKE_VERSION(BAL_VERSION_MAJOR, \
