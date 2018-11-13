@@ -20,7 +20,9 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+
 #include <bsls_asserttest.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 using namespace BloombergLP;
@@ -238,6 +240,9 @@ int main(int argc, char *argv[])
     const bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the default allocator.
 

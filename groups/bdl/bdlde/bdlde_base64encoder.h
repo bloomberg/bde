@@ -684,8 +684,8 @@ void Base64Encoder::encode(OUTPUT_ITERATOR *out, int maxLength)
 inline
 int Base64Encoder::encodedLength(int inputLength, int maxLineLength)
 {
-    BSLS_ASSERT_SAFE(0 <= inputLength);
-    BSLS_ASSERT_SAFE(0 <= maxLineLength);
+    BSLS_REVIEW(0 <= inputLength);
+    BSLS_REVIEW(0 <= maxLineLength);
 
     int lineLength = (inputLength + 2) / 3 * 4;
 
@@ -704,7 +704,7 @@ int Base64Encoder::encodedLength(int inputLength, int maxLineLength)
 inline
 int Base64Encoder::encodedLength(int inputLength)
 {
-    BSLS_ASSERT_SAFE(0 <= inputLength);
+    BSLS_REVIEW(0 <= inputLength);
 
     return encodedLength(inputLength, 76);
 }
@@ -712,8 +712,8 @@ int Base64Encoder::encodedLength(int inputLength)
 inline
 int Base64Encoder::encodedLines(int inputLength, int maxLineLength)
 {
-    BSLS_ASSERT_SAFE(0 <= inputLength);
-    BSLS_ASSERT_SAFE(0 <= maxLineLength);
+    BSLS_REVIEW(0 <= inputLength);
+    BSLS_REVIEW(0 <= maxLineLength);
 
     const int length = (inputLength + 2) / 3 * 4;
 
@@ -723,7 +723,7 @@ int Base64Encoder::encodedLines(int inputLength, int maxLineLength)
 inline
 int Base64Encoder::encodedLines(int inputLength)
 {
-    BSLS_ASSERT_SAFE(0 <= inputLength);
+    BSLS_REVIEW(0 <= inputLength);
 
     return encodedLines(inputLength, 76);
 }
@@ -731,8 +731,8 @@ int Base64Encoder::encodedLines(int inputLength)
 inline
 bool Base64Encoder::isResidualOutput(int numBytes, int maxLineLength)
 {
-    BSLS_ASSERT_SAFE(0 <= numBytes);
-    BSLS_ASSERT_SAFE(0 <= maxLineLength);
+    BSLS_REVIEW(0 <= numBytes);
+    BSLS_REVIEW(0 <= maxLineLength);
 
     const int adj = maxLineLength ? 2 * (numBytes / (maxLineLength + 2)) : 0;
     return 0 != (numBytes - adj) % 4;
@@ -759,7 +759,7 @@ Base64Encoder::Base64Encoder(int maxLineLength)
 , d_stack(0)
 , d_bitsInStack(0)
 {
-    BSLS_ASSERT_SAFE(0 <= maxLineLength);
+    BSLS_REVIEW(0 <= maxLineLength);
 }
 
 // MANIPULATORS

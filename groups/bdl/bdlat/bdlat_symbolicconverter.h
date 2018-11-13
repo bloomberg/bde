@@ -1021,7 +1021,7 @@ bdlat_SymbolicConverter_Imp::bdlat_SymbolicConverter_Imp(
                                                      bsl::ostream *errorStream)
 : d_errorStream_p(errorStream)
 {
-    BSLS_ASSERT_SAFE(d_errorStream_p);
+    BSLS_REVIEW(d_errorStream_p);
 }
 
 // MANIPULATORS

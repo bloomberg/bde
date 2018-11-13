@@ -15,6 +15,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_objectbuffer.h>
+#include <bsls_review.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
@@ -269,6 +270,9 @@ int main(int argc, char *argv[])
     int testAllocatorVerbosity = argc > 6;  // always the last
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator testAllocator(testAllocatorVerbosity);
 

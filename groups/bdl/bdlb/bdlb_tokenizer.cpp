@@ -169,7 +169,7 @@ TokenizerIterator& TokenizerIterator::operator=(const TokenizerIterator& rhs)
 TokenizerIterator& TokenizerIterator::operator++()
 {
     // Operator++ called on invalid iterator
-    BSLS_ASSERT_SAFE(!d_endFlag);
+    BSLS_REVIEW(!d_endFlag);
 
     if (d_end_p) {
         d_token_p     = d_cursor_p;
@@ -303,7 +303,7 @@ Tokenizer::iterator Tokenizer::end() const
 Tokenizer& Tokenizer::operator++()
 {
     // Operator++ called on invalid tokenizer
-    BSLS_ASSERT_SAFE(!d_endFlag);
+    BSLS_REVIEW(!d_endFlag);
 
     if (d_end_p) {
 
@@ -406,7 +406,7 @@ bool Tokenizer::hasTrailingSoft() const
 {
     if (d_endFlag) {
         // Called on invalid tokenizer
-        BSLS_ASSERT_SAFE(!d_endFlag);
+        BSLS_REVIEW(!d_endFlag);
         return false;                                                 // RETURN
     }
 
@@ -438,7 +438,7 @@ bool Tokenizer::isTrailingHard() const
 {
     if (d_endFlag) {
         // Called on invalid tokenizer
-        BSLS_ASSERT_SAFE(!d_endFlag);
+        BSLS_REVIEW(!d_endFlag);
         return false;                                                 // RETURN
     }
 

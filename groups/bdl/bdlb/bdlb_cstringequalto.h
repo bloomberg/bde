@@ -125,8 +125,8 @@ struct CStringEqualTo {
 inline
 bool CStringEqualTo::operator()(const char *lhs, const char *rhs) const
 {
-    BSLS_ASSERT_SAFE(lhs);
-    BSLS_ASSERT_SAFE(rhs);
+    BSLS_REVIEW(lhs);
+    BSLS_REVIEW(rhs);
 
     return 0 == bsl::strcmp(lhs, rhs);
 }

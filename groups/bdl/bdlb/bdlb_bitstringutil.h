@@ -795,7 +795,7 @@ void BitStringUtil::assign(bsl::uint64_t *bitString,
                            bsl::size_t    index,
                            bool           value)
 {
-    BSLS_ASSERT_SAFE(bitString);
+    BSLS_REVIEW(bitString);
 
     const bsl::size_t idx =                       index  / k_BITS_PER_UINT64;
     const int         pos = static_cast<unsigned>(index) % k_BITS_PER_UINT64;
@@ -811,7 +811,7 @@ void BitStringUtil::assign(bsl::uint64_t *bitString,
 inline
 void BitStringUtil::assign0(bsl::uint64_t *bitString, bsl::size_t index)
 {
-    BSLS_ASSERT_SAFE(bitString);
+    BSLS_REVIEW(bitString);
 
     const bsl::size_t idx =                       index  / k_BITS_PER_UINT64;
     const int         pos = static_cast<unsigned>(index) % k_BITS_PER_UINT64;
@@ -822,7 +822,7 @@ void BitStringUtil::assign0(bsl::uint64_t *bitString, bsl::size_t index)
 inline
 void BitStringUtil::assign1(bsl::uint64_t *bitString, bsl::size_t index)
 {
-    BSLS_ASSERT_SAFE(bitString);
+    BSLS_REVIEW(bitString);
 
     const bsl::size_t idx =                       index  / k_BITS_PER_UINT64;
     const int         pos = static_cast<unsigned>(index) % k_BITS_PER_UINT64;
@@ -839,7 +839,7 @@ void BitStringUtil::insert(bsl::uint64_t *bitString,
                            bool           value,
                            bsl::size_t    numBits)
 {
-    BSLS_ASSERT_SAFE(bitString);
+    BSLS_REVIEW(bitString);
 
     insertRaw(bitString, initialLength, dstIndex, numBits);
     assign(bitString, dstIndex, value, numBits);
@@ -851,7 +851,7 @@ void BitStringUtil::insert0(bsl::uint64_t *bitString,
                             bsl::size_t    dstIndex,
                             bsl::size_t    numBits)
 {
-    BSLS_ASSERT_SAFE(bitString);
+    BSLS_REVIEW(bitString);
 
     insertRaw(bitString, initialLength, dstIndex, numBits);
     assign0(bitString, dstIndex, numBits);
@@ -863,7 +863,7 @@ void BitStringUtil::insert1(bsl::uint64_t *bitString,
                             bsl::size_t    dstIndex,
                             bsl::size_t    numBits)
 {
-    BSLS_ASSERT_SAFE(bitString);
+    BSLS_REVIEW(bitString);
 
     insertRaw(bitString, initialLength, dstIndex, numBits);
     assign1(bitString, dstIndex, numBits);
@@ -875,7 +875,7 @@ void BitStringUtil::removeAndFill0(bsl::uint64_t *bitString,
                                    bsl::size_t    index,
                                    bsl::size_t    numBits)
 {
-    BSLS_ASSERT_SAFE(bitString);
+    BSLS_REVIEW(bitString);
 
     remove(bitString, length, index, numBits);
     assign0(bitString, length - numBits, numBits);
@@ -887,7 +887,7 @@ void BitStringUtil::removeAndFill1(bsl::uint64_t *bitString,
                                    bsl::size_t    index,
                                    bsl::size_t    numBits)
 {
-    BSLS_ASSERT_SAFE(bitString);
+    BSLS_REVIEW(bitString);
 
     remove(bitString, length, index, numBits);
     assign1(bitString, length - numBits, numBits);
@@ -899,7 +899,7 @@ void BitStringUtil::removeAndFill1(bsl::uint64_t *bitString,
 inline
 bool BitStringUtil::bit(const bsl::uint64_t *bitString, bsl::size_t index)
 {
-    BSLS_ASSERT_SAFE(bitString);
+    BSLS_REVIEW(bitString);
 
     const bsl::size_t idx =                       index  / k_BITS_PER_UINT64;
     const int         pos = static_cast<unsigned>(index) % k_BITS_PER_UINT64;
@@ -914,7 +914,7 @@ bsl::size_t BitStringUtil::num0(const bsl::uint64_t *bitString,
                                 bsl::size_t          index,
                                 bsl::size_t          numBits)
 {
-    BSLS_ASSERT_SAFE(bitString);
+    BSLS_REVIEW(bitString);
 
     return numBits - num1(bitString, index, numBits);
 }

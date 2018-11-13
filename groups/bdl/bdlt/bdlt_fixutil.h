@@ -903,8 +903,8 @@ struct FixUtil {
 inline
 int FixUtil::generate(char *buffer, int bufferLength, const Date& object)
 {
-    BSLS_ASSERT_SAFE(buffer);
-    BSLS_ASSERT_SAFE(0 <= bufferLength);
+    BSLS_REVIEW(buffer);
+    BSLS_REVIEW(0 <= bufferLength);
 
     return generate(buffer,
                     bufferLength,
@@ -915,8 +915,8 @@ int FixUtil::generate(char *buffer, int bufferLength, const Date& object)
 inline
 int FixUtil::generate(char *buffer, int bufferLength, const Time& object)
 {
-    BSLS_ASSERT_SAFE(buffer);
-    BSLS_ASSERT_SAFE(0 <= bufferLength);
+    BSLS_REVIEW(buffer);
+    BSLS_REVIEW(0 <= bufferLength);
 
     return generate(buffer,
                     bufferLength,
@@ -928,8 +928,8 @@ inline
 int
 FixUtil::generate(char *buffer, int bufferLength, const Datetime& object)
 {
-    BSLS_ASSERT_SAFE(buffer);
-    BSLS_ASSERT_SAFE(0 <= bufferLength);
+    BSLS_REVIEW(buffer);
+    BSLS_REVIEW(0 <= bufferLength);
 
     return generate(buffer,
                     bufferLength,
@@ -940,8 +940,8 @@ FixUtil::generate(char *buffer, int bufferLength, const Datetime& object)
 inline
 int FixUtil::generate(char *buffer, int bufferLength, const DateTz& object)
 {
-    BSLS_ASSERT_SAFE(buffer);
-    BSLS_ASSERT_SAFE(0 <= bufferLength);
+    BSLS_REVIEW(buffer);
+    BSLS_REVIEW(0 <= bufferLength);
 
     return generate(buffer,
                     bufferLength,
@@ -952,8 +952,8 @@ int FixUtil::generate(char *buffer, int bufferLength, const DateTz& object)
 inline
 int FixUtil::generate(char *buffer, int bufferLength, const TimeTz& object)
 {
-    BSLS_ASSERT_SAFE(buffer);
-    BSLS_ASSERT_SAFE(0 <= bufferLength);
+    BSLS_REVIEW(buffer);
+    BSLS_REVIEW(0 <= bufferLength);
 
     return generate(buffer,
                     bufferLength,
@@ -965,8 +965,8 @@ inline
 int
 FixUtil::generate(char *buffer, int bufferLength, const DatetimeTz& object)
 {
-    BSLS_ASSERT_SAFE(buffer);
-    BSLS_ASSERT_SAFE(0 <= bufferLength);
+    BSLS_REVIEW(buffer);
+    BSLS_REVIEW(0 <= bufferLength);
 
     return generate(buffer,
                     bufferLength,
@@ -977,7 +977,7 @@ FixUtil::generate(char *buffer, int bufferLength, const DatetimeTz& object)
 inline
 int FixUtil::generate(bsl::string *string, const Date& object)
 {
-    BSLS_ASSERT_SAFE(string);
+    BSLS_REVIEW(string);
 
     return generate(string,
                     object,
@@ -987,7 +987,7 @@ int FixUtil::generate(bsl::string *string, const Date& object)
 inline
 int FixUtil::generate(bsl::string *string, const Time& object)
 {
-    BSLS_ASSERT_SAFE(string);
+    BSLS_REVIEW(string);
 
     return generate(string,
                     object,
@@ -997,7 +997,7 @@ int FixUtil::generate(bsl::string *string, const Time& object)
 inline
 int FixUtil::generate(bsl::string *string, const Datetime& object)
 {
-    BSLS_ASSERT_SAFE(string);
+    BSLS_REVIEW(string);
 
     return generate(string,
                     object,
@@ -1007,7 +1007,7 @@ int FixUtil::generate(bsl::string *string, const Datetime& object)
 inline
 int FixUtil::generate(bsl::string *string, const DateTz& object)
 {
-    BSLS_ASSERT_SAFE(string);
+    BSLS_REVIEW(string);
 
     return generate(string,
                     object,
@@ -1017,7 +1017,7 @@ int FixUtil::generate(bsl::string *string, const DateTz& object)
 inline
 int FixUtil::generate(bsl::string *string, const TimeTz& object)
 {
-    BSLS_ASSERT_SAFE(string);
+    BSLS_REVIEW(string);
 
     return generate(string,
                     object,
@@ -1027,7 +1027,7 @@ int FixUtil::generate(bsl::string *string, const TimeTz& object)
 inline
 int FixUtil::generate(bsl::string *string, const DatetimeTz& object)
 {
-    BSLS_ASSERT_SAFE(string);
+    BSLS_REVIEW(string);
 
     return generate(string,
                     object,
@@ -1050,7 +1050,7 @@ bsl::ostream& FixUtil::generate(bsl::ostream&               stream,
     char buffer[k_DATE_STRLEN + 1];
 
     const int len = generate(buffer, k_DATE_STRLEN, object, configuration);
-    BSLS_ASSERT_SAFE(k_DATE_STRLEN >= len);
+    BSLS_REVIEW(k_DATE_STRLEN >= len);
 
     return stream.write(buffer, len);
 }
@@ -1071,7 +1071,7 @@ bsl::ostream& FixUtil::generate(bsl::ostream&               stream,
     char buffer[k_TIME_STRLEN + 1];
 
     const int len = generate(buffer, k_TIME_STRLEN, object, configuration);
-    BSLS_ASSERT_SAFE(k_TIME_STRLEN >= len);
+    BSLS_REVIEW(k_TIME_STRLEN >= len);
 
     return stream.write(buffer, len);
 }
@@ -1093,7 +1093,7 @@ bsl::ostream& FixUtil::generate(bsl::ostream&               stream,
     char buffer[k_DATETIME_STRLEN + 1];
 
     const int len = generate(buffer, k_DATETIME_STRLEN, object, configuration);
-    BSLS_ASSERT_SAFE(k_DATETIME_STRLEN >= len);
+    BSLS_REVIEW(k_DATETIME_STRLEN >= len);
 
     return stream.write(buffer, len);
 }
@@ -1114,7 +1114,7 @@ bsl::ostream& FixUtil::generate(bsl::ostream&               stream,
     char buffer[k_DATETZ_STRLEN + 1];
 
     const int len = generate(buffer, k_DATETZ_STRLEN, object, configuration);
-    BSLS_ASSERT_SAFE(k_DATETZ_STRLEN >= len);
+    BSLS_REVIEW(k_DATETZ_STRLEN >= len);
 
     return stream.write(buffer, len);
 }
@@ -1135,7 +1135,7 @@ bsl::ostream& FixUtil::generate(bsl::ostream&               stream,
     char buffer[k_TIMETZ_STRLEN + 1];
 
     const int len = generate(buffer, k_TIMETZ_STRLEN, object, configuration);
-    BSLS_ASSERT_SAFE(k_TIMETZ_STRLEN >= len);
+    BSLS_REVIEW(k_TIMETZ_STRLEN >= len);
 
     return stream.write(buffer, len);
 }
@@ -1160,7 +1160,7 @@ bsl::ostream& FixUtil::generate(bsl::ostream&               stream,
                              k_DATETIMETZ_STRLEN,
                              object,
                              configuration);
-    BSLS_ASSERT_SAFE(k_DATETIMETZ_STRLEN >= len);
+    BSLS_REVIEW(k_DATETIMETZ_STRLEN >= len);
 
     return stream.write(buffer, len);
 }
@@ -1168,7 +1168,7 @@ bsl::ostream& FixUtil::generate(bsl::ostream&               stream,
 inline
 int FixUtil::generateRaw(char *buffer, const Date& object)
 {
-    BSLS_ASSERT_SAFE(buffer);
+    BSLS_REVIEW(buffer);
 
     return generateRaw(buffer,
                        object,
@@ -1178,7 +1178,7 @@ int FixUtil::generateRaw(char *buffer, const Date& object)
 inline
 int FixUtil::generateRaw(char *buffer, const Time& object)
 {
-    BSLS_ASSERT_SAFE(buffer);
+    BSLS_REVIEW(buffer);
 
     return generateRaw(buffer,
                        object,
@@ -1188,7 +1188,7 @@ int FixUtil::generateRaw(char *buffer, const Time& object)
 inline
 int FixUtil::generateRaw(char *buffer, const Datetime& object)
 {
-    BSLS_ASSERT_SAFE(buffer);
+    BSLS_REVIEW(buffer);
 
     return generateRaw(buffer,
                        object,
@@ -1198,7 +1198,7 @@ int FixUtil::generateRaw(char *buffer, const Datetime& object)
 inline
 int FixUtil::generateRaw(char *buffer, const DateTz& object)
 {
-    BSLS_ASSERT_SAFE(buffer);
+    BSLS_REVIEW(buffer);
 
     return generateRaw(buffer,
                        object,
@@ -1208,7 +1208,7 @@ int FixUtil::generateRaw(char *buffer, const DateTz& object)
 inline
 int FixUtil::generateRaw(char *buffer, const TimeTz& object)
 {
-    BSLS_ASSERT_SAFE(buffer);
+    BSLS_REVIEW(buffer);
 
     return generateRaw(buffer,
                        object,
@@ -1218,7 +1218,7 @@ int FixUtil::generateRaw(char *buffer, const TimeTz& object)
 inline
 int FixUtil::generateRaw(char *buffer, const DatetimeTz& object)
 {
-    BSLS_ASSERT_SAFE(buffer);
+    BSLS_REVIEW(buffer);
 
     return generateRaw(buffer,
                        object,
@@ -1228,7 +1228,7 @@ int FixUtil::generateRaw(char *buffer, const DatetimeTz& object)
 inline
 int FixUtil::parse(Date *result, const bslstl::StringRef& string)
 {
-    BSLS_ASSERT_SAFE(string.data());
+    BSLS_REVIEW(string.data());
 
     return parse(result, string.data(), static_cast<int>(string.length()));
 }
@@ -1236,7 +1236,7 @@ int FixUtil::parse(Date *result, const bslstl::StringRef& string)
 inline
 int FixUtil::parse(Time *result, const bslstl::StringRef& string)
 {
-    BSLS_ASSERT_SAFE(string.data());
+    BSLS_REVIEW(string.data());
 
     return parse(result, string.data(), static_cast<int>(string.length()));
 }
@@ -1244,7 +1244,7 @@ int FixUtil::parse(Time *result, const bslstl::StringRef& string)
 inline
 int FixUtil::parse(Datetime *result, const bslstl::StringRef& string)
 {
-    BSLS_ASSERT_SAFE(string.data());
+    BSLS_REVIEW(string.data());
 
     return parse(result, string.data(), static_cast<int>(string.length()));
 }
@@ -1252,7 +1252,7 @@ int FixUtil::parse(Datetime *result, const bslstl::StringRef& string)
 inline
 int FixUtil::parse(DateTz *result, const bslstl::StringRef& string)
 {
-    BSLS_ASSERT_SAFE(string.data());
+    BSLS_REVIEW(string.data());
 
     return parse(result, string.data(), static_cast<int>(string.length()));
 }
@@ -1260,7 +1260,7 @@ int FixUtil::parse(DateTz *result, const bslstl::StringRef& string)
 inline
 int FixUtil::parse(TimeTz *result, const bslstl::StringRef& string)
 {
-    BSLS_ASSERT_SAFE(string.data());
+    BSLS_REVIEW(string.data());
 
     return parse(result, string.data(), static_cast<int>(string.length()));
 }
@@ -1268,7 +1268,7 @@ int FixUtil::parse(TimeTz *result, const bslstl::StringRef& string)
 inline
 int FixUtil::parse(DatetimeTz *result, const bslstl::StringRef& string)
 {
-    BSLS_ASSERT_SAFE(string.data());
+    BSLS_REVIEW(string.data());
 
     return parse(result, string.data(), static_cast<int>(string.length()));
 }

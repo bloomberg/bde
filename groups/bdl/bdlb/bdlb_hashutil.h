@@ -829,7 +829,7 @@ struct HashUtil {
 inline
 unsigned int HashUtil::hash0(int key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     if (4 == sizeof(int)) {
         return static_cast<unsigned int>(key)
@@ -844,7 +844,7 @@ unsigned int HashUtil::hash0(int key, int modulus)
 inline
 unsigned int HashUtil::hash0(bsls::Types::Int64 key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     return ((static_cast<unsigned int>((key >> 32) & 0xFFFFFFFF)
            % static_cast<unsigned int>(modulus))
@@ -855,7 +855,7 @@ unsigned int HashUtil::hash0(bsls::Types::Int64 key, int modulus)
 inline
 unsigned int HashUtil::hash0(char key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     return HashUtil::hash0(static_cast<int>(static_cast<unsigned char>(key)),
                            modulus);
@@ -864,7 +864,7 @@ unsigned int HashUtil::hash0(char key, int modulus)
 inline
 unsigned int HashUtil::hash0(signed char key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     return HashUtil::hash0(static_cast<int>(static_cast<unsigned char>(key)),
                            modulus);
@@ -873,7 +873,7 @@ unsigned int HashUtil::hash0(signed char key, int modulus)
 inline
 unsigned int HashUtil::hash0(unsigned char key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     return HashUtil::hash0(static_cast<int>(key), modulus);
 }
@@ -881,7 +881,7 @@ unsigned int HashUtil::hash0(unsigned char key, int modulus)
 inline
 unsigned int HashUtil::hash0(short key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     return HashUtil::hash0(static_cast<int>(static_cast<unsigned short>(key)),
                            modulus);
@@ -890,7 +890,7 @@ unsigned int HashUtil::hash0(short key, int modulus)
 inline
 unsigned int HashUtil::hash0(unsigned short key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     return HashUtil::hash0(static_cast<int>(key), modulus);
 }
@@ -898,7 +898,7 @@ unsigned int HashUtil::hash0(unsigned short key, int modulus)
 inline
 unsigned int HashUtil::hash0(unsigned int key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     return HashUtil::hash0(static_cast<int>(key), modulus);
 }
@@ -906,7 +906,7 @@ unsigned int HashUtil::hash0(unsigned int key, int modulus)
 inline
 unsigned int HashUtil::hash0(long key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     if (4 == sizeof(long)) {
         return HashUtil::hash0(
@@ -923,7 +923,7 @@ unsigned int HashUtil::hash0(long key, int modulus)
 inline
 unsigned int HashUtil::hash0(unsigned long key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     if (4 == sizeof(unsigned long)) {
         return HashUtil::hash0(static_cast<int>(key), modulus);       // RETURN
@@ -937,7 +937,7 @@ unsigned int HashUtil::hash0(unsigned long key, int modulus)
 inline
 unsigned int HashUtil::hash0(bsls::Types::Uint64 key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     return HashUtil::hash0(static_cast<bsls::Types::Int64>(key), modulus);
 }
@@ -945,7 +945,7 @@ unsigned int HashUtil::hash0(bsls::Types::Uint64 key, int modulus)
 inline
 unsigned int HashUtil::hash0(double key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     bsls::Types::Int64 *v = reinterpret_cast<bsls::Types::Int64 *>(&key);
     return HashUtil::hash0(*v, modulus);
@@ -954,7 +954,7 @@ unsigned int HashUtil::hash0(double key, int modulus)
 inline
 unsigned int HashUtil::hash0(float key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     return HashUtil::hash0(static_cast<double>(key), modulus);
 }
@@ -962,7 +962,7 @@ unsigned int HashUtil::hash0(float key, int modulus)
 inline
 unsigned int HashUtil::hash0(const void *key, int modulus)
 {
-    BSLS_ASSERT_SAFE(0 < modulus);
+    BSLS_REVIEW(0 < modulus);
 
     if (4 == sizeof(void *)) {
         const int *v = reinterpret_cast<const int *>(&key);

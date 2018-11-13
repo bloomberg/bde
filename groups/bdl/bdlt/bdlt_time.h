@@ -610,8 +610,8 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Time& time);
 inline
 void Time::setMicrosecondsFromMidnight(bsls::Types::Int64 totalMicroseconds)
 {
-    BSLS_ASSERT_SAFE(                        0 <= totalMicroseconds);
-    BSLS_ASSERT_SAFE(TimeUnitRatio::k_US_PER_D >= totalMicroseconds);
+    BSLS_REVIEW(                        0 <= totalMicroseconds);
+    BSLS_REVIEW(TimeUnitRatio::k_US_PER_D >= totalMicroseconds);
 
     d_value = totalMicroseconds | k_REP_MASK;
 }

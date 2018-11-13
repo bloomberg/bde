@@ -2236,7 +2236,7 @@ int PackedCalendar::addHolidayIfInRange(const Date& date)
 inline
 void PackedCalendar::reserveHolidayCapacity(int numHolidays)
 {
-    BSLS_ASSERT_SAFE(0 <= numHolidays);
+    BSLS_REVIEW(0 <= numHolidays);
 
     d_holidayOffsets.reserveCapacity(numHolidays);
     d_holidayCodesIndex.reserveCapacity(numHolidays);
@@ -2245,7 +2245,7 @@ void PackedCalendar::reserveHolidayCapacity(int numHolidays)
 inline
 void PackedCalendar::reserveHolidayCodeCapacity(int numHolidayCodes)
 {
-    BSLS_ASSERT_SAFE(0 <= numHolidayCodes);
+    BSLS_REVIEW(0 <= numHolidayCodes);
 
     d_holidayCodes.reserveCapacity(numHolidayCodes);
 }
@@ -2427,7 +2427,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
                 stream.invalidate();
                 return stream;                                        // RETURN
             }
-            BSLS_ASSERT_SAFE(offsetsLength >= 0);
+            BSLS_REVIEW(offsetsLength >= 0);
 
             int codesLength;
             stream.getLength(codesLength);
@@ -2560,7 +2560,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
                 }
                 previousValue = tmp;
             }
-            BSLS_ASSERT_SAFE(it == end);
+            BSLS_REVIEW(it == end);
 
             swap(inCal);  // This cannot throw.
           } break;
@@ -2601,7 +2601,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
                 stream.invalidate();
                 return stream;                                        // RETURN
             }
-            BSLS_ASSERT_SAFE(offsetsLength >= 0);
+            BSLS_REVIEW(offsetsLength >= 0);
 
             int codesLength;
             stream.getLength(codesLength);
@@ -2711,7 +2711,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
                 }
                 previousValue = tmp;
             }
-            BSLS_ASSERT_SAFE(it == end);
+            BSLS_REVIEW(it == end);
 
             swap(inCal);  // This cannot throw.
           } break;

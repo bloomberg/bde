@@ -342,7 +342,7 @@ inline
 Iso8601UtilConfiguration::Iso8601UtilConfiguration(int configurationMask)
 : d_configurationMask(configurationMask)
 {
-    BSLS_ASSERT_SAFE(0 == (configurationMask
+    BSLS_REVIEW(0 == (configurationMask
                            & ~(k_FRACTIONAL_SECOND_PRECISION_MASK
                              | k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT
                              | k_USE_COMMA_FOR_DECIMAL_SIGN_BIT
@@ -382,7 +382,7 @@ Iso8601UtilConfiguration::Iso8601UtilConfiguration(
 inline
 Iso8601UtilConfiguration::~Iso8601UtilConfiguration()
 {
-    BSLS_ASSERT_SAFE(0 == (d_configurationMask
+    BSLS_REVIEW(0 == (d_configurationMask
                            & ~(k_FRACTIONAL_SECOND_PRECISION_MASK
                              | k_OMIT_COLON_IN_ZONE_DESIGNATOR_BIT
                              | k_USE_COMMA_FOR_DECIMAL_SIGN_BIT

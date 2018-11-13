@@ -6,7 +6,9 @@
 #include <bslma_testallocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+
 #include <bsls_asserttest.h>
+#include <bsls_review.h>
 
 #include <bslx_byteinstream.h>
 #include <bslx_byteoutstream.h>
@@ -387,6 +389,9 @@ int main(int argc, char *argv[])
     const bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator globalAlloc;
     bslma::TestAllocator dfltAlloc;

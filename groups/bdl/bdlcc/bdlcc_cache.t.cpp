@@ -23,10 +23,12 @@
 #include <bsltf_testvaluesarray.h>
 
 #include <bslmf_assert.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
+#include <bsls_review.h>
 #include <bsls_timeutil.h>  // 'CachePerformance'
-#include <bsls_types.h>     // 'BloombergLP::bsls::Types::Int64'
+#include <bsls_types.h>     // 'BloombergLP::bsls::Types::Int64'             
 
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
@@ -3836,6 +3838,9 @@ int main(int argc, char *argv[])
     veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the default allocator.
 

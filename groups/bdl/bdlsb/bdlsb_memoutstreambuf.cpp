@@ -43,7 +43,7 @@ void MemOutStreamBuf::grow(size_t newLength)
         }
     }
 
-    BSLS_ASSERT_SAFE(newCapacity >= newLength);
+    BSLS_REVIEW(newCapacity >= newLength);
 
     reserveCapacity(newCapacity);
 }
@@ -109,7 +109,7 @@ bsl::streamsize MemOutStreamBuf::xsputn(const char_type *source,
 
     const bsl::size_t newLength =
                                  static_cast<bsl::size_t>(length() + numChars);
-    BSLS_ASSERT_SAFE(newLength >= length());
+    BSLS_REVIEW(newLength >= length());
 
     if (newLength > capacity()) {
         grow(newLength);

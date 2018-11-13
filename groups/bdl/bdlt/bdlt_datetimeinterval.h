@@ -891,7 +891,7 @@ bsls::Types::Int64 DatetimeInterval::totalMilliseconds() const
 inline
 bsls::Types::Int64 DatetimeInterval::totalMicroseconds() const
 {
-    BSLS_ASSERT_SAFE(   0 >= d_days
+    BSLS_REVIEW(   0 >= d_days
                      || (bsl::numeric_limits<bsls::Types::Int64>::max() -
                         d_microseconds) / TimeUnitRatio::k_US_PER_D >= d_days);
 
@@ -900,9 +900,9 @@ bsls::Types::Int64 DatetimeInterval::totalMicroseconds() const
  || BSLS_PLATFORM_CMP_VERSION >= 0x5140
 
     // Older versions of the Sun compiler (e.g., 5.12.3 and 5.12.4) fail to
-    // compile the following 'BSLS_ASSERT_SAFE' correctly in optimized builds.
+    // compile the following 'BSLS_REVIEW' correctly in optimized builds.
 
-    BSLS_ASSERT_SAFE(   0 <= d_days
+    BSLS_REVIEW(   0 <= d_days
                      || (bsl::numeric_limits<bsls::Types::Int64>::min() -
                         d_microseconds) / TimeUnitRatio::k_US_PER_D <= d_days);
 
@@ -981,7 +981,7 @@ bdlt::DatetimeInterval bdlt::operator-(const DatetimeInterval& lhs,
 inline
 bdlt::DatetimeInterval bdlt::operator-(const DatetimeInterval& value)
 {
-    BSLS_ASSERT_SAFE(value.d_days > bsl::numeric_limits<int32_t>::min());
+    BSLS_REVIEW(value.d_days > bsl::numeric_limits<int32_t>::min());
 
     DatetimeInterval interval;
 

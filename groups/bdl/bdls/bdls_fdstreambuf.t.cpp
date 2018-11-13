@@ -14,7 +14,9 @@
 #include <bdls_filesystemutil.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_fstream.h>
@@ -243,6 +245,9 @@ int main(int argc, char *argv[])
     bool         veryVerbose = argc > 3;
 //  bool     veryVeryVerbose = argc > 4;
 //  bool veryVeryVeryVerbose = argc > 5;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     char tmpDirName[] = "C:\\TEMP";

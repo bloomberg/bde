@@ -165,7 +165,7 @@ MemoryBlockDescriptor::MemoryBlockDescriptor(void      *address,
 : d_address_p(address)
 , d_size(size)
 {
-    BSLS_ASSERT_SAFE(address || 0 == size);
+    BSLS_REVIEW(address || 0 == size);
 }
 
 inline
@@ -190,7 +190,7 @@ MemoryBlockDescriptor& MemoryBlockDescriptor::operator=(
 inline
 void MemoryBlockDescriptor::setAddressAndSize(void *address, size_type size)
 {
-    BSLS_ASSERT_SAFE(address || 0 == size);
+    BSLS_REVIEW(address || 0 == size);
 
     d_address_p = address;
     d_size      = size;

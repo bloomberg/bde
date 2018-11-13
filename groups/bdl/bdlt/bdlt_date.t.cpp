@@ -8,6 +8,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_review.h>
 
 #include <bslx_byteinstream.h>
 #include <bslx_byteoutstream.h>
@@ -346,6 +347,9 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     // CONCERN: This test driver is reusable w/other, similar components.
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
 

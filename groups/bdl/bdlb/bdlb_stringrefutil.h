@@ -345,7 +345,7 @@ bslstl::StringRef StringRefUtil::substr(const bslstl::StringRef& string,
                                         size_type                position,
                                         size_type                numChars)
 {
-    BSLS_ASSERT_SAFE(position <= string.length());
+    BSLS_REVIEW(position <= string.length());
 
     return bslstl::StringRef(string, position, numChars);
 }

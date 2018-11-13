@@ -189,7 +189,7 @@ int LineFit::count() const
 inline
 void LineFit::fit(double *alpha, double *beta) const
 {
-    BSLS_ASSERT_SAFE(2 <= d_count && 0.0 != d_M2);
+    BSLS_REVIEW(2 <= d_count && 0.0 != d_M2);
 
     const double n = static_cast<double>(d_count);
     double tmpBeta = (d_xySum - d_xSum * d_ySum / n) / d_M2;
@@ -213,7 +213,7 @@ int LineFit::fitIfValid(double *alpha, double *beta) const
 inline
 double LineFit::variance() const
 {
-    BSLS_ASSERT_SAFE(2 <= d_count);
+    BSLS_REVIEW(2 <= d_count);
 
     return d_M2 / (d_count - 1);
 }
@@ -231,7 +231,7 @@ int LineFit::varianceIfValid(double *result) const
 inline
 double LineFit::xMean() const
 {
-    BSLS_ASSERT_SAFE(1 <= d_count);
+    BSLS_REVIEW(1 <= d_count);
 
     return d_xSum / static_cast<double>(d_count);
 }
@@ -249,7 +249,7 @@ int LineFit::xMeanIfValid(double *result) const
 inline
 double LineFit::yMean() const
 {
-    BSLS_ASSERT_SAFE(1 <= d_count);
+    BSLS_REVIEW(1 <= d_count);
 
     return d_ySum / static_cast<double>(d_count);
 }

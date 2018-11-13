@@ -35,8 +35,8 @@ DayOfWeekSet_Iter::DayOfWeekSet_Iter(int data, int index)
 : d_data( static_cast<unsigned char>(data))
 , d_index(static_cast<signed   char>(index))
 {
-    BSLS_ASSERT_SAFE(0 == (data & 1));
-    BSLS_ASSERT_SAFE(index >= 0 && index <= 8);
+    BSLS_REVIEW(0 == (data & 1));
+    BSLS_REVIEW(index >= 0 && index <= 8);
 
     while (d_index < 8 && !((1 << d_index) & d_data)) {
         ++d_index;

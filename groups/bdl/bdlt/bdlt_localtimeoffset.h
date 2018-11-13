@@ -276,7 +276,7 @@ inline
 LocalTimeOffset::LocalTimeOffsetCallback
   LocalTimeOffset::setLocalTimeOffsetCallback(LocalTimeOffsetCallback callback)
 {
-    BSLS_ASSERT_SAFE(callback);
+    BSLS_REVIEW(callback);
 
     LocalTimeOffsetCallback previousCallback = localTimeOffsetCallback();
     bsls::AtomicOperations::setPtrRelease(

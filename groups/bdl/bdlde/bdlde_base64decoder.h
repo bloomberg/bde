@@ -584,7 +584,7 @@ class Base64Decoder {
 inline
 int Base64Decoder::maxDecodedLength(int inputLength)
 {
-    BSLS_ASSERT_SAFE(0 <= inputLength);
+    BSLS_REVIEW(0 <= inputLength);
 
     return (inputLength + 3) / 4 * 3;
 }

@@ -17,6 +17,7 @@
 #include <bslmf_issame.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_review.h>
 
 #include <bsl_cctype.h>
 #include <bsl_cstdlib.h>
@@ -587,6 +588,9 @@ int main(int argc, char *argv[])
     int veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
 

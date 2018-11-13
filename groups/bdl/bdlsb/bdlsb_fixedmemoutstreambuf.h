@@ -239,8 +239,8 @@ inline
 FixedMemOutStreamBuf *
 FixedMemOutStreamBuf::setbuf(char_type *buffer, bsl::streamsize length)
 {
-    BSLS_ASSERT_SAFE(buffer || 0 == length);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_REVIEW(buffer || 0 == length);
+    BSLS_REVIEW(0 <= length);
 
     // Reset pointers and length.
     setp(buffer, buffer + length);
@@ -252,8 +252,8 @@ inline
 FixedMemOutStreamBuf::FixedMemOutStreamBuf(char            *buffer,
                                            bsl::streamsize  length)
 {
-    BSLS_ASSERT_SAFE(buffer || 0 == length);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_REVIEW(buffer || 0 == length);
+    BSLS_REVIEW(0 <= length);
 
     setp(buffer, buffer + length);
 }

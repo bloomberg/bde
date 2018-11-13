@@ -233,7 +233,7 @@ bool BitUtil::isBitSet(uint64_t value, int index)
 inline
 int BitUtil::log2(uint32_t value)
 {
-    BSLS_ASSERT_SAFE(0 < value);
+    BSLS_REVIEW(0 < value);
 
     return k_BITS_PER_INT32 - numLeadingUnsetBits(value - 1);
 }
@@ -241,7 +241,7 @@ int BitUtil::log2(uint32_t value)
 inline
 int BitUtil::log2(uint64_t value)
 {
-    BSLS_ASSERT_SAFE(0ULL < value);
+    BSLS_REVIEW(0ULL < value);
 
     return k_BITS_PER_INT64 - numLeadingUnsetBits(value - 1);
 }
@@ -342,7 +342,7 @@ int BitUtil::numTrailingUnsetBits(uint64_t value)
 inline
 BitUtil::uint32_t BitUtil::roundUp(uint32_t value, uint32_t boundary)
 {
-    BSLS_ASSERT_SAFE(1 == numBitsSet(boundary));
+    BSLS_REVIEW(1 == numBitsSet(boundary));
 
     return ((value - 1) | (boundary - 1)) + 1;
 }
@@ -350,7 +350,7 @@ BitUtil::uint32_t BitUtil::roundUp(uint32_t value, uint32_t boundary)
 inline
 BitUtil::uint64_t BitUtil::roundUp(uint64_t value, uint64_t boundary)
 {
-    BSLS_ASSERT_SAFE(1 == numBitsSet(boundary));
+    BSLS_REVIEW(1 == numBitsSet(boundary));
 
     return ((value - 1) | (boundary - 1)) + 1;
 }
@@ -383,8 +383,8 @@ int BitUtil::sizeInBits(TYPE)
 inline
 BitUtil::uint32_t BitUtil::withBitCleared(uint32_t value, int index)
 {
-    BSLS_ASSERT_SAFE(    0 <= index);
-    BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT32);
+    BSLS_REVIEW(    0 <= index);
+    BSLS_REVIEW(index <  k_BITS_PER_INT32);
 
     return value & ~(1 << index);
 }
@@ -392,8 +392,8 @@ BitUtil::uint32_t BitUtil::withBitCleared(uint32_t value, int index)
 inline
 BitUtil::uint64_t BitUtil::withBitCleared(uint64_t value, int index)
 {
-    BSLS_ASSERT_SAFE(    0 <= index);
-    BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT64);
+    BSLS_REVIEW(    0 <= index);
+    BSLS_REVIEW(index <  k_BITS_PER_INT64);
 
     return value & ~(static_cast<uint64_t>(1) << index);
 }
@@ -401,8 +401,8 @@ BitUtil::uint64_t BitUtil::withBitCleared(uint64_t value, int index)
 inline
 BitUtil::uint32_t BitUtil::withBitSet(uint32_t value, int index)
 {
-    BSLS_ASSERT_SAFE(    0 <= index);
-    BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT32);
+    BSLS_REVIEW(    0 <= index);
+    BSLS_REVIEW(index <  k_BITS_PER_INT32);
 
     return value | (1 << index);
 }
@@ -410,8 +410,8 @@ BitUtil::uint32_t BitUtil::withBitSet(uint32_t value, int index)
 inline
 BitUtil::uint64_t BitUtil::withBitSet(uint64_t value, int index)
 {
-    BSLS_ASSERT_SAFE(    0 <= index);
-    BSLS_ASSERT_SAFE(index <  k_BITS_PER_INT64);
+    BSLS_REVIEW(    0 <= index);
+    BSLS_REVIEW(index <  k_BITS_PER_INT64);
 
     return value | (static_cast<uint64_t>(1) << index);
 }

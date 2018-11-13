@@ -14,6 +14,7 @@
 #include <bsls_blockgrowth.h>
 #include <bsls_buildtarget.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_cstdio.h>
@@ -494,6 +495,9 @@ int main(int argc, char *argv[])
     int veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     // CONCERN: In no case does memory come from the global allocator.
 

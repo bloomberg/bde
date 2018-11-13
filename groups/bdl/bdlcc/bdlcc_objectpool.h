@@ -951,7 +951,7 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::addObjects(int numObjects)
     // object nodes, and objects.  Too large a value for 'numObjects' would
     // cause overflow in 'NUM_BYTES_PER_BLOCK' below.
 
-    BSLS_ASSERT_SAFE(numObjects <= k_MAX_NUM_OBJECTS_PER_FRAME);
+    BSLS_REVIEW(numObjects <= k_MAX_NUM_OBJECTS_PER_FRAME);
 
     const int NUM_BYTES_PER_BLOCK = (int)(sizeof(BlockNode) +
                                           sizeof(ObjectNode) * numObjects *

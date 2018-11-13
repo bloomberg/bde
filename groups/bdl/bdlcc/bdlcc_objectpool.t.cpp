@@ -18,7 +18,10 @@
 #include <bslmt_lockguard.h>
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadgroup.h>
+
 #include <bsls_atomic.h>
+#include <bsls_review.h>
+
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
@@ -1300,6 +1303,9 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     using namespace bdlf::PlaceHolders;
 

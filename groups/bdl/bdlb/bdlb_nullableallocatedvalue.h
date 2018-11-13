@@ -479,7 +479,7 @@ template <class TYPE>
 inline
 TYPE& NullableAllocatedValue<TYPE>::value()
 {
-    BSLS_ASSERT_SAFE(!isNull());
+    BSLS_REVIEW(!isNull());
 
     return *d_value_p;
 }
@@ -559,9 +559,9 @@ const TYPE& NullableAllocatedValue<TYPE>::value() const
     // sometimes used as an argument to a template function that only looks at
     // the value type (and does not access the value).
 
-    // BSLS_ASSERT_SAFE(!isNull());
+    // BSLS_REVIEW(!isNull());
 #else
-    BSLS_ASSERT_SAFE(!isNull());
+    BSLS_REVIEW(!isNull());
 #endif
 
     return *d_value_p;

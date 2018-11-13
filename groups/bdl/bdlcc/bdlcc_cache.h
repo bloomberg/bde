@@ -682,9 +682,9 @@ Cache<KEY, VALUE, HASH, EQUAL>::Cache(
 , d_highWatermark(highWatermark)
 , d_postEvictionCallback(bsl::allocator_arg, d_allocator_p)
 {
-    BSLS_ASSERT_SAFE(lowWatermark <= highWatermark);
-    BSLS_ASSERT_SAFE(1 <= lowWatermark);
-    BSLS_ASSERT_SAFE(1 <= highWatermark);
+    BSLS_REVIEW(lowWatermark <= highWatermark);
+    BSLS_REVIEW(1 <= lowWatermark);
+    BSLS_REVIEW(1 <= highWatermark);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -703,9 +703,9 @@ Cache<KEY, VALUE, HASH, EQUAL>::Cache(
 , d_highWatermark(highWatermark)
 , d_postEvictionCallback(bsl::allocator_arg, d_allocator_p)
 {
-    BSLS_ASSERT_SAFE(lowWatermark <= highWatermark);
-    BSLS_ASSERT_SAFE(1 <= lowWatermark);
-    BSLS_ASSERT_SAFE(1 <= highWatermark);
+    BSLS_REVIEW(lowWatermark <= highWatermark);
+    BSLS_REVIEW(1 <= lowWatermark);
+    BSLS_REVIEW(1 <= highWatermark);
 }
 
 // PRIVATE MANIPULATORS

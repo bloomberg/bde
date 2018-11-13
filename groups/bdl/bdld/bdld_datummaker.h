@@ -7616,7 +7616,7 @@ inline
 DatumMaker::DatumMaker(bslma::Allocator *basicAllocator)
 : d_allocator_p(basicAllocator)
 {
-    BSLS_ASSERT_SAFE(basicAllocator);
+    BSLS_REVIEW(basicAllocator);
 }
 
 // ACCESSORS

@@ -44,15 +44,15 @@ bsls::Types::Int64 fastMod(int *number, int base)
     //  *number == *number % base + (*number / base) * base
     //..
 {
-    BSLS_ASSERT_SAFE(number);
-    BSLS_ASSERT_SAFE(1 <= base);
+    BSLS_REVIEW(number);
+    BSLS_REVIEW(1 <= base);
 
     const int initial = *number;
     const int result  = initial / base;
 
     *number = initial % base;
 
-    BSLS_ASSERT_SAFE(initial == *number + result * base);
+    BSLS_REVIEW(initial == *number + result * base);
 
     return result;
 }
@@ -71,15 +71,15 @@ bsls::Types::Int64 fastMod(bsls::Types::Int64 *number, bsls::Types::Int64 base)
     //  *number == *number % base + (*number / base) * base
     //..
 {
-    BSLS_ASSERT_SAFE(number);
-    BSLS_ASSERT_SAFE(1 <= base);
+    BSLS_REVIEW(number);
+    BSLS_REVIEW(1 <= base);
 
     const bsls::Types::Int64 initial = *number;
     const bsls::Types::Int64 result  = initial / base;
 
     *number = initial % base;
 
-    BSLS_ASSERT_SAFE(initial == *number + result * base);
+    BSLS_REVIEW(initial == *number + result * base);
 
     return result;
 }
@@ -96,8 +96,8 @@ bsls::Types::Int64 modulo(bsls::Types::Int64 *number, bsls::Types::Int64 base)
     //..
     // The behavior is undefined unless '1 <= base'.
 {
-    BSLS_ASSERT_SAFE(number);
-    BSLS_ASSERT_SAFE(1 <= base);
+    BSLS_REVIEW(number);
+    BSLS_REVIEW(1 <= base);
 
     bsls::Types::Int64 result = *number / base;
     *number %= base;
@@ -109,8 +109,8 @@ bsls::Types::Int64 modulo(bsls::Types::Int64 *number, bsls::Types::Int64 base)
         --result;
     }
 
-    BSLS_ASSERT_SAFE(0 <= *number);
-    BSLS_ASSERT_SAFE(     *number < base);
+    BSLS_REVIEW(0 <= *number);
+    BSLS_REVIEW(     *number < base);
 
     return result;
 }

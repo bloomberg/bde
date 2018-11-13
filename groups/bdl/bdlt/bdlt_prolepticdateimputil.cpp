@@ -160,10 +160,10 @@ int calendarDaysThroughMonth(int year, int month)
     // undefined unless 'k_MIN_YEAR <= year <= k_MAX_YEAR' and
     // '0 <= month <= k_MAX_MONTH'.
 {
-    BSLS_ASSERT_SAFE(k_MIN_YEAR <= year);
-    BSLS_ASSERT_SAFE(              year  <= k_MAX_YEAR);
-    BSLS_ASSERT_SAFE(         0 <= month);
-    BSLS_ASSERT_SAFE(              month <= k_MAX_MONTH);
+    BSLS_REVIEW(k_MIN_YEAR <= year);
+    BSLS_REVIEW(              year  <= k_MAX_YEAR);
+    BSLS_REVIEW(         0 <= month);
+    BSLS_REVIEW(              month <= k_MAX_MONTH);
 
     return getArrayDaysThroughMonth(year)[month];
 }
@@ -176,8 +176,8 @@ const int *getArrayDaysThroughMonth(int year)
     // an index of 0 always results in the value 0.  The behavior is undefined
     // unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
 {
-    BSLS_ASSERT_SAFE(k_MIN_YEAR <= year);
-    BSLS_ASSERT_SAFE(              year <= k_MAX_YEAR);
+    BSLS_REVIEW(k_MIN_YEAR <= year);
+    BSLS_REVIEW(              year <= k_MAX_YEAR);
 
     return bdlt::ProlepticDateImpUtil::isLeapYear(year)
            ? leapDaysThroughMonth
@@ -190,8 +190,8 @@ int numDaysInPreviousYears(int year)
     // up to but not including the specified 'year'.  The behavior is undefined
     // unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
 {
-    BSLS_ASSERT_SAFE(k_MIN_YEAR <= year);
-    BSLS_ASSERT_SAFE(              year <= k_MAX_YEAR);
+    BSLS_REVIEW(k_MIN_YEAR <= year);
+    BSLS_REVIEW(              year <= k_MAX_YEAR);
 
     const int y = year - 1;
 
@@ -203,8 +203,8 @@ int numLeapYearsSoFar(int year)
     // Return the number of leap years from year 1 to the specified 'year'.
     // The behavior is undefined unless '0 <= year <= k_MAX_YEAR'.
 {
-    BSLS_ASSERT_SAFE(0 <= year);
-    BSLS_ASSERT_SAFE(     year <= k_MAX_YEAR);
+    BSLS_REVIEW(0 <= year);
+    BSLS_REVIEW(     year <= k_MAX_YEAR);
 
     return year / 4 - year / 100 + year / 400;
 }
@@ -355,7 +355,7 @@ int ProlepticDateImpUtil::ymdToDayOfYear(int year, int month, int day)
 
 int ProlepticDateImpUtil::serialToDay(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     if (s_firstCachedSerialDate <= serialDay
                                 && serialDay <= s_lastCachedSerialDate) {
@@ -369,7 +369,7 @@ int ProlepticDateImpUtil::serialToDay(int serialDay)
 
 int ProlepticDateImpUtil::serialToMonth(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     if (s_firstCachedSerialDate <= serialDay
                                 && serialDay <= s_lastCachedSerialDate) {
@@ -384,7 +384,7 @@ int ProlepticDateImpUtil::serialToMonth(int serialDay)
 
 int ProlepticDateImpUtil::serialToYear(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     if (s_firstCachedSerialDate <= serialDay
                                 && serialDay <= s_lastCachedSerialDate) {
@@ -405,7 +405,7 @@ void ProlepticDateImpUtil::serialToYmd(int *year,
     BSLS_ASSERT(year);
     BSLS_ASSERT(month);
     BSLS_ASSERT(day);
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     if (s_firstCachedSerialDate <= serialDay
                                 && serialDay <= s_lastCachedSerialDate) {

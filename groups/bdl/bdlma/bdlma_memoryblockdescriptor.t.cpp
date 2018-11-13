@@ -16,6 +16,7 @@
 #include <bslma_testallocator.h>          // for testing only
 
 #include <bsls_alignment.h>
+#include <bsls_review.h>
 
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -134,6 +135,9 @@ int main(int argc, char *argv[])
     bool veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator         talloc;
     bslma::DefaultAllocatorGuard guard(&talloc);

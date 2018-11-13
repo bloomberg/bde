@@ -361,7 +361,7 @@ DateTz::DateTz(const Date& localDate, int offset)
 : d_localDate(localDate)
 , d_offset(offset)
 {
-    BSLS_ASSERT_SAFE(isValid(localDate, offset));
+    BSLS_REVIEW(isValid(localDate, offset));
 }
 
 inline
@@ -374,7 +374,7 @@ DateTz::DateTz(const DateTz& original)
 inline
 DateTz::~DateTz()
 {
-    BSLS_ASSERT_SAFE(isValid(d_localDate, d_offset));
+    BSLS_REVIEW(isValid(d_localDate, d_offset));
 }
 
 // MANIPULATORS
@@ -390,7 +390,7 @@ DateTz& DateTz::operator=(const DateTz& rhs)
 inline
 void DateTz::setDateTz(const Date& localDate, int offset)
 {
-    BSLS_ASSERT_SAFE(isValid(localDate, offset));
+    BSLS_REVIEW(isValid(localDate, offset));
 
     d_localDate = localDate;
     d_offset    = offset;

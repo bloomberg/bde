@@ -101,8 +101,8 @@ const int *getArrayDaysThroughMonth(int year)
     // an index of 0 always results in the value 0.  The behavior is undefined
     // unless 'k_MIN_YEAR <= year <= k_MAX_YEAR'.
 {
-    BSLS_ASSERT_SAFE(k_MIN_YEAR <= year);
-    BSLS_ASSERT_SAFE(              year <= k_MAX_YEAR);
+    BSLS_REVIEW(k_MIN_YEAR <= year);
+    BSLS_REVIEW(              year <= k_MAX_YEAR);
 
     return bdlt::PosixDateImpUtil::isLeapYear(year)
            ? k_YEAR_1752 == year
@@ -288,7 +288,7 @@ int PosixDateImpUtil::ymdToSerialNoCache(int year, int month, int day)
                 && month > 2);               //  & day after Feb29    // RETURN
     }
 
-    BSLS_ASSERT_SAFE(year <= k_YEAR_1752);
+    BSLS_REVIEW(year <= k_YEAR_1752);
 
     const int n = year - 1;  // number of full years since 0001/01/01
 
@@ -300,8 +300,8 @@ int PosixDateImpUtil::ymdToSerialNoCache(int year, int month, int day)
     }
 
     if (result > k_SEP_02_1752) {
-        BSLS_ASSERT_SAFE(k_YEAR_1752 == year);
-        BSLS_ASSERT_SAFE(month >= k_SEPTEMBER);
+        BSLS_REVIEW(k_YEAR_1752 == year);
+        BSLS_REVIEW(month >= k_SEPTEMBER);
 
         result -= k_YEAR_1752_NUM_MISSING_DAYS;  // Account for the missing
                                                  // days.
@@ -355,7 +355,7 @@ void PosixDateImpUtil::serialToYd(int *year, int *dayOfYear, int serialDay)
         }
     }
     else {
-        BSLS_ASSERT_SAFE(serialDay < k_JAN_01_1753);
+        BSLS_REVIEW(serialDay < k_JAN_01_1753);
 
         int y = 1;                              // base year
         int n = serialDay - 1;                  // num actual days since 1/1/1
@@ -400,7 +400,7 @@ int PosixDateImpUtil::ymdToDayOfYear(int year, int month, int day)
 
 int PosixDateImpUtil::serialToDay(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     if (s_firstCachedSerialDate <= serialDay
                                 && serialDay <= s_lastCachedSerialDate) {
@@ -414,7 +414,7 @@ int PosixDateImpUtil::serialToDay(int serialDay)
 
 int PosixDateImpUtil::serialToMonth(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     if (s_firstCachedSerialDate <= serialDay
                                 && serialDay <= s_lastCachedSerialDate) {
@@ -429,7 +429,7 @@ int PosixDateImpUtil::serialToMonth(int serialDay)
 
 int PosixDateImpUtil::serialToYear(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     if (s_firstCachedSerialDate <= serialDay
                                 && serialDay <= s_lastCachedSerialDate) {
@@ -450,7 +450,7 @@ void PosixDateImpUtil::serialToYmd(int *year,
     BSLS_ASSERT(year);
     BSLS_ASSERT(month);
     BSLS_ASSERT(day);
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     if (s_firstCachedSerialDate <= serialDay
                                 && serialDay <= s_lastCachedSerialDate) {
@@ -497,7 +497,7 @@ void PosixDateImpUtil::ydToMd(int *month, int *day, int year, int dayOfYear)
 
 int PosixDateImpUtil::serialToDayOfWeek(int serialDay)
 {
-    BSLS_ASSERT_SAFE(isValidSerial(serialDay));
+    BSLS_REVIEW(isValidSerial(serialDay));
 
     int d = serialDay - 1;
 

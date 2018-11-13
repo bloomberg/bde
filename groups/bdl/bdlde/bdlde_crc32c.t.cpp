@@ -19,11 +19,12 @@
 #include <bslmt_barrier.h>
 #include <bslmt_threadgroup.h>
 
-#include <bsls_asserttest.h>
 #include <bsls_alignedbuffer.h>
 #include <bsls_alignmentfromtype.h>
 #include <bsls_alignmentutil.h>
+#include <bsls_asserttest.h>
 #include <bsls_log.h>
+#include <bsls_review.h>
 #include <bsls_timeutil.h>
 
 #include <bslim_testutil.h>
@@ -1843,6 +1844,9 @@ int main(int argc, char* argv[])
             veryVerbose = argc > 3;
         veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;  // always the last
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocator(&defaultAllocator);

@@ -20,6 +20,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
@@ -517,6 +518,9 @@ int main(int argc, char *argv[])
 //  bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bsl::string origWorkingDirectory;
     ASSERT(0 == Obj::getWorkingDirectory(&origWorkingDirectory));

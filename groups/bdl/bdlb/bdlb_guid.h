@@ -403,7 +403,7 @@ Guid& Guid::operator=(const unsigned char (&buffer)[k_GUID_NUM_BYTES])
 inline
 const unsigned char& Guid::operator[](bsl::size_t offset) const
 {
-    BSLS_ASSERT_SAFE(offset < k_GUID_NUM_BYTES);
+    BSLS_REVIEW(offset < k_GUID_NUM_BYTES);
     return d_buffer[offset];
 }
 

@@ -174,8 +174,8 @@ HeapBypassAllocator::HeapBypassAllocator()
     d_alignment = (char *)&s.d_dummyFloat80 - &s.d_dummyChar;
 #endif
 
-    BSLS_ASSERT_SAFE(d_alignment >= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
-    BSLS_ASSERT_SAFE(0 == (d_alignment & (d_alignment - 1)));  // is power of 2
+    BSLS_REVIEW(d_alignment >= bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+    BSLS_REVIEW(0 == (d_alignment & (d_alignment - 1)));  // is power of 2
 }
 
 HeapBypassAllocator::~HeapBypassAllocator()

@@ -15,6 +15,8 @@
 
 #include <bslmf_assert.h>
 
+#include <bsls_review.h>
+
 #include <bslx_testinstream.h>
 #include <bslx_testoutstream.h>
 
@@ -251,6 +253,9 @@ int main(int argc, char *argv[])
     bool veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator  testAllocator(veryVeryVeryVerbose);
     bslma::TestAllocator *ALLOC = &testAllocator;

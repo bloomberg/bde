@@ -223,8 +223,8 @@ FixedMemOutput::FixedMemOutput(char            *buffer,
 , d_capacity(length)
 , d_pos(0)
 {
-    BSLS_ASSERT_SAFE(buffer || 0 == length);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_REVIEW(buffer || 0 == length);
+    BSLS_REVIEW(0 <= length);
 }
 
 // MANIPULATORS
@@ -244,8 +244,8 @@ inline
 FixedMemOutput *FixedMemOutput::pubsetbuf(char            *buffer,
                                           bsl::streamsize  length)
 {
-    BSLS_ASSERT_SAFE(buffer || 0 == length);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_REVIEW(buffer || 0 == length);
+    BSLS_REVIEW(0 <= length);
 
     d_buffer_p = buffer;
     d_capacity = length;
@@ -276,8 +276,8 @@ inline
 bsl::streamsize FixedMemOutput::sputn(const char      *s,
                                       bsl::streamsize  length)
 {
-    BSLS_ASSERT_SAFE(s);
-    BSLS_ASSERT_SAFE(0 <= length);
+    BSLS_REVIEW(s);
+    BSLS_REVIEW(0 <= length);
 
     pos_type current = d_pos;
     d_pos += length;

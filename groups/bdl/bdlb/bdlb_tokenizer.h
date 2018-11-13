@@ -967,7 +967,7 @@ inline
 const bslstl::StringRef TokenizerIterator::operator*() const
 {
     // Called on invalid iterator
-    BSLS_ASSERT_SAFE(!d_endFlag);
+    BSLS_REVIEW(!d_endFlag);
     return bslstl::StringRef(d_token_p, d_postDelim_p);
 }
 
@@ -975,7 +975,7 @@ inline
 Tokenizer_Proxy TokenizerIterator::operator->() const
 {
     // Called on invalid iterator
-    BSLS_ASSERT_SAFE(!d_endFlag);
+    BSLS_REVIEW(!d_endFlag);
     return Tokenizer_Proxy(this->operator*());
 }
 
@@ -999,7 +999,7 @@ inline
 bslstl::StringRef Tokenizer::token() const
 {
     // Called on invalid tokenizer
-    BSLS_ASSERT_SAFE(!d_endFlag);
+    BSLS_REVIEW(!d_endFlag);
     return bslstl::StringRef(d_token_p, d_postDelim_p);
 }
 
@@ -1007,7 +1007,7 @@ inline
 bslstl::StringRef Tokenizer::trailingDelimiter() const
 {
     // Called on invalid tokenizer
-    BSLS_ASSERT_SAFE(!d_endFlag);
+    BSLS_REVIEW(!d_endFlag);
     return bslstl::StringRef(d_postDelim_p, d_cursor_p);
 }
 

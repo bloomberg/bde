@@ -168,7 +168,7 @@ struct Random {
 inline
 int Random::generate15(int *nextSeed, int seed)
 {
-    BSLS_ASSERT_SAFE(nextSeed);
+    BSLS_REVIEW(nextSeed);
 
     unsigned int next = seed;
 
@@ -183,7 +183,7 @@ int Random::generate15(int *nextSeed, int seed)
 inline
 int Random::generate15(int *seed)
 {
-    BSLS_ASSERT_SAFE(seed);
+    BSLS_REVIEW(seed);
 
     return generate15(seed, *seed);
 }

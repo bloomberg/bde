@@ -1213,7 +1213,7 @@ BitArray& BitArray::operator^=(const BitArray& rhs)
 inline
 BitArray& BitArray::operator>>=(bsl::size_t numBits)
 {
-    BSLS_ASSERT_SAFE(numBits <= d_length);
+    BSLS_REVIEW(numBits <= d_length);
 
     if (numBits) {
         if (d_length > numBits) {
@@ -1233,7 +1233,7 @@ BitArray& BitArray::operator>>=(bsl::size_t numBits)
 inline
 BitArray& BitArray::operator<<=(bsl::size_t numBits)
 {
-    BSLS_ASSERT_SAFE(numBits <= d_length);
+    BSLS_REVIEW(numBits <= d_length);
 
     if (numBits) {
         if (d_length > numBits) {
@@ -1266,8 +1266,8 @@ void BitArray::andEqual(bsl::size_t     dstIndex,
                         bsl::size_t     srcIndex,
                         bsl::size_t     numBits)
 {
-    BSLS_ASSERT_SAFE(dstIndex + numBits <= d_length);
-    BSLS_ASSERT_SAFE(srcIndex + numBits <= srcArray.d_length);
+    BSLS_REVIEW(dstIndex + numBits <= d_length);
+    BSLS_REVIEW(srcIndex + numBits <= srcArray.d_length);
 
     bdlb::BitStringUtil::andEqual(data(),
                                   dstIndex,
@@ -1305,7 +1305,7 @@ void BitArray::append(const BitArray& srcArray,
                       bsl::size_t     srcIndex,
                       bsl::size_t     numBits)
 {
-    BSLS_ASSERT_SAFE(srcIndex + numBits <= srcArray.d_length);
+    BSLS_REVIEW(srcIndex + numBits <= srcArray.d_length);
 
     insert(d_length, srcArray, srcIndex, numBits);
 }
@@ -1321,7 +1321,7 @@ void BitArray::assign(bsl::size_t index, bool value)
 inline
 void BitArray::assign(bsl::size_t index, bool value, bsl::size_t numBits)
 {
-    BSLS_ASSERT_SAFE(index + numBits <= d_length);
+    BSLS_REVIEW(index + numBits <= d_length);
 
     bdlb::BitStringUtil::assign(data(), index, value, numBits);
 }
@@ -1332,8 +1332,8 @@ void BitArray::assign(bsl::size_t     dstIndex,
                       bsl::size_t     srcIndex,
                       bsl::size_t     numBits)
 {
-    BSLS_ASSERT_SAFE(dstIndex + numBits <= d_length);
-    BSLS_ASSERT_SAFE(srcIndex + numBits <= srcArray.d_length);
+    BSLS_REVIEW(dstIndex + numBits <= d_length);
+    BSLS_REVIEW(srcIndex + numBits <= srcArray.d_length);
 
     if (&srcArray == this) {
         // Might be overlapping copy.
@@ -1366,7 +1366,7 @@ void BitArray::assign0(bsl::size_t index)
 inline
 void BitArray::assign0(bsl::size_t index, bsl::size_t numBits)
 {
-    BSLS_ASSERT_SAFE(index + numBits <= d_length);
+    BSLS_REVIEW(index + numBits <= d_length);
 
     bdlb::BitStringUtil::assign0(data(), index, numBits);
 }
@@ -1382,7 +1382,7 @@ void BitArray::assign1(bsl::size_t index)
 inline
 void BitArray::assign1(bsl::size_t index, bsl::size_t numBits)
 {
-    BSLS_ASSERT_SAFE(index + numBits <= d_length);
+    BSLS_REVIEW(index + numBits <= d_length);
 
     bdlb::BitStringUtil::assign1(data(), index, numBits);
 }
@@ -1415,8 +1415,8 @@ void BitArray::assignBits(bsl::size_t   index,
                           bsl::uint64_t srcBits,
                           bsl::size_t   numBits)
 {
-    BSLS_ASSERT_SAFE(        numBits <= k_BITS_PER_UINT64);
-    BSLS_ASSERT_SAFE(index + numBits <= d_length);
+    BSLS_REVIEW(        numBits <= k_BITS_PER_UINT64);
+    BSLS_REVIEW(index + numBits <= d_length);
 
     bdlb::BitStringUtil::assignBits(data(), index, srcBits, numBits);
 }
@@ -1424,7 +1424,7 @@ void BitArray::assignBits(bsl::size_t   index,
 inline
 void BitArray::insert(bsl::size_t dstIndex, const BitArray& srcArray)
 {
-    BSLS_ASSERT_SAFE(dstIndex <= d_length);
+    BSLS_REVIEW(dstIndex <= d_length);
 
     insert(dstIndex, srcArray, 0, srcArray.d_length);
 }
@@ -1432,7 +1432,7 @@ void BitArray::insert(bsl::size_t dstIndex, const BitArray& srcArray)
 inline
 void BitArray::insert(bsl::size_t dstIndex, bool value)
 {
-    BSLS_ASSERT_SAFE(dstIndex <= d_length);
+    BSLS_REVIEW(dstIndex <= d_length);
 
     setLength(d_length + 1);
     bdlb::BitStringUtil::insert(data(), d_length - 1, dstIndex, value, 1);
@@ -1441,7 +1441,7 @@ void BitArray::insert(bsl::size_t dstIndex, bool value)
 inline
 void BitArray::insert(bsl::size_t dstIndex, bool value, bsl::size_t numBits)
 {
-    BSLS_ASSERT_SAFE(dstIndex <= d_length);
+    BSLS_REVIEW(dstIndex <= d_length);
 
     setLength(d_length + numBits);
     bdlb::BitStringUtil::insert(data(),
@@ -1467,8 +1467,8 @@ void BitArray::minusEqual(bsl::size_t     dstIndex,
                           bsl::size_t     srcIndex,
                           bsl::size_t     numBits)
 {
-    BSLS_ASSERT_SAFE(dstIndex + numBits <= d_length);
-    BSLS_ASSERT_SAFE(srcIndex + numBits <= srcArray.d_length);
+    BSLS_REVIEW(dstIndex + numBits <= d_length);
+    BSLS_REVIEW(srcIndex + numBits <= srcArray.d_length);
 
     bdlb::BitStringUtil::minusEqual(data(),
                                     dstIndex,
@@ -1480,7 +1480,7 @@ void BitArray::minusEqual(bsl::size_t     dstIndex,
 inline
 void BitArray::orEqual(bsl::size_t index, bool value)
 {
-    BSLS_ASSERT_SAFE(index < d_length);
+    BSLS_REVIEW(index < d_length);
 
     if (value) {
         assign1(index);
@@ -1493,8 +1493,8 @@ void BitArray::orEqual(bsl::size_t     dstIndex,
                        bsl::size_t     srcIndex,
                        bsl::size_t     numBits)
 {
-    BSLS_ASSERT_SAFE(dstIndex + numBits <= d_length);
-    BSLS_ASSERT_SAFE(srcIndex + numBits <= srcArray.d_length);
+    BSLS_REVIEW(dstIndex + numBits <= d_length);
+    BSLS_REVIEW(srcIndex + numBits <= srcArray.d_length);
 
     bdlb::BitStringUtil::orEqual(data(),
                                  dstIndex,
@@ -1514,7 +1514,7 @@ void BitArray::remove(bsl::size_t index)
 inline
 void BitArray::remove(bsl::size_t index, bsl::size_t numBits)
 {
-    BSLS_ASSERT_SAFE(index + numBits <= d_length);
+    BSLS_REVIEW(index + numBits <= d_length);
 
     bdlb::BitStringUtil::remove(data(), d_length, index, numBits);
     setLength(d_length - numBits);
@@ -1537,8 +1537,8 @@ void BitArray::reserveCapacity(bsl::size_t numBits)
 inline
 void BitArray::swapBits(bsl::size_t index1, bsl::size_t index2)
 {
-    BSLS_ASSERT_SAFE(index1 < d_length);
-    BSLS_ASSERT_SAFE(index2 < d_length);
+    BSLS_REVIEW(index1 < d_length);
+    BSLS_REVIEW(index2 < d_length);
 
     if (index1 != index2) {
         const bool tmp = (*this)[index1];
@@ -1561,7 +1561,7 @@ void BitArray::toggle(bsl::size_t index)
 inline
 void BitArray::toggle(bsl::size_t index, bsl::size_t numBits)
 {
-    BSLS_ASSERT_SAFE(index + numBits <= d_length);
+    BSLS_REVIEW(index + numBits <= d_length);
 
     // 'index' and 'numBits' non-negative checked by 'BitStringUtil'.
 
@@ -1590,8 +1590,8 @@ void BitArray::xorEqual(bsl::size_t     dstIndex,
                         bsl::size_t     srcIndex,
                         bsl::size_t     numBits)
 {
-    BSLS_ASSERT_SAFE(dstIndex + numBits <= d_length);
-    BSLS_ASSERT_SAFE(srcIndex + numBits <= srcArray.d_length);
+    BSLS_REVIEW(dstIndex + numBits <= d_length);
+    BSLS_REVIEW(srcIndex + numBits <= srcArray.d_length);
 
     bdlb::BitStringUtil::xorEqual(data(),
                                   dstIndex,
@@ -1668,7 +1668,7 @@ void BitArray::swap(BitArray& other)
 {
     // 'swap' is undefined for objects with non-equal allocators.
 
-    BSLS_ASSERT_SAFE(allocator() == other.allocator());
+    BSLS_REVIEW(allocator() == other.allocator());
 
     bslalg::SwapUtil::swap(&d_array,  &other.d_array);
     bslalg::SwapUtil::swap(&d_length, &other.d_length);
@@ -1697,8 +1697,8 @@ bsl::size_t BitArray::find0AtMaxIndex(bsl::size_t begin, bsl::size_t end) const
     if (k_INVALID_INDEX == end) {
         end = d_length;
     }
-    BSLS_ASSERT_SAFE(begin <= end);
-    BSLS_ASSERT_SAFE(         end <= d_length);
+    BSLS_REVIEW(begin <= end);
+    BSLS_REVIEW(         end <= d_length);
 
     return bdlb::BitStringUtil::find0AtMaxIndex(data(), begin, end);
 }
@@ -1709,8 +1709,8 @@ bsl::size_t BitArray::find0AtMinIndex(bsl::size_t begin, bsl::size_t end) const
     if (k_INVALID_INDEX == end) {
         end = d_length;
     }
-    BSLS_ASSERT_SAFE(begin <= end);
-    BSLS_ASSERT_SAFE(         end <= d_length);
+    BSLS_REVIEW(begin <= end);
+    BSLS_REVIEW(         end <= d_length);
 
     return bdlb::BitStringUtil::find0AtMinIndex(data(), begin, end);
 }
@@ -1721,8 +1721,8 @@ bsl::size_t BitArray::find1AtMaxIndex(bsl::size_t begin, bsl::size_t end) const
     if (k_INVALID_INDEX == end) {
         end = d_length;
     }
-    BSLS_ASSERT_SAFE(begin <= end);
-    BSLS_ASSERT_SAFE(         end <= d_length);
+    BSLS_REVIEW(begin <= end);
+    BSLS_REVIEW(         end <= d_length);
 
     return bdlb::BitStringUtil::find1AtMaxIndex(data(), begin, end);
 }
@@ -1733,8 +1733,8 @@ bsl::size_t BitArray::find1AtMinIndex(bsl::size_t begin, bsl::size_t end) const
     if (k_INVALID_INDEX == end) {
         end = d_length;
     }
-    BSLS_ASSERT_SAFE(begin <= end);
-    BSLS_ASSERT_SAFE(         end <= d_length);
+    BSLS_REVIEW(begin <= end);
+    BSLS_REVIEW(         end <= d_length);
 
     return bdlb::BitStringUtil::find1AtMinIndex(data(), begin, end);
 }
@@ -1769,8 +1769,8 @@ bsl::size_t BitArray::num0(bsl::size_t begin, bsl::size_t end) const
     if (k_INVALID_INDEX == end) {
         end = d_length;
     }
-    BSLS_ASSERT_SAFE(begin <= end);
-    BSLS_ASSERT_SAFE(         end <= d_length);
+    BSLS_REVIEW(begin <= end);
+    BSLS_REVIEW(         end <= d_length);
 
     return bdlb::BitStringUtil::num0(data(), begin, end - begin);
 }
@@ -1781,8 +1781,8 @@ bsl::size_t BitArray::num1(bsl::size_t begin, bsl::size_t end) const
     if (k_INVALID_INDEX == end) {
         end = d_length;
     }
-    BSLS_ASSERT_SAFE(begin <= end);
-    BSLS_ASSERT_SAFE(         end <= d_length);
+    BSLS_REVIEW(begin <= end);
+    BSLS_REVIEW(         end <= d_length);
 
     return bdlb::BitStringUtil::num1(data(), begin, end - begin);
 }
@@ -1800,7 +1800,7 @@ STREAM& BitArray::bdexStreamOut(STREAM& stream, int version) const
 {
     switch (version) {
       case 1: {
-        BSLS_ASSERT_SAFE(d_length <= INT_MAX);
+        BSLS_REVIEW(d_length <= INT_MAX);
 
         stream.putLength(static_cast<int>(d_length));
         if (0 != d_length) {
@@ -1892,7 +1892,7 @@ bdlc::BitArray bdlc::operator-(const BitArray& lhs, const BitArray& rhs)
 inline
 bdlc::BitArray bdlc::operator<<(const BitArray& array, bsl::size_t numBits)
 {
-    BSLS_ASSERT_SAFE(numBits <= array.length());
+    BSLS_REVIEW(numBits <= array.length());
 
     BitArray tmp(array);
     tmp <<= numBits;
@@ -1902,7 +1902,7 @@ bdlc::BitArray bdlc::operator<<(const BitArray& array, bsl::size_t numBits)
 inline
 bdlc::BitArray bdlc::operator>>(const BitArray& array, bsl::size_t numBits)
 {
-    BSLS_ASSERT_SAFE(numBits <= array.length());
+    BSLS_REVIEW(numBits <= array.length());
 
     BitArray tmp(array);
     tmp >>= numBits;

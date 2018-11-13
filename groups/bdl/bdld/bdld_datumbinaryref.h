@@ -230,7 +230,7 @@ DatumBinaryRef::DatumBinaryRef(const void *data, SizeType  size)
 : d_data_p(data)
 , d_size(size)
 {
-    BSLS_ASSERT_SAFE(0 != data || 0 == size);
+    BSLS_REVIEW(0 != data || 0 == size);
 }
 
 // ACCESSORS
