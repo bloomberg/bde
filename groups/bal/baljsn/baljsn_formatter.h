@@ -23,14 +23,16 @@ BSLS_IDENT("$Id: $")
 // two structures:
 //
 //: o Objects: JSON objects are represented as collections of name value
-//:   pairs.  The 'Formatter' class allows encoding objects by providing the
+//:   pairs.  The 'Formatter' 'class' allows encoding objects by providing the
 //:   'openObject' and 'closeObject' methods to open and close an object and
 //:   the 'openMember', 'closeMember', and 'putValue' methods to add members
 //:   and values to an object.
 //:
 //: o Arrays: JSON arrays are specified as an ordered list of values.  The
 //:   'Formatter' 'class' provides the 'openArray' and 'closeArray' method to
-//:   open and close an array.
+//:   open and close an array.  Additionally the 'Formatter' 'class' allows of
+//:   separation of array items by a comma via the 'addArrayElementSeparator'
+//:   method.
 //
 // The 'Formatter' 'class' also provides the ability to specify formatting
 // options at construction.  The options that can be provided include the
@@ -51,22 +53,47 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Encoding a Stock Portfolio in JSON
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // Let us say that we have to encode a JSON document with the following
-// information about stocks that we are interested in (for brevity we just
-// show and encode a part of the complete document):
+// information about stocks that we are interested in.  For brevity we just
+// show and encode a part of the complete document.
 //..
-//  {
-//    "Stocks" : [
-//      {
-//        "Name" : "International Business Machines Corp",
-//        "Ticker" : "IBM US Equity",
-//        "Last Price" : 149.3,
-//        "Dividend Yield" : 3.95
-//      },
-//      ...
-//    ]
-//  }
+// {
+//   "Stocks" : [
+//     {
+//       "Name" : "International Business Machines Corp",
+//       "Ticker" : "IBM US Equity",
+//       "Last Price" : 149.3,
+//       "Dividend Yield" : 3.95
+//     },
+//     {
+//       "Name" : "Apple Inc",
+//       "Ticker" : "AAPL US Equity",
+//       "Last Price" : 205.8,
+//       "Dividend Yield" : 1.4
+//     }
+//   ]
+// }
 //..
-// To encode this JSON document we first create a 'baljsn::Formatter' object.
+// First, we specify the result that we are expecting to get:
+//..
+//  const bsl::string EXPECTED =
+//      "{\n"
+//      "  \"Stocks\" : [\n"
+//      "    {\n"
+//      "      \"Name\" : \"International Business Machines Corp\",\n"
+//      "      \"Ticker\" : \"IBM US Equity\",\n"
+//      "      \"Last Price\" : 149.3,\n"
+//      "      \"Dividend Yield\" : 3.95\n"
+//      "    },\n"
+//      "    {\n"
+//      "      \"Name\" : \"Apple Inc\",\n"
+//      "      \"Ticker\" : \"AAPL US Equity\",\n"
+//      "      \"Last Price\" : 205.8,\n"
+//      "      \"Dividend Yield\" : 1.4\n"
+//      "    }\n"
+//      "  ]\n"
+//      "}";
+//..
+// Then, to encode this JSON document we create a 'baljsn::Formatter' object.
 // Since we want the document to be written in a pretty, easy to understand
 // format we will specify the 'true' for the 'usePrettyStyle' option and
 // provide an appropriate initial indent level and spaces per level values:
@@ -107,21 +134,53 @@ BSLS_IDENT("$Id: $")
 //  formatter.putValue(149.3);
 //  formatter.closeMember();
 //
-//  formatter.openMember("Divident Yield");
+//  formatter.openMember("Dividend Yield");
 //  formatter.putValue(3.95);
 //  // Note no call to 'closeMember' for the last element
+//..
+// Then, close the first stock object and separate it from the second one using
+// the 'addArrayElementSeparator' method.
+//..
+//  formatter.closeObject();
+//  formatter.addArrayElementSeparator();
+//..
+// Next, we add another stock object.  But we don't need to separate it as it
+// is the last one.
+//..
+//  formatter.openObject();
+//
+//  formatter.openMember("Name");
+//  formatter.putValue("Apple Inc");
+//  formatter.closeMember();
+//
+//  formatter.openMember("Ticker");
+//  formatter.putValue("AAPL US Equity");
+//  formatter.closeMember();
+//
+//  formatter.openMember("Last Price");
+//  formatter.putValue(205.8);
+//  formatter.closeMember();
+//
+//  formatter.openMember("Dividend Yield");
+//  formatter.putValue(1.4);
+//
+//  formatter.closeObject();
 //..
 // Similarly, we can continue to format the rest of the document.  For the
 // purpose of this usage example we will complete this document.
 //..
-//  formatter.closeObject();
 //  formatter.closeArray();
 //  formatter.closeObject();
 //..
 // Once the formatting is complete the written data can be viewed from the
 // stream passed to the formatter at construction.
 //..
-//  bsl::cout << os.str() << bsl::endl;
+//  if (verbose)
+//      bsl::cout << os.str() << bsl::endl;
+//..
+// Finally, verify the received result:
+//..
+//  assert(EXPECTED == os.str());
 //..
 
 #include <balscm_version.h>
@@ -268,6 +327,13 @@ class Formatter {
         // characters designating the end of an member (referred to as a
         // "name/value pair" in JSON).  The behavior is undefined unless this
         // 'Formatter' is currently formatting a member.
+
+    void addArrayElementSeparator();
+        // Print onto the stream supplied at construction the sequence of
+        // characters designating an array element separator (i.e., ',').  The
+        // behavior is undefined unless this 'Formatter' is currently
+        // formatting a member.
+
 };
 
 // ============================================================================

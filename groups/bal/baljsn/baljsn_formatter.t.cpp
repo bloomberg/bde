@@ -79,9 +79,10 @@ using namespace bsl;
 // [ 8] int putValue(const TYPE& value, const EncoderOptions *options);
 // [ 8] int putNullValue();
 // [ 9] void closeMember();
+// [11] void addArrayElementSeparator();
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [12] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1474,9 +1475,10 @@ void testPutValue(int            line,
         // i == 0, output as the value of an element, i.e. without indentation
         // i == 1, output as an array element, i.e. with indentation
 
-        bsl::ostringstream os, exp;
+        bsl::ostringstream os;
+        bsl::ostringstream exp;
 
-        Obj mX = g(os, style, indent, spl);  const Obj& X = mX;
+        Obj mX = g(os, style, indent, spl);
 
         if (0 == i) {
             mX.openObject();
@@ -1531,6 +1533,7 @@ int main(int argc, char *argv[])
     bool veryVeryVerbose = argc > 4;
 
     (void)veryVerbose;
+    (void)veryVeryVerbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
@@ -1538,7 +1541,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1556,6 +1559,9 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
+        if (verbose) cout << endl << "USAGE EXAMPLE" << endl
+                                  << "=============" << endl;
+
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -1564,19 +1570,44 @@ int main(int argc, char *argv[])
 // information about stocks that we are interested in.  For brevity we just
 // show and encode a part of the complete document.
 //..
-//  {
-//      "Stocks" : [
-//        {
-//          "Name" : "International Business Machines Corp",
-//          "Ticker" : "IBM US Equity",
-//          "Last Price" : 149.3,
-//          "Dividend Yield" : 3.95
-//       },
-//       ...
-//    ]
-//  }
+// {
+//   "Stocks" : [
+//     {
+//       "Name" : "International Business Machines Corp",
+//       "Ticker" : "IBM US Equity",
+//       "Last Price" : 149.3,
+//       "Dividend Yield" : 3.95
+//     },
+//     {
+//       "Name" : "Apple Inc",
+//       "Ticker" : "AAPL US Equity",
+//       "Last Price" : 205.8,
+//       "Dividend Yield" : 1.4
+//     }
+//   ]
+// }
 //..
-// To encode this JSON document we first create a 'baljsn::Formatter' object.
+// First, we specify the result that we are expecting to get:
+//..
+    const bsl::string EXPECTED =
+        "{\n"
+        "  \"Stocks\" : [\n"
+        "    {\n"
+        "      \"Name\" : \"International Business Machines Corp\",\n"
+        "      \"Ticker\" : \"IBM US Equity\",\n"
+        "      \"Last Price\" : 149.3,\n"
+        "      \"Dividend Yield\" : 3.95\n"
+        "    },\n"
+        "    {\n"
+        "      \"Name\" : \"Apple Inc\",\n"
+        "      \"Ticker\" : \"AAPL US Equity\",\n"
+        "      \"Last Price\" : 205.8,\n"
+        "      \"Dividend Yield\" : 1.4\n"
+        "    }\n"
+        "  ]\n"
+        "}";
+//..
+// Then, to encode this JSON document we create a 'baljsn::Formatter' object.
 // Since we want the document to be written in a pretty, easy to understand
 // format we will specify the 'true' for the 'usePrettyStyle' option and
 // provide an appropriate initial indent level and spaces per level values:
@@ -1608,34 +1639,161 @@ int main(int argc, char *argv[])
     formatter.openMember("Name");
     formatter.putValue("International Business Machines Corp");
     formatter.closeMember();
-//
+
     formatter.openMember("Ticker");
     formatter.putValue("IBM US Equity");
     formatter.closeMember();
-//
+
     formatter.openMember("Last Price");
     formatter.putValue(149.3);
     formatter.closeMember();
-//
-    formatter.openMember("Divident Yield");
+
+    formatter.openMember("Dividend Yield");
     formatter.putValue(3.95);
     // Note no call to 'closeMember' for the last element
 //..
-// Similarly, we can continue to format the rest of the document.  For the
-// purpose of this usage we will complete this document.
+// Then, close the first stock object and separate it from the second one using
+// the 'addArrayElementSeparator' method.
 //..
     formatter.closeObject();
+    formatter.addArrayElementSeparator();
+//..
+// Next, we add another stock object.  But we don't need to separate it as it
+// is the last one.
+//..
+    formatter.openObject();
+
+    formatter.openMember("Name");
+    formatter.putValue("Apple Inc");
+    formatter.closeMember();
+
+    formatter.openMember("Ticker");
+    formatter.putValue("AAPL US Equity");
+    formatter.closeMember();
+
+    formatter.openMember("Last Price");
+    formatter.putValue(205.8);
+    formatter.closeMember();
+
+    formatter.openMember("Dividend Yield");
+    formatter.putValue(1.4);
+
+    formatter.closeObject();
+//..
+// Similarly, we can continue to format the rest of the document.  For the
+// purpose of this usage example we will complete this document.
+//..
     formatter.closeArray();
     formatter.closeObject();
 //..
 // Once the formatting is complete the written data can be viewed from the
-//  stream passed to the formatter at construction.
+// stream passed to the formatter at construction.
 //..
     if (verbose)
-    bsl::cout << os.str() << bsl::endl;
+        bsl::cout << os.str() << bsl::endl;
 //..
-       } break;
-       case 10: {
+// Finally, verify the received result:
+//..
+    ASSERT(EXPECTED == os.str());
+//..
+      } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // TESTING 'addArrayElementSeparator' METHOD
+        //
+        // Concerns:
+        //: 1 The 'addArrayElementSeparator' method outputs a ','.
+        //:
+        //: 2 If pretty style is selected then 'addArrayElementSeparator'
+        //:   outputs a newline after the ','.
+        //:
+        // Plan:
+        //: 1 Using a table-based approach specify the encoding style,
+        //:   indentation level, spaces per level, number of times
+        //:   'addArrayElementSeparator' must be called and the expected output
+        //:   after calling 'addArrayElementSeparator'.  Create a formatter
+        //:   object using the specified parameters and invoke
+        //:   'addArrayElementSeparator' on it.  Verify that the output written
+        //:   to the stream is as expected.
+        //
+        // Testing:
+        //   void addArrayElementSeparator();
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "TESTING 'addArrayElementSeparator' METHOD" << endl
+                 << "=========================================" << endl;
+#define NL "\n"
+
+        // Use a value of -1 to signify that that specific option should not be
+        // set and that its default value should be used.
+
+        const struct Data {
+            int         d_line;
+            int         d_encodingStyle;
+            int         d_initialIndentLevel;
+            int         d_spacesPerLevel;
+            int         d_numTimesMethodCalled;
+            bsl::string d_expected;
+        } DATA[] = {
+
+        // LINE  STYLE  INDENT   SPL  NT   EXPECTED
+        // ----  -----  ------   ---  --   --------------------
+
+        {   L_,    -1,     -1,   -1,  0,       ","             },
+        {   L_,    -1,     -1,   -1,  0,       ","             },
+
+        {   L_,     0,     -1,   -1,  0,       ","             },
+        {   L_,     0,     -1,   -1,  0,       ","             },
+
+        {   L_,     1,      2,    2,  0,       ","        NL   },
+        {   L_,     1,      2,    2,  0,       ","        NL   },
+
+        {   L_,    -1,     -1,   -1,  3,       ",,,,"          },
+        {   L_,    -1,     -1,   -1,  3,       ",,,,"          },
+
+        {   L_,     0,     -1,   -1,  3,       ",,,,"          },
+        {   L_,     0,     -1,   -1,  3,       ",,,,"          },
+
+        {   L_,     1,      5,    2,  3,       ","        NL
+                                               ","        NL
+                                               ","        NL
+                                               ","        NL
+                                                               },
+        {   L_,     1,      5,    2,  3,       ","        NL
+                                               ","        NL
+                                               ","        NL
+                                               ","        NL
+                                                               },
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int         LINE   = DATA[i].d_line;
+            const int         STYLE  = DATA[i].d_encodingStyle;
+            const int         INDENT = DATA[i].d_initialIndentLevel;
+            const int         SPL    = DATA[i].d_spacesPerLevel;
+            const int         NT     = DATA[i].d_numTimesMethodCalled;
+            const bsl::string EXP    = DATA[i].d_expected;
+
+            bsl::ostringstream os;
+
+            Obj mX = g(os, STYLE, INDENT, SPL);
+
+            for (int k = 0; k < NT; ++k) {
+                mX.addArrayElementSeparator();
+            }
+
+            mX.addArrayElementSeparator();
+
+            os << bsl::flush;
+
+            ASSERTV(LINE, EXP, os.str(), EXP == os.str());
+        }
+#undef NL
+      } break;
+      case 10: {
         // --------------------------------------------------------------------
         // TESTING INTERLEAVING OBJECT AND ARRAY CALLS
         //
@@ -1754,7 +1912,7 @@ int main(int argc, char *argv[])
 
             bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             for (size_t j = 0; j < CALLS.size(); ++j) {
                 switch (CALLS[j]) {
@@ -1807,7 +1965,7 @@ int main(int argc, char *argv[])
             int         d_encodingStyle;
             int         d_initialIndentLevel;
             int         d_spacesPerLevel;
-            int         d_numTimesCloseArrayCalled;
+            int         d_numTimesCloseMemberCalled;
             bsl::string d_expected;
         } DATA[] = {
 
@@ -1847,12 +2005,12 @@ int main(int argc, char *argv[])
             const int         STYLE  = DATA[i].d_encodingStyle;
             const int         INDENT = DATA[i].d_initialIndentLevel;
             const int         SPL    = DATA[i].d_spacesPerLevel;
-            const int         NT     = DATA[i].d_numTimesCloseArrayCalled;
+            const int         NT     = DATA[i].d_numTimesCloseMemberCalled;
             const bsl::string EXP    = DATA[i].d_expected;
 
-            bsl::ostringstream     os;
+            bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             for (int k = 0; k < NT; ++k) mX.closeMember();
 
@@ -1963,51 +2121,51 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         for (int i = 0; i < NUM_DATA; ++i) {
-            const int         L  = DATA[i].d_line;
-            const int         E  = DATA[i].d_encodingStyle;
-            const int         I  = DATA[i].d_initialIndentLevel;
-            const int         S  = DATA[i].d_spacesPerLevel;
+            const int         LINE = DATA[i].d_line;
+            const int         ES   = DATA[i].d_encodingStyle;
+            const int         IIL  = DATA[i].d_initialIndentLevel;
+            const int         SPL  = DATA[i].d_spacesPerLevel;
 
-            testPutValue(L, E, I, S, A, DP, true);
-            testPutValue(L, E, I, S, B, DP, true);
-            testPutValue(L, E, I, S, C, DP, true);
-            testPutValue(L, E, I, S, D, DP, true);
-            testPutValue(L, E, I, S, E, DP, true);
-            testPutValue(L, E, I, S, F, DP, true);
-            testPutValue(L, E, I, S, G, DP, true);
-            testPutValue(L, E, I, S, H, DP, true);
-            testPutValue(L, E, I, S, I, DP, true);
-            testPutValue(L, E, I, S, J, DP, true);
-            testPutValue(L, E, I, S, K, DP, true);
-            testPutValue(L, E, I, S, L, DP, true);
-            testPutValue(L, E, I, S, M, DP, true);
-            testPutValue(L, E, I, S, N, DP, true);
-            testPutValue(L, E, I, S, O, DP, true);
-            testPutValue(L, E, I, S, PA, DP, true);
-            testPutValue(L, E, I, S, QA, DP, true);
-            testPutValue(L, E, I, S, R, DP, true);
-            testPutValue(L, E, I, S, S, DP, true);
-            testPutValue(L, E, I, S, T, DP, true);
-            testPutValue(L, E, I, S, U, DP, true);
+            testPutValue(LINE, ES, IIL, SPL, A,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, B,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, C,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, D,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, E,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, F,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, G,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, H,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, I,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, J,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, K,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, L,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, M,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, N,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, O,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, PA,   DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, QA,   DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, R,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, S,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, T,    DP,   true);
+            testPutValue(LINE, ES, IIL, SPL, U,    DP,   true);
 
-            testPutValue(L, E, I, S, INV1, DP, false);
-            testPutValue(L, E, I, S, INV2, DP, false);
-            testPutValue(L, E, I, S, INV3, DP, false);
-            testPutValue(L, E, I, S, INV4, DP, false);
+            testPutValue(LINE, ES, IIL, SPL, INV1, DP,   false);
+            testPutValue(LINE, ES, IIL, SPL, INV2, DP,   false);
+            testPutValue(LINE, ES, IIL, SPL, INV3, DP,   false);
+            testPutValue(LINE, ES, IIL, SPL, INV4, DP,   false);
 
             Options opts;  const Options *OPTS = &opts;
             opts.setEncodeInfAndNaNAsStrings(true);
 
-            testPutValue(L, E, I, S, INV1, OPTS, true);
-            testPutValue(L, E, I, S, INV2, OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, INV1, OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, INV2, OPTS, true);
 
             opts.setDatetimeFractionalSecondPrecision(6);
-            testPutValue(L, E, I, S, PA, OPTS, true);
-            testPutValue(L, E, I, S, QA, OPTS, true);
-            testPutValue(L, E, I, S, R, OPTS, true);
-            testPutValue(L, E, I, S, S, OPTS, true);
-            testPutValue(L, E, I, S, T, OPTS, true);
-            testPutValue(L, E, I, S, U, OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, PA,   OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, QA,   OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, R,    OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, S,    OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, T,    OPTS, true);
+            testPutValue(LINE, ES, IIL, SPL, U,    OPTS, true);
 
             // testPutNullValue
             {
@@ -2015,23 +2173,24 @@ int main(int argc, char *argv[])
                     // j == 0, output as value of element, i.e. w/o indentation
                     // j == 1, output as array element, i.e. with indentation
 
-                    bsl::ostringstream os, exp;
+                    bsl::ostringstream os;
+                    bsl::ostringstream exp;
 
-                    Obj mX = g(os, E, I, S);  const Obj& X = mX;
+                    Obj mX = g(os, ES, IIL, SPL);
 
                     if (0 == j) {
                         mX.openObject();
                         exp << '{';
-                        if (1 == E) {
+                        if (1 == ES) {
                             exp << '\n';
                         }
                     }
                     else {
                         mX.openArray();
                         exp << '[';
-                        if (1 == E) {
+                        if (1 == ES) {
                             exp << '\n';
-                            bdlb::Print::indent(exp, I + 1, S);
+                            bdlb::Print::indent(exp, IIL + 1, SPL);
                         }
                     }
 
@@ -2039,7 +2198,7 @@ int main(int argc, char *argv[])
 
                     exp << "null";
 
-                    ASSERTV(L, os.str(), exp.str(), os.str() == exp.str());
+                    ASSERTV(LINE, os.str(), exp.str(), os.str() == exp.str());
 
                     // Restore object to a valid state
 
@@ -2133,9 +2292,9 @@ int main(int argc, char *argv[])
             const int         EXP_RC = DATA[i].d_expRetCode;
             const bsl::string EXP    = DATA[i].d_expected;
 
-            bsl::ostringstream     os;
+            bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             const int rc = mX.openMember(NAME);
 
@@ -2231,9 +2390,9 @@ int main(int argc, char *argv[])
             const int         NT     = DATA[i].d_numTimesCloseArrayCalled;
             const bsl::string EXP    = DATA[i].d_expected;
 
-            bsl::ostringstream     os;
+            bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             for (int k = 0; k < NT; ++k) {
                 mX.openArray(FAEA);
@@ -2329,9 +2488,9 @@ int main(int argc, char *argv[])
             const int         NT     = DATA[i].d_numTimesOpenArrayCalled;
             const bsl::string EXP    = DATA[i].d_expected;
 
-            bsl::ostringstream     os;
+            bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             for (int k = 0; k < NT; ++k) mX.openArray(FAEA);
 
@@ -2424,9 +2583,9 @@ int main(int argc, char *argv[])
             const int         NT     = DATA[i].d_numTimesCloseObjectCalled;
             const bsl::string EXP    = DATA[i].d_expected;
 
-            bsl::ostringstream     os;
+            bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             for (int k = 0; k < NT; ++k) {
                 mX.openObject();
@@ -2515,9 +2674,9 @@ int main(int argc, char *argv[])
             const int         NT     = DATA[i].d_numTimesOpenObjectCalled;
             const bsl::string EXP    = DATA[i].d_expected;
 
-            bsl::ostringstream     os;
+            bsl::ostringstream os;
 
-            Obj mX = g(os, STYLE, INDENT, SPL);  const Obj& X = mX;
+            Obj mX = g(os, STYLE, INDENT, SPL);
 
             for (int k = 0; k < NT; ++k) mX.openObject();
 
@@ -2623,8 +2782,8 @@ int main(int argc, char *argv[])
             bdlsb::MemOutStreamBuf mosb;
             bsl::ostream           os2(&mosb);
 
-            Obj mX = g(os1, STYLE, INDENT, SPL);  const Obj& X = mX;
-            Obj mY = g(os2, STYLE, INDENT, SPL);  const Obj& Y = mY;
+            Obj mX = g(os1, STYLE, INDENT, SPL);
+            Obj mY = g(os2, STYLE, INDENT, SPL);
 
             mX.openObject();
             mX.openMember("A"); mX.putValue(1); mX.closeMember();
@@ -2670,7 +2829,7 @@ int main(int argc, char *argv[])
 
         bsl::ostringstream os;
 
-        Obj mX(os);  const Obj& X = mX;
+        Obj mX(os);
 
         bsl::string exp;
 

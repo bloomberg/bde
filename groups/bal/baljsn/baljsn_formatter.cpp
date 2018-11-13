@@ -119,6 +119,14 @@ void Formatter::closeMember()
     }
 }
 
+void Formatter::addArrayElementSeparator()
+{
+    d_outputStream << ',';
+    if (d_usePrettyStyle) {
+        d_outputStream << '\n';
+    }
+}
+
 }  // close package namespace
 
 }  // close enterprise namespace

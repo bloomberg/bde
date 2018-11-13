@@ -713,7 +713,7 @@ int Encoder_EncodeImpl::encodeImp(const TYPE&               value,
         }
 
         for (int i = 1; i < size; ++i) {
-            d_formatter.closeMember();
+            d_formatter.addArrayElementSeparator();
             rc = bdlat_ArrayFunctions::accessElement(value, visitor, i);
             if (rc) {
                 return rc;                                            // RETURN
