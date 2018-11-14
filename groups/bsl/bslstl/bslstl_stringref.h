@@ -1107,7 +1107,11 @@ inline
 bool bslstl::operator==(const StringRefImp<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>& rhs)
 {
-    return lhs.length() == rhs.length() && lhs.compare(rhs) == 0;
+    return lhs.length() != rhs.length()
+         ? false
+         : lhs.data()   == rhs.data()
+         ? true
+         : lhs.compare(rhs) == 0;
 }
 
 template <class CHAR_TYPE>
