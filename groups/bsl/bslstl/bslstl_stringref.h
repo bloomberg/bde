@@ -565,6 +565,17 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // value if this string is less than 'other' string, a positive value
         // if this string is greater than 'other' string, and 0 if this string
         // is equal to 'other' string.
+
+    bool compareEqual(const StringRefImp& other) const;
+        // Return 'true' if this object is equal to 'other' and 'false'
+        // otherwise.  Note that this function is more efficient than 'compare'
+        // for non-lexicographical equality comparisons.
+
+    bool compareEqual(const_iterator other) const;
+        // Return 'true' if this object is equal to the null-terminated string
+        // 'other' and 'false' otherwise.  Note that this function is more
+        // efficient than 'compare' for non-lexicographical equality
+        // comparisons.
 };
 
 // FREE OPERATORS
@@ -1099,6 +1110,50 @@ int StringRefImp<CHAR_TYPE>::compare(const_iterator other) const
     return *other ? -1 : 0;
 }
 
+template <class CHAR_TYPE>
+bool StringRefImp<CHAR_TYPE>::compareEqual(
+                                    const StringRefImp<CHAR_TYPE>& other) const
+{
+    // Not inline.
+
+    if (this->length() != other.length()) {
+        return false;                                                 // RETURN
+    }
+
+    for (const_iterator pc = this->begin(), end = this->end(),
+                                                       otherPc = other.begin();
+              BSLS_PERFORMANCEHINT_PREDICT_LIKELY(pc < end); ++pc, ++otherPc) {
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(*pc != *otherPc)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            return false;                                             // RETURN
+        }
+    }
+    BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+    return true;
+}
+
+template <class CHAR_TYPE>
+bool StringRefImp<CHAR_TYPE>::compareEqual(const_iterator other) const
+{
+    // Not inline.
+
+    for (const_iterator pc = this->begin(), end = this->end();
+                BSLS_PERFORMANCEHINT_PREDICT_LIKELY(pc < end); ++pc, ++other) {
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(*pc != *other)) {
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+            // Note that this includes the case where '0 == *other'.
+
+            return false;                                             // RETURN
+        }
+    }
+    BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
+    return 0 == *other;
+}
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -1107,11 +1162,7 @@ inline
 bool bslstl::operator==(const StringRefImp<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>& rhs)
 {
-    return lhs.length() != rhs.length()
-         ? false
-         : lhs.data()   == rhs.data()
-         ? true
-         : lhs.compare(rhs) == 0;
+    return lhs.compareEqual(rhs);
 }
 
 template <class CHAR_TYPE>
@@ -1119,7 +1170,7 @@ inline
 bool bslstl::operator==(const bsl::basic_string<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>&      rhs)
 {
-    return StringRefImp<CHAR_TYPE>(lhs) == rhs;
+    return StringRefImp<CHAR_TYPE>(lhs).compareEqual(rhs);
 }
 
 template <class CHAR_TYPE>
@@ -1127,7 +1178,7 @@ inline
 bool bslstl::operator==(const StringRefImp<CHAR_TYPE>&      lhs,
                         const bsl::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs == StringRefImp<CHAR_TYPE>(rhs);
+    return lhs.compareEqual(StringRefImp<CHAR_TYPE>(rhs));
 }
 
 template <class CHAR_TYPE>
@@ -1135,7 +1186,7 @@ inline
 bool bslstl::operator==(const native_std::basic_string<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>&             rhs)
 {
-    return StringRefImp<CHAR_TYPE>(lhs) == rhs;
+    return StringRefImp<CHAR_TYPE>(lhs).compareEqual(rhs);
 }
 
 template <class CHAR_TYPE>
@@ -1143,7 +1194,7 @@ inline
 bool bslstl::operator==(const StringRefImp<CHAR_TYPE>&             lhs,
                         const native_std::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs == StringRefImp<CHAR_TYPE>(rhs);
+    return lhs.compareEqual(StringRefImp<CHAR_TYPE>(rhs));
 }
 
 template <class CHAR_TYPE>
@@ -1151,7 +1202,7 @@ inline
 bool bslstl::operator==(const CHAR_TYPE                *lhs,
                         const StringRefImp<CHAR_TYPE>&  rhs)
 {
-    return 0 == rhs.compare(lhs);
+    return rhs.compareEqual(lhs);
 }
 
 template <class CHAR_TYPE>
@@ -1159,7 +1210,7 @@ inline
 bool bslstl::operator==(const StringRefImp<CHAR_TYPE>&  lhs,
                         const CHAR_TYPE                *rhs)
 {
-    return 0 == lhs.compare(rhs);
+    return lhs.compareEqual(rhs);
 }
 
 template <class CHAR_TYPE>
@@ -1167,7 +1218,7 @@ inline
 bool bslstl::operator!=(const StringRefImp<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>& rhs)
 {
-    return !(lhs == rhs);
+    return false == lhs.compareEqual(rhs);
 }
 
 template <class CHAR_TYPE>
@@ -1175,7 +1226,7 @@ inline
 bool bslstl::operator!=(const bsl::basic_string<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>&      rhs)
 {
-    return StringRefImp<CHAR_TYPE>(lhs) != rhs;
+    return false == StringRefImp<CHAR_TYPE>(lhs).compareEqual(rhs);
 }
 
 template <class CHAR_TYPE>
@@ -1183,7 +1234,7 @@ inline
 bool bslstl::operator!=(const StringRefImp<CHAR_TYPE>&      lhs,
                         const bsl::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs != StringRefImp<CHAR_TYPE>(rhs);
+    return false == lhs.compareEqual(StringRefImp<CHAR_TYPE>(rhs));
 }
 
 template <class CHAR_TYPE>
@@ -1191,7 +1242,7 @@ inline
 bool bslstl::operator!=(const native_std::basic_string<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>&             rhs)
 {
-    return StringRefImp<CHAR_TYPE>(lhs) != rhs;
+    return false == StringRefImp<CHAR_TYPE>(lhs).compareEqual(rhs);
 }
 
 template <class CHAR_TYPE>
@@ -1199,7 +1250,7 @@ inline
 bool bslstl::operator!=(const StringRefImp<CHAR_TYPE>&             lhs,
                         const native_std::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs != StringRefImp<CHAR_TYPE>(rhs);
+    return false == lhs.compareEqual(StringRefImp<CHAR_TYPE>(rhs));
 }
 
 template <class CHAR_TYPE>
@@ -1207,7 +1258,7 @@ inline
 bool bslstl::operator!=(const CHAR_TYPE                *lhs,
                         const StringRefImp<CHAR_TYPE>&  rhs)
 {
-    return 0 != rhs.compare(lhs);
+    return false == rhs.compareEqual(lhs);
 }
 
 template <class CHAR_TYPE>
@@ -1215,7 +1266,7 @@ inline
 bool bslstl::operator!=(const StringRefImp<CHAR_TYPE>&  lhs,
                         const CHAR_TYPE                *rhs)
 {
-    return 0 != lhs.compare(rhs);
+    return false == lhs.compareEqual(rhs);
 }
 
 template <class CHAR_TYPE>
@@ -1263,7 +1314,7 @@ inline
 bool bslstl::operator<(const CHAR_TYPE                *lhs,
                        const StringRefImp<CHAR_TYPE>&  rhs)
 {
-    return 0 < rhs.compare(lhs);
+    return rhs.compare(lhs) > 0;    // backwards, therefore '<' -> '>'
 }
 
 template <class CHAR_TYPE>
@@ -1287,7 +1338,7 @@ inline
 bool bslstl::operator>(const bsl::basic_string<CHAR_TYPE>& lhs,
                        const StringRefImp<CHAR_TYPE>&      rhs)
 {
-    return StringRefImp<CHAR_TYPE>(lhs) > rhs;
+    return StringRefImp<CHAR_TYPE>(lhs).compare(rhs) > 0;
 }
 
 template <class CHAR_TYPE>
@@ -1335,7 +1386,7 @@ inline
 bool bslstl::operator<=(const StringRefImp<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>& rhs)
 {
-    return !(lhs > rhs);
+    return lhs.compare(rhs) <= 0;
 }
 
 template <class CHAR_TYPE>
@@ -1343,7 +1394,7 @@ inline
 bool bslstl::operator<=(const bsl::basic_string<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>&      rhs)
 {
-    return StringRefImp<CHAR_TYPE>(lhs) <= rhs;
+    return StringRefImp<CHAR_TYPE>(lhs).compare(rhs) <= 0;
 }
 
 template <class CHAR_TYPE>
@@ -1351,7 +1402,7 @@ inline
 bool bslstl::operator<=(const StringRefImp<CHAR_TYPE>&      lhs,
                         const bsl::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs <= StringRefImp<CHAR_TYPE>(rhs);
+    return lhs.compare(StringRefImp<CHAR_TYPE>(rhs)) <= 0;
 }
 
 template <class CHAR_TYPE>
@@ -1359,7 +1410,7 @@ inline
 bool bslstl::operator<=(const native_std::basic_string<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>&             rhs)
 {
-    return StringRefImp<CHAR_TYPE>(lhs) <= rhs;
+    return StringRefImp<CHAR_TYPE>(lhs).compare(rhs) <= 0;
 }
 
 template <class CHAR_TYPE>
@@ -1367,7 +1418,7 @@ inline
 bool bslstl::operator<=(const StringRefImp<CHAR_TYPE>&             lhs,
                         const native_std::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs <= StringRefImp<CHAR_TYPE>(rhs);
+    return lhs.compare(StringRefImp<CHAR_TYPE>(rhs)) <= 0;
 }
 
 template <class CHAR_TYPE>
@@ -1391,7 +1442,7 @@ inline
 bool bslstl::operator>=(const StringRefImp<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>& rhs)
 {
-    return !(lhs < rhs);
+    return lhs.compare(rhs) >= 0;
 }
 
 template <class CHAR_TYPE>
@@ -1399,7 +1450,7 @@ inline
 bool bslstl::operator>=(const bsl::basic_string<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>&      rhs)
 {
-    return StringRefImp<CHAR_TYPE>(lhs) >= rhs;
+    return StringRefImp<CHAR_TYPE>(lhs).compare(rhs) >= 0;
 }
 
 template <class CHAR_TYPE>
@@ -1407,7 +1458,7 @@ inline
 bool bslstl::operator>=(const StringRefImp<CHAR_TYPE>&      lhs,
                         const bsl::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs >= StringRefImp<CHAR_TYPE>(rhs);
+    return lhs.compare(StringRefImp<CHAR_TYPE>(rhs)) >= 0;
 }
 
 template <class CHAR_TYPE>
@@ -1415,7 +1466,7 @@ inline
 bool bslstl::operator>=(const native_std::basic_string<CHAR_TYPE>& lhs,
                         const StringRefImp<CHAR_TYPE>&             rhs)
 {
-    return StringRefImp<CHAR_TYPE>(lhs) >= rhs;
+    return StringRefImp<CHAR_TYPE>(lhs).compare(rhs) >= 0;
 }
 
 template <class CHAR_TYPE>
@@ -1423,7 +1474,7 @@ inline
 bool bslstl::operator>=(const StringRefImp<CHAR_TYPE>&             lhs,
                         const native_std::basic_string<CHAR_TYPE>& rhs)
 {
-    return lhs >= StringRefImp<CHAR_TYPE>(rhs);
+    return lhs.compare(StringRefImp<CHAR_TYPE>(rhs)) >= 0;
 }
 
 template <class CHAR_TYPE>
