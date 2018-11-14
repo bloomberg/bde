@@ -125,15 +125,6 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ZU           BSLS_BSLTESTUTIL_FORMAT_ZU
 
-#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VERSION < 0x0c00
-// Prior to xLC v12.0, the IBM compiler could not distinguish the following
-// overload set:
-//..
-//  void funcion(const T *const& arg);
-//  void funcion(      T *const& arg);
-//..
-# define BSLS_ARRAYPRIMITIVES_CONST_POINTER_OVERLOAD_RESOLUTION_BUG
-#endif
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -677,12 +668,10 @@ void setValue(const void **pvs, char ch)
     *pvs = reinterpret_cast<const void *>(static_cast<UintPtr>(ch));
 }
 
-#if !defined(BSLS_ARRAYPRIMITIVES_CONST_POINTER_OVERLOAD_RESOLUTION_BUG)
 char getValue(void * const& vs)
 {
     return static_cast<char>(reinterpret_cast<UintPtr>(vs) & 0xff);
 }
-#endif
 
 char getValue(const void * const& vs)
 {
@@ -708,12 +697,10 @@ void setValue(volatile int **pis, char ch)
     *pis = reinterpret_cast<volatile int *>(static_cast<UintPtr>(ch));
 }
 
-#if !defined(BSLS_ARRAYPRIMITIVES_CONST_POINTER_OVERLOAD_RESOLUTION_BUG)
 char getValue(int * const& is)
 {
     return static_cast<char>(reinterpret_cast<UintPtr>(is) & 0xff);
 }
-#endif
 
 char getValue(const int * const& is)
 {

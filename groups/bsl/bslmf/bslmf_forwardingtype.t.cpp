@@ -1293,12 +1293,10 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("Function types\n");
 
-#if (!defined(BSLS_PLATFORM_CMP_IBM)  || (BSLS_PLATFORM_CMP_VERSION < 0x0800))
         // xlc-8 seems to have problems with function types.
         TEST_FWD_TYPE(void()        , void(&)());
         TEST_FWD_TYPE(int(int)      , int(&)(int));
         TEST_FWD_TYPE(void(int&)    , void(&)(int&));
-#endif
 
         TEST_FWD_TYPE(void(&)()     , void(&)());
         TEST_FWD_TYPE(int(&)(int)   , int(&)(int));

@@ -353,7 +353,7 @@ void testUsageExample1(int argc, bool assert)
 #if defined(BSLS_PLATFORM_CMP_CLANG)                                          \
  || defined(BSLS_PLATFORM_CMP_GNU)                                            \
  || defined(BSLS_PLATFORM_CMP_SUN)                                            \
- || (defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VERSION >= 0x0900)
+ || defined(BSLS_PLATFORM_CMP_IBM)
     // Only check when 'BSLS_PERFORMANCEHINT_PREDICT_LIKELY' and
     // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY' expands into something
     // meaningful.
@@ -375,8 +375,8 @@ namespace UsageExample3Case {
 
 void init(volatile int *arrayA, volatile int *arrayB)
 {
-#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VERSION >= 0x0900
-    // Only available under xlc 10.
+#if defined(BSLS_PLATFORM_CMP_IBM)
+    // Available since xlc 10.
 
     for (int i = 0; i < SIZE; ++i){
         __dcbf((const void *)(arrayA++));

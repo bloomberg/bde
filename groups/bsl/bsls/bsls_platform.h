@@ -821,7 +821,10 @@ struct bsls_Platform_Assert;
 #    error This early compiler is not supported by BDE
 #  endif
 #elif defined(BSLS_PLATFORM_CMP_IBM)
-    // No minimum supported compiler version has been identified yet.
+    // Require at least xlC 12 for AIX.
+#  if BSLS_PLATFORM_CMP_VERSION < 0x0c00
+#    error This early compiler is not supported by BDE
+#  endif
 #elif defined(BSLS_PLATFORM_CMP_SUN)
 #  if BSLS_PLATFORM_CMP_VERSION < 0x580
 #    error This early compiler is not supported by BDE
