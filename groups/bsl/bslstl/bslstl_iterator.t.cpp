@@ -3,6 +3,7 @@
 #include <bslstl_iterator.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_objectbuffer.h>
 
 #include <bslstl_set.h>
@@ -148,7 +149,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_IBM)      \
+ || defined(BSLS_LIBRARYFEATURES_STDCPP_STLPORT)
 # define BSLS_ITERATOR_NO_MIXED_OPS_IN_CPP03 1
 #endif
 //=============================================================================

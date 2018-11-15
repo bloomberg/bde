@@ -12,20 +12,18 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(balxml_typesprintutil_cpp,"$Id$ $CSID$")
 
-#include <bdldfp_decimalutil.h>
-
 #include <bdlb_print.h>
-
 #include <bdlde_base64encoder.h>
-
-#include <bsl_cfloat.h>
-#include <bsl_cstdio.h>
-#include <bsl_cstring.h>
-#include <bsl_cctype.h>
-#include <bsl_iterator.h>
+#include <bdldfp_decimalutil.h>
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+
+#include <bsl_cctype.h>
+#include <bsl_cfloat.h>
+#include <bsl_cstdio.h>
+#include <bsl_cstring.h>
+#include <bsl_iterator.h>
 
 namespace BloombergLP {
 
@@ -612,7 +610,7 @@ bsl::ostream& printDecimalImpl(bsl::ostream& stream,
 #endif
 
     // format: "-"  forces left alignment, "#" always prints period
-    const int len = ::sprintf(buffer, "%-#1.*f", precision, object);
+    const int len = bsl::sprintf(buffer, "%-#1.*f", precision, object);
     (void)len; BSLS_ASSERT(len < (int) sizeof buffer);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -695,7 +693,7 @@ bsl::ostream& printDecimalWithOptions(bsl::ostream& stream,
 #endif
 
     // format: "-"  forces left alignment, "#" always prints period
-    const int len = ::sprintf(buffer, "%-#1.*f", maxFractionDigits, object);
+    const int len = bsl::sprintf(buffer, "%-#1.*f", maxFractionDigits, object);
     (void)len; BSLS_ASSERT(len < (int) sizeof buffer);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -940,8 +938,8 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 #pragma warning(disable:4996)     // suppress 'sprintf' deprecation warning
 #endif
 
-        const int len = ::sprintf(buffer, "%.*g", FLT_DIG + 1,
-                                     (double) object);
+        const int len =
+                    bsl::sprintf(buffer, "%.*g", FLT_DIG + 1, (double) object);
         BSLS_ASSERT(len < (int) sizeof buffer);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -986,7 +984,7 @@ bsl::ostream& TypesPrintUtil_Imp::printDefault(
 #pragma warning(disable:4996)     // suppress 'sprintf' deprecation warning
 #endif
 
-        const int len = ::sprintf(buffer, "%.*g", DBL_DIG + 1, object);
+        const int len = bsl::sprintf(buffer, "%.*g", DBL_DIG + 1, object);
         BSLS_ASSERT(len < (int) sizeof buffer);
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)

@@ -25,6 +25,34 @@ using std::streamsize;
 using std::ios_base;
 using std::basic_ios;
 
+// _lib.std.ios.manip_, manipulators:
+using std::boolalpha;
+using std::noboolalpha;
+using std::showbase;
+using std::noshowbase;
+using std::showpoint;
+using std::noshowpoint;
+using std::showpos;
+using std::noshowpos;
+using std::skipws;
+using std::noskipws;
+using std::uppercase;
+using std::nouppercase;
+
+// _lib.adjustfield.manip_ adjustfield:
+using std::internal;
+using std::left;
+using std::right;
+
+// _lib.basefield.manip_ basefield:
+using std::dec;
+using std::hex;
+using std::oct;
+
+// _lib.floatfield.manip_ floatfield:
+using std::fixed;
+using std::scientific;
+
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //

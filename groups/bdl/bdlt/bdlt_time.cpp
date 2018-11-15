@@ -7,6 +7,8 @@ BSLS_IDENT_RCSID(bdlt_time_cpp,"$Id$ $CSID$")
 #include <bslim_printer.h>
 
 #include <bsls_assert.h>
+#include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_limits.h>
@@ -125,8 +127,24 @@ int printToBufferFormatted(char       *result,
                            int         microsecond,
                            int         fractionalSecondPrecision)
 {
+#if defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+    return 0 == fractionalSecondPrecision
+           ? bsl::snprintf(result,
+                           numBytes,
+                           spec,
+                           hour,
+                           minute,
+                           second)
+           : bsl::snprintf(result,
+                           numBytes,
+                           spec,
+                           hour,
+                           minute,
+                           second,
+                           microsecond);
+
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
     // Windows uses a different variant of snprintf that does not necessarily
     // null-terminate and returns -1 on overflow.
 
@@ -168,21 +186,7 @@ int printToBufferFormatted(char       *result,
     return numCharsWritten;
 
 #else
-
-    return 0 == fractionalSecondPrecision
-           ? snprintf(result,
-                      numBytes,
-                      spec,
-                      hour,
-                      minute,
-                      second)
-           : snprintf(result,
-                      numBytes,
-                      spec,
-                      hour,
-                      minute,
-                      second,
-                      microsecond);
+# error THIS CONFIGURATION DOES NOT SUPPORT 'snprintf'
 #endif
 }
 

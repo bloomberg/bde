@@ -14,6 +14,7 @@ BSLS_IDENT_RCSID(bdlt_datetimeinterval_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
 #include <bsl_cstdio.h>    // 'sprintf'
@@ -42,8 +43,25 @@ int printToBufferFormatted(char       *result,
                            int         microsecond,
                            int         fractionalSecondPrecision)
 {
+#if defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)
+        return 0 == fractionalSecondPrecision
+           ? bsl::snprintf(result,
+                           numBytes,
+                           spec,
+                           day,
+                           hour,
+                           minute,
+                           second)
+           : bsl::snprintf(result,
+                           numBytes,
+                           spec,
+                           day,
+                           hour,
+                           minute,
+                           second,
+                           microsecond);
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
     // Windows uses a different variant of snprintf that does not necessarily
     // null-terminate and returns -1 (or 'numBytes') on overflow.
 
@@ -120,25 +138,8 @@ int printToBufferFormatted(char       *result,
     }
 
     return rc;
-
 #else
-
-    return 0 == fractionalSecondPrecision
-           ? snprintf(result,
-                      numBytes,
-                      spec,
-                      day,
-                      hour,
-                      minute,
-                      second)
-           : snprintf(result,
-                      numBytes,
-                      spec,
-                      day,
-                      hour,
-                      minute,
-                      second,
-                      microsecond);
+# error THIS CONFIGURATION DOES NOT SUPPORT 'snprintf'
 #endif
 }
 
