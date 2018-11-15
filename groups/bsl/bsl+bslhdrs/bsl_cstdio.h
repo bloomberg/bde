@@ -26,6 +26,7 @@ BSLS_IDENT("$Id: $")
     ||  2 == BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)
 
 # if defined(BSLS_PLATFORM_OS_AIX)                      \
+  || defined(BSLS_PLATFORM_OS_LINUX)                    \
   || defined(BSLS_PLATFORM_OS_SOLARIS)
 #    define BSL_CSTDIO_USE_OS_FOR_99 1
 #    include <stdio.h>
