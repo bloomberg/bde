@@ -19,14 +19,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
-#include <bsls_platform.h>
 
 #include <cstdio>
 
-#if !defined(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY) \
- || !defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)
+#if(!defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)     \
+    ||  2 == BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF)
 
-# if defined(BSLS_PLATFORM_OS_AIX)                 \
+# if defined(BSLS_PLATFORM_OS_AIX)                      \
   || defined(BSLS_PLATFORM_OS_SOLARIS)
 #    define BSL_CSTDIO_USE_OS_FOR_99 1
 #    include <stdio.h>
@@ -92,27 +91,23 @@ namespace bsl {
     using native_std::vsscanf;
 #endif  // BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
+#if defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF) \
+    && 2 == BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
     using native_std::snprintf;
 #endif  // BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
 }  // close package namespace
 
-#ifdef BSL_CSTDIO_USE_OS_FOR_99
-#undef BSL_CSTDIO_USE_OS_FOR_99
+#ifdef  BSL_CSTDIO_USE_OS_FOR_99
+# undef BSL_CSTDIO_USE_OS_FOR_99
 namespace bsl {
-#if 0
-    using ::vfscanf;
-    using ::vscanf;
-    using ::vsnprintf;
-    using ::vsscanf;
-# define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY 2
-#endif
 
+# if !defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF) \
+     ||  2 == BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
     using ::snprintf;
-# define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF 2
+#   define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF 2
+# endif // BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
 }  // close package namespace
-
-#endif
+#endif // BSL_CSTDIO_USE_OS_FOR_99
 
 #endif
 
