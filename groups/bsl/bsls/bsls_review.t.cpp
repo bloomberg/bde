@@ -1504,14 +1504,14 @@ int main(int argc, char *argv[])
                 const char *file = __FILE__;
 
 #ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
-                file = "";
+                file = "(* Empty File Name *)";
 #endif
                 LOOP2_ASSERT(file, profile.d_file,
                              0 == std::strcmp(file, profile.d_file));
 
                 if (skipped > 0) {
                     char skipText[32];
-                    sprintf(skipText,"skipped: %d", skipped);
+                    sprintf(skipText,"skipped:%d", skipped);
 
                     ASSERT( NULL != std::strstr(profile.d_text, skipText) );
 
@@ -2695,14 +2695,14 @@ int main(int argc, char *argv[])
 
                 const char *file = __FILE__;
 #ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
-                file = "";
+                file = "(* Empty File Name *)";;
 #endif
                 LOOP2_ASSERT(file, profile.d_file,
                              0 == std::strcmp(file, profile.d_file));
 
                 if (skipped > 0) {
                     char skipText[32];
-                    sprintf(skipText,"skipped: %d", skipped);
+                    sprintf(skipText,"skipped:%d", skipped);
 
                     ASSERT( NULL != std::strstr(profile.d_text, skipText) );
 
