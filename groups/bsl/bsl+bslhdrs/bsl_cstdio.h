@@ -93,7 +93,7 @@ namespace bsl {
 #endif  // BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF) \
-    && 2 == BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
+    && 2 != BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
     using native_std::snprintf;
 #endif  // BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF
 }  // close package namespace
