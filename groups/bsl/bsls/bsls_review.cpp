@@ -24,12 +24,12 @@ void printError(const bsls::ReviewViolation& violation)
     // Log a formatted message with the contents of the specified 'violation'
     // and a severity of 'e_ERROR'.
 {
-    const char *text = violation.comment();
-    if (!text) {
-        text = "(* Unspecified Comment Text *)";
+    const char *comment = violation.comment();
+    if (!comment) {
+        comment = "(* Unspecified Comment Text *)";
     }
-    else if (!*text) {
-        text = "(* Empty Comment Text *)";
+    else if (!*comment) {
+        comment = "(* Empty Comment Text *)";
     }
 
     const char *file = violation.fileName();
@@ -53,9 +53,10 @@ void printError(const bsls::ReviewViolation& violation)
     bsls::Log::logFormattedMessage(bsls::LogSeverity::e_ERROR,
                                    file,
                                    line,
-                                   "Review-%s failed: %s",
+                                   "BSLS_REVIEW failure: (level:%s)"
+                                   " '%s'",
                                    level,
-                                   text);
+                                   comment);
 }
 
 }  // close unnamed namespace
@@ -169,22 +170,48 @@ void Review::failByLog(const ReviewViolation& violation)
         char stack[1024];
         bsls::StackAddressUtil::formatCheapStack(stack,1024);
 
+        const char *comment = violation.comment();
+        if (!comment) {
+            comment = "(* Unspecified Comment Text *)";
+        }
+        else if (!*comment) {
+            comment = "(* Empty Comment Text *)";
+        }
+
+        const char *file = violation.fileName();
+        if (!file) {
+            file = "(* Unspecified File Name *)";
+        }
+        else if (!*file) {
+            file = "(* Empty File Name *)";
+        }
+
+        const char *level = violation.reviewLevel();
+        if (!level) {
+            level = "(* Unspecified Level *)";
+        }
+        else if (!*level) {
+            level = "(* Empty Level *)";
+        }
+
         if (skipped > 0) {
             Log::logFormattedMessage(LogSeverity::e_ERROR,
-                                     violation.fileName(),
+                                     file,
                                      violation.lineNumber(),
-                                     "BSLS_REVIEW failure: '%s' "
-                                     "skipped: %d %s",
-                                     violation.comment(),
+                                     "BSLS_REVIEW failure: (level:%s"
+                                     " skipped:%d) '%s' %s ",
+                                     level,
                                      skipped,
+                                     comment,
                                      stack);
         }
         else {
             Log::logFormattedMessage(LogSeverity::e_ERROR,
-                                     violation.fileName(),
+                                     file,
                                      violation.lineNumber(),
-                                     "BSLS_REVIEW failure: '%s' %s",
-                                     violation.comment(),
+                                     "BSLS_REVIEW failure: (level:%s) '%s' %s",
+                                     level,
+                                     comment,
                                      stack);
         }
     }
