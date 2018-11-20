@@ -851,8 +851,6 @@ BSLS_IDENT("$Id: $")
 #include <ball_loggermanager.h>
 #include <ball_severity.h>
 
-#include <bslmt_recursivemutex.h>
-
 #include <bsls_annotation.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>

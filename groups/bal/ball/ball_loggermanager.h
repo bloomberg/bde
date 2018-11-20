@@ -881,14 +881,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlcc_objectpool.h>
 
-#include <bdlma_pool.h>
+#include <bdlma_concurrentpool.h>
 
 #include <bslma_allocator.h>
 #include <bslma_managedptr.h>
 
 #include <bslmt_mutex.h>
 #include <bslmt_readerwritermutex.h>
-#include <bslmt_recursivemutex.h>
 
 #include <bsls_compilerfeatures.h>
 
@@ -932,47 +931,43 @@ class Logger {
     bdlcc::ObjectPool<Record,
                       bdlcc::ObjectPoolFunctors::DefaultCreator,
                       bdlcc::ObjectPoolFunctors::Clear<Record> >
-                 d_recordPool;                  // pool of records with a
+                  d_recordPool;                 // pool of records with a
                                                 // custom RESETTER
 
     const bsl::shared_ptr<Observer>
-                 d_observer;                    // holds observer
+                  d_observer;                   // holds observer
 
-    RecordBuffer
-                *d_recordBuffer_p;              // holds log record buffer
+    RecordBuffer *d_recordBuffer_p;             // holds log record buffer
                                                 // (not owned)
 
     UserFieldsPopulatorCallback
-                 d_populator;                   // user populator functor
+                  d_populator;                  // user populator functor
 
     PublishAllTriggerCallback
-                 d_publishAll;                  // publishAll callback functor
+                  d_publishAll;                 // publishAll callback functor
 
-    char        *d_scratchBuffer_p;             // buffer for formatting log
-                                                // messages (owned)
-
-    bdlma::Pool  d_bufferPool;                  // pool of buffers for
+    bdlma::ConcurrentPool
+                  d_bufferPool;                 // pool of buffers for
                                                 // formatting log messages
                                                 // allowing recursive
                                                 // access(owned)
 
-    int          d_scratchBufferSize;           // message buffer size (bytes)
+    char         *d_scratchBuffer_p;            // buffer for formatting log
+                                                // messages (owned)
 
-    bslmt::Mutex d_scratchBufferMutex;          // ensure thread-safety of
+    bslmt::Mutex  d_scratchBufferMutex;         // ensure thread-safety of
                                                 // message buffer
 
-    bslmt::Mutex d_bufferPoolMutex;             // ensure thread-safety of
-                                                // pool of message buffers
-                                                // allowing recursive access
+    int           d_scratchBufferSize;          // message buffer size (bytes)
 
     LoggerManagerConfiguration::LogOrder
-                 d_logOrder;                    // logging order
+                  d_logOrder;                   // logging order
 
     LoggerManagerConfiguration::TriggerMarkers
-                 d_triggerMarkers;              // trigger markers
+                  d_triggerMarkers;             // trigger markers
 
     bslma::Allocator
-                *d_allocator_p;                 // memory allocator (held, not
+                 *d_allocator_p;                // memory allocator (held, not
                                                 // owned)
 
     // FRIENDS
@@ -1458,12 +1453,12 @@ class LoggerManager {
 
     static char *obtainPoolMessageBuffer(int *bufferSize);
         // Return the address of the memory block obtained from the static
-        // 'bdlma::Pool' object to which this thread of execution has exclusive
-        // access and load the size (in bytes) of this buffer into the
-        // specified 'bufferSize' address.  Note that the buffer is intended to
-        // be used *only* for formatting log messages immediately before a call
-        // to 'Log::logMessage'; other use may adversely affect performance for
-        // the entire program.
+        // 'bdlma::ConcurrentPool' object to which this thread of execution has
+        // exclusive access and load the size (in bytes) of this buffer into
+        // the specified 'bufferSize' address.  Note that the buffer is
+        // intended to be used *only* for formatting log messages immediately
+        // before a call to 'Log::logMessage'; other use may adversely affect
+        // performance for the entire program.
 
     static void shutDownSingleton();
         // Destroy the logger manager singleton and release all resources used

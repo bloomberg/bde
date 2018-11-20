@@ -497,16 +497,15 @@ char *Logger::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
 
 char *Logger::obtainPoolMessageBuffer(int *bufferSize)
 {
-    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_bufferPoolMutex);
     *bufferSize = d_scratchBufferSize;
     return static_cast<char *>(d_bufferPool.allocate());
 }
 
 void Logger::releasePoolMessageBuffer(char *buffer)
 {
-    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_bufferPoolMutex);
     d_bufferPool.deallocate(static_cast<void *>(buffer));
 }
+
                            // -------------------
                            // class LoggerManager
                            // -------------------
@@ -887,24 +886,21 @@ char *LoggerManager::obtainPoolMessageBuffer(int *bufferSize)
 {
     const int k_DEFAULT_LOGGER_BUFFER_SIZE = 8192;
 
-    static bsls::ObjectBuffer<bslmt::Mutex> staticMutex;
-    static bsls::ObjectBuffer<bdlma::Pool>  staticPool;
+    static bsls::ObjectBuffer<bdlma::ConcurrentPool> staticPool;
 
     BSLMT_ONCE_DO {
         // These objects must remain valid for the lifetime of the task, and
         // are intentionally never destroyed.  This function may be called on
         // program termination, e.g., if a statically initialized object
         // performs logging during its destruction.
-        new (staticMutex.buffer()) bslmt::Mutex();
-        new (staticPool.buffer()) bdlma::Pool(k_DEFAULT_LOGGER_BUFFER_SIZE);
+        new (staticPool.buffer()) bdlma::ConcurrentPool(
+                                                 k_DEFAULT_LOGGER_BUFFER_SIZE);
         staticPool.object().reserveCapacity(5);
     }
 
     char *buffer;
 
-    staticMutex.object().lock();
     buffer = static_cast<char *>(staticPool.object().allocate());
-    staticMutex.object().unlock();
 
     *bufferSize = k_DEFAULT_LOGGER_BUFFER_SIZE;
 

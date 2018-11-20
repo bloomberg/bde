@@ -684,6 +684,310 @@ void processData(int                      uuid,
 }  // close enterprise namespace
 
 // ============================================================================
+//                         CASE 35 RELATED ENTITIES
+// ----------------------------------------------------------------------------
+
+namespace BALL_LOG_TEST_CASE_35 {
+
+template <int DEPTH>
+int recurseStreamBasedMacros(BloombergLP::ball::Severity::Level level)
+    // Recursively invoke itself and pass the result to the stream-based
+    // logging macro corresponding to the specified 'level' and return
+    // 'level'.
+{
+    BALL_LOG_SET_CATEGORY("Recursion");
+
+    switch (level) {
+      case Sev::e_FATAL: {
+        BALL_LOG_FATAL << "Inner FATAL["
+                       << DEPTH
+                       << "] "
+                       << recurseStreamBasedMacros<DEPTH - 1>(level);
+      } break;
+      case Sev::e_ERROR: {
+        BALL_LOG_ERROR << "Inner ERROR["
+                       << DEPTH
+                       << "] "
+                       << recurseStreamBasedMacros<DEPTH - 1>(level);
+      } break;
+      case Sev::e_WARN: {
+        BALL_LOG_WARN  << "Inner WARN["
+                       << DEPTH
+                       << "] "
+                       << recurseStreamBasedMacros<DEPTH - 1>(level);
+      } break;
+      case Sev::e_INFO: {
+        BALL_LOG_INFO  << "Inner INFO["
+                       << DEPTH
+                       << "] "
+                       << recurseStreamBasedMacros<DEPTH - 1>(level);
+      } break;
+      case Sev::e_DEBUG: {
+        BALL_LOG_DEBUG << "Inner DEBUG["
+                       << DEPTH
+                       << "] "
+                       << recurseStreamBasedMacros<DEPTH - 1>(level);
+      } break;
+      case Sev::e_TRACE: {
+        BALL_LOG_TRACE << "Inner TRACE["
+                       << DEPTH
+                       << "] "
+                       << recurseStreamBasedMacros<DEPTH - 1>(level);
+      } break;
+      default: {
+        ASSERT("Should not get here!" && 0);
+      } break;
+    }
+
+    return static_cast<int>(level);
+}
+
+template <>
+int recurseStreamBasedMacros<0>(BloombergLP::ball::Severity::Level level)
+    // Invoke the stream-based logging macro corresponding to the specified
+    // 'level' and return 'level'.
+{
+    BALL_LOG_SET_CATEGORY("Recursion");
+
+    switch (level) {
+      case Sev::e_FATAL: {
+        BALL_LOG_FATAL << "Inner FATAL[0] " << static_cast<int>(level);
+      } break;
+      case Sev::e_ERROR: {
+        BALL_LOG_ERROR << "Inner ERROR[0] " << static_cast<int>(level);
+      } break;
+      case Sev::e_WARN: {
+        BALL_LOG_WARN  << "Inner WARN[0] "  << static_cast<int>(level);
+      } break;
+      case Sev::e_INFO: {
+        BALL_LOG_INFO  << "Inner INFO[0] "  << static_cast<int>(level);
+      } break;
+      case Sev::e_DEBUG: {
+        BALL_LOG_DEBUG << "Inner DEBUG[0] " << static_cast<int>(level);
+      } break;
+      case Sev::e_TRACE: {
+        BALL_LOG_TRACE << "Inner TRACE[0] " << static_cast<int>(level);
+      } break;
+      default: {
+        ASSERT("Should not get here!" && 0);
+      } break;
+    }
+
+    return static_cast<int>(level);
+}
+
+template <int DEPTH>
+int recursePrintfStyleMacros(BloombergLP::ball::Severity::Level level)
+    // Recursively invoke itself and pass the result to the 'printf'-style
+    // logging macro corresponding to the specified 'level' and return
+    // 'level'.
+{
+    BALL_LOG_SET_CATEGORY("Recursion");
+
+    switch (level) {
+      case Sev::e_FATAL: {
+        BALL_LOGVA_FATAL("Inner FATAL[%d] %d",
+                         DEPTH,
+                         recursePrintfStyleMacros<DEPTH - 1>(level));
+      } break;
+      case Sev::e_ERROR: {
+        BALL_LOGVA_ERROR("Inner ERROR[%d] %d",
+                         DEPTH,
+                         recursePrintfStyleMacros<DEPTH - 1>(level));
+      } break;
+      case Sev::e_WARN: {
+        BALL_LOGVA_WARN( "Inner WARN[%d] %d",
+                         DEPTH,
+                         recursePrintfStyleMacros<DEPTH - 1>(level));
+      } break;
+      case Sev::e_INFO: {
+        BALL_LOGVA_INFO( "Inner INFO[%d] %d",
+                         DEPTH,
+                         recursePrintfStyleMacros<DEPTH - 1>(level));
+      } break;
+      case Sev::e_DEBUG: {
+        BALL_LOGVA_DEBUG("Inner DEBUG[%d] %d",
+                         DEPTH,
+                         recursePrintfStyleMacros<DEPTH - 1>(level));
+      } break;
+      case Sev::e_TRACE: {
+        BALL_LOGVA_TRACE("Inner TRACE[%d] %d",
+                         DEPTH,
+                         recursePrintfStyleMacros<DEPTH - 1>(level));
+      } break;
+      default: {
+        ASSERT("Should not get here!" && 0);
+      } break;
+    }
+
+    return static_cast<int>(level);
+}
+
+template<>
+int recursePrintfStyleMacros<0>(BloombergLP::ball::Severity::Level level)
+    // Invoke the 'printf'-style logging macro corresponding to the specified
+    // 'level' and return 'level'.
+{
+    BALL_LOG_SET_CATEGORY("Recursion");
+
+    switch (level) {
+      case Sev::e_FATAL: {
+        BALL_LOGVA_FATAL("%s %d", "Inner FATAL[0]", static_cast<int>(level));
+      } break;
+      case Sev::e_ERROR: {
+        BALL_LOGVA_ERROR("%s %d", "Inner ERROR[0]", static_cast<int>(level));
+      } break;
+      case Sev::e_WARN: {
+        BALL_LOGVA_WARN( "%s %d", "Inner WARN[0]",  static_cast<int>(level));
+      } break;
+      case Sev::e_INFO: {
+        BALL_LOGVA_INFO( "%s %d", "Inner INFO[0]",  static_cast<int>(level));
+      } break;
+      case Sev::e_DEBUG: {
+        BALL_LOGVA_DEBUG("%s %d", "Inner DEBUG[0]", static_cast<int>(level));
+      } break;
+      case Sev::e_TRACE: {
+        BALL_LOGVA_TRACE("%s %d", "Inner TRACE[0]", static_cast<int>(level));
+      } break;
+      default: {
+        ASSERT("Should not get here!" && 0);
+      } break;
+    }
+
+    return static_cast<int>(level);
+}
+
+void recurseCallback(BloombergLP::ball::UserFields *fields)
+    // Stub implementation of callback for testing recursive use of logging
+    // macros.
+{
+    (void)fields;  // suppress warning
+}
+
+void recurseStreamBasedMacrosCallback(
+                                    BloombergLP::ball::UserFields      *fields,
+                                    BloombergLP::ball::Severity::Level  level)
+    // Invoke the function, that calls stream-based logging macro and pass the
+    // result to the callback logging macro corresponding to the specified
+    // 'level' and return 'level'.
+{
+    (void)fields;  // suppress warning
+
+    BALL_LOG_SET_CATEGORY("Recursion");
+
+    switch (level) {
+      case Sev::e_FATAL: {
+        BALL_LOG_FATAL << "Inner FATAL[2]"
+                       << recurseStreamBasedMacros<1>(level);
+      } break;
+      case Sev::e_ERROR: {
+        BALL_LOG_ERROR << "Inner ERROR[2]"
+                       << recurseStreamBasedMacros<1>(level);
+      } break;
+      case Sev::e_WARN: {
+        BALL_LOG_WARN  << "Inner WARN[2]"
+                       << recurseStreamBasedMacros<1>(level);
+      } break;
+      case Sev::e_INFO: {
+        BALL_LOG_INFO  << "Inner INFO[2]"
+                       << recurseStreamBasedMacros<1>(level);
+      } break;
+      case Sev::e_DEBUG: {
+        BALL_LOG_DEBUG << "Inner DEBUG[2]"
+                       << recurseStreamBasedMacros<1>(level);
+      } break;
+      case Sev::e_TRACE: {
+        BALL_LOG_TRACE << "Inner TRACE[2]"
+                       << recurseStreamBasedMacros<1>(level);
+      } break;
+      default: {
+        ASSERT("Should not get here!" && 0);
+      } break;
+    }
+}
+
+void recursePrintfStyleMacrosCallback(
+                                    BloombergLP::ball::UserFields      *fields,
+                                    BloombergLP::ball::Severity::Level  level)
+    // Invoke the function, that calls 'printf'-style logging macro and pass
+    // the result to the callback logging macro corresponding to the specified
+    // 'level' and return 'level'.
+{
+    (void)fields;  // suppress warning
+
+    BALL_LOG_SET_CATEGORY("Recursion");
+
+    switch (level) {
+      case Sev::e_FATAL: {
+        BALL_LOGVA_FATAL("Inner FATAL[2] %d",
+                         recursePrintfStyleMacros<1>(level));
+      } break;
+      case Sev::e_ERROR: {
+        BALL_LOGVA_ERROR("Inner ERROR[2] %d",
+                         recursePrintfStyleMacros<1>(level));
+      } break;
+      case Sev::e_WARN: {
+        BALL_LOGVA_WARN( "Inner WARN[2] %d",
+                         recursePrintfStyleMacros<1>(level));
+      } break;
+      case Sev::e_INFO: {
+        BALL_LOGVA_INFO( "Inner INFO[2] %d",
+                         recursePrintfStyleMacros<1>(level));
+      } break;
+      case Sev::e_DEBUG: {
+        BALL_LOGVA_DEBUG("Inner DEBUG[2] %d",
+                         recursePrintfStyleMacros<1>(level));
+      } break;
+      case Sev::e_TRACE: {
+        BALL_LOGVA_TRACE("Inner TRACE[2] %d",
+                         recursePrintfStyleMacros<1>(level));
+      } break;
+      default: {
+        ASSERT("Should not get here!" && 0);
+      } break;
+    }
+}
+
+void recurseCallbackMacrosCallback(BloombergLP::ball::UserFields      *fields,
+                                   BloombergLP::ball::Severity::Level  level)
+    // Invoke the callback logging macro corresponding to the specified
+    // 'level'.
+{
+    (void)fields;  // suppress warning
+
+    BALL_LOG_SET_CATEGORY("Recursion");
+
+    bsl::function <void(BloombergLP::ball::UserFields *)> callback =
+                                                              &recurseCallback;
+
+    switch (level) {
+      case Sev::e_FATAL: {
+        BALL_LOGCB_FATAL(callback) << "Inner FATAL";
+      } break;
+      case Sev::e_ERROR: {
+        BALL_LOGCB_ERROR(callback) << "Inner ERROR";
+      } break;
+      case Sev::e_WARN: {
+        BALL_LOGCB_WARN( callback) << "Inner WARN";
+      } break;
+      case Sev::e_INFO: {
+        BALL_LOGCB_INFO( callback) << "Inner INFO";
+      } break;
+      case Sev::e_DEBUG: {
+        BALL_LOGCB_DEBUG(callback) << "Inner DEBUG";
+      } break;
+      case Sev::e_TRACE: {
+        BALL_LOGCB_TRACE(callback) << "Inner TRACE";
+      } break;
+      default: {
+        ASSERT("Should not get here!" && 0);
+      } break;
+    }
+}
+
+}  // close namespace BALL_LOG_TEST_CASE_35
+
+// ============================================================================
 //            HIERARCHICAL CATEGORIES -- CASE 32, CASE 33, CASE 34
 // ----------------------------------------------------------------------------
 
@@ -2519,308 +2823,30 @@ struct ThreadFunctor {
 }  // close namespace BALL_LOG_TEST_CASE_MINUS_1
 
 // ============================================================================
-//                         CASE 32 RELATED ENTITIES
+//                         CASE -2 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
-namespace BALL_LOG_TEST_CASE_32 {
+namespace BALL_LOG_TEST_CASE_MINUS_2 {
 
-template <int DEPTH>
-int recurseStreamBasedMacros(BloombergLP::ball::Severity::Level level)
-    // Recursively invoke itself and pass the result to the stream-based
-    // logging macro corresponding to the specified 'level' and return
-    // 'level'.
+enum {
+    NUM_THREADS = 10
+};
+
+const char *categoryName  = "Performance";
+int         numIterations = 100000;
+
+extern "C" {
+void *workerThreadPerformance(void *)
 {
-    BALL_LOG_SET_CATEGORY("Recursion");
-
-    switch (level) {
-      case Sev::e_FATAL: {
-        BALL_LOG_FATAL << "Inner FATAL["
-                       << DEPTH
-                       << "] "
-                       << recurseStreamBasedMacros<DEPTH - 1>(level);
-      } break;
-      case Sev::e_ERROR: {
-        BALL_LOG_ERROR << "Inner ERROR["
-                       << DEPTH
-                       << "] "
-                       << recurseStreamBasedMacros<DEPTH - 1>(level);
-      } break;
-      case Sev::e_WARN: {
-        BALL_LOG_WARN  << "Inner WARN["
-                       << DEPTH
-                       << "] "
-                       << recurseStreamBasedMacros<DEPTH - 1>(level);
-      } break;
-      case Sev::e_INFO: {
-        BALL_LOG_INFO  << "Inner INFO["
-                       << DEPTH
-                       << "] "
-                       << recurseStreamBasedMacros<DEPTH - 1>(level);
-      } break;
-      case Sev::e_DEBUG: {
-        BALL_LOG_DEBUG << "Inner DEBUG["
-                       << DEPTH
-                       << "] "
-                       << recurseStreamBasedMacros<DEPTH - 1>(level);
-      } break;
-      case Sev::e_TRACE: {
-        BALL_LOG_TRACE << "Inner TRACE["
-                       << DEPTH
-                       << "] "
-                       << recurseStreamBasedMacros<DEPTH - 1>(level);
-      } break;
-      default: {
-        ASSERT("Should not get here!" && 0);
-      } break;
+    BALL_LOG_SET_DYNAMIC_CATEGORY(categoryName);
+    for (int i = 0; i < numIterations; ++i) {
+        BALL_LOGVA_FATAL("%d", i);
     }
-
-    return static_cast<int>(level);
+    return NULL;
 }
+}  // extern "C"
 
-template <>
-int recurseStreamBasedMacros<0>(BloombergLP::ball::Severity::Level level)
-    // Invoke the stream-based logging macro corresponding to the specified
-    // 'level' and return 'level'.
-{
-    BALL_LOG_SET_CATEGORY("Recursion");
-
-    switch (level) {
-      case Sev::e_FATAL: {
-        BALL_LOG_FATAL << "Inner FATAL[0] " << static_cast<int>(level);
-      } break;
-      case Sev::e_ERROR: {
-        BALL_LOG_ERROR << "Inner ERROR[0] " << static_cast<int>(level);
-      } break;
-      case Sev::e_WARN: {
-        BALL_LOG_WARN  << "Inner WARN[0] "  << static_cast<int>(level);
-      } break;
-      case Sev::e_INFO: {
-        BALL_LOG_INFO  << "Inner INFO[0] "  << static_cast<int>(level);
-      } break;
-      case Sev::e_DEBUG: {
-        BALL_LOG_DEBUG << "Inner DEBUG[0] " << static_cast<int>(level);
-      } break;
-      case Sev::e_TRACE: {
-        BALL_LOG_TRACE << "Inner TRACE[0] " << static_cast<int>(level);
-      } break;
-      default: {
-        ASSERT("Should not get here!" && 0);
-      } break;
-    }
-
-    return static_cast<int>(level);
-}
-
-template <int DEPTH>
-int recursePrintfStyleMacros(BloombergLP::ball::Severity::Level level)
-    // Recursively invoke itself and pass the result to the 'printf'-style
-    // logging macro corresponding to the specified 'level' and return
-    // 'level'.
-{
-    BALL_LOG_SET_CATEGORY("Recursion");
-
-    switch (level) {
-      case Sev::e_FATAL: {
-        BALL_LOGVA_FATAL("Inner FATAL[%d] %d",
-                         DEPTH,
-                         recursePrintfStyleMacros<DEPTH - 1>(level));
-      } break;
-      case Sev::e_ERROR: {
-        BALL_LOGVA_ERROR("Inner ERROR[%d] %d",
-                         DEPTH,
-                         recursePrintfStyleMacros<DEPTH - 1>(level));
-      } break;
-      case Sev::e_WARN: {
-        BALL_LOGVA_WARN( "Inner WARN[%d] %d",
-                         DEPTH,
-                         recursePrintfStyleMacros<DEPTH - 1>(level));
-      } break;
-      case Sev::e_INFO: {
-        BALL_LOGVA_INFO( "Inner INFO[%d] %d",
-                         DEPTH,
-                         recursePrintfStyleMacros<DEPTH - 1>(level));
-      } break;
-      case Sev::e_DEBUG: {
-        BALL_LOGVA_DEBUG("Inner DEBUG[%d] %d",
-                         DEPTH,
-                         recursePrintfStyleMacros<DEPTH - 1>(level));
-      } break;
-      case Sev::e_TRACE: {
-        BALL_LOGVA_TRACE("Inner TRACE[%d] %d",
-                         DEPTH,
-                         recursePrintfStyleMacros<DEPTH - 1>(level));
-      } break;
-      default: {
-        ASSERT("Should not get here!" && 0);
-      } break;
-    }
-
-    return static_cast<int>(level);
-}
-
-template<>
-int recursePrintfStyleMacros<0>(BloombergLP::ball::Severity::Level level)
-    // Invoke the 'printf'-style logging macro corresponding to the specified
-    // 'level' and return 'level'.
-{
-    BALL_LOG_SET_CATEGORY("Recursion");
-
-    switch (level) {
-      case Sev::e_FATAL: {
-        BALL_LOGVA_FATAL("%s %d", "Inner FATAL[0]", static_cast<int>(level));
-      } break;
-      case Sev::e_ERROR: {
-        BALL_LOGVA_ERROR("%s %d", "Inner ERROR[0]", static_cast<int>(level));
-      } break;
-      case Sev::e_WARN: {
-        BALL_LOGVA_WARN( "%s %d", "Inner WARN[0]",  static_cast<int>(level));
-      } break;
-      case Sev::e_INFO: {
-        BALL_LOGVA_INFO( "%s %d", "Inner INFO[0]",  static_cast<int>(level));
-      } break;
-      case Sev::e_DEBUG: {
-        BALL_LOGVA_DEBUG("%s %d", "Inner DEBUG[0]", static_cast<int>(level));
-      } break;
-      case Sev::e_TRACE: {
-        BALL_LOGVA_TRACE("%s %d", "Inner TRACE[0]", static_cast<int>(level));
-      } break;
-      default: {
-        ASSERT("Should not get here!" && 0);
-      } break;
-    }
-
-    return static_cast<int>(level);
-}
-
-void recurseCallback(BloombergLP::ball::UserFields *fields)
-    // Stub implementation of callback for testing recursive use of logging
-    // macros.
-{
-    (void)fields;  // suppress warning
-}
-
-void recurseStreamBasedMacrosCallback(
-                                    BloombergLP::ball::UserFields      *fields,
-                                    BloombergLP::ball::Severity::Level  level)
-    // Invoke the function, that calls stream-based logging macro and pass the
-    // result to the callback logging macro corresponding to the specified
-    // 'level' and return 'level'.
-{
-    (void)fields;  // suppress warning
-
-    BALL_LOG_SET_CATEGORY("Recursion");
-
-    switch (level) {
-      case Sev::e_FATAL: {
-        BALL_LOG_FATAL << "Inner FATAL[2]"
-                       << recurseStreamBasedMacros<1>(level);
-      } break;
-      case Sev::e_ERROR: {
-        BALL_LOG_ERROR << "Inner ERROR[2]"
-                       << recurseStreamBasedMacros<1>(level);
-      } break;
-      case Sev::e_WARN: {
-        BALL_LOG_WARN  << "Inner WARN[2]"
-                       << recurseStreamBasedMacros<1>(level);
-      } break;
-      case Sev::e_INFO: {
-        BALL_LOG_INFO  << "Inner INFO[2]"
-                       << recurseStreamBasedMacros<1>(level);
-      } break;
-      case Sev::e_DEBUG: {
-        BALL_LOG_DEBUG << "Inner DEBUG[2]"
-                       << recurseStreamBasedMacros<1>(level);
-      } break;
-      case Sev::e_TRACE: {
-        BALL_LOG_TRACE << "Inner TRACE[2]"
-                       << recurseStreamBasedMacros<1>(level);
-      } break;
-      default: {
-        ASSERT("Should not get here!" && 0);
-      } break;
-    }
-}
-
-void recursePrintfStyleMacrosCallback(
-                                    BloombergLP::ball::UserFields      *fields,
-                                    BloombergLP::ball::Severity::Level  level)
-    // Invoke the function, that calls 'printf'-style logging macro and pass
-    // the result to the callback logging macro corresponding to the specified
-    // 'level' and return 'level'.
-{
-    (void)fields;  // suppress warning
-
-    BALL_LOG_SET_CATEGORY("Recursion");
-
-    switch (level) {
-      case Sev::e_FATAL: {
-        BALL_LOGVA_FATAL("Inner FATAL[2] %d",
-                         recursePrintfStyleMacros<1>(level));
-      } break;
-      case Sev::e_ERROR: {
-        BALL_LOGVA_ERROR("Inner ERROR[2] %d",
-                         recursePrintfStyleMacros<1>(level));
-      } break;
-      case Sev::e_WARN: {
-        BALL_LOGVA_WARN( "Inner WARN[2] %d",
-                         recursePrintfStyleMacros<1>(level));
-      } break;
-      case Sev::e_INFO: {
-        BALL_LOGVA_INFO( "Inner INFO[2] %d",
-                         recursePrintfStyleMacros<1>(level));
-      } break;
-      case Sev::e_DEBUG: {
-        BALL_LOGVA_DEBUG("Inner DEBUG[2] %d",
-                         recursePrintfStyleMacros<1>(level));
-      } break;
-      case Sev::e_TRACE: {
-        BALL_LOGVA_TRACE("Inner TRACE[2] %d",
-                         recursePrintfStyleMacros<1>(level));
-      } break;
-      default: {
-        ASSERT("Should not get here!" && 0);
-      } break;
-    }
-}
-
-void recurseCallbackMacrosCallback(BloombergLP::ball::UserFields      *fields,
-                                   BloombergLP::ball::Severity::Level  level)
-    // Invoke the callback logging macro corresponding to the specified
-    // 'level'.
-{
-    (void)fields;  // suppress warning
-
-    BALL_LOG_SET_CATEGORY("Recursion");
-
-    bsl::function <void(BloombergLP::ball::UserFields *)> callback =
-                                                              &recurseCallback;
-
-    switch (level) {
-      case Sev::e_FATAL: {
-        BALL_LOGCB_FATAL(callback) << "Inner FATAL";
-      } break;
-      case Sev::e_ERROR: {
-        BALL_LOGCB_ERROR(callback) << "Inner ERROR";
-      } break;
-      case Sev::e_WARN: {
-        BALL_LOGCB_WARN( callback) << "Inner WARN";
-      } break;
-      case Sev::e_INFO: {
-        BALL_LOGCB_INFO( callback) << "Inner INFO";
-      } break;
-      case Sev::e_DEBUG: {
-        BALL_LOGCB_DEBUG(callback) << "Inner DEBUG";
-      } break;
-      case Sev::e_TRACE: {
-        BALL_LOGCB_TRACE(callback) << "Inner TRACE";
-      } break;
-      default: {
-        ASSERT("Should not get here!" && 0);
-      } break;
-    }
-}
-
-}  // close namespace BALL_LOG_TEST_CASE_32
+}  // close namespace BALL_LOG_TEST_CASE_MINUS_2
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -3330,7 +3356,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                << "TESTING RECURSIVE USE OF LOGGING MACROS\n"
                                << "=======================================\n";
 
-        using namespace BALL_LOG_TEST_CASE_32;
+        using namespace BALL_LOG_TEST_CASE_35;
 
         typedef BloombergLP::ball::FileObserver2  FileObserver;
         typedef BloombergLP::bdls::FilesystemUtil FilesystemUtil;
@@ -3342,7 +3368,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         LoggerManager& manager = LoggerManager::singleton();
 
-        TempDirectoryGuard tempDirGuard;
+        u::TempDirectoryGuard tempDirGuard;
 
         bsl::string baseName(tempDirGuard.getTempDirName());
         BloombergLP::bdls::PathUtil::appendRaw(&baseName, "testLog");
@@ -3614,7 +3640,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                              recursePrintfStyleMacros<1>(Sev::e_TRACE));
             BALL_LOGVA_TRACE("%s %d", "Outer TRACE[2]",
                              recursePrintfStyleMacros<2>(Sev::e_TRACE));
-        }
+      }
 
         if (verbose) bsl::cout << "\tCallback recurses to  printf-style.\n";
         {
@@ -11503,6 +11529,58 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         } while (input != "exit");
 
         // just exit the program, which will kill the threads
+      } break;
+      case -2: {
+        // --------------------------------------------------------------------
+        // PERFORMANCE TEST
+        //
+        // Concerns:
+        //: 1 This test measures the time of performing multiple logging macro
+        //:   invocations which makes it possible to compare the performance of
+        //:   different implementations.
+        //
+        // Plan
+        //: 1 Several times in a row create 10 threads, each spewing a large a
+        //:   mount of BALL messages. Measure the total time of execution and
+        //:   publish it.
+        // --------------------------------------------------------------------
+
+        using namespace BALL_LOG_TEST_CASE_MINUS_2;
+
+        const int CYCLES_NUM     = 5;
+        double    totalTimes     = 0;
+
+        TestAllocator ta(veryVeryVeryVerbose);
+
+        BloombergLP::ball::LoggerManagerConfiguration lmc;
+        BloombergLP::ball::LoggerManagerScopedGuard   lmg(lmc, &ta);
+
+        bsl::shared_ptr<TestObserver> observer(
+                                  new (ta) TestObserver(&bsl::cout, &ta), &ta);
+        LoggerManager& manager = LoggerManager::singleton();
+
+        ASSERT(0 == manager.registerObserver(observer, "test"));
+        ASSERT(0 != manager.setCategory("Recursion",
+                                        Sev::e_OFF,
+                                        Sev::e_TRACE,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
+
+        BloombergLP::bsls::Stopwatch timer;
+        timer.start();
+
+        for (int i = 0; i < CYCLES_NUM; ++i) {
+            u::executeInParallel(NUM_THREADS, workerThreadPerformance);
+        }
+
+        timer.stop();
+
+        totalTimes += timer.accumulatedWallTime();
+
+        bsl::cout << "Total time: "
+                  << totalTimes
+                  << " seconds."
+                  << bsl::endl;
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;
