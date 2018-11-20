@@ -5918,6 +5918,20 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Response& rhs);
 
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(balb::Response)
 
+namespace balb {
+
+                             // ==================
+                             // class Testmessages
+                             // ==================
+
+struct Testmessages {
+    // This class serves as a place holder to reserve a type having the same
+    // name as this component.  Doing so ensures that such a type cannot be
+    // defined outside of this component in the current namespace.
+};
+
+}  // close package namespace
+
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
 // ============================================================================
