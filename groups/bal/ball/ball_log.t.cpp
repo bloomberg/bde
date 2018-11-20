@@ -59,6 +59,7 @@
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_memory.h>
+#include <bsl_set.h>
 #include <bsl_sstream.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
@@ -146,6 +147,9 @@ using bsl::flush;
 // [28] BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)
 // [32] setCategoryHierarchically(const char *);
 // [32] setCategoryHierarchically(CategoryHolder *, const char *);
+// [33] BALL_SET_CATEGORY_HIERARCHICALLY(const char *);
+// [33] BALL_SET_CLASS_CATEGORY_HIERARCHICALLY(const char *);
+// [33] BALL_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(const char *);
 // ----------------------------------------------------------------------------
 // [29] CONCERN: 'BALL_LOG_*_BLOCK' MACROS
 // [30] CONCERN: 'BALL_LOGCB_*_BLOCK' MACROS
@@ -691,7 +695,7 @@ void processData(int                      uuid,
 }  // close enterprise namespace
 
 // ============================================================================
-//                          HIERARCHICAL CATEROGIES
+//                      HIERARCHICAL CATEROGIES -- CASE 32, 33
 // ----------------------------------------------------------------------------
 
 namespace BALL_LOG_HIERARCHICAL_CATEROGIES {
@@ -1035,6 +1039,438 @@ ResultPair testSetCategoryHierarchically(const char        *categoryName,
     ASSERT((e_HOLDERLESS_NONE == holderlessMode ? 0 : cat) == holderless);
 
     ResultPair ret(cat, ts == testStatus);
+    return ret;
+}
+
+#undef SET_CB
+#undef USE_CB
+#undef NO_CB
+
+#define SET_CB(record, pass, trigger, triggerAll)                             \
+            { S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,               \
+                                           S::e_ ## triggerAll }, true, false
+
+#define USE_CB(record, pass, trigger, triggerAll)                             \
+            { S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,               \
+                                           S::e_ ## triggerAll }, false, true
+
+#define NO_CB( record, pass, trigger, triggerAll)                             \
+            { S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,               \
+                                          S::e_ ## triggerAll }, false, false
+
+static const struct Data {
+    int            d_line;
+    QuadLevels     d_levels;
+    bool           d_setCallbackThresholds;
+    bool           d_useCallback;
+} DATA[] = {
+    { L_, SET_CB(DEBUG, INFO , WARN , ERROR) },
+    { L_, NO_CB( INFO , INFO , INFO , INFO ) },
+    { L_, USE_CB(TRACE, DEBUG, INFO , WARN ) },
+    { L_, NO_CB( WARN , ERROR, FATAL, OFF  ) },
+    { L_, NO_CB( TRACE, INFO , WARN , ERROR) },
+    { L_, USE_CB(TRACE, TRACE, DEBUG, INFO ) },
+    { L_, SET_CB(TRACE, WARN , ERROR, FATAL) },
+    { L_, NO_CB( INFO , WARN , ERROR, FATAL) },
+    { L_, NO_CB( DEBUG, DEBUG, DEBUG, DEBUG) },
+    { L_, NO_CB( WARN , WARN , WARN , WARN ) },
+    { L_, NO_CB( ERROR, ERROR, ERROR, ERROR) },
+    { L_, NO_CB( FATAL, FATAL, FATAL, FATAL) },
+    { L_, USE_CB(DEBUG, DEBUG, INFO , WARN ) }
+};
+enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+#undef SET_CB
+#undef USE_CB
+#undef NO_CB
+
+const Category *defaultCat = 0;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// -- TC 33 uses some of the things above here, and everything below here,
+// while TC 32 uses only things above here.
+
+// Template idices.  These are passed to the 'CALL' and 'RET' macros to the 'N'
+// arg and used two ways -- as an integer template parameter arg to the
+// 'TestMacros' template class, and #arg is used as a string arg, which is
+// parsed to remove everything beginning at any '_' chars and then used as a
+// category name passed to the set category macros.
+
+namespace indicies {
+
+static const int base = L_ + 1;
+static const int bowWow              = L_ - base;
+static const int woof_a              = L_ - base;    // Creates "woof".
+static const int meow                = L_ - base;
+static const int meowBubble          = L_ - base;
+static const int meowBark            = L_ - base;
+static const int meowArf             = L_ - base;
+static const int woof_b              = L_ - base;    // Finds "woof".
+static const int woof_c              = L_ - base;    // Finds "woof".
+static const int _a                  = L_ - base;    // Finds default category
+                                                     // named "".
+static const int meowPurr            = L_ - base;
+static const int classDerivedDerived = L_ - base;
+static const int classDerived_a      = L_ - base;    // Finds 'classCat', named
+                                                     // 'classDerived'.
+static const int classDerived_b      = L_ - base;    // Finds 'classCat' again.
+static const int meowBarkArf         = L_ - base;
+static const int roar                = L_ - base;
+static const int classDerivedRoar    = L_ - base;
+static const int growl               = L_ - base;
+static const int woof_d              = L_ - base;    // Finds "woof".
+static const int secondClass         = L_ - base;    // Passed as both class
+                                                     // and other name, get
+                                                     // one new category used
+                                                     // for both.
+
+// All of the indexes after this happen with the logger manager full, and thus
+// cannot create newe categories -- they either match existing categories, or
+// find the default category.
+
+static const int whimper             = L_ - base;
+static const int woofMoan            = L_ - base;
+static const int woof_e              = L_ - base;    // Finds "woof', an
+                                                     // existing category,
+                                                     // though the logger
+                                                     // manager is full.
+static const int full                = L_ - base;    // Passed as both class
+                                                     // and other name, in both
+                                                     // cases get default
+                                                     // category.
+
+}  // close namespace indicies
+
+struct PosRec {
+    // If an ASSERT fails within the 'TestMacros()()' call, the line number
+    // provided by ASSERT will not tell us WHICH call failed, so we bundle
+    // useful information about which call it was where the problem occurred.
+
+    // DATA
+    int         d_line;
+    int         d_il;
+    int         d_jl;
+    const char *d_categoryName;
+
+    // CREATOR
+    PosRec(int line, int il, int jl, const char *categoryName)
+    : d_line(line)
+    , d_il(il)
+    , d_jl(jl)
+    , d_categoryName(categoryName)
+    {}
+};
+
+bsl::ostream& operator<<(bsl::ostream& stream, const PosRec& pos)
+{
+    stream << "{ line: "  << pos.d_line <<
+                 " IL: "  << pos.d_il <<
+                 " JL: "  << pos.d_jl <<
+                 " cat: " << pos.d_categoryName << " }";
+    return stream;
+}
+
+struct HolderFrame {
+    // This struct enables us to load the fields of a 'ball::CategoryHolder',
+    // all of which are atomics, into non-atomics where they are easily
+    // accessed.
+    //
+    // The 'd_threshold' field is read into 'd_intLevel', an 'int', which is
+    // then copied through a cast into 'd_level', a 'ball::Severity::Level'.
+    // This is because under some circumstance 'd_threshold' will contain
+    // values that are not valid values for a 'ball::Severity::Level'.
+
+    int             d_intLevel;
+    Level           d_level;
+    const Category *d_category;
+    CategoryHolder *d_next_p;
+
+    explicit
+    HolderFrame(const CategoryHolder *holder_p)
+    : d_intLevel(bsls::AtomicOperations::getInt(&holder_p->d_threshold))
+    , d_level(static_cast<Level>(d_intLevel))
+    , d_category(static_cast<const ball::Category *>(
+                      bsls::AtomicOperations::getPtr(&holder_p->d_category_p)))
+    , d_next_p(static_cast<CategoryHolder *>(
+                          bsls::AtomicOperations::getPtr(&holder_p->d_next_p)))
+    {}
+};
+
+struct ResultRec {
+    // This 'struct' contains some key results of one run of
+    // 'TestMacros::operator()' -- pointers to the category holders of the
+    // class category, and the non-class category, and a 'bool' to indicate
+    // whether all the tests passed.  A separate copy of this record exists
+    // for every template instantiation of 'TestMacros', and each instantiation
+    // is called exactly once per pass.
+
+    // DATA
+    const CategoryHolder *d_classHolder;
+    const CategoryHolder *d_holder;
+    const Category       *d_category;
+    bool                  d_passed;
+
+    // MANIPULATOR
+    void clear() { bsl::memset(this, 0, sizeof(*this)); }
+};
+
+// Last argument passed to 'TestMacros::operator()', which indicates whether a
+// class level category is to be sought, and whether the other category sought
+// is to be static (the default) or dynamic.
+
+enum Flags { k_CLASS_BIT            = 1,
+             k_DYNAMIC_BIT          = 2,
+             k_REPEAT_BIT           = 4,
+
+             e_STATIC               = 0,
+             e_CLASS_STATIC         = k_CLASS_BIT,
+             e_DYNAMIC              = k_DYNAMIC_BIT,
+             e_CLASS_DYNAMIC        = k_CLASS_BIT | k_DYNAMIC_BIT,
+             e_REPEAT_CLASS_STATIC  = k_REPEAT_BIT | k_CLASS_BIT,
+             e_REPEAT_DYNAMIC       = k_REPEAT_BIT | k_DYNAMIC_BIT,
+             e_REPEAT_CLASS_DYNAMIC = k_REPEAT_BIT | k_CLASS_BIT |
+                                                               k_DYNAMIC_BIT };
+
+// Names of class categories.  There is no class category that uses
+// 'classParentName', it is a separate category created in advance to make sure
+// that the class category that uses 'classCatName' inherits thresholds from
+// it.
+
+static const char * const classParentName  = "class";
+static const char * const classCatName     = "classDerived";
+static const char * const secondClassName  = "secondClass";
+static const char * const fullClassName    = "full";
+
+// Globals to story the two different class categories, and the default
+// category in for comparison later on.
+
+const Category *classCat = 0, *seconcClassCat = 0;
+
+// This is a ptr to a set that will be created at the beginning of the inner
+// loop of the test to store different values of 'KK' with which the
+// 'TestMacros' class is instantiated and 'operator()' called, to make sure
+// that each instantiation and call is unique.
+
+bsl::set<int> *instantiationSet_p = 0;
+
+template <int KK>
+struct TestMacros {
+    // In TC 33, we want to call the 3 'set category hierarchically' macros a
+    // bunch of times in one test case, which is problematic because two of
+    // them create a static variable named 'BALL_LOG_CATEGORY_HOLDER'.
+    //
+    // So what we do is we put them in this template class (we had to have a
+    // class anyway to test 'set class category hierarchically') and every time
+    // we call it, we parametrize the class with a different integer, so we get
+    // a new set of statics.
+    //
+    // We iterate through nested loops, and every iteration of the inner loop
+    // we create a logger manager which is destroyed at the end of the loop,
+    // and destroying the logger manager will reset all that static category
+    // holders back to theirintial state before we begin the next iteration (we
+    // tested this in TC 32).
+
+    // CLASS METHOD
+    static
+    const char *getClassCatName()
+    {
+        return indicies::secondClass == KK
+               ? secondClassName
+               : indicies::full == KK
+               ? fullClassName
+               : classCatName;
+    }
+
+    BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(getClassCatName());
+
+    // CLASS METHODS
+    static
+    ResultRec& result()
+    {
+        static ResultRec ret;
+        return ret;
+    }
+
+    ResultRec& operator()(const QuadLevels&     classLevels,
+                          const QuadLevels&     newLevels,
+                          const PosRec&         pos,
+                          const CategoryHolder *prevClassCategoryHolder,
+                          const CategoryHolder *prevCategoryHolder,
+                          const Flags           flags);
+        // If the specified 'flags' has 'k_CLASS_BIT' set, access the
+        // class category, creating it if no category with that name exists.
+        // If we access the class category, verify that its threshold levels
+        // match the specified 'classLevels'.  If a class category is created,
+        // verify that the 'd_next_p' field of its catgory holder matches the
+        // specified 'prevClassCategoryHolder'.  Then create a new non-class
+        // category; if the specified 'flags & k_DYNAMIC_BIT' is set, the new
+        // category is to be dynamic, otherwise it is static.  Verify that the
+        // threshold levels of the new category match the specified
+        // 'newLevels'.  Verify that the 'd_next_p' field of the non-class
+        // category matches the specified 'prevCategoryHolder'.  Obtain a
+        // static 'ResultRec' corresponding to the 'KK' template index and
+        // populate its fields with the results of the run, and return a
+        // reference to it.
+};
+
+template <int KK>
+ResultRec&
+TestMacros<KK>::operator()(const QuadLevels&     classLevels,
+                           const QuadLevels&     newLevels,
+                           const PosRec&         pos,
+                           const CategoryHolder *prevClassCategoryHolder,
+                           const CategoryHolder *prevCategoryHolder,
+                           const Flags           flags)
+{
+    const int ts = testStatus;
+
+    const bool classBefore = flags & k_CLASS_BIT;
+    const bool dynamic     = flags & k_DYNAMIC_BIT;
+    const bool repeat      = flags & k_REPEAT_BIT;
+
+    if (repeat) {
+        ASSERTV(pos, repeat, instantiationSet_p->count(KK) && "non-repeat");
+    }
+    else {
+        ASSERTV(pos, repeat, !instantiationSet_p->count(KK) && "called twice");
+    }
+    instantiationSet_p->insert(KK);
+
+    // If there's a logger manager, get a ptr to it.
+
+    ball::LoggerManager *manager_p = ball::LoggerManager::isInitialized()
+                                   ? &ball::LoggerManager::singleton()
+                                   : 0;
+
+    char categoryName[40];
+    ASSERT(bsl::strlen(pos.d_categoryName) < sizeof(categoryName));
+    bsl::strcpy(categoryName, pos.d_categoryName);
+    char *pc = strchr(categoryName, '_');
+    if (pc) {
+        *pc = 0;
+    }
+
+    const CategoryHolder *holder_p;
+    ResultRec& ret = result();
+    ret.clear();
+
+    // All class categories have the same name.  Until we call
+    // 'ball_log_getCategoryHolder' the class category holder for this class
+    // has not been initialized.  There might be a surviving category from
+    // the same class with different template args.
+
+    Category *prevCat = !manager_p ? 0 : manager_p->lookupCategory(
+                                                            getClassCatName());
+    ASSERTV(pos, !prevCat ||
+                     !bsl::strcmp(prevCat->categoryName(), getClassCatName()));
+    if (classBefore) {
+        holder_p = ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER);
+        const HolderFrame hf(holder_p);
+        ret.d_classHolder = holder_p;
+
+        if (manager_p) {
+            ASSERTV(pos, hf.d_category);
+            const char *expClassCatName = KK == indicies::full
+                                       ? ""
+                                       : getClassCatName();
+
+            ASSERTV(pos, hf.d_category->categoryName(), expClassCatName,
+                                                             getClassCatName(),
+                 !bsl::strcmp(hf.d_category->categoryName(), expClassCatName));
+            ASSERTV(pos, classLevels, getLevels(hf.d_category),
+                                      classLevels == getLevels(hf.d_category));
+            ASSERTV(pos, hf.d_level, classLevels.d_record,
+                                           hf.d_level == classLevels.d_record);
+
+            switch (KK) {
+              case indicies::secondClass: {
+                ASSERTV(pos, classCat   != hf.d_category);
+                ASSERTV(pos, defaultCat != hf.d_category);
+                seconcClassCat = hf.d_category;
+              } break;
+              case indicies::full: {
+                ASSERTV(pos, defaultCat == hf.d_category);
+              } break;
+              default: {
+                if (!classCat) {
+                    classCat = hf.d_category;
+                }
+                else {
+                    ASSERTV(pos, classCat == hf.d_category);
+                }
+              }
+            }
+        }
+        else {
+            ASSERTV(pos, 0 == hf.d_category);
+            ASSERTV(pos, hf.d_intLevel,
+                                      CategoryHolder::e_UNINITIALIZED_CATEGORY,
+                    CategoryHolder::e_UNINITIALIZED_CATEGORY == hf.d_intLevel);
+            ASSERTV(pos, 0 == hf.d_next_p);
+        }
+        ASSERTV(pos, prevClassCategoryHolder, hf.d_next_p,
+                                       prevClassCategoryHolder == hf.d_next_p);
+        ASSERTV(pos, (!prevCat || prevCat == hf.d_category) && "class cat");
+    }
+    else {
+        ASSERTV(pos, !prevClassCategoryHolder);
+    }
+
+    prevCat = !manager_p ? 0 : manager_p->lookupCategory(categoryName);
+    const bool managerFull = manager_p && manager_p->numCategories() ==
+                                                 manager_p->maxNumCategories();
+
+    if (dynamic) {
+        BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(categoryName);
+        const HolderFrame hf(&BALL_LOG_CATEGORYHOLDER);
+        ret.d_category = hf.d_category;
+
+        ASSERTV(pos, hf.d_intLevel, CategoryHolder::e_DYNAMIC_CATEGORY,
+                          CategoryHolder::e_DYNAMIC_CATEGORY == hf.d_intLevel);
+        ASSERTV(pos, 0 == hf.d_next_p);
+    }
+    else {
+        BALL_LOG_SET_CATEGORY_HIERARCHICALLY(categoryName);
+        const HolderFrame hf(&BALL_LOG_CATEGORYHOLDER);
+        ret.d_holder   = &BALL_LOG_CATEGORYHOLDER;
+        ret.d_category = hf.d_category;
+
+        if (manager_p) {
+            ASSERTV(pos, hf.d_level, newLevels.d_record,
+                                             hf.d_level == newLevels.d_record);
+            ASSERTV(pos, newLevels, getLevels(hf.d_category),
+                                        newLevels == getLevels(hf.d_category));
+            ASSERTV(pos, prevCategoryHolder, hf.d_next_p,
+                                            prevCategoryHolder == hf.d_next_p);
+        }
+        else {
+            ASSERTV(pos, 0 == bsl::memcmp(ret.d_holder,
+                                          &HolderDispenser::defaultHolder(),
+                                          sizeof(*ret.d_holder)));
+
+            ASSERTV(pos, hf.d_intLevel,
+                                      CategoryHolder::e_UNINITIALIZED_CATEGORY,
+                    CategoryHolder::e_UNINITIALIZED_CATEGORY == hf.d_intLevel);
+            ASSERTV(pos, 0 == hf.d_next_p);
+        }
+    }
+
+    ASSERTV(pos, (!prevCat || prevCat == ret.d_category) && "new cat");
+    if (manager_p) {
+        const char *expCatName = prevCat || !managerFull ? categoryName
+                                                         : "";
+
+        ASSERTV(pos, ret.d_category);
+        ASSERTV(pos, ret.d_category->categoryName(), categoryName, expCatName,
+                     !bsl::strcmp(ret.d_category->categoryName(), expCatName));
+        ASSERTV(pos, newLevels, getLevels(ret.d_category),
+                                       newLevels == getLevels(ret.d_category));
+    }
+    else {
+        ASSERTV(pos, 0 == ret.d_category);
+    }
+
+    ret.d_passed = ts == testStatus;
     return ret;
 }
 
@@ -2541,417 +2977,396 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
       } break;
       case 33: {
-#if 0
-//      // --------------------------------------------------------------------
-//      // TESTING HEIRARCHICAL CATEGORIES
-//      //
-//      // Concepts
-//      //: 1 That 'setCategoryHierarchically' works as designed.
-//      //:
-//      //: 2 That, if the category created is a child category, the thresholds
-//      //:   of the new category match those of the parent category.
-//      //:
-//      //: 3 That, if the category created is not a child category and no
-//      //:   default threshold callback, the thresholds of the category are
-//      //:   the thresholds with which the logger manager was created.
-//      //:
-//      //: 4 TBD: If the category created is not a child category and a
-//      //:   default threshold callback is set, the new category takes the
-//      //:   thresholds dictated by the callback.
-//      //:
-//      //: 5 That, if the logger manager is at full capacity, the default
-//      //:   category, whose name is "", is returned, with thresholds set to
-//      //:   the values configured when the logger manager was created.
-//      //:
-//      //: 6 If a category holder is passed, it is set to the category
-//      //:   returned by the function under test.
-//      //:
-//      //: 7 If a second call is made with the name of a category that has
-//      //:   already been created, the same category will be returned.  If
-//      //:   category holders were passed to both calls, the second category
-//      //:   will be the linked to the first category.
-//      //
-//      // Plan:
-//      //: 1 In the test case namespace, we create a struct, 'TC::QuadLevels',
-//      //:   containing the 4 threshold levels that a category can have,
-//      //:   with equality comparisons and output streaming defined.  This
-//      //:   tremendously simplifies a lot of the code to comparisons by
-//      //:   enabling us to manipulate and compare all four at once.
-//      //:
-//      //: 2 In the same vein as point 1, we create function
-//      //:   'TC::getThresholds' that will return a 'TC::QuadLevels'
-//      //:   representing the thresholds associated with the category, and
-//      //:   'TC::setLevels' that, passed a category and a 'TC::QuadLevels',
-//      //:   will set the threshold levels of the category to the levels
-//      //:   passed.
-//      //:
-//      //: 3 We have a table containing, in each row, a 'TC::QuadLevels' and
-//      //:   two 'bool's that will be described later.
-//      //:
-//      //: 4 We iterate through the table, setting a 'QuadLevels' 'ILEVELS' to
-//      //:   the threshold levels in the table.  If the bool 'ISET_CALLBACKS'
-//      //:   is set, set the 'QuadLevels' 'TC::callbackLevels' to 'ILEVELS'
-//      //:   and skip to the next iteration.
-//      //:
-//      //: 5 Do a nested loop similarly iterating through the table, setting
-//      //:   'QuadLevels' 'JLEVELS' to the thresholds in the table.  If
-//      //:   'JSET_CALLBACKS', skip the loop.  This means that, once we are in
-//      //:   the nested loop, 'ILEVELS', 'JLEVELS', and 'TC::callbackLevels'
-//      //:   all have distinct values.
-//      //:
-//      //: 6 Create a logger manager configured to 'ILEVELS'.
-//      //:
-//      //: 7 Create a modifiable category with 'setCategory', with the levels
-//      //:   set to 'JLEVELS'.
-//      //:
-//      //: 8 Create numerous categories with 'setCategoryHierarchically', some
-//      //:   inheriting from parent categories and some not, manipulating the
-//      //:   situation so that we expect the thresholds to match 'ILEVELS',
-//      //:   'JLEVELS', or 'TC::callbackLevels' and observed that the
-//      //:   thresholds match.
-//      //:
-//      //: 9 Iterate the outer loop through twice as many iterations as rows
-//      //:   in the table, going through the table twice.  The second pass
-//      //:   through the table, set boolean 'DO_HOLDERS', which means that,
-//      //:   in that pass, many of the calls to 'setCategoryHierarchically'
-//      //:   will be passed a 'ball::CategoryHolder' object, after which we
-//      //:   observe that the category holder has been been initialized
-//      //:   properly with the category.
-//      //
-//      // Testing:
-//      //   setCategoryHierarchy(const char *);
-//      //   setCategoryHierarchy(CategoryHolder *, const char *);
-//      // --------------------------------------------------------------------
+        // --------------------------------------------------------------------
+        // TESTING HEIRARCHICAL CATEGORY MACROS
+        //
+        // Concepts
+        //: 1 That all 3 hierarchical macros, if called with a non-existing
+        //:   category name and the logger manager has room, will result in a
+        //:   new category being created.
+        //:
+        //: 2 The new category has the right name.
+        //:
+        //: 3 If the new category is to be a child category, it has the same
+        //:   logging thresholds as the parent category.
+        //:
+        //: 4 In 'BALL_SET_CATEGORY_HIERARCHICALLY' and
+        //:   'BALL_SET_CLASS_CATEGORY_HIERARCHICALLY' the category holder is
+        //:   properly linked to the previously created category holder
+        //:   belonging to the same category.
+        //:
+        //: 5 In 'BALL_SET_DYNAMIC_CATEGORY_HIERARCHICALLY', the category
+        //:   holder is not linked to any other category holder.
+        //
+        // Plan:
+        //: 1 The main difficulty in this test is that two of the 3 macros
+        //:   declare a static object, and doing a good test requires calling
+        //:   the macros many times with different inputs.  So what we did is
+        //:   created the class 'TC::TestMacros', templatized by an integer,
+        //:   so on different calls we pass a different template arg to the
+        //:   class, thereby getting a completely different set of statics in
+        //:   that class for every template index.
+        //:
+        //: 2 Integer constants to serve as template indicies for
+        //:   'TC::TestMacros' are in the sub-namespace 'TC::indicies'.  They
+        //:   are passed to the macro 'CALL' below, as the 'N' paramter, and
+        //:   used twice -- firstly, as a template index, then secondly, as
+        //:   '#N' as a category name.  If the name contains any '_'
+        //:   characters, the code strips everything at or after the first '_'
+        //:   from the name before using it as a category name.  This allows us
+        //:   to use 'CALL' multiple times with the same category name yet
+        //:   different template indicies.
+        //:
+        //: 3 The function 'TC::TestMacros::operator()' returns reference to a
+        //:   'struct' of type 'ResultRec'.  It contains a 'bool', 'd_passed'
+        //:   which is 'true' if all of the 'ASSERT's in the function passed
+        //:   and 'false' otherwise.  It also contains pointers to any static
+        //:   category holder initialized (class and other), and a pointer to
+        //:   the non-class category created or found.  The 'ResultRec' is a
+        //:   static within the templatized 'TC::TestMacros' class, so it can
+        //:   be fetched later by the 'RET(N)' macro below, which is useful for
+        //:   finding past category holders for comparing with new category
+        //:   holders to make sure that they are linked properly.
+        //:
+        //: 4 We make use of the 'QuadLevels' class that was introduced in
+        //:   TC 32 for comparing 4 threshold levels at once, and use the same
+        //:   table defined in that test case.
+        //:
+        //: 5 We iterate through two nested loops, driving 3 distinct
+        //:   'QuadLevels' values 'ILEVELS', 'JLEVELS', and 'CLEVELS'.  We also
+        //:   have the distinct 'WLEVELS', and 'MLEVELS', which is one of
+        //:   'ILEVELS' or 'CLEVELS' and which is the default levels to which
+        //:   the logger manager will configure new categories.
+        //:
+        //: 6 We call 'TC::TestMacros::operator()' many times using the 'CALL'
+        //:   macro, feeding it the expected levels of the class and other
+        //:   categories expected to be generated, and the expected values of
+        //:   the 'd_next_p' pointers of the two category holders expected to
+        //:   be calculated, and the function verifies that all of these match.
+        //:   The last argument to the macro and the called function are flags
+        //:   indicating whether the class category is to be populated, whether
+        //:   the other category is to be static or dynamic, and whether the
+        //:   static or dynamic category is being created or if this is a
+        //:   repeat call.
+        //
+        // Testing:
+        //   BALL_SET_CATEGORY_HIERARCHICALLY(const char *);
+        //   BALL_SET_CLASS_CATEGORY_HIERARCHICALLY(const char *);
+        //   BALL_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(const char *);
+        // --------------------------------------------------------------------
 
-//      namespace TC = BALL_LOG_HIERARCHICAL_CATEROGIES;
+        namespace TC = BALL_LOG_HIERARCHICAL_CATEROGIES;
 
-//      typedef ball::Severity         S;
-//      typedef S::Level               Level;
-//      typedef ball::Category         Category;
-//      typedef ball::LoggerManager    Manager;
-//      typedef ball::CategoryHolder   CategoryHolder;
-//      typedef bsls::AtomicOperations AtomicOps;
+        typedef ball::Category         Category;
+        typedef ball::LoggerManager    Manager;
 
-//      const CategoryHolder holderInit =
-//              { { CategoryHolder::e_UNINITIALIZED_CATEGORY }, { 0 }, { 0 } };
+        bslma::TestAllocator da("default", veryVeryVerbose);
+        bslma::TestAllocator ga("global",  veryVeryVerbose);
+        bslma::TestAllocator ta("test",    veryVeryVerbose);
 
-//      bslma::TestAllocator da("default", veryVeryVerbose);
-//      bslma::TestAllocator ga("global",  veryVeryVerbose);
-//      bslma::TestAllocator ta("test",    veryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&da);
+        bslma::Default::setGlobalAllocator(&ga);
 
-//      bslma::DefaultAllocatorGuard guard(&da);
-//      bslma::Default::setGlobalAllocator(&ga);
+        // Have a quad set to 'WLEVELS' -- Wrong Levels -- that we never set
+        // anything to, and that never equals any of the other levels.
 
-#define HOLDER_THRESHOLD()                                                    \
-    static_cast<ball::Severity::Level>(                                       \
-//       bsls::AtomicOperations::getInt(&BALL_LOG_CATEGORYHOLDER.d_threshold))
+        const TC::QuadLevels WLEVELS = { TC::S::e_OFF, TC::S::e_OFF,
+                                         TC::S::e_OFF, TC::S::e_OFF };
 
-#define HOLDER_CATEGORY()                                                     \
-    static_cast<const ball::Category *>(                                      \
-//       bsls::AtomicOperations::getInt(&BALL_LOG_CATEGORYHOLDER.d_category_p))
+        TC::QuadLevels CLEVELS = TC::callbackLevels;
 
-#define HOLDER_NEXT()                                                         \
-    static_cast<ball::CategoryHolder *>(                                      \
-//                        AtomicOps::getPtr(&BALL_LOG_CATEGORYHOLDER.d_next_p))
+        // Confirm that there are no duplicates in the table.
 
-#undef SET_CB
-#undef USE_CB
-#undef NO_CB
+        for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
+            for (int tj = 0; tj < TC::k_NUM_DATA; ++tj) {
+                ASSERT((ti == tj) ==
+                             (TC::DATA[ti].d_levels == TC::DATA[tj].d_levels));
+            }
 
-#define SET_CB(record, pass, trigger, triggerAll)                             \
-            { S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,               \
-//                                         S::e_ ## triggerAll }, true, false
+            ASSERT(WLEVELS != TC::DATA[ti].d_levels);
+        }
 
-#define USE_CB(record, pass, trigger, triggerAll)                             \
-            { S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,               \
-//                                         S::e_ ## triggerAll }, false, true
+        // Do testing in earnest.
 
-#define NO_CB( record, pass, trigger, triggerAll)                             \
-            { S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,               \
-//                                        S::e_ ## triggerAll }, false, false
+        for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
+            const TC::Data IDATA         = TC::DATA[ti];
+            const int      IL            = IDATA.d_line;
+            const TC::QuadLevels ILEVELS = IDATA.d_levels;
+            const bool     ISET_CALLBACK = IDATA.d_setCallbackThresholds;
 
-//      static const struct Data {
-//          int            d_line;
-//          TC::QuadLevels d_levels;
-//          bool           d_setCallbackThresholds;
-//          bool           d_useCallback;
-//      } DATA[] = {
-//          { L_, SET_CB(DEBUG, INFO , WARN , ERROR) },
-//          { L_, NO_CB( INFO , INFO , INFO , INFO ) },
-//          { L_, USE_CB(TRACE, DEBUG, INFO , WARN ) },
-//          { L_, NO_CB( WARN , ERROR, FATAL, OFF  ) },
-//          { L_, NO_CB( TRACE, INFO , WARN , ERROR) },
-//          { L_, USE_CB(TRACE, TRACE, DEBUG, INFO ) },
-//          { L_, SET_CB(TRACE, WARN , ERROR, FATAL) },
-//          { L_, NO_CB( INFO , WARN , ERROR, FATAL) },
-//          { L_, NO_CB( DEBUG, DEBUG, DEBUG, DEBUG) },
-//          { L_, NO_CB( WARN , WARN , WARN , WARN ) },
-//          { L_, NO_CB( ERROR, ERROR, ERROR, ERROR) },
-//          { L_, NO_CB( FATAL, FATAL, FATAL, FATAL) },
-//          { L_, USE_CB(DEBUG, DEBUG, INFO , WARN ) }
-//      };
-//      enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+            if (ISET_CALLBACK) {
+                CLEVELS = ILEVELS;
+                continue;
+            }
 
-#undef SET_CB
-#undef USE_CB
-#undef NO_CB
+            for (int tj = 0; tj < TC::k_NUM_DATA; ++tj) {
+                const TC::Data JDATA         = TC::DATA[tj];
+                const int      JL            = JDATA.d_line;
+                const TC::QuadLevels JLEVELS = JDATA.d_levels;
+                const bool     JSET_CALLBACK = JDATA.d_setCallbackThresholds;
+                bool           JUSE_CALLBACK = JDATA.d_useCallback;
 
-//      // Confirm that there are no duplicates in the table.
+                {
+                    // TBD: fix bug in
+                    // 'ball::LoggerCategoryUtil::addCategoryHierarchically'
+                    // and enable testing of callbacks.
 
-//      for (int ti = 0; ti < k_NUM_DATA; ++ti) {
-//          for (int tj = 0; tj < k_NUM_DATA; ++tj) {
-//              ASSERT(ti == tj || DATA[ti].d_levels != DATA[tj].d_levels);
-//          }
-//      }
+                    JUSE_CALLBACK = false;
+                }
 
-//      // Do testing in earnest.
+                if (JSET_CALLBACK || IL == JL) {
+                    continue;
+                }
 
-//      for (int ti = 0; ti < k_NUM_DATA; ++ti) {
-//          const Data     IDATA         = DATA[ti % k_NUM_DATA];
-//          const int      IL            = IDATA.d_line;
-//          const TC::QuadLevels ILEVELS = IDATA.d_levels;
-//          const bool     ISET_CALLBACK = IDATA.d_setCallbackThresholds;
+                TC::classCat = 0;
+                TC::seconcClassCat = 0;
+                TC::defaultCat = 0;
+                TC::ResultRec *ret_p;
+                bsl::set<int> instantiationSet(&ta);
+                TC::instantiationSet_p = &instantiationSet;
 
-//          if (ISET_CALLBACK) {
-//              TC::callbackLevels = ILEVELS;
-//              continue;
-//          }
+#undef  CALL
+#define CALL(N, classLevels, newLevels, prevClassHolder, prevHolder, flags)   \
+                ASSERT((ret_p = &TC::TestMacros<TC::indicies::N>()(           \
+                                            classLevels,                      \
+                                            newLevels,                        \
+                                            TC::PosRec(__LINE__, IL, JL, #N), \
+                                            prevClassHolder,                  \
+                                            prevHolder,                       \
+                                            TC::flags), ret_p->d_passed))
 
-//          for (int tj = 0; tj < k_NUM_DATA; ++tj) {
-//              const Data     JDATA         = DATA[tj];
-//              const int      JL            = JDATA.d_line;
-//              const TC::QuadLevels JLEVELS = JDATA.d_levels;
-//              const bool     JSET_CALLBACK = JDATA.d_setCallbackThresholds;
-//              bool           JUSE_CALLBACK = JDATA.d_useCallback;
+                // 'RET(<integer>)' will return a ref to the 'ResultRec' for
+                // the call with that integer.
 
-//              {
-//                  // TBD: fix bug in
-//                  // 'ball::LoggerCategoryUtil::addCategoryHierarchically'
-//                  // and enable testing of callbacks.
+#undef  RET
+#define RET(N)  TC::TestMacros<TC::indicies::N>::result()
 
-//                  JUSE_CALLBACK = false;
-//              }
+                ASSERTV(IL, JL, CLEVELS != ILEVELS);
+                ASSERTV(IL, JL, CLEVELS != JLEVELS);
+                ASSERTV(IL, JL, CLEVELS != WLEVELS);
+                ASSERTV(IL, JL, ILEVELS != JLEVELS);
+                ASSERTV(IL, JL, ILEVELS != WLEVELS);
+                ASSERTV(IL, JL, JLEVELS != WLEVELS);
 
-//              if (JSET_CALLBACK || IL == JL) {
-//                  continue;
-//              }
+                TC::HolderDispenser holderDispenser(&ta);
+                TC::holderDispenser_p = &holderDispenser;
 
-//              ASSERTV(IL, JL, TC::callbackLevels != ILEVELS);
-//              ASSERTV(IL, JL, TC::callbackLevels != JLEVELS);
-//              ASSERTV(IL, JL, ILEVELS            != JLEVELS);
+                // Attempt without manager singleton, notthing happens.
 
-//              ball::LoggerManagerConfiguration mLMC(&ta);
-//              ASSERT(0 == mLMC.setDefaultThresholdLevelsIfValid(
-//                                                      ILEVELS.d_record,
-//                                                      ILEVELS.d_pass,
-//                                                      ILEVELS.d_trigger,
-//                                                      ILEVELS.d_triggerAll));
-//              ball::LoggerManagerScopedGuard lmGuard(mLMC);
-//              Manager& manager = ball::LoggerManager::singleton();
-//              if (JUSE_CALLBACK) {
-//                  manager.setDefaultThresholdLevelsCallback(
-//                                                           &TC::dtlCallback);
-//              }
+                CALL(bowWow, WLEVELS, WLEVELS, 0, 0, e_CLASS_STATIC);
+                ASSERT(!ret_p->d_category);
 
-//              const TC::QuadLevels managerLevels = JUSE_CALLBACK
-//                                                 ? TC::callbackLevels
-//                                                 : ILEVELS;
+                ball::LoggerManagerConfiguration mLMC(&ta);
+                ASSERT(0 == mLMC.setDefaultThresholdLevelsIfValid(
+                                                        ILEVELS.d_record,
+                                                        ILEVELS.d_pass,
+                                                        ILEVELS.d_trigger,
+                                                        ILEVELS.d_triggerAll));
+                ball::LoggerManagerScopedGuard lmGuard(mLMC);
+                Manager& manager = ball::LoggerManager::singleton();
+                if (JUSE_CALLBACK) {
+                    manager.setDefaultThresholdLevelsCallback(
+                                                             &TC::dtlCallback);
+                }
 
-//              Category *meowCat = manager.setCategory("Meow",
-//                                                      JLEVELS.d_record,
-//                                                      JLEVELS.d_pass,
-//                                                      JLEVELS.d_trigger,
-//                                                      JLEVELS.d_triggerAll);
+                const TC::QuadLevels MLEVELS = JUSE_CALLBACK
+                                             ? CLEVELS
+                                             : ILEVELS;
 
-//              ASSERTV(JL, JLEVELS, TC::getLevels(meowCat),
-//                                          JLEVELS == TC::getLevels(meowCat));
+                TC::defaultCat = &manager.defaultCategory();
 
-//              BALL_LOG_SET_CATEGORY_HIERARCHICALLY("Woof");
-//              const Category *woofCat = HOLDER_CATEGORY;
-//              CategoryHolder *woofHolder = &BALL_LOG_CATEGORYHOLDER;
-//              ASSERT(!bsl::strcmp("Woof", woofCat->categoryName()));
-//              ASSERTV(IL, JL, JUSE_CALLBACK, managerLevels,
-//                                                      TC::getLevels(woofCat),
-//                                    managerLevels == TC::getLevels(woofCat));
-//              Level threshold = HOLDER_THRESHOLD();
-//              const void *nextHolder = HOLDER_NEXT();
-//              ASSERT(holderCategory == woofCat);
-//              ASSERTV(threshold, managerLevels.d_record,
-//                                        threshold == managerLevels.d_record);
-//              ASSERT(0 == nextHolder);
+                Category *classParentCat =
+                                    manager.setCategory(TC::classParentName,
+                                                        JLEVELS.d_record,
+                                                        JLEVELS.d_pass,
+                                                        JLEVELS.d_trigger,
+                                                        JLEVELS.d_triggerAll);
+                ASSERTV(JL, JLEVELS, TC::getLevels(classParentCat),
+                                     JLEVELS == TC::getLevels(classParentCat));
 
-//              BALL_LOG_CATEGORYHOLDER = holderInit;
+                CALL(woof_a, WLEVELS, MLEVELS, 0, 0, e_STATIC);
+                ASSERT(0 == ret_p->d_classHolder);
 
-//              {
-//              BALL_LOG_SET_CATEGORY_HIERARCHICALLY("MeowBubble");
-//              const Category *meowBubbleCat = HOLDER_CATEGORY();
-//              ASSERTV(JL, JLEVELS, TC::getLevels(meowBubbleCat),
-//                                    JLEVELS == TC::getLevels(meowBubbleCat));
-//              threshold = HOLDER_THRESHOLD();
-//              nextHolder = HOLDER_NEXT();
-//              ASSERTV(threshold, JLEVELS.d_record,
-//                                              threshold == JLEVELS.d_record);
-//              ASSERTV(0 == nextHolder);
+                CALL(meow, JLEVELS, ILEVELS, 0, 0, e_CLASS_STATIC);
 
-//              TC::setLevels(meowCat, ILEVELS);
-//              ASSERTV(IL, JL, ILEVELS == TC::getLevels(woofCat));
+                Category *meowCat = manager.lookupCategory("meow");
+                ASSERT(meowCat);
+                TC::setLevels(meowCat, JLEVELS);
+                ASSERTV(IL, JL, JLEVELS == TC::getLevels(meowCat));
 
-//              BALL_LOG_CATEGORYHOLDER = holderInit;
+                CALL(meowBubble, WLEVELS, JLEVELS, 0, 0, e_DYNAMIC);
 
-//              {
-//              BALL_LOG_SET_CATEGORY_HIERARCHICALLY("MeowBark");
-//              const Category *meowBarkCat = HOLDER_CATEGORY();
-//              ASSERTV(IL, JL, ILEVELS, TC::getLevels(meowBarkCat),
-//                                      ILEVELS == TC::getLevels(meowBarkCat));
-//              ASSERTV(threshold, ILEVELS.d_record,
-//                                              threshold == ILEVELS.d_record);
-//              ASSERTV(0 == nextHolder);
+                TC::setLevels(meowCat, ILEVELS);
+                ASSERTV(IL, JL, ILEVELS == TC::getLevels(meowCat));
 
-//              TC::setLevels(meowCat, TC::callbackLevels);
+                CALL(meowBark, JLEVELS, ILEVELS, RET(meow).d_classHolder, 0,
+                                                               e_CLASS_STATIC);
 
-//              BALL_LOG_CATEGORYHOLDER = holderInit;
+                TC::setLevels(meowCat, CLEVELS);
 
-//              {
-//              BALL_LOG_SET_CATEGORY_HIERARCHICALLY("MeowArf");
-//              const Category *meowArfCat = HOLDER_CATEGORY();
-//              ASSERTV(IL, JL, TC::callbackLevels, TC::getLevels(meowArfCat),
-//                            TC::callbackLevels == TC::getLevels(meowArfCat));
-//              ASSERTV(threshold, TC::callbackLevels.d_record,
-//                                   threshold == TC::callbackLevels.d_record);
-//              ASSERTV(0 == nextHolder);
+                CALL(meowArf, JLEVELS, CLEVELS,
+                                      ret_p->d_classHolder, 0, e_CLASS_STATIC);
 
-//              BALL_LOG_CATEGORYHOLDER = holderInit;
+                CALL(woof_b, JLEVELS, MLEVELS, ret_p->d_classHolder,
+                                         RET(woof_a).d_holder, e_CLASS_STATIC);
+                ASSERTV(RET(woof_a).d_category == ret_p->d_category);
 
-//              {
-//              BALL_LOG_SET_CATEGORY_HIERARCHICALLY("MeowArf");
-//              const Category *woofCatB = HOLDER_CATEGORY();
-//              ASSERT(woofCatB == woofCat);
-//              ASSERTV(IL, JL, JUSE_CALLBACK, managerLevels,
-//                                                      TC::getLevels(woofCat),
-//                                    managerLevels == TC::getLevels(woofCat));
-//              ASSERTV(threshold, managerLevels.d_record,
-//                                        threshold == managerLevels.d_record);
-//              ASSERT(&woofHolder == nextHolder);
-//              ASSERT(0 == AtomicOps::getPtr(&woofHolder.d_next_p));
+                CALL(woof_c, JLEVELS, MLEVELS, ret_p->d_classHolder,
+                                                           0, e_CLASS_DYNAMIC);
+                ASSERTV(RET(woof_a).d_category == ret_p->d_category);
 
-//              BALL_LOG_CATEGORYHOLDER = holderInit;
+                CALL(_a, JLEVELS, ILEVELS, ret_p->d_classHolder,
+                                                            0, e_CLASS_STATIC);
+                ASSERTV(TC::defaultCat == ret_p->d_category);
 
-//              {
-//              BALL_LOG_SET_CATEGORY_HIERARCHICALLY("MeowArf");
-//              const Category *meowPurrCat = HOLDER_CATEGORY();
-//              ASSERTV(JL, TC::callbackLevels, TC::getLevels(meowPurrCat),
-//                           TC::callbackLevels == TC::getLevels(meowPurrCat));
+                CALL(meowBubble, WLEVELS, JLEVELS, 0, 0, e_REPEAT_DYNAMIC);
 
-//              BALL_LOG_CATEGORYHOLDER = holderInit;
+                CALL(meowPurr, JLEVELS, CLEVELS,
+                                     RET(_a).d_classHolder, 0, e_CLASS_STATIC);
 
-//              {
-//              BALL_LOG_SET_CATEGORY_HIERARCHICALLY("MeowArf");
-//              const Category *meowBarkArfCat = HOLDER_CATEGORY();
-//              ASSERTV(IL, JL, ILEVELS, TC::getLevels(meowBarkArfCat),
-//                                   ILEVELS == TC::getLevels(meowBarkArfCat));
+                CALL(classDerivedDerived, WLEVELS, JLEVELS, 0, 0, e_DYNAMIC);
 
-//              BALL_LOG_CATEGORYHOLDER = holderInit;
+                CALL(classDerived_a, WLEVELS, JLEVELS, 0,
+                                        RET(meowPurr).d_classHolder, e_STATIC);
 
-//              {
-//              BALL_LOG_SET_CATEGORY_HIERARCHICALLY("MeowArf");
-//              const Category *roarCat = HOLDER_CATEGORY();
-//              ASSERTV(IL, JL, managerLevels, TC::getLevels(roarCat),
-//                                    managerLevels == TC::getLevels(roarCat));
+                CALL(classDerived_b, WLEVELS, JLEVELS, 0,
+                                                    ret_p->d_holder, e_STATIC);
 
-//              // Attempt to create one category more than the capacity of the
-//              // category manager.  This will return the default category,
-//              // which I think was created when the logger manager was
-//              // created, and it should have the thresholds the logger
-//              // manager configuration object had (ILEVELS).
+                CALL(meowBarkArf, JLEVELS, ILEVELS,
+                                           ret_p->d_holder, 0, e_CLASS_STATIC);
 
-//              manager.setMaxNumCategories(manager.numCategories());
+                CALL(roar, JLEVELS, MLEVELS,
+                                     ret_p->d_classHolder, 0, e_CLASS_DYNAMIC);
 
-//              BALL_LOG_CATEGORYHOLDER = holderInit;
+                Category *classCat = manager.lookupCategory(TC::classCatName);
+                TC::setLevels(classCat, CLEVELS);
 
-//              {
-//              BALL_LOG_SET_CATEGORY_HIERARCHICALLY("Whimper");
-//              CategoryHolder whimperHolder = &BALL_LOG_CATEGORYHOLDER;
-//              const Category *whimperCat = HOLDER_CATEGORY();
-//              ASSERT(whimperCat);
-//              ASSERTV(whimperCat->categoryName(),
-//                               !bsl::strcmp("", whimperCat->categoryName()));
-//              ASSERTV(IL, JL, ILEVELS, TC::getLevels(whimperCat),
-//                                       ILEVELS == TC::getLevels(whimperCat));
-//              threshold = HOLDER_THRESHOLD();
-//              nextHolder = HOLDER_NEXT();
-//              ASSERTV(threshold, ILEVELS.d_record,
-//                                              threshold == ILEVELS.d_record);
-//              ASSERTV(0 == nextHolder);
+                CALL(meowBark, CLEVELS, ILEVELS,
+                            RET(meow).d_classHolder, 0, e_REPEAT_CLASS_STATIC);
 
-//              BALL_LOG_CATEGORYHOLDER = holderInit;
+                CALL(classDerivedRoar, CLEVELS, CLEVELS,
+                                  RET(roar).d_classHolder, 0, e_CLASS_DYNAMIC);
 
-//              {
-//              BALL_LOG_SET_CATEGORY_HIERARCHICALLY("WoofMoan");
+                CALL(growl, CLEVELS, MLEVELS,
+                                      ret_p->d_classHolder, 0, e_CLASS_STATIC);
 
-//              CategoryHolder woofMoanHolder = &BALL_LOG_CATEGORYHOLDER;
-//              const Category *woofMoanCat = HOLDER_CATEGORY();
-//              ASSERT(woofMoanCat);
-//              ASSERT(woofMoanCat == whimperCat);
-//              ASSERTV(woofMoanCat->categoryName(),
-//                              !bsl::strcmp("", woofMoanCat->categoryName()));
-//              ASSERTV(IL, JL, ILEVELS, TC::getLevels(woofMoanCat),
-//                                      ILEVELS == TC::getLevels(woofMoanCat));
-//              threshold = HOLDER_THRESHOLD();
-//              nextHolder = HOLDER_NEXT();
+                CALL(classDerivedRoar, CLEVELS, CLEVELS,
+                           RET(roar).d_classHolder, 0, e_REPEAT_CLASS_DYNAMIC);
 
-//              ASSERTV(threshold, ILEVELS.d_record,
-//                                              threshold == ILEVELS.d_record);
-//              ASSERTV(&whimperHolder == nextHolder);
-//              ASSERT(0 == AtomicOps::getPtr(&whimperHolder.d_next_p));
+                CALL(meowPurr, CLEVELS, CLEVELS,
+                              RET(_a).d_classHolder, 0, e_REPEAT_CLASS_STATIC);
 
-//              // Make sure that all the categories returned are distinct,
-//              // (except that 'woofCatB == woofCat' and
-//              // 'whimperCat == woofMoanCat').
+                TC::setLevels(classCat, JLEVELS);
 
-//              bsl::vector<const void *> v(&ta);
-//              v.push_back(meowCat);
-//              v.push_back(woofCat);
-//              v.push_back(meowBubbleCat);
-//              v.push_back(meowBarkCat);
-//              v.push_back(meowArfCat);
-//              v.push_back(meowPurrCat);
-//              v.push_back(meowBarkArfCat);
-//              v.push_back(roarCat);
-//              v.push_back(whimperCat);
+                CALL(woof_d, JLEVELS, MLEVELS, RET(growl).d_classHolder,
+                                         RET(woof_b).d_holder, e_CLASS_STATIC);
+                ASSERTV(RET(woof_a).d_category == ret_p->d_category);
 
-//              for (unsigned ii = 0; ii < v.size(); ++ii) {
-//                  for (unsigned jj = 0; jj < v.size(); ++jj) {
-//                      ASSERT(ii == jj || v[ii] != v[jj]);
-//                  }
-//              }
+                CALL(secondClass, ILEVELS, ILEVELS, 0, 0, e_CLASS_DYNAMIC);
 
-#define NAMECMP(lc, uc)                                                       \
-                ASSERTV(#uc, lc ## Cat->categoryName(),                       \
-//                      !bsl::strcmp(#uc, lc ## Cat->categoryName()));
-//              NAMECMP(meow, Meow);
-//              NAMECMP(woof, Woof);
-//              NAMECMP(meowBubble, MeowBubble);
-//              NAMECMP(meowBark, MeowBark);
-//              NAMECMP(meowArf, MeowArf);
-//              NAMECMP(meowPurr, MeowPurr);
-//              NAMECMP(meowBarkArf, MeowBarkArf);
-//              NAMECMP(roar, Roar);
-#undef  NAMECMP
-MARK
-//              }
-//              }
-//              }
-//              }
-//              }
-//              }
-//              }
-//              }
-//              }
-//          }
-//      }
+                // Attempt to create one category more than the capacity of the
+                // category manager.  This will return the default category,
+                // which was created when the logger manager was created, and
+                // it should have the thresholds the logger manager
+                // configuration object had (ILEVELS).
 
-//      ASSERT(0 == da.numAllocations());
-#endif
+                manager.setMaxNumCategories(manager.numCategories());
+
+                CALL(whimper, JLEVELS, ILEVELS, RET(woof_d).d_classHolder,
+                                             RET(_a).d_holder, e_CLASS_STATIC);
+                ASSERT(TC::defaultCat == ret_p->d_category);
+
+                // Test attempt to create a child category when a parent exists
+                // and the logger manager is already full.
+
+                CALL(woofMoan, JLEVELS, ILEVELS, ret_p->d_classHolder,
+                                             ret_p->d_holder, e_CLASS_DYNAMIC);
+                ASSERT(TC::defaultCat == ret_p->d_category);
+
+                CALL(woof_e, JLEVELS, MLEVELS, ret_p->d_classHolder,
+                                         RET(woof_d).d_holder, e_CLASS_STATIC);
+                ASSERTV(RET(woof_a).d_category == ret_p->d_category);
+
+                CALL(full, ILEVELS, ILEVELS, RET(whimper).d_holder, 0,
+                                                              e_CLASS_DYNAMIC);
+                ASSERT(TC::defaultCat == ret_p->d_category);
+                ASSERT(TC::defaultCat == bsls::AtomicOperations::getPtr(
+                                         &ret_p->d_classHolder->d_category_p));
+
+                // Make sure that all the categories returned are distinct,
+                // except for the ones we EXPECT to match.
+
+                bsl::vector<const Category *> v(&ta);
+                v.push_back(TC::defaultCat);
+                v.push_back(TC::classCat);
+                v.push_back(TC::seconcClassCat);
+                v.push_back(RET(bowWow).d_category);
+                v.push_back(RET(woof_a).d_category);
+                v.push_back(RET(meow).d_category);
+                v.push_back(RET(meowBubble).d_category);
+                v.push_back(RET(meowBark).d_category);
+                v.push_back(RET(meowArf).d_category);
+                v.push_back(RET(meowPurr).d_category);
+                v.push_back(RET(classDerivedDerived).d_category);
+                v.push_back(RET(meowBarkArf).d_category);
+                v.push_back(RET(roar).d_category);
+                v.push_back(RET(classDerivedRoar).d_category);
+                v.push_back(RET(growl).d_category);
+
+                ASSERT(static_cast<bsls::Types::IntPtr>(v.size()) ==
+                                                      manager.numCategories());
+
+                for (unsigned ii = 0; ii < v.size(); ++ii) {
+                    for (unsigned jj = ii + 1; jj < v.size(); ++jj) {
+                        ASSERTV(ii, jj, v[ii]->categoryName(), v[ii] != v[jj]);
+                    }
+                }
+
+                v.clear();
+                v.push_back(TC::defaultCat);
+                v.push_back(RET(whimper).d_category);
+                v.push_back(RET(woofMoan).d_category);
+                v.push_back(RET(full).d_category);
+
+                for (unsigned ii = 0; ii < v.size(); ++ii) {
+                    for (unsigned jj = 0; jj < v.size(); ++jj) {
+                        ASSERT(v[ii] == v[jj]);
+                    }
+                }
+
+                // "woof" categories all match.
+
+                v.clear();
+                v.push_back(RET(woof_a).d_category);
+                v.push_back(RET(woof_b).d_category);
+                v.push_back(RET(woof_c).d_category);
+                v.push_back(RET(woof_d).d_category);
+                v.push_back(RET(woof_e).d_category);
+
+                for (unsigned ii = 0; ii < v.size(); ++ii) {
+                    for (unsigned jj = 0; jj < v.size(); ++jj) {
+                        ASSERT(v[ii] == v[jj]);
+                    }
+                }
+
+                // "classDerived" categories all match.
+
+                v.clear();
+                v.push_back(classCat);
+                v.push_back(RET(classDerived_a).d_category);
+                v.push_back(RET(classDerived_b).d_category);
+
+                for (unsigned ii = 0; ii < v.size(); ++ii) {
+                    for (unsigned jj = 0; jj < v.size(); ++jj) {
+                        ASSERT(v[ii] == v[jj]);
+                    }
+                }
+#undef  CALL
+#undef  RET
+            }
+        }
+
+        ASSERT(0 == da.numAllocations());
       } break;
       case 32: {
         // --------------------------------------------------------------------
@@ -3098,7 +3513,6 @@ MARK
 
         namespace TC = BALL_LOG_HIERARCHICAL_CATEROGIES;
 
-        typedef ball::Severity         S;
         typedef ball::Category         Category;
         typedef ball::LoggerManager    Manager;
 
@@ -3109,68 +3523,20 @@ MARK
         bslma::DefaultAllocatorGuard guard(&da);
         bslma::Default::setGlobalAllocator(&ga);
 
-        enum { k_HOLDER_VEC_RESERVE = 50 };
-                                         // Must be at least twice as many
-                                         // calls to
-                                         // 'TC::testSetCategoryHierarchically'
-                                         // as occur in a single pass through
-                                         // the inner loop.
-
-#undef SET_CB
-#undef USE_CB
-#undef NO_CB
-
-#define SET_CB(record, pass, trigger, triggerAll)                             \
-            { S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,               \
-                                           S::e_ ## triggerAll }, true, false
-
-#define USE_CB(record, pass, trigger, triggerAll)                             \
-            { S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,               \
-                                           S::e_ ## triggerAll }, false, true
-
-#define NO_CB( record, pass, trigger, triggerAll)                             \
-            { S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,               \
-                                          S::e_ ## triggerAll }, false, false
-
-        static const struct Data {
-            int            d_line;
-            TC::QuadLevels d_levels;
-            bool           d_setCallbackThresholds;
-            bool           d_useCallback;
-        } DATA[] = {
-            { L_, SET_CB(DEBUG, INFO , WARN , ERROR) },
-            { L_, NO_CB( INFO , INFO , INFO , INFO ) },
-            { L_, USE_CB(TRACE, DEBUG, INFO , WARN ) },
-            { L_, NO_CB( WARN , ERROR, FATAL, OFF  ) },
-            { L_, NO_CB( TRACE, INFO , WARN , ERROR) },
-            { L_, USE_CB(TRACE, TRACE, DEBUG, INFO ) },
-            { L_, SET_CB(TRACE, WARN , ERROR, FATAL) },
-            { L_, NO_CB( INFO , WARN , ERROR, FATAL) },
-            { L_, NO_CB( DEBUG, DEBUG, DEBUG, DEBUG) },
-            { L_, NO_CB( WARN , WARN , WARN , WARN ) },
-            { L_, NO_CB( ERROR, ERROR, ERROR, ERROR) },
-            { L_, NO_CB( FATAL, FATAL, FATAL, FATAL) },
-            { L_, USE_CB(DEBUG, DEBUG, INFO , WARN ) }
-        };
-        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
-
-#undef SET_CB
-#undef USE_CB
-#undef NO_CB
-
         // Confirm that there are no duplicates in the table.
 
-        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
-            for (int tj = 0; tj < k_NUM_DATA; ++tj) {
-                ASSERT(ti == tj || DATA[ti].d_levels != DATA[tj].d_levels);
+        for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
+            for (int tj = 0; tj < TC::k_NUM_DATA; ++tj) {
+                ASSERT((ti == tj) ==
+                             (TC::DATA[ti].d_levels == TC::DATA[tj].d_levels));
             }
         }
 
         // Do testing in earnest.
 
         for (int th = 0; th < 3; ++th)
-        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
-            const Data     IDATA         = DATA[ti % k_NUM_DATA];
+        for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
+            const TC::Data IDATA         = TC::DATA[ti];
             const int      IL            = IDATA.d_line;
             const TC::QuadLevels ILEVELS = IDATA.d_levels;
             const bool     ISET_CALLBACK = IDATA.d_setCallbackThresholds;
@@ -3186,8 +3552,8 @@ MARK
                 continue;
             }
 
-            for (int tj = 0; tj < k_NUM_DATA; ++tj) {
-                const Data     JDATA         = DATA[tj];
+            for (int tj = 0; tj < TC::k_NUM_DATA; ++tj) {
+                const TC::Data JDATA         = TC::DATA[tj];
                 const int      JL            = JDATA.d_line;
                 const TC::QuadLevels JLEVELS = JDATA.d_levels;
                 const bool     JSET_CALLBACK = JDATA.d_setCallbackThresholds;
@@ -3204,6 +3570,8 @@ MARK
                 if (JSET_CALLBACK || IL == JL) {
                     continue;
                 }
+
+                TC::defaultCat = 0;
 
                 ASSERTV(IL, JL, TC::callbackLevels != ILEVELS);
                 ASSERTV(IL, JL, TC::callbackLevels != JLEVELS);
@@ -3230,11 +3598,11 @@ MARK
                                                              &TC::dtlCallback);
                 }
 
-                const TC::QuadLevels managerLevels = JUSE_CALLBACK
-                                                   ? TC::callbackLevels
-                                                   : ILEVELS;
+                const TC::QuadLevels MLEVELS = JUSE_CALLBACK
+                                             ? TC::callbackLevels
+                                             : ILEVELS;
 
-                const Category * const defaultCat = &manager.defaultCategory();
+                TC::defaultCat = &manager.defaultCategory();
 
                 Category *meowCat = manager.setCategory("Meow",
                                                         JLEVELS.d_record,
@@ -3245,7 +3613,7 @@ MARK
                 ASSERTV(JL, JLEVELS, TC::getLevels(meowCat),
                                             JLEVELS == TC::getLevels(meowCat));
 
-                rp = TC::testSetCategoryHierarchically("Woof", managerLevels);
+                rp = TC::testSetCategoryHierarchically("Woof", MLEVELS);
                 ASSERTV(IL, JL, rp.second);
                 const Category *woofCat = rp.first;
 
@@ -3254,7 +3622,7 @@ MARK
                 const Category *meowBubbleCat = rp.first;
 
                 TC::setLevels(meowCat, ILEVELS);
-                ASSERTV(IL, JL, ILEVELS == TC::getLevels(woofCat));
+                ASSERTV(IL, JL, ILEVELS == TC::getLevels(meowCat));
 
                 rp = TC::testSetCategoryHierarchically("MeowBark", ILEVELS);
                 ASSERTV(IL, JL, rp.second);
@@ -3268,7 +3636,7 @@ MARK
                 const Category *meowArfCat = rp.first;
 
                 rp = TC::testSetCategoryHierarchically("Woof",
-                                                       managerLevels,
+                                                       MLEVELS,
                                                        true);
                 ASSERTV(IL, JL, rp.second);
                 const Category *woofCatB = rp.first;
@@ -3277,7 +3645,7 @@ MARK
 
                 rp = TC::testSetCategoryHierarchically("", ILEVELS);
                 ASSERTV(IL, JL, rp.second);
-                ASSERTV(defaultCat == rp.first);
+                ASSERTV(TC::defaultCat == rp.first);
 
                 rp = TC::testSetCategoryHierarchically("MeowPurr",
                                                        TC::callbackLevels);
@@ -3290,7 +3658,7 @@ MARK
                 const Category *meowBarkArfCat = rp.first;
 
                 rp = TC::testSetCategoryHierarchically("Roar",
-                                                       managerLevels);
+                                                       MLEVELS);
                 ASSERTV(IL, JL, rp.second);
                 const Category *roarCat = rp.first;
 
@@ -3307,7 +3675,7 @@ MARK
                                                        true);
                 ASSERTV(IL, JL, rp.second);
                 const Category *whimperCat = rp.first;
-                ASSERT(defaultCat == whimperCat);
+                ASSERT(TC::defaultCat == whimperCat);
 
                 // Test attempt to create a child category when a parent exists
                 // and the logger manager is already full.
@@ -3318,11 +3686,11 @@ MARK
                 ASSERTV(IL, JL, rp.second);
                 const Category *woofMoanCat = rp.first;
 
-                ASSERT(defaultCat == woofMoanCat);
+                ASSERT(TC::defaultCat == woofMoanCat);
 
                 // Make sure that all the categories returned are distinct,
                 // (except that 'woofCatB == woofCat' and
-                // 'whimperCat == woofMoanCat == defaultCat').
+                // 'whimperCat == woofMoanCat == TC::defaultCat').
 
                 bsl::vector<const void *> v(&ta);
                 v.push_back(meowCat);
@@ -3333,7 +3701,7 @@ MARK
                 v.push_back(meowPurrCat);
                 v.push_back(meowBarkArfCat);
                 v.push_back(roarCat);
-                v.push_back(defaultCat);
+                v.push_back(TC::defaultCat);
 
                 for (unsigned ii = 0; ii < v.size(); ++ii) {
                     for (unsigned jj = 0; jj < v.size(); ++jj) {
