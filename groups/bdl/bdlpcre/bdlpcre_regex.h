@@ -529,8 +529,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_atomicoperations.h>
 
-#include <bslstl_stringref.h>
-
 #ifndef _PCRE2_H
 #define PCRE2_CODE_UNIT_WIDTH 8
 #define PCRE2_STATIC
