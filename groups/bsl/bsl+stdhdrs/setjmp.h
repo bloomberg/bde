@@ -61,6 +61,9 @@ BSLS_IDENT("$Id: $")
 
 #endif  /* BSL_OVERRIDES_STD */
 
+// This header should support multiple inclusion for linux users, but on some
+// platforms (MSVC) seems to cause other problems, so it is fully
+// header-guarded for now, unlike most of the other 'c' header file wrappers.
 #endif  /* INCLUDED_NATIVE_C_SETJMP */
 
 /*
