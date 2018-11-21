@@ -867,6 +867,46 @@ typedef StringRefImp<wchar_t>    StringRefWide;
 
 // PRIVATE ACCESSORS
 template <class CHAR_TYPE>
+int StringRefImp<CHAR_TYPE>::compare(const CHAR_TYPE *other) const
+{
+    // Not inline.
+
+    // Imitate the behavior of the other 'StringRefImp::compare' and
+    // 'basic_string::privateCompareRaw' -- if one string is shorter, but they
+    // match up to that point, the longer string is always greater, even if the
+    // next character of the longer string has a negative value.
+
+    const const_iterator end = this->end();
+    for (const_iterator pc = this->begin(); pc < end; ++pc, ++other) {
+        if (0 == *other) {
+            return +1;                                                // RETURN
+        }
+
+        if (*pc != *other) {
+            // 'native_std::char_traits::compare' is a mess, usually
+            // implemented with specialized templates, with behavior that
+            // varies tremendously depending upon the platform, the compiler,
+            // and 'CHAR_TYPE'.  In theory, it should compare individual
+            // characters with 'native_std::char_traits::lt', but in practice
+            // that's very often not the case.  Attempting to exactly
+            // anticipate its behavior under all circumstances quickly turned
+            // into a hopeless, brittle horror show of '#ifdef's and template
+            // programming.  So we delegate directly to
+            // 'native_std::char_traits::compare' to compare individual
+            // characters known to differ, guaranteeing that compares between
+            // 'basic_string's, 'StringRefImp's, and null-terminated 'const
+            // CHAR_TYPE *'s all yield matching results.
+
+            return native_std::char_traits<CHAR_TYPE>::compare(pc,
+                                                               other,
+                                                               1);    // RETURN
+        }
+    }
+
+    return *other ? -1 : 0;
+}
+
+template <class CHAR_TYPE>
 bool StringRefImp<CHAR_TYPE>::compareEqual(
                                     const StringRefImp<CHAR_TYPE>& other) const
 {
@@ -1173,46 +1213,6 @@ int StringRefImp<CHAR_TYPE>::compare(
         result = this->length() < other.length() ? -1 : 1;
     }
     return result;
-}
-
-template <class CHAR_TYPE>
-int StringRefImp<CHAR_TYPE>::compare(const CHAR_TYPE *other) const
-{
-    // Not inline.
-
-    // Imitate the behavior of the other 'StringRefImp::compare' and
-    // 'basic_string::privateCompareRaw' -- if one string is shorter, but they
-    // match up to that point, the longer string is always greater, even if the
-    // next character of the longer string has a negative value.
-
-    const const_iterator end = this->end();
-    for (const_iterator pc = this->begin(); pc < end; ++pc, ++other) {
-        if (0 == *other) {
-            return +1;                                                // RETURN
-        }
-
-        if (*pc != *other) {
-            // 'native_std::char_traits::compare' is a mess, usually
-            // implemented with specialized templates, with behavior that
-            // varies tremendously depending upon the platform, the compiler,
-            // and 'CHAR_TYPE'.  In theory, it should compare individual
-            // characters with 'native_std::char_traits::lt', but in practice
-            // that's very often not the case.  Attempting to exactly
-            // anticipate its behavior under all circumstances quickly turned
-            // into a hopeless, brittle horror show of '#ifdef's and template
-            // programming.  So we delegate directly to
-            // 'native_std::char_traits::compare' to compare individual
-            // characters known to differ, guaranteeing that compares between
-            // 'basic_string's, 'StringRefImp's, and null-terminated 'const
-            // CHAR_TYPE *'s all yield matching results.
-
-            return native_std::char_traits<CHAR_TYPE>::compare(pc,
-                                                               other,
-                                                               1);    // RETURN
-        }
-    }
-
-    return *other ? -1 : 0;
 }
 
 }  // close package namespace
