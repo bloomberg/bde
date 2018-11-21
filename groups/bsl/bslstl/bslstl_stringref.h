@@ -1075,17 +1075,13 @@ int StringRefImp<CHAR_TYPE>::compare(const_iterator other) const
     // match up to that point, the longer string is always greater, even if the
     // next character of the longer string has a negative value.
 
-    for (const_iterator pc = this->begin(), end = this->end();
-                BSLS_PERFORMANCEHINT_PREDICT_LIKELY(pc < end); ++pc, ++other) {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 == *other)) {
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
+    const const_iterator end = this->end();
+    for (const_iterator pc = this->begin(); pc < end; ++pc, ++other) {
+        if (0 == *other) {
             return +1;                                                // RETURN
         }
 
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(*pc != *other)) {
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
+        if (*pc != *other) {
             // 'native_std::char_traits::compare' is a mess, usually
             // implemented with specialized templates, with behavior that
             // varies tremendously depending upon the platform, the compiler,
@@ -1105,7 +1101,6 @@ int StringRefImp<CHAR_TYPE>::compare(const_iterator other) const
                                                                1);    // RETURN
         }
     }
-    BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
     return *other ? -1 : 0;
 }
@@ -1120,16 +1115,13 @@ bool StringRefImp<CHAR_TYPE>::compareEqual(
         return false;                                                 // RETURN
     }
 
-    for (const_iterator pc = this->begin(), end = this->end(),
-                                                       otherPc = other.begin();
-              BSLS_PERFORMANCEHINT_PREDICT_LIKELY(pc < end); ++pc, ++otherPc) {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(*pc != *otherPc)) {
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
+    const const_iterator end = this->end();
+    for (const_iterator pc = this->begin(), otherPc = other.begin();
+                                                   pc < end; ++pc, ++otherPc) {
+        if (*pc != *otherPc) {
             return false;                                             // RETURN
         }
     }
-    BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
     return true;
 }
@@ -1139,17 +1131,12 @@ bool StringRefImp<CHAR_TYPE>::compareEqual(const_iterator other) const
 {
     // Not inline.
 
-    for (const_iterator pc = this->begin(), end = this->end();
-                BSLS_PERFORMANCEHINT_PREDICT_LIKELY(pc < end); ++pc, ++other) {
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(*pc != *other)) {
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-            // Note that this includes the case where '0 == *other'.
-
+    const const_iterator end = this->end();
+    for (const_iterator pc = this->begin(); pc < end; ++pc, ++other) {
+        if (0 == *other || *pc != *other) {
             return false;                                             // RETURN
         }
     }
-    BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
     return 0 == *other;
 }
