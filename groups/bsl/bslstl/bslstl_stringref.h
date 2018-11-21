@@ -321,17 +321,56 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     // PRIVATE TYPES
     typedef StringRefData<CHAR_TYPE> Base;
 
-    // PRIVATE ACCESSORS
-    void write(std::basic_ostream<CHAR_TYPE>& stream) const;
-        // Write the value of this string reference to the specified output
-        // 'stream' in the unformatted way.
-
     // FRIENDS
     template <class OTHER_CHAR_TYPE>
     friend
     std::basic_ostream<OTHER_CHAR_TYPE>& operator<<(
                        std::basic_ostream<OTHER_CHAR_TYPE>&        ,
                        const bslstl::StringRefImp<OTHER_CHAR_TYPE>&);
+
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator==(const StringRefImp<OTHER_CHAR_TYPE>&,
+                           const StringRefImp<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator==(const bsl::basic_string<OTHER_CHAR_TYPE>&,
+                           const StringRefImp<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator==(const StringRefImp<OTHER_CHAR_TYPE>&,
+                           const native_std::basic_string<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator==(const native_std::basic_string<OTHER_CHAR_TYPE>&,
+                           const StringRefImp<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator==(const StringRefImp<OTHER_CHAR_TYPE>&,
+                           const bsl::basic_string<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator==(const OTHER_CHAR_TYPE *,
+                           const StringRefImp<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator==(const StringRefImp<OTHER_CHAR_TYPE>&,
+                           const OTHER_CHAR_TYPE *);
+
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator!=(const StringRefImp<OTHER_CHAR_TYPE>&,
+                           const StringRefImp<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator!=(const bsl::basic_string<OTHER_CHAR_TYPE>&,
+                           const StringRefImp<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator!=(const StringRefImp<OTHER_CHAR_TYPE>&,
+                           const bsl::basic_string<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator!=(const StringRefImp<OTHER_CHAR_TYPE>&,
+                           const native_std::basic_string<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator!=(const native_std::basic_string<OTHER_CHAR_TYPE>&,
+                           const StringRefImp<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator!=(const OTHER_CHAR_TYPE *,
+                           const StringRefImp<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator!=(const StringRefImp<OTHER_CHAR_TYPE>&,
+                           const OTHER_CHAR_TYPE *);
 
   public:
     // PUBLIC TYPES
@@ -349,6 +388,24 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(StringRefImp, bsl::is_trivially_copyable);
 
+  private:
+    // PRIVATE ACCESSORS
+    bool compareEqual(const StringRefImp& other) const;
+        // Return 'true' if this object is equal to 'other' and 'false'
+        // otherwise.  Note that this function is more efficient than 'compare'
+        // for non-lexicographical equality comparisons.
+
+    bool compareEqual(const CHAR_TYPE *other) const;
+        // Return 'true' if this object is equal to the null-terminated string
+        // 'other' and 'false' otherwise.  Note that this function is more
+        // efficient than 'compare' for non-lexicographical equality
+        // comparisons.
+
+    void write(std::basic_ostream<CHAR_TYPE>& stream) const;
+        // Write the value of this string reference to the specified output
+        // 'stream' in the unformatted way.
+
+  public:
     // CREATORS
     StringRefImp();
         // Create an object representing an empty 'std::string' value that is
@@ -559,23 +616,12 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // is greater than 'other' string, and 0 if this string is equal to
         // 'other' string.
 
-    int compare(const_iterator other) const;
+    int compare(const CHAR_TYPE *other) const;
         // Compare this string object with the specified null-terminated
         // 'other' using a lexicographical comparison and return a negative
         // value if this string is less than 'other' string, a positive value
         // if this string is greater than 'other' string, and 0 if this string
         // is equal to 'other' string.
-
-    bool compareEqual(const StringRefImp& other) const;
-        // Return 'true' if this object is equal to 'other' and 'false'
-        // otherwise.  Note that this function is more efficient than 'compare'
-        // for non-lexicographical equality comparisons.
-
-    bool compareEqual(const_iterator other) const;
-        // Return 'true' if this object is equal to the null-terminated string
-        // 'other' and 'false' otherwise.  Note that this function is more
-        // efficient than 'compare' for non-lexicographical equality
-        // comparisons.
 };
 
 // FREE OPERATORS
@@ -792,6 +838,42 @@ typedef StringRefImp<wchar_t>    StringRefWide;
                           // ------------------
 
 // PRIVATE ACCESSORS
+template <class CHAR_TYPE>
+bool StringRefImp<CHAR_TYPE>::compareEqual(
+                                    const StringRefImp<CHAR_TYPE>& other) const
+{
+    // Not inline.
+
+    if (this->length() != other.length()) {
+        return false;                                                 // RETURN
+    }
+
+    const const_iterator end = this->end();
+    for (const_iterator pc = this->begin(), otherPc = other.begin();
+                                                   pc < end; ++pc, ++otherPc) {
+        if (*pc != *otherPc) {
+            return false;                                             // RETURN
+        }
+    }
+
+    return true;
+}
+
+template <class CHAR_TYPE>
+bool StringRefImp<CHAR_TYPE>::compareEqual(const CHAR_TYPE *other) const
+{
+    // Not inline.
+
+    const const_iterator end = this->end();
+    for (const_iterator pc = this->begin(); pc < end; ++pc, ++other) {
+        if (0 == *other || *pc != *other) {
+            return false;                                             // RETURN
+        }
+    }
+
+    return 0 == *other;
+}
+
 template <class CHAR_TYPE>
 inline
 void StringRefImp<CHAR_TYPE>::write(
@@ -1066,7 +1148,7 @@ int StringRefImp<CHAR_TYPE>::compare(
 }
 
 template <class CHAR_TYPE>
-int StringRefImp<CHAR_TYPE>::compare(const_iterator other) const
+int StringRefImp<CHAR_TYPE>::compare(const CHAR_TYPE *other) const
 {
     // Not inline.
 
@@ -1103,42 +1185,6 @@ int StringRefImp<CHAR_TYPE>::compare(const_iterator other) const
     }
 
     return *other ? -1 : 0;
-}
-
-template <class CHAR_TYPE>
-bool StringRefImp<CHAR_TYPE>::compareEqual(
-                                    const StringRefImp<CHAR_TYPE>& other) const
-{
-    // Not inline.
-
-    if (this->length() != other.length()) {
-        return false;                                                 // RETURN
-    }
-
-    const const_iterator end = this->end();
-    for (const_iterator pc = this->begin(), otherPc = other.begin();
-                                                   pc < end; ++pc, ++otherPc) {
-        if (*pc != *otherPc) {
-            return false;                                             // RETURN
-        }
-    }
-
-    return true;
-}
-
-template <class CHAR_TYPE>
-bool StringRefImp<CHAR_TYPE>::compareEqual(const_iterator other) const
-{
-    // Not inline.
-
-    const const_iterator end = this->end();
-    for (const_iterator pc = this->begin(); pc < end; ++pc, ++other) {
-        if (0 == *other || *pc != *other) {
-            return false;                                             // RETURN
-        }
-    }
-
-    return 0 == *other;
 }
 
 }  // close package namespace

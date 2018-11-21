@@ -2788,20 +2788,11 @@ void testAccessorsComparisons()
             int COMPARE_PC = ISR.compare(JPC);
             int COMPARE_SR = ISR.compare(JSR);
 
-            const bool COMPARE_EQ_PC = ISR.compareEqual(JPC);
-            const bool COMPARE_EQ_SR = ISR.compareEqual(JSR);
-
             ASSERTV(IL, JL, IS, JS, EQ == (COMPARE_PC == 0));
             ASSERTV(IL, JL, IS, JS, EQ == (COMPARE_SR == 0));
 
-            ASSERTV(IL, JL, IS, JS, EQ == COMPARE_EQ_PC);
-            ASSERTV(IL, JL, IS, JS, EQ == COMPARE_EQ_SR);
-
             ASSERTV(IL, JL, IS, JS, NE == (COMPARE_PC != 0));
             ASSERTV(IL, JL, IS, JS, NE == (COMPARE_SR != 0));
-
-            ASSERTV(IL, JL, IS, JS, NE == !COMPARE_EQ_PC);
-            ASSERTV(IL, JL, IS, JS, NE == !COMPARE_EQ_SR);
 
             ASSERTV(IL, JL, IS, JS, LT == (COMPARE_PC <  0));
             ASSERTV(IL, JL, IS, JS, LT == (COMPARE_SR <  0));
