@@ -372,6 +372,34 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     friend bool operator!=(const StringRefImp<OTHER_CHAR_TYPE>&,
                            const OTHER_CHAR_TYPE *);
 
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator<(const OTHER_CHAR_TYPE *,
+                          const StringRefImp<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator<(const StringRefImp<OTHER_CHAR_TYPE>&,
+                          const OTHER_CHAR_TYPE *);
+
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator>(const OTHER_CHAR_TYPE *,
+                          const StringRefImp<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator>(const StringRefImp<OTHER_CHAR_TYPE>&,
+                          const OTHER_CHAR_TYPE *);
+
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator<=(const OTHER_CHAR_TYPE *,
+                           const StringRefImp<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator<=(const StringRefImp<OTHER_CHAR_TYPE>&,
+                           const OTHER_CHAR_TYPE *);
+
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator>=(const OTHER_CHAR_TYPE *,
+                           const StringRefImp<OTHER_CHAR_TYPE>&);
+    template <class OTHER_CHAR_TYPE>
+    friend bool operator>=(const StringRefImp<OTHER_CHAR_TYPE>&,
+                           const OTHER_CHAR_TYPE *);
+
   public:
     // PUBLIC TYPES
     typedef const CHAR_TYPE                        value_type;
@@ -390,6 +418,13 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
 
   private:
     // PRIVATE ACCESSORS
+    int compare(const CHAR_TYPE *other) const;
+        // Compare this string object with the specified null-terminated
+        // 'other' using a lexicographical comparison and return a negative
+        // value if this string is less than 'other' string, a positive value
+        // if this string is greater than 'other' string, and 0 if this string
+        // is equal to 'other' string.
+
     bool compareEqual(const StringRefImp& other) const;
         // Return 'true' if this object is equal to 'other' and 'false'
         // otherwise.  Note that this function is more efficient than 'compare'
@@ -615,13 +650,6 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
         // string is less than 'other' string, a positive value if this string
         // is greater than 'other' string, and 0 if this string is equal to
         // 'other' string.
-
-    int compare(const CHAR_TYPE *other) const;
-        // Compare this string object with the specified null-terminated
-        // 'other' using a lexicographical comparison and return a negative
-        // value if this string is less than 'other' string, a positive value
-        // if this string is greater than 'other' string, and 0 if this string
-        // is equal to 'other' string.
 };
 
 // FREE OPERATORS

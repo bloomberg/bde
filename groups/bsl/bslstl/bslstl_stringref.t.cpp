@@ -2785,35 +2785,14 @@ void testAccessorsComparisons()
 
             // Call the two 'compare' methods directly:
 
-            int COMPARE_PC = ISR.compare(JPC);
             int COMPARE_SR = ISR.compare(JSR);
 
-            ASSERTV(IL, JL, IS, JS, EQ == (COMPARE_PC == 0));
             ASSERTV(IL, JL, IS, JS, EQ == (COMPARE_SR == 0));
-
-            ASSERTV(IL, JL, IS, JS, NE == (COMPARE_PC != 0));
             ASSERTV(IL, JL, IS, JS, NE == (COMPARE_SR != 0));
-
-            ASSERTV(IL, JL, IS, JS, LT == (COMPARE_PC <  0));
             ASSERTV(IL, JL, IS, JS, LT == (COMPARE_SR <  0));
-
-            ASSERTV(IL, JL, IS, JS, GE == (COMPARE_PC >= 0));
             ASSERTV(IL, JL, IS, JS, GE == (COMPARE_SR >= 0));
-
-            ASSERTV(IL, JL, IS, JS, GT == (COMPARE_PC >  0));
             ASSERTV(IL, JL, IS, JS, GT == (COMPARE_SR >  0));
-
-            ASSERTV(IL, JL, IS, JS, LE == (COMPARE_PC <= 0));
             ASSERTV(IL, JL, IS, JS, LE == (COMPARE_SR <= 0));
-
-            // Normalize 'COMPARE_PC' & 'COMPARE_SR' to +1, -1, or 0, at which
-            // point they should be equal, if they weren't equal to begin with.
-
-            COMPARE_PC = normalizeCompare(COMPARE_PC);
-            COMPARE_SR = normalizeCompare(COMPARE_SR);
-
-            ASSERTV(IL, JL, IS, JS, COMPARE_PC, COMPARE_SR,
-                                                     COMPARE_PC == COMPARE_SR);
 
             // 'operator=='
 
