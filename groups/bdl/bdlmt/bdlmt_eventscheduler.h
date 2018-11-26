@@ -356,11 +356,11 @@ BSLS_IDENT("$Id: $")
 //
 //     // Schedule a single-run event at a 35s offset.
 //     scheduler.scheduleEvent(initialAbsoluteTime + 35,
-//                              bsl::function<void()()>(&myCallbackFunction));
+//                             bsl::function<void()>(&myCallbackFunction));
 //
 //     // Schedule a 30s recurring event.
 //     scheduler.scheduleRecurringEvent(bsls::TimeInterval(30),
-//                                      bsl::function<void()()>(
+//                                      bsl::function<void()>(
 //                                                       &myCallbackFunction));
 //
 //     // Start the dispatcher thread.
@@ -369,6 +369,8 @@ BSLS_IDENT("$Id: $")
 //     // Advance the time by 40 seconds so that each
 //     // event will run once.
 //     timeSource.advanceTime(bsls::TimeInterval(40));
+//
+//     bslmt::ThreadUtil::microSleep(0, 1);  // allow events to occur
 //
 //     // The line "Event triggered!" should now have
 //     // been printed to the console twice.

@@ -18,12 +18,16 @@
 #include <bdlt_timeunitratio.h>
 
 #include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
 #include <bslmt_barrier.h>
 #include <bslmt_threadgroup.h>
+#include <bslmt_threadutil.h>
 #include <bslmt_timedsemaphore.h>
 #include <bslmt_semaphore.h>
+
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -815,6 +819,65 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
           d_scheduler.now() + d_ioTimeout,
           bdlf::BindUtil::bind(&my_Server::closeConnection, this, connection));
 }
+
+///Example 3: Using the Test Time Source
+///- - - - - - - - - - - - - - - - - - -
+// For testing purposes, the class 'bdlmt::EventSchedulerTestTimeSource' is
+// provided to allow a test to manipulate the system-time observed by a
+// 'bdlmt::EventScheduler' in order to control when events are triggered. After
+// a scheduler is constructed, a 'bdlmt::EventSchedulerTestTimeSource' object
+// can be created atop the scheduler.  A test can then use the test time-source
+// to advance the scheduler's observed system-time in order to dispatch events
+// in a manner coordinated by the test.  Note that a
+// 'bdlmt::EventSchedulerTestTimeSource' *must* be created on an
+// event-scheduler before any events are scheduled, or the event-scheduler is
+// started.
+//
+// This example shows how the clock may be altered:
+//
+//..
+   void myCallbackFunction() {
+       puts("Event triggered!");
+   }
+
+   void testCase() {
+       // Construct the scheduler
+       bdlmt::EventScheduler scheduler;
+
+       // Construct the time-source.
+       // Install the time-source in the scheduler.
+       bdlmt::EventSchedulerTestTimeSource timeSource(&scheduler);
+
+       // Retrieve the initial time held in the time-source.
+       bsls::TimeInterval initialAbsoluteTime = timeSource.now();
+
+       // Schedule a single-run event at a 35s offset.
+       scheduler.scheduleEvent(initialAbsoluteTime + 35,
+                               bsl::function<void()>(&myCallbackFunction));
+  
+       // Schedule a 30s recurring event.
+       scheduler.scheduleRecurringEvent(bsls::TimeInterval(30),
+                                        bsl::function<void()>(
+                                                         &myCallbackFunction));
+
+       // Start the dispatcher thread.
+       scheduler.start();
+
+       // Advance the time by 40 seconds so that each
+       // event will run once.
+       timeSource.advanceTime(bsls::TimeInterval(40));
+
+       bslmt::ThreadUtil::microSleep(0, 1);  // allow events to occur
+
+       // The line "Event triggered!" should now have
+       // been printed to the console twice.
+
+       scheduler.stop();
+   }
+//..
+//
+// Note that this feature should be used only for testing purposes, never in
+// production code.
 
 }  // close namespace EVENTSCHEDULER_TEST_CASE_USAGE
 
@@ -2242,13 +2305,15 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "TESTING USAGE EXAMPLE 1" << endl
-                          << "=======================" << endl;
+                          << "TESTING USAGE EXAMPLES" << endl
+                          << "======================" << endl;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         using namespace EVENTSCHEDULER_TEST_CASE_USAGE;
         bslma::DefaultAllocatorGuard defaultAllocGuard(&ta);
         {
+            if (verbose) cout << "Example 1" << endl;
+
             bdlmt::EventScheduler scheduler;
             vector<Value> values;
 
@@ -2270,11 +2335,14 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) cout << endl
-                              << "TESTING USAGE EXAMPLE 2" << endl
-                              << "=======================" << endl;
+            if (verbose) cout << "Example 2" << endl;
+
             // Note: this is just a compile test
             my_Server server(bsls::TimeInterval(10), &ta);
+
+            if (verbose) cout << "Example 3" << endl;
+
+            testCase();
         }
 
         ASSERT(0 < ta.numAllocations());
