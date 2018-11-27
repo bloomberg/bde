@@ -1114,19 +1114,14 @@ class Logger {
         // immediately before calling 'logMessage'; other use may adversely
         // affect performance for the entire program.
 
-    char *obtainPoolMessageBuffer(int *bufferSize);
-        // Return the address of the memory block obtained from the pool to
-        // which this thread of execution has exclusive access and load the
-        // size (in bytes) of this buffer into the specified 'bufferSize'
-        // address.  The address remains valid until the
-        // 'releasePoolMessageBuffer' method is called.  Note that the buffer
-        // is intended to be used *only* for formatting log messages
-        // immediately before a call to 'Log::logMessage'; other use may
-        // adversely affect performance for the entire program.
-
-    void releasePoolMessageBuffer(char *buffer);
-        // Relinquish the memory block at the specified 'buffer' address back
-        // to the pool object for reuse.
+    bslma::ManagedPtr<char> obtainMessageBuffer(int *bufferSize);
+        // Return a managed pointer that refers to the memory block obtained
+        // from the pool to which this thread of execution has exclusive access
+        // and load the size (in bytes) of this buffer into the specified
+        // 'bufferSize' address.  Note that the buffer is intended to be used
+        // *only* for formatting log messages immediately before a call to
+        // 'Log::logMessage'; other use may adversely affect performance for
+        // the entire program.
 
     void publish();
         // Publish to the observer held by this logger all records stored in
@@ -1451,14 +1446,14 @@ class LoggerManager {
         // immediately before calling 'logMessage'; other use may adversely
         // affect performance for the entire program.
 
-    static char *obtainPoolMessageBuffer(int *bufferSize);
-        // Return the address of the memory block obtained from the static
-        // 'bdlma::ConcurrentPool' object to which this thread of execution has
-        // exclusive access and load the size (in bytes) of this buffer into
-        // the specified 'bufferSize' address.  Note that the buffer is
-        // intended to be used *only* for formatting log messages immediately
-        // before a call to 'Log::logMessage'; other use may adversely affect
-        // performance for the entire program.
+    static bslma::ManagedPtr<char> obtainMessageBuffer(int *bufferSize);
+        // Return a managed pointer that refers to the memory block obtained
+        // from the static 'bdlma::ConcurrentPool' object to which this thread
+        // of execution has exclusive access and load the size (in bytes) of
+        // this buffer into the specified 'bufferSize' address.  Note that the
+        // buffer is intended to be used *only* for formatting log messages
+        // immediately before a call to 'Log::logMessage'; other use may
+        // adversely affect performance for the entire program.
 
     static void shutDownSingleton();
         // Destroy the logger manager singleton and release all resources used

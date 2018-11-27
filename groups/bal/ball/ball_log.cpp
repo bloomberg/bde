@@ -128,22 +128,14 @@ void Log::releaseMessageBuffer(bslmt::Mutex *mutex)
     mutex->unlock();
 }
 
-char *Log::obtainPoolMessageBuffer(int *bufferSize)
+bslma::ManagedPtr<char> Log::obtainMessageBuffer(int *bufferSize)
 {
     if (LoggerManager::isInitialized()) {
-        return LoggerManager::singleton().getLogger().obtainPoolMessageBuffer(
+        return LoggerManager::singleton().getLogger().obtainMessageBuffer(
                                                         bufferSize);  // RETURN
     }
     else {
-        return LoggerManager::obtainPoolMessageBuffer(bufferSize);    // RETURN
-    }
-}
-
-void Log::releasePoolMessageBuffer(char *buffer)
-{
-    if (LoggerManager::isInitialized()) {
-        LoggerManager::singleton().getLogger().releasePoolMessageBuffer(
-                                                                       buffer);
+        return LoggerManager::obtainMessageBuffer(bufferSize);        // RETURN
     }
 }
 
@@ -257,15 +249,14 @@ Log_Formatter::Log_Formatter(const Category *category,
 , d_record_p(Log::getRecord(category, fileName, lineNumber))
 , d_severity(severity)
 {
-    d_buffer_p = Log::obtainPoolMessageBuffer(&d_bufferLen);
+    d_buffer = Log::obtainMessageBuffer(&d_bufferLen);
 }
 
 Log_Formatter::~Log_Formatter()
 {
-    d_buffer_p[d_bufferLen - 1] = '\0';
-    d_record_p->fixedFields().setMessage(d_buffer_p);
+    d_buffer.get()[d_bufferLen - 1] = '\0';
+    d_record_p->fixedFields().setMessage(d_buffer.get());
     Log::logMessage(d_category_p, d_severity, d_record_p);
-    Log::releasePoolMessageBuffer(d_buffer_p);
 }
 
 }  // close package namespace

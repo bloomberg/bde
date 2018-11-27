@@ -104,6 +104,14 @@ namespace ball {
 
 namespace {
 
+void poolBufferDeleter(void *buffer, void *pool)
+    // This deleter function correctly deallocates memory buffer on the
+    // 'ManagedPtr' object's destruction.
+{
+    bdlma::ConcurrentPool *p = static_cast<bdlma::ConcurrentPool *>(pool);
+    p->deallocate(buffer);
+}
+
 const char *filterName(
    bsl::string                                             *filteredNameBuffer,
    const char                                              *originalName,
@@ -495,15 +503,16 @@ char *Logger::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
     return d_scratchBuffer_p;
 }
 
-char *Logger::obtainPoolMessageBuffer(int *bufferSize)
+bslma::ManagedPtr<char> Logger::obtainMessageBuffer(int *bufferSize)
 {
     *bufferSize = d_scratchBufferSize;
-    return static_cast<char *>(d_bufferPool.allocate());
-}
+    char *buffer = static_cast<char *>(d_bufferPool.allocate());
 
-void Logger::releasePoolMessageBuffer(char *buffer)
-{
-    d_bufferPool.deallocate(static_cast<void *>(buffer));
+    bslma::ManagedPtr<char> bufferManagedPtr(
+                                      buffer,
+                                      static_cast<void *>(&d_bufferPool),
+                                      poolBufferDeleter);
+    return bufferManagedPtr;
 }
 
                            // -------------------
@@ -882,7 +891,7 @@ char *LoggerManager::obtainMessageBuffer(bslmt::Mutex **mutex,
     return buffer;
 }
 
-char *LoggerManager::obtainPoolMessageBuffer(int *bufferSize)
+bslma::ManagedPtr<char> LoggerManager::obtainMessageBuffer(int *bufferSize)
 {
     const int k_DEFAULT_LOGGER_BUFFER_SIZE = 8192;
 
@@ -902,9 +911,15 @@ char *LoggerManager::obtainPoolMessageBuffer(int *bufferSize)
 
     buffer = static_cast<char *>(staticPool.object().allocate());
 
+    bslma::ManagedPtr<char> bufferManagedPtr(
+                                      buffer,
+                                      static_cast<void *>(staticPool.buffer()),
+                                      poolBufferDeleter);
+
+
     *bufferSize = k_DEFAULT_LOGGER_BUFFER_SIZE;
 
-    return buffer;
+    return bufferManagedPtr;
 }
 
 void LoggerManager::shutDownSingleton()

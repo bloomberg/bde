@@ -851,6 +851,7 @@ BSLS_IDENT("$Id: $")
 #include <ball_loggermanager.h>
 #include <ball_severity.h>
 
+#include <bslma_managedptr.h>
 #include <bsls_annotation.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
@@ -1385,19 +1386,14 @@ struct Log {
         // undefined unless 'mutex' was obtained by a call to
         // 'Log::obtainMessageBuffer' and has not yet been unlocked.
 
-    static char *obtainPoolMessageBuffer(int *bufferSize);
-        // Return the address of the memory block obtained from the pool to
-        // which this thread of execution has exclusive access and load the
-        // size (in bytes) of this buffer into the specified 'bufferSize'
-        // address.  The address remains valid until the
-        // 'Log::releasePoolMessageBuffer' method is called.  Note that the
-        // buffer is intended to be used *only* for formatting log messages
-        // immediately before a call to 'Log::logMessage'; other use may
-        // adversely affect performance for the entire program.
-
-    static void releasePoolMessageBuffer(char *buffer);
-        // Relinquish the memory block at the specified 'buffer' address back
-        // to the pool object for reuse.
+    static bslma::ManagedPtr<char> obtainMessageBuffer(int *bufferSize);
+        // Return a managed pointer that refers to the memory block obtained
+        // from the pool to which this thread of execution has exclusive access
+        // and load the size (in bytes) of this buffer into the specified
+        // 'bufferSize' address.  Note that the buffer is intended to be used
+        // *only* for formatting log messages immediately before a call to
+        // 'Log::logMessage'; other use may adversely affect performance for
+        // the entire program.
 
     static const Category *setCategory(const char *categoryName);
         // Return from the logger manager singleton's category registry the
@@ -1571,20 +1567,21 @@ class Log_Formatter {
     // implementation detail of the macros provided by this component.
 
     // DATA
-    const Category        *d_category_p;  // category to which record is logged
-                                          // (held, not owned)
+    const Category          *d_category_p;  // category to which record is
+                                            // logged (held, not owned)
 
-    Record                *d_record_p;    // logged record (held, not owned)
+    Record                  *d_record_p;    // logged record (held, not owned)
 
-    const int              d_severity;    // severity at which record is logged
+    const int                d_severity;    // severity at which record is
+                                            // logged
 
-    char                  *d_buffer_p;    // buffer for formatted user log
-                                          // message (held, not owned)
+    bslma::ManagedPtr<char>  d_buffer;      // buffer for formatted user log
+                                            // message (held, not owned)
 
-    int                    d_bufferLen;   // length of buffer
+    int                      d_bufferLen;   // length of buffer
 
-    bslmt::Mutex          *d_mutex_p;     // mutex to lock buffer (held, not
-                                          // owned)
+    bslmt::Mutex            *d_mutex_p;     // mutex to lock buffer (held, not
+                                            // owned)
 
   private:
     // NOT IMPLEMENTED
@@ -1738,7 +1735,7 @@ int Log_Stream::severity() const
 inline
 char *Log_Formatter::messageBuffer()
 {
-    return d_buffer_p;
+    return d_buffer.get();
 }
 
 inline
