@@ -568,6 +568,9 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
                         // ===============================
 
 struct StringRefImp_CompareUtil {
+    // [!PRIVATE!] This class provides a namespace for private comparison
+    // implementation functions.
+
     // CLASS METHODS
     template <class CHAR_TYPE>
     static
@@ -590,10 +593,10 @@ struct StringRefImp_CompareUtil {
     static
     bool compareEqual(const StringRefImp<CHAR_TYPE>&  a,
                       const CHAR_TYPE                *b);
-        // Return 'true' if the specified 'a' is equal to the null-terminated
-        // C-string 'b' and 'false' otherwise.  Note that this function is more
-        // efficient than 'compare' for non-lexicographical equality
-        // comparisons.
+        // Return 'true' if the specified 'a' is equal to the specified
+        // null-terminated C-string 'b' and 'false' otherwise.  Note that this
+        // function is more efficient than 'compare' for non-lexicographical
+        // equality comparisons.
 };
 
 // FREE OPERATORS

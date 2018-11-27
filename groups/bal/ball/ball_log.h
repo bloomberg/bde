@@ -1266,8 +1266,8 @@ struct Log {
         // This method has no effect if 'severity' is less severe than each of
         // the threshold levels of 'category'.  The behavior is undefined
         // unless 'severity' is in the range '[1 .. 255]', 'record' was
-        // obtained by a call to 'Log::getRecord', and the logger manager
-        // singleton is initialized when 'category' is non-null.
+        // obtained by a call to 'Log::getRecord', and, if 'category' is not
+        // 0, the logger manager singleton is initialized.
 
     static char *obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize);
         // Block until access to the buffer used for formatting messages in
