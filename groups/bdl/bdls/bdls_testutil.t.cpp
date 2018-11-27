@@ -1,13 +1,13 @@
 // bdls_testutil.t.cpp                                                -*-C++-*-
 #include <bdls_testutil.h>
 
-#include <bsltf_streamutil.h>
-#include <bsltf_templatetestfacility.h>
-
 #include <bsl_sstream.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
+
+#include <bsltf_streamutil.h>
+#include <bsltf_templatetestfacility.h>
 
 #include <fcntl.h>
 #include <limits.h>     // PATH_MAX on linux

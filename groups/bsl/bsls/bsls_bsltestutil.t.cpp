@@ -19,6 +19,9 @@
 # include <unistd.h>
 #endif
 
+// *NO* 'using' directives, since we want to be sure that the macros under
+// test work outside of any namespace.
+
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------

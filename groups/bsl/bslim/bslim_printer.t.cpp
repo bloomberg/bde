@@ -3,12 +3,12 @@
 
 #include <bslim_testutil.h>  // for testing only
 
-#include <bsltf_streamutil.h>
-#include <bsltf_templatetestfacility.h>
-
 #include <bslma_testallocator.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
+
+#include <bsltf_streamutil.h>
+#include <bsltf_templatetestfacility.h>
 
 #include <bsl_cctype.h>
 #include <bsl_cstdio.h>

@@ -5,6 +5,8 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
+#include <bsltf_templatetestfacility.h>
+
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -634,6 +636,20 @@ int main(int argc, char *argv[])
         //:   'INT_MIN'.
         //
         // Plan:
+        //: 1 Default construct a 'TestStreamer' object.
+        //:   o Observe that its initial value is 'INT_MIN'.
+        //:
+        //:   o Stream an 'int' to it and observe that the value takes on that
+        //:     'int's value.
+        //:
+        //:   o Observe that a reference to the 'TestStreamer' is returned.
+        //:
+        //: 2 Test 'u::clip', which, passed an integer, returns the nearest
+        //:   integer in the range '[ 0 .. 127 ]'.
+        //:
+        //: 3 Iterate through a large number of values, using 'u::clip' to
+        //:   pass many values in the range '[ 0 .. 127 ]' to
+        //:   'operator<<(TestStream&, int)' and observing the results.
         //
         // Testing:
         //   TEST APPARATUS
@@ -753,7 +769,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2012 Bloomberg Finance L.P.
+// Copyright 2018 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

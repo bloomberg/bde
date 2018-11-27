@@ -27,7 +27,7 @@ void putSpaces(bsl::ostream& stream, int numSpaces)
     // Define the largest chunk of spaces:
 
     static const char k_SPACES[]    = "                                      ";
-    const        int  k_SPACES_SIZE = sizeof(k_SPACES) - 1;
+    const int         k_SPACES_SIZE = sizeof(k_SPACES) - 1;
 
     while (k_SPACES_SIZE < numSpaces) {
         stream.write(k_SPACES, k_SPACES_SIZE);
