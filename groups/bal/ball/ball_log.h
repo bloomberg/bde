@@ -625,8 +625,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Now we add a logging rule, setting the pass-through threshold to be
 // 'ball::Severity::e_TRACE' (i.e., enabling verbose logging) if the thread's
-// context contains a "uuid" of 3938908.  Note that we use the wild-card
-// value '*' for the category so that the 'ball::Rule' rule will apply to all
+// context contains a "uuid" of 3938908.  Note that we use the wild-card value
+// '*' for the category so that the 'ball::Rule' rule will apply to all
 // categories.
 //..
 //  ball::Rule rule("*", 0, ball::Severity::e_TRACE, 0, 0);
@@ -1389,7 +1389,8 @@ struct Log {
         // newly created category.  If the logger manager singleton has no room
         // for more categories, the return value will be a pointer to the
         // default category.  If a non-zero category pointer is being returned,
-        // link it into 'categoryHolder', unless '0 == categoryHolder'.
+        // link it into the specified 'categoryHolder', unless
+        // '0 == categoryHolder'.
 
     static bool isCategoryEnabled(const CategoryHolder *categoryHolder,
                                   int                   severity);

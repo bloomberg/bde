@@ -147,17 +147,17 @@ using bsl::flush;
 // [28] BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)
 // [32] setCategoryHierarchically(const char *);
 // [32] setCategoryHierarchically(CategoryHolder *, const char *);
-// [33] BALL_SET_CATEGORY_HIERARCHICALLY(const char *);
-// [33] BALL_SET_CLASS_CATEGORY_HIERARCHICALLY(const char *);
 // [33] BALL_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(const char *);
+// [33] BALL_SET_CATEGORY_HIERARCHICALLY(const char *);
+// [34] BALL_SET_CLASS_CATEGORY_HIERARCHICALLY(const char *);
 // ----------------------------------------------------------------------------
 // [29] CONCERN: 'BALL_LOG_*_BLOCK' MACROS
 // [30] CONCERN: 'BALL_LOGCB_*_BLOCK' MACROS
 // [31] CONCERN: DEGENERATE LOG MACROS USAGE
-// [34] USAGE EXAMPLE
-// [35] RULE-BASED LOGGING USAGE EXAMPLE
-// [36] CLASS-SCOPE LOGGING USAGE EXAMPLE
-// [37] BASIC LOGGING USAGE EXAMPLE
+// [35] USAGE EXAMPLE
+// [36] RULE-BASED LOGGING USAGE EXAMPLE
+// [37] CLASS-SCOPE LOGGING USAGE EXAMPLE
+// [38] BASIC LOGGING USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -695,7 +695,7 @@ void processData(int                      uuid,
 }  // close enterprise namespace
 
 // ============================================================================
-//                      HIERARCHICAL CATEROGIES -- CASE 32, 33
+//            HIERARCHICAL CATEROGIES -- CASE 32, CASE 33, CASE 34
 // ----------------------------------------------------------------------------
 
 namespace BALL_LOG_HIERARCHICAL_CATEROGIES {
@@ -1092,9 +1092,10 @@ const Category *defaultCat = 0;
 
 // Template idices.  These are passed to the 'CALL' and 'RET' macros to the 'N'
 // arg and used two ways -- as an integer template parameter arg to the
-// 'TestMacros' template class, and #arg is used as a string arg, which is
-// parsed to remove everything beginning at any '_' chars and then used as a
-// category name passed to the set category macros.
+// 'testLocalMacros' template function and the 'TestClassMacro' template class,
+// and #arg is used as a string arg, which is parsed to remove everything
+// beginning at any '_' chars and then used as a category name passed to the
+// set category macros.
 
 namespace indicies {
 
@@ -1142,9 +1143,10 @@ static const int full                = L_ - base;    // Passed as both class
 }  // close namespace indicies
 
 struct PosRec {
-    // If an ASSERT fails within the 'TestMacros()()' call, the line number
-    // provided by ASSERT will not tell us WHICH call failed, so we bundle
-    // useful information about which call it was where the problem occurred.
+    // If an ASSERT fails within the 'testLocalMacros()' call or the
+    // 'TestClassMacro::operator()()' call, the line number provided by ASSERT
+    // will not tell us WHICH call failed, so we bundle useful information
+    // about which call it was where the problem occurred.
 
     // DATA
     int         d_line;
@@ -1197,15 +1199,14 @@ struct HolderFrame {
 };
 
 struct ResultRec {
-    // This 'struct' contains some key results of one run of
-    // 'TestMacros::operator()' -- pointers to the category holders of the
-    // class category, and the non-class category, and a 'bool' to indicate
-    // whether all the tests passed.  A separate copy of this record exists
-    // for every template instantiation of 'TestMacros', and each instantiation
-    // is called exactly once per pass.
+    // This 'struct' contains some key results of one run of the functions
+    // 'testLocalMacros' and 'TestClassMacro::operator()' -- pointers to the
+    // category holder, to the category found or created, and a 'bool' to
+    // indicate whether all the tests passed.  A separate copy of this record
+    // exists for every template instantiation of 'result<int>()', which is
+    // called by both the other template functions.
 
     // DATA
-    const CategoryHolder *d_classHolder;
     const CategoryHolder *d_holder;
     const Category       *d_category;
     bool                  d_passed;
@@ -1214,117 +1215,43 @@ struct ResultRec {
     void clear() { bsl::memset(this, 0, sizeof(*this)); }
 };
 
-// Last argument passed to 'TestMacros::operator()', which indicates whether a
-// class level category is to be sought, and whether the other category sought
-// is to be static (the default) or dynamic.
+// Last argument passed to 'teetLocalMacros<int>()', which indicates whether
+// the category sought is to be static (the default) or dynamic, and whether
+// we've called the same template instantiation of the function before.
 
-enum Flags { k_CLASS_BIT            = 1,
-             k_DYNAMIC_BIT          = 2,
-             k_REPEAT_BIT           = 4,
+enum Flags { k_DYNAMIC_BIT          = 1,
+             k_REPEAT_BIT           = 2,
 
              e_STATIC               = 0,
-             e_CLASS_STATIC         = k_CLASS_BIT,
              e_DYNAMIC              = k_DYNAMIC_BIT,
-             e_CLASS_DYNAMIC        = k_CLASS_BIT | k_DYNAMIC_BIT,
-             e_REPEAT_CLASS_STATIC  = k_REPEAT_BIT | k_CLASS_BIT,
-             e_REPEAT_DYNAMIC       = k_REPEAT_BIT | k_DYNAMIC_BIT,
-             e_REPEAT_CLASS_DYNAMIC = k_REPEAT_BIT | k_CLASS_BIT |
-                                                               k_DYNAMIC_BIT };
+             e_REPEAT_STATIC        = k_REPEAT_BIT,
+             e_REPEAT_DYNAMIC       = k_REPEAT_BIT | k_DYNAMIC_BIT };
 
-// Names of class categories.  There is no class category that uses
-// 'classParentName', it is a separate category created in advance to make sure
-// that the class category that uses 'classCatName' inherits thresholds from
-// it.
-
-static const char * const classParentName  = "class";
-static const char * const classCatName     = "classDerived";
-static const char * const secondClassName  = "secondClass";
-static const char * const fullClassName    = "full";
-
-// Globals to story the two different class categories, and the default
-// category in for comparison later on.
-
-const Category *classCat = 0, *seconcClassCat = 0;
+template <int KK>
+ResultRec& result()
+{
+    static ResultRec ret;
+    return ret;
+}
 
 // This is a ptr to a set that will be created at the beginning of the inner
-// loop of the test to store different values of 'KK' with which the
-// 'TestMacros' class is instantiated and 'operator()' called, to make sure
-// that each instantiation and call is unique.
+// loop of the test to store different values of 'KK' with which either the
+// 'testLocalMacros' function or the 'TestClassMacro::operator()()' function is
+// instantiated and called, to make sure that each instantiation and call is
+// unique when we expect them to be.
 
 bsl::set<int> *instantiationSet_p = 0;
 
 template <int KK>
-struct TestMacros {
-    // In TC 33, we want to call the 3 'set category hierarchically' macros a
-    // bunch of times in one test case, which is problematic because two of
-    // them create a static variable named 'BALL_LOG_CATEGORY_HOLDER'.
-    //
-    // So what we do is we put them in this template class (we had to have a
-    // class anyway to test 'set class category hierarchically') and every time
-    // we call it, we parametrize the class with a different integer, so we get
-    // a new set of statics.
-    //
-    // We iterate through nested loops, and every iteration of the inner loop
-    // we create a logger manager which is destroyed at the end of the loop,
-    // and destroying the logger manager will reset all that static category
-    // holders back to theirintial state before we begin the next iteration (we
-    // tested this in TC 32).
-
-    // CLASS METHOD
-    static
-    const char *getClassCatName()
-    {
-        return indicies::secondClass == KK
-               ? secondClassName
-               : indicies::full == KK
-               ? fullClassName
-               : classCatName;
-    }
-
-    BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(getClassCatName());
-
-    // CLASS METHODS
-    static
-    ResultRec& result()
-    {
-        static ResultRec ret;
-        return ret;
-    }
-
-    ResultRec& operator()(const QuadLevels&     classLevels,
-                          const QuadLevels&     newLevels,
-                          const PosRec&         pos,
-                          const CategoryHolder *prevClassCategoryHolder,
-                          const CategoryHolder *prevCategoryHolder,
-                          const Flags           flags);
-        // If the specified 'flags' has 'k_CLASS_BIT' set, access the
-        // class category, creating it if no category with that name exists.
-        // If we access the class category, verify that its threshold levels
-        // match the specified 'classLevels'.  If a class category is created,
-        // verify that the 'd_next_p' field of its catgory holder matches the
-        // specified 'prevClassCategoryHolder'.  Then create a new non-class
-        // category; if the specified 'flags & k_DYNAMIC_BIT' is set, the new
-        // category is to be dynamic, otherwise it is static.  Verify that the
-        // threshold levels of the new category match the specified
-        // 'newLevels'.  Verify that the 'd_next_p' field of the non-class
-        // category matches the specified 'prevCategoryHolder'.  Obtain a
-        // static 'ResultRec' corresponding to the 'KK' template index and
-        // populate its fields with the results of the run, and return a
-        // reference to it.
-};
-
-template <int KK>
 ResultRec&
-TestMacros<KK>::operator()(const QuadLevels&     classLevels,
-                           const QuadLevels&     newLevels,
-                           const PosRec&         pos,
-                           const CategoryHolder *prevClassCategoryHolder,
-                           const CategoryHolder *prevCategoryHolder,
-                           const Flags           flags)
+testLocalMacros(const QuadLevels&     newLevels,
+                const PosRec&         pos,
+                const CategoryHolder *prevCategoryHolder,
+                const Flags           flags)
 {
+    testStatus = 100 == testStatus ? 99 : testStatus;
     const int ts = testStatus;
 
-    const bool classBefore = flags & k_CLASS_BIT;
     const bool dynamic     = flags & k_DYNAMIC_BIT;
     const bool repeat      = flags & k_REPEAT_BIT;
 
@@ -1350,73 +1277,12 @@ TestMacros<KK>::operator()(const QuadLevels&     classLevels,
         *pc = 0;
     }
 
-    const CategoryHolder *holder_p;
-    ResultRec& ret = result();
+    ResultRec& ret = result<KK>();
     ret.clear();
 
-    // All class categories have the same name.  Until we call
-    // 'ball_log_getCategoryHolder' the class category holder for this class
-    // has not been initialized.  There might be a surviving category from
-    // the same class with different template args.
-
-    Category *prevCat = !manager_p ? 0 : manager_p->lookupCategory(
-                                                            getClassCatName());
-    ASSERTV(pos, !prevCat ||
-                     !bsl::strcmp(prevCat->categoryName(), getClassCatName()));
-    if (classBefore) {
-        holder_p = ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER);
-        const HolderFrame hf(holder_p);
-        ret.d_classHolder = holder_p;
-
-        if (manager_p) {
-            ASSERTV(pos, hf.d_category);
-            const char *expClassCatName = KK == indicies::full
-                                       ? ""
-                                       : getClassCatName();
-
-            ASSERTV(pos, hf.d_category->categoryName(), expClassCatName,
-                                                             getClassCatName(),
-                 !bsl::strcmp(hf.d_category->categoryName(), expClassCatName));
-            ASSERTV(pos, classLevels, getLevels(hf.d_category),
-                                      classLevels == getLevels(hf.d_category));
-            ASSERTV(pos, hf.d_level, classLevels.d_record,
-                                           hf.d_level == classLevels.d_record);
-
-            switch (KK) {
-              case indicies::secondClass: {
-                ASSERTV(pos, classCat   != hf.d_category);
-                ASSERTV(pos, defaultCat != hf.d_category);
-                seconcClassCat = hf.d_category;
-              } break;
-              case indicies::full: {
-                ASSERTV(pos, defaultCat == hf.d_category);
-              } break;
-              default: {
-                if (!classCat) {
-                    classCat = hf.d_category;
-                }
-                else {
-                    ASSERTV(pos, classCat == hf.d_category);
-                }
-              }
-            }
-        }
-        else {
-            ASSERTV(pos, 0 == hf.d_category);
-            ASSERTV(pos, hf.d_intLevel,
-                                      CategoryHolder::e_UNINITIALIZED_CATEGORY,
-                    CategoryHolder::e_UNINITIALIZED_CATEGORY == hf.d_intLevel);
-            ASSERTV(pos, 0 == hf.d_next_p);
-        }
-        ASSERTV(pos, prevClassCategoryHolder, hf.d_next_p,
-                                       prevClassCategoryHolder == hf.d_next_p);
-        ASSERTV(pos, (!prevCat || prevCat == hf.d_category) && "class cat");
-    }
-    else {
-        ASSERTV(pos, !prevClassCategoryHolder);
-    }
-
-    prevCat = !manager_p ? 0 : manager_p->lookupCategory(categoryName);
+    const Category *prevCat = !manager_p
+                              ? 0
+                              : manager_p->lookupCategory(categoryName);
     const bool managerFull = manager_p && manager_p->numCategories() ==
                                                  manager_p->maxNumCategories();
 
@@ -1469,6 +1335,140 @@ TestMacros<KK>::operator()(const QuadLevels&     classLevels,
     else {
         ASSERTV(pos, 0 == ret.d_category);
     }
+
+    ret.d_passed = ts == testStatus;
+    return ret;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// -- TC 34 uses some of the things above here, and everything below here,
+// while TC 32 & TC 33 uses only things above here.
+
+template <int KK>
+struct TestClassMacro {
+    // In TC 34, we was to call and test the hierarchical class macro many
+    // times.  The macro creates a static buffer in the class, so to call it
+    // many times, we templatize the class on an integer, and instantiate the
+    // class with many values from the 'indicies' namespace above.
+    //
+    // 'BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY' takes a 'const char *'
+    // paramter for the parameter name.  So how to pass different parameter
+    // names to different function instantiations?  It turns out that that
+    // parameter can be a function, so we make it a function in the class that
+    // returns a static buffer, a different one for every instantiation of the
+    // class.  The same function is called in the 'operator()' function before
+    // the class category is created, and the buffer is populated with the
+    // desired class name.
+    //
+    // 'operator()' either finds or creates the desired category, and verifies
+    // that the category holder is linked appropriately.
+
+    // TYPES
+    enum { k_CATEGORY_NAME_BUFFER_LEN = 40 };
+
+    // CLASS METHOD
+    static
+    char *getClassCategoryNameBuffer()
+    {
+        static char s_classCategoryName[k_CATEGORY_NAME_BUFFER_LEN];
+        return s_classCategoryName;
+    }
+
+    BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(getClassCategoryNameBuffer());
+
+    // MANIPULATOR
+    ResultRec& operator()(const QuadLevels&     classLevels,
+                          const PosRec&         pos,
+                          const CategoryHolder *prevClassCategoryHolder,
+                          bool                  repeat);
+        // Access the class category, creating it if no category with that name
+        // exists.  If we access the class category, verify that its threshold
+        // levels match the specified 'classLevels'.  If a class category is
+        // created, verify that the 'd_next_p' field of its catgory holder
+        // matches the specified 'prevClassCategoryHolder'.  Obtain a static
+        // 'ResultRec' corresponding to the 'KK' template index and populate
+        // its fields with the results of the run, and return a reference to
+        // it.  Verify that whether this instatiation of the class has been
+        // called before matches the state of the specified 'repeat'.
+};
+
+// MANIPULATOR
+template <int KK>
+ResultRec&
+TestClassMacro<KK>::operator()(const QuadLevels&     classLevels,
+                               const PosRec&         pos,
+                               const CategoryHolder *prevClassCategoryHolder,
+                               bool                  repeat)
+{
+    testStatus = 100 == testStatus ? 99 : testStatus;
+    const int ts = testStatus;
+
+    if (repeat) {
+        ASSERTV(pos, repeat, instantiationSet_p->count(KK) && "non-repeat");
+    }
+    else {
+        ASSERTV(pos, repeat, !instantiationSet_p->count(KK) && "called twice");
+    }
+    instantiationSet_p->insert(KK);
+
+    // If there's a logger manager, get a ptr to it.
+
+    ball::LoggerManager *manager_p = ball::LoggerManager::isInitialized()
+                                   ? &ball::LoggerManager::singleton()
+                                   : 0;
+
+    char *categoryName = getClassCategoryNameBuffer();
+    ASSERT(bsl::strlen(pos.d_categoryName) < k_CATEGORY_NAME_BUFFER_LEN);
+    bsl::strcpy(categoryName, pos.d_categoryName);
+    char *pc = strchr(categoryName, '_');
+    if (pc) {
+        *pc = 0;
+    }
+
+    ResultRec& ret = result<KK>();
+    ret.clear();
+
+    // All class categories have the same name.  Until we call
+    // 'ball_log_getCategoryHolder' the class category holder for this class
+    // has not been initialized.  There might be a surviving category from
+    // the same class with different template args.
+
+    Category *prevCat = !manager_p ? 0 : manager_p->lookupCategory(
+                                                                 categoryName);
+    ASSERTV(pos, !prevCat ||
+                          !bsl::strcmp(prevCat->categoryName(), categoryName));
+
+    const bool managerFull = manager_p && manager_p->numCategories() ==
+                                                 manager_p->maxNumCategories();
+
+    ret.d_holder = ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER);
+    const HolderFrame hf(ret.d_holder);
+
+    if (manager_p) {
+        ret.d_category = hf.d_category;
+        ASSERTV(pos, hf.d_category);
+        const char *expClassCatName = categoryName;
+        if (managerFull && !prevCat) {
+            expClassCatName = "";
+            ASSERTV(pos, defaultCat == hf.d_category);
+        }
+
+        ASSERTV(pos, hf.d_category->categoryName(), expClassCatName,
+                 !bsl::strcmp(hf.d_category->categoryName(), expClassCatName));
+        ASSERTV(pos, classLevels, getLevels(hf.d_category),
+                                      classLevels == getLevels(hf.d_category));
+        ASSERTV(pos, hf.d_level, classLevels.d_record,
+                                           hf.d_level == classLevels.d_record);
+    }
+    else {
+        ASSERTV(pos, 0 == hf.d_category);
+        ASSERTV(pos, hf.d_intLevel, CategoryHolder::e_UNINITIALIZED_CATEGORY,
+                    CategoryHolder::e_UNINITIALIZED_CATEGORY == hf.d_intLevel);
+        ASSERTV(pos, 0 == hf.d_next_p);
+    }
+    ASSERTV(pos, prevClassCategoryHolder, hf.d_next_p,
+                                   prevClassCategoryHolder == hf.d_next_p);
+    ASSERTV(pos, (!prevCat || prevCat == hf.d_category) && "class cat");
 
     ret.d_passed = ts == testStatus;
     return ret;
@@ -2516,7 +2516,7 @@ int main(int argc, char *argv[])
     TestAllocator ta("test", veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 37: {
+      case 38: {
         // --------------------------------------------------------------------
         // BASIC LOGGING USAGE EXAMPLE
         //
@@ -2590,7 +2590,7 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 // logging configuration.  The special macro 'BALL_LOG_OUTPUT_STREAM' provides
 // access to the log stream within the code.
       } break;
-      case 36: {
+      case 37: {
         // --------------------------------------------------------------------
         // CLASS-SCOPE LOGGING USAGE EXAMPLE
         //
@@ -2650,7 +2650,7 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
         }
 
       } break;
-      case 35: {
+      case 36: {
         // --------------------------------------------------------------------
         // RULE-BASED LOGGING USAGE EXAMPLE
         //
@@ -2723,7 +2723,7 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 // ERROR example.cpp:129 EXAMPLE.CATEGORY Processing the third message.
 //..
       } break;
-      case 34: {
+      case 35: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -2976,12 +2976,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
       } break;
-      case 33: {
+      case 34: {
         // --------------------------------------------------------------------
-        // TESTING HEIRARCHICAL CATEGORY MACROS
+        // TESTING CLASS HEIRARCHICAL CATEGORY MACROS
         //
         // Concepts
-        //: 1 That all 3 hierarchical macros, if called with a non-existing
+        //: 1 That the class hierarchical macro, if called with a non-existing
         //:   category name and the logger manager has room, will result in a
         //:   new category being created.
         //:
@@ -2990,8 +2990,347 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //: 3 If the new category is to be a child category, it has the same
         //:   logging thresholds as the parent category.
         //:
-        //: 4 In 'BALL_SET_CATEGORY_HIERARCHICALLY' and
-        //:   'BALL_SET_CLASS_CATEGORY_HIERARCHICALLY' the category holder is
+        //: 4 In 'BALL_SET_CLASS_CATEGORY_HIERARCHICALLY' the category holder
+        //:   is properly linked to the previously created category holder
+        //:   belonging to the same category.
+        //
+        // Plan:
+        //: 1 The main difficulty in this test is that the macro declares a
+        //:   static object, and doing a good test requires calling the macros
+        //:   many times with different inputs.  So what we did is created the
+        //:   template class 'TC::TestClassMacro', templatized by an integer,
+        //:   so on different calls we pass a different template arg to the
+        //:   function, thereby getting a completely different static in that
+        //:   function for every template index.
+        //:
+        //: 2 Integer constants to serve as template indicies for
+        //:   'TC::TestClassMacro' are in the sub-namespace 'TC::indicies'.
+        //:   They are passed to the macro 'CALL' below, as the 'N' paramter,
+        //:   and used twice -- firstly, as a template index, then secondly, as
+        //:   '#N' as a category name.  If the name contains any '_'
+        //:   characters, the code strips everything at or after the first '_'
+        //:   from the name before using it as a category name.  This allows us
+        //:   to use 'CALL' multiple times with the same category name yet
+        //:   different template indicies.
+        //:
+        //: 3 The function 'TC::TestClassMacro<N>::operator()' returns a
+        //:   reference to a static 'struct' of type 'ResultRec'.  It contains
+        //:   a 'bool', 'd_passed' which is 'true' if all of the 'ASSERT's in
+        //:   the function passed and 'false' otherwise.  It also contains a
+        //:   pointer to any static category holder initialized, and a pointer
+        //:   to the category created or found.  The 'ResultRec' is a static
+        //:   within the templatized 'TC::result<N>()' function, so it can be
+        //:   fetched later by the 'RET(N)' macro below, which is useful for
+        //:   finding past category holders for comparing with new category
+        //:   holders to make sure that they are linked properly.
+        //:
+        //: 4 We make use of the 'QuadLevels' class that was introduced in TC
+        //:   32 for comparing 4 threshold levels at once, and use the same
+        //:   table defined in that test case.
+        //:
+        //: 5 We iterate through two nested loops, driving 3 distinct
+        //:   'QuadLevels' values 'ILEVELS', 'JLEVELS', and 'CLEVELS'.  We also
+        //:   have the distinct 'WLEVELS', and 'MLEVELS', which is one of
+        //:   'ILEVELS' or 'CLEVELS' and which is the default levels to which
+        //:   the logger manager will configure new categories.
+        //:
+        //: 6 We call 'TC::TestClassMacro::operator()' many times using the
+        //:   'CALL' macro, feeding it the expected levels of the categories
+        //:   expected to be generated, and the expected values of the
+        //:   'd_next_p' pointers of the two category holders expected to be
+        //:   calculated, and the function verifies that all of these match.
+        //:   The last argument to the macro is a 'bool' indicating whether
+        //:   this template instantiation has been called before.
+        //
+        // Testing:
+        //   BALL_SET_CLASS_CATEGORY_HIERARCHICALLY(const char *);
+        // --------------------------------------------------------------------
+
+        namespace TC = BALL_LOG_HIERARCHICAL_CATEROGIES;
+
+        typedef ball::Category         Category;
+        typedef ball::LoggerManager    Manager;
+
+        bslma::TestAllocator da("default", veryVeryVerbose);
+        bslma::TestAllocator ga("global",  veryVeryVerbose);
+        bslma::TestAllocator ta("test",    veryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard guard(&da);
+        bslma::Default::setGlobalAllocator(&ga);
+
+        // Have a quad set to 'WLEVELS' -- Wrong Levels -- that we never set
+        // anything to, and that never equals any of the other levels.
+
+        const TC::QuadLevels WLEVELS = { TC::S::e_OFF, TC::S::e_OFF,
+                                         TC::S::e_OFF, TC::S::e_OFF };
+
+        TC::QuadLevels CLEVELS = TC::callbackLevels;
+
+        // Confirm that there are no duplicates in the table.
+
+        for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
+            for (int tj = 0; tj < TC::k_NUM_DATA; ++tj) {
+                ASSERT((ti == tj) ==
+                             (TC::DATA[ti].d_levels == TC::DATA[tj].d_levels));
+            }
+
+            ASSERT(WLEVELS != TC::DATA[ti].d_levels);
+        }
+
+        // Do testing in earnest.
+
+        for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
+            const TC::Data IDATA         = TC::DATA[ti];
+            const int      IL            = IDATA.d_line;
+            const TC::QuadLevels ILEVELS = IDATA.d_levels;
+            const bool     ISET_CALLBACK = IDATA.d_setCallbackThresholds;
+
+            if (ISET_CALLBACK) {
+                CLEVELS = ILEVELS;
+                continue;
+            }
+
+            for (int tj = 0; tj < TC::k_NUM_DATA; ++tj) {
+                const TC::Data JDATA         = TC::DATA[tj];
+                const int      JL            = JDATA.d_line;
+                const TC::QuadLevels JLEVELS = JDATA.d_levels;
+                const bool     JSET_CALLBACK = JDATA.d_setCallbackThresholds;
+                bool           JUSE_CALLBACK = JDATA.d_useCallback;
+
+                {
+                    // TBD: fix bug in
+                    // 'ball::LoggerCategoryUtil::addCategoryHierarchically'
+                    // and enable testing of callbacks.
+
+                    JUSE_CALLBACK = false;
+                }
+
+                if (JSET_CALLBACK || IL == JL) {
+                    continue;
+                }
+
+                TC::defaultCat = 0;
+                TC::ResultRec *ret_p;
+                bsl::set<int> instantiationSet(&ta);
+                TC::instantiationSet_p = &instantiationSet;
+
+#undef  CALL
+#define CALL(N, newLevels, prevHolder, repeat)                                \
+                ASSERT((ret_p = &TC::TestClassMacro<TC::indicies::N>()(       \
+                                            newLevels,                        \
+                                            TC::PosRec(__LINE__, IL, JL, #N), \
+                                            prevHolder,                       \
+                                            repeat), ret_p->d_passed))
+
+                // 'RET(<integer>)' will return a ref to the 'ResultRec' for
+                // the call with that integer.
+
+#undef  RET
+#define RET(N)  TC::result<TC::indicies::N>()
+
+                ASSERTV(IL, JL, CLEVELS != ILEVELS);
+                ASSERTV(IL, JL, CLEVELS != JLEVELS);
+                ASSERTV(IL, JL, CLEVELS != WLEVELS);
+                ASSERTV(IL, JL, ILEVELS != JLEVELS);
+                ASSERTV(IL, JL, ILEVELS != WLEVELS);
+                ASSERTV(IL, JL, JLEVELS != WLEVELS);
+
+                TC::HolderDispenser holderDispenser(&ta);
+                TC::holderDispenser_p = &holderDispenser;
+
+                // Attempt without manager singleton, notthing happens.
+
+                CALL(bowWow, WLEVELS, 0, false);
+                ASSERT(!ret_p->d_category);
+
+                ball::LoggerManagerConfiguration mLMC(&ta);
+                ASSERT(0 == mLMC.setDefaultThresholdLevelsIfValid(
+                                                        ILEVELS.d_record,
+                                                        ILEVELS.d_pass,
+                                                        ILEVELS.d_trigger,
+                                                        ILEVELS.d_triggerAll));
+                ball::LoggerManagerScopedGuard lmGuard(mLMC);
+                Manager& manager = ball::LoggerManager::singleton();
+                if (JUSE_CALLBACK) {
+                    manager.setDefaultThresholdLevelsCallback(
+                                                             &TC::dtlCallback);
+                }
+
+                const TC::QuadLevels MLEVELS = JUSE_CALLBACK
+                                             ? CLEVELS
+                                             : ILEVELS;
+
+                TC::defaultCat = &manager.defaultCategory();
+
+                Category *classParentCat =
+                                    manager.setCategory("class",
+                                                        JLEVELS.d_record,
+                                                        JLEVELS.d_pass,
+                                                        JLEVELS.d_trigger,
+                                                        JLEVELS.d_triggerAll);
+                ASSERTV(JL, JLEVELS, TC::getLevels(classParentCat),
+                                     JLEVELS == TC::getLevels(classParentCat));
+
+                CALL(woof_a, MLEVELS, 0, false);
+
+                CALL(meow, ILEVELS, 0, false);
+
+                Category *meowCat = manager.lookupCategory("meow");
+                ASSERT(meowCat);
+                TC::setLevels(meowCat, JLEVELS);
+                ASSERTV(IL, JL, JLEVELS == TC::getLevels(meowCat));
+
+                CALL(meowBubble, JLEVELS, 0, false);
+
+                TC::setLevels(meowCat, ILEVELS);
+                ASSERTV(IL, JL, ILEVELS == TC::getLevels(meowCat));
+
+                CALL(meowBark, ILEVELS, 0, false);
+
+                TC::setLevels(meowCat, CLEVELS);
+
+                CALL(meowArf, CLEVELS, 0, false);
+
+                CALL(woof_b, MLEVELS, RET(woof_a).d_holder, false);
+
+                CALL(woof_c, MLEVELS, ret_p->d_holder, false);
+
+                CALL(_a, ILEVELS, 0, false);
+                ASSERTV(TC::defaultCat == ret_p->d_category);
+
+                CALL(meowBubble, JLEVELS, 0, true);
+
+                CALL(meowPurr, CLEVELS, 0, false);
+
+                CALL(classDerivedDerived, JLEVELS, 0, false);
+
+                CALL(classDerived_a, JLEVELS, 0, false);
+
+                CALL(classDerived_b, JLEVELS, ret_p->d_holder, false);
+
+                TC::setLevels(const_cast<Category *>(ret_p->d_category),
+                              CLEVELS);
+
+                CALL(meowBarkArf, ILEVELS, 0, false);
+
+                CALL(roar, MLEVELS, 0, false);
+
+                CALL(meowBark, ILEVELS, 0, true);
+
+                CALL(classDerivedRoar, CLEVELS, 0, false);
+
+                CALL(growl, MLEVELS, 0, false);
+
+                CALL(classDerivedRoar, CLEVELS, 0, true);
+
+                CALL(meowPurr, CLEVELS, 0, true);
+
+                CALL(woof_d, MLEVELS, RET(woof_c).d_holder, false);
+
+                CALL(secondClass, ILEVELS, 0, false);
+
+                // Attempt to create one category more than the capacity of the
+                // category manager.  This will return the default category,
+                // which was created when the logger manager was created, and
+                // it should have the thresholds the logger manager
+                // configuration object had (ILEVELS).
+
+                manager.setMaxNumCategories(manager.numCategories());
+
+                CALL(whimper, ILEVELS, RET(_a).d_holder, false);
+                ASSERT(TC::defaultCat == ret_p->d_category);
+
+                // Test attempt to create a child category when a parent exists
+                // and the logger manager is already full.
+
+                CALL(woofMoan, ILEVELS, ret_p->d_holder, false);
+                ASSERT(TC::defaultCat == ret_p->d_category);
+
+                CALL(woof_e, MLEVELS, RET(woof_d).d_holder, false);
+                ASSERTV(RET(woof_d).d_category == ret_p->d_category);
+
+                CALL(full, ILEVELS, RET(woofMoan).d_holder, false);
+                ASSERT(TC::defaultCat == ret_p->d_category);
+
+                // Make sure that all the categories returned are distinct,
+                // except for the ones we EXPECT to match.
+
+                bsl::vector<const Category *> v(&ta);
+                v.push_back(TC::defaultCat);
+                v.push_back(classParentCat);
+                v.push_back(RET(bowWow).d_category);
+                v.push_back(RET(woof_a).d_category);
+                v.push_back(RET(meow).d_category);
+                v.push_back(RET(meowBubble).d_category);
+                v.push_back(RET(meowBark).d_category);
+                v.push_back(RET(meowArf).d_category);
+                v.push_back(RET(meowPurr).d_category);
+                v.push_back(RET(classDerived_a).d_category);
+                v.push_back(RET(classDerivedDerived).d_category);
+                v.push_back(RET(meowBarkArf).d_category);
+                v.push_back(RET(roar).d_category);
+                v.push_back(RET(classDerivedRoar).d_category);
+                v.push_back(RET(growl).d_category);
+
+                ASSERTV(static_cast<bsls::Types::IntPtr>(v.size()),
+                                                      manager.numCategories(),
+                        static_cast<bsls::Types::IntPtr>(v.size()) ==
+                                                      manager.numCategories());
+
+                for (unsigned ii = 0; ii < v.size(); ++ii) {
+                    for (unsigned jj = ii + 1; jj < v.size(); ++jj) {
+                        ASSERTV(ii, jj, v[ii]->categoryName(), v[ii] != v[jj]);
+                    }
+                }
+
+                v.clear();
+                v.push_back(TC::defaultCat);
+                v.push_back(RET(whimper).d_category);
+                v.push_back(RET(woofMoan).d_category);
+                v.push_back(RET(full).d_category);
+
+                for (unsigned ii = 0; ii < v.size(); ++ii) {
+                    for (unsigned jj = 0; jj < v.size(); ++jj) {
+                        ASSERT(v[ii] == v[jj]);
+                    }
+                }
+
+                // "woof" categories all match.
+
+                v.clear();
+                v.push_back(RET(woof_a).d_category);
+                v.push_back(RET(woof_b).d_category);
+                v.push_back(RET(woof_c).d_category);
+                v.push_back(RET(woof_d).d_category);
+                v.push_back(RET(woof_e).d_category);
+
+                for (unsigned ii = 0; ii < v.size(); ++ii) {
+                    for (unsigned jj = 0; jj < v.size(); ++jj) {
+                        ASSERT(v[ii] == v[jj]);
+                    }
+                }
+#undef  CALL
+#undef  RET
+            }
+        }
+
+        ASSERT(0 == da.numAllocations());
+      } break;
+      case 33: {
+        // --------------------------------------------------------------------
+        // TESTING LOCAL HEIRARCHICAL CATEGORY MACROS
+        //
+        // Concepts
+        //: 1 That the 2 non-class hierarchical macros, if called with a
+        //:   non-existing category name and the logger manager has room, will
+        //:   result in a new category being created.
+        //:
+        //: 2 The new category has the right name.
+        //:
+        //: 3 If the new category is to be a child category, it has the same
+        //:   logging thresholds as the parent category.
+        //:
+        //: 4 In 'BALL_SET_CATEGORY_HIERARCHICALLY' the category holder is
         //:   properly linked to the previously created category holder
         //:   belonging to the same category.
         //:
@@ -2999,32 +3338,32 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //:   holder is not linked to any other category holder.
         //
         // Plan:
-        //: 1 The main difficulty in this test is that two of the 3 macros
-        //:   declare a static object, and doing a good test requires calling
+        //: 1 The main difficulty in this test is that one of the 2 macros
+        //:   declares a static object, and doing a good test requires calling
         //:   the macros many times with different inputs.  So what we did is
-        //:   created the class 'TC::TestMacros', templatized by an integer,
-        //:   so on different calls we pass a different template arg to the
-        //:   class, thereby getting a completely different set of statics in
-        //:   that class for every template index.
+        //:   created the template function 'TC::testLocalMacros', templatized
+        //:   by an integer, so on different calls we pass a different template
+        //:   arg to the function, thereby getting a completely different
+        //:   static in that function for every template index.
         //:
         //: 2 Integer constants to serve as template indicies for
-        //:   'TC::TestMacros' are in the sub-namespace 'TC::indicies'.  They
-        //:   are passed to the macro 'CALL' below, as the 'N' paramter, and
-        //:   used twice -- firstly, as a template index, then secondly, as
+        //:   'TC::testLocalMacros' are in the sub-namespace 'TC::indicies'.
+        //:   They are passed to the macro 'CALL' below, as the 'N' paramter,
+        //:   and used twice -- firstly, as a template index, then secondly, as
         //:   '#N' as a category name.  If the name contains any '_'
         //:   characters, the code strips everything at or after the first '_'
         //:   from the name before using it as a category name.  This allows us
         //:   to use 'CALL' multiple times with the same category name yet
         //:   different template indicies.
         //:
-        //: 3 The function 'TC::TestMacros::operator()' returns reference to a
-        //:   'struct' of type 'ResultRec'.  It contains a 'bool', 'd_passed'
-        //:   which is 'true' if all of the 'ASSERT's in the function passed
-        //:   and 'false' otherwise.  It also contains pointers to any static
-        //:   category holder initialized (class and other), and a pointer to
-        //:   the non-class category created or found.  The 'ResultRec' is a
-        //:   static within the templatized 'TC::TestMacros' class, so it can
-        //:   be fetched later by the 'RET(N)' macro below, which is useful for
+        //: 3 The function 'TC::testLocalMacros<N>' returns reference to a
+        //:   static 'struct' of type 'ResultRec'.  It contains a 'bool',
+        //:   'd_passed' which is 'true' if all of the 'ASSERT's in the
+        //:   function passed and 'false' otherwise.  It also contains a
+        //:   pointer to any static category holder initialized, and a pointer
+        //:   to the category created or found.  The 'ResultRec' is a static
+        //:   within the templatized 'TC::result<N>()' function, so it can be
+        //:   fetched later by the 'RET(N)' macro below, which is useful for
         //:   finding past category holders for comparing with new category
         //:   holders to make sure that they are linked properly.
         //:
@@ -3038,20 +3377,18 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //:   'ILEVELS' or 'CLEVELS' and which is the default levels to which
         //:   the logger manager will configure new categories.
         //:
-        //: 6 We call 'TC::TestMacros::operator()' many times using the 'CALL'
-        //:   macro, feeding it the expected levels of the class and other
-        //:   categories expected to be generated, and the expected values of
-        //:   the 'd_next_p' pointers of the two category holders expected to
-        //:   be calculated, and the function verifies that all of these match.
-        //:   The last argument to the macro and the called function are flags
-        //:   indicating whether the class category is to be populated, whether
-        //:   the other category is to be static or dynamic, and whether the
+        //: 6 We call 'TC::testLocalMacros' many times using the 'CALL' macro,
+        //:   feeding it the expected levels of the categories expected to be
+        //:   generated, and the expected values of the 'd_next_p' pointers of
+        //:   the two category holders expected to be calculated, and the
+        //:   function verifies that all of these match.  The last argument to
+        //:   the macro and the called function are flags indicating whether
+        //:   the other category is to be static or dynamic and whether the
         //:   static or dynamic category is being created or if this is a
         //:   repeat call.
         //
         // Testing:
         //   BALL_SET_CATEGORY_HIERARCHICALLY(const char *);
-        //   BALL_SET_CLASS_CATEGORY_HIERARCHICALLY(const char *);
         //   BALL_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(const char *);
         // --------------------------------------------------------------------
 
@@ -3118,20 +3455,16 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     continue;
                 }
 
-                TC::classCat = 0;
-                TC::seconcClassCat = 0;
                 TC::defaultCat = 0;
                 TC::ResultRec *ret_p;
                 bsl::set<int> instantiationSet(&ta);
                 TC::instantiationSet_p = &instantiationSet;
 
 #undef  CALL
-#define CALL(N, classLevels, newLevels, prevClassHolder, prevHolder, flags)   \
-                ASSERT((ret_p = &TC::TestMacros<TC::indicies::N>()(           \
-                                            classLevels,                      \
+#define CALL(N, newLevels, prevHolder, flags)                                 \
+                ASSERT((ret_p = &TC::testLocalMacros<TC::indicies::N>(        \
                                             newLevels,                        \
                                             TC::PosRec(__LINE__, IL, JL, #N), \
-                                            prevClassHolder,                  \
                                             prevHolder,                       \
                                             TC::flags), ret_p->d_passed))
 
@@ -3139,7 +3472,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 // the call with that integer.
 
 #undef  RET
-#define RET(N)  TC::TestMacros<TC::indicies::N>::result()
+#define RET(N)  TC::result<TC::indicies::N>()
 
                 ASSERTV(IL, JL, CLEVELS != ILEVELS);
                 ASSERTV(IL, JL, CLEVELS != JLEVELS);
@@ -3153,7 +3486,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 // Attempt without manager singleton, notthing happens.
 
-                CALL(bowWow, WLEVELS, WLEVELS, 0, 0, e_CLASS_STATIC);
+                CALL(bowWow, WLEVELS, 0, e_STATIC);
                 ASSERT(!ret_p->d_category);
 
                 ball::LoggerManagerConfiguration mLMC(&ta);
@@ -3176,7 +3509,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 TC::defaultCat = &manager.defaultCategory();
 
                 Category *classParentCat =
-                                    manager.setCategory(TC::classParentName,
+                                    manager.setCategory("class",
                                                         JLEVELS.d_record,
                                                         JLEVELS.d_pass,
                                                         JLEVELS.d_trigger,
@@ -3184,85 +3517,66 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERTV(JL, JLEVELS, TC::getLevels(classParentCat),
                                      JLEVELS == TC::getLevels(classParentCat));
 
-                CALL(woof_a, WLEVELS, MLEVELS, 0, 0, e_STATIC);
-                ASSERT(0 == ret_p->d_classHolder);
+                CALL(woof_a, MLEVELS, 0, e_STATIC);
 
-                CALL(meow, JLEVELS, ILEVELS, 0, 0, e_CLASS_STATIC);
+                CALL(meow, ILEVELS, 0, e_STATIC);
 
                 Category *meowCat = manager.lookupCategory("meow");
                 ASSERT(meowCat);
                 TC::setLevels(meowCat, JLEVELS);
                 ASSERTV(IL, JL, JLEVELS == TC::getLevels(meowCat));
 
-                CALL(meowBubble, WLEVELS, JLEVELS, 0, 0, e_DYNAMIC);
+                CALL(meowBubble, JLEVELS, 0, e_DYNAMIC);
 
                 TC::setLevels(meowCat, ILEVELS);
                 ASSERTV(IL, JL, ILEVELS == TC::getLevels(meowCat));
 
-                CALL(meowBark, JLEVELS, ILEVELS, RET(meow).d_classHolder, 0,
-                                                               e_CLASS_STATIC);
+                CALL(meowBark, ILEVELS, 0, e_STATIC);
 
                 TC::setLevels(meowCat, CLEVELS);
 
-                CALL(meowArf, JLEVELS, CLEVELS,
-                                      ret_p->d_classHolder, 0, e_CLASS_STATIC);
+                CALL(meowArf, CLEVELS, 0, e_STATIC);
 
-                CALL(woof_b, JLEVELS, MLEVELS, ret_p->d_classHolder,
-                                         RET(woof_a).d_holder, e_CLASS_STATIC);
+                CALL(woof_b, MLEVELS, RET(woof_a).d_holder, e_STATIC);
                 ASSERTV(RET(woof_a).d_category == ret_p->d_category);
 
-                CALL(woof_c, JLEVELS, MLEVELS, ret_p->d_classHolder,
-                                                           0, e_CLASS_DYNAMIC);
+                CALL(woof_c, MLEVELS, 0, e_DYNAMIC);
                 ASSERTV(RET(woof_a).d_category == ret_p->d_category);
 
-                CALL(_a, JLEVELS, ILEVELS, ret_p->d_classHolder,
-                                                            0, e_CLASS_STATIC);
+                CALL(_a, ILEVELS, 0, e_STATIC);
                 ASSERTV(TC::defaultCat == ret_p->d_category);
 
-                CALL(meowBubble, WLEVELS, JLEVELS, 0, 0, e_REPEAT_DYNAMIC);
+                CALL(meowBubble, JLEVELS, 0, e_REPEAT_DYNAMIC);
 
-                CALL(meowPurr, JLEVELS, CLEVELS,
-                                     RET(_a).d_classHolder, 0, e_CLASS_STATIC);
+                CALL(meowPurr, CLEVELS, 0, e_STATIC);
 
-                CALL(classDerivedDerived, WLEVELS, JLEVELS, 0, 0, e_DYNAMIC);
+                CALL(classDerivedDerived, JLEVELS, 0, e_DYNAMIC);
 
-                CALL(classDerived_a, WLEVELS, JLEVELS, 0,
-                                        RET(meowPurr).d_classHolder, e_STATIC);
+                CALL(classDerived_a, JLEVELS, 0, e_STATIC);
 
-                CALL(classDerived_b, WLEVELS, JLEVELS, 0,
-                                                    ret_p->d_holder, e_STATIC);
+                CALL(classDerived_b, JLEVELS, ret_p->d_holder, e_STATIC);
 
-                CALL(meowBarkArf, JLEVELS, ILEVELS,
-                                           ret_p->d_holder, 0, e_CLASS_STATIC);
+                TC::setLevels(const_cast<Category *>(ret_p->d_category),
+                              CLEVELS);
 
-                CALL(roar, JLEVELS, MLEVELS,
-                                     ret_p->d_classHolder, 0, e_CLASS_DYNAMIC);
+                CALL(meowBarkArf, ILEVELS, 0, e_STATIC);
 
-                Category *classCat = manager.lookupCategory(TC::classCatName);
-                TC::setLevels(classCat, CLEVELS);
+                CALL(roar, MLEVELS, 0, e_DYNAMIC);
 
-                CALL(meowBark, CLEVELS, ILEVELS,
-                            RET(meow).d_classHolder, 0, e_REPEAT_CLASS_STATIC);
+                CALL(meowBark, ILEVELS, 0, e_REPEAT_STATIC);
 
-                CALL(classDerivedRoar, CLEVELS, CLEVELS,
-                                  RET(roar).d_classHolder, 0, e_CLASS_DYNAMIC);
+                CALL(classDerivedRoar, CLEVELS, 0, e_DYNAMIC);
 
-                CALL(growl, CLEVELS, MLEVELS,
-                                      ret_p->d_classHolder, 0, e_CLASS_STATIC);
+                CALL(growl, MLEVELS, 0, e_STATIC);
 
-                CALL(classDerivedRoar, CLEVELS, CLEVELS,
-                           RET(roar).d_classHolder, 0, e_REPEAT_CLASS_DYNAMIC);
+                CALL(classDerivedRoar, CLEVELS, 0, e_REPEAT_DYNAMIC);
 
-                CALL(meowPurr, CLEVELS, CLEVELS,
-                              RET(_a).d_classHolder, 0, e_REPEAT_CLASS_STATIC);
+                CALL(meowPurr, CLEVELS, 0, e_REPEAT_STATIC);
 
-                TC::setLevels(classCat, JLEVELS);
-
-                CALL(woof_d, JLEVELS, MLEVELS, RET(growl).d_classHolder,
-                                         RET(woof_b).d_holder, e_CLASS_STATIC);
+                CALL(woof_d, MLEVELS, RET(woof_b).d_holder, e_STATIC);
                 ASSERTV(RET(woof_a).d_category == ret_p->d_category);
 
-                CALL(secondClass, ILEVELS, ILEVELS, 0, 0, e_CLASS_DYNAMIC);
+                CALL(secondClass, ILEVELS, 0, e_DYNAMIC);
 
                 // Attempt to create one category more than the capacity of the
                 // category manager.  This will return the default category,
@@ -3272,34 +3586,27 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 manager.setMaxNumCategories(manager.numCategories());
 
-                CALL(whimper, JLEVELS, ILEVELS, RET(woof_d).d_classHolder,
-                                             RET(_a).d_holder, e_CLASS_STATIC);
+                CALL(whimper, ILEVELS, RET(_a).d_holder, e_STATIC);
                 ASSERT(TC::defaultCat == ret_p->d_category);
 
                 // Test attempt to create a child category when a parent exists
                 // and the logger manager is already full.
 
-                CALL(woofMoan, JLEVELS, ILEVELS, ret_p->d_classHolder,
-                                             ret_p->d_holder, e_CLASS_DYNAMIC);
+                CALL(woofMoan, ILEVELS, ret_p->d_holder, e_DYNAMIC);
                 ASSERT(TC::defaultCat == ret_p->d_category);
 
-                CALL(woof_e, JLEVELS, MLEVELS, ret_p->d_classHolder,
-                                         RET(woof_d).d_holder, e_CLASS_STATIC);
+                CALL(woof_e, MLEVELS, RET(woof_d).d_holder, e_STATIC);
                 ASSERTV(RET(woof_a).d_category == ret_p->d_category);
 
-                CALL(full, ILEVELS, ILEVELS, RET(whimper).d_holder, 0,
-                                                              e_CLASS_DYNAMIC);
+                CALL(full, ILEVELS, 0, e_DYNAMIC);
                 ASSERT(TC::defaultCat == ret_p->d_category);
-                ASSERT(TC::defaultCat == bsls::AtomicOperations::getPtr(
-                                         &ret_p->d_classHolder->d_category_p));
 
                 // Make sure that all the categories returned are distinct,
                 // except for the ones we EXPECT to match.
 
                 bsl::vector<const Category *> v(&ta);
                 v.push_back(TC::defaultCat);
-                v.push_back(TC::classCat);
-                v.push_back(TC::seconcClassCat);
+                v.push_back(classParentCat);
                 v.push_back(RET(bowWow).d_category);
                 v.push_back(RET(woof_a).d_category);
                 v.push_back(RET(meow).d_category);
@@ -3307,13 +3614,16 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 v.push_back(RET(meowBark).d_category);
                 v.push_back(RET(meowArf).d_category);
                 v.push_back(RET(meowPurr).d_category);
+                v.push_back(RET(classDerived_a).d_category);
                 v.push_back(RET(classDerivedDerived).d_category);
                 v.push_back(RET(meowBarkArf).d_category);
                 v.push_back(RET(roar).d_category);
                 v.push_back(RET(classDerivedRoar).d_category);
                 v.push_back(RET(growl).d_category);
 
-                ASSERT(static_cast<bsls::Types::IntPtr>(v.size()) ==
+                ASSERTV(static_cast<bsls::Types::IntPtr>(v.size()),
+                                                      manager.numCategories(),
+                        static_cast<bsls::Types::IntPtr>(v.size()) ==
                                                       manager.numCategories());
 
                 for (unsigned ii = 0; ii < v.size(); ++ii) {
@@ -3342,19 +3652,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 v.push_back(RET(woof_c).d_category);
                 v.push_back(RET(woof_d).d_category);
                 v.push_back(RET(woof_e).d_category);
-
-                for (unsigned ii = 0; ii < v.size(); ++ii) {
-                    for (unsigned jj = 0; jj < v.size(); ++jj) {
-                        ASSERT(v[ii] == v[jj]);
-                    }
-                }
-
-                // "classDerived" categories all match.
-
-                v.clear();
-                v.push_back(classCat);
-                v.push_back(RET(classDerived_a).d_category);
-                v.push_back(RET(classDerived_b).d_category);
 
                 for (unsigned ii = 0; ii < v.size(); ++ii) {
                     for (unsigned jj = 0; jj < v.size(); ++jj) {
