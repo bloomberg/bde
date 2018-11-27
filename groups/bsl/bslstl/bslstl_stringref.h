@@ -574,9 +574,9 @@ struct StringRefImp_CompareUtil {
     int compare(const StringRefImp<CHAR_TYPE>&  a,
                 const CHAR_TYPE                *b);
         // Compare the specified string object 'a' with the specified
-        // null-terminated 'b' using a lexicographical comparison and return a
-        // negative value if 'a' is less than 'b', a positive value if 'a' is
-        // greater than 'b', and 0 if 'a' is equal to 'b'.
+        // null-terminated C-string 'b' using a lexicographical comparison and
+        // return a negative value if 'a' is less than 'b', a positive value if
+        // 'a' is greater than 'b', and 0 if 'a' is equal to 'b'.
 
     template <class CHAR_TYPE>
     static
@@ -591,7 +591,7 @@ struct StringRefImp_CompareUtil {
     bool compareEqual(const StringRefImp<CHAR_TYPE>&  a,
                       const CHAR_TYPE                *b);
         // Return 'true' if the specified 'a' is equal to the null-terminated
-        // string 'b' and 'false' otherwise.  Note that this function is more
+        // C-string 'b' and 'false' otherwise.  Note that this function is more
         // efficient than 'compare' for non-lexicographical equality
         // comparisons.
 };
@@ -1135,10 +1135,10 @@ inline
 bool StringRefImp_CompareUtil::compareEqual(const StringRefImp<CHAR_TYPE>& a,
                                             const StringRefImp<CHAR_TYPE>& b)
 {
-    return a.length() == b.length() &&
-                       0 == native_std::memcmp(a.data(),
-                                               b.data(),
-                                               a.length() * sizeof(CHAR_TYPE));
+    return a.length() == b.length()
+          && 0 == native_std::memcmp(a.data(),
+                                     b.data(),
+                                     a.length() * sizeof(CHAR_TYPE));
 }
 
 template <class CHAR_TYPE>
