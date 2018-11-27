@@ -12,7 +12,11 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
 #include <bsls_nativestd.h>
+#include <bsls_platform.h>
+#include <bsls_stopwatch.h>
+#include <bsls_types.h>
 
 #include <bsltf_templatetestfacility.h>
 
@@ -21,7 +25,10 @@
 #include <map>
 #include <sstream>
 #include <iomanip>
+#include <limits>
+#include <vector>
 
+#include <limits.h>
 #include <stdio.h>       // sprintf()
 #include <stdlib.h>      // atoi()
 #include <string.h>
@@ -40,19 +47,20 @@ using namespace bsl;  // automatically added by script
 // The component under test provides an in-core pointer-semantic object.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] bslstl::StringRef();
-// [ 2] bslstl::StringRef(const char *begin, const char *end);
-// [ 2] bslstl::StringRef(const char *begin, size_type length, Nil);
-// [ 2] bslstl::StringRef(const char *begin, size_type f, size_type l);
-// [ 2] bslstl::StringRef(const char *begin);
-// [ 2] bslstl::StringRef(const bsl::string& begin);
-// [ 2] bslstl::StringRef(const native_std::string& begin);
-// [ 2] bslstl::StringRef(const bslstl::StringRef& original);
+// [ 2] bslstl::StringRefImp();
+// [ 2] bslstl::StringRefImp(const CHAR *begin, const CHAR *end);
+// [ 2] bslstl::StringRefImp(const CHAR *begin, INT_TYPE length);
+// [ 2] bslstl::StringRefImp(const CHAR *begin, size_type length, Nil);
+// [ 2] bslstl::StringRefImp(const CHAR *begin, size_type f, size_type l);
+// [ 2] bslstl::StringRefImp(const CHAR *begin);
+// [ 2] bslstl::StringRefImp(const bsl::string& begin);
+// [ 2] bslstl::StringRefImp(const native_std::string& begin);
+// [ 2] bslstl::StringRefImp(const bslstl::StringRefImp& original);
+// [ 2] ~bslstl::StringRefImp();
 // [ 9] bslstl::StringRefImp(const StringRefImp& , size_type, size_type)
-// [ 2] ~bslstl::StringRef();
 //
 // MANIPULATORS
-// [ 2] bslstl::StringRef& operator=(const bslstl::StringRef& rhs);
+// [ 2] bslstl::StringRefImp& operator=(const bslstl::StringRefImp&);
 // [ 6] void reset();
 // [ 6] void assign(const char *begin, const char *end);
 // [ 6] void assign(const char *begin, size_type length);
@@ -60,61 +68,63 @@ using namespace bsl;  // automatically added by script
 // [ 6] void assign(const bsl::string& begin);
 //
 // ACCESSORS
-// [ 3] const_iterator         begin() const;
-// [ 3] const_iterator         data() const;
-// [ 3] const_iterator         end() const;
+// [ 3] const_iterator begin() const;
+// [ 3] const_iterator data() const;
+// [ 3] const_iterator end() const;
+// [ 3] size_type      length() const;
+// [ 3] size_type      size() const;
+// [ 3] int            empty() const;
+// [ 3] int            isEmpty() const;
+// [ 3] int            compare(const StringRefImp&) const;
+// [ 3] int            compare(const CHAR *) const;
+// [ 3]                operator bsl::string() const;
+// [ 3] const char&    operator[](size_type index) const;
 // [10] const_reverse_iterator rbegin() const;
 // [10] const_reverse_iterator rend() const;
-// [ 3] size_type              length() const;
-// [ 3] size_type              size() const;
-// [ 3] int                    isEmpty() const;
-// [ 3]                        operator bsl::string() const;
-// [ 3]                        operator native_std::string() const;
-// [ 3] const char&            operator[](size_type index) const;
 //
 // FREE OPERATORS
-// [ 5] bool operator==(const StringRef& lhs, const StringRef& rhs);
-// [ 5] bool operator==(const bsl::string& lhs, const StringRef& rhs);
-// [ 5] bool operator==(const StringRef& lhs, const bsl::string& rhs);
-// [ 5] bool operator==(const native_std::string& lhs, const StringRef& rhs);
-// [ 5] bool operator==(const StringRef& lhs, const native_std::string& rhs);
-// [ 5] bool operator==(const char *lhs, const StringRef& rhs);
-// [ 5] bool operator==(const StringRef& lhs, const char *rhs);
-// [ 5] bool operator!=(const StringRef& lhs, const StringRef& rhs);
-// [ 5] bool operator!=(const bsl::string& lhs, const StringRef& rhs);
-// [ 5] bool operator!=(const StringRef& lhs, const bsl::string& rhs);
-// [ 5] bool operator!=(const native_std::string& lhs, const StringRef& rhs);
-// [ 5] bool operator!=(const StringRef& lhs, const native_std::string& rhs);
-// [ 5] bool operator!=(const char *lhs, const StringRef& rhs);
-// [ 5] bool operator!=(const StringRef& lhs, const char *rhs);
-// [ 5] bool operator<(const StringRef& lhs, const StringRef& rhs);
-// [ 5] bool operator<(const bsl::string& lhs, const StringRef& rhs);
-// [ 5] bool operator<(const StringRef& lhs, const bsl::string& rhs);
-// [ 5] bool operator<(const native_std::string& lhs, const StringRef& rhs);
-// [ 5] bool operator<(const StringRef& lhs, const native_std::string& rhs);
-// [ 5] bool operator<(const char *lhs, const StringRef& rhs);
-// [ 5] bool operator<(const StringRef& lhs, const char *rhs);
-// [ 5] bool operator>(const StringRef& lhs, const StringRef& rhs);
-// [ 5] bool operator>(const bsl::string& lhs, const StringRef& rhs);
-// [ 5] bool operator>(const StringRef& lhs, const bsl::string& rhs);
-// [ 5] bool operator>(const native_std::string& lhs, const StringRef& rhs);
-// [ 5] bool operator>(const StringRef& lhs, const native_std::string& rhs);
-// [ 5] bool operator>(const char *lhs, const StringRef& rhs);
-// [ 5] bool operator>(const StringRef& lhs, const char *rhs);
-// [ 5] bool operator<=(const StringRef& lhs, const StringRef& rhs);
-// [ 5] bool operator<=(const bsl::string& lhs, const StringRef& rhs);
-// [ 5] bool operator<=(const StringRef& lhs, const bsl::string& rhs);
-// [ 5] bool operator<=(const native_std::string& lhs, const StringRef& rhs);
-// [ 5] bool operator<=(const StringRef& lhs, const native_std::string& rhs);
-// [ 5] bool operator<=(const char *lhs, const StringRef& rhs);
-// [ 5] bool operator<=(const StringRef& lhs, const char *rhs);
-// [ 5] bool operator>=(const StringRef& lhs, const StringRef& rhs);
-// [ 5] bool operator>=(const bsl::string& lhs, const StringRef& rhs);
-// [ 5] bool operator>=(const StringRef& lhs, const bsl::string& rhs);
-// [ 5] bool operator>=(const native_std::string& lhs, const StringRef& rhs);
-// [ 5] bool operator>=(const StringRef& lhs, const native_std::string& rhs);
-// [ 5] bool operator>=(const char *lhs, const StringRef& rhs);
-// [ 5] bool operator>=(const StringRef& lhs, const char *rhs);
+// [ 3] bool operator==(const StringRef& lhs, const StringRef& rhs);
+// [ 3] bool operator==(const bsl::string& lhs, const StringRef& rhs);
+// [ 3] bool operator==(const StringRef& lhs, const bsl::string& rhs);
+// [ 3] bool operator==(const native_std::string& lhs, const StringRef& rhs);
+// [ 3] bool operator==(const StringRef& lhs, const native_std::string& rhs);
+// [ 3] bool operator==(const char *lhs, const StringRef& rhs);
+// [ 3] bool operator==(const StringRef& lhs, const char *rhs);
+// [ 3] bool operator!=(const StringRef& lhs, const StringRef& rhs);
+// [ 3] bool operator!=(const bsl::string& lhs, const StringRef& rhs);
+// [ 3] bool operator!=(const StringRef& lhs, const bsl::string& rhs);
+// [ 3] bool operator!=(const native_std::string& lhs, const StringRef& rhs);
+// [ 3] bool operator!=(const StringRef& lhs, const native_std::string& rhs);
+// [ 3] bool operator!=(const char *lhs, const StringRef& rhs);
+// [ 3] bool operator!=(const StringRef& lhs, const char *rhs);
+// [ 3] bool operator<(const StringRef& lhs, const StringRef& rhs);
+// [ 3] bool operator<(const bsl::string& lhs, const StringRef& rhs);
+// [ 3] bool operator<(const StringRef& lhs, const bsl::string& rhs);
+// [ 3] bool operator<(const native_std::string& lhs, const StringRef& rhs);
+// [ 3] bool operator<(const StringRef& lhs, const native_std::string& rhs);
+// [ 3] bool operator<(const char *lhs, const StringRef& rhs);
+// [ 3] bool operator<(const StringRef& lhs, const char *rhs);
+// [ 3] bool operator>(const StringRef& lhs, const StringRef& rhs);
+// [ 3] bool operator>(const bsl::string& lhs, const StringRef& rhs);
+// [ 3] bool operator>(const StringRef& lhs, const bsl::string& rhs);
+// [ 3] bool operator>(const native_std::string& lhs, const StringRef& rhs);
+// [ 3] bool operator>(const StringRef& lhs, const native_std::string& rhs);
+// [ 3] bool operator>(const char *lhs, const StringRef& rhs);
+// [ 3] bool operator>(const StringRef& lhs, const char *rhs);
+// [ 3] bool operator<=(const StringRef& lhs, const StringRef& rhs);
+// [ 3] bool operator<=(const bsl::string& lhs, const StringRef& rhs);
+// [ 3] bool operator<=(const StringRef& lhs, const bsl::string& rhs);
+// [ 3] bool operator<=(const native_std::string& lhs, const StringRef& rhs);
+// [ 3] bool operator<=(const StringRef& lhs, const native_std::string& rhs);
+// [ 3] bool operator<=(const char *lhs, const StringRef& rhs);
+// [ 3] bool operator<=(const StringRef& lhs, const char *rhs);
+// [ 3] bool operator>=(const StringRef& lhs, const StringRef& rhs);
+// [ 3] bool operator>=(const bsl::string& lhs, const StringRef& rhs);
+// [ 3] bool operator>=(const StringRef& lhs, const bsl::string& rhs);
+// [ 3] bool operator>=(const native_std::string& lhs, const StringRef& rhs);
+// [ 3] bool operator>=(const StringRef& lhs, const native_std::string& rhs);
+// [ 3] bool operator>=(const char *lhs, const StringRef& rhs);
+// [ 3] bool operator>=(const StringRef& lhs, const char *rhs);
 // [ 4] operator<<(ostream&, const StringRef& string);
 // [ 7] operator+(const StringRef& lhs, const StringRef& rhs);
 // [ 7] operator+(const bsl::string& lhs, const StringRef& rhs);
@@ -135,30 +145,33 @@ using namespace bsl;  // automatically added by script
 // [12] TYPE TRAITS
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -167,13 +180,12 @@ void aSsErT(bool b, const char *s, int i)
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 
@@ -201,89 +213,2101 @@ void aSsErT(bool b, const char *s, int i)
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
-
 // ============================================================================
 //                       GLOBAL TEST VALUES
 // ----------------------------------------------------------------------------
 
-static bool             verbose;
-static bool         veryVerbose;
-static bool     veryVeryVerbose;
-static bool veryVeryVeryVerbose;
+bool             verbose;
+bool         veryVerbose;
+bool     veryVeryVerbose;
+bool veryVeryVeryVerbose;
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
+
 typedef bslstl::StringRef Obj;
+
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
+enum { e_SUN = 1 };
+#else
+enum { e_SUN = 1 };
+#endif
 
 template <class CHAR>
 struct TestData
 {
-    static CHAR const * emptyString;
-    static CHAR const * nonEmptyString;
-    static CHAR const * stringValue1;
-    static CHAR const * stringValue2;
+    static CHAR const * s_emptyString_p;
+    static CHAR const * s_nonEmptyString_p;
+    static CHAR const * s_stringValue1_p;
+    static CHAR const * s_stringValue2_p;
+    static CHAR const * s_maxString_p;
+    static CHAR const * s_minString_p;
 
     enum Enum { k_ENUM_ZERO_VALUE, k_ENUM_MAX = 0xFFFF };
     enum      { k_ZERO_VALUE,      k_MAX      = 0xFFFF };
+
+    static
+    CHAR const *emptyStringFunc()
+    {
+        static CHAR buf[] = { 0 };
+        return &buf[0];
+    }
+
+    static
+    CHAR const *nonEmptyStringFunc()
+    {
+        const char origString[] = { "Tangled Up in Blue - Bob Dylan" };
+        static CHAR buf[sizeof(origString)];
+        for (unsigned uu = 0; uu < sizeof(origString); ++uu) {
+            buf[uu] = origString[uu];
+        }
+        return &buf[0];
+    }
+
+    static
+    CHAR const *stringValue1Func()
+    {
+        const char origString[] = { "abcde" };
+        static CHAR buf[sizeof(origString)];
+        for (unsigned uu = 0; uu < sizeof(origString); ++uu) {
+            buf[uu] = origString[uu];
+        }
+        return &buf[0];
+    }
+
+    static
+    CHAR const *stringValue2Func()
+    {
+        const char origString[] = { "abcfg" };
+        static CHAR buf[sizeof(origString)];
+        for (unsigned uu = 0; uu < sizeof(origString); ++uu) {
+            buf[uu] = origString[uu];
+        }
+        return &buf[0];
+    }
+
+    static
+    CHAR const *maxStringFunc()
+    {
+        static CHAR buf[2] = { native_std::numeric_limits<CHAR>::max(), 0 };
+        return &buf[0];
+    }
+
+    static
+    CHAR const *minStringFunc()
+    {
+        static CHAR buf[2] = { native_std::numeric_limits<CHAR>::min(), 0 };
+        return &buf[0];
+    }
 };
 
 template <>
-char const * TestData<char>::emptyString = "";
+char const * TestData<char>::s_emptyString_p = "";
+template <>
+char const * TestData<char>::s_nonEmptyString_p =
+                                              "Tangled Up in Blue - Bob Dylan";
+template <>
+char const * TestData<char>::s_stringValue1_p = "abcde";
+template <>
+char const * TestData<char>::s_stringValue2_p = "abcfg";
 
 template <>
-char const * TestData<char>::nonEmptyString = "Tangled Up in Blue - Bob Dylan";
-
+wchar_t const * TestData<wchar_t>::s_emptyString_p = L"";
 template <>
-char const * TestData<char>::stringValue1 = "abcde";
-
+wchar_t const * TestData<wchar_t>::s_nonEmptyString_p
+                                           = L"Tangled Up in Blue - Bob Dylan";
 template <>
-char const * TestData<char>::stringValue2 = "abcfg";
-
+wchar_t const * TestData<wchar_t>::s_stringValue1_p = L"abcde";
 template <>
-wchar_t const * TestData<wchar_t>::emptyString = L"";
+wchar_t const * TestData<wchar_t>::s_stringValue2_p = L"abcfg";
 
-template <>
-wchar_t const * TestData<wchar_t>::nonEmptyString
-    = L"Tangled Up in Blue - Bob Dylan";
+char const * EMPTY_STRING     = TestData<char>::s_emptyString_p;
+char const * NON_EMPTY_STRING = TestData<char>::s_nonEmptyString_p;
 
-template <>
-wchar_t const * TestData<wchar_t>::stringValue1 = L"abcde";
+//-----------------------------------------------------------------------------
+// The following is a sample of Multilingual UTF-8.  It is an amalgamation of
+// prose in Chinese, Hindi, French, and Greek.
+//     It was discovered that none of this natural language sample contained
+// any four byte UTF-8 encodings, so several were added on the end by hand.
+//-----------------------------------------------------------------------------
 
-template <>
-wchar_t const * TestData<wchar_t>::stringValue2 = L"abcfg";
+unsigned char utf8MultiLang[] = {
+    239, 187, 191, 'C', 'h', 'i', 'n', 'e', 's', 'e', ':',  13,
+     10,  13,  10, 228, 184, 173, 229, 141, 142, 228, 186, 186,
+    230, 176, 145, 229, 133, 177, 229, 146, 140, 229, 155, 189,
+    239, 188, 140, 233, 128, 154, 231, 167, 176, 228, 184, 173,
+    229, 155, 189, '[', 230, 179, 168, ' ', '3', ']', 239, 188,
+    140, 230, 152, 175, 228, 189, 141, 230, 150, 188, 228, 186,
+    154, 230, 180, 178, 230, 157, 177, 233, 131, 168, 227, 128,
+    129, 229, 164, 170, 229, 185, 179, 230, 180, 139, 232, 165,
+    191, 229, 178, 184, 231, 154, 132, 228, 184, 128, 228, 184,
+    170, 231, 164, 190, 228, 188, 154, 228, 184, 187, 228, 185,
+    137, 229, 155, 189, 229, 174, 182, 227, 128, 130, 233, 166,
+    150, 233, 131, 189, 231, 130, 186, 229, 140, 151, 228, 186,
+    172, 227, 128, 130, 229, 133, 182, 233, 153, 134, 229, 156,
+    176, 231, 150, 134, 229, 159, 159, 232, 136, 135, 229, 145,
+    168, 233, 130, 138, '1', '4', 229, 128, 139, 229, 156, 139,
+    229, 174, 182, 230, 142, 165, 229, 163, 164, 239, 188, 140,
+    233, 153, 134, 229, 156, 176, 229, 143, 138, 230, 185, 150,
+    230, 179, 138, 231, 154, 132, 230, 128, 187, 233, 157, 162,
+    231, 169, 141, 231, 186, 166, '9', '6', '0', 232, 144, 172,
+    229, 185, 179, 230, 150, 185, 229, 133, 172, 233, 135, 140,
+    '[', '1', '1', ']', '[', '1', '2', ']', '[', '1', '3', ']',
+    239, 188, 140, 230, 152, 175, 229, 133, 168, 228, 184, 150,
+    231, 149, 140, 233, 153, 134, 229, 156, 176, 233, 157, 162,
+    231, 167, 175, 231, 172, 172, 228, 186, 140, 229, 164, 167,
+    231, 154, 132, 229, 155, 189, 229, 174, 182, 239, 188, 140,
+    230, 128, 187, 233, 157, 162, 231, 167, 175, 231, 172, 172,
+    228, 184, 137, 230, 136, 150, 231, 172, 172, 229, 155, 155,
+    229, 164, 167, 231, 154, 132, 229, 155, 189, 229, 174, 182,
+    227, 128, 130, 229, 133, 182, 228, 186, 186, 229, 143, 163,
+    232, 182, 133, 233, 129, 142, '1', '3', 229, 132, 132, 239,
+    188, 140, 231, 180, 132, 228, 189, 148, 229, 133, 168, 231,
+    144, 131, 228, 186, 186, 229, 143, 163, 231, 154, 132, 228,
+    186, 148, 229, 136, 134, 228, 185, 139, 228, 184, 128, 239,
+    188, 140, 230, 152, 175, 228, 184, 150, 231, 149, 140, 228,
+    184, 138, 228, 186, 186, 229, 143, 163, 230, 156, 128, 229,
+    164, 154, 231, 154, 132, 229, 156, 139, 229, 174, 182, 227,
+    128, 130,  13,  10,  13,  10, 228, 189, 156, 231, 130, 186,
+    231, 164, 190, 228, 188, 154, 228, 184, 187, 228, 185, 137,
+    229, 155, 189, 229, 174, 182, 239, 188, 140, 228, 184, 173,
+    232, 143, 175, 228, 186, 186, 230, 176, 145, 229, 133, 177,
+    229, 146, 140, 229, 156, 139, 228, 187, 165, 233, 169, 172,
+    229, 133, 139, 230, 128, 157, 229, 136, 151, 229, 174, 129,
+    228, 184, 187, 228, 185, 137, 231, 130, 186, 230, 132, 143,
+    232, 173, 152, 229, 189, 162, 230, 133, 139, 239, 188, 140,
+    228, 190, 157, 228, 184, 173, 229, 156, 139, 231, 137, 185,
+    232, 137, 178, 231, 164, 190, 230, 156, 131, 228, 184, 187,
+    231, 190, 169, 231, 144, 134, 232, 174, 186, 230, 140, 135,
+    229, 176, 142, 230, 148, 191, 228, 186, 139, 239, 188, 140,
+    229, 185, 182, 231, 148, 177, 230, 134, 178, 230, 179, 149,
+    230, 137, 128, 232, 179, 166, 228, 186, 136, 228, 184, 173,
+    229, 155, 189, 229, 133, 177, 228, 186, 167, 229, 133, 154,
+    229, 159, 183, 230, 148, 191, 239, 188, 140, 229, 174, 158,
+    232, 161, 140, 228, 184, 173, 229, 155, 189, 229, 133, 177,
+    228, 186, 167, 229, 133, 154, 233, 162, 134, 229, 175, 188,
+    231, 154, 132, 229, 164, 154, 229, 133, 154, 229, 144, 136,
+    228, 189, 156, 229, 146, 140, 230, 148, 191, 230, 178, 187,
+    229, 141, 143, 229, 149, 134, 229, 136, 182, 229, 186, 166,
+    '[', '1', '4', ']', 227, 128, 130, '1', '9', '4', '9', 229,
+    185, 180, '1', '0', 230, 156, 136, '1', 230, 151, 165, 231,
+    154, 132, 229, 188, 128, 229, 155, 189, 229, 164, 167, 229,
+    133, 184, 228, 184, 173, 239, 188, 140, 228, 184, 173, 229,
+    141, 142, 228, 186, 186, 230, 176, 145, 229, 133, 177, 229,
+    146, 140, 229, 155, 189, 228, 184, 173, 229, 164, 174, 228,
+    186, 186, 230, 176, 145, 230, 148, 191, 229, 186, 156, 230,
+    173, 163, 229, 188, 143, 229, 174, 163, 229, 145, 138, 230,
+    136, 144, 231, 171, 139, '[', 230, 179, 168, ' ', '4', ']',
+    227, 128, 130, 229, 133, 168, 229, 156, 139, 229, 138, 131,
+    229, 136, 134, 231, 130, 186, '2', '3', 229, 128, 139, 231,
+    156, 129, 239, 188, 136, 229, 133, 182, 228, 184, 173, 229,
+    185, 182, 230, 178, 161, 230, 156, 137, 229, 175, 185, 229,
+    143, 176, 230, 185, 190, 231, 156, 129, 229, 133, 168, 233,
+    131, 168, 228, 184, 142, 231, 166, 143, 229, 187, 186, 231,
+    156, 129, 227, 128, 129, 230, 181, 183, 229, 141, 151, 231,
+    156, 129, 233, 131, 168, 229, 136, 134, 229, 156, 176, 229,
+    140, 186, 229, 174, 158, 233, 153, 133, 231, 174, 161, 232,
+    190, 150, 239, 188, 137, 227, 128, 129, '5', 229, 128, 139,
+    232, 135, 170, 230, 178, 187, 229, 141, 128, 227, 128, 129,
+    '4', 229, 128, 139, 231, 155, 180, 232, 190, 150, 229, 184,
+    130, 229, 146, 140, '2', 229, 128, 139, 231, 137, 185, 229,
+    136, 165, 232, 161, 140, 230, 148, 191, 229, 140, 186, 239,
+    188, 136, 229, 141, 179, 233, 166, 153, 230, 184, 175, 232,
+    136, 135, 230, 190, 179, 233, 150, 128, 239, 188, 137, 239,
+    188, 140, 231, 156, 129, 231, 186, 167, 228, 186, 186, 230,
+    176, 145, 230, 148, 191, 229, 186, 156, 229, 143, 151, 229,
+    155, 189, 229, 138, 161, 233, 153, 162, 233, 162, 134, 229,
+    175, 188, 239, 188, 140, 231, 137, 185, 229, 136, 165, 232,
+    161, 140, 230, 148, 191, 229, 141, 128, 229, 137, 135, 230,
+    160, 185, 230, 147, 154, 228, 184, 128, 229, 156, 139, 229,
+    133, 169, 229, 136, 182, 230, 148, 191, 231, 173, 150, 229,
+    175, 166, 232, 161, 140, 233, 171, 152, 229, 186, 166, 232,
+    135, 170, 230, 178, 187, 227, 128, 130, 229, 133, 168, 229,
+    155, 189, 232, 183, 168, 232, 182, 138, 228, 186, 148, 228,
+    184, 170, 229, 156, 176, 231, 144, 134, 230, 151, 182, 229,
+    140, 186, 239, 188, 140, 228, 189, 134, 229, 157, 135, 228,
+    189, 191, 231, 148, 168, 228, 184, 173, 229, 156, 139, 230,
+    168, 153, 230, 186, 150, 230, 153, 130, 233, 150, 147, 239,
+    188, 136, 229, 141, 179, 'U', 'T', 'C', '+', '8', 239, 188,
+    137, 227, 128, 130,  13,  10,  13,  10, 228, 184, 173, 232,
+    143, 175, 228, 186, 186, 230, 176, 145, 229, 133, 177, 229,
+    146, 140, 229, 156, 139, 230, 152, 175, 229, 164, 154, 230,
+    176, 145, 230, 151, 143, 229, 155, 189, 229, 174, 182, 239,
+    188, 140, 229, 133, 182, 228, 184, 173, 230, 177, 137, 230,
+    151, 143, 228, 189, 148, 231, 184, 189, 228, 186, 186, 229,
+    143, 163, 231, 154, 132, '9', '1', '.', '5', '9', '%', 239,
+    188, 140, 229, 133, 182, 233, 164, 152, '5', '5', 228, 184,
+    170, 230, 176, 145, 230, 151, 143, 231, 130, 186, 229, 176,
+    145, 230, 149, 176, 230, 176, 145, 230, 151, 143, 239, 188,
+    140, 229, 155, 189, 229, 174, 182, 232, 170, 141, 229, 174,
+    154, 231, 154, 132, '5', '6', 229, 128, 139, 230, 176, 145,
+    230, 151, 143, 229, 144, 136, 231, 167, 176, 226, 128, 156,
+    228, 184, 173, 229, 141, 142, 230, 176, 145, 230, 151, 143,
+    226, 128, 157, 227, 128, 130, 228, 184, 173, 229, 141, 142,
+    228, 186, 186, 230, 176, 145, 229, 133, 177, 229, 146, 140,
+    229, 155, 189, 230, 156, 137, '2', '4', 231, 167, 141, 230,
+    176, 145, 230, 151, 143, 230, 150, 135, 229, 173, 151, 239,
+    188, 140, 229, 133, 171, 229, 141, 129, 229, 164, 154, 231,
+    167, 141, 230, 176, 145, 230, 151, 143, 232, 175, 173, 232,
+    168, 128, 227, 128, 130, 228, 184, 173, 229, 141, 142, 228,
+    186, 186, 230, 176, 145, 229, 133, 177, 229, 146, 140, 229,
+    155, 189, 230, 178, 161, 230, 156, 137, 230, 152, 142, 231,
+    161, 174, 232, 167, 132, 229, 174, 154, 231, 154, 132, 229,
+    155, 189, 229, 174, 182, 232, 175, 173, 232, 168, 128, 239,
+    188, 140, 228, 187, 165, 230, 177, 137, 232, 175, 173, 230,
+    153, 174, 233, 128, 154, 232, 175, 157, 229, 146, 140, 232,
+    167, 132, 232, 140, 131, 231, 174, 128, 229, 140, 150, 230,
+    177, 137, 229, 173, 151, 228, 184, 186, 226, 128, 156, 229,
+    155, 189, 229, 174, 182, 233, 128, 154, 231, 148, 168, 232,
+    175, 173, 232, 168, 128, 230, 150, 135, 229, 173, 151, 226,
+    128, 157, '[', 230, 179, 168, ' ', '5', ']', 227, 128, 130,
+    228, 184, 173, 229, 155, 189, 228, 188, 160, 231, 187, 159,
+    228, 184, 138, 230, 152, 175, 228, 187, 165, 231, 165, 150,
+    229, 133, 136, 228, 191, 161, 228, 187, 176, 228, 184, 186,
+    228, 184, 187, 231, 154, 132, 229, 155, 189, 229, 174, 182,
+    239, 188, 140, 229, 185, 182, 229, 133, 183, 230, 156, 137,
+    229, 132, 146, 233, 135, 138, 233, 129, 147, 228, 184, 137,
+    230, 149, 153, 229, 144, 136, 230, 181, 129, 231, 154, 132,
+    229, 174, 151, 230, 149, 153, 228, 191, 161, 228, 187, 176,
+    228, 188, 160, 231, 187, 159, 229, 146, 140, 231, 137, 185,
+    231, 130, 185, 239, 188, 140, 229, 144, 140, 230, 151, 182,
+    229, 173, 152, 229, 156, 168, 229, 133, 182, 229, 174, 131,
+    229, 164, 154, 231, 167, 141, 229, 174, 151, 230, 149, 153,
+    227, 128, 130, 228, 184, 173, 229, 141, 142, 228, 186, 186,
+    230, 176, 145, 229, 133, 177, 229, 146, 140, 229, 155, 189,
+    229, 144, 142, 239, 188, 140, 229, 174, 152, 230, 150, 185,
+    229, 165, 137, 232, 161, 140, 230, 151, 160, 231, 165, 158,
+    232, 174, 186, 239, 188, 140, 229, 133, 182, 229, 144, 142,
+    230, 155, 190, 229, 143, 145, 229, 138, 168, 231, 154, 132,
+    230, 150, 135, 229, 140, 150, 229, 164, 167, 233, 157, 169,
+    229, 145, 189, 229, 175, 185, 229, 144, 132, 231, 167, 141,
+    229, 174, 151, 230, 149, 153, 233, 128, 160, 230, 136, 144,
+    228, 184, 165, 233, 135, 141, 231, 160, 180, 229, 157, 143,
+    239, 188, 140, 231, 155, 180, 229, 136, 176, 230, 148, 185,
+    233, 157, 169, 229, 188, 128, 230, 148, 190, 229, 144, 142,
+    230, 137, 141, 230, 156, 137, 230, 137, 128, 232, 189, 172,
+    229, 143, 152, 227, 128, 130, 229, 189, 147, 228, 187, 138,
+    228, 184, 173, 229, 155, 189, 230, 148, 191, 229, 186, 156,
+    229, 175, 185, 229, 174, 151, 230, 149, 153, 228, 184, 142,
+    228, 188, 160, 231, 187, 159, 228, 186, 139, 231, 137, 169,
+    233, 135, 135, 229, 143, 150, 228, 191, 157, 230, 138, 164,
+    231, 154, 132, 230, 128, 129, 229, 186, 166, 227, 128, 130,
+     13,  10,  13,  10, 228, 184, 173, 229, 141, 142, 228, 186,
+    186, 230, 176, 145, 229, 133, 177, 229, 146, 140, 229, 155,
+    189, 230, 152, 175, 229, 155, 189, 233, 153, 133, 231, 164,
+    190, 228, 188, 154, 231, 154, 132, 233, 135, 141, 232, 166,
+    129, 228, 184, 128, 229, 145, 152, 239, 188, 140, 228, 185,
+    159, 230, 152, 175, 228, 188, 151, 229, 164, 154, 230, 173,
+    163, 229, 188, 143, 229, 146, 140, 233, 157, 158, 230, 173,
+    163, 229, 188, 143, 231, 154, 132, 229, 164, 154, 232, 190,
+    185, 231, 187, 132, 231, 187, 135, 231, 154, 132, 230, 136,
+    144, 229, 145, 152, 239, 188, 140, 229, 140, 133, 230, 139,
+    172, 232, 129, 148, 229, 144, 136, 229, 155, 189, 227, 128,
+    129, 228, 184, 150, 231, 149, 140, 232, 180, 184, 230, 152,
+    147, 231, 187, 132, 231, 187, 135, 227, 128, 129, 228, 186,
+    154, 229, 164, 170, 231, 187, 143, 229, 144, 136, 231, 187,
+    132, 231, 187, 135, 227, 128, 129, 233, 135, 145, 231, 160,
+    150, 229, 155, 155, 229, 155, 189, 227, 128, 129, 228, 184,
+    138, 230, 181, 183, 229, 144, 136, 228, 189, 156, 231, 187,
+    132, 231, 187, 135, 229, 146, 140, '2', '0', 229, 155, 189,
+    233, 155, 134, 229, 155, 162, 231, 173, 137, 239, 188, 140,
+    228, 184, 186, 232, 129, 148, 229, 144, 136, 229, 155, 189,
+    229, 174, 137, 229, 133, 168, 231, 144, 134, 228, 186, 139,
+    228, 188, 154, 229, 184, 184, 228, 187, 187, 231, 144, 134,
+    228, 186, 139, 229, 155, 189, 227, 128, 129, 228, 184, 150,
+    231, 149, 140, 231, 172, 172, 228, 186, 140, 229, 164, 167,
+    231, 187, 143, 230, 181, 142, 228, 189, 147, 239, 188, 140,
+    230, 152, 175, 228, 184, 150, 231, 149, 140, 231, 172, 172,
+    228, 184, 128, 229, 164, 167, 229, 135, 186, 229, 143, 163,
+    229, 156, 139, 227, 128, 129, 228, 184, 150, 231, 149, 140,
+    231, 172, 172, 228, 186, 140, 229, 164, 167, 233, 128, 178,
+    229, 143, 163, 229, 156, 139, 239, 188, 140, 230, 147, 129,
+    230, 156, 137, 230, 156, 128, 229, 164, 154, 231, 154, 132,
+    229, 164, 150, 230, 177, 135, 229, 132, 178, 229, 130, 153,
+    239, 188, 140, 230, 156, 128, 228, 184, 176, 229, 175, 140,
+    231, 154, 132, 228, 184, 150, 231, 149, 140, 230, 150, 135,
+    229, 140, 150, 233, 129, 151, 228, 186, 167, 239, 188, 140,
+    228, 186, 166, 230, 152, 175, 228, 184, 150, 231, 149, 140,
+    228, 184, 138, 231, 187, 143, 230, 181, 142, 230, 136, 144,
+    233, 149, 183, 230, 156, 128, 229, 191, 171, 231, 154, 132,
+    229, 156, 139, 229, 174, 182, 228, 185, 139, 228, 184, 128,
+    227, 128, 130, 229, 143, 166, 229, 164, 150, 239, 188, 140,
+    228, 184, 173, 229, 155, 189, 230, 139, 165, 230, 156, 137,
+    228, 184, 150, 231, 149, 140, 228, 184, 138, 231, 142, 176,
+    229, 189, 185, 229, 163, 171, 229, 133, 181, 230, 156, 128,
+    229, 164, 154, 231, 154, 132, 229, 134, 155, 233, 152, 159,
+    239, 188, 155, 229, 134, 155, 228, 186, 139, 229, 188, 128,
+    230, 148, 175, 228, 184, 150, 231, 149, 140, 231, 172, 172,
+    228, 186, 140, 239, 188, 140, 230, 139, 165, 230, 156, 137,
+    230, 160, 184, 230, 173, 166, 229, 153, 168, 239, 188, 140,
+    229, 185, 182, 229, 133, 183, 229, 164, 135, 229, 143, 145,
+    229, 176, 132, 229, 141, 171, 230, 152, 159, 227, 128, 129,
+    232, 175, 149, 233, 170, 140, 229, 158, 139, 231, 169, 186,
+    233, 151, 180, 231, 171, 153, 229, 146, 140, 230, 156, 136,
+    231, 144, 131, 229, 143, 138, 230, 183, 177, 231, 169, 186,
+    230, 142, 162, 230, 181, 139, 229, 153, 168, 231, 154, 132,
+    232, 131, 189, 229, 138, 155, 239, 188, 155, '2', '0', '0',
+    '3', 229, 185, 180, 239, 188, 140, 228, 184, 173, 229, 155,
+    189, 230, 136, 144, 228, 184, 186, 228, 184, 150, 231, 149,
+    140, 231, 172, 172, 228, 184, 137, 228, 184, 170, 232, 135,
+    170, 228, 184, 187, 230, 136, 144, 229, 138, 159, 229, 143,
+    145, 229, 176, 132, 232, 189, 189, 228, 186, 186, 232, 136,
+    170, 229, 164, 169, 229, 153, 168, 231, 154, 132, 229, 155,
+    189, 229, 174, 182, 227, 128, 130, 228, 184, 173, 229, 155,
+    189, 228, 186, 166, 230, 152, 175, 230, 189, 156, 229, 156,
+    168, 232, 182, 133, 231, 186, 167, 229, 164, 167, 229, 155,
+    189, 228, 185, 139, 228, 184, 128, 239, 188, 140, 232, 162,
+    171, 232, 174, 164, 228, 184, 186, 230, 152, 175, 228, 184,
+    139, 228, 184, 128, 228, 189, 141, 232, 182, 133, 231, 186,
+    167, 229, 164, 167, 229, 155, 189, 231, 154, 132, 230, 156,
+    137, 229, 138, 155, 229, 128, 153, 233, 128, 137, 228, 186,
+    186, 227, 128, 130,  13,  10,  13,  10, 228, 184, 173, 229,
+    141, 142, 228, 186, 186, 230, 176, 145, 229, 133, 177, 229,
+    146, 140, 229, 155, 189, 231, 154, 132, 230, 173, 163, 229,
+    188, 143, 229, 155, 189, 229, 144, 141, 228, 186, 142, '1',
+    '9', '4', '9', 229, 185, 180, 231, 148, 177, 228, 184, 173,
+    229, 156, 139, 228, 186, 186, 230, 176, 145, 230, 148, 191,
+    230, 178, 187, 229, 141, 148, 229, 149, 134, 230, 156, 131,
+    232, 173, 176, 231, 177, 140, 229, 130, 153, 230, 156, 131,
+    232, 173, 176, 231, 162, 186, 229, 174, 154, 239, 188, 140,
+    229, 189, 147, 229, 136, 157, 230, 155, 190, 229, 138, 160,
+    232, 168, 187, 227, 128, 140, 231, 176, 161, 231, 168, 177,
+    239, 188, 154, 228, 184, 173, 232, 143, 175, 230, 176, 145,
+    229, 156, 139, 227, 128, 141, 239, 188, 140, 228, 189, 134,
+    229, 143, 184, 229, 190, 146, 231, 190, 142, 229, 160, 130,
+    231, 173, 137, 230, 176, 145, 228, 184, 187, 229, 133, 154,
+    230, 180, 190, 228, 186, 186, 229, 163, 171, 232, 174, 164,
+    228, 184, 186, 230, 150, 176, 228, 184, 173, 229, 155, 189,
+    229, 186, 148, 231, 161, 174, 231, 171, 139, 230, 150, 176,
+    229, 155, 189, 229, 144, 141, 239, 188, 140, 228, 187, 165,
+    231, 164, 186, 228, 184, 164, 230, 172, 161, 233, 157, 169,
+    229, 145, 189, 231, 154, 132, 230, 160, 185, 230, 156, 172,
+    230, 132, 143, 228, 185, 137, 228, 184, 141, 229, 144, 140,
+    '[', '1', '5', ']', 227, 128, 130, 229, 155, 160, 230, 173,
+    164, 231, 155, 180, 232, 135, 179, '9', 230, 156, 136, '2',
+    '7', 230, 151, 165, 230, 148, 191, 229, 141, 148, 229, 133,
+    168, 233, 171, 148, 230, 156, 131, 232, 173, 176, 232, 161,
+    168, 230, 177, 186, 233, 128, 154, 233, 129, 142, 228, 184,
+    173, 229, 164, 174, 228, 186, 186, 230, 176, 145, 230, 148,
+    191, 229, 186, 156, 231, 181, 132, 231, 185, 148, 230, 179,
+    149, 230, 153, 130, 239, 188, 140, 230, 173, 163, 229, 188,
+    143, 232, 173, 176, 230, 177, 186, 229, 142, 187, 233, 153,
+    164, 230, 173, 164, 229, 138, 160, 232, 168, 187, '[', '1',
+    '6', ']', 227, 128, 130,  13,  10,  13,  10, 229, 156, 168,
+    229, 133, 168, 233, 131, 168, 229, 156, 139, 233, 154, 155,
+    229, 160, 180, 229, 144, 136, 239, 188, 140, 228, 184, 173,
+    232, 143, 175, 228, 186, 186, 230, 176, 145, 229, 133, 177,
+    229, 146, 140, 229, 156, 139, 228, 184, 128, 232, 136, 172,
+    231, 176, 161, 231, 168, 177, 231, 130, 186, 228, 184, 173,
+    229, 156, 139, 239, 188, 140, 230, 156, 137, 230, 151, 182,
+    229, 128, 153, 228, 185, 159, 229, 155, 160, 229, 133, 182,
+    230, 137, 128, 229, 164, 132, 229, 156, 176, 231, 144, 134,
+    228, 189, 141, 231, 189, 174, 232, 128, 140, 232, 162, 171,
+    231, 167, 176, 228, 184, 186, 228, 184, 173, 229, 155, 189,
+    229, 164, 167, 233, 153, 134, 227, 128, 130, 229, 156, 168,
+    228, 184, 173, 229, 156, 139, 229, 156, 139, 229, 133, 167,
+    239, 188, 140, 231, 149, 182, '1', '9', '4', '9', 229, 185,
+    180, 229, 137, 141, 231, 154, 132, 228, 184, 173, 232, 143,
+    175, 230, 176, 145, 229, 156, 139, 232, 136, 135, '1', '9',
+    '4', '9', 229, 185, 180, 229, 190, 140, 231, 154, 132, 228,
+    184, 173, 232, 143, 175, 228, 186, 186, 230, 176, 145, 229,
+    133, 177, 229, 146, 140, 229, 156, 139, 229, 129, 154, 229,
+    176, 141, 230, 175, 148, 230, 136, 150, 230, 156, 137, 230,
+    173, 164, 230, 182, 181, 230, 140, 135, 230, 153, 130, 239,
+    188, 140, 229, 137, 141, 232, 128, 133, 229, 184, 184, 232,
+    162, 171, 231, 168, 177, 231, 130, 186, 232, 136, 138, 228,
+    184, 173, 229, 156, 139, 239, 188, 136, 228, 186, 166, 231,
+    168, 177, 232, 136, 138, 231, 164, 190, 230, 156, 131, 239,
+    188, 137, 239, 188, 140, 232, 128, 140, 229, 190, 140, 232,
+    128, 133, 229, 137, 135, 229, 184, 184, 232, 162, 171, 231,
+    168, 177, 231, 130, 186, 230, 150, 176, 228, 184, 173, 229,
+    156, 139, 227, 128, 130, 231, 155, 174, 229, 137, 141, 239,
+    188, 140, 228, 184, 173, 232, 143, 175, 228, 186, 186, 230,
+    176, 145, 229, 133, 177, 229, 146, 140, 229, 156, 139, 232,
+    170, 141, 231, 130, 186, 228, 184, 173, 232, 143, 175, 230,
+    176, 145, 229, 156, 139, 229, 183, 178, 232, 162, 171, 229,
+    133, 182, 229, 143, 150, 228, 187, 163, 239, 188, 140, 228,
+    184, 173, 232, 143, 175, 230, 176, 145, 229, 156, 139, 230,
+    148, 191, 229, 186, 156, 229, 137, 135, 228, 184, 141, 230,
+    137, 191, 232, 170, 141, 228, 184, 173, 232, 143, 175, 228,
+    186, 186, 230, 176, 145, 229, 133, 177, 229, 146, 140, 229,
+    156, 139, 231, 154, 132, 230, 173, 163, 231, 181, 177, 230,
+    128, 167, 239, 188, 140, 231, 149, 182, 229, 156, 168, 228,
+    184, 173, 229, 156, 139, 229, 164, 167, 233, 153, 184, 231,
+    154, 132, 228, 184, 173, 232, 143, 175, 228, 186, 186, 230,
+    176, 145, 229, 133, 177, 229, 146, 140, 229, 156, 139, 230,
+    148, 191, 229, 186, 156, 232, 136, 135, 229, 156, 168, 229,
+    143, 176, 231, 129, 163, 231, 154, 132, 228, 184, 173, 232,
+    143, 175, 230, 176, 145, 229, 156, 139, 230, 148, 191, 229,
+    186, 156, 229, 129, 154, 229, 176, 141, 230, 175, 148, 230,
+    136, 150, 230, 156, 137, 230, 173, 164, 230, 182, 181, 230,
+    140, 135, 230, 153, 130, 239, 188, 140, 229, 137, 141, 232,
+    128, 133, 229, 184, 184, 232, 162, 171, 229, 190, 140, 232,
+    128, 133, 231, 168, 177, 231, 130, 186, 229, 140, 151, 228,
+    186, 172, 231, 149, 182, 229, 177, 128, 227, 128, 129, 229,
+    164, 167, 233, 153, 184, 231, 149, 182, 229, 177, 128, 227,
+    128, 129, 228, 184, 173, 229, 133, 177, 231, 149, 182, 229,
+    177, 128, 227, 128, 129, 228, 184, 173, 229, 156, 139, 229,
+    164, 167, 233, 153, 184, 230, 136, 150, 229, 164, 167, 233,
+    153, 184, '[', '1', '7', ']', 239, 188, 140, 229, 190, 140,
+    232, 128, 133, 229, 184, 184, 232, 162, 171, 229, 137, 141,
+    232, 128, 133, 231, 168, 177, 231, 130, 186, 229, 143, 176,
+    231, 129, 163, 231, 149, 182, 229, 177, 128, 227, 128, 129,
+    229, 143, 176, 229, 140, 151, 231, 149, 182, 229, 177, 128,
+    230, 136, 150, 229, 143, 176, 231, 129, 163, '[', '1', '8',
+    ']', 227, 128, 130, 232, 136, 135, 230, 184, 175, 230, 190,
+    179, 229, 156, 176, 229, 141, 128, 228, 184, 166, 231, 148,
+    168, 230, 153, 130, 229, 137, 135, 231, 168, 177, 231, 130,
+    186, 228, 184, 173, 229, 156, 139, 229, 133, 167, 229, 156,
+    176, 227, 128, 129, 229, 133, 167, 229, 156, 176, '[', '1',
+    '9', ']', 227, 128, 130,  13,  10,  13,  10, 231, 149, 182,
+    228, 184, 173, 229, 156, 139, 229, 164, 167, 233, 153, 184,
+    231, 154, 132, 228, 184, 173, 232, 143, 175, 228, 186, 186,
+    230, 176, 145, 229, 133, 177, 229, 146, 140, 229, 156, 139,
+    230, 148, 191, 229, 186, 156, 232, 136, 135, 229, 156, 168,
+    229, 143, 176, 231, 129, 163, 231, 154, 132, 228, 184, 173,
+    232, 143, 175, 230, 176, 145, 229, 156, 139, 230, 148, 191,
+    229, 186, 156, 229, 129, 154, 229, 176, 141, 230, 175, 148,
+    230, 136, 150, 229, 141, 128, 233, 154, 148, 228, 187, 139,
+    231, 180, 185, 230, 153, 130, 239, 188, 140, 233, 128, 154,
+    229, 184, 184, 230, 142, 161, 231, 148, 168, 229, 156, 176,
+    231, 144, 134, 229, 144, 141, 232, 169, 158, 227, 128, 140,
+    228, 184, 173, 229, 156, 139, 229, 164, 167, 233, 153, 184,
+    227, 128, 141, 239, 188, 136, 'C', 'h', 'i', 'n', 'a', ' ',
+    'M', 'a', 'i', 'n', 'l', 'a', 'n', 'd', 239, 188, 137, 230,
+    136, 150, 228, 184, 173, 229, 155, 189, 239, 188, 136, 'C',
+    'h', 'i', 'n', 'a', 239, 188, 137, 229, 129, 154, 231, 130,
+    186, 228, 184, 173, 232, 143, 175, 228, 186, 186, 230, 176,
+    145, 229, 133, 177, 229, 146, 140, 229, 156, 139, 231, 154,
+    132, 231, 176, 161, 231, 168, 177, 239, 188, 140, 229, 176,
+    141, 230, 150, 188, 228, 184, 173, 232, 143, 175, 230, 176,
+    145, 229, 156, 139, 229, 137, 135, 231, 176, 161, 231, 168,
+    177, 231, 130, 186, 228, 184, 173, 232, 143, 175, 229, 143,
+    176, 229, 140, 151, 239, 188, 136, 'C', 'h', 'i', 'n', 'e',
+    's', 'e', ' ', 'T', 'a', 'i', 'p', 'e', 'i', 239, 188, 137,
+    230, 136, 150, 229, 143, 176, 231, 129, 163, 239, 188, 136,
+    'T', 'a', 'i', 'w', 'a', 'n', 239, 188, 137, 227, 128, 130,
+    232, 128, 140, 229, 143, 176, 230, 185, 190, 231, 154, 132,
+    229, 170, 146, 228, 189, 147, 229, 137, 135, 229, 184, 184,
+    228, 189, 191, 231, 148, 168, 227, 128, 140, 228, 184, 173,
+    229, 133, 177, 227, 128, 141, 227, 128, 129, 227, 128, 140,
+    229, 164, 167, 233, 153, 184, 229, 156, 176, 229, 141, 128,
+    227, 128, 141, 227, 128, 129, 227, 128, 140, 229, 164, 167,
+    233, 153, 184, 227, 128, 141, 230, 136, 150, 227, 128, 140,
+    228, 184, 173, 229, 155, 189, 227, 128, 141, 230, 157, 165,
+    228, 189, 156, 231, 130, 186, 228, 184, 173, 232, 143, 175,
+    228, 186, 186, 230, 176, 145, 229, 133, 177, 229, 146, 140,
+    229, 156, 139, 231, 154, 132, 231, 176, 161, 231, 168, 177,
+    227, 128, 130, 233, 166, 153, 230, 184, 175, 233, 131, 168,
+    229, 136, 134, 229, 170, 146, 233, 171, 148, 228, 185, 159,
+    230, 156, 137, 228, 189, 191, 231, 148, 168, 227, 128, 140,
+    228, 184, 173, 229, 156, 139, 227, 128, 141, 229, 146, 140,
+    227, 128, 140, 228, 184, 173, 229, 133, 177, 227, 128, 141,
+    228, 190, 134, 230, 140, 135, 228, 187, 163, 228, 184, 173,
+    229, 156, 139, 229, 164, 167, 233, 153, 184, 227, 128, 130,
+     13,  10,  13,  10, '1', '9', '4', '9', 229, 185, 180, 239,
+    188, 140, 230, 173, 183, 230, 153, 130, 228, 184, 137, 229,
+    185, 180, 231, 154, 132, 229, 156, 139, 229, 133, 177, 229,
+    133, 167, 230, 136, 176, 228, 184, 187, 232, 166, 129, 230,
+    136, 176, 229, 189, 185, 231, 181, 144, 230, 157, 159, 239,
+    188, 140, 228, 184, 173, 229, 156, 139, 229, 133, 177, 231,
+    148, 162, 233, 187, 168, 230, 137, 128, 233, 160, 152, 229,
+    176, 142, 231, 154, 132, 228, 184, 173, 229, 156, 139, 228,
+    186, 186, 230, 176, 145, 232, 167, 163, 230, 148, 190, 232,
+    187, 141, 230, 136, 176, 229, 139, 157, 228, 186, 134, 228,
+    184, 173, 229, 156, 139, 229, 156, 139, 230, 176, 145, 233,
+    187, 168, 230, 137, 128, 233, 160, 152, 229, 176, 142, 231,
+    154, 132, 228, 184, 173, 232, 143, 175, 230, 176, 145, 229,
+    156, 139, 229, 155, 189, 232, 187, 141, '[', 230, 179, 168,
+    ' ', '6', ']', 239, 188, 140, 228, 184, 166, 229, 183, 178,
+    233, 128, 144, 230, 188, 184, 230, 142, 167, 229, 136, 182,
+    228, 186, 134, 228, 184, 173, 229, 156, 139, 229, 164, 167,
+    233, 153, 184, 229, 164, 167, 233, 131, 168, 229, 136, 134,
+    231, 156, 129, 228, 187, 189, 229, 146, 140, 229, 156, 176,
+    229, 140, 186, 227, 128, 130,  13,  10,  13,  10, 229, 144,
+    140, 229, 185, 180, '9', 230, 156, 136, '2', '1', 230, 151,
+    165, 232, 135, 179, '9', 230, 156, 136, '3', '0', 230, 151,
+    165, 239, 188, 140, 231, 182, 147, 233, 129, 142, 230, 149,
+    184, 230, 156, 136, 231, 154, 132, 231, 177, 140, 229, 130,
+    153, 239, 188, 140, 228, 184, 173, 229, 156, 139, 228, 186,
+    186, 230, 176, 145, 230, 148, 191, 230, 178, 187, 229, 141,
+    148, 229, 149, 134, 230, 156, 131, 232, 173, 176, 231, 172,
+    172, 228, 184, 128, 229, 177, 134, 229, 133, 168, 233, 171,
+    148, 230, 156, 131, 232, 173, 176, 229, 156, 168, 229, 140,
+    151, 229, 185, 179, 229, 143, 172, 233, 150, 139, 227, 128,
+    130, '9', 230, 156, 136, '2', '1', 230, 151, 165, 239, 188,
+    140, 228, 184, 173, 229, 156, 139, 228, 186, 186, 230, 176,
+    145, 230, 148, 191, 230, 178, 187, 229, 141, 148, 229, 149,
+    134, 230, 156, 131, 232, 173, 176, 231, 172, 172, 228, 184,
+    128, 229, 177, 134, 229, 133, 168, 233, 171, 148, 230, 156,
+    131, 232, 173, 176, 230, 173, 163, 229, 188, 143, 229, 174,
+    163, 229, 184, 131, 230, 136, 144, 231, 171, 139, 228, 184,
+    173, 229, 141, 142, 228, 186, 186, 230, 176, 145, 229, 133,
+    177, 229, 146, 140, 229, 155, 189, '[', '2', '0', ']', 227,
+    128, 130, 228, 188, 154, 232, 174, 174, 233, 128, 154, 233,
+    129, 142, 228, 186, 134, 227, 128, 138, 228, 184, 173, 229,
+    156, 139, 228, 186, 186, 230, 176, 145, 230, 148, 191, 230,
+    178, 187, 229, 141, 148, 229, 149, 134, 230, 156, 131, 232,
+    173, 176, 231, 181, 132, 231, 185, 148, 230, 179, 149, 227,
+    128, 139, 227, 128, 129, 227, 128, 138, 228, 184, 173, 232,
+    143, 175, 228, 186, 186, 230, 176, 145, 229, 133, 177, 229,
+    146, 140, 229, 156, 139, 228, 184, 173, 229, 164, 174, 228,
+    186, 186, 230, 176, 145, 230, 148, 191, 229, 186, 156, 231,
+    181, 132, 231, 185, 148, 230, 179, 149, 227, 128, 139, 229,
+    146, 140, 229, 133, 183, 230, 156, 137, 232, 135, 168, 230,
+    153, 130, 230, 134, 178, 230, 179, 149, 230, 128, 167, 232,
+    179, 170, 231, 154, 132, 227, 128, 138, 228, 184, 173, 229,
+    156, 139, 228, 186, 186, 230, 176, 145, 230, 148, 191, 230,
+    178, 187, 229, 141, 148, 229, 149, 134, 230, 156, 131, 232,
+    173, 176, 229, 133, 177, 229, 144, 140, 231, 182, 177, 233,
+    160, 152, 227, 128, 139, 239, 188, 140, 230, 177, 186, 229,
+    174, 154, 228, 187, 165, 229, 140, 151, 229, 185, 179, 231,
+    130, 186, 233, 166, 150, 233, 131, 189, 228, 184, 166, 230,
+    148, 185, 229, 144, 141, 231, 136, 178, 229, 140, 151, 228,
+    186, 172, 227, 128, 129, 228, 187, 165, 229, 133, 172, 229,
+    133, 131, 231, 180, 128, 229, 185, 180, 227, 128, 129, 228,
+    187, 165, 231, 190, 169, 229, 139, 135, 232, 187, 141, 233,
+    128, 178, 232, 161, 140, 230, 155, 178, 231, 130, 186, 228,
+    187, 163, 229, 156, 139, 230, 173, 140, 227, 128, 129, 228,
+    187, 165, 228, 186, 148, 230, 152, 159, 231, 180, 133, 230,
+    151, 151, 231, 130, 186, 229, 156, 139, 230, 151, 151, 239,
+    188, 140, 233, 128, 154, 233, 129, 142, 228, 186, 134, 231,
+    148, 177, '1', '8', '0', 228, 186, 186, 231, 181, 132, 230,
+    136, 144, 231, 154, 132, 228, 184, 173, 229, 156, 139, 228,
+    186, 186, 230, 176, 145, 230, 148, 191, 230, 178, 187, 229,
+    141, 148, 229, 149, 134, 230, 156, 131, 232, 173, 176, 231,
+    172, 172, 228, 184, 128, 229, 177, 134, 229, 133, 168, 229,
+    156, 139, 229, 167, 148, 229, 147, 161, 230, 156, 131, 229,
+    144, 141, 229, 150, 174, 239, 188, 140, 228, 184, 166, 233,
+    129, 184, 232, 136, 137, 230, 175, 155, 230, 190, 164, 230,
+    157, 177, 231, 130, 186, 228, 184, 173, 229, 164, 174, 228,
+    186, 186, 230, 176, 145, 230, 148, 191, 229, 186, 156, 228,
+    184, 187, 229, 184, 173, 227, 128, 129, 230, 156, 177, 229,
+    190, 183, 227, 128, 129, 229, 136, 152, 229, 176, 145, 229,
+    165, 135, 227, 128, 129, 229, 174, 139, 229, 186, 134, 233,
+    190, 132, 227, 128, 129, 230, 157, 142, 230, 181, 142, 230,
+    183, 177, 227, 128, 129, 229, 188, 160, 230, 190, 156, 227,
+    128, 129, 233, 171, 152, 229, 178, 151, 231, 130, 186, 229,
+    137, 175, 228, 184, 187, 229, 184, 173, 227, 128, 129, 229,
+    143, 166, 229, 164, 150, '5', '6', 228, 189, 141, 231, 130,
+    186, 228, 184, 173, 229, 164, 174, 228, 186, 186, 230, 176,
+    145, 230, 148, 191, 229, 186, 156, 229, 167, 148, 229, 147,
+    161, 227, 128, 130, '1', '0', 230, 156, 136, '1', 230, 151,
+    165, 229, 188, 128, 229, 155, 189, 229, 164, 167, 229, 133,
+    184, 229, 156, 168, 229, 140, 151, 228, 186, 172, 228, 184,
+    190, 232, 161, 140, 239, 188, 140, 230, 175, 155, 230, 190,
+    164, 230, 157, 177, 229, 156, 168, 229, 164, 169, 229, 174,
+    137, 233, 151, 168, 229, 159, 142, 230, 165, 188, 229, 174,
+    163, 229, 145, 138, 228, 184, 173, 229, 141, 142, 228, 186,
+    186, 230, 176, 145, 229, 133, 177, 229, 146, 140, 229, 155,
+    189, 228, 184, 173, 229, 164, 174, 228, 186, 186, 230, 176,
+    145, 230, 148, 191, 229, 186, 156, 230, 136, 144, 231, 171,
+    139, 239, 188, 155, '1', '2', 230, 156, 136, '7', 230, 151,
+    165, 239, 188, 140, 228, 184, 173, 232, 143, 175, 230, 176,
+    145, 229, 156, 139, 230, 148, 191, 229, 186, 156, 230, 173,
+    163, 229, 188, 143, 231, 148, 177, 229, 155, 155, 229, 183,
+    157, 231, 156, 129, 230, 136, 144, 233, 131, 189, 229, 184,
+    130, 233, 129, 183, 229, 190, 128, 229, 143, 176, 230, 185,
+    190, 231, 156, 129, 229, 143, 176, 229, 140, 151, 229, 184,
+    130, 239, 188, 140, 228, 184, 166, 231, 185, 188, 231, 186,
+    140, 231, 181, 177, 230, 178, 187, 229, 143, 176, 231, 129,
+    163, 230, 156, 172, 229, 179, 182, 229, 143, 138, 230, 190,
+    142, 230, 185, 150, 227, 128, 129, 233, 131, 168, 229, 136,
+    134, 231, 166, 143, 229, 187, 186, 233, 155, 162, 229, 179,
+    182, 227, 128, 129, 228, 184, 156, 230, 178, 153, 231, 190,
+    164, 229, 178, 155, 227, 128, 129, 229, 164, 170, 229, 185,
+    179, 229, 178, 155, 231, 173, 137, 232, 135, 179, 228, 187,
+    138, 227, 128, 130, 232, 135, 179, 230, 173, 164, 239, 188,
+    140, 228, 184, 173, 229, 156, 139, 230, 173, 183, 229, 143,
+    178, 228, 184, 138, 230, 150, 188, 230, 181, 183, 229, 179,
+    189, 229, 133, 169, 229, 178, 184, 229, 136, 134, 230, 178,
+    187, 231, 154, 132, 230, 148, 191, 230, 178, 187, 230, 160,
+    188, 229, 177, 128, 230, 173, 163, 229, 188, 143, 229, 189,
+    162, 230, 136, 144, 227, 128, 130,  13,  10,  13,  10, 'H',
+    'i', 'n', 'd', 'i', ':',  13,  10,  13,  10, 224, 164, 173,
+    224, 164, 190, 224, 164, 176, 224, 164, 164, ',', ' ', 224,
+    164, 170, 224, 165, 140, 224, 164, 176, 224, 164, 190, 224,
+    164, 163, 224, 164, 191, 224, 164, 149, ' ', 224, 164, 156,
+    224, 164, 174, 224, 165, 141, 224, 164, 172, 224, 165, 130,
+    224, 164, 166, 224, 165, 141, 224, 164, 181, 224, 165, 128,
+    224, 164, 170, ',', ' ', 224, 164, 134, 224, 164, 167, 224,
+    165, 129, 224, 164, 168, 224, 164, 191, 224, 164, 149, ' ',
+    224, 164, 166, 224, 164, 149, 224, 165, 141, 224, 164, 183,
+    224, 164, 191, 224, 164, 163, ' ', 224, 164, 143, 224, 164,
+    182, 224, 164, 191, 224, 164, 175, 224, 164, 190, ' ', 224,
+    164, 174, 224, 165, 135, 224, 164, 130, ' ', 224, 164, 184,
+    224, 165, 141, 224, 164, 165, 224, 164, 191, 224, 164, 164,
+    ' ', 224, 164, 173, 224, 164, 190, 224, 164, 176, 224, 164,
+    164, 224, 165, 128, 224, 164, 175, ' ', 224, 164, 137, 224,
+    164, 170, 224, 164, 174, 224, 164, 185, 224, 164, 190, 224,
+    164, 166, 224, 165, 141, 224, 164, 181, 224, 165, 128, 224,
+    164, 170, ' ', 224, 164, 149, 224, 164, 190, ' ', 224, 164,
+    184, 224, 164, 172, 224, 164, 184, 224, 165, 135, ' ', 224,
+    164, 172, 224, 164, 161, 224, 164, 188, 224, 164, 190, ' ',
+    224, 164, 166, 224, 165, 135, 224, 164, 182, ' ', 224, 164,
+    185, 224, 165, 136, 224, 165, 164, ' ', 224, 164, 173, 224,
+    164, 190, 224, 164, 176, 224, 164, 164, ' ', 224, 164, 149,
+    224, 164, 190, ' ', 224, 164, 173, 224, 165, 140, 224, 164,
+    151, 224, 165, 139, 224, 164, 178, 224, 164, 191, 224, 164,
+    149, ' ', 224, 164, 171, 224, 165, 136, 224, 164, 178, 224,
+    164, 190, 224, 164, 181, ' ', 224, 165, 174, 224, 165, 166,
+    ' ', 224, 165, 170,'\'', ' ', 224, 164, 184, 224, 165, 135,
+    ' ', 224, 165, 169, 224, 165, 173, 224, 165, 166, ' ', 224,
+    165, 172,'\'', ' ', 224, 164, 137, 224, 164, 164, 224, 165,
+    141, 224, 164, 164, 224, 164, 176, 224, 165, 128, ' ', 224,
+    164, 133, 224, 164, 149, 224, 165, 141, 224, 164, 183, 224,
+    164, 190, 224, 164, 130, 224, 164, 182, ' ', 224, 164, 164,
+    224, 164, 149, ' ', 224, 164, 164, 224, 164, 165, 224, 164,
+    190, ' ', 224, 165, 172, 224, 165, 174, 224, 165, 166, ' ',
+    224, 165, 173,'\'', ' ', 224, 164, 184, 224, 165, 135, ' ',
+    224, 165, 175, 224, 165, 173, 224, 165, 166, ' ', 224, 165,
+    168, 224, 165, 171,'\'', 224, 164, 170, 224, 165, 130, 224,
+    164, 176, 224, 165, 141, 224, 164, 181, 224, 165, 128, ' ',
+    224, 164, 166, 224, 165, 135, 224, 164, 182, 224, 164, 190,
+    224, 164, 168, 224, 165, 141, 224, 164, 164, 224, 164, 176,
+    ' ', 224, 164, 164, 224, 164, 149, ' ', 224, 164, 185, 224,
+    165, 136, 224, 165, 164, ' ', 224, 164, 173, 224, 164, 190,
+    224, 164, 176, 224, 164, 164, ' ', 224, 164, 149, 224, 164,
+    190, ' ', 224, 164, 181, 224, 164, 191, 224, 164, 184, 224,
+    165, 141, 224, 164, 164, 224, 164, 190, 224, 164, 176, ' ',
+    224, 164, 137, 224, 164, 164, 224, 165, 141, 224, 164, 164,
+    224, 164, 176, ' ', 224, 164, 184, 224, 165, 135, ' ', 224,
+    164, 166, 224, 164, 149, 224, 165, 141, 224, 164, 183, 224,
+    164, 191, 224, 164, 163, ' ', 224, 164, 164, 224, 164, 149,
+    ' ', 224, 164, 149, 224, 164, 191, '.', ' ', 224, 164, 174,
+    224, 165, 128, '.', ' ', 224, 164, 148, 224, 164, 176, ' ',
+    224, 164, 170, 224, 165, 130, 224, 164, 176, 224, 165, 141,
+    224, 164, 181, ' ', 224, 164, 184, 224, 165, 135, ' ', 224,
+    164, 170, 224, 164, 182, 224, 165, 141, 224, 164, 154, 224,
+    164, 191, 224, 164, 174, ' ', 224, 164, 164, 224, 164, 149,
+    ' ', 224, 165, 168, ',', 224, 165, 175, 224, 165, 169, 224,
+    165, 169, ' ', 224, 164, 149, 224, 164, 191, '.', ' ', 224,
+    164, 174, 224, 165, 128, '.', ' ', 224, 164, 185, 224, 165,
+    136, 224, 165, 164, ' ', 224, 164, 173, 224, 164, 190, 224,
+    164, 176, 224, 164, 164, ' ', 224, 164, 149, 224, 165, 128,
+    ' ', 224, 164, 184, 224, 164, 174, 224, 165, 129, 224, 164,
+    166, 224, 165, 141, 224, 164, 176, ' ', 224, 164, 164, 224,
+    164, 159, ' ', 224, 164, 176, 224, 165, 135, 224, 164, 150,
+    224, 164, 190, ' ', 224, 165, 173, 224, 165, 171, 224, 165,
+    167, 224, 165, 172, '.', 224, 165, 172, ' ', 224, 164, 149,
+    224, 164, 191, 224, 164, 178, 224, 165, 139, 224, 164, 174,
+    224, 165, 128, 224, 164, 159, 224, 164, 176, ' ', 224, 164,
+    178, 224, 164, 174, 224, 165, 141, 224, 164, 172, 224, 165,
+    128, ' ', 224, 164, 185, 224, 165, 136, 224, 165, 164, ' ',
+    224, 164, 173, 224, 164, 190, 224, 164, 176, 224, 164, 164,
+    ',', ' ', 224, 164, 173, 224, 165, 140, 224, 164, 151, 224,
+    165, 139, 224, 164, 178, 224, 164, 191, 224, 164, 149, ' ',
+    224, 164, 166, 224, 165, 131, 224, 164, 183, 224, 165, 141,
+    224, 164, 159, 224, 164, 191, ' ', 224, 164, 184, 224, 165,
+    135, ' ', 224, 164, 181, 224, 164, 191, 224, 164, 182, 224,
+    165, 141, 224, 164, 181, ' ', 224, 164, 174, 224, 165, 135,
+    224, 164, 130, ' ', 224, 164, 184, 224, 164, 190, 224, 164,
+    164, 224, 164, 181, 224, 164, 190, 224, 164, 129, ' ', 224,
+    164, 184, 224, 164, 172, 224, 164, 184, 224, 165, 135, ' ',
+    224, 164, 172, 224, 164, 161, 224, 164, 188, 224, 164, 190,
+    ' ', 224, 164, 148, 224, 164, 176, ' ', 224, 164, 156, 224,
+    164, 168, 224, 164, 184, 224, 164, 129, 224, 164, 150, 224,
+    165, 141, 224, 164, 175, 224, 164, 190, ' ', 224, 164, 149,
+    224, 165, 135, ' ', 224, 164, 166, 224, 165, 131, 224, 164,
+    183, 224, 165, 141, 224, 164, 159, 224, 164, 191, 224, 164,
+    149, 224, 165, 139, 224, 164, 163, ' ', 224, 164, 184, 224,
+    165, 135, ' ', 224, 164, 166, 224, 165, 130, 224, 164, 184,
+    224, 164, 176, 224, 164, 190, ' ', 224, 164, 184, 224, 164,
+    172, ' ', 224, 164, 184, 224, 165, 135, ' ', 224, 164, 172,
+    224, 164, 161, 224, 164, 188, 224, 164, 190, ' ', 224, 164,
+    166, 224, 165, 135, 224, 164, 182, ' ', 224, 164, 185, 224,
+    165, 136, 224, 165, 164, ' ', 224, 164, 173, 224, 164, 190,
+    224, 164, 176, 224, 164, 164, ' ', 224, 164, 149, 224, 165,
+    135, ' ', 224, 164, 170, 224, 164, 182, 224, 165, 141, 224,
+    164, 154, 224, 164, 191, 224, 164, 174, ' ', 224, 164, 174,
+    224, 165, 135, 224, 164, 130, ' ', 224, 164, 170, 224, 164,
+    190, 224, 164, 149, 224, 164, 191, 224, 164, 184, 224, 165,
+    141, 224, 164, 164, 224, 164, 190, 224, 164, 168, ',', ' ',
+    224, 164, 137, 224, 164, 164, 224, 165, 141, 224, 164, 164,
+    224, 164, 176, '-', 224, 164, 170, 224, 165, 130, 224, 164,
+    176, 224, 165, 141, 224, 164, 181, ' ', 224, 164, 174, 224,
+    165, 135, 224, 164, 130, ' ', 224, 164, 154, 224, 165, 128,
+    224, 164, 168, ',', ' ', 224, 164, 168, 224, 165, 135, 224,
+    164, 170, 224, 164, 190, 224, 164, 178, ',', ' ', 224, 164,
+    148, 224, 164, 176, ' ', 224, 164, 173, 224, 165, 130, 224,
+    164, 159, 224, 164, 190, 224, 164, 168, ' ', 224, 164, 148,
+    224, 164, 176, ' ', 224, 164, 170, 224, 165, 130, 224, 164,
+    176, 224, 165, 141, 224, 164, 181, ' ', 224, 164, 174, 224,
+    165, 135, 224, 164, 130, ' ', 224, 164, 172, 224, 164, 190,
+    224, 164, 130, 224, 164, 151, 224, 165, 141, 224, 164, 178,
+    224, 164, 190, 224, 164, 166, 224, 165, 135, 224, 164, 182,
+    ' ', 224, 164, 148, 224, 164, 176, ' ', 224, 164, 174, 224,
+    165, 141, 224, 164, 175, 224, 164, 190, 224, 164, 168, 224,
+    165, 141, 224, 164, 174, 224, 164, 190, 224, 164, 176, ' ',
+    224, 164, 166, 224, 165, 135, 224, 164, 182, ' ', 224, 164,
+    184, 224, 165, 141, 224, 164, 165, 224, 164, 191, 224, 164,
+    164, ' ', 224, 164, 185, 224, 165, 136, 224, 164, 130, 224,
+    165, 164, ' ', 224, 164, 185, 224, 164, 191, 224, 164, 168,
+    224, 165, 141, 224, 164, 166, ' ', 224, 164, 174, 224, 164,
+    185, 224, 164, 190, 224, 164, 184, 224, 164, 190, 224, 164,
+    151, 224, 164, 176, ' ', 224, 164, 174, 224, 165, 135, 224,
+    164, 130, ' ', 224, 164, 135, 224, 164, 184, 224, 164, 149,
+    224, 165, 135, ' ', 224, 164, 166, 224, 164, 149, 224, 165,
+    141, 224, 164, 183, 224, 164, 191, 224, 164, 163, ' ', 224,
+    164, 170, 224, 164, 182, 224, 165, 141, 224, 164, 154, 224,
+    164, 191, 224, 164, 174, ' ', 224, 164, 174, 224, 165, 135,
+    224, 164, 130, ' ', 224, 164, 174, 224, 164, 190, 224, 164,
+    178, 224, 164, 166, 224, 165, 128, 224, 164, 181, ',', ' ',
+    224, 164, 166, 224, 164, 149, 224, 165, 141, 224, 164, 183,
+    224, 164, 191, 224, 164, 163, ' ', 224, 164, 174, 224, 165,
+    135, 224, 164, 130, ' ', 224, 164, 182, 224, 165, 141, 224,
+    164, 176, 224, 165, 128, 224, 164, 178, 224, 164, 130, 224,
+    164, 149, 224, 164, 190, ' ', 224, 164, 148, 224, 164, 176,
+    ' ', 224, 164, 166, 224, 164, 149, 224, 165, 141, 224, 164,
+    183, 224, 164, 191, 224, 164, 163, '-', 224, 164, 170, 224,
+    165, 130, 224, 164, 176, 224, 165, 141, 224, 164, 181, ' ',
+    224, 164, 174, 224, 165, 135, 224, 164, 130, ' ', 224, 164,
+    135, 224, 164, 130, 224, 164, 161, 224, 165, 139, 224, 164,
+    168, 224, 165, 135, 224, 164, 182, 224, 164, 191, 224, 164,
+    175, 224, 164, 190, ' ', 224, 164, 185, 224, 165, 136, 224,
+    164, 130, 224, 165, 164, ' ', 224, 164, 137, 224, 164, 164,
+    224, 165, 141, 224, 164, 164, 224, 164, 176, '-', 224, 164,
+    170, 224, 164, 182, 224, 165, 141, 224, 164, 154, 224, 164,
+    191, 224, 164, 174, ' ', 224, 164, 174, 224, 165, 135, 224,
+    164, 130, ' ', 224, 164, 133, 224, 164, 171, 224, 164, 188,
+    224, 164, 151, 224, 164, 190, 224, 164, 168, 224, 164, 191,
+    224, 164, 184, 224, 165, 141, 224, 164, 164, 224, 164, 190,
+    224, 164, 168, ' ', 224, 164, 149, 224, 165, 135, ' ', 224,
+    164, 184, 224, 164, 190, 224, 164, 165, ' ', 224, 164, 173,
+    224, 164, 190, 224, 164, 176, 224, 164, 164, ' ', 224, 164,
+    149, 224, 165, 128, ' ', 224, 164, 184, 224, 165, 128, 224,
+    164, 174, 224, 164, 190, ' ', 224, 164, 185, 224, 165, 136,
+    224, 165, 164, ' ', 224, 164, 135, 224, 164, 184, 224, 164,
+    149, 224, 165, 135, ' ', 224, 164, 137, 224, 164, 164, 224,
+    165, 141, 224, 164, 164, 224, 164, 176, ' ', 224, 164, 174,
+    224, 165, 135, 224, 164, 130, ' ', 224, 164, 185, 224, 164,
+    191, 224, 164, 174, 224, 164, 190, 224, 164, 178, 224, 164,
+    175, ' ', 224, 164, 170, 224, 164, 176, 224, 165, 141, 224,
+    164, 181, 224, 164, 164, ' ', 224, 164, 185, 224, 165, 136,
+    ' ', 224, 164, 148, 224, 164, 176, ' ', 224, 164, 166, 224,
+    164, 149, 224, 165, 141, 224, 164, 183, 224, 164, 191, 224,
+    164, 163, ' ', 224, 164, 174, 224, 165, 135, 224, 164, 130,
+    ' ', 224, 164, 185, 224, 164, 191, 224, 164, 168, 224, 165,
+    141, 224, 164, 166, ' ', 224, 164, 174, 224, 164, 185, 224,
+    164, 190, 224, 164, 184, 224, 164, 190, 224, 164, 151, 224,
+    164, 176, ' ', 224, 164, 185, 224, 165, 136, 224, 165, 164,
+    ' ', 224, 164, 170, 224, 165, 130, 224, 164, 176, 224, 165,
+    141, 224, 164, 181, ' ', 224, 164, 174, 224, 165, 135, 224,
+    164, 130, ' ', 224, 164, 172, 224, 164, 130, 224, 164, 151,
+    224, 164, 190, 224, 164, 178, ' ', 224, 164, 149, 224, 165,
+    128, ' ', 224, 164, 150, 224, 164, 190, 224, 164, 161, 224,
+    164, 188, 224, 165, 128, ' ', 224, 164, 185, 224, 165, 136,
+    ' ', 224, 164, 164, 224, 164, 165, 224, 164, 190, ' ', 224,
+    164, 170, 224, 164, 182, 224, 165, 141, 224, 164, 154, 224,
+    164, 191, 224, 164, 174, ' ', 224, 164, 174, 224, 165, 135,
+    224, 164, 130, ' ', 224, 164, 133, 224, 164, 176, 224, 164,
+    172, ' ', 224, 164, 184, 224, 164, 190, 224, 164, 151, 224,
+    164, 176, 224, 164, 184, 224, 164, 174, 224, 165, 129, 224,
+    164, 166, 224, 165, 141, 224, 164, 176, ' ', 224, 164, 185,
+    224, 165, 136, 224, 164, 130, ' ', 224, 165, 164, ' ', 224,
+    164, 173, 224, 164, 190, 224, 164, 176, 224, 164, 164, ' ',
+    224, 164, 174, 224, 165, 135, 224, 164, 130, ' ', 224, 164,
+    149, 224, 164, 136, ' ', 224, 164, 172, 224, 164, 161, 224,
+    164, 188, 224, 165, 128, ' ', 224, 164, 168, 224, 164, 166,
+    224, 164, 191, 224, 164, 175, 224, 164, 190, 224, 164, 129,
+    ' ', 224, 164, 185, 224, 165, 136, 224, 164, 130, ' ', 224,
+    165, 164, ' ', 224, 164, 151, 224, 164, 130, 224, 164, 151,
+    224, 164, 190, ' ', 224, 164, 168, 224, 164, 166, 224, 165,
+    128, ' ', 224, 164, 173, 224, 164, 190, 224, 164, 176, 224,
+    164, 164, 224, 165, 128, 224, 164, 175, ' ', 224, 164, 184,
+    224, 164, 130, 224, 164, 184, 224, 165, 141, 224, 164, 149,
+    224, 165, 131, 224, 164, 164, 224, 164, 191, ' ', 224, 164,
+    174, 224, 165, 135, 224, 164, 130, ' ', 224, 164, 133, 224,
+    164, 164, 224, 165, 141, 224, 164, 175, 224, 164, 130, 224,
+    164, 164, ' ', 224, 164, 170, 224, 164, 181, 224, 164, 191,
+    224, 164, 164, 224, 165, 141, 224, 164, 176, ' ', 224, 164,
+    174, 224, 164, 190, 224, 164, 168, 224, 165, 128, ' ', 224,
+    164, 156, 224, 164, 190, 224, 164, 164, 224, 165, 128, ' ',
+    224, 164, 185, 224, 165, 136, 224, 165, 164, ' ', 224, 164,
+    133, 224, 164, 168, 224, 165, 141, 224, 164, 175, ' ', 224,
+    164, 172, 224, 164, 161, 224, 164, 188, 224, 165, 128, ' ',
+    224, 164, 168, 224, 164, 166, 224, 164, 191, 224, 164, 175,
+    224, 164, 190, 224, 164, 129, ' ', 224, 164, 184, 224, 164,
+    191, 224, 164, 168, 224, 165, 141, 224, 164, 167, 224, 165,
+    129, ',', ' ', 224, 164, 168, 224, 164, 176, 224, 165, 141,
+    224, 164, 174, 224, 164, 166, 224, 164, 190, ',', ' ', 224,
+    164, 172, 224, 165, 141, 224, 164, 176, 224, 164, 185, 224,
+    165, 141, 224, 164, 174, 224, 164, 170, 224, 165, 129, 224,
+    164, 164, 224, 165, 141, 224, 164, 176, ',', ' ', 224, 164,
+    175, 224, 164, 174, 224, 165, 129, 224, 164, 168, 224, 164,
+    190, ',', ' ', 224, 164, 151, 224, 165, 139, 224, 164, 166,
+    224, 164, 190, 224, 164, 181, 224, 164, 176, 224, 165, 128,
+    ',', ' ', 224, 164, 149, 224, 164, 190, 224, 164, 181, 224,
+    165, 135, 224, 164, 176, 224, 165, 128, ',', ' ', 224, 164,
+    149, 224, 165, 131, 224, 164, 183, 224, 165, 141, 224, 164,
+    163, 224, 164, 190, ',', ' ', 224, 164, 154, 224, 164, 174,
+    224, 165, 141, 224, 164, 172, 224, 164, 178, ',', ' ', 224,
+    164, 184, 224, 164, 164, 224, 164, 178, 224, 164, 156, ',',
+    ' ', 224, 164, 181, 224, 165, 141, 224, 164, 175, 224, 164,
+    190, 224, 164, 184, ' ', 224, 164, 134, 224, 164, 166, 224,
+    164, 191, ' ', 224, 164, 185, 224, 165, 136, 224, 164, 130,
+    224, 165, 164,  13,  10,  13,  10, 224, 164, 175, 224, 164,
+    185, ' ', 224, 164, 181, 224, 164, 191, 224, 164, 182, 224,
+    165, 141, 224, 164, 181, ' ', 224, 164, 149, 224, 164, 190,
+    ' ', 224, 164, 184, 224, 164, 172, 224, 164, 184, 224, 165,
+    135, ' ', 224, 164, 172, 224, 164, 161, 224, 164, 188, 224,
+    164, 190, ' ', 224, 164, 178, 224, 165, 139, 224, 164, 149,
+    224, 164, 164, 224, 164, 130, 224, 164, 164, 224, 165, 141,
+    224, 164, 176, ' ', 224, 164, 185, 224, 165, 136, 224, 165,
+    164, ' ', 224, 164, 175, 224, 164, 185, 224, 164, 190, 224,
+    164, 129, ' ', 224, 165, 169, 224, 165, 166, 224, 165, 166,
+    ' ', 224, 164, 184, 224, 165, 135, ' ', 224, 164, 133, 224,
+    164, 167, 224, 164, 191, 224, 164, 149, ' ', 224, 164, 173,
+    224, 164, 190, 224, 164, 183, 224, 164, 190, 224, 164, 143,
+    224, 164, 129, ' ', 224, 164, 172, 224, 165, 139, 224, 164,
+    178, 224, 165, 128, ' ', 224, 164, 156, 224, 164, 190, 224,
+    164, 164, 224, 165, 128, ' ', 224, 164, 185, 224, 165, 136,
+    224, 164, 130, ' ', '[', '1', ']', 224, 165, 164, ' ', 224,
+    164, 175, 224, 164, 185, ' ', 224, 164, 181, 224, 164, 191,
+    224, 164, 182, 224, 165, 141, 224, 164, 181, ' ', 224, 164,
+    149, 224, 165, 128, ' ', 224, 164, 149, 224, 165, 129, 224,
+    164, 155, ' ', 224, 164, 170, 224, 165, 141, 224, 164, 176,
+    224, 164, 190, 224, 164, 154, 224, 165, 128, 224, 164, 168,
+    224, 164, 164, 224, 164, 174, ' ', 224, 164, 184, 224, 164,
+    173, 224, 165, 141, 224, 164, 175, 224, 164, 164, 224, 164,
+    190, 224, 164, 147, 224, 164, 130, ' ', 224, 164, 149, 224,
+    165, 128, ' ', 224, 164, 156, 224, 164, 168, 224, 164, 168,
+    224, 165, 128, ' ', 224, 164, 176, 224, 164, 185, 224, 164,
+    190, ' ', 224, 164, 185, 224, 165, 136, ' ', 224, 164, 156,
+    224, 165, 136, 224, 164, 184, 224, 165, 135, ' ', '-', ' ',
+    224, 164, 184, 224, 164, 191, 224, 164, 168, 224, 165, 141,
+    224, 164, 167, 224, 165, 129, ' ', 224, 164, 152, 224, 164,
+    190, 224, 164, 159, 224, 165, 128, ' ', 224, 164, 184, 224,
+    164, 173, 224, 165, 141, 224, 164, 175, 224, 164, 164, 224,
+    164, 190, ',', ' ', 224, 164, 148, 224, 164, 176, ' ', 224,
+    164, 174, 224, 164, 185, 224, 164, 164, 224, 165, 141, 224,
+    164, 181, 224, 164, 170, 224, 165, 130, 224, 164, 176, 224,
+    165, 141, 224, 164, 163, ' ', 224, 164, 144, 224, 164, 164,
+    224, 164, 191, 224, 164, 185, 224, 164, 190, 224, 164, 184,
+    224, 164, 191, 224, 164, 149, ' ', 224, 164, 181, 224, 165,
+    141, 224, 164, 175, 224, 164, 190, 224, 164, 170, 224, 164,
+    190, 224, 164, 176, ' ', 224, 164, 170, 224, 164, 165, 224,
+    165, 139, 224, 164, 130, ' ', 224, 164, 149, 224, 164, 190,
+    ' ', 224, 164, 133, 224, 164, 173, 224, 164, 191, 224, 164,
+    168, 224, 165, 141, 224, 164, 168, ' ', 224, 164, 133, 224,
+    164, 130, 224, 164, 151, ' ', 224, 164, 173, 224, 165, 128,
+    '.', ' ', 224, 164, 181, 224, 164, 191, 224, 164, 182, 224,
+    165, 141, 224, 164, 181, ' ', 224, 164, 149, 224, 165, 135,
+    ' ', 224, 164, 154, 224, 164, 190, 224, 164, 176, ' ', 224,
+    164, 170, 224, 165, 141, 224, 164, 176, 224, 164, 174, 224,
+    165, 129, 224, 164, 150, ' ', 224, 164, 167, 224, 164, 176,
+    224, 165, 141, 224, 164, 174, ' ', ':', ' ', 224, 164, 184,
+    224, 164, 168, 224, 164, 190, 224, 164, 164, 224, 164, 168,
+    '-', 224, 164, 185, 224, 164, 191, 224, 164, 168, 224, 165,
+    141, 224, 164, 166, 224, 165, 130, ',', ' ', 224, 164, 172,
+    224, 165, 140, 224, 164, 166, 224, 165, 141, 224, 164, 167,
+    ',', ' ', 224, 164, 156, 224, 165, 136, 224, 164, 168, ' ',
+    224, 164, 164, 224, 164, 165, 224, 164, 190, ' ', 224, 164,
+    184, 224, 164, 191, 224, 164, 150, ' ', 224, 164, 173, 224,
+    164, 190, 224, 164, 176, 224, 164, 164, ' ', 224, 164, 174,
+    224, 165, 135, 224, 164, 130, ' ', 224, 164, 185, 224, 165,
+    128, ' ', 224, 164, 156, 224, 164, 168, 224, 165, 141, 224,
+    164, 174, 224, 165, 135, ' ', 224, 164, 148, 224, 164, 176,
+    ' ', 224, 164, 181, 224, 164, 191, 224, 164, 149, 224, 164,
+    184, 224, 164, 191, 224, 164, 164, ' ', 224, 164, 185, 224,
+    165, 129, 224, 164, 143, 224, 165, 164,  13,  10,  13,  10,
+    224, 164, 173, 224, 164, 190, 224, 164, 176, 224, 164, 164,
+    ' ', 224, 164, 173, 224, 165, 140, 224, 164, 151, 224, 165,
+    139, 224, 164, 178, 224, 164, 191, 224, 164, 149, ' ', 224,
+    164, 149, 224, 165, 141, 224, 164, 183, 224, 165, 135, 224,
+    164, 164, 224, 165, 141, 224, 164, 176, 224, 164, 171, 224,
+    164, 178, ' ', 224, 164, 149, 224, 165, 135, ' ', 224, 164,
+    134, 224, 164, 167, 224, 164, 190, 224, 164, 176, ' ', 224,
+    164, 170, 224, 164, 176, ' ', 224, 164, 181, 224, 164, 191,
+    224, 164, 182, 224, 165, 141, 224, 164, 181, ' ', 224, 164,
+    149, 224, 164, 190, ' ', 224, 164, 184, 224, 164, 190, 224,
+    164, 164, 224, 164, 181, 224, 164, 190, 224, 164, 129, ' ',
+    224, 164, 184, 224, 164, 172, 224, 164, 184, 224, 165, 135,
+    ' ', 224, 164, 172, 224, 164, 161, 224, 164, 188, 224, 164,
+    190, ' ', 224, 164, 176, 224, 164, 190, 224, 164, 183, 224,
+    165, 141, 224, 164, 159, 224, 165, 141, 224, 164, 176, ' ',
+    224, 164, 185, 224, 165, 136, 224, 165, 164, ' ', 224, 164,
+    173, 224, 164, 190, 224, 164, 176, 224, 164, 164, ' ', 224,
+    164, 149, 224, 165, 128, ' ', 224, 164, 176, 224, 164, 190,
+    224, 164, 156, 224, 164, 167, 224, 164, 190, 224, 164, 168,
+    224, 165, 128, ' ', 224, 164, 168, 224, 164, 136, ' ', 224,
+    164, 166, 224, 164, 191, 224, 164, 178, 224, 165, 141, 224,
+    164, 178, 224, 165, 128, ' ', 224, 164, 185, 224, 165, 136,
+    224, 165, 164, ' ', 224, 164, 173, 224, 164, 190, 224, 164,
+    176, 224, 164, 164, ' ', 224, 164, 149, 224, 165, 135, ' ',
+    224, 164, 133, 224, 164, 168, 224, 165, 141, 224, 164, 175,
+    ' ', 224, 164, 172, 224, 164, 161, 224, 164, 188, 224, 165,
+    135, ' ', 224, 164, 174, 224, 164, 185, 224, 164, 190, 224,
+    164, 168, 224, 164, 151, 224, 164, 176, ' ', 224, 164, 174,
+    224, 165, 129, 224, 164, 174, 224, 165, 141, 224, 164, 172,
+    224, 164, 136, ' ', '(', 224, 164, 172, 224, 164, 174, 224,
+    165, 141, 224, 164, 172, 224, 164, 136, ')', ',', ' ', 224,
+    164, 149, 224, 165, 139, 224, 164, 178, 224, 164, 149, 224,
+    164, 190, 224, 164, 164, 224, 164, 190, ' ', '(', 224, 164,
+    149, 224, 164, 178, 224, 164, 149, 224, 164, 164, 224, 165,
+    141, 224, 164, 164, 224, 164, 190, ')', ' ', 224, 164, 148,
+    224, 164, 176, ' ', 224, 164, 154, 224, 165, 135, 224, 164,
+    168, 224, 165, 141, 224, 164, 168, 224, 164, 136, ' ', '(',
+    224, 164, 174, 224, 164, 166, 224, 165, 141, 224, 164, 176,
+    224, 164, 190, 224, 164, 184, ')', ' ', 224, 164, 185, 224,
+    165, 136, 224, 164, 130, 224, 165, 164, ' ', 224, 165, 167,
+    224, 165, 175, 224, 165, 170, 224, 165, 173, ' ', 224, 164,
+    174, 224, 165, 135, 224, 164, 130, ' ', 224, 164, 184, 224,
+    165, 141, 224, 164, 181, 224, 164, 164, 224, 164, 130, 224,
+    164, 164, 224, 165, 141, 224, 164, 176, 224, 164, 164, 224,
+    164, 190, ' ', 224, 164, 170, 224, 165, 141, 224, 164, 176,
+    224, 164, 190, 224, 164, 170, 224, 165, 141, 224, 164, 164,
+    224, 164, 191, ' ', 224, 164, 184, 224, 165, 135, ' ', 224,
+    164, 170, 224, 165, 130, 224, 164, 176, 224, 165, 141, 224,
+    164, 181, ' ', 224, 164, 172, 224, 165, 141, 224, 164, 176,
+    224, 164, 191, 224, 164, 159, 224, 164, 191, 224, 164, 182,
+    ' ', 224, 164, 173, 224, 164, 190, 224, 164, 176, 224, 164,
+    164, ' ', 224, 164, 149, 224, 165, 135, ' ', 224, 164, 176,
+    224, 165, 130, 224, 164, 170, ' ', 224, 164, 174, 224, 165,
+    135, 224, 164, 130, ' ', 224, 164, 172, 224, 165, 141, 224,
+    164, 176, 224, 164, 191, 224, 164, 159, 224, 164, 191, 224,
+    164, 182, ' ', 224, 164, 184, 224, 164, 190, 224, 164, 174,
+    224, 165, 141, 224, 164, 176, 224, 164, 190, 224, 164, 156,
+    224, 165, 141, 224, 164, 175, ' ', 224, 164, 149, 224, 165,
+    135, ' ', 224, 164, 170, 224, 165, 141, 224, 164, 176, 224,
+    164, 174, 224, 165, 129, 224, 164, 150, ' ', 224, 164, 133,
+    224, 164, 130, 224, 164, 151, ' ', 224, 164, 173, 224, 164,
+    190, 224, 164, 176, 224, 164, 164, ' ', 224, 164, 168, 224,
+    165, 135, ' ', 224, 164, 181, 224, 164, 191, 224, 164, 151,
+    224, 164, 164, ' ', 224, 165, 168, 224, 165, 166, ' ', 224,
+    164, 181, 224, 164, 176, 224, 165, 141, 224, 164, 183, ' ',
+    224, 164, 174, 224, 165, 135, 224, 164, 130, ' ', 224, 164,
+    184, 224, 164, 190, 224, 164, 176, 224, 165, 141, 224, 164,
+    165, 224, 164, 149, ' ', 224, 164, 170, 224, 165, 141, 224,
+    164, 176, 224, 164, 151, 224, 164, 164, 224, 164, 191, ' ',
+    224, 164, 149, 224, 165, 128, ' ', 224, 164, 185, 224, 165,
+    136, ',', ' ', 224, 164, 181, 224, 164, 191, 224, 164, 182,
+    224, 165, 135, 224, 164, 183, ' ', 224, 164, 176, 224, 165,
+    130, 224, 164, 170, ' ', 224, 164, 184, 224, 165, 135, ' ',
+    224, 164, 134, 224, 164, 176, 224, 165, 141, 224, 164, 165,
+    224, 164, 191, 224, 164, 149, ' ', 224, 164, 148, 224, 164,
+    176, ' ', 224, 164, 173, 224, 164, 190, 224, 164, 176, 224,
+    164, 164, 224, 165, 128, 224, 164, 175, ' ', 224, 164, 184,
+    224, 165, 135, 224, 164, 168, 224, 164, 190, ' ', 224, 164,
+    143, 224, 164, 149, ' ', 224, 164, 149, 224, 165, 141, 224,
+    164, 183, 224, 165, 135, 224, 164, 164, 224, 165, 141, 224,
+    164, 176, 224, 165, 128, 224, 164, 175, ' ', 224, 164, 182,
+    224, 164, 149, 224, 165, 141, 224, 164, 164, 224, 164, 191,
+    ' ', 224, 164, 148, 224, 164, 176, ' ', 224, 164, 181, 224,
+    164, 191, 224, 164, 182, 224, 165, 141, 224, 164, 181, 224,
+    164, 181, 224, 165, 141, 224, 164, 175, 224, 164, 190, 224,
+    164, 170, 224, 164, 149, ' ', 224, 164, 182, 224, 164, 149,
+    224, 165, 141, 224, 164, 164, 224, 164, 191, ' ', 224, 164,
+    185, 224, 165, 136, 224, 165, 164, ' ', 224, 164, 173, 224,
+    164, 190, 224, 164, 176, 224, 164, 164, ' ', 224, 164, 181,
+    224, 164, 191, 224, 164, 182, 224, 165, 141, 224, 164, 181,
+    ' ', 224, 164, 149, 224, 165, 128, ' ', 224, 164, 166, 224,
+    164, 184, 224, 164, 181, 224, 165, 128, 224, 164, 130, ' ',
+    224, 164, 184, 224, 164, 172, 224, 164, 184, 224, 165, 135,
+    ' ', 224, 164, 172, 224, 164, 161, 224, 164, 188, 224, 165,
+    128, ' ', 224, 164, 133, 224, 164, 176, 224, 165, 141, 224,
+    164, 165, 224, 164, 181, 224, 165, 141, 224, 164, 175, 224,
+    164, 181, 224, 164, 184, 224, 165, 141, 224, 164, 165, 224,
+    164, 190, ' ', 224, 164, 185, 224, 165, 136, 224, 165, 164,
+    ' ', 224, 164, 185, 224, 164, 190, 224, 164, 178, ' ', 224,
+    164, 149, 224, 165, 135, ' ', 224, 164, 181, 224, 164, 176,
+    224, 165, 141, 224, 164, 183, 224, 165, 139, 224, 164, 130,
+    ' ', 224, 164, 174, 224, 165, 135, 224, 164, 130, ' ', 224,
+    164, 173, 224, 164, 190, 224, 164, 176, 224, 164, 164, ' ',
+    224, 164, 149, 224, 165, 128, ' ', 224, 164, 133, 224, 164,
+    176, 224, 165, 141, 224, 164, 165, 224, 164, 181, 224, 165,
+    141, 224, 164, 175, 224, 164, 181, 224, 164, 184, 224, 165,
+    141, 224, 164, 165, 224, 164, 190, ' ', 224, 164, 168, 224,
+    165, 135, ' ', 224, 164, 172, 224, 164, 185, 224, 165, 129,
+    224, 164, 164, ' ', 224, 164, 170, 224, 165, 141, 224, 164,
+    176, 224, 164, 151, 224, 164, 164, 224, 164, 191, ' ', 224,
+    164, 149, 224, 165, 128, ' ', 224, 164, 185, 224, 165, 136,
+    ',', ' ', 224, 164, 148, 224, 164, 176, ' ', 224, 164, 164,
+    224, 164, 190, 224, 164, 156, 224, 164, 188, 224, 164, 190,
+    ' ', 224, 164, 184, 224, 165, 141, 224, 164, 165, 224, 164,
+    191, 224, 164, 164, 224, 164, 191, ' ', 224, 164, 174, 224,
+    165, 135, 224, 164, 130, ' ', 224, 164, 173, 224, 164, 190,
+    224, 164, 176, 224, 164, 164, ' ', 224, 164, 181, 224, 164,
+    191, 224, 164, 182, 224, 165, 141, 224, 164, 181, ' ', 224,
+    164, 174, 224, 165, 135, 224, 164, 130, ' ', 224, 164, 164,
+    224, 165, 128, 224, 164, 184, 224, 164, 176, 224, 165, 135,
+    '-', 224, 164, 154, 224, 165, 140, 224, 164, 165, 224, 165,
+    135, ' ', 224, 164, 184, 224, 165, 141, 224, 164, 165, 224,
+    164, 190, 224, 164, 168, ' ', 224, 164, 170, 224, 164, 176,
+    ' ', 224, 164, 185, 224, 165, 139, 224, 164, 168, 224, 165,
+    135, ' ', 224, 164, 149, 224, 164, 190, ' ', 224, 164, 166,
+    224, 164, 190, 224, 164, 181, 224, 164, 190, ' ', 224, 164,
+    149, 224, 164, 176, 224, 164, 164, 224, 164, 190, ' ', 224,
+    164, 185, 224, 165, 136, ' ', 224, 165, 164,  13,  10,  13,
+     10, 224, 164, 173, 224, 164, 190, 224, 164, 176, 224, 164,
+    164, ' ', 224, 164, 149, 224, 165, 135, ' ', 224, 164, 166,
+    224, 165, 139, ' ', 224, 164, 134, 224, 164, 167, 224, 164,
+    191, 224, 164, 149, 224, 164, 190, 224, 164, 176, 224, 164,
+    191, 224, 164, 149, ' ', 224, 164, 168, 224, 164, 190, 224,
+    164, 174, ' ', 224, 164, 185, 224, 165, 136, 224, 164, 130,
+    '-', ' ', 224, 164, 185, 224, 164, 191, 224, 164, 168, 224,
+    165, 141, 224, 164, 166, 224, 165, 128, ' ', 224, 164, 174,
+    224, 165, 135, 224, 164, 130, ' ', 224, 164, 173, 224, 164,
+    190, 224, 164, 176, 224, 164, 164, ' ', 224, 164, 148, 224,
+    164, 176, ' ', 224, 164, 133, 224, 164, 130, 224, 164, 151,
+    224, 165, 141, 224, 164, 176, 224, 165, 135, 224, 164, 156,
+    224, 164, 188, 224, 165, 128, ' ', 224, 164, 174, 224, 165,
+    135, 224, 164, 130, ' ', 224, 164, 135, 224, 164, 163, 224,
+    165, 141, 224, 164, 161, 224, 164, 191, 224, 164, 175, 224,
+    164, 190, ' ', '(', 'I', 'n', 'd', 'i', 'a', ')', 224, 165,
+    164, ' ', 224, 164, 135, 224, 164, 163, 224, 165, 141, 224,
+    164, 161, 224, 164, 191, 224, 164, 175, 224, 164, 190, ' ',
+    224, 164, 168, 224, 164, 190, 224, 164, 174, ' ', 224, 164,
+    149, 224, 165, 128, ' ', 224, 164, 137, 224, 164, 164, 224,
+    165, 141, 224, 164, 170, 224, 164, 164, 224, 165, 141, 224,
+    164, 164, 224, 164, 191, ' ', 224, 164, 184, 224, 164, 191,
+    224, 164, 168, 224, 165, 141, 224, 164, 167, 224, 165, 129,
+    ' ', 224, 164, 168, 224, 164, 166, 224, 165, 128, ' ', 224,
+    164, 149, 224, 165, 135, ' ', 224, 164, 133, 224, 164, 130,
+    224, 164, 151, 224, 165, 141, 224, 164, 176, 224, 165, 135,
+    224, 164, 156, 224, 165, 128, ' ', 224, 164, 168, 224, 164,
+    190, 224, 164, 174, ' ', '"', 224, 164, 135, 224, 164, 163,
+    224, 165, 141, 224, 164, 161, 224, 164, 184, '"', ' ', 224,
+    164, 184, 224, 165, 135, ' ', 224, 164, 185, 224, 165, 129,
+    224, 164, 136, ' ', 224, 164, 185, 224, 165, 136, 224, 165,
+    164, ' ', 224, 164, 173, 224, 164, 190, 224, 164, 176, 224,
+    164, 164, ' ', 224, 164, 168, 224, 164, 190, 224, 164, 174,
+    ',', ' ', 224, 164, 143, 224, 164, 149, ' ', 224, 164, 170,
+    224, 165, 141, 224, 164, 176, 224, 164, 190, 224, 164, 154,
+    224, 165, 128, 224, 164, 168, ' ', 224, 164, 185, 224, 164,
+    191, 224, 164, 168, 224, 165, 141, 224, 164, 166, 224, 165,
+    130, ' ', 224, 164, 184, 224, 164, 174, 224, 165, 141, 224,
+    164, 176, 224, 164, 190, 224, 164, 159, ' ', 224, 164, 173,
+    224, 164, 176, 224, 164, 164, ' ', 224, 164, 156, 224, 165,
+    139, ' ', 224, 164, 149, 224, 164, 191, ' ', 224, 164, 174,
+    224, 164, 168, 224, 165, 129, ' ', 224, 164, 149, 224, 165,
+    135, ' ', 224, 164, 181, 224, 164, 130, 224, 164, 182, 224,
+    164, 156, ' ', 224, 164, 139, 224, 164, 183, 224, 164, 173,
+    224, 164, 166, 224, 165, 135, 224, 164, 181, ' ', 224, 164,
+    149, 224, 165, 135, ' ', 224, 164, 156, 224, 165, 141, 224,
+    164, 175, 224, 165, 135, 224, 164, 183, 224, 165, 141, 224,
+    164, 160, ' ', 224, 164, 170, 224, 165, 129, 224, 164, 164,
+    224, 165, 141, 224, 164, 176, ' ', 224, 164, 165, 224, 165,
+    135, ' ', 224, 164, 164, 224, 164, 165, 224, 164, 190, ' ',
+    224, 164, 156, 224, 164, 191, 224, 164, 168, 224, 164, 149,
+    224, 165, 128, ' ', 224, 164, 149, 224, 164, 165, 224, 164,
+    190, ' ', 224, 164, 182, 224, 165, 141, 224, 164, 176, 224,
+    165, 128, 224, 164, 174, 224, 164, 166, 224, 165, 141, 224,
+    164, 173, 224, 164, 190, 224, 164, 151, 224, 164, 181, 224,
+    164, 164, ' ', 224, 164, 174, 224, 164, 185, 224, 164, 190,
+    224, 164, 170, 224, 165, 129, 224, 164, 176, 224, 164, 190,
+    224, 164, 163, ' ', 224, 164, 174, 224, 165, 135, 224, 164,
+    130, ' ', 224, 164, 185, 224, 165, 136, ',', ' ', 224, 164,
+    149, 224, 165, 135, ' ', 224, 164, 168, 224, 164, 190, 224,
+    164, 174, ' ', 224, 164, 184, 224, 165, 135, ' ', 224, 164,
+    178, 224, 164, 191, 224, 164, 175, 224, 164, 190, ' ', 224,
+    164, 151, 224, 164, 175, 224, 164, 190, ' ', 224, 164, 185,
+    224, 165, 136, 224, 165, 164, ' ', 224, 164, 173, 224, 164,
+    190, 224, 164, 176, 224, 164, 164, ' ', '(', 224, 164, 173,
+    224, 164, 190, ' ', '+', ' ', 224, 164, 176, 224, 164, 164,
+    ')', ' ', 224, 164, 182, 224, 164, 172, 224, 165, 141, 224,
+    164, 166, ' ', 224, 164, 149, 224, 164, 190, ' ', 224, 164,
+    174, 224, 164, 164, 224, 164, 178, 224, 164, 172, ' ', 224,
+    164, 185, 224, 165, 136, ' ', 224, 164, 134, 224, 164, 168,
+    224, 165, 141, 224, 164, 164, 224, 164, 176, 224, 164, 191,
+    224, 164, 149, ' ', 224, 164, 170, 224, 165, 141, 224, 164,
+    176, 224, 164, 149, 224, 164, 190, 224, 164, 182, ' ', 224,
+    164, 175, 224, 164, 190, ' ', 224, 164, 181, 224, 164, 191,
+    224, 164, 166, 224, 165, 135, 224, 164, 149, '-', 224, 164,
+    176, 224, 165, 130, 224, 164, 170, 224, 165, 128, ' ', 224,
+    164, 170, 224, 165, 141, 224, 164, 176, 224, 164, 149, 224,
+    164, 190, 224, 164, 182, ' ', 224, 164, 174, 224, 165, 135,
+    224, 164, 130, ' ', 224, 164, 178, 224, 165, 128, 224, 164,
+    168, 224, 165, 164, ' ', 224, 164, 143, 224, 164, 149, ' ',
+    224, 164, 164, 224, 165, 128, 224, 164, 184, 224, 164, 176,
+    224, 164, 190, ' ', 224, 164, 168, 224, 164, 190, 224, 164,
+    174, ' ', 224, 164, 185, 224, 164, 191, 224, 164, 168, 224,
+    165, 141, 224, 164, 166, 224, 165, 129, 224, 164, 184, 224,
+    165, 141, 224, 164, 164, 224, 164, 190, 224, 164, 168, ' ',
+    224, 164, 173, 224, 165, 128, ' ', 224, 164, 185, 224, 165,
+    136, ' ', 224, 164, 156, 224, 164, 191, 224, 164, 184, 224,
+    164, 149, 224, 164, 190, ' ', 224, 164, 133, 224, 164, 176,
+    224, 165, 141, 224, 164, 165, ' ', 224, 164, 185, 224, 164,
+    191, 224, 164, 168, 224, 165, 141, 224, 164, 166, '(', 224,
+    164, 185, 224, 164, 191, 224, 164, 168, 224, 165, 141, 224,
+    164, 166, 224, 165, 130, ')', ' ', 224, 164, 149, 224, 165,
+    128, ' ', 224, 164, 173, 224, 165, 130, 224, 164, 174, 224,
+    164, 191, ' ', 224, 164, 185, 224, 165, 139, 224, 164, 164,
+    224, 164, 190, ' ', 224, 164, 185, 224, 165, 136, ' ', 224,
+    164, 156, 224, 165, 139, ' ', 224, 164, 149, 224, 164, 191,
+    ' ', 224, 164, 170, 224, 165, 141, 224, 164, 176, 224, 164,
+    190, 224, 164, 154, 224, 165, 128, 224, 164, 168, ' ', 224,
+    164, 149, 224, 164, 190, 224, 164, 178, ' ', 224, 164, 139,
+    224, 164, 183, 224, 164, 191, 224, 164, 175, 224, 165, 139,
+    224, 164, 130, ' ', 224, 164, 166, 224, 165, 141, 224, 164,
+    181, 224, 164, 190, 224, 164, 176, 224, 164, 190, ' ', 224,
+    164, 166, 224, 164, 191, 224, 164, 175, 224, 164, 190, ' ',
+    224, 164, 151, 224, 164, 175, 224, 164, 190, ' ', 224, 164,
+    165, 224, 164, 190, 224, 165, 164, ' ', 224, 164, 170, 224,
+    165, 141, 224, 164, 176, 224, 164, 190, 224, 164, 154, 224,
+    165, 128, 224, 164, 168, ' ', 224, 164, 149, 224, 164, 190,
+    224, 164, 178, ' ', 224, 164, 174, 224, 165, 135, 224, 164,
+    130, ' ', 224, 164, 175, 224, 164, 185, ' ', 224, 164, 149,
+    224, 164, 174, ' ', 224, 164, 170, 224, 165, 141, 224, 164,
+    176, 224, 164, 175, 224, 165, 129, 224, 164, 149, 224, 165,
+    141, 224, 164, 164, ' ', 224, 164, 185, 224, 165, 139, 224,
+    164, 164, 224, 164, 190, ' ', 224, 164, 165, 224, 164, 190,
+    ' ', 224, 164, 164, 224, 164, 165, 224, 164, 190, ' ', 224,
+    164, 149, 224, 164, 190, 224, 164, 178, 224, 164, 190, 224,
+    164, 168, 224, 165, 141, 224, 164, 164, 224, 164, 176, ' ',
+    224, 164, 174, 224, 165, 135, 224, 164, 130, ' ', 224, 164,
+    133, 224, 164, 167, 224, 164, 191, 224, 164, 149, ' ', 224,
+    164, 170, 224, 165, 141, 224, 164, 176, 224, 164, 154, 224,
+    164, 178, 224, 164, 191, 224, 164, 164, ' ', 224, 164, 185,
+    224, 165, 129, 224, 164, 134, ' ', 224, 164, 181, 224, 164,
+    191, 224, 164, 182, 224, 165, 135, 224, 164, 183, 224, 164,
+    149, 224, 164, 176, ' ', 224, 164, 133, 224, 164, 176, 224,
+    164, 172, '/', 224, 164, 136, 224, 164, 176, 224, 164, 190,
+    224, 164, 168, ' ', 224, 164, 174, 224, 165, 135, 224, 164,
+    130, 224, 165, 164, ' ', 224, 164, 173, 224, 164, 190, 224,
+    164, 176, 224, 164, 164, ' ', 224, 164, 174, 224, 165, 135,
+    224, 164, 130, ' ', 224, 164, 175, 224, 164, 185, ' ', 224,
+    164, 168, 224, 164, 190, 224, 164, 174, ' ', 224, 164, 174,
+    224, 165, 129, 224, 164, 151, 224, 164, 178, ' ', 224, 164,
+    149, 224, 164, 190, 224, 164, 178, ' ', 224, 164, 184, 224,
+    165, 135, ' ', 224, 164, 133, 224, 164, 167, 224, 164, 191,
+    224, 164, 149, ' ', 224, 164, 170, 224, 165, 141, 224, 164,
+    176, 224, 164, 154, 224, 164, 178, 224, 164, 191, 224, 164,
+    164, ' ', 224, 164, 185, 224, 165, 129, 224, 164, 134, ' ',
+    224, 164, 175, 224, 164, 166, 224, 165, 141, 224, 164, 175,
+    224, 164, 170, 224, 164, 191, ' ', 224, 164, 135, 224, 164,
+    184, 224, 164, 149, 224, 164, 190, ' ', 224, 164, 184, 224,
+    164, 174, 224, 164, 149, 224, 164, 190, 224, 164, 178, 224,
+    165, 128, 224, 164, 168, ' ', 224, 164, 137, 224, 164, 170,
+    224, 164, 175, 224, 165, 139, 224, 164, 151, ' ', 224, 164,
+    149, 224, 164, 174, ' ', 224, 164, 148, 224, 164, 176, ' ',
+    224, 164, 170, 224, 165, 141, 224, 164, 176, 224, 164, 190,
+    224, 164, 175, 224, 164, 131, ' ', 224, 164, 137, 224, 164,
+    164, 224, 165, 141, 224, 164, 164, 224, 164, 176, 224, 165,
+    128, ' ', 224, 164, 173, 224, 164, 190, 224, 164, 176, 224,
+    164, 164, ' ', 224, 164, 149, 224, 165, 135, ' ', 224, 164,
+    178, 224, 164, 191, 224, 164, 143, ' ', 224, 164, 185, 224,
+    165, 139, 224, 164, 164, 224, 164, 190, ' ', 224, 164, 185,
+    224, 165, 136, 224, 165, 164, ' ', 224, 164, 135, 224, 164,
+    184, 224, 164, 149, 224, 165, 135, ' ', 224, 164, 133, 224,
+    164, 164, 224, 164, 191, 224, 164, 176, 224, 164, 191, 224,
+    164, 149, 224, 165, 141, 224, 164, 164, ' ', 224, 164, 173,
+    224, 164, 190, 224, 164, 176, 224, 164, 164, 224, 164, 181,
+    224, 164, 176, 224, 165, 141, 224, 164, 183, ' ', 224, 164,
+    149, 224, 165, 139, ' ', 224, 164, 181, 224, 165, 136, 224,
+    164, 166, 224, 164, 191, 224, 164, 149, ' ', 224, 164, 149,
+    224, 164, 190, 224, 164, 178, ' ', 224, 164, 184, 224, 165,
+    135, ' ', 224, 164, 134, 224, 164, 176, 224, 165, 141, 224,
+    164, 175, 224, 164, 190, 224, 164, 181, 224, 164, 176, 224,
+    165, 141, 224, 164, 164, ' ', '"', 224, 164, 156, 224, 164,
+    174, 224, 165, 141, 224, 164, 172, 224, 165, 130, 224, 164,
+    166, 224, 165, 141, 224, 164, 181, 224, 165, 128, 224, 164,
+    170, '"', ' ', 224, 164, 148, 224, 164, 176, ' ', '"', 224,
+    164, 133, 224, 164, 156, 224, 164, 168, 224, 164, 190, 224,
+    164, 173, 224, 164, 166, 224, 165, 135, 224, 164, 182, '"',
+    ' ', 224, 164, 149, 224, 165, 135, ' ', 224, 164, 168, 224,
+    164, 190, 224, 164, 174, ' ', 224, 164, 184, 224, 165, 135,
+    ' ', 224, 164, 173, 224, 165, 128, ' ', 224, 164, 156, 224,
+    164, 190, 224, 164, 168, 224, 164, 190, ' ', 224, 164, 156,
+    224, 164, 190, 224, 164, 164, 224, 164, 190, ' ', 224, 164,
+    176, 224, 164, 185, 224, 164, 190, ' ', 224, 164, 185, 224,
+    165, 136, 224, 165, 164, ' ', 224, 164, 172, 224, 164, 185,
+    224, 165, 129, 224, 164, 164, ' ', 224, 164, 170, 224, 164,
+    185, 224, 164, 178, 224, 165, 135, ' ', 224, 164, 175, 224,
+    164, 185, ' ', 224, 164, 166, 224, 165, 135, 224, 164, 182,
+    ' ','\'', 224, 164, 184, 224, 165, 139, 224, 164, 168, 224,
+    165, 135, ' ', 224, 164, 149, 224, 165, 128, ' ', 224, 164,
+    154, 224, 164, 191, 224, 164, 161, 224, 164, 188, 224, 164,
+    191, 224, 164, 175, 224, 164, 190,'\'', ' ', 224, 164, 149,
+    224, 165, 135, ' ', 224, 164, 176, 224, 165, 130, 224, 164,
+    170, ' ', 224, 164, 174, 224, 165, 135, 224, 164, 130, ' ',
+    224, 164, 156, 224, 164, 190, 224, 164, 168, 224, 164, 190,
+    ' ', 224, 164, 156, 224, 164, 190, 224, 164, 164, 224, 164,
+    190, ' ', 224, 164, 165, 224, 164, 190, 224, 165, 164, '[',
+    '2', ']',  13,  10,  13,  10, 'F', 'r', 'e', 'n', 'c', 'h',
+    ':',  13,  10,  13,  10, 'L', 'a', ' ', 'F', 'r', 'a', 'n',
+    'c', 'e', ',', ' ', 'e', 'n', ' ', 'f', 'o', 'r', 'm', 'e',
+    ' ', 'l', 'o', 'n', 'g', 'u', 'e', ' ', 'l', 'a', ' ', 'R',
+    195, 169, 'p', 'u', 'b', 'l', 'i', 'q', 'u', 'e', ' ', 'f',
+    'r', 'a', 'n', 195, 167, 'a', 'i', 's', 'e', ',', ' ', 'e',
+    's', 't', ' ', 'u', 'n', 'e', ' ', 'r', 195, 169, 'p', 'u',
+    'b', 'l', 'i', 'q', 'u', 'e', ' ', 'c', 'o', 'n', 's', 't',
+    'i', 't', 'u', 't', 'i', 'o', 'n', 'n', 'e', 'l', 'l', 'e',
+    ' ', 'u', 'n', 'i', 't', 'a', 'i', 'r', 'e', ' ', 'd', 'o',
+    'n', 't', ' ', 'l', 'a', ' ', 'm', 'a', 'j', 'e', 'u', 'r',
+    'e', ' ', 'p', 'a', 'r', 't', 'i', 'e', ' ', 'd', 'u', ' ',
+    't', 'e', 'r', 'r', 'i', 't', 'o', 'i', 'r', 'e', ' ', 'e',
+    't', ' ', 'd', 'e', ' ', 'l', 'a', ' ', 'p', 'o', 'p', 'u',
+    'l', 'a', 't', 'i', 'o', 'n', ' ', 's', 'o', 'n', 't', ' ',
+    's', 'i', 't', 'u', 195, 169, 's', ' ', 'e', 'n', ' ', 'E',
+    'u', 'r', 'o', 'p', 'e', ' ', 'o', 'c', 'c', 'i', 'd', 'e',
+    'n', 't', 'a', 'l', 'e', ',', ' ', 'm', 'a', 'i', 's', ' ',
+    'q', 'u', 'i', ' ', 'c', 'o', 'm', 'p', 'r', 'e', 'n', 'd',
+    ' ', 195, 169, 'g', 'a', 'l', 'e', 'm', 'e', 'n', 't', ' ',
+    'p', 'l', 'u', 's', 'i', 'e', 'u', 'r', 's', ' ', 'r', 195,
+    169, 'g', 'i', 'o', 'n', 's', ' ', 'e', 't', ' ', 't', 'e',
+    'r', 'r', 'i', 't', 'o', 'i', 'r', 'e', 's', ' ', 'r', 195,
+    169, 'p', 'a', 'r', 't', 'i', 's', ' ', 'd', 'a', 'n', 's',
+    ' ', 'l', 'e', 's', ' ', 'A', 'm', 195, 169, 'r', 'i', 'q',
+    'u', 'e', 's', ',', ' ', 'l', 226, 128, 153, 'o', 'c', 195,
+    169, 'a', 'n', ' ', 'I', 'n', 'd', 'i', 'e', 'n', ' ', 'e',
+    't', ' ', 'l','\'', 'o', 'c', 195, 169, 'a', 'n', ' ', 'P',
+    'a', 'c', 'i', 'f', 'i', 'q', 'u', 'e', '.', ' ', 'E', 'l',
+    'l', 'e', ' ', 'a', ' ', 'p', 'o', 'u', 'r', ' ', 'c', 'a',
+    'p', 'i', 't', 'a', 'l', 'e', ' ', 'P', 'a', 'r', 'i', 's',
+    ',', ' ', 'p', 'o', 'u', 'r', ' ', 'l', 'a', 'n', 'g', 'u',
+    'e', ' ', 'o', 'f', 'f', 'i', 'c', 'i', 'e', 'l', 'l', 'e',
+    ' ', 'l', 'e', ' ', 'f', 'r', 'a', 'n', 195, 167, 'a', 'i',
+    's', ' ', 'e', 't', ' ', 'p', 'o', 'u', 'r', ' ', 'm', 'o',
+    'n', 'n', 'a', 'i', 'e', ' ', 'l', 226, 128, 153, 'e', 'u',
+    'r', 'o', '.', ' ', 'S', 'a', ' ', 'd', 'e', 'v', 'i', 's',
+    'e', ' ', 'e', 's', 't', ' ', 194, 171, ' ', 'L', 'i', 'b',
+    'e', 'r', 't', 195, 169, ',', ' ', 195, 137, 'g', 'a', 'l',
+    'i', 't', 195, 169, ',', ' ', 'F', 'r', 'a', 't', 'e', 'r',
+    'n', 'i', 't', 195, 169, ' ', 194, 187, ',', ' ', 'e', 't',
+    ' ', 's', 'o', 'n', ' ', 'd', 'r', 'a', 'p', 'e', 'a', 'u',
+    ' ', 'e', 's', 't', ' ', 'c', 'o', 'n', 's', 't', 'i', 't',
+    'u', 195, 169, ' ', 'd', 'e', ' ', 't', 'r', 'o', 'i', 's',
+    ' ', 'b', 'a', 'n', 'd', 'e', 's', ' ', 'v', 'e', 'r', 't',
+    'i', 'c', 'a', 'l', 'e', 's', ' ', 'r', 'e', 's', 'p', 'e',
+    'c', 't', 'i', 'v', 'e', 'm', 'e', 'n', 't', ' ', 'b', 'l',
+    'e', 'u', 'e', ',', ' ', 'b', 'l', 'a', 'n', 'c', 'h', 'e',
+    ' ', 'e', 't', ' ', 'r', 'o', 'u', 'g', 'e', '.', ' ', 'S',
+    'o', 'n', ' ', 'h', 'y', 'm', 'n', 'e', ' ', 'e', 's', 't',
+    ' ', 'L', 'a', ' ', 'M', 'a', 'r', 's', 'e', 'i', 'l', 'l',
+    'a', 'i', 's', 'e', '.', ' ', 'S', 'o', 'n', ' ', 'p', 'r',
+    'i', 'n', 'c', 'i', 'p', 'e', ' ', 'e', 's', 't', ' ', 'g',
+    'o', 'u', 'v', 'e', 'r', 'n', 'e', 'm', 'e', 'n', 't', ' ',
+    'd', 'u', ' ', 'p', 'e', 'u', 'p', 'l', 'e', ',', ' ', 'p',
+    'a', 'r', ' ', 'l', 'e', ' ', 'p', 'e', 'u', 'p', 'l', 'e',
+    ' ', 'e', 't', ' ', 'p', 'o', 'u', 'r', ' ', 'l', 'e', ' ',
+    'p', 'e', 'u', 'p', 'l', 'e', '[', '3', ']', '.',  13,  10,
+     13,  10, 'L', 'a', ' ', 'F', 'r', 'a', 'n', 'c', 'e', ' ',
+    'e', 's', 't', ' ', 'u', 'n', ' ', 'p', 'a', 'y', 's', ' ',
+    'a', 'n', 'c', 'i', 'e', 'n', ',', ' ', 'f', 'o', 'r', 'm',
+    195, 169, ' ', 'a', 'u', ' ', 'H', 'a', 'u', 't', ' ', 'M',
+    'o', 'y', 'e', 'n', ' ', 195, 130, 'g', 'e', '.', ' ', 'A',
+    'u', ' ', 'X', 'I', 'X', 'e', ' ', 's', 'i', 195, 168, 'c',
+    'l', 'e', ' ', 'e', 't', ' ', 'd', 'a', 'n', 's', ' ', 'l',
+    'a', ' ', 'p', 'r', 'e', 'm', 'i', 195, 168, 'r', 'e', ' ',
+    'm', 'o', 'i', 't', 'i', 195, 169, ' ', 'd', 'u', ' ', 'X',
+    'X', 'e', ' ', 's', 'i', 195, 168, 'c', 'l', 'e', ',', ' ',
+    'e', 'l', 'l', 'e', ' ', 'p', 'o', 's', 's', 195, 168, 'd',
+    'e', ' ', 'u', 'n', ' ', 'v', 'a', 's', 't', 'e', ' ', 'e',
+    'm', 'p', 'i', 'r', 'e', ' ', 'c', 'o', 'l', 'o', 'n', 'i',
+    'a', 'l', '.', ' ', 195, 128, ' ', 'p', 'a', 'r', 't', 'i',
+    'r', ' ', 'd', 'e', 's', ' ', 'a', 'n', 'n', 195, 169, 'e',
+    's', ' ', '1', '9', '5', '0', ',', ' ', 'e', 'l', 'l', 'e',
+    ' ', 'e', 's', 't', ' ', 'l', 226, 128, 153, 'u', 'n', ' ',
+    'd', 'e', 's', ' ', 'a', 'c', 't', 'e', 'u', 'r', 's', ' ',
+    'd', 'e', ' ', 'l', 'a', ' ', 'c', 'o', 'n', 's', 't', 'r',
+    'u', 'c', 't', 'i', 'o', 'n', ' ', 'd', 'e', ' ', 'l', 226,
+    128, 153, 'U', 'n', 'i', 'o', 'n', ' ', 'e', 'u', 'r', 'o',
+    'p', 195, 169, 'e', 'n', 'n', 'e', '.', ' ', 'E', 'l', 'l',
+    'e', ' ', 'e', 's', 't', ' ', 'u', 'n', 'e', ' ', 'p', 'u',
+    'i', 's', 's', 'a', 'n', 'c', 'e', ' ', 'n', 'u', 'c', 'l',
+    195, 169, 'a', 'i', 'r', 'e', ',', ' ', 'e', 't', ' ', 'l',
+    226, 128, 153, 'u', 'n', ' ', 'd', 'e', 's', ' ', 'c', 'i',
+    'n', 'q', ' ', 'm', 'e', 'm', 'b', 'r', 'e', 's', ' ', 'p',
+    'e', 'r', 'm', 'a', 'n', 'e', 'n', 't', 's', ' ', 'd', 'u',
+    ' ', 'C', 'o', 'n', 's', 'e', 'i', 'l', ' ', 'd', 'e', ' ',
+    's', 195, 169, 'c', 'u', 'r', 'i', 't', 195, 169, ' ', 'd',
+    'e', 's', ' ', 'N', 'a', 't', 'i', 'o', 'n', 's', ' ', 'u',
+    'n', 'i', 'e', 's', '.', ' ', 'L', 'a', ' ', 'F', 'r', 'a',
+    'n', 'c', 'e', ' ', 'j', 'o', 'u', 'e', ' ', 'u', 'n', ' ',
+    'r', 195, 180, 'l', 'e', ' ', 'i', 'm', 'p', 'o', 'r', 't',
+    'a', 'n', 't', ' ', 'd', 'a', 'n', 's', ' ', 'l', 226, 128,
+    153, 'h', 'i', 's', 't', 'o', 'i', 'r', 'e', ' ', 'm', 'o',
+    'n', 'd', 'i', 'a', 'l', 'e', ' ', 'p', 'a', 'r', ' ', 'l',
+    226, 128, 153, 'i', 'n', 'f', 'l', 'u', 'e', 'n', 'c', 'e',
+    ' ', 'd', 'e', ' ', 's', 'a', ' ', 'c', 'u', 'l', 't', 'u',
+    'r', 'e', ' ', 'e', 't', ' ', 'd', 'e', ' ', 's', 'e', 's',
+    ' ', 'v', 'a', 'l', 'e', 'u', 'r', 's', ' ', 'd', 195, 169,
+    'm', 'o', 'c', 'r', 'a', 't', 'i', 'q', 'u', 'e', 's', ',',
+    ' ', 'l', 'a', 195, 175, 'q', 'u', 'e', 's', ' ', 'e', 't',
+    ' ', 'r', 195, 169, 'p', 'u', 'b', 'l', 'i', 'c', 'a', 'i',
+    'n', 'e', 's', '.',  13,  10,  13,  10, 'L', 'a', ' ', 'F',
+    'r', 'a', 'n', 'c', 'e', ' ', 'a', ',', ' ', 'e', 'n', ' ',
+    '2', '0', '1', '0', ',', ' ', 'l', 'e', ' ', 'c', 'i', 'n',
+    'q', 'u', 'i', 195, 168, 'm', 'e', ' ', 'p', 'l', 'u', 's',
+    ' ', 'i', 'm', 'p', 'o', 'r', 't', 'a', 'n', 't', ' ', 'p',
+    'r', 'o', 'd', 'u', 'i', 't', ' ', 'i', 'n', 't', 195, 169,
+    'r', 'i', 'e', 'u', 'r', ' ', 'b', 'r', 'u', 't', ' ', 'a',
+    'u', ' ', 'm', 'o', 'n', 'd', 'e', '.', ' ', 'S', 'o', 'n',
+    ' ', 195, 169, 'c', 'o', 'n', 'o', 'm', 'i', 'e', ',', ' ',
+    'd', 'e', ' ', 't', 'y', 'p', 'e', ' ', 'c', 'a', 'p', 'i',
+    't', 'a', 'l', 'i', 's', 't', 'e', ' ', 'a', 'v', 'e', 'c',
+    ' ', 'u', 'n', 'e', ' ', 'i', 'n', 't', 'e', 'r', 'v', 'e',
+    'n', 't', 'i', 'o', 'n', ' ', 195, 169, 't', 'a', 't', 'i',
+    'q', 'u', 'e', ' ', 'a', 's', 's', 'e', 'z', ' ', 'f', 'o',
+    'r', 't', 'e', ',', ' ', 'f', 'a', 'i', 't', ' ', 'd', 226,
+    128, 153, 'e', 'l', 'l', 'e', ' ', 'u', 'n', ' ', 'd', 'e',
+    's', ' ', 'l', 'e', 'a', 'd', 'e', 'r', 's', ' ', 'm', 'o',
+    'n', 'd', 'i', 'a', 'u', 'x', ' ', 'd', 'a', 'n', 's', ' ',
+    'l', 'e', 's', ' ', 's', 'e', 'c', 't', 'e', 'u', 'r', 's',
+    ' ', 'd', 'e', ' ', 'l', 226, 128, 153, 'a', 'g', 'r', 'o',
+    'a', 'l', 'i', 'm', 'e', 'n', 't', 'a', 'i', 'r', 'e', ',',
+    ' ', 'd', 'e', ' ', 'l', 226, 128, 153, 'a', 195, 169, 'r',
+    'o', 'n', 'a', 'u', 't', 'i', 'q', 'u', 'e', ',', ' ', 'd',
+    'e', ' ', 'l', 226, 128, 153, 'a', 'u', 't', 'o', 'm', 'o',
+    'b', 'i', 'l', 'e', ',', ' ', 'd', 'e', 's', ' ', 'p', 'r',
+    'o', 'd', 'u', 'i', 't', 's', ' ', 'd', 'e', ' ', 'l', 'u',
+    'x', 'e', ',', ' ', 'd', 'u', ' ', 't', 'o', 'u', 'r', 'i',
+    's', 'm', 'e', ' ', 'e', 't', ' ', 'd', 'u', ' ', 'n', 'u',
+    'c', 'l', 195, 169, 'a', 'i', 'r', 'e', '.',  13,  10,  13,
+     10, 'P', 'e', 'u', 'p', 'l', 195, 169, 'e', ' ', 'd', 'e',
+    ' ', '6', '5', ',', '3', ' ', 'm', 'i', 'l', 'l', 'i', 'o',
+    'n', 's', ' ', 'd', 226, 128, 153, 'h', 'a', 'b', 'i', 't',
+    'a', 'n', 't', 's', ' ', 'a', 'u', ' ', '1', 'e', 'r', ' ',
+    'j', 'a', 'n', 'v', 'i', 'e', 'r', ' ', '2', '0', '1', '2',
+    '[', '4', ']', ',', ' ', 'l', 'a', ' ', 'F', 'r', 'a', 'n',
+    'c', 'e', ' ', 'e', 's', 't', ' ', 'u', 'n', ' ', 'p', 'a',
+    'y', 's', ' ', 'd', 195, 169, 'v', 'e', 'l', 'o', 'p', 'p',
+    195, 169, ',', ' ', 'a', 'v', 'e', 'c', ' ', 'u', 'n', ' ',
+    'i', 'n', 'd', 'i', 'c', 'e', ' ', 'd', 'e', ' ', 'd', 195,
+    169, 'v', 'e', 'l', 'o', 'p', 'p', 'e', 'm', 'e', 'n', 't',
+    ' ', 'h', 'u', 'm', 'a', 'i', 'n', ' ', 't', 'r', 195, 168,
+    's', ' ', 195, 169, 'l', 'e', 'v', 195, 169, '[', '5', ']',
+    '.',  13,  10,  13,  10, 'L', 'a', ' ', 'F', 'r', 'a', 'n',
+    'c', 'e', ' ', 'm', 195, 169, 't', 'r', 'o', 'p', 'o', 'l',
+    'i', 't', 'a', 'i', 'n', 'e', ' ', 'e', 's', 't', ' ', 's',
+    'i', 't', 'u', 195, 169, 'e', ' ', 195, 160, ' ', 'l', 226,
+    128, 153, 'u', 'n', 'e', ' ', 'd', 'e', 's', ' ', 'e', 'x',
+    't', 'r', 195, 169, 'm', 'i', 't', 195, 169, 's', ' ', 'o',
+    'c', 'c', 'i', 'd', 'e', 'n', 't', 'a', 'l', 'e', 's', ' ',
+    'd', 'e', ' ', 'l', 226, 128, 153, 'E', 'u', 'r', 'o', 'p',
+    'e', '.', ' ', 'E', 'l', 'l', 'e', ' ', 'e', 's', 't', ' ',
+    'b', 'o', 'r', 'd', 195, 169, 'e', ' ', 'p', 'a', 'r', ' ',
+    'l', 'a', ' ', 'm', 'e', 'r', ' ', 'd', 'u', ' ', 'N', 'o',
+    'r', 'd', ' ', 'a', 'u', ' ', 'n', 'o', 'r', 'd', ',', ' ',
+    'l', 'a', ' ', 'M', 'a', 'n', 'c', 'h', 'e', ' ', 'a', 'u',
+    ' ', 'n', 'o', 'r', 'd', '-', 'o', 'u', 'e', 's', 't', ',',
+    ' ', 'l', 226, 128, 153, 'o', 'c', 195, 169, 'a', 'n', ' ',
+    'A', 't', 'l', 'a', 'n', 't', 'i', 'q', 'u', 'e', ' ', 195,
+    160, ' ', 'l', 226, 128, 153, 'o', 'u', 'e', 's', 't', ' ',
+    'e', 't', ' ', 'l', 'a', ' ', 'm', 'e', 'r', ' ', 'M', 195,
+    169, 'd', 'i', 't', 'e', 'r', 'r', 'a', 'n', 195, 169, 'e',
+    ' ', 'a', 'u', ' ', 's', 'u', 'd', '-', 'e', 's', 't', '.',
+    ' ', 'E', 'l', 'l', 'e', ' ', 'e', 's', 't', ' ', 'f', 'r',
+    'o', 'n', 't', 'a', 'l', 'i', 195, 168, 'r', 'e', ' ', 'd',
+    'e', ' ', 'l', 'a', ' ', 'B', 'e', 'l', 'g', 'i', 'q', 'u',
+    'e', ' ', 'e', 't', ' ', 'd', 'u', ' ', 'L', 'u', 'x', 'e',
+    'm', 'b', 'o', 'u', 'r', 'g', ' ', 'a', 'u', ' ', 'n', 'o',
+    'r', 'd', '-', 'e', 's', 't', ',', ' ', 'd', 'e', ' ', 'l',
+    226, 128, 153, 'A', 'l', 'l', 'e', 'm', 'a', 'g', 'n', 'e',
+    ' ', 'e', 't', ' ', 'd', 'e', ' ', 'l', 'a', ' ', 'S', 'u',
+    'i', 's', 's', 'e', ' ', 195, 160, ' ', 'l', 226, 128, 153,
+    'e', 's', 't', ',', ' ', 'd', 'e', ' ', 'l', 226, 128, 153,
+    'I', 't', 'a', 'l', 'i', 'e', ' ', 'e', 't', ' ', 'd', 'e',
+    ' ', 'M', 'o', 'n', 'a', 'c', 'o', ' ', 'a', 'u', ' ', 's',
+    'u', 'd', '-', 'e', 's', 't', ',', ' ', 'd', 'e', ' ', 'l',
+    226, 128, 153, 'E', 's', 'p', 'a', 'g', 'n', 'e', ' ', 'e',
+    't', ' ', 'd', 226, 128, 153, 'A', 'n', 'd', 'o', 'r', 'r',
+    'e', ' ', 'a', 'u', ' ', 's', 'u', 'd', '-', 'o', 'u', 'e',
+    's', 't', '.', ' ', 'S', 'i', ' ', 'l', 'e', 's', ' ', 'f',
+    'r', 'o', 'n', 't', 'i', 195, 168, 'r', 'e', 's', ' ', 'd',
+    'u', ' ', 's', 'u', 'd', ' ', 'd', 'u', ' ', 'p', 'a', 'y',
+    's', ' ', 'c', 'o', 'r', 'r', 'e', 's', 'p', 'o', 'n', 'd',
+    'e', 'n', 't', ' ', 195, 160, ' ', 'd', 'e', 's', ' ', 'm',
+    'a', 's', 's', 'i', 'f', 's', ' ', 'm', 'o', 'n', 't', 'a',
+    'g', 'n', 'e', 'u', 'x', ',', ' ', 'l', 'e', 's', ' ', 'f',
+    'r', 'o', 'n', 't', 'i', 195, 168, 'r', 'e', 's', ' ', 'd',
+    'u', ' ', 'n', 'o', 'r', 'd', '-', 'e', 's', 't', ' ', 'n',
+    'e', ' ', 'c', 'o', 'r', 'r', 'e', 's', 'p', 'o', 'n', 'd',
+    'e', 'n', 't', ' ', 195, 160, ' ', 'a', 'u', 'c', 'u', 'n',
+    'e', ' ', 'l', 'i', 'm', 'i', 't', 'e', ' ', 'g', 195, 169,
+    'o', 'g', 'r', 'a', 'p', 'h', 'i', 'q', 'u', 'e', '[', 'n',
+    'o', 't', 'e', ' ', '6', ']', ' ', 'n', 'i', ' ', 'l', 'i',
+    'n', 'g', 'u', 'i', 's', 't', 'i', 'q', 'u', 'e', '[', 'n',
+    'o', 't', 'e', ' ', '7', ']', '.', ' ', 'L', 'a', ' ', 'F',
+    'r', 'a', 'n', 'c', 'e', ' ', 'm', 195, 169, 't', 'r', 'o',
+    'p', 'o', 'l', 'i', 't', 'a', 'i', 'n', 'e', ' ', 'c', 'o',
+    'm', 'p', 'r', 'e', 'n', 'd', ' ', 'p', 'l', 'u', 's', 'i',
+    'e', 'u', 'r', 's', ' ', 195, 174, 'l', 'e', 's', ',', ' ',
+    'n', 'o', 't', 'a', 'm', 'm', 'e', 'n', 't', ' ', 'l', 'a',
+    ' ', 'C', 'o', 'r', 's', 'e', ' ', 'e', 't', ' ', 'd', 'e',
+    's', ' ', 195, 174, 'l', 'e', 's', ' ', 'c', 195, 180, 't',
+    'i', 195, 168, 'r', 'e', 's', '.', ' ', 'L', 'a', ' ', 'm',
+    195, 169, 't', 'r', 'o', 'p', 'o', 'l', 'e', ' ', 'e', 's',
+    't', ' ', 'c', 'o', 'm', 'p', 'r', 'i', 's', 'e', ' ', 'e',
+    'n', 't', 'r', 'e', ' ', 'l', 'e', 's', ' ', 'l', 'a', 't',
+    'i', 't', 'u', 'd', 'e', 's', ' ', '4', '2', 194, 176, '1',
+    '9','\'', '4', '6', '"', ' ', 'N', ' ', 'e', 't', ' ', '5',
+    '1', 194, 176, '5','\'', '4', '7', '"', ' ', 'N', ',', ' ',
+    'a', 'i', 'n', 's', 'i', ' ', 'q', 'u', 'e', ' ', 'l', 'e',
+    's', ' ', 'l', 'o', 'n', 'g', 'i', 't', 'u', 'd', 'e', 's',
+    ' ', '4', 194, 176, '4', '6','\'', ' ', 'O', ' ', 'e', 't',
+    ' ', '8', 194, 176, '1', '4','\'', '4', '2', '"', ' ', 'E',
+    '.',  13,  10,  13,  10, 'L', 'a', ' ', 'F', 'r', 'a', 'n',
+    'c', 'e', ' ', 'c', 'o', 'm', 'p', 'r', 'e', 'n', 'd', ' ',
+    195, 169, 'g', 'a', 'l', 'e', 'm', 'e', 'n', 't', ' ', 'd',
+    'e', ' ', 'n', 'o', 'm', 'b', 'r', 'e', 'u', 'x', ' ', 't',
+    'e', 'r', 'r', 'i', 't', 'o', 'i', 'r', 'e', 's', ' ', 's',
+    'i', 't', 'u', 195, 169, 's', ' ', 'e', 'n', '-', 'd', 'e',
+    'h', 'o', 'r', 's', ' ', 'd', 'u', ' ', 'c', 'o', 'n', 't',
+    'i', 'n', 'e', 'n', 't', ' ', 'e', 'u', 'r', 'o', 'p', 195,
+    169, 'e', 'n', ',', ' ', 'c', 'o', 'u', 'r', 'a', 'm', 'm',
+    'e', 'n', 't', ' ', 'a', 'p', 'p', 'e', 'l', 195, 169, 's',
+    ' ', 't', 'e', 'r', 'r', 'i', 't', 'o', 'i', 'r', 'e', 's',
+    ' ', 'd', 226, 128, 153, 'o', 'u', 't', 'r', 'e', '-', 'm',
+    'e', 'r', ',', ' ', 'n', 'a', 'g', 'u', 195, 168, 'r', 'e',
+    ' ', 'D', 'O', 'M', '-', 'T', 'O', 'M', ',', ' ', 'q', 'u',
+    'i', ' ', 'l', 'u', 'i', ' ', 'p', 'e', 'r', 'm', 'e', 't',
+    't', 'e', 'n', 't', ' ', 'd', 226, 128, 153, 195, 170, 't',
+    'r', 'e', ' ', 'p', 'r', 195, 169, 's', 'e', 'n', 't', 'e',
+    ' ', 'd', 'a', 'n', 's', ' ', 't', 'o', 'u', 's', ' ', 'l',
+    'e', 's', ' ', 'o', 'c', 195, 169, 'a', 'n', 's', '.', ' ',
+    'C', 'e', 's', ' ', 't', 'e', 'r', 'r', 'i', 't', 'o', 'i',
+    'r', 'e', 's', ' ', 'a', 'u', 'x', ' ', 's', 't', 'a', 't',
+    'u', 't', 's', ' ', 'v', 'a', 'r', 'i', 195, 169, 's', ' ',
+    's', 'o', 'n', 't', '[', '6', ']', ' ', ':',  13,  10,  13,
+     10, 's', 'u', 'r', ' ', 'l', 'e', ' ', 'c', 'o', 'n', 't',
+    'i', 'n', 'e', 'n', 't', ' ', 's', 'u', 'd', '-', 'a', 'm',
+    195, 169, 'r', 'i', 'c', 'a', 'i', 'n', ' ', ':', ' ', 'l',
+    'a', ' ', 'G', 'u', 'y', 'a', 'n', 'e', ' ', ';',  13,  10,
+    'd', 'a', 'n', 's', ' ', 'l', 226, 128, 153, 'o', 'c', 195,
+    169, 'a', 'n', ' ', 'A', 't', 'l', 'a', 'n', 't', 'i', 'q',
+    'u', 'e', ' ', '(', 'A', 'n', 't', 'i', 'l', 'l', 'e', 's',
+    ')', ' ', ':', ' ', 'l', 'a', ' ', 'G', 'u', 'a', 'd', 'e',
+    'l', 'o', 'u', 'p', 'e', ',', ' ', 'l', 'a', ' ', 'M', 'a',
+    'r', 't', 'i', 'n', 'i', 'q', 'u', 'e', ',', ' ', 'S', 'a',
+    'i', 'n', 't', '-', 'P', 'i', 'e', 'r', 'r', 'e', '-', 'e',
+    't', '-', 'M', 'i', 'q', 'u', 'e', 'l', 'o', 'n', ',', ' ',
+    'S', 'a', 'i', 'n', 't', '-', 'M', 'a', 'r', 't', 'i', 'n',
+    ' ', 'e', 't', ' ', 'S', 'a', 'i', 'n', 't', '-', 'B', 'a',
+    'r', 't', 'h', 195, 169, 'l', 'e', 'm', 'y', ' ', ';',  13,
+     10, 'd', 'a', 'n', 's', ' ', 'l', 226, 128, 153, 'o', 'c',
+    195, 169, 'a', 'n', ' ', 'P', 'a', 'c', 'i', 'f', 'i', 'q',
+    'u', 'e', ' ', ':', ' ', 'l', 'a', ' ', 'P', 'o', 'l', 'y',
+    'n', 195, 169, 's', 'i', 'e', ' ', 'f', 'r', 'a', 'n', 195,
+    167, 'a', 'i', 's', 'e', ',', ' ', 'l', 'a', ' ', 'N', 'o',
+    'u', 'v', 'e', 'l', 'l', 'e', '-', 'C', 'a', 'l', 195, 169,
+    'd', 'o', 'n', 'i', 'e', ',', ' ', 'W', 'a', 'l', 'l', 'i',
+    's', '-', 'e', 't', '-', 'F', 'u', 't', 'u', 'n', 'a', ' ',
+    'e', 't', ' ', 'C', 'l', 'i', 'p', 'p', 'e', 'r', 't', 'o',
+    'n', ' ', ';',  13,  10, 'd', 'a', 'n', 's', ' ', 'l', 226,
+    128, 153, 'o', 'c', 195, 169, 'a', 'n', ' ', 'I', 'n', 'd',
+    'i', 'e', 'n', ' ', ':', ' ', 'L', 'a', ' ', 'R', 195, 169,
+    'u', 'n', 'i', 'o', 'n', ',', ' ', 'M', 'a', 'y', 'o', 't',
+    't', 'e', ',', ' ', 'l', 'e', 's', ' ', 195, 142, 'l', 'e',
+    's', ' ', 195, 137, 'p', 'a', 'r', 's', 'e', 's', ',', ' ',
+    'l', 'e', 's', ' ', 195, 142, 'l', 'e', 's', ' ', 'C', 'r',
+    'o', 'z', 'e', 't', ',', ' ', 'l', 'e', 's', ' ', 195, 142,
+    'l', 'e', 's', ' ', 'K', 'e', 'r', 'g', 'u', 'e', 'l', 'e',
+    'n', ' ', 'e', 't', ' ', 'S', 'a', 'i', 'n', 't', '-', 'P',
+    'a', 'u', 'l', '-', 'e', 't', '-', 'A', 'm', 's', 't', 'e',
+    'r', 'd', 'a', 'm', ' ', ';',  13,  10, 'e', 'n', ' ', 'A',
+    'n', 't', 'a', 'r', 'c', 't', 'i', 'q', 'u', 'e', ' ', ':',
+    ' ', 'l', 'a', ' ', 'T', 'e', 'r', 'r', 'e', ' ', 'A', 'd',
+    195, 169, 'l', 'i', 'e', '[', 'n', 'o', 't', 'e', ' ', '8',
+    ']', '.',  13,  10, 195, 128, ' ', 't', 'r', 'a', 'v', 'e',
+    'r', 's', ' ', 's', 'e', 's', ' ', 'c', 'o', 'l', 'l', 'e',
+    'c', 't', 'i', 'v', 'i', 't', 195, 169, 's', ' ', 'u', 'l',
+    't', 'r', 'a', '-', 'm', 'a', 'r', 'i', 'n', 'e', 's', ',',
+    ' ', 'l', 'a', ' ', 'F', 'r', 'a', 'n', 'c', 'e', ' ', 'p',
+    'o', 's', 's', 195, 168, 'd', 'e', ' ', 195, 169, 'g', 'a',
+    'l', 'e', 'm', 'e', 'n', 't', ' ', 'd', 'e', 's', ' ', 'f',
+    'r', 'o', 'n', 't', 'i', 195, 168, 'r', 'e', 's', ' ', 't',
+    'e', 'r', 'r', 'e', 's', 't', 'r', 'e', 's', ' ', 'a', 'v',
+    'e', 'c', ' ', 'l', 'e', ' ', 'B', 'r', 195, 169, 's', 'i',
+    'l', ' ', 'e', 't', ' ', 'l', 'e', ' ', 'S', 'u', 'r', 'i',
+    'n', 'a', 'm', 'e', ',', ' ', 'a', 'i', 'n', 's', 'i', ' ',
+    'q', 'u', 226, 128, 153, 'a', 'v', 'e', 'c', ' ', 'l', 'e',
+    's', ' ', 'P', 'a', 'y', 's', '-', 'B', 'a', 's', ' ', 'v',
+    'i', 'a', ' ', 'l', 'a', ' ', 'p', 'a', 'r', 't', 'i', 'e',
+    ' ', 'f', 'r', 'a', 'n', 195, 167, 'a', 'i', 's', 'e', ' ',
+    'd', 'e', ' ', 'S', 'a', 'i', 'n', 't', '-', 'M', 'a', 'r',
+    't', 'i', 'n', '.',  13,  10,  13,  10, 'L', 'a', ' ', 's',
+    'u', 'p', 'e', 'r', 'f', 'i', 'c', 'i', 'e', ' ', 'd', 'e',
+    ' ', 'l', 'a', ' ', 'F', 'r', 'a', 'n', 'c', 'e', ' ', 'e',
+    's', 't', ' ', 'd', 'e', ' ', '6', '7', '0', ' ', '9', '2',
+    '2', ' ', 'k', 'm', 194, 178, ',', ' ', 'o', 'u', ' ', '5',
+    '4', '7', ' ', '0', '3', '0', ' ', 's', 'a', 'n', 's', ' ',
+    'c', 'o', 'm', 'p', 't', 'a', 'b', 'i', 'l', 'i', 's', 'e',
+    'r', ' ', 'l', 226, 128, 153, 'o', 'u', 't', 'r', 'e', '-',
+    'm', 'e', 'r', '[', '7', ']', '.', ' ', 'E', 'l', 'l', 'e',
+    ' ', 'e', 's', 't', ' ', 'l', 'e', ' ', '4', '1', 'e', ' ',
+    'p', 'l', 'u', 's', ' ', 'g', 'r', 'a', 'n', 'd', ' ', 195,
+    137, 't', 'a', 't', ' ', 'd', 'u', ' ', 'm', 'o', 'n', 'd',
+    'e', ' ', 'p', 'a', 'r', ' ', 's', 'a', ' ', 's', 'u', 'r',
+    'f', 'a', 'c', 'e', ' ', 't', 'e', 'r', 'r', 'e', 's', 't',
+    'r', 'e', '[', '7', ']', ' ', 'e', 't', ' ', 'l', 'e', ' ',
+    'd', 'e', 'u', 'x', 'i', 195, 168, 'm', 'e', ' ', 'p', 'a',
+    'r', ' ', 's', 'a', ' ', 'z', 'o', 'n', 'e', ' ', 195, 169,
+    'c', 'o', 'n', 'o', 'm', 'i', 'q', 'u', 'e', ' ', 'e', 'x',
+    'c', 'l', 'u', 's', 'i', 'v', 'e', '[', '8', ']', '.', ' ',
+    'E', 'l', 'l', 'e', ' ', 'e', 's', 't', ' ', 'e', 'n', ' ',
+    'o', 'u', 't', 'r', 'e', ' ', 'l', 'e', ' ', 't', 'r', 'o',
+    'i', 's', 'i', 195, 168, 'm', 'e', ' ', 'p', 'l', 'u', 's',
+    ' ', 'g', 'r', 'a', 'n', 'd', ' ', 'p', 'a', 'y', 's', ' ',
+    'd', 226, 128, 153, 'E', 'u', 'r', 'o', 'p', 'e', ',', ' ',
+    'a', 'p', 'r', 195, 168, 's', ' ', 'l', 'a', ' ', 'R', 'u',
+    's', 's', 'i', 'e', ' ', 'e', 't', ' ', 'l', 226, 128, 153,
+    'U', 'k', 'r', 'a', 'i', 'n', 'e', ',', ' ', 'd', 'e', 'u',
+    'x', 'i', 195, 168, 'm', 'e', ' ', 's', 'i', ' ', 'o', 'n',
+    ' ', 'i', 'n', 'c', 'l', 'u', 't', ' ', 'l', 'e', 's', ' ',
+    'd', 195, 169, 'p', 'a', 'r', 't', 'e', 'm', 'e', 'n', 't',
+    's', ' ', 'u', 'l', 't', 'r', 'a', '-', 'm', 'a', 'r', 'i',
+    'n', 's', ',', ' ', 'e', 't', ' ', 'l', 'e', ' ', 'p', 'l',
+    'u', 's', ' ', 'g', 'r', 'a', 'n', 'd', ' ', 'd', 'e', ' ',
+    'l', 226, 128, 153, 'U', 'n', 'i', 'o', 'n', ' ', 'e', 'u',
+    'r', 'o', 'p', 195, 169, 'e', 'n', 'n', 'e', '[', '7', ']',
+    '.', ' ', 'S', 'o', 'n', ' ', 't', 'e', 'r', 'r', 'i', 't',
+    'o', 'i', 'r', 'e', ' ', 'm', 195, 169, 't', 'r', 'o', 'p',
+    'o', 'l', 'i', 't', 'a', 'i', 'n', ' ', 'c', 'o', 'n', 't',
+    'i', 'n', 'e', 'n', 't', 'a', 'l', ' ', 's', 226, 128, 153,
+    195, 169, 't', 'e', 'n', 'd', ' ', 's', 'u', 'r', ' ', 'e',
+    'n', 'v', 'i', 'r', 'o', 'n', ' ', '1', ' ', '0', '0', '0',
+    ' ', 'k', 'm', ' ', 'd', 'u', ' ', 'n', 'o', 'r', 'd', ' ',
+    'a', 'u', ' ', 's', 'u', 'd', ' ', 'e', 't', ' ', 'd', 226,
+    128, 153, 'e', 's', 't', ' ', 'e', 'n', ' ', 'o', 'u', 'e',
+    's', 't', '.', ' ', 'L', 226, 128, 153, 195, 169, 't', 'e',
+    'n', 'd', 'u', 'e', ' ', 'd', 'e', ' ', 's', 'o', 'n', ' ',
+    'l', 'i', 't', 't', 'o', 'r', 'a', 'l', ',', ' ', 'o', 'u',
+    't', 'r', 'e', '-', 'm', 'e', 'r', ' ', 'i', 'n', 'c', 'l',
+    'u', 's', ',', ' ', 'e', 's', 't', ' ', 'd', 'e', ' ', '8',
+    ' ', '2', '4', '5', ' ', 'k', 'm', '[', '9', ']', '.',  13,
+     10,  13,  10, 'G', 'r', 'e', 'e', 'k', ':',  13,  10,  13,
+     10, 206, 151, ' ', 206, 149, 206, 187, 206, 187, 206, 172,
+    206, 180, 206, 177, ' ', '(', 207, 128, 206, 177, 206, 187,
+    206, 177, 206, 185, 207, 140, 207, 132, 206, 181, 207, 129,
+    206, 177, ':', ' ', 225, 188, 153, 206, 187, 206, 187, 206,
+    172, 207, 130, ',', ' ', 206, 181, 207, 128, 206, 175, 207,
+    131, 206, 183, 206, 188, 206, 177, ':', ' ', 206, 149, 206,
+    187, 206, 187, 206, 183, 206, 189, 206, 185, 206, 186, 206,
+    174, ' ', 206, 148, 206, 183, 206, 188, 206, 191, 206, 186,
+    207, 129, 206, 177, 207, 132, 206, 175, 206, 177, ')', ' ',
+    206, 181, 206, 175, 206, 189, 206, 177, 206, 185, ' ', 207,
+    135, 207, 142, 207, 129, 206, 177, ' ', 207, 128, 206, 191,
+    207, 133, ' ', 206, 178, 207, 129, 206, 175, 207, 131, 206,
+    186, 206, 181, 207, 132, 206, 177, 206, 185, ' ', 207, 131,
+    207, 132, 206, 183, ' ', 206, 189, 206, 191, 207, 132, 206,
+    185, 206, 191, 206, 177, 206, 189, 206, 177, 207, 132, 206,
+    191, 206, 187, 206, 185, 206, 186, 206, 174, ' ', 206, 149,
+    207, 133, 207, 129, 207, 142, 207, 128, 206, 183, ',', ' ',
+    207, 131, 207, 132, 206, 191, ' ', 206, 189, 206, 191, 207,
+    132, 206, 185, 207, 140, 207, 132, 206, 181, 207, 129, 206,
+    191, ' ', 206, 172, 206, 186, 207, 129, 206, 191, ' ', 207,
+    132, 206, 183, 207, 130, ' ', 206, 146, 206, 177, 206, 187,
+    206, 186, 206, 177, 206, 189, 206, 185, 206, 186, 206, 174,
+    207, 130, ' ', 207, 135, 206, 181, 207, 129, 207, 131, 206,
+    191, 206, 189, 206, 174, 207, 131, 206, 191, 207, 133, ',',
+    ' ', 207, 131, 207, 132, 206, 183, 206, 189, ' ', 206, 145,
+    206, 189, 206, 177, 207, 132, 206, 191, 206, 187, 206, 185,
+    206, 186, 206, 174, ' ', 206, 156, 206, 181, 207, 131, 207,
+    140, 206, 179, 206, 181, 206, 185, 206, 191, '.', 206, 160,
+    207, 129, 207, 137, 207, 132, 206, 181, 207, 141, 206, 191,
+    207, 133, 207, 131, 206, 177, ' ', 207, 132, 206, 183, 207,
+    130, ' ', 206, 149, 206, 187, 206, 187, 206, 172, 206, 180,
+    206, 191, 207, 130, ' ', 206, 186, 206, 177, 206, 185, ' ',
+    206, 188, 206, 181, 206, 179, 206, 177, 206, 187, 207, 141,
+    207, 132, 206, 181, 207, 129, 206, 183, ' ', 207, 128, 207,
+    140, 206, 187, 206, 183, ' ', 206, 181, 206, 175, 206, 189,
+    206, 177, 206, 185, ' ', 206, 183, ' ', 206, 145, 206, 184,
+    206, 174, 206, 189, 206, 177, '.',  13,  10,  13,  10, 206,
+    163, 207, 133, 206, 189, 206, 191, 207, 129, 206, 181, 207,
+    141, 206, 181, 206, 185, ' ', 207, 131, 207, 132, 206, 177,
+    ' ', 206, 178, 206, 191, 207, 129, 206, 181, 206, 185, 206,
+    191, 206, 180, 207, 133, 207, 132, 206, 185, 206, 186, 206,
+    172, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183, 206,
+    189, ' ', 206, 145, 206, 187, 206, 178, 206, 177, 206, 189,
+    206, 175, 206, 177, ',', ' ', 207, 131, 207, 132, 206, 177,
+    ' ', 206, 178, 207, 140, 207, 129, 206, 181, 206, 185, 206,
+    177, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183, ' ',
+    206, 146, 206, 191, 207, 133, 206, 187, 206, 179, 206, 177,
+    207, 129, 206, 175, 206, 177, ' ', 206, 186, 206, 177, 206,
+    185, ' ', 207, 132, 206, 183, 206, 189, ' ', 207, 128, 207,
+    129, 207, 142, 206, 183, 206, 189, ' ', 206, 147, 206, 185,
+    206, 191, 207, 133, 206, 179, 206, 186, 206, 191, 207, 131,
+    206, 187, 206, 177, 206, 178, 206, 185, 206, 186, 206, 174,
+    ' ', 206, 148, 206, 183, 206, 188, 206, 191, 206, 186, 207,
+    129, 206, 177, 207, 132, 206, 175, 206, 177, ' ', 207, 132,
+    206, 183, 207, 130, ' ', 206, 156, 206, 177, 206, 186, 206,
+    181, 206, 180, 206, 191, 206, 189, 206, 175, 206, 177, 207,
+    130, ' ', '(', 207, 128, '.', 206, 147, '.', 206, 148, '.',
+    206, 156, '.', ')', ' ', 206, 186, 206, 177, 206, 185, ' ',
+    207, 131, 207, 132, 206, 177, ' ', 206, 178, 206, 191, 207,
+    129, 206, 181, 206, 185, 206, 191, 206, 177, 206, 189, 206,
+    177, 207, 132, 206, 191, 206, 187, 206, 185, 206, 186, 206,
+    172, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183, 206,
+    189, ' ', 206, 164, 206, 191, 207, 133, 207, 129, 206, 186,
+    206, 175, 206, 177, '.', ' ', 206, 146, 207, 129, 206, 173,
+    207, 135, 206, 181, 207, 132, 206, 177, 206, 185, ' ', 207,
+    131, 207, 132, 206, 177, ' ', 206, 177, 206, 189, 206, 177,
+    207, 132, 206, 191, 206, 187, 206, 185, 206, 186, 206, 172,
+    ' ', 206, 177, 207, 128, 207, 140, ' ', 207, 132, 206, 191,
+    ' ', 206, 145, 206, 185, 206, 179, 206, 177, 206, 175, 206,
+    191, ' ', 206, 160, 206, 173, 206, 187, 206, 177, 206, 179,
+    206, 191, 207, 130, ',', ' ', 207, 131, 207, 132, 206, 177,
+    ' ', 206, 180, 207, 133, 207, 132, 206, 185, 206, 186, 206,
+    172, ' ', 206, 177, 207, 128, 207, 140, ' ', 207, 132, 206,
+    191, ' ', 206, 153, 207, 140, 206, 189, 206, 185, 206, 191,
+    ' ', 206, 186, 206, 177, 206, 185, ' ', 206, 189, 207, 140,
+    207, 132, 206, 185, 206, 177, ' ', 206, 177, 207, 128, 207,
+    140, ' ', 207, 132, 206, 183, ' ', 206, 156, 206, 181, 207,
+    131, 207, 140, 206, 179, 206, 181, 206, 185, 206, 191, ' ',
+    206, 152, 206, 172, 206, 187, 206, 177, 207, 131, 207, 131,
+    206, 177, '.', 206, 151, ' ', 206, 149, 206, 187, 206, 187,
+    206, 172, 206, 180, 206, 177, ' ', 206, 186, 206, 177, 207,
+    132, 206, 173, 207, 135, 206, 181, 206, 185, ' ', 207, 132,
+    206, 183, 206, 189, ' ', '1', '1', 206, 183, ' ', 206, 184,
+    206, 173, 207, 131, 206, 183, ' ', 207, 131, 207, 132, 206,
+    185, 207, 130, ' ', 207, 135, 207, 142, 207, 129, 206, 181,
+    207, 130, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183,
+    ' ', 206, 188, 206, 181, 206, 179, 206, 177, 206, 187, 207,
+    141, 207, 132, 206, 181, 207, 129, 206, 183, ' ', 206, 177,
+    206, 186, 207, 132, 206, 191, 206, 179, 207, 129, 206, 177,
+    206, 188, 206, 188, 206, 174, ' ', 207, 131, 207, 132, 206,
+    177, ' ', '1', '3', '.', '6', '7', '6', ' ', 207, 135, 206,
+    185, 206, 187, 206, 185, 207, 140, 206, 188, 206, 181, 207,
+    132, 207, 129, 206, 177, ' ', 206, 186, 206, 177, 206, 184,
+    207, 142, 207, 130, ' ', 206, 181, 207, 135, 206, 181, 206,
+    185, ' ', 207, 128, 206, 191, 206, 187, 206, 187, 206, 172,
+    ' ', 206, 189, 206, 183, 207, 131, 206, 185, 206, 172, ' ',
+    '(', 207, 128, 206, 181, 207, 129, 206, 175, 207, 128, 206,
+    191, 207, 133, ' ', '1', '.', '4', '0', '0', ',', ' ', 206,
+    181, 206, 186, 207, 132, 207, 137, 206, 189, ' ', 206, 191,
+    207, 128, 206, 191, 206, 175, 207, 137, 206, 189, ' ', 207,
+    132, 206, 177, ' ', '2', '2', '7', ' ', 206, 186, 206, 177,
+    207, 132, 206, 191, 206, 185, 206, 186, 206, 191, 207, 133,
+    206, 189, 207, 132, 206, 177, 206, 185, ')', ',', ' ', 207,
+    131, 207, 133, 206, 188, 207, 128, 206, 181, 207, 129, 206,
+    185, 206, 187, 206, 177, 206, 188, 206, 178, 206, 177, 206,
+    189, 206, 191, 206, 188, 206, 173, 206, 189, 207, 137, 206,
+    189, ' ', 207, 132, 206, 183, 207, 130, ' ', 206, 154, 207,
+    129, 206, 183, 207, 132, 206, 183, 207, 130, ',', ' ', 207,
+    132, 207, 137, 206, 189, ' ', 206, 148, 207, 137, 206, 180,
+    206, 181, 206, 186, 206, 177, 206, 189, 206, 174, 207, 131,
+    207, 137, 206, 189, ',', ' ', 207, 132, 207, 137, 206, 189,
+    ' ', 206, 154, 207, 133, 206, 186, 206, 187, 206, 172, 206,
+    180, 207, 137, 206, 189, ',', ' ', 207, 132, 207, 137, 206,
+    189, ' ', 206, 149, 207, 128, 207, 132, 206, 177, 206, 189,
+    206, 174, 207, 131, 207, 137, 206, 189, ' ', 206, 186, 206,
+    177, 206, 185, ' ', 207, 128, 206, 191, 206, 187, 206, 187,
+    207, 142, 206, 189, ' ', 206, 172, 206, 187, 206, 187, 207,
+    137, 206, 189, '.', 206, 164, 206, 191, ' ', 207, 136, 206,
+    183, 206, 187, 207, 140, 207, 132, 206, 181, 207, 129, 206,
+    191, ' ', 206, 178, 206, 191, 207, 133, 206, 189, 207, 140,
+    ' ', 206, 181, 206, 175, 206, 189, 206, 177, 206, 185, ' ',
+    206, 191, ' ', 206, 140, 206, 187, 207, 133, 206, 188, 207,
+    128, 206, 191, 207, 130, ' ', 206, 186, 206, 177, 206, 185,
+    ' ', 207, 132, 206, 191, ' ', 206, 188, 206, 181, 206, 179,
+    206, 177, 206, 187, 207, 141, 207, 132, 206, 181, 207, 129,
+    206, 191, ' ', 207, 128, 206, 191, 207, 132, 206, 172, 206,
+    188, 206, 185, ' ', 206, 191, ' ', 206, 145, 206, 187, 206,
+    185, 206, 172, 206, 186, 206, 188, 206, 191, 206, 189, 206,
+    177, 207, 130, '.',  13,  10,  13,  10, 206, 136, 207, 135,
+    206, 181, 206, 185, ' ', 206, 188, 206, 177, 206, 186, 207,
+    129, 206, 172, ' ', 206, 186, 206, 177, 206, 185, ' ', 207,
+    128, 206, 187, 206, 191, 207, 141, 207, 131, 206, 185, 206,
+    177, ' ', 206, 185, 207, 131, 207, 132, 206, 191, 207, 129,
+    206, 175, 206, 177, ' ', 206, 186, 206, 177, 207, 132, 206,
+    172, ' ', 207, 132, 206, 183, 206, 189, ' ', 206, 191, 207,
+    128, 206, 191, 206, 175, 206, 177, ' ', 206, 172, 207, 131,
+    206, 186, 206, 183, 207, 131, 206, 181, ' ', 206, 188, 206,
+    181, 206, 179, 206, 172, 206, 187, 206, 183, ' ', 207, 128,
+    206, 191, 206, 187, 206, 185, 207, 132, 206, 185, 207, 131,
+    206, 188, 206, 185, 206, 186, 206, 174, ' ', 206, 181, 207,
+    128, 206, 175, 206, 180, 207, 129, 206, 177, 207, 131, 206,
+    183, ' ', 207, 131, 206, 181, ' ', 207, 132, 207, 129, 206,
+    181, 206, 185, 207, 130, ' ', 206, 183, 207, 128, 206, 181,
+    206, 175, 207, 129, 206, 191, 207, 133, 207, 130, '.', 206,
+    149, 206, 180, 207, 142, ' ', 206, 179, 206, 181, 206, 189,
+    206, 189, 206, 174, 206, 184, 206, 183, 206, 186, 206, 181,
+    ' ', 206, 183, ' ', 206, 180, 206, 183, 206, 188, 206, 191,
+    206, 186, 207, 129, 206, 177, 207, 132, 206, 175, 206, 177,
+    ' ', 206, 186, 206, 177, 206, 185, ' ', 206, 183, ' ', 207,
+    134, 206, 185, 206, 187, 206, 191, 207, 131, 206, 191, 207,
+    134, 206, 175, 206, 177, '.', 206, 145, 206, 186, 207, 140,
+    206, 188, 206, 188, 206, 177, ' ', 206, 183, ' ', 206, 149,
+    206, 187, 206, 187, 206, 172, 206, 180, 206, 177, ' ', 206,
+    181, 206, 175, 206, 189, 206, 177, 206, 185, ' ', 206, 191,
+    ' ', 207, 132, 207, 140, 207, 128, 206, 191, 207, 130, ' ',
+    206, 179, 206, 173, 206, 189, 206, 189, 206, 183, 207, 131,
+    206, 183, 207, 130, ' ', 207, 132, 207, 137, 206, 189, ' ',
+    206, 159, 206, 187, 207, 133, 206, 188, 207, 128, 206, 185,
+    206, 177, 206, 186, 207, 142, 206, 189, ' ', 206, 145, 206,
+    179, 207, 142, 206, 189, 207, 137, 206, 189, ',', 207, 132,
+    206, 191, 207, 133, ' ', 206, 180, 207, 129, 206, 172, 206,
+    188, 206, 177, 207, 132, 206, 191, 207, 130, ',', ' ', 207,
+    132, 206, 183, 207, 130, ' ', 207, 132, 207, 129, 206, 177,
+    206, 179, 207, 137, 206, 180, 206, 175, 206, 177, 207, 130,
+    ' ', 206, 186, 206, 177, 206, 185, ' ', 207, 132, 206, 183,
+    207, 130, ' ', 206, 186, 207, 137, 206, 188, 206, 188, 207,
+    137, 206, 180, 206, 175, 206, 177, 207, 130, ' ', '.',  13,
+     10,  13,  10, 206, 151, ' ', 206, 149, 206, 187, 206, 187,
+    206, 172, 206, 180, 206, 177, ' ', 206, 181, 206, 175, 206,
+    189, 206, 177, 206, 185, ' ', 206, 188, 206, 173, 206, 187,
+    206, 191, 207, 130, ' ', 207, 132, 207, 137, 206, 189, ' ',
+    206, 149, 207, 133, 207, 129, 207, 137, 207, 128, 206, 177,
+    207, 138, 206, 186, 207, 142, 206, 189, ' ', 206, 154, 206,
+    191, 206, 185, 206, 189, 206, 191, 207, 132, 206, 174, 207,
+    132, 207, 137, 206, 189, '/', 206, 149, 207, 133, 207, 129,
+    207, 137, 207, 128, 206, 177, 207, 138, 206, 186, 206, 174,
+    207, 130, ' ', 206, 136, 206, 189, 207, 137, 207, 131, 206,
+    183, 207, 130, ' ', 206, 177, 207, 128, 207, 140, ' ', 207,
+    132, 206, 191, ' ', '1', '9', '8', '1', ',', ' ', 207, 132,
+    206, 183, 207, 130, ' ', 206, 149, 207, 133, 207, 129, 207,
+    137, 206, 182, 207, 142, 206, 189, 206, 183, 207, 130, ' ',
+    206, 177, 207, 128, 207, 140, ' ', 207, 132, 206, 191, ' ',
+    '2', '0', '0', '1', ',', ' ', 207, 132, 206, 191, 207, 133,
+    ' ', 206, 157, 206, 145, 206, 164, 206, 159, ' ', 206, 177,
+    207, 128, 207, 140, ' ', 207, 132, 206, 191, ' ', '1', '9',
+    '5', '2', ' ', 206, 186, 206, 177, 206, 185, ' ', 206, 185,
+    206, 180, 207, 129, 207, 133, 207, 132, 206, 185, 206, 186,
+    207, 140, ' ', 206, 188, 206, 173, 206, 187, 206, 191, 207,
+    130, ' ', 207, 132, 206, 191, 207, 133, ' ', 206, 159, 206,
+    151, 206, 149, ' ', '(', '1', '9', '4', '5', ')', '.', ' ',
+    206, 151, ' ', 206, 149, 206, 187, 206, 187, 206, 172, 206,
+    180, 206, 177, ' ', 206, 181, 206, 175, 206, 189, 206, 177,
+    206, 185, ' ', 206, 188, 206, 185, 206, 177, ' ', 206, 177,
+    206, 189, 206, 181, 207, 128, 207, 132, 207, 133, 206, 179,
+    206, 188, 206, 173, 206, 189, 206, 183, ' ', 207, 135, 207,
+    142, 207, 129, 206, 177, ' ', 206, 188, 206, 181, ' ', 207,
+    133, 207, 136, 206, 183, 206, 187, 207, 140, ' ', 206, 186,
+    206, 177, 207, 132, 206, 172, ' ', 206, 186, 206, 181, 207,
+    134, 206, 177, 206, 187, 206, 174, 206, 189, ' ', 206, 181,
+    206, 185, 207, 131, 207, 140, 206, 180, 206, 183, 206, 188,
+    206, 177, ' ', 206, 186, 206, 177, 206, 185, ' ', 207, 128,
+    206, 191, 206, 187, 207, 141, ' ', 207, 133, 207, 136, 206,
+    183, 206, 187, 207, 140, ' ', 206, 180, 206, 181, 206, 175,
+    206, 186, 207, 132, 206, 183, ' ', 206, 177, 206, 189, 206,
+    184, 207, 129, 207, 142, 207, 128, 206, 185, 206, 189, 206,
+    183, 207, 130, ' ', 206, 177, 206, 189, 206, 172, 207, 128,
+    207, 132, 207, 133, 206, 190, 206, 183, 207, 130, '.', ' ',
+    206, 154, 206, 177, 207, 132, 206, 173, 207, 135, 206, 181,
+    206, 185, ' ', 207, 132, 206, 183, 206, 189, ' ', '2', '2',
+    206, 183, ' ', 206, 186, 206, 177, 206, 187, 207, 141, 207,
+    132, 206, 181, 207, 129, 206, 183, ' ', 207, 128, 206, 191,
+    206, 185, 207, 140, 207, 132, 206, 183, 207, 132, 206, 177,
+    ' ', 206, 182, 207, 137, 206, 174, 207, 130, ' ', 207, 131,
+    207, 132, 206, 191, 206, 189, ' ', 206, 186, 207, 140, 207,
+    131, 206, 188, 206, 191, '.', '[', '4', ']',  13,  10,  13,
+     10, 206, 151, ' ', 206, 149, 206, 187, 206, 187, 206, 172,
+    206, 180, 206, 177, ' ', '(', 207, 128, 206, 177, 206, 187,
+    206, 177, 206, 185, 207, 140, 207, 132, 206, 181, 207, 129,
+    206, 177, ':', ' ', 225, 188, 153, 206, 187, 206, 187, 206,
+    172, 207, 130, ',', ' ', 206, 181, 207, 128, 206, 175, 207,
+    131, 206, 183, 206, 188, 206, 177, ':', ' ', 206, 149, 206,
+    187, 206, 187, 206, 183, 206, 189, 206, 185, 206, 186, 206,
+    174, ' ', 206, 148, 206, 183, 206, 188, 206, 191, 206, 186,
+    207, 129, 206, 177, 207, 132, 206, 175, 206, 177, ')', ' ',
+    206, 181, 206, 175, 206, 189, 206, 177, 206, 185, ' ', 207,
+    135, 207, 142, 207, 129, 206, 177, ' ', 207, 128, 206, 191,
+    207, 133, ' ', 206, 178, 207, 129, 206, 175, 207, 131, 206,
+    186, 206, 181, 207, 132, 206, 177, 206, 185, ' ', 207, 131,
+    207, 132, 206, 183, ' ', 206, 189, 206, 191, 207, 132, 206,
+    185, 206, 191, 206, 177, 206, 189, 206, 177, 207, 132, 206,
+    191, 206, 187, 206, 185, 206, 186, 206, 174, ' ', 206, 149,
+    207, 133, 207, 129, 207, 142, 207, 128, 206, 183, ',', ' ',
+    207, 131, 207, 132, 206, 191, ' ', 206, 189, 206, 191, 207,
+    132, 206, 185, 207, 140, 207, 132, 206, 181, 207, 129, 206,
+    191, ' ', 206, 172, 206, 186, 207, 129, 206, 191, ' ', 207,
+    132, 206, 183, 207, 130, ' ', 206, 146, 206, 177, 206, 187,
+    206, 186, 206, 177, 206, 189, 206, 185, 206, 186, 206, 174,
+    207, 130, ' ', 207, 135, 206, 181, 207, 129, 207, 131, 206,
+    191, 206, 189, 206, 174, 207, 131, 206, 191, 207, 133, ',',
+    ' ', 207, 131, 207, 132, 206, 183, 206, 189, ' ', 206, 145,
+    206, 189, 206, 177, 207, 132, 206, 191, 206, 187, 206, 185,
+    206, 186, 206, 174, ' ', 206, 156, 206, 181, 207, 131, 207,
+    140, 206, 179, 206, 181, 206, 185, 206, 191, '.', 206, 160,
+    207, 129, 207, 137, 207, 132, 206, 181, 207, 141, 206, 191,
+    207, 133, 207, 131, 206, 177, ' ', 207, 132, 206, 183, 207,
+    130, ' ', 206, 149, 206, 187, 206, 187, 206, 172, 206, 180,
+    206, 191, 207, 130, ' ', 206, 186, 206, 177, 206, 185, ' ',
+    206, 188, 206, 181, 206, 179, 206, 177, 206, 187, 207, 141,
+    207, 132, 206, 181, 207, 129, 206, 183, ' ', 207, 128, 207,
+    140, 206, 187, 206, 183, ' ', 206, 181, 206, 175, 206, 189,
+    206, 177, 206, 185, ' ', 206, 183, ' ', 206, 145, 206, 184,
+    206, 174, 206, 189, 206, 177, '.',  13,  10,  13,  10, 206,
+    163, 207, 133, 206, 189, 206, 191, 207, 129, 206, 181, 207,
+    141, 206, 181, 206, 185, ' ', 207, 131, 207, 132, 206, 177,
+    ' ', 206, 178, 206, 191, 207, 129, 206, 181, 206, 185, 206,
+    191, 206, 180, 207, 133, 207, 132, 206, 185, 206, 186, 206,
+    172, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183, 206,
+    189, ' ', 206, 145, 206, 187, 206, 178, 206, 177, 206, 189,
+    206, 175, 206, 177, ',', ' ', 207, 131, 207, 132, 206, 177,
+    ' ', 206, 178, 207, 140, 207, 129, 206, 181, 206, 185, 206,
+    177, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183, ' ',
+    206, 146, 206, 191, 207, 133, 206, 187, 206, 179, 206, 177,
+    207, 129, 206, 175, 206, 177, ' ', 206, 186, 206, 177, 206,
+    185, ' ', 207, 132, 206, 183, 206, 189, ' ', 207, 128, 207,
+    129, 207, 142, 206, 183, 206, 189, ' ', 206, 147, 206, 185,
+    206, 191, 207, 133, 206, 179, 206, 186, 206, 191, 207, 131,
+    206, 187, 206, 177, 206, 178, 206, 185, 206, 186, 206, 174,
+    ' ', 206, 148, 206, 183, 206, 188, 206, 191, 206, 186, 207,
+    129, 206, 177, 207, 132, 206, 175, 206, 177, ' ', 207, 132,
+    206, 183, 207, 130, ' ', 206, 156, 206, 177, 206, 186, 206,
+    181, 206, 180, 206, 191, 206, 189, 206, 175, 206, 177, 207,
+    130, ' ', '(', 207, 128, '.', 206, 147, '.', 206, 148, '.',
+    206, 156, '.', ')', ' ', 206, 186, 206, 177, 206, 185, ' ',
+    207, 131, 207, 132, 206, 177, ' ', 206, 178, 206, 191, 207,
+    129, 206, 181, 206, 185, 206, 191, 206, 177, 206, 189, 206,
+    177, 207, 132, 206, 191, 206, 187, 206, 185, 206, 186, 206,
+    172, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183, 206,
+    189, ' ', 206, 164, 206, 191, 207, 133, 207, 129, 206, 186,
+    206, 175, 206, 177, '.', ' ', 206, 146, 207, 129, 206, 173,
+    207, 135, 206, 181, 207, 132, 206, 177, 206, 185, ' ', 207,
+    131, 207, 132, 206, 177, ' ', 206, 177, 206, 189, 206, 177,
+    207, 132, 206, 191, 206, 187, 206, 185, 206, 186, 206, 172,
+    ' ', 206, 177, 207, 128, 207, 140, ' ', 207, 132, 206, 191,
+    ' ', 206, 145, 206, 185, 206, 179, 206, 177, 206, 175, 206,
+    191, ' ', 206, 160, 206, 173, 206, 187, 206, 177, 206, 179,
+    206, 191, 207, 130, ',', ' ', 207, 131, 207, 132, 206, 177,
+    ' ', 206, 180, 207, 133, 207, 132, 206, 185, 206, 186, 206,
+    172, ' ', 206, 177, 207, 128, 207, 140, ' ', 207, 132, 206,
+    191, ' ', 206, 153, 207, 140, 206, 189, 206, 185, 206, 191,
+    ' ', 206, 186, 206, 177, 206, 185, ' ', 206, 189, 207, 140,
+    207, 132, 206, 185, 206, 177, ' ', 206, 177, 207, 128, 207,
+    140, ' ', 207, 132, 206, 183, ' ', 206, 156, 206, 181, 207,
+    131, 207, 140, 206, 179, 206, 181, 206, 185, 206, 191, ' ',
+    206, 152, 206, 172, 206, 187, 206, 177, 207, 131, 207, 131,
+    206, 177, '.', 206, 151, ' ', 206, 149, 206, 187, 206, 187,
+    206, 172, 206, 180, 206, 177, ' ', 206, 186, 206, 177, 207,
+    132, 206, 173, 207, 135, 206, 181, 206, 185, ' ', 207, 132,
+    206, 183, 206, 189, ' ', '1', '1', 206, 183, ' ', 206, 184,
+    206, 173, 207, 131, 206, 183, ' ', 207, 131, 207, 132, 206,
+    185, 207, 130, ' ', 207, 135, 207, 142, 207, 129, 206, 181,
+    207, 130, ' ', 206, 188, 206, 181, ' ', 207, 132, 206, 183,
+    ' ', 206, 188, 206, 181, 206, 179, 206, 177, 206, 187, 207,
+    141, 207, 132, 206, 181, 207, 129, 206, 183, ' ', 206, 177,
+    206, 186, 207, 132, 206, 191, 206, 179, 207, 129, 206, 177,
+    206, 188, 206, 188, 206, 174, ' ', 207, 131, 207, 132, 206,
+    177, ' ', '1', '3', '.', '6', '7', '6', ' ', 207, 135, 206,
+    185, 206, 187, 206, 185, 207, 140, 206, 188, 206, 181, 207,
+    132, 207, 129, 206, 177, ' ', 206, 186, 206, 177, 206, 184,
+    207, 142, 207, 130, ' ', 206, 181, 207, 135, 206, 181, 206,
+    185, ' ', 207, 128, 206, 191, 206, 187, 206, 187, 206, 172,
+    ' ', 206, 189, 206, 183, 207, 131, 206, 185, 206, 172, ' ',
+    '(', 207, 128, 206, 181, 207, 129, 206, 175, 207, 128, 206,
+    191, 207, 133, ' ', '1', '.', '4', '0', '0', ',', ' ', 206,
+    181, 206, 186, 207, 132, 207, 137, 206, 189, ' ', 206, 191,
+    207, 128, 206, 191, 206, 175, 207, 137, 206, 189, ' ', 207,
+    132, 206, 177, ' ', '2', '2', '7', ' ', 206, 186, 206, 177,
+    207, 132, 206, 191, 206, 185, 206, 186, 206, 191, 207, 133,
+    206, 189, 207, 132, 206, 177, 206, 185, ')', ',', ' ', 207,
+    131, 207, 133, 206, 188, 207, 128, 206, 181, 207, 129, 206,
+    185, 206, 187, 206, 177, 206, 188, 206, 178, 206, 177, 206,
+    189, 206, 191, 206, 188, 206, 173, 206, 189, 207, 137, 206,
+    189, ' ', 207, 132, 206, 183, 207, 130, ' ', 206, 154, 207,
+    129, 206, 183, 207, 132, 206, 183, 207, 130, ',', ' ', 207,
+    132, 207, 137, 206, 189, ' ', 206, 148, 207, 137, 206, 180,
+    206, 181, 206, 186, 206, 177, 206, 189, 206, 174, 207, 131,
+    207, 137, 206, 189, ',', ' ', 207, 132, 207, 137, 206, 189,
+    ' ', 206, 154, 207, 133, 206, 186, 206, 187, 206, 172, 206,
+    180, 207, 137, 206, 189, ',', ' ', 207, 132, 207, 137, 206,
+    189, ' ', 206, 149, 207, 128, 207, 132, 206, 177, 206, 189,
+    206, 174, 207, 131, 207, 137, 206, 189, ' ', 206, 186, 206,
+    177, 206, 185, ' ', 207, 128, 206, 191, 206, 187, 206, 187,
+    207, 142, 206, 189, ' ', 206, 172, 206, 187, 206, 187, 207,
+    137, 206, 189, '.', 206, 164, 206, 191, ' ', 207, 136, 206,
+    183, 206, 187, 207, 140, 207, 132, 206, 181, 207, 129, 206,
+    191, ' ', 206, 178, 206, 191, 207, 133, 206, 189, 207, 140,
+    ' ', 206, 181, 206, 175, 206, 189, 206, 177, 206, 185, ' ',
+    206, 191, ' ', 206, 140, 206, 187, 207, 133, 206, 188, 207,
+    128, 206, 191, 207, 130, ' ', 206, 186, 206, 177, 206, 185,
+    ' ', 207, 132, 206, 191, ' ', 206, 188, 206, 181, 206, 179,
+    206, 177, 206, 187, 207, 141, 207, 132, 206, 181, 207, 129,
+    206, 191, ' ', 207, 128, 206, 191, 207, 132, 206, 172, 206,
+    188, 206, 185, ' ', 206, 191, ' ', 206, 145, 206, 187, 206,
+    185, 206, 172, 206, 186, 206, 188, 206, 191, 206, 189, 206,
+    177, 207, 130, '.',  13,  10,  13,  10, 206, 136, 207, 135,
+    206, 181, 206, 185, ' ', 206, 188, 206, 177, 206, 186, 207,
+    129, 206, 172, ' ', 206, 186, 206, 177, 206, 185, ' ', 207,
+    128, 206, 187, 206, 191, 207, 141, 207, 131, 206, 185, 206,
+    177, ' ', 206, 185, 207, 131, 207, 132, 206, 191, 207, 129,
+    206, 175, 206, 177, ' ', 206, 186, 206, 177, 207, 132, 206,
+    172, ' ', 207, 132, 206, 183, 206, 189, ' ', 206, 191, 207,
+    128, 206, 191, 206, 175, 206, 177, ' ', 206, 172, 207, 131,
+    206, 186, 206, 183, 207, 131, 206, 181, ' ', 206, 188, 206,
+    181, 206, 179, 206, 172, 206, 187, 206, 183, ' ', 207, 128,
+    206, 191, 206, 187, 206, 185, 207, 132, 206, 185, 207, 131,
+    206, 188, 206, 185, 206, 186, 206, 174, ' ', 206, 181, 207,
+    128, 206, 175, 206, 180, 207, 129, 206, 177, 207, 131, 206,
+    183, ' ', 207, 131, 206, 181, ' ', 207, 132, 207, 129, 206,
+    181, 206, 185, 207, 130, ' ', 206, 183, 207, 128, 206, 181,
+    206, 175, 207, 129, 206, 191, 207, 133, 207, 130, '.', 206,
+    149, 206, 180, 207, 142, ' ', 206, 179, 206, 181, 206, 189,
+    206, 189, 206, 174, 206, 184, 206, 183, 206, 186, 206, 181,
+    ' ', 206, 183, ' ', 206, 180, 206, 183, 206, 188, 206, 191,
+    206, 186, 207, 129, 206, 177, 207, 132, 206, 175, 206, 177,
+    ' ', 206, 186, 206, 177, 206, 185, ' ', 206, 183, ' ', 207,
+    134, 206, 185, 206, 187, 206, 191, 207, 131, 206, 191, 207,
+    134, 206, 175, 206, 177, '.', 206, 145, 206, 186, 207, 140,
+    206, 188, 206, 188, 206, 177, ' ', 206, 183, ' ', 206, 149,
+    206, 187, 206, 187, 206, 172, 206, 180, 206, 177, ' ', 206,
+    181, 206, 175, 206, 189, 206, 177, 206, 185, ' ', 206, 191,
+    ' ', 207, 132, 207, 140, 207, 128, 206, 191, 207, 130, ' ',
+    206, 179, 206, 173, 206, 189, 206, 189, 206, 183, 207, 131,
+    206, 183, 207, 130, ' ', 207, 132, 207, 137, 206, 189, ' ',
+    206, 159, 206, 187, 207, 133, 206, 188, 207, 128, 206, 185,
+    206, 177, 206, 186, 207, 142, 206, 189, ' ', 206, 145, 206,
+    179, 207, 142, 206, 189, 207, 137, 206, 189, ',', 207, 132,
+    206, 191, 207, 133, ' ', 206, 180, 207, 129, 206, 172, 206,
+    188, 206, 177, 207, 132, 206, 191, 207, 130, ',', ' ', 207,
+    132, 206, 183, 207, 130, ' ', 207, 132, 207, 129, 206, 177,
+    206, 179, 207, 137, 206, 180, 206, 175, 206, 177, 207, 130,
+    ' ', 206, 186, 206, 177, 206, 185, ' ', 207, 132, 206, 183,
+    207, 130, ' ', 206, 186, 207, 137, 206, 188, 206, 188, 207,
+    137, 206, 180, 206, 175, 206, 177, 207, 130, ' ', '.',  13,
+     10,  13,  10, 206, 151, ' ', 206, 149, 206, 187, 206, 187,
+    206, 172, 206, 180, 206, 177, ' ', 206, 181, 206, 175, 206,
+    189, 206, 177, 206, 185, ' ', 206, 188, 206, 173, 206, 187,
+    206, 191, 207, 130, ' ', 207, 132, 207, 137, 206, 189, ' ',
+    206, 149, 207, 133, 207, 129, 207, 137, 207, 128, 206, 177,
+    207, 138, 206, 186, 207, 142, 206, 189, ' ', 206, 154, 206,
+    191, 206, 185, 206, 189, 206, 191, 207, 132, 206, 174, 207,
+    132, 207, 137, 206, 189, '/', 206, 149, 207, 133, 207, 129,
+    207, 137, 207, 128, 206, 177, 207, 138, 206, 186, 206, 174,
+    207, 130, ' ', 206, 136, 206, 189, 207, 137, 207, 131, 206,
+    183, 207, 130, ' ', 206, 177, 207, 128, 207, 140, ' ', 207,
+    132, 206, 191, ' ', '1', '9', '8', '1', ',', ' ', 207, 132,
+    206, 183, 207, 130, ' ', 206, 149, 207, 133, 207, 129, 207,
+    137, 206, 182, 207, 142, 206, 189, 206, 183, 207, 130, ' ',
+    206, 177, 207, 128, 207, 140, ' ', 207, 132, 206, 191, ' ',
+    '2', '0', '0', '1', ',', ' ', 207, 132, 206, 191, 207, 133,
+    ' ', 206, 157, 206, 145, 206, 164, 206, 159, ' ', 206, 177,
+    207, 128, 207, 140, ' ', 207, 132, 206, 191, ' ', '1', '9',
+    '5', '2', ' ', 206, 186, 206, 177, 206, 185, ' ', 206, 185,
+    206, 180, 207, 129, 207, 133, 207, 132, 206, 185, 206, 186,
+    207, 140, ' ', 206, 188, 206, 173, 206, 187, 206, 191, 207,
+    130, ' ', 207, 132, 206, 191, 207, 133, ' ', 206, 159, 206,
+    151, 206, 149, ' ', '(', '1', '9', '4', '5', ')', '.', ' ',
+    206, 151, ' ', 206, 149, 206, 187, 206, 187, 206, 172, 206,
+    180, 206, 177, ' ', 206, 181, 206, 175, 206, 189, 206, 177,
+    206, 185, ' ', 206, 188, 206, 185, 206, 177, ' ', 206, 177,
+    206, 189, 206, 181, 207, 128, 207, 132, 207, 133, 206, 179,
+    206, 188, 206, 173, 206, 189, 206, 183, ' ', 207, 135, 207,
+    142, 207, 129, 206, 177, ' ', 206, 188, 206, 181, ' ', 207,
+    133, 207, 136, 206, 183, 206, 187, 207, 140, ' ', 206, 186,
+    206, 177, 207, 132, 206, 172, ' ', 206, 186, 206, 181, 207,
+    134, 206, 177, 206, 187, 206, 174, 206, 189, ' ', 206, 181,
+    206, 185, 207, 131, 207, 140, 206, 180, 206, 183, 206, 188,
+    206, 177, ' ', 206, 186, 206, 177, 206, 185, ' ', 207, 128,
+    206, 191, 206, 187, 207, 141, ' ', 207, 133, 207, 136, 206,
+    183, 206, 187, 207, 140, ' ', 206, 180, 206, 181, 206, 175,
+    206, 186, 207, 132, 206, 183, ' ', 206, 177, 206, 189, 206,
+    184, 207, 129, 207, 142, 207, 128, 206, 185, 206, 189, 206,
+    183, 207, 130, ' ', 206, 177, 206, 189, 206, 172, 207, 128,
+    207, 132, 207, 133, 206, 190, 206, 183, 207, 130, '.', ' ',
+    206, 154, 206, 177, 207, 132, 206, 173, 207, 135, 206, 181,
+    206, 185, ' ', 207, 132, 206, 183, 206, 189, ' ', '2', '2',
+    206, 183, ' ', 206, 186, 206, 177, 206, 187, 207, 141, 207,
+    132, 206, 181, 207, 129, 206, 183, ' ', 207, 128, 206, 191,
+    206, 185, 207, 140, 207, 132, 206, 183, 207, 132, 206, 177,
+    ' ', 206, 182, 207, 137, 206, 174, 207, 130, ' ', 207, 131,
+    207, 132, 206, 191, 206, 189, ' ', 206, 186, 207, 140, 207,
+    131, 206, 188, 206, 191, '.', '[', '4', ']',  13,  10,  13,
+     10, 'R', 'a', 'n', 'd', 'o', 'm', ' ', 'Q', 'u', 'a', 'd',
+    ' ', 'V', 'a', 'l', 'u', 'e', 's',  13,  10, 240, 144, 128,
+    128, 240, 152, 166, 171, 240, 158, 187, 174, 240, 154, 170,
+    170, 240, 154, 132, 163, 240, 155, 132, 163, 243, 187, 174,
+    187, 244, 128, 128, 128, 243, 174, 187, 174, 242, 187, 174,
+    187,  13,  10,   0
+};
+const char * const charUtf8MultiLang = (const char *) utf8MultiLang;
 
-char const * EMPTY_STRING     = TestData<char>::emptyString;
-char const * NON_EMPTY_STRING = TestData<char>::nonEmptyString;
+static
+bsls::Types::Uint64 randAccum = 0;
+
+int absMmixRandNum()
+    // MMIX Linear Congruential Generator algorithm by Donald Knuth
+{
+    randAccum = randAccum * 6364136223846793005LL + 1442695040888963407LL;
+    const int ret = (int) (randAccum >> 32);
+    return ret & 0x7fffffff;
+}
 
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//                        GLOBAL FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+template <class CHAR>
+void printChar(CHAR c, bool notFirst)
+    // Print the specified 'c'.  If '1 < sizeof(c)' and 'notFirst', precede it
+    // with ", ".
+{
+    if (1 == sizeof(CHAR)) {
+        if (0 < c && 0 == (c & 0x80)) {
+            putchar(static_cast<char>(c));
+        }
+        else {
+            printf("\\x%x", static_cast<int>(c & 0xff));
+        }
+    }
+    else {
+        const char *space = notFirst ? ", " : "";
+        if (static_cast<CHAR>(-1) < 0) {
+            printf("%s%d", space, static_cast<int>(c));
+        }
+        else {
+            printf("%s%u", space, static_cast<unsigned>(c));
+        }
+    }
+}
 
 namespace BloombergLP {
 namespace bslstl {
 
-void debugprint(const StringRef& value)
+template <class CHAR>
+void debugprint(const StringRefImp<CHAR>& value)
+    // Print the specified 'value'.
 {
+    BSLMF_ASSERT(sizeof(CHAR) <= sizeof(int));
+
+    printf("{ ");
     for (size_t i = 0; i != value.length(); ++i) {
-        putchar(value[i]);
+        printChar(value[i], 0 != i);
     }
+    printf(" }");
 }
 
 }  // close package namespace
 }  // close enterprise namespace
+
+namespace bsl {
+
+template <class CHAR>
+void debugprint(const basic_string<CHAR>& value)
+{
+    BSLMF_ASSERT(sizeof(CHAR) <= sizeof(int));
+
+    printf("{");
+    for (size_t i = 0; i != value.length(); ++i) {
+        printChar(value[i], 0 != i);
+    }
+    printf(" }");
+}
+
+}  // close namespace bsl
+
+int normalizeCompare(int value)
+    // Return the specified 'value' normalized to -1, 0, or +1 depending upon
+    // whether value was negative, zero, or positive, respectively.
+{
+    return value > 0
+         ? +1
+         : value < 0
+         ? -1
+         : 0;
+}
 // ============================================================================
 //                 Test Case 11: Testing 'bsl::string;;operator='
 // ----------------------------------------------------------------------------
 
 struct OpEqualsAssignTestA {
-    operator const char *() const {
+    operator const char *() const
+        // Return constant string.
+    {
         return "OpEqualsAssignTestA -- loooooong string to provoke allocation";
     }
 };
 
 struct OpEqualsAssignTestB {
-    operator bslstl::StringRef() const {
+    operator bslstl::StringRef() const
+        // Return 'StringRef' assembled from constant string.
+    {
         return "OpEqualsAssignTestB -- loooooong string to provoke allocation";
     }
 };
@@ -294,8 +2318,8 @@ struct OpEqualsAssignTestB {
 
 void copyStringValue(char    *result, const char *asciiInput);
 void copyStringValue(wchar_t *result, const char *asciiInput);
-    // Load 'result' with the specified 'asciiInput', where each input
-    // character value is converted to the (template parameter) type
+    // Load the specified 'result' with the specified 'asciiInput', where each
+    // input character value is converted to the (template parameter) type
     // 'CHAR_TYPE'.  The behavior is undefined unless 'asciiInput' is a valid
     // null terminated ascii string.
 
@@ -322,8 +2346,6 @@ class TestDriver {
 
   public:
 
-    static CHAR_TYPE charValue(char c);
-
     static void testCase10();
         // Testing reverse iterators.
 
@@ -337,8 +2359,8 @@ void TestDriver<CHAR_TYPE>::testCase10()
 {
     // ------------------------------------------------------------------------
     // TESTING ITERATORS
-    // Concerns:
     //
+    // Concerns:
     //: 1 When then string reference is default constructed or the bounded
     //:   string is empty, then 'rbegin()' compare equals to 'rend()'.
     //:
@@ -370,7 +2392,8 @@ void TestDriver<CHAR_TYPE>::testCase10()
     }
     {
         // Empty string
-        bslstl::StringRefImp<CHAR_TYPE> mX(TestData<CHAR_TYPE>::emptyString);
+        bslstl::StringRefImp<CHAR_TYPE> mX(
+                                         TestData<CHAR_TYPE>::s_emptyString_p);
         const bslstl::StringRefImp<CHAR_TYPE>& X = mX;
         ASSERT(X.rbegin() == X.rend());
     }
@@ -378,7 +2401,7 @@ void TestDriver<CHAR_TYPE>::testCase10()
     {
         // None-empty string
         bslstl::StringRefImp<CHAR_TYPE> mX(
-            TestData<CHAR_TYPE>::nonEmptyString);
+            TestData<CHAR_TYPE>::s_nonEmptyString_p);
         const bslstl::StringRefImp<CHAR_TYPE>& X = mX;
 
         bslstl::StringRef::size_type i = X.length();
@@ -386,7 +2409,7 @@ void TestDriver<CHAR_TYPE>::testCase10()
         for (typename bslstl::StringRefImp<CHAR_TYPE>::const_reverse_iterator
                                                             riter = X.rbegin();
              riter != X.rend(); ++riter) {
-            ASSERT(TestData<CHAR_TYPE>::nonEmptyString[--i] == *riter);
+            ASSERT(TestData<CHAR_TYPE>::s_nonEmptyString_p[--i] == *riter);
         }
 
         ASSERT(0 == i);
@@ -608,99 +2631,334 @@ void TestDriver<CHAR_TYPE>::testCase9()
 // provided by the 'begin' and 'end' accessors.
 
 template <class CHAR>
-void testBasicAccessors(bool verbose)
+void testAccessorsComparisons()
+    // Test all the accessor methods, especially including both 'compare'
+    // methods, and test all free comparison operators between 'bsl::string's,
+    // 'native_std::strings's, 'StringRefImp's, and 'const CHAR *'s.
 {
-    if (verbose) std::cout << "\nTESTING BASIC ACCESSORS"
-                           << "\n======================="
-                           << std::endl;
+    namespace nstd = native_std;
 
-    if (verbose) std::cout << "\nTesting:\n\t'begin'\n\t'data'\n\t'end'"
-                              "\n\t'length\n\t'size''\n\t'empty'"
-                              "\n\t'operator bsl::string'"
-                              "\n\t'operator native_std::string'"
-                           << "\n= = = = = = = = = = = = = = = = = = = ="
-                           << std::endl;
+    const char *charTypeName = bsls::NameOf<CHAR>();
 
-    {
-        // EMPTY STRING
-        bslstl::StringRefImp<CHAR> es(TestData<CHAR>::emptyString);
-        const bslstl::StringRefImp<CHAR>& ES = es;
+    if (verbose) std::cout << "TESTING ACCESSORS AND COMPARISONS: "
+                           <<  charTypeName << "\n"
+                              "=================================\n";
 
-        ASSERT(ES.begin()   == TestData<CHAR>::emptyString);
-        ASSERT(ES.data()    == TestData<CHAR>::emptyString);
-        ASSERT(ES.data()    == ES.begin());
-        ASSERT(ES.end()     == TestData<CHAR>::emptyString);
-        ASSERT(ES.length()  ==
-           native_std::char_traits<CHAR>::length(TestData<CHAR>::emptyString));
-        ASSERT(ES.size()    ==
-           native_std::char_traits<CHAR>::length(TestData<CHAR>::emptyString));
-        ASSERT(ES.empty());
-        ASSERT(ES.isEmpty());
+    // We test to ensure that all comparisons between 'basic_strings',
+    // 'StringRefImp's, and 'const CHAR *'s yield matching results.  We
+    // have no strings with embedded '\0's in this example.
 
-        bsl::basic_string<CHAR> EString(TestData<CHAR>::emptyString);
-        ASSERT(EString  == static_cast<bsl::basic_string<CHAR> >(ES));
+    if (verbose) {
+        const CHAR minChar = *TestData<CHAR>::minStringFunc();
+        const CHAR maxChar = *TestData<CHAR>::maxStringFunc();
 
-        native_std::basic_string<CHAR> EString2(TestData<CHAR>::emptyString);
-        ASSERT(EString2 == static_cast<native_std::basic_string<CHAR> >(ES));
-
-        // NON-EMPTY STRING
-        bslstl::StringRefImp<CHAR> nes(TestData<CHAR>::nonEmptyString);
-        const bslstl::StringRefImp<CHAR>& NES = nes;
-        std::size_t LEN = native_std::char_traits<CHAR>::length(
-                                               TestData<CHAR>::nonEmptyString);
-
-        ASSERT(NES.begin()   == TestData<CHAR>::nonEmptyString);
-        ASSERT(NES.data()    == TestData<CHAR>::nonEmptyString);
-        ASSERT(NES.data()    == NES.begin());
-        ASSERT(NES.end()     == TestData<CHAR>::nonEmptyString + LEN);
-        ASSERT(NES.length()  == LEN);
-        ASSERT(NES.size()    == LEN);
-        ASSERT(!NES.empty());
-        ASSERT(!NES.isEmpty());
-
-        bsl::basic_string<CHAR> NEString(TestData<CHAR>::nonEmptyString);
-        ASSERT(NEString  == static_cast<bsl::basic_string<CHAR> >(NES));
-
-        native_std::basic_string<CHAR>
-            NEString2(TestData<CHAR>::nonEmptyString);
-        ASSERT(NEString2 == static_cast<native_std::basic_string<CHAR> >(NES));
+        P_(minChar);    P(maxChar);
     }
 
-    if (verbose) std::cout << "\nTesting: 'compare'"
-                           << "\n= = = = = = = = = "
-                           << std::endl;
+    static struct Data {
+        const int   d_line;
+        const CHAR *d_str_p;
+        const int   d_len;    // -2:  default construct string & string ref
+                              // -1:  pass ptr but no length to string
+                              //      c'tor
+                              // non -ve: pass ptr and length to string
+                              //          c'tor
+    } DATA[] = {
+        { L_, TestData<CHAR>::emptyStringFunc(),    -1 },
+        { L_, TestData<CHAR>::emptyStringFunc(),    -2 },
+        { L_, TestData<CHAR>::nonEmptyStringFunc(), -1 },
+        { L_, TestData<CHAR>::nonEmptyStringFunc(), 10 },
+        { L_, TestData<CHAR>::stringValue1Func(),    0 },
+        { L_, TestData<CHAR>::stringValue1Func(),   -1 },
+        { L_, TestData<CHAR>::stringValue1Func(),    3 },
+        { L_, TestData<CHAR>::stringValue2Func(),   -1 },
+        { L_, TestData<CHAR>::stringValue2Func(),    3 },
+        { L_, TestData<CHAR>::maxStringFunc(),      -1 },
+        { L_, TestData<CHAR>::minStringFunc(),      -1 }
+    };
+    enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    {
-        bslstl::StringRefImp<CHAR> s1(TestData<CHAR>::stringValue1);
-        bslstl::StringRefImp<CHAR> s2(TestData<CHAR>::stringValue2);
-        ASSERT(s1.compare(s1) == 0);
-        ASSERT(s1.compare(s2) < 0);
+    for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+        const Data& idata = DATA[ti];
+        const int   IL    = idata.d_line;
+        const CHAR *IPC   = idata.d_str_p;
+        const int   ILEN  = idata.d_len;
 
-        bslstl::StringRefImp<CHAR> s3(TestData<CHAR>::stringValue2, 3);
-        ASSERT(s1.compare(s3) > 0);
+        const bsl::basic_string<CHAR>& IS =
+                                       -2 == ILEN
+                                       ? bsl::basic_string<CHAR>()
+                                       : -1 == ILEN
+                                       ? bsl::basic_string<CHAR>(IPC)
+                                       : bsl::basic_string<CHAR>(IPC, ILEN);
+        const nstd::basic_string<CHAR>& INS =
+                                       -2 == ILEN
+                                       ? nstd::basic_string<CHAR>()
+                                       : -1 == ILEN
+                                       ? nstd::basic_string<CHAR>(IPC)
+                                       : nstd::basic_string<CHAR>(IPC, ILEN);
+        const bslstl::StringRefImp<CHAR>& ISR =
+                                       -2 == ILEN
+                                       ? bslstl::StringRefImp<CHAR>()
+                                       : -1 == ILEN
+                                       ? bslstl::StringRefImp<CHAR>(IPC)
+                                       : bslstl::StringRefImp<CHAR>(IPC, ILEN);
 
-        bslstl::StringRefImp<CHAR> s4(TestData<CHAR>::stringValue1, 3);
-        ASSERT(s3.compare(s4) == 0);
+        const basic_string<CHAR> ICOPY(IS);
+        if (0 <= ILEN) {
+            IPC = ICOPY.c_str();
+        }
 
-        bslstl::StringRefImp<CHAR> s5;
-        ASSERT(s1.compare(s5) > 0);
-        ASSERT(s5.compare(s5) == 0);
-    }
+        if (veryVerbose) { std::cout << "Testing:";    P_(IL);    P(IS); }
+        {
+            const std::size_t ACTUAL_LEN =
+                              -2 == ILEN
+                              ? 0
+                              : -1 == ILEN
+                              ? native_std::char_traits<CHAR>::length(IPC)
+                              : ILEN;
 
-    if (verbose) std::cout << "\nTesting: 'operator[]()'"
-                           << "\n= = = = = = = = = = = ="
-                           << std::endl;
+            // Test all the named accessors:
 
-    {
-        bslstl::StringRefImp<CHAR> x2(TestData<CHAR>::nonEmptyString);
-        const bslstl::StringRefImp<CHAR>& X2 = x2;
+            if      (-2 == ILEN) {
+                ASSERTV(IL, IS, ISR.begin() == 0);
+                ASSERTV(IL, IS, ISR.data()  == 0);
+                ASSERTV(IL, IS, ISR.end()   == 0);
+            }
+            else {
+                ASSERTV(IL, IS, ISR.begin() == idata.d_str_p);
+                ASSERTV(IL, IS, ISR.data()  == idata.d_str_p);
+                ASSERTV(IL, IS, ISR.end()   == idata.d_str_p + ACTUAL_LEN);
+            }
+            ASSERTV(IL, IS, ISR.data()   == ISR.begin());
+            ASSERTV(IL, IS, ISR.length() == ACTUAL_LEN);
+            ASSERTV(IL, IS, ISR.size()   == ACTUAL_LEN);
+            ASSERTV(IL, IS, (ACTUAL_LEN == 0) == ISR.isEmpty());
+            ASSERTV(IL, IS, (ACTUAL_LEN == 0) == ISR.empty());
 
-        // NON-EMPTY STRING
-        bslstl::StringRef::size_type Len =
-            native_std::char_traits<CHAR>::length(
-                TestData<CHAR>::nonEmptyString);
-        for (bslstl::StringRef::size_type idx = 0; idx < Len; ++idx) {
-            LOOP_ASSERT(idx, X2[idx] == TestData<CHAR>::nonEmptyString[idx]);
+            // Test 'operator[]':
+
+            for (std::size_t ii = 0; ii < ACTUAL_LEN; ++ii) {
+                ASSERTV(IL, IS, ii, IPC[ii], ISR[ii], IPC[ii] == ISR[ii]);
+            }
+        }
+
+        for (int tj = 0; tj < k_NUM_DATA; ++tj) {
+            const Data& jdata = DATA[tj];
+            const int   JL    = jdata.d_line;
+            const CHAR *JPC   = jdata.d_str_p;
+            const int   JLEN  = jdata.d_len;
+
+            const bsl::basic_string<CHAR>& JS =
+                                       -2 == JLEN
+                                       ? bsl::basic_string<CHAR>()
+                                       : -1 == JLEN
+                                       ? bsl::basic_string<CHAR>(JPC)
+                                       : bsl::basic_string<CHAR>(JPC, JLEN);
+            const nstd::basic_string<CHAR>& JNS =
+                                       -2 == JLEN
+                                       ? nstd::basic_string<CHAR>()
+                                       : -1 == JLEN
+                                       ? nstd::basic_string<CHAR>(JPC)
+                                       : nstd::basic_string<CHAR>(JPC, JLEN);
+            const bslstl::StringRefImp<CHAR>& JSR =
+                                       -2 == JLEN
+                                       ? bslstl::StringRefImp<CHAR>()
+                                       : -1 == JLEN
+                                       ? bslstl::StringRefImp<CHAR>(JPC)
+                                       : bslstl::StringRefImp<CHAR>(JPC, JLEN);
+
+            const basic_string<CHAR> JCOPY(JS);
+            if (0 <= JLEN) {
+                JPC = JCOPY.c_str();
+            }
+
+            const bool EQ = IS == JS, NE = !EQ;
+            const bool LT = IS <  JS, GE = !LT;
+            const bool GT = IS >  JS, LE = !GT;
+
+            if (veryVeryVerbose) {
+                std::cout << "J values:"; P_(JL); P_(JS);
+                P_(EQ);    P_(LT);    P(GT);
+            }
+
+            ASSERTV(IL, JL, IS, JS, EQ, IL != JL || EQ);
+
+            // Call the two 'compare' methods directly:
+
+            typedef bslstl::StringRefImp_CompareUtil CUtil;
+
+            int COMPARE_PC = CUtil::compare(ISR, JPC);
+            int COMPARE_SR = ISR.compare(JSR);
+
+            const bool COMPARE_EQ_PC = CUtil::compareEqual(ISR, JPC);
+            const bool COMPARE_EQ_SR = CUtil::compareEqual(ISR, JSR);
+
+            ASSERTV(IL, JL, IS, JS, EQ == (COMPARE_PC == 0));
+            ASSERTV(IL, JL, IS, JS, EQ == (COMPARE_SR == 0));
+
+            ASSERTV(IL, JL, IS, JS, EQ == COMPARE_EQ_PC);
+            ASSERTV(IL, JL, IS, JS, EQ == COMPARE_EQ_SR);
+
+            ASSERTV(IL, JL, IS, JS, NE == (COMPARE_PC != 0));
+            ASSERTV(IL, JL, IS, JS, NE == (COMPARE_SR != 0));
+
+            ASSERTV(IL, JL, IS, JS, NE == !COMPARE_EQ_PC);
+            ASSERTV(IL, JL, IS, JS, NE == !COMPARE_EQ_SR);
+
+            ASSERTV(IL, JL, IS, JS, LT == (COMPARE_PC <  0));
+            ASSERTV(IL, JL, IS, JS, LT == (COMPARE_SR <  0));
+
+            ASSERTV(IL, JL, IS, JS, GE == (COMPARE_PC >= 0));
+            ASSERTV(IL, JL, IS, JS, GE == (COMPARE_SR >= 0));
+
+            ASSERTV(IL, JL, IS, JS, GT == (COMPARE_PC >  0));
+            ASSERTV(IL, JL, IS, JS, GT == (COMPARE_SR >  0));
+
+            ASSERTV(IL, JL, IS, JS, LE == (COMPARE_PC <= 0));
+            ASSERTV(IL, JL, IS, JS, LE == (COMPARE_SR <= 0));
+
+            // Normalize 'COMPARE_PC' & 'COMPARE_SR' to +1, -1, or 0, at which
+            // point they should be equal, if they weren't equal to begin with.
+
+            COMPARE_PC = normalizeCompare(COMPARE_PC);
+            COMPARE_SR = normalizeCompare(COMPARE_SR);
+
+            ASSERTV(IL, JL, IS, JS, COMPARE_PC, COMPARE_SR,
+                                                     COMPARE_PC == COMPARE_SR);
+
+
+            // 'operator=='
+
+            ASSERTV(IL, JL, IS, JS, EQ, (IS  == JPC), EQ == (IS  == JPC));
+            ASSERTV(IL, JL, IS, JS, EQ, (IS  == JS),  EQ == (IS  == JS));
+            ASSERTV(IL, JL, IS, JS, EQ, (IS  == JNS), EQ == (IS  == JNS));
+            ASSERTV(IL, JL, IS, JS, EQ, (IS  == JSR), EQ == (IS  == JSR));
+
+            ASSERTV(IL, JL, IS, JS, EQ, (INS == JPC), EQ == (INS == JPC));
+            ASSERTV(IL, JL, IS, JS, EQ, (INS == JS),  EQ == (INS == JS));
+            ASSERTV(IL, JL, IS, JS, EQ, (INS == JNS), EQ == (INS == JNS));
+            ASSERTV(IL, JL, IS, JS, EQ, (INS == JSR), EQ == (INS == JSR));
+
+            ASSERTV(IL, JL, IS, JS, EQ, (ISR == JPC), EQ == (ISR == JPC));
+            ASSERTV(IL, JL, IS, JS, EQ, (ISR == JS),  EQ == (ISR == JS));
+            ASSERTV(IL, JL, IS, JS, EQ, (ISR == JNS), EQ == (ISR == JNS));
+            ASSERTV(IL, JL, IS, JS, EQ, (ISR == JSR), EQ == (ISR == JSR));
+
+            ASSERTV(IL, JL, IS, JS, EQ, (IPC == JNS), EQ == (IPC == JS));
+            ASSERTV(IL, JL, IS, JS, EQ, (IPC == JS),  EQ == (IPC == JNS));
+            ASSERTV(IL, JL, IS, JS, EQ, (IPC == JSR), EQ == (IPC == JSR));
+
+            // 'operator!='
+
+            ASSERTV(IL, JL, IS, JS, NE, (IS  != JPC), NE == (IS  != JPC));
+            ASSERTV(IL, JL, IS, JS, NE, (IS  != JS),  NE == (IS  != JS));
+            ASSERTV(IL, JL, IS, JS, NE, (IS  != JNS), NE == (IS  != JNS));
+            ASSERTV(IL, JL, IS, JS, NE, (IS  != JSR), NE == (IS  != JSR));
+
+            ASSERTV(IL, JL, IS, JS, NE, (INS != JPC), NE == (INS != JPC));
+            ASSERTV(IL, JL, IS, JS, NE, (INS != JS),  NE == (INS != JS));
+            ASSERTV(IL, JL, IS, JS, NE, (INS != JNS), NE == (INS != JNS));
+            ASSERTV(IL, JL, IS, JS, NE, (INS != JSR), NE == (INS != JSR));
+
+            ASSERTV(IL, JL, IS, JS, NE, (ISR != JPC), NE == (ISR != JPC));
+            ASSERTV(IL, JL, IS, JS, NE, (ISR != JS),  NE == (ISR != JS));
+            ASSERTV(IL, JL, IS, JS, NE, (ISR != JNS), NE == (ISR != JNS));
+            ASSERTV(IL, JL, IS, JS, NE, (ISR != JSR), NE == (ISR != JSR));
+
+            ASSERTV(IL, JL, IS, JS, NE, (IPC != JS),  NE == (IPC != JS));
+            ASSERTV(IL, JL, IS, JS, NE, (IPC != JNS), NE == (IPC != JNS));
+            ASSERTV(IL, JL, IS, JS, NE, (IPC != JSR), NE == (IPC != JSR));
+
+            // 'operator<'
+
+            ASSERTV(IL, JL, IS, JS, LT, (IS  <  JPC), LT == (IS  <  JPC));
+            ASSERTV(IL, JL, IS, JS, LT, (IS  <  JS),  LT == (IS  <  JS));
+            ASSERTV(IL, JL, IS, JS, LT, (IS  <  JNS), LT == (IS  <  JNS));
+            ASSERTV(IL, JL, IS, JS, LT, (IS  <  JSR), LT == (IS  <  JSR));
+
+            ASSERTV(IL, JL, IS, JS, LT, (INS <  JPC), LT == (INS <  JPC));
+            ASSERTV(IL, JL, IS, JS, LT, (INS <  JS),  LT == (INS <  JS));
+            ASSERTV(IL, JL, IS, JS, LT, (INS <  JNS), LT == (INS <  JNS));
+            ASSERTV(IL, JL, IS, JS, LT, (INS <  JSR), LT == (INS <  JSR));
+
+            ASSERTV(IL, JL, IS, JS, LT, (ISR <  JPC), LT == (ISR <  JPC));
+            ASSERTV(IL, JL, IS, JS, LT, (ISR <  JS),  LT == (ISR <  JS));
+            ASSERTV(IL, JL, IS, JS, LT, (ISR <  JNS), LT == (ISR <  JNS));
+            ASSERTV(IL, JL, IS, JS, LT, (ISR <  JSR), LT == (ISR <  JSR));
+
+            ASSERTV(IL, JL, IS, JS, LT, (IPC <  JS),  LT == (IPC <  JS));
+            ASSERTV(IL, JL, IS, JS, LT, (IPC <  JNS), LT == (IPC <  JNS));
+            ASSERTV(IL, JL, IS, JS, LT, (IPC <  JSR), LT == (IPC <  JSR));
+
+            // 'operator>='
+
+            ASSERTV(IL, JL, IS, JS, GE, (IS  >= JPC), GE == (IS  >= JPC));
+            ASSERTV(IL, JL, IS, JS, GE, (IS  >= JS),  GE == (IS  >= JS));
+            ASSERTV(IL, JL, IS, JS, GE, (IS  >= JNS), GE == (IS  >= JNS));
+            ASSERTV(IL, JL, IS, JS, GE, (IS  >= JSR), GE == (IS  >= JSR));
+
+            ASSERTV(IL, JL, IS, JS, GE, (INS >= JPC), GE == (INS >= JPC));
+            ASSERTV(IL, JL, IS, JS, GE, (INS >= JS),  GE == (INS >= JS));
+            ASSERTV(IL, JL, IS, JS, GE, (INS >= JNS), GE == (INS >= JNS));
+            ASSERTV(IL, JL, IS, JS, GE, (INS >= JSR), GE == (INS >= JSR));
+
+            ASSERTV(IL, JL, IS, JS, GE, (ISR >= JPC), GE == (ISR >= JPC));
+            ASSERTV(IL, JL, IS, JS, GE, (ISR >= JS),  GE == (ISR >= JS));
+            ASSERTV(IL, JL, IS, JS, GE, (ISR >= JNS), GE == (ISR >= JNS));
+            ASSERTV(IL, JL, IS, JS, GE, (ISR >= JSR), GE == (ISR >= JSR));
+
+            ASSERTV(IL, JL, IS, JS, GE, (IPC >= JS),  GE == (IPC >= JS));
+            ASSERTV(IL, JL, IS, JS, GE, (IPC >= JNS), GE == (IPC >= JNS));
+            ASSERTV(IL, JL, IS, JS, GE, (IPC >= JSR), GE == (IPC >= JSR));
+
+            // 'operator>'
+
+            ASSERTV(IL, JL, IS, JS, GT, (IS  >  JPC), GT == (IS  >  JPC));
+            ASSERTV(IL, JL, IS, JS, GT, (IS  >  JS),  GT == (IS  >  JS));
+            ASSERTV(IL, JL, IS, JS, GT, (IS  >  JNS), GT == (IS  >  JNS));
+            ASSERTV(IL, JL, IS, JS, GT, (IS  >  JSR), GT == (IS  >  JSR));
+
+            ASSERTV(IL, JL, IS, JS, GT, (INS >  JPC), GT == (INS >  JPC));
+            ASSERTV(IL, JL, IS, JS, GT, (INS >  JS),  GT == (INS >  JS));
+            ASSERTV(IL, JL, IS, JS, GT, (INS >  JNS), GT == (INS >  JNS));
+            ASSERTV(IL, JL, IS, JS, GT, (INS >  JSR), GT == (INS >  JSR));
+
+            ASSERTV(IL, JL, IS, JS, GT, (ISR >  JPC), GT == (ISR >  JPC));
+            ASSERTV(IL, JL, IS, JS, GT, (ISR >  JS),  GT == (ISR >  JS));
+            ASSERTV(IL, JL, IS, JS, GT, (ISR >  JNS), GT == (ISR >  JNS));
+            ASSERTV(IL, JL, IS, JS, GT, (ISR >  JSR), GT == (ISR >  JSR));
+
+            ASSERTV(IL, JL, IS, JS, GT, (IPC >  JS),  GT == (IPC >  JS));
+            ASSERTV(IL, JL, IS, JS, GT, (IPC >  JNS), GT == (IPC >  JNS));
+            ASSERTV(IL, JL, IS, JS, GT, (IPC >  JSR), GT == (IPC >  JSR));
+
+            // 'operator<='
+
+            ASSERTV(IL, JL, IS, JS, LE, (IS  <= JPC), LE == (IS  <= JPC));
+            ASSERTV(IL, JL, IS, JS, LE, (IS  <= JS),  LE == (IS  <= JS));
+            ASSERTV(IL, JL, IS, JS, LE, (IS  <= JNS), LE == (IS  <= JNS));
+            ASSERTV(IL, JL, IS, JS, LE, (IS  <= JSR), LE == (IS  <= JSR));
+
+            ASSERTV(IL, JL, IS, JS, LE, (INS <= JPC), LE == (INS <= JPC));
+            ASSERTV(IL, JL, IS, JS, LE, (INS <= JS),  LE == (INS <= JS));
+            ASSERTV(IL, JL, IS, JS, LE, (INS <= JNS), LE == (INS <= JNS));
+            ASSERTV(IL, JL, IS, JS, LE, (INS <= JSR), LE == (INS <= JSR));
+
+            ASSERTV(IL, JL, IS, JS, LE, (ISR <= JPC), LE == (ISR <= JPC));
+            ASSERTV(IL, JL, IS, JS, LE, (ISR <= JS),  LE == (ISR <= JS));
+            ASSERTV(IL, JL, IS, JS, LE, (ISR <= JNS), LE == (ISR <= JNS));
+            ASSERTV(IL, JL, IS, JS, LE, (ISR <= JSR), LE == (ISR <= JSR));
+
+            ASSERTV(IL, JL, IS, JS, LE, (IPC <= JS),  LE == (IPC <= JS));
+            ASSERTV(IL, JL, IS, JS, LE, (IPC <= JNS), LE == (IPC <= JNS));
+            ASSERTV(IL, JL, IS, JS, LE, (IPC <= JSR), LE == (IPC <= JSR));
+
+            if      ( IS.empty() && !JS.empty()) {
+                ASSERT(LT);
+            }
+            else if (!IS.empty() &&  JS.empty()) {
+                ASSERT(GT);
+            }
         }
     }
 }
@@ -966,7 +3224,7 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING HASH FUNCTION
+        // TESTING HASH FUNCTION:
         //
         // Concerns:
         //: 1 The hash function in versions of this component prior to
@@ -987,13 +3245,13 @@ int main(int argc, char *argv[])
         //:   resulting hash was not encountered more than twice (so we're
         //:   allowing SOME collisions, but not too many).
         //:
-        //:   The strings to be hashed will include some "typical" short strings
-        //:   including the names of current and past members of the BDE team
-        //:   and the tickers for the members of the S&P 500 index.
+        //:   The strings to be hashed will include some "typical" short
+        //:   strings including the names of current and past members of the
+        //:   BDE team and the tickers for the members of the S&P 500 index.
         //:
         //:   While there are no guarantees that these data sets are
-        //:   representative, this at least allows us to make sure that our hash
-        //:   performs in a reasonable manner.
+        //:   representative, this at least allows us to make sure that our
+        //:   hash performs in a reasonable manner.
         //:
         //: 2 Test using both bslh::Hash<> and bsl::hash<StringRef> (both of
         //:    which should now give the same result). Hash strings where only
@@ -1007,12 +3265,12 @@ int main(int argc, char *argv[])
         //   bslh::Hash<>
         // --------------------------------------------------------------------
 
-        if (verbose) std::cout << "\nTesting Hash Function"
-                               << "\n=====================" << std::endl;
+        if (verbose) std::cout << "TESTING HASH FUNCTION:\n"
+                                  "=====================\n";
 
         static const struct {
             int         d_line;
-            const char *d_str;
+            const char *d_str_p;
         } DATA[] = {
             //line string
             //---- ------
@@ -1060,8 +3318,9 @@ int main(int argc, char *argv[])
             { L_,  "1111"                       },
             { L_,  "11111"                      },
             { L_,  "111111"                     },
-            // Some personal names.  In this case, current and
-            // former BDE team members, captured via
+            // Some personal names.  In this case, current and former BDE team
+            // members, captured via
+            //
             // cat /etc/passwd| grep -i bde | \$
             //  'BEGIN{FS=":"} {print $5}'  | \$
             //   awk '{print $1; print $2; print $1,$2}'|sort -u
@@ -2200,8 +4459,8 @@ int main(int argc, char *argv[])
         // Capture all the hash values.
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE         = DATA[ti].d_line;
-            const char *STR          = DATA[ti].d_str;
-            Obj o(STR);
+            const char *STR_p         = DATA[ti].d_str_p;
+            Obj o(STR_p);
 
             std::size_t hash_value =
                                     static_cast<size_t>(bslh_hash_function(o));
@@ -2212,7 +4471,7 @@ int main(int argc, char *argv[])
             ASSERT(hash_value == bsl_hash_value);
 
             if (veryVerbose) {
-                printf("%4d: STR=%-20s, HASH=" ZU "\n",LINE, STR, hash_value);
+                printf("%4d: STR=%-20s, HASH=" ZU "\n", LINE,STR_p,hash_value);
             }
 
             hash_results[o] = hash_value;
@@ -2220,15 +4479,16 @@ int main(int argc, char *argv[])
         }
 
         // Repeat all hashes in reverse order, making sure we get the same
-        // values as last time. Copy the data to ensure we are hashing the same
-        // data from different memory locations, ensuring that we get the same
-        // hash even when the data is stored elsewhere (will also spot if we
-        // are hashing beyond the end of the string).
+        // values as last time.  Copy the data to ensure we are hashing the
+        // same data from different memory locations, ensuring that we get the
+        // same hash even when the data is stored elsewhere (will also spot if
+        // we are hashing beyond the end of the string).
+                                                                              \
         for (int ti = NUM_DATA - 1; ti >= 0; --ti) {
             const int   LINE         = DATA[ti].d_line;
-            const char *STR          = DATA[ti].d_str;
+            const char *STR_p        = DATA[ti].d_str_p;
             char        strCopy [40];
-            Obj o(strcpy(strCopy, STR));
+            Obj o(strcpy(strCopy, STR_p));
 
             std::size_t hash_value = bslh_hash_function(o);
             LOOP_ASSERT(LINE, hash_results[o] == hash_value);
@@ -2278,15 +4538,14 @@ int main(int argc, char *argv[])
         //   basic_string basic_string::operator+=(const StringRefData& strRf);
         // --------------------------------------------------------------------
 
-        if (verbose) std::cout << "\nTESTING ADDITION OPERATORS"
-                               << "\n=========================="
-                               << std::endl;
+        if (verbose) std::cout << "TESTING ADDITION OPERATORS:\n"
+                                  "==========================\n";
 
         static const struct {
             int         d_line;
-            const char *d_ca1;  // char array 1
-            const char *d_ca2;  // char array 2
-            const char *d_result;
+            const char *d_ca1_p;  // char array 1
+            const char *d_ca2_p;  // char array 2
+            const char *d_result_p;
         } DATA[] = {
             //line string1 string2 result
             //---- ------- ------- ------
@@ -2310,42 +4569,42 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int   LINE         = DATA[ti].d_line;
-            const char *CA1          = DATA[ti].d_ca1;
-            const char *CA2          = DATA[ti].d_ca2;
-            const bsl::string RESULT = bsl::string(DATA[ti].d_result);
+            const char *CA1_p        = DATA[ti].d_ca1_p;
+            const char *CA2_p        = DATA[ti].d_ca2_p;
+            const bsl::string RESULT = bsl::string(DATA[ti].d_result_p);
 
             if (veryVerbose) {
                 std::cout << "\nRESULT  = \"" << RESULT  << "\"" << std::endl;
             }
 
-            Obj x1(CA1);  const Obj& X1 = x1;
-            Obj x2(CA2);  const Obj& X2 = x2;
+            Obj x1(CA1_p);  const Obj& X1 = x1;
+            Obj x2(CA2_p);  const Obj& X2 = x2;
 
             if (veryVerbose) {
-              std::cout << "\tX1 = \"" << X1 << "\", "
-                        << "X2 = \"" << X2 << "\", " << std::endl;
+                std::cout << "\tX1 = \"" << X1 << "\", "
+                          << "X2 = \""   << X2 << "\", " << std::endl;
             }
 
             // StringRef versus StringRef
             LOOP_ASSERT(LINE, RESULT == (X1  + X2));
 
             if (veryVerbose) {
-              std::cout << "\tCA1 = \"" << CA1 << "\", "
-                        << "CA2 = \"" << CA2 << "\", " << std::endl;
+                std::cout << "\tCA1 = \"" << CA1_p << "\", "
+                          << "CA2 = \""   << CA2_p << "\", " << std::endl;
             }
 
             // char * versus StringRef
-            LOOP_ASSERT(LINE, RESULT == (CA1 + X2));
+            LOOP_ASSERT(LINE, RESULT == (CA1_p + X2));
 
             // StringRef versus char *
-            LOOP_ASSERT(LINE, RESULT == (X1  + CA2));
+            LOOP_ASSERT(LINE, RESULT == (X1  + CA2_p));
 
-            bsl::string s1(CA1);  const bsl::string& S1 = s1;
-            bsl::string s2(CA2);  const bsl::string& S2 = s2;
+            bsl::string s1(CA1_p);  const bsl::string& S1 = s1;
+            bsl::string s2(CA2_p);  const bsl::string& S2 = s2;
 
             if (veryVerbose) {
-              std::cout << "\tS1 = \"" << S1 << "\", "
-                        << "S2 = \"" << S2 << "\", " << std::endl;
+                std::cout << "\tS1 = \"" << S1 << "\", "
+                          << "S2 = \""   << S2 << "\", " << std::endl;
             }
 
             // bsl::string versus StringRef
@@ -2354,12 +4613,12 @@ int main(int argc, char *argv[])
             // StringRef versus bsl::string
             LOOP_ASSERT(LINE, RESULT == (X1  + S2));
 
-            native_std::string s3(CA1);  const native_std::string& S3 = s3;
-            native_std::string s4(CA2);  const native_std::string& S4 = s4;
+            native_std::string s3(CA1_p);  const native_std::string& S3 = s3;
+            native_std::string s4(CA2_p);  const native_std::string& S4 = s4;
 
             if (veryVerbose) {
               std::cout << "\tS3 = \"" << S3 << "\", "
-                        << "S4 = \"" << S4 << "\", " << std::endl;
+                        << "S4 = \""   << S4 << "\", " << std::endl;
             }
 
             // 'native_std::string' versus StringRef
@@ -2368,16 +4627,19 @@ int main(int argc, char *argv[])
             // StringRef versus 'native_std::string'
             LOOP_ASSERT(LINE, RESULT == (X1  + S4));
 
-            // 'bsl::string' versus 'bsl::string'
-            // This test is to ensure no overloading ambiguity was introduced.
+            // 'bsl::string' versus 'bsl::string'.  This test is to ensure no
+            // overloading ambiguity was introduced.
+
             LOOP_ASSERT(LINE, RESULT == (S1  + S2));
 
-            // 'native_std::string' versus 'bsl::string'
-            // This test is to ensure no overloading ambiguity was introduced.
+            // 'native_std::string' versus 'bsl::string'.  This test is to
+            // ensure no overloading ambiguity was introduced.
+
             LOOP_ASSERT(LINE, RESULT == (S3  + S4));
 
-            // bsl::string with StringRef concatenated on. See comments at top
-            // of section for explanation
+            // bsl::string with StringRef concatenated on.  See comments at top
+            // of section for explanation.
+
             // Ensure += returns correctly
             LOOP_ASSERT(LINE, RESULT == (s1 += X2));
             // Ensure += left operand has proper value afterwards
@@ -2397,16 +4659,15 @@ int main(int argc, char *argv[])
         //   strings.
         //
         // Testing:
-        // void reset();
-        // void assign(const char *begin, const char *end);
-        // void assign(const char *begin, size_type length);
-        // void assign(const char *begin);
-        // void assign(const bsl::string& begin);
+        //   void reset();
+        //   void assign(const char *begin, const char *end);
+        //   void assign(const char *begin, size_type length);
+        //   void assign(const char *begin);
+        //   void assign(const bsl::string& begin);
         // --------------------------------------------------------------------
 
-        if (verbose) std::cout << "\nTESTING MANIPULATORS ACCESSORS"
-                               << "\n=============================="
-                               << std::endl;
+        if (verbose) std::cout << "TESTING MANIPULATORS:\n"
+                                  "====================\n";
 
         if (verbose) std::cout << "\nTesting:\n\t'reset()'\n\t'assign()'"
                                << "\n= = = = = = = = = = = ="
@@ -2736,73 +4997,29 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //   Any subtle variation in value must be detected by the comparison
-        //   operators.
+        //   operators.  This test is now redundant, and less thorough, than
+        //   testing done in test case 3.
         //
         // Plan:
         //   Specify a set of strings and the assert comparison operators
         //   return the correct results.
-        //
-        // Testing:
-        //   bool operator==(const StringRef& lhs, const StringRef& rhs);
-        //   bool operator==(const bsl::string& lhs, const StringRef& rhs);
-        //   bool operator==(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator==(const native_std::string& l, const StringRef& r);
-        //   bool operator==(const StringRef& l, const native_std::string& r);
-        //   bool operator==(const char *lhs, const StringRef& rhs);
-        //   bool operator==(const StringRef& lhs, const char *rhs);
-        //   bool operator!=(const StringRef& lhs, const StringRef& rhs);
-        //   bool operator!=(const bsl::string& lhs, const StringRef& rhs);
-        //   bool operator!=(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator!=(const native_std::string& l, const StringRef& r);
-        //   bool operator!=(const StringRef& l, const native_std::string& r);
-        //   bool operator!=(const char *lhs, const StringRef& rhs);
-        //   bool operator!=(const StringRef& lhs, const char *rhs);
-        //   bool operator<(const StringRef& lhs, const StringRef& rhs);
-        //   bool operator<(const bsl::string& lhs, const StringRef& rhs);
-        //   bool operator<(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator<(const native_std::string& l, const StringRef& r);
-        //   bool operator<(const StringRef& l, const native_std::string& r);
-        //   bool operator<(const char *lhs, const StringRef& rhs);
-        //   bool operator<(const StringRef& lhs, const char *rhs);
-        //   bool operator>(const StringRef& lhs, const StringRef& rhs);
-        //   bool operator>(const bsl::string& lhs, const StringRef& rhs);
-        //   bool operator>(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator>(const native_std::string& l, const StringRef& r);
-        //   bool operator>(const StringRef& l, const native_std::string& r);
-        //   bool operator>(const char *lhs, const StringRef& rhs);
-        //   bool operator>(const StringRef& lhs, const char *rhs);
-        //   bool operator<=(const StringRef& lhs, const StringRef& rhs);
-        //   bool operator<=(const bsl::string& lhs, const StringRef& rhs);
-        //   bool operator<=(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator<=(const native_std::string& l, const StringRef& r);
-        //   bool operator<=(const StringRef& l, const native_std::string& r);
-        //   bool operator<=(const char *lhs, const StringRef& rhs);
-        //   bool operator<=(const StringRef& lhs, const char *rhs);
-        //   bool operator>=(const StringRef& lhs, const StringRef& rhs);
-        //   bool operator>=(const bsl::string& lhs, const StringRef& rhs);
-        //   bool operator>=(const StringRef& lhs, const bsl::string& rhs);
-        //   bool operator>=(const native_std::string& l, const StringRef& r);
-        //   bool operator>=(const StringRef& l, const native_std::string& r);
-        //   bool operator>=(const char *lhs, const StringRef& rhs);
-        //   bool operator>=(const StringRef& lhs, const char *rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) std::cout << "\nTesting Comparison Operators"
-                               << "\n============================"
-                               << std::endl;
+        if (verbose) std::cout << "TESTING COMPARISON OPERATORS:\n"
+                                  "============================\n";
 
         static const struct {
             int         d_line;
-            const char *d_ca1;  // char array
-            const char *d_ca2;  // char array
+            const char *d_ca1_p;  // char array
+            const char *d_ca2_p;  // char array
             bool        d_lt;
             bool        d_gt;
             bool        d_lteq;
             bool        d_gteq;
             bool        d_eq;
         } DATA[] = {
-            //line string1 string2   lt     gt    lteq   gteq
-            //---- ------- ------- ------ ------ ------ ------
+            //line string1 string2   lt     gt    lteq   gteq   eq
+            //---- ------- ------- ------ ------ ------ ------  --
             { L_,    ""  ,   ""  , false, false, true , true  , true  },
             { L_,    " " ,   " " , false, false, true , true  , true  },
             { L_,    "a" ,   ""  , false, true , false, true  , false },
@@ -2822,22 +5039,22 @@ int main(int argc, char *argv[])
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int   LINE = DATA[ti].d_line;
-            const char *CA1   = DATA[ti].d_ca1;
-            const char *CA2   = DATA[ti].d_ca2;
-            const bool  LT   = DATA[ti].d_lt;
-            const bool  GT   = DATA[ti].d_gt;
-            const bool  LTEQ = DATA[ti].d_lteq;
-            const bool  GTEQ = DATA[ti].d_gteq;
-            const bool  EQ   = DATA[ti].d_eq;
+            const int   LINE  = DATA[ti].d_line;
+            const char *CA1_p = DATA[ti].d_ca1_p;
+            const char *CA2_p = DATA[ti].d_ca2_p;
+            const bool  LT    = DATA[ti].d_lt;
+            const bool  GT    = DATA[ti].d_gt;
+            const bool  LTEQ  = DATA[ti].d_lteq;
+            const bool  GTEQ  = DATA[ti].d_gteq;
+            const bool  EQ    = DATA[ti].d_eq;
 
             if (veryVerbose) {
               std::cout << std::endl;
               P_(LT) P_(GT) P_(LTEQ) P_(GTEQ) P(EQ);
             }
 
-            Obj x1(CA1);  const Obj& X1 = x1;
-            Obj x2(CA2);  const Obj& X2 = x2;
+            Obj x1(CA1_p);  const Obj& X1 = x1;
+            Obj x2(CA2_p);  const Obj& X2 = x2;
 
             if (veryVerbose) {
               std::cout << "\tX1 = \"" << X1 << "\", "
@@ -2853,32 +5070,32 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, EQ   != (X1 != X2));
 
             if (veryVerbose) {
-              std::cout << "\tCA1 = \"" << CA1 << "\", "
-                        << "CA2 = \"" << CA2 << "\", " << std::endl;
+              std::cout << "\tCA1 = \"" << CA1_p << "\", "
+                        << "CA2 = \""   << CA2_p << "\", " << std::endl;
             }
 
             // char * versus StringRef
-            LOOP_ASSERT(LINE, LT   == (CA1 <  X2));
-            LOOP_ASSERT(LINE, GT   == (CA1 >  X2));
-            LOOP_ASSERT(LINE, LTEQ == (CA1 <= X2));
-            LOOP_ASSERT(LINE, GTEQ == (CA1 >= X2));
-            LOOP_ASSERT(LINE, EQ   == (CA1 == X2));
-            LOOP_ASSERT(LINE, EQ   != (CA1 != X2));
+            LOOP_ASSERT(LINE, LT   == (CA1_p <  X2));
+            LOOP_ASSERT(LINE, GT   == (CA1_p >  X2));
+            LOOP_ASSERT(LINE, LTEQ == (CA1_p <= X2));
+            LOOP_ASSERT(LINE, GTEQ == (CA1_p >= X2));
+            LOOP_ASSERT(LINE, EQ   == (CA1_p == X2));
+            LOOP_ASSERT(LINE, EQ   != (CA1_p != X2));
 
             // StringRef versus char *
-            LOOP_ASSERT(LINE, LT   == (X1 <  CA2));
-            LOOP_ASSERT(LINE, GT   == (X1 >  CA2));
-            LOOP_ASSERT(LINE, LTEQ == (X1 <= CA2));
-            LOOP_ASSERT(LINE, GTEQ == (X1 >= CA2));
-            LOOP_ASSERT(LINE, EQ   == (X1 == CA2));
-            LOOP_ASSERT(LINE, EQ   != (X1 != CA2));
+            LOOP_ASSERT(LINE, LT   == (X1 <  CA2_p));
+            LOOP_ASSERT(LINE, GT   == (X1 >  CA2_p));
+            LOOP_ASSERT(LINE, LTEQ == (X1 <= CA2_p));
+            LOOP_ASSERT(LINE, GTEQ == (X1 >= CA2_p));
+            LOOP_ASSERT(LINE, EQ   == (X1 == CA2_p));
+            LOOP_ASSERT(LINE, EQ   != (X1 != CA2_p));
 
-            bsl::string s1(CA1);  const bsl::string& S1 = s1;
-            bsl::string s2(CA2);  const bsl::string& S2 = s2;
+            bsl::string s1(CA1_p);  const bsl::string& S1 = s1;
+            bsl::string s2(CA2_p);  const bsl::string& S2 = s2;
 
             if (veryVerbose) {
               std::cout << "\tS1 = \"" << S1 << "\", "
-                        << "S2 = \"" << S2 << "\", " << std::endl;
+                        << "S2 = \""   << S2 << "\", " << std::endl;
             }
 
             // bsl::string versus StringRef
@@ -2897,12 +5114,12 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, EQ   == (X1 == S2));
             LOOP_ASSERT(LINE, EQ   != (X1 != S2));
 
-            native_std::string s3(CA1);  const native_std::string& S3 = s3;
-            native_std::string s4(CA2);  const native_std::string& S4 = s4;
+            native_std::string s3(CA1_p);  const native_std::string& S3 = s3;
+            native_std::string s4(CA2_p);  const native_std::string& S4 = s4;
 
             if (veryVerbose) {
               std::cout << "\tS3 = \"" << S3 << "\", "
-                        << "S4 = \"" << S4 << "\", " << std::endl;
+                        << "S4 = \""   << S4 << "\", " << std::endl;
             }
 
             // 'native_std::string' versus StringRef
@@ -2921,8 +5138,9 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, EQ   == (X1 == S4));
             LOOP_ASSERT(LINE, EQ   != (X1 != S4));
 
-            // bsl::string versus bsl::string
-            // This test is to ensure no overloading ambiguity was introduced.
+            // bsl::string versus bsl::string.  This test is to ensure no
+            // overloading ambiguity was introduced.
+
             LOOP_ASSERT(LINE, LT   == (S1 <  S2));
             LOOP_ASSERT(LINE, GT   == (S1 >  S2));
             LOOP_ASSERT(LINE, LTEQ == (S1 <= S2));
@@ -2930,8 +5148,9 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE, EQ   == (S1 == S2));
             LOOP_ASSERT(LINE, EQ   != (S1 != S2));
 
-            // 'native_std::string' versus 'native_std::string'
-            // This test is to ensure no overloading ambiguity was introduced.
+            // 'native_std::string' versus 'native_std::string'.  This test is
+            // to ensure no overloading ambiguity was introduced.
+
             LOOP_ASSERT(LINE, LT   == (S3 <  S4));
             LOOP_ASSERT(LINE, GT   == (S3 >  S4));
             LOOP_ASSERT(LINE, LTEQ == (S3 <= S4));
@@ -2958,16 +5177,16 @@ int main(int argc, char *argv[])
         //   operator<<(ostream&, const bslstl::StringRef& string);
         // --------------------------------------------------------------------
 
-        if (verbose) std::cout << "\nTesting Output (<<) Operator"
-                               << "\n============================"
-                               << std::endl;
+        if (verbose) std::cout << "TESTING OUTPUT (<<) OPERATOR:\n"
+                                  "============================\n";
 
         if (verbose) std::cout << "\nTesting 'operator<<' (ostream)."
                                << "\n= = = = = = = = = = = = = = = ="
                                << std::endl;
         {
           const size_t SIZE = 1000;     // max length of output string
-          const char XX = (char) 0xFF;  // value representing an unset 'char'
+          const char XX = static_cast<char>(0xFF);    // value representing an
+                                                      // unset 'char'
           char mCtrlBuf[SIZE];  memset(mCtrlBuf, XX, SIZE);
 
           Obj es(EMPTY_STRING);  const Obj& ES = es;
@@ -3091,59 +5310,146 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING BASIC ACCESSORS:
+        // TESTING BASIC ACCESSORS AND COMPARISONS
         //
         // Concerns:
-        //   Each individual 'stringRef' field must be correctly forwarded from
-        //   the fully-tested underlying constructor.
+        //: 1 Each individual 'stringRef' field must be correctly forwarded
+        //:   from the fully-tested underlying constructor.
         //
         // Plan:
-        //   For each of a sequence of unique string values, verify that each
-        //   of the direct accessors returns the correct value.
+        //: 1 Define a table of string, 'conat CHAR *', and 'StringRegImp'
+        //:   values that refer to the 'TestData' template class of
+        //:   null-terminated strings.
+        //:
+        //: 2 Have a 'length' field in the table to indicate that a
+        //:   'StringRefImp' refers only to a subset of a null-terminated
+        //:   string, or can be default-constructed.
+        //:
+        //: 3 Loop 'I' through the table creating I-values of
+        //:   'bsl::basic_string', a 'native_std::basic_string', a
+        //:   'StringRefImp', and 'const char *' all having the value indicated
+        //:   by the table.
+        //:
+        //: 4 Probe the accessors of the created 'StringRefImp' to verify that
+        //:   they have the proper values.
+        //:
+        //: 5 Do a nested loop 'J' through the table, creating J-values of all
+        //:   the types created in the I-Loop.
+        //:
+        //: 6 Compare the 'bsl::string' I and J values to determine the
+        //:   booleans 'EQ', 'NE', 'LT', 'GT', 'LE', and 'GE' to indicate all
+        //:   the comparison values of comparing the I-value and J-value.
+        //:
+        //: 7 Us the 'compare' methods to compare the I 'StringRefImp' to both
+        //:   the J 'StringRefImp' and the J 'const CHAR *', observe that the
+        //:   comparisons match the results from comparing the two
+        //:   'bsl::string's.
+        //:
+        //: 8 Use the '==', '!=', '<', '>=', '>', and '<=' operators to do all
+        //:   possible comparisons with the various I values on the left and
+        //:   J values on the right and confirm they all match the initial
+        //:   results of comparing the two 'bsl::string's.
         //
         // Testing:
-        //      const_iterator begin() const;
-        //      const_iterator data() const;
-        //      const_iterator end() const;
-        //      size_type      length() const;
-        //      size_type      size() const;
-        //      int            empty() const;
-        //      int            isEmpty() const;
-        //      int            compare(other) const;
-        //                     operator bsl::string() const;
-        //      const char&    operator[](size_type index) const;
+        //   const_iterator begin() const;
+        //   const_iterator data() const;
+        //   const_iterator end() const;
+        //   size_type      length() const;
+        //   size_type      size() const;
+        //   int            empty() const;
+        //   int            isEmpty() const;
+        //   int            compare(const StringRefImp&) const;
+        //   int            compare(const CHAR *) const;
+        //                  operator bsl::string() const;
+        //   const char&    operator[](size_type index) const;
+        //   bool operator==(const StringRef& lhs, const StringRef& rhs);
+        //   bool operator==(const bsl::string& lhs, const StringRef& rhs);
+        //   bool operator==(const StringRef& lhs, const bsl::string& rhs);
+        //   bool operator==(const native_std::string& l, const StringRef& r);
+        //   bool operator==(const StringRef& l, const native_std::string& r);
+        //   bool operator==(const char *lhs, const StringRef& rhs);
+        //   bool operator==(const StringRef& lhs, const char *rhs);
+        //   bool operator!=(const StringRef& lhs, const StringRef& rhs);
+        //   bool operator!=(const bsl::string& lhs, const StringRef& rhs);
+        //   bool operator!=(const StringRef& lhs, const bsl::string& rhs);
+        //   bool operator!=(const native_std::string& l, const StringRef& r);
+        //   bool operator!=(const StringRef& l, const native_std::string& r);
+        //   bool operator!=(const char *lhs, const StringRef& rhs);
+        //   bool operator!=(const StringRef& lhs, const char *rhs);
+        //   bool operator<(const StringRef& lhs, const StringRef& rhs);
+        //   bool operator<(const bsl::string& lhs, const StringRef& rhs);
+        //   bool operator<(const StringRef& lhs, const bsl::string& rhs);
+        //   bool operator<(const native_std::string& l, const StringRef& r);
+        //   bool operator<(const StringRef& l, const native_std::string& r);
+        //   bool operator<(const char *lhs, const StringRef& rhs);
+        //   bool operator<(const StringRef& lhs, const char *rhs);
+        //   bool operator>(const StringRef& lhs, const StringRef& rhs);
+        //   bool operator>(const bsl::string& lhs, const StringRef& rhs);
+        //   bool operator>(const StringRef& lhs, const bsl::string& rhs);
+        //   bool operator>(const native_std::string& l, const StringRef& r);
+        //   bool operator>(const StringRef& l, const native_std::string& r);
+        //   bool operator>(const char *lhs, const StringRef& rhs);
+        //   bool operator>(const StringRef& lhs, const char *rhs);
+        //   bool operator<=(const StringRef& lhs, const StringRef& rhs);
+        //   bool operator<=(const bsl::string& lhs, const StringRef& rhs);
+        //   bool operator<=(const StringRef& lhs, const bsl::string& rhs);
+        //   bool operator<=(const native_std::string& l, const StringRef& r);
+        //   bool operator<=(const StringRef& l, const native_std::string& r);
+        //   bool operator<=(const char *lhs, const StringRef& rhs);
+        //   bool operator<=(const StringRef& lhs, const char *rhs);
+        //   bool operator>=(const StringRef& lhs, const StringRef& rhs);
+        //   bool operator>=(const bsl::string& lhs, const StringRef& rhs);
+        //   bool operator>=(const StringRef& lhs, const bsl::string& rhs);
+        //   bool operator>=(const native_std::string& l, const StringRef& r);
+        //   bool operator>=(const StringRef& l, const native_std::string& r);
+        //   bool operator>=(const char *lhs, const StringRef& rhs);
+        //   bool operator>=(const StringRef& lhs, const char *rhs);
         // --------------------------------------------------------------------
 
-        testBasicAccessors<char>(verbose);
-        testBasicAccessors<wchar_t>(verbose);
+        testAccessorsComparisons<char>();
+        testAccessorsComparisons<unsigned char>();
+        testAccessorsComparisons<signed char>();
+
+        // The size of 'wchar_t', and whether it is signed, varies by platform,
+        // like 'char', and some platforms seem to support only one of
+        // 'signed wchar_t' or 'unsigned wchar_t', depending which is the
+        // opposite signedness of 'wchar_t'.
+
+        testAccessorsComparisons<wchar_t>();
+
+        testAccessorsComparisons<unsigned short>();
+        testAccessorsComparisons<short>();
+
+        testAccessorsComparisons<unsigned int>();
+        testAccessorsComparisons<int>();
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING BASIC MANIPULATORS (BOOTSTRAP):
+        // TESTING BASIC CONSTRUCTORS
         //
         // Concerns:
-        //   The begin and end members must be correctly set by the different
-        //   constructors.
+        //: 1 The begin and end members must be correctly set by the different
+        //:   constructors.
         //
         // Plan:
-        //   Test each of the constructors with empty and non-empty strings.
+        //: 1 Test each of the constructors with empty and non-empty strings.
         //
         // Testing:
-        //   bslstl::StringRef();
-        //   bslstl::StringRef(const char *begin, const char *end);
-        //   bslstl::StringRef(const char *begin, INT_TYPE length);
-        //   bslstl::StringRef(const char *begin, size_type length, Nil);
-        //   bslstl::StringRef(const char *begin, size_type f, size_type l);
-        //   bslstl::StringRef(const char *begin);
-        //   bslstl::StringRef(const bsl::string& begin);
-        //   bslstl::StringRef(const native_std::string& begin);
-        //   bslstl::StringRef(const bslstl::StringRef& original);
-        //   ~bslstl::StringRef();
-        //   bslstl::StringRef& operator=(const bslstl::StringRef&);
+        //   bslstl::StringRefImp();
+        //   bslstl::StringRefImp(const CHAR *begin, const CHAR *end);
+        //   bslstl::StringRefImp(const CHAR *begin, INT_TYPE length);
+        //   bslstl::StringRefImp(const CHAR *begin, size_type length, Nil);
+        //   bslstl::StringRefImp(const CHAR *begin, size_type f, size_type l);
+        //   bslstl::StringRefImp(const CHAR *begin);
+        //   bslstl::StringRefImp(const bsl::string& begin);
+        //   bslstl::StringRefImp(const native_std::string& begin);
+        //   bslstl::StringRefImp(const bslstl::StringRefImp& original);
+        //   ~bslstl::StringRefImp();
+        //   bslstl::StringRefImp& operator=(const bslstl::StringRefImp&);
         // --------------------------------------------------------------------
 
-        if (verbose) std::cout << "\nTesting Primary Manipulator"
-                               << "\n===========================" << std::endl;
+        if (verbose) std::cout << "TESTING BASIC CONSTRUCTORS\n"
+                                  "==========================\n";
 
         if (verbose) std::cout << "\nTesting default constructor"
                                << "\n= = = = = = = = = = = = = =" << std::endl;
@@ -3527,23 +5833,23 @@ int main(int argc, char *argv[])
 
         {
           // Empty string
-          bsl::string emptyString(EMPTY_STRING);
-          Obj x1(emptyString);  const Obj& X1 = x1;
+          bsl::string s_emptyString_p(EMPTY_STRING);
+          Obj x1(s_emptyString_p);  const Obj& X1 = x1;
           ASSERT(X1.isEmpty());
           ASSERT(X1.length()    == 0);
           ASSERT(X1.begin()     == X1.end());
-          ASSERT(emptyString.c_str() == X1.end());
+          ASSERT(s_emptyString_p.c_str() == X1.end());
 
           // Non-empty string
-          bsl::string nonEmptyString(NON_EMPTY_STRING);
-          Obj x2(nonEmptyString);  const Obj& X2 = x2;
+          bsl::string s_nonEmptyString_p(NON_EMPTY_STRING);
+          Obj x2(s_nonEmptyString_p);  const Obj& X2 = x2;
           ASSERT(!X2.isEmpty());
           ASSERT(X2.length()  == std::strlen(NON_EMPTY_STRING));
           ASSERT(X2.begin()   != X2.end());
-          ASSERT(&*X2.begin()   == &*nonEmptyString.begin());
+          ASSERT(&*X2.begin()   == &*s_nonEmptyString_p.begin());
           ASSERT((&*X2.begin() + (X2.end() - X2.begin())) ==
-                 (&*nonEmptyString.begin() + (nonEmptyString.end() -
-                                             nonEmptyString.begin())));
+                (&*s_nonEmptyString_p.begin() + (s_nonEmptyString_p.end() -
+                                                 s_nonEmptyString_p.begin())));
         }
 
         if (veryVerbose)
@@ -3554,31 +5860,33 @@ int main(int argc, char *argv[])
 
         {
           // Empty string
-          const native_std::string emptyString(EMPTY_STRING);
-          Obj x1(emptyString);  const Obj& X1 = x1;
+          const native_std::string s_emptyString_p(EMPTY_STRING);
+          Obj x1(s_emptyString_p);  const Obj& X1 = x1;
           ASSERT(X1.isEmpty());
           ASSERT(X1.length()    == 0);
           ASSERT(X1.begin()     == X1.end());
 
 // DRQS 24793537: When built in optimized mode on IBM, the following assert
 // fails.  The address returned from data() here is different from the address
-// returned in the constructor of StringRef.  data() returns a pointer to
-// a function local static char variable and the compiler generates multiple
+// returned in the constructor of StringRef. data() returns a pointer to a
+// function local static char variable and the compiler generates multiple
 // copies of that static variable.
+
 #if !defined(BSLS_PLATFORM_CMP_IBM) || !defined(BDE_BUILD_TARGET_OPT)
-          ASSERT(emptyString.data() + emptyString.length() == X1.end());
+          ASSERT(s_emptyString_p.data() +
+                                         s_emptyString_p.length() == X1.end());
 #endif
 
           // Non-empty string
-          native_std::string nonEmptyString(NON_EMPTY_STRING);
-          Obj x2(nonEmptyString);  const Obj& X2 = x2;
+          native_std::string s_nonEmptyString_p(NON_EMPTY_STRING);
+          Obj x2(s_nonEmptyString_p);  const Obj& X2 = x2;
           ASSERT(!X2.isEmpty());
           ASSERT(X2.length()  == std::strlen(NON_EMPTY_STRING));
           ASSERT(X2.begin()   != X2.end());
-          ASSERT(&*X2.begin()   == &*nonEmptyString.begin());
+          ASSERT(&*X2.begin()   == &*s_nonEmptyString_p.begin());
           ASSERT((&*X2.begin() + (X2.end() - X2.begin())) ==
-                 (&*nonEmptyString.begin() + (nonEmptyString.end() -
-                                             nonEmptyString.begin())));
+                (&*s_nonEmptyString_p.begin() + (s_nonEmptyString_p.end() -
+                                                 s_nonEmptyString_p.begin())));
         }
 
         if (verbose) std::cout << "\nTesting copy constructor"
@@ -3725,7 +6033,7 @@ int main(int argc, char *argv[])
             ASSERT(X2 == X3);
             ASSERT(X1 != X3);
 
-            bsl::string sx1 = (bsl::string) X1;
+            bsl::string sx1 = static_cast<bsl::string>(X1);
             if (verbose) P(sx1.c_str());
             ASSERT(3 == sx1.size());
 
@@ -3761,6 +6069,158 @@ int main(int argc, char *argv[])
 
             ASSERT(X1 == X2);
         }
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // SHORT STRINGS PERFORMANCE TEST
+        // --------------------------------------------------------------------
+
+        enum { k_NUM_STRINGREFS        = 1024 * 1024,
+               k_NUM_UNIQUE_STRINGREFS = k_NUM_STRINGREFS / 32,
+               k_NUM_TRIALS            = 250 * 1000 * 1000 };
+
+        native_std::vector<bsl::string> sv;
+        sv.reserve(k_NUM_STRINGREFS);
+
+        const int len   = static_cast<int>(native_std::strlen(
+                                                           charUtf8MultiLang));
+        const int chunk = len / 128;
+
+        ASSERTV(len,   len  > 22 * 1000);
+        ASSERTV(chunk, chunk <= 175);
+        ASSERTV(chunk, chunk >  170);
+
+        int ii = 0;
+        for (; ii < k_NUM_UNIQUE_STRINGREFS; ++ii) {
+            const int idx = (absMmixRandNum() % 128) * chunk;
+            const int lenGivenIdx = absMmixRandNum() % chunk;
+            ASSERT(idx + lenGivenIdx <= len);
+
+            bslstl::StringRef sr(charUtf8MultiLang + idx, lenGivenIdx);
+            sv.push_back(sr);
+        }
+        const bsl::string defaultStr;
+        for (; ii < k_NUM_STRINGREFS; ++ii) {
+            sv.push_back(defaultStr);
+            sv[ii] = sv[ii - k_NUM_UNIQUE_STRINGREFS];
+        }
+        native_std::sort(sv.begin(), sv.end());
+
+        native_std::vector<bslstl::StringRef> srv;
+        srv.reserve(k_NUM_STRINGREFS);
+        for (ii = 0; ii < k_NUM_STRINGREFS; ++ii) {
+            srv.push_back(sv[ii]);
+        }
+
+        native_std::vector<int> eqv;
+        eqv.reserve(k_NUM_STRINGREFS);
+        eqv.push_back(0);
+        for (ii = 1; ii < k_NUM_STRINGREFS; ++ii) {
+            const int eqIdx = sv[ii - 1] == sv[ii] ? eqv[ii - 1] : ii;
+            eqv.push_back(eqIdx);
+        }
+
+        bsls::Stopwatch sw;
+        sw.start(true);
+        for (int jj = k_NUM_TRIALS; 0 < jj; --jj) {
+            const int  idxA = absMmixRandNum() % k_NUM_STRINGREFS;
+            const int  idxB = absMmixRandNum() % k_NUM_STRINGREFS;
+            const bool EQ   = eqv[idxB] == eqv[idxA];    (void) EQ;
+        }
+        sw.stop();
+        struct Times {
+            // DATA
+            double d_systemTime;
+            double d_userTime;
+            double  d_wallTime;
+
+            // MANIPULATORS
+            Times& operator-=(const Times& rhs)
+            {
+                d_systemTime -= rhs.d_systemTime;
+                d_userTime   -= rhs.d_userTime;
+                d_wallTime   -= rhs.d_wallTime;
+
+                return *this;
+            }
+        };
+        Times empty;
+        sw.accumulatedTimes(&empty.d_systemTime,
+                            &empty.d_userTime,
+                            &empty.d_wallTime);
+        P_(empty.d_systemTime);    P_(empty.d_userTime);   P(empty.d_wallTime);
+
+        sw.reset();
+        sw.start(true);
+        for (int jj = k_NUM_TRIALS; 0 < jj; --jj) {
+            const int  idxA = absMmixRandNum() % k_NUM_STRINGREFS;
+            const int  idxB = absMmixRandNum() % k_NUM_STRINGREFS;
+            const bool EQ   = eqv[idxA] == eqv[idxB];
+
+            ASSERTV(EQ == (srv[idxA] == srv[idxB]));
+        }
+        sw.stop();
+
+        Times eqTime;
+        sw.accumulatedTimes(&eqTime.d_systemTime,
+                            &eqTime.d_userTime,
+                            &eqTime.d_wallTime);
+        eqTime -= empty;
+        P_(eqTime.d_systemTime);  P_(eqTime.d_userTime);  P(eqTime.d_wallTime);
+
+        sw.reset();
+        sw.start(true);
+        for (int jj = k_NUM_TRIALS; 0 < jj; --jj) {
+            const int  idxA = absMmixRandNum() % k_NUM_STRINGREFS;
+            const int  idxB = absMmixRandNum() % k_NUM_STRINGREFS;
+            const bool EQ   = eqv[idxA] == eqv[idxB];
+
+            ASSERTV(EQ == (srv[idxA] == sv[idxB].c_str()));
+        }
+        sw.stop();
+
+        Times eqCTime;
+        sw.accumulatedTimes(&eqCTime.d_systemTime,
+                            &eqCTime.d_userTime,
+                            &eqCTime.d_wallTime);
+        eqCTime -= empty;
+        P_(eqCTime.d_systemTime);P_(eqCTime.d_userTime);P(eqCTime.d_wallTime);
+
+        sw.reset();
+        sw.start(true);
+        for (int jj = k_NUM_TRIALS; 0 < jj; --jj) {
+            const int  idxA = absMmixRandNum() % k_NUM_STRINGREFS;
+            const int  idxB = absMmixRandNum() % k_NUM_STRINGREFS;
+            const bool LT   = eqv[idxA] <  eqv[idxB];
+
+            ASSERTV(LT == (srv[idxA] <  srv[idxB]));
+        }
+        sw.stop();
+
+        Times ltTime;
+        sw.accumulatedTimes(&ltTime.d_systemTime,
+                            &ltTime.d_userTime,
+                            &ltTime.d_wallTime);
+        ltTime -= empty;
+        P_(ltTime.d_systemTime);  P_(ltTime.d_userTime);  P(ltTime.d_wallTime);
+
+        sw.reset();
+        sw.start(true);
+        for (int jj = k_NUM_TRIALS; 0 < jj; --jj) {
+            const int  idxA = absMmixRandNum() % k_NUM_STRINGREFS;
+            const int  idxB = absMmixRandNum() % k_NUM_STRINGREFS;
+            const bool LT   = eqv[idxA] <  eqv[idxB];
+
+            ASSERTV(LT == (srv[idxA] <  sv[idxB].c_str()));
+        }
+        sw.stop();
+
+        Times ltCTime;
+        sw.accumulatedTimes(&ltCTime.d_systemTime,
+                            &ltCTime.d_userTime,
+                            &ltCTime.d_wallTime);
+        ltCTime -= empty;
+        P_(ltCTime.d_systemTime);P_(ltCTime.d_userTime);P(ltCTime.d_wallTime);
       } break;
       default: {
         std::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << std::endl;
