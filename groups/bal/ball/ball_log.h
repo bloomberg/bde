@@ -106,6 +106,56 @@ BSLS_IDENT("$Id: $")
 // 'BALL_LOG_SET_DYNAMIC_CATEGORY'), class-scope categories are not destroyed
 // until the logger manager singleton is destroyed.
 //
+///Macros for Defining Hierarchical Categories
+///- - - - - - - - - - - - - - - - - - - - - -
+// The following macros set categories which, if new, have logging thresholds
+// matching those of their parent category, where a parent category is the
+// pre-existing category with the longest name of non-zero length whose name
+// fully matches the beginning of the new category name.
+//
+//: 'BALL_LOG_SET_CATEGORY_HIERARCHICALLY(CATEGORY)'
+//:     Set a category for logging to the specified 'CATEGORY' (assumed to be
+//:     of type convertible to 'const char *').  On the *first* invocation of
+//:     this macro in a code block, the 'ball::Log::setCategory' method is
+//:     invoked to retrieve the address of an appropriate category structure
+//:     for its scope; subsequent invocations will use a cached address of the
+//:     category.  (See the function-level documentation of
+//:     'ball::Log::setCategory' for more information.)  This macro must be
+//:     used at block scope, and can be used at most once in any given block
+//:     (or else a compiler diagnostic will result).  Also note that this macro
+//:     behaves just like like 'BALL_LOG_SET_CATEGORY', except in the case
+//:     where the category is created and a parent category exists.
+//:
+//: 'BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(CATEGORY)':
+//:     Set, *on* *EACH* *invocation*, a category for logging to the specified
+//:     'CATEGORY' (assumed to be of type convertible to 'const char *').  On
+//:     *EVERY* invocation of this macro in a code block, the
+//:     'ball::Log::setCategory' method is invoked to retrieve the address of
+//:     an appropriate category structure for its scope; the address returned
+//:     from 'ball::Log::setCategory' is *NOT* cached for subsequent calls.
+//:     (See the function-level documentation of 'ball::Log::setCategory' for
+//:     more information.)  This macro must be used at block scope and can be
+//:     used at most once in any given block (or else a compiler diagnostic
+//:     will result).  Note that this macro should be used to create categories
+//:     that depend on *RUN-TIME* values only (e.g., LUW or UUID).  Also note
+//:     that this macro behaves just like like 'BALL_LOG_SET_DYNAMIC_CATEGORY',
+//:     except in the case where the category is created and a parent category
+//:     exists.
+//:
+//: 'BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(CATEGORY)'
+//:     Set a category for logging to the specified 'CATEGORY' (assumed to be
+//:     of type convertible to 'const char *') in the scope of the class within
+//:     which this macro is used.  Similar to 'BALL_LOG_SET_CATEGORY', the
+//:     category is set *once* only, the first time that it is accessed (i.e.,
+//:     it is not a dynamic category).  This macro must be used, at most once,
+//:     within the definition of a class or class template (or else a compiler
+//:     diagnostic will result).  Note that use of this macro may occur in
+//:     either a 'public', 'private', or 'protected' section of a class's
+//:     interface, although 'private' should be preferred.  Also note
+//:     that this macro behaves just like like 'BALL_LOG_SET_CLASS_CATEGORY',
+//:     except in the case where the category is created and a parent category
+//:     exists.
+//
 ///Macros for Logging Records
 /// - - - - - - - - - - - - -
 // The macros defined in this subsection are the ones that are actually used to

@@ -157,23 +157,23 @@ const Category *Log::setCategoryHierarchically(CategoryHolder *categoryHolder,
     }
 
     LoggerManager& loggerManager = LoggerManager::singleton();
-    if (!loggerManager.lookupCategory(categoryName)) {
-        // TBD: enable 'addCategoryHierarchically' to apply the name filter and
-        // access the thresholds determined by the logger manager's default
-        // threshold levels callback, if set.
 
-        LoggerCategoryUtil::addCategoryHierarchically(&loggerManager,
-                                                      categoryName);
+    // TBD: enable 'addCategoryHierarchically' to apply the name filter and
+    // access the thresholds determined by the logger manager's default
+    // threshold levels callback, if set.
 
-        // The above call returns a 'Category *', but it's not useful to us:
-        //: o It may have returned 0, if the logger manager was full or if
-        //:   another thread added the same category after 'lookupCategory' was
-        //:   called.
-        //:
-        //: o The only functions we have access to that will set the category
-        //:   holder to a category identify the category by name rather than by
-        //:   category pointer.
-    }
+    LoggerCategoryUtil::addCategoryHierarchically(&loggerManager,
+                                                  categoryName);
+
+    // The above call returns a 'Category *', but it's not useful to us:
+    //: o It may have returned 0
+    //:   1 if the category already existed, of
+    //:
+    //:   2 if the logger manager was full.
+    //:
+    //: o The only functions we have access to that will set the category
+    //:   holder to a category identify the category by name rather than by
+    //:   category pointer.
 
     // Note that 'setCategory' below can handle the case where
     // '0 == categoryHolder'.  If the logger manager is full, the default
