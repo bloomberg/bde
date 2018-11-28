@@ -328,9 +328,9 @@ class SingleProducerQueueImpl {
 
     // PUBLIC CONSTANTS
     enum {
-        e_SUCCESS = 0,
-        e_EMPTY,
-        e_DISABLED
+        e_SUCCESS  =  0,
+        e_EMPTY    = -1,
+        e_DISABLED = -2
     };
 
     // CREATORS
@@ -805,7 +805,7 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::pushBack(
                                                              const TYPE& value)
 {
     if (0 != ATOMIC_OP::getIntAcquire(&d_pushBackDisabled)) {
-        return -1;                                                    // RETURN
+        return e_DISABLED;                                            // RETURN
     }
 
     Node *lastWritten = static_cast<Node *>(
@@ -879,7 +879,7 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::pushBack(
                                                  bslmf::MovableRef<TYPE> value)
 {
     if (0 != ATOMIC_OP::getIntAcquire(&d_pushBackDisabled)) {
-        return -1;                                                    // RETURN
+        return e_DISABLED;                                            // RETURN
     }
 
     Node *lastWritten = static_cast<Node *>(

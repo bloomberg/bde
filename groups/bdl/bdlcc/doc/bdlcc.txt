@@ -46,6 +46,7 @@
   3. bdlcc_objectpool
 
   2. bdlcc_fixedqueue
+     bdlcc_singleconsumerqueue
      bdlcc_singleproducerqueue
 
   1. bdlcc_deque
@@ -53,6 +54,7 @@
      bdlcc_multipriorityqueue
      bdlcc_objectcatalog
      bdlcc_queue                                         !DEPRECATED!
+     bdlcc_singleconsumerqueueimpl
      bdlcc_singleproducerqueueimpl
      bdlcc_skiplist
      bdlcc_timequeue
@@ -83,6 +85,12 @@
 :
 : 'bdlcc_sharedobjectpool':
 :      Provide a thread-safe pool of shared objects.
+:
+: 'bdlcc_singleconsumerqueue':
+:      Provide a thread-aware single consumer queue of values.
+:
+: 'bdlcc_singleconsumerqueueimpl':
+:      Provide a testable thread-aware single consumer queue of values.
 :
 : 'bdlcc_singleproducerqueue':
 :      Provide a thread-aware single producer queue of values.

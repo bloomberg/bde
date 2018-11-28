@@ -579,10 +579,15 @@ extern "C" void *orderingState(void *arg)
     return 0;
 }
 
-extern "C" void *watchdog(void *arg)
-{
-    const char *text = static_cast<const char *>(arg);
+static char s_watchdogText[128];
 
+void setWatchdogText(const char *value)
+{
+    memcpy(s_watchdogText, value, strlen(value) + 1);
+}
+
+extern "C" void *watchdog(void *)
+{
     const int MAX = 100;  // one iteration is a decisecond
 
     int count = 0;
@@ -591,7 +596,7 @@ extern "C" void *watchdog(void *arg)
         bslmt::ThreadUtil::microSleep(100000);
         ++count;
 
-        ASSERTV(text, count < MAX);
+        ASSERTV(s_watchdogText, count < MAX);
 
         if (MAX == count && s_continue) {
             abort();
@@ -613,9 +618,8 @@ void orderingGuaranteeTest(const int numPushThread, const int numPopThread)
 
     OrderingObj mX;  const OrderingObj& X = mX;
 
-    bslmt::ThreadUtil::create(&watchdogHandle,
-                              watchdog,
-                              const_cast<char *>("ordering guarantee"));
+    setWatchdogText("ordering guarantee");
+    bslmt::ThreadUtil::create(&watchdogHandle, watchdog, 0);
 
     bslmt::ThreadUtil::create(&stateHandle, orderingState, &mX);
 
@@ -633,9 +637,10 @@ void orderingGuaranteeTest(const int numPushThread, const int numPopThread)
         }
     }
 
-    bslmt::ThreadUtil::microSleep(4000000);
+    bslmt::ThreadUtil::microSleep(1000000);
     s_continue = 3;
 
+    setWatchdogText("ordering guarantee: join state");
     bslmt::ThreadUtil::join(stateHandle);
 
     mX.enablePopFront();
@@ -646,10 +651,12 @@ void orderingGuaranteeTest(const int numPushThread, const int numPopThread)
 
     mX.disablePushBack();
 
+    setWatchdogText("ordering guarantee: join push");
     for (int i = 0; i < numPushThread; ++i){
         bslmt::ThreadUtil::join(pushHandle[i]);
     }
 
+    setWatchdogText("ordering guarantee: wait until empty");
     int rv = X.waitUntilEmpty();
     ASSERT(0 == rv);
     ASSERT(0 == X.numElements());
@@ -658,12 +665,14 @@ void orderingGuaranteeTest(const int numPushThread, const int numPopThread)
 
     mX.disablePopFront();
 
+    setWatchdogText("ordering guarantee: join pop");
     for (int i = 0; i < numPopThread; ++i){
         bslmt::ThreadUtil::join(popHandle[i]);
     }
 
     s_continue = 0;
 
+    setWatchdogText("ordering guarantee: join watchdog");
     bslmt::ThreadUtil::join(watchdogHandle);
 }
 
@@ -917,8 +926,7 @@ int main(int argc, char *argv[])
 
         bslmt::ThreadUtil::join(watchdogHandle);
 
-        break;
-      }
+      } break;
       case 12: {
         // ---------------------------------------------------------
         // Ordering Guarantee Test
@@ -1849,8 +1857,8 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
-                          << "PRIMARY MANIPULATORS TEST" << endl
-                          << "=========================" << endl;
+                          << "INITIAL CAPACITY CONSTRUCTOR" << endl
+                          << "============================" << endl;
 
         if (verbose) cout << "\nTesting with various allocator configurations."
                           << endl;
@@ -2117,6 +2125,8 @@ int main(int argc, char *argv[])
                 const char *const EXP  = DATA[ti].d_exp_p;
                 const bsl::size_t LEN  = strlen(EXP);
 
+                if (veryVerbose) { P_(LINE) P_(SPEC) P(EXP) }
+
                 Obj mX;  const Obj& X = gg(&mX, SPEC);   // original spec
 
                 LOOP_ASSERT(LINE, LEN == X.numElements());
@@ -2127,7 +2137,7 @@ int main(int argc, char *argv[])
                     int rv = mX.popFront(&value);
                     ASSERT(0 == rv);
 
-                    if (veryVerbose) { P_(EXP[i]) P(value) }
+                    if (veryVerbose) { T_ P_(EXP[i]) P(value) }
 
                     Obj::value_type expValue;
                     getValue(&expValue, EXP[i], 0);

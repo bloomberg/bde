@@ -1,8 +1,10 @@
-// bdlcc_singleproducerqueueimpl.t.cpp                                -*-C++-*-
+// bdlcc_singleconsumerqueue.t.cpp                                    -*-C++-*-
 
-#include <bdlcc_singleproducerqueueimpl.h>
+#include <bdlcc_singleconsumerqueue.h>
 
 #include <bslim_testutil.h>
+
+#include <bdlf_bind.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -13,6 +15,7 @@
 #include <bslmt_condition.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
+#include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
 
 #include <bsls_assert.h>
@@ -41,7 +44,7 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test implements a concurrent FIFO queue container
-// requiring a single producer.  The primary manipulators are the methods for
+// requiring a single consumer.  The primary manipulators are the methods for
 // adding elements ('pushBack') and emptying the queue ('removeAll').  The
 // provided basic accessors are the methods for obtaining the allocator
 // ('allocator') and the number of elements in the queue ('numElements').  The
@@ -72,9 +75,9 @@ using namespace bsl;
 //:   or object allocator.
 //: o ACCESSOR methods are 'const' thread-safe.
 // ----------------------------------------------------------------------------
-// [ 2] SingleProducerQueueImpl(bslma::Allocator *basicAllocator = 0);
-// [ 5] SingleProducerQueueImpl(capacity, *bA = 0);
-// [ 2] ~SingleProducerQueueImpl();
+// [ 2] SingleConsumerQueue(bslma::Allocator *basicAllocator = 0);
+// [ 5] SingleConsumerQueue(capacity, *bA = 0);
+// [ 2] ~SingleConsumerQueue();
 // [ 2] int popFront(TYPE *value);
 // [ 2] int pushBack(const TYPE& value);
 // [10] int pushBack(bslmf::MovableRef<TYPE> value);
@@ -95,6 +98,7 @@ using namespace bsl;
 // [ 4] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [13] USAGE EXAMPLE
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
 // [10] CONCERN: 'popFront' and 'tryPopFront' honor move-semantics
@@ -302,7 +306,7 @@ int MoveTester::value() const
 class IncorrectlyMatchingMoveConstructorTestType {
     // This class is convertible from any type that has a 'data' method
     // returning a 'int' value.  It is used to facilitate testing that the
-    // implementation of 'bdlcc::SingleProducerQueueImpl' does not pass a
+    // implementation of 'bdlcc::SingleConsumerQueue' does not pass a
     // 'bslmf::MovableRef<T>' object to a class whose interface does not
     // support it (in C++03 mode).
 
@@ -437,15 +441,9 @@ public:
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlcc::SingleProducerQueueImpl<int,
-                                       bsls::AtomicOperations,
-                                       bslmt::Mutex,
-                                       bslmt::Condition>       Obj;
+typedef bdlcc::SingleConsumerQueue<int>          Obj;
 
-typedef bdlcc::SingleProducerQueueImpl<bsl::string,
-                                       bsls::AtomicOperations,
-                                       bslmt::Mutex,
-                                       bslmt::Condition>       AllocObj;
+typedef bdlcc::SingleConsumerQueue<bsl::string>  AllocObj;
 
 // ============================================================================
 //                   GLOBAL METHODS FOR TESTING
@@ -491,10 +489,7 @@ struct OrderingValue {
     bsls::Types::Uint64 d_sequenceNumber;
 };
 
-typedef bdlcc::SingleProducerQueueImpl<OrderingValue,
-                                       bsls::AtomicOperations,
-                                       bslmt::Mutex,
-                                       bslmt::Condition>       OrderingObj;
+typedef bdlcc::SingleConsumerQueue<OrderingValue> OrderingObj;
 
 struct OrderingPopData {
     OrderingObj                                              *d_obj_p;
@@ -773,8 +768,81 @@ OBJ& gg(OBJ *object, const char *spec)
 
 ///Usage
 ///-----
-// There is no usage example for this component since it is not meant for
-// direct client use.
+// This section illustrates intended use of this component.
+//
+///Example 1: A Simple Thread Pool
+///- - - - - - - - - - - - - - - -
+// In the following example a 'bdlcc::SingleConsumerQueue' is used to
+// communicate between multiple "producer" threads and a single "consumer"
+// thread.  The "producers" will push work requests onto the queue, and the
+// "consumer" will iteratively take a work request from the queue and service
+// the request.
+//
+// First, we define a utility classes that handles a simple "work item":
+//..
+    struct my_WorkData {
+        // Work data...
+    };
+//..
+// Next, we provide a simple function to service an individual work item.  The
+// details are unimportant for this example:
+//..
+    void myDoWork(const my_WorkData& data)
+    {
+        // do some stuff...
+        (void)data;
+    }
+//..
+// Then, we define a 'myProducer' function that will push elements onto the
+// queue until the queue is disabled.  Note that the call to
+// 'queue->pushFront(&item)' will never block:
+//..
+    void myProducer(bdlcc::SingleConsumerQueue<my_WorkData> *queue)
+    {
+        while (1) {
+            my_WorkData item;
+            if (queue->pushBack(item)) {
+                return;                                               // RETURN
+            }
+        }
+    }
+//..
+// Finally, we define a 'myConsumer' function that serves multiple roles: it
+// creates the 'bdlcc::SingleConsumerQueue', starts the producer threads, and
+// then dequeues and processes work items.  After completing an amount of work
+// items, the queue is disabled for enqueueing, the producer threads are joined
+// and the consumer uses 'tryPopFront' until the queue is empty.
+//..
+    void myConsumer(int numThreads)
+    {
+        enum {
+            k_NUM_WORK_ITEMS = 1000
+        };
+
+        bdlcc::SingleConsumerQueue<my_WorkData> queue;
+
+        bslmt::ThreadGroup producerThreads;
+        producerThreads.addThreads(bdlf::BindUtil::bind(&myProducer, &queue),
+                                   numThreads);
+
+        my_WorkData item;
+
+        for (int i = 0; i < k_NUM_WORK_ITEMS; ++i) {
+            queue.popFront(&item);
+            myDoWork(item);
+        }
+
+        queue.disablePushBack();
+
+        producerThreads.joinAll();
+
+        while (0 == queue.tryPopFront(&item)) {
+            myDoWork(item);
+        }
+
+        ASSERT(queue.isEmpty());
+    }
+//..
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -799,6 +867,44 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 13: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "USAGE EXAMPLE" << endl
+                          << "=============" << endl;
+
+        bslmt::ThreadUtil::Handle watchdogHandle;
+
+        s_continue = 1;
+
+        bslmt::ThreadUtil::create(&watchdogHandle,
+                                  watchdog,
+                                  const_cast<char *>("usage example"));
+
+        enum { k_NUM_THREADS = 4 };
+
+        myConsumer(k_NUM_THREADS);
+
+        s_continue = 0;
+
+        bslmt::ThreadUtil::join(watchdogHandle);
+      } break;
       case 12: {
         // ---------------------------------------------------------
         // Ordering Guarantee Test
@@ -809,7 +915,7 @@ int main(int argc, char *argv[])
         //   the order these elements were enqueued.
         //
         // Concerns:
-        //: 1 If the queue has a single producer and a single consumer, the
+        //: 1 If the queue has a single consumer and a single consumer, the
         //:   strong form of the ordering guarantee is provided.
         //:
         //: 2 Under normal operation, the weak form of the ordering guarantee
@@ -832,7 +938,7 @@ int main(int argc, char *argv[])
                           << "=======================" << endl;
 
         orderingGuaranteeTest(1, 1);  // SPSC
-        orderingGuaranteeTest(1, 4);  // SPMC
+        orderingGuaranteeTest(4, 1);  // MPSC
       } break;
       case 11: {
         // ---------------------------------------------------------
@@ -856,10 +962,7 @@ int main(int argc, char *argv[])
                           << "Template Requirements Test" << endl
                           << "==========================" << endl;
 
-        bdlcc::SingleProducerQueueImpl<TemplateRequirementTestType,
-                                       bsls::AtomicOperations,
-                                       bslmt::Mutex,
-                                       bslmt::Condition> queue(10);
+        bdlcc::SingleConsumerQueue<TemplateRequirementTestType> queue(10);
 
         int count = 0;
         {
@@ -907,10 +1010,7 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator ta(veryVeryVerbose);
 
-            bdlcc::SingleProducerQueueImpl<MoveTester,
-                                           bsls::AtomicOperations,
-                                           bslmt::Mutex,
-                                           bslmt::Condition> queue(42, &ta);
+            bdlcc::SingleConsumerQueue<MoveTester> queue(42, &ta);
 
             int moveCtr = 0;
 
@@ -954,10 +1054,7 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocator ta(veryVeryVerbose);
 
-            bdlcc::SingleProducerQueueImpl<ValueType,
-                                           bsls::AtomicOperations,
-                                           bslmt::Mutex,
-                                           bslmt::Condition> queue(42, &ta);
+            bdlcc::SingleConsumerQueue<ValueType> queue(42, &ta);
 
             bslma::TestAllocatorMonitor tam(&ta);
 
@@ -1045,10 +1142,7 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocator ta(veryVeryVerbose);
 
-            bdlcc::SingleProducerQueueImpl<ValueType,
-                                           bsls::AtomicOperations,
-                                           bslmt::Mutex,
-                                           bslmt::Condition> queue(42, &ta);
+            bdlcc::SingleConsumerQueue<ValueType> queue(42, &ta);
 
             bslma::TestAllocatorMonitor tam(&ta);
 
@@ -1138,10 +1232,7 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocator ta(veryVeryVerbose);
 
-            bdlcc::SingleProducerQueueImpl<ValueType,
-                                           bsls::AtomicOperations,
-                                           bslmt::Mutex,
-                                           bslmt::Condition> queue(42, &ta);
+            bdlcc::SingleConsumerQueue<ValueType> queue(42, &ta);
 
             bslma::TestAllocatorMonitor tam(&ta);
 
@@ -1278,10 +1369,8 @@ int main(int argc, char *argv[])
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
                      - interval;
 
-            ASSERT(   s_deferredPopFrontInterval.totalSecondsAsDouble() * 0.8
-                                           <= interval.totalSecondsAsDouble()
-                   && s_deferredPopFrontInterval.totalSecondsAsDouble() * 1.2
-                                           >= interval.totalSecondsAsDouble());
+            ASSERT(   bsls::TimeInterval(0.8) <= interval
+                   && bsls::TimeInterval(1.2) >= interval);
 
             bslmt::ThreadUtil::join(handle);
 
@@ -1319,8 +1408,10 @@ int main(int argc, char *argv[])
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
                      - interval;
 
-            ASSERT(   bsls::TimeInterval(0.8) <= interval
-                   && bsls::TimeInterval(1.2) >= interval);
+            ASSERT(   s_deferredPopFrontInterval.totalSecondsAsDouble() * 0.8
+                                           <= interval.totalSecondsAsDouble()
+                   && s_deferredPopFrontInterval.totalSecondsAsDouble() * 1.2
+                                           >= interval.totalSecondsAsDouble());
 
             bslmt::ThreadUtil::join(handle);
 
@@ -1440,14 +1531,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-            bdlcc::SingleProducerQueueImpl<AllocExceptionHelper,
-                                           bsls::AtomicOperations,
-                                           bslmt::Mutex,
-                                           bslmt::Condition> mX(&sa);
-            const bdlcc::SingleProducerQueueImpl<AllocExceptionHelper,
-                                                 bsls::AtomicOperations,
-                                                 bslmt::Mutex,
-                                                 bslmt::Condition>& X = mX;
+            bdlcc::SingleConsumerQueue<AllocExceptionHelper>        mX(&sa);
+            const bdlcc::SingleConsumerQueue<AllocExceptionHelper>& X = mX;
 
             AllocExceptionHelper value(&sa);
 
@@ -1458,7 +1543,7 @@ int main(int argc, char *argv[])
             mX.pushBack(value);
 
             ASSERT(2 == X.numElements());
-            ASSERT(na + 2 == sa.numAllocations());
+            ASSERT(na + 4 == sa.numAllocations());
             ASSERT(nd     == sa.numDeallocations());
 
             int numException = 0;
@@ -1477,12 +1562,12 @@ int main(int argc, char *argv[])
             // The test allocator increments the number of allocations and then
             // throws the exception.
 
-            ASSERT(na + 3 == sa.numAllocations());
+            ASSERT(na + 5 == sa.numAllocations());
             ASSERT(nd + 1 == sa.numDeallocations());
 
             mX.tryPopFront(&value);
 
-            ASSERT(na + 4 == sa.numAllocations());
+            ASSERT(na + 6 == sa.numAllocations());
             ASSERT(nd + 3 == sa.numDeallocations());
 
             ASSERT(0 == X.numElements());
@@ -1493,7 +1578,7 @@ int main(int argc, char *argv[])
             // Since the queue is empty, only the element should have
             // allocated.
 
-            ASSERT(na + 5 == sa.numAllocations());
+            ASSERT(na + 7 == sa.numAllocations());
             ASSERT(nd + 3 == sa.numDeallocations());
         }
 #endif
@@ -1561,14 +1646,8 @@ int main(int argc, char *argv[])
         }
 #ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
         {
-            bdlcc::SingleProducerQueueImpl<MoveTester,
-                                           bsls::AtomicOperations,
-                                           bslmt::Mutex,
-                                           bslmt::Condition> mX;
-            const bdlcc::SingleProducerQueueImpl<MoveTester,
-                                                 bsls::AtomicOperations,
-                                                 bslmt::Mutex,
-                                                 bslmt::Condition>& X =  mX;
+            bdlcc::SingleConsumerQueue<MoveTester>        mX;
+            const bdlcc::SingleConsumerQueue<MoveTester>& X =  mX;
             ASSERT(0 == X.numElements());
 
             int rv;
@@ -1752,7 +1831,7 @@ int main(int argc, char *argv[])
         //:   to the allocator.  (C-3)
         //
         // Testing:
-        //   SingleProducerQueueImpl(capacity, *bA = 0);
+        //   SingleConsumerQueue(capacity, *bA = 0);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1775,11 +1854,11 @@ int main(int argc, char *argv[])
 
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
-            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -1788,23 +1867,23 @@ int main(int argc, char *argv[])
             const Obj& X = mX;
             ASSERT(&defaultAllocator == X.allocator());
             ASSERT(0 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(1 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(4 == X.numElements());
-            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 5 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -1815,22 +1894,22 @@ int main(int argc, char *argv[])
             ASSERT(&sa == X.allocator());
             ASSERT(0 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(2 == sa.numAllocations());
+            ASSERT(3 == sa.numAllocations());
 
             mX.pushBack(0);
             ASSERT(1 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(2 == sa.numAllocations());
+            ASSERT(3 == sa.numAllocations());
 
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(2 == sa.numAllocations());
+            ASSERT(3 == sa.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(3 == sa.numAllocations());
+            ASSERT(4 == sa.numAllocations());
         }
 
         if (verbose) cout << "\nTesting exception behavior." << endl;
@@ -2156,8 +2235,8 @@ int main(int argc, char *argv[])
         //:   to the allocator.  (C-5)
         //
         // Testing:
-        //   SingleProducerQueueImpl(bslma::Allocator *basicAllocator = 0);
-        //   ~SingleProducerQueueImpl();
+        //   SingleConsumerQueue(bslma::Allocator *basicAllocator = 0);
+        //   ~SingleConsumerQueue();
         //   int pushBack(const TYPE& value);
         //   int popFront(TYPE *value);
         //   void removeAll();
@@ -2183,7 +2262,7 @@ int main(int argc, char *argv[])
             Obj mX;  const Obj& X = mX;
             ASSERT(&defaultAllocator == X.allocator());
             ASSERT(0 == X.numElements());
-            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 1 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(1 == X.numElements());
@@ -2191,11 +2270,11 @@ int main(int argc, char *argv[])
 
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
-            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -2204,7 +2283,7 @@ int main(int argc, char *argv[])
             const Obj& X = mX;
             ASSERT(&defaultAllocator == X.allocator());
             ASSERT(0 == X.numElements());
-            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 1 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(1 == X.numElements());
@@ -2212,11 +2291,11 @@ int main(int argc, char *argv[])
 
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
-            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -2227,7 +2306,7 @@ int main(int argc, char *argv[])
             ASSERT(&sa == X.allocator());
             ASSERT(0 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(2 == sa.numAllocations());
+            ASSERT(1 == sa.numAllocations());
 
             mX.pushBack(0);
             ASSERT(1 == X.numElements());
@@ -2237,12 +2316,12 @@ int main(int argc, char *argv[])
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(2 == sa.numAllocations());
+            ASSERT(3 == sa.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(3 == sa.numAllocations());
+            ASSERT(4 == sa.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -2253,7 +2332,7 @@ int main(int argc, char *argv[])
             ASSERT(&sa == X.allocator());
             ASSERT(0 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(2 == sa.numAllocations());
+            ASSERT(1 == sa.numAllocations());
 
             mX.pushBack(longString);
             ASSERT(1 == X.numElements());
@@ -2263,12 +2342,12 @@ int main(int argc, char *argv[])
             mX.pushBack(longString);
             ASSERT(2 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(4 == sa.numAllocations());
+            ASSERT(5 == sa.numAllocations());
 
             mX.pushBack(longString);
             ASSERT(3 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(6 == sa.numAllocations());
+            ASSERT(7 == sa.numAllocations());
         }
 
         if (verbose) cout << "\nTesting 'pushBack'." << endl;
@@ -2407,14 +2486,8 @@ int main(int argc, char *argv[])
         {
             bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
 
-            bdlcc::SingleProducerQueueImpl<AllocExceptionHelper,
-                                           bsls::AtomicOperations,
-                                           bslmt::Mutex,
-                                           bslmt::Condition> mX(&sa);
-            const bdlcc::SingleProducerQueueImpl<AllocExceptionHelper,
-                                                 bsls::AtomicOperations,
-                                                 bslmt::Mutex,
-                                                 bslmt::Condition>& X = mX;
+            bdlcc::SingleConsumerQueue<AllocExceptionHelper>        mX(&sa);
+            const bdlcc::SingleConsumerQueue<AllocExceptionHelper>& X = mX;
 
             AllocExceptionHelper value(&sa);
 
@@ -2425,7 +2498,7 @@ int main(int argc, char *argv[])
             mX.pushBack(value);
 
             ASSERT(2 == X.numElements());
-            ASSERT(na + 2 == sa.numAllocations());
+            ASSERT(na + 4 == sa.numAllocations());
             ASSERT(nd     == sa.numDeallocations());
 
             int numException = 0;
@@ -2444,12 +2517,12 @@ int main(int argc, char *argv[])
             // The test allocator increments the number of allocations and then
             // throws the exception.
 
-            ASSERT(na + 3 == sa.numAllocations());
+            ASSERT(na + 5 == sa.numAllocations());
             ASSERT(nd + 1 == sa.numDeallocations());
 
             mX.popFront(&value);
 
-            ASSERT(na + 4 == sa.numAllocations());
+            ASSERT(na + 6 == sa.numAllocations());
             ASSERT(nd + 3 == sa.numDeallocations());
 
             ASSERT(0 == X.numElements());
@@ -2460,7 +2533,7 @@ int main(int argc, char *argv[])
             // Since the queue is empty, only the element should have
             // allocated.
 
-            ASSERT(na + 5 == sa.numAllocations());
+            ASSERT(na + 7 == sa.numAllocations());
             ASSERT(nd + 3 == sa.numDeallocations());
         }
 #endif
