@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLSTL_LIST_TEST
 #define INCLUDED_BSLSTL_LIST_TEST
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide support for the 'bslstl_list.t.cpp' test driver.
@@ -31,10 +29,7 @@ BSLS_IDENT("$Id: $")
 // test driver, and the tests for all remaining functionality are moved into
 // this component, that comprises only a test driver.
 
-
-#ifndef INCLUDED_BSLSTL_LIST
 #include <bslstl_list.h>
-#endif
 
 #endif
 // ----------------------------------------------------------------------------

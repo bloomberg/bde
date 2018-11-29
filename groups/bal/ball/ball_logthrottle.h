@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BALL_LOGTHROTTLE
 #define INCLUDED_BALL_LOGTHROTTLE
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide throttling equivalents of some of the 'ball_log' macros.
@@ -599,25 +597,13 @@ BSLS_IDENT("$Id: $")
 // If the values returned by 'receiver.yield()' match those from Usage Example
 // 1, then the output will be identical to that example.
 
-#ifndef INCLUDED_BALSCM_VERSION
 #include <balscm_version.h>
-#endif
 
-#ifndef INCLUDED_BALL_CATEGORY
 #include <ball_category.h>
-#endif
-
-#ifndef INCLUDED_BALL_LOG
 #include <ball_log.h>
-#endif
-
-#ifndef INCLUDED_BALL_SEVERITY
 #include <ball_severity.h>
-#endif
 
-#ifndef INCLUDED_BDLMT_THROTTLE
 #include <bdlmt_throttle.h>
-#endif
 
                  // ====================================
                  // Implementation Details: Do *NOT* Use

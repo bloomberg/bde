@@ -111,19 +111,16 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
+
 #include <bsls_bsllock.h>
 
-#ifndef INCLUDED_WINDOWS
 // windows.h defaults to include winsock.h unless WIN32_LEAN_AND_MEAN is
 // defined. BDE uses winsocks2.h for its transport facilities.
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
-#define INCLUDED_WINDOWS
-#endif
 #include <intrin.h>
-
 #include <dbghelp.h>
 
 namespace BloombergLP {

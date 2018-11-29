@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_C_SYS_TIME
 #define INCLUDED_NATIVE_C_SYS_TIME
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 /*
@@ -23,15 +21,11 @@ BSLS_IDENT("$Id: $")
 // places them in the 'std' namespace.
 */
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
-#   endif
 
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
 #     include_next <sys/time.h>

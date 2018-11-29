@@ -62,9 +62,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#ifndef INCLUDED_BSLS_RATIO
 #include <bslstl_ratio.h>
-#endif
+
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
