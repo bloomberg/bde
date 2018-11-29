@@ -1347,8 +1347,9 @@ int main(int argc, char *argv[])
         enum { k_MSM = 5,                   // max simultaneous messages
                k_NPM = 10 * 1000 * 1000 };  // nanoseconds per message
 
-        const double betweenTrialsTime = 1e-9 * 2   * k_MSM * k_NPM;
-        const double attemptTime       = 1e-9 * 0.5 * k_NPM;
+        const double periodTime        = 1e-9 * k_NPM;
+        const double attemptTime       = 0.5         * periodTime;
+        const double betweenTrialsTime = 1.5 * k_MSM * periodTime;
 
         for (int ii = 0; ii < k_NUM_LEVELS; ++ii) {
             const Level categoryThreshold = levels[ii];
@@ -1380,74 +1381,83 @@ int main(int argc, char *argv[])
                     continue;
                 }
 
-                const int expNum = attemptSev <= categoryThreshold
-                                 ? k_MSM
-                                 : 0;
+                int numStreamPermitted, numConstPermitted;
+                bool wentOver;
+                Int64 numAttempts;
+                do {
+                    numStreamPermitted = 0, numConstPermitted = 0;
+
+                    const double startTime = u::doubleClock();
+                    const double endTime   = startTime + attemptTime;
+                    for (numAttempts = 0; u::doubleClock() < endTime;
+                                                               ++numAttempts) {
+                        if (true)
+                            BALL_LOGTHROTTLE_BLOCK(
+                                attemptSev, k_MSM, k_NPM) ++numStreamPermitted;
+                        else ASSERT(0 && "else happened");
+
+                        switch (attemptSev) {
+                          case Sev::e_FATAL: {
+                            if (true)
+                                BALL_LOGTHROTTLE_FATAL_BLOCK(
+                                             k_MSM, k_NPM) ++numConstPermitted;
+                            else ASSERT(0 && "else happened");
+                          } break;
+                          case Sev::e_ERROR: {
+                            if (true)
+                                BALL_LOGTHROTTLE_ERROR_BLOCK(
+                                             k_MSM, k_NPM) ++numConstPermitted;
+                            else ASSERT(0 && "else happened");
+                          } break;
+                          case Sev::e_WARN: {
+                            if (true)
+                                BALL_LOGTHROTTLE_WARN_BLOCK(
+                                             k_MSM, k_NPM) ++numConstPermitted;
+                            else ASSERT(0 && "else happened");
+                          } break;
+                          case Sev::e_INFO: {
+                            if (true)
+                                BALL_LOGTHROTTLE_INFO_BLOCK(
+                                             k_MSM, k_NPM) ++numConstPermitted;
+                            else ASSERT(0 && "else happened");
+                          } break;
+                          case Sev::e_DEBUG: {
+                            if (true)
+                                BALL_LOGTHROTTLE_DEBUG_BLOCK(
+                                             k_MSM, k_NPM) ++numConstPermitted;
+                            else ASSERT(0 && "else happened");
+                          } break;
+                          case Sev::e_TRACE: {
+                            if (true)
+                                BALL_LOGTHROTTLE_TRACE_BLOCK(
+                                             k_MSM, k_NPM) ++numConstPermitted;
+                            else ASSERT(0 && "else happened");
+                          } break;
+                          default: {
+                            ASSERTV(attemptSev, 0 && "invalid attemptLevel");
+                          }
+                        }
+                    }
+
+                    wentOver = u::doubleClock() > startTime + periodTime;
+
+                    // Wait to clear any time debt left over from test.
+
+                    u::doubleSleep(betweenTrialsTime);
+                } while (wentOver);
+
+                const Int64 expNum = attemptSev <= categoryThreshold
+                                   ? bsl::min<Int64>(k_MSM, numAttempts)
+                                   : 0;
 
                 if (veryVeryVerbose) { T_;    P_(expNum);    P(attemptSev); }
 
-                int numStreamPermitted = 0, numConstPermitted = 0;
-
-                const double endTime = u::doubleClock() + attemptTime;
-                while (u::doubleClock() < endTime) {
-                    if (true)
-                        BALL_LOGTHROTTLE_BLOCK(
-                                attemptSev, k_MSM, k_NPM) ++numStreamPermitted;
-                    else ASSERT(0 && "else happened");
-
-                    switch (attemptSev) {
-                      case Sev::e_FATAL: {
-                        if (true)
-                            BALL_LOGTHROTTLE_FATAL_BLOCK(
-                                             k_MSM, k_NPM) ++numConstPermitted;
-                        else ASSERT(0 && "else happened");
-                      } break;
-                      case Sev::e_ERROR: {
-                        if (true)
-                            BALL_LOGTHROTTLE_ERROR_BLOCK(
-                                             k_MSM, k_NPM) ++numConstPermitted;
-                        else ASSERT(0 && "else happened");
-                      } break;
-                      case Sev::e_WARN: {
-                        if (true)
-                            BALL_LOGTHROTTLE_WARN_BLOCK(
-                                             k_MSM, k_NPM) ++numConstPermitted;
-                        else ASSERT(0 && "else happened");
-                      } break;
-                      case Sev::e_INFO: {
-                        if (true)
-                            BALL_LOGTHROTTLE_INFO_BLOCK(
-                                             k_MSM, k_NPM) ++numConstPermitted;
-                        else ASSERT(0 && "else happened");
-                      } break;
-                      case Sev::e_DEBUG: {
-                        if (true)
-                            BALL_LOGTHROTTLE_DEBUG_BLOCK(
-                                             k_MSM, k_NPM) ++numConstPermitted;
-                        else ASSERT(0 && "else happened");
-                      } break;
-                      case Sev::e_TRACE: {
-                        if (true)
-                            BALL_LOGTHROTTLE_TRACE_BLOCK(
-                                             k_MSM, k_NPM) ++numConstPermitted;
-                        else ASSERT(0 && "else happened");
-                      } break;
-                      default: {
-                        ASSERTV(attemptSev, 0 && "invalid attemptLevel");
-                      }
-                    }
-                }
-
                 ASSERTV(categoryThreshold, attemptSev, expNum,
-                                                            numStreamPermitted,
+                                               numStreamPermitted, numAttempts,
                                                  expNum == numStreamPermitted);
                 ASSERTV(categoryThreshold, attemptSev, expNum,
-                                                             numConstPermitted,
+                                                numConstPermitted, numAttempts,
                                                   expNum == numConstPermitted);
-
-                // Wait to clear any time debt left over from test.
-
-                u::doubleSleep(betweenTrialsTime);
             }
         }
       } break;
