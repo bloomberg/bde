@@ -19,6 +19,9 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_issame.h>
+
+#include <bsltf_movestate.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
@@ -27,6 +30,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
 #include <bsls_review.h>
+#include <bsls_nameof.h>
 #include <bsls_timeutil.h>  // 'CachePerformance'
 #include <bsls_types.h>     // 'BloombergLP::bsls::Types::Int64'             
 
@@ -96,7 +100,10 @@ using namespace bsl;
 // MANIPULATORS
 // [ 2] void insert(const KEYTYPE& key, const VALUETYPE& value);
 // [10] void insert(const KEYTYPE& key, const ValuePtrType& valuePtr);
+// [12] void insert(KEYTYPE&& key, VALUETYPE&& value);
+// [12] void insert(KEYTYPE&& key, ValuePtrType&& valuePtr);
 // [11] int insertBulk(const bsl::vector<KVType>& data);
+// [13] int insertBulk(bsl::vector<KVType>&& data);
 // [ 5] int tryGetValue(value, KEYTYPE& key, bool modifyEvictionQueue);
 // [ 9] int popFront();
 // [ 6] int erase(const KEYTYPE& key);
@@ -116,11 +123,11 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TEST APPARATUS
-// [12] TYPE TRAITS
-// [13] THREAD SAFETY
-// [14] LOCKING TEST UTIL
-// [15] LOCKING
-// [16] USAGE EXAMPLE
+// [14] TYPE TRAITS
+// [15] THREAD SAFETY
+// [16] LOCKING TEST UTIL
+// [17] LOCKING
+// [18] USAGE EXAMPLE
 // [-1] INSERT PERFORMANCE
 // [-2] INSERT BULK PERFORMANCE
 // [-3] READ PERFORMANCE
@@ -169,7 +176,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
-
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 #define TEST_TYPES                                                            \
     signed char,                                                              \
@@ -420,6 +426,12 @@ void example2()
 // Utilities
 namespace {
 typedef bsltf::TemplateTestFacility TstFacility;
+typedef bsls::Types::Int64          Int64;
+
+bsl::ostream& operator<<(bsl::ostream& stream, bsltf::MoveState::Enum state)
+{
+    return stream << bsltf::MoveState::toAscii(state);
+}
 
 template <class KEYTYPE, class VALUETYPE>
 class PrintVisitor
@@ -462,6 +474,7 @@ template <class VALUE>
 struct InplaceUtil {
     // The class is a wrapper to create a shared pointer in place, with and
     // without an allocator.  This struct implements 'SpCreateInplace'.
+
   private:
     // PRIVATE MANIPULATORS
     static void SpCreateInplaceImp(bsl::shared_ptr<VALUE> *ptr,
@@ -478,6 +491,7 @@ struct InplaceUtil {
         // 'false_type' if it does not.  Note that both functions are just a
         // way to decide, at compile time, if an allocator is to be passed to
         // the function.
+
   public:
     // MANIPULATORS
     static void SpCreateInplace(bsl::shared_ptr<VALUE> *ptr,
@@ -580,6 +594,7 @@ class CachePerformance {
         // specified 'args' vector.  Return for each thread a triad of elapsed
         // wall time, user time, and system time.
 
+  private:
     // NOT IMPLEMENTED
     CachePerformance(const CachePerformance&);
     CachePerformance& operator=(const CachePerformance&);
@@ -645,7 +660,8 @@ class CachePerformance {
     const char* title() const;
         // Return the test title.
 
-    // TEST FUNCTIONS
+                                // test functions
+
     static int testInsert(CachePerformance *cacheperf_p, VecIntType& args);
         // Insert rows, one at a time, into the specified 'cacheperf_p' using
         // the specified 'args' vector.  Only value in 'args' is the current
@@ -722,11 +738,11 @@ CachePerformance::VecTimeType CachePerformance::runTests(VecIntType&      args,
     d_seWTime = d_seUTime = d_seSTime = 0;
     d_avgWTime = d_avgUTime = d_avgSTime = 0;
 
-    for(int j = 0; j < d_numRepeats; ++j) {
+    for (int j = 0; j < d_numRepeats; ++j) {
         VecTimeType times(d_allocator_p);
         times = runTest(args, func);
         TimeType curWTime = 0, curUTime = 0, curSTime = 0;
-        for(int i = 0; i < d_numThreads; ++i) {
+        for (int i = 0; i < d_numThreads; ++i) {
             d_vecWTime.push_back(times[i * 3    ]);
             d_vecUTime.push_back(times[i * 3 + 1]);
             d_vecSTime.push_back(times[i * 3 + 2]);
@@ -788,7 +804,7 @@ CachePerformance::VecTimeType CachePerformance::runTest(VecIntType&       args,
     bsl::vector<WorkData>                  todos(d_numThreads);
 
     // Spawn work threads
-    for(int i = 0; i < d_numThreads; ++i) {
+    for (int i = 0; i < d_numThreads; ++i) {
         todos[i].d_func = func;
         todos[i].d_cacheperf_p = this;
         todos[i].d_data = args;
@@ -799,10 +815,10 @@ CachePerformance::VecTimeType CachePerformance::runTest(VecIntType&       args,
     // Collect results
     VecTimeType        times(d_allocator_p);
     bsl::vector<void*> results(d_numThreads);
-    for(int i = 0; i < d_numThreads; ++i) {
+    for (int i = 0; i < d_numThreads; ++i) {
         bslmt::ThreadUtil::join(handles[i], &results[i]);
         VecTimeType *pRes = reinterpret_cast<VecTimeType*>(results[i]);
-        for(size_t j = 0; j < pRes->size(); ++j) times.push_back((*pRes)[j]);
+        for (size_t j = 0; j < pRes->size(); ++j) times.push_back((*pRes)[j]);
         delete pRes;
     }
 
@@ -922,7 +938,7 @@ int CachePerformance::testInsert(CachePerformance *cacheperf_p,
     int  offset = size * threadIdx;
     char buf[12];
 
-    for(int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         int key = offset++;
         bsl::sprintf(buf, "V%d", key);
         string val(buf);
@@ -948,9 +964,9 @@ int CachePerformance::testInsertBulk(CachePerformance *cacheperf_p,
     char buf[12];
 
     bsl::shared_ptr<bsl::string> valuePtr;
-    for(int j = 0; j < numBatches; ++j) {
+    for (int j = 0; j < numBatches; ++j) {
         bsl::vector<PairBulkType> insertData(size, cacheperf_p->d_allocator_p);
-        for(int i = 0; i < size; ++i) {
+        for (int i = 0; i < size; ++i) {
             int key = offset++;
             bsl::sprintf(buf, "V%d", key);
             valuePtr.createInplace(cacheperf_p->d_allocator_p, buf,
@@ -978,7 +994,7 @@ int CachePerformance::initRead(CachePerformance *cacheperf_p, VecIntType& args)
     bsl::shared_ptr<bsl::string> valuePtr;
 
     bsl::vector<PairBulkType> insertData(size, cacheperf_p->d_allocator_p);
-    for(int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         bsl::sprintf(buf, "V%d", key);
         valuePtr.createInplace(cacheperf_p->d_allocator_p, buf,
                                                  cacheperf_p->d_allocator_p);
@@ -1003,7 +1019,7 @@ int CachePerformance::testRead(CachePerformance *cacheperf_p, VecIntType& args)
     int countErr = 0;
     srand(threadIdx);
     bsl::shared_ptr<bsl::string> valuePtr;
-    for(int i = 0; i < numCalls; ++i) {
+    for (int i = 0; i < numCalls; ++i) {
         int key = rand() % range;
         int rc = cacheperf_p->cache().tryGetValue(&valuePtr, key);
         if (rc != 0 && numCalcs == range) {
@@ -1034,7 +1050,7 @@ int CachePerformance::testReadWrite(CachePerformance *cacheperf_p,
     char buf[12];
     srand(threadIdx);
     bsl::shared_ptr<bsl::string> valuePtr;
-    for(int i = 0; i < numCalcs; ++i) {
+    for (int i = 0; i < numCalcs; ++i) {
         int key = rand() % range;
         if (isWThread) {
             bsl::sprintf(buf, "V%d", key);
@@ -1891,10 +1907,8 @@ class TestDriver {
   private:
     // TYPES
     typedef bdlcc::Cache<KEYTYPE, VALUETYPE, HASH, EQUAL> Obj;
-
-    // Shorthands
-    typedef bsl::pair<KEYTYPE, VALUETYPE> PairType;
-    typedef bsl::allocator<PairType>      PairStdAllocator;
+    typedef bsl::pair<KEYTYPE, VALUETYPE>                 PairType;
+    typedef bsl::allocator<PairType>                      PairStdAllocator;
 
     typedef bsltf::TestValuesArray<PairType,
                                    PairStdAllocator,
@@ -1967,11 +1981,17 @@ class TestDriver {
                     isExpected);
         }
 
-        void assertEnd() {
+        void assertEnd()
+            // Assert that we have iterated through all 'd_size' members of the
+            // 'values' array.
+        {
             ASSERTV(*d_pos_p, d_size, assertEndImp());
         }
 
-        bool assertEndImp() {
+        bool assertEndImp()
+            // Return 'true' if we have iterated through all 'd_size' members
+            // of the 'values' array and 'false' otherwise.
+        {
             return *d_pos_p == d_size;
         }
 
@@ -2060,7 +2080,10 @@ class TestDriver {
             return ret;
         }
 
-        void assertEnd() {
+        void assertEnd()
+            // Assert that we have iterated through all 'd_size' members of the
+            // 'values' array.
+        {
             ASSERTV(assertEndImp());
         }
 
@@ -2090,7 +2113,10 @@ class TestDriver {
             return ret;
         }
 
-        bool assertEndImp() {
+        bool assertEndImp()
+            // Return 'true' if we have iterated through all 'd_size' members
+            // of the 'values' array and 'false' otherwise.
+        {
             return d_pos == d_size;
         }
     };
@@ -2108,10 +2134,12 @@ class TestDriver {
     static void testCase10();
     static void testCase11();
     static void testCase12();
+    static void testCase13();
+    static void testCase14();
 };
 
 template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
-void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase12()
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase14()
 {
     // --------------------------------------------------------------------
     // TYPE TRAITS
@@ -2120,13 +2148,309 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase12()
     //: 1 The object has the 'bslma::UsesBslmaAllocator' trait.
     //
     // Plan:
-        //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.
+    //: 1 Use 'BSLMF_ASSERT' to verify all the type traits exists.
     //
     // Testing:
     //   TYPE TRAITS
     // --------------------------------------------------------------------
 
     BSLMF_ASSERT(bslma::UsesBslmaAllocator<Obj>::value);
+}
+
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase13()
+{
+    // ------------------------------------------------------------------------
+    // 'insertBulk' WITH MOVE
+    //
+    // Concerns:
+    //: 1 'insertBulk' provides exception neutrality guarantee.  Note that we
+    //:   cannot guarantee that the source will not be modified if an exception
+    //:   is thrown.
+    //
+    // Plan:
+    //: 1 Using the loop-based approach, insert items using the 'insert' method
+    //:   taking a shared pointer and verify that the resulting object.  Test
+    //:   for exception safety guarantee using the
+    //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST' macros.
+    //
+    // Testing:
+    //   int insertBulk(bsl::vector<KVType>&& data);
+    // ------------------------------------------------------------------------
+
+    typedef bdlcc::CacheEvictionPolicy Policy;
+    typedef bsltf::MoveState           MoveState;
+    typedef MoveState::Enum            MoveEnum;
+
+    const char *key      = bsls::NameOf<KEYTYPE>();
+    const char *value    = bsls::NameOf<VALUETYPE>();
+    const int   alloc    = bslma::UsesBslmaAllocator<KEYTYPE>::value +
+                           bslma::UsesBslmaAllocator<VALUETYPE>::value;
+    const bool  moveType = bsl::is_same<KEYTYPE,
+                                        bsltf::MovableTestType>::value ||
+                           bsl::is_same<KEYTYPE,
+                                        bsltf::MovableAllocTestType>::value;
+
+    if (verbose) {
+        cout << "Move InsertBulk:\t";    P_(key);    P_(value);    P(alloc);
+    }
+
+    const bsl::size_t MAX_LENGTH = 9;
+
+    bslma::TestAllocator  da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator  sa("source",  veryVeryVeryVerbose);
+    bslma::TestAllocator  oa("other",   veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    const TestValues VALUES(&sa);  // contains 52 distinct increasing values
+    const Int64 saInitUsed = sa.numBlocksInUse();
+
+    for (int ti = 0; ti < 4; ++ti) {
+        const bool            MATCH  = ti & 1;
+        const Policy::Enum    POLICY = ti & 2 ? Policy::e_LRU
+                                              : Policy::e_FIFO;
+        bslma::TestAllocator& ca = MATCH ? sa : oa;  // cache allocator
+
+        for (bsl::size_t ti = 2; ti <= MAX_LENGTH; ++ti) {
+            {
+                const bsl::size_t LENGTH = ti;
+
+                Obj mX(POLICY, 100, 100, &ca);    const Obj& X = mX;
+
+                int postSetupThrows = -1;
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ca) {
+                    // We have to build a new 'insertVec' each time, since if
+                    // 'insertBulk' throws, elements in 'insertVec' will
+                    // usually have been moved out of.
+
+                    mX.clear();
+                    mX.insert(VALUES[0].first, VALUES[0].second);
+                    mX.insert(VALUES[1].first, VALUES[1].second);
+
+                    bsl::vector<typename Obj::KVType> insertVec(&sa);
+                    for (bsl::size_t tj = 2; tj < LENGTH; ++tj) {
+                        typename Obj::ValuePtrType valuePtr;
+                        InplaceUtil<VALUETYPE>::SpCreateInplace(
+                                                             &valuePtr,
+                                                             VALUES[tj].second,
+                                                             &sa);
+                        typename Obj::KVType pr(VALUES[tj].first,
+                                                valuePtr,
+                                                &sa);
+                        insertVec.push_back(pr);
+                    }
+
+                    ++postSetupThrows;
+
+                    mX.insertBulk(bslmf::MovableRefUtil::move(insertVec));
+
+                    ASSERTV(LENGTH, insertVec.size(),
+                                               LENGTH - 2 == insertVec.size());
+                    if (moveType) {
+                        for (bsl::size_t tj = LENGTH - 2; 0 < tj--; ) {
+                            MoveEnum movedFrom =
+                                      bsltf::getMovedFrom(insertVec[tj].first);
+                            ASSERTV(key, MoveState::e_MOVED == movedFrom);
+                        }
+                    }
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+
+                ASSERTV(LENGTH, X.size(), LENGTH == X.size());
+
+                if (verbose && (veryVerbose || LENGTH == MAX_LENGTH)) {
+                    P_(MATCH);    P_(POLICY);    P_(LENGTH);
+                    P(postSetupThrows);
+                }
+
+                TestVisitor visitor(&VALUES, LENGTH);
+                X.visit(visitor);
+                visitor.assertEnd();
+            }
+
+            // Verify all memory is released on object destruction.
+
+            ASSERTV(MATCH, POLICY, da.numBlocksTotal(),
+                                                     0 == da.numBlocksTotal());
+            ASSERTV(MATCH, POLICY, sa.numBlocksInUse() - saInitUsed,
+                                        0 == sa.numBlocksInUse() - saInitUsed);
+            ASSERTV(MATCH, POLICY, oa.numBlocksInUse(),
+                                                     0 == oa.numBlocksInUse());
+        }
+    }
+}
+
+template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
+void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase12()
+{
+    // ------------------------------------------------------------------------
+    // MOVE INSERT
+    //
+    // Concerns:
+    //: 1 That the move-insert method correctly moves values.
+    //:
+    //: 2 That the move-insert method has the right behavior when exceptions
+    //:   throw.
+    //
+    // Plan:
+    //
+    // Testing:
+    //   void insert(KEYTYPE&& key, VALUETYPE&& value);
+    //   void insert(KEYTYPE&& key, ValuePtrType&& valuePtr);
+    // ------------------------------------------------------------------------
+
+    typedef bdlcc::CacheEvictionPolicy Policy;
+    typedef bsltf::MoveState           MoveState;
+    typedef MoveState::Enum            MoveEnum;
+
+    const char *key   = bsls::NameOf<KEYTYPE>();
+    const char *value = bsls::NameOf<VALUETYPE>();
+    const int   alloc = bslma::UsesBslmaAllocator<KEYTYPE>::value +
+                        bslma::UsesBslmaAllocator<VALUETYPE>::value;
+    const bool  moveKeyType = bsl::is_same<KEYTYPE,
+                                            bsltf::MovableTestType>::value ||
+                              bsl::is_same<KEYTYPE,
+                                           bsltf::MovableAllocTestType>::value;
+    const bool  moveValueType =
+                              bsl::is_same<VALUETYPE,
+                                           bsltf::MovableTestType>::value ||
+                              bsl::is_same<VALUETYPE,
+                                           bsltf::MovableAllocTestType>::value;
+
+    if (verbose) {
+        cout << "Move Insert:\t";    P_(key);    P_(value);    P(alloc);
+    }
+
+    const bsl::size_t MAX_LENGTH = 9;
+
+    bslma::TestAllocator  da("default",   veryVeryVeryVerbose);
+    bslma::TestAllocator  sa("source",    veryVeryVeryVerbose);
+    bslma::TestAllocator  oa("other",     veryVeryVeryVerbose);
+    bslma::TestAllocator  ya("mY",        veryVeryVeryVerbose);
+
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    const TestValues VALUES(&sa);  // contains 52 distinct values
+
+    for (int ti = 0; true; ++ti) {
+        const bool         MATCH  = ti & 1;
+        const Policy::Enum POLICY = ti & 2 ? Policy::e_LRU
+                                           : Policy::e_FIFO;
+        const int          MODE   = ti >> 2;
+
+        if (5 < MODE) {
+            break;
+        }
+
+        const MoveEnum expectedKeyMove   = !moveKeyType
+                                         ? MoveState::e_UNKNOWN
+                                         : 2 == MODE || 3 == MODE || 5 == MODE
+                                         ? MoveState::e_MOVED
+                                         : MoveState::e_NOT_MOVED;
+        const MoveEnum expectedValueMove = !moveValueType
+                                         ? MoveState::e_UNKNOWN
+                                         : 1 == MODE || 3 == MODE
+                                         ? MoveState::e_MOVED
+                                         : MoveState::e_NOT_MOVED;
+
+        bslma::TestAllocator& ca = MATCH ? sa : oa;  // cache allocator
+
+        Obj mX(POLICY, 100, 100, &ca);    const Obj& X = mX;
+
+        mX.insert(VALUES[0].first, VALUES[0].second);
+        mX.insert(VALUES[1].first, VALUES[1].second);
+
+        unsigned tj = 2;
+
+        bsl::vector<PairType> v(&sa);
+        bsl::vector<typename Obj::ValuePtrType> vps(&sa);
+
+        for (unsigned tk = 0; tk < MAX_LENGTH; ++tk) {
+            v.push_back(PairType(VALUES[tk].first,
+                                 VALUES[tk].second, &sa));
+            typename Obj::ValuePtrType valuePtr;
+            InplaceUtil<VALUETYPE>::SpCreateInplace(&valuePtr,
+                                                    VALUES[tk].second,
+                                                    &sa);
+            vps.push_back(valuePtr);
+        }
+
+        int postSetupThrows = -1;
+        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ca) {
+            ASSERT(X.size() == tj);
+
+            if (MoveState::e_MOVED == expectedKeyMove) {
+                v[tj].first  = VALUES[tj].first;
+            }
+            if (MoveState::e_MOVED == expectedValueMove) {
+                v[tj].second = VALUES[tj].second;
+            }
+
+            TestVisitor vis(&VALUES, tj);
+            X.visit(vis);
+            vis.assertEnd();
+
+            ++postSetupThrows;
+
+            for (; tj < MAX_LENGTH; ++tj) {
+                // We have to create a new 'pr' every time, since if
+                // there's a throw, 'pr' might have been moved out of.
+
+                switch (MODE) {
+                  case 0: {
+                    mX.insert(v[tj].first,
+                              v[tj].second);
+                  } break;
+                  case 1: {
+                    mX.insert(v[tj].first,
+                              bslmf::MovableRefUtil::move(v[tj].second));
+                  } break;
+                  case 2: {
+                    mX.insert(bslmf::MovableRefUtil::move(v[tj].first),
+                              v[tj].second);
+                  } break;
+                  case 3: {
+                    mX.insert(bslmf::MovableRefUtil::move(v[tj].first),
+                              bslmf::MovableRefUtil::move(v[tj].second));
+                  } break;
+                  case 4: {
+                    mX.insert(v[tj].first,
+                              vps[tj]);
+                  } break;
+                  case 5: {
+                    mX.insert(bslmf::MovableRefUtil::move(v[tj].first),
+                              vps[tj]);
+                  } break;
+                }
+            }
+        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+
+        if (verbose) {
+            P_(key);    P_(MATCH);    P_(POLICY);  P_(MODE);
+            P(postSetupThrows);
+        }
+
+        for (unsigned ii = 2; ii < MAX_LENGTH; ++ii) {
+            MoveEnum movedFrom = bsltf::getMovedFrom(v[ii].first);
+            ASSERTV(key, MODE, ii, movedFrom, expectedKeyMove,
+                                                 movedFrom == expectedKeyMove);
+
+            movedFrom = bsltf::getMovedFrom(v[ii].second);
+            ASSERTV(value, MODE, ii, movedFrom, expectedValueMove,
+                                               movedFrom == expectedValueMove);
+        }
+
+        ASSERTV(MAX_LENGTH, X.size(), MAX_LENGTH == X.size());
+
+        TestVisitor visitor(&VALUES, MAX_LENGTH);
+        X.visit(visitor);
+        visitor.assertEnd();
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(MATCH, POLICY, MODE, da.numBlocksTotal(),
+                                                     0 == da.numBlocksTotal());
+    }
 }
 
 template <class KEYTYPE, class VALUETYPE, class HASH, class EQUAL>
@@ -2184,7 +2508,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase11()
             TestVisitor visitor(&VALUES, LENGTH);
             X.visit(visitor);
             visitor.assertEnd();
-            ASSERTV(LENGTH, X.size(), LENGTH == X.size())
+            ASSERTV(LENGTH, X.size(), LENGTH == X.size());
         }
     }
 }
@@ -2243,7 +2567,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase10()
             TestVisitor visitor(&VALUES, LENGTH);
             X.visit(visitor);
             visitor.assertEnd();
-            ASSERTV(LENGTH, X.size(), LENGTH == X.size())
+            ASSERTV(LENGTH, X.size(), LENGTH == X.size());
         }
     }
 }
@@ -3201,7 +3525,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase3()
     {
         bsl::size_t              pos;
         TestPostEvictionCallback callback(&VALUES, &pos, 0, 0);
-        ASSERTV(callback.assertEndImp())
+        ASSERTV(callback.assertEndImp());
     }
     {
         bsl::size_t              pos;
@@ -3216,17 +3540,17 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase3()
             ASSERTV(0 == idx);
             ASSERTV(isExpected);
         }
-        ASSERTV(!callback.assertEndImp())
+        ASSERTV(!callback.assertEndImp());
     }
     {
         bsl::size_t              pos;
         TestPostEvictionCallback callback(&VALUES, &pos, 1, 2);
-        ASSERTV(!callback.assertEndImp())
+        ASSERTV(!callback.assertEndImp());
     }
     {
         bsl::size_t              pos;
         TestPostEvictionCallback callback(&VALUES, &pos, 1, 2);
-        ASSERTV(!callback.assertEndImp())
+        ASSERTV(!callback.assertEndImp());
     }
     {
         bsl::size_t              pos;
@@ -3241,7 +3565,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase3()
             ASSERTV(1 == idx);
             ASSERTV(isExpected);
         }
-        ASSERTV(!callback.assertEndImp())
+        ASSERTV(!callback.assertEndImp());
     }
     {
         bsl::size_t              pos;
@@ -3267,7 +3591,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase3()
             ASSERTV(2 == idx);
             ASSERTV(isExpected);
         }
-        ASSERTV(callback.assertEndImp())
+        ASSERTV(callback.assertEndImp());
     }
     {
         bsl::size_t              pos;
@@ -3283,7 +3607,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase3()
             ASSERTV(1 == idx);
             ASSERTV(!isExpected);
         }
-        ASSERTV(!callback.assertEndImp())
+        ASSERTV(!callback.assertEndImp());
     }
 
     // Testing 'TestVisitor'
@@ -3512,7 +3836,7 @@ void TestDriver<KEYTYPE, VALUETYPE, HASH, EQUAL>::testCase2()
             TestVisitor visitor(&VALUES, LENGTH);
             X.visit(visitor);
             visitor.assertEnd();
-            ASSERTV(LENGTH, X.size(), LENGTH == X.size())
+            ASSERTV(LENGTH, X.size(), LENGTH == X.size());
 
             // Reclaim dynamically allocated object under test.
 
@@ -3856,7 +4180,7 @@ int main(int argc, char *argv[])
 
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:
-      case 16: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -3878,17 +4202,31 @@ int main(int argc, char *argv[])
         usageExample2::example2();
       } break;
       // BDE_VERIFY pragma: -TP05 Defined in the various test functions
-      case 15: {
+      case 17: {
         testLock::testLocking();
       } break;
-      case 14: {
+      case 16: {
         testLock::testTestingUtil();
       } break;
-      case 13: {
+      case 15: {
         threaded::threadedTest1();
       } break;
+      case 14: {
+        RUN_EACH_TYPE(TestDriver, testCase14, TEST_TYPES);
+      } break;
+      case 13: {
+        RUN_EACH_TYPE(TestDriver,
+                      testCase13,
+                      TEST_TYPES,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
+      } break;
       case 12: {
-        RUN_EACH_TYPE(TestDriver, testCase12, TEST_TYPES);
+        RUN_EACH_TYPE(TestDriver,
+                      testCase12,
+                      TEST_TYPES,
+                      bsltf::MovableTestType,
+                      bsltf::MovableAllocTestType);
       } break;
       case 11: {
         RUN_EACH_TYPE(TestDriver, testCase11, TEST_TYPES);

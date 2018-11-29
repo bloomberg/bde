@@ -137,7 +137,7 @@ BSLS_IDENT("$Id: $")
 //  insertData.push_back(PairType(5,
 //                        bsl::allocate_shared<bsl::string>(&talloc, "Ian" )));
 //  myCache.insertBulk(insertData);
-//  ASSERT(myCache.size() == 6);
+//  assert(myCache.size() == 6);
 //..
 // Next, we retrieve the second value of the second item stored in the cache
 // using the 'tryGetValue' method:
@@ -273,23 +273,23 @@ BSLS_IDENT("$Id: $")
 //      myCache.insert(0, retrieveValue(0));
 //      myCache.insert(1, retrieveValue(1));
 //      myCache.insert(2, retrieveValue(2));
-//      ASSERT(myCache.size() == 3);
+//      assert(myCache.size() == 3);
 //
 //      bslmt::ThreadUtil::Handle myWorkerHandle;
 //
 //      int rc = bslmt::ThreadUtil::create(&myWorkerHandle, myWorkerThread,
 //                                         &myCache);
-//      ASSERT(rc == 0);
+//      assert(rc == 0);
 //
 //      // Do some work.
 //
 //      bslmt::ThreadUtil::microSleep(0, 7);
-//      ASSERT(myCache.size() == 3);
+//      assert(myCache.size() == 3);
 //
 //      // Clean up.
 //
 //      myCache.clear();
-//      ASSERT(myCache.size() == 0);
+//      assert(myCache.size() == 0);
 //      bslmt::ThreadUtil::join(myWorkerHandle);
 //  }
 //..
@@ -299,8 +299,9 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_integralconstant.h>
 #include <bslmf_allocatorargt.h>
+#include <bslmf_integralconstant.h>
+#include <bslmf_movableref.h>
 
 #include <bslmt_readerwritermutex.h>
 #include <bslmt_readlockguard.h>
@@ -334,12 +335,20 @@ struct CacheEvictionPolicy {
 
 template <class KEY>
 class Cache_QueueProctor {
-    // This class implements a proctor that, on destruction, removes the last
-    // element of a 'QueueType' object.  This proctor is intended to work with
-    // 'bdlcc::Cache' to provide basic exception safety guarantee.
+    // This class implements a proctor that, on destruction, restores the queue
+    // to its state at the time of the proctor's creation.  We assume that the
+    // only change to the queue is that 0 or more items have been added to the
+    // end.  If 'release' has been called, the destructor takes no action.
 
     // DATA
-    bsl::list<KEY> *d_queue_p;  // queue (held, not owned)
+    bsl::list<KEY>   *d_queue_p;  // queue (held, not owned)
+    KEY              *d_last_p;
+
+  private:
+    // PRIVATE ACCESSORS
+    KEY *last() const;
+        // Return a pointer to the element at the end of the queue, or 0 if
+        // the queue is empty.
 
   public:
     // CREATORS
@@ -348,8 +357,8 @@ class Cache_QueueProctor {
         // 'queue'.
 
     ~Cache_QueueProctor();
-        // Destroy this proctor object.  Remove the last element of the 'queue'
-        // being monitored.
+        // Destroy this proctor object.  Remove any elements that we added
+        // since the proctor was created.
 
     // MANIPULATORS
     void release();
@@ -441,27 +450,41 @@ class Cache {
         // Evict the item at the specified 'mapIt' and invoke the post-eviction
         // callback for that item.
 
-    void insertImp(const KEY& key, const ValuePtrType& valuePtr);
-        // Insert the specified 'key' and its associated 'valuePtr' into this
-        // cache.  If 'key' already exists, then its value will be replaced
-        // with 'value'.
+    bool insertValuePtrMoveImp(KEY          *key_p,
+                               bool          moveKey,
+                               ValuePtrType *valuePtr_p,
+                               bool          moveValuePtr);
+        // Add a node with the specified '*key_p' and the specified
+        // '*valuePtr_p' to the cache.  If an entry already exists for
+        // '*key_p', override its value with '*valuePtr_p'.  If the specified
+        // 'moveKey' is 'true', move '*key_p', and if the specified
+        // 'moveValuePtr' is 'true', move '*valuePtr_p', if the boolean values
+        // corresponding to '*key_p' or '*valuePtr_p' are 'false', do not move
+        // or modify the arguments.  Return 'true' if '*key_p' was not
+        // previously in the cache and 'false' otherwise.
 
-    void insertImpWrapper(const KEY&   key,
-                          const VALUE& value,
-                          bsl::true_type);
-    void insertImpWrapper(const KEY&   key,
-                          const VALUE& value,
-                          bsl::false_type);
-        // Insert the specified 'key' and its associated 'value' into this
-        // cache.  If 'key' already exists, then its value will be replaced
-        // with 'value'.  The last parameter is 'true_type' if 'VALUE' uses a
-        // 'bslma::Allocator', and 'false_type' otherwise.
+    void populateValuePtrType(ValuePtrType             *dst,
+                              const VALUE&              value,
+                              bsl::true_type);
+    void populateValuePtrType(ValuePtrType             *dst,
+                              const VALUE&              value,
+                              bsl::false_type);
+    void populateValuePtrType(ValuePtrType             *dst,
+                              bslmf::MovableRef<VALUE>  value,
+                              bsl::true_type);
+    void populateValuePtrType(ValuePtrType             *dst,
+                              bslmf::MovableRef<VALUE>  value,
+                              bsl::false_type);
+        // Allocate a footprint for the specified 'value', copy or move 'value'
+        // into the footprint and load the specified '*dst' with a pointer to
+        // the value.
 
+  private:
     // NOT IMPLEMENTED
     Cache(const Cache<KEY, VALUE, HASH, EQUAL>&);
+
     // BDE_VERIFY pragma: -FD01
     Cache<KEY, VALUE, HASH, EQUAL>& operator=(const Cache<KEY, VALUE, HASH>&);
-
     // BDE_VERIFY pragma: +FD01
 
   public:
@@ -517,19 +540,38 @@ class Cache {
         // the number of items successfully removed.
 
     void insert(const KEY& key, const VALUE& value);
-        // Insert the specified 'key' and its associated 'value' into this
-        // cache.  If 'key' already exists, then its value will be replaced
-        // with 'value'.
+    void insert(const KEY& key, bslmf::MovableRef<VALUE> value);
+    void insert(bslmf::MovableRef<KEY> key, const VALUE& value);
+    void insert(bslmf::MovableRef<KEY> key, bslmf::MovableRef<VALUE> value);
+        // Move the specified 'key' and its associated 'value' into this cache.
+        // If 'key' already exists, then its value will be replaced with
+        // 'value'.  Note that all the methods that take moved objects provide
+        // the 'basic' but not the 'strong' exception guarantee -- throws may
+        // occur after the objects are moved out of; the cache will not be
+        // modified, but 'key' or 'value' may be changed.  Also note that 'key'
+        // must be copyable, even if it is moved.
 
     void insert(const KEY& key, const ValuePtrType& valuePtr);
+    void insert(bslmf::MovableRef<KEY> key, const ValuePtrType& valuePtr);
         // Insert the specified 'key' and its associated 'valuePtr' into this
         // cache.  If 'key' already exists, then its value will be replaced
-        // with 'value'.
+        // with 'value'.  Note that the method with 'key' moved provides the
+        // 'basic' but not the 'strong' exception guarantee -- if a throw
+        // occurs, the cache will not be modified, but 'key' may be changed.
+        // Also note that 'key' must be copyable, even if it is moved.
 
     int insertBulk(const bsl::vector<KVType>& data);
         // Insert the specified 'data' (composed of Key-Value pairs) into this
         // cache.  If a key already exists, then its value will be replaced
         // with the value.  Return the number of items successfully inserted.
+
+    int insertBulk(bslmf::MovableRef<bsl::vector<KVType> > data);
+        // Insert the specified 'data' (composed of Key-Value pairs) into this
+        // cache.  If a key already exists, then its value will be replaced
+        // with the value.  Return the number of items successfully inserted.
+        // If an exception occurs during this action, we provide only the
+        // basic guarantee - both this cache and 'data' will be in some valid
+        // but unspecified state.
 
     int popFront();
         // Remove the item at the front of the eviction queue.  Invoke the
@@ -582,7 +624,6 @@ class Cache {
         // the order of the eviction queue until 'visitor' returns 'false'.
         // The 'VISITOR' type must be a callable object that can be invoked in
         // the same way as the function 'bool (const KEY&, const VALUE&)'
-
 };
 
 template <class KEY,
@@ -626,20 +667,31 @@ class Cache_TestUtil {
                         // class Cache_QueueProctor
                         // ------------------------
 
+// PRIVATE ACCESSORS
+template <class KEY>
+inline
+KEY *Cache_QueueProctor<KEY>::last() const
+{
+    return !d_queue_p || d_queue_p->empty() ? 0
+                                            : &*d_queue_p->rbegin();
+}
+
 // CREATORS
 template <class KEY>
 inline
-Cache_QueueProctor<KEY>::Cache_QueueProctor(
-                                      bsl::list<KEY> *queue) : d_queue_p(queue)
-{
-}
+Cache_QueueProctor<KEY>::Cache_QueueProctor(bsl::list<KEY> *queue)
+: d_queue_p(queue)
+, d_last_p(last())
+{}
 
 template <class KEY>
 inline
 Cache_QueueProctor<KEY>::~Cache_QueueProctor()
 {
     if (d_queue_p) {
-        d_queue_p->pop_back();
+        while (last() != d_last_p) {
+            d_queue_p->pop_back();
+        }
     }
 }
 
@@ -736,55 +788,117 @@ void Cache<KEY, VALUE, HASH, EQUAL>::evictItem(
         d_postEvictionCallback(value);
     }
 }
-
 template <class KEY, class VALUE, class HASH, class EQUAL>
-void Cache<KEY, VALUE, HASH, EQUAL>::insertImp(const KEY&          key,
-                                               const ValuePtrType& valuePtr)
+inline
+bool Cache<KEY, VALUE, HASH, EQUAL>::insertValuePtrMoveImp(
+                                                    KEY          *key_p,
+                                                    bool          moveKey,
+                                                    ValuePtrType *valuePtr_p,
+                                                    bool          moveValuePtr)
 {
-    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    enum { k_RVALUE_ASSIGN = true };
+#else
+    enum { k_RVALUE_ASSIGN = false };
+#endif
 
     enforceHighWatermark();
 
+    KEY&          key      = *key_p;
+    ValuePtrType& valuePtr = *valuePtr_p;
+
     typename MapType::iterator mapIt = d_map.find(key);
     if (mapIt != d_map.end()) {
-        mapIt->second.first = valuePtr;
+        if (k_RVALUE_ASSIGN && moveValuePtr) {
+            mapIt->second.first = bslmf::MovableRefUtil::move(valuePtr);
+        }
+        else {
+            mapIt->second.first = valuePtr;
+        }
+
         typename QueueType::iterator queueIt = mapIt->second.second;
 
+        // Move 'queueIt' to the back of 'd_queue'.
+
         d_queue.splice(d_queue.end(), d_queue, queueIt);
+
+        return false;                                                 // RETURN
     }
     else {
-        d_queue.push_back(key);
         Cache_QueueProctor<KEY>      proctor(&d_queue);
+        d_queue.push_back(key);
         typename QueueType::iterator queueIt = d_queue.end();
         --queueIt;
 
-        d_map.emplace(key, MapValue(valuePtr, queueIt, d_allocator_p));
+        bsls::ObjectBuffer<MapValue> mapValueFootprint;
+        MapValue *mapValue_p = mapValueFootprint.address();
+
+        if (moveValuePtr) {
+            new (mapValue_p) MapValue(bslmf::MovableRefUtil::move(valuePtr),
+                                      queueIt,
+                                      d_allocator_p);
+        }
+        else {
+            new (mapValue_p) MapValue(valuePtr,
+                                      queueIt,
+                                      d_allocator_p);
+        }
+        bslma::DestructorGuard<MapValue> mapValueGuard(mapValue_p);
+
+        if (moveKey) {
+            d_map.emplace(bslmf::MovableRefUtil::move(key),
+                          bslmf::MovableRefUtil::move(*mapValue_p));
+        }
+        else {
+            d_map.emplace(key,
+                          bslmf::MovableRefUtil::move(*mapValue_p));
+        }
+
         proctor.release();
+
+        return true;                                                  // RETURN
     }
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
-void Cache<KEY, VALUE, HASH, EQUAL>::insertImpWrapper(
-                                                         const KEY&      key,
-                                                         const VALUE&    value,
-                                                         bsl::false_type)
+void Cache<KEY, VALUE, HASH, EQUAL>::populateValuePtrType(ValuePtrType *dst,
+                                                          const VALUE&  value,
+                                                          bsl::true_type)
 {
-    ValuePtrType valuePtr;
-    valuePtr.createInplace(d_allocator_p, value);
-    insertImp(key, valuePtr);
+    dst->createInplace(d_allocator_p, value, d_allocator_p);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
-void Cache<KEY, VALUE, HASH, EQUAL>::insertImpWrapper(
-                                                          const KEY&     key,
-                                                          const VALUE&   value,
-                                                          bsl::true_type)
+void Cache<KEY, VALUE, HASH, EQUAL>::populateValuePtrType(ValuePtrType *dst,
+                                                          const VALUE&  value,
+                                                          bsl::false_type)
 {
-    ValuePtrType valuePtr;
-    valuePtr.createInplace(d_allocator_p, value, d_allocator_p);
-    insertImp(key, valuePtr);
+    dst->createInplace(d_allocator_p, value);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+void Cache<KEY, VALUE, HASH, EQUAL>::populateValuePtrType(
+                                               ValuePtrType             *dst,
+                                               bslmf::MovableRef<VALUE>  value,
+                                               bsl::true_type)
+{
+    dst->createInplace(d_allocator_p,
+                       bslmf::MovableRefUtil::move(value),
+                       d_allocator_p);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+void Cache<KEY, VALUE, HASH, EQUAL>::populateValuePtrType(
+                                               ValuePtrType             *dst,
+                                               bslmf::MovableRef<VALUE>  value,
+                                               bsl::false_type)
+{
+    dst->createInplace(d_allocator_p,
+                       bslmf::MovableRefUtil::move(value));
 }
 
 // MANIPULATORS
@@ -817,7 +931,7 @@ Cache<KEY, VALUE, HASH, EQUAL>::eraseBulk(const bsl::vector<KEY>& keys)
     bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
 
     int count = 0;
-    for(bsl::size_t i = 0; i < keys.size(); ++i) {
+    for (bsl::size_t i = 0; i < keys.size(); ++i) {
         const typename MapType::iterator mapIt = d_map.find(keys[i]);
         if (mapIt == d_map.end()) {
             continue;
@@ -830,9 +944,56 @@ Cache<KEY, VALUE, HASH, EQUAL>::eraseBulk(const bsl::vector<KEY>& keys)
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
-void Cache<KEY, VALUE, HASH, EQUAL>::insert(const KEY& key,const VALUE& value)
+void Cache<KEY, VALUE, HASH, EQUAL>::insert(const KEY& key, const VALUE& value)
 {
-    insertImpWrapper(key, value, bslma::UsesBslmaAllocator<VALUE>());
+    ValuePtrType valuePtr;
+    populateValuePtrType(&valuePtr, value, bslma::UsesBslmaAllocator<VALUE>());
+    insert(key, bslmf::MovableRefUtil::move(valuePtr));
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+void Cache<KEY, VALUE, HASH, EQUAL>::insert(const KEY&               key,
+                                            bslmf::MovableRef<VALUE> value)
+{
+    ValuePtrType valuePtr;
+    populateValuePtrType(&valuePtr,
+                         bslmf::MovableRefUtil::move(value),
+                         bslma::UsesBslmaAllocator<VALUE>());
+                                    // might throw, but BEFORE 'value' is moved
+
+    insert(key, bslmf::MovableRefUtil::move(valuePtr));
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+void Cache<KEY, VALUE, HASH, EQUAL>::insert(bslmf::MovableRef<KEY> key,
+                                            const VALUE&           value)
+{
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+
+    KEY& localKey = key;
+
+    ValuePtrType valuePtr;
+    populateValuePtrType(&valuePtr, value, bslma::UsesBslmaAllocator<VALUE>());
+                                                                 // might throw
+
+    insertValuePtrMoveImp(&localKey, true, &valuePtr, true);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+void Cache<KEY, VALUE, HASH, EQUAL>::insert(bslmf::MovableRef<KEY>   key,
+                                            bslmf::MovableRef<VALUE> value)
+{
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+
+    KEY& localKey = key;
+
+    ValuePtrType valuePtr;
+    populateValuePtrType(&valuePtr,
+                         bslmf::MovableRefUtil::move(value),
+                         bslma::UsesBslmaAllocator<VALUE>());
+                                    // might throw, but BEFORE 'value' is moved
+
+    insertValuePtrMoveImp(&localKey, true, &valuePtr, true);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -840,7 +1001,24 @@ inline
 void Cache<KEY, VALUE, HASH, EQUAL>::insert(const KEY&          key,
                                             const ValuePtrType& valuePtr)
 {
-    insertImp(key, valuePtr);
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+
+    KEY          *key_p      = const_cast<KEY *>(&key);
+    ValuePtrType *valuePtr_p = const_cast<ValuePtrType *>(&valuePtr);
+
+    insertValuePtrMoveImp(key_p, false, valuePtr_p, false);
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+void Cache<KEY, VALUE, HASH, EQUAL>::insert(bslmf::MovableRef<KEY> key,
+                                            const ValuePtrType&    valuePtr)
+{
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+
+    KEY&          localKey = key;
+    ValuePtrType *valuePtr_p = const_cast<ValuePtrType *>(&valuePtr);
+
+    insertValuePtrMoveImp(&localKey, true, valuePtr_p, false);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -850,27 +1028,30 @@ Cache<KEY, VALUE, HASH, EQUAL>::insertBulk(const bsl::vector<KVType>& data)
     int                             count = 0;
     bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
 
-    for(bsl::size_t i = 0; i < data.size(); ++i) {
-        enforceHighWatermark();
+    for (bsl::size_t i = 0; i < data.size(); ++i) {
+        KEY          *key_p      = const_cast<KEY *>(         &data[i].first);
+        ValuePtrType *valuePtr_p = const_cast<ValuePtrType *>(&data[i].second);
 
-        typename MapType::iterator mapIt = d_map.find(data[i].first);
-        if (mapIt != d_map.end()) {
-            mapIt->second.first = data[i].second;
-            typename QueueType::iterator queueIt = mapIt->second.second;
+        count += insertValuePtrMoveImp(key_p, false, valuePtr_p, false);
+    }
+    return count;
+}
 
-            d_queue.splice(d_queue.end(), d_queue, queueIt);
-        }
-        else {
-            d_queue.push_back(data[i].first);
-            Cache_QueueProctor<KEY>      proctor(&d_queue);
-            typename QueueType::iterator queueIt = d_queue.end();
-            --queueIt;
+template <class KEY, class VALUE, class HASH, class EQUAL>
+int
+Cache<KEY, VALUE, HASH, EQUAL>::insertBulk(
+                                  bslmf::MovableRef<bsl::vector<KVType> > data)
+{
+    int                             count = 0;
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
 
-            d_map.emplace(data[i].first, MapValue(data[i].second, queueIt,
-                                                               d_allocator_p));
-            proctor.release();
-            ++count;
-        }
+    bsl::vector<KVType>& localData = data;
+
+    for (bsl::size_t i = 0; i < localData.size(); ++i) {
+        KEY          *key_p      = &localData[i].first;
+        ValuePtrType *valuePtr_p = &localData[i].second;
+
+        count += insertValuePtrMoveImp(key_p, true, valuePtr_p, true);
     }
     return count;
 }
@@ -917,6 +1098,7 @@ int Cache<KEY, VALUE, HASH, EQUAL>::tryGetValue(
     // Since the guard is constructed with a locked synchronization object, the
     // guard's call to 'unlock' correctly handles both read and write
     // scenarios.
+
     bslmt::ReadLockGuard<LockType> guard(&d_rwlock, true);
 
     typename MapType::iterator mapIt = d_map.find(key);
