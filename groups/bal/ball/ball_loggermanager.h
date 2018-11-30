@@ -949,8 +949,7 @@ class Logger {
     bdlma::ConcurrentPool
                   d_bufferPool;                 // pool of buffers for
                                                 // formatting log messages
-                                                // allowing recursive
-                                                // access(owned)
+                                                // allowing recursive access
 
     char         *d_scratchBuffer_p;            // buffer for formatting log
                                                 // messages (owned)
@@ -1115,13 +1114,10 @@ class Logger {
         // affect performance for the entire program.
 
     bslma::ManagedPtr<char> obtainMessageBuffer(int *bufferSize);
-        // Return a managed pointer that refers to the memory block obtained
-        // from the pool to which this thread of execution has exclusive access
-        // and load the size (in bytes) of this buffer into the specified
-        // 'bufferSize' address.  Note that the buffer is intended to be used
-        // *only* for formatting log messages immediately before a call to
-        // 'Log::logMessage'; other use may adversely affect performance for
-        // the entire program.
+        // Return a managed pointer that refers to the memory block to which
+        // this thread of execution has exclusive access and load the size (in
+        // bytes) of this buffer into the specified 'bufferSize' address.  Note
+        // that this method is intended for *internal* *use* only.
 
     void publish();
         // Publish to the observer held by this logger all records stored in
@@ -1447,13 +1443,10 @@ class LoggerManager {
         // affect performance for the entire program.
 
     static bslma::ManagedPtr<char> obtainMessageBuffer(int *bufferSize);
-        // Return a managed pointer that refers to the memory block obtained
-        // from the static 'bdlma::ConcurrentPool' object to which this thread
-        // of execution has exclusive access and load the size (in bytes) of
-        // this buffer into the specified 'bufferSize' address.  Note that the
-        // buffer is intended to be used *only* for formatting log messages
-        // immediately before a call to 'Log::logMessage'; other use may
-        // adversely affect performance for the entire program.
+        // Return a managed pointer that refers to the memory block to which
+        // this thread of execution has exclusive access and load the size (in
+        // bytes) of this buffer into the specified 'bufferSize' address.  Note
+        // that this method is intended for *internal* *use* only.
 
     static void shutDownSingleton();
         // Destroy the logger manager singleton and release all resources used

@@ -104,11 +104,17 @@ namespace ball {
 
 namespace {
 
-void poolBufferDeleter(void *buffer, void *pool)
-    // This deleter function correctly deallocates memory buffer on the
-    // 'ManagedPtr' object's destruction.
+void bufferPoolDeleter(void *buffer, void *pool)
+    // Release the specified 'buffer' back to the specified 'pool'.  The
+    // behavior is undefined unless 'pool' refers to an instance of
+    // 'bdlma::ConcurrentPool', and 'buffer' was allocated from 'pool' and has
+    // not yet been deallocated.
 {
     bdlma::ConcurrentPool *p = static_cast<bdlma::ConcurrentPool *>(pool);
+
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(pool);
+
     p->deallocate(buffer);
 }
 
@@ -511,7 +517,7 @@ bslma::ManagedPtr<char> Logger::obtainMessageBuffer(int *bufferSize)
     bslma::ManagedPtr<char> bufferManagedPtr(
                                       buffer,
                                       static_cast<void *>(&d_bufferPool),
-                                      poolBufferDeleter);
+                                      bufferPoolDeleter);
     return bufferManagedPtr;
 }
 
@@ -914,7 +920,7 @@ bslma::ManagedPtr<char> LoggerManager::obtainMessageBuffer(int *bufferSize)
     bslma::ManagedPtr<char> bufferManagedPtr(
                                       buffer,
                                       static_cast<void *>(staticPool.buffer()),
-                                      poolBufferDeleter);
+                                      bufferPoolDeleter);
 
 
     *bufferSize = k_DEFAULT_LOGGER_BUFFER_SIZE;

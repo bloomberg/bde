@@ -11553,6 +11553,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         TestAllocator ta(veryVeryVeryVerbose);
 
         BloombergLP::ball::LoggerManagerConfiguration lmc;
+        lmc.setDefaultThresholdLevelsIfValid(
+                    BloombergLP::ball::Severity::e_ERROR,  // record level
+                    BloombergLP::ball::Severity::e_OFF,    // passthrough level
+                    BloombergLP::ball::Severity::e_OFF,    // trigger level
+                    BloombergLP::ball::Severity::e_OFF);   // triggerAll level
         BloombergLP::ball::LoggerManagerScopedGuard   lmg(lmc, &ta);
 
         bsl::shared_ptr<TestObserver> observer(
@@ -11560,11 +11565,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         LoggerManager& manager = LoggerManager::singleton();
 
         ASSERT(0 == manager.registerObserver(observer, "test"));
-        ASSERT(0 != manager.setCategory("Recursion",
-                                        Sev::e_OFF,
-                                        Sev::e_TRACE,
-                                        Sev::e_OFF,
-                                        Sev::e_OFF));
 
         BloombergLP::bsls::Stopwatch timer;
         timer.start();

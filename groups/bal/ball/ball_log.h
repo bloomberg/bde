@@ -1387,13 +1387,10 @@ struct Log {
         // 'Log::obtainMessageBuffer' and has not yet been unlocked.
 
     static bslma::ManagedPtr<char> obtainMessageBuffer(int *bufferSize);
-        // Return a managed pointer that refers to the memory block obtained
-        // from the pool to which this thread of execution has exclusive access
-        // and load the size (in bytes) of this buffer into the specified
-        // 'bufferSize' address.  Note that the buffer is intended to be used
-        // *only* for formatting log messages immediately before a call to
-        // 'Log::logMessage'; other use may adversely affect performance for
-        // the entire program.
+        // Return a managed pointer that refers to the memory block to which
+        // this thread of execution has exclusive access and load the size (in
+        // bytes) of this buffer into the specified 'bufferSize' address.  Note
+        // that this method is intended for *internal* *use* only.
 
     static const Category *setCategory(const char *categoryName);
         // Return from the logger manager singleton's category registry the
@@ -1557,11 +1554,10 @@ class Log_Formatter {
     //  - category to which to log the record
     //  - severity at which to log the record
     //  - buffer in which the user log message is formatted
-    //  - mutex mediating exclusive access to the buffer
     //..
     // As a side-effect of creating an object of this class, the record is
-    // constructed and the mutex is locked.  As a side-effect of destroying the
-    // object, the record is logged and the mutex unlocked.
+    // constructed, and the buffer is obtained.  As a side-effect of destroying
+    // the object, the record is formatted, using the buffer, and logged.
     //
     // This class should *not* be used directly by client code.  It is an
     // implementation detail of the macros provided by this component.
@@ -1576,12 +1572,9 @@ class Log_Formatter {
                                             // logged
 
     bslma::ManagedPtr<char>  d_buffer;      // buffer for formatted user log
-                                            // message (held, not owned)
+                                            // message
 
     int                      d_bufferLen;   // length of buffer
-
-    bslmt::Mutex            *d_mutex_p;     // mutex to lock buffer (held, not
-                                            // owned)
 
   private:
     // NOT IMPLEMENTED
@@ -1597,14 +1590,12 @@ class Log_Formatter {
         // Create a logging formatter that holds (1) the specified 'category'
         // and 'severity', (2) a record that is created from the specified
         // 'fileName' and 'lineNumber', and (3) a buffer into which the log
-        // message is formatted, and for which a lock is acquired for exclusive
-        // access to the buffer.
+        // message is formatted.
 
     ~Log_Formatter();
         // Log the record held by this logging formatter to the held category
         // (as returned by 'category') at the held severity (as returned by
-        // 'severity'), release the lock on the held buffer, and destroy this
-        // logging formatter.
+        // 'severity'), and destroy this logging formatter.
 
     // MANIPULATORS
     char *messageBuffer();
@@ -1639,9 +1630,9 @@ class Log_Formatter {
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-                                 // ---------
-                                 // class Log
-                                 // ---------
+                                 // ----------
+                                 // struct Log
+                                 // ----------
 
 // CLASS METHODS
 template <int SEVERITY>
