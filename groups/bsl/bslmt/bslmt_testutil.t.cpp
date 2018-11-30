@@ -1191,6 +1191,13 @@ struct ThreadData {
         const int numBA1 = outputRedirector_p->numInstances(pattern);
         REALLOOP4_ASSERT(d_idx, pattern, expMatch, numBA1, expMatch == numBA1);
 
+        // For 'numBA2', the second assert is two-line macro call.  It turns
+        // out that there is no simple rule to predict whether '__LINE__' in
+        // macro will refer to the first or second line of the macro.  So we
+        // match 2 patterns, one using 'PE' (the first line of the macro call)
+        // for the 2nd assert, then again using PE2 (the second line of that
+        // call, and one of the two should match.
+
         oss.str("");
         oss << PV_(d_woof) << PV(d_meow) <<
                PE << "): d_woof >= 3 * d_meow    (failed)\n";
@@ -1208,6 +1215,10 @@ struct ThreadData {
         pattern = oss.str();
         numBA2 += outputRedirector_p->numInstances(pattern);
         REALLOOP4_ASSERT(d_idx, pattern, expMatch, numBA2, expMatch == numBA2);
+
+        // For 'numBA3', both macro calls are two-line, so again, we create
+        // 2 patterns, one with 'PE' and one with 'PE2', and one of the two
+        // should match.
 
         oss.str("");
         oss << PV_(d_arf) << PV_(d_meow) << PV_(d_fracA) << PV_(d_fracB) <<
