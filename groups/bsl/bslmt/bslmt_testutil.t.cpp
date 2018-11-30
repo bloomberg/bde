@@ -996,6 +996,12 @@ struct ThreadData {
         // variables should occur exactly 'k_NUM_THREADS * k_NUM_ITERATIONS'
         // times.
     {
+        // This test case assumes that all the following asserts will have
+        // 4-digit line numbers.
+
+
+        BSLS_ASSERT(__LINE__ >= 1000);
+
         for (int ii = 0; ii < k_NUM_ITERATIONS; ++ii) {
             // Test 'MT_Q', 'MT_P', and 'MT_P_', all of which have built-in
             // mutex control so their respective outputs will occur distinct
@@ -1053,21 +1059,12 @@ struct ThreadData {
                 MT_ASSERTV(d_woof, d_woof > 3 * d_meow);
             }
 
-            // In Aix, the value of '__LINE__' within a macro is at the first
-            // line, on other platforms, it's at the last line.
-
-#if !defined(BSLS_PLATFORM_OS_AIX)
-            const int twoLineMacroRel = 2;
-#else
-            const int twoLineMacroRel = 1;
-#endif
-
             {
                 BSLMT_TESTUTIL_OUTPUT_GUARD;
 
                 d_assertLines[assertIdx++] = MT_L_ + 1;
                 MT_ASSERTV(d_woof, d_meow, d_woof >= 3 * d_meow);
-                d_assertLines[assertIdx++] = MT_L_ + twoLineMacroRel;
+                d_assertLines[assertIdx++] = MT_L_ + 1;
                 MT_ASSERTV(d_arf, d_meow, d_fracA,
                                                 d_arf + d_meow == 3 * d_fracA);
             }
@@ -1075,10 +1072,10 @@ struct ThreadData {
             {
                 BSLMT_TESTUTIL_OUTPUT_GUARD;
 
-                d_assertLines[assertIdx++] = MT_L_ + twoLineMacroRel;
+                d_assertLines[assertIdx++] = MT_L_ + 1;
                 MT_ASSERTV(d_arf, d_meow, d_fracA, d_fracB, d_fracC,
                             d_arf + d_meow == 3 * d_fracA * d_fracB * d_fracC);
-                d_assertLines[assertIdx++] = MT_L_ + twoLineMacroRel;
+                d_assertLines[assertIdx++] = MT_L_ + 1;
                 MT_ASSERTV(d_arf, d_meow, d_fracA, d_fracB, d_fracC, d_fracD,
                   d_arf + d_meow == 3 * d_fracA * d_fracB * d_fracC * d_fracD);
             }
@@ -1115,6 +1112,7 @@ struct ThreadData {
 #define PV(X)    #X ": " << X << '\n'
 #define PV_(X)   #X ": " << X << '\t'
 #define PE      "Error " << __FILE__ << '(' << d_assertLines[assertIdx++]
+#define PE2     "Error " << __FILE__ << '(' << (d_assertLines[assertIdx++] + 1)
 
         if (0 == d_idx) {
             // First, check output that did not contain variable values, which
@@ -1199,7 +1197,16 @@ struct ThreadData {
         oss << PV_(d_arf) << PV_(d_meow) << PV(d_fracA) <<
                PE << "): d_arf + d_meow == 3 * d_fracA    (failed)\n";
         pattern = oss.str();
-        const int numBA2 = outputRedirector_p->numInstances(pattern);
+        int numBA2 = outputRedirector_p->numInstances(pattern);
+
+        assertIdx -= 2;
+        oss.str("");
+        oss << PV_(d_woof) << PV(d_meow) <<
+               PE << "): d_woof >= 3 * d_meow    (failed)\n";
+        oss << PV_(d_arf) << PV_(d_meow) << PV(d_fracA) <<
+               PE2 << "): d_arf + d_meow == 3 * d_fracA    (failed)\n";
+        pattern = oss.str();
+        numBA2 += outputRedirector_p->numInstances(pattern);
         REALLOOP4_ASSERT(d_idx, pattern, expMatch, numBA2, expMatch == numBA2);
 
         oss.str("");
@@ -1212,7 +1219,20 @@ struct ThreadData {
                PE << "): d_arf + d_meow == 3 * d_fracA * d_fracB * d_fracC *"
                      " d_fracD    (failed)\n";
         pattern = oss.str();
-        const int numBA3 = outputRedirector_p->numInstances(pattern);
+        int numBA3 = outputRedirector_p->numInstances(pattern);
+
+        assertIdx -= 2;
+        oss.str("");
+        oss << PV_(d_arf) << PV_(d_meow) << PV_(d_fracA) << PV_(d_fracB) <<
+               PV(d_fracC) <<
+               PE2 << "): d_arf + d_meow == 3 * d_fracA * d_fracB * d_fracC"
+                     "    (failed)\n";
+        oss << PV_(d_arf) << PV_(d_meow) << PV_(d_fracA) << PV_(d_fracB) <<
+               PV_(d_fracC) << PV(d_fracD) <<
+               PE2 << "): d_arf + d_meow == 3 * d_fracA * d_fracB * d_fracC *"
+                     " d_fracD    (failed)\n";
+        pattern = oss.str();
+        numBA3 += outputRedirector_p->numInstances(pattern);
         REALLOOP4_ASSERT(d_idx, pattern, expMatch, numBA3, expMatch == numBA3);
 
         BSLS_ASSERT(k_NUM_ASSERTS == assertIdx);
@@ -1224,6 +1244,7 @@ struct ThreadData {
 #undef PV
 #undef PV_
 #undef PE
+#undef PE2
     }
 };
 
