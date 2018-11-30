@@ -1627,7 +1627,7 @@ int myFunc()
 struct A     { int x; A() : x('a') { } };
 struct B : A { int y; B() : y('b') { } };
 
-template <class TYPE, size_t N>
+template <class TYPE, size_t BITS>
 struct HI
 {
     typedef std::random_access_iterator_tag  iterator_category;
@@ -1636,7 +1636,7 @@ struct HI
     typedef TYPE                            *pointer;
     typedef TYPE&                            reference;
 
-    static const size_t SIDE = size_t(1) << N;
+    static const size_t SIDE = size_t(1) << BITS;
     static const size_t SIZE = SIDE * SIDE;
 
     TYPE   *p;
@@ -1690,44 +1690,44 @@ struct HI
         // Conversion operator to confuse badly written traits code.
 };
 
-template <class TYPE, size_t N>
+template <class TYPE, size_t BITS>
 inline
-bool operator< (const HI<TYPE, N>& l, const HI<TYPE, N>& r)
+bool operator< (const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
 {
     return (l.p < r.p) || (l.p == r.p && l.d < r.d);
 }
 
-template <class TYPE, size_t N>
+template <class TYPE, size_t BITS>
 inline
-bool operator>=(const HI<TYPE, N>& l, const HI<TYPE, N>& r)
+bool operator>=(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
 {
     return !(l <  r);
 }
 
-template <class TYPE, size_t N>
+template <class TYPE, size_t BITS>
 inline
-bool operator> (const HI<TYPE, N>& l, const HI<TYPE, N>& r)
+bool operator> (const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
 {
     return !(l <= r);
 }
 
-template <class TYPE, size_t N>
+template <class TYPE, size_t BITS>
 inline
-bool operator<=(const HI<TYPE, N>& l, const HI<TYPE, N>& r)
+bool operator<=(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
 {
     return !(l >  r);
 }
 
-template <class TYPE, size_t N>
+template <class TYPE, size_t BITS>
 inline
-bool operator==(const HI<TYPE, N>& l, const HI<TYPE, N>& r)
+bool operator==(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
 {
     return !(l < r) && !(r < l);
 }
 
-template <class TYPE, size_t N>
+template <class TYPE, size_t BITS>
 inline
-bool operator!=(const HI<TYPE, N>& l, const HI<TYPE, N>& r)
+bool operator!=(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
 {
     return !(l == r);
 }

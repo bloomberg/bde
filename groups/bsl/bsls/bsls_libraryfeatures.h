@@ -1190,7 +1190,7 @@ BSLS_IDENT("$Id: $")
 
 
 // Now, after detecting support, unconditionally undefine macros for features
-// that have been removed from later standard.
+// that have been removed from later standards.
 
 #if __cplusplus > 201103L
 # undef BSLS_LIBRARYFEATURES_HAS_C90_GETS
