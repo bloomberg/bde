@@ -104,6 +104,7 @@ namespace ball {
 
 namespace {
 
+// HELPER FUNCTIONS
 void bufferPoolDeleter(void *buffer, void *pool)
     // Release the specified 'buffer' back to the specified 'pool'.  The
     // behavior is undefined unless 'pool' refers to an instance of
@@ -301,7 +302,7 @@ Logger::Logger(const bsl::shared_ptr<Observer>&            observer,
 
     // 'snprintf' message buffer
     d_scratchBuffer_p = (char *)d_allocator_p->allocate(d_scratchBufferSize);
-    d_bufferPool.reserveCapacity(5);
+    d_bufferPool.reserveCapacity(4);
 }
 
 Logger::~Logger()
@@ -910,7 +911,6 @@ bslma::ManagedPtr<char> LoggerManager::obtainMessageBuffer(int *bufferSize)
         // performs logging during its destruction.
         new (staticPool.buffer()) bdlma::ConcurrentPool(
                                                  k_DEFAULT_LOGGER_BUFFER_SIZE);
-        staticPool.object().reserveCapacity(5);
     }
 
     char *buffer;
