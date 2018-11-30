@@ -909,13 +909,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
-#if __cplusplus < 201402L
+// Unconditionally define macros for C++98 features that may be detected as
+// absent from later standards.  All removed libraries will have their macros
+// undefined in a consistent manner at the end of this header
+
 # define BSLS_LIBRARYFEATURES_HAS_C90_GETS                            1
     // Set unconditionally for compilers supporting an earlier standard than
     // C++14; this feature macro will be undefined for those platforms with
     // partial support for C++14, implementing the removal of this dangerous
     // function.
-#endif
 
 #define BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR                       1
     // Set unconditionally.  This features is found on each compiler
@@ -1171,6 +1173,12 @@ BSLS_IDENT("$Id: $")
 
         #undef BSLS_LIBRARYFEATURES_HAS_C90_GETS
     #endif
+
+    #if BSLS_PLATFORM_CMP_VERSION >= 1910  // Visual Studio 2017
+      #if !_HAS_AUTO_PTR_ETC
+        #undef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
+      #endif
+    #endif
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)  && \
@@ -1178,6 +1186,22 @@ BSLS_IDENT("$Id: $")
     defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 
     #define BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE           1
+#endif
+
+
+// Now, after detecting support, unconditionally undefine macros for features
+// that have been removed from later standards.
+
+#if __cplusplus > 201103L
+# undef BSLS_LIBRARYFEATURES_HAS_C90_GETS
+    // 'gets' is removed immediately from C++14, so undefine for any standard
+    // version identifier greater than that of C++11.
+#endif
+
+#if __cplusplus > 201402L
+# undef BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR
+    // 'auto_ptr' is removed from C++17, so undefine for any standard version
+    // identifier greater than that of C++14.
 #endif
 
 #endif // INCLUDED_BSLS_LIBRARYFEATURES

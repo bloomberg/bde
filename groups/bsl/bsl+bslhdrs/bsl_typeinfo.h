@@ -18,6 +18,7 @@ BSLS_IDENT("$Id: $")
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
 #include <bsls_nativestd.h>
+#include <bsls_platform.h>
 
 #include <typeinfo>
 
@@ -38,8 +39,11 @@ namespace bsl {
     using native_std::type_info;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-    // Import additional names expected by existing code, but not mandated by
-    // the standard header.
+    // Export additional names, leaked to support transitive dependencies in
+    // higher level (non BDE) Bloomberg code.
+# if !defined(BSLS_PLATFORM_CMP_MSVC) && __cplusplus < 201703L
+    // As some of these names are removed from C++17, take a sledgehammer to
+    // crack this nut, and remove all non-standard exports.
     using native_std::bad_exception;
     using native_std::exception;
     using native_std::set_terminate;
@@ -49,6 +53,7 @@ namespace bsl {
     using native_std::uncaught_exception;
     using native_std::unexpected;
     using native_std::unexpected_handler;
+# endif // MSVC, or C++2017
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 }  // close package namespace
 

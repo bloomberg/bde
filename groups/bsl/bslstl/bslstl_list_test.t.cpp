@@ -819,7 +819,12 @@ int value_of<TestType>(const TestType& x)
 namespace std {
 
 template <>
-struct less<TestType> : std::binary_function<TestType, TestType, bool> {
+struct less<TestType> {
+     // public type names
+    typedef TestType  first_argument_type;
+    typedef TestType  second_argument_type;
+    typedef bool      result_type;
+
     bool operator()(const TestType& a, const TestType& b) const
         // Return 'true' if the specified 'a' is less than the specified 'b'
         // and 'false' otherwise.
@@ -830,9 +835,12 @@ struct less<TestType> : std::binary_function<TestType, TestType, bool> {
 };
 
 template <>
-struct equal_to<TestType> : std::binary_function<TestType,
-                                                 TestType,
-                                                 bool> {
+struct equal_to<TestType> {
+    // public type names
+    typedef TestType  first_argument_type;
+    typedef TestType  second_argument_type;
+    typedef bool      result_type;
+
     bool operator()(const TestType& a, const TestType& b) const
         // Return 'true' if the specified 'a' is equal to the specified 'b' and
         // 'false' otherwise.
@@ -2006,7 +2014,13 @@ struct TestDriver {
 
     // Binary predicate returning true if b < a
 
-    class GreaterThan : private std::binary_function<TYPE, TYPE, bool> {
+    class GreaterThan {
+      private:
+        // private type names, odd design?!
+        typedef TYPE  first_argument_type;
+        typedef TYPE  second_argument_type;
+        typedef bool  result_type;
+
         int *d_count_p;              // Pointer to count of times invoked
         int *d_invocationLimit_p;    // Number of invocations before throwing
 

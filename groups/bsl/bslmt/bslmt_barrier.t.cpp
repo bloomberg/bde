@@ -16,6 +16,7 @@
 
 #include <bsls_atomic.h>  // for testing only
 
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_spinlock.h>
 #include <bsls_systemclocktype.h>
@@ -675,7 +676,11 @@ void case7(bslmt::Barrier *barrier, bool verbose, int numThreads, int numWaits)
    waiters.insert(waiters.end(), numThreads-1,
                   Case7_Waiter(barrier, &state,
                                numWaits, numThreads));
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+   for_each(waiters.begin(), waiters.end(), bsl::mem_fn(&Case7_Waiter::begin));
+#else
    for_each(waiters.begin(), waiters.end(), mem_fun_ref(&Case7_Waiter::begin));
+#endif
    for (int i = 0; i < numWaits; ++i) {
       ASSERT(state == i * numThreads);
       barrier->wait();

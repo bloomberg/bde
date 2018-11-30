@@ -19,22 +19,14 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
+#include <bsls_platform.h>
 
 #include <functional>
 
 namespace bsl {
 
     // Import selected symbols into bsl namespace
-    using native_std::binary_function;
     using native_std::binary_negate;
-    using native_std::bind1st;
-    using native_std::bind2nd;
-    using native_std::binder1st;
-    using native_std::binder2nd;
-    using native_std::const_mem_fun1_ref_t;
-    using native_std::const_mem_fun1_t;
-    using native_std::const_mem_fun_ref_t;
-    using native_std::const_mem_fun_t;
     using native_std::divides;
     using native_std::greater;
     using native_std::greater_equal;
@@ -43,12 +35,6 @@ namespace bsl {
     using native_std::logical_and;
     using native_std::logical_not;
     using native_std::logical_or;
-    using native_std::mem_fun1_ref_t;
-    using native_std::mem_fun1_t;
-    using native_std::mem_fun;
-    using native_std::mem_fun_ref;
-    using native_std::mem_fun_ref_t;
-    using native_std::mem_fun_t;
     using native_std::minus;
     using native_std::modulus;
     using native_std::multiplies;
@@ -57,11 +43,33 @@ namespace bsl {
     using native_std::not2;
     using native_std::not_equal_to;
     using native_std::plus;
+    using native_std::unary_negate;
+
+#if __cplusplus < 201703L                 \
+ &&!(defined(BSLS_PLATFORM_CMP_MSVC)   && \
+     BSLS_PLATFORM_CMP_VERSION >= 1910 && \
+     !_HAS_AUTO_PTR_ETC)
+    // These names are removed by C++17
+    using native_std::binary_function;
+    using native_std::bind1st;
+    using native_std::bind2nd;
+    using native_std::binder1st;
+    using native_std::binder2nd;
+    using native_std::const_mem_fun1_ref_t;
+    using native_std::const_mem_fun1_t;
+    using native_std::const_mem_fun_ref_t;
+    using native_std::const_mem_fun_t;
+    using native_std::mem_fun1_ref_t;
+    using native_std::mem_fun1_t;
+    using native_std::mem_fun;
+    using native_std::mem_fun_ref;
+    using native_std::mem_fun_ref_t;
+    using native_std::mem_fun_t;
     using native_std::pointer_to_binary_function;
     using native_std::pointer_to_unary_function;
     using native_std::ptr_fun;
     using native_std::unary_function;
-    using native_std::unary_negate;
+#endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     namespace placeholders = native_std::placeholders;

@@ -19,6 +19,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
+#include <bsls_platform.h>
 
 #include <exception>
 
@@ -28,12 +29,19 @@ namespace bsl {
     using native_std::bad_exception;
     using native_std::exception;
     using native_std::set_terminate;
-    using native_std::set_unexpected;
     using native_std::terminate;
     using native_std::terminate_handler;
     using native_std::uncaught_exception;
+
+#if __cplusplus < 201703L                 \
+ &&!(defined(BSLS_PLATFORM_CMP_MSVC)   && \
+     BSLS_PLATFORM_CMP_VERSION >= 1910 && \
+     !_HAS_AUTO_PTR_ETC)
+    // These names are removed by C++17
+    using native_std::set_unexpected;
     using native_std::unexpected;
     using native_std::unexpected_handler;
+#endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     using native_std::current_exception;
@@ -49,7 +57,12 @@ namespace bsl {
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
+# if __cplusplus < 201703L                 \
+ &&!(defined(BSLS_PLATFORM_CMP_MSVC)   && \
+     BSLS_PLATFORM_CMP_VERSION >= 1910 && \
+     !_HAS_AUTO_PTR_ETC)
     using native_std::get_unexpected;
+# endif
     using native_std::get_terminate;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES
 }  // close package namespace

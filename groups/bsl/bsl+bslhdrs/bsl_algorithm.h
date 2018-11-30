@@ -68,7 +68,6 @@ namespace bsl {
     using native_std::pop_heap;
     using native_std::prev_permutation;
     using native_std::push_heap;
-    using native_std::random_shuffle;
     using native_std::remove;
     using native_std::remove_copy;
     using native_std::remove_copy_if;
@@ -98,6 +97,14 @@ namespace bsl {
     using native_std::unique;
     using native_std::unique_copy;
     using native_std::upper_bound;
+
+#if __cplusplus < 201703L                 \
+ &&!(defined(BSLS_PLATFORM_CMP_MSVC)   && \
+     BSLS_PLATFORM_CMP_VERSION >= 1910 && \
+     !_HAS_AUTO_PTR_ETC)
+    // These names are removed by C++17
+    using native_std::random_shuffle;
+#endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     using native_std::all_of;

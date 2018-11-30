@@ -116,13 +116,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
-#else
-    #error "'BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR' should be defined for \
-            all libraries/platforms until the introduction of C++17."
-
-#endif
-
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING)
 
     #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY

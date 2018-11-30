@@ -4366,16 +4366,22 @@ struct Derived : Base {
 };
 
 #if 0
-template <class T, size_t N>
-struct HI : public bsl::iterator<bsl::random_access_iterator_tag, T>
+template <class TYPE, size_t BITS>
+struct HI
 {
-    static const size_t SIDE = size_t(1) << N;
+    typedef bsl::output_iterator_tag  std::random_access_iterator_tag;
+    typedef TYPE                      value_type;
+    typedef ptrdiff_t                 difference_type;
+    typedef TYPE                     *pointer;
+    typedef TYPE&                     reference;
+
+    static const size_t SIDE = size_t(1) << BITS;
     static const size_t SIZE = SIDE * SIDE;
 
-    T *p;
-    size_t d;
+    TYPE   *p;
+    size_t  d;
 
-    explicit HI(T *p = 0, size_t d = SIZE) : p(p), d(d) { }
+    explicit HI(TYPE *p = 0, size_t d = SIZE) : p(p), d(d) { }
     HI(const HI& o) : p(o.p), d(o.d) { }
 
     size_t htoi() const
@@ -4400,8 +4406,8 @@ struct HI : public bsl::iterator<bsl::random_access_iterator_tag, T>
         return y * SIDE + x;
     }
 
-    T &operator*()  const { return p[htoi()];  }
-    T *operator->() const { return p + htoi(); }
+    TYPE &operator*()  const { return p[htoi()];  }
+    TYPE *operator->() const { return p + htoi(); }
 
     HI& operator++() { ++d; return *this; }
     HI& operator--() { --d; return *this; }
@@ -4417,50 +4423,50 @@ struct HI : public bsl::iterator<bsl::random_access_iterator_tag, T>
 
     ptrdiff_t operator-(const HI& o) const { return d - o.d; }
 
-    T &operator[](ptrdiff_t n) const { return *(*this + n); }
+    TYPE &operator[](ptrdiff_t n) const { return *(*this + n); }
 
-    operator T*()   const { return p + htoi(); }
+    operator TYPE*()   const { return p + htoi(); }
         // Conversion operator to confuse badly written traits code.
 };
 
-template <class T, size_t N>
+template <class TYPE, size_t BITS>
 inline
-bool operator< (const HI<T, N>& l, const HI<T, N>& r)
+bool operator< (const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
 {
     return (l.p < r.p) || (l.p == r.p && l.d < r.d);
 }
 
-template <class T, size_t N>
+template <class TYPE, size_t BITS>
 inline
-bool operator>=(const HI<T, N>& l, const HI<T, N>& r)
+bool operator>=(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
 {
     return !(l <  r);
 }
 
-template <class T, size_t N>
+template <class TYPE, size_t BITS>
 inline
-bool operator> (const HI<T, N>& l, const HI<T, N>& r)
+bool operator> (const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
 {
     return !(l <= r);
 }
 
-template <class T, size_t N>
+template <class TYPE, size_t BITS>
 inline
-bool operator<=(const HI<T, N>& l, const HI<T, N>& r)
+bool operator<=(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
 {
     return !(l >  r);
 }
 
-template <class T, size_t N>
+template <class TYPE, size_t BITS>
 inline
-bool operator==(const HI<T, N>& l, const HI<T, N>& r)
+bool operator==(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
 {
     return !(l < r) && !(r < l);
 }
 
-template <class T, size_t N>
+template <class TYPE, size_t BITS>
 inline
-bool operator!=(const HI<T, N>& l, const HI<T, N>& r)
+bool operator!=(const HI<TYPE, BITS>& l, const HI<TYPE, BITS>& r)
 {
     return !(l == r);
 }

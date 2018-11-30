@@ -80,7 +80,8 @@ BSL_OVERRIDES_STD mode"
 #include <functional>  // for 'std::unary_function'
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslalg_typetraits.h>
+# include <bslalg_typetraits.h>
+# include <functional>
 #endif
 
 namespace bsl {
@@ -90,14 +91,17 @@ namespace bsl {
                     // ========================
 
 template <class OPERATION1, class OPERATION2>
-class unary_compose :
-                 public std::unary_function<typename OPERATION2::argument_type,
-                                            typename OPERATION1::result_type>
+class unary_compose
     // This class provides a function object adaptor for two other functors.
     // When given two adaptable unary functions 'f' and 'g', and when 'g's
     // return type is convertible to 'f's argument type, this class can be used
     // to create a function object 'h' that is equivalent to 'f(g(x))'.
 {
+  public:
+    // public type names
+    typedef typename OPERATION2::argument_type  argument_type;
+    typedef typename OPERATION1::result_type    result_type;
+
   protected:
     // DATA
     OPERATION1 d_fn1;  // function object 'f', in 'f(g(x))'
@@ -109,13 +113,11 @@ class unary_compose :
     : d_fn1(x)
     , d_fn2(y) {}
 
-    typename OPERATION1::result_type
-    operator()(const typename OPERATION2::argument_type& x) const {
+    result_type operator()(const argument_type& x) const {
         return d_fn1(d_fn2(x));
     }
 
-    typename OPERATION1::result_type
-    operator()(typename OPERATION2::argument_type& x) const {
+    result_type operator()(argument_type& x) const {
         return d_fn1(d_fn2(x));
     }
 };
@@ -125,15 +127,18 @@ class unary_compose :
                     // =========================
 
 template <class OPERATION1, class OPERATION2, class OPERATION3>
-class binary_compose :
-                 public std::unary_function<typename OPERATION2::argument_type,
-                                            typename OPERATION1::result_type>
+class binary_compose
     // This class provides a function object adaptor for three other functors.
     // When given two adaptable unary functions 'g1' and 'g2', and a third
     // adaptable binary function 'f', and if 'g1' and 'g2's argument type is
     // convertible to 'f's argument type, this class can be used to create a
     // function object 'h' that is equivalent to 'f(g1(x), g2(x))'.
 {
+  public:
+    // public type names
+    typedef typename OPERATION2::argument_type  argument_type;
+    typedef typename OPERATION1::result_type    result_type;
+
   protected:
     // DATA
     OPERATION1 d_fn1;  // function object 'f',  in 'f(g1(x), g2(x))'
@@ -150,14 +155,12 @@ class binary_compose :
     , d_fn3(fn3) {}
 
     // ACCESSORS
-    typename OPERATION1::result_type
-    operator()(const typename OPERATION2::argument_type& x) const
+    result_type operator()(const argument_type& x) const
     {
         return d_fn1(d_fn2(x), d_fn3(x));
     }
 
-    typename OPERATION1::result_type
-    operator()(typename OPERATION2::argument_type& x) const
+    result_type operator()(argument_type& x) const
     {
         return d_fn1(d_fn2(x), d_fn3(x));
     }
@@ -168,8 +171,12 @@ class binary_compose :
                     // ===================
 
 template <class TYPE>
-struct identity : public std::unary_function<TYPE, TYPE>
+struct identity
 {
+    // public type names
+    typedef TYPE argument_type;
+    typedef TYPE result_type;
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(identity, bsl::is_trivially_copyable);
 
@@ -185,8 +192,12 @@ struct identity : public std::unary_function<TYPE, TYPE>
                     // ====================
 
 template <class PAIR>
-struct select1st : public std::unary_function<PAIR, typename PAIR::first_type>
+struct select1st
 {
+    // public type names
+    typedef          PAIR             argument_type;
+    typedef typename PAIR::first_type result_type;
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(select1st, bsl::is_trivially_copyable);
 
@@ -202,8 +213,12 @@ struct select1st : public std::unary_function<PAIR, typename PAIR::first_type>
                     // ====================
 
 template <class PAIR>
-struct select2nd : public std::unary_function<PAIR, typename PAIR::second_type>
+struct select2nd
 {
+    // public type names
+    typedef          PAIR              argument_type;
+    typedef typename PAIR::second_type result_type;
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(select2nd, bsl::is_trivially_copyable);
 
@@ -233,7 +248,7 @@ compose2(const OPERATION1& fn1,
          const OPERATION2& fn2,
          const OPERATION3& fn3)
     // Return a 'binary_compose' function object constructed using the
-    // specified 'fn1' binary_function, and the specified 'fn2' and 'fn3' unary
+    // specified 'fn1' binary function, and the specified 'fn2' and 'fn3' unary
     // functions.  The returned function object is equivalent to
     // 'fn1(fn2(x), fn3(x))'.
 {

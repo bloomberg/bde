@@ -101,6 +101,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bsls_libraryfeatures.h>
 #include <bsl_iterator.h>
 
 namespace BloombergLP {
@@ -127,8 +128,15 @@ class NullOutputIteratorAssignmentProxy {
                         // ========================
 
 template <class TYPE>
-class NullOutputIterator :
-                         public bsl::iterator<bsl::output_iterator_tag, TYPE> {
+class NullOutputIterator
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
+// Sun CC workaround: iterators must be derived from 'std::iterator' to work
+// with the native std library algorithms.  However, 'std::iterator' is
+// deprecated in C++17, so do not rely on derivation unless required, to avoid
+// deprecation warnings on modern compilers.
+                         : public bsl::iterator<bsl::output_iterator_tag, TYPE>
+#endif
+{
     // Provide an output iterator that ignores the output that is provided.
     // De-referencing an iterator and assigning to the returned value has no
     // effect.
@@ -138,6 +146,12 @@ class NullOutputIterator :
     typedef NullOutputIteratorAssignmentProxy<TYPE> AssignmentProxy;
         // 'AssignmentProxy' is an alias for an object type returned by
         // de-referencing operator.
+
+    typedef bsl::output_iterator_tag  iterator_category;
+    typedef TYPE                      value_type;
+    typedef void                      difference_type;
+    typedef void                      pointer;
+    typedef void                      reference;
 
   public:
     // CREATORS
