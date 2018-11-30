@@ -81,16 +81,16 @@ static void aSsErT(int c, const char *s, int i) {
 # define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
 // ----------------------------------------------------------------------------
 #define LOOP_ASSERT(I,X) { \
-    if (!(X)) { bsl::printf("%s: %x\n", #I, I);                               \
+    if (!(X)) { bsl::printf("%s: %d\n", #I, I);                               \
                 aSsErT(1, #X, __LINE__); } }
 
 #define LOOP4_ASSERT(I,J,K,L,X) { \
-    if (!(X)) { bsl::printf("%s: %x\t%s: %x\t%s: %x\t%s: %x\n", #I, I, #J, J, \
+    if (!(X)) { bsl::printf("%s: %d\t%s: %x\t%s: %x\t%s: %x\n", #I, I, #J, J, \
                                                                #K, K, #L, L); \
                aSsErT(1, #X, __LINE__); } }
 
 #define LOOP4_ASSERT_D(I,J,K,L,X) { \
-    if (!(X)) { bsl::printf("%s: %x\t%s: %llx\t%s: %x\t%s: %x\n", \
+    if (!(X)) { bsl::printf("%s: %d\t%s: %llx\t%s: %x\t%s: %x\n", \
                                                                #I, I, #J, J, \
                                                                #K, K, #L, L); \
                aSsErT(1, #X, __LINE__); } }
@@ -138,25 +138,15 @@ typedef bdlb::Float Obj;
 #if defined(BSLS_PLATFORM_CPU_POWERPC)
 const bool hasFSNan = false;
 const bool hasDSNan = true;
-#elif defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
-// Some documentation of SNaN to QNaN conversions on x86 can be found in
-// section 4.8.3.5, Intel 64 Software Developers Manual, Volume 1,
-// http://download.intel.com/products/processor/manual/253665.pdf
-const bool hasFSNan = false;
-const bool hasDSNan = false;
 #else
 const bool hasFSNan = true;
 const bool hasDSNan = true;
 #endif
 
-#if (defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)) && \
-    defined(BSLS_PLATFORM_CMP_CLANG) && \
-    defined(BDE_BUILD_TARGET_OPT)
+#if defined(BSLS_PLATFORM_CPU_X86) || defined(BSLS_PLATFORM_CPU_X86_64)
 // Both x86 and AMD processors convert SNaNs to QNaNs when certain operations
-// are performed on SNaNs.  Therefore 'hasFSNan' & 'hasDSNan', above, are
-// 'false'.  But, the Clang optimizer, in certain contexts, avoids using
-// floating point registers and instructions, making the tests for SNaN's
-// non-deterministic.  See internal-ticket D37511035.
+// are performed on SNaNs, especially when x87 math is used, making the tests
+// for SNaN's non-deterministic.  See internal-ticket D37511035.
 
 #define OMIT_SNAN_TESTS
 #endif
@@ -211,15 +201,19 @@ double dmax() { return DBL_MAX; }
 static const float  FQNAN1 = repToFloat(0x7fc00000U);
 static const float  FQNAN2 = repToFloat(0x7fc12345U);
 static const float  FQNAN3 = repToFloat(0x7fffffffU);
+#if !defined(OMIT_SNAN_TESTS)
 static const float  FSNAN1 = repToFloat(0x7f800001U);
 static const float  FSNAN2 = repToFloat(0x7fa12345U);
 static const float  FSNAN3 = repToFloat(0x7fbfffffU);
+#endif
 static const double DQNAN1 = repToDouble(0x7ff8000000000000ULL);
 static const double DQNAN2 = repToDouble(0x7ff9123456781234ULL);
 static const double DQNAN3 = repToDouble(0x7fffffffffffffffULL);
+#if !defined(OMIT_SNAN_TESTS)
 static const double DSNAN1 = repToDouble(0x7ff0000000000001ULL);
 static const double DSNAN2 = repToDouble(0x7ff5123456781234ULL);
 static const double DSNAN3 = repToDouble(0x7ff7ffffffffffffULL);
+#endif
 
 // ============================================================================
 //                  CLASSES FOR TESTING USAGE EXAMPLES
@@ -395,7 +389,9 @@ int main(int argc, char *argv[])
         static const int POS_INFINITY  = Obj::k_POSITIVE_INFINITY;
         static const int NEG_INFINITY  = Obj::k_NEGATIVE_INFINITY;
         static const int QNAN          = Obj::k_QNAN;
+#if !defined(OMIT_SNAN_TESTS)
         static const int SNAN          = Obj::k_SNAN;
+#endif
         static const int POS_NORMAL    = Obj::k_POSITIVE_NORMAL;
         static const int NEG_NORMAL    = Obj::k_NEGATIVE_NORMAL;
         static const int POS_SUBNORMAL = Obj::k_POSITIVE_SUBNORMAL;
@@ -477,9 +473,9 @@ int main(int argc, char *argv[])
 { L_, 2.0F * -fmax()                      , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, -8388608.0F / fmin()                , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 #if !defined(OMIT_SNAN_TESTS)
-{ L_, 0.0F + FSNAN1                       , 0,0,0,0,1,X,0,0,1, SNAN          },
-{ L_, 0.0F + FSNAN2                       , 0,0,0,0,1,X,0,0,1, SNAN          },
-{ L_, 0.0F + FSNAN3                       , 0,0,0,0,1,X,0,0,1, SNAN          },
+{ L_, FSNAN1                              , 0,0,0,0,1,X,0,0,1, SNAN          },
+{ L_, FSNAN2                              , 0,0,0,0,1,X,0,0,1, SNAN          },
+{ L_, FSNAN3                              , 0,0,0,0,1,X,0,0,1, SNAN          },
 #endif
         };
 //--------------------v
@@ -488,18 +484,6 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_FDATA; ++ti) {
             int   LINE           = FDATA[ti].d_line;
-
-#if ( defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86) ) \
-    && defined(BSLS_PLATFORM_CMP_GNU) && defined(BDE_BUILD_TARGET_OPT)
-            // This is necessary because on linux when building 64-bit
-            // optimized with gcc 4.3.5 (at least) some tests will incorrectly
-            // fail if 'input' is not 'volatile'.  This probably forces a
-            // narrowing of the value to a 32-bit float from the wider internal
-            // processor FP registers, but we're not certain of the exact
-            // mechanism.
-
-            volatile
-#endif
             float input          = FDATA[ti].d_input;
             int   isZero         = FDATA[ti].d_isZero;
             int   isNormal       = FDATA[ti].d_isNormal;
@@ -608,9 +592,9 @@ int main(int argc, char *argv[])
 { L_, 2.0 * -dmax()                       , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 { L_, 4503599627370496.0 / -dmin()        , 0,0,0,1,0,1,0,0,0, NEG_INFINITY  },
 #if !defined(OMIT_SNAN_TESTS)
-{ L_, 0.0 + DSNAN1                        , 0,0,0,0,1,X,0,0,1, SNAN          },
-{ L_, 0.0 + DSNAN2                        , 0,0,0,0,1,X,0,0,1, SNAN          },
-{ L_, 0.0 + DSNAN3                        , 0,0,0,0,1,X,0,0,1, SNAN          },
+{ L_, DSNAN1                              , 0,0,0,0,1,X,0,0,1, SNAN          },
+{ L_, DSNAN2                              , 0,0,0,0,1,X,0,0,1, SNAN          },
+{ L_, DSNAN3                              , 0,0,0,0,1,X,0,0,1, SNAN          },
 #endif
         };
 //--------------------v
@@ -619,17 +603,6 @@ int main(int argc, char *argv[])
 
         for (int ti = 0; ti < NUM_DDATA; ++ti) {
             int    LINE           = DDATA[ti].d_line;
-
-#if ( defined(BSLS_PLATFORM_CPU_X86_64) || defined(BSLS_PLATFORM_CPU_X86) ) \
-    && defined(BSLS_PLATFORM_CMP_GNU) && defined(BDE_BUILD_TARGET_OPT)
-            // This is necessary because on linux when building 64-bit
-            // optimized with gcc 4.3.5 (at least) some 'float' tests will
-            // incorrectly fail if 'input' is not 'volatile'.  The problem does
-            // not occur for 'double' yet, but we are adding the qualifier here
-            // for symmetry.
-
-            volatile
-#endif
             double input          = DDATA[ti].d_input;
             int    isZero         = DDATA[ti].d_isZero;
             int    isNormal       = DDATA[ti].d_isNormal;
@@ -722,11 +695,8 @@ int main(int argc, char *argv[])
         // representation.
         const unsigned int       fsnan_rep = floatToRep(finf) | 1;
         const unsigned long long dsnan_rep = doubleToRep(dinf) | 1;
-        // Convert SNaN to QNaN if SNaNs are not supported by the current
-        // platform by performing an operation on sNaN and a floating-point
-        // value that results with SNaN source operand converted into a QNaN.
-        const float              fsnan     = repToFloat(fsnan_rep)  + 0.0F;
-        const double             dsnan     = repToDouble(dsnan_rep) + 0.0;
+        const float              fsnan     = repToFloat(fsnan_rep);
+        const double             dsnan     = repToDouble(dsnan_rep);
 
         float  f =   3.0;
         double d = -34;
