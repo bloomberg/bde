@@ -36,16 +36,8 @@
 #ifndef _BID_FUNCTIONS_H
 #define _BID_FUNCTIONS_H
 
-#if !defined (__GNUC__) || defined(__QNX__)
 #include <wchar.h>
-#endif
 #include <ctype.h>
-
-// Fix system header issue on Sun solaris and define required type by ourselves
-#if !defined(_WCHAR_T) && !defined(_WCHAR_T_DEFINED) && !defined(__QNX__)
-typedef int   wchar_t;
-#endif
-
 
 #ifdef IN_LIBGCC2
 // When we are built as the part of the gcc runtime library, libgcc,
@@ -115,7 +107,7 @@ typedef BID_UINT128 _Quad;
   #define SQRT80 sqrtl
 #else
   #define BINARY80 __float80
-  //#define BINARY128 __float128 
+  //#define BINARY128 __float128
   #define BINARY128 BID_UINT128
   #define SQRT80 sqrtw
 #endif
