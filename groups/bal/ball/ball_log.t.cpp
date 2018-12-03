@@ -252,6 +252,7 @@ static bool veryVeryVeryVerbose;
 // ----------------------------------------------------------------------------
 
 namespace {
+namespace u {
 
 using namespace BloombergLP;
 
@@ -456,6 +457,7 @@ class CerrBufferGuard {
 
 };
 
+}  // close namespace u
 }  // close unnamed namespace
 
 // ============================================================================
@@ -695,76 +697,22 @@ void processData(int                      uuid,
 }  // close enterprise namespace
 
 // ============================================================================
-//            HIERARCHICAL CATEROGIES -- CASE 32, CASE 33, CASE 34
+//            HIERARCHICAL CATEGORIES -- CASE 32, CASE 33, CASE 34
 // ----------------------------------------------------------------------------
 
-namespace BALL_LOG_HIERARCHICAL_CATEROGIES {
+namespace BALL_LOG_HIERARCHICAL_CATEGORIES {
 
-typedef ball::Severity                          S;
-typedef S::Level                                Level;
-typedef ball::Category                          Category;
-typedef ball::CategoryHolder                    CategoryHolder;
-typedef ball::LoggerManager::DefaultThresholdLevelsCallback
+namespace Blp = BloombergLP;
+typedef Blp::ball::Severity                     S;
+typedef S::Level                                Lev;
+typedef Blp::ball::Category                     Cat;
+typedef Blp::ball::CategoryHolder               CatHolder;
+typedef Blp::ball::LoggerManager::DefaultThresholdLevelsCallback
                                                 DefaultThresholdLevelsCallback;
-typedef bsl::pair<const Category *, bool>       ResultPair;
+typedef Blp::ball::ThresholdAggregate           Agg;
+typedef bsl::pair<const Cat *, bool>            ResultPair;
 
-struct QuadLevels {
-    // In this test case, we are nearly always evaluating or comparing four
-    // categories at ones, so bind them together in this struct with equality
-    // comparisons
-
-    // DATA
-    Level    d_record;
-    Level    d_pass;
-    Level    d_trigger;
-    Level    d_triggerAll;
-
-    // CLASS METHODS
-    static QuadLevels create(int record,
-                             int pass,
-                             int trigger,
-                             int triggerAll)
-        // Create a 'QuadLevels' object with the specified 'record', 'pass',
-        // 'trigger', and 'triggerAll' logging threshold levels.
-    {
-        QuadLevels ret = { static_cast<Level>(record),
-                           static_cast<Level>(pass),
-                           static_cast<Level>(trigger),
-                           static_cast<Level>(triggerAll) };
-        return ret;
-    }
-
-    // ACCESSORS
-    bool operator==(const QuadLevels& rhs) const
-        // Return 'true' if all fields of the specified 'rhs' match their
-        // corresponding fields in this object and 'false' otherwise.
-    {
-        return d_record     == rhs.d_record
-            && d_pass       == rhs.d_pass
-            && d_trigger    == rhs.d_trigger
-            && d_triggerAll == rhs.d_triggerAll;
-    }
-
-    bool operator!=(const QuadLevels& rhs) const
-        // Return 'false' if all fields ofthe specified 'rhs' match their
-        // corresponding fields in this object and 'true' otherwise.
-    {
-        return !(*this == rhs);
-    }
-};
-
-bsl::ostream& operator<<(bsl::ostream& stream, const QuadLevels& levels)
-    // Output the specified 'levels' to the specified 'stream'.
-{
-    stream << "{ " << levels.d_record
-           << ", " << levels.d_pass
-           << ", " << levels.d_trigger
-           << ", " << levels.d_triggerAll << " }";
-
-    return stream;
-}
-
-QuadLevels callbackLevels;    // Levels to be set by 'dtlCallbackRaw.
+Agg callbackLevels(0, 0, 0, 0);    // Levels to be set by 'dtlCallbackRaw.
 
 void dtlCallbackRaw(int        *recordLevel,
                     int        *passLevel,
@@ -776,72 +724,79 @@ void dtlCallbackRaw(int        *recordLevel,
     // levels '*recordLevel', ' '*passLevel', '*triggerLevel', and
     // '*triggerAllLevel'.
 {
-    ASSERT(0 == ball::LoggerManager::singleton().lookupCategory(categoryName));
+    ASSERT(0 == Blp::ball::LoggerManager::singleton().lookupCategory(
+                                                                categoryName));
 
-    *recordLevel     = callbackLevels.d_record;
-    *passLevel       = callbackLevels.d_pass;
-    *triggerLevel    = callbackLevels.d_trigger;
-    *triggerAllLevel = callbackLevels.d_triggerAll;
+    *recordLevel     = callbackLevels.recordLevel();
+    *passLevel       = callbackLevels.passLevel();
+    *triggerLevel    = callbackLevels.triggerLevel();
+    *triggerAllLevel = callbackLevels.triggerAllLevel();
 }
 
-ball::LoggerManager::DefaultThresholdLevelsCallback dtlCallback(
+Blp::ball::LoggerManager::DefaultThresholdLevelsCallback dtlCallback(
                                                               &dtlCallbackRaw);
     // The method 'setDefaultThresholdLevelsCallback' is screwed up and won't
     // take just a function ptr, it needs a pointer to this 'bsl::function'
     // type.
 
-QuadLevels getLevels(const ball::Category *category)
-    // Return a 'QuadLevels' object reflecting the threshold levels of the
-    // specified 'category'.
+Agg getLevels(const Blp::ball::Category *category)
+    // Return a 'ThresholdAggregate' object reflecting the threshold levels of
+    // the specified 'category'.
 {
-    return QuadLevels::create(category->recordLevel(),
-                              category->passLevel(),
-                              category->triggerLevel(),
-                              category->triggerAllLevel());
+    return Agg(category->recordLevel(),
+               category->passLevel(),
+               category->triggerLevel(),
+               category->triggerAllLevel());
 }
 
-QuadLevels getDefaultLevels(const ball::LoggerManager *manager)
+Agg getDefaultLevels(const Blp::ball::LoggerManager *manager)
     // Return a 'QuadLevels' object reflecting the default levels of the
     // specified 'manager'.
 {
-    return QuadLevels::create(manager->defaultRecordThresholdLevel(),
-                              manager->defaultPassThresholdLevel(),
-                              manager->defaultTriggerThresholdLevel(),
-                              manager->defaultTriggerAllThresholdLevel());
+    return Agg(manager->defaultRecordThresholdLevel(),
+               manager->defaultPassThresholdLevel(),
+               manager->defaultTriggerThresholdLevel(),
+               manager->defaultTriggerAllThresholdLevel());
 }
 
-void setLevels(ball::Category *category, const QuadLevels& levels)
+void setLevels(Blp::ball::Category *category, const Agg& agg)
     // Set the threshold levels of the specified 'category' to those of the
     // specified 'levels'.
 {
-    category->setLevels(levels.d_record,
-                        levels.d_pass,
-                        levels.d_trigger,
-                        levels.d_triggerAll);
+    category->setLevels(agg.recordLevel(),
+                        agg.passLevel(),
+                        agg.triggerLevel(),
+                        agg.triggerAllLevel());
 }
 
 class HolderDispenser {
     // On each call to 'getHolder()' return a reference to a new, freshly
-    // initialized 'CategoryHolder'.  Upon destruction, check that all the
-    // 'CategoryHolder's have been returned to their initialized state.  This
+    // initialized 'CatHolder'.  Upon destruction, check that all the
+    // 'CatHolder's have been returned to their initialized state.  This
     // mechanism is used by TC 32 only.
 
     // DATA
-    bsl::deque<CategoryHolder>  d_holderDeque;
-    static const CategoryHolder s_defaultHolder;
+    bsl::deque<CatHolder>  d_holderDeque;
+    static const CatHolder s_defaultHolder;
 
   public:
     // CLASS METHOD
     static
-    const CategoryHolder& defaultHolder()
+    const CatHolder& defaultHolder()
         // Return the default category holder
     {
         return s_defaultHolder;
     }
 
+  private:
+    // NOT IMPLMENENTED
+    HolderDispenser(const HolderDispenser&);
+    HolderDispenser& operator=(const HolderDispenser&);
+
+  public:
     // CREATORS
     explicit
-    HolderDispenser(bslma::Allocator *allocator)
+    HolderDispenser(Blp::bslma::Allocator *allocator)
     : d_holderDeque(allocator)
         // Create a 'HolderDispenser', using the specified 'allocator' to
         // allocate memory.
@@ -859,7 +814,7 @@ class HolderDispenser {
     }
 
     // MANIPULATOR
-    CategoryHolder& getHolder()
+    CatHolder& getHolder()
         // Return a reference to a new category holder object on every call.
         // The category holders are contained in '*d_holderDeque'.  Each new
         // category holder is to be initialized to 'defaultHolder()'.  It is
@@ -873,8 +828,8 @@ class HolderDispenser {
         return d_holderDeque[initSize];
     }
 };
-const CategoryHolder HolderDispenser::s_defaultHolder =
-                { { CategoryHolder::e_UNINITIALIZED_CATEGORY }, { 0 }, { 0 } };
+const CatHolder HolderDispenser::s_defaultHolder =
+                     { { CatHolder::e_UNINITIALIZED_CATEGORY }, { 0 }, { 0 } };
 HolderDispenser *holderDispenser_p;
 
 enum HolderlessMode { e_HOLDERLESS_NONE,
@@ -882,7 +837,7 @@ enum HolderlessMode { e_HOLDERLESS_NONE,
                       e_HOLDERLESS_AFTER } holderlessMode;
 
 ResultPair testSetCategoryHierarchically(const char        *categoryName,
-                                         const QuadLevels&  expectedLevels,
+                                         const Agg&         expectedLevels,
                                          bool               repeat = false)
     // Attempt to create a hierarchical 'Category' with the specified
     // 'categoryName' by calling 'setCategoryHierarchically' and, if it is
@@ -904,9 +859,10 @@ ResultPair testSetCategoryHierarchically(const char        *categoryName,
 
     // If there's a logger manager, get a ptr to it.
 
-    ball::LoggerManager *manager_p = ball::LoggerManager::isInitialized()
-                                   ? &ball::LoggerManager::singleton()
-                                   : 0;
+    Blp::ball::LoggerManager *manager_p =
+                                      Blp::ball::LoggerManager::isInitialized()
+                                      ? &Blp::ball::LoggerManager::singleton()
+                                      : 0;
 
     // If there's a logger manager, it is full?  (We expect
     // 'setCategoryHierarchically' to return the default category if it is.
@@ -928,33 +884,33 @@ ResultPair testSetCategoryHierarchically(const char        *categoryName,
 
     const int  expNumCat   = initNumCat + expNewCat;
 
-    const Category *holderless = 0;
+    const Cat *holderless = 0;
     if (e_HOLDERLESS_BEFORE == holderlessMode) {
-        holderless = ball::Log::setCategoryHierarchically(categoryName);
+        holderless = Blp::ball::Log::setCategoryHierarchically(categoryName);
     }
 
     // Get a category holder that is guaranteed not to move for the life of
     // '*TC::holderDeque_p', which will be longer lived than the logger manager
     // singleton.
 
-    CategoryHolder& holder = holderDispenser_p->getHolder();
+    CatHolder& holder = holderDispenser_p->getHolder();
 
     // Call the function under test.
 
-    const Category *retCat =
-                   ball::Log::setCategoryHierarchically(&holder, categoryName);
+    const Cat *retCat =
+              Blp::ball::Log::setCategoryHierarchically(&holder, categoryName);
 
     // The function under test returned 'void', putting all its results into
     // atomic variables in the category holder passed.  Get the values out.
 
-    Level holderLevel      = static_cast<ball::Severity::Level>(
-                          bsls::AtomicOperations::getInt(&holder.d_threshold));
-    const Category *cat    = static_cast<const ball::Category *>(
-                         bsls::AtomicOperations::getPtr(&holder.d_category_p));
-    CategoryHolder *next_p = static_cast<CategoryHolder *>(
-                             bsls::AtomicOperations::getPtr(&holder.d_next_p));
+    Lev holderLevel      = static_cast<Blp::ball::Severity::Level>(
+                     Blp::bsls::AtomicOperations::getInt(&holder.d_threshold));
+    const Cat *cat    = static_cast<const Blp::ball::Category *>(
+                    Blp::bsls::AtomicOperations::getPtr(&holder.d_category_p));
+    CatHolder *next_p = static_cast<CatHolder *>(
+                        Blp::bsls::AtomicOperations::getPtr(&holder.d_next_p));
     if (manager_p) {
-        // The logger manager singleton was initalized.  We ALWAYS expect a
+        // The logger manager singleton was initialized.  We ALWAYS expect a
         // category returned.
 
         ASSERT(cat);
@@ -978,8 +934,8 @@ ResultPair testSetCategoryHierarchically(const char        *categoryName,
             // been created.  We expect the threshold levels to match
             // 'expectedLevels'.
 
-            ASSERTV(holderLevel, expectedLevels.d_record,
-                                       holderLevel == expectedLevels.d_record);
+            ASSERTV(holderLevel, expectedLevels.recordLevel(),
+                                  holderLevel == expectedLevels.recordLevel());
             ASSERTV(getLevels(cat), expectedLevels,
                                              getLevels(cat) == expectedLevels);
             ASSERTV(categoryName, cat->categoryName(),
@@ -995,15 +951,17 @@ ResultPair testSetCategoryHierarchically(const char        *categoryName,
         // Call the function under test again, with the same category name and
         // a different category holder.
 
-        CategoryHolder& holderB = holderDispenser_p->getHolder();
-        retCat = ball::Log::setCategoryHierarchically(&holderB, categoryName);
+        CatHolder& holderB = holderDispenser_p->getHolder();
+        retCat = Blp::ball::Log::setCategoryHierarchically(&holderB,
+                                                           categoryName);
 
-        holderLevel = static_cast<ball::Severity::Level>(
-                         bsls::AtomicOperations::getInt(&holderB.d_threshold));
-        ASSERT(cat == bsls::AtomicOperations::getPtr(&holderB.d_category_p));
+        holderLevel = static_cast<Blp::ball::Severity::Level>(
+                    Blp::bsls::AtomicOperations::getInt(&holderB.d_threshold));
+        ASSERT(cat ==
+                   Blp::bsls::AtomicOperations::getPtr(&holderB.d_category_p));
         ASSERT(retCat == cat);
-        next_p = static_cast<CategoryHolder *>(
-                            bsls::AtomicOperations::getPtr(&holderB.d_next_p));
+        next_p = static_cast<CatHolder *>(
+                       Blp::bsls::AtomicOperations::getPtr(&holderB.d_next_p));
 
         if (managerFull) {
             // The logger manager was full before the call, so we expect the
@@ -1016,8 +974,8 @@ ResultPair testSetCategoryHierarchically(const char        *categoryName,
         else {
             ASSERTV(getLevels(cat), expectedLevels,
                                              getLevels(cat) == expectedLevels);
-            ASSERTV(holderLevel, expectedLevels.d_record,
-                                       holderLevel == expectedLevels.d_record);
+            ASSERTV(holderLevel, expectedLevels.recordLevel(),
+                                  holderLevel == expectedLevels.recordLevel());
         }
         ASSERTV(next_p, &holder, next_p == &holder);
 
@@ -1026,7 +984,8 @@ ResultPair testSetCategoryHierarchically(const char        *categoryName,
         ASSERT(manager_p->numCategories() == expNumCat);
 
         if (e_HOLDERLESS_AFTER == holderlessMode) {
-            holderless = ball::Log::setCategoryHierarchically(categoryName);
+            holderless = Blp::ball::Log::setCategoryHierarchically(
+                                                                 categoryName);
         }
     }
     else {
@@ -1049,20 +1008,23 @@ ResultPair testSetCategoryHierarchically(const char        *categoryName,
 #undef NO_CB
 
 #define SET_CB(record, pass, trigger, triggerAll)                             \
-            { S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,               \
-                                           S::e_ ## triggerAll }, true, false
+            S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,                 \
+                                               S::e_ ## triggerAll, true, false
 
 #define USE_CB(record, pass, trigger, triggerAll)                             \
-            { S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,               \
-                                           S::e_ ## triggerAll }, false, true
+            S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,                 \
+                                               S::e_ ## triggerAll, false, true
 
 #define NO_CB( record, pass, trigger, triggerAll)                             \
-            { S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,               \
-                                          S::e_ ## triggerAll }, false, false
+            S::e_ ## record, S::e_ ## pass, S::e_ ## trigger,                 \
+                                              S::e_ ## triggerAll, false, false
 
 static const struct Data {
     int            d_line;
-    QuadLevels     d_levels;
+    Lev            d_record;
+    Lev            d_pass;
+    Lev            d_trigger;
+    Lev            d_triggerAll;
     bool           d_setCallbackThresholds;
     bool           d_useCallback;
 } DATA[] = {
@@ -1086,20 +1048,20 @@ enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 #undef USE_CB
 #undef NO_CB
 
-const Category *defaultCat = 0;
+const Cat *defaultCat = 0;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // -- TC 33 and TC 34 use some of the things above here, and everything below
 // here, while TC 32 uses only things above here.
 
-// Template idices.  These are passed to the 'CALL' and 'RET' macros to the 'N'
-// arg and used two ways -- as an integer template parameter arg to the
+// Template indices.  These are passed to the 'CALL' and 'RET' macros to the
+// 'N' arg and used two ways -- as an integer template parameter arg to the
 // 'testLocalMacros' template function and the 'TestClassMacro' template class,
 // and #arg is used as a string arg, which is parsed to remove everything
 // beginning at any '_' chars and then used as a category name passed to the
 // set category macros.
 
-namespace indicies {
+namespace indices {
 
 static const int base = L_ + 1;
 static const int bowWow              = L_ - base;
@@ -1142,7 +1104,7 @@ static const int full                = L_ - base;    // Passed as both class
                                                      // cases get default
                                                      // category.
 
-}  // close namespace indicies
+}  // close namespace indices
 
 struct PosRec {
     // If an ASSERT fails within the 'testLocalMacros()' call or the
@@ -1154,14 +1116,14 @@ struct PosRec {
     int         d_line;
     int         d_il;
     int         d_jl;
-    const char *d_categoryName;
+    const char *d_categoryName_p;
 
     // CREATOR
     PosRec(int line, int il, int jl, const char *categoryName)
     : d_line(line)
     , d_il(il)
     , d_jl(jl)
-    , d_categoryName(categoryName)
+    , d_categoryName_p(categoryName)
         // Create a 'PosRec' object with the specified 'line', 'il', 'jl', and
         // 'categoryName'.
     {}
@@ -1173,7 +1135,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const PosRec& pos)
     stream << "{ line: "  << pos.d_line <<
                  " IL: "  << pos.d_il <<
                  " JL: "  << pos.d_jl <<
-                 " cat: " << pos.d_categoryName << " }";
+                 " cat: " << pos.d_categoryName_p << " }";
     return stream;
 }
 
@@ -1186,11 +1148,11 @@ struct ResultRec {
     // called by both the other template functions.
 
     // DATA
-    const CategoryHolder *d_holder_p;
+    const CatHolder      *d_holder_p;
     int                   d_intLevel;
-    Level                 d_level;
-    const Category       *d_category_p;
-    CategoryHolder       *d_next_p;
+    Lev                   d_level;
+    const Cat            *d_category_p;
+    CatHolder            *d_next_p;
     bool                  d_passed;
 
     // MANIPULATORS
@@ -1200,21 +1162,22 @@ struct ResultRec {
         bsl::memset(this, 0, sizeof(*this));
     }
 
-    void init(const CategoryHolder *holder_p)
+    void init(const CatHolder *holder_p)
         // Initialize all fields of this object relevant to the specified
         // 'holder_p'.
     {
         d_holder_p   = holder_p;
-        d_intLevel   = bsls::AtomicOperations::getInt(&holder_p->d_threshold);
-        d_level      = static_cast<Level>(d_intLevel);
-        d_category_p = static_cast<const ball::Category *>(
-                      bsls::AtomicOperations::getPtr(&holder_p->d_category_p));
-        d_next_p     = static_cast<CategoryHolder *>(
-                          bsls::AtomicOperations::getPtr(&holder_p->d_next_p));
+        d_intLevel   =
+                   Blp::bsls::AtomicOperations::getInt(&holder_p->d_threshold);
+        d_level      = static_cast<Lev>(d_intLevel);
+        d_category_p = static_cast<const Blp::ball::Category *>(
+                 Blp::bsls::AtomicOperations::getPtr(&holder_p->d_category_p));
+        d_next_p     = static_cast<CatHolder *>(
+                     Blp::bsls::AtomicOperations::getPtr(&holder_p->d_next_p));
     }
 };
 
-// Last argument passed to 'teetLocalMacros<int>()', which indicates whether
+// Last argument passed to 'testLocalMacros<int>()', which indicates whether
 // the category sought is to be static (the default) or dynamic, and whether
 // we've called the same template instantiation of the function before.
 
@@ -1228,6 +1191,8 @@ enum Flags { k_DYNAMIC_BIT          = 1,
 
 template <int KK>
 ResultRec& result()
+    // Return a separate static instance of a 'ResultRec' for each unique value
+    // of 'KK'.
 {
     static ResultRec ret;
     return ret;
@@ -1243,10 +1208,20 @@ bsl::set<int> *instantiationSet_p = 0;
 
 template <int KK>
 ResultRec&
-testLocalMacros(const QuadLevels&     newLevels,
-                const PosRec&         pos,
-                const CategoryHolder *prevCategoryHolder,
-                const Flags           flags)
+testLocalMacros(const Agg&       newLevels,
+                const PosRec&    pos,
+                const CatHolder *prevCatHolder,
+                const Flags      flags)
+    // Depending on the specified 'flags', call either
+    // 'BALL_LOG_SET_CATEGORY_HIERARCHICALLY' or
+    // 'BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY' with a category name
+    // field of the specified 'pos'.  Verify that the specified 'newLevels'
+    // match the threshold level of the category found or created.  Verify that
+    // the 'd_next_p' field of the category holder of the macro call matches
+    // the specified 'prevCatHolder'.  Verify that 'repeat' specified by flags
+    // matches whether this is the first time this function was called with a
+    // given value of the specified 'KK' for a given pass through the test
+    // loop.
 {
     testStatus = 100 == testStatus ? 99 : testStatus;
     const int ts = testStatus;
@@ -1264,13 +1239,14 @@ testLocalMacros(const QuadLevels&     newLevels,
 
     // If there's a logger manager, get a ptr to it.
 
-    ball::LoggerManager *manager_p = ball::LoggerManager::isInitialized()
-                                   ? &ball::LoggerManager::singleton()
-                                   : 0;
+    Blp::ball::LoggerManager *manager_p =
+                                      Blp::ball::LoggerManager::isInitialized()
+                                      ? &Blp::ball::LoggerManager::singleton()
+                                      : 0;
 
     char categoryName[40];
-    ASSERT(bsl::strlen(pos.d_categoryName) < sizeof(categoryName));
-    bsl::strcpy(categoryName, pos.d_categoryName);
+    ASSERT(bsl::strlen(pos.d_categoryName_p) < sizeof(categoryName));
+    bsl::strcpy(categoryName, pos.d_categoryName_p);
     char *pc = strchr(categoryName, '_');
     if (pc) {
         *pc = 0;
@@ -1279,9 +1255,9 @@ testLocalMacros(const QuadLevels&     newLevels,
     ResultRec& ret = result<KK>();
     ret.clear();
 
-    const Category *prevCat = !manager_p
-                              ? 0
-                              : manager_p->lookupCategory(categoryName);
+    const Cat *prevCat = !manager_p
+                       ? 0
+                       : manager_p->lookupCategory(categoryName);
     const bool managerFull = manager_p && manager_p->numCategories() ==
                                                  manager_p->maxNumCategories();
 
@@ -1289,8 +1265,8 @@ testLocalMacros(const QuadLevels&     newLevels,
         BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(categoryName);
         ret.init(&BALL_LOG_CATEGORYHOLDER);
 
-        ASSERTV(pos, ret.d_intLevel, CategoryHolder::e_DYNAMIC_CATEGORY,
-                         CategoryHolder::e_DYNAMIC_CATEGORY == ret.d_intLevel);
+        ASSERTV(pos, ret.d_intLevel, CatHolder::e_DYNAMIC_CATEGORY,
+                              CatHolder::e_DYNAMIC_CATEGORY == ret.d_intLevel);
         ASSERTV(pos, 0 == ret.d_next_p);
     }
     else {
@@ -1298,21 +1274,20 @@ testLocalMacros(const QuadLevels&     newLevels,
         ret.init(&BALL_LOG_CATEGORYHOLDER);
 
         if (manager_p) {
-            ASSERTV(pos, ret.d_level, newLevels.d_record,
-                                            ret.d_level == newLevels.d_record);
+            ASSERTV(pos, ret.d_level, newLevels.recordLevel(),
+                                       ret.d_level == newLevels.recordLevel());
             ASSERTV(pos, newLevels, getLevels(ret.d_category_p),
                                      newLevels == getLevels(ret.d_category_p));
-            ASSERTV(pos, prevCategoryHolder, ret.d_next_p,
-                                           prevCategoryHolder == ret.d_next_p);
+            ASSERTV(pos, prevCatHolder, ret.d_next_p,
+                                                prevCatHolder == ret.d_next_p);
         }
         else {
             ASSERTV(pos, 0 == bsl::memcmp(ret.d_holder_p,
                                           &HolderDispenser::defaultHolder(),
                                           sizeof(*ret.d_holder_p)));
 
-            ASSERTV(pos, ret.d_intLevel,
-                                      CategoryHolder::e_UNINITIALIZED_CATEGORY,
-                   CategoryHolder::e_UNINITIALIZED_CATEGORY == ret.d_intLevel);
+            ASSERTV(pos, ret.d_intLevel, CatHolder::e_UNINITIALIZED_CATEGORY,
+                        CatHolder::e_UNINITIALIZED_CATEGORY == ret.d_intLevel);
             ASSERTV(pos, 0 == ret.d_next_p);
         }
     }
@@ -1345,10 +1320,10 @@ struct TestClassMacro {
     // In TC 34, we was to call and test the hierarchical class macro many
     // times.  The macro creates a static buffer in the class, so to call it
     // many times, we templatize the class on an integer, and instantiate the
-    // class with many values from the 'indicies' namespace above.
+    // class with many values from the 'indices' namespace above.
     //
     // 'BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY' takes a 'const char *'
-    // paramter for the parameter name.  So how to pass different parameter
+    // parameter for the parameter name.  So how to pass different parameter
     // names to different function instantiations?  It turns out that that
     // parameter can be a function, so we make it a function in the class that
     // returns a static buffer, a different one for every instantiation of the
@@ -1365,6 +1340,7 @@ struct TestClassMacro {
     // CLASS METHOD
     static
     char *getClassCategoryNameBuffer()
+        // Return a separate buffer for each value of template parameter 'KK'.
     {
         static char s_classCategoryName[k_CATEGORY_NAME_BUFFER_LEN];
         return s_classCategoryName;
@@ -1373,27 +1349,28 @@ struct TestClassMacro {
     BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(getClassCategoryNameBuffer());
 
     // MANIPULATOR
-    ResultRec& operator()(const QuadLevels&     classLevels,
+    ResultRec& operator()(const Agg&            classLevels,
                           const PosRec&         pos,
-                          const CategoryHolder *prevClassCategoryHolder,
+                          const CatHolder      *prevClassCatHolder,
                           bool                  repeat);
-        // Access the class category, creating it if no category with that name
-        // exists.  If we access the class category, verify that its threshold
-        // levels match the specified 'classLevels'.  If a class category is
-        // created, verify that the 'd_next_p' field of its catgory holder
-        // matches the specified 'prevClassCategoryHolder'.  Obtain a static
-        // 'ResultRec' corresponding to the 'KK' template index and populate
-        // its fields with the results of the run, and return a reference to
-        // it.  Verify that whether this instatiation of the class has been
-        // called before matches the state of the specified 'repeat'.
+        // Access the class category whose name is indicated by the specified
+        // 'pos', creating it if no category with that name exists.  If we
+        // access the class category, verify that its threshold levels match
+        // the specified 'classLevels'.  If a class category is created, verify
+        // that the 'd_next_p' field of its catgory holder matches the
+        // specified 'prevClassCatHolder'.  Obtain a static 'ResultRec'
+        // corresponding to the 'KK' template index and populate its fields
+        // with the results of the run, and return a reference to it.  Verify
+        // that whether this instantiation of the class has been called before
+        // matches the state of the specified 'repeat'.
 };
 
 // MANIPULATOR
 template <int KK>
 ResultRec&
-TestClassMacro<KK>::operator()(const QuadLevels&     classLevels,
+TestClassMacro<KK>::operator()(const Agg&            classLevels,
                                const PosRec&         pos,
-                               const CategoryHolder *prevClassCategoryHolder,
+                               const CatHolder      *prevClassCatHolder,
                                bool                  repeat)
 {
     testStatus = 100 == testStatus ? 99 : testStatus;
@@ -1409,13 +1386,14 @@ TestClassMacro<KK>::operator()(const QuadLevels&     classLevels,
 
     // If there's a logger manager, get a ptr to it.
 
-    ball::LoggerManager *manager_p = ball::LoggerManager::isInitialized()
-                                   ? &ball::LoggerManager::singleton()
-                                   : 0;
+    Blp::ball::LoggerManager *manager_p =
+                                      Blp::ball::LoggerManager::isInitialized()
+                                      ? &Blp::ball::LoggerManager::singleton()
+                                      : 0;
 
     char *categoryName = getClassCategoryNameBuffer();
-    ASSERT(bsl::strlen(pos.d_categoryName) < k_CATEGORY_NAME_BUFFER_LEN);
-    bsl::strcpy(categoryName, pos.d_categoryName);
+    ASSERT(bsl::strlen(pos.d_categoryName_p) < k_CATEGORY_NAME_BUFFER_LEN);
+    bsl::strcpy(categoryName, pos.d_categoryName_p);
     char *pc = strchr(categoryName, '_');
     if (pc) {
         *pc = 0;
@@ -1426,11 +1404,10 @@ TestClassMacro<KK>::operator()(const QuadLevels&     classLevels,
 
     // All class categories have the same name.  Until we call
     // 'ball_log_getCategoryHolder' the class category holder for this class
-    // has not been initialized.  There might be a surviving category from
-    // the same class with different template args.
+    // has not been initialized.  There might be a surviving category from the
+    // same class with different template args.
 
-    Category *prevCat = !manager_p ? 0 : manager_p->lookupCategory(
-                                                                 categoryName);
+    Cat *prevCat = !manager_p ? 0 : manager_p->lookupCategory(categoryName);
     ASSERTV(pos, !prevCat ||
                           !bsl::strcmp(prevCat->categoryName(), categoryName));
 
@@ -1451,24 +1428,24 @@ TestClassMacro<KK>::operator()(const QuadLevels&     classLevels,
               !bsl::strcmp(ret.d_category_p->categoryName(), expClassCatName));
         ASSERTV(pos, classLevels, getLevels(ret.d_category_p),
                                    classLevels == getLevels(ret.d_category_p));
-        ASSERTV(pos, ret.d_level, classLevels.d_record,
-                                          ret.d_level == classLevels.d_record);
+        ASSERTV(pos, ret.d_level, classLevels.recordLevel(),
+                                     ret.d_level == classLevels.recordLevel());
     }
     else {
         ASSERTV(pos, 0 == ret.d_category_p);
-        ASSERTV(pos, ret.d_intLevel, CategoryHolder::e_UNINITIALIZED_CATEGORY,
-                   CategoryHolder::e_UNINITIALIZED_CATEGORY == ret.d_intLevel);
+        ASSERTV(pos, ret.d_intLevel, CatHolder::e_UNINITIALIZED_CATEGORY,
+                        CatHolder::e_UNINITIALIZED_CATEGORY == ret.d_intLevel);
         ASSERTV(pos, 0 == ret.d_next_p);
     }
-    ASSERTV(pos, prevClassCategoryHolder, ret.d_next_p,
-                                   prevClassCategoryHolder == ret.d_next_p);
+    ASSERTV(pos, prevClassCatHolder, ret.d_next_p,
+                                           prevClassCatHolder == ret.d_next_p);
     ASSERTV(pos, (!prevCat || prevCat == ret.d_category_p) && "class cat");
 
     ret.d_passed = ts == testStatus;
     return ret;
 }
 
-}  // close namespace BALL_LOG_HIERARCHICAL_CATEROGIES
+}  // close namespace BALL_LOG_HIERARCHICAL_CATEGORIES
 
 // ============================================================================
 //                         CASE 28 RELATED ENTITIES
@@ -1523,7 +1500,7 @@ void ClassScopeLoggerA::inlineMethodThatLogsToClassCategory() const
 void ClassScopeLoggerA::classMethodThatLogsToClassCategory()
 {
     bsl::function<void(BloombergLP::ball::UserFields *)> callback =
-                                                                  &incCallback;
+                                                               &u::incCallback;
 
     BALL_LOGCB_DEBUG(callback) << "callback DEBUG log to class-scope category";
 }
@@ -1819,10 +1796,10 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
 #ifdef BSLS_PLATFORM_OS_UNIX
     // Temporarily redirect 'stderr' to a temp file.
 
-    TempDirectoryGuard tempDirGuard;
+    u::TempDirectoryGuard tempDirGuard;
 
     bsl::string filename(tempDirGuard.getTempDirName());
-    bdls::PathUtil::appendRaw(&filename, "stderrOut");
+    BloombergLP::bdls::PathUtil::appendRaw(&filename, "stderrOut");
 
     fflush(stderr);
     int fd = creat(filename.c_str(), 0777);
@@ -1833,10 +1810,10 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
         bsl::cout << "STDERR redirected to " << filename << bsl::endl;
 #endif
 
-    CerrBufferGuard cerrBufferGuard;
+    u::CerrBufferGuard cerrBufferGuard;
 
     bsl::function<void(BloombergLP::ball::UserFields *)> callback =
-                                                                  &incCallback;
+                                                               &u::incCallback;
 
     BALL_LOG_SET_CATEGORY("Logger Manager Comes and Goes");
 
@@ -1844,7 +1821,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
         bsl::cout << "Safely invoked 'BALL_LOG_SET_CATEGORY' macro."
                   << bsl::endl;
 
-    numIncCallback = 0;
+    u::numIncCallback = 0;
 
     BALL_LOGCB_TRACE(callback) << "Logger Manager?";
     BALL_LOGCB_DEBUG(callback) << "Logger Manager?";
@@ -1855,10 +1832,10 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
 
     if (loggerManagerExistsFlag) {
         numPublishedSoFar += 6;
-        ASSERT(6 == numIncCallback);
+        ASSERT(6 == u::numIncCallback);
     }
     else {
-        ASSERT(3 == numIncCallback);
+        ASSERT(3 == u::numIncCallback);
     }
     ASSERT(numPublishedSoFar == testObserver.numPublishedRecords());
 
@@ -2379,10 +2356,10 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
 #ifdef BSLS_PLATFORM_OS_UNIX
     // Temporarily redirect 'stderr' to a temp file.
 
-    TempDirectoryGuard tempDirGuard;
+    u::TempDirectoryGuard tempDirGuard;
 
     bsl::string filename(tempDirGuard.getTempDirName());
-    bdls::PathUtil::appendRaw(&filename, "stderrOut");
+    BloombergLP::bdls::PathUtil::appendRaw(&filename, "stderrOut");
 
     fflush(stderr);
     int fd = creat(filename.c_str(), 0777);
@@ -2393,7 +2370,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
         bsl::cout << "STDERR redirected to " << filename << bsl::endl;
 #endif
 
-    CerrBufferGuard  cerrBufferGuard;
+    u::CerrBufferGuard  cerrBufferGuard;
 
     BALL_LOG_SET_CATEGORY("Logger Manager Comes and Goes");
 
@@ -2419,9 +2396,9 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
     BloombergLP::ball::Severity::Level severity =
                                            BloombergLP::ball::Severity::e_WARN;
 
-    scribbleBuffer();
+    u::scribbleBuffer();
     BALL_LOGVA(severity, "Hello?");
-    ASSERT(!isBufferUnchangedSinceScribbled());
+    ASSERT(!u::isBufferUnchangedSinceScribbled());
     BALL_LOGVA(severity, "Hello? %d", 1);
     BALL_LOGVA(severity, "Hello? %d %d", 1, 2);
     BALL_LOGVA(severity, "Hello? %d %d %d", 1, 2, 3);
@@ -2528,6 +2505,8 @@ int main(int argc, char *argv[])
 
         if (verbose) bsl::cout << "\nUSAGE EXAMPLE"
                                << "\n=============" << bsl::endl;
+
+            using namespace BloombergLP;    // OK here
 
             ball::StreamObserver observer(&bsl::cout);
 
@@ -2950,14 +2929,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 if (category->isEnabled(ball::Severity::e_INFO)) {
                     const char *formatSpec =
                                          "[7] %d shares of %s sold at %f\n";
-                    ball::Log::format(messageBuffer(),
-                                      messageBufferSize(),
+                    ball::Log::format(u::messageBuffer(),
+                                      u::messageBufferSize(),
                                       formatSpec, 400, "SUNW", 5.65);
                     ball::Log::logMessage(category,
                                          BloombergLP::ball::Severity::e_INFO,
                                          __FILE__, __LINE__,
-                                         messageBuffer());
-                    if (veryVeryVerbose) P(messageBuffer());
+                                         u::messageBuffer());
+                    if (veryVeryVerbose) P(u::messageBuffer());
                 }
             }
         }
@@ -2972,9 +2951,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 34: {
         // --------------------------------------------------------------------
-        // TESTING CLASS HEIRARCHICAL CATEGORY MACROS
+        // TESTING CLASS HIERARCHICAL CATEGORY MACROS
         //
-        // Concepts
+        // Concerns:
         //: 1 That the class hierarchical macro, if called with a non-existing
         //:   category name and the logger manager has room, will result in a
         //:   new category being created.
@@ -2997,15 +2976,15 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //:   function, thereby getting a completely different static in that
         //:   function for every template index.
         //:
-        //: 2 Integer constants to serve as template indicies for
-        //:   'TC::TestClassMacro' are in the sub-namespace 'TC::indicies'.
-        //:   They are passed to the macro 'CALL' below, as the 'N' paramter,
+        //: 2 Integer constants to serve as template indices for
+        //:   'TC::TestClassMacro' are in the sub-namespace 'TC::indices'.
+        //:   They are passed to the macro 'CALL' below, as the 'N' parameter,
         //:   and used twice -- firstly, as a template index, then secondly, as
         //:   '#N' as a category name.  If the name contains any '_'
         //:   characters, the code strips everything at or after the first '_'
         //:   from the name before using it as a category name.  This allows us
         //:   to use 'CALL' multiple times with the same category name yet
-        //:   different template indicies.
+        //:   different template indices.
         //:
         //: 3 The function 'TC::TestClassMacro<N>::operator()' returns a
         //:   reference to a static 'struct' of type 'ResultRec'.  It contains
@@ -3040,46 +3019,37 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   BALL_SET_CLASS_CATEGORY_HIERARCHICALLY(const char *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING CLASS HEIRARCHICAL CATEGORY MACROS\n"
+        if (verbose) cout << "TESTING CLASS HIERARCHICAL CATEGORY MACROS\n"
                              "==========================================\n";
 
-        namespace TC = BALL_LOG_HIERARCHICAL_CATEROGIES;
+        namespace TC = BALL_LOG_HIERARCHICAL_CATEGORIES;
+        namespace Blp = BloombergLP;
 
-        typedef ball::Category         Category;
-        typedef ball::LoggerManager    Manager;
+        typedef TC::Cat                    Cat;
+        typedef Blp::ball::LoggerManager   Manager;
 
-        bslma::TestAllocator da("default", veryVeryVerbose);
-        bslma::TestAllocator ga("global",  veryVeryVerbose);
-        bslma::TestAllocator ta("test",    veryVeryVerbose);
+        Blp::bslma::TestAllocator da("default", veryVeryVerbose);
+        Blp::bslma::TestAllocator ga("global",  veryVeryVerbose);
+        Blp::bslma::TestAllocator ta("test",    veryVeryVerbose);
 
-        bslma::DefaultAllocatorGuard guard(&da);
-        bslma::Default::setGlobalAllocator(&ga);
+        Blp::bslma::DefaultAllocatorGuard guard(&da);
+        Blp::bslma::Default::setGlobalAllocator(&ga);
 
         // Have a quad set to 'WLEVELS' -- Wrong Levels -- that we never set
         // anything to, and that never equals any of the other levels.
 
-        const TC::QuadLevels WLEVELS = { TC::S::e_OFF, TC::S::e_OFF,
-                                         TC::S::e_OFF, TC::S::e_OFF };
+        const TC::Agg WLEVELS(TC::S::e_OFF, TC::S::e_OFF,
+                                                   TC::S::e_OFF, TC::S::e_OFF);
 
-        TC::QuadLevels CLEVELS = TC::callbackLevels;
-
-        // Confirm that there are no duplicates in the table.
-
-        for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
-            for (int tj = 0; tj < TC::k_NUM_DATA; ++tj) {
-                ASSERT((ti == tj) ==
-                             (TC::DATA[ti].d_levels == TC::DATA[tj].d_levels));
-            }
-
-            ASSERT(WLEVELS != TC::DATA[ti].d_levels);
-        }
-
-        // Do testing in earnest.
+        TC::Agg CLEVELS = TC::callbackLevels;
 
         for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
             const TC::Data IDATA         = TC::DATA[ti];
             const int      IL            = IDATA.d_line;
-            const TC::QuadLevels ILEVELS = IDATA.d_levels;
+            const TC::Agg  ILEVELS(        IDATA.d_record,
+                                           IDATA.d_pass,
+                                           IDATA.d_trigger,
+                                           IDATA.d_triggerAll);
             const bool     ISET_CALLBACK = IDATA.d_setCallbackThresholds;
 
             if (ISET_CALLBACK) {
@@ -3090,7 +3060,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             for (int tj = 0; tj < TC::k_NUM_DATA; ++tj) {
                 const TC::Data JDATA         = TC::DATA[tj];
                 const int      JL            = JDATA.d_line;
-                const TC::QuadLevels JLEVELS = JDATA.d_levels;
+                const TC::Agg  JLEVELS(        JDATA.d_record,
+                                               JDATA.d_pass,
+                                               JDATA.d_trigger,
+                                               JDATA.d_triggerAll);
                 const bool     JSET_CALLBACK = JDATA.d_setCallbackThresholds;
                 bool           JUSE_CALLBACK = JDATA.d_useCallback;
 
@@ -3113,7 +3086,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
 #undef  CALL
 #define CALL(N, newLevels, prevHolder, repeat)                                \
-                ASSERT((ret_p = &TC::TestClassMacro<TC::indicies::N>()(       \
+                ASSERT((ret_p = &TC::TestClassMacro<TC::indices::N>()(        \
                                             newLevels,                        \
                                             TC::PosRec(__LINE__, IL, JL, #N), \
                                             prevHolder,                       \
@@ -3123,7 +3096,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 // the call with that integer.
 
 #undef  RET
-#define RET(N)  TC::result<TC::indicies::N>()
+#define RET(N)  TC::result<TC::indices::N>()
 
                 ASSERTV(IL, JL, CLEVELS != ILEVELS);
                 ASSERTV(IL, JL, CLEVELS != JLEVELS);
@@ -3135,36 +3108,36 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 TC::HolderDispenser holderDispenser(&ta);
                 TC::holderDispenser_p = &holderDispenser;
 
-                // Attempt without manager singleton, notthing happens.
+                // Attempt without manager singleton, nothing happens.
 
                 CALL(bowWow, WLEVELS, 0, false);
                 ASSERT(!ret_p->d_category_p);
 
-                ball::LoggerManagerConfiguration mLMC(&ta);
+                Blp::ball::LoggerManagerConfiguration mLMC(&ta);
                 ASSERT(0 == mLMC.setDefaultThresholdLevelsIfValid(
-                                                        ILEVELS.d_record,
-                                                        ILEVELS.d_pass,
-                                                        ILEVELS.d_trigger,
-                                                        ILEVELS.d_triggerAll));
-                ball::LoggerManagerScopedGuard lmGuard(mLMC);
-                Manager& manager = ball::LoggerManager::singleton();
+                                                   ILEVELS.recordLevel(),
+                                                   ILEVELS.passLevel(),
+                                                   ILEVELS.triggerLevel(),
+                                                   ILEVELS.triggerAllLevel()));
+                Blp::ball::LoggerManagerScopedGuard lmGuard(mLMC);
+                Manager& manager = Blp::ball::LoggerManager::singleton();
                 if (JUSE_CALLBACK) {
                     manager.setDefaultThresholdLevelsCallback(
                                                              &TC::dtlCallback);
                 }
 
-                const TC::QuadLevels MLEVELS = JUSE_CALLBACK
-                                             ? CLEVELS
-                                             : ILEVELS;
+                const TC::Agg MLEVELS = JUSE_CALLBACK
+                                        ? CLEVELS
+                                        : ILEVELS;
 
                 TC::defaultCat = &manager.defaultCategory();
 
-                Category *classParentCat =
-                                    manager.setCategory("class",
-                                                        JLEVELS.d_record,
-                                                        JLEVELS.d_pass,
-                                                        JLEVELS.d_trigger,
-                                                        JLEVELS.d_triggerAll);
+                Cat *classParentCat =manager.setCategory(
+                                                    "class",
+                                                    JLEVELS.recordLevel(),
+                                                    JLEVELS.passLevel(),
+                                                    JLEVELS.triggerLevel(),
+                                                    JLEVELS.triggerAllLevel());
                 ASSERTV(JL, JLEVELS, TC::getLevels(classParentCat),
                                      JLEVELS == TC::getLevels(classParentCat));
 
@@ -3172,7 +3145,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 CALL(meow, ILEVELS, 0, false);
 
-                Category *meowCat = manager.lookupCategory("meow");
+                Cat *meowCat = manager.lookupCategory("meow");
                 ASSERT(meowCat);
                 TC::setLevels(meowCat, JLEVELS);
                 ASSERTV(IL, JL, JLEVELS == TC::getLevels(meowCat));
@@ -3205,7 +3178,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 CALL(classDerived_b, JLEVELS, ret_p->d_holder_p, false);
 
-                TC::setLevels(const_cast<Category *>(ret_p->d_category_p),
+                TC::setLevels(const_cast<Cat *>(ret_p->d_category_p),
                               CLEVELS);
 
                 CALL(meowBarkArf, ILEVELS, 0, false);
@@ -3252,7 +3225,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 // Make sure that all the categories returned are distinct,
                 // except for the ones we EXPECT to match.
 
-                bsl::vector<const Category *> v(&ta);
+                bsl::vector<const Cat *> v(&ta);
                 v.push_back(TC::defaultCat);
                 v.push_back(classParentCat);
                 v.push_back(RET(bowWow).d_category_p);
@@ -3269,9 +3242,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 v.push_back(RET(classDerivedRoar).d_category_p);
                 v.push_back(RET(growl).d_category_p);
 
-                ASSERTV(static_cast<bsls::Types::IntPtr>(v.size()),
+                ASSERTV(static_cast<Blp::bsls::Types::IntPtr>(v.size()),
                                                       manager.numCategories(),
-                        static_cast<bsls::Types::IntPtr>(v.size()) ==
+                        static_cast<Blp::bsls::Types::IntPtr>(v.size()) ==
                                                       manager.numCategories());
 
                 for (unsigned ii = 0; ii < v.size(); ++ii) {
@@ -3315,9 +3288,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 33: {
         // --------------------------------------------------------------------
-        // TESTING LOCAL HEIRARCHICAL CATEGORY MACROS
+        // TESTING LOCAL HIERARCHICAL CATEGORY MACROS
         //
-        // Concepts
+        // Concerns:
         //: 1 That the 2 non-class hierarchical macros, if called with a
         //:   non-existing category name and the logger manager has room, will
         //:   result in a new category being created.
@@ -3343,15 +3316,15 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //:   arg to the function, thereby getting a completely different
         //:   static in that function for every template index.
         //:
-        //: 2 Integer constants to serve as template indicies for
-        //:   'TC::testLocalMacros' are in the sub-namespace 'TC::indicies'.
-        //:   They are passed to the macro 'CALL' below, as the 'N' paramter,
+        //: 2 Integer constants to serve as template indices for
+        //:   'TC::testLocalMacros' are in the sub-namespace 'TC::indices'.
+        //:   They are passed to the macro 'CALL' below, as the 'N' parameter,
         //:   and used twice -- firstly, as a template index, then secondly, as
         //:   '#N' as a category name.  If the name contains any '_'
         //:   characters, the code strips everything at or after the first '_'
         //:   from the name before using it as a category name.  This allows us
         //:   to use 'CALL' multiple times with the same category name yet
-        //:   different template indicies.
+        //:   different template indices.
         //:
         //: 3 The function 'TC::testLocalMacros<N>' returns reference to a
         //:   static 'struct' of type 'ResultRec'.  It contains a 'bool',
@@ -3389,46 +3362,37 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   BALL_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(const char *);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING LOCAL HEIRARCHICAL CATEGORY MACROS\n"
+        if (verbose) cout << "TESTING LOCAL HIERARCHICAL CATEGORY MACROS\n"
                              "==========================================\n";
 
-        namespace TC = BALL_LOG_HIERARCHICAL_CATEROGIES;
+        namespace TC = BALL_LOG_HIERARCHICAL_CATEGORIES;
+        namespace Blp = BloombergLP;
 
-        typedef ball::Category         Category;
-        typedef ball::LoggerManager    Manager;
+        typedef TC::Cat                     Cat;
+        typedef Blp::ball::LoggerManager    Manager;
 
-        bslma::TestAllocator da("default", veryVeryVerbose);
-        bslma::TestAllocator ga("global",  veryVeryVerbose);
-        bslma::TestAllocator ta("test",    veryVeryVerbose);
+        Blp::bslma::TestAllocator da("default", veryVeryVerbose);
+        Blp::bslma::TestAllocator ga("global",  veryVeryVerbose);
+        Blp::bslma::TestAllocator ta("test",    veryVeryVerbose);
 
-        bslma::DefaultAllocatorGuard guard(&da);
-        bslma::Default::setGlobalAllocator(&ga);
+        Blp::bslma::DefaultAllocatorGuard guard(&da);
+        Blp::bslma::Default::setGlobalAllocator(&ga);
 
         // Have a quad set to 'WLEVELS' -- Wrong Levels -- that we never set
         // anything to, and that never equals any of the other levels.
 
-        const TC::QuadLevels WLEVELS = { TC::S::e_OFF, TC::S::e_OFF,
-                                         TC::S::e_OFF, TC::S::e_OFF };
+        const TC::Agg WLEVELS(TC::S::e_OFF, TC::S::e_OFF,
+                                                   TC::S::e_OFF, TC::S::e_OFF);
 
-        TC::QuadLevels CLEVELS = TC::callbackLevels;
-
-        // Confirm that there are no duplicates in the table.
-
-        for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
-            for (int tj = 0; tj < TC::k_NUM_DATA; ++tj) {
-                ASSERT((ti == tj) ==
-                             (TC::DATA[ti].d_levels == TC::DATA[tj].d_levels));
-            }
-
-            ASSERT(WLEVELS != TC::DATA[ti].d_levels);
-        }
-
-        // Do testing in earnest.
+        TC::Agg CLEVELS = TC::callbackLevels;
 
         for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
             const TC::Data IDATA         = TC::DATA[ti];
             const int      IL            = IDATA.d_line;
-            const TC::QuadLevels ILEVELS = IDATA.d_levels;
+            const TC::Agg  ILEVELS(        IDATA.d_record,
+                                           IDATA.d_pass,
+                                           IDATA.d_trigger,
+                                           IDATA.d_triggerAll);
             const bool     ISET_CALLBACK = IDATA.d_setCallbackThresholds;
 
             if (ISET_CALLBACK) {
@@ -3439,7 +3403,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             for (int tj = 0; tj < TC::k_NUM_DATA; ++tj) {
                 const TC::Data JDATA         = TC::DATA[tj];
                 const int      JL            = JDATA.d_line;
-                const TC::QuadLevels JLEVELS = JDATA.d_levels;
+                const TC::Agg  JLEVELS(        JDATA.d_record,
+                                               JDATA.d_pass,
+                                               JDATA.d_trigger,
+                                               JDATA.d_triggerAll);
                 const bool     JSET_CALLBACK = JDATA.d_setCallbackThresholds;
                 bool           JUSE_CALLBACK = JDATA.d_useCallback;
 
@@ -3462,7 +3429,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
 #undef  CALL
 #define CALL(N, newLevels, prevHolder, flags)                                 \
-                ASSERT((ret_p = &TC::testLocalMacros<TC::indicies::N>(        \
+                ASSERT((ret_p = &TC::testLocalMacros<TC::indices::N>(         \
                                             newLevels,                        \
                                             TC::PosRec(__LINE__, IL, JL, #N), \
                                             prevHolder,                       \
@@ -3472,7 +3439,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 // the call with that integer.
 
 #undef  RET
-#define RET(N)  TC::result<TC::indicies::N>()
+#define RET(N)  TC::result<TC::indices::N>()
 
                 ASSERTV(IL, JL, CLEVELS != ILEVELS);
                 ASSERTV(IL, JL, CLEVELS != JLEVELS);
@@ -3484,36 +3451,36 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 TC::HolderDispenser holderDispenser(&ta);
                 TC::holderDispenser_p = &holderDispenser;
 
-                // Attempt without manager singleton, notthing happens.
+                // Attempt without manager singleton, nothing happens.
 
                 CALL(bowWow, WLEVELS, 0, e_STATIC);
                 ASSERT(!ret_p->d_category_p);
 
-                ball::LoggerManagerConfiguration mLMC(&ta);
+                Blp::ball::LoggerManagerConfiguration mLMC(&ta);
                 ASSERT(0 == mLMC.setDefaultThresholdLevelsIfValid(
-                                                        ILEVELS.d_record,
-                                                        ILEVELS.d_pass,
-                                                        ILEVELS.d_trigger,
-                                                        ILEVELS.d_triggerAll));
-                ball::LoggerManagerScopedGuard lmGuard(mLMC);
-                Manager& manager = ball::LoggerManager::singleton();
+                                                   ILEVELS.recordLevel(),
+                                                   ILEVELS.passLevel(),
+                                                   ILEVELS.triggerLevel(),
+                                                   ILEVELS.triggerAllLevel()));
+                Blp::ball::LoggerManagerScopedGuard lmGuard(mLMC);
+                Manager& manager = Blp::ball::LoggerManager::singleton();
                 if (JUSE_CALLBACK) {
                     manager.setDefaultThresholdLevelsCallback(
                                                              &TC::dtlCallback);
                 }
 
-                const TC::QuadLevels MLEVELS = JUSE_CALLBACK
-                                             ? CLEVELS
-                                             : ILEVELS;
+                const TC::Agg MLEVELS = JUSE_CALLBACK
+                                      ? CLEVELS
+                                      : ILEVELS;
 
                 TC::defaultCat = &manager.defaultCategory();
 
-                Category *classParentCat =
-                                    manager.setCategory("class",
-                                                        JLEVELS.d_record,
-                                                        JLEVELS.d_pass,
-                                                        JLEVELS.d_trigger,
-                                                        JLEVELS.d_triggerAll);
+                Cat *classParentCat =manager.setCategory(
+                                                    "class",
+                                                    JLEVELS.recordLevel(),
+                                                    JLEVELS.passLevel(),
+                                                    JLEVELS.triggerLevel(),
+                                                    JLEVELS.triggerAllLevel());
                 ASSERTV(JL, JLEVELS, TC::getLevels(classParentCat),
                                      JLEVELS == TC::getLevels(classParentCat));
 
@@ -3521,7 +3488,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 CALL(meow, ILEVELS, 0, e_STATIC);
 
-                Category *meowCat = manager.lookupCategory("meow");
+                Cat *meowCat = manager.lookupCategory("meow");
                 ASSERT(meowCat);
                 TC::setLevels(meowCat, JLEVELS);
                 ASSERTV(IL, JL, JLEVELS == TC::getLevels(meowCat));
@@ -3556,7 +3523,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 CALL(classDerived_b, JLEVELS, ret_p->d_holder_p, e_STATIC);
 
-                TC::setLevels(const_cast<Category *>(ret_p->d_category_p),
+                TC::setLevels(const_cast<Cat *>(ret_p->d_category_p),
                               CLEVELS);
 
                 CALL(meowBarkArf, ILEVELS, 0, e_STATIC);
@@ -3604,7 +3571,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 // Make sure that all the categories returned are distinct,
                 // except for the ones we EXPECT to match.
 
-                bsl::vector<const Category *> v(&ta);
+                bsl::vector<const Cat *> v(&ta);
                 v.push_back(TC::defaultCat);
                 v.push_back(classParentCat);
                 v.push_back(RET(bowWow).d_category_p);
@@ -3621,9 +3588,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 v.push_back(RET(classDerivedRoar).d_category_p);
                 v.push_back(RET(growl).d_category_p);
 
-                ASSERTV(static_cast<bsls::Types::IntPtr>(v.size()),
+                ASSERTV(static_cast<Blp::bsls::Types::IntPtr>(v.size()),
                                                       manager.numCategories(),
-                        static_cast<bsls::Types::IntPtr>(v.size()) ==
+                        static_cast<Blp::bsls::Types::IntPtr>(v.size()) ==
                                                       manager.numCategories());
 
                 for (unsigned ii = 0; ii < v.size(); ++ii) {
@@ -3667,7 +3634,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 32: {
         // --------------------------------------------------------------------
-        // TESTING HEIRARCHICAL CATEGORIES
+        // TESTING HIERARCHICAL CATEGORIES
         //
         // Concepts
         //: 1 That 'setCategoryHierarchically' works as designed.
@@ -3808,51 +3775,48 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   setCategoryHierarchically(CategoryHolder *, const char *);
         // --------------------------------------------------------------------
 
-        namespace TC = BALL_LOG_HIERARCHICAL_CATEROGIES;
+        if (verbose) cout << "TESTING HIERARCHICAL CATEGORIES\n"
+                             "===============================\n";
 
-        typedef ball::Category         Category;
-        typedef ball::LoggerManager    Manager;
+        namespace TC = BALL_LOG_HIERARCHICAL_CATEGORIES;
+        namespace Blp = BloombergLP;
 
-        bslma::TestAllocator da("default", veryVeryVerbose);
-        bslma::TestAllocator ga("global",  veryVeryVerbose);
-        bslma::TestAllocator ta("test",    veryVeryVerbose);
+        typedef TC::Cat                     Cat;
+        typedef Blp::ball::LoggerManager    Manager;
 
-        bslma::DefaultAllocatorGuard guard(&da);
-        bslma::Default::setGlobalAllocator(&ga);
+        Blp::bslma::TestAllocator da("default", veryVeryVerbose);
+        Blp::bslma::TestAllocator ga("global",  veryVeryVerbose);
+        Blp::bslma::TestAllocator ta("test",    veryVeryVerbose);
 
-        // Confirm that there are no duplicates in the table.
+        Blp::bslma::DefaultAllocatorGuard guard(&da);
+        Blp::bslma::Default::setGlobalAllocator(&ga);
 
-        for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
-            for (int tj = 0; tj < TC::k_NUM_DATA; ++tj) {
-                ASSERT((ti == tj) ==
-                             (TC::DATA[ti].d_levels == TC::DATA[tj].d_levels));
-            }
-        }
+        const TC::Agg WLEVELS(TC::S::e_OFF, TC::S::e_OFF,
+                                                   TC::S::e_OFF, TC::S::e_OFF);
 
-        // Do testing in earnest.
+        TC::Agg CLEVELS = TC::callbackLevels;
 
-        for (int th = 0; th < 3; ++th)
         for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
             const TC::Data IDATA         = TC::DATA[ti];
             const int      IL            = IDATA.d_line;
-            const TC::QuadLevels ILEVELS = IDATA.d_levels;
+            const TC::Agg  ILEVELS(        IDATA.d_record,
+                                           IDATA.d_pass,
+                                           IDATA.d_trigger,
+                                           IDATA.d_triggerAll);
             const bool     ISET_CALLBACK = IDATA.d_setCallbackThresholds;
 
-            TC:: holderlessMode = 0 == th
-                                ? TC::e_HOLDERLESS_NONE
-                                : 1 == th
-                                ? TC::e_HOLDERLESS_BEFORE
-                                : TC::e_HOLDERLESS_AFTER;
-
             if (ISET_CALLBACK) {
-                TC::callbackLevels = ILEVELS;
+                CLEVELS = ILEVELS;
                 continue;
             }
 
             for (int tj = 0; tj < TC::k_NUM_DATA; ++tj) {
                 const TC::Data JDATA         = TC::DATA[tj];
                 const int      JL            = JDATA.d_line;
-                const TC::QuadLevels JLEVELS = JDATA.d_levels;
+                const TC::Agg  JLEVELS(        JDATA.d_record,
+                                               JDATA.d_pass,
+                                               JDATA.d_trigger,
+                                               JDATA.d_triggerAll);
                 const bool     JSET_CALLBACK = JDATA.d_setCallbackThresholds;
                 bool           JUSE_CALLBACK = JDATA.d_useCallback;
 
@@ -3882,61 +3846,61 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 ASSERTV(IL, JL, rp.second);
                 ASSERT(0 == rp.first);
 
-                ball::LoggerManagerConfiguration mLMC(&ta);
+                Blp::ball::LoggerManagerConfiguration mLMC(&ta);
                 ASSERT(0 == mLMC.setDefaultThresholdLevelsIfValid(
-                                                        ILEVELS.d_record,
-                                                        ILEVELS.d_pass,
-                                                        ILEVELS.d_trigger,
-                                                        ILEVELS.d_triggerAll));
-                ball::LoggerManagerScopedGuard lmGuard(mLMC);
-                Manager& manager = ball::LoggerManager::singleton();
+                                                   ILEVELS.recordLevel(),
+                                                   ILEVELS.passLevel(),
+                                                   ILEVELS.triggerLevel(),
+                                                   ILEVELS.triggerAllLevel()));
+                Blp::ball::LoggerManagerScopedGuard lmGuard(mLMC);
+                Manager& manager = Blp::ball::LoggerManager::singleton();
                 if (JUSE_CALLBACK) {
                     manager.setDefaultThresholdLevelsCallback(
                                                              &TC::dtlCallback);
                 }
 
-                const TC::QuadLevels MLEVELS = JUSE_CALLBACK
-                                             ? TC::callbackLevels
-                                             : ILEVELS;
+                const TC::Agg MLEVELS = JUSE_CALLBACK
+                                      ? TC::callbackLevels
+                                      : ILEVELS;
 
                 TC::defaultCat = &manager.defaultCategory();
 
-                Category *meowCat = manager.setCategory("Meow",
-                                                        JLEVELS.d_record,
-                                                        JLEVELS.d_pass,
-                                                        JLEVELS.d_trigger,
-                                                        JLEVELS.d_triggerAll);
+                Cat *meowCat = manager.setCategory("Meow",
+                                                   JLEVELS.recordLevel(),
+                                                   JLEVELS.passLevel(),
+                                                   JLEVELS.triggerLevel(),
+                                                   JLEVELS.triggerAllLevel());
 
                 ASSERTV(JL, JLEVELS, TC::getLevels(meowCat),
                                             JLEVELS == TC::getLevels(meowCat));
 
                 rp = TC::testSetCategoryHierarchically("Woof", MLEVELS);
                 ASSERTV(IL, JL, rp.second);
-                const Category *woofCat = rp.first;
+                const Cat *woofCat = rp.first;
 
                 rp = TC::testSetCategoryHierarchically("MeowBubble", JLEVELS);
                 ASSERTV(IL, JL, rp.second);
-                const Category *meowBubbleCat = rp.first;
+                const Cat *meowBubbleCat = rp.first;
 
                 TC::setLevels(meowCat, ILEVELS);
                 ASSERTV(IL, JL, ILEVELS == TC::getLevels(meowCat));
 
                 rp = TC::testSetCategoryHierarchically("MeowBark", ILEVELS);
                 ASSERTV(IL, JL, rp.second);
-                const Category *meowBarkCat = rp.first;
+                const Cat *meowBarkCat = rp.first;
 
                 TC::setLevels(meowCat, TC::callbackLevels);
 
                 rp = TC::testSetCategoryHierarchically("MeowArf",
                                                        TC::callbackLevels);
                 ASSERTV(IL, JL, rp.second);
-                const Category *meowArfCat = rp.first;
+                const Cat *meowArfCat = rp.first;
 
                 rp = TC::testSetCategoryHierarchically("Woof",
                                                        MLEVELS,
                                                        true);
                 ASSERTV(IL, JL, rp.second);
-                const Category *woofCatB = rp.first;
+                const Cat *woofCatB = rp.first;
 
                 ASSERT(woofCatB == woofCat);
 
@@ -3947,17 +3911,17 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 rp = TC::testSetCategoryHierarchically("MeowPurr",
                                                        TC::callbackLevels);
                 ASSERTV(IL, JL, rp.second);
-                const Category *meowPurrCat = rp.first;
+                const Cat *meowPurrCat = rp.first;
 
                 rp = TC::testSetCategoryHierarchically("MeowBarkArf",
                                                        ILEVELS);
                 ASSERTV(IL, JL, rp.second);
-                const Category *meowBarkArfCat = rp.first;
+                const Cat *meowBarkArfCat = rp.first;
 
                 rp = TC::testSetCategoryHierarchically("Roar",
                                                        MLEVELS);
                 ASSERTV(IL, JL, rp.second);
-                const Category *roarCat = rp.first;
+                const Cat *roarCat = rp.first;
 
                 // Attempt to create one category more than the capacity of the
                 // category manager.  This will return the default category,
@@ -3971,7 +3935,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                                        ILEVELS,
                                                        true);
                 ASSERTV(IL, JL, rp.second);
-                const Category *whimperCat = rp.first;
+                const Cat *whimperCat = rp.first;
                 ASSERT(TC::defaultCat == whimperCat);
 
                 // Test attempt to create a child category when a parent exists
@@ -3981,7 +3945,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                                        ILEVELS,
                                                        true);
                 ASSERTV(IL, JL, rp.second);
-                const Category *woofMoanCat = rp.first;
+                const Cat *woofMoanCat = rp.first;
 
                 ASSERT(TC::defaultCat == woofMoanCat);
 
@@ -4002,7 +3966,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 for (unsigned ii = 0; ii < v.size(); ++ii) {
                     for (unsigned jj = 0; jj < v.size(); ++jj) {
-                        ASSERT(ii == jj || v[ii] != v[jj]);
+                        ASSERT((ii == jj) == (v[ii] == v[jj]));
                     }
                 }
 
@@ -4034,27 +3998,32 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                << "\n==================================="
                                << bsl::endl;
 
+        namespace Blp = BloombergLP;
+
+        typedef Blp::ball::Severity Sev;
+
         bsl::function<void(BloombergLP::ball::UserFields *)> callback =
-                                                                  &incCallback;
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+                                                               &u::incCallback;
+        Blp::bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        ball::LoggerManagerConfiguration lmc;
-        ball::LoggerManagerScopedGuard lmg(lmc, &ta);
+        Blp::ball::LoggerManagerConfiguration lmc;
+        Blp::ball::LoggerManagerScopedGuard lmg(lmc, &ta);
 
-        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+        Blp::ball::LoggerManager& manager =
+                                         Blp::ball::LoggerManager::singleton();
 
         // Adding categories with various passthrough levels.
         ASSERT(0 != manager.setCategory("PassTRACE",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_TRACE,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_TRACE,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         ASSERT(0 != manager.setCategory("PassOFF",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         {
             BALL_LOG_SET_CATEGORY("PassTRACE");
@@ -4083,7 +4052,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOG_FATAL << BALL_LOG_END;
             BALL_LOG_FATAL_BLOCK {}
 
-            int severity = ball::Severity::e_TRACE;
+            int severity = Sev::e_TRACE;
 
             BALL_LOG_STREAM(severity - 1);
             BALL_LOG_STREAM(severity);
@@ -4151,7 +4120,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOG_FATAL << BALL_LOG_END;
             BALL_LOG_FATAL_BLOCK {}
 
-            int severity = ball::Severity::e_FATAL;
+            int severity = Sev::e_FATAL;
 
             BALL_LOG_STREAM(severity - 1);
             BALL_LOG_STREAM(severity);
@@ -4210,57 +4179,61 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                << "\n==================================="
                                << bsl::endl;
 
+        namespace Blp = BloombergLP;
+        typedef Blp::ball::Severity Sev;
+
         bsl::function<void(BloombergLP::ball::UserFields *)> callback =
-                                                                  &incCallback;
+                                                               &u::incCallback;
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        Blp::bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        ball::LoggerManagerConfiguration lmc;
-        ball::LoggerManagerScopedGuard lmg(lmc, &ta);
+        Blp::ball::LoggerManagerConfiguration lmc;
+        Blp::ball::LoggerManagerScopedGuard lmg(lmc, &ta);
 
-        bsl::shared_ptr<ball::TestObserver> observer(
-                            new (ta) ball::TestObserver(&bsl::cout, &ta), &ta);
+        bsl::shared_ptr<Blp::ball::TestObserver> observer(
+                       new (ta) Blp::ball::TestObserver(&bsl::cout, &ta), &ta);
 
-        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+        Blp::ball::LoggerManager& manager =
+                                         Blp::ball::LoggerManager::singleton();
 
         ASSERT(0 == manager.registerObserver(observer, "test"));
 
         // Adding categories with various passthrough levels.
         ASSERT(0 != manager.setCategory("PassTRACE",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_TRACE,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_TRACE,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         ASSERT(0 != manager.setCategory("PassDEBUG",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_DEBUG,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_DEBUG,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         ASSERT(0 != manager.setCategory("PassINFO",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_INFO,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_INFO,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         ASSERT(0 != manager.setCategory("PassWARN",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_WARN,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_WARN,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         ASSERT(0 != manager.setCategory("PassERROR",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_ERROR,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_ERROR,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         ASSERT(0 != manager.setCategory("PassFATAL",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_FATAL,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_FATAL,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         {
             BALL_LOG_SET_CATEGORY("PassTRACE");
@@ -4268,7 +4241,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             int count = 0;
             const int N = observer->numPublishedRecords();
 
-            numIncCallback = 0;
+            u::numIncCallback = 0;
 
             BALL_LOGCB_FATAL_BLOCK(callback) {
                 ++count;
@@ -4276,7 +4249,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(1     == count);
-            ASSERTV(1     == numIncCallback);
+            ASSERTV(1     == u::numIncCallback);
             ASSERTV(N + 1 == observer->numPublishedRecords());
 
             BALL_LOGCB_ERROR_BLOCK(callback) {
@@ -4285,7 +4258,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(2     == count);
-            ASSERTV(2     == numIncCallback);
+            ASSERTV(2     == u::numIncCallback);
             ASSERTV(N + 2 == observer->numPublishedRecords());
 
             BALL_LOGCB_WARN_BLOCK(callback) {
@@ -4294,7 +4267,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(3     == count);
-            ASSERTV(3     == numIncCallback);
+            ASSERTV(3     == u::numIncCallback);
             ASSERTV(N + 3 == observer->numPublishedRecords());
 
             BALL_LOGCB_INFO_BLOCK(callback) {
@@ -4303,7 +4276,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(4     == count);
-            ASSERTV(4     == numIncCallback);
+            ASSERTV(4     == u::numIncCallback);
             ASSERTV(N + 4 == observer->numPublishedRecords());
 
             BALL_LOGCB_DEBUG_BLOCK(callback) {
@@ -4312,7 +4285,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(5     == count);
-            ASSERTV(5     == numIncCallback);
+            ASSERTV(5     == u::numIncCallback);
             ASSERTV(N + 5 == observer->numPublishedRecords());
 
             BALL_LOGCB_TRACE_BLOCK(callback) {
@@ -4321,11 +4294,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(6     == count);
-            ASSERTV(6     == numIncCallback);
+            ASSERTV(6     == u::numIncCallback);
             ASSERTV(N + 6 == observer->numPublishedRecords());
 
             // Testing BALL_LOGCB_STREAM_BLOCK macro.
-            int severity = static_cast<int>(ball::Severity::e_TRACE);
+            int severity = static_cast<int>(Sev::e_TRACE);
 
             BALL_LOGCB_STREAM_BLOCK(severity - 1, callback) {
                 ++count;
@@ -4333,7 +4306,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(7     == count);
-            ASSERTV(7     == numIncCallback);
+            ASSERTV(7     == u::numIncCallback);
             ASSERTV(N + 7 == observer->numPublishedRecords());
 
             BALL_LOGCB_STREAM_BLOCK(severity, callback) {
@@ -4342,7 +4315,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(8     == count);
-            ASSERTV(8     == numIncCallback);
+            ASSERTV(8     == u::numIncCallback);
             ASSERTV(N + 8 == observer->numPublishedRecords());
 
             BALL_LOGCB_STREAM_BLOCK(severity + 1, callback) {
@@ -4351,7 +4324,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(8     == count);
-            ASSERTV(8     == numIncCallback);
+            ASSERTV(8     == u::numIncCallback);
             ASSERTV(N + 8 == observer->numPublishedRecords());
         }
 
@@ -4361,7 +4334,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             int count = 0;
             const int N = observer->numPublishedRecords();
 
-            numIncCallback = 0;
+            u::numIncCallback = 0;
 
             BALL_LOGCB_FATAL_BLOCK(callback) {
                 ++count;
@@ -4369,7 +4342,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(1     == count);
-            ASSERTV(1     == numIncCallback);
+            ASSERTV(1     == u::numIncCallback);
             ASSERTV(N + 1 == observer->numPublishedRecords());
 
             BALL_LOGCB_ERROR_BLOCK(callback) {
@@ -4378,7 +4351,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(2     == count);
-            ASSERTV(2     == numIncCallback);
+            ASSERTV(2     == u::numIncCallback);
             ASSERTV(N + 2 == observer->numPublishedRecords());
 
             BALL_LOGCB_WARN_BLOCK(callback) {
@@ -4387,7 +4360,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(3     == count);
-            ASSERTV(3     == numIncCallback);
+            ASSERTV(3     == u::numIncCallback);
             ASSERTV(N + 3 == observer->numPublishedRecords());
 
             BALL_LOGCB_INFO_BLOCK(callback) {
@@ -4396,7 +4369,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(4     == count);
-            ASSERTV(4     == numIncCallback);
+            ASSERTV(4     == u::numIncCallback);
             ASSERTV(N + 4 == observer->numPublishedRecords());
 
             BALL_LOGCB_DEBUG_BLOCK(callback) {
@@ -4405,7 +4378,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(5     == count);
-            ASSERTV(5     == numIncCallback);
+            ASSERTV(5     == u::numIncCallback);
             ASSERTV(N + 5 == observer->numPublishedRecords());
 
             BALL_LOGCB_TRACE_BLOCK(callback) {
@@ -4414,11 +4387,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(5     == count);
-            ASSERTV(5     == numIncCallback);
+            ASSERTV(5     == u::numIncCallback);
             ASSERTV(N + 5 == observer->numPublishedRecords());
 
             // Testing BALL_LOGCB_STREAM_BLOCK macro.
-            int severity = static_cast<int>(ball::Severity::e_DEBUG);
+            int severity = static_cast<int>(Sev::e_DEBUG);
 
             BALL_LOGCB_STREAM_BLOCK(severity - 1, callback) {
                 ++count;
@@ -4426,7 +4399,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(6     == count);
-            ASSERTV(6     == numIncCallback);
+            ASSERTV(6     == u::numIncCallback);
             ASSERTV(N + 6 == observer->numPublishedRecords());
 
             BALL_LOGCB_STREAM_BLOCK(severity, callback) {
@@ -4435,7 +4408,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(7     == count);
-            ASSERTV(7     == numIncCallback);
+            ASSERTV(7     == u::numIncCallback);
             ASSERTV(N + 7 == observer->numPublishedRecords());
 
             BALL_LOGCB_STREAM_BLOCK(severity + 1, callback) {
@@ -4444,7 +4417,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(7     == count);
-            ASSERTV(7     == numIncCallback);
+            ASSERTV(7     == u::numIncCallback);
             ASSERTV(N + 7 == observer->numPublishedRecords());
         }
 
@@ -4454,7 +4427,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             int count = 0;
             const int N = observer->numPublishedRecords();
 
-            numIncCallback = 0;
+            u::numIncCallback = 0;
 
             BALL_LOGCB_FATAL_BLOCK(callback) {
                 ++count;
@@ -4462,7 +4435,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(1     == count);
-            ASSERTV(1     == numIncCallback);
+            ASSERTV(1     == u::numIncCallback);
             ASSERTV(N + 1 == observer->numPublishedRecords());
 
             BALL_LOGCB_ERROR_BLOCK(callback) {
@@ -4471,7 +4444,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(2     == count);
-            ASSERTV(2     == numIncCallback);
+            ASSERTV(2     == u::numIncCallback);
             ASSERTV(N + 2 == observer->numPublishedRecords());
 
             BALL_LOGCB_WARN_BLOCK(callback) {
@@ -4480,7 +4453,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(3     == count);
-            ASSERTV(3     == numIncCallback);
+            ASSERTV(3     == u::numIncCallback);
             ASSERTV(N + 3 == observer->numPublishedRecords());
 
             BALL_LOGCB_INFO_BLOCK(callback) {
@@ -4489,7 +4462,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(4     == count);
-            ASSERTV(4     == numIncCallback);
+            ASSERTV(4     == u::numIncCallback);
             ASSERTV(N + 4 == observer->numPublishedRecords());
 
             BALL_LOGCB_DEBUG_BLOCK(callback) {
@@ -4498,7 +4471,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(4     == count);
-            ASSERTV(4     == numIncCallback);
+            ASSERTV(4     == u::numIncCallback);
             ASSERTV(N + 4 == observer->numPublishedRecords());
 
             BALL_LOGCB_TRACE_BLOCK(callback) {
@@ -4507,11 +4480,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(4     == count);
-            ASSERTV(4     == numIncCallback);
+            ASSERTV(4     == u::numIncCallback);
             ASSERTV(N + 4 == observer->numPublishedRecords());
 
             // Testing BALL_LOGCB_STREAM_BLOCK macro.
-            int severity = static_cast<int>(ball::Severity::e_INFO);
+            int severity = static_cast<int>(Sev::e_INFO);
 
             BALL_LOGCB_STREAM_BLOCK(severity - 1, callback) {
                 ++count;
@@ -4519,7 +4492,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(5     == count);
-            ASSERTV(5     == numIncCallback);
+            ASSERTV(5     == u::numIncCallback);
             ASSERTV(N + 5 == observer->numPublishedRecords());
 
             BALL_LOGCB_STREAM_BLOCK(severity, callback) {
@@ -4528,7 +4501,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(6     == count);
-            ASSERTV(6     == numIncCallback);
+            ASSERTV(6     == u::numIncCallback);
             ASSERTV(N + 6 == observer->numPublishedRecords());
 
             BALL_LOGCB_STREAM_BLOCK(severity + 1, callback) {
@@ -4537,7 +4510,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(6     == count);
-            ASSERTV(6     == numIncCallback);
+            ASSERTV(6     == u::numIncCallback);
             ASSERTV(N + 6 == observer->numPublishedRecords());
         }
 
@@ -4547,7 +4520,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             int count = 0;
             const int N = observer->numPublishedRecords();
 
-            numIncCallback = 0;
+            u::numIncCallback = 0;
 
             BALL_LOGCB_FATAL_BLOCK(callback) {
                 ++count;
@@ -4555,7 +4528,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(1     == count);
-            ASSERTV(1     == numIncCallback);
+            ASSERTV(1     == u::numIncCallback);
             ASSERTV(N + 1 == observer->numPublishedRecords());
 
             BALL_LOGCB_ERROR_BLOCK(callback) {
@@ -4564,7 +4537,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(2     == count);
-            ASSERTV(2     == numIncCallback);
+            ASSERTV(2     == u::numIncCallback);
             ASSERTV(N + 2 == observer->numPublishedRecords());
 
             BALL_LOGCB_WARN_BLOCK(callback) {
@@ -4573,7 +4546,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(3     == count);
-            ASSERTV(3     == numIncCallback);
+            ASSERTV(3     == u::numIncCallback);
             ASSERTV(N + 3 == observer->numPublishedRecords());
 
             BALL_LOGCB_INFO_BLOCK(callback) {
@@ -4582,7 +4555,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(3     == count);
-            ASSERTV(3     == numIncCallback);
+            ASSERTV(3     == u::numIncCallback);
             ASSERTV(N + 3 == observer->numPublishedRecords());
 
             BALL_LOGCB_DEBUG_BLOCK(callback) {
@@ -4591,7 +4564,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(3     == count);
-            ASSERTV(3     == numIncCallback);
+            ASSERTV(3     == u::numIncCallback);
             ASSERTV(N + 3 == observer->numPublishedRecords());
 
             BALL_LOGCB_TRACE_BLOCK(callback) {
@@ -4600,11 +4573,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(3     == count);
-            ASSERTV(3     == numIncCallback);
+            ASSERTV(3     == u::numIncCallback);
             ASSERTV(N + 3 == observer->numPublishedRecords());
 
             // Testing BALL_LOGCB_STREAM_BLOCK macro.
-            int severity = static_cast<int>(ball::Severity::e_WARN);
+            int severity = static_cast<int>(Sev::e_WARN);
 
             BALL_LOGCB_STREAM_BLOCK(severity - 1, callback) {
                 ++count;
@@ -4612,7 +4585,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(4     == count);
-            ASSERTV(4     == numIncCallback);
+            ASSERTV(4     == u::numIncCallback);
             ASSERTV(N + 4 == observer->numPublishedRecords());
 
             BALL_LOGCB_STREAM_BLOCK(severity, callback) {
@@ -4621,7 +4594,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(5     == count);
-            ASSERTV(5     == numIncCallback);
+            ASSERTV(5     == u::numIncCallback);
             ASSERTV(N + 5 == observer->numPublishedRecords());
 
             BALL_LOGCB_STREAM_BLOCK(severity + 1, callback) {
@@ -4630,7 +4603,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(5     == count);
-            ASSERTV(5     == numIncCallback);
+            ASSERTV(5     == u::numIncCallback);
             ASSERTV(N + 5 == observer->numPublishedRecords());
         }
 
@@ -4640,7 +4613,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             int count = 0;
             const int N = observer->numPublishedRecords();
 
-            numIncCallback = 0;
+            u::numIncCallback = 0;
 
             BALL_LOGCB_FATAL_BLOCK(callback) {
                 ++count;
@@ -4648,7 +4621,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(1     == count);
-            ASSERTV(1     == numIncCallback);
+            ASSERTV(1     == u::numIncCallback);
             ASSERTV(N + 1 == observer->numPublishedRecords());
 
             BALL_LOGCB_ERROR_BLOCK(callback) {
@@ -4657,7 +4630,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(2     == count);
-            ASSERTV(2     == numIncCallback);
+            ASSERTV(2     == u::numIncCallback);
             ASSERTV(N + 2 == observer->numPublishedRecords());
 
             BALL_LOGCB_WARN_BLOCK(callback) {
@@ -4666,7 +4639,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(2     == count);
-            ASSERTV(2     == numIncCallback);
+            ASSERTV(2     == u::numIncCallback);
             ASSERTV(N + 2 == observer->numPublishedRecords());
 
             BALL_LOGCB_INFO_BLOCK(callback) {
@@ -4675,7 +4648,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(2     == count);
-            ASSERTV(2     == numIncCallback);
+            ASSERTV(2     == u::numIncCallback);
             ASSERTV(N + 2 == observer->numPublishedRecords());
 
             BALL_LOGCB_DEBUG_BLOCK(callback) {
@@ -4684,7 +4657,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(2     == count);
-            ASSERTV(2     == numIncCallback);
+            ASSERTV(2     == u::numIncCallback);
             ASSERTV(N + 2 == observer->numPublishedRecords());
 
             BALL_LOGCB_TRACE_BLOCK(callback) {
@@ -4693,11 +4666,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(2     == count);
-            ASSERTV(2     == numIncCallback);
+            ASSERTV(2     == u::numIncCallback);
             ASSERTV(N + 2 == observer->numPublishedRecords());
 
             // Testing BALL_LOGCB_STREAM_BLOCK macro.
-            int severity = static_cast<int>(ball::Severity::e_ERROR);
+            int severity = static_cast<int>(Sev::e_ERROR);
 
             BALL_LOGCB_STREAM_BLOCK(severity - 1, callback) {
                 ++count;
@@ -4705,7 +4678,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(3     == count);
-            ASSERTV(3     == numIncCallback);
+            ASSERTV(3     == u::numIncCallback);
             ASSERTV(N + 3 == observer->numPublishedRecords());
 
             BALL_LOGCB_STREAM_BLOCK(severity, callback) {
@@ -4714,7 +4687,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(4     == count);
-            ASSERTV(4     == numIncCallback);
+            ASSERTV(4     == u::numIncCallback);
             ASSERTV(N + 4 == observer->numPublishedRecords());
 
             BALL_LOGCB_STREAM_BLOCK(severity + 1, callback) {
@@ -4723,7 +4696,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(4     == count);
-            ASSERTV(4     == numIncCallback);
+            ASSERTV(4     == u::numIncCallback);
             ASSERTV(N + 4 == observer->numPublishedRecords());
         }
 
@@ -4733,7 +4706,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             int count = 0;
             const int N = observer->numPublishedRecords();
 
-            numIncCallback = 0;
+            u::numIncCallback = 0;
 
             BALL_LOGCB_FATAL_BLOCK(callback) {
                 ++count;
@@ -4741,7 +4714,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(1     == count);
-            ASSERTV(1     == numIncCallback);
+            ASSERTV(1     == u::numIncCallback);
             ASSERTV(N + 1 == observer->numPublishedRecords());
 
             BALL_LOGCB_ERROR_BLOCK(callback) {
@@ -4750,7 +4723,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(1     == count);
-            ASSERTV(1     == numIncCallback);
+            ASSERTV(1     == u::numIncCallback);
             ASSERTV(N + 1 == observer->numPublishedRecords());
 
             BALL_LOGCB_WARN_BLOCK(callback) {
@@ -4759,7 +4732,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(1     == count);
-            ASSERTV(1     == numIncCallback);
+            ASSERTV(1     == u::numIncCallback);
             ASSERTV(N + 1 == observer->numPublishedRecords());
 
             BALL_LOGCB_INFO_BLOCK(callback) {
@@ -4768,7 +4741,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(1     == count);
-            ASSERTV(1     == numIncCallback);
+            ASSERTV(1     == u::numIncCallback);
             ASSERTV(N + 1 == observer->numPublishedRecords());
 
             BALL_LOGCB_DEBUG_BLOCK(callback) {
@@ -4777,7 +4750,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(1     == count);
-            ASSERTV(1     == numIncCallback);
+            ASSERTV(1     == u::numIncCallback);
             ASSERTV(N + 1 == observer->numPublishedRecords());
 
             BALL_LOGCB_TRACE_BLOCK(callback) {
@@ -4786,11 +4759,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(1     == count);
-            ASSERTV(1     == numIncCallback);
+            ASSERTV(1     == u::numIncCallback);
             ASSERTV(N + 1 == observer->numPublishedRecords());
 
             // Testing BALL_LOGCB_STREAM_BLOCK macro.
-            int severity = static_cast<int>(ball::Severity::e_FATAL);
+            int severity = static_cast<int>(Sev::e_FATAL);
 
             BALL_LOGCB_STREAM_BLOCK(severity - 1, callback) {
                 ++count;
@@ -4798,7 +4771,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(2     == count);
-            ASSERTV(2     == numIncCallback);
+            ASSERTV(2     == u::numIncCallback);
             ASSERTV(N + 2 == observer->numPublishedRecords());
 
             BALL_LOGCB_STREAM_BLOCK(severity, callback) {
@@ -4807,7 +4780,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(3     == count);
-            ASSERTV(3     == numIncCallback);
+            ASSERTV(3     == u::numIncCallback);
             ASSERTV(N + 3 == observer->numPublishedRecords());
 
             BALL_LOGCB_STREAM_BLOCK(severity + 1, callback) {
@@ -4816,7 +4789,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             ASSERTV(3     == count);
-            ASSERTV(3     == numIncCallback);
+            ASSERTV(3     == u::numIncCallback);
             ASSERTV(N + 3 == observer->numPublishedRecords());
         }
       } break;
@@ -4838,54 +4811,58 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                << "\n================================="
                                << bsl::endl;
 
-        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        namespace Blp = BloombergLP;
+        typedef Blp::ball::Severity Sev;
 
-        ball::LoggerManagerConfiguration lmc;
-        ball::LoggerManagerScopedGuard lmg(lmc, &ta);
+        Blp::bslma::TestAllocator ta(veryVeryVeryVerbose);
 
-        bsl::shared_ptr<ball::TestObserver> observer(
-                            new (ta) ball::TestObserver(&bsl::cout, &ta), &ta);
+        Blp::ball::LoggerManagerConfiguration lmc;
+        Blp::ball::LoggerManagerScopedGuard lmg(lmc, &ta);
 
-        ball::LoggerManager& manager = ball::LoggerManager::singleton();
+        bsl::shared_ptr<Blp::ball::TestObserver> observer(
+                       new (ta) Blp::ball::TestObserver(&bsl::cout, &ta), &ta);
+
+        Blp::ball::LoggerManager& manager =
+                                         Blp::ball::LoggerManager::singleton();
 
         ASSERT(0 == manager.registerObserver(observer, "test"));
 
         // Adding categories with various passthrough levels.
         ASSERT(0 != manager.setCategory("PassTRACE",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_TRACE,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_TRACE,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         ASSERT(0 != manager.setCategory("PassDEBUG",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_DEBUG,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_DEBUG,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         ASSERT(0 != manager.setCategory("PassINFO",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_INFO,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_INFO,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         ASSERT(0 != manager.setCategory("PassWARN",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_WARN,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_WARN,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         ASSERT(0 != manager.setCategory("PassERROR",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_ERROR,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_ERROR,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         ASSERT(0 != manager.setCategory("PassFATAL",
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_FATAL,
-                                        ball::Severity::e_OFF,
-                                        ball::Severity::e_OFF));
+                                        Sev::e_OFF,
+                                        Sev::e_FATAL,
+                                        Sev::e_OFF,
+                                        Sev::e_OFF));
 
         {
             BALL_LOG_SET_CATEGORY("PassTRACE");
@@ -4900,7 +4877,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(1     == count);
             ASSERTV(N + 1 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_FATAL));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_FATAL));
 
             BALL_LOG_ERROR_BLOCK {
                 ++count;
@@ -4909,7 +4886,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(2     == count);
             ASSERTV(N + 2 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_ERROR));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_ERROR));
 
             BALL_LOG_WARN_BLOCK {
                 ++count;
@@ -4918,7 +4895,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(3     == count);
             ASSERTV(N + 3 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_WARN));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_WARN));
 
             BALL_LOG_INFO_BLOCK {
                 ++count;
@@ -4927,7 +4904,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(4     == count);
             ASSERTV(N + 4 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_INFO));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_INFO));
 
             BALL_LOG_DEBUG_BLOCK {
                 ++count;
@@ -4936,7 +4913,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(5     == count);
             ASSERTV(N + 5 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_DEBUG));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_DEBUG));
 
             BALL_LOG_TRACE_BLOCK {
                 ++count;
@@ -4945,10 +4922,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(6     == count);
             ASSERTV(N + 6 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_TRACE));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_TRACE));
 
             // Testing BALL_LOG_STREAM_BLOCK macro.
-            int severity = static_cast<int>(ball::Severity::e_TRACE);
+            int severity = static_cast<int>(Sev::e_TRACE);
 
             BALL_LOG_STREAM_BLOCK(severity - 1) {
                 ++count;
@@ -4991,7 +4968,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(1     == count);
             ASSERTV(N + 1 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_FATAL));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_FATAL));
 
             BALL_LOG_ERROR_BLOCK {
                 ++count;
@@ -5000,7 +4977,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(2     == count);
             ASSERTV(N + 2 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_ERROR));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_ERROR));
 
             BALL_LOG_WARN_BLOCK {
                 ++count;
@@ -5009,7 +4986,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(3     == count);
             ASSERTV(N + 3 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_WARN));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_WARN));
 
             BALL_LOG_INFO_BLOCK {
                 ++count;
@@ -5018,7 +4995,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(4     == count);
             ASSERTV(N + 4 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_INFO));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_INFO));
 
             BALL_LOG_DEBUG_BLOCK {
                 ++count;
@@ -5027,7 +5004,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(5     == count);
             ASSERTV(N + 5 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_DEBUG));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_DEBUG));
 
             BALL_LOG_TRACE_BLOCK {
                 ++count;
@@ -5036,10 +5013,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(5     == count);
             ASSERTV(N + 5 == observer->numPublishedRecords());
-            ASSERTV(false == BALL_LOG_IS_ENABLED(ball::Severity::e_TRACE));
+            ASSERTV(false == BALL_LOG_IS_ENABLED(Sev::e_TRACE));
 
             // Testing BALL_LOG_STREAM_BLOCK macro.
-            int severity = static_cast<int>(ball::Severity::e_DEBUG);
+            int severity = static_cast<int>(Sev::e_DEBUG);
 
             BALL_LOG_STREAM_BLOCK(severity - 1) {
                 ++count;
@@ -5082,7 +5059,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(1     == count);
             ASSERTV(N + 1 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_FATAL));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_FATAL));
 
             BALL_LOG_ERROR_BLOCK {
                 ++count;
@@ -5091,7 +5068,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(2     == count);
             ASSERTV(N + 2 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_ERROR));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_ERROR));
 
             BALL_LOG_WARN_BLOCK {
                 ++count;
@@ -5100,7 +5077,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(3     == count);
             ASSERTV(N + 3 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_WARN));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_WARN));
 
             BALL_LOG_INFO_BLOCK {
                 ++count;
@@ -5109,7 +5086,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(4     == count);
             ASSERTV(N + 4 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_INFO));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_INFO));
 
             BALL_LOG_DEBUG_BLOCK {
                 ++count;
@@ -5118,7 +5095,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(4     == count);
             ASSERTV(N + 4 == observer->numPublishedRecords());
-            ASSERTV(false  == BALL_LOG_IS_ENABLED(ball::Severity::e_DEBUG));
+            ASSERTV(false  == BALL_LOG_IS_ENABLED(Sev::e_DEBUG));
 
             BALL_LOG_TRACE_BLOCK {
                 ++count;
@@ -5127,10 +5104,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(4     == count);
             ASSERTV(N + 4 == observer->numPublishedRecords());
-            ASSERTV(false == BALL_LOG_IS_ENABLED(ball::Severity::e_TRACE));
+            ASSERTV(false == BALL_LOG_IS_ENABLED(Sev::e_TRACE));
 
             // Testing BALL_LOG_STREAM_BLOCK macro.
-            int severity = static_cast<int>(ball::Severity::e_INFO);
+            int severity = static_cast<int>(Sev::e_INFO);
 
             BALL_LOG_STREAM_BLOCK(severity - 1) {
                 ++count;
@@ -5173,7 +5150,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(1     == count);
             ASSERTV(N + 1 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_FATAL));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_FATAL));
 
             BALL_LOG_ERROR_BLOCK {
                 ++count;
@@ -5182,7 +5159,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(2     == count);
             ASSERTV(N + 2 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_ERROR));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_ERROR));
 
             BALL_LOG_WARN_BLOCK {
                 ++count;
@@ -5191,7 +5168,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(3     == count);
             ASSERTV(N + 3 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_WARN));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_WARN));
 
             BALL_LOG_INFO_BLOCK {
                 ++count;
@@ -5200,7 +5177,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(3     == count);
             ASSERTV(N + 3 == observer->numPublishedRecords());
-            ASSERTV(false == BALL_LOG_IS_ENABLED(ball::Severity::e_INFO));
+            ASSERTV(false == BALL_LOG_IS_ENABLED(Sev::e_INFO));
 
             BALL_LOG_DEBUG_BLOCK {
                 ++count;
@@ -5209,7 +5186,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(3     == count);
             ASSERTV(N + 3 == observer->numPublishedRecords());
-            ASSERTV(false  == BALL_LOG_IS_ENABLED(ball::Severity::e_DEBUG));
+            ASSERTV(false  == BALL_LOG_IS_ENABLED(Sev::e_DEBUG));
 
             BALL_LOG_TRACE_BLOCK {
                 ++count;
@@ -5218,10 +5195,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(3     == count);
             ASSERTV(N + 3 == observer->numPublishedRecords());
-            ASSERTV(false == BALL_LOG_IS_ENABLED(ball::Severity::e_TRACE));
+            ASSERTV(false == BALL_LOG_IS_ENABLED(Sev::e_TRACE));
 
             // Testing BALL_LOG_STREAM_BLOCK macro.
-            int severity = static_cast<int>(ball::Severity::e_WARN);
+            int severity = static_cast<int>(Sev::e_WARN);
 
             BALL_LOG_STREAM_BLOCK(severity - 1) {
                 ++count;
@@ -5264,7 +5241,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(1     == count);
             ASSERTV(N + 1 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_FATAL));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_FATAL));
 
             BALL_LOG_ERROR_BLOCK {
                 ++count;
@@ -5273,7 +5250,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(2     == count);
             ASSERTV(N + 2 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_ERROR));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_ERROR));
 
             BALL_LOG_WARN_BLOCK {
                 ++count;
@@ -5282,7 +5259,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(2     == count);
             ASSERTV(N + 2 == observer->numPublishedRecords());
-            ASSERTV(false  == BALL_LOG_IS_ENABLED(ball::Severity::e_WARN));
+            ASSERTV(false  == BALL_LOG_IS_ENABLED(Sev::e_WARN));
 
             BALL_LOG_INFO_BLOCK {
                 ++count;
@@ -5291,7 +5268,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(2     == count);
             ASSERTV(N + 2 == observer->numPublishedRecords());
-            ASSERTV(false == BALL_LOG_IS_ENABLED(ball::Severity::e_INFO));
+            ASSERTV(false == BALL_LOG_IS_ENABLED(Sev::e_INFO));
 
             BALL_LOG_DEBUG_BLOCK {
                 ++count;
@@ -5300,7 +5277,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(2     == count);
             ASSERTV(N + 2 == observer->numPublishedRecords());
-            ASSERTV(false  == BALL_LOG_IS_ENABLED(ball::Severity::e_DEBUG));
+            ASSERTV(false  == BALL_LOG_IS_ENABLED(Sev::e_DEBUG));
 
             BALL_LOG_TRACE_BLOCK {
                 ++count;
@@ -5309,10 +5286,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(2     == count);
             ASSERTV(N + 2 == observer->numPublishedRecords());
-            ASSERTV(false == BALL_LOG_IS_ENABLED(ball::Severity::e_TRACE));
+            ASSERTV(false == BALL_LOG_IS_ENABLED(Sev::e_TRACE));
 
             // Testing BALL_LOG_STREAM_BLOCK macro.
-            int severity = static_cast<int>(ball::Severity::e_ERROR);
+            int severity = static_cast<int>(Sev::e_ERROR);
 
             BALL_LOG_STREAM_BLOCK(severity - 1) {
                 ++count;
@@ -5355,7 +5332,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(1     == count);
             ASSERTV(N + 1 == observer->numPublishedRecords());
-            ASSERTV(true  == BALL_LOG_IS_ENABLED(ball::Severity::e_FATAL));
+            ASSERTV(true  == BALL_LOG_IS_ENABLED(Sev::e_FATAL));
 
             BALL_LOG_ERROR_BLOCK {
                 ++count;
@@ -5364,7 +5341,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(1     == count);
             ASSERTV(N + 1 == observer->numPublishedRecords());
-            ASSERTV(false == BALL_LOG_IS_ENABLED(ball::Severity::e_ERROR));
+            ASSERTV(false == BALL_LOG_IS_ENABLED(Sev::e_ERROR));
 
             BALL_LOG_WARN_BLOCK {
                 ++count;
@@ -5373,7 +5350,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(1     == count);
             ASSERTV(N + 1 == observer->numPublishedRecords());
-            ASSERTV(false  == BALL_LOG_IS_ENABLED(ball::Severity::e_WARN));
+            ASSERTV(false  == BALL_LOG_IS_ENABLED(Sev::e_WARN));
 
             BALL_LOG_INFO_BLOCK {
                 ++count;
@@ -5382,7 +5359,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(1     == count);
             ASSERTV(N + 1 == observer->numPublishedRecords());
-            ASSERTV(false == BALL_LOG_IS_ENABLED(ball::Severity::e_INFO));
+            ASSERTV(false == BALL_LOG_IS_ENABLED(Sev::e_INFO));
 
             BALL_LOG_DEBUG_BLOCK {
                 ++count;
@@ -5391,7 +5368,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(1     == count);
             ASSERTV(N + 1 == observer->numPublishedRecords());
-            ASSERTV(false  == BALL_LOG_IS_ENABLED(ball::Severity::e_DEBUG));
+            ASSERTV(false  == BALL_LOG_IS_ENABLED(Sev::e_DEBUG));
 
             BALL_LOG_TRACE_BLOCK {
                 ++count;
@@ -5400,10 +5377,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             ASSERTV(1     == count);
             ASSERTV(N + 1 == observer->numPublishedRecords());
-            ASSERTV(false == BALL_LOG_IS_ENABLED(ball::Severity::e_TRACE));
+            ASSERTV(false == BALL_LOG_IS_ENABLED(Sev::e_TRACE));
 
             // Testing BALL_LOG_STREAM_BLOCK macro.
-            int severity = static_cast<int>(ball::Severity::e_FATAL);
+            int severity = static_cast<int>(Sev::e_FATAL);
 
             BALL_LOG_STREAM_BLOCK(severity - 1) {
                 ++count;
@@ -5522,14 +5499,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         // Exercise 'ClassScopeLoggerA'
         {
-            numIncCallback = 0;
+            u::numIncCallback = 0;
             ClassScopeLoggerA::classMethodThatLogsToClassCategory();
 
             ASSERT(1 == TO->numPublishedRecords());
             ASSERT(0 == bsl::strcmp(
                           "CLASS CATEGORY A",
                           TO->lastPublishedRecord().fixedFields().category()));
-            ASSERT(1 == numIncCallback);
+            ASSERT(1 == u::numIncCallback);
 
             ClassScopeLoggerA mX;  const ClassScopeLoggerA& X = mX;
 
@@ -5561,14 +5538,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         // Exercise 'ClassScopeLoggerB'
         {
-            numIncCallback = 0;
+            u::numIncCallback = 0;
             ClassScopeLoggerB::classMethodThatLogsToClassCategory();
 
             ASSERT(6 == TO->numPublishedRecords());
             ASSERT(0 == bsl::strcmp(
                           "CLASS CATEGORY B",
                           TO->lastPublishedRecord().fixedFields().category()));
-            ASSERT(0 == numIncCallback);  // callback not relevant here
+            ASSERT(0 == u::numIncCallback);  // callback not relevant here
 
             ClassScopeLoggerB mX;  const ClassScopeLoggerB& X = mX;
 
@@ -6112,12 +6089,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting macro safety without a logger manager."
                       << bsl::endl;
         {
-            CerrBufferGuard cerrBufferGuard;
+            u::CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "NoLoggerManager";
             msg           = "There is currently no logger manager";
 
-            executeInParallel(NUM_THREADS, workerThread24);
+            u::executeInParallel(NUM_THREADS, workerThread24);
         }
 
         if (verbose)
@@ -6136,7 +6113,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             categoryName  = "WithLoggerManager";
             msg           = "There is a logger manager";
 
-            executeInParallel(NUM_THREADS, workerThread24);
+            u::executeInParallel(NUM_THREADS, workerThread24);
         }
 
         if (verbose)
@@ -6144,12 +6121,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "has been destroyed."
                       << bsl::endl;
         {
-            CerrBufferGuard   cerrBufferGuard;
+            u::CerrBufferGuard   cerrBufferGuard;
 
             categoryName  = "AfterLoggerManager";
             msg           = "There is no logger manager again";
 
-            executeInParallel(NUM_THREADS, workerThread24);
+            u::executeInParallel(NUM_THREADS, workerThread24);
         }
       } break;
       case 23: {
@@ -6179,12 +6156,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting macro safety without a logger manager."
                       << bsl::endl;
         {
-            CerrBufferGuard cerrBufferGuard;
+            u::CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "NoLoggerManager";
             msg           = "There is currently no logger manager";
 
-            executeInParallel(NUM_THREADS, workerThread23);
+            u::executeInParallel(NUM_THREADS, workerThread23);
         }
 
         if (verbose)
@@ -6203,7 +6180,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             categoryName  = "WithLoggerManager";
             msg           = "There is a logger manager";
 
-            executeInParallel(NUM_THREADS, workerThread23);
+            u::executeInParallel(NUM_THREADS, workerThread23);
         }
 
         if (verbose)
@@ -6211,12 +6188,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "has been destroyed."
                       << bsl::endl;
         {
-            CerrBufferGuard cerrBufferGuard;
+            u::CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "AfterLoggerManager";
             msg           = "There is no logger manager again";
 
-            executeInParallel(NUM_THREADS, workerThread23);
+            u::executeInParallel(NUM_THREADS, workerThread23);
         }
       } break;
       case 22: {
@@ -6244,12 +6221,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting macro safety without a logger manager."
                       << bsl::endl;
         {
-            CerrBufferGuard cerrBufferGuard;
+            u::CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "NoLoggerManager";
             msg           = "There is currently no logger manager";
 
-            executeInParallel(NUM_THREADS, workerThread22);
+            u::executeInParallel(NUM_THREADS, workerThread22);
         }
 
         if (verbose)
@@ -6268,7 +6245,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             categoryName  = "WithLoggerManager";
             msg           = "There is a logger manager";
 
-            executeInParallel(NUM_THREADS, workerThread22);
+            u::executeInParallel(NUM_THREADS, workerThread22);
         }
 
         if (verbose)
@@ -6276,12 +6253,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "has been destroyed."
                       << bsl::endl;
         {
-            CerrBufferGuard cerrBufferGuard;
+            u::CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "AfterLoggerManager";
             msg           = "There is no logger manager again";
 
-            executeInParallel(NUM_THREADS, workerThread22);
+            u::executeInParallel(NUM_THREADS, workerThread22);
         }
       } break;
       case 21: {
@@ -6308,12 +6285,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting macro safety without a logger manager."
                       << bsl::endl;
         {
-            CerrBufferGuard cerrBufferGuard;
+            u::CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "NoLoggerManager";
             msg           = "There is currently no logger manager";
 
-            executeInParallel(NUM_THREADS, workerThread21);
+            u::executeInParallel(NUM_THREADS, workerThread21);
         }
 
         if (verbose)
@@ -6332,7 +6309,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             categoryName  = "WithLoggerManager";
             msg           = "There is a logger manager";
 
-            executeInParallel(NUM_THREADS, workerThread21);
+            u::executeInParallel(NUM_THREADS, workerThread21);
         }
 
         if (verbose)
@@ -6340,12 +6317,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "has been destroyed."
                       << bsl::endl;
         {
-            CerrBufferGuard cerrBufferGuard;
+            u::CerrBufferGuard cerrBufferGuard;
 
             categoryName  = "AfterLoggerManager";
             msg           = "There is no logger manager again";
 
-            executeInParallel(NUM_THREADS, workerThread21);
+            u::executeInParallel(NUM_THREADS, workerThread21);
         }
       } break;
       case 20: {
@@ -6603,6 +6580,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "=====================================\n";
 
         using namespace BALL_LOG_TEST_CASE_18;
+        namespace Blp = BloombergLP;
 
         for (int i = 0; i < MAX_MSG_SIZE; ++i) {
             message[i] = 'X';
@@ -6619,10 +6597,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-            TempDirectoryGuard tempDirGuard;
+            u::TempDirectoryGuard tempDirGuard;
 
             bsl::string filename(tempDirGuard.getTempDirName());
-            bdls::PathUtil::appendRaw(&filename, "stderrOut");
+            Blp::bdls::PathUtil::appendRaw(&filename, "stderrOut");
 
             fflush(stderr);
             int fd = creat(filename.c_str(), 0777);
@@ -6633,7 +6611,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 bsl::cout << "STDERR redirected to " << filename << bsl::endl;
 #endif
 
-            CerrBufferGuard cerrBufferGuard;
+            u::CerrBufferGuard cerrBufferGuard;
 
             BALL_LOG_SET_DYNAMIC_CATEGORY("ThereIsNoLoggerManager");
 
@@ -6717,7 +6695,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             numPublishedRecords = TO->numPublishedRecords();
 
-            executeInParallel(NUM_THREADS, workerThread18);
+            u::executeInParallel(NUM_THREADS, workerThread18);
 
             ASSERT(numPublishedRecords + NUM_MSGS / 2 * NUM_THREADS
                                                 == TO->numPublishedRecords());
@@ -6730,10 +6708,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-            TempDirectoryGuard tempDirGuard;
+            u::TempDirectoryGuard tempDirGuard;
 
             bsl::string filename(tempDirGuard.getTempDirName());
-            bdls::PathUtil::appendRaw(&filename, "stderrOut");
+            Blp::bdls::PathUtil::appendRaw(&filename, "stderrOut");
 
             fflush(stderr);
             int fd = creat(filename.c_str(), 0777);
@@ -6744,7 +6722,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 bsl::cout << "STDERR redirected to " << filename << bsl::endl;
 #endif
 
-            CerrBufferGuard cerrBufferGuard;
+            u::CerrBufferGuard cerrBufferGuard;
 
             BALL_LOG_SET_DYNAMIC_CATEGORY("ThereIsNoLoggerManager");
 
@@ -6857,8 +6835,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                << bsl::endl;
 
         bsl::function<void(BloombergLP::ball::UserFields *)> callback =
-                                                                  &incCallback;
-        numIncCallback = 0;
+                                                               &u::incCallback;
+        u::numIncCallback = 0;
 
         const char *MESSAGE = "message:1:2:3";
         const char  SEP     = ':';
@@ -6906,7 +6884,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 BALL_LOGCB_TRACE(callback) << "message";
 
-                ASSERT(0 == numIncCallback);
+                ASSERT(0 == u::numIncCallback);
                 ASSERT(numPublishedRecords == TO->numPublishedRecords());
             }
 
@@ -6914,8 +6892,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOGCB_TRACE(callback) << "message" << SEP << ARGS[0]
                                        << SEP << ARGS[1]
                                        << SEP << ARGS[2];
-            ASSERT(1 == numIncCallback);
-            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE));
+            ASSERT(1 == u::numIncCallback);
+            ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE));
         }
 
         BloombergLP::ball::Administration::addCategory(
@@ -6934,7 +6912,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 BALL_LOGCB_DEBUG(callback) << "message";
 
-                ASSERT(1 == numIncCallback);
+                ASSERT(1 == u::numIncCallback);
                 ASSERT(numPublishedRecords == TO->numPublishedRecords());
            }
 
@@ -6942,8 +6920,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOGCB_DEBUG(callback) << "message" << SEP << ARGS[0]
                                        << SEP << ARGS[1]
                                        << SEP << ARGS[2];
-            ASSERT(2 == numIncCallback);
-            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE));
+            ASSERT(2 == u::numIncCallback);
+            ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE));
         }
 
         BloombergLP::ball::Administration::addCategory(
@@ -6962,7 +6940,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 BALL_LOGCB_INFO(callback) << "message";
 
-                ASSERT(2 == numIncCallback);
+                ASSERT(2 == u::numIncCallback);
                 ASSERT(numPublishedRecords == TO->numPublishedRecords());
             }
 
@@ -6970,8 +6948,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOGCB_INFO(callback) << "message" << SEP << ARGS[0]
                                       << SEP << ARGS[1]
                                       << SEP << ARGS[2];
-            ASSERT(3 == numIncCallback);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE));
+            ASSERT(3 == u::numIncCallback);
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE));
         }
 
         BloombergLP::ball::Administration::addCategory(
@@ -6990,7 +6968,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 BALL_LOGCB_WARN(callback) << "message";
 
-                ASSERT(3 == numIncCallback);
+                ASSERT(3 == u::numIncCallback);
                 ASSERT(numPublishedRecords == TO->numPublishedRecords());
             }
 
@@ -6998,8 +6976,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOGCB_WARN(callback) << "message" << SEP << ARGS[0]
                                       << SEP << ARGS[1]
                                       << SEP << ARGS[2];
-            ASSERT(4 == numIncCallback);
-            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE));
+            ASSERT(4 == u::numIncCallback);
+            ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE));
         }
 
         BloombergLP::ball::Administration::addCategory(
@@ -7018,7 +6996,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 BALL_LOGCB_ERROR(callback) << "message";
 
-                ASSERT(4 == numIncCallback);
+                ASSERT(4 == u::numIncCallback);
                 ASSERT(numPublishedRecords == TO->numPublishedRecords());
             }
 
@@ -7026,8 +7004,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOGCB_ERROR(callback) << "message" << SEP << ARGS[0]
                                        << SEP << ARGS[1]
                                        << SEP << ARGS[2];
-            ASSERT(5 == numIncCallback);
-            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE));
+            ASSERT(5 == u::numIncCallback);
+            ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE));
         }
 
         BloombergLP::ball::Administration::addCategory(
@@ -7046,7 +7024,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 BALL_LOGCB_FATAL(callback) << "message";
 
-                ASSERT(5 == numIncCallback);
+                ASSERT(5 == u::numIncCallback);
                 ASSERT(numPublishedRecords == TO->numPublishedRecords());
             }
 
@@ -7054,76 +7032,76 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOGCB_FATAL(callback) << "message" << SEP << ARGS[0]
                                        << SEP << ARGS[1]
                                        << SEP << ARGS[2];
-            ASSERT(6 == numIncCallback);
-            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE));
+            ASSERT(6 == u::numIncCallback);
+            ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE));
         }
 
         if (veryVerbose)
             bsl::cout << "\tTesting Buffer Overflow with 'ostream' Macro"
                       << bsl::endl;
         {
-            const int BUFLEN = messageBufferSize();
+            const int BUFLEN = u::messageBufferSize();
             const int EXCESS = 128;
             const int N      = BUFLEN + EXCESS;
-            char *longString = new char[N];
-            bsl::fill(longString + 0, longString + N, 'x');
-            longString[N-1] = '\0';
+            char *longStr    = new char[N];
+            bsl::fill(longStr + 0, longStr + N, 'x');
+            longStr[N-1] = '\0';
             char *cpyString  = new char[N];
-            bsl::strcpy(cpyString, longString);
+            bsl::strcpy(cpyString, longStr);
 
             {
                 const int LINE = L_ + 1;
-                BALL_LOGCB_TRACE(callback) << longString;
-                ASSERT(0 == bsl::strcmp(cpyString, longString));
-                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+                BALL_LOGCB_TRACE(callback) << longStr;
+                ASSERT(0 == bsl::strcmp(cpyString, longStr));
+                ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 1] = 'x';
 
                 const int LINE = L_ + 1;
-                BALL_LOGCB_DEBUG(callback) << longString;
-                ASSERT(0 == bsl::strcmp(cpyString, longString));
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                BALL_LOGCB_DEBUG(callback) << longStr;
+                ASSERT(0 == bsl::strcmp(cpyString, longStr));
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 1] = 'x';
 
                 const int LINE = L_ + 1;
-                BALL_LOGCB_INFO(callback) << longString;
-                ASSERT(0 == bsl::strcmp(cpyString, longString));
-                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+                BALL_LOGCB_INFO(callback) << longStr;
+                ASSERT(0 == bsl::strcmp(cpyString, longStr));
+                ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 1] = 'x';
 
                 const int LINE = L_ + 1;
-                BALL_LOGCB_WARN(callback) << longString;
-                ASSERT(0 == bsl::strcmp(cpyString, longString));
-                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+                BALL_LOGCB_WARN(callback) << longStr;
+                ASSERT(0 == bsl::strcmp(cpyString, longStr));
+                ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 1] = 'x';
 
                 const int LINE = L_ + 1;
-                BALL_LOGCB_ERROR(callback) << longString;
-                ASSERT(0 == bsl::strcmp(cpyString, longString));
-                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+                BALL_LOGCB_ERROR(callback) << longStr;
+                ASSERT(0 == bsl::strcmp(cpyString, longStr));
+                ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 1] = 'x';
 
                 const int LINE = L_ + 1;
-                BALL_LOGCB_FATAL(callback) << longString;
-                ASSERT(0 == bsl::strcmp(cpyString, longString));
-                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+                BALL_LOGCB_FATAL(callback) << longStr;
+                ASSERT(0 == bsl::strcmp(cpyString, longStr));
+                ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longStr));
             }
 
-            delete [] longString;
+            delete [] longStr;
             delete [] cpyString;
         }
       } break;
@@ -7309,7 +7287,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                                          configuration);
         BloombergLP::bsls::Types::Int64 t =
                          BloombergLP::bsls::TimeUtil::getTimer();
-        executeInParallel(NUM_THREADS, workerThread13);
+        u::executeInParallel(NUM_THREADS, workerThread13);
         t = BloombergLP::bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
@@ -7374,7 +7352,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                                          configuration);
         BloombergLP::bsls::Types::Int64 t =
                           BloombergLP::bsls::TimeUtil::getTimer();
-        executeInParallel(NUM_THREADS, workerThread12);
+        u::executeInParallel(NUM_THREADS, workerThread12);
         t = BloombergLP::bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
@@ -7439,7 +7417,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         BloombergLP::bsls::Types::Int64 t;
 
         t = BloombergLP::bsls::TimeUtil::getTimer();
-        executeInParallel(NUM_THREADS, workerThread11a);
+        u::executeInParallel(NUM_THREADS, workerThread11a);
         t = BloombergLP::bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
@@ -7456,7 +7434,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         t = BloombergLP::bsls::TimeUtil::getTimer();
-        executeInParallel(NUM_THREADS, workerThread11);
+        u::executeInParallel(NUM_THREADS, workerThread11);
         t = BloombergLP::bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
@@ -7527,14 +7505,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                              ? &Util::doOldTraceConst
                              : &Util::doOldInfoConst);
         t = BloombergLP::bsls::TimeUtil::getTimer();
-        executeInParallel(NUM_THREADS, workerThread10);
+        u::executeInParallel(NUM_THREADS, workerThread10);
         t = BloombergLP::bsls::TimeUtil::getTimer() - t;
 
         const double oldConstTime = static_cast<double>(t);
 
         BloombergLP::bslim::TestUtil::setFunc(&Util::doOldVar);
         t = BloombergLP::bsls::TimeUtil::getTimer();
-        executeInParallel(NUM_THREADS, workerThread10);
+        u::executeInParallel(NUM_THREADS, workerThread10);
         t = BloombergLP::bsls::TimeUtil::getTimer() - t;
 
         const double oldVarTime = static_cast<double>(t);
@@ -7545,14 +7523,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                              : &Util::doInfoConst);
 
         t = BloombergLP::bsls::TimeUtil::getTimer();
-        executeInParallel(NUM_THREADS, workerThread10);
+        u::executeInParallel(NUM_THREADS, workerThread10);
         t = BloombergLP::bsls::TimeUtil::getTimer() - t;
 
         const double newConstTime = static_cast<double>(t);
 
         BloombergLP::bslim::TestUtil::setFunc(&Util::doVar);
         t = BloombergLP::bsls::TimeUtil::getTimer();
-        executeInParallel(NUM_THREADS, workerThread10);
+        u::executeInParallel(NUM_THREADS, workerThread10);
         t = BloombergLP::bsls::TimeUtil::getTimer() - t;
 
         const double newVarTime = static_cast<double>(t);
@@ -7638,7 +7616,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         BloombergLP::ball::LoggerManagerScopedGuard guard(&observer,
                                                          configuration,
                                                          &ta);
-        executeInParallel(NUM_THREADS, workerThread9);
+        u::executeInParallel(NUM_THREADS, workerThread9);
         if (veryVeryVerbose) observer.print();
 
         bsl::vector<bsl::pair<int, int> > vv[NUM_THREADS];
@@ -8042,7 +8020,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOG_TRACE << "message" << SEP << ARGS[0]
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
-            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE));
+            ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE));
 
         }
 
@@ -8068,7 +8046,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOG_DEBUG << "message" << SEP << ARGS[0]
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
-            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE));
+            ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE));
 
         }
 
@@ -8094,7 +8072,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOG_INFO << "message" << SEP << ARGS[0]
                                        << SEP << ARGS[1]
                                        << SEP << ARGS[2];
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE));
         }
 
         BloombergLP::ball::Administration::addCategory(
@@ -8119,7 +8097,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOG_WARN << "message" << SEP << ARGS[0]
                                        << SEP << ARGS[1]
                                        << SEP << ARGS[2];
-            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE));
+            ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE));
         }
 
         BloombergLP::ball::Administration::addCategory(
@@ -8144,7 +8122,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOG_ERROR << "message" << SEP << ARGS[0]
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
-            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE));
+            ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE));
         }
 
         BloombergLP::ball::Administration::addCategory(
@@ -8169,71 +8147,71 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOG_FATAL << "message" << SEP << ARGS[0]
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
-            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE));
+            ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE));
         }
 
         if (veryVerbose)
             bsl::cout << "\tTesting Buffer Overflow with 'ostream' Macro"
                       << bsl::endl;
         {
-            const int BUFLEN = messageBufferSize();
+            const int BUFLEN = u::messageBufferSize();
             const int EXCESS = 128;
             const int N      = BUFLEN + EXCESS;
-            char *longString = new char[N];
-            bsl::fill(longString + 0, longString + N, 'x');
-            longString[N-1] = '\0';
+            char *longStr    = new char[N];
+            bsl::fill(longStr + 0, longStr + N, 'x');
+            longStr[N-1] = '\0';
             char *cpyString  = new char[N];
-            bsl::strcpy(cpyString, longString);
+            bsl::strcpy(cpyString, longStr);
 
             {
                 const int LINE = L_ + 1;
-                BALL_LOG_TRACE << longString;
+                BALL_LOG_TRACE << longStr;
 
-                ASSERT(0 == bsl::strcmp(cpyString, longString));
-                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+                ASSERT(0 == bsl::strcmp(cpyString, longStr));
+                ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOG_DEBUG << longString;
-                ASSERT(0 == bsl::strcmp(cpyString, longString));
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                BALL_LOG_DEBUG << longStr;
+                ASSERT(0 == bsl::strcmp(cpyString, longStr));
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOG_INFO << longString;
-                ASSERT(0 == bsl::strcmp(cpyString, longString));
-                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+                BALL_LOG_INFO << longStr;
+                ASSERT(0 == bsl::strcmp(cpyString, longStr));
+                ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOG_WARN << longString;
-                ASSERT(0 == bsl::strcmp(cpyString, longString));
-                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+                BALL_LOG_WARN << longStr;
+                ASSERT(0 == bsl::strcmp(cpyString, longStr));
+                ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOG_ERROR << longString;
-                ASSERT(0 == bsl::strcmp(cpyString, longString));
-                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+                BALL_LOG_ERROR << longStr;
+                ASSERT(0 == bsl::strcmp(cpyString, longStr));
+                ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOG_FATAL << longString;
-                ASSERT(0 == bsl::strcmp(cpyString, longString));
-                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+                BALL_LOG_FATAL << longStr;
+                ASSERT(0 == bsl::strcmp(cpyString, longStr));
+                ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longStr));
             }
 
-            delete [] longString;
+            delete [] longStr;
             delete [] cpyString;
         }
       } break;
@@ -8281,7 +8259,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         #define FORMAT_SPEC_8_ARGS "message:%d:%d:%d:%d:%d:%d:%d:%d"
         #define FORMAT_SPEC_9_ARGS "message:%d:%d:%d:%d:%d:%d:%d:%d:%d"
 
-        const char *MESSAGE[] = {
+        const char *MSG[] = {
             "message",
             "message:1",
             "message:1:2",
@@ -8293,7 +8271,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             "message:1:2:3:4:5:6:7:8",
             "message:1:2:3:4:5:6:7:8:9"
         };
-        ASSERT(MAX_ARGS + 1 == sizeof MESSAGE / sizeof *MESSAGE);
+        ASSERT(MAX_ARGS + 1 == sizeof MSG / sizeof *MSG);
 
         BloombergLP::ball::LoggerManagerConfiguration lmc;
         BloombergLP::ball::LoggerManagerScopedGuard lmg(TO, lmc, &ta);
@@ -8380,191 +8358,191 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             BALL_LOGVA(TRACE, FORMAT_SPEC_0_ARGS);
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(TRACE, FORMAT_SPEC_0_ARGS);
-            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            ASSERT(0 == u::isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 1"
                                            << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(TRACE, FORMAT_SPEC_1_ARGS, 1);
-            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            ASSERT(0 == u::isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 2"
                                            << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(TRACE, FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            ASSERT(0 == u::isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 3"
                                            << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(TRACE, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            ASSERT(0 == u::isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 4"
                                            << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(TRACE, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            ASSERT(0 == u::isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 5"
                                            << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(TRACE, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            ASSERT(0 == u::isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 6"
                                            << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(TRACE, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            ASSERT(0 == u::isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 7"
                                            << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(TRACE, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            ASSERT(0 == u::isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 8"
                                            << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(TRACE, FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            ASSERT(0 == u::isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
             if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 9"
                                            << bsl::endl;
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(TRACE, FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-            ASSERT(0 == isBufferUnchangedSinceScribbled());
+            ASSERT(0 == u::isBufferUnchangedSinceScribbled());
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 0\n";
         {
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(255, FORMAT_SPEC_0_ARGS);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOGVA(INFO, FORMAT_SPEC_0_ARGS);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[0]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[0]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 1\n";
         {
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(255, FORMAT_SPEC_1_ARGS, 1);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOGVA(INFO, FORMAT_SPEC_1_ARGS, 1);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[1]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[1]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 2\n";
         {
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(255, FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOGVA(INFO, FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[2]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[2]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 3\n";
         {
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(255, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOGVA(INFO, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[3]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[3]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 4\n";
         {
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(255, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOGVA(INFO, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[4]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[4]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 5\n";
         {
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(255, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOGVA(INFO, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[5]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[5]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 6\n";
         {
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(255, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOGVA(INFO, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[6]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[6]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 7\n";
         {
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(255, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOGVA(INFO, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[7]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[7]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 8\n";
         {
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(255, FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOGVA(INFO, FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[8]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[8]));
         }
 
         if (veryVerbose) bsl::cout << "\tTesting 'BALL_LOGVA' - 9\n";
         {
-            scribbleBuffer();
+            u::scribbleBuffer();
             BALL_LOGVA(255, FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             const int LINE = L_ + 1;
             BALL_LOGVA(INFO, FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[9]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[9]));
         }
 
         if (veryVerbose)
@@ -8572,14 +8550,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_0_ARGS);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_TRACE(FORMAT_SPEC_0_ARGS);
-            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[0]));
+            ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MSG[0]));
         }
 
         if (veryVerbose)
@@ -8587,14 +8565,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_1_ARGS, 1);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_TRACE(FORMAT_SPEC_1_ARGS, 1);
-            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[1]));
+            ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MSG[1]));
         }
 
         if (veryVerbose)
@@ -8602,14 +8580,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_2_ARGS, 1, 2);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_TRACE(FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[2]));
+            ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MSG[2]));
         }
 
         if (veryVerbose)
@@ -8617,14 +8595,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_3_ARGS, 1, 2, 3);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_TRACE(FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[3]));
+            ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MSG[3]));
         }
 
         if (veryVerbose)
@@ -8632,14 +8610,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_TRACE(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[4]));
+            ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MSG[4]));
         }
 
         if (veryVerbose)
@@ -8647,14 +8625,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_TRACE(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[5]));
+            ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MSG[5]));
         }
 
         if (veryVerbose)
@@ -8662,14 +8640,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_TRACE(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[6]));
+            ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MSG[6]));
         }
 
         if (veryVerbose)
@@ -8677,14 +8655,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_TRACE(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[7]));
+            ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MSG[7]));
         }
 
         if (veryVerbose)
@@ -8692,14 +8670,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_TRACE(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[8]));
+            ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MSG[8]));
         }
 
         if (veryVerbose)
@@ -8707,15 +8685,15 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_9_ARGS,
                                  1, 2, 3, 4, 5, 6, 7, 8, 9);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_TRACE(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-            ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[9]));
+            ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MSG[9]));
         }
 
         if (veryVerbose)
@@ -8723,14 +8701,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_0_ARGS);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_DEBUG(FORMAT_SPEC_0_ARGS);
-            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[0]));
+            ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MSG[0]));
         }
 
         if (veryVerbose)
@@ -8738,14 +8716,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_1_ARGS, 1);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_DEBUG(FORMAT_SPEC_1_ARGS, 1);
-            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[1]));
+            ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MSG[1]));
         }
 
         if (veryVerbose)
@@ -8753,14 +8731,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_2_ARGS, 1, 2);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_DEBUG(FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[2]));
+            ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MSG[2]));
         }
 
         if (veryVerbose)
@@ -8768,14 +8746,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_3_ARGS, 1, 2, 3);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_DEBUG(FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[3]));
+            ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MSG[3]));
         }
 
         if (veryVerbose)
@@ -8783,14 +8761,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_DEBUG(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[4]));
+            ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MSG[4]));
         }
 
         if (veryVerbose)
@@ -8798,14 +8776,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_DEBUG(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[5]));
+            ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MSG[5]));
         }
 
         if (veryVerbose)
@@ -8813,14 +8791,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_DEBUG(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[6]));
+            ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MSG[6]));
         }
 
         if (veryVerbose)
@@ -8828,14 +8806,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_DEBUG(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[7]));
+            ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MSG[7]));
         }
 
         if (veryVerbose)
@@ -8843,14 +8821,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_DEBUG(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[8]));
+            ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MSG[8]));
         }
 
         if (veryVerbose)
@@ -8858,15 +8836,15 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_9_ARGS,
                                  1, 2, 3, 4, 5, 6, 7, 8, 9);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_DEBUG(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-            ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[9]));
+            ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MSG[9]));
         }
 
         if (veryVerbose)
@@ -8874,14 +8852,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_INFO(FORMAT_SPEC_0_ARGS);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_INFO(FORMAT_SPEC_0_ARGS);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[0]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[0]));
         }
 
         if (veryVerbose)
@@ -8889,14 +8867,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_INFO(FORMAT_SPEC_1_ARGS, 1);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_INFO(FORMAT_SPEC_1_ARGS, 1);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[1]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[1]));
         }
 
         if (veryVerbose)
@@ -8904,14 +8882,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_INFO(FORMAT_SPEC_2_ARGS, 1, 2);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_INFO(FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[2]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[2]));
         }
 
         if (veryVerbose)
@@ -8919,14 +8897,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_INFO(FORMAT_SPEC_3_ARGS, 1, 2, 3);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_INFO(FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[3]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[3]));
         }
 
         if (veryVerbose)
@@ -8934,14 +8912,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_INFO(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_INFO(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[4]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[4]));
         }
 
         if (veryVerbose)
@@ -8949,14 +8927,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_INFO(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_INFO(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[5]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[5]));
         }
 
         if (veryVerbose)
@@ -8964,14 +8942,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_INFO(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_INFO(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[6]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[6]));
         }
 
         if (veryVerbose)
@@ -8979,14 +8957,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_INFO(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_INFO(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[7]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[7]));
         }
 
         if (veryVerbose)
@@ -8994,14 +8972,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_INFO(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_INFO(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[8]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[8]));
         }
 
         if (veryVerbose)
@@ -9009,14 +8987,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_INFO(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_INFO(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-            ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[9]));
+            ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[9]));
         }
 
         if (veryVerbose)
@@ -9024,14 +9002,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_WARN(FORMAT_SPEC_0_ARGS);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_WARN(FORMAT_SPEC_0_ARGS);
-            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[0]));
+            ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, MSG[0]));
         }
 
         if (veryVerbose)
@@ -9039,14 +9017,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_WARN(FORMAT_SPEC_1_ARGS, 1);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_WARN(FORMAT_SPEC_1_ARGS, 1);
-            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[1]));
+            ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, MSG[1]));
         }
 
         if (veryVerbose)
@@ -9054,14 +9032,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_WARN(FORMAT_SPEC_2_ARGS, 1, 2);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_WARN(FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[2]));
+            ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, MSG[2]));
         }
 
         if (veryVerbose)
@@ -9069,14 +9047,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_WARN(FORMAT_SPEC_3_ARGS, 1, 2, 3);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_WARN(FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[3]));
+            ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, MSG[3]));
         }
 
         if (veryVerbose)
@@ -9084,14 +9062,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_WARN(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_WARN(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[4]));
+            ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, MSG[4]));
         }
 
         if (veryVerbose)
@@ -9099,14 +9077,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_WARN(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_WARN(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[5]));
+            ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, MSG[5]));
         }
 
         if (veryVerbose)
@@ -9114,14 +9092,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_WARN(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_WARN(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[6]));
+            ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, MSG[6]));
         }
 
         if (veryVerbose)
@@ -9129,14 +9107,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_WARN(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_WARN(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[7]));
+            ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, MSG[7]));
         }
 
         if (veryVerbose)
@@ -9144,14 +9122,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_WARN(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_WARN(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[8]));
+            ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, MSG[8]));
         }
 
         if (veryVerbose)
@@ -9159,14 +9137,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_WARN(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_WARN(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-            ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[9]));
+            ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, MSG[9]));
         }
 
         if (veryVerbose)
@@ -9174,14 +9152,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_0_ARGS);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_ERROR(FORMAT_SPEC_0_ARGS);
-            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[0]));
+            ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MSG[0]));
         }
 
         if (veryVerbose)
@@ -9189,14 +9167,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_1_ARGS, 1);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_ERROR(FORMAT_SPEC_1_ARGS, 1);
-            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[1]));
+            ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MSG[1]));
         }
 
         if (veryVerbose)
@@ -9204,14 +9182,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_2_ARGS, 1, 2);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_ERROR(FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[2]));
+            ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MSG[2]));
         }
 
         if (veryVerbose)
@@ -9219,14 +9197,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_3_ARGS, 1, 2, 3);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_ERROR(FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[3]));
+            ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MSG[3]));
         }
 
         if (veryVerbose)
@@ -9234,14 +9212,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_ERROR(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[4]));
+            ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MSG[4]));
         }
 
         if (veryVerbose)
@@ -9249,14 +9227,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_ERROR(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[5]));
+            ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MSG[5]));
         }
 
         if (veryVerbose)
@@ -9264,14 +9242,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_ERROR(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[6]));
+            ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MSG[6]));
         }
 
         if (veryVerbose)
@@ -9279,14 +9257,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_ERROR(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[7]));
+            ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MSG[7]));
         }
 
         if (veryVerbose)
@@ -9294,14 +9272,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_ERROR(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[8]));
+            ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MSG[8]));
         }
 
         if (veryVerbose)
@@ -9309,15 +9287,15 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_9_ARGS,
                                  1, 2, 3, 4, 5, 6, 7, 8, 9);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_ERROR(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-            ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[9]));
+            ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MSG[9]));
         }
 
         if (veryVerbose)
@@ -9325,14 +9303,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_0_ARGS);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_FATAL(FORMAT_SPEC_0_ARGS);
-            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[0]));
+            ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MSG[0]));
         }
 
         if (veryVerbose)
@@ -9340,14 +9318,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_1_ARGS, 1);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_FATAL(FORMAT_SPEC_1_ARGS, 1);
-            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[1]));
+            ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MSG[1]));
         }
 
         if (veryVerbose)
@@ -9355,14 +9333,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_2_ARGS, 1, 2);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_FATAL(FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[2]));
+            ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MSG[2]));
         }
 
         if (veryVerbose)
@@ -9370,14 +9348,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_3_ARGS, 1, 2, 3);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_FATAL(FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[3]));
+            ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MSG[3]));
         }
 
         if (veryVerbose)
@@ -9385,14 +9363,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_FATAL(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[4]));
+            ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MSG[4]));
         }
 
         if (veryVerbose)
@@ -9400,14 +9378,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_FATAL(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[5]));
+            ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MSG[5]));
         }
 
         if (veryVerbose)
@@ -9415,14 +9393,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_FATAL(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
-            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[6]));
+            ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MSG[6]));
         }
 
         if (veryVerbose)
@@ -9430,14 +9408,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_FATAL(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
-            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[7]));
+            ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MSG[7]));
         }
 
         if (veryVerbose)
@@ -9445,14 +9423,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_FATAL(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
-            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[8]));
+            ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MSG[8]));
         }
 
         if (veryVerbose)
@@ -9460,26 +9438,26 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                u::scribbleBuffer();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_9_ARGS,
                                  1, 2, 3, 4, 5, 6, 7, 8, 9);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(1 == u::isBufferUnchangedSinceScribbled());
             }
 
             const int LINE = L_ + 1;
             BALL_LOGVA_FATAL(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-            ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[9]));
+            ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MSG[9]));
         }
 
         if (veryVerbose) bsl::cout <<
                              "\tTesting Buffer Overflow with 'printf' Macro\n";
         {
-            const int BUFLEN = messageBufferSize();
+            const int BUFLEN = u::messageBufferSize();
             const int EXCESS = 128;
             const int N      = BUFLEN + EXCESS;
-            char *longString = new char[N];
-            bsl::fill(longString + 0, longString + N, 'x');
-            longString[N-1] = '\0';
+            char *longStr    = new char[N];
+            bsl::fill(longStr + 0, longStr + N, 'x');
+            longStr[N-1] = '\0';
 
             // Note: when the "long string" is to be used as the format
             // specification, we need a string literal instead to avoid
@@ -9619,664 +9597,664 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
            "****************************************************************"
 
             {
-                longString[BUFLEN - 2] = '!';
-                longString[BUFLEN - 1] = '*';
+                longStr[BUFLEN - 2] = '!';
+                longStr[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
                 BALL_LOGVA(DEBUG, OVERLY_LONG_STRING);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'b';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'b';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, "%s", longString);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                BALL_LOGVA(DEBUG, "%s", longStr);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'c';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'c';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, "%s %d", longString, 2);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                BALL_LOGVA(DEBUG, "%s %d", longStr, 2);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'd';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'd';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, "%s %d %d", longString, 2, 3);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                BALL_LOGVA(DEBUG, "%s %d %d", longStr, 2, 3);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'e';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'e';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, "%s %d %d %d", longString, 2, 3, 4);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                BALL_LOGVA(DEBUG, "%s %d %d %d", longStr, 2, 3, 4);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'f';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'f';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA(DEBUG, "%s %d %d %d %d", longString, 2, 3, 4, 5);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                BALL_LOGVA(DEBUG, "%s %d %d %d %d", longStr, 2, 3, 4, 5);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'g';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'g';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA(DEBUG, "%s %d %d %d %d %d",
-                                  longString, 2, 3, 4, 5, 6);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                                  longStr, 2, 3, 4, 5, 6);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'h';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'h';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA(DEBUG, "%s %d %d %d %d %d %d",
-                                  longString, 2, 3, 4, 5, 6, 7);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                                  longStr, 2, 3, 4, 5, 6, 7);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'i';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'i';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA(DEBUG, "%s %d %d %d %d %d %d %d",
-                                  longString, 2, 3, 4, 5, 6, 7, 8);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                                  longStr, 2, 3, 4, 5, 6, 7, 8);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'j';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'j';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA(DEBUG, "%s %d %d %d %d %d %d %d %d",
-                                  longString, 2, 3, 4, 5, 6, 7, 8, 9);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                                  longStr, 2, 3, 4, 5, 6, 7, 8, 9);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '!';
-                longString[BUFLEN - 1] = '*';
+                longStr[BUFLEN - 2] = '!';
+                longStr[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
                 BALL_LOGVA_TRACE(OVERLY_LONG_STRING);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'l';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'l';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE("%s", longString);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+                BALL_LOGVA_TRACE("%s", longStr);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'm';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'm';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE("%s %d", longString, 2);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+                BALL_LOGVA_TRACE("%s %d", longStr, 2);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'n';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'n';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE("%s %d %d", longString, 2, 3);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+                BALL_LOGVA_TRACE("%s %d %d", longStr, 2, 3);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'o';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'o';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE("%s %d %d %d", longString, 2, 3, 4);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+                BALL_LOGVA_TRACE("%s %d %d %d", longStr, 2, 3, 4);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'p';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'p';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_TRACE("%s %d %d %d %d", longString, 2, 3, 4, 5);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+                BALL_LOGVA_TRACE("%s %d %d %d %d", longStr, 2, 3, 4, 5);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'q';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'q';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_TRACE("%s %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'r';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'r';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_TRACE("%s %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 's';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 's';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_TRACE("%s %d %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7, 8);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7, 8);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 't';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 't';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_TRACE("%s %d %d %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7, 8, 9);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7, 8, 9);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '!';
-                longString[BUFLEN - 1] = '*';
+                longStr[BUFLEN - 2] = '!';
+                longStr[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
                 BALL_LOGVA_DEBUG(OVERLY_LONG_STRING);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'v';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'v';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG("%s", longString);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                BALL_LOGVA_DEBUG("%s", longStr);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'w';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'w';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG("%s %d", longString, 2);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                BALL_LOGVA_DEBUG("%s %d", longStr, 2);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'x';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'x';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG("%s %d %d", longString, 2, 3);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                BALL_LOGVA_DEBUG("%s %d %d", longStr, 2, 3);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'y';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'y';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG("%s %d %d %d", longString, 2, 3, 4);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                BALL_LOGVA_DEBUG("%s %d %d %d", longStr, 2, 3, 4);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'z';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'z';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_DEBUG("%s %d %d %d %d", longString, 2, 3, 4, 5);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                BALL_LOGVA_DEBUG("%s %d %d %d %d", longStr, 2, 3, 4, 5);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'A';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'A';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_DEBUG("%s %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'B';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'B';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_DEBUG("%s %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'C';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'C';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_DEBUG("%s %d %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7, 8);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7, 8);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'D';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'D';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_DEBUG("%s %d %d %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7, 8, 9);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7, 8, 9);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '!';
-                longString[BUFLEN - 1] = '*';
+                longStr[BUFLEN - 2] = '!';
+                longStr[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
                 BALL_LOGVA_INFO(OVERLY_LONG_STRING);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'F';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'F';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_INFO("%s", longString);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+                BALL_LOGVA_INFO("%s", longStr);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'G';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'G';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_INFO("%s %d", longString, 2);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+                BALL_LOGVA_INFO("%s %d", longStr, 2);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'H';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'H';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_INFO("%s %d %d", longString, 2, 3);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+                BALL_LOGVA_INFO("%s %d %d", longStr, 2, 3);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'I';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'I';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_INFO("%s %d %d %d", longString, 2, 3, 4);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+                BALL_LOGVA_INFO("%s %d %d %d", longStr, 2, 3, 4);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'J';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'J';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_INFO("%s %d %d %d %d", longString, 2, 3, 4, 5);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+                BALL_LOGVA_INFO("%s %d %d %d %d", longStr, 2, 3, 4, 5);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'K';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'K';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_INFO("%s %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'L';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'L';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_INFO("%s %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'M';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'M';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_INFO("%s %d %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7, 8);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7, 8);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'N';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'N';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_INFO("%s %d %d %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7, 8, 9);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7, 8, 9);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '!';
-                longString[BUFLEN - 1] = '*';
+                longStr[BUFLEN - 2] = '!';
+                longStr[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
                 BALL_LOGVA_WARN(OVERLY_LONG_STRING);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'P';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'P';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_WARN("%s", longString);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+                BALL_LOGVA_WARN("%s", longStr);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'Q';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'Q';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_WARN("%s %d", longString, 2);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+                BALL_LOGVA_WARN("%s %d", longStr, 2);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'R';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'R';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_WARN("%s %d %d", longString, 2, 3);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+                BALL_LOGVA_WARN("%s %d %d", longStr, 2, 3);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'S';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'S';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_WARN("%s %d %d %d", longString, 2, 3, 4);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+                BALL_LOGVA_WARN("%s %d %d %d", longStr, 2, 3, 4);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'T';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'T';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_WARN("%s %d %d %d %d", longString, 2, 3, 4, 5);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+                BALL_LOGVA_WARN("%s %d %d %d %d", longStr, 2, 3, 4, 5);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'U';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'U';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_WARN("%s %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'V';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'V';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_WARN("%s %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'W';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'W';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_WARN("%s %d %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7, 8);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7, 8);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'X';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'X';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_WARN("%s %d %d %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7, 8, 9);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7, 8, 9);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '!';
-                longString[BUFLEN - 1] = '*';
+                longStr[BUFLEN - 2] = '!';
+                longStr[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
                 BALL_LOGVA_ERROR(OVERLY_LONG_STRING);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'Z';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'Z';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR("%s", longString);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+                BALL_LOGVA_ERROR("%s", longStr);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '0';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = '0';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR("%s %d", longString, 2);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+                BALL_LOGVA_ERROR("%s %d", longStr, 2);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '1';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = '1';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR("%s %d %d", longString, 2, 3);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+                BALL_LOGVA_ERROR("%s %d %d", longStr, 2, 3);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '2';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = '2';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR("%s %d %d %d", longString, 2, 3, 4);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+                BALL_LOGVA_ERROR("%s %d %d %d", longStr, 2, 3, 4);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '3';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = '3';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_ERROR("%s %d %d %d %d", longString, 2, 3, 4, 5);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+                BALL_LOGVA_ERROR("%s %d %d %d %d", longStr, 2, 3, 4, 5);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '4';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = '4';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_ERROR("%s %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '5';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = '5';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_ERROR("%s %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '6';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = '6';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_ERROR("%s %d %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7, 8);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7, 8);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '7';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = '7';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_ERROR("%s %d %d %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7, 8, 9);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7, 8, 9);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '!';
-                longString[BUFLEN - 1] = '*';
+                longStr[BUFLEN - 2] = '!';
+                longStr[BUFLEN - 1] = '*';
                 const int LINE = L_ + 1;
                 BALL_LOGVA_FATAL(OVERLY_LONG_STRING);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = '9';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = '9';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL("%s", longString);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+                BALL_LOGVA_FATAL("%s", longStr);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'a';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'a';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL("%s %d", longString, 2);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+                BALL_LOGVA_FATAL("%s %d", longStr, 2);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'b';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'b';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL("%s %d %d", longString, 2, 3);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+                BALL_LOGVA_FATAL("%s %d %d", longStr, 2, 3);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'c';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'c';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL("%s %d %d %d", longString, 2, 3, 4);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+                BALL_LOGVA_FATAL("%s %d %d %d", longStr, 2, 3, 4);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'd';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'd';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 1;
-                BALL_LOGVA_FATAL("%s %d %d %d %d", longString, 2, 3, 4, 5);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+                BALL_LOGVA_FATAL("%s %d %d %d %d", longStr, 2, 3, 4, 5);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'e';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'e';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_FATAL("%s %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'f';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'f';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_FATAL("%s %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'g';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'g';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_FATAL("%s %d %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7, 8);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7, 8);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longStr));
             }
 
             {
-                longString[BUFLEN - 2] = 'h';
-                longString[BUFLEN - 1] = 'x';
+                longStr[BUFLEN - 2] = 'h';
+                longStr[BUFLEN - 1] = 'x';
                 const int LINE = L_ + 2;
                 BALL_LOGVA_FATAL("%s %d %d %d %d %d %d %d %d",
-                                 longString, 2, 3, 4, 5, 6, 7, 8, 9);
-                longString[BUFLEN - 1] = '\0';
-                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longString));
+                                 longStr, 2, 3, 4, 5, 6, 7, 8, 9);
+                longStr[BUFLEN - 1] = '\0';
+                ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, longStr));
             }
 
-            delete [] longString;
+            delete [] longStr;
 
 #undef OVERLY_LONG_STRING
         }
@@ -10299,7 +10277,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     BALL_LOGVA_TRACE(FORMAT_SPEC_0_ARGS);
                 else
                     ++unbracketedLoggingFlag;
-                ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[0]));
+                ASSERT(u::isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MSG[0]));
             }
 
             {
@@ -10308,7 +10286,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     BALL_LOGVA_DEBUG(FORMAT_SPEC_1_ARGS, 1);
                 else
                     ++unbracketedLoggingFlag;
-                ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[1]));
+                ASSERT(u::isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MSG[1]));
             }
 
             {
@@ -10317,7 +10295,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     BALL_LOGVA_INFO(FORMAT_SPEC_2_ARGS, 1, 2);
                 else
                     ++unbracketedLoggingFlag;
-                ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[2]));
+                ASSERT(u::isRecordOkay(*TO, CAT, INFO, FILE, LINE, MSG[2]));
             }
 
             {
@@ -10326,7 +10304,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     BALL_LOGVA_WARN(FORMAT_SPEC_3_ARGS, 1, 2, 3);
                 else
                     ++unbracketedLoggingFlag;
-                ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[3]));
+                ASSERT(u::isRecordOkay(*TO, CAT, WARN, FILE, LINE, MSG[3]));
             }
 
             {
@@ -10335,7 +10313,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     BALL_LOGVA_ERROR(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
                 else
                     ++unbracketedLoggingFlag;
-                ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[4]));
+                ASSERT(u::isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MSG[4]));
             }
 
             {
@@ -10344,7 +10322,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     BALL_LOGVA_FATAL(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
                 else
                     ++unbracketedLoggingFlag;
-                ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[5]));
+                ASSERT(u::isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MSG[5]));
             }
 
             ASSERT(1 == unbracketedLoggingFlag);
@@ -10529,13 +10507,13 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //
         // Plan:
         // TBD doc
-        //   (1) Verify that 'messageBuffer' returns non-null and that
-        //       'messageBufferSize' bytes may be overwritten
+        //   (1) Verify that 'u::messageBuffer' returns non-null and that
+        //       'u::messageBufferSize' bytes may be overwritten
         //
         // Testing:
         //   void logMessage(*category, severity, *file, line, *msg);
-        //   char *messageBuffer();
-        //   int messageBufferSize();
+        //   char *u::messageBuffer();
+        //   int u::messageBufferSize();
         //   const ball::Category *setCategory(Holder *, const char *);
         //   const ball::Category *setCategory(const char *categoryName);
         // --------------------------------------------------------------------
@@ -10622,7 +10600,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
              const int NREC = TO->numPublishedRecords();
              ball::Log::logMessage(CAT, SEV, FILE, LINE, MSG);
              ASSERT(NREC + 1 == TO->numPublishedRecords());
-             ASSERT(isRecordOkay(*TO, CAT, SEV, FILE, LINE, MSG));
+             ASSERT(u::isRecordOkay(*TO, CAT, SEV, FILE, LINE, MSG));
          }
       } break;
       case -1: {
