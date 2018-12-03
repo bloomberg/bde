@@ -588,10 +588,8 @@ BSL_OVERRIDES_STD mode"
 #include <bslalg_typetraithasstliterators.h>
 
 #include <bslma_allocatortraits.h>
-
-#ifndef INCLUDED_BSLMA_STDALLOCATOR
 #include <bslma_stdallocator.h>  // Can probably escape with a fwd-decl, but
-#endif                           // not very user friendly
+                                 // not very user friendly
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_isbitwisemoveable.h>

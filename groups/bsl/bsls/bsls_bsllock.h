@@ -116,7 +116,9 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #else
+
 #include <pthread.h>
+
 #endif
 
 #ifdef BDE_BUILD_TARGET_SAFE

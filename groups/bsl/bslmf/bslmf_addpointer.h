@@ -57,9 +57,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
-#ifndef INCLUDED_STDDEF_H
 #include <stddef.h>
-#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslmf_removereference.h>
@@ -67,7 +65,6 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bslmf {
-
 
 struct AddPointer_Compute {
     // This utility 'struct' is a private implementation detail that hosts an
@@ -113,10 +110,8 @@ struct AddPointer_Impl<TYPE[], 1u> {
 };
 #endif
 
-
 }  // close package namespace
 }  // close enterprise namespace
-
 
 namespace bsl {
 

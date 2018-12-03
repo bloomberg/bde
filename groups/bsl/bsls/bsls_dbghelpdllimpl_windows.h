@@ -111,6 +111,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
+
 #include <bsls_bsllock.h>
 
 #ifndef INCLUDED_WINDOWS
@@ -122,8 +123,8 @@ BSLS_IDENT("$Id: $")
 #include <windows.h>
 #define INCLUDED_WINDOWS
 #endif
-#include <intrin.h>
 
+#include <intrin.h>
 #include <dbghelp.h>
 
 namespace BloombergLP {

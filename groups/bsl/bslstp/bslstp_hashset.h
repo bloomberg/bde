@@ -74,9 +74,7 @@
 #endif
 #include <bslscm_version.h>
 
-#ifndef INCLUDED_BSLSTL_EXFUNCTIONAL
 #include <bslstp_exfunctional.h>
-#endif
 #include <bslstp_hash.h>
 #include <bslstp_hashtable.h>
 

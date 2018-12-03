@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BDLDE_CRC32C
 #define INCLUDED_BDLDE_CRC32C
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide utilities to calculate the CRC32-C checksum of a dataset.
@@ -79,13 +77,9 @@ BSLS_IDENT("$Id$")
 //                                      checksum);
 //..
 
-#ifndef INCLUDED_BDLSCM_VERSION
 #include <bdlscm_version.h>
-#endif
 
-#ifndef INCLUDED_BSL_CSTDDEF
 #include <bsl_cstddef.h>
-#endif
 
 namespace BloombergLP {
 namespace bdlde {

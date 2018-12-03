@@ -2,9 +2,7 @@
 #ifndef INCLUDED_BSLS_ASSERTTEST_MACRORESET
 #define INCLUDED_BSLS_ASSERTTEST_MACRORESET
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Undefine macros related to 'bsls_asserttest.h'.
