@@ -1,12 +1,4 @@
 // bsls_stackaddressutil.h                                            -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #ifndef INCLUDED_BSLS_STACKADDRESSUTIL
 #define INCLUDED_BSLS_STACKADDRESSUTIL
 
@@ -363,12 +355,13 @@ struct StackAddressUtil {
         // null-terminated string.  On successfully obtaining the current call
         // stack, this will be instructions on how to run the Bloomberg tool
         // 'showfunc.tsk' (with the optionally specified 'taskname', otherwise
-        // with a readable placeholder) to get details of the current call
-        // stack where 'formatCheapStack' was called.  On failure, text
-        // indicating that the call stack was not obtainable will be written to
-        // 'output'.  If 'length' is not long enough for the entire output it
-        // will be truncated.  The behavior is undefined unless '0 <= length'
-        // and 'output' has the capacity for at least 'length' bytes.
+        // with an attempt to obtain the system-specific process name) to get
+        // details of the current call stack where 'formatCheapStack' was
+        // called.  On failure, text indicating that the call stack was not
+        // obtainable will be written to 'output'.  If 'length' is not long
+        // enough for the entire output it will be truncated.  The behavior is
+        // undefined unless '0 <= length' and 'output' has the capacity for at
+        // least 'length' bytes.
 };
 
 }  // close package namespace

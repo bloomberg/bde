@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
 // 'getStackAddresses' will not be able to trace through our stack frames if
 // we're optimized on Windows
 
@@ -52,7 +52,8 @@ using namespace BloombergLP;
 // [ 5] static void formatCheapStack(char*,int,char*);
 // [ 6] CHEAPSTACK: test truncation
 // [ 7] CHEAPSTACK: test stacks
-// [ 8] USAGE EXAMPLE #2
+// [ 8] CHEAPSTACK: test process name
+// [ 9] USAGE EXAMPLE #2
 // [ 2] getStackAddresses(0, 0)
 // [-1] Speed benchmark of getStackAddresses
 
@@ -132,10 +133,10 @@ static std::string myHex(UintPtr up)
 }
 
                                  // ------
-                                 // CASE 8
+                                 // CASE 9
                                  // ------
 
-namespace CASE_EIGHT {
+namespace CASE_NINE {
 
 // In this example we demonstrate how to use 'formatCheapStack' to generate a
 // string containing the current stack trace and instructions on how to print
@@ -190,7 +191,7 @@ struct MyTest2 {
 //                                           ... 400F49" to see the stack trace
 //..
 
-}  // close namespace CASE_EIGHT
+}  // close namespace CASE_NINE
 
                                  // ------
                                  // CASE 4
@@ -443,18 +444,18 @@ static int findIndex(AddressEntry *entries, int numAddresses, UintPtr funcP)
     return ret;
 }
 
-#define CASE3_FUNC(nMinus1, n)                                                \
-    void func ## n(int *pi)                                                   \
-    {                                                                         \
-        ++*pi;                                                                \
-        if (*pi > 100) {                                                      \
-            func ## n(pi);                                                    \
-        }                                                                     \
-        else if (*pi < 100) {                                                 \
-            func ## nMinus1(pi);                                              \
-        }                                                                     \
-                                                                              \
-        ++*pi;                                                                \
+#define CASE3_FUNC(nMinus1, n)                                               \
+    void func ## n(int *pi)                                                  \
+    {                                                                        \
+        ++*pi;                                                               \
+        if (*pi > 100) {                                                     \
+            func ## n(pi);                                                   \
+        }                                                                    \
+        else if (*pi < 100) {                                                \
+            func ## nMinus1(pi);                                             \
+        }                                                                    \
+                                                                             \
+        ++*pi;                                                               \
     }
 
 void func0(int *pi);
@@ -642,7 +643,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #2
         //
@@ -661,8 +662,40 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE #2"
                             "\n================\n");
 
-        CASE_EIGHT::MyTest::printCheapStack();
-        CASE_EIGHT::MyTest2::printCheapStack();
+        CASE_NINE::MyTest::printCheapStack();
+        CASE_NINE::MyTest2::printCheapStack();
+
+      } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // CHEAPSTACK PROCESS NAME TEST
+        //
+        // Concerns:
+        //: 1 'formatCheapStack' when not passed a 'taskName' parameter should
+        //:   get the process name, which for this test driver should contain
+        //:   the component name "bsls_stackaddressutil" somewhere in it.
+        //:
+        // Plan:
+        //: 1 Call 'formatCheapStack'.
+        //:
+        //: 2 Verify the result contains "bsls_stackaddressutil".
+        //
+        // Testing:
+        //   CHEAPSTACK: test process name
+        // --------------------------------------------------------------------
+
+          if (verbose) printf( "\nCHEAPSTACK PROCESS NAME TEST"
+                               "\n============================\n" );
+
+          char res[1024];
+
+          bsls::StackAddressUtil::formatCheapStack( res, 1024 );
+
+          if (verbose) printf("\nCheapstack output:%s", res);
+
+          const char *tpos = std::strstr(res, "bsls_stackaddressutil");
+
+          ASSERT(tpos != NULL);
 
       } break;
       case 7: {
@@ -674,7 +707,7 @@ int main(int argc, char *argv[])
         //:   one return point when called consecutively.
         //:
         // Plan:
-        //: 1 call 'formatCheapStack' twice.
+        //: 1 Call 'formatCheapStack' twice.
         //:
         //: 2 Compare the outputs.
         //
@@ -800,10 +833,13 @@ int main(int argc, char *argv[])
 
                 ASSERT( std::strlen(next) < static_cast<std::size_t>(i) );
 
-                if (i > 1)
+                if (i > 2)
                 {
+                    // allow 3 characters leeway because some platforms don't
+                    // use the last characters "efficiently" to make sure that
+                    // they always null-terminate properly.
                     LOOP3_ASSERT( i, prev, next, 0 ==
-                                  std::strncmp( prev, next, i-2) );
+                                  std::strncmp( prev, next, i-3) );
                 }
 
                 std::memcpy( prev, next, 1024);
