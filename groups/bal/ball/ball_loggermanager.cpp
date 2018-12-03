@@ -111,11 +111,10 @@ void bufferPoolDeleter(void *buffer, void *pool)
     // 'bdlma::ConcurrentPool', and 'buffer' was allocated from 'pool' and has
     // not yet been deallocated.
 {
-    bdlma::ConcurrentPool *p = static_cast<bdlma::ConcurrentPool *>(pool);
-
     BSLS_ASSERT(buffer);
     BSLS_ASSERT(pool);
 
+    bdlma::ConcurrentPool *p = static_cast<bdlma::ConcurrentPool *>(pool);
     p->deallocate(buffer);
 }
 
