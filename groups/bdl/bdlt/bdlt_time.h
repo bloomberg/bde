@@ -122,6 +122,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_stackaddressutil.h>
 #include <bsls_types.h>
 
@@ -625,28 +626,7 @@ bsls::Types::Int64 Time::microsecondsFromMidnight() const
     }
 
     BSLS_ASSERT_SAFE(0 && "detected invalid 'bdlt::Time'; see TEAM 579660115");
-
-    // Log detection of invalid format with logarithmic back-off.
-
-    bdlb::BitUtil::uint64_t count =
-          static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
-    if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-        enum { k_BUFFER_LENGTH = 50 };
-        void *buffer[k_BUFFER_LENGTH];
-        bsl::memset(buffer, 0, sizeof(buffer));
-        int numAddresses = bsls::StackAddressUtil::getStackAddresses(
-                                                              buffer,
-                                                              k_BUFFER_LENGTH);
-        int stackIdx = bsls::StackAddressUtil::k_IGNORE_FRAMES;
-
-        bsl::stringstream ss;
-        ss << "detected invalid 'bdlt::Time'; see TEAM 579660115; numAddr="
-           << numAddresses << "\n";
-        for (; stackIdx < numAddresses; ++stackIdx) {
-            ss << "#" << stackIdx << ": " << buffer[stackIdx] << "\n";
-        }
-        BSLS_LOG_ERROR(ss.str().c_str());
-    }
+    BSLS_REVIEW_INVOKE("detected invalid 'bdlt::Time'; see TEAM 579660115");
 
 #if BSLS_PLATFORM_IS_LITTLE_ENDIAN
     return d_value * TimeUnitRatio::k_US_PER_MS;
