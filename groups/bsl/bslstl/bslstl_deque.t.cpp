@@ -272,33 +272,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
 // ============================================================================
-//              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
-// ----------------------------------------------------------------------------
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
-# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    constexpr bsl::bool_constant<EXPRESSION> NAME{}
-    // This leading branch is the preferred version for C++17, but the feature
-    // test macro is (currently) for documentation purposes only, and never
-    // defined.  This is the ideal (simplest) form for such declarations:
-#elif defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    constexpr bsl::integral_constant<bool, EXPRESSION> NAME{}
-    // This is the preferred C++11 form for the definition of integral constant
-    // variables.  It assumes the presence of 'constexpr' in the compiler as an
-    // indication that brace-initialization and traits are available, as it has
-    // historically been one of the last C++11 features to ship.
-#else
-# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    static const bsl::integral_constant<bool, EXPRESSION> NAME =              \
-                 bsl::integral_constant<bool, EXPRESSION>()
-    // 'bsl::integral_constant' is not an aggregate prior to C++17 extending
-    // the rules, so a C++03 compiler must explicitly initialize integral
-    // constant variables in a way that is unambiguously not a vexing parse
-    // that declares a function instead.
-#endif
-
-// ============================================================================
 //                             SWAP TEST HELPERS
 // ----------------------------------------------------------------------------
 
