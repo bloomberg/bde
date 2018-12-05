@@ -156,25 +156,6 @@ void aSsErT(bool condition, const char *message, int line)
 }  // close unnamed namespace
 
 // ============================================================================
-//                  HELPER CLASSES AND FUNCTIONS FOR TESTING
-// ----------------------------------------------------------------------------
-
-#ifndef BSLS_ASSERT_SAFE_IS_ACTIVE
-
-static int s_countingLogMessageHandlerCount = 0;
-
-static void countingLogMessageHandler(bsls::LogSeverity::Enum,
-                                      const char              *,
-                                      const int,
-                                      const char              *)
-    // Increment 's_countingLogMessageHandlerCount'.
-{
-    ++s_countingLogMessageHandlerCount;
-}
-
-#endif
-
-// ============================================================================
 //               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
