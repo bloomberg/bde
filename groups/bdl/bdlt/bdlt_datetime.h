@@ -1111,29 +1111,9 @@ bool Datetime::validateAndTraceLogRepresentation() const
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(k_REP_MASK <= d_value)) {
         return true;                                                  // RETURN
     }
-    BSLS_ASSERT_SAFE(
-                 0 && "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
+    BSLS_REVIEW_INVOKE(
+                      "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
 
-    // Log detection of invalid format with logarithmic back-off.
-    bdlb::BitUtil::uint64_t count =
-          static_cast<bdlb::BitUtil::uint64_t>(++s_invalidRepresentationCount);
-    if (count == bdlb::BitUtil::roundUpToBinaryPower(count)) {
-        enum { k_BUFFER_LENGTH = 50 };
-        void *buffer[k_BUFFER_LENGTH];
-        bsl::memset(buffer, 0, sizeof(buffer));
-        int numAddresses = bsls::StackAddressUtil::getStackAddresses(
-                                                              buffer,
-                                                              k_BUFFER_LENGTH);
-        int stackIdx = bsls::StackAddressUtil::k_IGNORE_FRAMES;
-
-        bsl::stringstream ss;
-        ss << "detected invalid 'bdlt::Time'; see TEAM 579660115; numAddr="
-           << numAddresses << "\n";
-        for (; stackIdx < numAddresses; ++stackIdx) {
-            ss << "#" << stackIdx << ": " << buffer[stackIdx] << "\n";
-        }
-        BSLS_LOG_ERROR(ss.str().c_str());
-    }
     return false;
 }
 
