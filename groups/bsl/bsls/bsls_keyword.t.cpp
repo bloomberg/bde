@@ -18,6 +18,7 @@ using namespace std;
 //                                  --------
 //-----------------------------------------------------------------------------
 // [ 2] BSLS_KEYWORD_CONSTEXPR
+// [  ] BSLS_KEYWORD_CONSTEXPR_MEMBER
 // [ 3] BSLS_KEYWORD_CONSTEXPR_RELAXED
 // [ 9] BSLS_KEYWORD_DELETED
 // [ 4] BSLS_KEYWORD_EXPLICIT

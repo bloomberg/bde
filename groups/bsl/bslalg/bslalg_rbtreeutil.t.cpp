@@ -12,8 +12,13 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 
 #include <algorithm>
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#include <random>
+#endif
 
 #include <ctype.h>
 #include <errno.h>
@@ -161,6 +166,15 @@ const RbTreeNode::Color BLACK = RbTreeNode::BSLALG_BLACK;
 static bool         verbose = false;
 static bool     veryVerbose = false;
 static bool veryVeryVerbose = false;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+static native_std::default_random_engine g_randomSource;
+    // A global source of random numbers to be used by 'shuffle' algorithms
+    // throughout this test driver.  As multiple shuffles are required, and
+    // only one thread is running, a single global source of randomness should
+    // provide the best guarantees to avoid accidentally repeating the same
+    // shuffle with the same seeds.
+#endif
 
 // ============================================================================
 //                         GLOBAL CLASSES FOR TESTING
@@ -3297,7 +3311,11 @@ void TestDriver<VALUE>::testCase9()
         }
 
         for (int i = 0; i < 2; ++i) {
-            std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+            native_std::shuffle(VALUES, VALUES + NUM_VALUES, g_randomSource);
+#else  // fall-back for C++03, potentially unsupported in C++17
+            native_std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#endif
 
 
             NodeArray             nodes(&ta);
@@ -3334,7 +3352,11 @@ void TestDriver<VALUE>::testCase9()
             VALUES[i] = i;
         }
 
-        std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+        native_std::shuffle(VALUES, VALUES + NUM_VALUES, g_randomSource);
+#else  // fall-back for C++03, potentially unsupported in C++17
+        native_std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#endif
 
         bslma::TestAllocator   ta;
         NodeArray             nodes(&ta);
@@ -3372,7 +3394,11 @@ void TestDriver<VALUE>::testCase9()
         }
 
         for (int i = 0; i < 10; ++i) {
-            std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+            native_std::shuffle(VALUES, VALUES + NUM_VALUES, g_randomSource);
+#else  // fall-back for C++03, potentially unsupported in C++17
+            native_std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#endif
 
             NodeArray             nodes(&ta);
 
@@ -7672,7 +7698,13 @@ int main(int argc, char *argv[])
             }
 
             for (int i = 0; i < 2; ++i) {
-                std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+                native_std::shuffle(VALUES,
+                                    VALUES + NUM_VALUES,
+                                    g_randomSource);
+#else  // fall-back for C++03, potentially unsupported in C++17
+                native_std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#endif
 
                 RbTreeAnchor tree;
                 IntNode      nodes[NUM_VALUES];
@@ -7697,7 +7729,11 @@ int main(int argc, char *argv[])
 
             IntNodeComparator nodeComparator;
 
-            std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+            native_std::shuffle(VALUES, VALUES + NUM_VALUES, g_randomSource);
+#else  // fall-back for C++03, potentially unsupported in C++17
+            native_std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#endif
 
             RbTreeAnchor tree;
             IntNode    nodes[NUM_VALUES];
@@ -8000,7 +8036,13 @@ int main(int argc, char *argv[])
                     Obj::insert(&tree, nodeComparator, &nodes[j]);
                     ASSERT(0 <= validateIntRbTree(tree.rootNode()));
                 }
-                std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+                native_std::shuffle(VALUES,
+                                    VALUES + NUM_VALUES,
+                                    g_randomSource);
+#else  // fall-back for C++03, potentially unsupported in C++17
+                native_std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#endif
                 if (veryVeryVeryVerbose) {
                     printIntTree(tree);
                 }
@@ -8246,7 +8288,11 @@ int main(int argc, char *argv[])
               for (int j = 0; j < length; ++j) {
                   values[j] = ((j/3) + 1) *2;
               }
-              std::random_shuffle(values, values + length);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+              native_std::shuffle(values, values + length, g_randomSource);
+#else  // fall-back for C++03, potentially unsupported in C++17
+              native_std::random_shuffle(values, values + length);
+#endif
 
               bslma::TestAllocator ta;
               RbTreeAnchor         tree;

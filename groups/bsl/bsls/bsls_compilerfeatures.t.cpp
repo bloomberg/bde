@@ -233,9 +233,9 @@ struct SmartPtrWithSfinaeConstructor {
 };
 
 void test_default_template_args() {
-    SmartPtrWithSfinaeConstructor<int> x = 0;  // Oracle CC 12.4 asserts
+    SmartPtrWithSfinaeConstructor<int> x = 0;   // Oracle CC 12.4 asserts.
     (void)x;
-    (void)test_default_template_args;
+    (void)&test_default_template_args;  // Portably silence unused warnings.
 }
 
 }  // close unnamed namespace
@@ -330,7 +330,7 @@ namespace {
 
 void OverloadForNullptr(int)
 {
-    (void)OverloadForNullptr;
+    (void)&OverloadForNullptr;  // Portably silence unused function warnings.
 }
 void OverloadForNullptr(void *) {}
 
@@ -553,8 +553,8 @@ void func(TYPE *, const ARG1&, const TAIL&...) {
 
 void test_func() {
     int x = 0;
-    func(&x, 0);  // This line will be ambiguous on buggy compilers
-    (void)test_func;
+    func(&x, 0);       // This line will be ambiguous on buggy compilers
+    (void)&test_func;  // Portably silence unused function warnings.
 }
 
 }  // close unnamed namespace

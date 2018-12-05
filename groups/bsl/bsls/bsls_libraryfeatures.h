@@ -216,15 +216,16 @@ BSLS_IDENT("$Id: $")
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'
 ///-------------------------------------------------
-// This macro is used to identify whether the current platform's standard
-// library supports a baseline set of C++11 library features (which are defined
-// below).  This is especially important in BSL when importing standard library
-// functions and types into the 'bsl::' namespace, as is done in 'bsl+bslhdrs'.
-// In particular this macro is used where C++11 has introduced new functions
-// and types into headers available in older versions of the C++ standard.  For
-// example, C++11 introduced the type 'tuple' to the existing '<utility>'
-// header, so 'bsl_utility.h' uses this macro to determine whether to import
-// 'std::tuple' into the 'bsl' namespace.
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro is used to
+// identify whether the current platform's standard library supports a baseline
+// set of C++11 library features (which are defined below).  This is especially
+// important in BSL when importing standard library functions and types into
+// the 'bsl::' namespace, as is done in 'bsl+bslhdrs'.  In particular this
+// macro is used where C++11 has introduced new functions and types into
+// headers available in older versions of the C++ standard.  For example, C++11
+// introduced the type 'move_iterator' to the existing '<iterator>' header, so
+// 'bsl_iterator.h' uses this macro to determine whether to import
+// 'std::move_iterator' into the 'bsl' namespace.
 //
 // This macro is defined if *both* of the listed conditions are true:
 //
@@ -327,12 +328,13 @@ BSLS_IDENT("$Id: $")
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY'
 ///----------------------------------------------------
-// This macro is used to identify whether the current platform's standard
-// library supports a baseline set of C++14 library features (which are defined
-// below).  This is especially important in BSL when importing standard library
-// functions and types into the 'bsl::' namespace, as is done in 'bsl+bslhdrs'.
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY' macro is used to
+// identify whether the current platform's standard library supports a baseline
+// set of C++14 library features (which are defined below).  This is especially
+// important in BSL when importing standard library functions and types into
+// the 'bsl::' namespace, as is done in 'bsl+bslhdrs'.
 //
-// This macro is defined if *both* of the listed conditions are true:
+// This macro is defined if *all* of the listed conditions are true:
 //
 //: o The compiler supports C++14 language features.
 //:
@@ -361,6 +363,8 @@ BSLS_IDENT("$Id: $")
 //:   o UDLs support for <'chrono>'
 //:
 //:   o UDLs support for '<complex>'
+//:
+//: o The header <shared_mutex> is available providing the standard components.
 //
 // Currently the following compilers will have this trait defined by default:
 //
@@ -437,8 +441,8 @@ BSLS_IDENT("$Id: $")
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API'
 ///-------------------------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API' is defined if
-// *both* of the listed conditions are true:
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API' macro is defined
+// if *both* of the listed conditions are true:
 //
 //: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro is defined.
 //:
@@ -558,7 +562,7 @@ BSLS_IDENT("$Id: $")
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
 ///----------------------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION' is defined if
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION' macro is defined if
 // of the listed conditions are true:
 //
 //: o The 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY' macro is defined.
@@ -599,7 +603,7 @@ BSLS_IDENT("$Id: $")
 //
 ///'BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS'
 ///------------------------------------------------
-// The 'BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS' is defined if the
+// The 'BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS' macro is defined if the
 // following functions are provided by the native standard library in the
 // '<iterator>' header:
 //
@@ -699,14 +703,17 @@ BSLS_IDENT("$Id: $")
 // being removed.
 //
 ///'BSLS_LIBRARYFEATURES_STDCPP_GNU_LIBSTDCPP'
+///-------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_GNU' macro is defined if the C++
 // standard library implementation is GNU libstdc++.
 //
 ///'BSLS_LIBRARYFEATURES_STDCPP_IBM'
+///---------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_IBM' macro is defined if the C++ standard
 // library implementation is IBM's VACPP.
 //
 /// 'BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE'
+///-------------------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE' macro is defined if
 // Microsoft's Intellisense is running (instead of a production compiler).
 // Note that detecting Intellisense does *not* mean that the MSVC compiler is
@@ -715,18 +722,22 @@ BSLS_IDENT("$Id: $")
 // virtually any compiler.
 //
 ///'BSLS_LIBRARYFEATURES_STDCPP_LLVM'
+///----------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_LLVM_LIBCPP' macro is defined if the C++
 // standard library implementation is LLVM's libc++.
 //
 ///'BSLS_LIBRARYFEATURES_STDCPP_MSVC'
+///----------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_MSVC' macro is defined if the C++ standard
 // library implementation is Microsoft's (Dinkumware based) implementation.
 //
 ///'BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD'
+///-------------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD' macro is defined if the C++
 // standard library implementation is a RogueWave implementation.
 //
 ///'BSLS_LIBRARYFEATURES_STDCPP_STLPORT'
+///-------------------------------------
 // The 'BSLS_LIBRARYFEATURES_STDCPP_STLPORT' macro is defined if the C++
 // standard library implementation is an STLPort implementation.
 //
@@ -793,7 +804,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_compilerfeatures.h>
 
-// Library implementation detection block
+// ============================================================================
+//                     STANDARD LIBRARY DETECTION
+// ----------------------------------------------------------------------------
 
 #define BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS
 // We are including a *standard* header to get the macros defined that allow us
@@ -909,11 +922,15 @@ BSLS_IDENT("$Id: $")
 #endif
 
 
+// ============================================================================
+//                     UNIVERSAL FEATURE SUPPORT
+// ----------------------------------------------------------------------------
+
 // Unconditionally define macros for C++98 features that may be detected as
 // absent from later standards.  All removed libraries will have their macros
 // undefined in a consistent manner at the end of this header
 
-# define BSLS_LIBRARYFEATURES_HAS_C90_GETS                            1
+#define BSLS_LIBRARYFEATURES_HAS_C90_GETS                             1
     // Set unconditionally for compilers supporting an earlier standard than
     // C++14; this feature macro will be undefined for those platforms with
     // partial support for C++14, implementing the removal of this dangerous
@@ -923,6 +940,11 @@ BSLS_IDENT("$Id: $")
     // Set unconditionally.  This features is found on each compiler
     // version/platform combination tested.  Assume universally available until
     // the day tool chains start removing this deprecated class template.
+
+
+// ============================================================================
+//                     PLATFORM SPECIFIC FEATURE DETECTION
+// ----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
     #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY                  1
@@ -1170,6 +1192,8 @@ BSLS_IDENT("$Id: $")
             // requires the definition of the
             // 'BSLS_COMPILER_FEATURES_HAS_VARIADIC_TEMPLATES' macro.
         #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY       1
+        #define BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT          1
+            // Early access to C++17 feature!
 
         #undef BSLS_LIBRARYFEATURES_HAS_C90_GETS
     #endif
@@ -1180,6 +1204,10 @@ BSLS_IDENT("$Id: $")
       #endif
     #endif
 #endif
+
+// ============================================================================
+//                     POST-DETECTION FIXUPS
+// ----------------------------------------------------------------------------
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)  && \
     defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) && \

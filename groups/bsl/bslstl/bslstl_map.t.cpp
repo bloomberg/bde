@@ -67,6 +67,10 @@
 #include <initializer_list>
 #endif
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#include <random>
+#endif
+
 #include <ctype.h>   // 'isalpha', 'tolower', 'toupper'
 #include <limits.h>  // 'INT_MIN', 'INT_MAX'
 #include <stddef.h>
@@ -4261,7 +4265,13 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    native_std::random_shuffle(testKeys,  testKeys + numValues);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+    native_std::shuffle(testKeys,
+                        testKeys + numValues,
+                        native_std::default_random_engine());
+#else  // fall-back for C++03, potentially unsupported in C++17
+    native_std::random_shuffle(testKeys, testKeys + numValues);
+#endif
     if (veryVerbose) {
         printf("Test 'erase(const key_type&)'.\n");
     }

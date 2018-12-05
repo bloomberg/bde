@@ -11,6 +11,61 @@
 #include <stdio.h>   // for 'printf'
 #include <stdlib.h>  // for 'atoi'
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+    // Verify assumption that the BASELINE C++11 library includes all of the
+    // new library headers not covered by a more specific macro.  Note that we
+    // must actively #include each header to check for errors as simply testing
+    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
+    // mode, finding our own intercept headers that simply forward to the
+    // original platform header, assuming it is available.
+# include <array>
+# include <atomic>
+# include <chrono>
+# include <codecvt>
+# include <condition_variable>
+# include <forward_list>
+# include <future>
+//# include <initializer_list>
+# include <mutex>
+# include <random>
+# include <regex>
+# include <scoped_allocator>
+# include <system_error>
+# include <thread>
+//include <tuple>
+//include <type_traits>
+# include <typeindex>
+# include <unordered_map>
+# include <unordered_set>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
+    // Verify assumption that the BASELINE C++14 library includes all of the
+    // new library headers not covered by a more specific macro.  Note that we
+    // must actively #include each header to check for errors as simply testing
+    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
+    // mode, finding our own intercept headers that simply forward to the
+    // original platform header, assuming it is available.
+# include <shared_mutex>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+    // Verify assumption that the BASELINE C++17 library includes all of the
+    // new library headers not covered by a more specific macro.  Note that we
+    // must actively #include each header to check for errors as simply testing
+    // '__has_include(<header>)' will give false positives in BSL_OVERRIDES_STD
+    // mode, finding our own intercept headers that simply forward to the
+    // original platform header, assuming it is available.
+# include <any>
+# include <charconv>
+# include <execution>
+# include <filesystem>
+# include <memory_resource>
+# include <optional>
+# include <string_view>
+# include <variant>
+#endif
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
@@ -264,10 +319,10 @@ typename CONTAINER::iterator end(CONTAINER & c)
 
         // Function defined in '<iterator>'
         native_std::vector<int> v;
-        native_std::make_reverse_iterator(v.end());
+        (void)native_std::make_reverse_iterator(v.end());
 
         // Function defined in '<iomanip>'
-        native_std::quoted("\"quotes\"");
+        (void)native_std::quoted("\"quotes\"");
 
         // Function defined in '<utility>'
         int X(0);
@@ -569,8 +624,8 @@ static const bool
         const int *inputFirst = &iarray[0];
         const int *inputLast  = &iarray[NUM_ELEMENTS];
 
-        native_std::all_of(inputFirst, inputLast, unaryPredicate);
-        native_std::any_of(inputFirst, inputLast, unaryPredicate);
+        (void)native_std::all_of(inputFirst, inputLast, unaryPredicate);
+        (void)native_std::any_of(inputFirst, inputLast, unaryPredicate);
 
         int  oarray[NUM_ELEMENTS];
         int *outputFirst = &oarray[0];
@@ -583,20 +638,22 @@ static const bool
 
         native_std::copy_n (inputFirst, NUM_ELEMENTS, outputFirst);
 
-        native_std::find_if_not(inputFirst, inputLast, unaryPredicate);
+        (void)native_std::find_if_not(inputFirst, inputLast, unaryPredicate);
 
         native_std::iota(outputFirst, outputLast, 0);
 
-        native_std::is_heap      (inputFirst, inputLast);
-        native_std::is_heap_until(inputFirst, inputLast);
+        (void)native_std::is_heap      (inputFirst, inputLast);
+        (void)native_std::is_heap_until(inputFirst, inputLast);
 
-        native_std::is_partitioned (inputFirst, inputLast, unaryPredicate);
-        native_std::is_permutation (inputFirst, inputLast, inputFirst);
-        native_std::is_sorted      (inputFirst, inputLast);
-        native_std::is_sorted_until(inputFirst, inputLast);
+        (void)native_std::is_partitioned (inputFirst,
+                                          inputLast,
+                                          unaryPredicate);
+        (void)native_std::is_permutation (inputFirst, inputLast, inputFirst);
+        (void)native_std::is_sorted      (inputFirst, inputLast);
+        (void)native_std::is_sorted_until(inputFirst, inputLast);
 
-        native_std::minmax(0, 1);
-        native_std::minmax_element(inputFirst, inputLast);
+        (void)native_std::minmax(0, 1);
+        (void)native_std::minmax_element(inputFirst, inputLast);
 
         int  oarray2[NUM_ELEMENTS];
         int *output2First = &oarray2[0];
@@ -605,7 +662,7 @@ static const bool
         native_std::move         (outputFirst, outputLast, output2First);
         native_std::move_backward(outputFirst, outputLast, output2Last);
 
-        native_std::none_of(inputFirst, inputLast, unaryPredicate);
+        (void)native_std::none_of(inputFirst, inputLast, unaryPredicate);
 
         native_std::partition_copy(inputFirst,
                                    inputLast,
@@ -613,7 +670,9 @@ static const bool
                                    output2First,
                                    unaryPredicate);
 
-        native_std::partition_point(inputFirst, inputLast, unaryPredicate);
+        (void)native_std::partition_point(inputFirst,
+                                          inputLast,
+                                          unaryPredicate);
 
         SimpleUniformRandomNumberGenerator surng;
         native_std::shuffle(outputFirst,
@@ -629,8 +688,8 @@ static const bool
                                                native_std::iostream_category();
         (void) errorCategory;
 
-        native_std::make_error_code(native_std::io_errc::stream);
-        native_std::make_error_condition(native_std::io_errc::stream);
+        (void)native_std::make_error_code(native_std::io_errc::stream);
+        (void)native_std::make_error_condition(native_std::io_errc::stream);
 
         ASSERT(true ==
                    native_std::is_error_code_enum<native_std::io_errc>::value);
@@ -1549,14 +1608,14 @@ int main(int argc, char *argv[])
                 "TESTING 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'\n"
                 "=========================================================\n");
 
+        if (verbose) {
+            P(u_BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY_defined)
+        }
+
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
         testSimpleUniformRandomNumberGenerator();
         useCpp11Algorithms();
 #endif
-
-        if (verbose) {
-            P(u_BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY_defined)
-        }
 
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
 
@@ -1593,9 +1652,13 @@ int main(int argc, char *argv[])
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_defined)
         }
 
-        // This macro should be defined on all platforms until C++17.
-
-        ASSERT(true == u_BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR_defined);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR)
+        std::auto_ptr<int> x(new int);
+        *x = 42;
+        std::auto_ptr<int> y = x;
+        ASSERT(!x.get());
+        ASSERT(42 == *y);
+#endif
 
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
 
@@ -1625,6 +1688,10 @@ int main(int argc, char *argv[])
         if (verbose) {
             P(u_BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined);
         }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
+        ASSERT(true == std::bool_constant<true>());
+#endif
 
         ASSERT(false ==
                        u_BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined);

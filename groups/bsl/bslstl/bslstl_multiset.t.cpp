@@ -44,6 +44,10 @@
 #include <initializer_list>
 #endif
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#include <random>
+#endif
+
 #include <stdlib.h>      // atoi
 
 // ============================================================================
@@ -3873,7 +3877,13 @@ void TestDriver<KEY, COMP, ALLOC>::testCase1(const COMP&  comparator,
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+    native_std::shuffle(testKeys,
+                        testKeys + numValues,
+                        native_std::default_random_engine());
+#else  // fall-back for C++03, potentially unsupported in C++17
     native_std::random_shuffle(testKeys,  testKeys + numValues);
+#endif
     if (veryVerbose) {
         printf("Test 'erase(const key_type&)'.\n");
     }
