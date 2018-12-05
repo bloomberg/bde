@@ -760,6 +760,7 @@ BSLS_IDENT("$Id: $")
 # define BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 # define BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
 # define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+
 # if BSLS_PLATFORM_CMP_VERSION >= 1900  // Microsoft Visual Studio 2015
 // Note that while MSVC 2013 supports variadic templates in principle, there
 // are sufficient problems with the implementation that we defer support until
@@ -777,6 +778,7 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 #   define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 # endif
+
 # if BSLS_PLATFORM_CMP_VERSION >= 1910  // Microsoft Visual Studio 2017
 #   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED

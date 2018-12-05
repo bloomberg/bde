@@ -18,6 +18,8 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -31,16 +33,6 @@
 #include <algorithm>
 
 #include <stdlib.h>      // atoi
-
-#if defined(BSLS_PLATFORM_CMP_IBM) || \
-   (defined(BSLS_PLATFORM_CMP_CLANG) && !defined(__GXX_EXPERIMENTAL_CXX0X__))
-# define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
-// Some compilers produce ambiguities when trying to construct our test types
-// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
-// compiler bug triggering in lower level components, so we simply disable
-// those aspects of testing, and rely on the extensive test coverage on other
-// platforms.
-#endif
 
 // ============================================================================
 //                          ADL SWAP TEST HELPER
