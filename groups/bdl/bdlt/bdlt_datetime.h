@@ -255,6 +255,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_stackaddressutil.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
@@ -1111,6 +1112,8 @@ bool Datetime::validateAndTraceLogRepresentation() const
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(k_REP_MASK <= d_value)) {
         return true;                                                  // RETURN
     }
+    BSLS_ASSERT_SAFE(
+                 0 && "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
     BSLS_REVIEW_INVOKE(
                       "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
 
