@@ -1063,6 +1063,41 @@ void Func::operator()()
                  "12345\n");
         }
 
+        MT_ASSERTV(21 > 2 * 44);
+        push("Error " __FILE__ "(): 21 > 2 * 44    (failed)\n");
+
+        MT_ASSERTV(67, 20 > 3 * 17);
+        push("67: 67\n"
+             "Error " __FILE__ "(): 20 > 3 * 17    (failed)\n");
+
+        MT_ASSERTV(59, 32, 57 >= 3 * 32);
+        push("59: 59\t32: 32\n"
+             "Error " __FILE__ "(): 57 >= 3 * 32    (failed)\n");
+
+        MT_ASSERTV(28, 16, 98,
+                   26 + 16 == 3 * 98);
+        push("28: 28\t16: 16\t98: 98\n"
+             "Error " __FILE__ "(): 26 + 16 == 3 * 98    (failed)\n");
+
+        MT_ASSERTV(98, 97, 100, 95, 2 * 98 + 3 * 2 * 97 == 4 * 96 - 207 * 95);
+        push("98: 98\t97: 97\t100: 100\t95: 95\n"
+             "Error " __FILE__ "(): "
+                     "2 * 98 + 3 * 2 * 97 == 4 * 96 - 207 * 95    (failed)\n");
+
+        MT_ASSERTV(77, 88, 87, 86, 85,
+                               7 * 89 - 6 * 88 + 3 * 87 - 27 * 86 == 103 * 85);
+        push("77: 77\t88: 88\t87: 87\t86: 86\t85: 85\n"
+             "Error " __FILE__ "(): "
+                           "7 * 89 - 6 * 88 + 3 * 87 - 27 * 86 == 103 * 85"
+                                                             "    (failed)\n");
+
+        MT_ASSERTV(9999, 78, 77, 76, 75, 74,
+                          2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74);
+        push("9999: 9999\t78: 78\t77: 77\t76: 76\t75: 75\t74: 74\n"
+             "Error " __FILE__ "(): "
+                      "2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74"
+                                                             "    (failed)\n");
+
         // Output blocks containing all the asserts we haven't done yet.
 
         {
@@ -1179,6 +1214,12 @@ void checkOutput()
     }
 }
 
+bool notDigit(char c)
+    // Return 'true' is the specified 'c' is not a digit and 'false' otherwise.
+{
+    return c < '0' || '9' < c;
+}
+
 void eliminateLineNumbers()
     // It's extremely difficult to predict '__LINE__' values in  multi-line
     // 'ASSERTV' calls.  In fact it's awkward to even predict whether the line
@@ -1186,25 +1227,29 @@ void eliminateLineNumbers()
     // get the line numbers right in a single-threaded test case, so this
     // filter just removes all line number information from the buffer.
 {
-    char *bufIn = outputRedirector_p->buffer(), *bufOut = bufIn;
-    const char *match = "Error " __FILE__ "(";
-    bsl::size_t matchLen = bsl::strlen(match);
-    bsl::size_t len;
+    char       *bufOut    = outputRedirector_p->buffer();
+    const char *bufIn     = bufOut;
+    const char *end       = bufIn + outputRedirector_p->outputSize();
+    const char  pattern[] = { "Error " __FILE__ "(" };
+    enum { k_PATTERN_LEN  = sizeof(pattern) - 1 };
 
-    for (char *next, *close; (next = bsl::strstr(bufIn, match));
-                                                               bufIn = close) {
-        next += matchLen;
-        len = next - bufIn;
+    while (true) {
+        const char *found = bsl::strstr(bufIn, pattern);
+        const bsl::size_t len = found ? (found += k_PATTERN_LEN) - bufIn
+                                      : bsl::strlen(bufIn);
         bsl::memmove(bufOut, bufIn, len);
         bufOut += len;
+        if (!found) {
+            break;
+        }
 
-        for (close = next; '0' <= *close && *close <= '9'; ++close) ;
-        REALLOOP1_ASSERT(*close, ')' == *close);
+        bufIn = bsl::find_if(found, end, &notDigit);
+        REALLOOP1_ASSERT(*bufIn, ')' == *bufIn);
+        const bsl::size_t numDigits = bufIn - found;
+        REALLOOP1_ASSERT(numDigits, 2 <= numDigits && numDigits <= 4);
     }
 
-    len = bsl::strlen(bufIn);
-    bsl::memmove(bufOut, bufIn, len);
-    bufOut[len] = 0;
+    *bufOut = 0;
     outputRedirector_p->resetSize();
 }
 
@@ -1360,8 +1405,7 @@ int main(int argc, char *argv[])
         TC::eliminateLineNumbers();
         TC::checkOutput();
 
-        int saveRealTestStatus = realTestStatus;
-        if (veryVeryVerbose) REALP(saveRealTestStatus);
+        if (veryVeryVerbose) REALP(realTestStatus);
       } break;
       case 7: {
         // --------------------------------------------------------------------
