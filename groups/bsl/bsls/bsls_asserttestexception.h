@@ -22,6 +22,10 @@ BSLS_IDENT("$Id: $")
 // the asserted expression may be found, and the level of the assertion that
 // has failed.
 //
+// Note that this class is intended as an implementation detail of the 'bsls'
+// testing framework (see {'bsls_asserttest'}), though it may be used in other
+// contexts.
+//
 ///Usage
 ///-----
 // First we write a macro to act as an 'assert' facility that will throw an
