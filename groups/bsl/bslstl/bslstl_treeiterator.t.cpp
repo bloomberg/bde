@@ -11,9 +11,15 @@
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 
 #include <algorithm>
 #include <cstddef>
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#include <random>
+#endif
+
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -1613,7 +1619,13 @@ int main(int argc, char *argv[])
                 VALUES[i] = i;
             }
 
-            std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+            native_std::shuffle(VALUES,
+                                VALUES + NUM_VALUES,
+                                native_std::default_random_engine());
+#else  // fall-back for C++03, potentially unsupported in C++17
+            native_std::random_shuffle(VALUES, VALUES + NUM_VALUES);
+#endif
 
             Anchor tree;
 

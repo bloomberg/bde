@@ -141,6 +141,28 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 
+// ============================================================================
+//                  PLATFORM SPECIFIC TEST SUPPORT MACROS
+// ----------------------------------------------------------------------------
+
+#define BSLS_HASH_HAS_BOOL_INCREMENT                           1
+    // 'operator++' is supported for 'bool' variables (but deprecated) in early
+    // C++ dialects (including the original 1998 standard) and support is
+    // finally removed in C++17.  Define this macro to retain positive-sense of
+    // feature tests, just like for 'BSLS_COMPILERFEATURES' macros, where this
+    // support should migrate if we ever find a second use-case for such a
+    // macro.  Prefer to keep this work-around macro local to one component
+    // though, than provide a public feature that may be misinterpreted as
+    // promoting the use of 'operator++' on 'bool' variables.
+
+#if __cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
+    // Microsoft does not always report the language dialect properly in the
+    // '__cplusplus' macro, therefore we need to use the Microsoft specific
+    // predefined macro.  See https://goo.gl/ikfyDw and
+    // https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros
+# undef BSLS_HASH_HAS_BOOL_INCREMENT
+#endif
+
 //=============================================================================
 //                             USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -1245,9 +1267,9 @@ int main(int argc, char *argv[])
             MockHashingAlgorithm defaultAlg;
             hashAppend(defaultAlg, true);
 
-#if __cplusplus <= 201402L
+#if defined(BSLS_HASH_HAS_BOOL_INCREMENT)
             bool incrementedBool = true;
-            incrementedBool++;
+            ++incrementedBool;
             MockHashingAlgorithm incrementedAlg;
             hashAppend(incrementedAlg, incrementedBool);
 #endif
@@ -1259,7 +1281,7 @@ int main(int argc, char *argv[])
 
             // All various 'true's are the same
             ASSERT(defaultAlg.getLength() == sizeof(bool));
-#if __cplusplus <= 201402L
+#if defined(BSLS_HASH_HAS_BOOL_INCREMENT)
             ASSERT(defaultAlg.getLength() == incrementedAlg.getLength());
 
             ASSERT(binaryCompare(defaultAlg.getData(),

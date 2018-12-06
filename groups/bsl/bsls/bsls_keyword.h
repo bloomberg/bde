@@ -40,6 +40,11 @@ BSLS_IDENT("$Id: $")
 //:     This macro inserts the keyword 'constexpr' when compiling with C++11
 //:     or later mode and inserts nothing when compiling with C++03 mode.
 //:
+//: 'BSLS_KEYWORD_CONSTEXPR_MEMBER':
+//:     This macro inserts the keyword 'constexpr' when compiling with C++11
+//:     or later mode and inserts the keyword 'const' when compiling with C++03
+//:     mode.  This macro is intended to support declaring static data members.
+//:
 //: 'BSLS_KEYWORD_CONSTEXPR_RELAXED':
 //:     This macro inserts the keyword 'constexpr' when compiling with C++14
 //:     or later mode and inserts nothing when compiling with C++03/C++11 mode.
@@ -279,9 +284,11 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-#define BSLS_KEYWORD_CONSTEXPR constexpr
+#define BSLS_KEYWORD_CONSTEXPR        constexpr
+#define BSLS_KEYWORD_CONSTEXPR_MEMBER constexpr
 #else
 #define BSLS_KEYWORD_CONSTEXPR
+#define BSLS_KEYWORD_CONSTEXPR_MEMBER const
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED

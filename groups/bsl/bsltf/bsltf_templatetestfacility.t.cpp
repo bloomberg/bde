@@ -15,6 +15,7 @@
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_outputredirector.h>
+#include <bsls_platform.h>
 #include <bsls_util.h>
 
 #include <stdio.h>
@@ -124,12 +125,7 @@ void aSsErT(bool condition, const char *message, int line)
 //              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND) \
- && (defined(BSLS_PLATFORM_CMP_IBM)   \
-  || defined(BSLS_PLATFORM_CMP_CLANG) \
-  || defined(BSLS_PLATFORM_CMP_MSVC)  \
-  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION == 0x5130) \
-     )
+#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND)
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
 // for 'emplace'-type functionality with the C++03 move-emulation.  This is a

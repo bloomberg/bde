@@ -148,6 +148,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 # include <bsls_nativestd.h>
@@ -181,7 +182,7 @@ struct integral_constant<bool, false> : ::native_std::false_type
 
     // COMPATIBILITY MEMBERS
     typedef BloombergLP::bslmf::MetaInt<false> Type;
-    static const bool VALUE = false;
+    static BSLS_KEYWORD_CONSTEXPR_MEMBER bool VALUE = false;
 };
 
 template <>
@@ -191,7 +192,7 @@ struct integral_constant<bool, true> : ::native_std::true_type
 
     // COMPATIBILITY MEMBERS
     typedef BloombergLP::bslmf::MetaInt<true> Type;
-    static const bool VALUE = true;
+    static BSLS_KEYWORD_CONSTEXPR_MEMBER bool VALUE = true;
 };
 
 #else
@@ -213,7 +214,7 @@ struct integral_constant {
     typedef integral_constant type;
 
     // PUBLIC CLASS DATA
-    static const TYPE value = VAL;
+    static BSLS_KEYWORD_CONSTEXPR_MEMBER TYPE value = VAL;
 
     // ACCESSORS
     operator value_type() const;
@@ -234,15 +235,15 @@ struct integral_constant<bool, VAL> {
     typedef integral_constant type;
 
     // PUBLIC CLASS DATA
-    static const bool value = VAL;
+    static BSLS_KEYWORD_CONSTEXPR_MEMBER bool value = VAL;
 
     // ACCESSORS
-    operator value_type() const;
+    BSLS_KEYWORD_CONSTEXPR operator value_type() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'VAL'.
 
     // COMPATIBILITY MEMBERS
     typedef BloombergLP::bslmf::MetaInt<VAL> Type;
-    static const bool VALUE = VAL;
+    static BSLS_KEYWORD_CONSTEXPR_MEMBER bool VALUE = VAL;
 };
 #endif //   defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 
@@ -258,33 +259,48 @@ typedef integral_constant<bool, false> false_type;
 
 typedef integral_constant<bool, true> true_type;
 
+                        // ======================
+                        // template bool_constant
+                        // ======================
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+template <bool VALUE>
+using bool_constant = integral_constant<bool, VALUE>;
+
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
+#   define BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT          1
+# endif
+#endif
+
 }  // close namespace bsl
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
-
-#ifndef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-// STATIC MEMBER VARIABLES
+// STATIC MEMBER VARIABLE DEFINITIONS
+// Note that these definitions are deprecated under C++17, when 'constexpr'
+// data members are implicitly 'inline'.
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+// This variable will be supplied by the platform header, when available.
 template <class TYPE, TYPE VAL>
-const TYPE bsl::integral_constant<TYPE, VAL>::value;
+BSLS_KEYWORD_CONSTEXPR_MEMBER TYPE bsl::integral_constant<TYPE, VAL>::value;
 
 template <bool VAL>
-const bool bsl::integral_constant<bool, VAL>::value;
+BSLS_KEYWORD_CONSTEXPR_MEMBER bool bsl::integral_constant<bool, VAL>::value;
 template <bool VAL>
-const bool bsl::integral_constant<bool, VAL>::VALUE;
+BSLS_KEYWORD_CONSTEXPR_MEMBER bool bsl::integral_constant<bool, VAL>::VALUE;
 
 // ACCESSORS
 template <class TYPE, TYPE VAL>
-inline
-bsl::integral_constant<TYPE, VAL>::operator TYPE() const
+inline BSLS_KEYWORD_CONSTEXPR
+bsl::integral_constant<TYPE, VAL>::operator TYPE() const BSLS_KEYWORD_NOEXCEPT
 {
     return VAL;
 }
 
 template <bool VAL>
-inline
-bsl::integral_constant<bool, VAL>::operator bool() const
+inline BSLS_KEYWORD_CONSTEXPR
+bsl::integral_constant<bool, VAL>::operator bool() const BSLS_KEYWORD_NOEXCEPT
 {
     return VAL;
 }

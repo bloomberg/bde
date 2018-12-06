@@ -208,11 +208,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
-#error "See 'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT': !NOT DEFINED! \
-        in component-level documentation."
-#endif
-
 // ----------------------------------------------------------------------------
 // Copyright 2017 Bloomberg Finance L.P.
 //

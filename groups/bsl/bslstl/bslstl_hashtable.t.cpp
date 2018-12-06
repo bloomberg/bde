@@ -27,6 +27,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_exceptionutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
 #include <bsltf_convertiblevaluewrapper.h>
@@ -36,6 +37,10 @@
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#include <random>
+#endif
 
 #include <stdexcept>  // to verify correct exceptions are thrown
 
@@ -8462,7 +8467,13 @@ void mainTestCase1()
 
     if (veryVerbose) printf("Test 'remove(bslalg::BidirectionalLink *)'.\n");
     {
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+        native_std::shuffle(INT_VALUES,
+                            INT_VALUES + NUM_INT_VALUES,
+                            native_std::default_random_engine());
+#else  // fall-back for C++03, potentially unsupported in C++17
         native_std::random_shuffle(INT_VALUES,  INT_VALUES + NUM_INT_VALUES);
+#endif
 
         Obj x(HASHER, COMPARATOR, 0, 1.0f, &objectAllocator);
         const Obj& X = x;

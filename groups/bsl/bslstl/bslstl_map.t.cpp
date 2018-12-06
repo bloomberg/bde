@@ -67,6 +67,10 @@
 #include <initializer_list>
 #endif
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#include <random>
+#endif
+
 #include <ctype.h>   // 'isalpha', 'tolower', 'toupper'
 #include <limits.h>  // 'INT_MIN', 'INT_MAX'
 #include <stddef.h>
@@ -311,20 +315,6 @@ void aSsErT(bool b, const char *s, int i)
 // ============================================================================
 //                      TEST CONFIGURATION MACROS
 // ----------------------------------------------------------------------------
-
-#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND) \
- && (defined(BSLS_PLATFORM_CMP_IBM)   \
-  || defined(BSLS_PLATFORM_CMP_CLANG) \
-  || defined(BSLS_PLATFORM_CMP_MSVC)  \
-  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130) \
-     )
-# define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
-// Some compilers produce ambiguities when trying to construct our test types
-// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
-// compiler bug triggering in lower level components, so we simply disable
-// those aspects of testing, and rely on the extensive test coverage on other
-// platforms.
-#endif
 
 #if !defined(BSLS_COMPILER_FEATURES_SUPPORT_RVALUE_REFERENCES) \
  &&  defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130
@@ -4261,7 +4251,13 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    native_std::random_shuffle(testKeys,  testKeys + numValues);
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+    native_std::shuffle(testKeys,
+                        testKeys + numValues,
+                        native_std::default_random_engine());
+#else  // fall-back for C++03, potentially unsupported in C++17
+    native_std::random_shuffle(testKeys, testKeys + numValues);
+#endif
     if (veryVerbose) {
         printf("Test 'erase(const key_type&)'.\n");
     }

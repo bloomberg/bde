@@ -44,6 +44,10 @@
 #include <initializer_list>
 #endif
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#include <random>
+#endif
+
 #include <stdlib.h>      // atoi
 
 // ============================================================================
@@ -244,43 +248,6 @@ void aSsErT(bool b, const char *s, int i)
 // ============================================================================
 //                      TEST CONFIGURATION MACROS
 // ----------------------------------------------------------------------------
-
-#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND) \
- && (defined(BSLS_PLATFORM_CMP_IBM)   \
-  || defined(BSLS_PLATFORM_CMP_CLANG) \
-  || defined(BSLS_PLATFORM_CMP_MSVC)  \
-  ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION >= 0x5130) \
-     )
-# define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
-// Some compilers produce ambiguities when trying to construct our test types
-// for 'emplace'-type functionality with the C++03 move-emulation.  This is a
-// compiler bug triggering in lower level components, so we simply disable
-// those aspects of testing, and rely on the extensive test coverage on other
-// platforms.
-#endif
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
-# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    constexpr bsl::bool_constant<EXPRESSION> NAME{}
-    // This leading branch is the preferred version for C++17, but the feature
-    // test macro is (currently) for documentation purposes only, and never
-    // defined.  This is the ideal (simplest) form for such declarations:
-#elif defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    constexpr bsl::integral_constant<bool, EXPRESSION> NAME{}
-    // This is the preferred C++11 form for the definition of integral constant
-    // variables.  It assumes the presence of 'constexpr' in the compiler as an
-    // indication that brace-initialization and traits are available, as it has
-    // historically been one of the last C++11 features to ship.
-#else
-# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    static const bsl::integral_constant<bool, EXPRESSION> NAME =              \
-                 bsl::integral_constant<bool, EXPRESSION>()
-    // 'bsl::integral_constant' is not an aggregate prior to C++17 extending
-    // the rules, so a C++03 compiler must explicitly initialize integral
-    // constant variables in a way that is unambiguously not a vexing parse
-    // that declares a function instead.
-#endif
 
 enum {
 // The following enum is set to '1' when exceptions are enabled and to '0'
@@ -3873,7 +3840,13 @@ void TestDriver<KEY, COMP, ALLOC>::testCase1(const COMP&  comparator,
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+    native_std::shuffle(testKeys,
+                        testKeys + numValues,
+                        native_std::default_random_engine());
+#else  // fall-back for C++03, potentially unsupported in C++17
     native_std::random_shuffle(testKeys,  testKeys + numValues);
+#endif
     if (veryVerbose) {
         printf("Test 'erase(const key_type&)'.\n");
     }

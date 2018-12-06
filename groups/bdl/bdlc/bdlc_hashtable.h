@@ -1324,12 +1324,20 @@ bool HashTableDefaultTraits::isNull(const BUCKET& bucket)
 
     BSLMF_ASSERT(k_IS_POD);
 
-    const char  null  = 0;
+    const char  null  = 0;  (void)null; // 'null' not used in some build modes
     const char *begin = reinterpret_cast<const char *>(&bucket);
     const char *end   = begin + sizeof bucket;
 
-    return end == bsl::find_if(begin, end,
-                               bsl::bind2nd(bsl::not_equal_to<char>(), null));
+    return end == bsl::find_if(begin,
+                               end,
+#if defined(BSLS_PLATFORM_CMP_MSVC) || __cplusplus >= 201103L
+    // 'bind2nd' is deprecated and may be removed from C++17 onwards.  Prefer
+    // a lambda expression to playing levelization games with 'bdlf::BindUtil'.
+                               [](char c) { return c != '\0'; }
+#else
+                               bsl::bind2nd(bsl::not_equal_to<char>(), null)
+#endif
+                              );
 }
 
 inline
@@ -1409,9 +1417,16 @@ bool HashTableDefaultTraits::isRemoved(const BUCKET& bucket)
     const char *begin   = reinterpret_cast<const char *>(&bucket);
     const char *end     = begin + sizeof bucket;
 
-    return end == bsl::find_if(
-                             begin, end,
-                             bsl::bind2nd(bsl::not_equal_to<char>(), removed));
+    return end == bsl::find_if(begin,
+                               end,
+#if defined(BSLS_PLATFORM_CMP_MSVC) || __cplusplus >= 201103L
+    // 'bind2nd' is deprecated and may be removed from C++17 onwards.  Prefer
+    // a lambda expression to playing levelization games with 'bdlf::BindUtil'.
+                               [removed](char c) { return c != removed; }
+#else
+                               bsl::bind2nd(bsl::not_equal_to<char>(), removed)
+#endif
+                              );
 }
 
 inline
