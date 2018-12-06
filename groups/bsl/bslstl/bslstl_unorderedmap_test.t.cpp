@@ -314,8 +314,7 @@ void aSsErT(bool b, const char *s, int i)
 //                      TEST CONFIGURATION MACRO
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND) \
- &&!defined(BSLS_PLATFORM_CMP_GCC)
+#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND)
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
 // for 'emplace'-type functionality with the C++03 move-emulation.  This is a
@@ -338,13 +337,13 @@ void aSsErT(bool b, const char *s, int i)
 #if (defined(BSLS_PLATFORM_CMP_SUN) && defined(BDE_BUILD_TARGET_OPT)) \
  || (defined(BSLS_PLATFORM_CMP_IBM) && defined(BSLS_ASSERT_SAFE_IS_ACTIVE))
     // The Sun compiler segfaults when trying to compile the usage example in
-    // an optimized build.  It was initially though specific to no-excpetion
+    // an optimized build.  It was initially thought specific to no-exception
     // builds as well, but it now appears to affect all optimized builds.
 
-    // The IBM compiler produced an odd optimization that causes the usage
-    // example to segfault when built in safe mode.  However, this appears to
-    // be triggering an odd optimization bug, rather than triggering on one of
-    // the assertions added by a safe build.
+    // The IBM compiler produces an odd optimization that causes the usage
+    // example to segfault when built in safe mode.  However, this segfault
+    // appears to be triggered by an odd optimization bug, rather than caused
+    // by one of the assertions added by a safe build.
 # define BSLSTL_UNORDEREDMAP_DO_NOT_TEST_USAGE
 #endif
 

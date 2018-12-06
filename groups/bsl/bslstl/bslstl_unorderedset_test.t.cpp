@@ -277,8 +277,7 @@ void aSsErT(bool b, const char *s, int i)
 //              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND) \
- &&!defined(BSLS_PLATFORM_CMP_GCC)
+#if defined(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND)
 # define BSL_DO_NOT_TEST_MOVE_FORWARDING 1
 // Some compilers produce ambiguities when trying to construct our test types
 // for 'emplace'-type functionality with the C++03 move-emulation.  This is a

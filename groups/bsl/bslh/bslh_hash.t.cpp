@@ -148,7 +148,7 @@ void aSsErT(bool condition, const char *message, int line)
 #define BSLS_HASH_HAS_BOOL_INCREMENT                           1
     // 'operator++' is supported for 'bool' variables (but deprecated) in early
     // C++ dialects (including the original 1998 standard) and support is
-    // finally removed in C++17.  Define macro this to retain postive-sense of
+    // finally removed in C++17.  Define this macro to retain postive-sense of
     // feature tests, just like for 'BSLS_COMPILERFEATURES' macros, where this
     // support should migrate if we ever find a second use-case for such a
     // macro.  Prefer to keep this work-around macro local to one component

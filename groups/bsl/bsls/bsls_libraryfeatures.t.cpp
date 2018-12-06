@@ -25,15 +25,15 @@
 # include <condition_variable>
 # include <forward_list>
 # include <future>
-//# include <initializer_list>
+//include <initializer_list>  COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 # include <mutex>
 # include <random>
 # include <regex>
 # include <scoped_allocator>
 # include <system_error>
 # include <thread>
-//include <tuple>
-//include <type_traits>
+//include <tuple>               // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+//include <type_traits>         // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 # include <typeindex>
 # include <unordered_map>
 # include <unordered_set>
