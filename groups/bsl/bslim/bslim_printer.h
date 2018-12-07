@@ -734,13 +734,12 @@ class Printer {
                         const ITERATOR&             end,
                         const PRINT_FUNCTOR&        printFunctionObject) const;
         // Print to the output stream supplied at construction the specified
-        // 'name', if name is not 0, and then call the specified
-        // 'printFunctionObject' with the the range of values starting at the
-        // specified 'begin' position and ending immediately before the
-        // specified 'end' position, the 'stream' supplied at construction,
-        // 'absLevel() + 1', and 'spacesPerLevel()'.  The parameterized
-        // 'PRINT_FUNCTOR' must be an invocable type whose arguments match the
-        // following function signature:
+        // 'name' and then call the specified 'printFunctionObject' with the
+        // range of values starting at the specified 'begin' position and
+        // ending immediately before the specified 'end' position, the stream
+        // supplied at construction, 'absLevel() + 1', and 'spacesPerLevel()'.
+        // The parameterized 'PRINT_FUNCTOR' must be an invocable type whose
+        // arguments match the following function signature:
         //..
         //  bsl::ostream& (*)(bsl::ostream& stream,
         //                    const TYPE&   data,
