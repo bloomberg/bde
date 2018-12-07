@@ -6242,7 +6242,7 @@ void ArrayPrimitives_Imp::moveConstruct(
     const size_type numBytes = reinterpret_cast<const char*>(fromEnd)
                              - reinterpret_cast<const char*>(fromBegin);
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(numBytes != 0)) {
-        std::memcpy(toBegin, fromBegin, numBytes);
+        std::memcpy((void *)toBegin, fromBegin, numBytes);
     }
 }
 

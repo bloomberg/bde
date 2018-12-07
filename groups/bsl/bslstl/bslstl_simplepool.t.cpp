@@ -520,7 +520,7 @@ void TestDriver<VALUE>::testCase10()
                 ASSERTV(oam.isTotalSame());
                 ASSERTV(prevPtr, ptr, (char *)prevPtr + offset == (char*)ptr);
             }
-            memset(ptr, 0xff, sizeof(VALUE));
+            memset(static_cast<void *>(ptr), 0xff, sizeof(VALUE));
 
             std::size_t address = reinterpret_cast<std::size_t>(ptr);
             ASSERTV(ti, 0 == address % bsls::AlignmentFromType<VALUE>::VALUE);
@@ -576,7 +576,7 @@ void TestDriver<VALUE>::testCase9()
     for (int ti = 0; ti < 32; ++ti) {
         VALUE *ptr = mX.allocate();
 
-        memset(ptr, 0xFF, sizeof(VALUE));
+        memset(static_cast<void *>(ptr), 0xFF, sizeof(VALUE));
         std::size_t address = reinterpret_cast<std::size_t>(ptr);
         ASSERTV(ti, 0 == address % bsls::AlignmentFromType<VALUE>::VALUE);
         ASSERTV(ti, 0 == address % bsls::AlignmentFromType<void *>::VALUE);
@@ -1308,7 +1308,7 @@ void TestDriver<VALUE>::testCase2()
                 ASSERTV(oam.isTotalSame());
                 ASSERTV(prevPtr, ptr, (char *)prevPtr + offset == (char*)ptr);
             }
-            memset(ptr, 0xff, sizeof(VALUE));
+            memset(static_cast<void *>(ptr), 0xff, sizeof(VALUE));
 
             std::size_t address = reinterpret_cast<std::size_t>(ptr);
             ASSERTV(ti, 0 == address % bsls::AlignmentFromType<VALUE>::VALUE);

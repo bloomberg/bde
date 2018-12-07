@@ -2136,7 +2136,7 @@ int main(int argc, char *argv[])
 
         bsls::ObjectBuffer<Obj> arena;
 
-        memset(&arena, 0xA5, sizeof arena);
+        memset(static_cast<void *>(arena.address()), 0xA5, sizeof arena);
         Obj *p = new(&arena) Obj;
 
         if (verbose) printf(

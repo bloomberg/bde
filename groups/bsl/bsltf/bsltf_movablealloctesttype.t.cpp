@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
                 bsls::AssertFailureHandlerGuard hG(&exitHandler);
 
                 new (arr) Obj();
-                memmove(arr+1, arr, sizeof(Obj));
+                memmove((void *)(arr+1), arr, sizeof(Obj));
                 arr[1].~Obj();     // This should 'exit' if asserts are enabled
 
                 ASSERTV("The preceding destructor should 'exit' the process",

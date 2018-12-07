@@ -1441,7 +1441,7 @@ bool operator==(const ConstructTestTypeAllocArgT& lhs,
     ConstructTestTypeNoAlloc  *objPtr =  rawBuf.address();                    \
     ConstructTestTypeNoAlloc&  mX     = *objPtr;                              \
     const ConstructTestTypeNoAlloc& X =  mX;                                  \
-    std::memset(&mX, 92, sizeof mX);                                          \
+    std::memset(static_cast<void *>(&mX), 92, sizeof mX);                     \
     Obj:: op ;                                                                \
     ASSERT(EXP == X);                                                         \
   }
@@ -1454,7 +1454,7 @@ bool operator==(const ConstructTestTypeAllocArgT& lhs,
     ConstructTestTypeAlloc  *objPtr =  rawBuf.address();                      \
     ConstructTestTypeAlloc&  mX     = *objPtr;                                \
     const ConstructTestTypeAlloc& X = *objPtr;                                \
-    std::memset(&mX, 92, sizeof mX);                                          \
+    std::memset(static_cast<void *>(&mX), 92, sizeof mX);                     \
     Obj:: op ;                                                                \
     ASSERT(EXP == X);                                                         \
     ASSERT(alloc == X.d_allocator);                                           \
@@ -1466,7 +1466,7 @@ bool operator==(const ConstructTestTypeAllocArgT& lhs,
     ConstructTestTypeAllocArgT  *objPtr =  rawBuf.address();                  \
     ConstructTestTypeAllocArgT&  mX     = *objPtr;                            \
     const ConstructTestTypeAllocArgT& X = *objPtr;                            \
-    std::memset(&mX, 92, sizeof mX);                                          \
+    std::memset(static_cast<void *>(&mX), 92, sizeof mX);                     \
     Obj:: op ;                                                                \
     ASSERT(EXP == X);                                                         \
     ASSERT(alloc == X.d_allocator);                                           \

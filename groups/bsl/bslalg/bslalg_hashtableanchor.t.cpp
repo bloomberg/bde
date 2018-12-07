@@ -444,7 +444,7 @@ PtrHashSet::~PtrHashSet()
         Node *toDelete = node;
         node = (Node *) node->nextLink();
 
-        memset(toDelete, 0x5a, sizeof(*toDelete));
+        memset((void *)toDelete, 0x5a, sizeof(*toDelete));
         d_allocator_p->deallocate(toDelete);
     }
 

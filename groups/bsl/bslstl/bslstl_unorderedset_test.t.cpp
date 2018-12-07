@@ -3528,7 +3528,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase31()
                 const bsls::Types::Int64 B  = oa.numBlocksInUse();
 
                 Iter hint;        // Give it a garbage value.
-                native_std::memset(&hint,
+                native_std::memset((void *)&hint,
                                    0xaf ^ (tj * 97),
                                    sizeof(hint));
                 Iter RESULT = mX.emplace_hint(hint, VALUES[tj]);
@@ -3607,7 +3607,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase31()
                     ExceptionProctor<Obj, ALLOC> proctor(&X, L_, xscratch);
 
                     Iter hint;                  // Give it a garbage value.
-                    native_std::memset(&hint,
+                    native_std::memset((void *)&hint,
                                        0xaf ^ (tj * 97),
                                        sizeof(hint));
                     if (tj & 1) {
@@ -3885,7 +3885,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase30()
                     const bsls::Types::Int64 B  = oa.numBlocksInUse();
 
                     Iter hint;        // Give it a garbage value.
-                    native_std::memset(&hint,
+                    native_std::memset((void *)&hint,
                                        0xaf ^ (tj * 97),
                                        sizeof(hint));
 
@@ -4027,7 +4027,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase30()
                                                            MoveUtil::move(mZ));
 
                         Iter hint;                  // Give it a garbage value.
-                        native_std::memset(&hint,
+                        native_std::memset((void *)&hint,
                                            0xaf ^ (tj * 97),
                                            sizeof(hint));
                         if (tj & 1) {
@@ -4088,7 +4088,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::
         "BC",
         "CDE",
     };
-    const int NUM_SPECS = static_cast<const int>(sizeof SPECS / sizeof *SPECS);
+    const int NUM_SPECS = static_cast<int>(sizeof SPECS / sizeof *SPECS);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -7095,7 +7095,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase15()
                 const bsls::Types::Int64 B  = oa.numBlocksInUse();
 
                 Iter hint;        // Give it a garbage value.
-                native_std::memset(&hint,
+                native_std::memset((void *)&hint,
                                    0xaf ^ (tj * 97),
                                    sizeof(hint));
                 Iter RESULT = mX.insert(hint, VALUES[tj]);
@@ -7168,7 +7168,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase15()
                     ExceptionProctor<Obj, ALLOC> proctor(&X, L_, xscratch);
 
                     Iter hint;                  // Give it a garbage value.
-                    native_std::memset(&hint,
+                    native_std::memset((void *)&hint,
                                        0xaf ^ (tj * 97),
                                        sizeof(hint));
                     if (tj & 1) {

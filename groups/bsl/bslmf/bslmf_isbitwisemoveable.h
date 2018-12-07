@@ -149,7 +149,7 @@ BSLS_IDENT("$Id: $")
 //                               bsl::true_type)
 //  {
 //      // Bitwise moveable types can be moved using memcpy
-//      memcpy(to, from, size * sizeof(TYPE));
+//      memcpy(static_cast<void *>(to), from, size * sizeof(TYPE));
 //  }
 //
 //  template <class TYPE>
