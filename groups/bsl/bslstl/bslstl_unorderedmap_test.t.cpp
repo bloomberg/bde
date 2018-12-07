@@ -4350,7 +4350,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31()
                 if (veryVerbose) { P_(IS_UNIQ) P(SIZE); }
 
                 CIter hint;
-                memset(&hint, static_cast<char>('a' + ti + tj), sizeof(hint));
+                memset(static_cast<void *>(&hint),
+                       static_cast<char>('a' + ti + tj),
+                       sizeof(hint));
 
                 if (IS_UNIQ) {
                     EXPECTED[SIZE] = SPEC[tj];
@@ -4416,7 +4418,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31()
                 const size_t SIZE    = X.size();
 
                 CIter hint;
-                memset(&hint, static_cast<char>('a' + ti + tj), sizeof(hint));
+                memset(static_cast<void *>(&hint),
+                       static_cast<char>('a' + ti + tj),
+                       sizeof(hint));
 
                 if (veryVerbose) { P_(IS_UNIQ) P(SIZE); }
 
@@ -4580,7 +4584,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                 // 'hint' should be ignored, so maliciously make it garbage.
 
                 CIter hint;
-                memset(&hint, static_cast<char>('a' + ti + tj), sizeof(hint));
+                memset(static_cast<void *>(&hint),
+                       static_cast<char>('a' + ti + tj),
+                       sizeof(hint));
 
                 if (IS_UNIQ) {
                     EXPECTED[SIZE] = SPEC[tj];
@@ -4669,7 +4675,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                 // 'hint' should be ignored, so maliciously make it garbage.
 
                 CIter hint;
-                memset(&hint, static_cast<char>('a' + ti + tj), sizeof(hint));
+                memset(static_cast<void *>(&hint),
+                       static_cast<char>('a' + ti + tj),
+                       sizeof(hint));
 
                 if (IS_UNIQ) {
                     EXPECTED[SIZE] = SPEC[tj];
@@ -4760,7 +4768,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                 // 'hint' should be ignored, so maliciously make it garbage.
 
                 CIter hint;
-                memset(&hint, static_cast<char>('a' + ti + tj), sizeof(hint));
+                memset(static_cast<void *>(&hint),
+                       static_cast<char>('a' + ti + tj),
+                       sizeof(hint));
 
                 Obj mY(&sa);    const Obj& Y = gg(&mY, EXPECTED);
 
@@ -4865,7 +4875,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase29()
                 // 'hint' should be ignored, so maliciously make it garbage.
 
                 CIter hint;
-                memset(&hint, static_cast<char>('a' + ti + tj), sizeof(hint));
+                memset(static_cast<void *>(&hint),
+                       static_cast<char>('a' + ti + tj),
+                       sizeof(hint));
 
                 Obj mY(&sa);    const Obj& Y = gg(&mY, EXPECTED);
 
@@ -7294,7 +7306,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
 
                 // 'hint' should be ignored, so maliciously make it garbage.
                 CIter hint;
-                memset(&hint, static_cast<char>('a' + ti + tj), sizeof(hint));
+                memset(static_cast<void *>(&hint),
+                       static_cast<char>('a' + ti + tj),
+                       sizeof(hint));
 
                 if (IS_UNIQ) {
                     EXPECTED[SIZE] = SPEC[tj];
@@ -7354,7 +7368,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase15()
                 // 'hint' should be ignored, so maliciously make it garbage.
 
                 CIter hint;
-                memset(&hint, static_cast<char>('a' + ti + tj), sizeof(hint));
+                memset(static_cast<void *>(&hint),
+                       static_cast<char>('a' + ti + tj),
+                       sizeof(hint));
 
                 Obj mY(&sa); const Obj& Y = gg(&mY, EXPECTED);
 

@@ -467,7 +467,7 @@ int main(int argc, char *argv[])
             Obj *xPtr = (Obj *) oa.allocate(sizeof(Obj));
             Obj& mX = *xPtr;     const Obj& X = mX;
 
-            memset(xPtr, 0xa0, sizeof(mX));
+            memset(static_cast<void *>(xPtr), 0xa0, sizeof(mX));
 
             ASSERT(KA_INT == X.value());
             ASSERT(0  != X.previousLink());

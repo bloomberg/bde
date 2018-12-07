@@ -2379,7 +2379,7 @@ int main(int argc, char *argv[])
                 if (veryVerbose) { T_;  P_(W);  P_(X);  P(Y); }
 
                 mX->~Obj();
-                bsl::memset(mX, 0xff, sizeof(Obj));    // Trash the memory
+                bsl::memset((void *)mX, 0xff, sizeof(Obj)); // Trash the memory
 
                 ASSERTV(ti, Y == W);
 

@@ -1552,7 +1552,7 @@ bool operator==(const ConstructTestTypeAlloc& lhs,
     ConstructTestTypeNoAlloc *objPtr = rawBuf.address();                      \
     ConstructTestTypeNoAlloc& mX = *objPtr;                                   \
     const ConstructTestTypeNoAlloc& X = mX;                                   \
-    memset(&mX, 92, sizeof mX);                                               \
+    memset((void *)&mX, 92, sizeof mX);                                       \
     Util:: op ;                                                               \
     ASSERT(EXP == X);                                                         \
   }
@@ -1565,7 +1565,7 @@ bool operator==(const ConstructTestTypeAlloc& lhs,
     ConstructTestTypeAlloc *objPtr = rawBuf.address();                        \
     ConstructTestTypeAlloc& mX = *objPtr;                                     \
     const ConstructTestTypeAlloc& X = *objPtr;                                \
-    memset(&mX, 92, sizeof mX);                                               \
+    memset((void *)&mX, 92, sizeof mX);                                       \
     Util:: op ;                                                               \
     ASSERT(EXP == X);                                                         \
     ASSERT(a1  == X.d_a1.d_allocator_p);                                      \

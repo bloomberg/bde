@@ -1074,7 +1074,7 @@ int main(int argc, char *argv[])
             Link *toDelete = bucket.d_first->nextLink()->nextLink();
 
             Obj::unlink(toDelete);
-            memset(toDelete, 'x', sizeof(Link));
+            memset((void *)toDelete, 'x', sizeof(Link));
 
             ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
             ASSERTV(NUM_LINKS - 1 == bucket.length());
@@ -1097,7 +1097,7 @@ int main(int argc, char *argv[])
             bucket.d_first = toDelete->nextLink();
 
             Obj::unlink(toDelete);
-            memset(toDelete, 'x', sizeof(Link));
+            memset((void *)toDelete, 'x', sizeof(Link));
 
             ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
             ASSERTV(NUM_LINKS - 1 == bucket.length());
@@ -1120,7 +1120,7 @@ int main(int argc, char *argv[])
             bucket.d_last = toDelete->previousLink();
 
             Obj::unlink(toDelete);
-            memset(toDelete, 'x', sizeof(Link));
+            memset((void *)toDelete, 'x', sizeof(Link));
 
             ASSERTV(Obj::isWellFormed(bucket.d_first, bucket.d_last));
             ASSERTV(NUM_LINKS - 1 == bucket.length());

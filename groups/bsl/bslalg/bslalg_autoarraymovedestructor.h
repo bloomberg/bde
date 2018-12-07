@@ -106,6 +106,7 @@ BSLS_IDENT("$Id: $")
 //      : d_data_p(0)
 //      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
+//          ++numDefaultCtorCalls;
 //          d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
 //          *d_data_p = '?';
 //      }
@@ -114,6 +115,7 @@ BSLS_IDENT("$Id: $")
 //      : d_data_p(0)
 //      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
+//          ++numCharCtorCalls;
 //          d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
 //          *d_data_p = c;
 //      }
@@ -123,6 +125,7 @@ BSLS_IDENT("$Id: $")
 //      : d_data_p(0)
 //      , d_allocator_p(bslma::Default::allocator(basicAllocator))
 //      {
+//          ++numCopyCtorCalls;
 //          if (&original != this) {
 //              d_data_p  = (char *)d_allocator_p->allocate(sizeof(char));
 //              *d_data_p = *original.d_data_p;
@@ -131,6 +134,7 @@ BSLS_IDENT("$Id: $")
 //
 //      ~TestType()
 //      {
+//          ++numDestructorCalls;
 //          *d_data_p = '_';
 //          d_allocator_p->deallocate(d_data_p);
 //          d_data_p = 0;
@@ -139,6 +143,7 @@ BSLS_IDENT("$Id: $")
 //      // MANIPULATORS
 //      TestType& operator=(const TestType& rhs)
 //      {
+//          ++numAssignmentCalls;
 //          if (&rhs != this) {
 //              char *newData = (char *)d_allocator_p->allocate(sizeof(char));
 //              *d_data_p = '_';
@@ -153,6 +158,16 @@ BSLS_IDENT("$Id: $")
 //
 //      // ACCESSORS
 //      char datum() const { return *d_data_p; }
+//
+//      void print() const
+//      {
+//          if (d_data_p) {
+//              assert(isalpha(*d_data_p));
+//              printf("%c (int: %d)\n", *d_data_p, (int)*d_data_p);
+//          } else {
+//              printf("VOID\n");
+//          }
+//      }
 //  };
 //
 //  // FREE OPERATORS
@@ -166,11 +181,11 @@ BSLS_IDENT("$Id: $")
 //
 //  namespace bslma {
 //  template <> struct UsesBslmaAllocator<TestType> : bsl::true_type {};
-//  }  // close package namespace
+//  }  // close namespace bslma
 //
-//  namespace bslma {
+//  namespace bslmf {
 //  template <> struct IsBitwiseMoveable<TestType> : bsl::true_type {};
-//  }  // close package namespace
+//  }  // close namespace bslmf
 //
 //  }  // close enterprise namespace
 //..
@@ -201,13 +216,13 @@ BSLS_IDENT("$Id: $")
 //      // '[ divider, finish )' is of equal length and contains uninitialized
 //      // memory.  We want to insert 'divider - start' copies of the specified
 //      // 'value' at the front half of the range '[ start, finish )', moving
-//      // the exising elements back to make room for them.  Note that the copy
-//      // constructor of 'TestType' allocates memory and may throw, so we have
-//      // to leave the array in a somewhat predictable state if we do throw.
-//      // What the bslalg::AutoArrayMoveDestructor will do is guarantee that,
-//      // if it is destroyed before the insertion is complete, the range
-//      // '[ start, divider )' will contain valid elements, and that no other
-//      // valid elements will exist.
+//      // the existing elements back to make room for them.  Note that the
+//      // copy constructor of 'TestType' allocates memory and may throw, so we
+//      // have to leave the array in a somewhat predictable state if we do
+//      // throw.  What the bslalg::AutoArrayMoveDestructor will do is
+//      // guarantee that, if it is destroyed before the insertion is complete,
+//      // the range '[ start, divider )' will contain valid elements, and that
+//      // no other valid elements will exist.
 //      //
 //      // Note that the existing elements, which are bitwise-moveable, may be
 //      // *moved* about the container without the possibility of throwing an
@@ -218,12 +233,12 @@ BSLS_IDENT("$Id: $")
 //      // '[ divider, finish )'.  This can be done without risk of a throw
 //      // occurring.
 //
-//      std::memcpy(divider, start, (divider - start) * sizeof(TestType));
+//      std::memcpy((void *)divider,
+//                  start,
+//                  (divider - start) * sizeof(TestType));
 //
-//      bslalg::AutoArrayMoveDestructor<TestType> guard(start,
-//                                                      divider,
-//                                                      divider,
-//                                                      finish);
+//      typedef bslalg::AutoArrayMoveDestructor<TestType> Obj;
+//      Obj guard(start, divider, divider, finish, allocator);
 //
 //      while (guard.middle() < guard.end()) {
 //          // Call the copy constructor, which may throw.
@@ -237,6 +252,93 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
+// Next, within the 'main' function of our task, we create our 'value' object,
+// whose value will be 'v', to be inserted into the front of our range.
+//..
+//  TestType value('v');
+//..
+// Then, we create a test allocator, and use it to allocate memory for an array
+// of 'TestType' objects:
+//..
+//  bslma::TestAllocator ta;
+//
+//  TestType *array = (TestType *) ta.allocate(10 * sizeof(TestType));
+//..
+// Next, we construct the first 5 elements of the array to have the values
+// 'ABCDE'.
+//..
+//  TestType *p = array;
+//  new (p++) TestType('A', &ta);
+//  new (p++) TestType('B', &ta);
+//  new (p++) TestType('C', &ta);
+//  new (p++) TestType('D', &ta);
+//  new (p++) TestType('E', &ta);
+//..
+// Then, we record the number of outstanding blocks in the allocator:
+//..
+//  const bsls::Types::Int64 N = ta.numBlocksInUse();
+//..
+// Next, we enter an 'exception test' block, which will repeatedly enter a
+// block of code, catching exceptions throw by the test allocator 'ta' on each
+// iteration:
+//..
+//  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(ta)
+//..
+// Then, we observe that even if we've just caught an exception and re-entered
+// the block, the amount of memory outstanding is unchanged from before we
+// entered the block.
+//..
+//      assert(ta.numBlocksInUse() == N);
+//..
+// Note that when we threw, some of the values of the 5 elements of the array
+// may have been changed to 'v', otherwise they will be unchanged.
+//
+// Next, we re-initialize those elements that have been overwritten in the last
+// pass with 'value' to their values before we entered the block:
+//..
+//      if ('v' == array[0].datum()) array[0].setDatum('A');
+//      if ('v' == array[1].datum()) array[1].setDatum('B');
+//      if ('v' == array[2].datum()) array[2].setDatum('C');
+//      if ('v' == array[3].datum()) array[3].setDatum('D');
+//      if ('v' == array[4].datum()) array[4].setDatum('E');
+//..
+// Then, we call 'insertItems', which may throw:
+//..
+//      insertItems(array, p, value, &ta);
+//..
+// Next, we exit the except testing block.
+//..
+//  BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+//..
+// Now, we verify that:
+//: 1 we have allocated exactly 5 more blocks of memory, since each 'TestType'
+//:   object allocates one block and 'insertItems' created 5 more 'TestType'
+//:   objects.
+//: 2 the values of the elements of the array are as expected.
+//..
+//  assert(ta.numBlocksInUse() == N + 5);
+//
+//  assert('v' == array[0].datum());
+//  assert('v' == array[1].datum());
+//  assert('v' == array[2].datum());
+//  assert('v' == array[3].datum());
+//  assert('v' == array[4].datum());
+//  assert('A' == array[5].datum());
+//  assert('B' == array[6].datum());
+//  assert('C' == array[7].datum());
+//  assert('D' == array[8].datum());
+//  assert('E' == array[9].datum());
+//..
+// Finally, we destroy our array and check the allocator to verify no memory
+// was leaked:
+//..
+//  for (int i = 0; i < 10; ++i) {
+//      array[i].~TestType();
+//  }
+//  ta.deallocate(array);
+//
+//  assert(0 == ta.numBytesInUse());
+//..
 
 #include <bslscm_version.h>
 
@@ -249,9 +351,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 
-#include <cstddef>        // std::size_t
-
-#include <cstring>        // memset, memcpy, memmove
+#include <cstddef>        // 'std::size_t'
+#include <cstring>        // 'memset', 'memcpy', 'memmove'
 
 namespace BloombergLP {
 
@@ -302,7 +403,7 @@ class AutoArrayMoveDestructor {
                             OBJECT_TYPE *middle,
                             OBJECT_TYPE *end,
                             ALLOCATOR    allocator = ALLOCATOR());
-        // TBD: fix comment
+        // TBD: document the 'allocator' parameter.
         // Create a proctor for the sequence of elements of the parameterized
         // 'OBJECT_TYPE' in the specified range '[ begin, end )' which, upon
         // destruction, moves the range '[ begin, middle )' to the specified
@@ -415,9 +516,10 @@ OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::begin() const
 
 template <class OBJECT_TYPE, class ALLOCATOR>
 inline
-OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::middle() const
+OBJECT_TYPE *
+AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::destination() const
 {
-    return d_middle_p;
+    return d_dst_p;
 }
 
 template <class OBJECT_TYPE, class ALLOCATOR>
@@ -429,10 +531,9 @@ OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::end() const
 
 template <class OBJECT_TYPE, class ALLOCATOR>
 inline
-OBJECT_TYPE *
-AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::destination() const
+OBJECT_TYPE *AutoArrayMoveDestructor<OBJECT_TYPE, ALLOCATOR>::middle() const
 {
-    return d_dst_p;
+    return d_middle_p;
 }
 
 }  // close package namespace

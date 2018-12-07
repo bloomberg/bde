@@ -687,13 +687,13 @@ struct EmptyFunctor : FunctorBase
 #endif
 
     EmptyFunctor(const EmptyFunctor&) : FunctorBase()
-        { --copyLimit; memset(this, 0xdd, sizeof(*this)); }
+        { --copyLimit; memset((void *)this, 0xdd, sizeof(*this)); }
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT && \
     defined BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     // Nothrow moveable
     EmptyFunctor(EmptyFunctor&&) noexcept
-        { memset(this, 0xdd, sizeof(*this)); }
+        { memset((void *)this, 0xdd, sizeof(*this)); }
 #endif
 
     enum { IS_STATELESS = true };
@@ -703,14 +703,14 @@ struct EmptyFunctor : FunctorBase
         // a footprint and any code that optimizes the object away must be
         // careful not to overwrite arbitrary memory by calling the "empty"
         // constructor.
-        { memset(this, 0xee, sizeof(*this)); }
+        { memset((void *)this, 0xee, sizeof(*this)); }
 
     ~EmptyFunctor()
         // Destructor writes '0xbb' over its memory.  Even an empty class has a
         // footprint and any code that optimizes the object away must be
         // careful not to overwrite arbitrary memory by calling the "empty"
         // destructor.
-        { memset(this, 0xbb, sizeof(*this)); }
+        { memset((void *)this, 0xbb, sizeof(*this)); }
 
 #define OP_PAREN(n)                                                           \
     int operator()(const IntWrapper& iw, BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) \
@@ -775,7 +775,7 @@ class SmallFunctor : public FunctorBase
         bslmf::MovableRefUtil::access(other).d_value = k_MOVED_FROM_VAL;
     }
 
-    ~SmallFunctor() { memset(this, 0xbb, sizeof(*this)); }
+    ~SmallFunctor() { memset((void *)this, 0xbb, sizeof(*this)); }
 
 #define OP_PAREN(n)                                                           \
     int operator()(const IntWrapper& iw, BSLS_MACROREPEAT_COMMA(n, INT_ARGN)) \
@@ -838,7 +838,7 @@ class MediumFunctor : public SmallFunctor
         memset(d_padding, 0xee, sizeof(d_padding));
     }
 
-    ~MediumFunctor() { memset(this, 0xbb, sizeof(*this)); }
+    ~MediumFunctor() { memset((void *)this, 0xbb, sizeof(*this)); }
 };
 
 inline
@@ -879,7 +879,7 @@ class LargeFunctor : public SmallFunctor
         memset(d_padding, 0xee, sizeof(d_padding));
     }
 
-    ~LargeFunctor() { memset(this, 0xbb, sizeof(*this)); }
+    ~LargeFunctor() { memset((void *)this, 0xbb, sizeof(*this)); }
 };
 
 inline
@@ -941,7 +941,7 @@ class NTSmallFunctor
 #endif
 
     ~NTSmallFunctor() {
-        memset(this, 0xbb, sizeof(*this));
+        memset((void *)this, 0xbb, sizeof(*this));
     }
 
     int operator()(const IntWrapper& iw, int v) {
@@ -984,7 +984,7 @@ class ThrowingEmptyFunctor : public EmptyFunctor
         : EmptyFunctor((--moveLimit, upcastMovableRef<EmptyFunctor>(other)))
         { }
 
-    ~ThrowingEmptyFunctor() { memset(this, 0xbb, sizeof(*this)); }
+    ~ThrowingEmptyFunctor() { memset((void *)this, 0xbb, sizeof(*this)); }
 };
 
 inline
@@ -1050,7 +1050,7 @@ class ThrowingSmallFunctor : public FunctorBase
         { --moveLimit; }
 
     ~ThrowingSmallFunctor() {
-        memset(this, 0xbb, sizeof(*this));
+        memset((void *)this, 0xbb, sizeof(*this));
     }
 
     int operator()(const IntWrapper& iw, int v) {
@@ -1105,7 +1105,7 @@ class SmallFunctorWithAlloc : public SmallFunctor
         , d_alloc_p(alloc) { }
 
     ~SmallFunctorWithAlloc()
-        { memset(this, 0xbb, sizeof(*this)); }
+        { memset((void *)this, 0xbb, sizeof(*this)); }
 
     bslma::Allocator *allocator() const { return d_alloc_p; }
 };
@@ -1158,7 +1158,7 @@ class BMSmallFunctorWithAlloc : public SmallFunctor
         , d_alloc_p(alloc) { }
 
     ~BMSmallFunctorWithAlloc()
-        { memset(this, 0xbb, sizeof(*this)); }
+        { memset((void *)this, 0xbb, sizeof(*this)); }
 
     bslma::Allocator *allocator() const { return d_alloc_p; }
 };
@@ -1277,7 +1277,7 @@ class LargeFunctorWithAlloc : public BMSmallFunctorWithAlloc
         { memset(d_padding, 0xee, sizeof(d_padding)); }
 
     ~LargeFunctorWithAlloc()
-        { memset(this, 0xbb, sizeof(*this)); }
+        { memset((void *)this, 0xbb, sizeof(*this)); }
 };
 
 inline
