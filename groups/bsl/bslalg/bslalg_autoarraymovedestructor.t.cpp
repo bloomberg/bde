@@ -1,22 +1,19 @@
 // bslalg_autoarraymovedestructor.t.cpp                               -*-C++-*-
-
 #include <bslalg_autoarraymovedestructor.h>
 
-#include <bslalg_autoarraydestructor.h>          // for testing only
-#include <bslalg_hastrait.h>                     // for testing only
-#include <bslalg_scalarprimitives.h>             // for testing only
+#include <bslalg_autoarraydestructor.h>
 
-#include <bslma_allocator.h>                     // for testing only
-#include <bslma_default.h>                       // for testing only
-#include <bslma_testallocator.h>                 // for testing only
-#include <bslma_testallocatorexception.h>        // for testing only
-#include <bslma_usesbslmaallocator.h>            // for testing only
-#include <bslmf_isbitwisemoveable.h>             // for testing only
-#include <bsls_alignmentutil.h>                  // for testing only
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatorexception.h>
+#include <bslma_usesbslmaallocator.h>
+#include <bslmf_isbitwisemoveable.h>
+#include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
-#include <bsls_asserttest.h>                     // for testing only
+#include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
-#include <bsls_stopwatch.h>                      // for testing only
+#include <bsls_stopwatch.h>
 
 #include <ctype.h>      // 'isalpha'
 #include <stdio.h>      // 'printf'
@@ -359,7 +356,7 @@ int main(int argc, char *argv[])
 //..
     const bsls::Types::Int64 N = ta.numBlocksInUse();
 //..
-// Next, we enter an 'exception test' block, which will repetitively enter a
+// Next, we enter an 'exception test' block, which will repeatedly enter a
 // block of code, catching exceptions throw by the test allocator 'ta' on each
 // iteration:
 //..
@@ -373,9 +370,9 @@ int main(int argc, char *argv[])
 //..
 // Note that when we threw, some of the values of the 5 elements of the array
 // may have been changed to 'v', otherwise they will be unchanged.
-
-// Next, we re-initiailize those elements that have been overwritten in the
-// last pass with 'value' to their values before we entered the block:
+//
+// Next, we re-initialize those elements that have been overwritten in the last
+// pass with 'value' to their values before we entered the block:
 //..
         if ('v' == array[0].datum()) array[0].setDatum('A');
         if ('v' == array[1].datum()) array[1].setDatum('B');
@@ -391,11 +388,11 @@ int main(int argc, char *argv[])
 //..
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 //..
-// Now, we verify:
-//: 1 Since each 'TestType' object allocates one block and 'insertItems'
-//:   created 5 more 'TestType' objects, that we have  allocated exactly 5 more
-//:   blocks of memory.
-//: 2 That the values of the elements of the array are as expected.
+// Now, we verify that:
+//: 1 we have allocated exactly 5 more blocks of memory, since each 'TestType'
+//:   object allocates one block and 'insertItems' created 5 more 'TestType'
+//:   objects.
+//: 2 the values of the elements of the array are as expected.
 //..
     ASSERT(ta.numBlocksInUse() == N + 5);
 
