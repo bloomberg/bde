@@ -1256,6 +1256,13 @@ int main(int argc, char *argv[])
             // Verify that no memory was allocated.
 
             ASSERT(0 == da.status());
+
+            // Verify that the constructor without arguments is implicit.
+
+            struct {
+                Obj d_mMD;
+            } testImplicit = {};
+            (void) testImplicit;
         }
 
         if (verbose) cout << "\nTesting constructor with allocator only."
@@ -1273,6 +1280,29 @@ int main(int argc, char *argv[])
             // Check if the right allocator has been tied with an object.
 
             ASSERT(&ta  == MD.allocator());
+
+            // Verify that no memory was allocated.
+
+            ASSERT(0 == ta.status());
+            ASSERT(0 == da.status());
+        }
+
+        if (verbose) cout <<
+                        "\nTesting constructor with allocator only, passing 0."
+                          << endl;
+        {
+            bslma::DefaultAllocatorGuard guard(&da);
+
+            Obj        mMD(0);
+            const Obj& MD = mMD;
+
+            // Check if object has a nil value.
+
+            ASSERT(true == MD.datum().isNull());
+
+            // Check if the right allocator has been tied with an object.
+
+            ASSERT(&da  == MD.allocator());
 
             // Verify that no memory was allocated.
 

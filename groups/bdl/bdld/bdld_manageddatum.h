@@ -227,7 +227,13 @@ class ManagedDatum {
         // movable and trivially copyable.
 
     // CREATORS
-    explicit ManagedDatum(bslma::Allocator *basicAllocator = 0);
+    ManagedDatum();
+        // Create a 'ManagedDatum' object having the default (null) value.  The
+        // currently installed default allocator is used to supply memory.
+        // De-refering the managed 'Datum' object and calling 'isNull'
+        // will return 'true'.
+
+    explicit ManagedDatum(bslma::Allocator *basicAllocator);
         // Create a 'ManagedDatum' object having the default (null) value.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
         // 'basicAllocator' is 0, the currently installed default allocator is
@@ -357,6 +363,13 @@ void swap(ManagedDatum& a, ManagedDatum& b);
                             // ------------------
 
 // CREATORS
+inline
+ManagedDatum::ManagedDatum()
+: d_data(Datum::createNull())
+, d_allocator_p(bslma::Default::defaultAllocator())
+{
+}
+
 inline
 ManagedDatum::ManagedDatum(bslma::Allocator *basicAllocator)
 : d_data(Datum::createNull())
