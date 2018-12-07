@@ -253,7 +253,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Next, within the 'main' function of our task, we create our 'value' object,
-// whose value with be 'v', to be inserted into the front of our range.
+// whose value will be 'v', to be inserted into the front of our range.
 //..
 //  TestType value('v');
 //..
