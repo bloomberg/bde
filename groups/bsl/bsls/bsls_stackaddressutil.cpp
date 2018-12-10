@@ -1,12 +1,4 @@
 // bsls_stackaddressutil.cpp                                          -*-C++-*-
-
-// ----------------------------------------------------------------------------
-//                                   NOTICE
-//
-// This component is not up to date with current BDE coding standards, and
-// should not be used as an example for new development.
-// ----------------------------------------------------------------------------
-
 #include <bsls_stackaddressutil.h>
 
 #include <bsls_ident.h>
@@ -18,6 +10,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <string.h>
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 
@@ -33,10 +26,20 @@ BSLS_IDENT("$Id$ $CSID$")
 #if defined(BSLS_PLATFORM_OS_AIX)
 
 # include <ucontext.h>
+# include <unistd.h>
+# include <procinfo.h>
+# include <sys/types.h>
+# include <sys/ldr.h>
+# include <xcoff.h>
 
-#elif defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
+#elif defined(BSLS_PLATFORM_OS_LINUX)
 
-#include <execinfo.h>
+# include <execinfo.h>
+
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+
+# include <execinfo.h>
+# include <libproc.h>
 
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
 
@@ -45,18 +48,229 @@ BSLS_IDENT("$Id$ $CSID$")
 # include <link.h>
 # include <thread.h>
 # include <setjmp.h>
+# include <stdlib.h>
 
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
 
-#include <bsls_dbghelpdllimpl_windows.h>
+# include <bsls_dbghelpdllimpl_windows.h>
 
-#include <windows.h>
-#include <intrin.h>
-#include <dbghelp.h>
+# include <windows.h>
+# include <intrin.h>
+# include <dbghelp.h>
 
 #pragma optimize("", off)
 
 #endif
+
+namespace {
+
+#if defined(BSLS_PLATFORM_OS_AIX) || \
+    defined(BSLS_PLATFORM_OS_DARWIN)
+int getProcessId()
+    // Return the platform-specific process id.
+{
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+    return static_cast<int>(GetCurrentProcessId());
+#else
+    return static_cast<int>(::getpid());
+#endif
+}
+#endif
+
+int getProcessName(char *output, int length)
+    // Load the system specific process name for the currently running process
+    // into the specified 'output' bufffer having the specified 'length'.
+    // Return 0 on success, and a non-zero value otherwise.  The behavior is
+    // undefined unless '0 <= length' and 'output' has the capacity for at
+    // least 'length' bytes.  Note that this has been adapted from
+    // 'bdls_processutil' to work within the constraints of the level of this
+    // component.
+{
+#if defined(BSLS_PLATFORM_OS_AIX)
+
+    assert(0 != output);
+    assert(0 < length);
+
+    struct procentry64 procBuf;
+    procBuf.pi_pid = getProcessId();
+
+    // '::getargs' should fill the beginning of 'output' with null-terminated
+    // 'argv[0]', which might be a relative path.
+
+    int rc = ::getargs(&procBuf, sizeof(procBuf), output, length);
+    output[length-1] = '\0'; // null terminate if 'output' was too short for
+                             // process name
+
+    return rc;
+
+#elif defined(BSLS_PLATFORM_OS_DARWIN)
+
+    char pidPathBuf[PROC_PIDPATHINFO_MAXSIZE];
+    memset(pidPathBuf, '\0', PROC_PIDPATHINFO_MAXSIZE);
+
+    int numChars = ::proc_pidpath(getProcessId(),
+                                  pidPathBuf,
+                                  PROC_PIDPATHINFO_MAXSIZE);
+    if (numChars <= 0) {
+        return -1;                                                    // RETURN
+    }
+    assert(numChars <= PROC_PIDPATHINFO_MAXSIZE);
+
+    snprintf(output, length, "%s", pidPathBuf);
+    return 0;
+
+#elif defined(BSLS_PLATFORM_OS_LINUX)
+
+    // We read '::program_invocation_name', which will just yield 'argv[0]',
+    // which may or may not be a relative path.
+
+    int printed = snprintf(output, length, "%s", ::program_invocation_name);
+    return (printed >= 0) ? 0 : -1;
+
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)
+
+    // '::getexecname' will return 'argv[0]' with symlinks resolved, or 0 if it
+    // fails.
+
+    const char *execName = ::getexecname();
+    if (!execName) {
+        return -1;                                                    // RETURN
+    }
+
+    snprintf(output, length, "%s", execName);
+    return 0;
+
+#elif defined(BSLS_PLATFORM_OS_WINDOWS)
+
+    DWORD resultlength = GetModuleFileNameA(0, output, length);
+    if (resultlength < 0) {
+        return -1;                                                    // RETURN
+    }
+
+    if (resultlength == length) {
+        output[length-1] = '\0'; // null terminate if result was truncated,
+                                 // which is not guaranteed on all windows
+                                 // versions.
+    }
+    return 0;
+#else
+# error    Unrecognized Platform
+#endif
+
+}
+
+#if defined(BSLS_PLATFORM_OS_AIX)
+uintptr_t initStackOffset()
+    // Return the offset that should be passed to 'showfunc.tsk' with the '-o'
+    // argument in order for that task to properly locate function names.
+    // Return '0' if any errors are encountered in attempting to determine the
+    // offset.
+{
+    // On any failures we just return 0.
+
+    // First we call 'loadquery' to get the primary module filename (which we
+    // we use to examine 'xcoff' information) and the text segment location of
+    // that module ('ldinfo_textorg' in the first returned 'ld_info' object).
+    enum { BUF_SIZE = (8 << 10) - 64 };
+    char ldInfoBuf[BUF_SIZE];
+
+    if (loadquery(L_GETINFO, ldInfoBuf, BUF_SIZE) == -1) {
+        return 0;
+    }
+
+    ld_info *currInfo = (ld_info*)(&ldInfoBuf[0]);
+
+    // With the 'ldinfo_filename' returned by 'loadquery' we can now search for
+    // 'xcoff' information to determine where the actual text segment resides
+    // in the executable file.  Note that we don't need to handle multiple
+    // loaded modules (shared objects) since 'showfunc.tsk' doesn't itself deal
+    // with those.  This is replicating behavior from the 'sysutil' library's
+    // 'cheap_stack_trace_addr' component.
+
+    // See 'balst_stacktraceresolverimpl_xcoff' for further details of the
+    // 'xcoff' format and how to proecss more of the information than just what
+    // is being extracted here.
+
+    struct FileDescriptor {
+        int fd;
+        FileDescriptor(const char *name) : fd(open64(name, O_RDONLY)) { }
+        ~FileDescriptor() { if (fd >= 0) { close(fd); } }
+        operator int() const { return fd; }
+    } fd(currInfo->ldinfo_filename);
+    if (fd < 0) {
+        return 0;                                                     // RETURN
+    }
+
+    // After this point if we encounter any more errors we also have to close
+    // the file descriptor we've just opened.
+
+    FILHDR fhdr;
+    if (read(fd, &fhdr, sizeof(fhdr)) != sizeof(fhdr)) {
+        return 0;                                                     // RETURN
+    }
+
+    if (fhdr.f_magic != U802TOCMAGIC) {
+        return 0;                                                     // RETURN
+    }
+
+    if (!fhdr.f_opthdr) {
+        return 0;                                                     // RETURN
+    }
+
+    AOUTHDR auxhdr;
+    if (fhdr.f_opthdr > sizeof(auxhdr)) {
+        // something is wrong with this file, the size in 'f_opthdr' should
+        // never be larger than the 'AOUTHDR' struct.
+
+        return 0;                                                     // RETURN
+    }
+
+    // Make sure everything in 'auxhdr' is 0-initialized in case there is only
+    // a partial header in the file.
+    memset(&auxhdr,0,sizeof(auxhdr));
+
+    if (read(fd, &auxhdr, fhdr.f_opthdr) != fhdr.f_opthdr) {
+        return 0;                                                     // RETURN
+    }
+
+    // identify current file location
+    off64_t textoffset = lseek(fd, 0, SEEK_CUR);
+    if (textoffset < 0) {
+        return 0;                                                     // RETURN
+    }
+
+    // add sntext to get location of text segment
+    textoffset += (auxhdr.o_sntext-1) * sizeof(SCNHDR);
+
+    SCNHDR texthdr;
+    if (pread(fd, &texthdr, sizeof(texthdr), textoffset) != sizeof(texthdr)) {
+        return 0;                                                     // RETURN
+    }
+
+    // base address in current process of text segment
+    uintptr_t start_addr = (uintptr_t)currInfo->ldinfo_textorg;
+
+    // text segment address in executable file
+    uintptr_t start_text = ((uintptr_t)auxhdr.text_start)
+        - ((uintptr_t)texthdr.s_scnptr);
+
+    // offset to alter each address by so that 'showfunc.tsk' will find the
+    // correct function information
+    return start_text - start_addr;
+}
+
+uintptr_t getStackOffset()
+{
+    static uintptr_t stack_offset = initStackOffset();
+
+    return stack_offset;
+}
+#endif // BSLS_PLATFORM_OS_AIX
+
+
+}  // close unnamed namespace
+
+
 
 namespace BloombergLP {
 
@@ -392,7 +606,7 @@ void StackAddressUtil::formatCheapStack(char       *output,
 
     // We need to prevent the optimizer from inlining the call to
     // 'getStackAddresses' so that we'll be sure exactly how many frames to
-    // ignore.  So take a ptr to the function, and then do a weird identity
+    // ignore.  So take a pointer to the function, and then do a weird identity
     // transform on it that the optimizer can't figure out is an identity
     // transform.
 
@@ -464,13 +678,50 @@ void StackAddressUtil::formatCheapStack(char       *output,
         return;                                                       // RETURN
     }
 
-    if (0 == taskname) {
-        taskname = "<binary_name_here>";
+#if defined(BSLS_PLATFORM_OS_AIX)
+    // On AIX cheapstack expects the stack addresses to be offset based on
+    // where the text segment was actually loaded - see DRQS 19990260, DRQS
+    // 39366273, and DRQS 121184813.
+    //
+    // Since this is hard to replicate, we are going to instead use the '-o'
+    // argument to 'showfunc.tsk', which has to come before the task name, to
+    // provide the offset if it is not '0'.
+
+    static uintptr_t stackOffset = getStackOffset();
+    if (stackOffset != 0) {
+        printed = snprintf(out,
+                           rem,
+                           "-o 0x " BSLS_BSLTESTUTIL_FORMAT_PTR,
+                           stackOffset);
+        out += printed;
+        rem -= printed;
+        if (printed < 0 || rem <= 0) {
+            return;                                                   // RETURN
+        }
+    }
+#endif
+
+
+
+    if (0 != taskname) {
+        printed = snprintf(out, rem, "%s", taskname);
+        rem -= printed;
+        out += printed;
+    }
+    else {
+        int rc = getProcessName(out, rem);
+        if (rc != 0) {
+            printed = snprintf(out, rem, "<binary_name_here>");
+            rem -= printed;
+            out += printed;
+        }
+        else {
+            int tasklen = static_cast<int>(strlen(out));
+            out += tasklen;
+            rem -= tasklen;
+        }
     }
 
-    printed = snprintf(out, rem, "%s", taskname);
-    rem -= printed;
-    out += printed;
 
     if (printed < 0 || rem <= 0) {
         return;                                                       // RETURN
@@ -492,7 +743,6 @@ void StackAddressUtil::formatCheapStack(char       *output,
         if (printed < 0 || rem <= 0) {
             return;                                                   // RETURN
         }
-
     }
 
     snprintf(out, rem, "\" to see the stack trace.\n");
