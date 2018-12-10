@@ -633,7 +633,7 @@ class Printer {
 #endif  // BDE_OPENSOURCE_PUBLICATION
 
     template <class TYPE>
-    void printAttribute(const char *name, const TYPE& data) const;
+    void printAttribute(const bslstl::StringRef& name, const TYPE& data) const;
         // Format to the output stream supplied at construction the specified
         // 'data', prefixed by the specified 'name'.  Format 'data' based on
         // the parameterized 'TYPE':
@@ -682,9 +682,9 @@ class Printer {
         // but not a null-terminated string.
 
     template <class ITERATOR>
-    void printAttribute(const char      *name,
-                        const ITERATOR&  begin,
-                        const ITERATOR&  end) const;
+    void printAttribute(const bslstl::StringRef& name,
+                        const ITERATOR&          begin,
+                        const ITERATOR&          end) const;
         // Format to the output stream supplied at construction, the specified
         // 'name' followed by the range of values starting at the specified
         // 'begin' position and ending immediately before the specified 'end'
@@ -693,18 +693,17 @@ class Printer {
         // call 'printValue' on each element in the range '[begin, end)'.
 
     template <class ITERATOR, class PRINT_FUNCTOR>
-    void printAttribute(const char           *name,
-                        const ITERATOR&       begin,
-                        const ITERATOR&       end,
-                        const PRINT_FUNCTOR&  printFunctionObject) const;
+    void printAttribute(const bslstl::StringRef&    name,
+                        const ITERATOR&             begin,
+                        const ITERATOR&             end,
+                        const PRINT_FUNCTOR&        printFunctionObject) const;
         // Print to the output stream supplied at construction the specified
-        // 'name', if name is not 0, and then call the specified
-        // 'printFunctionObject' with the the range of values starting at the
-        // specified 'begin' position and ending immediately before the
-        // specified 'end' position, the 'stream' supplied at construction,
-        // 'absLevel() + 1', and 'spacesPerLevel()'.  The parameterized
-        // 'PRINT_FUNCTOR' must be an invocable type whose arguments match the
-        // following function signature:
+        // 'name' and then call the specified 'printFunctionObject' with the
+        // range of values starting at the specified 'begin' position and
+        // ending immediately before the specified 'end' position, the stream
+        // supplied at construction, 'absLevel() + 1', and 'spacesPerLevel()'.
+        // The parameterized 'PRINT_FUNCTOR' must be an invocable type whose
+        // arguments match the following function signature:
         //..
         //  bsl::ostream& (*)(bsl::ostream& stream,
         //                    const TYPE&   data,
@@ -1040,10 +1039,9 @@ void Printer::print(const TYPE& data, const char *name) const
 #endif  // BDE_OPENSOURCE_PUBLICATION
 
 template <class TYPE>
-void Printer::printAttribute(const char *name, const TYPE& data) const
+void Printer::printAttribute(const bslstl::StringRef& name,
+                             const TYPE&              data) const
 {
-    BSLS_ASSERT_SAFE(0 != name);
-
     printIndentation();
 
     *d_stream_p << name << " = ";
@@ -1055,12 +1053,10 @@ void Printer::printAttribute(const char *name, const TYPE& data) const
 }
 
 template <class ITERATOR>
-void Printer::printAttribute(const char      *name,
-                             const ITERATOR&  begin,
-                             const ITERATOR&  end) const
+void Printer::printAttribute(const bslstl::StringRef& name,
+                             const ITERATOR&          begin,
+                             const ITERATOR&          end) const
 {
-    BSLS_ASSERT_SAFE(0 != name);
-
     printIndentation();
 
     *d_stream_p << name << " = ";
@@ -1073,13 +1069,12 @@ void Printer::printAttribute(const char      *name,
 }
 
 template <class ITERATOR, class PRINT_FUNCTOR>
-void Printer::printAttribute(const char           *name,
-                             const ITERATOR&       begin,
-                             const ITERATOR&       end,
-                             const PRINT_FUNCTOR&  printFunctionObject) const
+void Printer::printAttribute(
+                            const bslstl::StringRef& name,
+                            const ITERATOR&          begin,
+                            const ITERATOR&          end,
+                            const PRINT_FUNCTOR&     printFunctionObject) const
 {
-    BSLS_ASSERT_SAFE(0 != name);
-
     printIndentation();
 
     *d_stream_p << name << " = ";
