@@ -73,12 +73,12 @@
 //                             --------
 // This component provides macros that indicate the presence (or not) of
 // selected features (i.e., header-files/types) in the native standard library
-// used in the current build.  In the current implementation, the these flags
-// are not set according to information directly from the library; rather,
-// these features are inferred from platform and compiler information acquired
-// from macros set in other components.  The role of this test driver is to
-// provide a redundant check that those macros were correctly combined to
-// produce the expected results.
+// used in the current build.  In the current implementation, these flags are
+// not set according to information directly from the library; rather, these
+// features are inferred from platform and compiler information acquired from
+// macros set in other components.  The role of this test driver is to provide
+// a redundant check that those macros were correctly combined to produce the
+// expected results.
 //
 // Atypically of BDE test drivers, the semantic tests are done implicitly are
 // the point of usage in client components.  The test driver does a

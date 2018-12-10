@@ -96,11 +96,7 @@
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
-
-
 namespace balb {
-
-//class ControlManager_Entry;
 
                             // ====================
                             // class ControlManager

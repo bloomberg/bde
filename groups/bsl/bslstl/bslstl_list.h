@@ -103,49 +103,44 @@ BSLS_IDENT("$Id: $")
 //  'rv'   - rvalue of type (non-'const') 'T&&'
 //  'v'    - rvalue or lvalue of type (possibly 'const') 'T'
 //  'args' - 0 or more arguments
-//
+//..
 // The following terms are used to more precisely specify the requirements on
 // template parameter types in function-level documentation.
-//:
+//
 //: *default-insertable*: 'T' has a default constructor.  More precisely, 'T'
-//:     is 'default-insertable' into 'X' means that the following expression is
-//:     well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p)'
+//:   is 'default-insertable' into 'X' means that the following expression is
+//:   well-formed:
+//:   'allocator_traits<A>::construct(m, p)'
 //:
 //: *move-insertable*: 'T' provides a constructor that takes an rvalue of type
-//:     (non-'const') 'T'.  More precisely, 'T' is 'move-insertable' into 'X'
-//:     means that the following expression is well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p, rv)'
+//:   (non-'const') 'T'.  More precisely, 'T' is 'move-insertable' into 'X'
+//:   means that the following expression is well-formed:
+//:   'allocator_traits<A>::construct(m, p, rv)'
 //:
 //: *copy-insertable*: 'T' provides a constructor that takes an lvalue or
-//:     rvalue of type (possibly 'const') 'T'.  More precisely, 'T' is
-//:     'copy-insertable' into 'X' means that the following expression is
-//:     well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p, v)'
+//:   rvalue of type (possibly 'const') 'T'.  More precisely, 'T' is
+//:   'copy-insertable' into 'X' means that the following expression is
+//:   well-formed:
+//:   'allocator_traits<A>::construct(m, p, v)'
 //:
 //: *move-assignable*: 'T' provides an assignment operator that takes an rvalue
-//:     of type (non-'const') 'T'.
+//:   of type (non-'const') 'T'.
 //:
 //: *copy-assignable*: 'T' provides an assignment operator that takes an lvalue
-//:     or rvalue of type (possibly 'const') 'T'.
+//:   or rvalue of type (possibly 'const') 'T'.
 //:
 //: *emplace-constructible*: 'T' is 'emplace-constructible' into 'X' from
-//:     'args' means that the following expression is well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p, args)'
+//:   'args' means that the following expression is well-formed:
+//:   'allocator_traits<A>::construct(m, p, args)'
 //:
 //: *erasable*: 'T' provides a destructor.  More precisely, 'T' is 'erasable'
-//:     from 'X' means that the following expression is well-formed:
-//:
-//:      'allocator_traits<A>::destroy(m, p)'
+//:   from 'X' means that the following expression is well-formed:
+//:   'allocator_traits<A>::destroy(m, p)'
 //:
 //: *equality-comparable*: The type provides an equality-comparison operator
-//:     that defines an equivalence relationship and is both reflexive and
-//:     transitive.
-//..
+//:   that defines an equivalence relationship and is both reflexive and
+//:   transitive.
+//
 ///Operations
 ///----------
 // This section describes the run-time complexity of operations on instances

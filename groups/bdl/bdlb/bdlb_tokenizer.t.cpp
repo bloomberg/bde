@@ -613,7 +613,7 @@ int main(int argc, char **argv)
         //:
         //: 9 Assert that 'operator*' dereferences correctly for the string
         //:   value, and that a 'bslstl::StringRef' function is called
-        //:   correctly on the the referenced iterator.
+        //:   correctly on the referenced iterator.
         //:   (C-8)
         //
         // Testing:

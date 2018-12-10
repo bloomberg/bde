@@ -5480,7 +5480,7 @@ void TestDriver<TYPE, ALLOC>::testCase26Range(const CONTAINER&)
                         size_t k;
                         for (k = 0; k != INIT_LENGTH; ++k) {
                             mX.emplace_back(VALUES[k % NUM_VALUES]);
-                        }                
+                        }
 
                         const size_t CAP = 0 == INIT_CAP && 0 == LENGTH
                                          ? 0
@@ -8462,7 +8462,7 @@ void TestDriver<TYPE, ALLOC>::testCase17_n_copies()
                         if (veryVerbose) {
                             printf("\t\t\tInsert with "); P_(LENGTH);
                             printf(" at "); P_(POS);
-                            printf(" using enough of of value at "); P_(INDEX);
+                            printf(" using enough of value at "); P_(INDEX);
                             printf(" to reach capacity.\n");
                         }
 
@@ -8533,7 +8533,7 @@ void TestDriver<TYPE, ALLOC>::testCase17_n_copies()
                         if (veryVerbose) {
                             printf("\t\t\tInsert with "); P_(LENGTH);
                             printf(" at "); P_(POS);
-                            printf(" using enough of of value at "); P_(INDEX);
+                            printf(" using enough of value at "); P_(INDEX);
                             printf(" to exceed capacity.\n");
                         }
 
@@ -11742,8 +11742,8 @@ void TestDriver<TYPE, ALLOC>::testCase12Ambiguity()
 {
     // Concerns:
     //: 1 A 'vector' is created with expected number of elements (given by the
-    //:   first argument), each having the expected value (given the the
-    //:   second argument).
+    //:   first argument), each having the expected value (given by the second
+    //:   argument).
     //: 2 The newly created vector has the expected capacity, equal to the
     //:   size.
     //: 3 The requested size might, or might not, be a power of two.

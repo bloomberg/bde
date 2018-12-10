@@ -506,7 +506,7 @@ int NumericParseUtil::parseUnsignedInteger(
     int                 digit = characterToDigit(inputString[0], base);
     if (digit == -1) {
         *remainder = inputString;
-        // ERROR: The the first character must be a digit.
+        // ERROR: The first character must be a digit.
         return -2;                                                    // RETURN
     }
 

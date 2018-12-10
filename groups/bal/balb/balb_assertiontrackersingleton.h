@@ -13,15 +13,15 @@
 //@DESCRIPTION: The 'balb::AssertionTrackerSingleton' component creates and
 // provides access to a singleton object that is responsible for accumulating
 // and reporting on a sequence of failed assertions.
-//
-// ********************************* WARNING *********************************
-// IT IS CORPORATE POLICY THAT IN PRODUCTION CODE, ASSERTION FAILURE HANDLERS
-// MUST NOT RETURN TO THEIR CALLERS.  THIS COMPONENT EXISTS IN CONTRAVENTION OF
-// THAT POLICY, AND IS MEANT TO BE USED ONLY WITH SPECIAL PERMISSION OF
-// MANAGEMENT, FOR THE PURPOSE OF ASCERTAINING THE CORRECTNESS OF FRESHLY
-// WRITTEN OR ENABLED ASSERTIONS THAT ARE FAILING.
-// ********************************* WARNING *********************************
-//
+//..
+//  ********************************* WARNING *********************************
+//  IT IS CORPORATE POLICY THAT IN PRODUCTION CODE, ASSERTION FAILURE HANDLERS
+//  MUST NOT RETURN TO THEIR CALLERS.  THIS COMPONENT EXISTS IN CONTRAVENTION
+//  OF THAT POLICY, AND IS MEANT TO BE USED ONLY WITH SPECIAL PERMISSION OF
+//  MANAGEMENT, FOR THE PURPOSE OF ASCERTAINING THE CORRECTNESS OF FRESHLY
+//  WRITTEN OR ENABLED ASSERTIONS THAT ARE FAILING.
+//  ********************************* WARNING *********************************
+//..
 // The singleton object will generally, and by default, be an object of type
 // 'balb::AssertionTracker' but a different type may be used, as shown in the
 // usage example below.

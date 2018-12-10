@@ -123,8 +123,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_review.h>
 
 namespace BloombergLP {
-
 namespace balxml {
+
                            // =====================
                            // class HexParser<TYPE>
                            // =====================
@@ -283,8 +283,8 @@ int HexParser<TYPE>::pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end)
 
     return k_SUCCESS;
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

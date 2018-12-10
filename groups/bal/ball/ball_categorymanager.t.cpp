@@ -1741,7 +1741,7 @@ int main(int argc, char *argv[])
         //
         //   - All categories added via 'addCategory' are unique across all
         //     "write" threads.
-        //   - The lists of of categories queried via 'lookupCategory' are
+        //   - The lists of categories queried via 'lookupCategory' are
         //     identical across all "query" threads.
         //
         // Testing:

@@ -57,15 +57,14 @@ BSLS_IDENT("$Id: $")
 // not required.  The user-implemented algorithm must also implement the
 // interface shown here:
 //..
-// class SomeHashAlgorithm
-// {
-//   public:
-//     // CONSTANTS
-//     enum { k_SEED_LENGTH = XXX };
+//  class SomeHashAlgorithm {
+//    public:
+//      // CONSTANTS
+//      enum { k_SEED_LENGTH = XXX };
 //
-//     // CREATORS
-//     explicit SomeHashAlgorithm(const char *seed);
-// };
+//      // CREATORS
+//      explicit SomeHashAlgorithm(const char *seed);
+//  };
 //..
 // The 'k_SEED_LENGTH' enum must be in the public interface, and 'XXX' must be
 // replaced with an integer literal indicating the number of bytes of seed the
@@ -78,11 +77,10 @@ BSLS_IDENT("$Id: $")
 // bslh::SeededHash.  The seed generator must conform to the interface shown
 // here:
 //..
-// class SomeSeedGenerator
-// {
-//     // ACCESSORS
-//     void generateSeed(char *seedLocation, size_t seedLength);
-// };
+//  class SomeSeedGenerator {
+//    // ACCESSORS
+//    void generateSeed(char *seedLocation, size_t seedLength);
+//  };
 //..
 // The only mandatory piece of the seed generator interface is the generateSeed
 // method, which accepts a char pointer to memory to be written and a size_t
@@ -128,7 +126,6 @@ BSLS_IDENT("$Id: $")
 // parameters: 'TYPE' (the type being referenced) and 'HASHER' (a functor that
 // produces the hash).
 //..
-//
 //  template <class TYPE, class HASHER>
 //  class HashTable {
 //      // This class template implements a hash table providing fast lookup of
@@ -197,50 +194,47 @@ BSLS_IDENT("$Id: $")
 // Then, we will create an array of user supplied nicknames that would create
 // collisions in some other hashing algorithm.
 //..
+//  const char names[6][11] = { "COLLISION!",
+//                              "COLLISION@",
+//                              "COLLISION#",
+//                              "COLLISION$",
+//                              "COLLISION%",
+//                              "COLLISION^"};
 //
-//      const char names[6][11] = { "COLLISION!",
-//                                  "COLLISION@",
-//                                  "COLLISION#",
-//                                  "COLLISION$",
-//                                  "COLLISION%",
-//                                  "COLLISION^"};
-//
-//      enum { NUM_NAMES = sizeof names / sizeof *names };
-//
+//  enum { NUM_NAMES = sizeof names / sizeof *names };
 //..
 // Next, we create a seed generator, with a cryptographically secure random
 // number generator, that can be used to generate seeds for our secure hashing
 // algorithm.  We then pass that seed generator into 'bslh::SeededHash'.  We
 // use the 'bslh::SipHashAlgorithm' as our secure hashing algorithm.
 //..
-//      typedef SeedGenerator<CryptographicallySecureRNG> SecureSeedGenerator;
-//      typedef SeededHash<SecureSeedGenerator, SipHashAlgorithm> SecureHash;
+//  typedef SeedGenerator<CryptographicallySecureRNG> SecureSeedGenerator;
+//  typedef SeededHash<SecureSeedGenerator, SipHashAlgorithm> SecureHash;
 //
-//      SecureSeedGenerator secureSeedGenerator;
-//      SecureHash          secureHash(secureSeedGenerator);
-//
+//  SecureSeedGenerator secureSeedGenerator;
+//  SecureHash          secureHash(secureSeedGenerator);
 //..
 // Then, we create our hash table 'hashTable'.  We pass it the 'secureHash'
 // hashing functor we created.  Passing it in through the functor, rather than
 // just having it default constructed from the template parameter, allows us to
 // pass in an algorithm with a pre-configured state if we so desire.
 //..
-//
-//      HashTable<const char [11], SecureHash> hashTable(names,
-//                                                       NUM_NAMES,
-//                                                       secureHash);
-//
+//  HashTable<const char [11], SecureHash> hashTable(names,
+//                                                   NUM_NAMES,
+//                                                   secureHash);
+//..
 // Now, we verify that each element in our array registers with count:
-//      for ( int i = 0; i < NUM_NAMES; ++i) {
-//          ASSERT(hashTable.contains(names[i]));
-//      }
-//
+//..
+//  for ( int i = 0; i < NUM_NAMES; ++i) {
+//      assert(hashTable.contains(names[i]));
+//  }
+//..
 // Finally, we verify that futures not in our original array are correctly
 // identified as not being in the set:
-//
-//      ASSERT(!hashTable.contains("asdfasdfas"));
-//      ASSERT(!hashTable.contains("asdfqwerqw"));
-//      ASSERT(!hashTable.contains("asdfqwerzx"));
+//..
+//  assert(!hashTable.contains("asdfasdfas"));
+//  assert(!hashTable.contains("asdfqwerqw"));
+//  assert(!hashTable.contains("asdfqwerzx"));
 //..
 
 #include <bslscm_version.h>

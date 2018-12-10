@@ -1008,7 +1008,7 @@ class Deque<TYPE>::ConstProctor {
         // Return a reference providing non-modifiable access to the element at
         // the specified 'position' in the 'bsl::deque' held by this proctor.
         // The behavior is undefined unless 'position < size' where 'size' is
-        // the the number of elements in that deque.
+        // the number of elements in that deque.
 
     bool isNull() const;
         // Return 'true' if this object is not associated with a 'Deque'

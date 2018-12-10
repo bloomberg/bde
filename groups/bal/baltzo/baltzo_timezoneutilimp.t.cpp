@@ -41,7 +41,7 @@ using namespace bsl;
 //                              TEST PLAN
 //-----------------------------------------------------------------------------
 //                              Overview
-// The component under test implements a a namespace for utility functions that
+// The component under test implements a namespace for utility functions that
 // convert time values to, and from, local time.
 //
 // Class Methods:

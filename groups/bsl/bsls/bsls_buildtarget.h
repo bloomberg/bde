@@ -13,10 +13,8 @@ BSLS_IDENT("$Id: $")
 //  BDE_BUILD_TARGET_MT: flag identifying multi-threaded builds
 //  BDE_BUILD_TARGET_NO_MT: flag identifying builds that do not support threads
 //  BDE_OMIT_DEPRECATED: legacy flag to deprecate a block of code
-#ifndef BDE_OPENSOURCE_PUBLICATION  // internal code management
 //  BDE_OMIT_INTERNAL_DEPRECATED: legacy flag to deprecate internal-only code
 //  BDE_OPENSOURCE_PUBLICATION: marker for non-deprecated internal-only code
-#endif  // BDE_OPENSOURCE_PUBLICATION -- internal code management
 //
 //@SEE_ALSO: bsls_deprecate
 //
@@ -43,7 +41,6 @@ BSLS_IDENT("$Id: $")
 //:     compiler as deprecated (if the code has been updated to use
 //:     'bsls_deprecate').  New uses of this macro are not supported; use
 //:     'bsls_deprecate' instead.
-#ifndef BDE_OPENSOURCE_PUBLICATION  // internal code management
 //
 // In addition to 'BDE_OMIT_DEPRECATED', there are two other macros that also
 // determine whether deprecated interfaces are available to programs built on
@@ -94,7 +91,6 @@ BSLS_IDENT("$Id: $")
 // without that code, and/or to make it easy to prepare an open-source
 // distribution from the full internal BDE codebase.  The conditional
 // compilation macros are:
-#endif  // BDE_OPENSOURCE_PUBLICATION -- internal code management
 //
 ///Usage
 ///-----

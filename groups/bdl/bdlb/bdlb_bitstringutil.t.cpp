@@ -4151,7 +4151,7 @@ int main(int argc, char *argv[])
 
         for (int ii = 0; ii < 20; ++ii) {
             // To test this code properly it was necessary to have a long array
-            // to test for a wide variety of of combinations of 'idxA', 'idxB',
+            // to test for a wide variety of combinations of 'idxA', 'idxB',
             // and 'numBits'.  To get this done in less than 15 seconds on
             // Solaris we have to do only 20 test cases, so we use
             // 'fillWithGarbage' instead of 'setUpArray'.

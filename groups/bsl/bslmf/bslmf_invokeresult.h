@@ -72,8 +72,8 @@ BSLS_IDENT("$Id: $")
 //:   and later, as well.)
 //: 2 Otherwise, if 'F' is a function type, pointer to function type, pointer
 //:   to member function type, pointer to member object type, or reference to
-//:   any of the these (i.e, 'F' is anything other than a class type or
-//:   reference to class type), then 'type' is 'R'.
+//:   any of these (i.e, 'F' is anything other than a class type or reference
+//:   to class type), then 'type' is 'R'.
 //: 3 Otherwise, if 'R' is
 //:    o a fundamental type,
 //:    o a pointer to (possibly cv-qualfied) 'void' or fundamental type,
@@ -81,11 +81,11 @@ BSLS_IDENT("$Id: $")
 //:    o 'bsl::nullptr_t', or
 //:    o 'void',
 //:   then 'type' is 'R'.
-//: 4 Otherwise, if 'F' is a a class type with member 'result_type', then
-//:   'type' is 'F::result_type'.  Note that 'bsl::invoke_result' cannot deduce
+//: 4 Otherwise, if 'F' is a class type with member 'result_type', then 'type'
+//:   is 'F::result_type'.  Note that 'bsl::invoke_result' cannot deduce
 //:   different result types for different overloads of 'operator()' in this
 //:   case.
-//: 5 Otherwise, if 'F' is a a class type with member type 'ResultType', then
+//: 5 Otherwise, if 'F' is a class type with member type 'ResultType', then
 //:   'type' is 'F::ResultType'.  Note that 'bsl::invoke_result' cannot deduce
 //:   different result types for different overloads of 'operator()' in this
 //:   case.
@@ -2666,8 +2666,8 @@ private:
     template <class TP>
     static TP& tolvalue(TP&&);
         // (Declared but not defined.)  Return an lvalue reference
-        // corresponding of the the specified 'TP' type, which is deduced from
-        // the specified unnamed argument.  If the argument is an lvalue, the
+        // corresponding of the specified 'TP' type, which is deduced from the
+        // specified unnamed argument.  If the argument is an lvalue, the
         // return type is identical to the argument type.  If the argument is
         // an rvalue, the return type is an lvalue to the argument type with
         // the same cv qualifiers.  This function is useful for avoiding too

@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::LiteralUtil: namespace for utilies for programming language literals
 //
-//@SEE ALSO: hslc_lexer, hslc_parser
+//@SEE_ALSO: hslc_lexer, hslc_parser
 //
 //@DESCRIPTION: This component provides a namespace, 'bdlb::LiteralUtil', for a
 // set of utility routines that operate on (programming language) literals.
@@ -22,9 +22,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlb {
 
-                             // =================
-                             // class LiteralUtil
-                             // =================
+                             // ==================
+                             // struct LiteralUtil
+                             // ==================
 
 struct LiteralUtil {
     // CLASS METHODS

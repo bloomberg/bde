@@ -177,7 +177,7 @@ class BerDecoder {
             // unless a null character was appended onto this stream.
 
         int length() const;
-            // Return the length of of the formatted data, including null
+            // Return the length of the formatted data, including null
             // characters appended to the stream, if any.
     };
 

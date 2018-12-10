@@ -820,7 +820,7 @@ class Printer {
                     const PRINT_FUNCTOR&  printFunctionObject) const;
         // Print to the output stream supplied at construction the specified
         // 'name', if name is not 0, and then call the specified
-        // 'printFunctionObject' with the the range of values starting at the
+        // 'printFunctionObject' with the range of values starting at the
         // specified 'begin' position and ending immediately before the
         // specified 'end' position, the 'stream' supplied at construction,
         // 'absLevel() + 1', and 'spacesPerLevel()'. The parameterized
@@ -901,7 +901,7 @@ struct Printer_Helper {
         // indentation 'level', using the specified 'spacesPerLevel', the
         // number of spaces per indentation level for the objects and their
         // nested objects, where 'ITERATOR' supports the operators '++' and '*'
-        // to access the objects, printing the individual objects with the 
+        // to access the objects, printing the individual objects with the
         // specified 'printFunctionObject'.
 
                       // Fundamental types
@@ -991,7 +991,7 @@ struct Printer_Helper {
                          int                        level,
                          int                        spacesPerLevel,
                          bslmf::SelectTraitCase<>);
-    
+
     template <class TYPE>
     static void printRaw(bsl::ostream&                stream,
                          const bsl::shared_ptr<TYPE>& data,

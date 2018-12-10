@@ -286,16 +286,16 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_allocator.h>
 
-#include <bsl_fstream.h>
-#include <bsl_vector.h>
-#include <bsl_string.h>
 #include <bsl_cstring.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
+#include <bsl_fstream.h>
+#include <bsl_string.h>
+#include <bsl_vector.h>
 
 namespace BloombergLP  {
-
 namespace balxml {
+
                               // ================
                               // class MiniReader
                               // ================
@@ -893,6 +893,10 @@ class MiniReader :  public Reader {
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
+
+                              // ----------------
+                              // class MiniReader
+                              // ----------------
 
 inline
 MiniReader::Node& MiniReader::currentNode()

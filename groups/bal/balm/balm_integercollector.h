@@ -89,8 +89,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 
 namespace BloombergLP {
-
 namespace balm {
+
                            // ======================
                            // class IntegerCollector
                            // ======================
@@ -154,7 +154,7 @@ class IntegerCollector {
         // 'k_DEFAULT_MAX != MetricRecord::k_DEFAULT_MAX'; when populating
         // 'record', this operation will convert default values for minimum and
         // maximum.  A minimum value of 'k_DEFAULT_MIN' will populate a minimum
-        // value of of 'MetricRecord::k_DEFAULT_MIN' and a maximum value of
+        // value of 'MetricRecord::k_DEFAULT_MIN' and a maximum value of
         // 'k_DEFAULT_MAX' will populate a maximum value of
         // 'MetricRecord::k_DEFAULT_MAX'.
 

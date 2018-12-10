@@ -60,65 +60,61 @@ BSLS_IDENT("$Id: $")
 // requirements for the 'KEY' and 'VALUE' template parameters.  These terms are
 // also defined in section [17.6.3.1] of the C++11 standard.
 //
-// Legend
-// ------
-// 'X'    - denotes an allocator-aware container type (e.g., 'map')
-// 'T'    - 'value_type' associated with 'X'
-// 'A'    - type of the allocator used by 'X'
-// 'm'    - lvalue of type 'A' (allocator)
-// 'p',   - address ('T *') of uninitialized storage for a 'T' within an 'X'
-// 'rv'   - rvalue of type (non-'const') 'T'
-// 'v'    - rvalue or lvalue of type (possibly 'const') 'T'
-// 'args' - 0 or more arguments
-//
+///Glossary
+///--------
+//..
+//  Legend
+//  ------
+//  'X'    - denotes an allocator-aware container type (e.g., 'map')
+//  'T'    - 'value_type' associated with 'X'
+//  'A'    - type of the allocator used by 'X'
+//  'm'    - lvalue of type 'A' (allocator)
+//  'p',   - address ('T *') of uninitialized storage for a 'T' within an 'X'
+//  'rv'   - rvalue of type (non-'const') 'T'
+//  'v'    - rvalue or lvalue of type (possibly 'const') 'T'
+//  'args' - 0 or more arguments
+//..
 // The following terms are used to more precisely specify the requirements on
 // template parameter types in function-level documentation.
-//:
+//
 //: *default-insertable*: 'T' has a default constructor.  More precisely, 'T'
-//:     is 'default-insertable' into 'X' means that the following expression is
-//:     well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p)'
+//:   is 'default-insertable' into 'X' means that the following expression is
+//:   well-formed:
+//:   'allocator_traits<A>::construct(m, p)'
 //:
 //: *move-insertable*: 'T' provides a constructor that takes an rvalue of type
-//:     (non-'const') 'T'.  More precisely, 'T' is 'move-insertable' into 'X'
-//:     means that the following expression is well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p, rv)'
-//:
-//:     Note that since the 'first' field of 'T' is 'const', 'T' is not
-//:     *move-insertable* unless 'key_type' is *copy-insertable*.
+//:   (non-'const') 'T'.  More precisely, 'T' is 'move-insertable' into 'X'
+//:   means that the following expression is well-formed:
+//:   'allocator_traits<A>::construct(m, p, rv)'
+//:   Note that since the 'first' field of 'T' is 'const', 'T' is not
+//:   *move-insertable* unless 'key_type' is *copy-insertable*.
 //:
 //: *copy-insertable*: 'T' provides a constructor that takes an lvalue or
-//:     rvalue of type (possibly 'const') 'T'.  More precisely, 'T' is
-//:     'copy-insertable' into 'X' means that the following expression is
-//:     well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p, v)'
+//:   rvalue of type (possibly 'const') 'T'.  More precisely, 'T' is
+//:   'copy-insertable' into 'X' means that the following expression is
+//:   well-formed:
+//:   'allocator_traits<A>::construct(m, p, v)'
 //:
 //: *move-assignable*: 'T' provides an assignment operator that takes an rvalue
-//:     of type (non-'const') 'T'.  Note that since the 'first' element of
-//:     'value_type' is 'const', 'value_type' is not 'move-assignable'.
-//:
-//:     Note that since the 'first' field of 'T' is 'const', 'T' is not
-//:     *move-assignable* unless 'key_type' is *copy-assignable*.
+//:   of type (non-'const') 'T'.  Note that since the 'first' element of
+//:   'value_type' is 'const', 'value_type' is not 'move-assignable'.
+//:   Note that since the 'first' field of 'T' is 'const', 'T' is not
+//:   *move-assignable* unless 'key_type' is *copy-assignable*.
 //:
 //: *copy-assignable*: 'T' provides an assignment operator that takes an lvalue
-//:     or rvalue of type (possibly 'const') 'T'.
+//:   or rvalue of type (possibly 'const') 'T'.
 //:
 //: *emplace-constructible*: 'T' is 'emplace-constructible' into 'X' from
-//:     'args' means that the following expression is well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p, args)'
+//:   'args' means that the following expression is well-formed:
+//:   'allocator_traits<A>::construct(m, p, args)'
 //:
 //: *erasable*: 'T' provides a destructor.  More precisely, 'T' is 'erasable'
-//:     from 'X' means that the following expression is well-formed:
-//:
-//:      'allocator_traits<A>::destroy(m, p)'
+//:   from 'X' means that the following expression is well-formed:
+//:   'allocator_traits<A>::destroy(m, p)'
 //:
 //: *equality-comparable*: The type provides an equality-comparison operator
-//:     that defines an equivalence relationship and is both reflexive and
-//:     transitive.
+//:   that defines an equivalence relationship and is both reflexive and
+//:   transitive.
 //
 ///Requirements on 'HASH' and 'EQUAL'
 ///----------------------------------
@@ -612,8 +608,7 @@ BSLS_IDENT("$Id: $")
 //  printf("load_factor      %f  initial\n", wordTally.load_factor());
 //  printf("max_load_factor  %f  initial\n", wordTally.max_load_factor());
 //..
-// First, we examine the metrics of of this newly created (empty) unordered
-// map:
+// First, we examine the metrics of this newly created (empty) unordered map:
 //..
 //  size                0 initial
 //  bucket_count        1 initial

@@ -24,7 +24,7 @@
 #include <bsls_systemtime.h>
 #include <bsls_platform.h>
 #include <bsls_timeutil.h>  // For CachePerformance
-#include <bsls_types.h>  // For for 'BloombergLP::bsls::Types::Int64'
+#include <bsls_types.h>     // For 'BloombergLP::bsls::Types::Int64'
 
 #include <bdlf_bind.h>
 #include <bsl_algorithm.h>
@@ -506,7 +506,7 @@ class Case27DrainThread {
     {
         BSLS_ASSERT(obj);
     }
-    
+
     void operator()() {
         for (int i = 0; i < 10000; ++i) {
             d_obj_p->drain();

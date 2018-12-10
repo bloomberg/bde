@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bblb::ScheduleGenerationUtil: namespace for schedule generation functions
 //
-//@SEE ALSO:
+//@SEE_ALSO:
 //
 //@AUTHOR: Rahul Kumar (rkumar85@bloomberg.net)
 //
@@ -26,12 +26,12 @@ BSLS_IDENT("$Id: $")
 // computing the dates within a schedule is exemplified using the following
 // diagram:
 //..
-// ___________|__________________|___________________|________
-//        'example'          'earliest'          'latest'
-//            .___.___.___.___.___|___|___|___|___|___.
-//                                ^   ^   ^   ^   ^
-// 'interval':.___.               |   |   |   |   |
-// 'schedule':                   [d0, d1, d2, d3, d4]
+//  ___________|__________________|___________________|________
+//         'example'          'earliest'          'latest'
+//             .___.___.___.___.___|___|___|___|___|___.
+//                                 ^   ^   ^   ^   ^
+//  'interval':.___.               |   |   |   |   |
+//  'schedule':                   [d0, d1, d2, d3, d4]
 //..
 // The schedule generated in the above diagram is '[d0, d1, d2, d3, d4]'.
 // Notice that the 'example' date does not have to reside within the closed

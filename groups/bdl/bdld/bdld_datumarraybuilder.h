@@ -10,7 +10,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bdld::DatumArrayBuilder: utility to build a 'Datum' object holding an array
 //
-//@SEE ALSO: bdld_datum
+//@SEE_ALSO: bdld_datum
 //
 //@DESCRIPTION: This component defines a mechanism, 'bdld::DatumArrayBuilder',
 // used to populate a 'Datum' array value in an exception-safe manner.  In

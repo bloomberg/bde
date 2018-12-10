@@ -1511,10 +1511,10 @@ int main(int argc, char *argv[])
         //:   string is truncated exactly as expected.
         //:
         //: 5 Call all the macros guarded by a satisfied 'if' followed by an
-        //:   'else', observe that it compiles and the the 'else' is not
-        //:   executed.  Can't put 'ASSERT(0);' in the else clause because our
-        //:   test driver macros suck and don't reduce to a single statement if
-        //:   followed by a semicolon.
+        //:   'else', observe that it compiles and that 'else' is not executed.
+        //:   Can't put 'ASSERT(0);' in the else clause because our test driver
+        //:   macros suck and don't reduce to a single statement if followed by
+        //:   a semicolon.
         //
         // Testing:
         //   BALL_LOGTHROTTLE_STREAM
@@ -1986,10 +1986,10 @@ int main(int argc, char *argv[])
         //:   string is truncated exactly as expected.
         //:
         //: 5 Call all the macros guarded by a satisfied 'if' followed by an
-        //:   'else', observe that it compiles and the the 'else' is not
-        //:   executed.  Can't put 'ASSERT(0);' in the else clause because our
-        //:   test driver macros suck and don't reduce to a single statement if
-        //:   followed by a semicolon.
+        //:   'else', observe that it compiles and that 'else' is not executed.
+        //:   Can't put 'ASSERT(0);' in the else clause because our test driver
+        //:   macros suck and don't reduce to a single statement if followed by
+        //:   a semicolon.
         //
         // Testing:
         //   BALL_LOGTHROTTLEVA

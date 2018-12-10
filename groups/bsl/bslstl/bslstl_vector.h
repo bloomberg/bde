@@ -50,58 +50,56 @@ BSLS_IDENT("$Id: $")
 // requirements apply specifically to the vector's entry type, 'value_type',
 // which is an alias for 'VALUE_TYPE'.
 //
-// Legend
-// ------
-// 'X'    - denotes an allocator-aware container type (e.g., 'vector')
-// 'T'    - 'value_type' associated with 'X'
-// 'A'    - type of the allocator used by 'X'
-// 'm'    - lvalue of type 'A' (allocator)
-// 'p'    - address ('T *') of uninitialized storage for a 'T' within an 'X'
-// 'rv'   - rvalue of type (non-'const') 'T'
-// 'v'    - rvalue or lvalue of type (possibly 'const') 'T'
-// 'args' - 0 or more arguments
-//
+///Glossary
+///--------
+//..
+//  Legend
+//  ------
+//  'X'    - denotes an allocator-aware container type (e.g., 'vector')
+//  'T'    - 'value_type' associated with 'X'
+//  'A'    - type of the allocator used by 'X'
+//  'm'    - lvalue of type 'A' (allocator)
+//  'p'    - address ('T *') of uninitialized storage for a 'T' within an 'X'
+//  'rv'   - rvalue of type (non-'const') 'T'
+//  'v'    - rvalue or lvalue of type (possibly 'const') 'T'
+//  'args' - 0 or more arguments
+//..
 // The following terms are used to more precisely specify the requirements on
 // template parameter types in function-level documentation.
-//:
+//
 //: *default-insertable*: 'T' has a default constructor.  More precisely, 'T'
-//:     is 'default-insertable' into 'X' means that the following expression is
-//:     well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p)'
+//:   is 'default-insertable' into 'X' means that the following expression is
+//:   well-formed:
+//:   'allocator_traits<A>::construct(m, p)'
 //:
 //: *move-insertable*: 'T' provides a constructor that takes an rvalue of type
-//:     (non-'const') 'T'.  More precisely, 'T' is 'move-insertable' into 'X'
-//:     means that the following expression is well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p, rv)'
+//:   (non-'const') 'T'.  More precisely, 'T' is 'move-insertable' into 'X'
+//:   means that the following expression is well-formed:
+//:   'allocator_traits<A>::construct(m, p, rv)'
 //:
 //: *copy-insertable*: 'T' provides a constructor that takes an lvalue or
-//:     rvalue of type (possibly 'const') 'T'.  More precisely, 'T' is
-//:     'copy-insertable' into 'X' means that the following expression is
-//:     well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p, v)'
+//:   rvalue of type (possibly 'const') 'T'.  More precisely, 'T' is
+//:   'copy-insertable' into 'X' means that the following expression is
+//:   well-formed:
+//:   'allocator_traits<A>::construct(m, p, v)'
 //:
 //: *move-assignable*: 'T' provides an assignment operator that takes an rvalue
-//:     of type (non-'const') 'T'.
+//:   of type (non-'const') 'T'.
 //:
 //: *copy-assignable*: 'T' provides an assignment operator that takes an lvalue
-//:     or rvalue of type (possibly 'const') 'T'.
+//:   or rvalue of type (possibly 'const') 'T'.
 //:
 //: *emplace-constructible*: 'T' is 'emplace-constructible' into 'X' from
-//:     'args' means that the following expression is well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p, args)'
+//:   'args' means that the following expression is well-formed:
+//:   'allocator_traits<A>::construct(m, p, args)'
 //:
 //: *erasable*: 'T' provides a destructor.  More precisely, 'T' is 'erasable'
-//:     from 'X' means that the following expression is well-formed:
-//:
-//:      'allocator_traits<A>::destroy(m, p)'
+//:   from 'X' means that the following expression is well-formed:
+//:   'allocator_traits<A>::destroy(m, p)'
 //:
 //: *equality-comparable*: The type provides an equality-comparison operator
-//:     that defines an equivalence relationship and is both reflexive and
-//:     transitive.
+//:   that defines an equivalence relationship and is both reflexive and
+//:   transitive.
 //
 ///Memory Allocation
 ///-----------------
@@ -910,7 +908,7 @@ class vector : public  vectorBase<VALUE_TYPE>
     // the 'bslma::Allocator' model.  For the requirements of a vector class,
     // consult the C++11 standard.  In particular, this implementation offers
     // the general rules that:
-    //..
+    //
     //: 1 A call to any method that would result in a vector having a size
     //:   or capacity greater than the value returned by 'max_size' triggers a
     //:   call to 'bslstl::StdExceptUtil::throwLengthError'.
@@ -918,7 +916,7 @@ class vector : public  vectorBase<VALUE_TYPE>
     //: 2 A call to an 'at' method that attempts to access a position outside
     //:   of the valid range of a vector triggers a call to
     //:   'bslstl::StdExceptUtil::throwOutOfRange'.
-    //..
+    //
     // Note that portions of the standard methods are implemented in
     // 'vectorBase', which is parameterized on only 'VALUE_TYPE' in order to
     // generate smaller debug strings.

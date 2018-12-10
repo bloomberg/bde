@@ -165,7 +165,6 @@ BSLS_IDENT("$Id: $")
 //  #include <bslma_testallocatorexception.h>
 //
 //  // ...
-//
 //..
 // Below we provide a 'static' function, 'areEqual', that will allow us to
 // compare two short arrays:
@@ -185,7 +184,6 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  // ...
-//
 //..
 // The following is an abbreviated standard test driver.  Note that the number
 // of arguments specify the verbosity level that the test driver uses for
@@ -198,7 +196,6 @@ BSLS_IDENT("$Id: $")
 //      bool         veryVerbose = argc > 3;
 //      bool     veryVeryVerbose = argc > 4;
 //      bool veryVeryVeryVerbose = argc > 5;
-//
 //..
 // We now define a 'bslma::TestAllocator', 'sa', named "supplied" to indicate
 // that it is the allocator to be supplied to our object under test, as well as
@@ -236,7 +233,6 @@ BSLS_IDENT("$Id: $")
 //          if (veryVerbose) { T_ P_(ti) P_(NUM_ELEM) }
 //
 //          // ...
-//
 //..
 // All code that we want to test for exception-safety must be enclosed within
 // the 'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN' and

@@ -95,89 +95,89 @@ BSLS_IDENT("$Id: $")
 //
 // First, let's define the implementation of our server.
 //..
-//   class ControlServer
-//   {
-//       // DATA
-//       balb::PipeControlChannel  d_channel;
-//       bsl::vector<bsl::string> d_messages;
+//  class ControlServer
+//  {
+//      // DATA
+//      balb::PipeControlChannel  d_channel;
+//      bsl::vector<bsl::string> d_messages;
 //
-//       // PRIVATE MANIPULATORS
-//       void onMessage(const bslstl::StringRef& message)
-//       {
-//           if ("EXIT" != message) {
-//               d_messages.push_back(message);
-//           }
-//           else {
-//               shutdown();
-//           }
-//       }
+//      // PRIVATE MANIPULATORS
+//      void onMessage(const bslstl::StringRef& message)
+//      {
+//          if ("EXIT" != message) {
+//              d_messages.push_back(message);
+//          }
+//          else {
+//              shutdown();
+//          }
+//      }
 //
-//   public:
-//       // CREATORS
-//       explicit ControlServer(bslma::Allocator *basicAllocator)
-//       : d_channel(bdlf::BindUtil::bind(&ControlServer::onMessage,
-//                                       this,
-//                                       bdlf::PlaceHolders::_1),
-//                   basicAllocator)
-//       , d_messages(basicAllocator)
-//       {}
+//  public:
+//      // CREATORS
+//      explicit ControlServer(bslma::Allocator *basicAllocator)
+//      : d_channel(bdlf::BindUtil::bind(&ControlServer::onMessage,
+//                                      this,
+//                                      bdlf::PlaceHolders::_1),
+//                  basicAllocator)
+//      , d_messages(basicAllocator)
+//      {}
 //
-//       // MANIPULATORS
-//       int start(const char *pipeName) {
-//           return d_channel.start(pipeName);
-//       }
+//      // MANIPULATORS
+//      int start(const char *pipeName) {
+//          return d_channel.start(pipeName);
+//      }
 //
-//       void shutdown() {
-//           d_channel.shutdown();
-//       }
+//      void shutdown() {
+//          d_channel.shutdown();
+//      }
 //
-//       void stop() {
-//           d_channel.stop();
-//       }
+//      void stop() {
+//          d_channel.stop();
+//      }
 //
-//       // ACCESSORS
-//       int numMessages() const {
-//           return d_messages.size();
-//       }
+//      // ACCESSORS
+//      int numMessages() const {
+//          return d_messages.size();
+//      }
 //
-//       const bsl::string& message(int index) const {
-//           return d_messages[index];
-//       }
-//   };
+//      const bsl::string& message(int index) const {
+//          return d_messages[index];
+//      }
+//  };
 //..
 // Now, construct and run the server using a canonical name for the pipe:
 //..
-//   bsl::string pipeName;
-//   bdlsu::PipeUtil::makeCanonicalName(&pipeName, "ctrl.pcctest");
+//  bsl::string pipeName;
+//  bdlsu::PipeUtil::makeCanonicalName(&pipeName, "ctrl.pcctest");
 //
-//   ControlServer server;
+//  ControlServer server;
 //
-//   int rc = server.start(pipeName);
-//   if (0 != rc) {
-//       cout << "ERROR: Failed to start pipe control channel" << endl;
-//   }
+//  int rc = server.start(pipeName);
+//  if (0 != rc) {
+//      cout << "ERROR: Failed to start pipe control channel" << endl;
+//  }
 //..
 // Once the server is started, clients can send messages to the server.
 //..
-//   const char MSG0[]  = "this is the first message";
-//   const char MSG1[]  = "this is the second message";
+//  const char MSG0[]  = "this is the first message";
+//  const char MSG1[]  = "this is the second message";
 //
-//   rc = bdlsu::PipeUtil::send(pipeName, bsl::string(MSG0) + "\n");
-//   assert(0 == rc);
-//   rc = bdlsu::PipeUtil::send(pipeName, bsl::string(MSG1) + "\n");
-//   assert(0 == rc);
-//   rc = bdlsu::PipeUtil::send(pipeName, "EXIT\n");
-//   assert(0 == rc);
+//  rc = bdlsu::PipeUtil::send(pipeName, bsl::string(MSG0) + "\n");
+//  assert(0 == rc);
+//  rc = bdlsu::PipeUtil::send(pipeName, bsl::string(MSG1) + "\n");
+//  assert(0 == rc);
+//  rc = bdlsu::PipeUtil::send(pipeName, "EXIT\n");
+//  assert(0 == rc);
 //..
 // The server shuts down once it processes the "EXIT" control message.
 //..
-//   server.stop();  // block until shutdown
+//  server.stop();  // block until shutdown
 //..
 // Finally, let's ensure the server received each control message sent.
 //..
-//   assert(2 == server.numMessages());
-//   assert(bsl::string(MSG0) == server.message(0));
-//   assert(bsl::string(MSG1) == server.message(1));
+//  assert(2 == server.numMessages());
+//  assert(bsl::string(MSG0) == server.message(0));
+//  assert(bsl::string(MSG1) == server.message(1));
 //..
 
 #include <balscm_version.h>
