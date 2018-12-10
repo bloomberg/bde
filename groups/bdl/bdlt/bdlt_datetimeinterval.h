@@ -313,47 +313,54 @@ class DatetimeInterval {
         // Set the overall value of this object to indicate the specified
         // number of 'microseconds'.
 
-    void addInterval(int                days,
-                     bsls::Types::Int64 hours = 0,
-                     bsls::Types::Int64 minutes = 0,
-                     bsls::Types::Int64 seconds = 0,
-                     bsls::Types::Int64 milliseconds = 0,
-                     bsls::Types::Int64 microseconds = 0);
+    DatetimeInterval& addInterval(int                days,
+                                  bsls::Types::Int64 hours = 0,
+                                  bsls::Types::Int64 minutes = 0,
+                                  bsls::Types::Int64 seconds = 0,
+                                  bsls::Types::Int64 milliseconds = 0,
+                                  bsls::Types::Int64 microseconds = 0);
         // Add to this time interval the specified number of 'days', and the
         // optionally specified number of 'hours', 'minutes', 'seconds',
-        // 'milliseconds', and 'microseconds'.  Unspecified arguments default
-        // to 0.  The behavior is undefined unless the resulting time interval
+        // 'milliseconds', and 'microseconds', and return a reference providing
+        // modifiable access to this object.  Unspecified arguments default to
+        // 0.  The behavior is undefined unless the resulting time interval
         // value is valid (i.e., the days field must not overflow a 32-bit
         // integer).  Note that the arguments may be supplied using a mixture
         // of positive, negative, and 0 values.
 
-    void addDays(int days);
-        // Add to this time interval the specified number of 'days'.  The
+    DatetimeInterval& addDays(int days);
+        // Add to this time interval the specified number of 'days', and return
+        // a reference providing modifiable access to this object.  The
         // behavior is undefined unless the resulting time interval value is
         // valid (i.e., the days field must not overflow a 32-bit integer).
 
-    void addHours(bsls::Types::Int64 hours);
-        // Add to this time interval the specified number of 'hours'.  The
+    DatetimeInterval& addHours(bsls::Types::Int64 hours);
+        // Add to this time interval the specified number of 'hours', and
+        // return a reference providing modifiable access to this object.  The
         // behavior is undefined unless the resulting time interval value is
         // valid (i.e., the days field must not overflow a 32-bit integer).
 
-    void addMinutes(bsls::Types::Int64 minutes);
-        // Add to this time interval the specified number of 'minutes'.  The
+    DatetimeInterval& addMinutes(bsls::Types::Int64 minutes);
+        // Add to this time interval the specified number of 'minutes', and
+        // return a reference providing modifiable access to this object.  The
         // behavior is undefined unless the resulting time interval value is
         // valid (i.e., the days field must not overflow a 32-bit integer).
 
-    void addSeconds(bsls::Types::Int64 seconds);
-        // Add to this time interval the specified number of 'seconds'.  The
+    DatetimeInterval& addSeconds(bsls::Types::Int64 seconds);
+        // Add to this time interval the specified number of 'seconds', and
+        // return a reference providing modifiable access to this object.  The
         // behavior is undefined unless the resulting time interval value is
         // valid (i.e., the days field must not overflow a 32-bit integer).
 
-    void addMilliseconds(bsls::Types::Int64 milliseconds);
-        // Add to this time interval the specified number of 'milliseconds'.
+    DatetimeInterval& addMilliseconds(bsls::Types::Int64 milliseconds);
+        // Add to this time interval the specified number of 'milliseconds',
+        // and return a reference providing modifiable access to this object.
         // The behavior is undefined unless the resulting time interval value
         // is valid (i.e., the days field must not overflow a 32-bit integer).
 
-    void addMicroseconds(bsls::Types::Int64 microseconds);
-        // Add to this time interval the specified number of 'microseconds'.
+    DatetimeInterval& addMicroseconds(bsls::Types::Int64 microseconds);
+        // Add to this time interval the specified number of 'microseconds',
+        // and return a reference providing modifiable access to this object.
         // The behavior is undefined unless the resulting time interval value
         // is valid (i.e., the days field must not overflow a 32-bit integer).
 
@@ -702,57 +709,63 @@ void DatetimeInterval::setTotalMicroseconds(bsls::Types::Int64 microseconds)
 }
 
 inline
-void DatetimeInterval::addDays(int days)
+DatetimeInterval& DatetimeInterval::addDays(int days)
 {
     assign(static_cast<bsls::Types::Int64>(d_days)
                                        + static_cast<bsls::Types::Int64>(days),
            d_microseconds);
+    return *this;
 }
 
 inline
-void DatetimeInterval::addHours(bsls::Types::Int64 hours)
+DatetimeInterval& DatetimeInterval::addHours(bsls::Types::Int64 hours)
 {
     assign(static_cast<bsls::Types::Int64>(d_days)
                                             + hours / TimeUnitRatio::k_H_PER_D,
            d_microseconds +
                  hours % TimeUnitRatio::k_H_PER_D * TimeUnitRatio::k_US_PER_H);
+    return *this;
 }
 
 inline
-void DatetimeInterval::addMinutes(bsls::Types::Int64 minutes)
+DatetimeInterval& DatetimeInterval::addMinutes(bsls::Types::Int64 minutes)
 {
     assign(static_cast<bsls::Types::Int64>(d_days)
                                           + minutes / TimeUnitRatio::k_M_PER_D,
            d_microseconds +
                minutes % TimeUnitRatio::k_M_PER_D * TimeUnitRatio::k_US_PER_M);
+    return *this;
 }
 
 inline
-void DatetimeInterval::addSeconds(bsls::Types::Int64 seconds)
+DatetimeInterval& DatetimeInterval::addSeconds(bsls::Types::Int64 seconds)
 {
     assign(static_cast<bsls::Types::Int64>(d_days)
                                           + seconds / TimeUnitRatio::k_S_PER_D,
            d_microseconds +
                seconds % TimeUnitRatio::k_S_PER_D * TimeUnitRatio::k_US_PER_S);
+    return *this;
 }
 
 inline
-void
+DatetimeInterval&
 DatetimeInterval::addMilliseconds(bsls::Types::Int64 milliseconds)
 {
     assign(static_cast<bsls::Types::Int64>(d_days)
                                     + milliseconds / TimeUnitRatio::k_MS_PER_D,
            d_microseconds + milliseconds % TimeUnitRatio::k_MS_PER_D
                                                  * TimeUnitRatio::k_US_PER_MS);
+    return *this;
 }
 
 inline
-void
+DatetimeInterval&
 DatetimeInterval::addMicroseconds(bsls::Types::Int64 microseconds)
 {
     assign(static_cast<bsls::Types::Int64>(d_days)
                                     + microseconds / TimeUnitRatio::k_US_PER_D,
            d_microseconds + microseconds % TimeUnitRatio::k_US_PER_D);
+    return *this;
 }
 
                                   // Aspects

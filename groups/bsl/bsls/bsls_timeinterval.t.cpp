@@ -1971,7 +1971,9 @@ int main(int argc, char *argv[])
         //: 3 Each manipulator accepts the contractually specified range of
         //:   argument values.
         //:
-        //: 4 QoI: Asserted precondition violations are detected when enabled.
+        //: 4 Each manipulator returns the expected value.
+        //
+        //: 5 QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 Using the table-driven technique, call 'addInterval' on a
@@ -2014,11 +2016,15 @@ int main(int argc, char *argv[])
         //:10 Using the table-driven technique, call 'addNanoseconds' on a
         //:   'TimeInterval' assigned some initial value and verify the result
         //:   is equivalent to using the value constructor.  (C-1, 3)
+        //
+        //:11 On each invokation of a method under test, compare the address of
+        //:   the objected referenced by the return value to the address of the
+        //:   object under test.  (C-4)
         //:
-        //:11 Verify that, in appropriate build modes, defensive checks are
+        //:12 Verify that, in appropriate build modes, defensive checks are
         //:   triggered for invalid time interval values, but not
         //:   triggered for adjacent valid ones (using the
-        //:   'BSLS_ASSERTTEST_*' macros). (C-4)
+        //:   'BSLS_ASSERTTEST_*' macros). (C-5)
         //
         // Testing:
         //   TimeInterval& addDays(bsls::Types::Int64);
@@ -2056,13 +2062,15 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                LINE   = DATA[i].d_lineNum;
-                const bsls::Types::Int64 SECS   = DATA[i].d_secs;
-                const int                NSECS  = DATA[i].d_nsecs;
+                const int                LINE  = DATA[i].d_lineNum;
+                const bsls::Types::Int64 SECS  = DATA[i].d_secs;
+                const int                NSECS = DATA[i].d_nsecs;
 
                 Obj mX; const Obj& X = mX;
 
-                mX.addInterval(SECS, NSECS);
+                Obj& RETVAL = mX.addInterval(SECS, NSECS);
+
+                ASSERTV(LINE, &RETVAL == &X);
 
                 if (veryVerbose) { T_;  P_(X); }
 
@@ -2110,16 +2118,18 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                LINE        = DATA[i].d_lineNum;
-                const bsls::Types::Int64 INIT_SECS   = DATA[i].d_initSecs;
-                const int                INIT_NSECS  = DATA[i].d_initNSecs;
-                const bsls::Types::Int64 ADD_SECS    = DATA[i].d_addSecs;
-                const int                ADD_NSECS   = DATA[i].d_addNSecs;
+                const int                LINE       = DATA[i].d_lineNum;
+                const bsls::Types::Int64 INIT_SECS  = DATA[i].d_initSecs;
+                const int                INIT_NSECS = DATA[i].d_initNSecs;
+                const bsls::Types::Int64 ADD_SECS   = DATA[i].d_addSecs;
+                const int                ADD_NSECS  = DATA[i].d_addNSecs;
 
                 Obj mX; const Obj& X = mX;
 
-                mX.setInterval(INIT_SECS, INIT_NSECS);
-                mX.addInterval(ADD_SECS, ADD_NSECS);
+                              mX.setInterval(INIT_SECS, INIT_NSECS);
+                Obj& RETVAL = mX.addInterval( ADD_SECS, ADD_NSECS);
+
+                ASSERTV(LINE, &RETVAL == &X);
 
                 if (veryVerbose) { T_;  P_(X); }
 
@@ -2154,15 +2164,17 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                LINE        = DATA[i].d_lineNum;
-                const bsls::Types::Int64 INIT_SECS   = DATA[i].d_initSecs;
-                const int                INIT_NSECS  = DATA[i].d_initNSecs;
-                const bsls::Types::Int64 ADD_SECS    = DATA[i].d_addSecs;
+                const int                LINE       = DATA[i].d_lineNum;
+                const bsls::Types::Int64 INIT_SECS  = DATA[i].d_initSecs;
+                const int                INIT_NSECS = DATA[i].d_initNSecs;
+                const bsls::Types::Int64 ADD_SECS   = DATA[i].d_addSecs;
 
                 Obj mX; const Obj& X = mX;
 
-                mX.setInterval(INIT_SECS, INIT_NSECS);
-                mX.addInterval(ADD_SECS);
+                              mX.setInterval(INIT_SECS, INIT_NSECS);
+                Obj& RETVAL = mX.addInterval(ADD_SECS);
+
+                ASSERTV(LINE, &RETVAL == &X);
 
                 if (veryVerbose) { T_;  P_(X); }
 
@@ -2213,15 +2225,17 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                LINE        = DATA[i].d_lineNum;
-                const bsls::Types::Int64 INIT_SECS   = DATA[i].d_initSecs;
-                const int                INIT_NSECS  = DATA[i].d_initNSecs;
-                const bsls::Types::Int64 ADD_DAYS    = DATA[i].d_addDays;
+                const int                LINE       = DATA[i].d_lineNum;
+                const bsls::Types::Int64 INIT_SECS  = DATA[i].d_initSecs;
+                const int                INIT_NSECS = DATA[i].d_initNSecs;
+                const bsls::Types::Int64 ADD_DAYS   = DATA[i].d_addDays;
 
                 Obj mX; const Obj& X = mX;
 
-                mX.setInterval(INIT_SECS, INIT_NSECS);
-                mX.addDays(ADD_DAYS);
+                              mX.setInterval(INIT_SECS, INIT_NSECS);
+                Obj& RETVAL = mX.addDays(ADD_DAYS);
+
+                ASSERTV(LINE, &RETVAL == &X);
 
                 if (veryVerbose) { T_;  P_(X); }
 
@@ -2246,7 +2260,7 @@ int main(int argc, char *argv[])
                 int                d_lineNum;     // Source line number
                 bsls::Types::Int64 d_initSecs;    // Initial seconds
                 int                d_initNSecs;   // Initial nanoseconds
-                bsls::Types::Int64 d_addHours;     // Add hours
+                bsls::Types::Int64 d_addHours;    // Add hours
             } DATA[] = {
                 //line           init secs    nanosecs         add hours
                 //----           ---------    --------         --------
@@ -2271,15 +2285,17 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                LINE        = DATA[i].d_lineNum;
-                const bsls::Types::Int64 INIT_SECS   = DATA[i].d_initSecs;
-                const int                INIT_NSECS  = DATA[i].d_initNSecs;
-                const bsls::Types::Int64 ADD_HOURS    = DATA[i].d_addHours;
+                const int                LINE       = DATA[i].d_lineNum;
+                const bsls::Types::Int64 INIT_SECS  = DATA[i].d_initSecs;
+                const int                INIT_NSECS = DATA[i].d_initNSecs;
+                const bsls::Types::Int64 ADD_HOURS  = DATA[i].d_addHours;
 
                 Obj mX; const Obj& X = mX;
 
-                mX.setInterval(INIT_SECS, INIT_NSECS);
-                mX.addHours(ADD_HOURS);
+                              mX.setInterval(INIT_SECS, INIT_NSECS);
+                Obj& RETVAL = mX.addHours(ADD_HOURS);
+
+                ASSERTV(LINE, &RETVAL == &X);
 
                 if (veryVerbose) { T_;  P_(X); }
 
@@ -2329,15 +2345,17 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                LINE        = DATA[i].d_lineNum;
-                const bsls::Types::Int64 INIT_SECS   = DATA[i].d_initSecs;
-                const int                INIT_NSECS  = DATA[i].d_initNSecs;
-                const bsls::Types::Int64 ADD_MINS    = DATA[i].d_addMins;
+                const int                LINE       = DATA[i].d_lineNum;
+                const bsls::Types::Int64 INIT_SECS  = DATA[i].d_initSecs;
+                const int                INIT_NSECS = DATA[i].d_initNSecs;
+                const bsls::Types::Int64 ADD_MINS   = DATA[i].d_addMins;
 
                 Obj mX; const Obj& X = mX;
 
-                mX.setInterval(INIT_SECS, INIT_NSECS);
-                mX.addMinutes(ADD_MINS);
+                              mX.setInterval(INIT_SECS, INIT_NSECS);
+                Obj& RETVAL = mX.addMinutes(ADD_MINS);
+
+                ASSERTV(LINE, &RETVAL == &X);
 
                 if (veryVerbose) { T_;  P_(X); }
 
@@ -2381,15 +2399,17 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                LINE        = DATA[i].d_lineNum;
-                const bsls::Types::Int64 INIT_SECS   = DATA[i].d_initSecs;
-                const int                INIT_NSECS  = DATA[i].d_initNSecs;
-                const bsls::Types::Int64 ADD_SECS    = DATA[i].d_addSecs;
+                const int                LINE       = DATA[i].d_lineNum;
+                const bsls::Types::Int64 INIT_SECS  = DATA[i].d_initSecs;
+                const int                INIT_NSECS = DATA[i].d_initNSecs;
+                const bsls::Types::Int64 ADD_SECS   = DATA[i].d_addSecs;
 
                 Obj mX; const Obj& X = mX;
 
-                mX.setInterval(INIT_SECS, INIT_NSECS);
-                mX.addSeconds(ADD_SECS);
+                              mX.setInterval(INIT_SECS, INIT_NSECS);
+                Obj& RETVAL = mX.addSeconds(  ADD_SECS);
+
+                ASSERTV(LINE, &RETVAL == &X);
 
                 if (veryVerbose) { T_;  P_(X); }
 
@@ -2452,15 +2472,17 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                LINE        = DATA[i].d_lineNum;
-                const bsls::Types::Int64 INIT_SECS   = DATA[i].d_initSecs;
-                const int                INIT_NSECS  = DATA[i].d_initNSecs;
-                const bsls::Types::Int64 ADD_MILLIS  = DATA[i].d_addMillis;
+                const int                LINE       = DATA[i].d_lineNum;
+                const bsls::Types::Int64 INIT_SECS  = DATA[i].d_initSecs;
+                const int                INIT_NSECS = DATA[i].d_initNSecs;
+                const bsls::Types::Int64 ADD_MILLIS = DATA[i].d_addMillis;
 
                 Obj mX; const Obj& X = mX;
 
-                mX.setInterval(INIT_SECS, INIT_NSECS);
-                mX.addMilliseconds(ADD_MILLIS);
+                              mX.setInterval(INIT_SECS, INIT_NSECS);
+                Obj& RETVAL = mX.addMilliseconds(ADD_MILLIS);
+
+                ASSERTV(LINE, &RETVAL == &X);
 
                 if (veryVerbose) { T_;  P_(LINE); P_(X); }
 
@@ -2527,15 +2549,17 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                LINE        = DATA[i].d_lineNum;
-                const bsls::Types::Int64 INIT_SECS   = DATA[i].d_initSecs;
-                const int                INIT_NSECS  = DATA[i].d_initNSecs;
-                const bsls::Types::Int64 ADD_MICROS  = DATA[i].d_addMicros;
+                const int                LINE       = DATA[i].d_lineNum;
+                const bsls::Types::Int64 INIT_SECS  = DATA[i].d_initSecs;
+                const int                INIT_NSECS = DATA[i].d_initNSecs;
+                const bsls::Types::Int64 ADD_MICROS = DATA[i].d_addMicros;
 
                 Obj mX; const Obj& X = mX;
 
-                mX.setInterval(INIT_SECS, INIT_NSECS);
-                mX.addMicroseconds(ADD_MICROS);
+                              mX.setInterval(INIT_SECS, INIT_NSECS);
+                Obj& RETVAL = mX.addMicroseconds(ADD_MICROS);
+
+                ASSERTV(LINE, &RETVAL == &X);
 
                 if (veryVerbose) { T_;  P_(LINE); P_(X); }
 
@@ -2600,15 +2624,17 @@ int main(int argc, char *argv[])
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int                LINE        = DATA[i].d_lineNum;
-                const bsls::Types::Int64 INIT_SECS   = DATA[i].d_initSecs;
-                const int                INIT_NSECS  = DATA[i].d_initNSecs;
-                const bsls::Types::Int64 ADD_NANOS   = DATA[i].d_addNanos;
+                const int                LINE       = DATA[i].d_lineNum;
+                const bsls::Types::Int64 INIT_SECS  = DATA[i].d_initSecs;
+                const int                INIT_NSECS = DATA[i].d_initNSecs;
+                const bsls::Types::Int64 ADD_NANOS  = DATA[i].d_addNanos;
 
                 Obj mX; const Obj& X = mX;
 
-                mX.setInterval(INIT_SECS, INIT_NSECS);
-                mX.addNanoseconds(ADD_NANOS);
+                              mX.setInterval(INIT_SECS, INIT_NSECS);
+                Obj& RETVAL = mX.addNanoseconds(ADD_NANOS);
+
+                ASSERTV(LINE, &RETVAL == &X);
 
                 if (veryVerbose) { T_;  P_(LINE); P_(X); }
 

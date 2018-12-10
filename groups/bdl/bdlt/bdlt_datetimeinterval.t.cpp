@@ -1048,8 +1048,10 @@ if (veryVerbose)
         //:   value are correct.
         //:
         //: 2 The correct object value is obtained.
+        //
+        //: 3 The expected value is returned.
         //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        //: 4 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 For a set of independent test values, use the default
@@ -1057,7 +1059,11 @@ if (veryVerbose)
         //:   adjust its value.  Verify the values using the 'setInterval'
         //:   manipulator.  (C-1,2)
         //:
-        //: 2 Verify defensive checks are triggered for invalid values.  (C-2)
+        //: 2 At each step in P-1 compare the address of the objected
+        //:   referenced by the return value to the address of the object under
+        //:   test.  (C-3)
+        //:
+        //: 3 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void addDays(int days);
@@ -1083,13 +1089,19 @@ if (veryVerbose)
                     Obj mX;  const Obj& X = mX;
                     Obj mY;  const Obj& Y = mY;
 
-                    mX.addDays(DATA[i]);
+                    Obj& RETVAL = mX.addDays(DATA[i]);
                     mY.setInterval(DATA[i]);
                     ASSERTV(testing, DATA[i], X == Y);
 
-                    mX.addDays(DATA[i]);
+                    if (veryVeryVerbose) { T_ T_ Q(return value: Days A) }
+                    ASSERTV(X, &RETVAL, &X, &RETVAL == &X);
+
+                    RETVAL = mX.addDays(DATA[i]);
                     mY.setInterval(DATA[i] * 2);
                     ASSERTV(testing, DATA[i], X == Y);
+
+                    if (veryVeryVerbose) { T_ T_ Q(return value: Days B) }
+                    ASSERTV(X, &RETVAL, &X, &RETVAL == &X);
                 }
             }
 
@@ -1102,13 +1114,19 @@ if (veryVerbose)
                     Obj mX;  const Obj& X = mX;
                     Obj mY;  const Obj& Y = mY;
 
-                    mX.addHours(DATA[i]);
+                    Obj& RETVAL = mX.addHours(DATA[i]);
                     mY.setInterval(0, DATA[i]);
                     ASSERTV(testing, DATA[i], X == Y);
 
-                    mX.addHours(DATA[i]);
+                    if (veryVeryVerbose) { T_ T_ Q(return value: Hour A) }
+                    ASSERTV(X, &RETVAL, &X, &RETVAL == &X);
+
+                    RETVAL = mX.addHours(DATA[i]);
                     mY.setInterval(0, DATA[i] * 2);
                     ASSERTV(testing, DATA[i], X == Y);
+
+                    if (veryVeryVerbose) { T_ T_ Q(return value: Hour B) }
+                    ASSERTV(X, &RETVAL, &X, &RETVAL == &X);
                 }
             }
 
@@ -1121,13 +1139,19 @@ if (veryVerbose)
                     Obj mX;  const Obj& X = mX;
                     Obj mY;  const Obj& Y = mY;
 
-                    mX.addMinutes(DATA[i]);
+                    Obj& RETVAL = mX.addMinutes(DATA[i]);
                     mY.setInterval(0, 0, DATA[i]);
                     ASSERTV(testing, DATA[i], X == Y);
 
-                    mX.addMinutes(DATA[i]);
+                    if (veryVeryVerbose) { T_ T_ Q(return value: Mins A) }
+                    ASSERTV(X, &RETVAL, &X, &RETVAL == &X);
+
+                    RETVAL = mX.addMinutes(DATA[i]);
                     mY.setInterval(0, 0, DATA[i] * 2);
                     ASSERTV(testing, DATA[i], X == Y);
+
+                    if (veryVeryVerbose) { T_ T_ Q(return value: Mins B) }
+                    ASSERTV(X, &RETVAL, &X, &RETVAL == &X);
                 }
             }
 
@@ -1140,13 +1164,19 @@ if (veryVerbose)
                     Obj mX;  const Obj& X = mX;
                     Obj mY;  const Obj& Y = mY;
 
-                    mX.addSeconds(DATA[i]);
+                    Obj& RETVAL = mX.addSeconds(DATA[i]);
                     mY.setInterval(0, 0, 0, DATA[i]);
                     ASSERTV(testing, DATA[i], X == Y);
 
-                    mX.addSeconds(DATA[i]);
+                    if (veryVeryVerbose) { T_ T_ Q(return value: Secs A) }
+                    ASSERTV(X, &RETVAL, &X, &RETVAL == &X);
+
+                    RETVAL = mX.addSeconds(DATA[i]);
                     mY.setInterval(0, 0, 0, DATA[i] * 2);
                     ASSERTV(testing, DATA[i], X == Y);
+
+                    if (veryVeryVerbose) { T_ T_ Q(return value: Secs B) }
+                    ASSERTV(X, &RETVAL, &X, &RETVAL == &X);
                 }
             }
 
@@ -1159,13 +1189,19 @@ if (veryVerbose)
                     Obj mX;  const Obj& X = mX;
                     Obj mY;  const Obj& Y = mY;
 
-                    mX.addMilliseconds(DATA[i]);
+                    Obj& RETVAL = mX.addMilliseconds(DATA[i]);
                     mY.setInterval(0, 0, 0, 0, DATA[i]);
                     ASSERTV(testing, DATA[i], X == Y);
 
-                    mX.addMilliseconds(DATA[i]);
+                    if (veryVeryVerbose) { T_ T_ Q(return value: Msec A) }
+                    ASSERTV(X, &RETVAL, &X, &RETVAL == &X);
+
+                    RETVAL = mX.addMilliseconds(DATA[i]);
                     mY.setInterval(0, 0, 0, 0, DATA[i] * 2);
                     ASSERTV(testing, DATA[i], X == Y);
+
+                    if (veryVeryVerbose) { T_ T_ Q(return value: Msec B) }
+                    ASSERTV(X, &RETVAL, &X, &RETVAL == &X);
                 }
             }
 
@@ -1178,13 +1214,19 @@ if (veryVerbose)
                     Obj mX;  const Obj& X = mX;
                     Obj mY;  const Obj& Y = mY;
 
-                    mX.addMicroseconds(DATA[i]);
+                    Obj& RETVAL = mX.addMicroseconds(DATA[i]);
                     mY.setInterval(0, 0, 0, 0, 0, DATA[i]);
                     ASSERTV(testing, DATA[i], X == Y);
 
-                    mX.addMicroseconds(DATA[i]);
+                    if (veryVeryVerbose) { T_ T_ Q(return value: Usec A) }
+                    ASSERTV(X, &RETVAL, &X, &RETVAL == &X);
+
+                    RETVAL = mX.addMicroseconds(DATA[i]);
                     mY.setInterval(0, 0, 0, 0, 0, DATA[i] * 2);
                     ASSERTV(testing, DATA[i], X == Y);
+
+                    if (veryVeryVerbose) { T_ T_ Q(return value: Usec B) }
+                    ASSERTV(X, &RETVAL, &X, &RETVAL == &X);
                 }
             }
         }
@@ -1272,9 +1314,11 @@ if (veryVerbose)
         //:   internal representation and added to the current value, with
         //:   appropriate handling of potential overflow.
         //:
-        //: 2 The default values are correctly defined.
+        //: 2 The expected value is returned.
         //:
-        //: 3 QoI: asserted precondition violations are detected when enabled.
+        //: 3 The default values are correctly defined.
+        //:
+        //: 4 QoI: asserted precondition violations are detected when enabled.
         //
         // Plan:
         //: 1 For a sequence of independent test values, use the value
@@ -1282,9 +1326,13 @@ if (veryVerbose)
         //:   interval to this value using the manipulator.  Verify the value
         //:   using the basic accessors.  (C-1)
         //:
-        //: 2 Directly verify the value of defaulted arguments.  (C-2)
+        //: 2 At each step in P-1 compare the address of the objected
+        //:   referenced by the return value to the address of the object under
+        //:   test.  (C-2)
         //:
-        //: 3 Verify defensive checks are triggered for invalid values.  (C-3)
+        //: 3 Directly verify the value of defaulted arguments.  (C-3)
+        //:
+        //: 4 Verify defensive checks are triggered for invalid values.  (C-4)
         //
         // Testing:
         //   void addInterval(int d, Int64 h = 0, m = 0, s = 0, ms = 0);
@@ -1354,14 +1402,19 @@ if (veryVerbose)
 
                         if (veryVerbose) { T_ P_(X) P_(Y) P(EXP);  }
 
-                        mX.addInterval(JDAYS,
-                                       JHOURS,
-                                       JMINUTES,
-                                       JSECONDS,
-                                       JMSECS,
-                                       JUSECS);
+                        Obj& RETVAL = mX.addInterval(JDAYS,
+                                                     JHOURS,
+                                                     JMINUTES,
+                                                     JSECONDS,
+                                                     JMSECS,
+                                                     JUSECS);
 
                         ASSERTV(X, Y, EXP, EXP == X);
+
+                        if (veryVeryVerbose) {
+                            T_ T_ Q(Check return value)
+                        }
+                        ASSERTV(X, &RETVAL, &X, &RETVAL == &X);
                     }
                 }
             }
