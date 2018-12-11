@@ -410,14 +410,6 @@ try
 catch (...)
 {
     function();
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    // This warning has to be completely disabled because a) Microsoft issues
-    // it at template instantiation time and b) we cannot use 'if constexpr' to
-    // not have this 'throw' statement in case we promised not to throw,
-    // because we do not have C++17 as our minimal supported language version.
-#pragma warning(disable:4297) // function assumed not to throw
-#endif
-    throw;
 }
 #endif // BDE_BUILD_TARGET_EXC
 
