@@ -213,9 +213,8 @@ using bsl::flush;
 //
 // There is also a problem where if a function call is the last thing in a
 // function, the compiler may replace a call to a function to a chaining jump
-// to the beginning of a a function.  To foil this we put a little activity
-// after the function calls in functions that we want to appear in stack
-// traces.
+// to the beginning of a function.  To foil this we put a little activity after
+// the function calls in functions that we want to appear in stack traces.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACRO
@@ -3060,8 +3059,8 @@ int main(int argc, char *argv[])
         //:     'longjmp'.  If false, the handler is set to the 'Noop' handler,
         //:     which will just return without doing anything.
         //:   o Using a loop-based approach, create a stack trace test
-        //:     allocator object 'ta' using each of of 10 possible combinations
-        //:     of args to the stack trace test allocator constructor.
+        //:     allocator object 'ta' using each of 10 possible combinations of
+        //:     args to the stack trace test allocator constructor.
         //:     1 Use the 'setFailureHandler' manipulator to manipulate the
         //:       failure handler, and verify the value of the changed value
         //:       with the 'failureHandler' accessor.

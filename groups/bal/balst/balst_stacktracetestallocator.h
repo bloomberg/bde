@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 ///Failure Handler
 ///---------------
 // An object of type 'balst::StackTraceTestAllocator' always has a failure
-// handler associated with it.  This a a configurable 'bdef::Functton' object
+// handler associated with it.  This is a configurable 'bdef::Functton' object
 // that will be called if any error condition is detected, after the error
 // condition is reported.  By default, it is set to
 // 'balst::StackTraceTestAllocator::failAbort' which calls 'abort', but it may

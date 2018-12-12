@@ -713,9 +713,9 @@ int main(int argc, char *argv[])
         using namespace UsageExample;
 
 //..
-// Then, we create an array of of objects, 'myIntegers', of type 'MyInteger'
-// (note that we 'bsls::ObjectBuffer' to allow us to safely invoke the
-// destructor explicitly):
+// Then, we create an array of objects, 'myIntegers', of type 'MyInteger' (note
+// that we 'bsls::ObjectBuffer' to allow us to safely invoke the destructor
+// explicitly):
 //..
     bsls::ObjectBuffer<MyInteger> arrayBuffer[5];
     MyInteger *myIntegers = &arrayBuffer[0].object();

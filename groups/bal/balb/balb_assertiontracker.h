@@ -16,15 +16,15 @@
 // assertions and the stack traces leading to them.  It provides means by which
 // such collection can be limited so as not to overwhelm processes where
 // assertions fail frequently, and ways to examine the accumulated data.
-//
-// ********************************* WARNING *********************************
-// IT IS CORPORATE POLICY THAT IN PRODUCTION CODE, ASSERTION FAILURE HANDLERS
-// MUST NOT RETURN TO THEIR CALLERS.  THIS COMPONENT EXISTS IN CONTRAVENTION OF
-// THAT POLICY, AND IS MEANT TO BE USED ONLY WITH SPECIAL PERMISSION OF
-// MANAGEMENT, FOR THE PURPOSE OF ASCERTAINING THE CORRECTNESS OF FRESHLY
-// WRITTEN OR ENABLED ASSERTIONS THAT ARE FAILING.
-// ********************************* WARNING *********************************
-//
+//..
+//  ********************************* WARNING *********************************
+//  IT IS CORPORATE POLICY THAT IN PRODUCTION CODE, ASSERTION FAILURE HANDLERS
+//  MUST NOT RETURN TO THEIR CALLERS.  THIS COMPONENT EXISTS IN CONTRAVENTION
+//  OF THAT POLICY, AND IS MEANT TO BE USED ONLY WITH SPECIAL PERMISSION OF
+//  MANAGEMENT, FOR THE PURPOSE OF ASCERTAINING THE CORRECTNESS OF FRESHLY
+//  WRITTEN OR ENABLED ASSERTIONS THAT ARE FAILING.
+//  ********************************* WARNING *********************************
+//..
 // For purposes of this component, an assertion is considered to have a
 // location, represented by a triple of assertion text, source file name, and
 // source line number, and a stack trace, consisting of a vector of addresses
@@ -50,7 +50,6 @@
 //:   When the number of assertions exceeds configured parameters (or in the
 //:   unlikely case that one of these callbacks itself fails an assertion), the
 //:   assertion is reported to this handler instead.
-//:
 //:   By default, the failure handler installed in the 'bsls::Assert' system is
 //:   used for this.
 //:
@@ -62,7 +61,6 @@
 //:   information) to the place where it was triggered.  The reporting callback
 //:   is also used to report the accumulated set of recorded assertion traces
 //:   when this is requested through a call to 'reportAllRecordedStackTraces'.
-//:
 //:   By default, reporting is done using the platform default message handler
 //:   of the 'bsls::Log' system.
 //:
@@ -71,7 +69,6 @@
 //:   configuration callback and resets the component configuration based on
 //:   its results.  This callback can, for example, query 'BREG' settings and
 //:   thereby allow reporting to be dynamically enabled or disabled.
-//:
 //:   By default, configuration is left unchanged.
 //
 // Configuration of this component is mediated through five properties:
@@ -151,42 +148,42 @@
 //..
 // Then, we define the function to be traced, and use the modified assertions.
 //..
-//   void foo(int percentage)
-//       // Receive the specified 'percentage'.  The behavior is undefined
-//       // unless '0 < percentage < 100'.
-//   {
-//       TRACK_ASSERT(  0 < percentage);
-//       TRACK_ASSERT(100 > percentage);
-//   }
+//  void foo(int percentage)
+//      // Receive the specified 'percentage'.  The behavior is undefined
+//      // unless '0 < percentage < 100'.
+//  {
+//      TRACK_ASSERT(  0 < percentage);
+//      TRACK_ASSERT(100 > percentage);
+//  }
 //..
 // Next, we create some uses of the function that may trigger the assertions.
 //..
-//   void useFoo()
-//       // Trigger assertions by passing invalid values to 'foo'.
-//   {
-//       for (int i = 0; i < 100; ++i) {
-//           foo(i);
-//       }
-//       for (int i = 100; i > 0; --i) {
-//           foo(i);
-//       }
-//   }
+//  void useFoo()
+//      // Trigger assertions by passing invalid values to 'foo'.
+//  {
+//      for (int i = 0; i < 100; ++i) {
+//          foo(i);
+//      }
+//      for (int i = 100; i > 0; --i) {
+//          foo(i);
+//      }
+//  }
 //..
 // Finally, we prepare to track the assertion failures.  We will have the
 // tracker report into a string stream object so that we can examine it.  We
 // configure the tracker, trigger the assertions, and verify that they have
 // been correctly discovered.
 //..
-//   bsl::ostringstream os;
-//   theTracker.setReportingCallback(
-//       bdlf::BindUtil::bind(balb::AssertionTracker::reportAssertion,
-//                            &os, _1, _2, _3, _4, _5, _6));
-//   theTracker.setReportingFrequency(
+//  bsl::ostringstream os;
+//  theTracker.setReportingCallback(
+//      bdlf::BindUtil::bind(balb::AssertionTracker::reportAssertion,
+//                           &os, _1, _2, _3, _4, _5, _6));
+//  theTracker.setReportingFrequency(
 //                                  balb::AssertionTracker::e_onEachAssertion);
-//   useFoo();
-//   bsl::string report = os.str();
-//   assert(report.npos != report.find("0 < percentage"));
-//   assert(report.npos != report.find("100 > percentage"));
+//  useFoo();
+//  bsl::string report = os.str();
+//  assert(report.npos != report.find("0 < percentage"));
+//  assert(report.npos != report.find("100 > percentage"));
 //..
 
 #include <balscm_version.h>
@@ -204,8 +201,8 @@
 #include <bsl_functional.h>
 #include <bsl_map.h>
 #include <bsl_ostream.h>
-#include <bsl_utility.h>
 #include <bsl_unordered_map.h>
+#include <bsl_utility.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -282,7 +279,7 @@ class AssertionTracker {
         // handler invoked when assertions occur beyond configured limits
 
     bslma::Allocator              *d_allocator_p;
-        // allocator used by this object     
+        // allocator used by this object
 
     bsls::AtomicInt                d_maxAssertions;
         // configured limit of assertions that will be processed

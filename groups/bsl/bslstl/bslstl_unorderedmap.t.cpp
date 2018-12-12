@@ -2018,8 +2018,7 @@ if (verbose) {
 //  printf("load_factor      %f  initial\n", wordTally.load_factor());
 //  printf("max_load_factor  %f  initial\n", wordTally.max_load_factor());
 //..
-// First, we examine the metrics of of this newly created (empty) unordered
-// map:
+// First, we examine the metrics of this newly created (empty) unordered map:
 //..
 //  size                0 initial
 //  bucket_count        1 initial

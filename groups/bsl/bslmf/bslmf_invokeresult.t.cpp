@@ -437,7 +437,7 @@ void applyPtrAndRef()
     // Call 'TEST_KERNEL::apply<X>()', where 'X' is each of the following: the
     // specified 'RT' template parameter, a pointer to (cv-qualified) 'RT', a
     // reference to cv-qualified of 'RT', and a reference to a cv-qualified
-    // pointer to to cv-qualified 'RT' (for every combination of cv
+    // pointer to cv-qualified 'RT' (for every combination of cv
     // qualifications).  Requires: 'TEST_KERNEL' is a class type with an
     // 'apply<TP>()' static member that tests 'invoke_result' on invocables
     // that return 'TP'.

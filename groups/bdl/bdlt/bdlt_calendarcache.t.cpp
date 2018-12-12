@@ -1421,7 +1421,7 @@ int main(int argc, char *argv[])
         // 'getCalendar', 'lookupCalendar', AND 'lookupLoadTime'
         //   Ensure that 'getCalendar', 'lookupCalendar', and 'lookupLoadTime'
         //   behave as expected in the absence of exceptions (exception
-        //   neutrality is tested in a a later test case).
+        //   neutrality is tested in a later test case).
         //
         // Concerns:
         //: 1 That 'getCalendar', when supplied with a string not recognized

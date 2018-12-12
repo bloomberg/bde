@@ -577,8 +577,8 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 // '0x3fff' is 'DW_AT_hi_user', stored in ULEB as '{ 0xff, 0xff, 0 }' which if
 // it's defined as having no 'DW_FORM_?' argument and is the last 'DW_AT_?'
 // before the end, can result in 3 0's in a row.  So when we're searching for
-// 0's, we read the the 'DW_AT_?' and 'DW_FORM_?' as ULEB so if we get two 0's,
-// we know we're at the end of the section.
+// 0's, we read the 'DW_AT_?' and 'DW_FORM_?' as ULEB so if we get two 0's, we
+// know we're at the end of the section.
 //
 // The abbrev indexes of the sections start at 1 and increment with each
 // section.

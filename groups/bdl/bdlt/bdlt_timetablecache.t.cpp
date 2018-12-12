@@ -1406,7 +1406,7 @@ int main(int argc, char *argv[])
         // 'getTimetable', 'lookupTimetable', AND 'lookupLoadTime'
         //   Ensure that 'getTimetable', 'lookupTimetable', and
         //   'lookupLoadTime' behave as expected in the absence of exceptions
-        //   (exception neutrality is tested in a a later test case).
+        //   (exception neutrality is tested in a later test case).
         //
         // Concerns:
         //: 1 That 'getTimetable', when supplied with a string not recognized

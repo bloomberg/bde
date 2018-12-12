@@ -130,10 +130,10 @@ const bsls::Types::Uint64 maxTestCycles = (1ULL << 32) * 24 * 60 * 60 * 999;
 
 bsls::Types::Uint64 random(bsls::Types::Uint64 seed)
     // Return the pseudo-random unsigned number following the specified 'seed'
-    // in a sequence of of pseudo-random numbers that cycles through all values
-    // in the closed range '[ MIN_MS .. MAX_MS ]' where 'MIN_MS' and 'MAX_MS'
-    // are the minimum (negative) and maximum numbers of milliseconds that can
-    // be represented by a 'DatetimeInterval'.
+    // in a sequence of pseudo-random numbers that cycles through all values in
+    // the closed range '[ MIN_MS .. MAX_MS ]' where 'MIN_MS' and 'MAX_MS' are
+    // the minimum (negative) and maximum numbers of milliseconds that can be
+    // represented by a 'DatetimeInterval'.
 {
     static const bsls::Types::Uint64 m = maxTestCycles;
         // factors of m: 2, 3, 5, 37

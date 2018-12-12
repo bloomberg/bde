@@ -583,7 +583,7 @@ class OutputRedirector {
 
     int numInstances(const bsl::string& expected);
         // Scan the buffer for instances of the specified 'expected', and
-        // return the number of of instances of 'expected' that were found.
+        // return the number of instances of 'expected' that were found.
         // Overwrite the matched memory in the buffer with '*'s.
 
     void redirect();

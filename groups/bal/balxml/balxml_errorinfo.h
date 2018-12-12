@@ -305,11 +305,12 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 
 namespace BloombergLP  {
-
 namespace balxml {
+
                               // ===============
                               // class ErrorInfo
                               // ===============
+
 class ErrorInfo
 {
     // This class provides detailed information for errors encountered during
@@ -439,10 +440,6 @@ class ErrorInfo
         // Return the string describing the error or warning.
 };
 
-// ============================================================================
-//                            INLINE DEFINITIONS
-// ============================================================================
-
 // FREE OPERATORS
 bool operator==(const ErrorInfo& lhs, const ErrorInfo& rhs);
     // Return true if the specified 'lhs' object has the same value as the
@@ -462,6 +459,13 @@ bsl::ostream& operator<<(bsl::ostream& stream, const ErrorInfo& errInfo);
     // human-readable form and return a modifiable reference to 'stream'.  The
     // output is one-line without a terminating newline.
 
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                              // ---------------
+                              // class ErrorInfo
+                              // ---------------
 // MANIPULATORS
 inline void
 ErrorInfo::setError(const ErrorInfo& other)
@@ -531,6 +535,7 @@ ErrorInfo::message() const
 {
     return d_message;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

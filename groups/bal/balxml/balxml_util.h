@@ -119,8 +119,8 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 
 namespace BloombergLP  {
-
 namespace balxml {
+
                                 // ===========
                                 // struct Util
                                 // ===========
@@ -143,8 +143,8 @@ struct Util {
         // populates the output parameter 'targetNamespace' with the value in
         // the first 'attribute="value"' pair found for the target namespace.
 };
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

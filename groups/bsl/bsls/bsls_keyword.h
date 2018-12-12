@@ -24,12 +24,12 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a suite of macros that simplify the use
 // of language keywords that may not exist in all supported dialects of the C++
-// language.  For example, 'BSLS_KEYWORD_NOEXCEPT' is is replaced with
-// 'noexcept' on compilers supporting at least the C++11 language standard, and
-// replaced with nothing on compilers supporting an older (e.g., C++03)
-// standard.  The goal is to allow implementation of components such that they
-// can take advantage of some C++11 or later features when compiled with C++11
-// or later mode enabled while also correctly compiling in C++03 mode.  The
+// language.  For example, 'BSLS_KEYWORD_NOEXCEPT' is replaced with 'noexcept'
+// on compilers supporting at least the C++11 language standard, and replaced
+// with nothing on compilers supporting an older (e.g., C++03) standard.  The
+// goal is to allow implementation of components such that they can take
+// advantage of some C++11 or later features when compiled with C++11 or later
+// mode enabled while also correctly compiling in C++03 mode.  The
 // functionality of the respective features won't be available in C++03 mode.
 //
 ///Macro Summary

@@ -205,10 +205,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_managedptr.h>
 
+#include <bsl_cstddef.h> // for size_t
 #include <bsl_functional.h>
 #include <bsl_ostream.h>
 #include <bsl_streambuf.h>
-#include <bsl_cstddef.h> // for size_t
 
 namespace BloombergLP  {
 namespace balxml {
@@ -607,41 +607,45 @@ class Reader {
         // Return the option flags.
 };
 
+// FREE OPERATORS
+bsl::ostream& operator<<(bsl::ostream& stream, Reader::NodeType value);
+    // Print the specified node type 'value' to the specified 'stream' in
+    // human-readable form and return a modifiable reference to 'stream'.
+
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
 
+                                // ------------
+                                // class Reader
+                                // ------------
+
 inline
-bsl::ostream& operator<<(bsl::ostream& stream, Reader::NodeType value)
-    // Print the specified node type 'value' to the specified 'stream' in
-    // human-readable form and return a modifiable reference to 'stream'.
+bool Reader::isWarning() const
 {
-    return stream << Reader::nodeTypeAsString(value);
+    return errorInfo().isWarning();
+}
+
+inline
+bool Reader::isError() const
+{
+    return errorInfo().isError();
+}
+
+inline
+bool Reader::isFatalError() const
+{
+    return errorInfo().isFatalError();
 }
 
 }  // close package namespace
 
 // FREE OPERATORS
-
-namespace balxml {
-inline bool
-Reader::isWarning() const
+inline
+bsl::ostream& balxml::operator<<(bsl::ostream& stream, Reader::NodeType value)
 {
-    return errorInfo().isWarning();
+    return stream << Reader::nodeTypeAsString(value);
 }
-
-inline bool
-Reader::isError() const
-{
-    return errorInfo().isError();
-}
-
-inline bool
-Reader::isFatalError() const
-{
-    return errorInfo().isFatalError();
-}
-}  // close package namespace
 
 }  // close enterprise namespace
 

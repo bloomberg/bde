@@ -11,7 +11,7 @@ BSLS_IDENT("$Id: $")
 //    bdlb::TopologicalSortUtil: utility for topologically sorting inputs
 //    bdlb::TopologicalSortUtilEdgeTraits: customization point for edge types
 //
-//@SEE ALSO:
+//@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a utility 'struct',
 // 'bdlb::TopologicalSortUtil', to topologically sort a collection of inputs
@@ -419,16 +419,14 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
-#include <bsl_vector.h>
+#include <bsl_iterator.h>
 #include <bsl_queue.h>
 #include <bsl_unordered_map.h>
 #include <bsl_utility.h>
-#include <bsl_iterator.h>
-
+#include <bsl_vector.h>
 
 namespace BloombergLP {
 namespace bdlb {
-
 
                     // ===================================
                     // class TopologicalSortUtilEdgeTraits

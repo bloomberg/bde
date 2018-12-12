@@ -2174,8 +2174,8 @@ int main(int argc, char *argv[])
         // Plan:
         //   Using the table method, and a generator that can generate ranges
         //   of objects of various types with values based on an initialization
-        //   string, compare a pair of of ranges based on every combination of
-        //   two initialization strings and compare the output of
+        //   string, compare a pair of ranges based on every combination of two
+        //   initialization strings and compare the output of
         //   'bslalg::RangeCompare::lexicographical' with the expected output
         //   based on the initialization strings used to create the range.  Do
         //   this for the types: char, unsigned char, int, Unit64, double, void

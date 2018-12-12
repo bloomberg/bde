@@ -29,11 +29,11 @@ BSLS_IDENT("$Id: $")
 // contains a parameterized 'encode' function that encodes a specified
 // value-semantic object into a specified stream.  There are three overloaded
 // versions of this function:
-//..
-//    o writes to an 'bsl::streambuf'
-//    o writes to an 'bsl::ostream'
-//    o writes to an 'balxml::Formatter'
-//..
+//
+//: o writes to an 'bsl::streambuf'
+//: o writes to an 'bsl::ostream'
+//: o writes to an 'balxml::Formatter'
+//
 // The 'encode' function encodes objects in XML format, which is a very useful
 // format for debugging.  For more efficient performance, a binary encoding
 // (such as BER) should be used.
@@ -210,7 +210,7 @@ class Encoder {
             // unless a null character was appended onto this stream.
 
         int length() const;
-            // Return the length of of the formatted data, including null
+            // Return the length of the formatted data, including null
             // characters appended to the stream, if any.
     };
 

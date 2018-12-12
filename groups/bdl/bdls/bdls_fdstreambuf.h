@@ -667,8 +667,8 @@ class FdStreamBuf : public bsl::streambuf {
                                           // mode.
 
                         // data members saved when entering putback mode --
-                        // these elements are for for saving fields from the
-                        // base class while we are in putback mode
+                        // these elements are for saving fields from the base
+                        // class while we are in putback mode
 
     char             *d_savedEback_p;     // saved value of 'eback'
     char             *d_savedGptr_p;      // saved value of 'gptr'

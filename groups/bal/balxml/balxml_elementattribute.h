@@ -43,10 +43,10 @@ BSLS_IDENT("$Id: $")
 // have been computed otherwise, then the facets returned by the accessors
 // will be inconsistent with one-another.  This inconsistency is deliberately
 // permitted so that an program may construct a 'balxml::ElementAttribute'
-// even when some parts of of the name are not yet known, e.g., if the prefix
-// URI is known but the qualified name is not.  If the qualified name facet is
-// zero, then no other facets will be computed -- their original values will
-// be returned from the accessors.
+// even when some parts of the name are not yet known, e.g., if the prefix URI
+// is known but the qualified name is not.  If the qualified name facet is
+// zero, then no other facets will be computed -- their original values will be
+// returned from the accessors.
 //
 ///Not Value Semantic
 ///------------------
@@ -447,10 +447,6 @@ class ElementAttribute {
         // "<null>" in the resulting stream.
 };
 
-// ============================================================================
-//                            INLINE DEFINITIONS
-// ============================================================================
-
 // FREE OPERATORS
 inline
 bsl::ostream& operator<<(bsl::ostream&           os,
@@ -458,6 +454,14 @@ bsl::ostream& operator<<(bsl::ostream&           os,
     // Write the contents of the specified 'attribute' object to the specified
     // 'os' in human-readable form.  Attributes that have not yet been
     // computed are not computed by this function.
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+                           // ----------------------
+                           // class ElementAttribute
+                           // ----------------------
 
 // ACCESSORS
 inline
@@ -489,6 +493,7 @@ bool ElementAttribute::isNull() const
 {
     return 0 == d_qualifiedName;
 }
+
 }  // close package namespace
 
 // FREE OPERATORS

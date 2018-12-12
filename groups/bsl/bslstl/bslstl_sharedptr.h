@@ -884,7 +884,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //..
 // Even though we have released 'alertPtr' and 'userPtr' there still exists a
-/// cyclic reference between the two objects, so none of the objects are
+// cyclic reference between the two objects, so none of the objects are
 // destroyed.
 //
 // We can break this cyclical dependency we define a modified alert class
@@ -1043,8 +1043,6 @@ BSLS_IDENT("$Id$ $CSID$")
 // d) A search function that takes a list of keywords and returns available
 // results by searching the cached peers:
 //..
-//  ;
-//
 //  void search(bsl::vector<SearchResult>       */* results */,
 //              const PeerCache&                 peerCache,
 //              const bsl::vector<bsl::string>&  /* keywords */)
@@ -1080,7 +1078,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //      }
 //  }
 //..
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 //
 ///Example 6: Custom Deleters
 /// -  -  -  -  -  -  -  -  -
@@ -1442,7 +1439,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //      }
 //  }
 //..
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.

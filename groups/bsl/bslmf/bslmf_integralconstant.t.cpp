@@ -430,7 +430,7 @@ int main(int argc, char *argv[])
         //: 9 All of the above concerns apply to each built-in integer type.
         //:
         //: 10 All of the above concerns apply to multiple values, including
-        //     the minimum and maximum values of of 'TYPE'.
+        //     the minimum and maximum values of 'TYPE'.
         //
         // Plan:
         //: 1 Assert that 'value' is const and verify that its address can be

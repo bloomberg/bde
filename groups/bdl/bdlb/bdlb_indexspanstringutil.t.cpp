@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
                                                              it - full.begin(),
                                                              full.length());
 //..
-// Finally, we verify the the resulting 'IndexSpan' objects correctly describe
+// Finally, we verify that the resulting 'IndexSpan' objects correctly describe
 // the parsed names of the 'full' name:
 //..
     ASSERT(full.substr(first.position(), first.length()) == "James");

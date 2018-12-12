@@ -83,118 +83,118 @@ BSLS_IDENT("$Id: $")
 // her/himself with the correct ordering of the XML elements s/he's trying to
 // write.  The output of the above example is:
 //..
-// +--bsl::cout---------------------------------------------------------------+
-// |<?xml version="1.0" encoding="UTF-8" ?>                                   |
-// |<Fruits>                                                                  |
-// |    <Oranges farm="Francis&apos; Orchard" size="3.5">                     |
-// |        <pickDate>2004-08-31</pickDate>                                   |
-// |        <Quantity>12</Quantity>                                           |
-// |    </Oranges>                                                            |
-// |    <Apples farm="Fuji &amp; Sons" size="3"/>                             |
-// |</Fruits>                                                                 |
-// +--------------------------------------------------------------------------+
+//  +--bsl::cout--------------------------------------------------------------+
+//  |<?xml version="1.0" encoding="UTF-8" ?>                                  |
+//  |<Fruits>                                                                 |
+//  |    <Oranges farm="Francis&apos; Orchard" size="3.5">                    |
+//  |        <pickDate>2004-08-31</pickDate>                                  |
+//  |        <Quantity>12</Quantity>                                          |
+//  |    </Oranges>                                                           |
+//  |    <Apples farm="Fuji &amp; Sons" size="3"/>                            |
+//  |</Fruits>                                                                |
+//  +-------------------------------------------------------------------------+
 //..
 // Following is a more complete usage example that uses most of the
 // manipulators provided by balxml::Formatter:
 //..
-//          balxml::Formatter formatter(bsl::cout, 0, 4, 40);
+//  balxml::Formatter formatter(bsl::cout, 0, 4, 40);
 //
-//          formatter.addHeader("UTF-8");
+//  formatter.addHeader("UTF-8");
 //
-//          formatter.openElement("Fruits");
-//          formatter.openElement("Oranges");
-//          formatter.addAttribute("farm", "Francis' Orchard");
-//              // notice that the apostrophe in the string will be escaped
-//          formatter.addAttribute("size", 3.5);
+//  formatter.openElement("Fruits");
+//  formatter.openElement("Oranges");
+//  formatter.addAttribute("farm", "Francis' Orchard");
+//      // notice that the apostrophe in the string will be escaped
+//  formatter.addAttribute("size", 3.5);
 //
-//          formatter.addElementAndData("Quantity", 12);
+//  formatter.addElementAndData("Quantity", 12);
 //
-//          formatter.openElement("pickDate");
-//          formatter.addData(bdlt::Date(2004, 8, 31));
-//          formatter.closeElement("pickDate");
+//  formatter.openElement("pickDate");
+//  formatter.addData(bdlt::Date(2004, 8, 31));
+//  formatter.closeElement("pickDate");
 //
-//          formatter.openElement("Feature");
-//          formatter.addAttribute("shape", "round");
-//          formatter.closeElement("Feature");
+//  formatter.openElement("Feature");
+//  formatter.addAttribute("shape", "round");
+//  formatter.closeElement("Feature");
 //
-//          formatter.addComment("No wrapping for long comments");
+//  formatter.addComment("No wrapping for long comments");
 //
-//          formatter.closeElement("Oranges");
+//  formatter.closeElement("Oranges");
 //
-//          formatter.addBlankLine();
+//  formatter.addBlankLine();
 //
-//          formatter.openElement("Apples");
-//          formatter.addAttribute("farm", "Fuji & Sons");
-//          formatter.addAttribute("size", 3);
+//  formatter.openElement("Apples");
+//  formatter.addAttribute("farm", "Fuji & Sons");
+//  formatter.addAttribute("size", 3);
 //
-//          formatter.openElement("pickDates",
-//                                balxml::Formatter::BAEXML_NEWLINE_INDENT);
-//          formatter.addListData(bdlt::Date(2005, 1, 17));
-//          formatter.addListData(bdlt::Date(2005, 2, 21));
-//          formatter.addListData(bdlt::Date(2005, 3, 25));
-//          formatter.addListData(bdlt::Date(2005, 5, 30));
-//          formatter.addListData(bdlt::Date(2005, 7, 4));
-//          formatter.addListData(bdlt::Date(2005, 9, 5));
-//          formatter.addListData(bdlt::Date(2005, 11, 24));
-//          formatter.addListData(bdlt::Date(2005, 12, 25));
+//  formatter.openElement("pickDates",
+//                        balxml::Formatter::BAEXML_NEWLINE_INDENT);
+//  formatter.addListData(bdlt::Date(2005, 1, 17));
+//  formatter.addListData(bdlt::Date(2005, 2, 21));
+//  formatter.addListData(bdlt::Date(2005, 3, 25));
+//  formatter.addListData(bdlt::Date(2005, 5, 30));
+//  formatter.addListData(bdlt::Date(2005, 7, 4));
+//  formatter.addListData(bdlt::Date(2005, 9, 5));
+//  formatter.addListData(bdlt::Date(2005, 11, 24));
+//  formatter.addListData(bdlt::Date(2005, 12, 25));
 //
-//          formatter.closeElement("pickDates");
+//  formatter.closeElement("pickDates");
 //
-//          formatter.openElement("Feature");
-//          formatter.addAttribute("color", "red");
-//          formatter.addAttribute("taste", "juicy");
-//          formatter.closeElement("Feature");
+//  formatter.openElement("Feature");
+//  formatter.addAttribute("color", "red");
+//  formatter.addAttribute("taste", "juicy");
+//  formatter.closeElement("Feature");
 //
-//          formatter.closeElement("Apples");
+//  formatter.closeElement("Apples");
 //
-//          formatter.closeElement("Fruits");
+//  formatter.closeElement("Fruits");
 //
-//          formatter.reset();
-//          // reset the formatter for a new document in the same stream
+//  formatter.reset();
+//  // reset the formatter for a new document in the same stream
 //
-//          formatter.addHeader();
-//          formatter.openElement("Grains");
+//  formatter.addHeader();
+//  formatter.openElement("Grains");
 //
-//          bsl::ostream& os = formatter.rawOutputStream();
-//          os << "<free>anything that can mess up the XML doc</free>";
-//          // Now coming back to the formatter, but can't do the following:
-//          // formatter.addAttribute("country", "USA");
-//          formatter.addData("Corn, Wheat, Oat");
-//          formatter.closeElement("Grains");
+//  bsl::ostream& os = formatter.rawOutputStream();
+//  os << "<free>anything that can mess up the XML doc</free>";
+//  // Now coming back to the formatter, but can't do the following:
+//  // formatter.addAttribute("country", "USA");
+//  formatter.addData("Corn, Wheat, Oat");
+//  formatter.closeElement("Grains");
 //..
 // Following are the two resulting documents, as separated by the call to
 // reset(),
 //..
-// +--bsl::cout-----------------------------+
-// |<?xml version="1.0" encoding="UTF-8" ?> |
-// |<Fruits>                                |
-// |    <Oranges                            |
-// |         farm="Francis&apos; Orchard"   |
-// |         size="3.5">                    |
-// |        <Quantity>12</Quantity>         |
-// |        <pickDate>2004-08-31</pickDate> |
-// |        <Feature shape="round"/>        |
-// |        <!-- No wrapping for long comments --> |
-// |    </Oranges>                          |
-// |                                        |
-// |    <Apples farm="Fuji &amp; Sons"      |
-// |         size="3">                      |
-// |        <pickDates>                     |
-// |            2005-01-17 2005-02-21       |
-// |            2005-03-25 2005-05-30       |
-// |            2005-07-04 2005-09-05       |
-// |            2005-11-24 2005-12-25       |
-// |        </pickDates>                    |
-// |        <Feature color="red"            |
-// |             taste="juicy"/>            |
-// |    </Apples>                           |
-// |</Fruits>                               |
-// +----------------------------------------+
-// +--bsl::cout-----------------------------+
-// |<?xml version="1.0" encoding="UTF-8" ?> |
-// |<Grains><free>anything that can mess up the XML doc</free>
-// |              Corn, Wheat, Oat</Grains> |
-// +----------------------------------------+
+//  +--bsl::cout-----------------------------+
+//  |<?xml version="1.0" encoding="UTF-8" ?> |
+//  |<Fruits>                                |
+//  |    <Oranges                            |
+//  |         farm="Francis&apos; Orchard"   |
+//  |         size="3.5">                    |
+//  |        <Quantity>12</Quantity>         |
+//  |        <pickDate>2004-08-31</pickDate> |
+//  |        <Feature shape="round"/>        |
+//  |        <!-- No wrapping for long comments --> |
+//  |    </Oranges>                          |
+//  |                                        |
+//  |    <Apples farm="Fuji &amp; Sons"      |
+//  |         size="3">                      |
+//  |        <pickDates>                     |
+//  |            2005-01-17 2005-02-21       |
+//  |            2005-03-25 2005-05-30       |
+//  |            2005-07-04 2005-09-05       |
+//  |            2005-11-24 2005-12-25       |
+//  |        </pickDates>                    |
+//  |        <Feature color="red"            |
+//  |             taste="juicy"/>            |
+//  |    </Apples>                           |
+//  |</Fruits>                               |
+//  +----------------------------------------+
+//  +--bsl::cout-----------------------------+
+//  |<?xml version="1.0" encoding="UTF-8" ?> |
+//  |<Grains><free>anything that can mess up the XML doc</free>
+//  |              Corn, Wheat, Oat</Grains> |
+//  +----------------------------------------+
 //..
 
 #include <balscm_version.h>
@@ -216,12 +216,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_algorithm.h>       // bsl::min
 #include <bsl_ostream.h>
-#include <bsl_vector.h>
 #include <bsl_string.h>
 #include <bsl_utility.h>       // bsl::pair
+#include <bsl_vector.h>
 
 namespace BloombergLP {
-
 namespace balxml {
                               // ===============
                               // class Formatter

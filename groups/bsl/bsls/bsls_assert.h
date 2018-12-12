@@ -330,7 +330,7 @@ BSLS_IDENT("$Id: $")
 // If a legacy handler is set as the current handler, the function
 // 'bsls::Assert::failureHandler()' will return a pointer to that function,
 // while 'bsls::Assert::violationHandler()' will return an internal function
-// that extracts the appropriate arguments from the the generated
+// that extracts the appropriate arguments from the generated
 // 'bsls::AssertViolation' object and passes them to the installed 'Handler'.
 //
 ///Assertions in Header Files (Mixing Build Options Across Translation Units)

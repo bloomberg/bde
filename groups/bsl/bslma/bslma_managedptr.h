@@ -57,7 +57,6 @@ BSLS_IDENT("$Id$ $CSID$")
 // 'cookie'.  Note that there are no methods taking just a deleter, as the user
 // must always supply a 'cookie' to be passed when the deleter is actually
 // invoked.
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 //
 // Note that this component still supports (deprecated) legacy deleters that
 // expect to be passed pointers to the specific 'cookie' and managed object
@@ -66,7 +65,6 @@ BSLS_IDENT("$Id$ $CSID$")
 // (taking two 'void *' arguments) and invoking the function with two 'void *'
 // pointer arguments.  While this is undefined behavior, it is known to have
 // the desired effect on all platforms currently in use.
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 //
 ///Aliasing
 ///--------
@@ -642,7 +640,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //..
 // or even use the less safe "C"-style casts:
 //..
-//      // bslma::ManagedPtr<A> a_mp;
 //      bslma::ManagedPtr<B> b_mp2(a_mp, (B *)(a_mp.get()));
 //
 //  } // explicitCastingExample()

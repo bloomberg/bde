@@ -218,26 +218,26 @@ void localConfiguration(int *, int *, int *, int *, int *)
 //..
 // Then, we define the function to be traced, and use the modified assertions.
 //..
-     void foo(int percentage)
-         // Receive the specified 'percentage'.  The behavior is undefined
-         // unless '0 < percentage < 100'.
-     {
-         TRACK_ASSERT(  0 < percentage);
-         TRACK_ASSERT(100 > percentage);
-     }
+    void foo(int percentage)
+        // Receive the specified 'percentage'.  The behavior is undefined
+        // unless '0 < percentage < 100'.
+    {
+        TRACK_ASSERT(  0 < percentage);
+        TRACK_ASSERT(100 > percentage);
+    }
 //..
 // Next, we create some uses of the function that may trigger the assertions.
 //..
-     void useFoo()
-         // Trigger assertions by passing invalid values to 'foo'.
-     {
-         for (int i = 0; i < 100; ++i) {
-             foo(i);
-         }
-         for (int i = 100; i > 0; --i) {
-             foo(i);
-         }
-     }
+    void useFoo()
+        // Trigger assertions by passing invalid values to 'foo'.
+    {
+        for (int i = 0; i < 100; ++i) {
+            foo(i);
+        }
+        for (int i = 100; i > 0; --i) {
+            foo(i);
+        }
+    }
 //..
 
 // ============================================================================
@@ -281,16 +281,16 @@ int main(int argc, char *argv[])
 // configure the tracker, trigger the assertions, and verify that they have
 // been correctly discovered.
 //..
-     bsl::ostringstream os;
-     theTracker.setReportingCallback(
-         bdlf::BindUtil::bind(balb::AssertionTracker::reportAssertion,
-                              &os, _1, _2, _3, _4, _5, _6));
-     theTracker.setReportingFrequency(
+    bsl::ostringstream os;
+    theTracker.setReportingCallback(
+        bdlf::BindUtil::bind(balb::AssertionTracker::reportAssertion,
+                             &os, _1, _2, _3, _4, _5, _6));
+    theTracker.setReportingFrequency(
                                     balb::AssertionTracker::e_onEachAssertion);
-     useFoo();
-     bsl::string report = os.str();
-     ASSERT(report.npos != report.find("0 < percentage"));
-     ASSERT(report.npos != report.find("100 > percentage"));
+    useFoo();
+    bsl::string report = os.str();
+    ASSERT(report.npos != report.find("0 < percentage"));
+    ASSERT(report.npos != report.find("100 > percentage"));
 //..
       } break;
       case 4: {

@@ -109,8 +109,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_review.h>
 
 namespace BloombergLP {
-
 namespace balxml {
+
                           // ========================
                           // class Base64Parser<TYPE>
                           // ========================
@@ -172,7 +172,6 @@ class Base64Parser {
                           // ------------------------
 
 // CREATORS
-
 template <class TYPE>
 Base64Parser<TYPE>::Base64Parser()
 : d_base64Decoder(true)  // 'true' indicates report errors
@@ -181,7 +180,6 @@ Base64Parser<TYPE>::Base64Parser()
 }
 
 // MANIPULATORS
-
 template <class TYPE>
 int Base64Parser<TYPE>::beginParse(TYPE *object)
 {

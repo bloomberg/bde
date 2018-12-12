@@ -64,18 +64,18 @@ BSLS_IDENT("$Id: $")
 // In the following example we demonstrate creation of a limited record buffer
 // followed by concurrent access to it by multiple threads.
 //..
-//    enum {
-//        KILO_BYTE      = 1024,   // one kilo is (2^10) bytes
-//        MAX_TOTAL_SIZE = 32 * K, // 'maxTotalSize' parameter
-//        NUM_ITERATIONS = 1000,   // number of iterations
-//        NUM_THREADS    = 4       // number of threads
-//    };
-//    bslma::Allocator *basicAllocator = bslma::Default::defaultAllocator();
+//  enum {
+//      KILO_BYTE      = 1024,   // one kilo is (2^10) bytes
+//      MAX_TOTAL_SIZE = 32 * K, // 'maxTotalSize' parameter
+//      NUM_ITERATIONS = 1000,   // number of iterations
+//      NUM_THREADS    = 4       // number of threads
+//  };
+//  bslma::Allocator *basicAllocator = bslma::Default::defaultAllocator();
 //..
 // First we create a record buffer.
 //..
-//    bdlma::DefaultDeleter<ball::Record> recordDeleter(basicAllocator);
-//    ball::FixedSizeRecordBuffer recordBuffer(MAX_TOTAL_SIZE, basicAllocator);
+//  bdlma::DefaultDeleter<ball::Record> recordDeleter(basicAllocator);
+//  ball::FixedSizeRecordBuffer recordBuffer(MAX_TOTAL_SIZE, basicAllocator);
 //..
 // Note that since the record buffer will contain shared pointers to the
 // records, 'recordDeleter' must be created before 'recordBuffer' to ensure
@@ -86,43 +86,43 @@ BSLS_IDENT("$Id: $")
 //  (1) create a record;
 //  (2) build a message and store it into the record;
 //  (3) create a record handle;
-//  (4) push this record handle at the back end of of the record buffer
+//  (4) push this record handle at the back end of the record buffer
 //
 //..
-//    void *workerThread(void *arg)
-//    {
-//        int id = (int)arg; // thread id
-//        for (int i = 0; i < NUM_ITERATIONS; ++i) {
-//            ball::Record *record =
-//                          new (*basicAllocator) ball::Record(basicAllocator);
+//  void *workerThread(void *arg)
+//  {
+//      int id = (int)arg; // thread id
+//      for (int i = 0; i < NUM_ITERATIONS; ++i) {
+//          ball::Record *record =
+//                        new (*basicAllocator) ball::Record(basicAllocator);
 //
-//            // build a message
-//            enum { MAX_SIZE = 100 };
-//            char msg[MAX_SIZE];
-//            sprintf(msg, "message no. %d from thread no. %d", i, id);
+//          // build a message
+//          enum { MAX_SIZE = 100 };
+//          char msg[MAX_SIZE];
+//          sprintf(msg, "message no. %d from thread no. %d", i, id);
 //
-//            record->getFixedFields().setMessage(msg);
+//          record->getFixedFields().setMessage(msg);
 //
-//            bsl::shared_ptr<ball::Record>
-//              handle(record, &recordDeleter, basicAllocator);
+//          bsl::shared_ptr<ball::Record>
+//            handle(record, &recordDeleter, basicAllocator);
 //
-//            recordBuffer.pushBack(handle);
-//        }
+//          recordBuffer.pushBack(handle);
+//      }
 //..
 // After completing the loop each thread iterates, in LIFO order, over all of
 // the records contained in record buffer.
 //..
-//        // print messages in LIFO order
-//        recordBuffer.beginSequence();
-//        while (recordBuffer.length()) {
-//            const ball::Record &rec = recordBuffer.back();
-//            bsl::cout << rec.getFixedFields().message() << bsl::endl;
-//            recordBuffer.popBack();
-//        }
-//        recordBuffer.endSequence();
+//      // print messages in LIFO order
+//      recordBuffer.beginSequence();
+//      while (recordBuffer.length()) {
+//          const ball::Record &rec = recordBuffer.back();
+//          bsl::cout << rec.getFixedFields().message() << bsl::endl;
+//          recordBuffer.popBack();
+//      }
+//      recordBuffer.endSequence();
 //
-//        return NULL;
-//    }
+//      return NULL;
+//  }
 //..
 
 #include <balscm_version.h>

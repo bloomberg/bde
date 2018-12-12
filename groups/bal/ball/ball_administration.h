@@ -46,20 +46,20 @@ BSLS_IDENT("$Id: $")
 // First we initialize the logger manager (for the purposes of this example,
 // we use a minimal configuration):
 //..
-//     ball::StreamObserver observer(&bsl::cout);
-//     ball::LoggerManagerConfiguration configuration;
-//     ball::LoggerManagerScopedGuard guard(&observer, configuration);
+//  ball::StreamObserver observer(&bsl::cout);
+//  ball::LoggerManagerConfiguration configuration;
+//  ball::LoggerManagerScopedGuard guard(&observer, configuration);
 //..
 // Next define some hypothetical category names:
 //..
-//     const char *equityCategories[] = {
-//         "EQUITY.MARKET.NYSE",
-//         "EQUITY.MARKET.NASDAQ",
-//         "EQUITY.GRAPHICS.MATH.FACTORIAL",
-//         "EQUITY.GRAPHICS.MATH.ACKERMANN"
-//     };
-//     const int NUM_CATEGORIES = sizeof equityCategories
-//                              / sizeof equityCategories[0];
+//  const char *equityCategories[] = {
+//      "EQUITY.MARKET.NYSE",
+//      "EQUITY.MARKET.NASDAQ",
+//      "EQUITY.GRAPHICS.MATH.FACTORIAL",
+//      "EQUITY.GRAPHICS.MATH.ACKERMANN"
+//  };
+//  const int NUM_CATEGORIES = sizeof equityCategories
+//                           / sizeof equityCategories[0];
 //..
 // Category naming is by convention only.  In this example, we have chosen a
 // hierarchical naming convention that uses '.' to separate the constituents
@@ -71,109 +71,107 @@ BSLS_IDENT("$Id: $")
 // distinguish them when they are printed later.  The 'addCategory' method
 // returns the address of the new category:
 //..
-//     for (int i = 0; i < NUM_CATEGORIES; ++i) {
-//         int retValue = ball::Administration::addCategory(
-//                                             equityCategories[i],
-//                                             ball::Severity::e_TRACE + i,
-//                                             ball::Severity::e_WARN  + i,
-//                                             ball::Severity::e_ERROR + i,
-//                                             ball::Severity::e_FATAL + i);
-//         assert(0 == retValue);  // added new category
-//     }
+//  for (int i = 0; i < NUM_CATEGORIES; ++i) {
+//      int retValue = ball::Administration::addCategory(
+//                                                equityCategories[i],
+//                                                ball::Severity::e_TRACE + i,
+//                                                ball::Severity::e_WARN  + i,
+//                                                ball::Severity::e_ERROR + i,
+//                                                ball::Severity::e_FATAL + i);
+//      assert(0 == retValue);  // added new category
+//  }
 //..
 // In the following, each of the new categories is accessed from the registry
 // and its name and threshold levels are printed to 'bsl::cout':
 //..
-//     for (int i = 0; i < NUM_CATEGORIES; ++i) {
-//         const char* name    = equityCategories[i];
-//         int recordLevel     = ball::Administration::recordLevel(name);
-//         int passLevel       = ball::Administration::passLevel(name);
-//         int triggerLevel    = ball::Administration::triggerLevel(name);
-//         int triggerAllLevel = ball::Administration::triggerAllLevel(name);
+//  for (int i = 0; i < NUM_CATEGORIES; ++i) {
+//      const char* name    = equityCategories[i];
+//      int recordLevel     = ball::Administration::recordLevel(name);
+//      int passLevel       = ball::Administration::passLevel(name);
+//      int triggerLevel    = ball::Administration::triggerLevel(name);
+//      int triggerAllLevel = ball::Administration::triggerAllLevel(name);
 //
-//         using namespace bsl;
-//         cout << "Category name: "       << name            << endl;
-//         cout << "\tRecord level:      " << recordLevel     << endl;
-//         cout << "\tPass level:        " << passLevel       << endl;
-//         cout << "\tTrigger level:     " << triggerLevel    << endl;
-//         cout << "\tTrigger-all level: " << triggerAllLevel << endl
-//              << endl;
-//     }
+//      using namespace bsl;
+//      cout << "Category name: "       << name            << endl;
+//      cout << "\tRecord level:      " << recordLevel     << endl;
+//      cout << "\tPass level:        " << passLevel       << endl;
+//      cout << "\tTrigger level:     " << triggerLevel    << endl;
+//      cout << "\tTrigger-all level: " << triggerAllLevel << endl;
+//  }
 //..
 // The following is printed to 'stdout':
 //..
-//     Category name: EQUITY.MARKET.NYSE
-//             Record level:      192
-//             Pass level:        96
-//             Trigger level:     64
-//             Trigger-all level: 32
+//  Category name: EQUITY.MARKET.NYSE
+//          Record level:      192
+//          Pass level:        96
+//          Trigger level:     64
+//          Trigger-all level: 32
 //
-//     Category name: EQUITY.MARKET.NASDAQ
-//             Record level:      193
-//             Pass level:        97
-//             Trigger level:     65
-//             Trigger-all level: 33
+//  Category name: EQUITY.MARKET.NASDAQ
+//          Record level:      193
+//          Pass level:        97
+//          Trigger level:     65
+//          Trigger-all level: 33
 //
-//     Category name: EQUITY.GRAPHICS.MATH.FACTORIAL
-//             Record level:      194
-//             Pass level:        98
-//             Trigger level:     66
-//             Trigger-all level: 34
+//  Category name: EQUITY.GRAPHICS.MATH.FACTORIAL
+//          Record level:      194
+//          Pass level:        98
+//          Trigger level:     66
+//          Trigger-all level: 34
 //
-//     Category name: EQUITY.GRAPHICS.MATH.ACKERMANN
-//             Record level:      195
-//             Pass level:        99
-//             Trigger level:     67
-//             Trigger-all level: 35
+//  Category name: EQUITY.GRAPHICS.MATH.ACKERMANN
+//          Record level:      195
+//          Pass level:        99
+//          Trigger level:     67
+//          Trigger-all level: 35
 //..
 // The following is similar to the first 'for'-loop above, but this time the
 // 'setThresholdLevels' method is used to modify the threshold levels of
 // existing categories.  The 'setThresholdLevels' method returns 1 in each case
 // indicating the number of existing categories that were affected by the call:
 //..
-//     for (int i = 0; i < NUM_CATEGORIES; ++i) {
-//         const int returnValue =
-//                   ball::Administration::setThresholdLevels(
-//                                             equityCategories[i],
-//                                             ball::Severity::e_TRACE - i,
-//                                             ball::Severity::e_WARN  - i,
-//                                             ball::Severity::e_ERROR - i,
-//                                             ball::Severity::e_FATAL - i);
-//         assert(1 == returnValue);  // modified one category
-//     }
+//  for (int i = 0; i < NUM_CATEGORIES; ++i) {
+//      const int returnValue = ball::Administration::setThresholdLevels(
+//                                                equityCategories[i],
+//                                                ball::Severity::e_TRACE - i,
+//                                                ball::Severity::e_WARN  - i,
+//                                                ball::Severity::e_ERROR - i,
+//                                                ball::Severity::e_FATAL - i);
+//      assert(1 == returnValue);  // modified one category
+//  }
 //..
 // When the 'NUM_CATEGORIES' categories are accessed from the registry a second
 // time and printed, the following is output to 'stdout' showing the new
 // threshold levels of the categories:
 //..
-//     Category name: EQUITY.MARKET.NYSE
-//             Record level:      192
-//             Pass level:        96
-//             Trigger level:     64
-//             Trigger-all level: 32
+//  Category name: EQUITY.MARKET.NYSE
+//          Record level:      192
+//          Pass level:        96
+//          Trigger level:     64
+//          Trigger-all level: 32
 //
-//     Category name: EQUITY.MARKET.NASDAQ
-//             Record level:      191
-//             Pass level:        95
-//             Trigger level:     63
-//             Trigger-all level: 31
+//  Category name: EQUITY.MARKET.NASDAQ
+//          Record level:      191
+//          Pass level:        95
+//          Trigger level:     63
+//          Trigger-all level: 31
 //
-//     Category name: EQUITY.GRAPHICS.MATH.FACTORIAL
-//             Record level:      190
-//             Pass level:        94
-//             Trigger level:     62
-//             Trigger-all level: 30
+//  Category name: EQUITY.GRAPHICS.MATH.FACTORIAL
+//          Record level:      190
+//          Pass level:        94
+//          Trigger level:     62
+//          Trigger-all level: 30
 //
-//     Category name: EQUITY.GRAPHICS.MATH.ACKERMANN
-//             Record level:      189
-//             Pass level:        93
-//             Trigger level:     61
-//             Trigger-all level: 29
+//  Category name: EQUITY.GRAPHICS.MATH.ACKERMANN
+//          Record level:      189
+//          Pass level:        93
+//          Trigger level:     61
+//          Trigger-all level: 29
 //..
 // Finally, the category registry is closed to further additions by setting its
 // maximum capacity to (the original) 'NUM_CATEGORIES':
 //..
-//     ball::Administration::setMaxNumCategories(NUM_CATEGORIES);
+//  ball::Administration::setMaxNumCategories(NUM_CATEGORIES);
 //..
 // Following this call to 'setMaxNumCategories', subsequent calls to
 // 'addCategory' will fail (until such time as 'setMaxNumCategories' is called

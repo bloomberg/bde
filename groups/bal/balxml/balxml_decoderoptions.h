@@ -18,9 +18,7 @@ BSLS_IDENT_PRAGMA_ONCE
 //
 //@AUTHOR: Rohan Bhindwale (rbhindwale@bloomberg.net)
 //
-//@DESCRIPTION:
-// Options for controlling the XML decoding process.
-//
+//@DESCRIPTION: Options for controlling the XML decoding process.
 
 #include <balscm_version.h>
 
@@ -34,7 +32,6 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bsl_iosfwd.h>
 
 namespace BloombergLP {
-
 namespace balxml {
 
                             // ====================
@@ -61,7 +58,8 @@ class DecoderOptions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_ID_MAX_DEPTH = e_ATTRIBUTE_ID_MAX_DEPTH
       , ATTRIBUTE_ID_FORMATTING_MODE = e_ATTRIBUTE_ID_FORMATTING_MODE
-      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS = e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS
+      , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS =
+                                           e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -79,7 +77,8 @@ class DecoderOptions {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_INDEX_MAX_DEPTH = e_ATTRIBUTE_INDEX_MAX_DEPTH
       , ATTRIBUTE_INDEX_FORMATTING_MODE = e_ATTRIBUTE_INDEX_FORMATTING_MODE
-      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS = e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS
+      , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS =
+                                        e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -243,9 +242,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, const DecoderOptions& rhs);
     // Format the specified 'rhs' to the specified output 'stream' and
     // return a reference to the modifiable 'stream'.
 
-
-// TRAITS
-
 }  // close package namespace
 
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(balxml::DecoderOptions)
@@ -255,7 +251,6 @@ namespace balxml {
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
-
 
                             // --------------------
                             // class DecoderOptions
@@ -267,17 +262,20 @@ int DecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
 {
     int ret;
 
-    ret = manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
+    ret = manipulator(&d_maxDepth,
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    ret = manipulator(&d_formattingMode,
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = manipulator(&d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+    ret = manipulator(&d_skipUnknownElements,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -292,15 +290,18 @@ int DecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
 
     switch (id) {
       case e_ATTRIBUTE_ID_MAX_DEPTH: {
-        return manipulator(&d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
+        return manipulator(&d_maxDepth,
+                           ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_FORMATTING_MODE: {
-        return manipulator(&d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+        return manipulator(&d_formattingMode,
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
-        return manipulator(&d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+        return manipulator(&d_skipUnknownElements,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
                                                                       // RETURN
       } break;
       default:
@@ -349,17 +350,20 @@ int DecoderOptions::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
 
-    ret = accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
+    ret = accessor(d_maxDepth,
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+    ret = accessor(d_formattingMode,
+                   ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
     if (ret) {
         return ret;                                                   // RETURN
     }
 
-    ret = accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+    ret = accessor(d_skipUnknownElements,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -374,15 +378,18 @@ int DecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
 
     switch (id) {
       case e_ATTRIBUTE_ID_MAX_DEPTH: {
-        return accessor(d_maxDepth, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
+        return accessor(d_maxDepth,
+                        ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_DEPTH]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_FORMATTING_MODE: {
-        return accessor(d_formattingMode, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
+        return accessor(d_formattingMode,
+                      ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_FORMATTING_MODE]);
                                                                       // RETURN
       } break;
       case e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS: {
-        return accessor(d_skipUnknownElements, ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
+        return accessor(d_skipUnknownElements,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS]);
                                                                       // RETURN
       } break;
       default:
@@ -424,15 +431,12 @@ const bool& DecoderOptions::skipUnknownElements() const
 {
     return d_skipUnknownElements;
 }
+
 }  // close package namespace
 
-
 // FREE FUNCTIONS
-
 inline
-bool balxml::operator==(
-        const DecoderOptions& lhs,
-        const DecoderOptions& rhs)
+bool balxml::operator==(const DecoderOptions& lhs, const DecoderOptions& rhs)
 {
     return  lhs.maxDepth() == rhs.maxDepth()
          && lhs.formattingMode() == rhs.formattingMode()
@@ -440,9 +444,7 @@ bool balxml::operator==(
 }
 
 inline
-bool balxml::operator!=(
-        const DecoderOptions& lhs,
-        const DecoderOptions& rhs)
+bool balxml::operator!=(const DecoderOptions& lhs, const DecoderOptions& rhs)
 {
     return  lhs.maxDepth() != rhs.maxDepth()
          || lhs.formattingMode() != rhs.formattingMode()
@@ -450,9 +452,8 @@ bool balxml::operator!=(
 }
 
 inline
-bsl::ostream& balxml::operator<<(
-        bsl::ostream& stream,
-        const DecoderOptions& rhs)
+bsl::ostream& balxml::operator<<(bsl::ostream&         stream,
+                                 const DecoderOptions& rhs)
 {
     return rhs.print(stream, 0, -1);
 }

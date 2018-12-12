@@ -30,8 +30,12 @@ BSLS_IDENT_PRAGMA_ONCE
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
-
 namespace balxml {
+
+                          // ===================
+                          // struct ConfigSchema
+                          // ===================
+
 struct ConfigSchema {
     // Provide a namespace for the 'baexml' schema.
 
@@ -40,16 +44,19 @@ struct ConfigSchema {
 
 // FREE OPERATORS
 bsl::ostream& operator<<(bsl::ostream& stream, const ConfigSchema& schema);
-}  // close package namespace
     // Write the specified 'schema' to the specified 'stream', and return
     // a modifiable reference to 'stream'.
 
+}  // close package namespace
+
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
 
 // FREE OPERATORS
 inline
-bsl::ostream& balxml::operator<<(
-    bsl::ostream& stream,
-    const ConfigSchema& schema)
+bsl::ostream& balxml::operator<<(bsl::ostream&       stream,
+                                 const ConfigSchema& schema)
 {
     return stream << schema.TEXT;
 }

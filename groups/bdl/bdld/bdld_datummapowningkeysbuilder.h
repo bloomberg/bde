@@ -10,7 +10,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bdld::DatumMapOwningKeysBuilder: utility to build a 'Datum' map value
 //
-//@SEE ALSO: bdld_datum, bdld_datummapbuilder
+//@SEE_ALSO: bdld_datum, bdld_datummapbuilder
 //
 //@DESCRIPTION: This component defines a mechanism,
 // 'bdld::DatumMapOwningKeysBuilder', used to populate a 'Datum' map value in

@@ -268,7 +268,7 @@ struct UnorderedMapKeyConfiguration {
     // CLASS METHODS
     static const KeyType& extractKey(const VALUE_TYPE& obj);
         // Return the member 'first' of the specified object 'obj'.
-        // 'obj.first' must of of type 'VALUE_TYPE::first_type', which is the
+        // 'obj.first' must be of type 'VALUE_TYPE::first_type', which is the
         // 'key' portion of 'obj'.
 };
 

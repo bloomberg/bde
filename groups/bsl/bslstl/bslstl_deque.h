@@ -51,58 +51,56 @@ BSLS_IDENT("$Id: $")
 // requirements apply specifically to the deque's entry type, 'value_type',
 // which is an alias for 'VALUE_TYPE'.
 //
-// Legend
-// ------
-// 'X'    - denotes an allocator-aware container type (e.g., 'deque')
-// 'T'    - 'value_type' associated with 'X'
-// 'A'    - type of the allocator used by 'X'
-// 'm'    - lvalue of type 'A' (allocator)
-// 'p',   - address ('T *') of uninitialized storage for a 'T' within an 'X'
-// 'rv'   - rvalue of type (non-'const') 'T'
-// 'v'    - rvalue or lvalue of type (possibly 'const') 'T'
-// 'args' - 0 or more arguments
-//
+///Glossary
+///--------
+//..
+//  Legend
+//  ------
+//  'X'    - denotes an allocator-aware container type (e.g., 'deque')
+//  'T'    - 'value_type' associated with 'X'
+//  'A'    - type of the allocator used by 'X'
+//  'm'    - lvalue of type 'A' (allocator)
+//  'p',   - address ('T *') of uninitialized storage for a 'T' within an 'X'
+//  'rv'   - rvalue of type (non-'const') 'T'
+//  'v'    - rvalue or lvalue of type (possibly 'const') 'T'
+//  'args' - 0 or more arguments
+//..
 // The following terms are used to more precisely specify the requirements on
 // template parameter types in function-level documentation.
-//:
+//
 //: *default-insertable*: 'T' has a default constructor.  More precisely, 'T'
-//:     is 'default-insertable' into 'X' means that the following expression is
-//:     well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p)'
+//:   is 'default-insertable' into 'X' means that the following expression is
+//:   well-formed:
+//:   'allocator_traits<A>::construct(m, p)'
 //:
 //: *move-insertable*: 'T' provides a constructor that takes an rvalue of type
-//:     (non-'const') 'T'.  More precisely, 'T' is 'move-insertable' into 'X'
-//:     means that the following expression is well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p, rv)'
+//:   (non-'const') 'T'.  More precisely, 'T' is 'move-insertable' into 'X'
+//:   means that the following expression is well-formed:
+//:   'allocator_traits<A>::construct(m, p, rv)'
 //:
 //: *copy-insertable*: 'T' provides a constructor that takes an lvalue or
-//:     rvalue of type (possibly 'const') 'T'.  More precisely, 'T' is
-//:     'copy-insertable' into 'X' means that the following expression is
-//:     well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p, v)'
+//:   rvalue of type (possibly 'const') 'T'.  More precisely, 'T' is
+//:   'copy-insertable' into 'X' means that the following expression is
+//:   well-formed:
+//:   'allocator_traits<A>::construct(m, p, v)'
 //:
 //: *move-assignable*: 'T' provides an assignment operator that takes an rvalue
-//:     of type (non-'const') 'T'.
+//:   of type (non-'const') 'T'.
 //:
 //: *copy-assignable*: 'T' provides an assignment operator that takes an lvalue
-//:     or rvalue of type (possibly 'const') 'T'.
+//:   or rvalue of type (possibly 'const') 'T'.
 //:
 //: *emplace-constructible*: 'T' is 'emplace-constructible' into 'X' from
-//:     'args' means that the following expression is well-formed:
-//:
-//:      'allocator_traits<A>::construct(m, p, args)'
+//:   'args' means that the following expression is well-formed:
+//:   'allocator_traits<A>::construct(m, p, args)'
 //:
 //: *erasable*: 'T' provides a destructor.  More precisely, 'T' is 'erasable'
-//:     from 'X' means that the following expression is well-formed:
-//:
-//:      'allocator_traits<A>::destroy(m, p)'
+//:   from 'X' means that the following expression is well-formed:
+//:   'allocator_traits<A>::destroy(m, p)'
 //:
 //: *equality-comparable*: The type provides an equality-comparison operator
-//:     that defines an equivalence relationship and is both reflexive and
-//:     transitive.
+//:   that defines an equivalence relationship and is both reflexive and
+//:   transitive.
 //
 ///Memory Allocation
 ///-----------------
@@ -347,7 +345,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we define the implementation of the methods of 'LaundryQueue'
 //..
-// CREATORS
+//  // CREATORS
 //  LaundryQueue::LaundryQueue(bslma::Allocator *basicAllocator)
 //  : d_queue(basicAllocator)
 //  {
@@ -355,7 +353,7 @@ BSLS_IDENT("$Id: $")
 //      // which will use the default allocator is '0 == basicAllocator'.
 //  }
 //
-// MANIPULATORS
+//  // MANIPULATORS
 //  void LaundryQueue::push(const bsl::string& customerName)
 //  {
 //      d_queue.push_back(customerName);     // note constant time
@@ -676,15 +674,14 @@ class deque : public  Deque_Base<VALUE_TYPE>
     // the 'bslma::Allocator' model.  For the requirements of a deque class,
     // consult the C++11 standard.  In particular, this implementation offers
     // the general rules that:
-    //..
     //: 1 A call to any method that would result in a deque having a size
     //:   greater than the value returned by 'max_size' triggers a call to
     //:   'bslstl::StdExceptUtil::throwLengthError'.
     //:
-    //: 2 A call to an 'at' method that attempts to access a position outside
-    //:   of the valid range of a deque triggers a call to
+    //: 2 A call to an 'at' method that attempts to access a position
+    //:   outside of the valid range of a deque triggers a call to
     //:   'bslstl::StdExceptUtil::throwOutOfRange'.
-    //..
+    //
     // Note that portions of the standard methods are implemented in
     // 'Deque_Base', which is parameterized on only 'VALUE_TYPE' in order to
     // generate smaller debug strings.

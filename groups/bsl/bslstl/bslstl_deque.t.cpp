@@ -1942,7 +1942,7 @@ struct TestDriver {
         // of a deque using 'ggg' at any point, but the fill-to-boundary
         // functionality is supported only for deques in their initial (default
         // constructed) state, which is empty and a capacity indicating only
-        // one page has been allocated.  Any attempt to to interpret a 'spec'
+        // one page has been allocated.  Any attempt to interpret a 'spec'
         // string containing a fill-to-end range will return an error unless
         // '*object' is in the default-constructed state.  Note that the
         // insert-point for a push in this state must also correspond to the

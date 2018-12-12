@@ -764,37 +764,37 @@ int main(int argc, char *argv[])
 
 // Now, construct and run the server using a canonical name for the pipe:
 //..
-     bsl::string pipeName;
-     bdls::PipeUtil::makeCanonicalName(&pipeName, "ctrl.pcctest");
-//
-     ControlServer server;
-//
-     int rc = server.start(pipeName);
-     if (0 != rc) {
-         cout << "ERROR: Failed to start pipe control channel" << endl;
-     }
+    bsl::string pipeName;
+    bdls::PipeUtil::makeCanonicalName(&pipeName, "ctrl.pcctest");
+
+    ControlServer server;
+
+    int rc = server.start(pipeName);
+    if (0 != rc) {
+        cout << "ERROR: Failed to start pipe control channel" << endl;
+    }
 //..
 // Once the server is started, clients can send messages to the server.
 //..
-     const char MSG0[]  = "this is the first message";
-     const char MSG1[]  = "this is the second message";
-//
-     rc = bdls::PipeUtil::send(pipeName, bsl::string(MSG0) + "\n");
-     ASSERT(0 == rc);
-     rc = bdls::PipeUtil::send(pipeName, bsl::string(MSG1) + "\n");
-     ASSERT(0 == rc);
-     rc = bdls::PipeUtil::send(pipeName, "EXIT\n");
-     ASSERT(0 == rc);
+    const char MSG0[]  = "this is the first message";
+    const char MSG1[]  = "this is the second message";
+
+    rc = bdls::PipeUtil::send(pipeName, bsl::string(MSG0) + "\n");
+    ASSERT(0 == rc);
+    rc = bdls::PipeUtil::send(pipeName, bsl::string(MSG1) + "\n");
+    ASSERT(0 == rc);
+    rc = bdls::PipeUtil::send(pipeName, "EXIT\n");
+    ASSERT(0 == rc);
 //..
 // The server shuts down once it processes the "EXIT" control message.
 //..
-     server.stop();  // block until shutdown
+    server.stop();  // block until shutdown
 //..
 // Finally, let's ensure the server received each control message sent.
 //..
-     ASSERT(2 == server.numMessages());
-     ASSERT(bsl::string(MSG0) == server.message(0));
-     ASSERT(bsl::string(MSG1) == server.message(1));
+    ASSERT(2 == server.numMessages());
+    ASSERT(bsl::string(MSG0) == server.message(0));
+    ASSERT(bsl::string(MSG1) == server.message(1));
 //..
 
 #endif
