@@ -16,20 +16,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <string.h>
 
 //-----------------------------------------------------------------------------
-
-#ifdef BSLS_ASSERTTEST_NORETURN
-#error BSLS_ASSERTTEST_NORETURN must be a macro scoped locally to this file
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-#   define BSLS_ASSERTTEST_NORETURN [[noreturn]]
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-#   define BSLS_ASSERTTEST_NORETURN __declspec(noreturn)
-#else
-#   define BSLS_ASSERTTEST_NORETURN
-#endif
-
-//-----------------------------------------------------------------------------
 // STATIC HELPER FUNCTIONS
 
 namespace BloombergLP {
@@ -460,7 +446,7 @@ bool AssertTest::tryProbeRaw(char expectedResult, char expectedLevel)
 
                         // Testing Failure Handlers
 
-BSLS_ASSERTTEST_NORETURN
+BSLS_ANNOTATION_NORETURN
 void AssertTest::failTestDriver(const AssertViolation &violation)
 {
 #ifdef BDE_BUILD_TARGET_EXC

@@ -15,6 +15,7 @@ BSLS_IDENT_RCSID(baljsn_parserutil_cpp,"$Id$ $CSID$")
 #include <bdldfp_decimalutil.h>
 
 #include <bsls_alignedbuffer.h>
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
 
 #include <bsl_algorithm.h>
@@ -187,8 +188,8 @@ int ParserUtil::getString(bsl::string *value, bslstl::StringRef data)
               case 't': {
                 *value += '\t';
               } break;
-              case '"'  :                                       // FALL THROUGH
-              case '\\' :                                       // FALL THROUGH
+              case '"'  : BSLS_ANNOTATION_FALLTHROUGH;
+              case '\\' : BSLS_ANNOTATION_FALLTHROUGH;
               case '/'  : {
 
                 // printable characters

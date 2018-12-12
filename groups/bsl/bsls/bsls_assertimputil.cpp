@@ -29,18 +29,6 @@ extern "C" {
 };
 #endif
 
-#ifdef BSLS_ASSERTIMPUTIL_NORETURN
-#error BSLS_ASSERTIMPUTIL_NORETURN must be a macro scoped locally to this file
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-#   define BSLS_ASSERTIMPUTIL_NORETURN [[noreturn]]
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-#   define BSLS_ASSERTIMPUTIL_NORETURN __declspec(noreturn)
-#else
-#   define BSLS_ASSERTIMPUTIL_NORETURN
-#endif
-
 namespace BloombergLP {
 namespace bsls {
 
@@ -48,7 +36,7 @@ namespace bsls {
                           // struct AssertImpUtil
                           // --------------------
 
-BSLS_ASSERTIMPUTIL_NORETURN
+BSLS_ANNOTATION_NORETURN
 void AssertImpUtil::failByAbort()
 {
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -86,7 +74,7 @@ void AssertImpUtil::failByAbort()
     std::abort();
 }
 
-BSLS_ASSERTIMPUTIL_NORETURN
+BSLS_ANNOTATION_NORETURN
 void AssertImpUtil::failBySleep()
 {
     volatile int sleepDuration = 1;

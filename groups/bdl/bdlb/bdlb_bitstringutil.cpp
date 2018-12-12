@@ -11,6 +11,7 @@ BSLS_IDENT_RCSID(bdlb_bitstringutil_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 
 #include <bsls_alignmentfromtype.h>
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -47,6 +48,8 @@ enum { k_ALIGNMENT       = 4 };
 #else
 enum { k_ALIGNMENT       = bsls::AlignmentFromType<uint64_t>::VALUE };
 #endif
+
+#define FALLTHROUGH BSLS_ANNOTATION_FALLTHROUGH
 
 BSLMF_ASSERT(sizeof(uint64_t) * CHAR_BIT == k_BITS_PER_UINT64);
 BSLMF_ASSERT(0 == (k_BITS_PER_UINT64 & (k_BITS_PER_UINT64 - 1))); // power of 2
@@ -2122,21 +2125,15 @@ size_t BitStringUtil::num1(const uint64_t *bitString,
 
     BSLS_REVIEW(ii < 8);
 
-    // The "FALL THROUGH" comments here are necessary to avoid the
-    // implicit-fallthrough warnings that GCC 7 introduces.  We could
-    // instead use GNU C's __attribute__(fallthrough) vendor
-    // extension or C++17's [[fallthrough]] attribute but these would
-    // need to be hidden from the Oracle and IBM compilers.
-
     switch (ii) {
-      case 7: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
-      case 6: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
-      case 5: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
-      case 4: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
-      case 3: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
-      case 2: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
-      case 1: ret += BitUtil::numBitsSet(array[--ii]);  // FALL THROUGH
-      default: ;
+      case 7: ret += BitUtil::numBitsSet(array[--ii]);             FALLTHROUGH;
+      case 6: ret += BitUtil::numBitsSet(array[--ii]);             FALLTHROUGH;
+      case 5: ret += BitUtil::numBitsSet(array[--ii]);             FALLTHROUGH;
+      case 4: ret += BitUtil::numBitsSet(array[--ii]);             FALLTHROUGH;
+      case 3: ret += BitUtil::numBitsSet(array[--ii]);             FALLTHROUGH;
+      case 2: ret += BitUtil::numBitsSet(array[--ii]);             FALLTHROUGH;
+      case 1: ret += BitUtil::numBitsSet(array[--ii]);             FALLTHROUGH;
+      default:                                                     break;
     }
 
     BSLS_REVIEW(0 == ii);

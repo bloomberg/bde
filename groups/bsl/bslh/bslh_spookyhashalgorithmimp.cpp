@@ -46,6 +46,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //   August 5 2012: SpookyV2: d = should be d += in short hash, and remove
 //   extra mix from long hash
 
+#include <bsls_annotation.h>
 #include <bsls_platform.h>
 
 #include <string.h> // for 'memcpy' and 'memset'
@@ -239,48 +240,53 @@ void SpookyHashAlgorithmImp::shortHash(
         }
     }
 
-    // The "FALL THROUGH" comments here are necessary to avoid the
-    // implicit-fallthrough warnings that GCC 7 introduces.  We could
-    // instead use GNU C's __attribute__(fallthrough) vendor
-    // extension or C++17's [[fallthrough]] attribute but these would
-    // need to be hidden from the Oracle and IBM compilers.
-
     // Handle the last 0 to 15 bytes, and their length.
     d += (static_cast<Uint64>(length)) << 56;
     switch (remainder)
     {
     case 15:
-        d += (static_cast<Uint64>(u.p8[14])) << 48;  // FALL THROUGH
+        d += (static_cast<Uint64>(u.p8[14])) << 48;
+        BSLS_ANNOTATION_FALLTHROUGH;
     case 14:
-        d += (static_cast<Uint64>(u.p8[13])) << 40;  // FALL THROUGH
+        d += (static_cast<Uint64>(u.p8[13])) << 40;
+        BSLS_ANNOTATION_FALLTHROUGH;
     case 13:
-        d += (static_cast<Uint64>(u.p8[12])) << 32;  // FALL THROUGH
+        d += (static_cast<Uint64>(u.p8[12])) << 32;
+        BSLS_ANNOTATION_FALLTHROUGH;
     case 12:
         d += u.p32[2];
         c += u.p64[0];
         break;
     case 11:
-        d += (static_cast<Uint64>(u.p8[10])) << 16;  // FALL THROUGH
+        d += (static_cast<Uint64>(u.p8[10])) << 16;
+        BSLS_ANNOTATION_FALLTHROUGH;
     case 10:
-        d += (static_cast<Uint64>(u.p8[9])) << 8;    // FALL THROUGH
+        d += (static_cast<Uint64>(u.p8[9])) << 8;
+        BSLS_ANNOTATION_FALLTHROUGH;
     case 9:
-        d += static_cast<Uint64>(u.p8[8]);           // FALL THROUGH
+        d += static_cast<Uint64>(u.p8[8]);
+        BSLS_ANNOTATION_FALLTHROUGH;
     case 8:
         c += u.p64[0];
         break;
     case 7:
-        c += (static_cast<Uint64>(u.p8[6])) << 48;   // FALL THROUGH
+        c += (static_cast<Uint64>(u.p8[6])) << 48;
+        BSLS_ANNOTATION_FALLTHROUGH;
     case 6:
-        c += (static_cast<Uint64>(u.p8[5])) << 40;   // FALL THROUGH
+        c += (static_cast<Uint64>(u.p8[5])) << 40;
+        BSLS_ANNOTATION_FALLTHROUGH;
     case 5:
-        c += (static_cast<Uint64>(u.p8[4])) << 32;   // FALL THROUGH
+        c += (static_cast<Uint64>(u.p8[4])) << 32;
+        BSLS_ANNOTATION_FALLTHROUGH;
     case 4:
         c += u.p32[0];
         break;
     case 3:
-        c += (static_cast<Uint64>(u.p8[2])) << 16;  // FALL THROUGH
+        c += (static_cast<Uint64>(u.p8[2])) << 16;
+        BSLS_ANNOTATION_FALLTHROUGH;
     case 2:
-        c += (static_cast<Uint64>(u.p8[1])) << 8;   // FALL THROUGH
+        c += (static_cast<Uint64>(u.p8[1])) << 8;
+        BSLS_ANNOTATION_FALLTHROUGH;
     case 1:
         c += static_cast<Uint64>(u.p8[0]);
         break;

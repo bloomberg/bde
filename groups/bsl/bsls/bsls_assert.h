@@ -1262,11 +1262,12 @@ BSLS_IDENT("$Id: $")
 //
 //..
 
+#include <bsls_annotation.h>
 #include <bsls_atomicoperations.h>
-#include <bsls_review.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 
                     // =================================
                     // (BSLS) "ASSERT" Macro Definitions
@@ -1416,25 +1417,12 @@ BSLS_IDENT("$Id: $")
         BloombergLP::bsls::Assert::invokeHandlerNoReturn(violation);         \
     } while (false)
 
-                          // ====================
-                          // BSLS_ASSERT_NORETURN
-                          // ====================
-
-// define 'BSLS_ASSERT_NORETURN' for use in this header
-#ifdef BSLS_ASSERT_NORETURN
-#error BSLS_ASSERT_NORETURN must be a macro scoped locally to this header file
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-#   define BSLS_ASSERT_NORETURN [[noreturn]]
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-#   define BSLS_ASSERT_NORETURN __declspec(noreturn)
-#else
-#   define BSLS_ASSERT_NORETURN
-#endif
+                   // ===================================
+                   // BSLS_ASSERT_NORETURN_INVOKE_HANDLER
+                   // ===================================
 
 #ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
-#define BSLS_ASSERT_NORETURN_INVOKE_HANDLER  BSLS_ASSERT_NORETURN
+#define BSLS_ASSERT_NORETURN_INVOKE_HANDLER  BSLS_ANNOTATION_NORETURN
 #else
 #define BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 #endif
@@ -1641,7 +1629,7 @@ class Assert {
         // deprecated, as the (BSLS) "ASSERT" macros all now use the
         // 'bssl::AssertViolation' overload of 'invokeHandler' instead.
 
-    BSLS_ASSERT_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void invokeHandlerNoReturn(const AssertViolation &violation);
         // Invoke the currently installed assertion-failure handler function
         // with the specified 'violation'.  If the handler returns normally,
@@ -1649,7 +1637,7 @@ class Assert {
 
                       // Standard Assertion-Failure Handlers
 
-    BSLS_ASSERT_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void failByAbort(const AssertViolation& violation);
         // (Default Handler) Emulate the invocation of the standard 'assert'
         // macro with a 'false' argument, using the expression 'comment',
@@ -1658,7 +1646,7 @@ class Assert {
         // unconditionally aborting.  Note that this handler function is the
         // default installed assertion handler.
 
-    BSLS_ASSERT_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void failBySleep(const AssertViolation& violation);
         // Use the expression 'comment', 'file' name, and 'line' number from
         // the specified 'violation' to generate a helpful output message and
@@ -1666,7 +1654,7 @@ class Assert {
         // handler function is useful for hanging a process so that a debugger
         // may be attached to it.
 
-    BSLS_ASSERT_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void failByThrow(const AssertViolation& violation);
         // Throw an 'AssertTestException' whose attributes are the 'comemnt',
         // 'file', 'line', and 'level' from the specified 'violation' provided
@@ -1674,7 +1662,7 @@ class Assert {
         // appropriate message and abort the program (similar to
         // 'failByAbort').
 
-    BSLS_ASSERT_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void failAbort(const char *comment, const char *file, int line);
         // !DEPRECATED!: Use 'failByAbort' instead.
         //
@@ -1683,7 +1671,7 @@ class Assert {
         // 'line' number to generate a helpful output message and then, after
         // logging, unconditionally aborting.
 
-    BSLS_ASSERT_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void failSleep(const char *comment, const char *file, int line);
         // !DEPRECATED!: Use 'failBySleep' instead.
         //
@@ -1692,7 +1680,7 @@ class Assert {
         // spin in an infinite loop.  Note that this handler function is useful
         // for hanging a process so that a debugger may be attached to it.
 
-    BSLS_ASSERT_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void failThrow(const char *comment, const char *file, int line);
         // !DEPRECATED!: Use 'failByThrow' instead.
         //
@@ -1869,7 +1857,6 @@ int AssertViolation::lineNumber() const
         // UNDEFINE THE LOCALLY-SCOPED IMPLEMENTATION DETAIL MACROS
         // ========================================================
 
-#undef BSLS_ASSERT_NORETURN
 #undef BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 #undef BSLS_ASSERT_NO_ASSERTION_MACROS_DEFINED
 

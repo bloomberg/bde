@@ -23,18 +23,6 @@
 #include <signal.h>
 #endif
 
-#ifdef BSLS_ASSERT_NORETURN
-#error BSLS_ASSERT_NORETURN must be a macro scoped locally to this file
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-#   define BSLS_ASSERT_NORETURN [[noreturn]]
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-#   define BSLS_ASSERT_NORETURN __declspec(noreturn)
-#else
-#   define BSLS_ASSERT_NORETURN
-#endif
-
 using namespace BloombergLP;
 using namespace std;
 
@@ -405,7 +393,7 @@ static void globalReset()
 
 //-----------------------------------------------------------------------------
 
-BSLS_ASSERT_NORETURN
+BSLS_ANNOTATION_NORETURN
 static void testDriverHandler(const bsls::AssertViolation& violation)
     // Set the 'globalAssertFiredFlag' to 'true', the
     // 'globalLegacyAssertFiredFlag' to 'false', and store the expression
@@ -442,7 +430,7 @@ static void testDriverHandler(const bsls::AssertViolation& violation)
 
 //-----------------------------------------------------------------------------
 
-BSLS_ASSERT_NORETURN
+BSLS_ANNOTATION_NORETURN
 static void legacyTestDriverHandler(const char *text,
                                     const char *file,
                                     int         line)
@@ -494,7 +482,7 @@ static void returningHandler(const bsls::AssertViolation& violation)
 
 //-----------------------------------------------------------------------------
 
-BSLS_ASSERT_NORETURN
+BSLS_ANNOTATION_NORETURN
 static void testDriverPrint(const bsls::AssertViolation& violation)
     // Format, in verbose mode, the expression 'comment', 'file' name, 'line'
     // number, and 'assertLevel' from the specified 'violation' in the same way
@@ -812,7 +800,7 @@ void TestConfigurationMacros();
 //..
     static bool globalEnableOurPrintingFlag = true;
 
-    BSLS_ASSERT_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void ourFailureHandler(const bsls::AssertViolation& violation)
         // Print the specified expression 'text', 'file' name, and 'line'
         // number to 'stdout' as a comma-separated list, replacing null
@@ -3298,7 +3286,7 @@ struct AssertFailed {
     // from the handler and caught within the test cases below, in order to
     // confirm if the appropriate 'BSLS_ASSERT_*' macros are enabled properly
     // or not.
-    BSLS_ASSERT_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void failMacroTest(const bsls::AssertViolation&) {
         throw AssertFailed();
     }
@@ -3324,8 +3312,6 @@ struct ReviewFailed {
     // catch any compile-time use of this structure in exception-free builds.
 #endif
 }  // close unnamed namespace
-
-#undef BSLS_ASSERT_NORETURN
 
 void TestConfigurationMacros()
 {

@@ -107,6 +107,7 @@ bsl::Function_Rep::unownedAllocManager(ManagerOpCode  opCode,
 {
     switch (opCode) {
       case e_MOVE_CONSTRUCT: // Fall through: allocators are always copied
+        BSLS_ANNOTATION_FALLTHROUGH;
       case e_COPY_CONSTRUCT: {
         // Allocator pointer was already copied.
         // No copy/move construction needed.

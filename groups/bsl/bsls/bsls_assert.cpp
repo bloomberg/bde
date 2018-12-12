@@ -17,20 +17,8 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <cstdlib>
 #include <cstring>
 
-#ifdef BSLS_ASSERT_NORETURN
-#error BSLS_ASSERT_NORETURN must be a macro scoped locally to this file
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-#   define BSLS_ASSERT_NORETURN [[noreturn]]
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-#   define BSLS_ASSERT_NORETURN __declspec(noreturn)
-#else
-#   define BSLS_ASSERT_NORETURN
-#endif
-
 #ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
-#define BSLS_ASSERT_NORETURN_INVOKE_HANDLER  BSLS_ASSERT_NORETURN
+#define BSLS_ASSERT_NORETURN_INVOKE_HANDLER BSLS_ANNOTATION_NORETURN
 #else
 #define BSLS_ASSERT_NORETURN_INVOKE_HANDLER
 #endif
@@ -285,7 +273,7 @@ void Assert::invokeHandler(const bsls::AssertViolation& violation)
     }
 }
 
-BSLS_ASSERT_NORETURN
+BSLS_ANNOTATION_NORETURN
 void Assert::invokeHandlerNoReturn(const bsls::AssertViolation &violation)
 {
     Assert::ViolationHandler failureHandlerPtr = violationHandler();
@@ -330,7 +318,7 @@ void Assert::permitOutOfPolicyReturningFailureHandler()
 
                      // Standard Assertion-Failure Handlers
 
-BSLS_ASSERT_NORETURN
+BSLS_ANNOTATION_NORETURN
 void Assert::failByAbort(const bsls::AssertViolation& violation)
 {
     printError(violation);
@@ -338,7 +326,7 @@ void Assert::failByAbort(const bsls::AssertViolation& violation)
     AssertImpUtil::failByAbort();
 }
 
-BSLS_ASSERT_NORETURN
+BSLS_ANNOTATION_NORETURN
 void Assert::failBySleep(const bsls::AssertViolation& violation)
 {
     printError(violation);
@@ -346,7 +334,7 @@ void Assert::failBySleep(const bsls::AssertViolation& violation)
     AssertImpUtil::failBySleep();
 }
 
-BSLS_ASSERT_NORETURN
+BSLS_ANNOTATION_NORETURN
 void Assert::failByThrow(const bsls::AssertViolation& violation)
 {
 
@@ -371,7 +359,7 @@ void Assert::failByThrow(const bsls::AssertViolation& violation)
 
                   // Deprecated Assertion-Failure Handlers
 
-BSLS_ASSERT_NORETURN
+BSLS_ANNOTATION_NORETURN
 void Assert::failAbort(const char *comment, const char *file, int line)
 {
     printError(comment,file,line);
@@ -379,7 +367,7 @@ void Assert::failAbort(const char *comment, const char *file, int line)
     AssertImpUtil::failByAbort();
 }
 
-BSLS_ASSERT_NORETURN
+BSLS_ANNOTATION_NORETURN
 void Assert::failSleep(const char *comment, const char *file, int line)
 {
     printError(comment,file,line);
@@ -387,7 +375,7 @@ void Assert::failSleep(const char *comment, const char *file, int line)
     AssertImpUtil::failBySleep();
 }
 
-BSLS_ASSERT_NORETURN
+BSLS_ANNOTATION_NORETURN
 void Assert::failThrow(const char *comment, const char *file, int line)
 {
 
@@ -411,8 +399,6 @@ void Assert::failThrow(const char *comment, const char *file, int line)
 }
 
 }  // close package namespace
-
-#undef BSLS_ASSERT_NORETURN
 
 namespace bsls {
 

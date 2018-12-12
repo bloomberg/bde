@@ -14,6 +14,8 @@ BSLS_IDENT_RCSID(bdlde_crc32_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 
+#include <bsls_annotation.h>
+
 ///IMPLEMENTATION NOTES
 ///--------------------
 // This implementation is based upon the CRC-32 implementation found at the
@@ -172,19 +174,13 @@ void Crc32::update(const void *data, bsl::size_t length)
     const unsigned char *d   = (const unsigned char *)data;
     unsigned int         tmp = d_crc;
 
-    // The "FALL THROUGH" comments here are necessary to avoid the
-    // implicit-fallthrough warnings that GCC 7 introduces.  We could
-    // instead use GNU C's __attribute__(fallthrough) vendor
-    // extension or C++17's [[fallthrough]] attribute but these would
-    // need to be hidden from the Oracle and IBM compilers.
-
     switch (length % 4) {
       case 3: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
-              // FALL THROUGH
+          BSLS_ANNOTATION_FALLTHROUGH;
       case 2: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
-              // FALL THROUGH
+          BSLS_ANNOTATION_FALLTHROUGH;
       case 1: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
-              // FALL THROUGH
+          BSLS_ANNOTATION_FALLTHROUGH;
       default: ;
     }
 

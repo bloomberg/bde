@@ -78,21 +78,9 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#include <bsls_annotation.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
-
-#ifdef BSLS_BSLEXCEPTIONUTIL_NORETURN
-#error BSLS_BSLEXCEPTIONUTIL_NORETURN \
-                             must be a macro scoped locally to this header file
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-#   define BSLS_BSLEXCEPTIONUTIL_NORETURN [[noreturn]]
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-#   define BSLS_BSLEXCEPTIONUTIL_NORETURN __declspec(noreturn)
-#else
-#   define BSLS_BSLEXCEPTIONUTIL_NORETURN
-#endif
 
 namespace BloombergLP {
 
@@ -107,7 +95,7 @@ struct BslExceptionUtil {
     // throw standard library exceptions.
 
     // CLASS METHODS
-    BSLS_BSLEXCEPTIONUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwBadAlloc();
         // Throw a 'bsl::bad_alloc' exception if exceptions are enabled in the
         // current build mode, otherwise abort the program.  'bsl::bad_alloc'
@@ -115,15 +103,15 @@ struct BslExceptionUtil {
         // ensure both ABI and API compatibility with non-BDE code relying on
         // the standard exception hierarchy.
 
-    BSLS_BSLEXCEPTIONUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwBadCast();
         // Throw a 'bsl::bad_cast' exception if exceptions are enabled in the
         // current build mode, otherwise abort the program.  'bsl::bad_cast'
-        // will be an alias for the platform's 'std::bad_cast' class, to
-        // ensure both ABI and API compatibility with non-BDE code relying on
-        // the standard exception hierarchy.
+        // will be an alias for the platform's 'std::bad_cast' class, to ensure
+        // both ABI and API compatibility with non-BDE code relying on the
+        // standard exception hierarchy.
 
-    BSLS_BSLEXCEPTIONUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwBadException();
         // Throw a 'bsl::bad_exception' exception if exceptions are enabled in
         // the current build mode, otherwise abort the program.
@@ -131,7 +119,7 @@ struct BslExceptionUtil {
         // 'std::bad_exception' class, to ensure both ABI and API compatibility
         // with non-BDE code relying on the standard exception hierarchy.
 
-    BSLS_BSLEXCEPTIONUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwBadTypeid();
         // Throw a 'bsl::bad_typeid' exception if exceptions are enabled in the
         // current build mode, otherwise abort the program.  'bsl::bad_typeid'
@@ -139,7 +127,7 @@ struct BslExceptionUtil {
         // ensure both ABI and API compatibility with non-BDE code relying on
         // the standard exception hierarchy.
 
-    BSLS_BSLEXCEPTIONUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwException();
         // Throw a 'bsl::exception' exception if exceptions are enabled in the
         // current build mode, otherwise abort the program.  'bsl::exception'
@@ -149,10 +137,6 @@ struct BslExceptionUtil {
 };
 
 }  // close package namespace
-
-#undef BSLS_BSLEXCEPTIONUTIL_NORETURN
-
-
 }  // close enterprise namespace
 
 #endif

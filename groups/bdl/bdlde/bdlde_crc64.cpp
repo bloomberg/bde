@@ -8,6 +8,7 @@
 //   http://en.wikipedia.org/wiki/Cyclic_redundancy_check
 
 #include <bsl_ostream.h>
+#include <bsls_annotation.h>
 #include <bsls_types.h>
 
 namespace BloombergLP {
@@ -287,20 +288,27 @@ void Crc64::update(const void *data, bsl::size_t length)
     bsls::Types::Uint64 tmp = d_crc;
 
     switch (length % 8) {
-      case 7: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
-              // FALL THROUGH
-      case 6: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
-              // FALL THROUGH
-      case 5: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
-              // FALL THROUGH
-      case 4: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
-              // FALL THROUGH
-      case 3: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
-              // FALL THROUGH
-      case 2: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
-              // FALL THROUGH
-      case 1: tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
-              // FALL THROUGH
+      case 7:
+        tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+        BSLS_ANNOTATION_FALLTHROUGH;
+      case 6:
+        tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+        BSLS_ANNOTATION_FALLTHROUGH;
+      case 5:
+        tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+        BSLS_ANNOTATION_FALLTHROUGH;
+      case 4:
+        tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+        BSLS_ANNOTATION_FALLTHROUGH;
+      case 3:
+        tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+        BSLS_ANNOTATION_FALLTHROUGH;
+      case 2:
+        tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+        BSLS_ANNOTATION_FALLTHROUGH;
+      case 1:
+        tmp = CRC_TABLE[(tmp ^ *d++) & 0xff] ^ (tmp >> 8);
+        BSLS_ANNOTATION_FALLTHROUGH;
       case 0: ;
     }
 

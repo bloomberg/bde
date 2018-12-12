@@ -241,6 +241,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #include <bslmf_istriviallycopyable.h>
 
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
 
 #include <bsl_iosfwd.h>
@@ -566,7 +567,8 @@ STREAM& DatetimeTz::bdexStreamIn(STREAM& stream, int version)
 {
     if (stream) {
         switch (version) { // switch on the schema version
-          case 2:                                               // FALL THROUGH
+          case 2:
+            BSLS_ANNOTATION_FALLTHROUGH;
           case 1: {
             Datetime localDatetime;
             localDatetime.bdexStreamIn(stream, version);
@@ -632,7 +634,8 @@ STREAM& DatetimeTz::bdexStreamOut(STREAM& stream, int version) const
 {
     if (stream) {
         switch (version) { // switch on the schema version
-          case 2:                                               // FALL THROUGH
+          case 2:
+            BSLS_ANNOTATION_FALLTHROUGH;
           case 1: {
             d_localDatetime.bdexStreamOut(stream, version);
             stream.putInt32(d_offset);

@@ -16,6 +16,7 @@ BSLS_IDENT_RCSID(balxml_typesprintutil_cpp,"$Id$ $CSID$")
 #include <bdlde_base64encoder.h>
 #include <bdldfp_decimalutil.h>
 
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
@@ -386,7 +387,7 @@ const char *printTextReplacingXMLEscapes(
                 stream.write(runBegin, data - runBegin);
                 return 0;                                             // RETURN
             }
-          }                                                // ELSE FALL THROUGH
+          } BSLS_ANNOTATION_FALLTHROUGH;
 
           case CONTROL_CHARACTER: {
             // Control characters, although allowed in XML 1.1, are discouraged

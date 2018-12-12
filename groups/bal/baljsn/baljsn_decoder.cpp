@@ -6,6 +6,8 @@ BSLS_IDENT_RCSID(baljsn_decoder_cpp,"$Id$ $CSID$")
 
 #include <bsl_iterator.h>
 
+#include <bsls_annotation.h>
+
 namespace BloombergLP {
 namespace baljsn {
 
@@ -59,7 +61,8 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
 
             switch (d_tokenizer.tokenType()) {
               case Tokenizer::e_ELEMENT_NAME:
-              case Tokenizer::e_ELEMENT_VALUE: {    // FALL THROUGH
+                BSLS_ANNOTATION_FALLTHROUGH;
+              case Tokenizer::e_ELEMENT_VALUE: {
                 bslstl::StringRef tmp;
                 rc = d_tokenizer.value(&tmp);
                 if (rc) {
@@ -105,7 +108,8 @@ int Decoder::skipUnknownElement(const bslstl::StringRef& elementName)
 
             switch (d_tokenizer.tokenType()) {
               case Tokenizer::e_ELEMENT_NAME:
-              case Tokenizer::e_ELEMENT_VALUE: {    // FALL THROUGH
+                BSLS_ANNOTATION_FALLTHROUGH;
+              case Tokenizer::e_ELEMENT_VALUE: {
                 bslstl::StringRef tmp;
                 rc = d_tokenizer.value(&tmp);
                 if (rc) {
