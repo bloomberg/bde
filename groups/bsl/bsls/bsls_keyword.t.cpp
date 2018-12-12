@@ -155,6 +155,162 @@ int complexConstexprFunc(bool b)
 }
 //..
 
+// ============================================================================
+//                              HELPER FUNCTIONS
+// ----------------------------------------------------------------------------
+
+static void printFlags()
+    // Print a diagnostic message to standard output if any of the preprocessor
+    // flags of interest are defined, and their value if a value had been set.
+    // An "Enter" and "Leave" message is printed unconditionally so there is
+    // some report even if all of the flags are undefined.
+{
+    printf("printFlags: Enter\n");
+
+    printf("\n  printFlags: bsls_keyword Macros\n");
+
+    printf("\n  BSLS_KEYWORD_CONSTEXPR: ");
+#ifdef BSLS_KEYWORD_CONSTEXPR
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_CONSTEXPR) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_KEYWORD_CONSTEXPR_RELAXED: ");
+#ifdef BSLS_KEYWORD_CONSTEXPR_RELAXED
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_CONSTEXPR_RELAXED) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_KEYWORD_DELETED: ");
+#ifdef BSLS_KEYWORD_DELETED
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_DELETED) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_KEYWORD_EXPLICIT: ");
+#ifdef BSLS_KEYWORD_EXPLICIT
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_EXPLICIT) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_KEYWORD_FINAL: ");
+#ifdef BSLS_KEYWORD_FINAL
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_FINAL) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_KEYWORD_INLINE_VARIABLE: ");
+#ifdef BSLS_KEYWORD_INLINE_VARIABLE
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_INLINE_VARIABLE) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_KEYWORD_NOEXCEPT: ");
+#ifdef BSLS_KEYWORD_NOEXCEPT
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_NOEXCEPT) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_KEYWORD_NOEXCEPT_AVAILABLE: ");
+#ifdef BSLS_KEYWORD_NOEXCEPT_AVAILABLE
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_NOEXCEPT_AVAILABLE) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_KEYWORD_NOEXCEPT_OPERATOR(...): ");
+#ifdef BSLS_KEYWORD_NOEXCEPT_OPERATOR
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_NOEXCEPT_OPERATOR(...)) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...): ");
+#ifdef BSLS_KEYWORD_NOEXCEPT_SPECIFICATION
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...)) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_KEYWORD_OVERRIDE: ");
+#ifdef BSLS_KEYWORD_OVERRIDE
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_OVERRIDE) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n\n  printFlags: bsls_keyword Referenced Macros\n");
+
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
+    printf("%s\n",
+                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+    printf("%s\n",
+                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_FINAL: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_FINAL
+    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_FINAL) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
+    printf("%s\n",
+                   STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    printf("%s\n",
+                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: ");
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n\nprintFlags: Leave\n");
+}
+
 //=============================================================================
 //                                MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -165,16 +321,17 @@ int main(int argc, char *argv[])
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
 
     (void)        veryVerbose;  // unused variable warning
     (void)    veryVeryVerbose;  // unused variable warning
-    (void)veryVeryVeryVerbose;  // unused variable warning
 
     setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
+    if (veryVeryVerbose) {
+        printFlags();
+    }
 
     switch (test) { case 0:
       case 10: {
@@ -426,24 +583,24 @@ int main(int argc, char *argv[])
         // Concerns:
         //: 1 Marking a function 'noexcept' using 'BSLS_KEYWORD_NOEXCEPT' or
         //:   'BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(pred)' or
-        //:   'BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+        //:   BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
         //:       BSLS_KEYWORD_NOEXCEPT_OPERATOR(expr))' should result in a
         //:   successful compilation in C++03 mode.
         //:
         //: 2 Marking a function 'noexcept' or 'noexcept(bool)' using
         //:   'BSLS_KEYWORD_NOEXCEPT' or
         //:   'BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(pred)' or
-        //:   'BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
+        //:   BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
         //:       BSLS_KEYWORD_NOEXCEPT_OPERATOR(expr))' should be detectable
-        //:   using 'BSLS_KEYWORD_NOEXCEPT_OPERATOR(function(...))`.
+        //:   using 'BSLS_KEYWORD_NOEXCEPT_OPERATOR(function(...))'.
         //:
-        //: 3 The `BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(pred)` and
+        //: 3 The 'BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(pred)' and
         //:    'BSLS_KEYWORD_NOEXCEPT_OPERATOR(expr)' macros both allow commas
         //:    in template parameter lists.
         //
         // Plan:
         //: 1 Define a function marking it 'noexcept' using the various forms
-        //:   of the macro. Then use
+        //:   of the macro.  Then use
         //:   'BSLS_KEYWORD_NOEXCEPT_OPERATOR(function(...))' to check that the
         //:   function's 'noexcept' specification matches the expected
         //:   specification.
@@ -664,14 +821,14 @@ int main(int argc, char *argv[])
         //:
         //: 2 Marking a conversion operator 'explicit' using
         //:   'BSLS_KEYWORD_EXPLICIT' should prevent attempts of implicit
-        //:   conversion when compiling with C++11 mode. When compiling with
+        //:   conversion when compiling with C++11 mode.  When compiling with
         //:   C++03 mode compilation will succeed.
         //
         // Plan:
-        //: 1 Define a class with an explicit conversion operator and
-        //:   verify that explicit and implicit conversions succeed when using
-        //:   C++03 mode. When compiling with C++11 mode the implicit
-        //:   conversion should fail.
+        //: 1 Define a class with an explicit conversion operator and verify
+        //:   that explicit and implicit conversions succeed when using C++03
+        //:   mode.  When compiling with C++11 mode the implicit conversion
+        //:   should fail.
         //
         // Testing:
         //   BSLS_KEYWORD_EXPLICIT
@@ -775,7 +932,7 @@ int main(int argc, char *argv[])
         //:
         //: 2 Since the correct behavior will case the program to not compile,
         //:   it is rather difficult to create test cases that actually tests
-        //:   the feature and still have the test driver pass. As such, these
+        //:   the feature and still have the test driver pass.  As such, these
         //:   tests must be manually checked to ensure that the program does
         //:   not compile if testStruct is not used correctly.
         //
@@ -820,7 +977,7 @@ int main(int argc, char *argv[])
         //: 2 The 'STRINGIFY' macro creates an empty string literal if it has
         //:   no argument.
         //:
-        //: 2 The STRINGIFY macro expands macros before stringifying them.
+        //: 3 The STRINGIFY macro expands macros before stringifying them.
         //
         // Plan:
         //: 1 Create a non-empty string using 'STRINGIFY', verify its content.

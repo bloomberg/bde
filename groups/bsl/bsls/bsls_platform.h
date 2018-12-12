@@ -18,13 +18,13 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: John Lakos (jlakos)
 //
-//@DESCRIPTION: This component implements a suite of preprocessor macros
-// and traits that identify and define platform-specific compile-time
-// attributes.  These attributes consist of the types and versions of (1) the
-// operating system, (2) the processor(s), and (3) the compiler that together
-// make up the platform.  Many of the macros defined in this component are
-// configured automatically at compile-time; compile-time switches are used
-// to configure the rest.
+//@DESCRIPTION: This component implements a suite of preprocessor macros and
+// traits that identify and define platform-specific compile-time attributes.
+// These attributes consist of the types and versions of (1) the operating
+// system, (2) the processor(s), and (3) the compiler that together make up the
+// platform.  Many of the macros defined in this component are configured
+// automatically at compile-time; compile-time switches are used to configure
+// the rest.
 //
 // Note that, for brevity, the '@' character in the following (alphabetically
 // organized) tables is used to represent the characters 'BSLS_PLATFORM' --
@@ -108,8 +108,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// Writing portable software sometimes involves specializing implementations
-// to work with platform-specific interfaces.  For example, a socket-level
+// Writing portable software sometimes involves specializing implementations to
+// work with platform-specific interfaces.  For example, a socket-level
 // communications framework would need to operate differently on a platform
 // having a Windows operating system than on one having a Unix one (but it is
 // probably unnecessary to distinguish between their respective versions):
@@ -162,9 +162,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 #endif
 
-                    // ===========================
-                    // struct bsls_Platform_Assert
-                    // ===========================
+                       // ===========================
+                       // struct bsls_Platform_Assert
+                       // ===========================
 
 struct bsls_Platform_Assert;
     // This 'struct' is declared but not defined.  It is used with the 'sizeof'
@@ -288,9 +288,9 @@ struct bsls_Platform_Assert;
     #define BSLS_PLATFORM_CMP_VERSION _MSC_VER
 
     // which OS -- should be some flavor of Windows
-    // there is currently no support for:
-    // - 16-bit versions of Windows (3.x)
-    // - Windows CE
+    //  there is currently no support for:
+    //  - 16-bit versions of Windows (3.x)
+    //  - Windows CE
     #if defined(_WIN64) || defined(_WIN32)
         #define BSLS_PLATFORM_OS_WINDOWS 1
     #elif defined(_WIN16)
@@ -333,7 +333,7 @@ struct bsls_Platform_Assert;
     #endif
 
     // which CPU
-    // since WinCE is not supported, neither is the HITACHI CPU
+    //  since WinCE is not supported, neither is the HITACHI CPU
     #if defined(_M_ALPHA)
         #define BSLS_PLATFORM_CPU_ALPHA 1
     #elif defined(_M_IX86)
@@ -411,8 +411,8 @@ struct bsls_Platform_Assert;
     #endif
 
     // Macro to suppress deprecation warnings about functions in POSIX version
-    // of the C headers, but not specified in the C or C++ standards.
-    // (CRT == C Runtime Libraries)
+    // of the C headers, but not specified in the C or C++ standards.  (CRT ==
+    // C Runtime Libraries)
 
     #ifndef _CRT_NONSTDC_NO_DEPRECATE
     #define _CRT_NONSTDC_NO_DEPRECATE
@@ -507,14 +507,14 @@ struct bsls_Platform_Assert;
     #pragma warning(disable : 4701)  // potentially uninitialized variable
     #pragma warning(disable : 4706)  // assignment in conditional expression
 
-    // TBD
+    //TBD
     // Warning #4267 swamps the signal/noise by 2-3 orders of magnitude when
-    // building for a 64-bit target.  Many of these warnings should really
-    // be dealt with, but for now we are silencing them.  This 'pragma' should
-    // be removed and the warnings addressed in a future release.
+    // building for a 64-bit target.  Many of these warnings should really be
+    // dealt with, but for now we are silencing them.  This 'pragma' should be
+    // removed and the warnings addressed in a future release.
     #pragma warning(disable : 4267)  // conversion from 'size_t' to 'int'
 
-    // TBD
+    //TBD
     // This warning becomes prevalent after installing VC2012, and should be
     // cleared up properly, rather than simply silencing like this.
     #pragma warning(disable : 4365)  // signed/unsigned size_t/bsls::SizeType
@@ -533,16 +533,16 @@ struct bsls_Platform_Assert;
         // '__clang_patchlevel__') to report the Xcode version rather than the
         // actual version of Clang the Xcode release includes.  A table of
         // Xcode/Clang version information is maintained here:
-        // https://trac.macports.org/wiki/XcodeVersionInfo
-        // To avoid this extra dimension, the Clang intrinsics '__has_builtin',
-        // '__has_feature', and '__has_extension' should be used in preference
-        // to 'BSLS_PLATFORM_CMP_VERSION' when checking for compiler features.
-        // If 'BSLS_PLATFORM_CMP_VERSION' must be used, then '__APPLE_CC__'
-        // can be tested to determine if 'BSLS_PLATFORM_CMP_VERSION' represents
-        // Clang LLVM or Apple Xcode version.
+        // https://trac.macports.org/wiki/XcodeVersionInfo To avoid this extra
+        // dimension, the Clang intrinsics '__has_builtin', '__has_feature',
+        // and '__has_extension' should be used in preference to
+        // 'BSLS_PLATFORM_CMP_VERSION' when checking for compiler features.  If
+        // 'BSLS_PLATFORM_CMP_VERSION' must be used, then '__APPLE_CC__' can be
+        // tested to determine if 'BSLS_PLATFORM_CMP_VERSION' represents Clang
+        // LLVM or Apple Xcode version.
         #define BSLS_PLATFORM_CMP_CLANG 1
-        #define BSLS_PLATFORM_CMP_VERSION ( __clang_major__ * 10000           \
-                                          + __clang_minor__ * 100             \
+        #define BSLS_PLATFORM_CMP_VERSION ( __clang_major__ * 10000          \
+                                          + __clang_minor__ * 100            \
                                           + __clang_patchlevel__ )
     #elif defined (__GNUC__)
         #define BSLS_PLATFORM_CMP_GNU 1
@@ -643,15 +643,15 @@ struct bsls_Platform_Assert;
             #elif __ARM_ARCH == 9
                 #define BSLS_PLATFORM_CPU_ARM_V9
             #endif
-        #elif defined(__ARM_ARCH_5T__)        \
-            || defined(__ARM_ARCH_5TE__)    \
+        #elif defined(__ARM_ARCH_5T__)                                       \
+            || defined(__ARM_ARCH_5TE__)                                     \
             || defined(__ARM_ARCH_5TEJ__)
             #define BSLS_PLATFORM_CPU_ARM_V5
         #elif defined(__ARM_ARCH_6__) || defined (__ARM_ARCH_6ZK__)
             #define BSLS_PLATFORM_CPU_ARM_V6
-        #elif defined(__ARM_ARCH_7__)       \
-            || defined(__ARM_ARCH_7A__)     \
-            || defined(__ARM_ARCH_7M__)     \
+        #elif defined(__ARM_ARCH_7__)                                        \
+            || defined(__ARM_ARCH_7A__)                                      \
+            || defined(__ARM_ARCH_7M__)                                      \
             || defined(__ARM_ARCH_7R__)
             #define BSLS_PLATFORM_CPU_ARM_V7
         #else
@@ -895,12 +895,12 @@ struct bsls_Platform_Assert;
 #endif
 
 // Exactly one CMP type.
-#if BSLS_PLATFORM_CMP_EDG   \
-  + BSLS_PLATFORM_CMP_CLANG \
-  + BSLS_PLATFORM_CMP_GNU   \
-  + BSLS_PLATFORM_CMP_HP    \
-  + BSLS_PLATFORM_CMP_IBM   \
-  + BSLS_PLATFORM_CMP_MSVC  \
+#if BSLS_PLATFORM_CMP_EDG                                                    \
+  + BSLS_PLATFORM_CMP_CLANG                                                  \
+  + BSLS_PLATFORM_CMP_GNU                                                    \
+  + BSLS_PLATFORM_CMP_HP                                                     \
+  + BSLS_PLATFORM_CMP_IBM                                                    \
+  + BSLS_PLATFORM_CMP_MSVC                                                   \
   + BSLS_PLATFORM_CMP_SUN != 1
     #error "Exactly one compiler must be set."
     BSLS_PLATFORM_COMPILER_ERROR;
@@ -915,18 +915,18 @@ struct bsls_Platform_Assert;
 
 // At most one OS subtype.
 
-#define BSLS_PLATFORM_OS_SUBTYPE_COUNT \
-    BSLS_PLATFORM_OS_AIX     \
-  + BSLS_PLATFORM_OS_DARWIN  \
-  + BSLS_PLATFORM_OS_HPUX    \
-  + BSLS_PLATFORM_OS_LINUX   \
-  + BSLS_PLATFORM_OS_FREEBSD \
-  + BSLS_PLATFORM_OS_SOLARIS \
-  + BSLS_PLATFORM_OS_SUNOS   \
-  + BSLS_PLATFORM_OS_CYGWIN  \
-  + BSLS_PLATFORM_OS_WIN9X   \
-  + BSLS_PLATFORM_OS_WINNT   \
-  + BSLS_PLATFORM_OS_WIN2K   \
+#define BSLS_PLATFORM_OS_SUBTYPE_COUNT                                       \
+    BSLS_PLATFORM_OS_AIX                                                     \
+  + BSLS_PLATFORM_OS_DARWIN                                                  \
+  + BSLS_PLATFORM_OS_HPUX                                                    \
+  + BSLS_PLATFORM_OS_LINUX                                                   \
+  + BSLS_PLATFORM_OS_FREEBSD                                                 \
+  + BSLS_PLATFORM_OS_SOLARIS                                                 \
+  + BSLS_PLATFORM_OS_SUNOS                                                   \
+  + BSLS_PLATFORM_OS_CYGWIN                                                  \
+  + BSLS_PLATFORM_OS_WIN9X                                                   \
+  + BSLS_PLATFORM_OS_WINNT                                                   \
+  + BSLS_PLATFORM_OS_WIN2K                                                   \
   + BSLS_PLATFORM_OS_WINXP
 #if BSLS_PLATFORM_OS_SUBTYPE_COUNT > 1
     #error "At most one operating system subtype must be set."
@@ -934,15 +934,15 @@ struct bsls_Platform_Assert;
 #endif
 
 // Exactly one CPU type.
-#if BSLS_PLATFORM_CPU_88000   \
-  + BSLS_PLATFORM_CPU_ALPHA   \
-  + BSLS_PLATFORM_CPU_HPPA    \
-  + BSLS_PLATFORM_CPU_IA64    \
-  + BSLS_PLATFORM_CPU_X86     \
-  + BSLS_PLATFORM_CPU_X86_64  \
-  + BSLS_PLATFORM_CPU_MIPS    \
-  + BSLS_PLATFORM_CPU_POWERPC \
-  + BSLS_PLATFORM_CPU_SPARC   \
+#if BSLS_PLATFORM_CPU_88000                                                  \
+  + BSLS_PLATFORM_CPU_ALPHA                                                  \
+  + BSLS_PLATFORM_CPU_HPPA                                                   \
+  + BSLS_PLATFORM_CPU_IA64                                                   \
+  + BSLS_PLATFORM_CPU_X86                                                    \
+  + BSLS_PLATFORM_CPU_X86_64                                                 \
+  + BSLS_PLATFORM_CPU_MIPS                                                   \
+  + BSLS_PLATFORM_CPU_POWERPC                                                \
+  + BSLS_PLATFORM_CPU_SPARC                                                  \
   + BSLS_PLATFORM_CPU_ARM != 1
     #error "Exactly one processor must be set."
     BSLS_PLATFORM_COMPILER_ERROR;
@@ -983,9 +983,9 @@ namespace bsls {
 
 // ----------------------------------------------------------------------------
 
-                               // ========
-                               // Platform
-                               // ========
+                                // ========
+                                // Platform
+                                // ========
 
 struct Platform {
     // Namespace for platform-trait definitions.
@@ -1048,7 +1048,7 @@ struct Platform {
 
                               // PLATFORM TRAITS
 
-    // OS TRAIT
+    //OS TRAIT
     // Will fail to compile if more than one OS type is set.
 
     #if defined(BSLS_PLATFORM_OS_AIX)
@@ -1086,7 +1086,7 @@ struct Platform {
         typedef OsDarwin            Os;
     #endif
 
-    // CPU TRAIT
+    //CPU TRAIT
     // Will fail to compile if more than one CPU type is set.
 
     #if defined(BSLS_PLATFORM_CPU_X86)
@@ -1130,9 +1130,9 @@ struct Platform {
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
-                      // ======================
-                      // BACKWARD COMPATIBILITY
-                      // ======================
+                         // ======================
+                         // BACKWARD COMPATIBILITY
+                         // ======================
 
 #ifdef __cplusplus
 namespace bdes {

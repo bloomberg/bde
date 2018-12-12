@@ -99,9 +99,9 @@ template <class TO_TYPE, class FROM_TYPE>
 inline
 TO_TYPE bsls::PointerCastUtil::cast(FROM_TYPE from)
 {
-    typedef BSLS_ANNOTATION_UNUSED char FROM_TYPE_SizeCheck[
+    BSLS_ANNOTATION_UNUSED typedef char FROM_TYPE_SizeCheck[
                     sizeof(bsls::Types::IntPtr) >= sizeof(FROM_TYPE) ? 1 : -1];
-    typedef BSLS_ANNOTATION_UNUSED char   TO_TYPE_SizeCheck[
+    BSLS_ANNOTATION_UNUSED typedef char   TO_TYPE_SizeCheck[
                     sizeof(bsls::Types::IntPtr) >= sizeof(TO_TYPE)   ? 1 : -1];
         // Static asserts ensuring that neither 'FROM_TYPE' nor 'TO_TYPE' is
         // larger than the intermediate integer type.  Note that 'bslmf_assert'

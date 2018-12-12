@@ -4,9 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-                        // --------------------
-                        // class bsls::Platform
-                        // --------------------
+                          // --------------------
+                          // class bsls::Platform
+                          // --------------------
 
 // This class has no implementation; it is merely a place-holder for this
 // component's logical name space.
