@@ -33,9 +33,8 @@
 #endif
 
 // Ensure that the 'BSLMT_TESTUTIL_*' macros do not require:
+//  using namespace BloombergLP;
 //  using namespace bsl;
-
-using namespace BloombergLP;
 
 //=============================================================================
 //                             TEST PLAN
@@ -176,6 +175,12 @@ static void realaSsErT(bool b, const char *s, int i)
 #define REALL_                                                                \
     __LINE__
 
+typedef BloombergLP::bslma::Allocator     Allocator;
+typedef BloombergLP::bslma::TestAllocator TestAllocator;
+typedef BloombergLP::bslmt::TestUtil      Obj;
+typedef BloombergLP::bsls::AtomicInt      AtomicInt;
+typedef BloombergLP::bslmt::Mutex         Mutex;
+
 //=============================================================================
 //                             USAGE EXAMPLE CODE
 //-----------------------------------------------------------------------------
@@ -276,8 +281,8 @@ namespace Usage {
 
     typedef  bslabc::SumUtil SU;
 
-    bsls::AtomicInt threadIdx(0);
-    bsls::AtomicInt lastRand(0);
+    AtomicInt threadIdx(0);
+    AtomicInt lastRand(0);
 
     enum { k_NUM_ITERATIONS     = 5,
            k_NUM_THREADS        = 10,
@@ -379,11 +384,12 @@ namespace Usage {
 //..
 int testMain()    // do not copy to .h file
 {
+    using namespace BloombergLP;    // do not copy to .h file
 //..
 // Next, in 'main', we allocate and populate our array of random numbers with
 // 'bsl::rand', which is single-threaded:
 //..
-    bslma::TestAllocator testAllocator("usage");
+    TestAllocator testAllocator("usage");
     randNumbers = static_cast<double *>(testAllocator.allocate(
                                        sizeof(double) * k_NUM_RAND_VARIABLES));
 
@@ -394,7 +400,7 @@ int testMain()    // do not copy to .h file
 //..
 // Then, we spawn our threads and let them run:
 //..
-    bslmt::ThreadGroup tg;
+    BloombergLP::bslmt::ThreadGroup tg;
     tg.addThreads(TestSums(), k_NUM_THREADS);
 //..
 // Now, we join the threads, clean up, and at the end of 'main' examine
@@ -457,10 +463,8 @@ bool&     veryVerbose         = Usage::veryVerbose;
 bool&     veryVeryVerbose     = Usage::veryVeryVerbose;
 bool&     veryVeryVeryVerbose = Usage::veryVeryVeryVerbose;
 
-typedef bslmt::TestUtil Obj;
-
-int                  test;
-bslma::TestAllocator ta("test");
+int           test;
+TestAllocator ta("test");
 
 inline
 void aSsErT(int c, const char *s, int i)
@@ -533,7 +537,7 @@ class OutputRedirector {
                                               // 'stdout' just before
                                               // redirection
 
-    bslma::Allocator *d_allocator_p;
+    Allocator *d_allocator_p;
 
   private:
     // PRIVATE CLASS METHODS
@@ -553,7 +557,8 @@ class OutputRedirector {
 
   public:
     // CREATORS
-    OutputRedirector(const bsl::string& fileName, bslma::Allocator *alloc);
+    OutputRedirector(const bsl::string&  fileName,
+                     Allocator          *alloc);
         // Create an 'OutputRedirector' in an un-redirected state having empty
         // scratch buffer, ready to open the specified 'fileName'.  Use the
         // specified 'alloc' to supply memory.
@@ -592,7 +597,14 @@ class OutputRedirector {
 
     void reset();
         // Reset the scratch buffer to empty.  The behavior is undefined unless
-        // 'redirect' has been previously called successfully.
+        // 'redirect' has been previously called suCCESSFULLY.
+
+    void resetSize();
+        // Reset the output size to the length of the null-terminated
+        // 'buffer()'.
+
+    void setSize(bsl::size_t size);
+        // Set output size to the specified 'size'.
 
     // ACCESSORS
     int compare(const char *expected) const;
@@ -670,7 +682,7 @@ void OutputRedirector::cleanup()
 
 // CREATORS
 OutputRedirector::OutputRedirector(const bsl::string&  fileName,
-                                   bslma::Allocator   *alloc)
+                                   Allocator          *alloc)
 : d_fileName(fileName, alloc)
 , d_outputBuffer_p(0)
 , d_isRedirectedFlag(false)
@@ -875,6 +887,11 @@ void OutputRedirector::reset()
     rewind(stdout);
 }
 
+void OutputRedirector::resetSize()
+{
+    d_outputSize = static_cast<long>(bsl::strlen(buffer()));
+}
+
 // ACCESSORS
 int OutputRedirector::compare(const char *expected) const
 {
@@ -932,323 +949,325 @@ bsl::size_t OutputRedirector::outputSize() const
 
 namespace MultiThreadedTest {
 
-enum { k_NUM_THREADS = 40,
-       k_NUM_ITERATIONS  = 100,
-       k_NUM_REPEATED_RECORDS = 4 };
+enum { k_NUM_THREADS      = 40,
+       k_NUM_ITERATIONS   = 100,
+       k_EXPECTED_MATCHES = k_NUM_THREADS * k_NUM_ITERATIONS };
 
-bslmt::Barrier       barrier(k_NUM_THREADS + 1);
-bsls::AtomicInt      atomicBarrier(0);
-bsls::AtomicInt      threadIdx(0);
-bsls::AtomicInt      numChecked(0);
+BloombergLP::bslmt::Barrier       barrier(k_NUM_THREADS + 1);
+AtomicInt                         atomicBarrier(0);
+AtomicInt                         threadIdx(0);
 
-u::OutputRedirector *outputRedirector_p = 0;
-bslmt::Mutex         checkMutex;
+u::OutputRedirector              *outputRedirector_p = 0;
 
-struct ThreadData {
+bsl::vector<const char *>         patternVec(&ta);
+
+struct TestFunctor {
     // Data for one thread.  All the variables will be initialized to have
     // distinct values for each thread, so that output take takes variables
     // will all be unique to each thread, and should be able to be found in
     // the output buffer.
 
-    // CONSTANTS
-    enum { k_NUM_ASSERTS = 8 };
-
     // DATA
-    const unsigned d_idx;        // Index of this thread, range '[ 0 .. 40 )'
+    bool d_enablePush;     // Enable the 'push' method.
 
-    const int      d_arf;        // All these variables will be given unique
-    const int      d_woof;       // values for each thread, so that output
-    const int      d_meow;       // done by a thread that outputs variables
-    const double   d_fracA;      // will be unique to that thread.
-    const double   d_fracB;
-    const double   d_fracC;
-    const double   d_fracD;
-    const double   d_fracE;
-    const double   d_fracF;
+    // CREATORS
+    TestFunctor() : d_enablePush(false) {}
 
-    int            d_assertLines[k_NUM_ASSERTS];    // line numbers where the
-                                                    // 'MT_ASSERT*'s occur.
+    //! TestFunctor(const TestFunctor& original) == default;
 
-    // CREATOR
-    explicit
-    ThreadData(unsigned idx)
-    : d_idx(idx)
-    , d_arf(idx * 43)
-    , d_woof(idx * 47)
-    , d_meow(idx * 379 + 271)
-    , d_fracA(idx * 59.0 / 64)
-    , d_fracB(idx * 61.0 / 128)
-    , d_fracC(idx * 101.0 / 128)
-    , d_fracD(idx * 383.0 / 512)
-    , d_fracE(idx * 397.0 / 512)
-    , d_fracF(idx * 2237.0 / (4 * 1024))
-        // Initialize all the variables other than 'd_assertLine' and
-        // 'd_assertVLine' to have values unique to this thread, given a
-        // specified 'idx' that is a thread index unique to the thread.
-    {}
+    // MANIPULATORS
+    //! TestFunctor& operator=(const TestFunctor& original) == default;
 
-    // MANIPULATOR
-    void doOutput()
+    void operator()();
         // Iterate 'K_NUM_ITERATIONS' times, doing various kinds of output
-        // simultaneous with all the other threads.  All output containing
-        // variables, which all have unique values for each thread, should
-        // occur exactly 'k_NUM_ITERATIONS' times, and output not containing
-        // variables should occur exactly 'k_NUM_THREADS * k_NUM_ITERATIONS'
-        // times.
-    {
-        for (int ii = 0; ii < k_NUM_ITERATIONS; ++ii) {
-            // Test 'MT_Q', 'MT_P', and 'MT_P_', all of which have built-in
-            // mutex control so their respective outputs will occur distinct
-            // but intact.
-
-            MT_Q(meow bow wow wow wow);
-            MT_P(d_fracA);
-            MT_P_(d_fracB);
-
-            // Output a block out output.  The 'BSLMT_TESTUTIL_OUTPUT_GUARD'
-            // creates a guard locking the output mutex, and the 'MT_P_',
-            // 'MT_P', 'MT_Q', and 'MT_T_' macros will all detect the presence
-            // of that guard and not try to lock the mutex themselves.
-
-            {
-                BSLMT_TESTUTIL_OUTPUT_GUARD;
-
-                MT_P_(d_idx);    MT_T_    MT_P_(d_arf);    MT_P(d_fracC);
-                MT_P(d_idx * d_arf * d_fracD);
-                MT_Q(To be or not to be -- that is the question.);
-            }
-
-            int assertIdx = 0;
-
-            // An assert with no variable output.
-
-            d_assertLines[assertIdx++] = MT_L_ + 1;
-            MT_ASSERT(d_woof == d_meow);
-
-            // An assert with several variables output.
-
-            d_assertLines[assertIdx++] = MT_L_ + 1;
-            MT_ASSERTV(d_woof, d_meow, d_fracE, d_fracF, d_meow < d_fracF);
-
-            // Output block containing regular stream output.
-
-            {
-                BSLMT_TESTUTIL_OUTPUT_GUARD;
-                using namespace bsl;
-
-                cout << "There are more things in heaven and earth, Horatio,"<<
-                                                                          endl;
-                cout << "Than are dreamt of in your philosophy." << endl;
-                cout << d_fracD * d_fracE << endl;
-            }
-
-            // Output blocks containing all the asserts we haven't done yet.
-
-            {
-                BSLMT_TESTUTIL_OUTPUT_GUARD;
-
-                d_assertLines[assertIdx++] = MT_L_ + 1;
-                MT_ASSERTV(d_woof > 2 * d_meow);
-                d_assertLines[assertIdx++] = MT_L_ + 1;
-                MT_ASSERTV(d_woof, d_woof > 3 * d_meow);
-            }
-
-            // In Aix, the value of '__LINE__' within a macro is at the first
-            // line, on other platforms, it's at the last line.
-
-#if !defined(BSLS_PLATFORM_OS_AIX)
-            const int twoLineMacroRel = 2;
-#else
-            const int twoLineMacroRel = 1;
-#endif
-
-            {
-                BSLMT_TESTUTIL_OUTPUT_GUARD;
-
-                d_assertLines[assertIdx++] = MT_L_ + 1;
-                MT_ASSERTV(d_woof, d_meow, d_woof >= 3 * d_meow);
-                d_assertLines[assertIdx++] = MT_L_ + twoLineMacroRel;
-                MT_ASSERTV(d_arf, d_meow, d_fracA,
-                                                d_arf + d_meow == 3 * d_fracA);
-            }
-
-            {
-                BSLMT_TESTUTIL_OUTPUT_GUARD;
-
-                d_assertLines[assertIdx++] = MT_L_ + twoLineMacroRel;
-                MT_ASSERTV(d_arf, d_meow, d_fracA, d_fracB, d_fracC,
-                            d_arf + d_meow == 3 * d_fracA * d_fracB * d_fracC);
-                d_assertLines[assertIdx++] = MT_L_ + twoLineMacroRel;
-                MT_ASSERTV(d_arf, d_meow, d_fracA, d_fracB, d_fracC, d_fracD,
-                  d_arf + d_meow == 3 * d_fracA * d_fracB * d_fracC * d_fracD);
-            }
-
-            BSLS_ASSERT(k_NUM_ASSERTS == assertIdx);
-        }
-    }
+        // simultaneous.  All output patterns should occur exactly
+        // 'k_NUM_ITERATIONS * k_NUM_THREADS' times.  Also, if the thread index
+        // is zero, then on that last itertaion set 'd_enablePush', which will
+        // enable 'push'.  After doing each form of output, call 'push' on the
+        // string expected to be output.  The '0'th thread on the last
+        // iteration will, via 'push', populate 'patternVec' with all the
+        // patterns we expect to match.
 
     // ACCESSOR
-    void checkPatterns() const
-        // The threads are all done running 'doOutput' and doing output and
-        // the output redirector has been loaded.  Now we look through the
-        // buffer of output for all the expected output.  As we find expected
-        // patterns, we count the number of times they occur and fill the
-        // buffer footprint of the patterns with '#' (both of which are done
-        // by 'u::OutputRedirector::numInstances').
+    void push(const char *str) const
+        // 'd_enablePush' enables this method.  If enabled, add the specified
+        // 'str' to the current pattern to be matched.
     {
-        bslmt::LockGuard<bslmt::Mutex> lockGuard(&checkMutex);
-            // We are going to be using the single-threaded 'REAL*' asserts and
-            // using the 'str()' accessor of 'bsl::ostringstream', which uses
-            // the default allocator, and we want to install a default
-            // allocator guard to guide that to use our test allocator, which
-            // doesn't work well in a multithreaded context, so we control this
-            // method with a mutex to ensure that happens on only one thread at
-            // a time.  The method 'u::OutputRedirector::numInstances' is also
-            // not thread-safe.
-
-        bslma::DefaultAllocatorGuard  allocGuard(&ta);
-        bsl::ostringstream            oss(&ta);
-        bsl::string                   pattern(&ta);
-        int                           expMatch;
-        int                           assertIdx = 0;
-
-#define PV(X)    #X ": " << X << '\n'
-#define PV_(X)   #X ": " << X << '\t'
-#define PE      "Error " << __FILE__ << '(' << d_assertLines[assertIdx++]
-
-        if (0 == d_idx) {
-            // First, check output that did not contain variable values, which
-            // will have been output every iteration by every thread.  Only do
-            // this in the first thread.
-
-            ++numChecked;
-            expMatch = k_NUM_THREADS * k_NUM_ITERATIONS;
-
-            pattern = "<| meow bow wow wow wow |>\n";
-            const int numQ = outputRedirector_p->numInstances(pattern);
-            REALLOOP4_ASSERT(d_idx, pattern, expMatch, numQ,
-                                                           expMatch == numQ);
-
-            oss.str("");
-            oss << PE <<"): d_woof == d_meow    (failed)\n";
-            pattern = oss.str();
-            const int numA = outputRedirector_p->numInstances(pattern);
-            REALLOOP4_ASSERT(d_idx, pattern, expMatch, numA, expMatch == numA);
+        if (d_enablePush) {
+            patternVec.push_back(str);
         }
-        else {
-            ++assertIdx;
-        }
-
-        // Now check all the output that had variable values in it.  Since the
-        // variables were all unique to each thread, each pattern will be
-        // unique to this thread and will have occurred exactly
-        // 'k_NUM_ITERATINS' times.
-
-        ++numChecked;
-        expMatch = k_NUM_ITERATIONS;
-
-        oss.str("");
-        oss << "d_fracA = " << d_fracA << "\n";
-        pattern = oss.str();
-        const int numP = outputRedirector_p->numInstances(pattern);
-        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numP, expMatch == numP);
-
-        oss.str("");
-        oss << "d_fracB = " << d_fracB << ", ";
-        pattern = oss.str();
-        const int numP_ = outputRedirector_p->numInstances(pattern);
-        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numP_, expMatch == numP_);
-
-        oss.str("");
-        oss << "d_idx = " << d_idx << ", \t" << "d_arf = " << d_arf <<
-                                           ", d_fracC = " << d_fracC << "\n" <<
-               "d_idx * d_arf * d_fracD = " << d_idx*d_arf*d_fracD << "\n" <<
-               "<| To be or not to be -- that is the question. |>\n";
-        pattern = oss.str();
-        const int numBlock = outputRedirector_p->numInstances(pattern);
-        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numBlock,
-                                                         expMatch == numBlock);
-
-        oss.str("");
-        oss << PV_(d_woof) << PV_(d_meow) << PV_(d_fracE) << PV(d_fracF) <<
-               PE << "): d_meow < d_fracF    (failed)\n";
-        pattern = oss.str();
-        const int numAV = outputRedirector_p->numInstances(pattern);
-        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numAV, expMatch == numAV);
-
-        oss.str("");
-        oss << "There are more things in heaven and earth, Horatio,\n"
-               "Than are dreamt of in your philosophy.\n" <<
-               d_fracD * d_fracE << bsl::endl;
-        pattern = oss.str();
-        const int numCout = outputRedirector_p->numInstances(pattern);
-        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numCout,
-                                                          expMatch == numCout);
-
-        oss.str("");
-        oss << PE << "): d_woof > 2 * d_meow    (failed)\n";
-        oss << PV(d_woof) <<
-               PE << "): d_woof > 3 * d_meow    (failed)\n";
-        pattern = oss.str();
-        const int numBA1 = outputRedirector_p->numInstances(pattern);
-        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numBA1, expMatch == numBA1);
-
-        oss.str("");
-        oss << PV_(d_woof) << PV(d_meow) <<
-               PE << "): d_woof >= 3 * d_meow    (failed)\n";
-        oss << PV_(d_arf) << PV_(d_meow) << PV(d_fracA) <<
-               PE << "): d_arf + d_meow == 3 * d_fracA    (failed)\n";
-        pattern = oss.str();
-        const int numBA2 = outputRedirector_p->numInstances(pattern);
-        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numBA2, expMatch == numBA2);
-
-        oss.str("");
-        oss << PV_(d_arf) << PV_(d_meow) << PV_(d_fracA) << PV_(d_fracB) <<
-               PV(d_fracC) <<
-               PE << "): d_arf + d_meow == 3 * d_fracA * d_fracB * d_fracC"
-                     "    (failed)\n";
-        oss << PV_(d_arf) << PV_(d_meow) << PV_(d_fracA) << PV_(d_fracB) <<
-               PV_(d_fracC) << PV(d_fracD) <<
-               PE << "): d_arf + d_meow == 3 * d_fracA * d_fracB * d_fracC *"
-                     " d_fracD    (failed)\n";
-        pattern = oss.str();
-        const int numBA3 = outputRedirector_p->numInstances(pattern);
-        REALLOOP4_ASSERT(d_idx, pattern, expMatch, numBA3, expMatch == numBA3);
-
-        BSLS_ASSERT(k_NUM_ASSERTS == assertIdx);
-
-        // At this point, this method has counted up all the output created by
-        // the 'doOutput' method and replaced what it found with '#'s.  After
-        // all the threads have been joined, the main thread will check that
-        // the output buffer is 100% '#'s.
-#undef PV
-#undef PV_
-#undef PE
     }
 };
 
-struct Func {
-    void operator()()
-        // Execute one thread of the multi threaded test.
-    {
-        ThreadData threadData(threadIdx++);
-        REAL_ASSERT(0 != outputRedirector_p);
+void TestFunctor::operator()()
+{
+    const bool zeroThread = 0 == threadIdx++;
 
-        barrier.wait();
-        ++atomicBarrier;
-        while (atomicBarrier < k_NUM_THREADS) ;
+    REAL_ASSERT(0 != outputRedirector_p);
 
-        threadData.doOutput();
+    barrier.wait();
+    --atomicBarrier;
+    while (atomicBarrier) ;
 
-        barrier.wait();
+    for (int ii = k_NUM_ITERATIONS; 0 < ii--; ) {
+        d_enablePush = zeroThread && 0 == ii;
 
-        // main thread is loading the output redirector
+        // Test 'MT_Q', 'MT_P', and 'MT_P_', all of which have built-in
+        // mutex control so their respective outputs will occur distinct
+        // but intact.
 
-        barrier.wait();
+        MT_Q(A stitch in time saves nine.);
+        push("<| A stitch in time saves nine. |>\n");
 
-        threadData.checkPatterns();
+        MT_P(111);
+        push("111 = 111\n");
+
+        MT_P_(222);
+        push("222 = 222, ");
+
+        // Output a block out output.  The 'BSLMT_TESTUTIL_OUTPUT_GUARD'
+        // creates a guard locking the output mutex, and the 'MT_P_',
+        // 'MT_P', 'MT_Q', and 'MT_T_' macros will all detect the presence
+        // of that guard and not try to lock the mutex themselves.
+
+        {
+            BSLMT_TESTUTIL_OUTPUT_GUARD;
+
+            MT_P_(333);    MT_T_    MT_P_(444);    MT_P(555);
+            MT_P(666);
+            MT_Q(To be or not to be -- that is the question.);
+
+            push("333 = 333, \t444 = 444, 555 = 555\n666 = 666\n"
+                 "<| To be or not to be -- that is the question. |>\n");
+        }
+
+        MT_ASSERT(00 == 11);
+        push("Error " __FILE__ "(): 00 == 11    (failed)\n");
+
+        MT_ASSERTV(12, 13, 14, 15, 16 < 14);
+        push("12: 12\t13: 13\t14: 14\t15: 15\n"
+            "Error " __FILE__ "(): 16 < 14    (failed)\n");
+
+        // Output block containing regular stream output.
+
+        {
+            BSLMT_TESTUTIL_OUTPUT_GUARD;
+            using namespace bsl;
+
+            cout << "There are more things in heaven and earth, Horatio,\n";
+            cout << "Than are dreamt of in your philosophy." << endl;
+            cout << 12345 << endl;
+
+            push("There are more things in heaven and earth, Horatio,\n"
+                 "Than are dreamt of in your philosophy.\n"
+                 "12345\n");
+        }
+
+        MT_ASSERTV(21 > 2 * 44);
+        push("Error " __FILE__ "(): 21 > 2 * 44    (failed)\n");
+
+        MT_ASSERTV(67, 20 > 3 * 17);
+        push("67: 67\n"
+             "Error " __FILE__ "(): 20 > 3 * 17    (failed)\n");
+
+        MT_ASSERTV(59, 32, 57 >= 3 * 32);
+        push("59: 59\t32: 32\n"
+             "Error " __FILE__ "(): 57 >= 3 * 32    (failed)\n");
+
+        MT_ASSERTV(28, 16, 98,
+                   26 + 16 == 3 * 98);
+        push("28: 28\t16: 16\t98: 98\n"
+             "Error " __FILE__ "(): 26 + 16 == 3 * 98    (failed)\n");
+
+        MT_ASSERTV(98, 97, 100, 95, 2 * 98 + 3 * 2 * 97 == 4 * 96 - 207 * 95);
+        push("98: 98\t97: 97\t100: 100\t95: 95\n"
+             "Error " __FILE__ "(): "
+                     "2 * 98 + 3 * 2 * 97 == 4 * 96 - 207 * 95    (failed)\n");
+
+        MT_ASSERTV(77, 88, 87, 86, 85,
+                               7 * 89 - 6 * 88 + 3 * 87 - 27 * 86 == 103 * 85);
+        push("77: 77\t88: 88\t87: 87\t86: 86\t85: 85\n"
+             "Error " __FILE__ "(): "
+                           "7 * 89 - 6 * 88 + 3 * 87 - 27 * 86 == 103 * 85"
+                                                             "    (failed)\n");
+
+        MT_ASSERTV(9999, 78, 77, 76, 75, 74,
+                          2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74);
+        push("9999: 9999\t78: 78\t77: 77\t76: 76\t75: 75\t74: 74\n"
+             "Error " __FILE__ "(): "
+                      "2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74"
+                                                             "    (failed)\n");
+
+        // Output blocks containing all the asserts we haven't done yet.
+
+        {
+            BSLMT_TESTUTIL_OUTPUT_GUARD;
+
+            MT_ASSERTV(21 > 2 * 43);
+            MT_ASSERTV(66, 20 > 3 * 17);
+
+            push("Error " __FILE__ "(): 21 > 2 * 43    (failed)\n"
+                 "66: 66\n"
+                 "Error " __FILE__ "(): 20 > 3 * 17    (failed)\n");
+        }
+
+        {
+            BSLMT_TESTUTIL_OUTPUT_GUARD;
+
+            MT_ASSERTV(57, 32, 57 >= 3 * 32);
+            MT_ASSERTV(26, 16, 98,
+                       26 + 16 == 3 * 98);
+
+            push("57: 57\t32: 32\n"
+                 "Error " __FILE__ "(): 57 >= 3 * 32    (failed)\n"
+                 "26: 26\t16: 16\t98: 98\n"
+                 "Error " __FILE__ "(): 26 + 16 == 3 * 98    (failed)\n");
+        }
+
+        {
+            BSLMT_TESTUTIL_OUTPUT_GUARD;
+
+            MT_ASSERTV(98, 97, 96, 95,
+                                     2 * 98 + 3 * 2 * 97 == 4 * 96 - 207 * 95);
+            MT_ASSERTV(89, 88, 87, 86, 85,
+                               7 * 89 - 6 * 88 + 3 * 87 - 27 * 86 == 103 * 85);
+            MT_ASSERTV(79, 78, 77, 76, 75, 74,
+                          2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74);
+
+            push("98: 98\t97: 97\t96: 96\t95: 95\n"
+                 "Error " __FILE__ "(): "
+                     "2 * 98 + 3 * 2 * 97 == 4 * 96 - 207 * 95    (failed)\n"
+                 "89: 89\t88: 88\t87: 87\t86: 86\t85: 85\n"
+                 "Error " __FILE__ "(): "
+                               "7 * 89 - 6 * 88 + 3 * 87 - 27 * 86 == 103 * 85"
+                                                             "    (failed)\n"
+                 "79: 79\t78: 78\t77: 77\t76: 76\t75: 75\t74: 74\n"
+                 "Error " __FILE__ "(): "
+                          "2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74"
+                                                             "    (failed)\n");
+        }
     }
-};
+}
+
+void checkOutput()
+    // Check the output in '*outputRedirector_p'.  'patternVec' contains a
+    // collection of strings, each of which should occur exactly
+    // 'K_EXPECTED_MATCHES' times.  Each instance of each string should be
+    // intact.  There should be no other output.
+{
+    bsl::size_t totalPatternLen = 0;
+    for (unsigned uu = 0; uu < patternVec.size(); ++uu) {
+        totalPatternLen += bsl::strlen(patternVec[uu]);
+    }
+    const bsl::size_t expLen = k_EXPECTED_MATCHES * totalPatternLen;
+
+    char *pc        = outputRedirector_p->buffer();
+    bsl::size_t len = outputRedirector_p->outputSize();
+    REAL_ASSERT(bsl::strlen(pc) == len);
+    REALLOOP3_ASSERT(len, totalPatternLen, expLen, expLen == len);
+    REAL_ASSERT(0 == bsl::count(pc, pc + len, '#'));
+
+    // Go through 'patternVec', and for each string in the vector, count the
+    // number of times it occurs in the output buffer.  They should all occur
+    // exactly 'k_EXPECTED_MATCHES' times.  Replace the matched strings with
+    // '#'s, so that when we're done the entire buffer should be completely
+    // filled with '#'.
+
+    for (unsigned uu = 0; uu < patternVec.size(); ++uu) {
+        int numMatches = 0;
+        const char *pattern = patternVec[uu];
+        len = bsl::strlen(pattern);
+
+        for (pc = outputRedirector_p->buffer();
+                                          (pc = bsl::strstr(pc, pattern));
+                                                     ++numMatches, pc += len) {
+            bsl::fill(pc, pc + len, '#');
+        }
+
+        REALLOOP4_ASSERT(uu, pattern, k_EXPECTED_MATCHES, numMatches,
+                                             k_EXPECTED_MATCHES == numMatches);
+    }
+
+    // Verify that the entire buffer is now filled with '#'.
+
+    pc  = outputRedirector_p->buffer();
+    len = outputRedirector_p->outputSize();
+    REAL_ASSERT(bsl::strlen(pc) == len);
+    REALLOOP2_ASSERT(expLen, len, expLen == len);
+
+    const bsl::size_t numPounds = bsl::count(pc, pc + len, '#');
+    REALLOOP2_ASSERT(expLen, numPounds, expLen == numPounds);
+
+    // If there is anything other than '#'s in the buffer, the test failed.  Go
+    // through the buffer and dump out a report of what non-'#' strings were
+    // found, to aid in debugging the test.
+
+    if (expLen != numPounds) {
+        int stringIdx = 0;
+        bsl::string s(&ta);
+        for (const char *a = pc, *b, *c; *a; a = c) {
+            for (b = a; '#' == *b; ++b) ;
+            if (!*b) {
+                break;
+            }
+            for (c = b + 1; *c && '#' != *c; ++c) ;
+
+            bsl::cerr << "-------------------------------------------------\n"
+                         "String " << stringIdx++ << bsl::endl;
+            s.clear();
+            s.insert(s.end(), b, c);
+            bsl::cerr << s << bsl::endl;
+            bsl::cerr << "-------------------------------------------------\n";
+        }
+    }
+
+    if (verbose) {
+        REALP_(len);    REALP(numPounds);
+    }
+}
+
+bool notDigit(char c)
+    // Return 'true' is the specified 'c' is not a digit and 'false' otherwise.
+{
+    return c < '0' || '9' < c;
+}
+
+// It's extremely difficult to predict '__LINE__' values in multi-line
+// 'ASSERTV' calls.  In fact it's awkward to even predict whether the line
+// numbers will be 3 or 4 digit.  We've already tested that the asserts get the
+// line numbers right in a single-threaded test case, so this filter just
+// removes all line number information from the buffer.
+
+void eliminateLineNumbers()
+    // Go through all the output in the buffer, and remove the line numbers
+    // from output generated by various 'ASSERT's, turning all instances of
+    // "Error <filename>([0-9]*)" into "Error <filename>()".
+{
+    char       *bufOut    = outputRedirector_p->buffer();
+    const char *bufIn     = bufOut;
+    const char *end       = bufIn + outputRedirector_p->outputSize();
+    const char  pattern[] = { "Error " __FILE__ "(" };
+    enum { k_PATTERN_LEN  = sizeof(pattern) - 1 };
+
+    while (true) {
+        const char *found = bsl::strstr(bufIn, pattern);
+        const bsl::size_t len = found ? (found += k_PATTERN_LEN) - bufIn
+                                      : bsl::strlen(bufIn);
+        bsl::memmove(bufOut, bufIn, len);
+        bufOut += len;
+        if (!found) {
+            break;
+        }
+
+        bufIn = bsl::find_if(found, end, &notDigit);
+        REALLOOP1_ASSERT(*bufIn, ')' == *bufIn);
+        const bsl::size_t numDigits = bufIn - found;
+        REALLOOP1_ASSERT(numDigits, 2 <= numDigits && numDigits <= 4);
+    }
+
+    *bufOut = 0;
+    outputRedirector_p->resetSize();
+}
 
 }  // close namespace MultiThreadedTest
 
@@ -1366,12 +1385,10 @@ int main(int argc, char *argv[])
         //:
         //: 2 Load the captured output into a buffer.
         //:
-        //: 3 Have the threads simultaneously construct all the unique strings
-        //:   expected to be found in the output.  Have them call
-        //:   'u::OutputRedirector::numInstances' to count the number of
-        //:   occurrences of each string and fill their footprints with '#'
-        //:   characters.  Verify that the number of occurrences was as
-        //:   expected.
+        //: 3 Search for the discrete patterns that we expect to be output
+        //:   in the buffer, filling matched patterns with '#'.  Observe that
+        //:   we match exactly as many of the patterns as we expect, and that
+        //:   the output buffer is completely filled with '#'s.
         //
         // Testing:
         //   MULTITHREADED TEST
@@ -1384,9 +1401,10 @@ int main(int argc, char *argv[])
         namespace TC = MultiThreadedTest;
 
         TC::outputRedirector_p = &output;
+        TC::atomicBarrier = TC::k_NUM_THREADS;
 
-        bslmt::ThreadGroup tg(&ta);
-        tg.addThreads(TC::Func(), TC::k_NUM_THREADS);
+        BloombergLP::bslmt::ThreadGroup tg(&ta);
+        tg.addThreads(TC::TestFunctor(), TC::k_NUM_THREADS);
 
         // Threads are initializing their 'ThreadData' objects.
 
@@ -1397,67 +1415,13 @@ int main(int argc, char *argv[])
 
         // Subthreads are all running 'Data::doOutput' concurrently.
 
-        TC::barrier.wait();
-
-        output.load();
-        const bsl::size_t  len = output.outputSize();
-        char              *buf = output.buffer();
-
-        REALLOOP1_ASSERT(len,
-                          TC::k_NUM_THREADS * TC::k_NUM_ITERATIONS * 80 < len);
-
-        bsl::size_t numHashes = bsl::count(buf, buf + len, '#');
-        REALLOOP1_ASSERT(numHashes, 0 == numHashes);
-
-        int saveRealTestStatus = realTestStatus;
-        if (veryVeryVerbose) REALP(saveRealTestStatus);
-
-        TC::barrier.wait();
-
-        // Subthreads are all running 'Data::checkPatterns', checking the
-        // output for matching strings and replacing matched strings with '*'s
-        // in the output buffer.  'Data::checkPatterns' is controlled by a
-        // mutex, so they only run one at a time.
-
         tg.joinAll();
 
-        if (veryVeryVerbose && saveRealTestStatus != realTestStatus) {
-            bsl::cerr << "Unmatched strings:\n"
-                         "=================\n";
+        output.load();
+        TC::eliminateLineNumbers();
+        TC::checkOutput();
 
-            int stringIdx = 0;
-            bsl::string s(&ta);
-            for (const char *a = output.buffer(), *b, *c; *a; a = c) {
-                for (b = a; '#' == *b; ++b) ;
-                if (!*b) {
-                    break;
-                }
-                for (c = b + 1; *c && '#' != *c; ++c) ;
-
-                bsl::cerr << "String " << stringIdx++ << bsl::endl;
-                s.clear();
-                s.insert(s.end(), b, c);
-                bsl::cerr << s << bsl::endl;
-            }
-        }
-
-        REALLOOP2_ASSERT(TC::k_NUM_THREADS, TC::numChecked,
-                                      TC::k_NUM_THREADS + 1 == TC::numChecked);
-
-        // The output buffer should be undisturbed, other than being
-        // overwritten with '#'s.
-
-        REAL_ASSERT(output.outputSize() == len);
-        REAL_ASSERT(output.buffer()     == buf);
-
-        // Check that 100% of the buffer has been overwritten with '#'s.
-
-        numHashes = bsl::count(buf, buf + len, '#');
-        REALLOOP2_ASSERT(numHashes, len, numHashes == len);
-
-        if (verbose) {
-            REALP_(len);    REALP(numHashes);
-        }
+        if (veryVeryVerbose) REALP(realTestStatus);
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -2012,16 +1976,10 @@ int main(int argc, char *argv[])
 
                 output.reset();
 
-                // On AIX, the line number printed from the
-                // 'BSLMT_TESTUTIL_ASSERTV' macro is the line number of the
-                // first line of the call statement, even if the statement is
-                // split over multiple lines.  This behavior is different from
-                // the equivalent loop-assert alternative, which prints the
-                // last line of the statement.  The behavior of 'ASSERTV' and
-                // regular loop-assert is consistent on other platforms.  So
-                // here we make sure that the call to 'BSLMT_TESTUTIL_ASSERTV'
-                // fits on a single line to ensure that the output is the same
-                // on all platforms.
+                // Which line number '__LINE__' expands to in a multi-line
+                // 'ASSERTV' call varies with the platform and compiler, and is
+                // very difficult to predict, so we make sure our 'ASSERTV'
+                // calls fit on a single line.
 
                 const int LINE = __LINE__ + 1;
                 BSLMT_TESTUTIL_ASSERTV(I, J, K, L, M, idx > NUM_ITERATIONS);
