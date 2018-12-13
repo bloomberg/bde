@@ -124,7 +124,7 @@ BSLS_IDENT("$Id: $")
 //:     address of the category.  (See the function-level documentation of
 //:     'ball::Log::setCategoryHierarchically' for more information.)  This
 //:     macro must be used at block scope, and can be used at most once in any
-//:     given block (or else a compiler diagnostic will result)
+//:     given block (or else a compiler diagnostic will result).
 //:
 //: 'BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(CATEGORY)':
 //:     Set, *on* *EACH* *invocation*, a category for logging to the specified
@@ -147,12 +147,13 @@ BSLS_IDENT("$Id: $")
 //:     'BALL_LOG_SET_CATEGORY_HIERARCHICALLY', the category is set *once*
 //:     only, using the 'ball::Log::setCategoryHierarchically' function, the
 //:     first time that it is accessed (i.e., it is not a dynamic category).
-//:     See the function doc for 'ball::Log::setCategoryHierarchically' for
-//:     more information.  This macro must be used, at most once, within the
-//:     definition of a class or class template (or else a compiler diagnostic
-//:     will result).  Note that use of this macro may occur in either a
-//:     'public', 'private', or 'protected' section of a class's interface,
-//:     although 'private' should be preferred.
+//:     (See the function-level documentation for
+//:     'ball::Log::setCategoryHierarchically' for more information.)  This
+//:     macro must be used, at most once, within the definition of a class or
+//:     class template (or else a compiler diagnostic will result).  Note that
+//:     use of this macro may occur in either a 'public', 'private', or
+//:     'protected' section of a class's interface, although 'private' should
+//:     be preferred.
 //
 ///Macros for Logging Records
 /// - - - - - - - - - - - - -
@@ -1413,34 +1414,37 @@ struct Log {
         // if the logger manager singleton is not initialized.
 
     static const Category *setCategoryHierarchically(const char *categoryName);
-        // Look up, in the logger manager singleton, the category whose name
-        // matches 'categoryName' and return a pointer to it if found. and, if
-        // no such category exists, add a new category having the specified
-        // 'categoryName'; return the address of the modifiable new category on
-        // success, or if the number of existing categories in 'loggerManager'
-        // has reached the maximum capacity, the default category.  If the
-        // logger manager singleton is not initialized, return 0.  Any newly
-        // created category will have the same threshold levels as the category
-        // in 'loggerManager' whose name is the longest non-zero length prefix
-        // of 'categoryName', and the default levels of the logger manager
-        // singleton, if no such category exists.
+        // Return from the logger manager singleton's category registry the
+        // address of the non-modifiable category having the specified
+        // 'categoryName' if such a category exists, or add a new category
+        // having 'categoryName' to the registry if possible (i.e., if the
+        // registry has sufficient capacity to accommodate new entries);
+        // otherwise, return the address of the non-modifiable *Default*
+        // *Category*.  If the logger manager singleton is not initialized,
+        // return 0 with no effect.  If a new category is created, it will have
+        // the same threshold levels as the category in the logger manager
+        // singleton whose name is the longest prefix of 'categoryName', and
+        // the default levels of the logger manager singleton if no such
+        // category exists.
 
     static const Category *setCategoryHierarchically(
                                                 CategoryHolder *categoryHolder,
                                                 const char     *categoryName);
-        // Look up, in the logger manager singleton, the category whose name
-        // matches 'categoryName' and return a pointer to it if found. and, if
-        // no such category exists, add a new category having the specified
-        // 'categoryName'; return the address of the modifiable new category on
-        // success, or if the number of existing categories in 'loggerManager'
-        // has reached the maximum capacity, the default category.  If the
-        // logger manager singleton is not initialized, return 0.  Any newly
-        // created category will have the same threshold levels as the category
-        // in 'loggerManager' whose name is the longest non-zero length prefix
-        // of 'categoryName', and the default levels of the logger manager
-        // singleton, if no such category exists.  If a non-zero category
-        // pointer is being returned, link it into the specified
-        // 'categoryHolder', unless '0 == categoryHolder'.
+        // Return from the logger manager singleton's category registry the
+        // address of the non-modifiable category having the specified
+        // 'categoryName' if such a category exists, or add a new category
+        // having 'categoryName' to the registry if possible (i.e., if the
+        // registry has sufficient capacity to accommodate new entries);
+        // otherwise, return the address of the non-modifiable *Default*
+        // *Category*.  If the logger manager singleton is not initialized,
+        // return 0 with no effect.  If a new category is created, it will have
+        // the same threshold levels as the category in the logger manager
+        // singleton whose name is the longest prefix of 'categoryName', and
+        // the default levels of the logger manager singleton if no such
+        // category exists.  If the specified 'categoryHolder' is non-zero,
+        // load into it the address of the category returned, the maximum
+        // threshold level of that category, and a pointer to any previous
+        // category holder that is currently linked to that category.
 
     static bool isCategoryEnabled(const CategoryHolder *categoryHolder,
                                   int                   severity);
