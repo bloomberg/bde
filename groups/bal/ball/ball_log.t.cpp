@@ -1213,7 +1213,8 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// -- Test case 32 uses only things above here.
+// -- Test case 32 uses only things above here.  'Flags' & 'testLocalMacros'
+// are used by test case 33, and 'TestClassMacro' is used by test case 34.
 
 // Last argument passed to 'testLocalMacros<int>()', which indicates whether
 // the category sought is to be static (the default) or dynamic, and whether
