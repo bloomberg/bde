@@ -6,7 +6,11 @@ if (CMAKE_HOST_SYSTEM_NAME STREQUAL "AIX")
   string(APPEND uor_extra_defines " -D__NOLOCK_ON_INPUT -D__NOLOCK_ON_OUTPUT")
 endif()
 
-set(uor_extra_link_libraries "-lpthread -lrt")
+set(uor_extra_link_libraries "-lpthread")
+
+if (NOT APPLE)
+  string(APPEND uor_extra_link_libraries " -lrt")
+endif()
 
 if (CMAKE_HOST_SYSTEM_NAME STREQUAL "AIX" AND CMAKE_CXX_COMPILER MATCHES "g\\+\\+")
   string(APPEND uor_extra_link_libraries " -latomic")
