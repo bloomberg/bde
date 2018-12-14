@@ -1565,7 +1565,7 @@ int main(int argc, char *argv[])
             mX.pushBack(value);
 
             ASSERT(2 == X.numElements());
-            ASSERT(na + 2 == sa.numAllocations());
+            ASSERT(na + 3 == sa.numAllocations());
             ASSERT(nd     == sa.numDeallocations());
 
             int numException = 0;
@@ -1584,12 +1584,12 @@ int main(int argc, char *argv[])
             // The test allocator increments the number of allocations and then
             // throws the exception.
 
-            ASSERT(na + 3 == sa.numAllocations());
+            ASSERT(na + 4 == sa.numAllocations());
             ASSERT(nd + 1 == sa.numDeallocations());
 
             mX.tryPopFront(&value);
 
-            ASSERT(na + 4 == sa.numAllocations());
+            ASSERT(na + 5 == sa.numAllocations());
             ASSERT(nd + 3 == sa.numDeallocations());
 
             ASSERT(0 == X.numElements());
@@ -1600,7 +1600,7 @@ int main(int argc, char *argv[])
             // Since the queue is empty, only the element should have
             // allocated.
 
-            ASSERT(na + 5 == sa.numAllocations());
+            ASSERT(na + 6 == sa.numAllocations());
             ASSERT(nd + 3 == sa.numDeallocations());
         }
 #endif
@@ -1876,11 +1876,11 @@ int main(int argc, char *argv[])
 
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
-            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -1901,11 +1901,11 @@ int main(int argc, char *argv[])
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(4 == X.numElements());
-            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 5 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -1926,12 +1926,12 @@ int main(int argc, char *argv[])
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(2 == sa.numAllocations());
+            ASSERT(3 == sa.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(3 == sa.numAllocations());
+            ASSERT(4 == sa.numAllocations());
         }
 
         if (verbose) cout << "\nTesting exception behavior." << endl;
@@ -2292,11 +2292,11 @@ int main(int argc, char *argv[])
 
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
-            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -2313,11 +2313,11 @@ int main(int argc, char *argv[])
 
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
-            ASSERT(allocations + 2 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
-            ASSERT(allocations + 3 == defaultAllocator.numAllocations());
+            ASSERT(allocations + 4 == defaultAllocator.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -2338,12 +2338,12 @@ int main(int argc, char *argv[])
             mX.pushBack(0);
             ASSERT(2 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(2 == sa.numAllocations());
+            ASSERT(3 == sa.numAllocations());
 
             mX.pushBack(0);
             ASSERT(3 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(3 == sa.numAllocations());
+            ASSERT(4 == sa.numAllocations());
         }
         {
             bsls::Types::Int64 allocations = defaultAllocator.numAllocations();
@@ -2364,12 +2364,12 @@ int main(int argc, char *argv[])
             mX.pushBack(longString);
             ASSERT(2 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(4 == sa.numAllocations());
+            ASSERT(5 == sa.numAllocations());
 
             mX.pushBack(longString);
             ASSERT(3 == X.numElements());
             ASSERT(allocations == defaultAllocator.numAllocations());
-            ASSERT(6 == sa.numAllocations());
+            ASSERT(7 == sa.numAllocations());
         }
 
         if (verbose) cout << "\nTesting 'pushBack'." << endl;
@@ -2520,7 +2520,7 @@ int main(int argc, char *argv[])
             mX.pushBack(value);
 
             ASSERT(2 == X.numElements());
-            ASSERT(na + 2 == sa.numAllocations());
+            ASSERT(na + 3 == sa.numAllocations());
             ASSERT(nd     == sa.numDeallocations());
 
             int numException = 0;
@@ -2539,12 +2539,12 @@ int main(int argc, char *argv[])
             // The test allocator increments the number of allocations and then
             // throws the exception.
 
-            ASSERT(na + 3 == sa.numAllocations());
+            ASSERT(na + 4 == sa.numAllocations());
             ASSERT(nd + 1 == sa.numDeallocations());
 
             mX.popFront(&value);
 
-            ASSERT(na + 4 == sa.numAllocations());
+            ASSERT(na + 5 == sa.numAllocations());
             ASSERT(nd + 3 == sa.numDeallocations());
 
             ASSERT(0 == X.numElements());
@@ -2555,7 +2555,7 @@ int main(int argc, char *argv[])
             // Since the queue is empty, only the element should have
             // allocated.
 
-            ASSERT(na + 5 == sa.numAllocations());
+            ASSERT(na + 6 == sa.numAllocations());
             ASSERT(nd + 3 == sa.numDeallocations());
         }
 #endif

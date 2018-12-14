@@ -87,6 +87,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_types.h>
 
 #include <bsl_cstddef.h>
 
@@ -197,17 +198,15 @@ class SingleProducerQueueImpl {
     // The following constants are used to maintain the queue's 'd_state'
     // value.  See *Implementation* *Note* for details.
 
-    static const bsls::Types::Int64 k_BLOCKED_MASK      = 0x000000000000ffffLL;
+    static const bsls::Types::Int64 k_BLOCKED_MASK      = 0x0000000000ffffffLL;
     static const bsls::Types::Int64 k_BLOCKED_INC       = 0x0000000000000001LL;
-    static const bsls::Types::Int64 k_DISABLED_MASK     = 0x0000000000010000LL;
-    static const bsls::Types::Int64 k_GENERATION_MASK   = 0x000000000fff0000LL;
-    static const bsls::Types::Int64 k_GENERATION_INC    = 0x0000000000010000LL;
-    static const bsls::Types::Int64 k_AVAILABLE_INC     = 0x0000000010000000LL;
-    static const bsls::Types::Int64 k_AVAILABLE_MASK    = 0xfffffffff0000000LL;
-    static const int                k_AVAILABLE_SHIFT   = 28;
+    static const bsls::Types::Int64 k_AVAILABLE_INC     = 0x0000000001000000LL;
+    static const bsls::Types::Int64 k_AVAILABLE_MASK    = 0xffffffffff000000LL;
+    static const int                k_AVAILABLE_SHIFT   = 24;
 
     // PRIVATE TYPES
     typedef typename ATOMIC_OP::AtomicTypes::Int     AtomicInt;
+    typedef typename ATOMIC_OP::AtomicTypes::Uint    AtomicUint;
     typedef typename ATOMIC_OP::AtomicTypes::Int64   AtomicInt64;
     typedef typename ATOMIC_OP::AtomicTypes::Pointer AtomicPointer;
 
@@ -222,10 +221,7 @@ class SingleProducerQueueImpl {
     typedef QueueNode<TYPE> Node;
 
     // DATA
-    AtomicPointer     d_lastWritten;       // pointer to last written to node,
-                                           // the next pushed node will be
-                                           // after the currently pointed to
-                                           // node
+    AtomicPointer     d_nextWrite;         // pointer to next write to node
 
     AtomicPointer     d_nextRead;          // pointer to next read from node
 
@@ -246,7 +242,13 @@ class SingleProducerQueueImpl {
                                            // state of the queue (see
                                            // implementation notes)
 
-    AtomicInt         d_pushBackDisabled;  // is queue disabled
+    AtomicUint        d_popFrontDisabled;  // is queue pop disabled and
+                                           // generation count; see
+                                           // *Implementation* *Note*
+
+    AtomicUint        d_pushBackDisabled;  // is queue push disabled and
+                                           // generation count; see
+                                           // *Implementation* *Note*
 
     bslma::Allocator *d_allocator_p;       // allocator, held not owned
 
@@ -280,22 +282,22 @@ class SingleProducerQueueImpl {
     static bsls::Types::Int64 getAvailable(bsls::Types::Int64 state);
         // Return the available attribute from the specified 'state'.
 
-    static bsls::Types::Int64 getGeneration(bsls::Types::Int64 state);
-        // Return the generation attribute from the specified 'state'.
-
     static bool isEmpty(bsls::Types::Int64 state);
         // Return 'true' if the specified 'state' implies the associated queue
         // is empty, and 'false' otherwise.
-
-    static bool isPopFrontDisabled(bsls::Types::Int64 state);
-        // Return 'true' if the specified 'state' implies the associated queue
-        // is dequeue disabled, and 'false' otherwise.
 
     static bool willHaveBlockedThread(bsls::Types::Int64 state);
         // Return 'true' if the specified 'state' implies the associated queue
         // will have one or more threads blocked in a dequeue operation.
 
     // PRIVATE MANIPULATORS
+    void incrementUntil(AtomicUint *value, unsigned int bitValue);
+        // If the specified 'value' does not have its lowest-order bit set to
+        // the value of the specified 'bitValue', increment 'value' until it
+        // does.  Note that this method is used to modify the generation counts
+        // stored in 'd_popFrontDisabled' and 'd_pushBackDisabled'.  See
+        // *Implementation* *Note* for further details.
+
     void popComplete(Node *node, bool isEmpty);
         // Destruct the value stored in the specified 'node', mark the 'node'
         // writable, and if the specified 'isEmpty' is 'true' then signal the
@@ -517,6 +519,7 @@ SingleProducerQueueImpl_PopCompleteGuard<TYPE, NODE>::
 
 // PRIVATE CLASS METHODS
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+inline
 bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                   allElementsReserved(bsls::Types::Int64 state)
 {
@@ -524,6 +527,7 @@ bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+inline
 bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                canSupplyBlockedThread(bsls::Types::Int64 state)
 {
@@ -531,6 +535,7 @@ bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+inline
 bsls::Types::Int64 SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                          getAvailable(bsls::Types::Int64 state)
 {
@@ -538,13 +543,7 @@ bsls::Types::Int64 SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
-bsls::Types::Int64 SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
-                                        getGeneration(bsls::Types::Int64 state)
-{
-    return state & k_GENERATION_MASK;
-}
-
-template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+inline
 bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                               isEmpty(bsls::Types::Int64 state)
 {
@@ -552,13 +551,7 @@ bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
-bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
-                                   isPopFrontDisabled(bsls::Types::Int64 state)
-{
-    return 0 != (state & k_DISABLED_MASK);
-}
-
-template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+inline
 bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                 willHaveBlockedThread(bsls::Types::Int64 state)
 {
@@ -566,6 +559,22 @@ bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
 }
 
 // PRIVATE MANIPULATORS
+template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+void SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
+                     ::incrementUntil(AtomicUint *value, unsigned int bitValue)
+{
+    unsigned int state = ATOMIC_OP::getUintAcquire(value);
+    if (bitValue != (state & 1)) {
+        unsigned int expState;
+        do {
+            expState = state;
+            state = ATOMIC_OP::testAndSwapUintAcqRel(value,
+                                                     state,
+                                                     state + 1);
+        } while (state != expState && (bitValue == (state & 1)));
+    }
+}
+
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 void SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                           popComplete(Node *node, bool isEmpty)
@@ -621,7 +630,7 @@ template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 void SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                                                 releaseAllRaw()
 {
-    Node *end = static_cast<Node *>(ATOMIC_OP::getPtrAcquire(&d_lastWritten));
+    Node *end = static_cast<Node *>(ATOMIC_OP::getPtrAcquire(&d_nextWrite));
 
     if (end) {
         Node *at = static_cast<Node *>(ATOMIC_OP::getPtrAcquire(&end->d_next));
@@ -662,9 +671,10 @@ SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                         // initialized to zero, and there are
                                         // no threads blocked in 'popFront'
 
-    ATOMIC_OP::initInt(&d_pushBackDisabled, 0);
+    ATOMIC_OP::initUint(&d_popFrontDisabled, 0);
+    ATOMIC_OP::initUint(&d_pushBackDisabled, 0);
 
-    ATOMIC_OP::initPointer(&d_lastWritten, 0);
+    ATOMIC_OP::initPointer(&d_nextWrite, 0);
 
     SingleProducerQueueImpl_ReleaseAllRawProctor<SingleProducerQueueImpl <
                                                     TYPE,
@@ -676,14 +686,14 @@ SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
     ATOMIC_OP::initInt(&n1->d_state, e_WRITABLE);
     ATOMIC_OP::initPointer(&n1->d_next, n1);
 
-    ATOMIC_OP::setPtrRelease(&d_lastWritten, n1);
+    ATOMIC_OP::setPtrRelease(&d_nextWrite, n1);
+
+    ATOMIC_OP::initPointer(&d_nextRead, n1);
 
     Node *n2 = static_cast<Node *>(d_allocator_p->allocate(sizeof(Node)));
     ATOMIC_OP::initInt(&n2->d_state, e_WRITABLE);
     ATOMIC_OP::initPointer(&n2->d_next, n1);
     ATOMIC_OP::setPtrRelease(&n1->d_next, n2);
-
-    ATOMIC_OP::initPointer(&d_nextRead, n2);
 
     proctor.release();
 }
@@ -703,9 +713,10 @@ SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                         // initialized to zero, and there are
                                         // no threads blocked in 'popFront'
 
-    ATOMIC_OP::initInt(&d_pushBackDisabled, 0);
+    ATOMIC_OP::initUint(&d_popFrontDisabled, 0);
+    ATOMIC_OP::initUint(&d_pushBackDisabled, 0);
 
-    ATOMIC_OP::initPointer(&d_lastWritten, 0);
+    ATOMIC_OP::initPointer(&d_nextWrite, 0);
 
     SingleProducerQueueImpl_ReleaseAllRawProctor<SingleProducerQueueImpl <
                                                     TYPE,
@@ -717,14 +728,14 @@ SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
     ATOMIC_OP::initInt(&n1->d_state, e_WRITABLE);
     ATOMIC_OP::initPointer(&n1->d_next, n1);
 
-    ATOMIC_OP::setPtrRelease(&d_lastWritten, n1);
+    ATOMIC_OP::setPtrRelease(&d_nextWrite, n1);
+
+    ATOMIC_OP::initPointer(&d_nextRead, n1);
 
     Node *n2 = static_cast<Node *>(d_allocator_p->allocate(sizeof(Node)));
     ATOMIC_OP::initInt(&n2->d_state, e_WRITABLE);
     ATOMIC_OP::initPointer(&n2->d_next, n1);
     ATOMIC_OP::setPtrRelease(&n1->d_next, n2);
-
-    ATOMIC_OP::initPointer(&d_nextRead, n2);
 
     capacity = (2 <= capacity ? capacity : 2);
 
@@ -752,26 +763,17 @@ template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::popFront(
                                                                    TYPE *value)
 {
+    unsigned int generation = ATOMIC_OP::getUintAcquire(&d_popFrontDisabled);
+    if (1 == (generation & 1)) {
+        return e_DISABLED;                                            // RETURN
+    }
+
     bsls::Types::Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
                                                            -k_AVAILABLE_INC);
 
-    if (isPopFrontDisabled(state)) {
-        state = ATOMIC_OP::addInt64NvAcqRel(&d_state, k_AVAILABLE_INC);
-        if (canSupplyBlockedThread(state)) {
-            {
-                bslmt::LockGuard<MUTEX> guard(&d_readMutex);
-            }
-            d_readCondition.signal();
-        }
-        return e_DISABLED;
-    }
-
     if (willHaveBlockedThread(state)) {
-        bsls::Types::Int64 generation = getGeneration(state);
-
         bslmt::ThreadUtil::yield();
         state = ATOMIC_OP::getInt64Acquire(&d_state);
-
         if (willHaveBlockedThread(state)) {
             bslmt::LockGuard<MUTEX> guard(&d_readMutex);
 
@@ -779,14 +781,14 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::popFront(
                                               &d_state,
                                               k_AVAILABLE_INC + k_BLOCKED_INC);
 
-            while (generation == getGeneration(state) && isEmpty(state)) {
+            while (isEmpty(state)) {
+                if (generation !=
+                              ATOMIC_OP::getUintAcquire(&d_popFrontDisabled)) {
+                    ATOMIC_OP::addInt64AcqRel(&d_state, -k_BLOCKED_INC);
+                    return e_DISABLED;                                // RETURN
+                }
                 d_readCondition.wait(&d_readMutex);
                 state = ATOMIC_OP::getInt64Acquire(&d_state);
-            }
-
-            if (generation != getGeneration(state)) {
-                ATOMIC_OP::addInt64AcqRel(&d_state, -k_BLOCKED_INC);
-                return e_DISABLED;
             }
 
             state = ATOMIC_OP::addInt64NvAcqRel(
@@ -804,62 +806,33 @@ template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::pushBack(
                                                              const TYPE& value)
 {
-    if (0 != ATOMIC_OP::getIntAcquire(&d_pushBackDisabled)) {
+    if (1 == (ATOMIC_OP::getUintAcquire(&d_pushBackDisabled) & 1)) {
         return e_DISABLED;                                            // RETURN
     }
 
-    Node *lastWritten = static_cast<Node *>(
-                                     ATOMIC_OP::getPtrAcquire(&d_lastWritten));
-    Node *target      = static_cast<Node *>(
-                               ATOMIC_OP::getPtrAcquire(&lastWritten->d_next));
+    Node *nextWrite = static_cast<Node *>(
+                                       ATOMIC_OP::getPtrAcquire(&d_nextWrite));
 
-    if (e_WRITABLE != ATOMIC_OP::getIntAcquire(&target->d_state)) {
+    Node *next = static_cast<Node *>(
+                                 ATOMIC_OP::getPtrAcquire(&nextWrite->d_next));
+
+    if (e_WRITABLE != ATOMIC_OP::getIntAcquire(&next->d_state)) {
         Node *n = static_cast<Node *>(d_allocator_p->allocate(sizeof(Node)));
 
-        bslma::DeallocatorProctor<bslma::Allocator> proctor(n, d_allocator_p);
+        ATOMIC_OP::initInt(&n->d_state, e_WRITABLE);
+        ATOMIC_OP::initPointer(&n->d_next, next);
 
-        bslalg::ScalarPrimitives::copyConstruct(n->d_value.address(),
-                                                value,
-                                                d_allocator_p);
+        ATOMIC_OP::setPtrRelease(&nextWrite->d_next, n);
 
-        proctor.release();
-
-        ATOMIC_OP::initInt(&n->d_state, e_READABLE);
-        ATOMIC_OP::initPointer(&n->d_next, target);
-
-        ATOMIC_OP::setPtrRelease(&lastWritten->d_next, n);
-        ATOMIC_OP::setPtrRelease(&d_lastWritten, n);
-
-        // While allocating this node, it is possible the queue went from full
-        // to empty.  If the queue is empty when this node is added,
-        // 'd_nextRead' might not be pointing to this new node.  Spin wait for
-        // the queue to have nodes (due to 'disablePopFront') or
-        // 'e_WRITABLE == lastWritten->d_state', and then if
-        // 'e_WRITABLE == lastWritten->d_state && d_nextRead == target' set
-        // 'd_nextRead' to 'n'.
-
-        bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
-        while (allElementsReserved(state)
-               && e_WRITABLE !=
-                             ATOMIC_OP::getIntAcquire(&lastWritten->d_state)) {
-            bslmt::ThreadUtil::yield();
-            state = ATOMIC_OP::getInt64Acquire(&d_state);
-        }
-        if (allElementsReserved(state)) {
-            ATOMIC_OP::testAndSwapPtrAcqRel(&d_nextRead,
-                                            target,
-                                            n);
-        }
+        next = n;
     }
-    else {
-        bslalg::ScalarPrimitives::copyConstruct(target->d_value.address(),
-                                                value,
-                                                d_allocator_p);
 
-        ATOMIC_OP::setIntRelease(&target->d_state, e_READABLE);
+    bslalg::ScalarPrimitives::copyConstruct(nextWrite->d_value.address(),
+                                            value,
+                                            d_allocator_p);
 
-        ATOMIC_OP::setPtrRelease(&d_lastWritten, target);
-    }
+    ATOMIC_OP::setIntRelease(&nextWrite->d_state, e_READABLE);
+    ATOMIC_OP::setPtrRelease(&d_nextWrite, next);
 
     bsls::Types::Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
                                                            k_AVAILABLE_INC);
@@ -878,64 +851,34 @@ template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::pushBack(
                                                  bslmf::MovableRef<TYPE> value)
 {
-    if (0 != ATOMIC_OP::getIntAcquire(&d_pushBackDisabled)) {
+    if (1 == (ATOMIC_OP::getUintAcquire(&d_pushBackDisabled) & 1)) {
         return e_DISABLED;                                            // RETURN
     }
 
-    Node *lastWritten = static_cast<Node *>(
-                                     ATOMIC_OP::getPtrAcquire(&d_lastWritten));
-    Node *target      = static_cast<Node *>(
-                               ATOMIC_OP::getPtrAcquire(&lastWritten->d_next));
+    Node *nextWrite = static_cast<Node *>(
+                                       ATOMIC_OP::getPtrAcquire(&d_nextWrite));
 
-    if (e_WRITABLE != ATOMIC_OP::getIntAcquire(&target->d_state)) {
+    Node *next = static_cast<Node *>(
+                                 ATOMIC_OP::getPtrAcquire(&nextWrite->d_next));
+
+    if (e_WRITABLE != ATOMIC_OP::getIntAcquire(&next->d_state)) {
         Node *n = static_cast<Node *>(d_allocator_p->allocate(sizeof(Node)));
 
-        bslma::DeallocatorProctor<bslma::Allocator> proctor(n, d_allocator_p);
+        ATOMIC_OP::initInt(&n->d_state, e_WRITABLE);
+        ATOMIC_OP::initPointer(&n->d_next, next);
 
-        TYPE& dummy = value;
-        bslalg::ScalarPrimitives::moveConstruct(n->d_value.address(),
-                                                dummy,
-                                                d_allocator_p);
+        ATOMIC_OP::setPtrRelease(&nextWrite->d_next, n);
 
-        proctor.release();
-
-        ATOMIC_OP::initInt(&n->d_state, e_READABLE);
-        ATOMIC_OP::initPointer(&n->d_next, target);
-
-        ATOMIC_OP::setPtrRelease(&lastWritten->d_next, n);
-        ATOMIC_OP::setPtrRelease(&d_lastWritten, n);
-
-        // While allocating this node, it is possible the queue went from full
-        // to empty.  If the queue is empty when this node is added,
-        // 'd_nextRead' might not be pointing to this new node.  Spin wait for
-        // the queue to have nodes (due to 'disablePopFront') or
-        // 'e_WRITABLE == lastWritten->d_state', and then if
-        // 'e_WRITABLE == lastWritten->d_state && d_nextRead == target' set
-        // 'd_nextRead' to 'n'.
-
-        bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
-        while (allElementsReserved(state)
-               && e_WRITABLE !=
-                             ATOMIC_OP::getIntAcquire(&lastWritten->d_state)) {
-            bslmt::ThreadUtil::yield();
-            state = ATOMIC_OP::getInt64Acquire(&d_state);
-        }
-        if (allElementsReserved(state)) {
-            ATOMIC_OP::testAndSwapPtrAcqRel(&d_nextRead,
-                                            target,
-                                            n);
-        }
+        next = n;
     }
-    else {
-        TYPE& dummy = value;
-        bslalg::ScalarPrimitives::moveConstruct(target->d_value.address(),
-                                                dummy,
-                                                d_allocator_p);
 
-        ATOMIC_OP::setIntRelease(&target->d_state, e_READABLE);
+    TYPE& dummy = value;
+    bslalg::ScalarPrimitives::moveConstruct(nextWrite->d_value.address(),
+                                            dummy,
+                                            d_allocator_p);
 
-        ATOMIC_OP::setPtrRelease(&d_lastWritten, target);
-    }
+    ATOMIC_OP::setIntRelease(&nextWrite->d_state, e_READABLE);
+    ATOMIC_OP::setPtrRelease(&d_nextWrite, next);
 
     bsls::Types::Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
                                                            k_AVAILABLE_INC);
@@ -954,19 +897,13 @@ template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::tryPopFront(
                                                                    TYPE *value)
 {
+    unsigned int generation = ATOMIC_OP::getUintAcquire(&d_popFrontDisabled);
+    if (1 == (generation & 1)) {
+        return e_DISABLED;                                            // RETURN
+    }
+
     bsls::Types::Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
                                                            -k_AVAILABLE_INC);
-
-    if (isPopFrontDisabled(state)) {
-        state = ATOMIC_OP::addInt64NvAcqRel(&d_state, k_AVAILABLE_INC);
-        if (canSupplyBlockedThread(state)) {
-            {
-                bslmt::LockGuard<MUTEX> guard(&d_readMutex);
-            }
-            d_readCondition.signal();
-        }
-        return e_DISABLED;
-    }
 
     if (willHaveBlockedThread(state)) {
         state = ATOMIC_OP::addInt64NvAcqRel(&d_state, k_AVAILABLE_INC);
@@ -1051,64 +988,38 @@ template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 void SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
                                                             ::disablePopFront()
 {
-    bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
-    bsls::Types::Int64 expState = ~state;
+    incrementUntil(&d_popFrontDisabled, 1);
 
-    while (expState != state && !isPopFrontDisabled(state)) {
-        expState = state;
-        bsls::Types::Int64 generation = (state + k_GENERATION_INC)
-                                                           & k_GENERATION_MASK;
-
-        state = ATOMIC_OP::testAndSwapInt64AcqRel(
-                                    &d_state,
-                                    state,
-                                    (state & ~k_GENERATION_MASK) | generation);
+    {
+        bslmt::LockGuard<MUTEX> guard(&d_readMutex);
     }
+    d_readCondition.broadcast();
 
-    if (expState == state) {
-        {
-            bslmt::LockGuard<MUTEX> guard(&d_readMutex);
-        }
-        d_readCondition.broadcast();
-
-        {
-            bslmt::LockGuard<MUTEX> guard(&d_emptyMutex);
-        }
-        d_emptyCondition.broadcast();
+    {
+        bslmt::LockGuard<MUTEX> guard(&d_emptyMutex);
     }
+    d_emptyCondition.broadcast();
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 void SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
                                                             ::disablePushBack()
 {
-    ATOMIC_OP::setIntRelease(&d_pushBackDisabled, 1);
+    incrementUntil(&d_pushBackDisabled, 1);
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 void SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
                                                              ::enablePopFront()
 {
-    bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
-    bsls::Types::Int64 expState = ~state;
-
-    while (expState != state && (state & k_DISABLED_MASK)) {
-        expState = state;
-        bsls::Types::Int64 generation = (state + k_GENERATION_INC)
-                                                           & k_GENERATION_MASK;
-
-        state = ATOMIC_OP::testAndSwapInt64AcqRel(
-                                    &d_state,
-                                    state,
-                                    (state & ~k_GENERATION_MASK) | generation);
-    }
+    incrementUntil(&d_popFrontDisabled, 0);
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 void SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
                                                              ::enablePushBack()
 {
-    ATOMIC_OP::setIntRelease(&d_pushBackDisabled, 0);
+    incrementUntil(&d_pushBackDisabled, 0);
 }
 
 // ACCESSORS
@@ -1127,18 +1038,17 @@ bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::isFull() const
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
-bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
-                                                     isPopFrontDisabled() const
+bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
+                                                   ::isPopFrontDisabled() const
 {
-    bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
-    return isPopFrontDisabled(state);
+    return 1 == (ATOMIC_OP::getUintAcquire(&d_popFrontDisabled) & 1);
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
-bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
-                                                     isPushBackDisabled() const
+bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
+                                                   ::isPushBackDisabled() const
 {
-    return 0 != ATOMIC_OP::getIntAcquire(&d_pushBackDisabled);
+    return 1 == (ATOMIC_OP::getUintAcquire(&d_pushBackDisabled) & 1);
 }
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
@@ -1155,23 +1065,20 @@ template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                                          waitUntilEmpty() const
 {
-    bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
-
-    bsls::Types::Int64 generation = (getGeneration(state))
-                                  | ((state & k_DISABLED_MASK) >> 1);
-
-    // Note that if the queue is currently disabled, there is no generation
-    // value that will match 'generation'.
+    unsigned int generation = ATOMIC_OP::getUintAcquire(&d_popFrontDisabled);
+    if (1 == (generation & 1)) {
+        return e_DISABLED;                                            // RETURN
+    }
 
     bslmt::LockGuard<MUTEX> guard(&d_emptyMutex);
 
-    while (generation == getGeneration(state) && !isEmpty(state)) {
+    bsls::Types::Int64 state = ATOMIC_OP::getInt64Acquire(&d_state);
+    while (!isEmpty(state)) {
+        if (generation != ATOMIC_OP::getUintAcquire(&d_popFrontDisabled)) {
+            return e_DISABLED;                                        // RETURN
+        }
         d_emptyCondition.wait(&d_emptyMutex);
         state = ATOMIC_OP::getInt64Acquire(&d_state);
-    }
-
-    if (generation != getGeneration(state)) {
-        return e_DISABLED;                                            // RETURN
     }
 
     return 0;
