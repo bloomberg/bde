@@ -279,6 +279,11 @@ class SingleProducerQueueImpl {
         // Return 'true' if the specified 'state' implies the associated queue
         // can supply an element to a thread blocked in a dequeue operation.
 
+    static bool canSupplyOneBlockedThread(bsls::Types::Int64 state);
+        // Return 'true' if the specified 'state' implies the associated queue
+        // can supply exactly one element to a thread blocked in a dequeue
+        // operation.
+
     static bsls::Types::Int64 getAvailable(bsls::Types::Int64 state);
         // Return the available attribute from the specified 'state'.
 
@@ -536,6 +541,15 @@ bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
 
 template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
 inline
+bool SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
+                            canSupplyOneBlockedThread(bsls::Types::Int64 state)
+{
+    return k_AVAILABLE_INC == (state & k_AVAILABLE_MASK)
+        && (state & k_BLOCKED_MASK);
+}
+
+template <class TYPE, class ATOMIC_OP, class MUTEX, class CONDITION>
+inline
 bsls::Types::Int64 SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
                                          getAvailable(bsls::Types::Int64 state)
 {
@@ -775,25 +789,30 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::popFront(
         bslmt::ThreadUtil::yield();
         state = ATOMIC_OP::getInt64Acquire(&d_state);
         if (willHaveBlockedThread(state)) {
-            bslmt::LockGuard<MUTEX> guard(&d_readMutex);
+            {
+                bslmt::LockGuard<MUTEX> guard(&d_readMutex);
 
-            state = ATOMIC_OP::addInt64NvAcqRel(
+                state = ATOMIC_OP::addInt64NvAcqRel(
                                               &d_state,
                                               k_AVAILABLE_INC + k_BLOCKED_INC);
 
-            while (isEmpty(state)) {
-                if (generation !=
+                while (isEmpty(state)) {
+                    if (generation !=
                               ATOMIC_OP::getUintAcquire(&d_popFrontDisabled)) {
-                    ATOMIC_OP::addInt64AcqRel(&d_state, -k_BLOCKED_INC);
-                    return e_DISABLED;                                // RETURN
+                        ATOMIC_OP::addInt64AcqRel(&d_state, -k_BLOCKED_INC);
+                        return e_DISABLED;                            // RETURN
+                    }
+                    d_readCondition.wait(&d_readMutex);
+                    state = ATOMIC_OP::getInt64Acquire(&d_state);
                 }
-                d_readCondition.wait(&d_readMutex);
-                state = ATOMIC_OP::getInt64Acquire(&d_state);
-            }
 
-            state = ATOMIC_OP::addInt64NvAcqRel(
+                state = ATOMIC_OP::addInt64NvAcqRel(
                                            &d_state,
                                            -(k_AVAILABLE_INC + k_BLOCKED_INC));
+            }
+            if (canSupplyBlockedThread(state)) {
+                d_readCondition.signal();
+            }
         }
     }
 
@@ -837,7 +856,7 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::pushBack(
     bsls::Types::Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
                                                            k_AVAILABLE_INC);
 
-    if (canSupplyBlockedThread(state)) {
+    if (canSupplyOneBlockedThread(state)) {
         {
             bslmt::LockGuard<MUTEX> guard(&d_readMutex);
         }
@@ -883,7 +902,7 @@ int SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::pushBack(
     bsls::Types::Int64 state = ATOMIC_OP::addInt64NvAcqRel(&d_state,
                                                            k_AVAILABLE_INC);
 
-    if (canSupplyBlockedThread(state)) {
+    if (canSupplyOneBlockedThread(state)) {
         {
             bslmt::LockGuard<MUTEX> guard(&d_readMutex);
         }
