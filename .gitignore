@@ -26,6 +26,7 @@ include/
 !groups/bsl/bsl+apache/test/include/
 lib/
 build/
+_build/
 coverage/
 TAGS
 *.pyc
