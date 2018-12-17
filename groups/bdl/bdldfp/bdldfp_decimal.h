@@ -678,7 +678,7 @@ class Decimal_Type32 {
         // Create a 'Decimal32_Type' object having the value closest to the
         // value of the specified 'other' value.  *Warning:* clients requiring
         // a conversion for an exact decimal value should use
-        // 'bdldfp_decimalconverutil' (see *WARNING*: Conversions from
+        // 'bdldfp_decimalconvertutil' (see *WARNING*: Conversions from
         // 'float' and 'double'}.  This conversion follows the conversion
         // rules as defined by IEEE-754:
         //
@@ -1860,7 +1860,7 @@ class Decimal_Type64 {
         // Create a 'Decimal64_Type' object having the value closest to the
         // value of the specified 'other' value.  *Warning:* clients requiring
         // a conversion for an exact decimal value should use
-        // 'bdldfp_decimalconverutil' (see *WARNING*: Conversions from
+        // 'bdldfp_decimalconvertutil' (see *WARNING*: Conversions from
         // 'float' and 'double'}.  This conversion follows the conversion
         // rules as defined by IEEE-754:
         //
@@ -3071,7 +3071,7 @@ class Decimal_Type128 {
     explicit Decimal_Type128(double other);
         // Create a 'Decimal128_Type' object having the value closest to the
         // specified 'other' value.  *Warning:* clients requiring a conversion
-        // for an exact decimal value should use 'bdldfp_decimalconverutil'
+        // for an exact decimal value should use 'bdldfp_decimalconvertutil'
         // (see *WARNING*: Conversions from 'float' and 'double'}.  This
         // conversion follows the conversion rules as defined by IEEE-754:
         //
