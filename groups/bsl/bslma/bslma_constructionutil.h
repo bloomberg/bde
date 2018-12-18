@@ -1262,17 +1262,18 @@ struct ConstructionUtil_Imp {
 
     template <class TARGET_TYPE>
     static void
-    construct(TARGET_TYPE                    *address,
-              bslma::Allocator               *allocator,
-              bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-              bslmf::MovableRef<TARGET_TYPE>  original);
-
+    construct(
+             TARGET_TYPE                                            *address,
+             bslma::Allocator                                       *allocator,
+             bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
+             bslmf::MovableRef<TARGET_TYPE>                          original);
     template <class TARGET_TYPE>
     static void
-    construct(TARGET_TYPE                    *address,
-              bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-              bslmf::MovableRef<TARGET_TYPE>  original);
-        // Create an object of a bitwise copyable (template parameter) type
+    construct(
+             TARGET_TYPE                                            *address,
+             bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
+             bslmf::MovableRef<TARGET_TYPE>                          original);
+        // Create an object of a bitwise moveable (template parameter) type
         // 'TARGET_TYPE' at the specified 'address', with the same value as the
         // specified 'original' object.  If the constructor throws, the memory
         // at 'address' is left in an unspecified state.  Note that the
@@ -2782,13 +2783,13 @@ void ConstructionUtil::construct(TARGET_TYPE                    *address,
                  ? Imp::e_USES_ALLOCATOR_ARG_T_TRAITS
                  : Imp::e_USES_BSLMA_ALLOCATOR_TRAITS)
                 : bsl::is_trivially_copyable<TARGET_TYPE>::value
-                    ? Imp::e_BITWISE_COPYABLE_TRAITS
-                    : Imp::e_NIL_TRAITS
+                 ? Imp::e_BITWISE_COPYABLE_TRAITS
+                 : Imp::e_NIL_TRAITS
     };
     Imp::construct(address,
                    allocator,
                    (bsl::integral_constant<int, k_VALUE> *)0,
-                   BSLS_COMPILERFEATURES_FORWARD(TARGET_TYPE,original));
+                   BSLS_COMPILERFEATURES_FORWARD(TARGET_TYPE, original));
 }
 
 template <class TARGET_TYPE>
@@ -2797,14 +2798,16 @@ void ConstructionUtil::construct(TARGET_TYPE                    *address,
                                  void                           *,
                                  bslmf::MovableRef<TARGET_TYPE>  original)
 {
+
     enum {
         k_VALUE = bsl::is_trivially_copyable<TARGET_TYPE>::value
                 ? Imp::e_BITWISE_COPYABLE_TRAITS
                 : Imp::e_NIL_TRAITS
     };
+
     Imp::construct(address,
                    (bsl::integral_constant<int, k_VALUE>*)0,
-                   BSLS_COMPILERFEATURES_FORWARD(TARGET_TYPE,original));
+                   BSLS_COMPILERFEATURES_FORWARD(TARGET_TYPE, original));
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15
@@ -4186,27 +4189,34 @@ void ConstructionUtil_Imp::construct(TARGET_TYPE       *address,
 
 template <class TARGET_TYPE>
 inline
-void ConstructionUtil_Imp::construct(TARGET_TYPE                    *address,
-                                     bslma::Allocator               *,
-                      bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-                                     bslmf::MovableRef<TARGET_TYPE>  original)
+void ConstructionUtil_Imp::construct(
+              TARGET_TYPE                                            *address,
+              bslma::Allocator                                       *,
+              bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
+              bslmf::MovableRef<TARGET_TYPE>                         original)
 {
-    const TARGET_TYPE& lvalue = original;
     construct(address,
               (bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS>*)0,
-               lvalue);
+              BSLS_COMPILERFEATURES_FORWARD(TARGET_TYPE, original));
 }
 
 template <class TARGET_TYPE>
 inline
-void ConstructionUtil_Imp::construct(TARGET_TYPE                    *address,
-                      bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
-                                     bslmf::MovableRef<TARGET_TYPE>  original)
+void ConstructionUtil_Imp::construct(
+               TARGET_TYPE                                           *address,
+               bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS> *,
+               bslmf::MovableRef<TARGET_TYPE>                         original)
 {
-    const TARGET_TYPE& lvalue = original;
-    construct(address,
-              (bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS>*)0,
-               lvalue);
+    if (bsl::is_fundamental<TARGET_TYPE>::value
+     || bsl::is_pointer<TARGET_TYPE>::value
+     || bsl::is_empty<TARGET_TYPE>::value) {
+         ::new (voidify(address)) TARGET_TYPE(
+                         BSLS_COMPILERFEATURES_FORWARD(TARGET_TYPE, original));
+         BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
+     } else {
+         TARGET_TYPE& lvalue = original;
+         memcpy((void *)address, BSLS_UTIL_ADDRESSOF(lvalue), sizeof lvalue);
+     }
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=15

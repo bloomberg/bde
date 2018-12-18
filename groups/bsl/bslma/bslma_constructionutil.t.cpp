@@ -12,6 +12,7 @@
 #include <bslmf_movableref.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 
 #include <utility>
@@ -20,6 +21,7 @@
 #include <string.h>
 
 using namespace BloombergLP;
+using bsls::NameOf;
 
 //=============================================================================
 //                             TEST PLAN
@@ -44,10 +46,11 @@ using namespace BloombergLP;
 // a fussy type that will modify its (internal and/or class-static) state upon
 // invocation of the copy constructor, but not when copying bit-wise.
 //-----------------------------------------------------------------------------
-// [ 3] construct(T *dst, *a);                -- default constructor
-// [ 4] construct(T *dst, const T& src, *a);  -- copy constructor
-// [ 5] construct(T *dst, T&& src, *a);       -- move constructor
-// [ 6] construct(T *dst, A[1--N]..., *a);    -- value constructor
+// [ 3] construct(T *dst, *a);
+// [ 4] construct(T *dst, const T& src, *a);
+// [ 5] void construct(TYPE *addr, Allocator *a, MovableRef<TYPE> orig);
+// [ 5] void construct(TYPE *addr, void      *a, MovableRef<TYPE> orig);
+// [ 6] construct(T *dst, A[1--N]..., *a);
 // [ 7] destructiveMove(T *dst, ALLOCATOR *a, TARGET_TYPE *src);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -112,6 +115,12 @@ typedef bslma::DestructionUtil  DestructionUtil;
 typedef bslmf::MovableRefUtil   MoveUtil;
 
 const int MOVED_FROM_VAL = 0x01d;
+
+// STATIC DATA
+static bool verbose;
+static bool veryVerbose;
+static bool veryVeryVerbose;
+static bool veryVeryVeryVerbose;
 
 //=============================================================================
 //                             CLASSES FOR TESTING
@@ -1655,6 +1664,724 @@ ConstructTestArgAlloc<12>   VA12(12);
 ConstructTestArgAlloc<13>   VA13(13);
 ConstructTestArgAlloc<14>   VA14(14);
 
+                             // ====================
+                             // Base Type Qualifiers
+                             // ====================
+
+// The following empty classes are used as qualifiers for the base type,
+// allowing to modify behavior of the 'bslma::ConstructionUtil::construct'
+// functions via different trait values for different base class
+// specifications.
+
+class TRIVIAL     {};  // trivially copyable type
+class NON_TRIVIAL {};  // non-trivially copyable type
+class BSLMA_ALLOC {};  // type using bslma allocator
+class ARG_T_ALLOC {};  // tape using special argument with allocator
+
+                             // ==================
+                             // class BaseTestType
+                             // ==================
+template <class T>
+class BaseTestType {
+    // This class provides a mechanism (static variables) to establish exactly
+    // which copy or move constructor is called.
+
+  public:
+    // CLASS DATA
+    static int s_copyConstructorInvocations;
+    static int s_moveConstructorInvocations;
+    static int s_copyAllocConstructorInvocations;
+    static int s_moveAllocConstructorInvocations;
+    static int s_copyArgTConstructorInvocations;
+    static int s_moveArgTConstructorInvocations;
+
+    // DATA
+    my_ClassDef d_def;  // object's value
+
+    // CREATORS
+    BaseTestType()
+        // Create an object having the null value.
+    {
+        d_def.d_value = 0;
+        d_def.d_allocator_p = 0;
+    }
+
+    BaseTestType(int value, bslma::Allocator *alloc = 0)
+        // Create an object that has the specified 'value' and that uses the
+        // specified 'alloc' to supply memory.
+    {
+        d_def.d_value = value;
+        d_def.d_allocator_p = alloc;
+    }
+
+    BaseTestType(const BaseTestType& original)
+        // Create an object having the value of the specified 'original'
+        // object.
+    {
+        ++s_copyConstructorInvocations;
+        d_def.d_value = original.d_def.d_value;
+        d_def.d_allocator_p = 0;
+    }
+
+    BaseTestType(const BaseTestType& original, bslma::Allocator *alloc)
+        // Create an object that has the value of the specified 'original'
+        // object and that uses the specified 'alloc' to supply memory.
+    {
+        ++s_copyAllocConstructorInvocations;
+        d_def.d_value = original.d_def.d_value;
+        d_def.d_allocator_p = alloc;
+    }
+
+    BaseTestType(const bsl::allocator_arg_t&,
+                 bslma::Allocator            *alloc,
+                 const BaseTestType&          original)
+        // Following the 'allocator_arg_t' construction protocol create an
+        // object having the same value as the specified 'original' object that
+        // uses the specified 'alloc' to supply memory.
+    {
+        ++s_copyArgTConstructorInvocations;
+        d_def.d_value = original.d_def.d_value;
+        d_def.d_allocator_p = alloc;
+    }
+
+
+    BaseTestType(bslmf::MovableRef<BaseTestType> original)
+        // Create an object having the same value as the specified
+        // 'original' object by moving the contents of 'original' to the
+        // newly-created object.
+    {
+        ++s_moveConstructorInvocations;
+        BaseTestType& lvalue = original;
+        d_def.d_value = lvalue.d_def.d_value;
+        d_def.d_allocator_p = 0;
+    }
+
+    BaseTestType(bslmf::MovableRef<BaseTestType>  original,
+                 bslma::Allocator                *alloc)
+        // Create an object having the same value as the specified 'original'
+        // object that uses the specified 'alloc' to supply memory by moving
+        // the contents of 'original' to the newly-created object.
+     {
+        ++s_moveAllocConstructorInvocations;
+        BaseTestType& lvalue = original;
+        d_def.d_value = lvalue.d_def.d_value;
+        d_def.d_allocator_p = alloc;
+    }
+
+    BaseTestType(const bsl::allocator_arg_t&,
+                 bslma::Allocator                *alloc,
+                 bslmf::MovableRef<BaseTestType> original)
+        // Following the 'allocator_arg_t' construction protocol create an
+        // object having the same value as the specified 'original' object that
+        // uses the specified 'alloc' to supply memory by moving the contents
+        // of 'original' to the newly-created object.
+    {
+        ++s_moveArgTConstructorInvocations;
+        BaseTestType& lvalue = original;
+        d_def.d_value = lvalue.d_def.d_value;
+        d_def.d_allocator_p = alloc;
+    }
+
+    // ACCESSORS
+    int value() const
+        // Return the value of this object.
+    {
+        return d_def.d_value;
+    }
+
+    bslma::Allocator *allocator() const
+        // Return the allocator used by this object to supply memory.
+    {
+        return d_def.d_allocator_p;
+    }
+
+};
+
+// CLASS DATA
+template <class T>
+int BaseTestType<T>::s_copyConstructorInvocations = 0;
+template <class T>
+int BaseTestType<T>::s_moveConstructorInvocations = 0;
+template <class T>
+int BaseTestType<T>::s_copyAllocConstructorInvocations = 0;
+template <class T>
+int BaseTestType<T>::s_moveAllocConstructorInvocations = 0;
+template <class T>
+int BaseTestType<T>::s_copyArgTConstructorInvocations = 0;
+template <class T>
+int BaseTestType<T>::s_moveArgTConstructorInvocations = 0;
+
+                          // =====================
+                          // class TrivialTestType
+                          // =====================
+
+typedef BaseTestType<TRIVIAL>     TrivialTestType;
+
+                         // ========================
+                         // class NonTrivialTestType
+                         // ========================
+
+typedef BaseTestType<NON_TRIVIAL> NonTrivialTestType;
+
+                         // ========================
+                         // class BslmaAllocTestType
+                         // ========================
+
+typedef BaseTestType<BSLMA_ALLOC> BslmaAllocTestType;
+
+                         // =======================
+                         // class ArgTAllocTestType
+                         // =======================
+
+typedef BaseTestType<ARG_T_ALLOC> ArgTAllocTestType;
+
+// TRAITS
+
+namespace bsl {
+template <>
+struct is_trivially_copyable< TrivialTestType    > : true_type {};
+
+template <>
+struct is_trivially_copyable< NonTrivialTestType > : false_type {};
+
+template <>
+struct is_trivially_copyable< BslmaAllocTestType > : false_type {};
+
+template <>
+struct is_trivially_copyable< ArgTAllocTestType  > : false_type {};
+
+}  // close namespace bsl
+
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<BslmaAllocTestType> : bsl::true_type {};
+
+template <>
+struct UsesBslmaAllocator<ArgTAllocTestType> : bsl::true_type {};
+
+}  // close namespace bslma
+
+namespace bslmf {
+
+template <>
+struct UsesAllocatorArgT<ArgTAllocTestType> : bsl::true_type {};
+
+}  // close namespace bslmf
+
+}  // close enterprise namespace
+
+                             // ==========================
+                             // class MoveOnlyBaseTestType
+                             // ==========================
+template <class T>
+class MoveOnlyBaseTestType {
+    // This class, having deprecated copy constructors, provides a mechanism
+    // (static variables) to establish exactly which copy or move constructor
+    // is called.
+
+  private:
+    // NOT IMPLEMENTED
+    MoveOnlyBaseTestType(const MoveOnlyBaseTestType&);             // = delete;
+    MoveOnlyBaseTestType(const MoveOnlyBaseTestType&, bslma::Allocator *);
+                                                                   // = delete;
+    MoveOnlyBaseTestType(const bsl::allocator_arg_t&,
+                         bslma::Allocator            *,
+                         const MoveOnlyBaseTestType&);             // = delete;
+
+  public:
+    // CLASS DATA
+    static int s_copyConstructorInvocations;
+    static int s_moveConstructorInvocations;
+    static int s_copyAllocConstructorInvocations;
+    static int s_moveAllocConstructorInvocations;
+    static int s_copyArgTConstructorInvocations;
+    static int s_moveArgTConstructorInvocations;
+
+    // DATA
+    my_ClassDef d_def;  // object's value
+
+    // CREATORS
+    MoveOnlyBaseTestType()
+        // Create an object having the null value.
+    {
+        d_def.d_value = 0;
+        d_def.d_allocator_p = 0;
+    }
+
+    MoveOnlyBaseTestType(int value, bslma::Allocator *alloc = 0)
+        // Create an object that has the specified 'value' and that uses the
+        // specified 'alloc' to supply memory.
+    {
+        d_def.d_value = value;
+        d_def.d_allocator_p = alloc;
+    }
+
+    MoveOnlyBaseTestType(bslmf::MovableRef<MoveOnlyBaseTestType> original)
+        // Create an object having the same value as the specified 'original'
+        // object by moving the contents of 'original' to the newly-created
+        // object.
+    {
+        ++s_moveConstructorInvocations;
+        MoveOnlyBaseTestType& lvalue = original;
+        d_def.d_value = lvalue.d_def.d_value;
+        d_def.d_allocator_p = 0;
+    }
+
+    MoveOnlyBaseTestType(bslmf::MovableRef<MoveOnlyBaseTestType>  original,
+                         bslma::Allocator                        *alloc)
+        // Create an object having the same value as the specified 'original'
+        // object that uses the specified 'alloc' to supply memory by moving
+        // the contents of 'original' to the newly-created object.
+    {
+        ++s_moveAllocConstructorInvocations;
+        MoveOnlyBaseTestType& lvalue = original;
+        d_def.d_value = lvalue.d_def.d_value;
+        d_def.d_allocator_p = alloc;
+    }
+
+    MoveOnlyBaseTestType(const bsl::allocator_arg_t&,
+                         bslma::Allocator                        *alloc,
+                         bslmf::MovableRef<MoveOnlyBaseTestType>  original)
+        // Following the 'allocator_arg_t' construction protocol create an
+        // object having the same value as the specified 'original' object that
+        // uses the specified 'alloc' to supply memory by moving the contents
+        // of 'original' to the newly-created object.
+    {
+        ++s_moveArgTConstructorInvocations;
+        MoveOnlyBaseTestType& lvalue = original;
+        d_def.d_value = lvalue.d_def.d_value;
+        d_def.d_allocator_p = alloc;
+    }
+
+    // ACCESSORS
+    int value() const
+        // Return the value of this object.
+    {
+        return d_def.d_value;
+    }
+
+    bslma::Allocator *allocator() const
+        // Return the allocator used by this object to supply memory.
+    {
+        return d_def.d_allocator_p;
+    }
+};
+
+// CLASS DATA
+template <class T>
+int MoveOnlyBaseTestType<T>::s_copyConstructorInvocations = 0;
+template <class T>
+int MoveOnlyBaseTestType<T>::s_moveConstructorInvocations = 0;
+template <class T>
+int MoveOnlyBaseTestType<T>::s_copyAllocConstructorInvocations = 0;
+template <class T>
+int MoveOnlyBaseTestType<T>::s_moveAllocConstructorInvocations = 0;
+template <class T>
+int MoveOnlyBaseTestType<T>::s_copyArgTConstructorInvocations = 0;
+template <class T>
+int MoveOnlyBaseTestType<T>::s_moveArgTConstructorInvocations = 0;
+
+                          // =============================
+                          // class MoveOnlyTrivialTestType
+                          // =============================
+
+typedef MoveOnlyBaseTestType<TRIVIAL> MoveOnlyTrivialTestType;
+
+                         // ================================
+                         // class MoveOnlyNonTrivialTestType
+                         // ================================
+
+typedef MoveOnlyBaseTestType<NON_TRIVIAL> MoveOnlyNonTrivialTestType;
+
+                         // ================================
+                         // class MoveOnlyBslmaAllocTestType
+                         // ================================
+
+typedef MoveOnlyBaseTestType<BSLMA_ALLOC> MoveOnlyBslmaAllocTestType;
+
+                         // ===============================
+                         // class MoveOnlyArgTAllocTestType
+                         // ===============================
+
+typedef MoveOnlyBaseTestType<ARG_T_ALLOC> MoveOnlyArgTAllocTestType;
+
+
+// TRAITS
+namespace bsl {
+
+template <>
+struct is_trivially_copyable<MoveOnlyTrivialTestType> : true_type {};
+
+template <>
+struct is_trivially_copyable<MoveOnlyNonTrivialTestType> : false_type {};
+
+template <>
+struct is_trivially_copyable<MoveOnlyBslmaAllocTestType> : false_type {};
+
+template <>
+struct is_trivially_copyable<MoveOnlyArgTAllocTestType> : false_type {};
+
+}  // close namespace bsl
+
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<MoveOnlyBslmaAllocTestType> : bsl::true_type {};
+
+template <>
+struct UsesBslmaAllocator<MoveOnlyArgTAllocTestType> : bsl::true_type {};
+
+}  // close namespace bslma
+
+namespace bslmf {
+
+template <>
+struct UsesAllocatorArgT<MoveOnlyArgTAllocTestType> : bsl::true_type {};
+
+}  // close namespace bslmf
+
+}  // close enterprise namespace
+
+                             // ==========================
+                             // class CopyOnlyBaseTestType
+                             // ==========================
+
+template <class T>
+class CopyOnlyBaseTestType {
+    // This class, that does not support move constructors, provides a
+    // mechanism (static variables) to establish exactly which copy or move
+    // constructor is called.
+
+  public:
+    // CLASS DATA
+    static int s_copyConstructorInvocations;
+    static int s_moveConstructorInvocations;
+    static int s_copyAllocConstructorInvocations;
+    static int s_moveAllocConstructorInvocations;
+    static int s_copyArgTConstructorInvocations;
+    static int s_moveArgTConstructorInvocations;
+
+    // DATA
+    my_ClassDef d_def;  // object's value
+
+    // CREATORS
+    CopyOnlyBaseTestType()
+        // Create an object having the null value.
+    {
+        d_def.d_value = 0;
+        d_def.d_allocator_p = 0;
+    }
+
+    CopyOnlyBaseTestType(int value, bslma::Allocator *alloc = 0)
+        // Create an object that has the specified 'value' and that uses the
+        // specified 'alloc' to supply memory.
+    {
+        d_def.d_value = value;
+        d_def.d_allocator_p = alloc;
+    }
+
+    CopyOnlyBaseTestType(const CopyOnlyBaseTestType& original)
+        // Create an object having the value of the specified 'original'
+        // object.
+    {
+        ++s_copyConstructorInvocations;
+        d_def.d_value = original.d_def.d_value;
+        d_def.d_allocator_p = 0;
+    }
+
+    CopyOnlyBaseTestType(const CopyOnlyBaseTestType&  original,
+                         bslma::Allocator            *alloc)
+        // Create an object that has the value of the specified 'original'
+        // object and that uses the specified 'alloc' to supply memory.
+    {
+        ++s_copyAllocConstructorInvocations;
+        d_def.d_value = original.d_def.d_value;
+        d_def.d_allocator_p = alloc;
+    }
+
+    CopyOnlyBaseTestType(const bsl::allocator_arg_t&,
+                         bslma::Allocator            *alloc,
+                         const CopyOnlyBaseTestType&  original)
+        // Following the 'allocator_arg_t' construction protocol create an
+        // object having the same value as the specified 'original' object that
+        // uses the specified 'alloc' to supply memory.
+    {
+        ++s_copyArgTConstructorInvocations;
+        d_def.d_value = original.d_def.d_value;
+        d_def.d_allocator_p = alloc;
+    }
+
+    // ACCESSORS
+    int value() const
+        // Return the value of this object.
+    {
+        return d_def.d_value;
+    }
+
+    bslma::Allocator *allocator() const
+        // Return the allocator used by this object to supply memory.
+    {
+        return d_def.d_allocator_p;
+    }
+};
+
+// CLASS DATA
+template <class T>
+int CopyOnlyBaseTestType<T>::s_copyConstructorInvocations = 0;
+template <class T>
+int CopyOnlyBaseTestType<T>::s_moveConstructorInvocations = 0;
+template <class T>
+int CopyOnlyBaseTestType<T>::s_copyAllocConstructorInvocations = 0;
+template <class T>
+int CopyOnlyBaseTestType<T>::s_moveAllocConstructorInvocations = 0;
+template <class T>
+int CopyOnlyBaseTestType<T>::s_copyArgTConstructorInvocations = 0;
+template <class T>
+int CopyOnlyBaseTestType<T>::s_moveArgTConstructorInvocations = 0;
+
+                          // =============================
+                          // class CopyOnlyTrivialTestType
+                          // =============================
+
+typedef CopyOnlyBaseTestType<TRIVIAL>     CopyOnlyTrivialTestType;
+
+                         // ================================
+                         // class CopyOnlyNonTrivialTestType
+                         // ================================
+
+typedef CopyOnlyBaseTestType<NON_TRIVIAL> CopyOnlyNonTrivialTestType;
+
+                         // ================================
+                         // class CopyOnlyBslmaAllocTestType
+                         // ================================
+
+typedef CopyOnlyBaseTestType<BSLMA_ALLOC> CopyOnlyBslmaAllocTestType;
+
+                         // ===============================
+                         // class CopyOnlyArgTAllocTestType
+                         // ===============================
+
+typedef CopyOnlyBaseTestType<ARG_T_ALLOC> CopyOnlyArgTAllocTestType;
+
+
+// TRAITS
+namespace bsl {
+template <>
+struct is_trivially_copyable<CopyOnlyTrivialTestType> : true_type {};
+
+template <>
+struct is_trivially_copyable<CopyOnlyNonTrivialTestType> : false_type {};
+
+template <>
+struct is_trivially_copyable<CopyOnlyBslmaAllocTestType> : false_type {};
+
+template <>
+struct is_trivially_copyable<CopyOnlyArgTAllocTestType> : false_type {};
+
+}  // close namespace bsl
+
+namespace BloombergLP {
+namespace bslma {
+
+template <>
+struct UsesBslmaAllocator<CopyOnlyBslmaAllocTestType> : bsl::true_type {};
+
+template <>
+struct UsesBslmaAllocator<CopyOnlyArgTAllocTestType> : bsl::true_type {};
+
+}  // close namespace bslma
+
+namespace bslmf {
+
+template <>
+struct UsesAllocatorArgT<CopyOnlyArgTAllocTestType> : bsl::true_type {};
+
+}  // close namespace bslmf
+
+}  // close enterprise namespace
+
+//=============================================================================
+//                            TEST DRIVER TEMPLATE
+//-----------------------------------------------------------------------------
+
+                            // ================
+                            // class TestDriver
+                            // ================
+
+template <class TYPE>
+struct TestDriver
+    // This template class provides a namespace for testing
+    // 'bslma::ConstructionUtil'.  The template parameter 'TYPE' specifies the
+    // type to construct.
+{
+
+  public:
+    // TYPES
+    enum ExpectedAllocator {
+        DEFAULT  = 0,
+        OBJECT   = 1,
+        SUPPLIED = 2
+    };
+
+    // CLASS METHODS
+    static void testCase5Imp(int               expCopyInvocationsNum,
+                             int               expMoveInvocationsNum,
+                             int               expCopyAllocInvocationsNum,
+                             int               expMoveAllocInvocationsNum,
+                             int               expCopyArgTInvocationsNum,
+                             int               expMoveArgTInvocationsNum,
+                             ExpectedAllocator expAlloc,
+                             bool              useAllocator
+                             );
+        // Implementation of the 'testCase5Alloc' and the 'testCase5NoAlloc'.
+
+    static void testCase5NoAlloc(int               expCopyInvocationsNum,
+                                 int               expMoveInvocationsNum,
+                                 int               expCopyAllocInvocationsNum,
+                                 int               expMoveAllocInvocationsNum,
+                                 int               expCopyArgTInvocationsNum,
+                                 int               expMoveArgTInvocationsNum,
+                                 ExpectedAllocator expAlloc);
+        // Test 'construct(TYPE *addr, void *a, MovableRef<TYPE> orig)';
+
+    static void testCase5Alloc(int               expCopyInvocationsNum,
+                               int               expMoveInvocationsNum,
+                               int               expCopyAllocInvocationsNum,
+                               int               expMoveAllocInvocationsNum,
+                               int               expCopyArgTInvocationsNum,
+                               int               expMoveArgTInvocationsNum,
+                               ExpectedAllocator expAlloc);
+        // Test 'construct(TYPE *addr, Allocator *a, MovableRef<TYPE> orig)';
+};
+                           //-----------
+                           // TEST CASES
+                           //-----------
+
+template<class TYPE>
+void TestDriver<TYPE>::testCase5Imp(
+                                  int               expCopyInvocationsNum,
+                                  int               expMoveInvocationsNum,
+                                  int               expCopyAllocInvocationsNum,
+                                  int               expMoveAllocInvocationsNum,
+                                  int               expCopyArgTInvocationsNum,
+                                  int               expMoveArgTInvocationsNum,
+                                  ExpectedAllocator expAlloc,
+                                  bool              useAllocator)
+{
+    if (veryVerbose) {
+        T_ T_ P(bsls::NameOf<TYPE>());
+    }
+
+    bslma::TestAllocator  oa;
+    TYPE                  fromObj(1, &oa);
+    bslma::TestAllocator  sa;
+    void                 *VOID_ALLOC     = 0;
+    bslma::TestAllocator *SUPPLIED_ALLOC = &sa;
+    bslma::TestAllocator *OBJECT_ALLOC   = &oa;
+
+    bslma::TestAllocator *EXP_ALLOC      = 0;
+    if (OBJECT == expAlloc) {
+        EXP_ALLOC = OBJECT_ALLOC;
+    } else if (SUPPLIED == expAlloc) {
+        EXP_ALLOC = SUPPLIED_ALLOC;
+    }
+
+    my_ClassDef rawBuf;
+    memset(&rawBuf, 92, sizeof(rawBuf));
+    TYPE *objPtr = (TYPE*) &rawBuf;
+
+    // Preparation.
+
+    TYPE::s_copyConstructorInvocations      = 0;
+    TYPE::s_moveConstructorInvocations      = 0;
+    TYPE::s_copyAllocConstructorInvocations = 0;
+    TYPE::s_moveAllocConstructorInvocations = 0;
+    TYPE::s_copyArgTConstructorInvocations  = 0;
+    TYPE::s_moveArgTConstructorInvocations  = 0;
+
+    // Construction.
+
+    if (useAllocator) {
+        Util::construct(objPtr, SUPPLIED_ALLOC, MoveUtil::move(fromObj));
+    } else {
+        Util::construct(objPtr, VOID_ALLOC,     MoveUtil::move(fromObj));
+    }
+
+    // Verification.
+
+    ASSERTV(bsls::NameOf<TYPE>(), TYPE::s_copyConstructorInvocations,
+            expCopyInvocationsNum == TYPE::s_copyConstructorInvocations);
+    ASSERTV(bsls::NameOf<TYPE>(), TYPE::s_moveConstructorInvocations,
+            expMoveInvocationsNum == TYPE::s_moveConstructorInvocations);
+    ASSERTV(
+        bsls::NameOf<TYPE>(), TYPE::s_copyAllocConstructorInvocations,
+        expCopyAllocInvocationsNum == TYPE::s_copyAllocConstructorInvocations);
+    ASSERTV(
+        bsls::NameOf<TYPE>(), TYPE::s_moveAllocConstructorInvocations,
+        expMoveAllocInvocationsNum == TYPE::s_moveAllocConstructorInvocations);
+    ASSERTV(
+        bsls::NameOf<TYPE>(), TYPE::s_copyArgTConstructorInvocations,
+        expCopyArgTInvocationsNum == TYPE::s_copyArgTConstructorInvocations);
+    ASSERTV(
+        bsls::NameOf<TYPE>(), TYPE::s_moveAllocConstructorInvocations,
+        expMoveArgTInvocationsNum == TYPE::s_moveArgTConstructorInvocations);
+
+    ASSERTV(fromObj.value() == objPtr->value());
+    ASSERTV(EXP_ALLOC       == objPtr->allocator());
+
+    // Cleanup.
+
+    TYPE::s_copyConstructorInvocations      = 0;
+    TYPE::s_moveConstructorInvocations      = 0;
+    TYPE::s_copyAllocConstructorInvocations = 0;
+    TYPE::s_moveAllocConstructorInvocations = 0;
+    TYPE::s_copyArgTConstructorInvocations  = 0;
+    TYPE::s_moveArgTConstructorInvocations  = 0;
+}
+
+template<class TYPE>
+void TestDriver<TYPE>::testCase5Alloc(
+                                  int               expCopyInvocationsNum,
+                                  int               expMoveInvocationsNum,
+                                  int               expCopyAllocInvocationsNum,
+                                  int               expMoveAllocInvocationsNum,
+                                  int               expCopyArgTInvocationsNum,
+                                  int               expMoveArgTInvocationsNum,
+                                  ExpectedAllocator expAlloc)
+{
+    testCase5Imp(expCopyInvocationsNum,
+                 expMoveInvocationsNum,
+                 expCopyAllocInvocationsNum,
+                 expMoveAllocInvocationsNum,
+                 expCopyArgTInvocationsNum,
+                 expMoveArgTInvocationsNum,
+                 expAlloc,
+                 true);
+}
+
+template<class TYPE>
+void TestDriver<TYPE>::testCase5NoAlloc(
+                                  int               expCopyInvocationsNum,
+                                  int               expMoveInvocationsNum,
+                                  int               expCopyAllocInvocationsNum,
+                                  int               expMoveAllocInvocationsNum,
+                                  int               expCopyArgTInvocationsNum,
+                                  int               expMoveArgTInvocationsNum,
+                                  ExpectedAllocator expAlloc)
+{
+    testCase5Imp(expCopyInvocationsNum,
+                 expMoveInvocationsNum,
+                 expCopyAllocInvocationsNum,
+                 expMoveAllocInvocationsNum,
+                 expCopyArgTInvocationsNum,
+                 expMoveArgTInvocationsNum,
+                 expAlloc,
+                 false);
+}
+
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -1994,11 +2721,11 @@ ConstructTestArgAlloc<14>   VA14(14);
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
-    bool veryVeryVeryVerbose = argc > 5;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     forceDestructorCall = veryVeryVerbose;
 
@@ -2589,114 +3316,94 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING 'moveConstruct'
+        // TESTING MOVE CONSTRUCTION
         //
         // Concerns:
-        //   o That the move constructor properly forwards the allocator
-        //     when appropriate.
-        //   o That the move constructor uses 'memcpy' when appropriate.
-        //   o That the move constructor leaves the moved-from object in an
-        //     appropriate state.
+        //: 1 The 'construct' function with 'MovableRef' parameter properly
+        //:   forwards the allocator to the object constructor when
+        //:   appropriate.
+        //:
+        //: 2 The 'construct' function with 'MovableRef' parameter uses
+        //:   'memcpy' instead of constructor call for bitwise copyable
+        //:   objects.
         //
-        // Plan: Construct a copy of pre-initialized objects into an
-        //   uninitialized buffer using move construction, passing allocators
-        //   of both types 'bslma::Allocator *' and 'void *' types, and verify
-        //   that the values and allocator of the copy are as expected.  Using
-        //   a fussy type that has the BitwiseCopyable trait, ensure that the
-        //   copy constructor and move constructor is not invoked.
+        // Plan:
+        //: 1 Using special types, construct copies of pre-initialized objects
+        //:   into uninitialized buffers using move construction, passing
+        //:   allocators of both types 'bslma::Allocator *' and 'void *' types,
+        //:   and verify that the value and allocator of the copy are as
+        //:   expected.  Ensure that the expected overload of move
+        //:   constructor (or copy constructor) is invoked.  (C-1,2)
         //
         // Testing:
-        //   moveConstruct(T *dst, T& src, *a);
+        //   void construct(TYPE *addr, Allocator *a, MovableRef<TYPE> orig);
+        //   void construct(TYPE *addr, void      *a, MovableRef<TYPE> orig);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'moveConstruct'"
-                            "\n=======================\n");
+        if (verbose) printf("\nTESTING MOVE CONSTRUCTION"
+                            "\n=========================\n");
 
-        bslma::Allocator     *const DA = bslma::Default::allocator();
-        bslma::TestAllocator        testAllocator(veryVeryVerbose);
-        bslma::TestAllocator *const TA = &testAllocator;
-        int                         dummyAllocator;  // not a 'bslma' allocator
-        int                  *const XA = &dummyAllocator;
+        typedef TestDriver<           TrivialTestType>     T;
+        typedef TestDriver<        NonTrivialTestType>    NT;
+        typedef TestDriver<        BslmaAllocTestType>   BAT;
+        typedef TestDriver<         ArgTAllocTestType>   ATT;
 
-        // my_Class                                               Expected
-        //      #  Operation                                      Val Alloc
-        //      =  ============================================== === =====
-        TEST_MV(1, construct(objPtr, TA, MoveUtil::move(fromObj)),  1, 0);
-        TEST_MV(2, construct(objPtr, TA, MoveUtil::move(fromObj)),  2, TA);
-        TEST_MV(1, construct(objPtr, XA, MoveUtil::move(fromObj)),  1, 0);
-        TEST_MV(2, construct(objPtr, XA, MoveUtil::move(fromObj)),  2, 0);
+        typedef TestDriver<   MoveOnlyTrivialTestType>   MOT;
+        typedef TestDriver<MoveOnlyNonTrivialTestType>  MONT;
+        typedef TestDriver<MoveOnlyBslmaAllocTestType> MOBAT;
+        typedef TestDriver< MoveOnlyArgTAllocTestType> MOATT;
 
-        if (verbose) printf("Exception testing.\n");
+        typedef TestDriver<   CopyOnlyTrivialTestType>   COT;
+        typedef TestDriver<CopyOnlyNonTrivialTestType>  CONT;
+        typedef TestDriver<CopyOnlyBslmaAllocTestType> COBAT;
+        typedef TestDriver< CopyOnlyArgTAllocTestType> COATT;
 
-        if (verbose) printf("\t...pair with allocators\n");
+        // Legend
+        // ------
+        // CP   - copy constructor
+        // MV   - move constructor
+        // CP_B - copy constructor with bslma allocator
+        // MV_B - move constructor with bslma allocator
+        // CP_A - copy constructor with an argument tag
+        // MV_A - move constructor with an argument tag
 
-        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-            my_ClassDef    rawBuf[2];
-            my_PairAA_4_4 *objPtr = (my_PairAA_4_4 *)rawBuf;
-            my_PairAA_4_4  fromObj(PAAV4V4);
-            Util::construct(objPtr, TA, MoveUtil::move(fromObj));
-            ASSERT(4  == rawBuf[0].d_value);
-            ASSERT(TA == rawBuf[0].d_allocator_p);
-            ASSERT(4  == rawBuf[1].d_value);
-            ASSERT(TA == rawBuf[1].d_allocator_p);
-            ASSERT_IS_MOVED_FROM(fromObj.first);
-            ASSERT_IS_MOVED_FROM(fromObj.second);
-            objPtr->~my_PairAA_4_4();
+        if (verbose) printf("\tWithout allocators\n");
 
-            memset(rawBuf, 91, sizeof(rawBuf));
-            fromObj = PAAV4V4;
-            Util::construct(objPtr, XA, MoveUtil::move(fromObj));
-            ASSERT(4  == rawBuf[0].d_value);
-            ASSERT(DA == rawBuf[0].d_allocator_p);
-            ASSERT(4  == rawBuf[1].d_value);
-            ASSERT(DA == rawBuf[1].d_allocator_p);
-            ASSERT_IS_MOVED_FROM(fromObj.first);
-            ASSERT_IS_MOVED_FROM(fromObj.second);
-            objPtr->~my_PairAA_4_4();
-        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+        //                      CP   MV   CP_B MV_B CP_A MV_A EXP_ALLOCATOR
+        //                      ==   ==   ==== ==== ==== ==== ==============
+            T::testCase5NoAlloc(0,   0,   0,   0,   0,   0,       T::OBJECT  );
+           NT::testCase5NoAlloc(0,   1,   0,   0,   0,   0,      NT::DEFAULT );
+          BAT::testCase5NoAlloc(0,   1,   0,   0,   0,   0,     BAT::DEFAULT );
+          ATT::testCase5NoAlloc(0,   1,   0,   0,   0,   0,     ATT::DEFAULT );
 
-        if (verbose) printf("\t...constructing pair with IsPair\n");
+          MOT::testCase5NoAlloc(0,   0,   0,   0,   0,   0,     MOT::OBJECT  );
+         MONT::testCase5NoAlloc(0,   1,   0,   0,   0,   0,    MONT::DEFAULT );
+        MOBAT::testCase5NoAlloc(0,   1,   0,   0,   0,   0,   MOBAT::DEFAULT );
+        MOATT::testCase5NoAlloc(0,   1,   0,   0,   0,   0,   MOATT::DEFAULT );
 
-        // Testing that 'TA' is not passed to the pair constructor and the
-        // default allocator is used instead.
-        const bsls::Types::Int64 NUM_ALLOC1 = testAllocator.numAllocations();
-        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-            my_ClassDef    rawBuf[2];
-            my_PairBB_4_4 *objPtr = (my_PairBB_4_4 *)rawBuf;;
-            my_PairBB_4_4  fromObj(PBBV4V4);
-            Util::construct(objPtr, TA, MoveUtil::move(fromObj));
-            ASSERT(4  == rawBuf[0].d_value);
-            ASSERT(DA == rawBuf[0].d_allocator_p);
-            ASSERT(4  == rawBuf[1].d_value);
-            ASSERT(DA == rawBuf[1].d_allocator_p);
-            ASSERT_IS_MOVED_FROM(fromObj.first);
-            ASSERT_IS_MOVED_FROM(fromObj.second);
-            objPtr->~my_PairBB_4_4();
+          COT::testCase5NoAlloc(0,   0,   0,   0,   0,   0,     COT::OBJECT  );
+         CONT::testCase5NoAlloc(1,   0,   0,   0,   0,   0,    CONT::DEFAULT );
+        COBAT::testCase5NoAlloc(1,   0,   0,   0,   0,   0,   COBAT::DEFAULT );
+        COATT::testCase5NoAlloc(1,   0,   0,   0,   0,   0,   COATT::DEFAULT );
 
-            fromObj = PBBV4V4;
-            Util::construct(objPtr, XA, MoveUtil::move(fromObj));
-            ASSERT(4  == rawBuf[0].d_value);
-            ASSERT(DA == rawBuf[0].d_allocator_p);
-            ASSERT(4  == rawBuf[1].d_value);
-            ASSERT(DA == rawBuf[1].d_allocator_p);
-            ASSERT_IS_MOVED_FROM(fromObj.first);
-            ASSERT_IS_MOVED_FROM(fromObj.second);
-            objPtr->~my_PairBB_4_4();
-        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-        ASSERT(NUM_ALLOC1 == testAllocator.numAllocations());
+        if (verbose) printf("\tWith allocators\n");
 
-        if (verbose) printf("Trait selection testing.\n");
-        {
-            my_ClassDef    rawBuf;
-            my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
-            my_ClassFussy  fromObj(3);
-            memset(&rawBuf, 92, sizeof rawBuf);
-            Util::construct(objPtr, XA, MoveUtil::move(fromObj));
-            ASSERT(3 == rawBuf.d_value);
-            ASSERT(0 == rawBuf.d_allocator_p);
-            if (veryVerbose) { P_(rawBuf.d_value); PP(rawBuf.d_allocator_p); }
-        }
+        //                      CP   MV   CP_B MV_B CP_A MV_A EXP_ALLOCATOR
+        //                      ==   ==   ==== ==== ==== ==== ===============
+            T::testCase5Alloc(  0,   0,   0,   0,   0,   0,       T::OBJECT  );
+           NT::testCase5Alloc(  0,   1,   0,   0,   0,   0,      NT::DEFAULT );
+          BAT::testCase5Alloc(  0,   0,   0,   1,   0,   0,     BAT::SUPPLIED);
+          ATT::testCase5Alloc(  0,   0,   0,   0,   0,   1,     ATT::SUPPLIED);
 
+          MOT::testCase5Alloc(  0,   0,   0,   0,   0,   0,     MOT::OBJECT  );
+         MONT::testCase5Alloc(  0,   1,   0,   0,   0,   0,    MONT::DEFAULT );
+        MOBAT::testCase5Alloc(  0,   0,   0,   1,   0,   0,   MOBAT::SUPPLIED);
+        MOATT::testCase5Alloc(  0,   0,   0,   0,   0,   1,   MOATT::SUPPLIED);
+
+          COT::testCase5Alloc(  0,   0,   0,   0,   0,   0,     COT::OBJECT  );
+         CONT::testCase5Alloc(  1,   0,   0,   0,   0,   0,    CONT::DEFAULT );
+        COBAT::testCase5Alloc(  0,   0,   1,   0,   0,   0,   COBAT::SUPPLIED);
+        COATT::testCase5Alloc(  0,   0,   0,   0,   1,   0,   COATT::SUPPLIED);
       } break;
       case 4: {
         // --------------------------------------------------------------------
