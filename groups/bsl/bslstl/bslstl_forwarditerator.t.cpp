@@ -8,11 +8,11 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_unspecifiedbool.h>
 
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 using namespace BloombergLP;
-using namespace std;
 
 //=============================================================================
 //                             TEST PLAN
@@ -24,7 +24,7 @@ using namespace std;
 // resulting 'bslstl::ForwardIterator' object meets all the requirements of a
 // standard Forward Iterator.  These requirements are spelled out in
 // [forward.iterators], Table 103 - Forward iterator requirements.  The primary
-// manipulator of an iterator is the pre-increment operator which, together
+// manipulator of an iterator is the pre-increment operator that, together
 // with a function that returns an iterator to the start of a sequence, and a
 // second function to return an iterator to the end of the same sequence, is
 // sufficient to attain any achievable state.  While an iterator offers no
@@ -43,19 +43,19 @@ using namespace std;
 // - int value() const;
 // - ...;
 //-----------------------------------------------------------------------------
-// [ 2] bslstl::ForwardIterator();
-// [ 3] bslstl::ForwardIterator(IMPL);
-// [ 7] bslstl::ForwardIterator(const bslstl::ForwardIterator& original);
-// [ 2] ~bslstl::ForwardIterator();
-// [ 9] bslstl::ForwardIterator& operator=(const bslstl::ForwardIterator& rhs);
-// [ 2] bslstl::ForwardIterator& operator++();
-// [11] bslstl::ForwardIterator  operator++(bslstl::ForwardIterator&, int);
+// [ 2] ForwardIterator();
+// [ 3] ForwardIterator(IMPL);
+// [ 7] ForwardIterator(const ForwardIterator& original);
+// [ 2] ~ForwardIterator();
+// [ 9] ForwardIterator& operator=(const ForwardIterator& rhs);
+// [ 2] ForwardIterator& operator++();
+// [11] ForwardIterator operator++(ForwardIterator&, int);
 // [ 4] T& operator*() const;
 // [10] T *operator->() const;
-// [ 6] bool operator==(const bslstl::ForwardIterator&,
-//                      const bslstl::ForwardIterator&);
-// [ 6] bool operator!=(const bslstl::ForwardIterator&,
-//                      const bslstl::ForwardIterator&);
+// [  ] ITER_IMP& imp();
+// [  ] const ITER_IMP& imp() const;
+// [ 6] bool operator==(const ForwardIterator&, const ForwardIterator&);
+// [ 6] bool operator!=(const ForwardIterator&, const ForwardIterator&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [  ] USAGE EXAMPLE is informative only, and does not compile independently
@@ -155,8 +155,8 @@ int testDistance( Iter first, Iter last ) {
 }
 
 
-//  Create an overload set that can determine, using tag dispatch techniques,
-//  exactly which iterator tag is declared for this iterator adaptor
+// Create an overload set that can determine, using tag dispatch techniques,
+// exactly which iterator tag is declared for this iterator adaptor.
 enum iter_tag_type {
     output_iterator,
     input_iterator,
@@ -408,7 +408,7 @@ int main(int argc, char *argv[])
         //   comment characters, and replace 'assert' with 'ASSERT'.
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   ForwardIterator operator++(ForwardIterator&, int);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING POST-INCREMENT OPERATOR"
@@ -438,15 +438,15 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //    T *operator->() const
+        //    T *operator->() const;
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING OPERATOR->"
                             "\n==================\n");
 
-        {
         if (verbose) printf("\nVerify iterator properties with a"
                              " directly examinable container\n");
+        {
 
         //  Declare test data and types
         Wrap testData[2] = { {13}, {99} };
@@ -463,7 +463,7 @@ int main(int argc, char *argv[])
         ASSERT(&itReadable->data == &testData[0].data);
 
         if (verbose) printf("\nVerify can observe new value written through"
-                             " the iterator\n");
+                            " the iterator\n");
         itWritable->data = 42;
 
         //  Test itReadable before itWritable to be sure the update is not a
@@ -501,7 +501,7 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bslstl::ForwardIterator& operator=(const bslstl::ForwardIterator&)
+        //   ForwardIterator& operator=(const ForwardIterator& rhs);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING ASSIGNMENT OPERATOR"
@@ -578,13 +578,14 @@ int main(int argc, char *argv[])
       } break;
        case 7: {
         // --------------------------------------------------------------------
-       // TESTING COPY CONSTRUCTOR
+        // TESTING COPY CONSTRUCTOR
         //
         // Concerns:
         //
         // Plan:
         //
         // Testing:
+        //   ForwardIterator(const ForwardIterator& original);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING COPY CONSTRUCTOR"
@@ -634,10 +635,8 @@ int main(int argc, char *argv[])
         //   values.
         //
         // Testing:
-        //   bool operator==(const bslstl::ForwardIterator&,
-        //                   const bslstl::ForwardIterator&);
-        //   bool operator!=(const bslstl::ForwardIterator&,
-        //                   const bslstl::ForwardIterator&);
+        //   bool operator==(const ForwardIterator&, const ForwardIterator&);
+        //   bool operator!=(const ForwardIterator&, const ForwardIterator&);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING EQUALITY OPERATOR"
@@ -691,8 +690,10 @@ int main(int argc, char *argv[])
         //   considered in the future.
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nThis is trivially satisfied for iterator types."
-                            "\nIterators do not support printing or streaming."
+        if (verbose) printf("\nTESTING 'print' AND 'operator<<'"
+                            "\n================================\n");
+
+        if (verbose) printf("\nIterators do not support printing or streaming."
                             "\n");
       } break;
       case 4: {
@@ -745,8 +746,8 @@ int main(int argc, char *argv[])
                                  " through the iterator\n");
             *itWritable = 42;
 
-            //  Test itReadable before itWritable to be sure the update is not
-            //  a side effect of the reading!
+            // Test itReadable before itWritable to be sure the update is not a
+            // side effect of the reading!
             ASSERT(42 == *itReadable);
             ASSERT(42 == *itWritable);
             ASSERT(42 == testData[0]);
@@ -762,7 +763,6 @@ int main(int argc, char *argv[])
         if (verbose) printf(
                            "\nRepeat tests with a minimal adapted iterator\n");
         {
-
             typedef my_List<int> test_container_type;
             typedef test_container_type::iterator iterator;
             typedef test_container_type::const_iterator const_iterator;
@@ -779,7 +779,7 @@ int main(int argc, char *argv[])
             ASSERT(&*itWritable == &*itReadable);
 
             if (verbose) printf("\nVerify can observe new value written"
-                                 " through the iterator\n");
+                                " through the iterator\n");
             *itWritable = 42;
 
             //  Test itReadable before itWritable to be sure the update is not
@@ -817,7 +817,7 @@ int main(int argc, char *argv[])
         //   class my_List<T>
         //   my_List<T>::begin
         //   my_List<T>::end
-        //   bslstl::ForwardIterator(IMPL);
+        //   ForwardIterator(IMPL);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING (PRIMITIVE) GENERATORS"
@@ -887,9 +887,9 @@ int main(int argc, char *argv[])
         // Plan:
         //
         // Testing:
-        //   bslstl::ForwardIterator();
-        //   ~bslstl::ForwardIterator();
-        //   bslstl::ForwardIterator& operator++();
+        //   ForwardIterator();
+        //   ~ForwardIterator();
+        //   ForwardIterator& operator++();
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING PRIMARY MANIPULATORS"
@@ -940,16 +940,14 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //   That basic functionality appears to work as advertised before
-        //   before beginning testing in earnest:
-        //   - default and copy constructors
-        //   - assignment operator
-        //   - primary manipulators, basic accessors
-        //   - 'operator==', 'operator!='
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
         //
         // Plan:
+        //: 1 Invoke all methods and verify their behavior.
         //
         // Testing:
         //   BREATHING TEST
@@ -1107,7 +1105,7 @@ int main(int argc, char *argv[])
 
         ASSERT((bsl::is_same<ConstIterTraits::difference_type,
                 std::ptrdiff_t>::value));
-        ASSERT((bsl::is_same<ConstIterTraits::value_type, const int>::value));
+        ASSERT((bsl::is_same<ConstIterTraits::value_type, int>::value));
         ASSERT((bsl::is_same<ConstIterTraits::pointer, const int *>::value));
         ASSERT((bsl::is_same<ConstIterTraits::reference, const int&>::value));
         ASSERT((bsl::is_same<ConstIterTraits::iterator_category,

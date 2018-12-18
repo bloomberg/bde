@@ -89,14 +89,15 @@ BSL_OVERRIDES_STD mode"
 #include <bslstl_iterator.h>
 
 #include <bslmf_islvaluereference.h>
-#include <bslmf_removecvq.h>
+#include <bslmf_removecv.h>
 #include <bslmf_util.h>
 
+#include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_util.h>
 
+#include <cstddef>
 #include <iterator>
-
-#include <cstddef>  // 'ptrdiff_t'
 
 namespace BloombergLP {
 
@@ -106,10 +107,19 @@ namespace bslstl {
                     // class ForwardIterator
                     //======================
 
-template <class T, class ITER_IMP, class TAG_TYPE =
-                                                     std::forward_iterator_tag>
+template <class T, class ITER_IMP, class TAG_TYPE = std::forward_iterator_tag>
 class ForwardIterator
-                   : public std::iterator<TAG_TYPE, T, std::ptrdiff_t, T *, T&>
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
+// Sun CC workaround: iterators must be derived from 'std::iterator' to work
+// with the native std library algorithms.  However, 'std::iterator' is
+// deprecated in C++17, so do not rely on derivation unless required, to avoid
+// deprecation warnings on modern compilers.
+    : public std::iterator<TAG_TYPE,
+                           typename bsl::remove_cv<T>::type,
+                           std::ptrdiff_t,
+                           T *,
+                           T&>
+#endif
 {
     // Given an 'ITER_IMP' type that implements a minimal subset of an iterator
     // interface, this template generates a complete iterator that meets all of
@@ -149,7 +159,7 @@ class ForwardIterator
 
   public:
     // TYPES
-    typedef T                          value_type;
+    typedef UnCvqT                     value_type;
     typedef std::ptrdiff_t             difference_type;
     typedef T                         *pointer;
     typedef T&                         reference;
@@ -176,8 +186,9 @@ class ForwardIterator
     ForwardIterator(const ForwardIterator<UnCvqT,ITER_IMP,TAG_TYPE>& other);
         // Construct a forward iterator from another (compatible)
         // 'ForwardIterator' type, e.g., a mutable iterator of the same type.
-        // Note that since this is a template, it has a lower priority in
-        // overload resolution than the other constructors.
+        // Note that this constructor may be the copy constructor (inhibiting
+        // the implicit declaration of a copy constructor above), or may be an
+        // additional overload.
 
     //! ~ForwardIterator();
         // Destroy this iterator.  Note that this method's definition is

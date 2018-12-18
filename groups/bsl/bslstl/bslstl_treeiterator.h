@@ -143,9 +143,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_removecv.h>
 
-#ifndef INCLUDE_BSLS_ASSERT
 #include <bsls_assert.h>
-#endif
 #include <bsls_platform.h>
 #include <bsls_util.h>
 

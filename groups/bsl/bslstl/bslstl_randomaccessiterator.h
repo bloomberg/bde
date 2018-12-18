@@ -253,7 +253,7 @@ class RandomAccessIterator
                                                        // qualifications
   public:
     // TYPES
-    typedef T                                value_type;
+    typedef UnCvqT                           value_type;
     typedef std::ptrdiff_t                   difference_type;
     typedef T                               *pointer;
     typedef T&                               reference;
@@ -281,8 +281,9 @@ class RandomAccessIterator
                   const RandomAccessIterator<UnCvqT,ITER_IMP,TAG_TYPE>& other);
         // Construct a random access iterator from another (compatible)
         // 'RandomAccessIterator' type, e.g., a mutable iterator of the same
-        // type.  Note that since this is a template, it has a lower priority
-        // in overload resolution than the other constructors.
+        // type.  Note that this constructor may be the copy constructor
+        // (inhibiting the implicit declaration of a copy constructor above),
+        // or may be an additional overload.
 
     //! ~RandomAccessIterator();
         // Destroy this iterator.  Note that this method's definition is
