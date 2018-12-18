@@ -53,11 +53,9 @@
 #include <bsl_cstdlib.h>    // atoi()
 #include <bsl_cstring.h>    // strlen(), strcmp(), memset(), memcpy(), memcmp()
 #include <bsl_ctime.h>
-#include <bsl_deque.h>
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
-#include <bsl_list.h>
 #include <bsl_memory.h>
 #include <bsl_set.h>
 #include <bsl_sstream.h>
@@ -712,18 +710,24 @@ typedef Blp::ball::LoggerManager::DefaultThresholdLevelsCallback
 typedef Blp::ball::ThresholdAggregate           Agg;
 typedef bsl::pair<const Cat *, bool>            ResultPair;
 
-Agg callbackLevels(0, 0, 0, 0);    // Levels to be set by 'dtlCallbackRaw, in
-                                   // this is referred to by the local
-                                   // reference 'CLEVELS'.
+Agg callbackLevels(0, 0, 0, 0);     // The function 'dtlCallbackRaw' below sets
+                                    // the values returned through the first
+                                    // four arguments of its parameter list to
+                                    // the values of the four fields of this
+                                    // 'struct', respectively.
 
 void dtlCallbackRaw(int        *recordLevel,
                     int        *passLevel,
                     int        *triggerLevel,
                     int        *triggerAllLevel,
                     const char *categoryName)
-    // Callback to be used by a logger manager to set a new, nonexistent
-    // category with the specified 'categoryName' to determine the specified
-    // 'recordLevel', ' 'passLevel', 'triggerLevel', and 'triggerAllLevel'.
+    // Callback to be used by the logger manager to obtain new logging
+    // threshold levels for a new category that is about to be created.  For
+    // the purposes of this test, return values through the specified
+    // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'.
+    // Verify that no category with the specified 'categoryName' exists.  The
+    // behavior is undefined if this method is called when the logger manager
+    // singleton is not initialized.
 {
     ASSERT(0 == Blp::ball::LoggerManager::singleton().lookupCategory(
                                                                 categoryName));
@@ -759,24 +763,25 @@ Agg getDefaultLevels(const Blp::ball::LoggerManager *manager)
                manager->defaultTriggerAllThresholdLevel());
 }
 
-void setLevels(const Blp::ball::Category *category, const Agg& agg)
-    // Set the threshold levels of the specified 'category' to those of the
-    // specified 'agg'.
+void setLevels(Blp::ball::Category *category, const Agg& agg)
+    // Revert the specified category to non-const and set its threshold levels
+    // to those of the specified 'agg'.
 {
-    Blp::ball::Category *cat = const_cast<Blp::ball::Category *>(category);
-    cat->setLevels(agg.recordLevel(),
-                   agg.passLevel(),
-                   agg.triggerLevel(),
-                   agg.triggerAllLevel());
+    category->setLevels(agg.recordLevel(),
+                        agg.passLevel(),
+                        agg.triggerLevel(),
+                        agg.triggerAllLevel());
 }
 
-// Each record of this contains a line number, a set of 4 thresholds that will
-// be used to initialize a threshold aggregate, and two booleans, one of which
-// indicates that the thresholds are to be used, in the outer 'ti' loop in
-// 'main', to initialize the threshold aggregate 'callbackLevels' above, and
-// the rest of the loop skipped, and another boolean indicating that in the
-// inner 'tj' loop in 'main', the logger manager is to be set to use the
-// default threshold level callback.
+// The table 'DATA' is used the same way in test cases 32, 33, and 34.
+//
+// Each record of the table 'DATA' contains a line number, a threshold
+// aggregate value, and two booleans, one of which indicates that the
+// thresholds are to be used, in the outer 'ti' loop in 'each test case', to
+// initialize the threshold aggregate 'callbackLevels' above, and the rest of
+// the loop skipped, and another boolean indicating that in the inner 'tj' loop
+// in 'each test case', the logger manager is to be set to use the default
+// threshold level callback.
 
 #undef SET_CB
 #undef USE_CB
@@ -795,10 +800,10 @@ void setLevels(const Blp::ball::Category *category, const Agg& agg)
                                              S::e_ ## triggerAll), false, false
 
 static const struct Data {
-    int            d_line;
-    Agg            d_levels;
-    bool           d_setCallbackThresholds;
-    bool           d_useCallback;
+    int  d_line;
+    Agg  d_levels;
+    bool d_setCallbackThresholds;
+    bool d_useCallback;
 } DATA[] = {
     { L_, SET_CB(DEBUG, INFO , WARN , ERROR) },
     { L_, NO_CB( INFO , INFO , INFO , INFO ) },
@@ -832,29 +837,28 @@ namespace indices {
 // manager (part of the logger manager) will traverse all the category holders
 // that have been initialized, resetting them.  So it's necessary that the
 // lifetime of any of the category holders exceeds the lifetime of the logger
-// manager.  It is necessary to have a large number of distinct instantiations
-// of category holder passed per loop.  In test case 32 we are simply calling
-// the function, so we use the 'HolderDispenser' class above to furnish us with
-// these category holders.
-//
-// In test cases 33 and 34, the problem becomes more difficult, because we are
-// calling macros that create static category holders with a fixed name, and we
-// want to make many such calls per pass through the loop.  It is especially
-// difficult in test case 34, where the static category holder is global to the
-// class.
+// manager.
 //
 // This problem is solved by having templates with integer arguments.  In test
-// case 33, it is template function 'testLocalMacros' defined below, in test
+// cases 32, we use template function 'testSetCategoryHierarchically', in test
+// case 33, we use template function 'testLocalMacros' defined below, in test
 // case 34, it is template class 'TestClassMacro' defined further below.  Thus,
 // we can instantiate these templates with many different integer values, and
 // get a different instantiation of the static category holder in each one.
 //
-// In this namespace 'indices' we have a set of unique integer constants to be
-// used as template parameters to the templates used in test cases 33 and 34.
-// The names of these variables are used as the catalog names, escept that
-// if the names contain a '_', everything at and after the '_' is removed to
-// form the catalog name, which allows us to have multiple indices with the
-// same catalog name.
+// In this namespace 'indices' we have a set of distinct integer constants to
+// be used as template parameters to the templates used in test cases 33, 34,
+// and 35.
+//
+// All the calls to these functions, including 'TestClassMacro::operator()',
+// are done through macros defined in the test cases in 'main'.  The names of
+// the integers below are passed as an arg to these macros, and used twice --
+// as an integer to parametrize the template, and the name is used (using
+// preprocessor stringification, ie '#argName').  Before being used as category
+// names, the names below have everything at or after '_' removed, which
+// enables us to use multiple indexes with the same category name.  For
+// example, 'woof_a', 'woof_b', 'woof_c', 'woof_d' and 'woof_e' are 5 distinct
+// integer values, but all refer to the same category name "woof".
 
 static const int base = L_ + 1;
 static const int bowWow              = L_ - base;
@@ -905,12 +909,14 @@ struct PositionRec {
     // argument to every 'ASSERTV' call in the test functions.
 
     // DATA
-    int         d_line;            // line number of the call from 'main' to
-                                   // the test function
+    int         d_line;            // line number of the call from the test
+                                   // case to the test function
     int         d_il;              // the line number of the record in 'DATA'
-                                   // that the 'ti' loop in 'main' is tracking
+                                   // that the 'ti' loop in the test case is
+                                   // tracking
     int         d_jl;              // the line number of the record in 'DATA'
-                                   // that the 'tj' loop in 'main' is tracking
+                                   // that the 'tj' loop in the test case is
+                                   // tracking
     const char *d_categoryName_p;  // the name of the category to be found or
                                    // created (prior to '_*' being removed)
 
@@ -958,9 +964,6 @@ struct ResultRec {
     const Cat            *d_category_p;      // the category found or created
     CatHolder            *d_next_p;          // the 'd_next_p' field from the
                                              // category holder
-    bool                  d_passed;          // 'true' if all the 'ASSERT's in
-                                             // test test function passed and
-                                             // 'false' otherwise
 
     // MANIPULATORS
     void clear()
@@ -993,12 +996,19 @@ ResultRec& result()
     return ret;
 }
 
+// This set contains all the 'KK' values with which a couple of the following 3
+// templates have been instantiated.  It is cleared at the beginning of every
+// pass through the 'tj' loops in 'main' in those two test cases.  In test case
+// 32 it is used to determine if we are repeating a use of 'KK', in test cases
+// 33 and 34 it is used for a sanity check.
+
 bsl::set<int> instantiationSet(&u::ta);
 
-// The following 'enum' variable determines whether
-// 'testSetCategoryHierarchically' will make a call to the single argument (ie
-// 'holderless') version of 'setCategoryHierarchically' before or after the two
-// argument call, or never call the single argument version at all.
+// The following 'enum' is the type of an argument to
+// 'testSetCategoryHierarchically' that determines whether we will make a call
+// to the single argument (i.e.  "holderless") version of
+// 'setCategoryHierarchically' before or after the two argument call, or never
+// call the single argument version at all.
 
 enum HolderlessMode { e_HOLDERLESS_NONE,
                       e_HOLDERLESS_BEFORE,
@@ -1026,14 +1036,6 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
     // category holder, and observe that the second category holder is linked
     // back to the first one.
 {
-    // Store the value of 'testStatus' (the counter of how many time 'ASSERT'
-    // checks have failed).  We will consult this at the end of the function
-    // to determine if any 'ASSERT's in this function have failed to set the
-    // 'second' value of the 'ResultPair' we return.
-
-    testStatus = 100 <= testStatus ? 99 : testStatus;
-    const int ts = testStatus;
-
     const bool repeat = instantiationSet.count(KK);
     instantiationSet.insert(KK);
 
@@ -1061,13 +1063,15 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
     categoryNameStr.resize(u);
     const char *categoryName = categoryNameStr.c_str();
 
-    // If there's a logger manager, is it full?  (We expect
-    // 'setCategoryHierarchically' to return the default category if it is.
-
     const Cat *prevCat = !manager_p
                        ? 0
                        : manager_p->lookupCategory(categoryName);
     ASSERTV(pos, prevCat || !repeat);
+
+    // If there's a logger manager, is it full?  (We expect
+    // 'setCategoryHierarchically' to return the default category if it is,
+    // unless the category previously existed.)
+
     const bool managerFull = manager_p && manager_p->numCategories() ==
                                                  manager_p->maxNumCategories();
 
@@ -1091,9 +1095,8 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
                        Blp::ball::Log::setCategoryHierarchically(categoryName);
     }
 
-    // Get a category holder that is guaranteed not to move for the life of
-    // 'holderDispenser', which will be longer lived than the logger manager
-    // singleton.
+    // Note that there will be a separate instance of 'holderA' for every
+    // distinct value of 'KK'.
 
     static CatHolder holderA = defaultHolder;
     ASSERTV(pos, repeat || !bsl::memcmp(&holderA,
@@ -1143,8 +1146,8 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
             ASSERTV(pos, !bsl::strcmp(retCat->categoryName(), ""));
         }
 
-        // If this is the first time a category with 'categoryName', we expect
-        // 'next_p' to be 0, otherwise, we expect it to be a link to the
+        // If we just created a new category with name 'categoryName', we
+        // expect 'next_p' to be 0, otherwise, we expect it to be a link to the
         // previous category holder.
 
         ASSERTV(pos, prevCat, ret.d_next_p, retCat->categoryName(),
@@ -1152,41 +1155,46 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
                                                   !!prevCat == !!ret.d_next_p);
 
         // Call the function under test again, with the same category name and
-        // a different category holder.
+        // a different category holder.  Like 'holderA', we will get a separate
+        // copy of 'holderB' for every distinct value of 'KK'.
 
         static CatHolder holderB = defaultHolder;
         ASSERTV(pos, repeat || !bsl::memcmp(&holderB,
                                             &defaultHolder,
                                             sizeof(holderB)));
-        retCat = Blp::ball::Log::setCategoryHierarchically(&holderB,
-                                                           categoryName);
+        const Cat *retCatB = Blp::ball::Log::setCategoryHierarchically(
+                                                                 &holderB,
+                                                                 categoryName);
         ret.clear();
         ret.init(&holderB);
 
-        ASSERTV(pos, retCat);
+        ASSERTV(pos, retCatB);
         ASSERTV(pos, ret.d_category_p);
-        ASSERTV(pos, retCat == ret.d_category_p);
+        ASSERTV(pos, retCatB == ret.d_category_p);
+        ASSERTV(pos, retCatB == retCat);
 
         // The 2nd call shouldn't have changed the # of categories.
 
         ASSERTV(pos, initNumCat, manager_p->numCategories(), expNumCat,
                                       manager_p->numCategories() == expNumCat);
+        ASSERTV(pos, getLevels(retCatB), expectedLevels,
+                                         getLevels(retCatB) == expectedLevels);
         ASSERTV(pos, ret.d_intLevel, Agg::maxLevel(expectedLevels),
                               Agg::maxLevel(expectedLevels) == ret.d_intLevel);
 
         if (!managerFull || prevCat) {
-            ASSERTV(pos, categoryNameStr == retCat->categoryName());
+            ASSERTV(pos, categoryNameStr == retCatB->categoryName());
         }
         if (prevCat) {
-            ASSERTV(pos, retCat == prevCat);
+            ASSERTV(pos, retCatB == prevCat);
         }
 
         if (managerFull && !prevCat) {
             // The logger manager was full before the call, so we expect the
             // default category to have been returned.
 
-            ASSERTV(pos, &manager_p->defaultCategory() == retCat);
-            ASSERTV(pos, !bsl::strcmp(retCat->categoryName(), ""));
+            ASSERTV(pos, &manager_p->defaultCategory() == retCatB);
+            ASSERTV(pos, !bsl::strcmp(retCatB->categoryName(), ""));
         }
 
         ASSERTV(pos, ret.d_next_p, &holderA, ret.d_next_p == &holderA);
@@ -1208,7 +1216,6 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
     ASSERTV(pos, static_cast<int>(holderlessMode),
           (e_HOLDERLESS_NONE == holderlessMode ? 0 : retCat) == holderlessCat);
 
-    ret.d_passed = ts == testStatus;
     return ret;
 }
 
@@ -1216,11 +1223,12 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
 // -- Test case 32 uses only things above here.  'Flags' & 'testLocalMacros'
 // are used by test case 33, and 'TestClassMacro' is used by test case 34.
 
-// Last argument passed to 'testLocalMacros<int>()', which indicates whether
-// the category sought is to be static (the default) or dynamic, and whether
-// we've called the same template instantiation of the function before.
+// 'Flags' is the type of the last argument passed to 'testLocalMacros<int>()',
+// which indicates whether the category sought is to be static (the default) or
+// dynamic, and whether we've called the same template instantiation of the
+// function before.
 
-enum Flags { k_DYNAMIC_BIT          = 1,    // 'dynamic' macro is to be called
+enum Flags { k_DYNAMIC_BIT          = 1,    // "dynamic" macro is to be called
              k_REPEAT_BIT           = 2,    // category holder is already
                                             // initialized
 
@@ -1228,11 +1236,6 @@ enum Flags { k_DYNAMIC_BIT          = 1,    // 'dynamic' macro is to be called
              e_DYNAMIC              = k_DYNAMIC_BIT,
              e_REPEAT_STATIC        = k_REPEAT_BIT,
              e_REPEAT_DYNAMIC       = k_REPEAT_BIT | k_DYNAMIC_BIT };
-
-// This set contains all the 'KK' values with which the templates
-// 'testLocalMacros' (test case 33) or 'TestClassMacro' (test case 34) have
-// been instantiated.  It is cleared at the beginning of every pass through
-// the 'tj' loops in 'main' in those two test cases.
 
 template <int KK>
 ResultRec&
@@ -1246,17 +1249,14 @@ testLocalMacros(const Agg&          newLevels,
     // field of the specified 'pos'.  Verify that the specified 'newLevels'
     // match the threshold levels of the category found or created.  Verify
     // that the 'd_next_p' field of the category holder of the macro call
-    // matches the specified 'prevCatHolder'.  Verify that 'repeat' specified
-    // by flags matches whether this is the first time this function was called
+    // matches the specified 'prevCatHolder'.  Verify that the "repeat" bit in
+    // flags matches whether this is the first time this function was called
     // with a given value of the specified 'KK' for a given pass through the
     // test loop.  All the values of 'KK' are provided by the 'int' constants
     // in the sub-namespace 'indices' within this test namespace.
 {
-    testStatus = 100 == testStatus ? 99 : testStatus;
-    const int ts = testStatus;
-
-    const bool dynamic     = flags & k_DYNAMIC_BIT;
-    const bool repeat      = flags & k_REPEAT_BIT;
+    const bool dynamic = flags & k_DYNAMIC_BIT;
+    const bool repeat  = flags & k_REPEAT_BIT;
 
     if (repeat) {
         ASSERTV(pos, repeat, instantiationSet.count(KK) && "non-repeat");
@@ -1345,32 +1345,35 @@ testLocalMacros(const Agg&          newLevels,
         ASSERTV(pos, 0 == ret.d_category_p);
     }
 
-    ret.d_passed = ts == testStatus;
     return ret;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // -- Test case 34 uses some of the things above here, and everything below
-// here, while test case 32 & test case 33 uses only things above here.
+// here, while test case 32 & test case 33 use only things above here.
 
 template <int KK>
-struct TestClassMacro {
-    // The purpose of this 'struct' is to test
+class TestClassMacro {
+    // The purpose of this 'class' is to test
     // 'BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY'.  We want to to call many
-    // instantiations of the macro, and by instantiating this 'struct' with
+    // instantiations of the macro, and by instantiating this 'class' with
     // values of the template parameter 'KK' taken from constants in the
     // 'indices' sub-namespace, we get them.  Each instantiation of the macro
     // creates a separate static category holder, so we get a separate one for
-    // every instantiation of this template struct.
+    // every instantiation of this template 'class'.
     //
-    // The macro under test takes a 'const char *' parameter for the parameter
-    // name.  So how to pass different parameter names to different function
-    // instantiations?  It turns out that that parameter can be a function, so
-    // we make it a function in the class that returns a static buffer, a
-    // different one for every instantiation of the 'struct'.  The same
-    // function is called in the 'operator()' function before the class
-    // category is created, and the buffer is populated with the desired class
-    // name.
+    // The macro under test, 'BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY',
+    // takes a 'const char *' parameter for the category name.  So how to pass
+    // different category names for different class instantiations on differing
+    // values of 'KK'?  It turns out that that parameter to the macro doesn't
+    // have to be a string literal, it can be a function call, so we make a
+    // method in this 'class', 'getClassCategoryNameBuffer', that returns a
+    // static buffer, a different one for every value of 'KK'.  The same method
+    // is called in the 'operator()' function before the class category is
+    // searched for or created, and we populate the buffer with the desired
+    // class name, so that when we later call 'ball_log_getCategoryHolder', the
+    // macro calls its 'getClassCategoryNameBuffer()' argument which returns
+    // the buffer that has been populated with the desired category name.
     //
     // 'operator()' either finds or creates the desired category, and verifies
     // that the category holder is linked appropriately.
@@ -1391,6 +1394,7 @@ struct TestClassMacro {
 
     BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(getClassCategoryNameBuffer());
 
+  public:
     // MANIPULATOR
     ResultRec& operator()(const Agg&            classLevels,
                           const PositionRec&    pos,
@@ -1416,8 +1420,9 @@ TestClassMacro<KK>::operator()(const Agg&            classLevels,
                                const CatHolder      *prevClassCatHolder,
                                bool                  repeat)
 {
-    testStatus = 100 == testStatus ? 99 : testStatus;
-    const int ts = testStatus;
+    // If this is the first time we've called this method for this value of
+    // 'KK', the class category holder has not been initialized until we call
+    // 'ball_log_getCategoryHolder'.
 
     if (repeat) {
         ASSERTV(pos, repeat, instantiationSet.count(KK) && "non-repeat");
@@ -1434,10 +1439,11 @@ TestClassMacro<KK>::operator()(const Agg&            classLevels,
                                       ? &Blp::ball::LoggerManager::singleton()
                                       : 0;
 
-    // As discussed in the 'struct' documentation, the name of the category
+    // As discussed in the 'class' documentation, the name of the category
     // that will be found or created must reside in buffer provided by
-    // 'getClassCategoryNameBuffer', with is 'k_CATEGORY_NAME_BUFFER_LEN' long,
-    // which is much longer than any of the category names that we will use.
+    // 'getClassCategoryNameBuffer', which is 'k_CATEGORY_NAME_BUFFER_LEN'
+    // long, which is much longer than any of the category names that we will
+    // use.
     //
     // 'pos.d_categoryName_p' is the name of one of the variables in the
     // 'indices' sub-namespace.  It is very desirable in this test to:
@@ -1451,20 +1457,13 @@ TestClassMacro<KK>::operator()(const Agg&            classLevels,
     // '_' from the variable name to yield the category name.
 
     char *categoryName = getClassCategoryNameBuffer();
-    ASSERT(bsl::strlen(pos.d_categoryName_p) < k_CATEGORY_NAME_BUFFER_LEN);
+    ASSERTV(pos, bsl::strlen(pos.d_categoryName_p) <
+                                                   k_CATEGORY_NAME_BUFFER_LEN);
     bsl::strcpy(categoryName, pos.d_categoryName_p);
     char *pc = strchr(categoryName, '_');
     if (pc) {
         *pc = 0;
     }
-
-    ResultRec& ret = result<KK>();
-    ret.clear();
-
-    // All class categories have the same name.  Until we call
-    // 'ball_log_getCategoryHolder' the class category holder for this class
-    // has not been initialized.  There might be a surviving category from the
-    // same class with different template args.
 
     Cat *prevCat = !manager_p ? 0 : manager_p->lookupCategory(categoryName);
     ASSERTV(pos, !prevCat ||
@@ -1473,7 +1472,14 @@ TestClassMacro<KK>::operator()(const Agg&            classLevels,
     const bool managerFull = manager_p && manager_p->numCategories() ==
                                                  manager_p->maxNumCategories();
 
-    ret.init(ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER));
+    // Here is where the 'class' category holder is populated.
+
+    const CatHolder *holder_p = ball_log_getCategoryHolder(
+                                                      BALL_LOG_CATEGORYHOLDER);
+
+    ResultRec& ret = result<KK>();
+    ret.clear();
+    ret.init(holder_p);
 
     if (manager_p) {
         ASSERTV(pos, ret.d_category_p);
@@ -1498,9 +1504,8 @@ TestClassMacro<KK>::operator()(const Agg&            classLevels,
     }
     ASSERTV(pos, prevClassCatHolder, ret.d_next_p,
                                            prevClassCatHolder == ret.d_next_p);
-    ASSERTV(pos, (!prevCat || prevCat == ret.d_category_p) && "class cat");
+    ASSERTV(pos, !prevCat || prevCat == ret.d_category_p);
 
-    ret.d_passed = ts == testStatus;
     return ret;
 }
 
@@ -3080,7 +3085,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         const TC::Agg WLEVELS(TC::S::e_OFF, TC::S::e_OFF,
                                                    TC::S::e_OFF, TC::S::e_OFF);
 
-        TC::Agg CLEVELS = TC::callbackLevels;
+        TC::Agg& CLEVELS = TC::callbackLevels;
 
         for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
             const TC::Data& IDATA         = TC::DATA[ti];
@@ -3119,7 +3124,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 // 'CALL' will create an object of type 'TC::TestClassMacro'
                 // instantiated on the specified integer 'N', and call
                 // 'operator()()' that object, passing the specified threshold
-                // aggregate 'newLevels' desribing the logging thresholds the
+                // aggregate 'newLevels' describing the logging thresholds the
                 // category created or found is expected to have, the specified
                 // 'prevHolder' that is either 0 or points to a previous
                 // category holder loaded with the same category, and the
@@ -3135,11 +3140,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
 #undef  CALL
 #define CALL(N, newLevels, prevHolder, repeat)                                \
-                ASSERT((ret_p = &TC::TestClassMacro<TC::indices::N>()(        \
+                ret_p = &TC::TestClassMacro<TC::indices::N>()(                \
                                        newLevels,                             \
                                        TC::PositionRec(__LINE__, IL, JL, #N), \
                                        prevHolder,                            \
-                                       repeat), ret_p->d_passed))
+                                       repeat)
 
                 // 'RET(<integer>)' will return a ref to the 'TC::ResultRec'
                 // returned by 'TC::TestClassMacro<N>::operator()()' with the
@@ -3412,7 +3417,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         const TC::Agg WLEVELS(TC::S::e_OFF, TC::S::e_OFF,
                                                    TC::S::e_OFF, TC::S::e_OFF);
 
-        TC::Agg CLEVELS = TC::callbackLevels;
+        TC::Agg& CLEVELS = TC::callbackLevels;
 
         for (int ti = 0; ti < TC::k_NUM_DATA; ++ti) {
             const TC::Data& IDATA         = TC::DATA[ti];
@@ -3451,14 +3456,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 // 'CALL' will create an object of type 'TC::TestLocalMacros'
                 // instantiated on the specified integer 'N', and call
                 // 'operator()()' that object, passing the specified threshold
-                // aggregate 'newLevels' desribing the logging thresholds the
+                // aggregate 'newLevels' describing the logging thresholds the
                 // category created or found is expected to have, the specified
                 // 'prevHolder' that is either 0 or points to a previous
                 // category holder loaded with the same category, and the
                 // specified 'flags', a combination of two flags, one of which
                 // indicates whether 'CALL' has already been called this
                 // iteration with the specified 'N', and one of which specifies
-                // whether the category holder to be initiailized is to be
+                // whether the category holder to be initialized is to be
                 // static or dynamic.
                 //
                 // The value of the current source file line number, and the
@@ -3470,11 +3475,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
 #undef  CALL
 #define CALL(N, newLevels, prevHolder, flags)                                 \
-                ASSERT((ret_p = &TC::testLocalMacros<TC::indices::N>(         \
+                ret_p = &TC::testLocalMacros<TC::indices::N>(                 \
                                        newLevels,                             \
                                        TC::PositionRec(__LINE__, IL, JL, #N), \
                                        prevHolder,                            \
-                                       TC::flags), ret_p->d_passed))
+                                       TC::flags)
 
                 // 'RET(<integer>)' will return a ref to the 'TC::ResultRec'
                 // returned by 'TC::TestClassMacro<N>::operator()()' with the
@@ -3676,31 +3681,29 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // --------------------------------------------------------------------
         // TESTING HIERARCHICAL CATEGORIES
         //
-        // Concepts
-        //: 1 That 'setCategoryHierarchically' works as designed.
-        //:
-        //: 2 That, if the category created inherits from another category, the
+        // Concerns:
+        //: 1 That, if the category created inherits from another category, the
         //:   thresholds of the new category match those of the category
         //:   inherited from.
         //:
-        //: 3 That, if the category created does not inherit and no default
+        //: 2 That, if the category created does not inherit and no default
         //:   threshold callback exists, the thresholds of the category are the
         //:   thresholds with which the logger manager was created.
         //:
-        //: 4 TBD: If the category created does not inherit and a default
+        //: 3 TBD: If the category created does not inherit and a default
         //:   threshold callback is set, the new category takes the thresholds
         //:   dictated by the callback.  (NOTE: This concern will not be tested
         //:   until after 'LoggerCategoryUtil::addCategoryHierarchically' has
         //:   been fixed).
         //:
-        //: 5 That, if the logger manager is at full capacity, the default
+        //: 4 That, if the logger manager is at full capacity, the default
         //:   category, whose name is "", is returned, with thresholds set to
         //:   the values configured when the logger manager was created.
         //:
-        //: 6 If a category holder is passed, it is set to the category
+        //: 5 If a category holder is passed, it is set to the category
         //:   returned by the function under test.
         //:
-        //: 7 If a second call is made with the name of a category that has
+        //: 6 If a second call is made with the name of a category that has
         //:   already been created, the same category will be returned.  If
         //:   category holders were passed to both calls, the second category
         //:   will be the linked to the first category.
@@ -3728,7 +3731,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //:
         //: 5 Call 'CALL' many times, with many of the names of the 'int'
         //:   constants in 'TC::indices', and observe it making categories, and
-        //:   observed that hierrarchical categories inherit the logging
+        //:   observed that hierarchical categories inherit the logging
         //:   threshold levels accordingly.
         //:
         //: 6 Call 'CALL' a few times with indices with which it has already
@@ -3892,7 +3895,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             // threshold levels from others.
 
             CALL(meow, MLEVELS, 0);
-            const Cat *meowCat = ret_p->d_category_p;
+            Cat *meowCat = manager.lookupCategory("meow");
             TC::setLevels(meowCat, JLEVELS);
             ASSERTV(JL, JLEVELS, TC::getLevels(meowCat),
                                             JLEVELS == TC::getLevels(meowCat));
@@ -4867,7 +4870,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                << bsl::endl;
 
         namespace Blp = BloombergLP;
-        typedef Blp::ball::Severity Sev;
 
         Blp::bslma::TestAllocator ta(veryVeryVeryVerbose);
 
