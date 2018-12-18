@@ -329,10 +329,15 @@ unsigned long long bsls_byteOrderUtil_Impl_powerpc_swap_p64(
 
 // sparc GNU pre-4.03 impl
 
+// The pragma here is to suppress a warning triggered by the addition of the
+// 'char *' cast needed to avoid potential aliasing issues (even though they're
+// likely false alarms).
+
 #define BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(dstType, x)                    \
     {                                                                         \
         BSLS_BYTEORDERUTIL_IMPL_COMPILE_TIME_ASSERT(8 == sizeof *x);          \
         BloombergLP::bsls::Types::Uint64 y;                                   \
+                                                                              \
         asm("ldxa [%1] %2, %0"                                                \
           : "=r" (y)                                                          \
           : "r" (x), "i"(0x88), "m" (                                         \
@@ -573,7 +578,10 @@ TYPE ByteOrderUtil_Impl<TYPE, 8>::swapBytes(TYPE x)
 #if   defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64)
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_64( TYPE, x);
 #elif defined(BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64)
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wstrict-aliasing"
     BSLS_BYTEORDERUTIL_IMPL_CUSTOMSWAP_P64(TYPE, &x);
+    #pragma GCC diagnostic pop
 #else
     BSLS_BYTEORDERUTIL_IMPL_GENERICSWAP_64(TYPE, x);
 #endif
