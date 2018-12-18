@@ -1,5 +1,6 @@
 *                       _       OPTS_FILE       = bdlde.opts
 
 unix-linux-*-*-*-*                  _   DEF_CXXFLAGS    = -msse4.2
+unix-darwin-*-*-*-*                 _   DEF_CXXFLAGS    = -msse4.2
 unix-sunos-sparc-*-*                _   DEF_CXXFLAGS    = -xarch=sparc4
 
