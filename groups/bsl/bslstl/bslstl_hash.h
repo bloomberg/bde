@@ -57,7 +57,7 @@ BSLS_IDENT("$Id: $")
 //
 // We will need a hash function -- the hash function is a function that will
 // take as input an object of the type stored in our array, and yield a
-// 'size_t' value which will be very randomized.  Ideally, the slightest change
+// 'size_t' value that will be very randomized.  Ideally, the slightest change
 // in the value of the 'TYPE' object will result in a large change in the value
 // returned by the hash function.  In a good hash function, typically half the
 // bits of the return value will change for a 1-bit change in the hashed value.
@@ -101,28 +101,29 @@ BSLS_IDENT("$Id: $")
 //                                              // cross-reference.  Held, not
 //                                              // owned.
 //      size_t            d_numValues;          // Length of 'd_values'.
-//      const TYPE      **d_bucketArray;        // Contains ptrs into
-//                                              // 'd_values'
+//      const TYPE      **d_bucketArray;        // Contains pointers into
+//                                              // 'd_values'.
 //      size_t            d_bucketArrayMask;    // Will always be '2^N - 1'.
 //      HASHER            d_hasher;
 //      bool              d_valid;              // Object was properly
 //                                              // initialized.
-//      bslma::Allocator *d_allocator_p;        // held, not owned
+//      bslma::Allocator *d_allocator_p;        // Held, not owned.
 //
 //    private:
 //      // PRIVATE ACCESSORS
-//      bool lookup(size_t      *idx,
+//      bool lookup(size_t      *index,
 //                  const TYPE&  value,
 //                  size_t       hashValue) const
 //          // Look up the specified 'value', having hash value 'hashValue',
-//          // and return its index in 'd_bucketArray'.  If not found, return
-//          // the vacant entry in 'd_bucketArray' where it should be inserted.
-//          // Return 'true' if 'value' is found and 'false' otherwise.
+//          // and return its index in 'd_bucketArray' stored in the specified
+//          // 'index'.  If not found, return the vacant entry in
+//          // 'd_bucketArray' where it should be inserted.  Return 'true' if
+//          // 'value' is found and 'false' otherwise.
 //      {
 //          const TYPE *ptr;
-//          for (*idx = hashValue & d_bucketArrayMask;
-//                                (ptr = d_bucketArray[*idx]);
-//                                     *idx = (*idx + 1) & d_bucketArrayMask) {
+//          for (*index = hashValue & d_bucketArrayMask;
+//               static_cast<bool>(ptr = d_bucketArray[*index]);
+//               *index = (*index + 1) & d_bucketArrayMask) {
 //              if (value == *ptr) {
 //                  return true;                                      // RETURN
 //              }
@@ -132,12 +133,18 @@ BSLS_IDENT("$Id: $")
 //          return false;
 //      }
 //
+//      // NOT IMPLEMENTED
+//      HashCrossReference(const HashCrossReference&);
+//      HashCrossReference& operator=(const HashCrossReference&);
+//
 //    public:
 //      // CREATORS
 //      HashCrossReference(const TYPE       *valuesArray,
 //                         size_t            numValues,
-//                         bslma::Allocator *allocator = 0)
-//          // Create a hash cross reference referring to the array of value.
+//                         bslma::Allocator *basicAllocator = 0)
+//          // Create a hash table refering to the specified 'valuesArray'
+//          // containing the specified 'numValues' elements.  Optionally
+//          // specify 'basicAllocator' or the default allocator will be used.
 //      : d_values(valuesArray)
 //      , d_numValues(numValues)
 //      , d_hasher()
@@ -156,12 +163,13 @@ BSLS_IDENT("$Id: $")
 //
 //          for (unsigned i = 0; i < numValues; ++i) {
 //              const TYPE& value = d_values[i];
+//
 //              size_t idx;
 //              if (lookup(&idx, value, d_hasher(value))) {
 //                  // Duplicate value.  Fail.
 //
 //                  printf("Error: entries %u and %u have the same value\n",
-//                              i, (unsigned) (d_bucketArray[idx] - d_values));
+//                                 i, unsigned(d_bucketArray[idx] - d_values));
 //                  d_valid = false;
 //
 //                  // don't return, continue reporting other redundant
@@ -270,12 +278,16 @@ BSLS_IDENT("$Id: $")
 //          // Apply the specified 'hashAlg' to the specified 'point'
 //  };
 //
-//  Point::Point(int x, int y) : d_x(x), d_y(y) {
-//      d_distToOrigin = sqrt(static_cast<long double>(d_x * d_x) +
-//                            static_cast<long double>(d_y * d_y));
+//  Point::Point(int x, int y)
+//  : d_x(x)
+//  , d_y(y)
+//  {
+//      d_distToOrigin = sqrt(static_cast<double>(d_x) * d_x +
+//                            static_cast<double>(d_y) * d_y);
 //  }
 //
-//  double Point::distanceToOrigin() {
+//  double Point::distanceToOrigin()
+//  {
 //      return d_distToOrigin;
 //  }
 //
@@ -413,8 +425,6 @@ BSLS_IDENT("$Id: $")
 BSL_OVERRIDES_STD mode"
 #endif
 #include <bslscm_version.h>
-
-#include <bslalg_hashutil.h>
 
 #include <bslh_hash.h>
 

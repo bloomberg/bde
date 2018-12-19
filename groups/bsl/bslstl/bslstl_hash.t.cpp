@@ -1,10 +1,4 @@
 // bslstl_hash.t.cpp                                                  -*-C++-*-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
-// One release only, while transitioning through a compile-fail error on this
-// syntax without the configuration macro.
-
-#define BSL_HASH_CSTRINGS_AS_POINTERS
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- DEPRECATED
 #include <bslstl_hash.h>
 
 #include <bslma_default.h>
@@ -23,6 +17,7 @@
 #include <bsls_platform.h>
 
 #include <math.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -53,28 +48,33 @@ using namespace bsl;
 // [ 6] QoI: Support for empty base optimization
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                      STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//              STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -83,13 +83,12 @@ void aSsErT(bool b, const char *s, int i)
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -135,7 +134,7 @@ void aSsErT(bool b, const char *s, int i)
 //
 // We will need a hash function -- the hash function is a function that will
 // take as input an object of the type stored in our array, and yield a
-// 'size_t' value which will be very randomized.  Ideally, the slightest change
+// 'size_t' value that will be very randomized.  Ideally, the slightest change
 // in the value of the 'TYPE' object will result in a large change in the value
 // returned by the hash function.  In a good hash function, typically half the
 // bits of the return value will change for a 1-bit change in the hashed value.
@@ -155,135 +154,145 @@ void aSsErT(bool b, const char *s, int i)
 // parameters 'TYPE" (the type being referenced' and 'HASHER', which defaults
 // to 'bsl::hash<TYPE>'.  For common types of 'TYPE' such as 'int', a
 // specialization of 'bsl::hash' is already defined:
+//..
+    template <class TYPE, class HASHER = bsl::hash<TYPE> >
+    class HashCrossReference {
+        // This table leverages a hash table to provide a fast lookup of an
+        // external, non-owned, array of values of configurable type.
+        //
+        // The only requirement for 'TYPE' is that it have a transitive,
+        // symmetric 'operator==' function.  There is no requirement that it
+        // have any kind of creator defined.
+        //
+        // The 'HASHER' template parameter type must be a functor with a
+        // function of the following signature:
+        //..
+        //  size_t operator()(const TYPE)  const; or
+        //  size_t operator()(const TYPE&) const; or
+        //..
+        // and 'HASHER' must have a publicly available default constructor and
+        // destructor.
 
-template <class TYPE, class HASHER = bsl::hash<TYPE> >
-class HashCrossReference {
-    // This class template implements a hash table providing fast lookup of an
-    // external, non-owned, array of values of configurable type.
-    //
-    // The only requirement for 'TYPE' is that it have a transitive, symmetric
-    // 'operator==' function.  There is no requirement that it have any kind of
-    // creator defined.
-    //
-    // The 'HASHER' template parameter type must be a functor with a function
-    // of the following signature:
-    //..
-    //  size_t operator()(const TYPE)  const; or
-    //  size_t operator()(const TYPE&) const; or
-    //..
-    // and 'HASHER' must have a publicly available default constructor and
-    // destructor.
+        // DATA
+        const TYPE       *d_values;             // Array of values table is to
+                                                // cross-reference.  Held, not
+                                                // owned.
+        size_t            d_numValues;          // Length of 'd_values'.
+        const TYPE      **d_bucketArray;        // Contains pointers into
+                                                // 'd_values'.
+        size_t            d_bucketArrayMask;    // Will always be '2^N - 1'.
+        HASHER            d_hasher;
+        bool              d_valid;              // Object was properly
+                                                // initialized.
+        bslma::Allocator *d_allocator_p;        // Held, not owned.
 
-    // DATA
-    const TYPE       *d_values;             // Array of values table is to
-                                            // cross-reference.  Held, not
-                                            // owned.
-    size_t            d_numValues;          // Length of 'd_values'.
-    const TYPE      **d_bucketArray;        // Contains ptrs into 'd_values'
-    size_t            d_bucketArrayMask;    // Will always be '2^N - 1'.
-    HASHER            d_hasher;
-    bool              d_valid;              // Object was properly initialized.
-    bslma::Allocator *d_allocator_p;        // held, not owned
+      private:
+        // PRIVATE ACCESSORS
+        bool lookup(size_t      *index,
+                    const TYPE&  value,
+                    size_t       hashValue) const
+            // Look up the specified 'value', having hash value 'hashValue',
+            // and return its index in 'd_bucketArray' stored in the specified
+            // 'index'.  If not found, return the vacant entry in
+            // 'd_bucketArray' where it should be inserted.  Return 'true' if
+            // 'value' is found and 'false' otherwise.
+        {
+            const TYPE *ptr;
+            for (*index = hashValue & d_bucketArrayMask;
+                 static_cast<bool>(ptr = d_bucketArray[*index]);
+                 *index = (*index + 1) & d_bucketArrayMask) {
+                if (value == *ptr) {
+                    return true;                                      // RETURN
+                }
+            }
+            // value was not found in table
 
-  private:
-    // PRIVATE ACCESSORS
-    bool lookup(size_t      *idx,
-                const TYPE&  value,
-                size_t       hashValue) const
-        // Look up the specified 'value', having hash value 'hashValue', and
-        // return its index in 'd_bucketArray' stored in the specified 'idx.
-        // If not found, return the vacant entry in 'd_bucketArray' where it
-        // should be inserted.  Return 'true' if 'value' is found and 'false'
-        // otherwise.
-    {
-        const TYPE *ptr;
-        for (*idx = hashValue & d_bucketArrayMask; (ptr = d_bucketArray[*idx]);
-                                       *idx = (*idx + 1) & d_bucketArrayMask) {
-            if (value == *ptr) {
-                return true;                                          // RETURN
+            return false;
+        }
+
+        // NOT IMPLEMENTED
+        HashCrossReference(const HashCrossReference&);
+        HashCrossReference& operator=(const HashCrossReference&);
+
+      public:
+        // CREATORS
+        HashCrossReference(const TYPE       *valuesArray,
+                           size_t            numValues,
+                           bslma::Allocator *basicAllocator = 0)
+            // Create a hash table refering to the specified 'valuesArray'
+            // containing the specified 'numValues' elements.  Optionally
+            // specify 'basicAllocator' or the default allocator will be used.
+        : d_values(valuesArray)
+        , d_numValues(numValues)
+        , d_hasher()
+        , d_valid(true)
+        , d_allocator_p(bslma::Default::allocator(basicAllocator))
+        {
+            size_t bucketArrayLength = 4;
+            while (bucketArrayLength < numValues * 4) {
+                bucketArrayLength *= 2;
+                BSLS_ASSERT_OPT(bucketArrayLength);
+            }
+            d_bucketArrayMask = bucketArrayLength - 1;
+            d_bucketArray = (const TYPE **) d_allocator_p->allocate(
+                                          bucketArrayLength * sizeof(TYPE **));
+            memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
+
+            for (unsigned i = 0; i < numValues; ++i) {
+                const TYPE& value = d_values[i];
+
+                size_t idx;
+                if (lookup(&idx, value, d_hasher(value))) {
+                    // Duplicate value.  Fail.
+
+                    printf("Error: entries %u and %u have the same value\n",
+                                   i, unsigned(d_bucketArray[idx] - d_values));
+                    d_valid = false;
+
+                    // don't return, continue reporting other redundant
+                    // entries.
+                }
+                else {
+                    d_bucketArray[idx] = &d_values[i];
+                }
             }
         }
-        // value was not found in table
 
-        return false;
-    }
-
-  public:
-    // CREATORS
-    HashCrossReference(const TYPE       *valuesArray,
-                       size_t            numValues,
-                       bslma::Allocator *allocator = 0)
-        // Create a hash table refering to the specified 'valuesArray'
-        // containing 'numValues'. Optionally specify 'allocator' or the
-        // default allocator will be used.
-    : d_values(valuesArray)
-    , d_numValues(numValues)
-    , d_hasher()
-    , d_valid(true)
-    , d_allocator_p(bslma::Default::allocator(allocator))
-    {
-        size_t bucketArrayLength = 4;
-        while (bucketArrayLength < numValues * 4) {
-            bucketArrayLength *= 2;
-            BSLS_ASSERT_OPT(bucketArrayLength);
+        ~HashCrossReference()
+            // Free up memory used by this cross-reference.
+        {
+            d_allocator_p->deallocate(d_bucketArray);
         }
-        d_bucketArrayMask = bucketArrayLength - 1;
-        d_bucketArray = static_cast<const TYPE **>(d_allocator_p->allocate(
-                                         bucketArrayLength * sizeof(TYPE **)));
-        memset(d_bucketArray,  0, bucketArrayLength * sizeof(TYPE *));
 
-        for (unsigned i = 0; i < numValues; ++i) {
-            const TYPE& value = d_values[i];
+        // ACCESSORS
+        int count(const TYPE& value) const
+            // Return 1 if the specified 'value' is found in the cross
+            // reference and 0 otherwise.
+        {
+            BSLS_ASSERT_OPT(d_valid);
+
             size_t idx;
-            if (lookup(&idx, value, d_hasher(value))) {
-                // Duplicate value.  Fail.
-
-                printf("Error: entries %u and %u have the same value\n",
-                                i, (unsigned) (d_bucketArray[idx] - d_values));
-                d_valid = false;
-
-                // don't return, continue reporting other redundant entries.
-            }
-            else {
-                d_bucketArray[idx] = &d_values[i];
-            }
+            return lookup(&idx, value, d_hasher(value));
         }
-    }
 
-    ~HashCrossReference()
-        // Free up memory used by this cross-reference.
-    {
-        d_allocator_p->deallocate(d_bucketArray);
-    }
-
-    // ACCESSORS
-    int count(const TYPE& value) const
-        // Return 1 if the specified 'value' is found in the cross reference
-        // and 0 otherwise.
-    {
-        BSLS_ASSERT_OPT(d_valid);
-
-        size_t idx;
-        return lookup(&idx, value, d_hasher(value));
-    }
-
-    bool isValid() const
-        // Return 'true' if this cross reference was successfully constructed
-        // and 'false' otherwise.
-    {
-        return d_valid;
-    }
-};
+        bool isValid() const
+            // Return 'true' if this cross reference was successfully
+            // constructed and 'false' otherwise.
+        {
+            return d_valid;
+        }
+    };
+//..
 
 ///Example 2: Using 'hashAppend' from 'bslh' with 'HashCrossReference'
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// We want to specialize 'bsl::hash' for a custom class. We can use the modular
-// hashing system implemented in 'bslh' rather than explicitly specializing
-// 'bsl::hash'. We will re-use the 'HashCrossReference' template class defined
-// in Example 1.
+// We want to specialize 'bsl::hash' for a custom class.  We can use the
+// modular hashing system implemented in 'bslh' rather than explicitly
+// specializing 'bsl::hash'. We will re-use the 'HashCrossReference' template
+// class defined in Example 1.
 //
-// First, we declare 'Point', a class that allows us to identify a loction on a
-// two dimensional cartesian plane.
+// First, we declare 'Point', a class that allows us to identify a location on
+// a two dimensional cartesian plane.
 //..
 
     class Point {
@@ -320,12 +329,16 @@ class HashCrossReference {
             // Apply the specified 'hashAlg' to the specified 'point'
     };
 
-    Point::Point(int x, int y) : d_x(x), d_y(y) {
-        d_distToOrigin = sqrt(static_cast<long double>(d_x * d_x) +
-                              static_cast<long double>(d_y * d_y));
+    Point::Point(int x, int y)
+    : d_x(x)
+    , d_y(y)
+    {
+        d_distToOrigin = sqrt(static_cast<double>(d_x) * d_x +
+                              static_cast<double>(d_y) * d_y);
     }
 
-    double Point::distanceToOrigin() {
+    double Point::distanceToOrigin()
+    {
         return d_distToOrigin;
     }
 
@@ -364,8 +377,8 @@ class HashCrossReference {
 
       private:
         Point d_position;
-        int d_length;
-        int d_width;
+        int   d_length;
+        int   d_width;
 
       public:
         Box(Point position, int length, int width);
@@ -423,8 +436,10 @@ int main(int argc, char *argv[])
     int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
-//  bool     veryVeryVerbose = argc > 4;
+    bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVeryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
@@ -514,7 +529,7 @@ int main(int argc, char *argv[])
         //:   (C-1)
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   USAGE EXAMPLE 1
         // --------------------------------------------------------------------
 
         if (verbose) printf("USAGE EXAMPLE 1\n"
@@ -594,8 +609,8 @@ int main(int argc, char *argv[])
 
         struct IntsWithMember {
             hash<TYPE> dummy;
-            int              a;
-            int              b;
+            int        a;
+            int        b;
         };
 
         ASSERT(8 == sizeof(TwoInts));
@@ -652,7 +667,7 @@ int main(int argc, char *argv[])
         //
         // Plan:
         //: 1 ASSERT each of the typedefs has accessibly aliases the correct
-        //:   type using 'bslmf::IsSame'. (C-1..3)
+        //:   type using 'bsl::is_same'. (C-1..3)
         //
         // Testing:
         //   typedef argument_type
@@ -664,8 +679,8 @@ int main(int argc, char *argv[])
 
         typedef int TYPE;
 
-        ASSERT((bslmf::IsSame<size_t, hash<TYPE>::result_type>::VALUE));
-        ASSERT((bslmf::IsSame<TYPE, hash<TYPE>::argument_type>::VALUE));
+        ASSERT((bsl::is_same<size_t, hash<TYPE>::result_type>::value));
+        ASSERT((bsl::is_same<TYPE, hash<TYPE>::argument_type>::value));
 
       } break;
       case 3: {
@@ -729,42 +744,42 @@ int main(int argc, char *argv[])
                 printf("Testing that %c hashes to " ZU, VALUE, HASHCODE);
             }
 
-            LOOP_ASSERT(LINE, bsl::hash<char>()(VALUE) == HASHCODE);
-            LOOP_ASSERT(LINE, bsl::hash<unsigned char>()(VALUE) == HASHCODE);
-            LOOP_ASSERT(LINE, bsl::hash<signed char>()(VALUE) == HASHCODE);
+            ASSERTV(LINE, bsl::hash<char>()(VALUE) == HASHCODE);
+            ASSERTV(LINE, bsl::hash<unsigned char>()(VALUE) == HASHCODE);
+            ASSERTV(LINE, bsl::hash<signed char>()(VALUE) == HASHCODE);
 
-            LOOP_ASSERT(LINE, bsl::hash<wchar_t>()(VALUE) == HASHCODE);
+            ASSERTV(LINE, bsl::hash<wchar_t>()(VALUE) == HASHCODE);
 
-            LOOP_ASSERT(LINE, bsl::hash<unsigned short>()(VALUE) == HASHCODE);
-            LOOP_ASSERT(LINE, bsl::hash<signed short>()(VALUE) == HASHCODE);
+            ASSERTV(LINE, bsl::hash<unsigned short>()(VALUE) == HASHCODE);
+            ASSERTV(LINE, bsl::hash<signed short>()(VALUE) == HASHCODE);
 
-            LOOP_ASSERT(LINE, bsl::hash<unsigned int>()(VALUE) == HASHCODE);
-            LOOP_ASSERT(LINE, bsl::hash<signed int>()(VALUE) == HASHCODE);
+            ASSERTV(LINE, bsl::hash<unsigned int>()(VALUE) == HASHCODE);
+            ASSERTV(LINE, bsl::hash<signed int>()(VALUE) == HASHCODE);
 
-            LOOP_ASSERT(LINE, bsl::hash<unsigned long>()(VALUE) == HASHCODE);
-            LOOP_ASSERT(LINE, bsl::hash<signed long>()(VALUE) == HASHCODE);
+            ASSERTV(LINE, bsl::hash<unsigned long>()(VALUE) == HASHCODE);
+            ASSERTV(LINE, bsl::hash<signed long>()(VALUE) == HASHCODE);
 
             if (sizeof (unsigned long long) <= sizeof (std::size_t))
             {
-                LOOP_ASSERT(LINE, bsl::hash<unsigned long long>()(VALUE)
-                        == (unsigned long long) HASHCODE);
-                LOOP_ASSERT(LINE, bsl::hash<signed long long>()(VALUE)
-                        == (signed long long) HASHCODE);
+                ASSERTV(LINE, bsl::hash<unsigned long long>()(VALUE)
+                                                                  == HASHCODE);
+                ASSERTV(LINE, bsl::hash<signed long long>()(VALUE)
+                                                                  == HASHCODE);
             }
             else
             {
-                LOOP_ASSERT(LINE, bsl::hash<unsigned long long>()(VALUE)
-                        == ((std::size_t)
-                                    ((unsigned long long) HASHCODE) ^
-                                   (((unsigned long long) HASHCODE) >> 32)));
-                LOOP_ASSERT(LINE, bsl::hash<signed long long>()(VALUE)
-                        == ((std::size_t)
-                                    ((signed long long) HASHCODE) ^
-                                   (((signed long long) HASHCODE) >> 32)));
+                ASSERTV(LINE, bsl::hash<unsigned long long>()(VALUE)
+                                  == ((std::size_t)
+                                     ((unsigned long long) HASHCODE) ^
+                                     (((unsigned long long) HASHCODE) >> 32)));
+                ASSERTV(LINE, bsl::hash<signed long long>()(VALUE)
+                                     == ((std::size_t)
+                                        ((signed long long) HASHCODE) ^
+                                       (((signed long long) HASHCODE) >> 32)));
             }
         }
 
-        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 
         // special test for hash<const char *>
         const char STRING_1[] = "Hello World";
@@ -774,29 +789,10 @@ int main(int argc, char *argv[])
         const char *C_STRING_2 = STRING_2;
         ASSERT(C_STRING_1 != C_STRING_2);
 
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // DEPRECATED
-        // This awkward-looking preprocessor logic guarantees that the test is
-        // run in the 'bsl-oss' repository, but that it runs only if the macro
-        // 'BSL_HASH_CSTRINGS_AS_POINTERS' is defined in 'bsl-internal'.  This
-        // allows for the one-release transition (BDE 2.19) from the old hash
-        // semantics treating 'const char *' as a string, to the C++ standard
-        // semantics treating 'const char *' as a pointer.  All of this
-        // pre-processor logic for the next release, along with the poisoning
-        // of 'hash<const char *>'.
-
-#if defined(BSL_HASH_CSTRINGS_AS_POINTERS)
         const ::bsl::hash<const char *> C_STRING_HASH =
                                                    ::bsl::hash<const char *>();
 
         ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
-#endif
-#else
-        const ::bsl::hash<const char *> C_STRING_HASH =
-                                                   ::bsl::hash<const char *>();
-
-        ASSERT(C_STRING_HASH(C_STRING_1) != C_STRING_HASH(C_STRING_2));
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- DEPRECATED
 
       } break;
       case 2: {
@@ -872,7 +868,7 @@ int main(int argc, char *argv[])
         obj2 = obj2 = obj1;
 
 
-        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -884,7 +880,7 @@ int main(int argc, char *argv[])
         //:   testing in subsequent test cases.
         //
         // Plan:
-        //: 1 Create an object 'compare' using the default ctor.
+        //: 1 Create an object 'compare' using the default constructor.
         //:
         //: 2 Call the 'compare' functor with two 'char' literals in lexical
         //:   order.
@@ -926,8 +922,8 @@ int main(int argc, char *argv[])
 
     // CONCERN: In no case does memory come from the global allocator.
 
-    LOOP_ASSERT(globalAllocator.numBlocksTotal(),
-                0 == globalAllocator.numBlocksTotal());
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            globalAllocator.numBlocksTotal() == 0);
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
