@@ -90,6 +90,17 @@ BSLS_IDENT("$Id: $")
 // 'operator()' that is invoked with the value that the variant currently
 // holds.
 //
+// Note, that visitor must satisfy the following requirements:
+//
+//: o Visitor allows invocation as a function by overloading operator(),
+//:   unambiguously accepting any value of parameter type of the
+//:   'bdlb::Variant'.
+//: o If result_type is not void, then each operation of the function object
+//:   must return a value implicitly convertible to the same type, that can be
+//:   specified expicitly as 'ResultType' alias.
+//: o Operator overload accepting 'bslmf::Nil' object is required for the
+//:   'apply' method of 'bdlb::Variant' class.
+//
 // The 'apply' method should be preferred over a 'switch' statement based on
 // the type index of a variant.  If the order or types contained by the variant
 // is changed in the future, every place where the type index is hard-coded
@@ -438,9 +449,7 @@ BSLS_IDENT("$Id: $")
 //
 //  List x[4];
 //
-//  //*************************************
-//  // Note that 'x[3]' is uninitialized. *
-//  //*************************************
+//  // Note that 'x[3]' is uninitialized.
 //
 //  x[0].assign(1);
 //  x[1].assign(1.1);
@@ -510,9 +519,7 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      typedef bool ResultType;
 //
-//      //*************************************************************
-//      // Note that the return type of 'operator()' is 'ResultType'. *
-//      //*************************************************************
+//      // Note that the return type of 'operator()' is 'ResultType'.
 //
 //      template <class TYPE>
 //      ResultType operator()(TYPE& value) const
@@ -588,9 +595,7 @@ BSLS_IDENT("$Id: $")
 //
 //  for (int i = 0; i < 3; ++i) {
 //
-//      //*****************************************************
-//      // Note that the return type is explicitly specified. *
-//      //*****************************************************
+//      // Note that the return type is explicitly specified.
 //
 //      bsl::string ret = x[i].apply<bsl::string>(visitor);
 //      bsl::cout << ret << bsl::endl;
@@ -1032,6 +1037,7 @@ struct VariantImp_Traits {
                        // class Variant_ReturnAnyTypeUtil
                        // ===============================
 
+template <class TYPE>
 struct Variant_ReturnAnyTypeUtil {
     // This 'struct' provides a function that returns an (invalid) instance of
     // any type.  It is meant to allow clients to express:
@@ -1052,19 +1058,55 @@ struct Variant_ReturnAnyTypeUtil {
     // return statement causes a warning (or error) with many compilers.
 
     // CLASS METHODS
-    static void doNotCall(void *);
-        // Do nothing.  Note that this overload for 'void *' is required
-        // because the template functions (below) cannot be implemented
-        // generically when 'TYPE' is 'void'.
-
-    template <class TYPE>
     static TYPE doNotCall(TYPE *dummy);
         // Return the specified '*dummy'.
 
-    template <class TYPE>
     static TYPE doNotCall();
         // Return a 'TYPE' object.
 };
+
+template <>
+struct Variant_ReturnAnyTypeUtil<void> {
+    // This partial specialization of 'Variant_ReturnAnyTypeUtil' provides
+    // functions that do not have return value.
+
+    // CLASS METHODS
+    static void doNotCall(void *);
+        // Do nothing.
+
+    static void doNotCall();
+        // Do nothing.
+};
+
+template <class TYPE>
+struct Variant_ReturnAnyTypeUtil<TYPE&> {
+    // This partial specialization of 'Variant_ReturnAnyTypeUtil' provides a
+    // function that returns an lvalue reference.
+
+    // CLASS METHODS
+    static TYPE& lvalueRef(TYPE *dummy);
+        // Return an lvalue reference providing modifiable access to the
+        // specified '*dummy'.
+
+    static TYPE& doNotCall();
+        // Return a 'TYPE&' object.
+};
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+template <class TYPE>
+struct Variant_ReturnAnyTypeUtil<TYPE&&>
+    // This partial specialization of 'Variant_ReturnAnyTypeUtil' provides a
+    // function that returns an rvalue reference.
+{
+    // CLASS METHODS
+    static TYPE&& rvalueRef(TYPE *dummy);
+        // Return an rvalue reference providing modifiable access to the
+        // specified '*dummy'.
+
+    static TYPE&& doNotCall();
+        // Return a 'TYPE&&' object.
+};
+#endif
 
                        // ==============================
                        // class Variant_RawVisitorHelper
@@ -6373,28 +6415,65 @@ VariantImp_NoAllocatorBase<TYPES>::getAllocator() const
                        // -------------------------------
 
 // CLASS METHODS
-inline
-void Variant_ReturnAnyTypeUtil::doNotCall(void *)
-{
-}
-
 template <class TYPE>
 inline
-TYPE Variant_ReturnAnyTypeUtil::doNotCall(TYPE *dummy)
+TYPE Variant_ReturnAnyTypeUtil<TYPE>::doNotCall(TYPE *dummy)
 {
     return *dummy;
 }
 
 template <class TYPE>
 inline
-TYPE Variant_ReturnAnyTypeUtil::doNotCall()
+TYPE Variant_ReturnAnyTypeUtil<TYPE>::doNotCall()
 {
     // Note that IBM xlC requires that we explicitly declare a temporary here,
     // rather than cast the null pointer directly as a function argument.
 
-    TYPE *const ptr = 0;
+    typedef typename bsl::remove_reference<TYPE>::type UnrefType;
+
+    UnrefType *const ptr = 0;
     return doNotCall(ptr);
 }
+
+inline
+void Variant_ReturnAnyTypeUtil<void>::doNotCall(void *)
+{}
+
+inline
+void Variant_ReturnAnyTypeUtil<void>::doNotCall()
+{}
+
+template <class TYPE>
+inline
+TYPE& Variant_ReturnAnyTypeUtil<TYPE&>::lvalueRef(TYPE *dummy)
+{
+    return *dummy;
+}
+
+template <class TYPE>
+inline
+TYPE& Variant_ReturnAnyTypeUtil<TYPE&>::doNotCall()
+{
+    TYPE *const ptr = 0;
+    return lvalueRef(ptr);
+}
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+template <class TYPE>
+inline
+TYPE&& Variant_ReturnAnyTypeUtil<TYPE&&>::rvalueRef(TYPE *dummy)
+{
+    return bslmf::MovableRefUtil::move(*dummy);
+}
+
+template <class TYPE>
+inline
+TYPE&& Variant_ReturnAnyTypeUtil<TYPE&&>::doNotCall()
+{
+    TYPE *const ptr = 0;
+    return rvalueRef(ptr);
+}
+#endif
 
                        // ------------------------------
                        // class Variant_RawVisitorHelper
@@ -6458,7 +6537,7 @@ Variant_RawVisitorHelper<RESULT_TYPE, VISITOR>::operator()(bslmf::Nil) const
 {
     BSLS_ASSERT_OPT(false);
 
-    return Variant_ReturnAnyTypeUtil::doNotCall<RESULT_TYPE>();
+    return Variant_ReturnAnyTypeUtil<RESULT_TYPE>::doNotCall();
 }
 
                         // -----------------------
@@ -6775,7 +6854,7 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type)
 
     // Unreachable by design; return something to quiet compiler warnings.
 
-    return Variant_ReturnAnyTypeUtil::doNotCall<RET_TYPE>();
+    return Variant_ReturnAnyTypeUtil<RET_TYPE>::doNotCall();
 }
 
 // PRIVATE ACCESSORS
@@ -7027,7 +7106,7 @@ RET_TYPE VariantImp<TYPES>::doApplyR(VISITOR_REF visitor, int type) const
 
     // Unreachable by design; return something to quiet compiler warnings.
 
-    return Variant_ReturnAnyTypeUtil::doNotCall<RET_TYPE>();
+    return Variant_ReturnAnyTypeUtil<RET_TYPE>::doNotCall();
 }
 
 // CREATORS
