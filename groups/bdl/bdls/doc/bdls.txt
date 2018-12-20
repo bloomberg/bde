@@ -15,17 +15,17 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  4. bdls_pipeutil
+  4. bdls_osutil
+     bdls_pipeutil
 
   3. bdls_fdstreambuf
      bdls_filedescriptorguard
+     bdls_processutil
 
   2. bdls_filesystemutil
-     bdls_osutil
 
   1. bdls_memoryutil
      bdls_pathutil
-     bdls_processutil
      bdls_testutil                                       !DEPRECATED!
 ..
 

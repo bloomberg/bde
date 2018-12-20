@@ -36,7 +36,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlcc' package currently has 12 components having 4 levels of physical
+ The 'bdlcc' package currently has 15 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -49,7 +49,8 @@
      bdlcc_singleconsumerqueue
      bdlcc_singleproducerqueue
 
-  1. bdlcc_deque
+  1. bdlcc_cache
+     bdlcc_deque
      bdlcc_fixedqueueindexmanager
      bdlcc_multipriorityqueue
      bdlcc_objectcatalog
@@ -62,6 +63,9 @@
 
 /Component Synopsis
 /------------------
+: 'bdlcc_cache':
+:      Provide a in-process cache with configurable eviction policy.
+:
 : 'bdlcc_deque':
 :      Provide a fully thread-safe deque container.
 :

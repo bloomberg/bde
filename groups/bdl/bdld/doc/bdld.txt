@@ -15,7 +15,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdld' package currently has 9 components having 4 levels of physical
+ The 'bdld' package currently has 10 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -23,6 +23,7 @@
   4. bdld_datummaker
 
   3. bdld_datumarraybuilder
+     bdld_datumintmapbuilder
      bdld_datummapbuilder
      bdld_datummapowningkeysbuilder
      bdld_manageddatum
@@ -47,6 +48,9 @@
 :
 : 'bdld_datumerror':
 :      Provide a type for an error code with an optional error message.
+:
+: 'bdld_datumintmapbuilder':
+:      Provide a utility to build a 'Datum' object holding an int-map.
 :
 : 'bdld_datummaker':
 :      Provide a mechanism for easily creating 'bdld::Datum' objects.

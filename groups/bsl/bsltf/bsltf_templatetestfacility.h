@@ -76,7 +76,7 @@ BSLS_IDENT("$Id: $")
 //: o The name of the class method to be invoked
 //:
 //: o The names of the types for which the class template will be instantiated
-//:   (up 20)
+//:   (up to 20)
 //
 // This component also defines a set of macros, each providing a list of types,
 // that can be used as the last argument to

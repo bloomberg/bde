@@ -12,7 +12,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdl' package group currently has 15 packages having 9 levels of physical
+ The 'bdl' package group currently has 17 packages having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the packages.
  The order of packages within each level is not architecturally significant,
  just alphabetical.
@@ -24,7 +24,8 @@
      bdlmt
      bdlpcre
 
-  7. bdlcc
+  7. bdlbb
+     bdlcc
      bdls
 
   6. bdlt
@@ -33,12 +34,12 @@
 
   4. bdlde
      bdlma
+     bdlsta
 
   3. bdlb
 
   2. bdlf
      bdlsb
-     bdlsta
 
   1. bdlscm
 ..
@@ -49,7 +50,10 @@
 :      Provide generic functions to manipulate attribute types
 :
 : 'bdlb':
-:      Provide utilities on basic types.
+:      Provide basic types and utilities.
+:
+: 'bdlbb':
+:      Provide flexible, efficient management of message buffers.
 :
 : 'bdlc':
 :      Provide container vocabulary types.
@@ -88,7 +92,7 @@
 :      Provide versioning information for BDE library components.
 :
 : 'bdlsta':
-:      Provide basic statistics tools.
+:      Provide basic statistical computations.
 :
 : 'bdlt':
 :      Provide date and time vocabulary types, and related utilities.

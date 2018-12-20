@@ -162,7 +162,7 @@
 : 'ball_logthrottle':
 :      Provide throttling equivalents of some of the 'ball_log' macros.
 :
-: 'ball_multiplexobserver':                             !DEPRECATED!
+: 'ball_multiplexobserver':                              !DEPRECATED!
 :      Provide a multiplexing observer that forwards to other observers.
 :
 : 'ball_observer':

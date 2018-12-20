@@ -20,25 +20,25 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 76 components having 17 levels of physical
+ The 'bsls' package currently has 77 components having 19 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  17. bsls_byteorder
+  19. bsls_byteorder
 
-  16. bsls_alignedbuffer
+  18. bsls_alignedbuffer
       bsls_alignment
       bsls_byteorderutil
       bsls_platformutil                                  !DEPRECATED!
       bsls_systemtime
 
-  15. bsls_alignmentutil
+  17. bsls_alignmentutil
       bsls_bslexceptionutil
       bsls_stopwatch
       bsls_timeinterval
 
-  14. bsls_asserttest
+  16. bsls_asserttest
       bsls_byteorderutil_impl                                         !PRIVATE!
       bsls_exceptionutil
       bsls_nameof
@@ -46,66 +46,69 @@
       bsls_spinlock
       bsls_timeutil
 
-  13. bsls_assert
+  15. bsls_assert
 
-  12. bsls_review
+  14. bsls_review
 
-  11. bsls_stackaddressutil
+  13. bsls_stackaddressutil
 
-  10. bsls_dbghelpdllimpl_windows                                     !PRIVATE!
+  12. bsls_dbghelpdllimpl_windows                                     !PRIVATE!
 
-   9. bsls_bsllock
+  11. bsls_bsllock
 
-   8. bsls_atomic
+  10. bsls_atomic
       bsls_bslonce
       bsls_log
 
-   7. bsls_atomicoperations
+   9. bsls_atomicoperations
+
+   8. bsls_atomicoperations_sparc32_sun_cc                            !PRIVATE!
+      bsls_atomicoperations_sparc64_sun_cc                            !PRIVATE!
       bsls_objectbuffer
 
-   6. bsls_alignmentfromtype
-      bsls_atomicoperations_powerpc32_aix_xlc                         !PRIVATE!
-      bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
-      bsls_atomicoperations_sparc32_sun_cc                            !PRIVATE!
-      bsls_atomicoperations_sparc64_sun_cc                            !PRIVATE!
+   7. bsls_alignmentfromtype
+      bsls_atomicoperations_sparc_sun_cc_default                      !PRIVATE!
       bsls_cpp11                                         !DEPRECATED!
       bsls_libraryfeatures
+      bsls_pointercastutil
       bsls_util
 
-   5. bsls_alignmenttotype
+   6. bsls_alignmenttotype
+      bsls_annotation
       bsls_assertimputil
-      bsls_atomicoperations_all_all_clangintrinsics                   !PRIVATE!
+      bsls_atomicoperations_powerpc32_aix_xlc                         !PRIVATE!
+      bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
+      bsls_keyword
+      bsls_nullptr
+
+   5. bsls_atomicoperations_all_all_clangintrinsics                   !PRIVATE!
       bsls_atomicoperations_all_all_gccintrinsics                     !PRIVATE!
       bsls_atomicoperations_arm_all_gcc                               !PRIVATE!
       bsls_atomicoperations_ia64_hp_acc                               !PRIVATE!
       bsls_atomicoperations_powerpc_aix_xlc_default                   !PRIVATE!
       bsls_atomicoperations_powerpc_all_gcc                           !PRIVATE!
-      bsls_atomicoperations_sparc_sun_cc_default                      !PRIVATE!
       bsls_atomicoperations_x64_all_gcc                               !PRIVATE!
       bsls_atomicoperations_x64_win_msvc                              !PRIVATE!
       bsls_atomicoperations_x86_all_gcc                               !PRIVATE!
       bsls_atomicoperations_x86_win_msvc                              !PRIVATE!
-      bsls_keyword
-      bsls_nullptr
+      bsls_compilerfeatures
 
    4. bsls_atomicoperations_default                                   !PRIVATE!
       bsls_buildtarget
-      bsls_compilerfeatures
       bsls_int64                                         !DEPRECATED!
       bsls_logseverity
       bsls_performancehint
-      bsls_pointercastutil
       bsls_systemclocktype
       bsls_unspecifiedbool
 
    3. bsls_alignmentimp
-      bsls_annotation
       bsls_bsltestutil
       bsls_linkcoercion
       bsls_nativestd
       bsls_types
 
    2. bsls_assert_macroreset                                          !PRIVATE!
+      bsls_asserttest_macroreset                                      !PRIVATE!
       bsls_asserttestexception
       bsls_blockgrowth
       bsls_bsldeprecationinformation
@@ -153,6 +156,9 @@
 :
 : 'bsls_asserttest':
 :      Provide a test facility for assertion macros.
+:
+: 'bsls_asserttest_macroreset':                                       !PRIVATE!
+:      Undefine macros related to 'bsls_asserttest.h'.
 :
 : 'bsls_asserttestexception':
 :      Provide an exception type to support testing for failed assertions.

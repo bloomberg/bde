@@ -15,7 +15,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsltf' package currently has 29 components having 5 levels of physical
+ The 'bsltf' package currently has 30 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -47,6 +47,7 @@
      bsltf_noncopyconstructibletesttype
      bsltf_nondefaultconstructibletesttype
      bsltf_nonequalcomparabletesttype
+     bsltf_nonoptionalalloctesttype
      bsltf_nontypicaloverloadstesttype
      bsltf_simpletesttype
      bsltf_stdallocatoradaptor
@@ -116,6 +117,9 @@
 :
 : 'bsltf_nonequalcomparabletesttype':
 :      Provide an attribute class that is not equal comparable.
+:
+: 'bsltf_nonoptionalalloctesttype':
+:      Provide a class for testing that allocates with 'bslma::Allocator'.
 :
 : 'bsltf_nontypicaloverloadstesttype':
 :      Provide a class that overloads the non-typical operators.

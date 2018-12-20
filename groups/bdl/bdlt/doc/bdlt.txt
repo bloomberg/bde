@@ -38,6 +38,7 @@
   6. bdlt_calendarutil
      bdlt_datetimetz
      bdlt_localtimeoffset
+     bdlt_timetableloader
 
   5. bdlt_calendar
      bdlt_calendarloader
@@ -45,7 +46,6 @@
      bdlt_datetz
      bdlt_epochutil
      bdlt_timetable
-     bdlt_timetableloader
 
   4. bdlt_datetime
      bdlt_dateutil
@@ -107,7 +107,7 @@
 :      Provide a representation of an interval of time.
 :
 : 'bdlt_datetimeintervalutil':
-:      Provide convenience factories for 'bdlt::DatetimeInterval' objects.
+:      Provide non-primitive operations on 'bdlt::DatetimeInterval'.
 :
 : 'bdlt_datetimetz':
 :      Provide a representation of a date and time with time zone offset.

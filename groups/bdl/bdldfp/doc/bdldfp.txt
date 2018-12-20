@@ -9,26 +9,27 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdldfp' package currently has 15 components having 7 levels of physical
+ The 'bdldfp' package currently has 11 components having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  7. bdldfp_decimalconvertutil
+  8. bdldfp_decimalconvertutil
 
-  6. bdldfp_decimalutil
+  7. bdldfp_decimalconvertutil_inteldfp                               !PRIVATE!
+     bdldfp_decimalutil
 
-  5. bdldfp_decimal
-     bdkdfp_decimalformatconfig
+  6. bdldfp_decimal
 
-  4. bdldfp_decimalimputil
+  5. bdldfp_decimalimputil
 
-  3. bdldfp_decimalimputil_inteldfp                                   !PRIVATE!
+  4. bdldfp_decimalimputil_inteldfp                                   !PRIVATE!
 
-  2. bdldfp_denselypackeddecimalimputil
-     bdldfp_intelimpwrapper
+  3. bdldfp_decimalstorage
 
-  1. bdldfp_decimalstorage
+  2. bdldfp_intelimpwrapper
+
+  1. bdldfp_decimalformatconfig
      bdldfp_decimalplatform
      bdldfp_uint128
 ..
@@ -40,6 +41,9 @@
 :
 : 'bdldfp_decimalconvertutil':
 :      Provide decimal floating-point conversion functions.
+:
+: 'bdldfp_decimalconvertutil_inteldfp':                               !PRIVATE!
+:      Provide decimal floating-point conversion functions for Intel DFP.
 :
 : 'bdldfp_decimalformatconfig':
 :      Provide an attribute class to configure decimal formatting.
@@ -54,13 +58,10 @@
 :      Provide decimal floating-point platform information macros.
 :
 : 'bdldfp_decimalstorage':
-:      Provide utilities dealing with Decimal Storage types.
+:      Utilities for working with Decimal Storage types.
 :
 : 'bdldfp_decimalutil':
 :      Provide utilities dealing with floating point decimal objects.
-:
-: 'bdldfp_denselypackeddecimalimputil':
-:      Utilities for working with Densely Packed Decimal representation.
 :
 : 'bdldfp_intelimpwrapper':
 :      Provide a central mechanism to configure the Intel DFP library.

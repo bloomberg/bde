@@ -9,7 +9,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlc' package currently has 6 components having 2 levels of physical
+ The 'bdlc' package currently has 7 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.

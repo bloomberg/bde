@@ -58,7 +58,7 @@
 /Component Synopsis
 /------------------
 : 'baltzo_datafileloader':
-:      provide a concrete 'baltzo::Loader' for Zoneinfo binary files.
+:      Provide a concrete 'baltzo::Loader' for Zoneinfo binary files.
 :
 : 'baltzo_defaultzoneinfocache':
 :      Provide facilities to manage a default Zoneinfo cache object.
@@ -79,7 +79,7 @@
 :      Provide an attribute class for characterizing local time values.
 :
 : 'baltzo_localtimeoffsetutil':
-:      Provide utilities for a 'bdetu_systemtime' local time callback.
+:      Provide utilities for a 'bdlt_localtimeoffset' local time callback.
 :
 : 'baltzo_localtimeperiod':
 :      Provide a type describing local time over a time period.

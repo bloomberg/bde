@@ -15,7 +15,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlde' package currently has 13 components having 2 levels of physical
+ The 'bdlde' package currently has 15 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -29,10 +29,12 @@
      bdlde_byteorder
      bdlde_charconvertstatus
      bdlde_crc32
+     bdlde_crc32c
      bdlde_crc64
      bdlde_md5
      bdlde_quotedprintabledecoder
      bdlde_quotedprintableencoder
+     bdlde_sha2
      bdlde_utf8util
 ..
 
@@ -62,6 +64,9 @@
 : 'bdlde_crc32':
 :      Provide a mechanism for computing the CRC-32 checksum of a dataset.
 :
+: 'bdlde_crc32c':
+:      Provide utilities to calculate the CRC32-C checksum of a dataset.
+:
 : 'bdlde_crc64':
 :      Provide a mechanism for computing the CRC-64 checksum of a dataset.
 :
@@ -73,6 +78,9 @@
 :
 : 'bdlde_quotedprintableencoder':
 :      Provide automata converting to and from Quoted-Printable encodings.
+:
+: 'bdlde_sha2':
+:      Provide a value-semantic type encoding a message in a SHA-2 digest.
 :
 : 'bdlde_utf8util':
 :      Provide basic utilities for UTF-8 encodings.
