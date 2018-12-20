@@ -1416,7 +1416,7 @@ struct Log {
     static const Category *setCategoryHierarchically(const char *categoryName);
         // Return from the logger manager singleton's category registry the
         // address of the non-modifiable category having the specified
-        // 'categoryName', of, if no such category exists, add a new category
+        // 'categoryName', or, if no such category exists, add a new category
         // having 'categoryName' to the registry if possible (i.e., if the
         // registry has sufficient capacity to accommodate new entries);
         // otherwise, return the address of the non-modifiable *Default*

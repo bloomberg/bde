@@ -764,8 +764,8 @@ Agg getDefaultLevels(const Blp::ball::LoggerManager *manager)
 }
 
 void setLevels(Blp::ball::Category *category, const Agg& agg)
-    // Revert the specified category to non-const and set its threshold levels
-    // to those of the specified 'agg'.
+    // Set the threshold levels of the specified 'category' to those of the
+    // specified 'agg'.
 {
     category->setLevels(agg.recordLevel(),
                         agg.passLevel(),
@@ -777,10 +777,10 @@ void setLevels(Blp::ball::Category *category, const Agg& agg)
 //
 // Each record of the table 'DATA' contains a line number, a threshold
 // aggregate value, and two booleans, one of which indicates that the
-// thresholds are to be used, in the outer 'ti' loop in 'each test case', to
+// thresholds are to be used, in the outer 'ti' loop in each test case, to
 // initialize the threshold aggregate 'callbackLevels' above, and the rest of
 // the loop skipped, and another boolean indicating that in the inner 'tj' loop
-// in 'each test case', the logger manager is to be set to use the default
+// in each test case, the logger manager is to be set to use the default
 // threshold level callback.
 
 #undef SET_CB
@@ -853,11 +853,11 @@ namespace indices {
 // All the calls to these functions, including 'TestClassMacro::operator()',
 // are done through macros defined in the test cases in 'main'.  The names of
 // the integers below are passed as an arg to these macros, and used twice --
-// as an integer to parametrize the template, and the name is used (using
-// preprocessor stringification, ie '#argName').  Before being used as category
-// names, the names below have everything at or after '_' removed, which
-// enables us to use multiple indexes with the same category name.  For
-// example, 'woof_a', 'woof_b', 'woof_c', 'woof_d' and 'woof_e' are 5 distinct
+// as an integer to parameterize the template, and the name is used (using
+// preprocessor stringification, i.e.  '#argName').  Before being used as
+// category names, the names below have everything at or after '_' removed,
+// which enables us to use multiple indexes with the same category name.  For
+// example, 'woof_a', 'woof_b', 'woof_c', 'woof_d', and 'woof_e' are 5 distinct
 // integer values, but all refer to the same category name "woof".
 
 static const int base = L_ + 1;
@@ -1006,7 +1006,7 @@ bsl::set<int> instantiationSet(&u::ta);
 
 // The following 'enum' is the type of an argument to
 // 'testSetCategoryHierarchically' that determines whether we will make a call
-// to the single argument (i.e.  "holderless") version of
+// to the single argument (i.e., "holderless") version of
 // 'setCategoryHierarchically' before or after the two argument call, or never
 // call the single argument version at all.
 
@@ -1250,7 +1250,7 @@ testLocalMacros(const Agg&          newLevels,
     // match the threshold levels of the category found or created.  Verify
     // that the 'd_next_p' field of the category holder of the macro call
     // matches the specified 'prevCatHolder'.  Verify that the "repeat" bit in
-    // flags matches whether this is the first time this function was called
+    // 'flags' matches whether this is the first time this function was called
     // with a given value of the specified 'KK' for a given pass through the
     // test loop.  All the values of 'KK' are provided by the 'int' constants
     // in the sub-namespace 'indices' within this test namespace.
@@ -1355,7 +1355,7 @@ testLocalMacros(const Agg&          newLevels,
 template <int KK>
 class TestClassMacro {
     // The purpose of this 'class' is to test
-    // 'BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY'.  We want to to call many
+    // 'BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY'.  We want to call many
     // instantiations of the macro, and by instantiating this 'class' with
     // values of the template parameter 'KK' taken from constants in the
     // 'indices' sub-namespace, we get them.  Each instantiation of the macro
