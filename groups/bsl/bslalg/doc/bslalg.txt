@@ -36,27 +36,33 @@
   7. bslalg_arrayprimitives
 
   6. bslalg_autoarraymovedestructor
-
-  5. bslalg_autoarraydestructor
      bslalg_hashtableimputil
 
+  5. bslalg_autoarraydestructor
+     bslalg_hashtableanchor
+
   4. bslalg_arraydestructionprimitives
+     bslalg_bidirectionalnode
      bslalg_constructorproxy
      bslalg_dequeiterator
-     bslalg_hashtableanchor
+
+  3. bslalg_hashtablebucket
+     bslalg_rangecompare
+     bslalg_scalarprimitives
      bslalg_selecttrait                                  !DEPRECATED!
      bslalg_typetraits                                   !DEPRECATED!
 
-  3. bslalg_hashtablebucket
-     bslalg_hastrait                                     !DEPRECATED!
-     bslalg_scalarprimitives
-
   2. bslalg_autoscalardestructor
      bslalg_bidirectionallinklistutil
-     bslalg_bidirectionalnode
-     bslalg_rangecompare
      bslalg_rbtreeanchor
+     bslalg_typetraitbitwisecopyable                     !DEPRECATED!
+     bslalg_typetraitbitwiseequalitycomparable           !DEPRECATED!
+     bslalg_typetraitbitwisemoveable                     !DEPRECATED!
+     bslalg_typetraithaspointersemantics                 !DEPRECATED!
      bslalg_typetraithasstliterators                     !DEPRECATED!
+     bslalg_typetraithastrivialdefaultconstructor        !DEPRECATED!
+     bslalg_typetraitpair                                !DEPRECATED!
+     bslalg_typetraitusesbslmaallocator                  !DEPRECATED!
 
   1. bslalg_bidirectionallink
      bslalg_containerbase
@@ -64,17 +70,11 @@
      bslalg_functoradapter
      bslalg_hashutil
      bslalg_hasstliterators
+     bslalg_hastrait                                     !DEPRECATED!
      bslalg_rbtreenode
-     bslalg_scalardestructionprimitives
+     bslalg_scalardestructionprimitives                  !DEPRECATED!
      bslalg_swaputil
-     bslalg_typetraitbitwisecopyable                     !DEPRECATED!
-     bslalg_typetraitbitwiseequalitycomparable           !DEPRECATED!
-     bslalg_typetraitbitwisemoveable                     !DEPRECATED!
-     bslalg_typetraithaspointersemantics                 !DEPRECATED!
-     bslalg_typetraithastrivialdefaultconstructor        !DEPRECATED!
      bslalg_typetraitnil                                 !DEPRECATED!
-     bslalg_typetraitpair                                !DEPRECATED!
-     bslalg_typetraitusesbslmaallocator                  !DEPRECATED!
 ..
 
 /Component Synopsis
@@ -151,7 +151,7 @@
 : 'bslalg_rbtreeutil':
 :      Provide a suite of primitive algorithms on red-black trees.
 :
-: 'bslalg_scalardestructionprimitives':
+: 'bslalg_scalardestructionprimitives':                  !DEPRECATED!
 :      Provide primitive algorithms that destroy scalars.
 :
 : 'bslalg_scalarprimitives':

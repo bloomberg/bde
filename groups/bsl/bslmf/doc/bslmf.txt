@@ -54,107 +54,106 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 74 components having 21 levels of physical
+ The 'bslmf' package currently has 78 components having 18 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  21. bslmf_util
+  18. bslmf_util
 
-  20. bslmf_movableref
+  17. bslmf_movableref
 
-  19. bslmf_isbitwisemoveable
+  16. bslmf_isbitwisemoveable
       bslmf_iscopyconstructible
       bslmf_isnothrowmoveconstructible
 
-  18. bslmf_forwardingtype
+  15. bslmf_forwardingtype
       bslmf_haspointersemantics
       bslmf_isbitwiseequalitycomparable
       bslmf_istriviallycopyable
       bslmf_istriviallydefaultconstructible
       bslmf_usesallocatorargt
 
-  17. bslmf_detectnestedtrait
+  14. bslmf_detectnestedtrait
       bslmf_isenum
 
-  16. bslmf_isconvertibletoany
+  13. bslmf_invokeresult
+      bslmf_isconvertibletoany
       bslmf_matcharithmetictype
       bslmf_nestedtraitdeclaration
       bslmf_usesallocator
 
-  15. bslmf_isconvertible
+  12. bslmf_isconvertible
 
-  14. bslmf_enableif
+  11. bslmf_enableif
 
-  13. bslmf_isfundamental
+  10. bslmf_isfundamental
 
-  12. bslmf_isarithmetic
-
-  11. bslmf_isintegral
-
-  10. bslmf_addcv
+   9. bslmf_isarithmetic
       bslmf_ispointertomember
 
-   9. bslmf_addvolatile
+   8. bslmf_isintegral
       bslmf_ismemberpointer
 
-   8. bslmf_addconst
+   7. bslmf_addcv
+      bslmf_ismemberobjectpointer
+
+   6. bslmf_addconst
+      bslmf_addvolatile
       bslmf_decay
       bslmf_isempty
-      bslmf_ismemberobjectpointer
+      bslmf_ismemberfunctionpointer
       bslmf_ispolymorphic
-      bslmf_isvolatile
       bslmf_removepointer
 
-   7. bslmf_isclass
+   5. bslmf_isclass
       bslmf_isfloatingpoint
       bslmf_isfunction
-      bslmf_ismemberfunctionpointer
       bslmf_ispointer
       bslmf_isvoid
       bslmf_memberfunctionpointertraits
       bslmf_removecvq
 
-   6. bslmf_addpointer
+   4. bslmf_addpointer
       bslmf_addreference
       bslmf_functionpointertraits
       bslmf_if
+      bslmf_istransparentpredicate
       bslmf_makeintegersequence
+      bslmf_matchanytype
       bslmf_removecv
       bslmf_resulttype
+      bslmf_selecttrait
 
-   5. bslmf_addlvaluereference
+   3. bslmf_addlvaluereference
       bslmf_addrvaluereference
       bslmf_arraytopointer
       bslmf_conditional
       bslmf_integersequence
       bslmf_isconst
+      bslmf_isreference
+      bslmf_isvolatile
+      bslmf_metaint                                      !DEPRECATED!
       bslmf_nthparameter
       bslmf_removeconst
       bslmf_removeextent
       bslmf_removereference
       bslmf_removevolatile
+      bslmf_switch
       bslmf_typelist
       bslmf_voidtype
-
-   4. bslmf_issame
-      bslmf_selecttrait
-
-   3. bslmf_isreference
-      bslmf_metaint                                      !DEPRECATED!
-      bslmf_switch
 
    2. bslmf_isarray
       bslmf_islvaluereference
       bslmf_ispair
       bslmf_isrvaluereference
+      bslmf_issame
       bslmf_nil
       bslmf_tag
 
    1. bslmf_allocatorargt
       bslmf_assert
       bslmf_integralconstant
-      bslmf_matchanytype
 ..
 
 /Component Synopsis
@@ -218,6 +217,9 @@
 :
 : 'bslmf_integralconstant':
 :      Provide a mapping from integral constants to unique types.
+:
+: 'bslmf_invokeresult':
+:      Determine the result type of an invocable expression.
 :
 : 'bslmf_isarithmetic':
 :      Provide a compile-time check for determining arithmetic types.
@@ -300,6 +302,9 @@
 : 'bslmf_issame':
 :      Provide a meta-function for testing if two types are the same.
 :
+: 'bslmf_istransparentpredicate':
+:      Support detection of whether a predicate functor is transparent.
+:
 : 'bslmf_istriviallycopyable':
 :      Provide a meta-function for determining trivially copyable types.
 :
@@ -313,7 +318,7 @@
 :      Provide a compile-time check for 'volatile'-qualified types.
 :
 : 'bslmf_makeintegersequence':
-:      Provaide a compile-time integer sequence factory function.
+:      Provide a template parameter pack of integers.
 :
 : 'bslmf_matchanytype':
 :      Provide a generic type to which any type can be converted.

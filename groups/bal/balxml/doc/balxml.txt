@@ -40,7 +40,7 @@
      balxml_decoderoptions
      balxml_encodingstyle
      balxml_errorinfo
-     balxml_hexparser                                    !DEPRECATED!
+     balxml_hexparser
      balxml_listparser
      balxml_namespaceregistry
      balxml_util
@@ -78,7 +78,7 @@
 : 'balxml_formatter':
 :      Provide a simple interface for writing formatted XML.
 :
-: 'balxml_hexparser':                                    !DEPRECATED!
+: 'balxml_hexparser':
 :      Provide push parser for hex types.
 :
 : 'balxml_listparser':

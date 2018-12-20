@@ -6,7 +6,7 @@
 BSLS_IDENT_RCSID(balb_testmessages_h,"$Id$ $CSID$")
 BSLS_IDENT_PRAGMA_ONCE
 
-//@PURPOSE: Provide value-semantic attribute classes
+//@PURPOSE: Provide value-semantic attribute classes.
 //
 //@AUTHOR: David SCHUMANN (dschumann1@bloomberg.net)
 //

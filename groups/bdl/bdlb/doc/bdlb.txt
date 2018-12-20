@@ -11,23 +11,27 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 28 components having 4 levels of physical
+ The 'bdlb' package currently has 35 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   4. bdlb_bitstringutil
+     bdlb_indexspanstringutil
+     bdlb_indexspanutil
 
   3. bdlb_bigendian
      bdlb_bitstringimputil
+     bdlb_indexspan
      bdlb_nullableallocatedvalue
      bdlb_nullablevalue
+     bdlb_numericparseutil
      bdlb_variant
 
   2. bdlb_bitmaskutil
      bdlb_guidutil
-     bdlb_numericparseutil
      bdlb_printmethods
+     bdlb_string
 
   1. bdlb_arrayutil
      bdlb_bitutil
@@ -44,7 +48,7 @@
      bdlb_print
      bdlb_random
      bdlb_randomdevice
-     bdlb_string
+     bdlb_scopeexit
      bdlb_stringrefutil
      bdlb_testinputiterator
      bdlb_tokenizer
@@ -99,6 +103,15 @@
 : 'bdlb_hashutil':
 :      Provide a utility of hash functions.
 :
+: 'bdlb_indexspan':
+:      Provide a value-semantic attribute type for position and length.
+:
+: 'bdlb_indexspanstringutil':
+:      Provide functions that operate on 'IndexSpan' and string objects.
+:
+: 'bdlb_indexspanutil':
+:      Provide functions that operate on 'IndexSpan' objects.
+:
 : 'bdlb_literalutil':
 :      Provide utility routines for programming language literals.
 :
@@ -112,7 +125,7 @@
 :      Provide an output iterator type that discards output.
 :
 : 'bdlb_numericparseutil':
-:      Provide utility methods for parsing text as numbers.
+:      Provide conversions from text into fundamental numeric types.
 :
 : 'bdlb_print':
 :      Provide platform-independent stream utilities.
@@ -125,6 +138,9 @@
 :
 : 'bdlb_randomdevice':
 :      Provide a common interface to a system's random number generator.
+:
+: 'bdlb_scopeexit':
+:      Provide a general-purpose guard object for scope-exit logic.
 :
 : 'bdlb_string':
 :      Provide utility functions on C-style and 'STL' strings.
@@ -139,10 +155,10 @@
 :      Provide access to user-described tokens via string references.
 :
 : 'bdlb_topologicalsortutil':
-:      Provide utility functions to order a sequence given a relation.
+:      Provide a utility to topologically sort a collection of inputs.
 :
 : 'bdlb_transformiterator':
-:      Privide an iterator adapter that invokes a functor upon dereference.
+:      Provide a wrapping iterator that invokes a functor on dereference.
 :
 : 'bdlb_variant':
 :      Provide a variant (discriminated 'union'-like) type.

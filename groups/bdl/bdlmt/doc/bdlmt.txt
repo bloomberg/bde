@@ -34,7 +34,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlmt' package currently has 7 components having 2 levels of physical
+ The 'bdlmt' package currently has 8 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -46,6 +46,7 @@
      bdlmt_fixedthreadpool
      bdlmt_multiprioritythreadpool
      bdlmt_threadpool
+     bdlmt_throttle
      bdlmt_timereventscheduler
 ..
 
@@ -68,6 +69,9 @@
 :
 : 'bdlmt_threadpool':
 :      Provide portable implementation for a dynamic pool of threads.
+:
+: 'bdlmt_throttle':
+:      Provide mechanism for limiting the rate at which actions may occur.
 :
 : 'bdlmt_timereventscheduler':
 :      Provide a thread-safe recurring and non-recurring event scheduler.

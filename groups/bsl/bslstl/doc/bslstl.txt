@@ -19,23 +19,33 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 54 components having 8 levels of physical
+ The 'bslstl' package currently has 70 components having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   8. bslstl_ownerless
 
-  7. bslstl_sharedptr
+  7. bslstl_map_test                                                  !PRIVATE!
+     bslstl_multimap_test                                             !PRIVATE!
+     bslstl_multiset_test                                             !PRIVATE!
+     bslstl_set_test                                                  !PRIVATE!
+     bslstl_sharedptr
 
-  6. bslstl_map
+  6. bslstl_deque_test                                                !PRIVATE!
+     bslstl_map
      bslstl_multimap
      bslstl_multiset
      bslstl_queue
      bslstl_set
      bslstl_stack
+     bslstl_unorderedmap_test                                         !PRIVATE!
+     bslstl_unorderedmultimap_test                                    !PRIVATE!
+     bslstl_unorderedmultiset_test                                    !PRIVATE!
+     bslstl_unorderedset_test                                         !PRIVATE!
 
   5. bslstl_deque
+     bslstl_hashtable_test                                            !PRIVATE!
      bslstl_istringstream
      bslstl_mapcomparator
      bslstl_ostringstream
@@ -49,8 +59,8 @@
 
   4. bslstl_bitset
      bslstl_hashtable
-     bslstl_priorityqueue
      bslstl_randomaccessiterator
+     bslstl_string_test                                               !PRIVATE!
      bslstl_stringbuf
      bslstl_stringref
      bslstl_treenode
@@ -59,21 +69,24 @@
      bslstl_function
      bslstl_hashtablebucketiterator
      bslstl_hashtableiterator
+     bslstl_list_test                                                 !PRIVATE!
+     bslstl_priorityqueue
      bslstl_string
-     bslstl_vector
+     bslstl_vector_test                                               !PRIVATE!
 
   2. bslstl_algorithmworkaround
      bslstl_bidirectionalnodepool
+     bslstl_chrono
      bslstl_forwarditerator
      bslstl_iteratorutil
      bslstl_list
      bslstl_pair
      bslstl_treeiterator
+     bslstl_vector
 
   1. bslstl_allocator                                    !DEPRECATED!
      bslstl_allocatortraits                              !DEPRECATED!
      bslstl_badweakptr
-     bslstl_chrono
      bslstl_complex
      bslstl_equalto
      bslstl_hash
@@ -114,13 +127,16 @@
 :      Provide an STL-compliant bitset class.
 :
 : 'bslstl_chrono':
-:      Provide an user-defined literals for chrono types.
+:      Provide functionality of the corresponding C++ Standard header.
 :
 : 'bslstl_complex':
-:      Provide an user-defined literals for complex types.
+:      Provide functionality of the corresponding C++ Standard header.
 :
 : 'bslstl_deque':
 :      Provide an STL-compliant deque class.
+:
+: 'bslstl_deque_test':                                                !PRIVATE!
+:      Provide support for the 'bslstl_deque.t.cpp' test driver.
 :
 : 'bslstl_equalto':
 :      Provide a binary functor conforming to the C++11 'equal_to' spec.
@@ -136,6 +152,9 @@
 :
 : 'bslstl_hashtable':
 :      Provide a hash-container with support for duplicate values.
+:
+: 'bslstl_hashtable_test':                                            !PRIVATE!
+:      Provide support for the 'bslstl_hashtable.t.cpp' test driver.
 :
 : 'bslstl_hashtablebucketiterator':
 :      Provide an STL compliant iterator over hash table buckets.
@@ -158,8 +177,14 @@
 : 'bslstl_list':
 :      Provide an STL-compliant list class.
 :
+: 'bslstl_list_test':                                                 !PRIVATE!
+:      Provide support for the 'bslstl_list.t.cpp' test driver.
+:
 : 'bslstl_map':
 :      Provide an STL-compliant map class.
+:
+: 'bslstl_map_test':                                                  !PRIVATE!
+:      Provide support for the 'bslstl_map.t.cpp' test driver.
 :
 : 'bslstl_mapcomparator':
 :      Provide a comparator for 'TreeNode' objects and a lookup key.
@@ -167,8 +192,14 @@
 : 'bslstl_multimap':
 :      Provide an STL-compliant multimap class.
 :
+: 'bslstl_multimap_test':                                             !PRIVATE!
+:      Provide support for the 'bslstl_multimap.t.cpp' test driver.
+:
 : 'bslstl_multiset':
 :      Provide an STL-compliant multiset class.
+:
+: 'bslstl_multiset_test':                                             !PRIVATE!
+:      Provide support for the 'bslstl_multiset.t.cpp' test driver.
 :
 : 'bslstl_ostringstream':
 :      Provide a C++03-compatible 'ostringstream' class.
@@ -185,17 +216,20 @@
 : 'bslstl_queue':
 :      Provide container adapter class template 'queue'.
 :
-: 'bslstl_ratio':
-:      Provide rational fraction template calss 'ratio'.
-:
 : 'bslstl_randomaccessiterator':
 :      Provide a template to create STL-compliant random access iterators.
+:
+: 'bslstl_ratio':
+:      Provide functionality of the corresponding C++ Standard header.
 :
 : 'bslstl_referencewrapper':
 :      Provide copyable, assignable object wrapper for references.
 :
 : 'bslstl_set':
 :      Provide an STL-compliant set class.
+:
+: 'bslstl_set_test':                                                  !PRIVATE!
+:      Provide support for the 'bslstl_set.t.cpp' test driver.
 :
 : 'bslstl_setcomparator':
 :      Provide a comparator for 'TreeNode' objects and a lookup key.
@@ -221,6 +255,9 @@
 : 'bslstl_string':
 :      Provide a standard-compliant 'basic_string' class template.
 :
+: 'bslstl_string_test':                                               !PRIVATE!
+:      Provide support for the 'bslstl_string.t.cpp' test driver.
+:
 : 'bslstl_stringbuf':
 :      Provide a C++03-compatible 'stringbuf' class.
 :
@@ -245,20 +282,35 @@
 : 'bslstl_unorderedmap':
 :      Provide an STL-compliant 'unordered_map' container.
 :
+: 'bslstl_unorderedmap_test':                                         !PRIVATE!
+:      Provide support for the 'bslstl_unorderedmap.t.cpp' test driver.
+:
 : 'bslstl_unorderedmapkeyconfiguration':
 :      Provide a class template to extract keys as the 'first' attribute.
 :
 : 'bslstl_unorderedmultimap':
 :      Provide an STL-compliant 'unordered_multimap' container.
 :
+: 'bslstl_unorderedmultimap_test':                                    !PRIVATE!
+:      Provide support for the 'bslstl_unorderedmultimap.t.cpp' test driver.
+:
 : 'bslstl_unorderedmultiset':
 :      Provide an STL-compliant 'unordered_multiset' container.
 :
+: 'bslstl_unorderedmultiset_test':                                    !PRIVATE!
+:      Provide support for the 'bslstl_unorderedmultiset.t.cpp' test driver.
+:
 : 'bslstl_unorderedset':
 :      Provide an STL-compliant 'unordered_set' container.
+:
+: 'bslstl_unorderedset_test':                                         !PRIVATE!
+:      Provide support for the 'bslstl_unorderedset.t.cpp' test driver.
 :
 : 'bslstl_unorderedsetkeyconfiguration':
 :      Provide a configuration class to use a whole object as its own key.
 :
 : 'bslstl_vector':
 :      Provide an STL-compliant vector class.
+:
+: 'bslstl_vector_test':                                               !PRIVATE!
+:      Provide support for the 'bslstl_vector.t.cpp' test driver.

@@ -19,12 +19,12 @@
  just alphabetical.
 ..
   3. baljsn
-     balst
+     ball
 
   2. balb
      balber
-     ball
      balm
+     balst
      baltzo
      balxml
 
@@ -49,10 +49,10 @@
 :      Provide thread-safe collection and publishing of metrics.
 :
 : 'balscm':
-:      Provide versioning information for library components in 'bal'
+:      Provide versioning information for library components in 'bal'.
 :
 : 'balst':
-:      Provide a portable facility for obtaining & printing a stack trace
+:      Provide a portable facility for obtaining & printing a stack trace.
 :
 : 'baltzo':
 :      Provide timezone data for use with timezone-enabled vocabulary types.

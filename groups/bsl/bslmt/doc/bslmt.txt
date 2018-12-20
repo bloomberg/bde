@@ -19,11 +19,13 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmt' package currently has 43 components having 17 levels of physical
+ The 'bslmt' package currently has 44 components having 18 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+  18. bslmt_testutil
+
   17. bslmt_once
       bslmt_rwmutex                                      !DEPRECATED!
 
@@ -31,7 +33,6 @@
       bslmt_meteredmutex
       bslmt_qlock
       bslmt_readerwriterlock
-      bslmt_turnstile
 
   15. bslmt_barrier
 
@@ -60,6 +61,7 @@
       bslmt_recursivemutex
       bslmt_timedsemaphoreimpl_posixadv                               !PRIVATE!
       bslmt_timedsemaphoreimpl_pthread                                !PRIVATE!
+      bslmt_turnstile
 
    6. bslmt_threadutil
 
@@ -179,6 +181,9 @@
 :
 : 'bslmt_sluice':
 :      Provide a "sluice" class.
+:
+: 'bslmt_testutil':
+:      Provide thread-safe test utilities for components above 'bsl'.
 :
 : 'bslmt_threadattributes':
 :      Provide a description of the attributes of a thread.
