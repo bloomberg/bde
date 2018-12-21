@@ -4180,7 +4180,7 @@ int main(int argc, char *argv[])
 
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -4202,6 +4202,27 @@ int main(int argc, char *argv[])
         usageExample2::example2();
       } break;
       // BDE_VERIFY pragma: -TP05 Defined in the various test functions
+      case 18: {
+        // --------------------------------------------------------------------
+        // REPRODUCE DRQS 134930805
+        //
+        // Concern:
+        //: 1 There was a bug where 'insert' was failing if the 'VALUE'
+        //:   template paramter was a shared ptr.
+        //
+        // Plan:
+        //: 1 Create a 'bdlcc::Cache' with a shared ptr 'VALUE' and insert an
+        //:   element into it.
+        // --------------------------------------------------------------------
+
+        bslma::TestAllocator ta("test");
+
+        bdlcc::Cache<int, bsl::shared_ptr<int> > cache(&ta);
+        bsl::shared_ptr<int> sp;
+        sp.createInplace(&ta, 5);
+
+        cache.insert(4, sp);
+      } break;
       case 17: {
         testLock::testLocking();
       } break;

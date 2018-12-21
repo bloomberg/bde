@@ -946,22 +946,30 @@ template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
 void Cache<KEY, VALUE, HASH, EQUAL>::insert(const KEY& key, const VALUE& value)
 {
-    ValuePtrType valuePtr;
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+
+    KEY          *key_p = const_cast<KEY *>(&key);
+    ValuePtrType  valuePtr;
     populateValuePtrType(&valuePtr, value, bslma::UsesBslmaAllocator<VALUE>());
-    insert(key, bslmf::MovableRefUtil::move(valuePtr));
+                                                                 // might throw
+
+    insertValuePtrMoveImp(key_p, false, &valuePtr, true);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 void Cache<KEY, VALUE, HASH, EQUAL>::insert(const KEY&               key,
                                             bslmf::MovableRef<VALUE> value)
 {
-    ValuePtrType valuePtr;
+    bslmt::WriteLockGuard<LockType> guard(&d_rwlock);
+
+    KEY          *key_p = const_cast<KEY *>(&key);
+    ValuePtrType  valuePtr;
     populateValuePtrType(&valuePtr,
                          bslmf::MovableRefUtil::move(value),
                          bslma::UsesBslmaAllocator<VALUE>());
                                     // might throw, but BEFORE 'value' is moved
 
-    insert(key, bslmf::MovableRefUtil::move(valuePtr));
+    insertValuePtrMoveImp(key_p, false, &valuePtr, true);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
