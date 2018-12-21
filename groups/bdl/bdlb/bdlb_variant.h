@@ -91,15 +91,12 @@ BSLS_IDENT("$Id: $")
 // holds.
 //
 // Note, that visitor must satisfy the following requirements:
-//
-//: o Visitor allows invocation as a function by overloading operator(),
-//:   unambiguously accepting any value of parameter type of the
-//:   'bdlb::Variant'.
-//: o If result_type is not void, then each operation of the function object
-//:   must return a value implicitly convertible to the same type, that can be
-//:   specified expicitly as 'ResultType' alias.
-//: o Operator overload accepting 'bslmf::Nil' object is required for the
-//:   'apply' method of 'bdlb::Variant' class.
+//: o The visitor's 'operator()' must be callable with any of the types that
+//:   might be contained in the variant.
+//: o For the 'apply' methods (not 'applyRaw') 'operator()' must also accept
+//:   'bslmf::Nil'.
+//: o If the result type of apply is not 'void' then the return value of all
+//:   callable overloads of operator() must be convertible to that result type.
 //
 // The 'apply' method should be preferred over a 'switch' statement based on
 // the type index of a variant.  If the order or types contained by the variant
@@ -112,7 +109,6 @@ BSLS_IDENT("$Id: $")
 // return type of 'operator()' and the handling of unset variants.  Firstly,
 // the method varies based on whether 'operator()' returns a value or not.
 // There can either be:
-//
 //: o No return value.
 //: o A return type specified in the visitor interface.
 //: o A return type specified explicitly when invoking 'apply'.
@@ -131,7 +127,6 @@ BSLS_IDENT("$Id: $")
 //..
 // Secondly, the 'apply' method varies based on how the method handles an unset
 // variant.  A user can choose to:
-//
 //: o Pass a default-constructed 'bslmf::Nil' to the visitor.
 //: o Pass a user-specified "default" value to the visitor.
 //
@@ -692,7 +687,8 @@ struct Variant_ReturnValueHelper {
     // Not An Error).
 
     template <class T>
-    static Variant_ReturnValueHelper_YesType match(typename T::ResultType *);
+    static Variant_ReturnValueHelper_YesType match(
+               typename bsl::remove_reference<typename T::ResultType>::type *);
     template <class T>
     static Variant_ReturnValueHelper_NoType match(...);
         // Return 'YesType' if 'T::ResultType' exists, and 'NoType' otherwise.
@@ -1071,9 +1067,6 @@ struct Variant_ReturnAnyTypeUtil<void> {
     // functions that do not have return value.
 
     // CLASS METHODS
-    static void doNotCall(void *);
-        // Do nothing.
-
     static void doNotCall();
         // Do nothing.
 };
@@ -6434,10 +6427,6 @@ TYPE Variant_ReturnAnyTypeUtil<TYPE>::doNotCall()
     UnrefType *const ptr = 0;
     return doNotCall(ptr);
 }
-
-inline
-void Variant_ReturnAnyTypeUtil<void>::doNotCall(void *)
-{}
 
 inline
 void Variant_ReturnAnyTypeUtil<void>::doNotCall()
