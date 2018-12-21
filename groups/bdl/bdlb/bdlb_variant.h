@@ -95,8 +95,7 @@ BSLS_IDENT("$Id: $")
 //:   might be contained in the variant.
 //: o For the 'apply' methods (not 'applyRaw') 'operator()' must also accept
 //:   'bslmf::Nil'.
-//: o If the result type of apply is not 'void' then the return value of all
-//:   callable overloads of operator() must be convertible to that result type.
+//: o The return value of all callable overloads of 'operator()' must be either //:   'void' or convertible to some single non-void type.
 //
 // The 'apply' method should be preferred over a 'switch' statement based on
 // the type index of a variant.  If the order or types contained by the variant

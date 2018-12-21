@@ -1748,7 +1748,7 @@ class ConstRefReturningVisitor : public ReturningVisitorBase {
 };
 
 // ----------------------------------------------------------------------------
-
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
                         // ===============================
                         // class RvalueRefReturningVisitor
                         // ===============================
@@ -1760,7 +1760,7 @@ class RvalueRefReturningVisitor : public ReturningVisitorBase {
 
   public:
     // TYPES
-    typedef bslmf::MovableRef<int> VisitorResultType;
+    typedef int&& VisitorResultType;
 
     // CREATORS
     RvalueRefReturningVisitor()
@@ -1774,7 +1774,7 @@ class RvalueRefReturningVisitor : public ReturningVisitorBase {
     {}
 
     // MANIPULATORS
-    bslmf::MovableRef<int> operator()(const int&)
+    int&& operator()(const int&)
         // Set appropriate boolean flag and return a rvalue reference providing
         // modifiable access to the value of this object.
     {
@@ -1782,7 +1782,7 @@ class RvalueRefReturningVisitor : public ReturningVisitorBase {
         return MoveUtil::move(d_int);
     }
 
-    bslmf::MovableRef<int> operator()(const TestInt&)
+    int&& operator()(const TestInt&)
         // Set appropriate boolean flag and return a rvalue reference providing
         // modifiable access to the value of this object.
     {
@@ -1790,7 +1790,7 @@ class RvalueRefReturningVisitor : public ReturningVisitorBase {
         return MoveUtil::move(d_int);
     }
 
-    bslmf::MovableRef<int> operator()(const bsl::string&)
+    int&& operator()(const bsl::string&)
         // Set appropriate boolean flag and return a rvalue reference providing
         // modifiable access to the value of this object.
     {
@@ -1798,7 +1798,7 @@ class RvalueRefReturningVisitor : public ReturningVisitorBase {
         return MoveUtil::move(d_int);
     }
 
-    bslmf::MovableRef<int> operator()(const TestString&)
+    int&& operator()(const TestString&)
         // Set appropriate boolean flag and return a rvalue reference providing
         // modifiable access to the value of this object.
     {
@@ -1806,7 +1806,7 @@ class RvalueRefReturningVisitor : public ReturningVisitorBase {
         return MoveUtil::move(d_int);
     }
 
-    bslmf::MovableRef<int> operator()(bslmf::Nil)
+    int&& operator()(bslmf::Nil)
         // Set appropriate boolean flag and return a rvalue reference providing
         // modifiable access to the value of this object.
     {
@@ -1828,7 +1828,7 @@ class ConstRvalueRefReturningVisitor : public ReturningVisitorBase {
 
   public:
     // TYPES
-    typedef const bslmf::MovableRef<int> VisitorResultType;
+    typedef const int&& VisitorResultType;
 
     // CREATORS
     ConstRvalueRefReturningVisitor()
@@ -1842,7 +1842,7 @@ class ConstRvalueRefReturningVisitor : public ReturningVisitorBase {
     {}
 
     // MANIPULATORS
-    const bslmf::MovableRef<int> operator()(const int&)
+    const int&& operator()(const int&)
         // Set appropriate boolean flag and return a rvalue reference providing
         // non-modifiable access to the value of this object.
     {
@@ -1850,7 +1850,7 @@ class ConstRvalueRefReturningVisitor : public ReturningVisitorBase {
         return MoveUtil::move(d_int);
     }
 
-    const bslmf::MovableRef<int> operator()(const TestInt&)
+    const int&& operator()(const TestInt&)
         // Set appropriate boolean flag and return a rvalue reference providing
         // non-modifiable access to the value of this object.
     {
@@ -1858,7 +1858,7 @@ class ConstRvalueRefReturningVisitor : public ReturningVisitorBase {
         return MoveUtil::move(d_int);
     }
 
-    const bslmf::MovableRef<int> operator()(const bsl::string&)
+    const int&& operator()(const bsl::string&)
         // Set appropriate boolean flag and return a rvalue reference providing
         // non-modifiable access to the value of this object.
     {
@@ -1866,7 +1866,7 @@ class ConstRvalueRefReturningVisitor : public ReturningVisitorBase {
         return MoveUtil::move(d_int);
     }
 
-    const bslmf::MovableRef<int> operator()(const TestString&)
+    const int&& operator()(const TestString&)
         // Set appropriate boolean flag and return a rvalue reference providing
         // non-modifiable access to the value of this object.
     {
@@ -1874,7 +1874,7 @@ class ConstRvalueRefReturningVisitor : public ReturningVisitorBase {
         return MoveUtil::move(d_int);
     }
 
-    const bslmf::MovableRef<int> operator()(bslmf::Nil)
+    const int&& operator()(bslmf::Nil)
         // Set appropriate boolean flag and return a rvalue reference providing
         // non-modifiable access to the value of this object.
     {
@@ -1882,7 +1882,7 @@ class ConstRvalueRefReturningVisitor : public ReturningVisitorBase {
         return MoveUtil::move(d_int);
     }
 };
-
+#endif
 // ----------------------------------------------------------------------------
 
                      // ===================================
@@ -1890,10 +1890,8 @@ class ConstRvalueRefReturningVisitor : public ReturningVisitorBase {
                      // ===================================
 
 class ResultTypeRefReturningVisitor : public RefReturningVisitor {
-    // This class simply verifies that returning lvalue reference visitor with
-    // the specified 'ResultType' can be applied to the 'bdlb::Variant' object.
-    // This visitor only supports 4 types: 'int', 'TestInt', 'bsl::string', and
-    // 'TestString'.
+    // This class is completely identical to the 'RefReturningVisitor', except
+    // the additionally declared 'ResultType'.
 
   public:
     //TYPES
@@ -1918,9 +1916,8 @@ class ResultTypeRefReturningVisitor : public RefReturningVisitor {
                   // ========================================
 
 class ResultTypeConstRefReturningVisitor : public ConstRefReturningVisitor {
-    // This class simply verifies that returning constant lvalue reference
-    // visitor can be applied to the 'bdlb::Variant' object.  This visitor only
-    // supports 4 types: 'int', 'TestInt', 'bsl::string', and 'TestString'.
+    // This class is completely identical to the 'ConstRefReturningVisitor',
+    // except the additionally declared 'ResultType'.
 
   public:
     // TYPES
@@ -1940,19 +1937,18 @@ class ResultTypeConstRefReturningVisitor : public ConstRefReturningVisitor {
 };
 
 // ----------------------------------------------------------------------------
-
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
                   // =========================================
                   // class ResultTypeRvalueRefReturningVisitor
                   // =========================================
 
 class ResultTypeRvalueRefReturningVisitor : public RvalueRefReturningVisitor {
-    // This class simply verifies that returning rvalue reference visitor can
-    // be applied to the 'bdlb::Variant' object.  This visitor only supports 4
-    // types: 'int', 'TestInt', 'bsl::string', and 'TestString'.
+    // This class is completely identical to the 'RvalueRefReturningVisitor',
+    // except the additionally declared 'ResultType'.
 
   public:
     // TYPES
-    typedef bslmf::MovableRef<int> ResultType;
+    typedef int&& ResultType;
 
     // CREATORS
     ResultTypeRvalueRefReturningVisitor()
@@ -1975,13 +1971,13 @@ class ResultTypeRvalueRefReturningVisitor : public RvalueRefReturningVisitor {
 
 class ResultTypeConstRvalueRefReturningVisitor :
                                         public ConstRvalueRefReturningVisitor {
-    // This class simply verifies that returning constant rvalue reference
-    // visitor can be applied to the 'bdlb::Variant' object.  This visitor only
-    // supports 4 types: 'int', 'TestInt', 'bsl::string', and 'TestString'.
+    // This class is completely identical to the
+    // 'ConstRvalueRefReturningVisitor', except the additionally declared
+    // 'ResultType'.
 
   public:
     // TYPES
-    typedef const bslmf::MovableRef<int> ResultType;
+    typedef const int&& ResultType;
 
     // CREATORS
     ResultTypeConstRvalueRefReturningVisitor()
@@ -1995,7 +1991,7 @@ class ResultTypeConstRvalueRefReturningVisitor :
     : ConstRvalueRefReturningVisitor(value)
     {}
 };
-
+#endif
 // ----------------------------------------------------------------------------
 
                           // =======================
@@ -3597,14 +3593,17 @@ void applyTestRTNS(const VALUE_TYPE& defaultValue,
           case 2:
             {
                 variant.template createInPlace<VALUE_TYPE>(defaultValue);
-                returnAddr = &(variant.template apply<RetType>(visitor));
+                RetType returnValue = variant.template apply<RetType>(visitor);
+                returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
             }
             break;
           case 3:
             {
                 variant.template createInPlace<VALUE_TYPE>(defaultValue);
-                returnAddr = &(variant.template applyRaw<RetType>(visitor));
+                RetType returnValue =
+                                   variant.template applyRaw<RetType>(visitor);
+                returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
             }
             break;
@@ -3617,8 +3616,10 @@ void applyTestRTNS(const VALUE_TYPE& defaultValue,
           case 5:
             {
                 variant.template createInPlace<VALUE_TYPE>(defaultValue);
-                returnAddr = &(variant.template apply<RetType>(visitor,
-                                                               defaultValue));
+                RetType returnValue = variant.template apply<RetType>(
+                                                                 visitor,
+                                                                 defaultValue);
+                returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
             }
             break;
@@ -3629,8 +3630,10 @@ void applyTestRTNS(const VALUE_TYPE& defaultValue,
             break;
           case 7:
             {
-                returnAddr = &(variant.template apply<RetType>(visitor,
-                                                               defaultValue));
+                RetType returnValue = variant.template apply<RetType>(
+                                                                 visitor,
+                                                                 defaultValue);
+                returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
             }
             break;
@@ -3721,56 +3724,66 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
           case 0:
             {
                 variant.template createInPlace<VALUE_TYPE>(defaultValue);
-                returnAddr = &(variant.apply(visitor));
+                RetType returnValue = variant.apply(visitor);
+                returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
             }
             break;
           case 1:
             {
                 variant.template createInPlace<VALUE_TYPE>(defaultValue);
-                returnAddr = &(variant.applyRaw(visitor));
+                RetType returnValue = variant.applyRaw(visitor);
+                returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
             }
             break;
           case 2:
             {
                 variant.template createInPlace<VALUE_TYPE>(defaultValue);
-                returnAddr = &(variant.template apply<RetType>(visitor));
+                RetType returnValue = variant.template apply<RetType>(visitor);
+                returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
             }
             break;
           case 3:
             {
                 variant.template createInPlace<VALUE_TYPE>(defaultValue);
-                returnAddr = &(variant.template applyRaw<RetType>(visitor));
+                RetType returnValue = variant.template applyRaw<RetType>(
+                                                                      visitor);
+                returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
             }
             break;
           case 4:
             {
                 variant.template createInPlace<VALUE_TYPE>(defaultValue);
-                returnAddr = &(variant.apply(visitor, defaultValue));
+                RetType returnValue = variant.apply(visitor, defaultValue);
+                returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
             }
             break;
           case 5:
             {
                 variant.template createInPlace<VALUE_TYPE>(defaultValue);
-                returnAddr =
-                     &(variant.template apply<RetType>(visitor, defaultValue));
+                RetType returnValue = variant.template apply<RetType>(
+                                                                 visitor,
+                                                                 defaultValue);
+                returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
             }
             break;
           case 6:
             {
-                returnAddr = &(variant.apply(visitor, defaultValue));
+                RetType returnValue = variant.apply(visitor, defaultValue);
+                returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
             }
             break;
           case 7:
             {
-                returnAddr =
-                     &(variant.template apply<RetType>(visitor, defaultValue));
+                RetType returnValue =
+                        variant.template apply<RetType>(visitor, defaultValue);
+                returnAddr = &returnValue;
                 ASSERTV(EXPECTED_ADDR == returnAddr);
             }
             break;
@@ -3794,8 +3807,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
     VARIANT variant1;
     VISITOR visitor1;
 
+    RetType returnValue1 = variant1.apply(visitor1);
+
     const void *EXPECTED_ADDR1 = &visitor1.value();
-    const void *returnAddr1    = &(variant1.apply(visitor1));
+    const void *returnAddr1    = &returnValue1;
 
     ASSERTV(EXPECTED_ADDR1 == returnAddr1);
 
@@ -3808,8 +3823,10 @@ void applyTestRTS(const VALUE_TYPE& defaultValue,
     VARIANT variant2;
     VISITOR visitor2;
 
+    RetType returnValue2 = variant2.template apply<RetType>(visitor2);
+
     const void *EXPECTED_ADDR2 = &visitor2.value();
-    const void *returnAddr2    = &(variant2.template apply<RetType>(visitor2));
+    const void *returnAddr2    = &returnValue2;
 
     ASSERTV(EXPECTED_ADDR2 == returnAddr2);
 
@@ -27397,16 +27414,19 @@ void TestUtil::testCase15()
     if (verbose) cout << "\nTesting reference returning visitors."  << endl;
     {
         testReferenceResultTypeNotSpecified<RefReturningVisitor>();
-//        testReferenceResultTypeNotSpecified<ConstRefReturningVisitor>();
-//        testReferenceResultTypeNotSpecified<RvalueRefReturningVisitor>();
-//        testReferenceResultTypeNotSpecified<ConstRvalueRefReturningVisitor>();
-//
-//        testReferenceResultTypeSpecified<ResultTypeRefReturningVisitor>();
-//        testReferenceResultTypeSpecified<ResultTypeConstRefReturningVisitor>();
-//        testReferenceResultTypeSpecified<
-//                                        ResultTypeRvalueRefReturningVisitor>();
-//        testReferenceResultTypeSpecified<
-//                                   ResultTypeConstRvalueRefReturningVisitor>();
+        testReferenceResultTypeNotSpecified<ConstRefReturningVisitor>();
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        testReferenceResultTypeNotSpecified<RvalueRefReturningVisitor>();
+        testReferenceResultTypeNotSpecified<ConstRvalueRefReturningVisitor>();
+#endif
+        testReferenceResultTypeSpecified<ResultTypeRefReturningVisitor>();
+        testReferenceResultTypeSpecified<ResultTypeConstRefReturningVisitor>();
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        testReferenceResultTypeSpecified<
+                                        ResultTypeRvalueRefReturningVisitor>();
+        testReferenceResultTypeSpecified<
+                                   ResultTypeConstRvalueRefReturningVisitor>();
+#endif
     }
 }
 
