@@ -854,7 +854,7 @@ namespace indices {
 // are done through macros defined in the test cases in 'main'.  The names of
 // the integers below are passed as an arg to these macros, and used twice --
 // as an integer to parameterize the template, and the name is used (using
-// preprocessor stringification, i.e.  '#argName').  Before being used as
+// preprocessor stringification, i.e., '#argName').  Before being used as
 // category names, the names below have everything at or after '_' removed,
 // which enables us to use multiple indexes with the same category name.  For
 // example, 'woof_a', 'woof_b', 'woof_c', 'woof_d', and 'woof_e' are 5 distinct
@@ -998,9 +998,9 @@ ResultRec& result()
 
 // This set contains all the 'KK' values with which a couple of the following 3
 // templates have been instantiated.  It is cleared at the beginning of every
-// pass through the 'tj' loops in 'main' in those two test cases.  In test case
-// 32 it is used to determine if we are repeating a use of 'KK', in test cases
-// 33 and 34 it is used for a sanity check.
+// pass through the 'tj' loops in 'main' in test cases 32, 33, and 34.  In test
+// case 32 it is used to determine if we are repeating a use of 'KK', in test
+// cases 33 and 34 it is used for a sanity check.
 
 bsl::set<int> instantiationSet(&u::ta);
 
