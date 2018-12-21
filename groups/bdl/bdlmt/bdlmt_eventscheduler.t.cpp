@@ -867,8 +867,6 @@ void my_Server::dataAvailable(my_Server::Connection *connection,
        // event will run once.
        timeSource.advanceTime(bsls::TimeInterval(40));
 
-       bslmt::ThreadUtil::microSleep(0, 1);  // allow events to occur
-
        // The line "Event triggered!" should now have
        // been printed to the console twice.
 

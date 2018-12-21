@@ -370,8 +370,6 @@ BSLS_IDENT("$Id: $")
 //     // event will run once.
 //     timeSource.advanceTime(bsls::TimeInterval(40));
 //
-//     bslmt::ThreadUtil::microSleep(0, 1);  // allow events to occur
-//
 //     // The line "Event triggered!" should now have
 //     // been printed to the console twice.
 //
@@ -512,6 +510,12 @@ class EventScheduler {
                                                 // Raw reference to the
                                                 // scheduled recurring event
                                                 // being executed
+
+    unsigned int          d_waitCount;          // count of the number of waits
+                                                // performed in the main
+                                                // dispatch loop, used in
+                                                // 'advanceTime' to determine
+                                                // when to return
 
     bsls::SystemClockType::Enum
                           d_clockType;          // clock type used
@@ -966,10 +970,11 @@ class EventSchedulerTestTimeSource {
     // MANIPULATORS
     bsls::TimeInterval advanceTime(bsls::TimeInterval amount);
         // Advance this object's current-time value by the specified 'amount'
-        // of time, and notify the scheduler that the time has changed.  Return
-        // the updated current-time value.  The behavior is undefined unless
-        // 'amount' represents a positive time interval, and 'now + amount' is
-        // within the range that can be represented with a
+        // of time, notify the scheduler that the time has changed, and wait
+        // for the scheduler to process the events triggered by this change in
+        // time.  Return the updated current-time value.  The behavior is
+        // undefined unless 'amount' represents a positive time interval, and
+        // 'now + amount' is within the range that can be represented with a
         // 'bsls::TimeInterval'.
 
     // ACCESSORS

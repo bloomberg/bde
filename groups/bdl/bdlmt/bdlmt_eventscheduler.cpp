@@ -118,6 +118,7 @@ void EventScheduler::dispatchEvents()
         d_eventQueue.frontRaw(&d_currentEvent);
 
         if (0 == d_currentRecurringEvent && 0 == d_currentEvent) {
+            ++d_waitCount;
             d_queueCondition.wait(&d_mutex);
             continue;
         }
@@ -128,6 +129,7 @@ void EventScheduler::dispatchEvents()
             releaseCurrentEvents();
             bsls::TimeInterval w;
             w.addMicroseconds(t);
+            ++d_waitCount;
             d_queueCondition.timedWait(&d_mutex, w);
             continue;
         }
@@ -654,16 +656,34 @@ bsls::TimeInterval EventSchedulerTestTimeSource::advanceTime(
         ret = d_currentTime;
     }
 
-
+    unsigned int waitCount;
     {
         // This scope limits how long we lock the scheduler's mutex
 
         bslmt::LockGuard<bslmt::Mutex> lock(&d_scheduler_p->d_mutex);
 
+        waitCount = d_scheduler_p->d_waitCount;
+
         // Now that the time has changed, signal the scheduler's condition
         // variable so that the event dispatcher thread can be alerted to the
         // change.
         d_scheduler_p->d_queueCondition.signal();
+    }
+
+    {
+        // To avoid adding logic to the normal (non-testing) use of this event
+        // scheduler, a simple yield-spin is performed to wait for the
+        // scheduling of events due to this time change to complete.
+
+        unsigned int currentWaitCount = waitCount;
+        while (currentWaitCount == waitCount) {
+            bslmt::ThreadUtil::yield();
+            bslmt::LockGuard<bslmt::Mutex> lock(&d_scheduler_p->d_mutex);
+            currentWaitCount = d_scheduler_p->d_waitCount;
+            if (!d_scheduler_p->d_running) {
+                currentWaitCount = ~waitCount;  // exit loop
+            }
+        }
     }
 
     return ret;
