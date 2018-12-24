@@ -17,6 +17,7 @@ BSLS_IDENT_RCSID(ball_log_cpp,"$Id$ $CSID$")
 #include <ball_attributecontainer.h>          // for testing only
 #include <ball_attributecontext.h>
 #include <ball_defaultattributecontainer.h>
+#include <ball_loggercategoryutil.h>
 #include <ball_loggermanagerconfiguration.h>  // for testing only
 #include <ball_record.h>
 #include <ball_streamobserver.h>              // for testing only
@@ -144,6 +145,42 @@ void Log::setCategory(CategoryHolder *categoryHolder,
     if (LoggerManager::isInitialized()) {
         LoggerManager::singleton().setCategory(categoryHolder, categoryName);
     }
+}
+
+const Category *Log::setCategoryHierarchically(CategoryHolder *categoryHolder,
+                                               const char     *categoryName)
+{
+    BSLS_ASSERT(categoryName);
+
+    if (!LoggerManager::isInitialized()) {
+        return 0;                                                     // RETURN
+    }
+
+    LoggerManager& loggerManager = LoggerManager::singleton();
+
+    // TBD: enable 'addCategoryHierarchically' to apply the name filter and
+    // access the thresholds determined by the logger manager's default
+    // threshold levels callback, if set and no hierarchical parent category
+    // found.
+
+    LoggerCategoryUtil::addCategoryHierarchically(&loggerManager,
+                                                  categoryName);
+
+    // The above call returns a 'Category *', but it's not useful to us:
+    //: o It may have returned 0
+    //:   1 if the category already existed, or
+    //:
+    //:   2 if the logger manager's category registry was full.
+    //:
+    //: o The only functions we have access to that will set the category
+    //:   holder to a category identify the category by name rather than by
+    //:   category pointer.
+
+    // Note that 'setCategory' below can handle the case where
+    // '0 == categoryHolder'.  If the logger manager's category registry is
+    // full, the default category will be returned.  0 will never be returned.
+
+    return loggerManager.setCategory(categoryHolder, categoryName);
 }
 
 bool Log::isCategoryEnabled(const CategoryHolder *categoryHolder, int severity)
