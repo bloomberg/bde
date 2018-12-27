@@ -113,48 +113,48 @@ int main(int argc, char *argv[])
     printf("TEST %s CASE %d\n", __FILE__, test);
 
     switch(test) { case 0: // zero is always the leading case
-	case 2: {
-		// --------------------------------------------------------------------
-		// TESTING CONSTRUCTOR
-		//   'OutputRedirector' has just one constructor, which does not start
-		//   the redirection/capturing behavior, so test thoroughly in just
-		//   this test case.  The destructor can test only bootstrap behavior,
-		//   as the interesting cases will involve starting (and stopping)
-		//   redirection.  Similarly, it is not possible to verify passing the
-		//   verbose flags correctly without potentially writing text in such
-		//   modes, so defer (bootstrap) testing of verbose flags to manually
-		//   running the test driver in those modes.
-		//
-		// Concerns:
-		//: 1 'OutputRedirector' objects construct and destroy properly.
-		//: 2 A freshly constructed object is not actively redirecting output.
-		//: 3 After construction, the object is set to redirect the stream
-		//:   specified at construction.
-		//: 4 Attempts to specify an invlalid stream are detected though
-		//:   assertions in appropriate build modes.
-		//
-		// Plan:
-		//: 1 In distinct scopes, constructor an 'OutputRedirector' for each of
-		//:   the valid streams, and allow that object destructor to run safely
-		//:   at the end of that local scope.
-		//: 2 Using the basic accessors, confirm that each newly constructed
-		//:   object is in an empty disabled state.
-		//: 3 In appropriate build modes, repeat the tests for the constructor
-		//:   with invalid stream values, and confirm the expected assertions
-		//:   are triggered.
-		//
-		// Testing:
-		//   OutputRedirector(Stream which, bool verbose, bool veryVerbose);
-		//   ~OutputRedirector();  // BOOTSTRAP
-		// --------------------------------------------------------------------
+    case 2: {
+        // --------------------------------------------------------------------
+        // TESTING CONSTRUCTOR
+        //   'OutputRedirector' has just one constructor, which does not start
+        //   the redirection/capturing behavior, so test thoroughly in just
+        //   this test case.  The destructor can test only bootstrap behavior,
+        //   as the interesting cases will involve starting (and stopping)
+        //   redirection.  Similarly, it is not possible to verify passing the
+        //   verbose flags correctly without potentially writing text in such
+        //   modes, so defer (bootstrap) testing of verbose flags to manually
+        //   running the test driver in those modes.
+        //
+        // Concerns:
+        //: 1 'OutputRedirector' objects construct and destroy properly.
+        //: 2 A freshly constructed object is not actively redirecting output.
+        //: 3 After construction, the object is set to redirect the stream
+        //:   specified at construction.
+        //: 4 Attempts to specify an invlalid stream are detected though
+        //:   assertions in appropriate build modes.
+        //
+        // Plan:
+        //: 1 In distinct scopes, constructor an 'OutputRedirector' for each of
+        //:   the valid streams, and allow that object destructor to run safely
+        //:   at the end of that local scope.
+        //: 2 Using the basic accessors, confirm that each newly constructed
+        //:   object is in an empty disabled state.
+        //: 3 In appropriate build modes, repeat the tests for the constructor
+        //:   with invalid stream values, and confirm the expected assertions
+        //:   are triggered.
+        //
+        // Testing:
+        //   OutputRedirector(Stream which, bool verbose, bool veryVerbose);
+        //   ~OutputRedirector();  // BOOTSTRAP
+        // --------------------------------------------------------------------
 
-		if (verbose) printf("\nTESTING CONSTRUCTOR"
+        if (verbose) printf("\nTESTING CONSTRUCTOR"
                             "\n===================\n");
 
-		if (verbose) printf("Redirector for 'stdout'\n");
-		{
+        if (verbose) printf("Redirector for 'stdout'\n");
+        {
             bsls::OutputRedirector redirector(
-				                      bsls::OutputRedirector::e_STDOUT_STREAM);
+                                      bsls::OutputRedirector::e_STDOUT_STREAM);
 
             ASSERT(bsls::OutputRedirector::e_STDOUT_STREAM ==
                                               redirector.redirectedStreamId());
@@ -175,9 +175,9 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf("Redirector for 'stderr'\n");
-		{
-			bsls::OutputRedirector redirector(
-				                      bsls::OutputRedirector::e_STDERR_STREAM);
+        {
+            bsls::OutputRedirector redirector(
+                                      bsls::OutputRedirector::e_STDERR_STREAM);
 
             ASSERT(bsls::OutputRedirector::e_STDERR_STREAM ==
                                               redirector.redirectedStreamId());
@@ -194,25 +194,25 @@ int main(int argc, char *argv[])
 
             ASSERTV(OBJ_START, BUFFER, OBJ_START < BUFFER);
             ASSERTV(BUFFER - OBJ_START, sizeof bsls::OutputRedirector,
-                BUFFER - OBJ_START < sizeof bsls::OutputRedirector);
+                    BUFFER - OBJ_START < sizeof bsls::OutputRedirector);
         }
 
-	  } break;
-	  case 1: {
-		// --------------------------------------------------------------------
-		// BREATHING TEST
-		//   This case exercises (but does not fully test) basic functionality.
-		//
-		// Concerns:
-		//: 1 The class is sufficiently functional to enable comprehensive
-		//:   testing in subsequent test cases.
-		//
-		// Plan:
-		//: 1 Perform an ad-hoc test of the primary manipulators and accessors.
-		//
-		// Testing:
-		//   BREATHING TEST
-		// --------------------------------------------------------------------
+      } break;
+      case 1: {
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Perform an ad-hoc test of the primary manipulators and accessors.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
