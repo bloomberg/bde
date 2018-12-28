@@ -66,6 +66,22 @@ BSLS_IDENT("$Id: $")
 // objects *by* *value*).  We recommend large objects be stored as
 // shared-pointers (or possibly raw pointers).
 //
+///WARNING: Late Signaling Optimization
+///------------------------------------
+// It is the responsibility of the client to ensure that ALL actions on a
+// 'bdlcc::SingleConsumerQueueImpl' are COMPLETED before destroying it.  Note
+// that a 'push' has not necessarily completed as soon as the mutex is unlocked
+// and the pushed item is available for other threads to access -- we employ
+// "late signaling", where the pushing thread will take action to inform other
+// threads of the state change *AFTER* the action is completed and the mutex is
+// unlocked, as a performance optimization.  If a caller anticipates the number
+// of items that will be pushed and destroys a container IMMEDIATELY after they
+// have all been popped, it may result in undefined behavior when a pusher
+// tries to signal the destoryed 'bdlcc::SingleConsumerQueueImpl'.  It is best
+// to wait until all subthreads are joined, or until after they have all
+// arrived at a barrier, before destroying a shared
+// 'bdlcc::SingleConsumerQueueImpl'.
+//
 ///Usage
 ///-----
 // There is no usage example for this component since it is not meant for

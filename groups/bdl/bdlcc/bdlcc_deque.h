@@ -132,6 +132,21 @@ BSLS_IDENT("$Id: $")
 // (which matches the epoch used in
 // 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
+///WARNING: Late Signaling Optimization
+///------------------------------------
+// It is the responsibility of the client to ensure that ALL actions on a
+// 'bdlcc::Deque' are COMPLETED before destroying it.  Note that a 'push' has
+// not necessarily completed as soon as the mutex is unlocked and the pushed
+// item is available for other threads to access -- we employ "late signaling",
+// where the pushing thread will take action to inform other threads of the
+// state change *AFTER* the action is completed and the mutex is unlocked, as a
+// performance optimization.  If a caller anticipates the number of items that
+// will be pushed and destroys a container IMMEDIATELY after they have all been
+// popped, it may result in undefined behavior when a pusher tries to signal
+// the destoryed 'bdlcc::Deque'.  It is best to wait until all subthreads are
+// joined, or until after they have all arrived at a barrier, before destroying
+// a shared 'bdlcc::Deque'.
+//
 ///Tips For Migrating From 'bcec_Queue'
 ///------------------------------------
 //: o 'InitialCapacity' has been eliminated.  Instead, construct your

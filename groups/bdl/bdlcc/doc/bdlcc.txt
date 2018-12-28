@@ -34,6 +34,19 @@
  makes sense.  Refer to the individual component documentation to understand
  how this general principle is carried out in specific components.
 
+ It is the responsibility of the client to ensure that ALL actions on an object
+ are COMPLETED before destroying the object.  Note that a 'push' to a container
+ has not necessarily completed as soon as the mutex is unlocked and the pushed
+ item is available for other threads to access -- we often employ "late
+ signaling", where the pusher may take action to inform other threads of the
+ state change *AFTER* the action is completed and the mutex is unlocked, as a
+ performance optimization.  If a caller anticipates the number of items that
+ will be pushed and destroys a container IMMEDIATELY after they have all been
+ popped, it may result in undefined behavior when a pusher tries to signal a
+ destroyed container.  It is best to wait until all subthreads are joined, or
+ until after they have all arrived at a barrier, before destroying a shared
+ thread-safe container.
+
 /Hierarchical Synopsis
 /---------------------
  The 'bdlcc' package currently has 15 components having 4 levels of physical
