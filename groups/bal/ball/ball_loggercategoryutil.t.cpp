@@ -763,7 +763,7 @@ int main(int argc, char *argv[])
                           << endl;
 
         for (int ti = 0; ti < 2; ++ti) {
-            const bool CALLBACK = 0 == ti;
+            const bool USE_CALLBACK = 0 == ti;
 
             int DRL  = 10, CBDRL  = DRL;
             int DPL  = 11, CBDPL  = DPL;
@@ -779,7 +779,7 @@ int main(int argc, char *argv[])
             ball::LoggerManagerScopedGuard lmGuard(mLMC);
             ball::LoggerManager *LM = &ball::LoggerManager::singleton();
 
-            if (CALLBACK) {
+            if (USE_CALLBACK) {
                 CBDRL  += 10;
                 CBDPL  += 10;
                 CBDTL  += 10;
@@ -791,7 +791,7 @@ int main(int argc, char *argv[])
             }
 
             if (veryVerbose) {
-                cout << endl;    P_(CALLBACK);    P_(DPL);    P(CBDPL);
+                cout << endl;    P_(USE_CALLBACK);    P_(DPL);    P(CBDPL);
             }
 
             const Cat& defaultCat = LM->defaultCategory();
