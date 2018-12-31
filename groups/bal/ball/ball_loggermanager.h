@@ -1200,7 +1200,7 @@ class LoggerManager {
                                                  // default threshold levels of
                                                  // "set" categories
 
-    bslmt::ReaderWriterMutex
+    mutable bslmt::ReaderWriterMutex
                            d_defaultThresholdsLock;
                                                  // 'd_defaultThresholdsLock'
                                                  // protector
@@ -1227,7 +1227,7 @@ class LoggerManager {
 
     bsl::set<Logger *>     d_loggers;            // set of *allocated* loggers
 
-    bslmt::ReaderWriterMutex
+    mutable bslmt::ReaderWriterMutex
                            d_loggersLock;        // 'd_loggers' protector
 
     RecordBuffer          *d_recordBuffer_p;     // holds record buffer (owned)
@@ -1247,7 +1247,7 @@ class LoggerManager {
     bsl::map<void *, Logger *>
                            d_defaultLoggers;     // *registered* loggers
 
-    bslmt::ReaderWriterMutex
+    mutable bslmt::ReaderWriterMutex                                          \
                            d_defaultLoggersLock; // registry lock
 
     LoggerManagerConfiguration::LogOrder
@@ -1699,8 +1699,24 @@ class LoggerManager {
         // determine default threshold levels for categories added to the
         // registry by the 'setCategory(const char *)' method.
 
+    // ACCESSOR
+    const ThresholdAggregate& getDefaultThresholdLevels() const;
+        // Return the default threshold levels associated with this logger
+        // manager object.  Note that if a default threshold levels callback is
+        // registered, these may not be the threshold levels with which new
+        // categories are created.
+
+    ThresholdAggregate getNewCategoryThresholdLevels(const char *categoryName)
+                                                                         const;
+        // Return the threshold levels to be used for a newly created category
+        // if no levels are specified, either through the default threshold
+        // levels callback, if one is set, or from the default threshold
+        // levels.  Use the specified 'categoryName' when calling the default
+        // threshold levels callback.
+
                              // Rule Management
 
+    // MANIPULATORS
     int addRule(const Rule& value);
         // Add a rule having the specified 'value' to the set of (unique)
         // rules maintained by this object.  Return the number of rules added

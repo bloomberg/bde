@@ -97,6 +97,9 @@ class ThresholdAggregate {
         // held by the specified threshold 'aggregate'.
 
     // CREATORS
+    ThresholdAggregate();
+        // Create a threshold aggregate will all levels set to 0.
+
     ThresholdAggregate(int recordLevel,
                        int passLevel,
                        int triggerLevel,
@@ -246,6 +249,15 @@ int ThresholdAggregate::maxLevel(const ThresholdAggregate& aggregate)
 }
 
 // CREATORS
+inline
+ThresholdAggregate::ThresholdAggregate()
+: d_recordLevel(0)
+, d_passLevel(0)
+, d_triggerLevel(0)
+, d_triggerAllLevel(0)
+{
+}
+
 inline
 ThresholdAggregate::ThresholdAggregate(int recordLevel,
                                        int passLevel,

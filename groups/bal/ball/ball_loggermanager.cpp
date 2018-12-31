@@ -463,7 +463,7 @@ void Logger::logMessage(const Category&  category,
     BSLS_ASSERT(fileName);
     BSLS_ASSERT(message);
 
-    ThresholdAggregate thresholds(0, 0, 0, 0);
+    ThresholdAggregate thresholds;
     if (!isCategoryEnabled(&thresholds, category, severity)) {
         return;                                                       // RETURN
     }
@@ -477,7 +477,7 @@ void Logger::logMessage(const Category&  category,
                         int              severity,
                         Record          *record)
 {
-    ThresholdAggregate thresholds(0, 0, 0, 0);
+    ThresholdAggregate thresholds;
     if (!isCategoryEnabled(&thresholds, category, severity)) {
         d_recordPool.deleteObject(record);
         return;                                                       // RETURN
@@ -1136,8 +1136,46 @@ void LoggerManager::setLogger(Logger *logger)
     }
 }
 
+                        // Threshold Level Management
+
+// ACCESSORS
+const ThresholdAggregate& LoggerManager::getDefaultThresholdLevels() const
+{
+    return d_defaultThresholdLevels;
+}
+
+ThresholdAggregate LoggerManager::getNewCategoryThresholdLevels(
+                                                const char *categoryName) const
+{
+    bsl::string filteredName;
+    const char *localCategoryName = filterName(&filteredName,
+                                               categoryName,
+                                               d_nameFilter);
+
+    if (d_defaultThresholds) {
+        int recordLevel, passLevel, triggerLevel, triggerAllLevel;
+        {
+            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(
+                                                     &d_defaultThresholdsLock);
+            d_defaultThresholds(&recordLevel,
+                                &passLevel,
+                                &triggerLevel,
+                                &triggerAllLevel,
+                                localCategoryName);
+        }
+
+        return ThresholdAggregate(recordLevel,
+                                  passLevel,
+                                  triggerLevel,
+                                  triggerAllLevel);
+    }
+
+    return d_defaultThresholdLevels;
+}
+
                              // Category Management
 
+// MANIPULATORS
 Category *LoggerManager::addCategory(const char *categoryName,
                                      int         recordLevel,
                                      int         passLevel,
@@ -1204,31 +1242,19 @@ const Category *LoggerManager::setCategory(CategoryHolder *categoryHolder,
     if (!category
      && d_maxNumCategoriesMinusOne >=
                                    (unsigned int) d_categoryManager.length()) {
-        int recordLevel, passLevel, triggerLevel, triggerAllLevel;
-        {
-            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(
-                                                     &d_defaultThresholdsLock);
-            if (d_defaultThresholds) {
-                d_defaultThresholds(&recordLevel,
-                                    &passLevel,
-                                    &triggerLevel,
-                                    &triggerAllLevel,
-                                    localCategoryName);
-            }
-            else {
-                recordLevel     = d_defaultThresholdLevels.recordLevel();
-                passLevel       = d_defaultThresholdLevels.passLevel();
-                triggerLevel    = d_defaultThresholdLevels.triggerLevel();
-                triggerAllLevel = d_defaultThresholdLevels.triggerAllLevel();
-            }
-        }
+
+        // Pass 'categoryName', not 'localCategoryName', here -- this function
+        // will apply 'filterName' itself.
+
+        const ThresholdAggregate& levels =
+                             this->getNewCategoryThresholdLevels(categoryName);
 
         category = d_categoryManager.addCategory(categoryHolder,
                                                  localCategoryName,
-                                                 recordLevel,
-                                                 passLevel,
-                                                 triggerLevel,
-                                                 triggerAllLevel);
+                                                 levels.recordLevel(),
+                                                 levels.passLevel(),
+                                                 levels.triggerLevel(),
+                                                 levels.triggerAllLevel());
 
         if (!category) {  // added by another thread?
             category = d_categoryManager.lookupCategory(categoryHolder,
@@ -1365,7 +1391,7 @@ bool LoggerManager::isCategoryEnabled(const Category *category,
 {
     if (category->relevantRuleMask()) {
         AttributeContext *context = AttributeContext::getContext();
-        ThresholdAggregate levels(0, 0, 0, 0);
+        ThresholdAggregate levels;
         context->determineThresholdLevels(&levels, category);
         int threshold = ThresholdAggregate::maxLevel(levels);
         return threshold >= severity;                                 // RETURN

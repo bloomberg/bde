@@ -710,11 +710,10 @@ typedef Blp::ball::LoggerManager::DefaultThresholdLevelsCallback
 typedef Blp::ball::ThresholdAggregate           Agg;
 typedef bsl::pair<const Cat *, bool>            ResultPair;
 
-Agg callbackLevels(0, 0, 0, 0);     // The function 'dtlCallbackRaw' below sets
-                                    // the values returned through the first
-                                    // four arguments of its parameter list to
-                                    // the values of the four fields of this
-                                    // 'struct', respectively.
+Agg callbackLevels;     // The function 'dtlCallbackRaw' below sets the values
+                        // returned through the first four arguments of its
+                        // parameter list to the values of the four fields of
+                        // this 'struct', respectively.
 
 void dtlCallbackRaw(int        *recordLevel,
                     int        *passLevel,
@@ -3105,14 +3104,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 const bool      JSET_CALLBACK = JDATA.d_setCallbackThresholds;
                 bool            JUSE_CALLBACK = JDATA.d_useCallback;
 
-                {
-                    // TBD: fix bug in
-                    // 'ball::LoggerCategoryUtil::addCategoryHierarchically'
-                    // and enable testing of callbacks.
-
-                    JUSE_CALLBACK = false;
-                }
-
                 if (JSET_CALLBACK || IL == JL) {
                     continue;
                 }
@@ -3196,7 +3187,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 CALL(woof_a, MLEVELS, 0, false);
 
-                CALL(meow, ILEVELS, 0, false);
+                CALL(meow, MLEVELS, 0, false);
 
                 Cat *meowCat = manager.lookupCategory("meow");
                 ASSERT(meowCat);
@@ -3250,7 +3241,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 CALL(woof_d, MLEVELS, RET(woof_c).d_holder_p, false);
 
-                CALL(secondClass, ILEVELS, 0, false);
+                CALL(secondClass, MLEVELS, 0, false);
 
                 // Attempt to create one category more than the capacity of the
                 // category manager.  This will return the default category,
@@ -3437,14 +3428,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 const bool      JSET_CALLBACK = JDATA.d_setCallbackThresholds;
                 bool            JUSE_CALLBACK = JDATA.d_useCallback;
 
-                {
-                    // TBD: fix bug in
-                    // 'ball::LoggerCategoryUtil::addCategoryHierarchically'
-                    // and enable testing of callbacks.
-
-                    JUSE_CALLBACK = false;
-                }
-
                 if (JSET_CALLBACK || IL == JL) {
                     continue;
                 }
@@ -3531,7 +3514,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 CALL(woof_a, MLEVELS, 0, e_STATIC);
 
-                CALL(meow, ILEVELS, 0, e_STATIC);
+                CALL(meow, MLEVELS, 0, e_STATIC);
 
                 Cat *meowCat = manager.lookupCategory("meow");
                 ASSERT(meowCat);
@@ -3588,7 +3571,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 CALL(woof_d, MLEVELS, RET(woof_b).d_holder_p, e_STATIC);
                 ASSERTV(RET(woof_a).d_category_p == ret_p->d_category_p);
 
-                CALL(secondClass, ILEVELS, 0, e_DYNAMIC);
+                CALL(secondClass, MLEVELS, 0, e_DYNAMIC);
 
                 // Attempt to create one category more than the capacity of the
                 // category manager.  This will return the default category,
@@ -3810,14 +3793,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             if (JSET_CALLBACK || IL == JL) {
                 continue;
-            }
-
-            {
-                // TBD: fix bug in
-                // 'ball::LoggerCategoryUtil::addCategoryHierarchically'
-                // and enable testing of callbacks.
-
-                JUSE_CALLBACK = false;
             }
 
             TC::defaultCat = 0;

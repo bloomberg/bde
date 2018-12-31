@@ -154,9 +154,10 @@ struct LoggerCategoryUtil {
         // 'loggerManager' has reached the maximum capacity.  The newly created
         // category will have the same threshold levels as the category in
         // 'loggerManager' whose name is the longest prefix of 'categoryName',
-        // and the default levels, if no such category exists.  The behavior is
-        // undefined unless 'loggerManager' is not null and 'categoryName' is
-        // null-terminated.
+        // of, if no such category exists, the levels determined by any default
+        // threshold levels callback that is currently set or the default
+        // threshold levels.  The behavior is undefined unless 'loggerManager'
+        // is not null and 'categoryName' is null-terminated.
 
     static int setThresholdLevelsHierarchically(
                                              LoggerManager *loggerManager,

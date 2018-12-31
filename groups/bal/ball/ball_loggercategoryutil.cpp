@@ -15,6 +15,7 @@ BSLS_IDENT_RCSID(ball_loggercategoryutil_cpp,"$Id$ $CSID$")
 #include <ball_categorymanager.h>
 #include <ball_loggermanager.h>
 #include <ball_testobserver.h>                // for testing only
+#include <ball_thresholdaggregate.h>
 
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
@@ -54,10 +55,10 @@ static void setThesholdIfMatchingCategoryPrefix(
     }
 }
 
-static void isLongerPrefixCategory(const Category **result,
-                                   int             *minPrefixLength,
-                                   const char      *categoryName,
-                                   const Category  *category)
+static void accumulateLongerPrefixCategory(const Category **result,
+                                           int             *minPrefixLength,
+                                           const char      *categoryName,
+                                           const Category  *category)
     // If the specified 'category' has a name that is a prefix of
     // 'categoryName' longer than 'minPrefixLength', then populate 'result'
     // with 'category', and populate 'minPrefixLength' with length of
@@ -91,15 +92,18 @@ Category *LoggerCategoryUtil::addCategoryHierarchically(
 
     const Category *longestPrefixCategory =  0;
     int             longestPrefixLength   = -1;
+    {
+        using namespace bdlf::PlaceHolders;
+        loggerManager->visitCategories(
+                           bdlf::BindUtil::bind(accumulateLongerPrefixCategory,
+                                                &longestPrefixCategory,
+                                                &longestPrefixLength,
+                                                categoryName,
+                                                _1));
+    }
 
-    using namespace bdlf::PlaceHolders;
-    loggerManager->visitCategories(bdlf::BindUtil::bind(isLongerPrefixCategory,
-                                                        &longestPrefixCategory,
-                                                        &longestPrefixLength,
-                                                        categoryName,
-                                                        _1));
     Category *category = 0;
-    if (longestPrefixCategory) {
+    if (0 < longestPrefixLength) {
         category = loggerManager->addCategory(
                                      categoryName,
                                      longestPrefixCategory->recordLevel(),
@@ -108,12 +112,14 @@ Category *LoggerCategoryUtil::addCategoryHierarchically(
                                      longestPrefixCategory->triggerAllLevel());
     }
     else {
-        category = loggerManager->addCategory(
-                             categoryName,
-                             loggerManager->defaultRecordThresholdLevel(),
-                             loggerManager->defaultPassThresholdLevel(),
-                             loggerManager->defaultTriggerThresholdLevel(),
-                             loggerManager->defaultTriggerAllThresholdLevel());
+        const ThresholdAggregate& levels =
+                    loggerManager->getNewCategoryThresholdLevels(categoryName);
+
+        category = loggerManager->addCategory(categoryName,
+                                              levels.recordLevel(),
+                                              levels.passLevel(),
+                                              levels.triggerLevel(),
+                                              levels.triggerAllLevel());
     }
 
     return category;
