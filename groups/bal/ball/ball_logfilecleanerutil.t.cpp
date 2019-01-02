@@ -1,6 +1,7 @@
 // ball_logfilecleanerutil.t.cpp                                      -*-C++-*-
 #include <ball_logfilecleanerutil.h>
 
+#include <ball_asyncfileobserver.h>
 #include <ball_fileobserver2.h>
 
 #include <bdls_filesystemutil.h>
@@ -426,6 +427,45 @@ int main(int argc, char *argv[])
             changeModificationTime(baseName + "4", -40);
 
             ball::FileObserver2 observer;
+            balb::FileCleanerConfiguration config((baseName + "*").c_str(),
+                                                  bsls::TimeInterval(25),
+                                                  0);
+
+            observer.enableFileLogging(baseName.c_str());
+
+            Obj::enableLogFileCleanup(&observer, config);
+
+            // The cleanup is called immediately.
+            ASSERT(true  == bdls::FilesystemUtil::exists(baseName + "1"));
+            ASSERT(true  == bdls::FilesystemUtil::exists(baseName + "2"));
+            ASSERT(false == bdls::FilesystemUtil::exists(baseName + "3"));
+            ASSERT(false == bdls::FilesystemUtil::exists(baseName + "4"));
+
+            bslmt::ThreadUtil::microSleep(0, 5);
+            observer.forceRotation();
+
+            // Forced rotation should call installed callback.
+            ASSERT(true  == bdls::FilesystemUtil::exists(baseName + "1"));
+            ASSERT(false == bdls::FilesystemUtil::exists(baseName + "2"));
+            ASSERT(false == bdls::FilesystemUtil::exists(baseName + "3"));
+            ASSERT(false == bdls::FilesystemUtil::exists(baseName + "4"));
+        }
+        {
+            TempDirectoryGuard tempDirGuard;
+            bsl::string        baseName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&baseName, "logFile");
+
+            createFile(baseName + "1");
+            createFile(baseName + "2");
+            createFile(baseName + "3");
+            createFile(baseName + "4");
+
+            changeModificationTime(baseName + "1", -10);
+            changeModificationTime(baseName + "2", -22);  // <- important
+            changeModificationTime(baseName + "3", -30);
+            changeModificationTime(baseName + "4", -40);
+
+            ball::AsyncFileObserver observer;
             balb::FileCleanerConfiguration config((baseName + "*").c_str(),
                                                   bsls::TimeInterval(25),
                                                   0);

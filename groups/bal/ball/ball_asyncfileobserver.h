@@ -610,6 +610,20 @@ class AsyncFileObserver : public Observer {
         // thread holds a lock on 'd_mutex'.
 
   public:
+    // TYPES
+    typedef FileObserver::OnFileRotationCallback OnFileRotationCallback;
+        // 'OnFileRotationCallback' is an alias for a user-supplied callback
+        // function that is invoked after the file observer attempts to rotate
+        // its log file.  The callback takes two arguments: (1) an integer
+        // status value where 0 indicates a new log file was successfully
+        // created and a non-zero value indicates an error occurred during
+        // rotation, and (2) a string that provides the name of the rotated log
+        // file if the rotation was successful.  E.g.:
+        //..
+        //  void onLogFileRotation(int                rotationStatus,
+        //                         const bsl::string& rotatedLogFileName);
+        //..
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(AsyncFileObserver,
                                    bslma::UsesBslmaAllocator);
@@ -847,7 +861,7 @@ class AsyncFileObserver : public Observer {
         // currently on the queue.
 
     void setOnFileRotationCallback(
-              const FileObserver2::OnFileRotationCallback& onRotationCallback);
+                             const OnFileRotationCallback& onRotationCallback);
         // Set the specified 'onRotationCallback' to be invoked after each time
         // this async file observer attempts to perform a log file rotation.
         // The behavior is undefined if the supplied function calls either
@@ -1058,7 +1072,7 @@ void AsyncFileObserver::setLogFormat(const char *logFileFormat,
 
 inline
 void AsyncFileObserver::setOnFileRotationCallback(
-               const FileObserver2::OnFileRotationCallback& onRotationCallback)
+                              const OnFileRotationCallback& onRotationCallback)
 {
     d_fileObserver.setOnFileRotationCallback(onRotationCallback);
 }

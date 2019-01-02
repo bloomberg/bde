@@ -167,15 +167,15 @@ struct LogFileCleanerUtil {
     void enableLogFileCleanup(OBSERVER                              *observer,
                               const balb::FileCleanerConfiguration&  config);
         // Immediately call 'balb::FileCleanerUtil::removeFiles' with the
-        // specified 'config' and then install a
-        // 'FileObserver2::onFileRotationCallback' function into the specified
+        // specified 'config' and then install an
+        // 'OBSERVER::OnFileRotationCallback' function into the specified
         // 'observer' that invokes 'removeFiles' synchronously on every log
         // file rotation.  The (template parameter) 'OBSERVER' type must
-        // provide concrete implementation of the 'ball::Observer' protocol and
+        // provide concrete implementation of the 'ball::Observer' protocol,
         // have a 'setOnFileRotationCallback' method (see 'ball_fileobserver',
-        // 'ball_fileobserver2', and 'ball_asyncfileobserver').  This method
-        // overrides the file rotation callback currently installed in the
-        // observer (if any).
+        // 'ball_fileobserver2', and 'ball_asyncfileobserver'), and define an
+        // 'OnFileRotationCallback' type alias.  This method overrides the file
+        // rotation callback currently installed in the observer (if any).
 
     static
     void logPatternToFilePattern(bsl::string              *filePattern,

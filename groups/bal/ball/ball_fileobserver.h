@@ -434,6 +434,20 @@ class FileObserver : public Observer {
     FileObserver& operator=(const FileObserver&);
 
   public:
+    // TYPES
+    typedef FileObserver2::OnFileRotationCallback OnFileRotationCallback;
+        // 'OnFileRotationCallback' is an alias for a user-supplied callback
+        // function that is invoked after the file observer attempts to rotate
+        // its log file.  The callback takes two arguments: (1) an integer
+        // status value where 0 indicates a new log file was successfully
+        // created and a non-zero value indicates an error occurred during
+        // rotation, and (2) a string that provides the name of the rotated log
+        // file if the rotation was successful.  E.g.:
+        //..
+        //  void onLogFileRotation(int                rotationStatus,
+        //                         const bsl::string& rotatedLogFileName);
+        //..
+
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(FileObserver, bslma::UsesBslmaAllocator);
 
@@ -643,7 +657,7 @@ class FileObserver : public Observer {
         // configure a periodic rotation at midnight each day.
 
     void setOnFileRotationCallback(
-              const FileObserver2::OnFileRotationCallback& onRotationCallback);
+                             const OnFileRotationCallback& onRotationCallback);
         // Set the specified 'onRotationCallback' to be invoked after each time
         // this file observer attempts to perform a log file rotation.  The
         // behavior is undefined if the supplied function calls either
@@ -832,7 +846,7 @@ void FileObserver::rotateOnTimeInterval(
 
 inline
 void FileObserver::setOnFileRotationCallback(
-               const FileObserver2::OnFileRotationCallback& onRotationCallback)
+                              const OnFileRotationCallback& onRotationCallback)
 {
     d_fileObserver2.setOnFileRotationCallback(onRotationCallback);
 }
