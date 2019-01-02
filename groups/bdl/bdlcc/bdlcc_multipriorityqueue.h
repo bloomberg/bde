@@ -63,20 +63,18 @@ BSLS_IDENT("$Id: $")
 // until it is able to complete successfully or until the specified time limit
 // expires.
 //
-///WARNING: Late Signaling Optimization
-///------------------------------------
-// It is the responsibility of the client to ensure that ALL actions on a
-// 'bdlcc::MultipriorityQueue' are COMPLETED before destroying it.  Note that a
-// 'push' has not necessarily completed as soon as the mutex is unlocked and
-// the pushed item is available for other threads to access -- we employ "late
-// signaling", where the pushing thread will take action to inform other
-// threads of the state change *AFTER* the action is completed and the mutex is
-// unlocked, as a performance optimization.  If a caller anticipates the number
-// of items that will be pushed and destroys a container IMMEDIATELY after they
-// have all been popped, it may result in undefined behavior when a pusher
-// tries to signal the destoryed 'bdlcc::MultipriorityQueue'.  It is best to
-// wait until all subthreads are joined, or until after they have all arrived
-// at a barrier, before destroying a shared 'bdlcc::MultipriorityQueue'.
+///WARNING: Synchronization Required on Destruction
+///------------------------------------------------
+// The behavior for the destructor is undefined unless all access or
+// modification of the object is completed prior to its destruction.  Some form
+// of synchronization, external to the component, is required to ensure the
+// precondition on the destructor is met.  For example, if two (or more)
+// threads are manipulating a queue, it is *not* safe to anticipate the number
+// of elements added to the queue, and destroy that queue immediately after the
+// last element is popped (without additional synchronization) because one of
+// the corresponding push functions may not have completed (push may, for
+// instance, signal waiting threads after the element is considered added to
+// the queue).
 //
 ///Usage
 ///-----
@@ -597,7 +595,8 @@ class MultipriorityQueue {
         // (if specified).
 
     ~MultipriorityQueue();
-        // Destroy this object.
+        // Destroy this container.  The behavior is undefined unless all access
+        // or modification of the container has completed prior to this call.
 
     // MANIPULATORS
     int pushBack(const TYPE& item, int itemPriority);
