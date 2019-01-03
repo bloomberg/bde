@@ -493,7 +493,8 @@ void *TestAllocator::allocate(size_type size)
     }
 
     Align *align = (Align *)d_allocator_p->allocate(
-                                          sizeof(Align) + size + PADDING_SIZE);
+                       bsls::AlignmentUtil::roundUpToMaximalAlignment(
+                                         sizeof(Align) + size + PADDING_SIZE));
     if (!align) {
         // We cannot satisfy this request.  Throw 'std::bad_alloc'.
 
@@ -501,7 +502,7 @@ void *TestAllocator::allocate(size_type size)
     }
 
     // Note that we don't initialize the user portion of the segment because
-    // that would undermine purify's 'UMR: uninitialized memory read' checking.
+    // that would undermine Purify's 'UMR: uninitialized memory read' checking.
 
     std::memset((char *)(align + 1) - PADDING_SIZE,
                 PADDED_MEMORY, PADDING_SIZE);
