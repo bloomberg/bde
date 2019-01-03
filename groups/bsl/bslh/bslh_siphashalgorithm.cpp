@@ -4,10 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
-#include <bsls_types.h>
-#include <bsls_platform.h>
 #include <bsls_byteorder.h>
+#include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <algorithm>
 #include <stddef.h>  // for 'size_t'
@@ -75,6 +76,8 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 
 namespace bslh {
+
+#define FALLTHROUGH BSLS_ANNOTATION_FALLTHROUGH
 
 typedef bsls::Types::Uint64 u64;
 typedef unsigned int        u32;
@@ -188,31 +191,17 @@ SipHashAlgorithm::operator()(const void *data, size_t numBytes)
 
 SipHashAlgorithm::result_type SipHashAlgorithm::computeHash()
 {
-    // The "FALL THROUGH" comments here are necessary to avoid the
-    // implicit-fallthrough warnings that GCC 7 introduces.  We could
-    // instead use GNU C's __attribute__(fallthrough) vendor
-    // extension or C++17's [[fallthrough]] attribute but these would
-    // need to be hidden from the Oracle and IBM compilers.
-
     result_type b = static_cast<u64>(d_totalLength) << 56;
     switch(d_bufSize)
     {
-    case 7:
-        b |= static_cast<u64>(d_buf[6]) << 48;  // FALL THROUGH
-    case 6:
-        b |= static_cast<u64>(d_buf[5]) << 40;  // FALL THROUGH
-    case 5:
-        b |= static_cast<u64>(d_buf[4]) << 32;  // FALL THROUGH
-    case 4:
-        b |= static_cast<u64>(d_buf[3]) << 24;  // FALL THROUGH
-    case 3:
-        b |= static_cast<u64>(d_buf[2]) << 16;  // FALL THROUGH
-    case 2:
-        b |= static_cast<u64>(d_buf[1]) << 8;   // FALL THROUGH
-    case 1:
-        b |= static_cast<u64>(d_buf[0]);        // FALL THROUGH
-    case 0:
-        break;
+    case 7: b |= static_cast<u64>(d_buf[6]) << 48;                 FALLTHROUGH;
+    case 6: b |= static_cast<u64>(d_buf[5]) << 40;                 FALLTHROUGH;
+    case 5: b |= static_cast<u64>(d_buf[4]) << 32;                 FALLTHROUGH;
+    case 4: b |= static_cast<u64>(d_buf[3]) << 24;                 FALLTHROUGH;
+    case 3: b |= static_cast<u64>(d_buf[2]) << 16;                 FALLTHROUGH;
+    case 2: b |= static_cast<u64>(d_buf[1]) << 8;                  FALLTHROUGH;
+    case 1: b |= static_cast<u64>(d_buf[0]);                       FALLTHROUGH;
+    case 0:                                                        break;
     }
     d_v3 ^= b;
     sipround(d_v0, d_v1, d_v2, d_v3);
@@ -231,7 +220,6 @@ SipHashAlgorithm::result_type SipHashAlgorithm::computeHash()
 
 }  // close enterprise namespace
 
-
 // ----------------------------------------------------------------------------
 // Copyright 2014 Bloomberg Finance L.P.
 //
@@ -247,4 +235,3 @@ SipHashAlgorithm::result_type SipHashAlgorithm::computeHash()
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
-

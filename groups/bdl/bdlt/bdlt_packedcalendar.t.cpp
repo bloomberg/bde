@@ -4918,6 +4918,7 @@ int main(int argc, char *argv[])
 
                 Out& rvOut = X.bdexStreamOut(out, VERSION);
                 ASSERT(&out == &rvOut);
+                ASSERT(out);
 
                 const char *const OD  = out.data();
                 const int         LOD = static_cast<int>(out.length());
@@ -4961,6 +4962,7 @@ int main(int argc, char *argv[])
 
                     Out& rvOut = bdexStreamOut(out, X, VERSION);
                     LOOP_ASSERT(i, &out == &rvOut);
+                    LOOP_ASSERT(i, out);
                     const char *const OD  = out.data();
                     const int         LOD = static_cast<int>(out.length());
 
@@ -5044,6 +5046,7 @@ int main(int argc, char *argv[])
                 using bslx::OutStreamFunctions::bdexStreamOut;
                 Out& rvOut = bdexStreamOut(out, Obj(), VERSION);
                 ASSERT(&out == &rvOut);
+                ASSERT(out);
 
                 const char *const OD  = out.data();
                 const int         LOD = static_cast<int>(out.length());
@@ -5097,14 +5100,17 @@ int main(int argc, char *argv[])
 
                 Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
                 ASSERT(&out == &rvOut1);
+                ASSERT(out);
                 const int         LOD1 = static_cast<int>(out.length());
 
                 Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
                 ASSERT(&out == &rvOut2);
+                ASSERT(out);
                 const int         LOD2 = static_cast<int>(out.length());
 
                 Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
                 ASSERT(&out == &rvOut3);
+                ASSERT(out);
                 const int         LOD3 = static_cast<int>(out.length());
                 const char *const OD3  = out.data();
 
@@ -5302,6 +5308,7 @@ int main(int argc, char *argv[])
                     bslx::ByteOutStream  out(VERSION_SELECTOR, &allocator);
                     bslx::ByteOutStream& rvOut = X.bdexStreamOut(out, VERSION);
                     LOOP_ASSERT(LINE, &out == &rvOut);
+                    LOOP_ASSERT(LINE, out);
 
                     ASSERTV(LINE,
                             LEN,
@@ -5343,6 +5350,7 @@ int main(int argc, char *argv[])
                                                                X,
                                                                VERSION);
                     LOOP_ASSERT(LINE, &out == &rvOut);
+                    LOOP_ASSERT(LINE, out);
 
                     LOOP_ASSERT(LINE, LEN == static_cast<int>(out.length()));
                     LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));

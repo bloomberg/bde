@@ -143,6 +143,7 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 #include <bslmf_assert.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bsls_alignmentutil.h>
+#include <bsls_annotation.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -1246,7 +1247,8 @@ void Datum::destroy(const Datum& value, bslma::Allocator *basicAllocator)
         const ExtendedInternalDataType extendedType =
                                                 value.extendedInternalType();
         switch (extendedType) {
-          case e_EXTENDED_INTERNAL_MAP          : // fall through
+          case e_EXTENDED_INTERNAL_MAP          :
+            BSLS_ANNOTATION_FALLTHROUGH;
           case e_EXTENDED_INTERNAL_OWNED_MAP    : {
             DatumMapRef values = value.theMap();
             for (SizeType i = 0; i < values.size(); ++i) {
@@ -1261,13 +1263,20 @@ void Datum::destroy(const Datum& value, bslma::Allocator *basicAllocator)
             }
             destroyMemory(value, basicAllocator);
           } break;
-          case e_EXTENDED_INTERNAL_ERROR_ALLOC            : // fall through
+          case e_EXTENDED_INTERNAL_ERROR_ALLOC            :
+            BSLS_ANNOTATION_FALLTHROUGH;
           case e_EXTENDED_INTERNAL_SREF_ALLOC             :
+            BSLS_ANNOTATION_FALLTHROUGH;
           case e_EXTENDED_INTERNAL_AREF_ALLOC             :
+            BSLS_ANNOTATION_FALLTHROUGH;
           case e_EXTENDED_INTERNAL_DATETIME_ALLOC         :
+            BSLS_ANNOTATION_FALLTHROUGH;
           case e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC:
+            BSLS_ANNOTATION_FALLTHROUGH;
           case e_EXTENDED_INTERNAL_INTEGER64_ALLOC        :
+            BSLS_ANNOTATION_FALLTHROUGH;
           case e_EXTENDED_INTERNAL_BINARY_ALLOC           :
+            BSLS_ANNOTATION_FALLTHROUGH;
           case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC        : {
             destroyMemory(value,  basicAllocator);
           } break;
@@ -1292,7 +1301,8 @@ void Datum::destroy(const Datum& value, bslma::Allocator *basicAllocator)
     }
 #else   // BSLS_PLATFORM_CPU_32_BIT
     switch (type) {
-      case e_INTERNAL_MAP      : // fall through
+      case e_INTERNAL_MAP      :
+        BSLS_ANNOTATION_FALLTHROUGH;
       case e_INTERNAL_OWNED_MAP: {
         DatumMapRef values = value.theMap();
         for (SizeType i = 0; i < values.size(); ++i) {
@@ -1314,8 +1324,10 @@ void Datum::destroy(const Datum& value, bslma::Allocator *basicAllocator)
         }
         destroyMemory(value, basicAllocator);
       } break;
-      case e_INTERNAL_BINARY_ALLOC: // fall through
+      case e_INTERNAL_BINARY_ALLOC:
+        BSLS_ANNOTATION_FALLTHROUGH;
       case e_INTERNAL_ERROR_ALLOC :
+        BSLS_ANNOTATION_FALLTHROUGH;
       case e_INTERNAL_STRING      : {
         destroyMemory(value, basicAllocator);
       } break;

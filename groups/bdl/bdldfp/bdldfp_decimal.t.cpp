@@ -1433,6 +1433,7 @@ void TestDriver::testCase6()
 
             Out& rvOut = X.bdexStreamOut(out, VERSION);
             ASSERT(&out == &rvOut);
+            ASSERT(out);
 
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());
@@ -1463,6 +1464,7 @@ void TestDriver::testCase6()
 
                 Out& rvOut = bdexStreamOut(out, X, VERSION);
                 LOOP_ASSERT(i, &out == &rvOut);
+                ASSERT(out);
                 const char *const OD  = out.data();
                 const int         LOD = static_cast<int>(out.length());
 
@@ -1538,6 +1540,7 @@ void TestDriver::testCase6()
             using bslx::OutStreamFunctions::bdexStreamOut;
             Out& rvOut = bdexStreamOut(out, Obj(), VERSION);
             ASSERT(&out == &rvOut);
+            ASSERT(out);
 
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());
@@ -1647,6 +1650,7 @@ void TestDriver::testCase6()
 
             Out& rvOut = X.bdexStreamOut(out, VERSION);
             ASSERT(&out == &rvOut);
+            ASSERT(out);
 
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());
@@ -1677,6 +1681,7 @@ void TestDriver::testCase6()
 
                 Out& rvOut = bdexStreamOut(out, X, VERSION);
                 LOOP_ASSERT(i, &out == &rvOut);
+                LOOP_ASSERT(i, out);
                 const char *const OD  = out.data();
                 const int         LOD = static_cast<int>(out.length());
 
@@ -1752,6 +1757,7 @@ void TestDriver::testCase6()
             using bslx::OutStreamFunctions::bdexStreamOut;
             Out& rvOut = bdexStreamOut(out, Obj(), VERSION);
             ASSERT(&out == &rvOut);
+            ASSERT(out);
 
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());
@@ -1797,6 +1803,8 @@ void TestDriver::testCase6()
                 using bslx::InStreamFunctions::bdexStreamIn;
 
                 bdexStreamOut(out, X, VERSION);
+                ASSERT(out);
+
                 const char *const OD  = out.data();
                 const int         LOD = static_cast<int>(out.length());
 
@@ -1861,6 +1869,7 @@ void TestDriver::testCase6()
 
             Out& rvOut = X.bdexStreamOut(out, VERSION);
             ASSERT(&out == &rvOut);
+            ASSERT(out);
 
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());
@@ -1891,6 +1900,7 @@ void TestDriver::testCase6()
 
                 Out& rvOut = bdexStreamOut(out, X, VERSION);
                 LOOP_ASSERT(i, &out == &rvOut);
+                LOOP_ASSERT(i, out);
                 const char *const OD  = out.data();
                 const int         LOD = static_cast<int>(out.length());
 
@@ -1966,6 +1976,7 @@ void TestDriver::testCase6()
             using bslx::OutStreamFunctions::bdexStreamOut;
             Out& rvOut = bdexStreamOut(out, Obj(), VERSION);
             ASSERT(&out == &rvOut);
+            ASSERT(out);
 
             const char *const OD  = out.data();
             const int         LOD = static_cast<int>(out.length());
@@ -2013,6 +2024,7 @@ void TestDriver::testCase6()
                 using bslx::InStreamFunctions::bdexStreamIn;
 
                 bdexStreamOut(out, X, VERSION);
+                ASSERT(out);
                 const char *const OD  = out.data();
                 const int         LOD = static_cast<int>(out.length());
 

@@ -343,6 +343,7 @@ if (verbose) {  // added in test driver
 
             Out& rvOut = Obj::bdexStreamOut(out, X, VERSION);
             ASSERT(&out == &rvOut);
+            ASSERT(out);
 
             const char *const OD  = out.data();
             const int         LOD = out.length();
@@ -385,6 +386,7 @@ if (verbose) {  // added in test driver
 
                 Out& rvOut = bdexStreamOut(out, X, VERSION);
                 LOOP_ASSERT(i, &out == &rvOut);
+                LOOP_ASSERT(i, out);
                 const char *const OD  = out.data();
                 const int         LOD = out.length();
 
@@ -466,6 +468,7 @@ if (verbose) {  // added in test driver
             using bslx::OutStreamFunctions::bdexStreamOut;
             Out& rvOut = bdexStreamOut(out, Obj::e_SUN, VERSION);
             ASSERT(&out == &rvOut);
+            ASSERT(out);
 
             const char *const OD  = out.data();
             const int         LOD = out.length();
@@ -517,14 +520,17 @@ if (verbose) {  // added in test driver
 
             Out& rvOut1 = bdexStreamOut(out, X1, VERSION);
             ASSERT(&out == &rvOut1);
+            ASSERT(out);
             const int         LOD1 = out.length();
 
             Out& rvOut2 = bdexStreamOut(out, X2, VERSION);
             ASSERT(&out == &rvOut2);
+            ASSERT(out);
             const int         LOD2 = out.length();
 
             Out& rvOut3 = bdexStreamOut(out, X3, VERSION);
             ASSERT(&out == &rvOut3);
+            ASSERT(out);
             const int         LOD3 = out.length();
             const char *const OD3  = out.data();
 
@@ -775,6 +781,7 @@ if (verbose) {  // added in test driver
                                                                     X,
                                                                     VERSION);
                     LOOP_ASSERT(LINE, &out == &rvOut);
+                    LOOP_ASSERT(LINE, out);
 
                     LOOP_ASSERT(LINE, LEN == out.length());
                     LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));
@@ -814,6 +821,7 @@ if (verbose) {  // added in test driver
                                                                X,
                                                                VERSION);
                     LOOP_ASSERT(LINE, &out == &rvOut);
+                    LOOP_ASSERT(LINE, out);
 
                     LOOP_ASSERT(LINE, LEN == out.length());
                     LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));
@@ -890,6 +898,7 @@ if (verbose) {  // added in test driver
                     bslx::ByteOutStream  out(VERSION_SELECTOR, &allocator);
                     bslx::ByteOutStream& rvOut = streamOut(out, X, VERSION);
                     LOOP_ASSERT(LINE, &out == &rvOut);
+                    LOOP_ASSERT(LINE, out);
 
                     LOOP_ASSERT(LINE, LEN == out.length());
                     LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));

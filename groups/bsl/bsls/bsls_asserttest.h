@@ -323,15 +323,12 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_asserttestexception.h>
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_review.h>
-
-#ifdef BSLS_ASSERTTEST_NORETURN
-#error BSLS_ASSERTTEST_NORETURN must be a macro scoped locally to this file
-#endif
 
 #ifdef BDE_BUILD_TARGET_SAFE_2
     #define BSLS_ASSERTTEST_SAFE_2_BUILD_FLAG true
@@ -563,19 +560,6 @@ BSLS_IDENT("$Id: $")
 
 #endif  // BDE_BUILD_TARGET_EXC
 
-#ifdef BSLS_ASSERTTEST_NORETURN
-#error BSLS_ASSERTTEST_NORETURN \
-                             must be a macro scoped locally to this header file
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-#   define BSLS_ASSERTTEST_NORETURN [[noreturn]]
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-#   define BSLS_ASSERTTEST_NORETURN __declspec(noreturn)
-#else
-#   define BSLS_ASSERTTEST_NORETURN
-#endif
-
 // Provide a deeper "include-guard" to protect against repeated inclusion by
 // the test driver for this component.  This is necessary because, in order to
 // test the macros and pre-processor logic that constitute key parts of this
@@ -690,7 +674,7 @@ struct AssertTest {
 
                         // Testing Failure Handlers
 
-    BSLS_ASSERTTEST_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void failTestDriver(const AssertViolation &violation);
         // Throw an 'AssertTestException' having the pointer values 'text' and
         // 'file' and the integer 'line' from the specified 'violation' as its
@@ -763,8 +747,6 @@ typedef bsls::AssertTest bsls_AssertTest;
 }  // close enterprise namespace
 
 #endif // test driver internal include guard
-
-#undef BSLS_ASSERTTEST_NORETURN
 
 #endif
 

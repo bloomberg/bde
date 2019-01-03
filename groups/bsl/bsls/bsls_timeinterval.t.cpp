@@ -2,6 +2,7 @@
 
 #include <bsls_timeinterval.h>
 
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -4765,6 +4766,7 @@ int main(int argc, char *argv[])
 
             Out& rvOut = X.bdexStreamOut(out, VERSION);
             ASSERT(&out == &rvOut);
+            ASSERT(out);
 
             const char *const OD  = out.data();
             const int         LOD = out.length();
@@ -4794,6 +4796,7 @@ int main(int argc, char *argv[])
 
                 Out& rvOut = X.bdexStreamOut(out, VERSION);
                 LOOP_ASSERT(i, &out == &rvOut);
+                LOOP_ASSERT(i, out);
                 const char *const OD  = out.data();
                 const int         LOD = out.length();
 
@@ -4871,6 +4874,7 @@ int main(int argc, char *argv[])
 
             Out& rvOut = Obj().bdexStreamOut(out, VERSION);
             ASSERT(&out == &rvOut);
+            ASSERT(out);
 
             const char *const OD  = out.data();
             const int         LOD = out.length();
@@ -4916,14 +4920,17 @@ int main(int argc, char *argv[])
 
             Out& rvOut1 = X1.bdexStreamOut(out, VERSION);
             ASSERT(&out == &rvOut1);
+            ASSERT(out);
             const int         LOD1 = out.length();
 
             Out& rvOut2 = X2.bdexStreamOut(out, VERSION);
             ASSERT(&out == &rvOut2);
+            ASSERT(out);
             const int         LOD2 = out.length();
 
             Out& rvOut3 = X3.bdexStreamOut(out, VERSION);
             ASSERT(&out == &rvOut3);
+            ASSERT(out);
             const int         LOD3 = out.length();
             const char *const OD3  = out.data();
 
@@ -5225,6 +5232,7 @@ int main(int argc, char *argv[])
                     Out  out(VERSION_SELECTOR);
                     Out& rvOut = X.bdexStreamOut(out, VERSION);
                     LOOP_ASSERT(LINE, &out == &rvOut);
+                    LOOP_ASSERT(LINE, out);
 
                     LOOP_ASSERT(LINE, LEN == out.length());
                     LOOP_ASSERT(LINE, 0 == memcmp(out.data(), FMT, LEN));

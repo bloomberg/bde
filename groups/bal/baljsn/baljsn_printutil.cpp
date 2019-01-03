@@ -6,6 +6,9 @@ BSLS_IDENT_RCSID(baljsn_printutil_cpp,"$Id$ $CSID$")
 
 #include <bdlde_base64encoder.h>
 #include <bdlde_utf8util.h>
+
+#include <bsls_annotation.h>
+
 #include <bsl_sstream.h>
 
 namespace BloombergLP {
@@ -51,8 +54,8 @@ int PrintUtil::printString(bsl::ostream&            stream,
 
     while (iter < end) {
         switch (*iter) {
-          case '"':                                             // FALL THROUGH
-          case '\\':                                            // FALL THROUGH
+          case '"':  BSLS_ANNOTATION_FALLTHROUGH;
+          case '\\': BSLS_ANNOTATION_FALLTHROUGH;
           case '/': {
             writeEscapedChar(stream, &currBegin, iter, *iter);
           } break;
@@ -74,42 +77,42 @@ int PrintUtil::printString(bsl::ostream&            stream,
 
           // control characters
 
-          case '\x00':                                          // FALL THROUGH
-          case '\x01':                                          // FALL THROUGH
-          case '\x02':                                          // FALL THROUGH
-          case '\x03':                                          // FALL THROUGH
-          case '\x04':                                          // FALL THROUGH
-          case '\x05':                                          // FALL THROUGH
-          case '\x06':                                          // FALL THROUGH
-          case '\x07':                                          // FALL THROUGH
+          case '\x00': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x01': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x02': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x03': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x04': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x05': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x06': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x07': BSLS_ANNOTATION_FALLTHROUGH;
           // Backspace       ('\b') handled above
-//        case '\x08':                                          // FALL THROUGH
+//        case '\x08': BSLS_ANNOTATION_FALLTHROUGH;
           // Horizontal tab  ('\t') handled above
-//        case '\x09':                                          // FALL THROUGH
+//        case '\x09': BSLS_ANNOTATION_FALLTHROUGH;
           // New line        ('\n') handled above
-//        case '\x0A':                                          // FALL THROUGH
-          case '\x0B':                                          // FALL THROUGH
+//        case '\x0A': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x0B': BSLS_ANNOTATION_FALLTHROUGH;
           // Form feed       ('\f') handled above
-//        case '\x0C':                                          // FALL THROUGH
+//        case '\x0C': BSLS_ANNOTATION_FALLTHROUGH;
           // Carriage return ('\r') handled above
-//        case '\x0D':                                          // FALL THROUGH
-          case '\x0E':                                          // FALL THROUGH
-          case '\x0F':                                          // FALL THROUGH
-          case '\x10':                                          // FALL THROUGH
-          case '\x11':                                          // FALL THROUGH
-          case '\x12':                                          // FALL THROUGH
-          case '\x13':                                          // FALL THROUGH
-          case '\x14':                                          // FALL THROUGH
-          case '\x15':                                          // FALL THROUGH
-          case '\x16':                                          // FALL THROUGH
-          case '\x17':                                          // FALL THROUGH
-          case '\x18':                                          // FALL THROUGH
-          case '\x19':                                          // FALL THROUGH
-          case '\x1A':                                          // FALL THROUGH
-          case '\x1B':                                          // FALL THROUGH
-          case '\x1C':                                          // FALL THROUGH
-          case '\x1D':                                          // FALL THROUGH
-          case '\x1E':                                          // FALL THROUGH
+//        case '\x0D': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x0E': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x0F': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x10': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x11': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x12': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x13': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x14': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x15': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x16': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x17': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x18': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x19': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x1A': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x1B': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x1C': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x1D': BSLS_ANNOTATION_FALLTHROUGH;
+          case '\x1E': BSLS_ANNOTATION_FALLTHROUGH;
           case '\x1F': {
             writeEscapedChar(stream, &currBegin, iter, 'u');
 

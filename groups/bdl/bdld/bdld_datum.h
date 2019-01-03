@@ -4054,14 +4054,16 @@ void Datum::apply(BDLD_VISITOR& visitor) const
             // visitor(theIntMap());
             break;
           case e_EXTENDED_INTERNAL_MAP:
-          case e_EXTENDED_INTERNAL_OWNED_MAP:  // fall through
+            BSLS_ANNOTATION_FALLTHROUGH;
+          case e_EXTENDED_INTERNAL_OWNED_MAP:
             visitor(theMap());
             break;
           case e_EXTENDED_INTERNAL_NAN2:
             visitor(theDouble());
             break;
           case e_EXTENDED_INTERNAL_ERROR:
-          case e_EXTENDED_INTERNAL_ERROR_ALLOC: // fall through
+            BSLS_ANNOTATION_FALLTHROUGH;
+          case e_EXTENDED_INTERNAL_ERROR_ALLOC:
             visitor(theError());
             break;
           case e_EXTENDED_INTERNAL_SREF_ALLOC:
@@ -4153,18 +4155,21 @@ void Datum::apply(BDLD_VISITOR& visitor) const
       case e_INTERNAL_ARRAY_REFERENCE:
         visitor(theArrayReference());
         break;
-      case e_INTERNAL_MAP:          // fall through
+      case e_INTERNAL_MAP:
+        BSLS_ANNOTATION_FALLTHROUGH;
       case e_INTERNAL_OWNED_MAP:
         visitor(theMap());
         break;
-      case e_INTERNAL_ERROR:        // fall through
+      case e_INTERNAL_ERROR:
+        BSLS_ANNOTATION_FALLTHROUGH;
       case e_INTERNAL_ERROR_ALLOC:
         visitor(theError());
         break;
       case e_INTERNAL_DOUBLE:
         visitor(d_as.d_double);
         break;
-      case e_INTERNAL_BINARY:       // fall through
+      case e_INTERNAL_BINARY:
+        BSLS_ANNOTATION_FALLTHROUGH;
       case e_INTERNAL_BINARY_ALLOC:
         visitor(theBinary());
         break;

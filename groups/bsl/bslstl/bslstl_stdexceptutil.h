@@ -70,21 +70,9 @@ BSL_OVERRIDES_STD mode"
 #endif
 #include <bslscm_version.h>
 
+#include <bsls_annotation.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
-
-#ifdef BSLSTL_STDEXCEPTUTIL_NORETURN
-#error BSLSTL_STDEXCEPTUTIL_NORETURN \
-                             must be a macro scoped locally to this header file
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-#   define BSLSTL_STDEXCEPTUTIL_NORETURN [[noreturn]]
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-#   define BSLSTL_STDEXCEPTUTIL_NORETURN __declspec(noreturn)
-#else
-#   define BSLSTL_STDEXCEPTUTIL_NORETURN
-#endif
 
 namespace BloombergLP {
 
@@ -99,55 +87,53 @@ struct StdExceptUtil {
     // throw standard library exceptions.
 
     // CLASS METHODS
-    BSLSTL_STDEXCEPTUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwRuntimeError(const char *message);
         // Throw a 'std::runtime_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLSTL_STDEXCEPTUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwLogicError(const char *message);
         // Throw a 'std::logic_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLSTL_STDEXCEPTUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwDomainError(const char *message);
         // Throw a 'std::domain_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLSTL_STDEXCEPTUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwInvalidArgument(const char *message);
         // Throw a 'std::invalid_argument' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLSTL_STDEXCEPTUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwLengthError(const char *message);
         // Throw a 'std::length_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLSTL_STDEXCEPTUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwOutOfRange(const char *message);
         // Throw a 'std::out_of_range' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLSTL_STDEXCEPTUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwRangeError(const char *message);
         // Throw a 'std::range_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLSTL_STDEXCEPTUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwOverflowError(const char *message);
         // Throw a 'std::overflow_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 
-    BSLSTL_STDEXCEPTUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void throwUnderflowError(const char *message);
         // Throw a 'std::underflow_error' exception supplying the specified
         // 'message' as the sole argument to its constructor.
 };
 
 }  // close package namespace
-
-#undef BSLSTL_STDEXCEPTUTIL_NORETURN
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ============================================================================

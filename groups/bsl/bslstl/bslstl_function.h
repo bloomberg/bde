@@ -68,6 +68,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_usesallocatorargt.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
@@ -7854,6 +7855,7 @@ bsl::Function_Rep::ownedAllocManager(ManagerOpCode  opCode,
 
     switch (opCode) {
       case e_MOVE_CONSTRUCT: // Fall through: allocators are always copied
+        BSLS_ANNOTATION_FALLTHROUGH;
       case e_COPY_CONSTRUCT: {
         const Adaptor& other = *static_cast<const Adaptor*>(input.asPtr());
         return ::new ((void*) rep->d_allocator_p) Adaptor(other);     // RETURN

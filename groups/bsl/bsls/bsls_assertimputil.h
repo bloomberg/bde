@@ -49,26 +49,13 @@ BSLS_IDENT("$Id: $")
 //..
 // This function would then sleep forever and never return.
 
+#include <bsls_annotation.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 
-                       // ===========================
-                       // BSLS_ASSERTIMPUTIL_NORETURN
-                       // ===========================
-
-// define 'BSLS_ASSERTIMPUTIL_NORETURN' for use in this header
-#ifdef BSLS_ASSERTIMPUTIL_NORETURN
-#error BSLS_ASSERTIMPUTIL_NORETURN must be a macro scoped locally to this \
-    header file
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-#   define BSLS_ASSERTIMPUTIL_NORETURN [[noreturn]]
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-#   define BSLS_ASSERTIMPUTIL_NORETURN __declspec(noreturn)
-#else
-#   define BSLS_ASSERTIMPUTIL_NORETURN
-#endif
+                // =========================================
+                // BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+                // =========================================
 
 #ifdef BSLS_PLATFORM_CMP_SUN
 // On sun, string constants are not deduplicated, so uses of 'BSLS_ASSERT' and
@@ -96,13 +83,13 @@ struct AssertImpUtil {
 
   public:
     // CLASS METHODS
-    BSLS_ASSERTIMPUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void failByAbort();
         // Unconditionally abort the current application.  It is up to the
         // caller to first output a useful message describing the location of
         // the failure.
 
-    BSLS_ASSERTIMPUTIL_NORETURN
+    BSLS_ANNOTATION_NORETURN
     static void failBySleep();
         // Spin in an infinite loop.  It is up to the caller to first output a
         // useful message describing the location of the failure.
@@ -114,8 +101,6 @@ struct AssertImpUtil {
         // ========================================================
         // UNDEFINE THE LOCALLY-SCOPED IMPLEMENTATION DETAIL MACROS
         // ========================================================
-
-#undef BSLS_ASSERTIMPUTIL_NORETURN
 
 #endif
 

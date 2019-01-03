@@ -311,7 +311,7 @@ BSLS_IDENT("$Id: $")
 // attribute syntax.
 //
 //: o Compiler support:
-//:   o GCC 4.8
+//:   o GCC 7.3
 //:   o Clang 3.3
 //:   o MSVC 19.10
 //
@@ -640,7 +640,6 @@ BSLS_IDENT("$Id: $")
 #    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // GCC supports __attribute__((noreturn)) in earlier versions
 #    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
-#    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
 #    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
 #    define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #    define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
@@ -674,6 +673,7 @@ BSLS_IDENT("$Id: $")
 // GCC defines the '__cplusplus' macro to the non-standard value of 201500 to
 // indicate experimental C++17 support.
 #  if BSLS_PLATFORM_CMP_VERSION >= 70000
+#    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
 #    define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
 #    undef  BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
 #  endif

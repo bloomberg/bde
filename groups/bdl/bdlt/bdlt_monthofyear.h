@@ -68,6 +68,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bsls_annotation.h>
+
 #include <bsl_iosfwd.h>
 
 namespace BloombergLP {
@@ -352,7 +354,7 @@ STREAM& MonthOfYear::bdexStreamOut(STREAM&           stream,
         switch (version) { // switch on the schema version
           case 1: {
             stream.putInt8(static_cast<char>(value));
-          }
+          } break;
           default: {
             stream.invalidate();  // unrecognized version number
           }

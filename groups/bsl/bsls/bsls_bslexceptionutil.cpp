@@ -10,19 +10,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <new>
 #include <typeinfo>
 
-#ifdef BSLS_BSLEXCEPTIONUTIL_NORETURN
-#error BSLS_BSLEXCEPTIONUTIL_NORETURN \
-                                    must be a macro scoped locally to this file
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-#   define BSLS_BSLEXCEPTIONUTIL_NORETURN [[noreturn]]
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-#   define BSLS_BSLEXCEPTIONUTIL_NORETURN __declspec(noreturn)
-#else
-#   define BSLS_BSLEXCEPTIONUTIL_NORETURN
-#endif
-
 namespace BloombergLP {
 
 namespace bsls {
@@ -32,40 +19,37 @@ namespace bsls {
                       //-----------------------
 
 // CLASS METHODS
-BSLS_BSLEXCEPTIONUTIL_NORETURN
+BSLS_ANNOTATION_NORETURN
 void BslExceptionUtil::throwBadAlloc()
 {
     BSLS_THROW(std::bad_alloc());
 }
 
-BSLS_BSLEXCEPTIONUTIL_NORETURN
+BSLS_ANNOTATION_NORETURN
 void BslExceptionUtil::throwBadCast()
 {
     BSLS_THROW(std::bad_cast());
 }
 
-BSLS_BSLEXCEPTIONUTIL_NORETURN
+BSLS_ANNOTATION_NORETURN
 void BslExceptionUtil::throwBadException()
 {
     BSLS_THROW(std::bad_exception());
 }
 
-BSLS_BSLEXCEPTIONUTIL_NORETURN
+BSLS_ANNOTATION_NORETURN
 void BslExceptionUtil::throwBadTypeid()
 {
     BSLS_THROW(std::bad_typeid());
 }
 
-BSLS_BSLEXCEPTIONUTIL_NORETURN
+BSLS_ANNOTATION_NORETURN
 void BslExceptionUtil::throwException()
 {
     BSLS_THROW(std::exception());
 }
 
 }  // close package namespace
-
-#undef BSLS_BSLEXCEPTIONUTIL_NORETURN
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

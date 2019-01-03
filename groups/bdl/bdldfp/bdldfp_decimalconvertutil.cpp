@@ -6,6 +6,7 @@ BSLS_IDENT_RCSID(bdldfp_decimalconvertutil_cpp,"$Id$ $CSID$")
 
 #include <bdldfp_decimalplatform.h>
 
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
 
 #ifdef BDLDFP_DECIMALPLATFORM_C99_TR
@@ -233,7 +234,8 @@ bool restoreSingularDecimalFromBinary(DECIMAL_TYPE *decimal,
         if (isInRange<DECIMAL_TYPE>(binary)) {
             return false;                                             // RETURN
         }
-        // FALL THROUGH
+        BSLS_ANNOTATION_FALLTHROUGH;
+
       case bdlb::Float::k_INFINITE:
         *decimal = bsl::numeric_limits<DECIMAL_TYPE>::infinity();
         break;

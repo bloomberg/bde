@@ -35,6 +35,7 @@ BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 #include <bdlt_iso8601util.h>
 #include <bdlt_iso8601utilconfiguration.h>
 
+#include <bsls_annotation.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -260,7 +261,7 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
               case '%': {
                 output += '%';
               } break;
-              case 'd': // fall through intentionally
+              case 'd': BSLS_ANNOTATION_FALLTHROUGH;
               case 'D': {
                 const int fractionalSecondPrecision = 'd' == *iter ? 3 : 6;
 
@@ -272,8 +273,8 @@ void RecordStringFormatter::operator()(bsl::ostream& stream,
 
                 output += buffer;
               } break;
-              case 'I':                                         // FALL THROUGH
-              case 'O':                                         // FALL THROUGH
+              case 'I': BSLS_ANNOTATION_FALLTHROUGH;
+              case 'O': BSLS_ANNOTATION_FALLTHROUGH;
               case 'i': {
                 // Use ISO8601 "extended" format.
 

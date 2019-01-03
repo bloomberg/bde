@@ -12,6 +12,7 @@ BSLS_IDENT_RCSID(bdlde_crc32c_cpp,"$Id$ $CSID$")
 
 #include <bslmt_once.h>
 
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_byteorderutil.h>
 #include <bsls_log.h>
@@ -856,25 +857,25 @@ unsigned int calculateCrc32c(const unsigned char *data,
     switch (length) {
       case 7: {
         crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
-      }  // NO BREAK
+      } BSLS_ANNOTATION_FALLTHROUGH;
       case 6: {
         crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
-      }  // NO BREAK
+      } BSLS_ANNOTATION_FALLTHROUGH;
       case 5: {
         crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
-      }  // NO BREAK
+      } BSLS_ANNOTATION_FALLTHROUGH;
       case 4: {
         crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
-      }  // NO BREAK
+      } BSLS_ANNOTATION_FALLTHROUGH;
       case 3: {
         crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
-      }  // NO BREAK
+      } BSLS_ANNOTATION_FALLTHROUGH;
       case 2: {
         crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
-      }  // NO BREAK
+      } BSLS_ANNOTATION_FALLTHROUGH;
       case 1: {
         crc = k_CRC_TABLE_IL8_O32[(crc ^ *data++) & 0xFF] ^ (crc >> 8);
-      }  // NO BREAK
+      }
     }
     return crc;
 }
@@ -987,13 +988,27 @@ unsigned int calculateBuiltin32Crc(const unsigned char *data,
     BSLS_ASSERT(data || 0 == length);
 
     switch (length) {
-      case 7: { crc = __builtin_ia32_crc32qi(crc, *data++); }  // NO BREAK
-      case 6: { crc = __builtin_ia32_crc32qi(crc, *data++); }  // NO BREAK
-      case 5: { crc = __builtin_ia32_crc32qi(crc, *data++); }  // NO BREAK
-      case 4: { crc = __builtin_ia32_crc32qi(crc, *data++); }  // NO BREAK
-      case 3: { crc = __builtin_ia32_crc32qi(crc, *data++); }  // NO BREAK
-      case 2: { crc = __builtin_ia32_crc32qi(crc, *data++); }  // NO BREAK
-      case 1: { crc = __builtin_ia32_crc32qi(crc, *data++); }  // NO BREAK
+      case 7: {
+        crc = __builtin_ia32_crc32qi(crc, *data++);
+      } BSLS_ANNOTATION_FALLTHROUGH;
+      case 6: {
+        crc = __builtin_ia32_crc32qi(crc, *data++);
+      } BSLS_ANNOTATION_FALLTHROUGH;
+      case 5: {
+        crc = __builtin_ia32_crc32qi(crc, *data++);
+      } BSLS_ANNOTATION_FALLTHROUGH;
+      case 4: {
+        crc = __builtin_ia32_crc32qi(crc, *data++);
+      } BSLS_ANNOTATION_FALLTHROUGH;
+      case 3: {
+        crc = __builtin_ia32_crc32qi(crc, *data++);
+      } BSLS_ANNOTATION_FALLTHROUGH;
+      case 2: {
+        crc = __builtin_ia32_crc32qi(crc, *data++);
+      } BSLS_ANNOTATION_FALLTHROUGH;
+      case 1: {
+        crc = __builtin_ia32_crc32qi(crc, *data++);
+      }
     }
     return crc;
 }

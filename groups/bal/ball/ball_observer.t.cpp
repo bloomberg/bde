@@ -23,6 +23,8 @@
 #include <bslma_testallocator.h>
 
 #include <bslim_testutil.h>
+
+#include <bsls_annotation.h>
 #include <bsls_protocoltest.h>
 
 #include <bsl_cstdlib.h>     // atoi()
@@ -147,7 +149,7 @@ void my_OstreamObserver::publish(const ball::Record&  record,
       } break;
       case ball::Transmission::e_TRIGGER_ALL: {
         d_stream << "Remotely ";      // no 'break'; concatenated output
-      }
+      } BSLS_ANNOTATION_FALLTHROUGH;
       case ball::Transmission::e_TRIGGER: {
         d_stream << "Triggered Publication Sequence: Message "
                  << context.recordIndex() + 1  // Account for 0-based index.
