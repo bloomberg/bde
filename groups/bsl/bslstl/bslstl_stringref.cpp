@@ -5,11 +5,34 @@
 BSLS_IDENT("$Id$ $CSID$")
 
 namespace BloombergLP {
+namespace bslstl {
 
+template class StringRefImp<char>;
+template class StringRefImp<wchar_t>;
+
+template
+bsl::basic_string<char>
+operator+(const StringRefImp<char>& lhs, const StringRefImp<char>& rhs);
+
+template
+bsl::basic_string<wchar_t>
+operator+(const StringRefImp<wchar_t>& lhs, const StringRefImp<wchar_t>& rhs);
+
+template
+std::basic_ostream<char>&
+operator<<(std::basic_ostream<char>& stream,
+           const StringRefImp<char>& stringRef);
+
+template
+std::basic_ostream<wchar_t>&
+operator<<(std::basic_ostream<wchar_t>& stream,
+           const StringRefImp<wchar_t>& stringRef);
+
+}  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

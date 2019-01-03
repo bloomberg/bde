@@ -171,7 +171,7 @@ BSLS_IDENT("$Id: $")
 //
 // Then, call 'getNumBlanks' on a default constructed 'bslstl::StringRef':
 //..
-//  bslstl::StringRef emptyRef;
+//  bslstl::StringRef            emptyRef;
 //  bslstl::StringRef::size_type numBlanks = getNumBlanks(emptyRef);
 //  assert(0 == numBlanks);
 //
@@ -266,6 +266,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslstl_iterator.h>
+#include <bslstl_string.h>
+#include <bslstl_stringrefdata.h>
+
 #include <bslmf_enableif.h>
 #include <bslmf_isintegral.h>
 #include <bslmf_istriviallycopyable.h>
@@ -273,22 +277,16 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nil.h>
 
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_performancehint.h>
 #include <bsls_types.h>
 
-#include <bslstl_iterator.h>
-#include <bslstl_string.h>
-#include <bslstl_stringrefdata.h>
-
-#include <iosfwd>
-
-#include <algorithm>
-
+#include <algorithm>            // for 'std::min'
 #include <cstddef>              // for 'std::size_t'
 #include <cstring>
+#include <iosfwd>
 
 namespace BloombergLP {
-
 namespace bslstl {
 
                     // =============================
@@ -326,8 +324,8 @@ class StringRefImp : public StringRefData<CHAR_TYPE> {
     template <class OTHER_CHAR_TYPE>
     friend
     std::basic_ostream<OTHER_CHAR_TYPE>& operator<<(
-                       std::basic_ostream<OTHER_CHAR_TYPE>&        ,
-                       const bslstl::StringRefImp<OTHER_CHAR_TYPE>&);
+                                 std::basic_ostream<OTHER_CHAR_TYPE>&        ,
+                                 const bslstl::StringRefImp<OTHER_CHAR_TYPE>&);
 
   public:
     // PUBLIC TYPES
@@ -755,39 +753,39 @@ bool operator>=(const StringRefImp<CHAR_TYPE>&  lhs,
 
 template <class CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
-    operator+(const StringRefImp<CHAR_TYPE>& lhs,
-              const StringRefImp<CHAR_TYPE>& rhs);
+operator+(const StringRefImp<CHAR_TYPE>& lhs,
+          const StringRefImp<CHAR_TYPE>& rhs);
 template <class CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
-    operator+(const bsl::basic_string<CHAR_TYPE>& lhs,
-              const StringRefImp<CHAR_TYPE>&      rhs);
+operator+(const bsl::basic_string<CHAR_TYPE>& lhs,
+          const StringRefImp<CHAR_TYPE>&      rhs);
 template <class CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
-    operator+(const StringRefImp<CHAR_TYPE>&      lhs,
-              const bsl::basic_string<CHAR_TYPE>& rhs);
+operator+(const StringRefImp<CHAR_TYPE>&      lhs,
+          const bsl::basic_string<CHAR_TYPE>& rhs);
 template <class CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
-    operator+(const StringRefImp<CHAR_TYPE>&             lhs,
-              const native_std::basic_string<CHAR_TYPE>& rhs);
+operator+(const StringRefImp<CHAR_TYPE>&             lhs,
+          const native_std::basic_string<CHAR_TYPE>& rhs);
 template <class CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
-    operator+(const native_std::basic_string<CHAR_TYPE>& lhs,
-              const StringRefImp<CHAR_TYPE>&             rhs);
+operator+(const native_std::basic_string<CHAR_TYPE>& lhs,
+          const StringRefImp<CHAR_TYPE>&             rhs);
 template <class CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
-    operator+(const CHAR_TYPE                *lhs,
-              const StringRefImp<CHAR_TYPE>&  rhs);
+operator+(const CHAR_TYPE                *lhs,
+          const StringRefImp<CHAR_TYPE>&  rhs);
 template <class CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
-    operator+(const StringRefImp<CHAR_TYPE>&  lhs,
-              const CHAR_TYPE                *rhs);
+operator+(const StringRefImp<CHAR_TYPE>&  lhs,
+          const CHAR_TYPE                *rhs);
     // Return a 'bsl::string' having the value of the concatenation of the
     // strings referred to by the specified 'lhs' and 'rhs' values.
 
 template <class CHAR_TYPE>
 std::basic_ostream<CHAR_TYPE>&
-    operator<<(std::basic_ostream<CHAR_TYPE>& stream,
-               const StringRefImp<CHAR_TYPE>& stringRef);
+operator<<(std::basic_ostream<CHAR_TYPE>& stream,
+           const StringRefImp<CHAR_TYPE>& stringRef);
     // Write the value of the string bound to the specified 'stringRef' to the
     // specified output 'stream' and return a reference to the modifiable
     // 'stream'.
@@ -838,10 +836,10 @@ template <class CHAR_TYPE>
 template <class INT_TYPE>
 inline
 StringRefImp<CHAR_TYPE>::StringRefImp(
-    const CHAR_TYPE *data,
-    INT_TYPE         length,
-    typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
-                            bslmf::Nil>::type)
+                     const CHAR_TYPE *data,
+                     INT_TYPE         length,
+                     typename bsl::enable_if<bsl::is_integral<INT_TYPE>::value,
+                                             bslmf::Nil>::type)
 : Base(data, data + length)
 {
     BSLS_ASSERT_SAFE(0 <= length);
@@ -1520,8 +1518,8 @@ bool bslstl::operator>=(const StringRefImp<CHAR_TYPE>&  lhs,
 
 template <class CHAR_TYPE>
 bsl::basic_string<CHAR_TYPE>
-    bslstl::operator+(const StringRefImp<CHAR_TYPE>& lhs,
-                      const StringRefImp<CHAR_TYPE>& rhs)
+bslstl::operator+(const StringRefImp<CHAR_TYPE>& lhs,
+                  const StringRefImp<CHAR_TYPE>& rhs)
 {
     bsl::basic_string<CHAR_TYPE> result;
 
@@ -1535,8 +1533,8 @@ bsl::basic_string<CHAR_TYPE>
 template <class CHAR_TYPE>
 inline
 bsl::basic_string<CHAR_TYPE>
-    bslstl::operator+(const bsl::basic_string<CHAR_TYPE>& lhs,
-                      const StringRefImp<CHAR_TYPE>&      rhs)
+bslstl::operator+(const bsl::basic_string<CHAR_TYPE>& lhs,
+                  const StringRefImp<CHAR_TYPE>&      rhs)
 {
     return StringRefImp<CHAR_TYPE>(lhs) + rhs;
 }
@@ -1544,8 +1542,8 @@ bsl::basic_string<CHAR_TYPE>
 template <class CHAR_TYPE>
 inline
 bsl::basic_string<CHAR_TYPE>
-    bslstl::operator+(const StringRefImp<CHAR_TYPE>&      lhs,
-                      const bsl::basic_string<CHAR_TYPE>& rhs)
+bslstl::operator+(const StringRefImp<CHAR_TYPE>&      lhs,
+                  const bsl::basic_string<CHAR_TYPE>& rhs)
 {
     return lhs + StringRefImp<CHAR_TYPE>(rhs);
 }
@@ -1553,8 +1551,8 @@ bsl::basic_string<CHAR_TYPE>
 template <class CHAR_TYPE>
 inline
 bsl::basic_string<CHAR_TYPE>
-    bslstl::operator+(const native_std::basic_string<CHAR_TYPE>& lhs,
-                      const StringRefImp<CHAR_TYPE>&             rhs)
+bslstl::operator+(const native_std::basic_string<CHAR_TYPE>& lhs,
+                  const StringRefImp<CHAR_TYPE>&             rhs)
 {
     return StringRefImp<CHAR_TYPE>(lhs) + rhs;
 }
@@ -1562,8 +1560,8 @@ bsl::basic_string<CHAR_TYPE>
 template <class CHAR_TYPE>
 inline
 bsl::basic_string<CHAR_TYPE>
-    bslstl::operator+(const StringRefImp<CHAR_TYPE>&             lhs,
-                      const native_std::basic_string<CHAR_TYPE>& rhs)
+bslstl::operator+(const StringRefImp<CHAR_TYPE>&             lhs,
+                  const native_std::basic_string<CHAR_TYPE>& rhs)
 {
     return lhs + StringRefImp<CHAR_TYPE>(rhs);
 }
@@ -1571,8 +1569,8 @@ bsl::basic_string<CHAR_TYPE>
 template <class CHAR_TYPE>
 inline
 bsl::basic_string<CHAR_TYPE>
-    bslstl::operator+(const CHAR_TYPE                *lhs,
-                      const StringRefImp<CHAR_TYPE>&  rhs)
+bslstl::operator+(const CHAR_TYPE                *lhs,
+                  const StringRefImp<CHAR_TYPE>&  rhs)
 {
     // We have to traverse 'lhs' to know how much space to allocate in the
     // result anyway, so best to build a 'StringRefImp' from it.
@@ -1583,8 +1581,8 @@ bsl::basic_string<CHAR_TYPE>
 template <class CHAR_TYPE>
 inline
 bsl::basic_string<CHAR_TYPE>
-    bslstl::operator+(const StringRefImp<CHAR_TYPE>&  lhs,
-                      const CHAR_TYPE                *rhs)
+bslstl::operator+(const StringRefImp<CHAR_TYPE>&  lhs,
+                  const CHAR_TYPE                *rhs)
 {
     // We have to traverse 'rhs' to know how much space to allocate in the
     // result anyway, so best to build a 'StringRefImp' from it.
@@ -1605,8 +1603,9 @@ bslstl::operator<<(std::basic_ostream<CHAR_TYPE>& stream,
     size_type len = stringRef.length();
 
     if (len < width) {
-        bool leftAdjusted
-            = (stream.flags() & ios_base::adjustfield) == ios_base::left;
+        bool leftAdjusted =
+                    (stream.flags() & ios_base::adjustfield) == ios_base::left;
+
         char_type fillChar = stream.fill();
 
         if (leftAdjusted) {
@@ -1640,6 +1639,30 @@ void bslstl::hashAppend(HASHALG&                       hashAlg,
     hashAppend(hashAlg, input.length());
 }
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
+namespace bslstl {
+extern template class bslstl::StringRefImp<char>;
+extern template class bslstl::StringRefImp<wchar_t>;
+
+extern template
+bsl::basic_string<char>
+operator+(const StringRefImp<char>& lhs, const StringRefImp<char>& rhs);
+
+extern template
+bsl::basic_string<wchar_t>
+operator+(const StringRefImp<wchar_t>& lhs, const StringRefImp<wchar_t>& rhs);
+
+extern template
+std::basic_ostream<char>&
+operator<<(std::basic_ostream<char>& stream,
+           const StringRefImp<char>& stringRef);
+
+extern template
+std::basic_ostream<wchar_t>&
+operator<<(std::basic_ostream<wchar_t>& stream,
+           const StringRefImp<wchar_t>& stringRef);
+}  // close package namespace
+#endif
 }  // close enterprise namespace
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
@@ -1670,7 +1693,7 @@ void bslstl::hashAppend(HASHALG&                       hashAlg,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
