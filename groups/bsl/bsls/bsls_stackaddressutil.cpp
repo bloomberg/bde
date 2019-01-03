@@ -197,12 +197,10 @@ uintptr_t initStackOffset()
         ~FileDescriptor() { if (fd >= 0) { close(fd); } }
         operator int() const { return fd; }
     } fd(currInfo->ldinfo_filename);
+
     if (fd < 0) {
         return 0;                                                     // RETURN
     }
-
-    // After this point if we encounter any more errors we also have to close
-    // the file descriptor we've just opened.
 
     FILHDR fhdr;
     if (read(fd, &fhdr, sizeof(fhdr)) != sizeof(fhdr)) {
@@ -251,12 +249,12 @@ uintptr_t initStackOffset()
     uintptr_t start_addr = (uintptr_t)currInfo->ldinfo_textorg;
 
     // text segment address in executable file
-    uintptr_t start_text = ((uintptr_t)auxhdr.text_start)
-        - ((uintptr_t)texthdr.s_scnptr);
+    uintptr_t start_text = static_cast<uintptr_t>(auxhdr.text_start)
+        - static_cast<off64_t>(texthdr.s_scnptr);
 
     // offset to alter each address by so that 'showfunc.tsk' will find the
     // correct function information
-    return start_text - start_addr;
+    return start_addr - start_text;
 }
 
 uintptr_t getStackOffset()
@@ -691,7 +689,7 @@ void StackAddressUtil::formatCheapStack(char       *output,
     if (stackOffset != 0) {
         printed = snprintf(out,
                            rem,
-                           "-o 0x " BSLS_BSLTESTUTIL_FORMAT_PTR,
+                           "-o 0x" BSLS_BSLTESTUTIL_FORMAT_PTR " ",
                            stackOffset);
         out += printed;
         rem -= printed;
