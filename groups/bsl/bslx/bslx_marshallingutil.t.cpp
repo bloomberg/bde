@@ -3719,39 +3719,45 @@ int main(int argc, char *argv[]) {
 
         typedef int          T;
         typedef unsigned int U;
-        const T A = ((((( // POSITIVE NUMBER
-                         0x00 << 8) + 0x02) << 8) + 0x03) << 8) + 0x04;
 
-        const char *A_SPEC = "\x02\x03\x04";
+        const T  A = 0x00800000;
+        const T SA = 0xff800000;
+        const U UA = 0x00800000;
 
-        const T B = ((((( // NEGATIVE NUMBER
-                         0xff << 8) + 0x80) << 8) + 0x60) << 8) + 0x50;
+        const T  B = 0x00800001;
+        const T SB = 0xff800001;
+        const U UB = 0x00800001;
 
-        const char *B_SPEC = "\x80\x60\x50";
+        const U U1 = 0x00ffffff;
+        const U U2 = 0x00fffffe;
 
         static const struct {
-            int         d_lineNum;              // line number
-            T           d_number;               // literal number
-            const char *d_spec;                 // expected bit pattern
+            int         d_lineNum;      // line number
+            T           d_number;       // literal number
+            const char *d_spec;         // expected bit pattern
+            T           d_expSigned;    // expected signed value
+            U           d_expUnsigned;  // expected unsigned value
         } DATA[] = {
-            //L#  number        Bit pattern
-            //--  --------      -------------------
-            { L_,  0,           "\x00\x00\x00"                          },
-            { L_,  1,           "\x00\x00\x01"                          },
-            { L_, -1,           "\xFF\xFF\xFF"                          },
-            { L_, -2,           "\xFF\xFF\xFE"                          },
-            { L_,  A,           A_SPEC                                  },
-            { L_,  B,           B_SPEC                                  },
+            //L#  number   Bit pattern    signed  unsigned
+            //--  ------  --------------  ------  --------
+            { L_,      0, "\x00\x00\x00",      0,        0 },
+            { L_,      1, "\x00\x00\x01",      1,        1 },
+            { L_,     -1, "\xFF\xFF\xFF",     -1,       U1 },
+            { L_,     -2, "\xFF\xFF\xFE",     -2,       U2 },
+            { L_,      A, "\x80\x00\x00",     SA,       UA },
+            { L_,      B, "\x80\x00\x01",     SB,       UB },
         };
 
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int   LINE = DATA[di].d_lineNum;
-            const T     signedNumber = DATA[di].d_number;
-            const U     unsignedNumber = static_cast<U>(DATA[di].d_number);
-            const char *exp = DATA[di].d_spec;
-            const int   SIZE = 3;
+            const int   LINE           = DATA[di].d_lineNum;
+            const T     signedNumber   = DATA[di].d_number;
+            const U     unsignedNumber = static_cast<U>(signedNumber);
+            const char *exp            = DATA[di].d_spec;
+            const int   SIZE           = 3;
+            const T     EXP_SIGNED     = DATA[di].d_expSigned;
+            const U     EXP_UNSIGNED   = DATA[di].d_expUnsigned;
 
             // Repeat tests at every alignment.
 
@@ -3791,23 +3797,21 @@ int main(int argc, char *argv[]) {
                 for (int k = 0; k < NUM_VALUES; ++k) {
                     {
                         T x = INITIAL_VALUES[k];
-                        LOOP3_ASSERT(LINE, i, k, signedNumber != x);
+                        LOOP3_ASSERT(LINE, i, k, EXP_SIGNED != x);
                         MarshallingUtil::getInt24(&x, buffer + i);
-                        if (signedNumber != x) {
-                            P_(signedNumber) P(x)
+                        if (EXP_SIGNED != x) {
+                            P_(EXP_SIGNED) P(x)
                         }
-                        LOOP3_ASSERT(LINE, i, k, signedNumber == x);
+                        LOOP3_ASSERT(LINE, i, k, EXP_SIGNED == x);
                     }
                     {
                         U y = INITIAL_VALUES[k];
-                        if (signedNumber > 0) {
-                            LOOP3_ASSERT(LINE, i, k, unsignedNumber != y);
-                            MarshallingUtil::getUint24(&y, buffer + i);
-                            if (unsignedNumber != y) {
-                                P_(unsignedNumber) P(y)
-                            }
-                            LOOP3_ASSERT(LINE, i, k, unsignedNumber == y);
+                        LOOP3_ASSERT(LINE, i, k, EXP_UNSIGNED != y);
+                        MarshallingUtil::getUint24(&y, buffer + i);
+                        if (EXP_UNSIGNED != y) {
+                            P_(EXP_UNSIGNED) P(y)
                         }
+                        LOOP3_ASSERT(LINE, i, k, EXP_UNSIGNED == y);
                     }
                 }
             }
@@ -4023,41 +4027,44 @@ int main(int argc, char *argv[]) {
         typedef bsls::Types::Int64  T;
         typedef bsls::Types::Uint64 U;
 
-        const T A = ((((((((((((( static_cast<T>  // POSITIVE NUMBER
-                         (0x00) << 8) + 0x00) << 8) + 0x00) << 8) + 0x01) << 8)
-                        + 0x05) << 8) + 0x06) << 8) + 0x07) << 8) + 0x08;
+        const T  A = 0x0000008000000000ULL;
+        const T SA = 0xffffff8000000000ULL;
+        const U UA = 0x0000008000000000ULL;
 
-        const char *A_SPEC = "\x01\x05\x06\x07\x08";
+        const T  B = 0x0000008000000001ULL;
+        const T SB = 0xffffff8000000001ULL;
+        const U UB = 0x0000008000000001ULL;
 
-        const T B = ((((((((((((( static_cast<T>  // NEGATIVE NUMBER
-                         (0xff) << 8) + 0xff) << 8) + 0xff) << 8) + 0x80) << 8)
-                        + 0x40) << 8) + 0x30) << 8) + 0x20) << 8) + 0x10;
-
-        const char *B_SPEC = "\x80\x40\x30\x20\x10";
+        const U U1 = 0x000000ffffffffffULL;
+        const U U2 = 0x000000fffffffffeULL;
 
         static const struct {
-            int         d_lineNum;              // line number
-            T           d_number;               // literal number
-            const char *d_spec;                 // expected bit pattern
+            int         d_lineNum;      // line number
+            T           d_number;       // literal number
+            const char *d_spec;         // expected bit pattern
+            T           d_expSigned;    // expected signed value
+            U           d_expUnsigned;  // expected unsigned value
         } DATA[] = {
-            //L#  number        Bit pattern
-            //--  --------      -------------------
-            { L_,  0,           "\x00\x00\x00\x00\x00"                  },
-            { L_,  1,           "\x00\x00\x00\x00\x01"                  },
-            { L_, -1,           "\xFF\xFF\xFF\xFF\xFF"                  },
-            { L_, -2,           "\xFF\xFF\xFF\xFF\xFE"                  },
-            { L_,  A,           A_SPEC                                  },
-            { L_,  B,           B_SPEC                                  },
+            //L#  number       Bit pattern        signed  unsigned
+            //--  ------  ----------------------  ------  --------
+            { L_,      0, "\x00\x00\x00\x00\x00",      0,        0 },
+            { L_,      1, "\x00\x00\x00\x00\x01",      1,        1 },
+            { L_,     -1, "\xFF\xFF\xFF\xFF\xFF",     -1,       U1 },
+            { L_,     -2, "\xFF\xFF\xFF\xFF\xFE",     -2,       U2 },
+            { L_,      A, "\x80\x00\x00\x00\x00",     SA,       UA },
+            { L_,      B, "\x80\x00\x00\x00\x01",     SB,       UB },
         };
 
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int   LINE = DATA[di].d_lineNum;
-            const T     signedNumber = DATA[di].d_number;
-            const U     unsignedNumber = static_cast<U>(DATA[di].d_number);
-            const char *exp = DATA[di].d_spec;
-            const int   SIZE = 5;
+            const int   LINE           = DATA[di].d_lineNum;
+            const T     signedNumber   = DATA[di].d_number;
+            const U     unsignedNumber = static_cast<U>(signedNumber);
+            const char *exp            = DATA[di].d_spec;
+            const int   SIZE           = 5;
+            const T     EXP_SIGNED     = DATA[di].d_expSigned;
+            const U     EXP_UNSIGNED   = DATA[di].d_expUnsigned;
 
 
             // Repeat tests at every alignment.
@@ -4096,23 +4103,21 @@ int main(int argc, char *argv[]) {
                 for (int k = 0; k < NUM_VALUES; ++k) {
                     {
                         T x = INITIAL_VALUES[k];
-                        LOOP3_ASSERT(LINE, i, k, signedNumber != x);
+                        LOOP3_ASSERT(LINE, i, k, EXP_SIGNED != x);
                         MarshallingUtil::getInt40(&x, buffer + i);
-                        if (signedNumber != x) {
-                            P_(signedNumber) P(x)
+                        if (EXP_SIGNED != x) {
+                            P_(EXP_SIGNED) P(x)
                         }
-                        LOOP3_ASSERT(LINE, i, k, signedNumber == x);
+                        LOOP3_ASSERT(LINE, i, k, EXP_SIGNED == x);
                     }
                     {
                         U y = INITIAL_VALUES[k];
-                        if (signedNumber > 0) {
-                            LOOP3_ASSERT(LINE, i, k, unsignedNumber != y);
-                            MarshallingUtil::getUint40(&y, buffer + i);
-                            if (unsignedNumber != y) {
-                                P_(unsignedNumber) P(y)
-                            }
-                            LOOP3_ASSERT(LINE, i, k, unsignedNumber == y);
+                        LOOP3_ASSERT(LINE, i, k, EXP_UNSIGNED != y);
+                        MarshallingUtil::getUint40(&y, buffer + i);
+                        if (EXP_UNSIGNED != y) {
+                            P_(EXP_UNSIGNED) P(y)
                         }
+                        LOOP3_ASSERT(LINE, i, k, EXP_UNSIGNED == y);
                     }
                 }
             }
@@ -4178,41 +4183,44 @@ int main(int argc, char *argv[]) {
         typedef bsls::Types::Int64 T;
         typedef bsls::Types::Uint64 U;
 
-        const T A = ((((((((((((( static_cast<T>  // POSITIVE NUMBER
-                         (0x00) << 8) + 0x00) << 8) + 0x01) << 8) + 0x02) << 8)
-                        + 0x05) << 8) + 0x06) << 8) + 0x07) << 8) + 0x08;
+        const T  A = 0x0000800000000000ULL;
+        const T SA = 0xffff800000000000ULL;
+        const U UA = 0x0000800000000000ULL;
 
-        const char *A_SPEC = "\x01\x02\x05\x06\x07\x08";
+        const T  B = 0x0000800000000001ULL;
+        const T SB = 0xffff800000000001ULL;
+        const U UB = 0x0000800000000001ULL;
 
-        const T B = ((((((((((((( static_cast<T>  // NEGATIVE NUMBER
-                         (0xff) << 8) + 0xff) << 8) + 0x80) << 8) + 0x70) << 8)
-                        + 0x40) << 8) + 0x30) << 8) + 0x20) << 8) + 0x10;
-
-        const char *B_SPEC = "\x80\x70\x40\x30\x20\x10";
+        const U U1 = 0x0000ffffffffffffULL;
+        const U U2 = 0x0000fffffffffffeULL;
 
         static const struct {
-            int         d_lineNum;              // line number
-            T           d_number;               // literal number
-            const char *d_spec;                 // expected bit pattern
+            int         d_lineNum;      // line number
+            T           d_number;       // literal number
+            const char *d_spec;         // expected bit pattern
+            T           d_expSigned;    // expected signed value
+            U           d_expUnsigned;  // expected unsigned value
         } DATA[] = {
-            //L#  number        Bit pattern
-            //--  --------      -------------------
-            { L_,  0,           "\x00\x00\x00\x00\x00\x00"              },
-            { L_,  1,           "\x00\x00\x00\x00\x00\x01"              },
-            { L_, -1,           "\xFF\xFF\xFF\xFF\xFF\xFF"              },
-            { L_, -2,           "\xFF\xFF\xFF\xFF\xFF\xFE"              },
-            { L_,  A,           A_SPEC                                  },
-            { L_,  B,           B_SPEC                                  },
+            //L#  number         Bit pattern          signed  unsigned
+            //--  ------  --------------------------  ------  --------
+            { L_,      0, "\x00\x00\x00\x00\x00\x00",      0,        0 },
+            { L_,      1, "\x00\x00\x00\x00\x00\x01",      1,        1 },
+            { L_,     -1, "\xFF\xFF\xFF\xFF\xFF\xFF",     -1,       U1 },
+            { L_,     -2, "\xFF\xFF\xFF\xFF\xFF\xFE",     -2,       U2 },
+            { L_,      A, "\x80\x00\x00\x00\x00\x00",     SA,       UA },
+            { L_,      B, "\x80\x00\x00\x00\x00\x01",     SB,       UB },
         };
 
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int   LINE = DATA[di].d_lineNum;
-            const T     signedNumber = DATA[di].d_number;
-            const U     unsignedNumber = static_cast<U>(DATA[di].d_number);
-            const char *exp = DATA[di].d_spec;
-            const int   SIZE = 6;
+            const int   LINE           = DATA[di].d_lineNum;
+            const T     signedNumber   = DATA[di].d_number;
+            const U     unsignedNumber = static_cast<U>(signedNumber);
+            const char *exp            = DATA[di].d_spec;
+            const int   SIZE           = 6;
+            const T     EXP_SIGNED     = DATA[di].d_expSigned;
+            const U     EXP_UNSIGNED   = DATA[di].d_expUnsigned;
 
             // Repeat tests at every alignment.
 
@@ -4252,23 +4260,21 @@ int main(int argc, char *argv[]) {
                 for (int k = 0; k < NUM_VALUES; ++k) {
                     {
                         T x = INITIAL_VALUES[k];
-                        LOOP3_ASSERT(LINE, i, k, signedNumber != x);
+                        LOOP3_ASSERT(LINE, i, k, EXP_SIGNED != x);
                         MarshallingUtil::getInt48(&x, buffer + i);
-                        if (signedNumber != x) {
-                            P_(signedNumber) P(x)
+                        if (EXP_SIGNED != x) {
+                            P_(EXP_SIGNED) P(x)
                         }
-                        LOOP3_ASSERT(LINE, i, k, signedNumber == x);
+                        LOOP3_ASSERT(LINE, i, k, EXP_SIGNED == x);
                     }
                     {
                         U y = INITIAL_VALUES[k];
-                        if (signedNumber > 0) {
-                            LOOP3_ASSERT(LINE, i, k, unsignedNumber != y);
-                            MarshallingUtil::getUint48(&y, buffer + i);
-                            if (unsignedNumber != y) {
-                                P_(unsignedNumber) P(y)
-                            }
-                            LOOP3_ASSERT(LINE, i, k, unsignedNumber == y);
+                        LOOP3_ASSERT(LINE, i, k, EXP_UNSIGNED != y);
+                        MarshallingUtil::getUint48(&y, buffer + i);
+                        if (EXP_UNSIGNED != y) {
+                            P_(EXP_UNSIGNED) P(y)
                         }
+                        LOOP3_ASSERT(LINE, i, k, EXP_UNSIGNED == y);
                     }
                 }
             }
@@ -4334,41 +4340,44 @@ int main(int argc, char *argv[]) {
         typedef bsls::Types::Int64  T;
         typedef bsls::Types::Uint64 U;
 
-        const T A = ((((((((((((( static_cast<T>  // POSITIVE NUMBER
-                         (0x00) << 8) + 0x02) << 8) + 0x03) << 8) + 0x04) << 8)
-                        + 0x05) << 8) + 0x06) << 8) + 0x07) << 8) + 0x08;
+        const T  A = 0x0080000000000000ULL;
+        const T SA = 0xff80000000000000ULL;
+        const U UA = 0x0080000000000000ULL;
 
-        const char *A_SPEC = "\x02\x03\x04\x05\x06\x07\x08";
+        const T  B = 0x0080000000000001ULL;
+        const T SB = 0xff80000000000001ULL;
+        const U UB = 0x0080000000000001ULL;
 
-        const T B = ((((((((((((( static_cast<T>  // NEGATIVE NUMBER
-                         (0xff) << 8) + 0x80) << 8) + 0x60) << 8) + 0x50) << 8)
-                        + 0x40) << 8) + 0x30) << 8) + 0x20) << 8) + 0x10;
-
-        const char *B_SPEC = "\x80\x60\x50\x40\x30\x20\x10";
+        const U U1 = 0x00ffffffffffffffULL;
+        const U U2 = 0x00fffffffffffffeULL;
 
         static const struct {
-            int         d_lineNum;              // line number
-            T           d_number;               // literal number
-            const char *d_spec;                 // expected bit pattern
+            int         d_lineNum;      // line number
+            T           d_number;       // literal number
+            const char *d_spec;         // expected bit pattern
+            T           d_expSigned;    // expected signed value
+            U           d_expUnsigned;  // expected unsigned value
         } DATA[] = {
-            //L#  number        Bit pattern
-            //--  --------      -------------------
-            { L_,  0,           "\x00\x00\x00\x00\x00\x00\x00"          },
-            { L_,  1,           "\x00\x00\x00\x00\x00\x00\x01"          },
-            { L_, -1,           "\xFF\xFF\xFF\xFF\xFF\xFF\xFF"          },
-            { L_, -2,           "\xFF\xFF\xFF\xFF\xFF\xFF\xFE"          },
-            { L_,  A,           A_SPEC                                  },
-            { L_,  B,           B_SPEC                                  },
+            //L#  number           Bit pattern            signed  unsigned
+            //--  ------  ------------------------------  ------  --------
+            { L_,      0, "\x00\x00\x00\x00\x00\x00\x00",      0,        0 },
+            { L_,      1, "\x00\x00\x00\x00\x00\x00\x01",      1,        1 },
+            { L_,     -1, "\xFF\xFF\xFF\xFF\xFF\xFF\xFF",     -1,       U1 },
+            { L_,     -2, "\xFF\xFF\xFF\xFF\xFF\xFF\xFE",     -2,       U2 },
+            { L_,      A, "\x80\x00\x00\x00\x00\x00\x00",     SA,       UA },
+            { L_,      B, "\x80\x00\x00\x00\x00\x00\x01",     SB,       UB },
         };
 
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
         for (int di = 0; di < NUM_DATA; ++di) {
-            const int   LINE = DATA[di].d_lineNum;
-            const T     signedNumber = DATA[di].d_number;
-            const U     unsignedNumber = static_cast<U>(DATA[di].d_number);
-            const char *exp = DATA[di].d_spec;
-            const int   SIZE = 7;
+            const int   LINE           = DATA[di].d_lineNum;
+            const T     signedNumber   = DATA[di].d_number;
+            const U     unsignedNumber = static_cast<U>(signedNumber);
+            const char *exp            = DATA[di].d_spec;
+            const int   SIZE           = 7;
+            const T     EXP_SIGNED     = DATA[di].d_expSigned;
+            const U     EXP_UNSIGNED   = DATA[di].d_expUnsigned;
 
             // Repeat tests at every alignment.
 
@@ -4408,23 +4417,21 @@ int main(int argc, char *argv[]) {
                 for (int k = 0; k < NUM_VALUES; ++k) {
                     {
                         T x = INITIAL_VALUES[k];
-                        LOOP3_ASSERT(LINE, i, k, signedNumber != x);
+                        LOOP3_ASSERT(LINE, i, k, EXP_SIGNED != x);
                         MarshallingUtil::getInt56(&x, buffer + i);
-                        if (signedNumber != x) {
-                            P_(signedNumber) P(x)
+                        if (EXP_SIGNED != x) {
+                            P_(EXP_SIGNED) P(x)
                         }
-                        LOOP3_ASSERT(LINE, i, k, signedNumber == x);
+                        LOOP3_ASSERT(LINE, i, k, EXP_SIGNED == x);
                     }
                     {
                         U y = INITIAL_VALUES[k];
-                        if (signedNumber > 0) {
-                            LOOP3_ASSERT(LINE, i, k, unsignedNumber != y);
-                            MarshallingUtil::getUint56(&y, buffer + i);
-                            if (unsignedNumber != y) {
-                                P_(unsignedNumber) P(y)
-                            }
-                            LOOP3_ASSERT(LINE, i, k, unsignedNumber == y);
+                        LOOP3_ASSERT(LINE, i, k, EXP_UNSIGNED != y);
+                        MarshallingUtil::getUint56(&y, buffer + i);
+                        if (EXP_UNSIGNED != y) {
+                            P_(EXP_UNSIGNED) P(y)
                         }
+                        LOOP3_ASSERT(LINE, i, k, EXP_UNSIGNED == y);
                    }
                 }
             }

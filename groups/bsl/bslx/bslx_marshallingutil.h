@@ -1247,7 +1247,7 @@ void MarshallingUtil::getUint24(unsigned int *variable, const char *buffer)
     BSLS_ASSERT_SAFE(variable);
     BSLS_ASSERT_SAFE(buffer);
 
-    *variable = 0x80 & buffer[0] ? -1 : 0;  // sign extend
+    *variable = 0;  // zero-extend
 
     char *bytes = reinterpret_cast<char *>(variable);
 
