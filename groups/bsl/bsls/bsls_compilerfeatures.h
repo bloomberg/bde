@@ -302,7 +302,6 @@ BSLS_IDENT("$Id: $")
 //
 //: o Compiler support:
 //:   o GCC 4.8
-//:   o Clang 3.9
 //:   o MSVC 19.11
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH'
@@ -611,6 +610,31 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // ============================================================================
+//                      ATTRIBUTE DETECTION
+// ============================================================================
+#if (__cplusplus >= 201103L) && defined(__has_cpp_attribute)
+
+#if __has_cpp_attribute(fallthrough)
+#   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
+#endif
+
+#if __has_cpp_attribute(noreturn)
+#   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+#endif
+
+#if __has_cpp_attribute(nodiscard)
+#   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
+#endif
+
+#if __has_cpp_attribute(maybe_unused)
+#   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
+#endif
+
+#endif
+
+
+
+// ============================================================================
 //      PLATFORM SPECIFIC FEATURE DETECTION AND MACRO DEFINITIONS
 // ============================================================================
 
@@ -765,8 +789,10 @@ BSLS_IDENT("$Id: $")
 
 // When available these attributes are usable.
 #ifdef __has_cpp_attribute
-#if __has_cpp_attribute(fallthrough)
-#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
+// Even when detected, clang does not allow nodiscard where we expect it to be
+// allowed, undefine the auto-detected macro.
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
+#undef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
 #endif
 #endif
 
