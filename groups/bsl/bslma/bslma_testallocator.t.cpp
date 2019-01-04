@@ -4,6 +4,7 @@
 #include <bslma_testallocatorexception.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_bslexceptionutil.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_objectbuffer.h>
@@ -87,8 +88,8 @@ using namespace BloombergLP;
 // [12] void print() const;
 // [ 2] int status() const;
 //-----------------------------------------------------------------------------
-// [15] USAGE TEST
-// [14] DRQS 129104858
+// [16] USAGE EXAMPLE
+// [15] DRQS 129104858
 // [ 5] Ensure that exception is thrown after allocation limit is exceeded.
 // [ 1] Make sure that all counts are initialized to zero (placement new).
 // [ 1] Make sure that global operators new and delete are *not* called.
@@ -105,6 +106,7 @@ using namespace BloombergLP;
 // [10] Test 'numBlocksInUse', 'numBlocksTotal'
 // [11] Ensure that over and underruns are properly caught.
 // [13] Ensure that 'allocate' and 'deallocate' are thread-safe.
+// [14] Ensure that 'allocate' obtains properly aligned memory.
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -334,6 +336,182 @@ void operator delete(void *address)
 
     free(address);
 }
+
+namespace testCase14 {
+
+                   // ===============================
+                   // union MaxAlignedAllocatorBuffer
+                   // ===============================
+
+union MaxAlignedAllocatorBuffer {
+    // Maximally-aligned raw buffer big enough for a misaligned allocation
+    // when it using as the underlying allocator of a 'bslma::TestAllocator'.
+
+    char                                d_data[2 * 1024];
+    bsls::AlignmentUtil::MaxAlignedType d_alignment;
+};
+
+
+                    // =============================
+                    // class NaturallyAlignAllocator
+                    // =============================
+
+class NaturallyAlignAllocator : public bslma::Allocator {
+    // This is a mechanism that implements an allocator that allocates memory
+    // with the minimum necessary alignment (always) and is able to allocate a
+    // single block only in addition to the imp detail allocations the current
+    // 'TestAllocator' implementation does.  Note that this type is used as an
+    // underlying allocator test that 'bslma::TestAllocator' manipulates the
+    // allocated size successfully to coerce the underlying allocator (even if
+    // that provides only the weakest necessary fundamental alignment guarantee
+    // for the allocated size, also called natural alignment) to allocate
+    // memory properly aligned for the requirements of the 'TestAllocator'.
+
+  private:
+    // PRIVATE CONSTANTS
+    static const size_type k_MAX_ALIGN;      // Strictest fundamental alignment
+    static const size_type k_MAX_ALLOCS = 3; // Max supported allocated blocks
+
+    // DATA
+    MaxAlignedAllocatorBuffer d_buffers[k_MAX_ALLOCS];  // Allocations
+    bool                      d_occupied[k_MAX_ALLOCS]; // Which buffer is used
+
+    // PRIVATE CLASS METHODS
+    static bool isInBuffer(const MaxAlignedAllocatorBuffer&  buffer,
+                           void                             *address);
+        // Return 'true' if the specified 'address' points into the specified
+        // 'buffer'; and return 'false' otherwise.
+
+    // PRIVATE MANIPULATORS
+    char *buffData(size_type index);
+        // Return the pointer to the beginning of the internal buffer at the
+        // specified 'index'.
+
+    char *allocPtr(size_type size);
+        // Return a pointer closest to the beginning of the next internal
+        // buffer to be used such as that it is aligned just strict enough for
+        // the specified 'size', with a fundamental alignment.
+
+    // PRIVATE ACCESSORS
+    size_type nextBuffer() const;
+        // Return the pointer to the beginning of the next internal buffer to
+        // be used.
+
+  public:
+    // CREATORS
+    NaturallyAlignAllocator();
+        // Create a 'NaturallyAlignAllocator' object.
+
+    // MANIPULATORS
+    virtual void *allocate(size_type size);
+        // Return a newly allocated block of memory of (at least) the specified
+        // positive 'size' (in bytes).  If 'size' is 0, a null pointer is
+        // returned with no other effect.  If this allocator cannot return the
+        // requested number of bytes, then it will throw a 'std::bad_alloc'
+        // exception in an exception-enabled build, or else will abort the
+        // program in a non-exception build.  The behavior is undefined unless
+        // '0 <= size'.  Note that the alignment of the address returned
+        // conforms to the platform requirement for any object of 'size'.  Note
+        // that this allocator is for testing only and cannot allocate more
+        // than 1 block of memory at once.
+
+    virtual void deallocate(void *address);
+        // Return the memory block at the specified 'address' back to this
+        // allocator.  If 'address' is 0, this function has no effect.  The
+        // behavior is undefined unless 'address' was allocated using this
+        // allocator object and has not already been deallocated.
+};
+
+                    // -----------------------------
+                    // class NaturallyAlignAllocator
+                    // -----------------------------
+
+// PRIVATE CONSTANTS
+const NaturallyAlignAllocator::size_type NaturallyAlignAllocator::k_MAX_ALIGN =
+                bsls::AlignmentUtil::calculateAlignmentFromSize(
+                                  sizeof(bsls::AlignmentUtil::MaxAlignedType));
+
+// PRIVATE CLASS METHODS
+inline
+bool
+NaturallyAlignAllocator::isInBuffer(const MaxAlignedAllocatorBuffer&  buffer,
+                                    void                             *address)
+{
+    return address >= buffer.d_data &&
+           address < buffer.d_data + sizeof(buffer.d_data);
+}
+
+// PRIVATE MANIPULATORS
+inline
+char *NaturallyAlignAllocator::allocPtr(size_type size)
+{
+    typedef bsls::AlignmentUtil Util;
+    const size_type a = Util::calculateAlignmentFromSize(size);
+    const size_type bufPos = nextBuffer();
+    d_occupied[bufPos] = true;
+
+    if (a < k_MAX_ALIGN) {
+      return buffData(bufPos) + a;                                    // RETURN
+    }
+
+    return buffData(bufPos);
+}
+
+inline
+char *NaturallyAlignAllocator::buffData(size_type index)
+{
+    return d_buffers[index].d_data;
+}
+
+// PRIVATE ACCESSORS
+inline
+NaturallyAlignAllocator::size_type NaturallyAlignAllocator::nextBuffer() const
+{
+    for (size_type i = 0; i < k_MAX_ALLOCS; ++i) {
+        if (!d_occupied[i]) {
+            return i;                                                 // RETURN
+        }
+    }
+
+    bsls::BslExceptionUtil::throwBadAlloc();
+}
+
+// CREATORS
+inline
+NaturallyAlignAllocator::NaturallyAlignAllocator()
+{
+    for (size_type i = 0; i < k_MAX_ALLOCS; ++i) {
+        d_occupied[i] = false;
+    }
+}
+
+// MANIPULATORS
+void *NaturallyAlignAllocator::allocate(size_type size)
+{
+    if (0 == size) {
+        return 0;                                                     // RETURN
+    }
+
+    return allocPtr(size);
+}
+
+void NaturallyAlignAllocator::deallocate(void *address)
+{
+    if (0 == address) {
+        return;                                                       // RETURN
+    }
+
+    for (size_type i = 0; i < k_MAX_ALLOCS; ++i) {
+        if (d_occupied[i] && isInBuffer(d_buffers[i], address)) {
+            d_occupied[i] = false;
+            return;                                                   // RETURN
+        }
+    }
+
+    BSLS_ASSERT(!"Bad address to deallocate!");
+}
+
+}  // close namespace testCase14
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -593,18 +771,26 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
 
     switch (test) { case 0:
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
-        // TEST USAGE
-        //   Verify that the usage example for testing exception neutrality is
-        //   free of syntax errors and works as advertised.
+        // USAGE EXAMPLE
+        //   Extracted from component header file.
+        //
+        // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
+        //
+        // Plan:
+        //: 1 Incorporate usage example from header into test driver, replace
+        //:   leading comment characters with spaces, and replace 'assert' with
+        //:   'ASSERT'.
         //
         // Testing:
-        //   USAGE TEST - Make sure usage example compiles and works.
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTEST USAGE"
-                            "\n==========\n");
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
 
         typedef short Element;
         const Element VALUES[] = { 1, 2, 3, 4, -5 };
@@ -710,7 +896,7 @@ int main(int argc, char *argv[])
 // indicate whether or not exceptions are enabled.
 
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // DRQS 129104858
         //   Ensure that the unification of the tracing strings do not change
@@ -795,7 +981,53 @@ int main(int argc, char *argv[])
 
             LOOP1_ASSERT(ti, preBufS == postBufS);
         }
+      } break;
+      case 14: {
+        // --------------------------------------------------------------------
+        // ALIGNMENT
+        //   Ensure that 'allocate' obtains properly aligned memory.
+        //
+        // Concerns:
+        //: 1 That 'allocate' obtains properly aligned memory from an
+        //:   underlying allocator even if that allocator provides the weakest
+        //:   necessary fundamental alignment only.
+        //
+        // Plan:
+        //: 1 Use a 'NaturallyAlignAllocator' as the underlying allocator for
+        //:   the tested (test allocator) object.
+        //:
+        //: 2 Within a loop, allocate, then release sizes up to a small
+        //:   multiple of the size of the maximum aligned type to ensure that
+        //:   internally the allocation will have the proper alignment and also
+        //:   verify that the returned pointer is at least naturally aligned
+        //:   for the allocated size (which is the minimum alignment promise
+        //:   every allocator must make).
+        //
+        // Testing:
+        //   CONCERN: Ensure that 'allocate' obtains properly aligned memory.
+        // --------------------------------------------------------------------
 
+        if (verbose) printf("\nALIGNMENT"
+                            "\n=========\n");
+
+        typedef bslma::Allocator::size_type size_type;
+
+        static const size_type k_MAX_SIZE =
+                                   sizeof(bsls::AlignmentUtil::MaxAlignedType);
+
+        testCase14::NaturallyAlignAllocator base;
+        Obj mX("tested", veryVeryVeryVerbose, &base);
+        for (size_type s = 1; s <= 10 * k_MAX_SIZE; ++s) {
+            if (veryVerbose) {
+                P(s);
+            }
+            void *allocated_p = mX.allocate(s);
+            typedef bsls::AlignmentUtil AlignUtil;
+            const int a = AlignUtil::calculateAlignmentFromSize(s);
+            ASSERT(0 == AlignUtil::calculateAlignmentOffset(allocated_p, a));
+            ASSERT(allocated_p != 0);
+            mX.deallocate(allocated_p);
+        }
       } break;
       case 13: {
         // --------------------------------------------------------------------
