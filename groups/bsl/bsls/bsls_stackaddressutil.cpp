@@ -346,7 +346,14 @@ int StackAddressUtil::getStackAddresses(void **buffer,
         return 0;                                                     // RETURN
     }
 
-    return backtrace(buffer, maxFrames);
+    int ret = backtrace(buffer, maxFrames);
+    if (0 == ret) {
+        void *p;
+        backtrace(&p, 1);
+        return 0;                                                     // RETURN
+    }
+
+    return ret;
 }
 
 }  // close package namespace

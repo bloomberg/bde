@@ -445,10 +445,13 @@ int main(int argc, char *argv[])
                 }
             }
 
-            if (verbose) P(frames[0].libraryFileName());
-            ASSERT(safeCmp(frames[0].libraryFileName().c_str(),
-                           "balst_stacktraceresolverimpl_xcoff.t.",
-                           32));
+            const char *frame0 = frames[0].libraryFileName().c_str();
+            if (verbose) P(frame0);
+            if (!safeCmp("test", frame0, 4)) {
+                ASSERT(safeCmp(frame0,
+                               "balst_stacktraceresolverimpl_xcoff.t.",
+                               32));
+            }
             for (int i = 1; i < frames.length(); ++i) {
                 if (4 == i) {
                     if (verbose) P(frames[4].libraryFileName());

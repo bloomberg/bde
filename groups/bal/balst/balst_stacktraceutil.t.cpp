@@ -451,7 +451,7 @@ void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
             LOOP_ASSERT(i, frame.isOffsetFromSymbolKnown());
 
             UintPtr offset = frame.offsetFromSymbol();
-            const unsigned int maxOffset = PLAT_HP ? 2048 : 1024;
+            const unsigned int maxOffset = 2048;
             LOOP2_ASSERT(i, offset, offset > 0);
             LOOP2_ASSERT(i, offset, reachedMain || offset < maxOffset);
         }
@@ -515,6 +515,23 @@ void pushVec(bsl::vector<Data> *dst,
 
     void *& ptr = data.d_funcPtr;
     UintPtr uPtr, *uPtr_p;
+    if (PLAT_WIN) {
+        enum { k_DIM = sizeof(funcPtr) / sizeof(void *) };
+
+        UintPtr uPtrs[k_DIM];
+        ASSERT(sizeof(uPtrs) == sizeof(funcPtr));
+        bsl::memcpy(uPtrs, &funcPtr, sizeof(uPtrs));
+        uPtr = uPtrs[0];
+        const bool uPtrOK = uPtr && (UintPtr) 0 - 1 != uPtr;
+        ASSERT(uPtrOK);
+        if (veryVeryVerbose || !uPtrOK) {
+            cout << "PushVec: ptrs for: " << mangledSearch;
+            for (int ii = 0; ii < k_DIM; ++ii) {
+                cout << " 0x" << (void *) uPtrs[ii];
+            }
+            cout << endl;
+        }
+    }
     if (!e_BIG_ENDIAN || sizeof(void *) == sizeof(funcPtr)) {
         if (FORMAT_XCOFF) {
             bsl::memcpy(&uPtr_p, &funcPtr, sizeof(void *));
@@ -568,7 +585,7 @@ void pushVec(bsl::vector<Data> *dst,
                                     // function.
 
     if (veryVerbose) {
-        P_(line);   P_(sizeof(ptr));    P_(sizeof(funcPtr));    P(ptr);
+        P_(mangledSearch);  P_(sizeof(ptr));    P_(sizeof(funcPtr));    P(ptr);
     }
 
     data.d_demangledName = demangledName;
@@ -1214,7 +1231,7 @@ bool case_4_top_called_demangle = false;
 bool case_4_top_called_mangle   = false;
 
 u_STATIC
-void case_4_top(bool demangle)
+int case_4_top(bool demangle)
 {
     if (demangle) {
         ASSERT(!case_4_top_called_demangle);
@@ -1251,21 +1268,26 @@ void case_4_top(bool demangle)
 
         Util::printFormatted(*out_p, st);
     }
+
+    return 1024 << 5;
 }
 
 namespace CASE_4 {
 
-void middle(bool demangle)
+int middle(bool demangle)
 {
-    for (int i = 0; i < 1024; ++i) {
+    int i;
+
+    for (i = 0; i < 1024; ++i) {
         if (i & 0xabc4) {
-            (*foilOptimizer(case_4_top))(demangle);
-            i += 1024 << 4;
+            i += (*foilOptimizer(case_4_top))(demangle);
         }
         else if (i > 4) {
             ASSERT(0);
         }
     }
+
+    return i;
 }
 
 void bottom(bool demangle, double x)
@@ -1273,8 +1295,7 @@ void bottom(bool demangle, double x)
     for (int i = 0; i < (1 << 15); ++i) {
         x *= x;
         if (i & 0x1234) {
-            (*foilOptimizer(middle))(demangle);
-            i += 1 << 15;
+            i += (*foilOptimizer(middle))(demangle);
         }
         else if (i > 4) {
             ASSERT(0);
@@ -1292,7 +1313,7 @@ static bool calledCase3TopDemangle = false;
 static bool calledCase3TopMangle   = false;
 
 u_STATIC
-void case_3_Top(bool demangle)
+int case_3_Top(bool demangle)
 {
     if (demangle) {
         ASSERT(!calledCase3TopDemangle);
@@ -1337,29 +1358,32 @@ void case_3_Top(bool demangle)
             *out_p << str;
         }
     }
+
+    return 1000 * 1000;
 }
 
 namespace CASE_3 {
 
-void upperMiddle(bool demangle)
+int upperMiddle(bool demangle)
 {
-    for (int j = 0; j < 100; ++j) {
+    int j;
+    for (j = 0; j < 100; ++j) {
         if (j & 16) {
-            j *= j * j;
-            (*foilOptimizer(case_3_Top))(demangle);
+            j += (*foilOptimizer(case_3_Top))(demangle);
         }
         else if (j > 16) {
             ASSERT(0);
         }
     }
+
+    return j;
 }
 
 int lowerMiddle(bool demangle)
 {
     for (int j = 0; j < 100; ++j) {
         if (j & 16) {
-            j *= j;
-            (*foilOptimizer(upperMiddle))(demangle);
+            j += (*foilOptimizer(upperMiddle))(demangle);
         } else if (j > 16) {
             ASSERT(0);
         }
@@ -1394,7 +1418,7 @@ namespace CASE_2 {
 
 bool topCalled = false;
 
-void top(bslma::Allocator *alloc)
+int top(bslma::Allocator *alloc)
     // Note that we don't get
 {
     ASSERT(!topCalled);
@@ -1447,14 +1471,15 @@ void top(bslma::Allocator *alloc)
 
         if (veryVerbose) cout << ssC.str();
     }
+
+    return 0x1f;
 }
 
 void bottom(bslma::Allocator *alloc)
 {
     for (int i = 0; i < 0x20; ++i) {
         if ((i & 2) && (i & 4)) {
-            (*foilOptimizer(top))(alloc);
-            i += 0x1f;
+            i += (*foilOptimizer(top))(alloc);
         }
         else if (7 == i) {
             ASSERT(0);
@@ -1472,8 +1497,10 @@ namespace CASE_1 {
 
 bool topCalled = false;
 
-void top(bslma::Allocator *alloc)
+int top(bslma::Allocator *alloc)
 {
+    const int ts = testStatus;
+
     ASSERT(!topCalled);
     topCalled = true;
 
@@ -1509,7 +1536,7 @@ void top(bslma::Allocator *alloc)
 
             const char *sn;
             sn = st[ii].symbolName().c_str();
-            LOOP_ASSERT(sn, bsl::strstr(sn, "top"));
+            ASSERTV(sn, ignoreFrames, bsl::strstr(sn, "top"));
             sn = st[++ii].symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "bottom"));
             sn = st[++ii].symbolName().c_str();
@@ -1533,7 +1560,7 @@ void top(bslma::Allocator *alloc)
             sn = st[ii].symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "top"));
             sn = st[++ii].symbolName().c_str();
-            LOOP_ASSERT(sn, bsl::strstr(sn, "bottom"));
+            ASSERTV(sn, bsl::strstr(sn, "bottom"));
             sn = st[++ii].symbolName().c_str();
             LOOP_ASSERT(sn, bsl::strstr(sn, "main"));
         }
@@ -1542,14 +1569,17 @@ void top(bslma::Allocator *alloc)
             Util::printFormatted(*out_p, st);
         }
     }
+
+    return ts == testStatus;
 }
 
 void bottom(bslma::Allocator *alloc)
 {
     for (int i = 0; i < 20; ++i) {
         if ((i & 1) && (i & 2)) {
-            (*foilOptimizer(&top))(alloc);
-            i += 100;
+            if ((*foilOptimizer(&top))(alloc)) {
+                break;
+            }
         }
         else if (i & 8) {
             ASSERT(0);

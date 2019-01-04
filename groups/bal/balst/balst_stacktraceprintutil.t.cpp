@@ -14,6 +14,8 @@
 #include <bdlma_sequentialallocator.h>
 #include <bdlb_string.h>
 
+#include <bslim_testutil.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
@@ -71,9 +73,11 @@ using bsl::flush;
 //                      STANDARD BDE ASSERT TEST MACRO
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(int c, const char *s, int i)
 {
     if (c) {
         cout << "Error " << __FILE__ << "(" << i << "): " << s
@@ -82,38 +86,28 @@ static void aSsErT(int c, const char *s, int i)
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//                      STANDARD BDE TEST DRIVER MACROS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" \
-                    << #K << ": " << K <<  "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I, J, K, M, X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-                    << J << "\t" << #K << ": " << K << "\t" \
-                    << #M << ": " << M << "\n"; aSsErT(1, #X, __LINE__); } }
-
-// ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
-// ----------------------------------------------------------------------------
-
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define Q   BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                     NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -299,23 +293,24 @@ FUNC_PTR funcFoilOptimizer(const FUNC_PTR funcPtr)
 
 //-----------------------------------------------------------------------------
 
-void checkOutput(const bsl::string&               str,
+bool checkOutput(const bsl::string&               str,
                  const bsl::vector<const char *>& matches)
     // check that the specified 'str' contains all the strings specified in the
     // vector 'matches' in order.  Note that 'matches' may be modified.
 {
+    const int ts = testStatus;
+
     bslma::TestAllocator localAllocator;
     bdlma::SequentialAllocator sa(&localAllocator);
 
     if (e_PLAT_WIN && !e_DEBUG_ON) {
-        return;                                                       // RETURN
+        return true;                                                  // RETURN
     }
 
     const size_t NPOS = bsl::string::npos;
     for (bsl::size_t vecI = 0, posN = 0; vecI < matches.size(); ++vecI) {
         bsl::size_t newPos = str.find(matches[vecI], posN);
-        LOOP4_ASSERT(vecI, matches[vecI], str, str.substr(posN),
-                                                               NPOS != newPos);
+        ASSERTV(vecI, matches[vecI], str, str.substr(posN), NPOS != newPos);
 
 
         if (!e_PLAT_WIN) {
@@ -336,6 +331,8 @@ void checkOutput(const bsl::string&               str,
     if (problem()) {
         *out_p << str;
     }
+
+    return ts == testStatus;
 }
 
                                 // -------
@@ -709,9 +706,10 @@ namespace CASE_1 {
 
 bool called = false;
 
-void top(bslma::Allocator *alloc)
+bool top(bslma::Allocator *alloc)
 {
-    if (called) return;                                               // RETURN
+    const bool ts = testStatus;
+
     called = true;
 
     bsl::vector<const char *> matches(alloc);
@@ -738,6 +736,8 @@ void top(bslma::Allocator *alloc)
             *out_p << str;
         }
     }
+
+    return ts == testStatus;
 }
 
 int bottom(bslma::Allocator *alloc)
@@ -750,8 +750,9 @@ int bottom(bslma::Allocator *alloc)
     int i = 0;
     for (; i < 0x20; ++i) {
         if ((i & 2) && (i & 4)) {
-            i += 7;
-            top(alloc);
+            if ((*funcFoilOptimizer(&top))(alloc)) {
+                break;
+            }
         }
         else if ((i & 1) && (i & 8)) {
             i += 5;
@@ -760,7 +761,6 @@ int bottom(bslma::Allocator *alloc)
     }
 
     ASSERT(called);
-    ASSERT(i >= 0x20);
 
     return i;
 }
@@ -1036,8 +1036,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Manipulator & Accessor Test\n"
                              "===========================\n";
 
-        int result = TC::bottom(&ta);
-        ASSERT(result >= 0x20);
+        int result = (*funcFoilOptimizer(&TC::bottom))(&ta);
+        ASSERT(result >= 6);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

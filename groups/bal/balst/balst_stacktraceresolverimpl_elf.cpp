@@ -79,6 +79,25 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_elf_cpp,"$Id$ $CSID$")
 
 #endif
 
+// The optimizers for 'clang-5.0' and 'clang-6.0' wre getting confused where
+// objects get poorly aligned and then later the optimizer used instructions
+// that require the objects to be well-aligned, causing segfaults.  GNU seemed
+// to be having similar problems in gcc-7.3.0.  The performance difference
+// between optimized and non-optimized code is not enough to be of significance
+// when resolving stack traces, so let's just disable the optimizer.
+//
+// It's a mystery how ANY other components are able to work with the optimizer
+// turned on, the errors being made were so basic.  The bugs that have been
+// diagnosed have all been with handling ELF type objects.  The compilers must
+// be familiar with ELF -- perhaps the optimizers were giving ELF type objects
+// some sort of special treatment that was going wrong.
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+# pragma clang optimize off
+#elif defined(BSLS_PLATFORM_CMP_GNU)
+# pragma GCC optimize ("O0")
+#endif
+
 // 'u_' PREFIX:
 // We have many types, static functions and macros defined in this file.  Prior
 // to when we were using package namespaces, all global types and functions
@@ -1432,6 +1451,20 @@ static int cleanupString(bsl::string *str, bslma::Allocator *alloc)
     return 0;
 }
 
+static
+void bruteMemset(void *start, char fill, bsl::size_t length)
+    // This function is identical in result to calling 'memset' in theory, but
+    // it turns out that 'memset' has a show-stopper bug in clang-5.0 if called
+    // on a 'struct' with badly-aligned fields.  Fill the specified 'length'
+    // bytes of memory starting at the specified 'start' with the specified
+    // 'fill' byte.
+{
+    for (char *pc = reinterpret_cast<char *>(start), *end = pc + length;
+                                                              pc < end; ++pc) {
+        *pc = fill;
+    }
+}
+
 #ifdef u_DWARF
 static int dumpBinary(u::Reader *reader, int numRows)
     // Dump out the specified 'numRows' of 16 byte rows of the binary about to
@@ -2738,7 +2771,7 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLine()
 int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
                                                          u::FrameRec *frameRec)
 {
-    static const char rn[] = { "HiddenRec:dwarfDebugLineFrameRec:" };
+    static const char rn[] = { "HiddenRec::dwarfDebugLineFrameRec:" };
     (void) rn;
 
     static const int lineTraces = u_TRACES ? 0 : 0;
@@ -3086,6 +3119,12 @@ int u::StackTraceResolver::HiddenRec::dwarfReadDebugLineFrameRec(
               case e_DW_LNS_set_column: {    // 5
                 rc = d_lineReader.skipULEB128();    // ignored
                 u_ASSERT_BAIL(0 == rc);
+
+                // Decrement these two values that will be incremented when we
+                // loop to make 'set column' as much of a no-op as possible.
+
+                --statementsSinceSetFile;
+                --statementsSinceEndSeq;
               } break;
               case e_DW_LNS_negate_stmt: {    // 6
                 defaultIsStatement = !defaultIsStatement;
@@ -3716,11 +3755,12 @@ int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
     // find the section headers we're interested in, that is, .symtab and
     // .strtab, or, if the file was stripped, .dynsym and .dynstr
 
+
     u::ElfSectionHeader symTabHdr, strTabHdr, dynSymHdr, dynStrHdr;
-    bsl::memset(&symTabHdr, 0, sizeof(u::ElfSectionHeader));
-    bsl::memset(&strTabHdr, 0, sizeof(u::ElfSectionHeader));
-    bsl::memset(&dynSymHdr, 0, sizeof(u::ElfSectionHeader));
-    bsl::memset(&dynStrHdr, 0, sizeof(u::ElfSectionHeader));
+    u::bruteMemset(&symTabHdr, 0, sizeof(u::ElfSectionHeader));
+    u::bruteMemset(&strTabHdr, 0, sizeof(u::ElfSectionHeader));
+    u::bruteMemset(&dynSymHdr, 0, sizeof(u::ElfSectionHeader));
+    u::bruteMemset(&dynStrHdr, 0, sizeof(u::ElfSectionHeader));
 
     // Possible speedup: read all the section headers at once instead of one at
     // a time.
@@ -4061,8 +4101,8 @@ int u::StackTraceResolver::resolve(
     // we are never statically linked on HPUX, so 'shl_get_r' should always
     // work.
 
-    shl_descriptor desc;
-    bsl::memset(&desc, 0, sizeof(shl_descriptor));
+    shl_descriptor desc = {};
+    u::bruteMemset(&desc, 0, sizeof(shl_descriptor));
 
     // 'programHeaders' will point to a segment of memory we will allocate and
     // reallocated to the needed size indicated by the 'ElfHeader's we
