@@ -1,5 +1,12 @@
-bsl-internal (3.18.0.0) unstable; urgency=low
+bsl-internal (3.19.0.0) unstable; urgency=low
 
+  * aeb354a28 Bump version objects to 3.19.0
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 7 Jan 2019 09:07:53 -0500
+
+bsl-internal (3.18.0.0) git; urgency=low
+
+  * 8f4c17bd0 Changelog for version 3.18.0.0
   * ee3d69d34 Merge pull request #2208 from mgiroux/bump-version-to-3.18.0
   * bf9a04889 Bump version to 3.18.0
   * 111ce4dea More pre-MSVC 2013 version checks quashed
@@ -7,7 +14,7 @@ bsl-internal (3.18.0.0) unstable; urgency=low
   * 288d6ae7c Changelog for version 3.17.0.0
   * b0fec241a Bump scm versions to 3.17.0
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 10 Dec 2018 14:04:58 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 10 Dec 2018 14:20:09 -0500
 
 bsl-internal (3.16.0.0) git; urgency=low
 
