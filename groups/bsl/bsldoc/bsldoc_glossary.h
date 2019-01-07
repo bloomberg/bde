@@ -128,6 +128,10 @@ BSLS_IDENT("$Id: $")
 //:     also thread-aware.
 //:   o A 'const' thread-safe class that has no manipulators is fully
 //:     thread-safe.
+//:   o Notably it is not safe to destroy an object before before all functions
+//:     called on the object have completed.  Typically some form of
+//:     synchronization (external to the object itself) is need to ensure that
+//:     the object can be safely destroyed.
 //
 ///Guard [UC.2]
 /// - - - - - -

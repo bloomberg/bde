@@ -136,7 +136,7 @@ BSLS_IDENT("$Id: $")
 ///------------------------------------------------
 // The behavior for the destructor is undefined unless all access or
 // modification of the object is completed prior to its destruction.  Some form
-// of synchronization, external to the component, is required to ensure the
+// of synchronization, external to the component, is required to ensure this
 // precondition on the destructor is met.  For example, if two (or more)
 // threads are manipulating a queue, it is *not* safe to anticipate the number
 // of elements added to the queue, and destroy that queue immediately after the
@@ -683,7 +683,8 @@ class Deque {
 
     ~Deque();
         // Destroy this container.  The behavior is undefined unless all access
-        // or modification of the container has completed prior to this call.
+        // or modification of the container has completed prior to the
+        // destruction of this object.
 
     // MANIPULATORS
     void forcePushBack(const TYPE& item);
