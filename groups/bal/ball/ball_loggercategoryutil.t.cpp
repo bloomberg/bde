@@ -11,8 +11,10 @@
 #include <ball_loggercategoryutil.h>
 
 #include <ball_loggermanager.h>
+#include <ball_loggermanagerconfiguration.h>
 #include <ball_severity.h>
 #include <ball_testobserver.h>                  // for testing only
+#include <ball_thresholdaggregate.h>
 
 #include <bslim_testutil.h>
 
@@ -129,8 +131,8 @@ void printAllCategories()
 }
 
 // The function 'dtlCallbackRaw' below sets the values returned through the
-// first four arguments of its parameter list to the values of the four
-// fields of this 'struct', respectively.
+// first four arguments of its parameter list to the values of the four fields
+// of this 'struct', respectively.
 
 ball::ThresholdAggregate callbackLevels;
 
@@ -800,7 +802,7 @@ int main(int argc, char *argv[])
 
             const struct Data {  // Not static
                 int         d_line;             // line number
-                const char *d_name;             // category name
+                const char *d_name_p;           // category name
                 int         d_recordLevel;      // record level
                 int         d_passLevel;        // pass level
                 int         d_triggerLevel;     // trigger level
@@ -810,9 +812,11 @@ int main(int argc, char *argv[])
                 int         d_baseIdx;          // index of base category (-1
                                                 // for none)
             } DATA[] = {                                             // ADJUST
+                //..
                 // line  cat      record pass  trigger    tAll
                 // no.   name     level  level  level    level pop base
-                // ----  -----    ------ ------ ------   ----- --- ------
+                // ----  -----    ------ ------ ------   ----- --- ----
+                //..
                 {  L_,      "",    DRL,    DPL,    DTL,   DTAL,  1,  -1 },// 0
                 {  L_,     "x",      5,      6,      7,      8,  1,  -1 },// 1
                 {  L_,    "x*",      9,     10,     11,     12,  1,  -1 },// 2
@@ -840,9 +844,9 @@ int main(int argc, char *argv[])
 
             // populate the category registry in the logger manager
             for (int n = 0; n < NUM_DATA && DATA[n].d_populated; ++n) {
-                bool isDefault = !strcmp("", DATA[n].d_name);
+                bool isDefault = !strcmp("", DATA[n].d_name_p);
 
-                const Cat *p = LM->addCategory(DATA[n].d_name,
+                const Cat *p = LM->addCategory(DATA[n].d_name_p,
                                                DATA[n].d_recordLevel,
                                                DATA[n].d_passLevel,
                                                DATA[n].d_triggerLevel,
@@ -855,7 +859,7 @@ int main(int argc, char *argv[])
                 for (int nn = 0; nn < NUM_DATA; ++nn) {
                     const Data& ndata = DATA[nn];
                     const bool  npop  = ndata.d_populated;
-                    const char *nname = ndata.d_name;
+                    const char *nname = ndata.d_name_p;
 
                     if (veryVerbose) P(nname);
 
@@ -869,17 +873,17 @@ int main(int argc, char *argv[])
 
                     for (int ii = 0; ii <= nn; ++ii) {
                         const Data&  idata    = DATA[ii];
-                        const char  *iname    = idata.d_name;
+                        const char  *iname    = idata.d_name_p;
                         const int    ibaseIdx = idata.d_baseIdx;
                         const char  *bname    = (0 <= ibaseIdx)
-                                              ? DATA[ibaseIdx].d_name
+                                              ? DATA[ibaseIdx].d_name_p
                                               : "(null)";
                         int ebaseIdx = ii, next;
                         while (0 <= (next = DATA[ebaseIdx].d_baseIdx)) {
                              ebaseIdx = next;
                         }
                         const Data&  edata    = DATA[ebaseIdx];
-                        const char  *ename    = edata.d_name;
+                        const char  *ename    = edata.d_name_p;
 
                         if (veryVeryVerbose) { P_(iname); P_(bname); P(ename);}
 

@@ -61,7 +61,7 @@ static void accumulateLongerPrefixCategory(const Category **result,
                                            const Category  *category)
     // If the specified 'category' has a name that is a prefix of
     // 'categoryName' longer than 'minPrefixLength', then populate 'result'
-    // with 'category', and populate 'minPrefixLength' with length of
+    // with 'category', and populate 'minPrefixLength' with the length of
     // 'category'.  This operation has no effect if the name of 'category' is
     // not a prefix of 'categoryName' longer than the supplied
     // 'minPrefixLength'.
@@ -103,7 +103,7 @@ Category *LoggerCategoryUtil::addCategoryHierarchically(
     }
 
     Category *category = 0;
-    if (0 < longestPrefixLength) {
+    if (0 < longestPrefixLength) {    // exclude match of default category
         category = loggerManager->addCategory(
                                      categoryName,
                                      longestPrefixCategory->recordLevel(),
@@ -112,8 +112,8 @@ Category *LoggerCategoryUtil::addCategoryHierarchically(
                                      longestPrefixCategory->triggerAllLevel());
     }
     else {
-        const ThresholdAggregate& levels =
-                    loggerManager->getNewCategoryThresholdLevels(categoryName);
+        ThresholdAggregate levels;
+        loggerManager->thresholdLevelsForNewCategory(&levels, categoryName);
 
         category = loggerManager->addCategory(categoryName,
                                               levels.recordLevel(),

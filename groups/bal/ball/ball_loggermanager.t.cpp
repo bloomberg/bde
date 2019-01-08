@@ -5660,12 +5660,12 @@ int main(int argc, char *argv[])
 
             {
                 const ball::ThresholdAggregate& levels =
-                                                 X.getDefaultThresholdLevels();
+                                                    X.defaultThresholdLevels();
                 ASSERT(mgrLevels == levels);
             }
             {
-                const ball::ThresholdAggregate& levels =
-                                       X.getNewCategoryThresholdLevels("woof");
+                ball::ThresholdAggregate levels;
+                X.thresholdLevelsForNewCategory(&levels, "woof");
                 ASSERT(cbLevels == levels);
             }
 

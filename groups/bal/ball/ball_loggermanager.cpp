@@ -1136,46 +1136,8 @@ void LoggerManager::setLogger(Logger *logger)
     }
 }
 
-                        // Threshold Level Management
-
-// ACCESSORS
-const ThresholdAggregate& LoggerManager::getDefaultThresholdLevels() const
-{
-    return d_defaultThresholdLevels;
-}
-
-ThresholdAggregate LoggerManager::getNewCategoryThresholdLevels(
-                                                const char *categoryName) const
-{
-    bsl::string filteredName;
-    const char *localCategoryName = filterName(&filteredName,
-                                               categoryName,
-                                               d_nameFilter);
-
-    if (d_defaultThresholds) {
-        int recordLevel, passLevel, triggerLevel, triggerAllLevel;
-        {
-            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(
-                                                     &d_defaultThresholdsLock);
-            d_defaultThresholds(&recordLevel,
-                                &passLevel,
-                                &triggerLevel,
-                                &triggerAllLevel,
-                                localCategoryName);
-        }
-
-        return ThresholdAggregate(recordLevel,
-                                  passLevel,
-                                  triggerLevel,
-                                  triggerAllLevel);
-    }
-
-    return d_defaultThresholdLevels;
-}
-
                              // Category Management
 
-// MANIPULATORS
 Category *LoggerManager::addCategory(const char *categoryName,
                                      int         recordLevel,
                                      int         passLevel,
@@ -1231,30 +1193,40 @@ const Category *LoggerManager::setCategory(CategoryHolder *categoryHolder,
     BSLS_ASSERT(categoryName);
 
     bsl::string filteredName;
-
     const char *localCategoryName = filterName(&filteredName,
                                                categoryName,
                                                d_nameFilter);
 
     Category *category = d_categoryManager.lookupCategory(categoryHolder,
                                                           localCategoryName);
-
     if (!category
      && d_maxNumCategoriesMinusOne >=
                                    (unsigned int) d_categoryManager.length()) {
-
-        // Pass 'categoryName', not 'localCategoryName', here -- this function
-        // will apply 'filterName' itself.
-
-        const ThresholdAggregate& levels =
-                             this->getNewCategoryThresholdLevels(categoryName);
+        int recordLevel, passLevel, triggerLevel, triggerAllLevel;
+        {
+            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(
+                                                     &d_defaultThresholdsLock);
+            if (d_defaultThresholds) {
+                d_defaultThresholds(&recordLevel,
+                                    &passLevel,
+                                    &triggerLevel,
+                                    &triggerAllLevel,
+                                    localCategoryName);
+            }
+            else {
+                recordLevel     = d_defaultThresholdLevels.recordLevel();
+                passLevel       = d_defaultThresholdLevels.passLevel();
+                triggerLevel    = d_defaultThresholdLevels.triggerLevel();
+                triggerAllLevel = d_defaultThresholdLevels.triggerAllLevel();
+            }
+        }
 
         category = d_categoryManager.addCategory(categoryHolder,
                                                  localCategoryName,
-                                                 levels.recordLevel(),
-                                                 levels.passLevel(),
-                                                 levels.triggerLevel(),
-                                                 levels.triggerAllLevel());
+                                                 recordLevel,
+                                                 passLevel,
+                                                 triggerLevel,
+                                                 triggerAllLevel);
 
         if (!category) {  // added by another thread?
             category = d_categoryManager.lookupCategory(categoryHolder,
@@ -1421,6 +1393,49 @@ const Logger::UserFieldsPopulatorCallback *
 LoggerManager::userFieldsPopulatorCallback() const
 {
     return d_populator ? &d_populator : 0;
+}
+
+                        // Threshold Level Management
+
+const ThresholdAggregate& LoggerManager::defaultThresholdLevels() const
+{
+    return d_defaultThresholdLevels;
+}
+
+void LoggerManager::thresholdLevelsForNewCategory(
+                                        ThresholdAggregate *levels,
+                                        const char         *categoryName) const
+{
+    BSLS_ASSERT(categoryName);
+
+    if (d_defaultThresholds) {
+        bsl::string filteredName;
+        const char *localCategoryName = filterName(&filteredName,
+                                                   categoryName,
+                                                   d_nameFilter);
+
+        int recordLevel, passLevel, triggerLevel, triggerAllLevel;
+        {
+            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(
+                                                     &d_defaultThresholdsLock);
+            d_defaultThresholds(&recordLevel,
+                                &passLevel,
+                                &triggerLevel,
+                                &triggerAllLevel,
+                                localCategoryName);
+        }
+
+        const int rc = levels->setLevels(recordLevel,
+                                         passLevel,
+                                         triggerLevel,
+                                         triggerAllLevel);
+        if (0 == rc) {
+            return;                                                   // RETURN
+        }
+        BSLS_ASSERT(0 == rc);
+    }
+
+    *levels = d_defaultThresholdLevels;
 }
 
 }  // close package namespace

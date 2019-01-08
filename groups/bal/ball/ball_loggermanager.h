@@ -1227,7 +1227,7 @@ class LoggerManager {
 
     bsl::set<Logger *>     d_loggers;            // set of *allocated* loggers
 
-    mutable bslmt::ReaderWriterMutex
+    bslmt::ReaderWriterMutex
                            d_loggersLock;        // 'd_loggers' protector
 
     RecordBuffer          *d_recordBuffer_p;     // holds record buffer (owned)
@@ -1247,7 +1247,7 @@ class LoggerManager {
     bsl::map<void *, Logger *>
                            d_defaultLoggers;     // *registered* loggers
 
-    mutable bslmt::ReaderWriterMutex                                          \
+    bslmt::ReaderWriterMutex                                          \
                            d_defaultLoggersLock; // registry lock
 
     LoggerManagerConfiguration::LogOrder
@@ -1664,7 +1664,7 @@ class LoggerManager {
         // registered observers.  Note that this method will fail if an
         // observer having 'observerName' is already registered.
 
-                             // Threshold Level Management
+                     // Threshold Level Management Manipulators
 
     void resetDefaultThresholdLevels();
         // Reset the default threshold levels of this logger manager to the
@@ -1699,24 +1699,8 @@ class LoggerManager {
         // determine default threshold levels for categories added to the
         // registry by the 'setCategory(const char *)' method.
 
-    // ACCESSOR
-    const ThresholdAggregate& getDefaultThresholdLevels() const;
-        // Return the default threshold levels associated with this logger
-        // manager object.  Note that if a default threshold levels callback is
-        // registered, these may not be the threshold levels with which new
-        // categories are created.
-
-    ThresholdAggregate getNewCategoryThresholdLevels(const char *categoryName)
-                                                                         const;
-        // Return the threshold levels to be used for a newly created category
-        // if no levels are specified, either through the default threshold
-        // levels callback, if one is set, or from the default threshold
-        // levels.  Use the specified 'categoryName' when calling the default
-        // threshold levels callback.
-
                              // Rule Management
 
-    // MANIPULATORS
     int addRule(const Rule& value);
         // Add a rule having the specified 'value' to the set of (unique)
         // rules maintained by this object.  Return the number of rules added
@@ -1774,6 +1758,7 @@ class LoggerManager {
         //..
 
     // ACCESSORS
+
     bslma::Allocator *allocator() const;
         // Return the address of the modifiable allocator held by this logger
         // manager.
@@ -1887,6 +1872,24 @@ class LoggerManager {
         //  void operator()(const bsl::shared_ptr<Observer>& observer,
         //                  const bslstl::StringRef&         observerName);
         //..
+
+                     // Threshold Level Management Accessors
+
+    const ThresholdAggregate& defaultThresholdLevels() const;
+        // Return the default threshold levels associated with this logger
+        // manager object.
+
+    void thresholdLevelsForNewCategory(ThresholdAggregate *levels,
+                                       const char         *categoryName) const;
+        // Return the threshold levels to be used for a newly created category
+        // if no levels are specified, either through the default threshold
+        // levels callback, if one is set, or from the default threshold
+        // levels.  Use the specified 'categoryName' when calling the default
+        // threshold levels callback.  Note that this does not do a lookup on
+        // 'categoryName', unless the default threshold levels callback does
+        // so.  The behavior is undefined if the default threshold levels
+        // callback returns any threshold levels outside the valid range
+        // '[ 0 .. 255 ]'.
 };
 
                         // ==============================
