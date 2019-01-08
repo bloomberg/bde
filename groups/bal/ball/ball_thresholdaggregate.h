@@ -98,7 +98,7 @@ class ThresholdAggregate {
 
     // CREATORS
     ThresholdAggregate();
-        // Create a threshold aggregate will all levels set to 0.
+        // Create a threshold aggregate whose threshold levels are all 0.
 
     ThresholdAggregate(int recordLevel,
                        int passLevel,

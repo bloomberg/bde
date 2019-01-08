@@ -126,6 +126,7 @@ void aSsErT(bool condition, const char *message, int line)
 typedef ball::Predicate        Obj;
 typedef ball::Attribute::Value Value;
 typedef bsls::Types::Int64     Int64;
+typedef bsls::Types::IntPtr    IntPtr;
 
 #define VA_NAME   ""
 #define VA_VALUE  0
@@ -263,7 +264,7 @@ bool compareText(bslstl::StringRef lhs,
     }
 
     if (lhs.length() < rhs.length()) {
-        unsigned int i = lhs.length();
+        bsl::size_t i = lhs.length();
         errorStream << "lhs: \"" << lhs << "\"\n"
                     << "rhs: \"" << rhs << "\"\n"
                     << "Strings differ at index (" << i << ") "
@@ -274,7 +275,7 @@ bool compareText(bslstl::StringRef lhs,
 
     }
     if (lhs.length() > rhs.length()) {
-        unsigned int i = rhs.length();
+        bsl::size_t i = rhs.length();
         errorStream << "lhs: \"" << lhs << "\"\n"
                     << "rhs: \"" << rhs << "\"\n"
                     << "Strings differ at index (" << i << ") "

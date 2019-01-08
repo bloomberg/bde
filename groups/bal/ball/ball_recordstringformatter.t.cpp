@@ -170,6 +170,7 @@ static int veryVeryVeryVerbose = 0;
 
 typedef ball::RecordStringFormatter Obj;
 typedef ball::Record                Rec;
+typedef bsls::Types::IntPtr         IntPtr;
 
 // Values for testing.
 const char *F0 = "\n%d %p:%t %s %f:%l %c %m %u\n";
@@ -227,7 +228,7 @@ bool compareText(bslstl::StringRef lhs, bslstl::StringRef rhs)
     }
 
     if (lhs.length() < rhs.length()) {
-        unsigned int i = lhs.length();
+        bsl::size_t i = lhs.length();
         cout << "Strings differ at index (" << i << ") "
                  << "lhs[i] = END-OF-STRING "
                  << "rhs[i] = " << rhs[i] << "(" << (int)rhs[i] << ")"
@@ -236,7 +237,7 @@ bool compareText(bslstl::StringRef lhs, bslstl::StringRef rhs)
 
     }
     if (lhs.length() > rhs.length()) {
-        unsigned int i = rhs.length();
+        bsl::size_t i = rhs.length();
         cout << "Strings differ at index (" << i << ") "
                  << "lhs[i] = " << lhs[i] << "(" << (int)lhs[i] << ") "
                  << "rhs[i] = END-OF-STRING"
@@ -641,10 +642,10 @@ int main(int argc, char *argv[])
 
             // Is the resulting string parseable?
             bdlt::Datetime dt;
-            int           rc = bdlt::Iso8601Util::parse(
-                                              &dt,
+            int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
+            int rc = bdlt::Iso8601Util::parse(&dt,
                                               oss1.str().c_str(),
-                                              bsl::strlen(oss1.str().c_str()));
+                                              len);
             bdlt::Datetime adjustedTimestamp(timestamp);
             adjustedTimestamp.setMillisecond(0); // "%i" => no msecs printed
             adjustedTimestamp.setMicrosecond(0); // "%i" => no usecs printed
@@ -679,10 +680,10 @@ int main(int argc, char *argv[])
 
             // Is the resulting string parseable?
             bdlt::Datetime dt;
-            int           rc = bdlt::Iso8601Util::parse(
-                                              &dt,
+            int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
+            int rc = bdlt::Iso8601Util::parse(&dt,
                                               oss1.str().c_str(),
-                                              bsl::strlen(oss1.str().c_str()));
+                                              len);
 
             bdlt::Datetime adjustedTimestamp(timestamp);
             adjustedTimestamp.setMicrosecond(0); // "%I" => no usecs printed
@@ -718,10 +719,10 @@ int main(int argc, char *argv[])
 
             // Is the resulting string parseable?
             bdlt::Datetime dt;
-            int           rc = bdlt::Iso8601Util::parse(
-                                              &dt,
+            int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
+            int rc = bdlt::Iso8601Util::parse(&dt,
                                               oss1.str().c_str(),
-                                              bsl::strlen(oss1.str().c_str()));
+                                              len);
 
             if (veryVerbose) { P_(rc) P_(timestamp) P(dt) }
             ASSERT(0         == rc);
@@ -761,10 +762,11 @@ int main(int argc, char *argv[])
 
             // Is the resulting string parseable?
             bdlt::DatetimeTz dt;
-            int              rc = bdlt::Iso8601Util::parse(
+            int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
+            int rc = bdlt::Iso8601Util::parse(
                                               &dt,
                                               oss1.str().c_str(),
-                                              bsl::strlen(oss1.str().c_str()));
+                                              len);
             bdlt::Datetime truncatedLocalTime = localTime;
             truncatedLocalTime.setMillisecond(0);  // "%i" => no msecs printed
             truncatedLocalTime.setMicrosecond(0);  // "%i" => no usecs printed
@@ -1042,8 +1044,8 @@ int main(int argc, char *argv[])
                                           sizeof(*TEST_MESSAGES);
 
             for (int i = 0; i < NUM_TEST_MESSAGES; ++i) {
-                const char *MSG     = TEST_MESSAGES[i];
-                const int   MSG_LEN = bsl::strlen(MSG);
+                const char   *MSG     = TEST_MESSAGES[i];
+                const IntPtr  MSG_LEN = bsl::strlen(MSG);
 
                 bslma::TestAllocator oa, da;
                 Obj x("%m", &oa); const Obj& X = x;

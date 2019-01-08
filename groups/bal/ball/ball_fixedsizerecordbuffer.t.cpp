@@ -177,10 +177,14 @@ static bslmt::Mutex &assertMutex = printMutex;  // mutex to protect assert
 //=============================================================================
 //          GLOBAL TYPEDEFS/CONSTANTS/VARIABLES/FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+typedef bsl::shared_ptr<ball::Record> Handle;
+typedef bsls::Types::IntPtr           IntPtr;
+
 static int verbose;
 static int veryVerbose;
 // static int veryVeryVerbose;  // not used
-typedef bsl::shared_ptr<ball::Record> Handle;
+
 //=============================================================================
 //                   HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -193,7 +197,7 @@ void executeInParallel(int numThreads, bslmt::ThreadUtil::ThreadFunction func)
                                new bslmt::ThreadUtil::Handle[numThreads];
     ASSERT(threads);
 
-    for (int i = 0; i < numThreads; ++i) {
+    for (IntPtr i = 0; i < numThreads; ++i) {
         bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
     }
     for (int i = 0; i < numThreads; ++i) {

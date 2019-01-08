@@ -1397,7 +1397,7 @@ int main(int argc, char *argv[])
         ball::CategoryManager manager;
         ball::AttributeContext::initialize(&manager);
 
-        ThreadArgs args = { &manager };
+//      ThreadArgs args = { &manager };
 
         bslmt::ThreadUtil::Handle threads[2];
         bslmt::ThreadUtil::create(&threads[0], workerThread1, (void *)0);
