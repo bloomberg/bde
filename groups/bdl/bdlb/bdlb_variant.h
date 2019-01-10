@@ -93,8 +93,8 @@ BSLS_IDENT("$Id: $")
 // Note, that visitor must satisfy the following requirements:
 //: o The visitor's 'operator()' must be callable with any of the types that
 //:   might be contained in the variant.
-//: o For the 'apply' methods (but not 'applyRaw') visitor must have the
-//:   overload of 'operator()' accepting 'bslmf::Nil'.
+//: o For the 'apply' methods (but not 'applyRaw') the visitor's 'operator()'
+//:   must be callable with an argument of type 'bslmf::Nil'.
 //: o For the 'apply' and 'applyRaw' methods returning non-void type the return
 //:   value of all callable overloads of 'operator()' must be convertible to
 //:   this type.
