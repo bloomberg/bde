@@ -93,9 +93,11 @@ BSLS_IDENT("$Id: $")
 // Note, that visitor must satisfy the following requirements:
 //: o The visitor's 'operator()' must be callable with any of the types that
 //:   might be contained in the variant.
-//: o For the 'apply' methods (not 'applyRaw') 'operator()' must also accept
-//:   'bslmf::Nil'.
-//: o The return value of all callable overloads of 'operator()' must be either //:   'void' or convertible to some single non-void type.
+//: o For the 'apply' methods (but not 'applyRaw') visitor must have the
+//:   overload of 'operator()' accepting 'bslmf::Nil'.
+//: o For the 'apply' and 'applyRaw' methods returning non-void type the return
+//:   value of all callable overloads of 'operator()' must be convertible to
+//:   this type.
 //
 // The 'apply' method should be preferred over a 'switch' statement based on
 // the type index of a variant.  If the order or types contained by the variant
@@ -105,17 +107,19 @@ BSLS_IDENT("$Id: $")
 // 'operator()' to invoke.
 //
 // There are several variations of the 'apply' method, varying based on the
-// return type of 'operator()' and the handling of unset variants.  Firstly,
-// the method varies based on whether 'operator()' returns a value or not.
+// return type and the handling of unset variants.  Firstly,
+// the method varies based on whether 'apply' returns a value or not.
 // There can either be:
 //: o No return value.
 //: o A return type specified in the visitor interface.
 //: o A return type specified explicitly when invoking 'apply'.
 //
-// The default is no return value.  If users would like to return a value from
-// the visitor's 'operator()', the functor should specify an alias 'ResultType'
-// to the desired return type.  For example, if 'operator()' were to return an
-// 'int', the functor class should specify:
+// The default is no return value. Even if visitor's 'operator()' returns any
+// non-void value, it will not be passed to the user.  If users would like to
+// return a value from the visitor's 'operator()', they can specify a public
+// alias 'ResultType' to the desired return type in the functor class.  For
+// example, if 'operator()' were to return an 'int', the functor class should
+// specify:
 //..
 //  typedef int ResultType;
 //..
