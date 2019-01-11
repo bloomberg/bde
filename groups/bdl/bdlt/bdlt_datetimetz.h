@@ -308,8 +308,8 @@ class DatetimeTz {
         //..
 
     DatetimeTz(const Datetime& localDatetime, int offset);
-        // Create a 'DateTz' object having a local datetime value equal to the
-        // specified 'localDatetime' and a time zone offset value from UTC
+        // Create a 'DatetimeTz' object having a local datetime value equal to
+        // the specified 'localDatetime' and a time zone offset value from UTC
         // equal to the specified 'offset' (in minutes).  The behavior is
         // undefined unless all of the specified values are within their valid
         // ranges (see 'isValid').  Note that this method provides no
