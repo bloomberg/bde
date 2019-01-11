@@ -1441,14 +1441,14 @@ struct Log {
         // the same threshold levels as the category in the logger manager
         // singleton whose name is the longest non-empty prefix of
         // 'categoryName' if such a category exists, and the threshold levels
-        // set as if 'setCategory' had been called otherwise.  If the specified
-        // 'categoryHolder' is non-zero, load it with the address of the
-        // returned category and the maximum threshold level of that category,
-        // and link 'categoryHolder' to the other holders (if any) that
-        // currently reference the category.  Note that this method has the
-        // same effect on the logger manager singleton's category registry as
-        // the one-argument 'setCategoryHierarchically' regardless of whether
-        // '0 == categoryHolder'.
+        // will be set as if 'setCategory' had been called otherwise.  If the
+        // specified 'categoryHolder' is non-zero, load it with the address of
+        // the returned category and the maximum threshold level of that
+        // category, and link 'categoryHolder' to the other holders (if any)
+        // that currently reference the category.  Note that this method has
+        // the same effect on the logger manager singleton's category registry
+        // as the one-argument 'setCategoryHierarchically' regardless of
+        // whether '0 == categoryHolder'.
 
     static bool isCategoryEnabled(const CategoryHolder *categoryHolder,
                                   int                   severity);

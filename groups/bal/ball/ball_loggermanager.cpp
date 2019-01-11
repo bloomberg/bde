@@ -1402,10 +1402,11 @@ const ThresholdAggregate& LoggerManager::defaultThresholdLevels() const
     return d_defaultThresholdLevels;
 }
 
-void LoggerManager::thresholdLevelsForNewCategory(
+int LoggerManager::thresholdLevelsForNewCategory(
                                         ThresholdAggregate *levels,
                                         const char         *categoryName) const
 {
+    BSLS_ASSERT(levels);
     BSLS_ASSERT(categoryName);
 
     if (d_defaultThresholds) {
@@ -1425,17 +1426,15 @@ void LoggerManager::thresholdLevelsForNewCategory(
                                 localCategoryName);
         }
 
-        const int rc = levels->setLevels(recordLevel,
-                                         passLevel,
-                                         triggerLevel,
-                                         triggerAllLevel);
-        if (0 == rc) {
-            return;                                                   // RETURN
-        }
-        BSLS_ASSERT(0 == rc);
+        return levels->setLevels(recordLevel,
+                                 passLevel,
+                                 triggerLevel,
+                                 triggerAllLevel);                    // RETURN
     }
 
     *levels = d_defaultThresholdLevels;
+
+    return 0;
 }
 
 }  // close package namespace

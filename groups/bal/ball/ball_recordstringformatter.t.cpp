@@ -681,9 +681,7 @@ int main(int argc, char *argv[])
             // Is the resulting string parseable?
             bdlt::Datetime dt;
             int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
-            int rc = bdlt::Iso8601Util::parse(&dt,
-                                              oss1.str().c_str(),
-                                              len);
+            int rc = bdlt::Iso8601Util::parse(&dt, oss1.str().c_str(), len);
 
             bdlt::Datetime adjustedTimestamp(timestamp);
             adjustedTimestamp.setMicrosecond(0); // "%I" => no usecs printed
@@ -763,10 +761,7 @@ int main(int argc, char *argv[])
             // Is the resulting string parseable?
             bdlt::DatetimeTz dt;
             int len = static_cast<int>(bsl::strlen(oss1.str().c_str()));
-            int rc = bdlt::Iso8601Util::parse(
-                                              &dt,
-                                              oss1.str().c_str(),
-                                              len);
+            int rc = bdlt::Iso8601Util::parse(&dt, oss1.str().c_str(), len);
             bdlt::Datetime truncatedLocalTime = localTime;
             truncatedLocalTime.setMillisecond(0);  // "%i" => no msecs printed
             truncatedLocalTime.setMicrosecond(0);  // "%i" => no usecs printed

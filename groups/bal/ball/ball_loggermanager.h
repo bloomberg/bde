@@ -1247,7 +1247,7 @@ class LoggerManager {
     bsl::map<void *, Logger *>
                            d_defaultLoggers;     // *registered* loggers
 
-    bslmt::ReaderWriterMutex                                          \
+    bslmt::ReaderWriterMutex
                            d_defaultLoggersLock; // registry lock
 
     LoggerManagerConfiguration::LogOrder
@@ -1758,7 +1758,6 @@ class LoggerManager {
         //..
 
     // ACCESSORS
-
     bslma::Allocator *allocator() const;
         // Return the address of the modifiable allocator held by this logger
         // manager.
@@ -1879,17 +1878,18 @@ class LoggerManager {
         // Return the default threshold levels associated with this logger
         // manager object.
 
-    void thresholdLevelsForNewCategory(ThresholdAggregate *levels,
-                                       const char         *categoryName) const;
-        // Return the threshold levels to be used for a newly created category
-        // if no levels are specified, either through the default threshold
-        // levels callback, if one is set, or from the default threshold
-        // levels.  Use the specified 'categoryName' when calling the default
-        // threshold levels callback.  Note that this does not do a lookup on
-        // 'categoryName', unless the default threshold levels callback does
-        // so.  The behavior is undefined if the default threshold levels
-        // callback returns any threshold levels outside the valid range
-        // '[ 0 .. 255 ]'.
+    int thresholdLevelsForNewCategory(ThresholdAggregate *levels,
+                                      const char         *categoryName) const;
+        // Load into the specified '*levels' the threshold levels that would be
+        // set for a newly created category, irrespective of whether a category
+        // name with the specified 'categoryName' is already in the registry.
+        // Return 0 on success and a non-zero value otherwise.  Use the
+        // specified 'categoryName' when calling the default threshold levels
+        // callback, if such a callback exists.  This method will fail if the
+        // default threshold levels callback returns invalid levels.  Note that
+        // if a category named 'categoryName' is already in the registry, the
+        // levels returned by this method may differ from the levels of that
+        // category.
 };
 
                         // ==============================

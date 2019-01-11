@@ -126,7 +126,6 @@ void aSsErT(bool condition, const char *message, int line)
 typedef ball::Predicate        Obj;
 typedef ball::Attribute::Value Value;
 typedef bsls::Types::Int64     Int64;
-typedef bsls::Types::IntPtr    IntPtr;
 
 #define VA_NAME   ""
 #define VA_VALUE  0

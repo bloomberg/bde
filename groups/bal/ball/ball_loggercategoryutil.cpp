@@ -113,7 +113,10 @@ Category *LoggerCategoryUtil::addCategoryHierarchically(
     }
     else {
         ThresholdAggregate levels;
-        loggerManager->thresholdLevelsForNewCategory(&levels, categoryName);
+        if (0 != loggerManager->thresholdLevelsForNewCategory(&levels,
+                                                              categoryName)) {
+            return 0;                                                 // RETURN
+        }
 
         category = loggerManager->addCategory(categoryName,
                                               levels.recordLevel(),
