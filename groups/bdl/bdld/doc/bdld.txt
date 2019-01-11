@@ -2,7 +2,7 @@
 
 @PURPOSE: Provide a variant type ('Datum') and supporting utilities.
 
-@MNEMONIC: Basic Development Library Datum (bdlb)
+@MNEMONIC: Basic Development Library Datum (bdld)
 
 @DESCRIPTION: The 'bdld' package defines in 'bdld_datum' a type that can
  contain an assortment of different value types, including user-defined types.

@@ -29,7 +29,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // Suppose we need a function to verify if newly created password meets basic
 // security requirements.  Password must contain at least one uppercase letter,
 // one lowercase letter, one numeral and one special symbol.  The following
-// code illustrates how to use 'bdlb::DatumError' to notify user about
+// code illustrates how to use 'bdld::DatumError' to notify user about
 // password weaknesses.
 //
 // First, we need to write a verification function:

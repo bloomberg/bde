@@ -158,7 +158,7 @@ enum CompareResult {
 // Suppose we have three functions. Data are obtained in the first one (with
 // memory allocation), processed in the second one and released (with memory
 // deallocation) in the third one.  The following code illustrates how to use
-// 'bdlb::DatumBinaryRef' to pass information about memory storage between
+// 'bdld::DatumBinaryRef' to pass information about memory storage between
 // them.
 //
 // First, we write all three functions:
