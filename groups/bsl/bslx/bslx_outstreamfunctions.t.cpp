@@ -7,6 +7,7 @@
 #include <bsls_bsltestutil.h>
 
 #include <bsl_climits.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_iostream.h>
@@ -312,9 +313,9 @@ class MyTestOutStream {
     operator const void *() const { return this; }
     const char *data() const { return 0; }
     int bdexVersionSelector() const { return d_versionSelector; }
-    int length() const { return 0; }
-    int size() const { return static_cast<int>(d_fun.size()); }
-    int operator[](int index) const
+    size_t length() const { return 0; }
+    size_t size() const { return d_fun.size(); }
+    int operator[](size_t index) const
                                  { return index < size() ? d_fun[index] : -1; }
     int lastVersion() const { return d_lastVersion; }
 };
@@ -344,7 +345,7 @@ struct TestWithVersion {
         stream.clear();
         LOOP_ASSERT(line, &stream == &bdexStreamOut(stream, value, version));
         LOOP_ASSERT(line, expectedFunctionIndicator.size() == stream.size());
-        for (int i = 0; i < expectedFunctionIndicator.size(); ++i) {
+        for (size_t i = 0; i < expectedFunctionIndicator.size(); ++i) {
             LOOP_ASSERT(line, expectedFunctionIndicator[i] == stream[i]);
         }
 
@@ -383,7 +384,7 @@ struct TestWithVersion {
             LOOP_ASSERT(line,
                         expectedFunctionIndicator.size() + 1 == stream.size());
             LOOP_ASSERT(line, MyTestOutStream::k_LENGTH == stream[0]);
-            for (int i = 0; i < expectedFunctionIndicator.size(); ++i) {
+            for (size_t i = 0; i < expectedFunctionIndicator.size(); ++i) {
                 LOOP_ASSERT(line,
                             expectedFunctionIndicator[i] == stream[i + 1]);
             }
@@ -409,7 +410,7 @@ struct TestWithVersion {
             LOOP_ASSERT(line, MyTestOutStream::k_LENGTH == stream[0]);
             LOOP_ASSERT(line, MyTestOutStream::k_LENGTH == stream[1]);
             LOOP_ASSERT(line, MyTestOutStream::k_LENGTH == stream[2]);
-            for (int i = 0; i < expectedFunctionIndicator.size(); ++i) {
+            for (size_t i = 0; i < expectedFunctionIndicator.size(); ++i) {
                 LOOP_ASSERT(line,
                             expectedFunctionIndicator[i] == stream[i + 3]);
             }
@@ -445,7 +446,7 @@ struct TestWithoutVersion {
                         expectedFunctionIndicator.size() + 1 == stream.size());
             LOOP_ASSERT(line, MyTestOutStream::k_VERSION == stream[0]);
             LOOP_ASSERT(line, expectedVersion == stream.lastVersion());
-            for (int i = 0; i < expectedFunctionIndicator.size(); ++i) {
+            for (size_t i = 0; i < expectedFunctionIndicator.size(); ++i) {
                 LOOP_ASSERT(line,
                             expectedFunctionIndicator[i] == stream[i + 1]);
             }
@@ -453,7 +454,7 @@ struct TestWithoutVersion {
         else {
             LOOP_ASSERT(line,
                         expectedFunctionIndicator.size() == stream.size());
-            for (int i = 0; i < expectedFunctionIndicator.size(); ++i) {
+            for (size_t i = 0; i < expectedFunctionIndicator.size(); ++i) {
                 LOOP_ASSERT(line, expectedFunctionIndicator[i] == stream[i]);
             }
         }
@@ -503,7 +504,7 @@ struct TestWithoutVersion {
             LOOP_ASSERT(line, MyTestOutStream::k_VERSION == stream[0]);
             LOOP_ASSERT(line, expectedVersion == stream.lastVersion());
             LOOP_ASSERT(line, MyTestOutStream::k_LENGTH == stream[1]);
-            for (int i = 0; i < expectedFunctionIndicator.size(); ++i) {
+            for (size_t i = 0; i < expectedFunctionIndicator.size(); ++i) {
                 LOOP_ASSERT(line,
                             expectedFunctionIndicator[i] == stream[i + 2]);
             }
@@ -533,7 +534,7 @@ struct TestWithoutVersion {
             LOOP_ASSERT(line, MyTestOutStream::k_LENGTH == stream[1]);
             LOOP_ASSERT(line, MyTestOutStream::k_LENGTH == stream[2]);
             LOOP_ASSERT(line, MyTestOutStream::k_LENGTH == stream[3]);
-            for (int i = 0; i < expectedFunctionIndicator.size(); ++i) {
+            for (size_t i = 0; i < expectedFunctionIndicator.size(); ++i) {
                 LOOP_ASSERT(line,
                             expectedFunctionIndicator[i] == stream[i + 4]);
             }
@@ -887,8 +888,15 @@ struct TestWithoutVersion {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void)        veryVerbose;  // suppress warning
+    (void)    veryVeryVerbose;  // suppress warning
+    (void)veryVeryVeryVerbose;  // suppress warning
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
