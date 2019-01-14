@@ -605,6 +605,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << "BREATHING TEST\n"
                              "==============\n";
 
+        bsl::string argv0(argv[0], &ta);
+#if defined BSLS_PLATFORM_OS_WINDOWS
+        for (char *pc = &argv0[0]; *pc; ++pc) {
+            if ('/' == *pc) {
+                *pc = '\\';
+            }
+        }
+#endif
+
         const int pid = bdls::ProcessUtil::getProcessId();
         ASSERT(0 != pid);
 
@@ -612,12 +621,12 @@ int main(int argc, char *argv[])
         ASSERTV(pid, 0 < pid);
 #endif
 
-        if (verbose) P(argv[0]);
-        const bool argv0IsRelative = u::isRelative(argv[0]);
+        if (verbose) P(argv0);
+        const bool argv0IsRelative = u::isRelative(argv0.c_str());
 
-        ASSERTV(argv[0], FUtil::exists(argv[0]));
+        ASSERTV(argv0, FUtil::exists(argv0));
         bsl::string resArgv0(&ta);
-        int rc = u::resolvePath(&resArgv0, argv[0]);
+        int rc = u::resolvePath(&resArgv0, argv0.c_str());
         ASSERT(0 == rc);
 
         bsl::string name(&ta);
@@ -629,7 +638,7 @@ int main(int argc, char *argv[])
         rc = u::resolvePath(&resName, name);
         ASSERT(0 == rc);
 
-        ASSERTV(resArgv0, resName, name, argv[0],
+        ASSERTV(resArgv0, resName, name, argv0,
                      argv0IsRelative != nameIsRelative || resArgv0 == resName);
 
         bsl::string baseArgv0(&ta);
@@ -642,9 +651,10 @@ int main(int argc, char *argv[])
 
         ASSERTV(resArgv0, resName, baseArgv0, basename, baseArgv0 == basename);
 
-        if (verbose) {
+        if (verbose || 0 != testStatus) {
             P(pid);
             P(argv[0]);
+            P(argv0);
             P(name);
             P(resArgv0);
             P(resName);
