@@ -22,12 +22,13 @@ BSLS_IDENT_RCSID(bdls_osutil_cpp, "$Id$ $CSID$")
 #include <bsls_platform.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <windows.h>
-#include <process.h>
-#include <cstring>
+# include <bsl_limits.h>
+
+# include "windows.h"
+# include "VersionHelpers.h"
 #else
-#include <unistd.h>
-#include <sys/utsname.h>
+# include <unistd.h>
+# include <sys/utsname.h>
 #endif
 
 
@@ -51,28 +52,48 @@ int OsUtil::getOsInfo(bsl::string *osName,
 
     *osName = "Windows";
 
-    OSVERSIONINFOEX osvi;
+    // On Windows, 'WORD' means a 16-bit unsigned int.
 
-    memset(&osvi, 0, sizeof(OSVERSIONINFOEX));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+    WORD major = 0;
+    WORD minor = 0;
+    WORD servicePackMajor = 0;
 
-    if (!GetVersionEx((OSVERSIONINFO *)&osvi)) {
-        return -1;
+    const WORD maxWord = bsl::numeric_limits<WORD>::max();
+
+    while (IsWindowsVersionOrGreater(major, minor, servicePackMajor)) {
+        if (major >= maxWord) {
+            return -1;                                                // RETURN
+	}
+        ++major;
     }
+    --major;
+    while (IsWindowsVersionOrGreater(major, minor, servicePackMajor)) {
+        if (minor >= maxWord) {
+            return -1;                                                // RETURN
+	}
+        ++minor;
+    }
+    --minor;
+    while (IsWindowsVersionOrGreater(major, minor, servicePackMajor)) {
+        if (servicePackMajor >= maxWord) {
+            return -1;                                                // RETURN
+	}
+        ++servicePackMajor;
+    }
+    --servicePackMajor;
 
     // Os version
     bsl::ostringstream version;
-    version << osvi.dwMajorVersion << '.' << osvi.dwMinorVersion;
+    version << major << '.' << minor;
     *osVersion = version.str();
-
-    version.clear();
     version.str("");
+
     // Service pack number
-    if (osvi.wServicePackMajor) {
-        version << "Service Pack " << osvi.wServicePackMajor << '.'
-                << osvi.wServicePackMinor;
+    if (servicePackMajor) {
+        version << "Service Pack " << servicePackMajor << ".0";
     }
     *osPatch = version.str();
+
     return 0;
 }
 }  // close package namespace
