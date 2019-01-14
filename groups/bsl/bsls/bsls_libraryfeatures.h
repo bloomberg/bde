@@ -1089,7 +1089,7 @@ BSLS_IDENT("$Id: $")
         __APPLE_CC__ >= 6000  &&                                             \
         BSLS_PLATFORM_CMP_VERSION >= 70300
 
-        #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
+        #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS        1
             // libc++ provides this C++11 feature as a C++98 extension.
 
         #if defined(__GXX_EXPERIMENTAL_CXX0X__)
@@ -1104,7 +1104,6 @@ BSLS_IDENT("$Id: $")
 
         #if __cplusplus > 201103L
             #define BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY   1
-            #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS    1
         #endif
 
     #elif BSLS_PLATFORM_CMP_VERSION >= 30000
