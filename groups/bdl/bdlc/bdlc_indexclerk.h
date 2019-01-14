@@ -16,8 +16,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a manager of reusable, non-negative integer indices.
 //
 //@CLASSES:
-//   bdlc::IndexClerkIter: sequential accessor to decommissioned indices
-//   bdlc::IndexClerk: manager of reusable, non-negative integer indices
+//  bdlc::IndexClerkIter: sequential accessor to decommissioned indices
+//  bdlc::IndexClerk: manager of reusable, non-negative integer indices
 //
 //@AUTHOR: John Lakos (jlakos)
 //

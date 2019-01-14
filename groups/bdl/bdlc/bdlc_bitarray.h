@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a space-efficient, sequential container of boolean values.
 //
 //@CLASSES:
-//   bdlc::BitArray: vector-like, sequential container of boolean values
+//  bdlc::BitArray: vector-like, sequential container of boolean values
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //

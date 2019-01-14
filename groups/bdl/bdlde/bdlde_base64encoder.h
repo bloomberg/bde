@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide automata for converting to and from Base64 encodings.
 //
 //@CLASSES:
-//   bdlde::Base64Encoder: automata performing Base64 encoding operations
+//  bdlde::Base64Encoder: automata performing Base64 encoding operations
 //
 //@SEE_ALSO: bdlde_base64decoder
 //

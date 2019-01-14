@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a constrained-attribute class for the logger manager.
 //
 //@CLASSES:
-// ball::LoggerManagerConfiguration: configuration spec for a logger manager
+//  ball::LoggerManagerConfiguration: configuration spec for a logger manager
 //
 //@SEE_ALSO: ball_loggermanagerdefaults
 //

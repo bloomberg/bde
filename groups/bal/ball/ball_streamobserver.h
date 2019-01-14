@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an observer that emits log records to a stream.
 //
 //@CLASSES:
-//    ball::StreamObserver: observer that emits log records to a stream
+//  ball::StreamObserver: observer that emits log records to a stream
 //
 //@SEE_ALSO: ball_record, ball_context, ball_loggermanager
 //

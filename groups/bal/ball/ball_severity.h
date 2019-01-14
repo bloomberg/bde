@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Enumerate a set of logging severity levels.
 //
 //@CLASSES:
-//   ball::Severity: namespace for enumerating logging severity levels
+//  ball::Severity: namespace for enumerating logging severity levels
 //
 //@AUTHOR: Hong Shi (hshi2)
 //

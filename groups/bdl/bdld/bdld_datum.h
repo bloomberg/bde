@@ -9,13 +9,13 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide a discriminated variant type with a small footprint.
 //
 //@CLASSES:
-//   bdld::Datum: POD type representing general-purpose values
-//   bdld::DatumArrayRef: type for const ref to array of datums
-//   bdld::DatumMapEntry: type for entry inside map of datums
-//   bdld::DatumMapRef: type for const ref to map of datums
-//   bdld::DatumMutableArrayRef: type for mutable ref to array of datums
-//   bdld::DatumMutableMapRef: type for mutable ref to a map of datums
-//   bdld::DatumMutableMapOwningKeysRef: mutable ref to a map owning keys
+//  bdld::Datum: POD type representing general-purpose values
+//  bdld::DatumArrayRef: type for const ref to array of datums
+//  bdld::DatumMapEntry: type for entry inside map of datums
+//  bdld::DatumMapRef: type for const ref to map of datums
+//  bdld::DatumMutableArrayRef: type for mutable ref to array of datums
+//  bdld::DatumMutableMapRef: type for mutable ref to a map of datums
+//  bdld::DatumMutableMapOwningKeysRef: mutable ref to a map owning keys
 //
 //@SEE_ALSO: bdld_datumerror, bdld_datumudt, bdld_datumbinaryref,
 //   bdld_manageddatum

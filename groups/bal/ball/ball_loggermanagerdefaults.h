@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //@AUTHOR: Tom Marshall (tmarshal)
 //
 //@CLASSES:
-// ball::LoggerManagerDefaults: default parameters for logger manager
+//  ball::LoggerManagerDefaults: default parameters for logger manager
 //
 //@SEE_ALSO: ball_loggermanagerconfiguration
 //

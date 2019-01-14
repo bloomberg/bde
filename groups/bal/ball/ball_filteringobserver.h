@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an observer that filters log records.
 //
 //@CLASSES:
-//    ball::FilteringObserver: observer that filters log records
+//  ball::FilteringObserver: observer that filters log records
 //
 //@SEE_ALSO: ball_record, ball_context, ball_loggermanager
 //
