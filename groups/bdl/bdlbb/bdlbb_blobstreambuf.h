@@ -16,8 +16,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide blob implementing the 'streambuf' interface.
 //
 //@CLASSES:
-// bdlbb::InBlobStreamBuf: 'bdlbb::Blob' input 'streambuf'
-// bdlbb::OutBlobStreamBuf: 'bdlbb::Blob' output 'streambuf'
+//  bdlbb::InBlobStreamBuf: 'bdlbb::Blob' input 'streambuf'
+//  bdlbb::OutBlobStreamBuf: 'bdlbb::Blob' output 'streambuf'
 //
 //@AUTHOR: Guillaume Morin (gmorin1)
 //

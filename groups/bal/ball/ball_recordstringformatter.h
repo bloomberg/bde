@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a record formatter that uses a 'printf'-style format spec.
 //
 //@CLASSES:
-//   ball::RecordStringFormatter: 'printf'-style formatter for log records
+//  ball::RecordStringFormatter: 'printf'-style formatter for log records
 //
 //@SEE_ALSO: ball_record, ball_recordattributes
 //

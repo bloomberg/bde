@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide utilities to determine properties of fixed-sized arrays.
 //
 //@CLASSES:
-// bdlb::ArrayUtil: namespace for array access function templates.
+//  bdlb::ArrayUtil: namespace for array access function templates
 //
 //@MACROS:
 // BDLB_ARRAYUTIL_SIZE: get a constant expression with an array's length.

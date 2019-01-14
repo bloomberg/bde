@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a protocol for containers holding logging attributes.
 //
 //@CLASSES:
-//     ball::AttributeContainer: a protocol for a collection of attributes
+//  ball::AttributeContainer: a protocol for a collection of attributes
 //
 //@SEE_ALSO: ball_attribute, ball_defaultattributecontainer
 //

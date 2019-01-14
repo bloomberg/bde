@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a set of unique rules.
 //
 //@CLASSES:
-//    ball::RuleSet: container for unique rules
+//  ball::RuleSet: container for unique rules
 //
 //@SEE_ALSO: ball_rule
 //

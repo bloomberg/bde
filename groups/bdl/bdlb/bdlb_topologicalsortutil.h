@@ -8,8 +8,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a utility to topologically sort a collection of inputs.
 //
 //@CLASSES:
-//    bdlb::TopologicalSortUtil: utility for topologically sorting inputs
-//    bdlb::TopologicalSortUtilEdgeTraits: customization point for edge types
+//  bdlb::TopologicalSortUtil: utility for topologically sorting inputs
+//  bdlb::TopologicalSortUtilEdgeTraits: customization point for edge types
 //
 //@SEE_ALSO:
 //

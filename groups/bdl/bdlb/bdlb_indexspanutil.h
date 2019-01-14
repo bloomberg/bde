@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide functions that operate on 'IndexSpan' objects.
 //
 //@CLASSES:
-//  IndexSpanUtil: namespace for functions that operate on 'IndexSpan' objects
+//  bdlb::IndexSpanUtil: namespace for functions that operate on 'IndexSpan'
 //
 //@SEE_ALSO: bdlb_indexspan
 //

@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a container for a fixed set of fields suitable for logging.
 //
 //@CLASSES:
-//     ball::RecordAttributes: container for a fixed set of log fields
+//  ball::RecordAttributes: container for a fixed set of log fields
 //
 //@SEE_ALSO: ball_record
 //

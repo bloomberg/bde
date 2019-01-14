@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //@DEPRECATED: Use 'bsl::deque' instead.
 //
 //@CLASSES:
-//   bdlc::Queue: memory manager for in-place queue of 'T' values
+//  bdlc::Queue: memory manager for in-place queue of 'T' values
 //
 //@AUTHOR: Jeffrey Mendelsohn (jmendelsohn)
 //

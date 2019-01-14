@@ -16,9 +16,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an indexed set of buffers from multiple sources.
 //
 //@CLASSES:
-//        bdlbb::BlobBuffer: in-core representation of a shared buffer
-// bdlbb::BlobBufferFactory: factory of blob buffers
-//              bdlbb::Blob: indexed sequence of buffers
+//  bdlbb::BlobBuffer: in-core representation of a shared buffer
+//  bdlbb::BlobBufferFactory: factory of blob buffers
+//  bdlbb::Blob: indexed sequence of buffers
 //
 //@SEE_ALSO: bcema_sharedptr, bdlbb_pooledblobbufferfactory
 //

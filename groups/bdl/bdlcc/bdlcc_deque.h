@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a fully thread-safe deque container.
 //
 //@CLASSES:
-//   bdlcc::Deque: thread-safe 'bsl::deque' wrapper
+//  bdlcc::Deque: thread-safe 'bsl::deque' wrapper
 //
 //@AUTHOR: Bill Chapman (bchapman2)
 //

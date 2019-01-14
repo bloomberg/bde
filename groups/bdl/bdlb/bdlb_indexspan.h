@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a value-semantic attribute type for position and length.
 //
 //@CLASSES:
-//  IndexSpan: value-semantic attribute type to represent position and length
+//  bdlb::IndexSpan: value-semantic attribute type to represent position/length
 //
 //@SEE_ALSO: bdlb_indexspanutil, bdlb_indexspanstringutil
 //

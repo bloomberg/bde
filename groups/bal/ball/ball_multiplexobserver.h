@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 //@DEPRECATED: Use 'ball_broadcastobserver' instead.
 //
 //@CLASSES:
-//    ball::MultiplexObserver: multiplexing observer that forwards log records
+//  ball::MultiplexObserver: multiplexing observer that forwards log records
 //
 //@SEE_ALSO: ball_record, ball_context, ball_streamobserver, ball_loggermanager
 //

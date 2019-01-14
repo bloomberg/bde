@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Enumerate the set of states for log record transmission.
 //
 //@CLASSES:
-//   ball::Transmission: namespace for log record transmission states
+//  ball::Transmission: namespace for log record transmission states
 //
 //@SEE_ALSO: ball_context, ball_observer
 //

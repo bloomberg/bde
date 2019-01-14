@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an object having a pattern, thresholds, and predicates.
 //
 //@CLASSES:
-//    ball::Rule: a pattern, thresholds, and predicate sets
+//  ball::Rule: a pattern, thresholds, and predicate sets
 //
 //@SEE_ALSO: ball_ruleset
 //

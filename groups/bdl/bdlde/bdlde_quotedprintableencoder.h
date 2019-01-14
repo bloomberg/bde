@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide automata converting to and from Quoted-Printable encodings.
 //
 //@CLASSES:
-// bdlde::QuotedPrintableEncoder: automaton for Quoted-Printable encoding
+//  bdlde::QuotedPrintableEncoder: automaton for Quoted-Printable encoding
 //
 //@AUTHOR: Alex Fung (afung8)
 //

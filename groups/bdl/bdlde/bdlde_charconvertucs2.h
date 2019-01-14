@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide efficient conversions between UTF-8 and UCS-2 encodings.
 //
 //@CLASSES:
-//    bdlde::CharConvertUcs2: namespace for conversions between UTF-8 and UCS-2
+//  bdlde::CharConvertUcs2: namespace for conversions between UTF-8 and UCS-2
 //
 //@AUTHOR: Mike Giroux (mgiroux)
 //
