@@ -166,12 +166,14 @@ int main(int argc, char *argv[])
             ASSERTV(redirector.outputSize(), 0 == redirector.outputSize());
 
             // Confirm output buffer is established and internal to object.
-            const char *const BUFFER = redirector.getOutput();
-            const char *const OBJ_START = (char *)&redirector;
+            const char *const BUFFER          = redirector.getOutput();
+            const char *const OBJ_START       = (char *)&redirector;
+            const long int    REDIRECTOR_SIZE =
+                         static_cast<long int>(sizeof(bsls::OutputRedirector));
 
             ASSERTV(OBJ_START, BUFFER, OBJ_START < BUFFER);
-            ASSERTV(BUFFER - OBJ_START,  sizeof bsls::OutputRedirector,
-                    BUFFER - OBJ_START < sizeof bsls::OutputRedirector);
+            ASSERTV(BUFFER - OBJ_START, REDIRECTOR_SIZE,
+                    BUFFER - OBJ_START <  REDIRECTOR_SIZE);
         }
 
         if (verbose) printf("Redirector for 'stderr'\n");
@@ -189,12 +191,14 @@ int main(int argc, char *argv[])
             ASSERTV(redirector.outputSize(), 0 == redirector.outputSize());
 
             // Confirm output buffer is established and internal to object.
-            const char *const BUFFER = redirector.getOutput();
-            const char *const OBJ_START = (char *)&redirector;
+            const char *const BUFFER          = redirector.getOutput();
+            const char *const OBJ_START       = (char *)&redirector;
+            const long int    REDIRECTOR_SIZE =
+                         static_cast<long int>(sizeof(bsls::OutputRedirector));
 
             ASSERTV(OBJ_START, BUFFER, OBJ_START < BUFFER);
-            ASSERTV(BUFFER - OBJ_START, sizeof bsls::OutputRedirector,
-                    BUFFER - OBJ_START < sizeof bsls::OutputRedirector);
+            ASSERTV(BUFFER - OBJ_START, REDIRECTOR_SIZE,
+                    BUFFER - OBJ_START <  REDIRECTOR_SIZE);
         }
 
       } break;
