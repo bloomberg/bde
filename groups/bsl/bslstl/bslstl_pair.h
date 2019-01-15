@@ -264,6 +264,7 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_makeintegersequence.h>
 #include <bslmf_movableref.h>
+#include <bslmf_nil.h>
 #include <bslmf_usesallocatorargt.h>
 #include <bslmf_util.h>
 
@@ -271,9 +272,6 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
-
-#include <bslmf_nil.h>
-
 #include <bsls_platform.h>
 
 #include <cstddef>  // 'std::size_t'
@@ -1607,6 +1605,11 @@ void hashAppend(HASHALG& hashAlg, const pair<T1, T2>&  input);
 
 namespace std {
 
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmismatched-tags"
+#endif
+
                              // ====================
                              // struct tuple_element
                              // ====================
@@ -1637,6 +1640,10 @@ struct tuple_size<bsl::pair<T1, T2> > : integral_constant<size_t, 2>
     // This meta-function provides a compile-time way to obtain the number of
     // elements in a pair, which is always 2.
 {};
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic pop
+#endif
 
 }  // close namespace std
 
@@ -1833,7 +1840,7 @@ inline
 native_std::tuple<ARGS...>
 Pair_ImpUtil::concatAllocator(
           BSLS_COMPILERFEATURES_FORWARD_REF(native_std::tuple<ARGS...>)  tpl,
-          BloombergLP::bslma::Allocator                                 *alloc,
+          BloombergLP::bslma::Allocator                                 *,
           bsl::Pair_BslmaIdiomNone)
 {
     return BloombergLP::bslmf::MovableRefUtil::move(tpl);
@@ -2180,8 +2187,8 @@ template <class PARAM>
 BSLS_KEYWORD_CONSTEXPR
 inline
 Pair_First<TYPE&&>::Pair_First(PARAM&&                        value,
-                               BloombergLP::bslma::Allocator *basicAllocator,
-                               Pair_BslmaIdiomNone                          )
+                               BloombergLP::bslma::Allocator *,
+                               Pair_BslmaIdiomNone                 )
 : first(std::forward<PARAM>(value))
 {
 }
@@ -2518,8 +2525,8 @@ template <class PARAM>
 BSLS_KEYWORD_CONSTEXPR
 inline
 Pair_Second<TYPE&&>::Pair_Second(PARAM&&                        value,
-                               BloombergLP::bslma::Allocator *basicAllocator,
-                               Pair_BslmaIdiomNone            )
+                                 BloombergLP::bslma::Allocator *,
+                                 Pair_BslmaIdiomNone            )
 : second(std::forward<PARAM>(value))
 {
 }
