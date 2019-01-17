@@ -94,10 +94,10 @@ void aSsErT(bool condition, const char *message, int line)
 // that are not addressed by this traits component.  Consequently, we disable
 // certain warnings from common compilers.
 
-#if defined(BSLS_PLATFORM_CMP_GNU)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 # pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #elif defined(BSLS_PLATFORM_CMP_MSVC)
-# pragma warning(disable : 4180) // cv-qualifiers meaningless on function types
+# pragma warning(disable : 4180)
 #endif
 
 //=============================================================================

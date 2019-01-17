@@ -9,10 +9,6 @@
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-# pragma warning(disable : 4180)  // 'const' applied to function type
-#endif
-
 using namespace bsl;
 using namespace BloombergLP;
 
@@ -88,6 +84,21 @@ void aSsErT(bool condition, const char *message, int line)
     // function types.  Note that this is different to testing "abominable"
     // function types, which have a cv-(ref-)qualifier denoting qualifiers on
     // the dereferenced 'this' pointer for a member function.
+#endif
+
+//=============================================================================
+//                      WARNING SUPPRESSION
+//-----------------------------------------------------------------------------
+
+// This test driver intentional creates types with unusual use of cv-qualifiers
+// in order to confirm that there are no strange corners of the type system
+// that are not addressed by this traits component.  Consequently, we disable
+// certain warnings from common compilers.
+
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+# pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+# pragma warning(disable : 4180)
 #endif
 
 //=============================================================================

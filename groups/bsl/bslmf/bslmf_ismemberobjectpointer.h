@@ -103,6 +103,11 @@ struct is_member_object_pointer : false_type {
     // 'bsl::false_type' otherwise.
 };
 
+#ifdef BSLS_PLATFORM_CMP_MSVC
+# pragma warning(push)
+# pragma warning(disable: 4180)  // cv-qualifier has no effect on function type
+#endif
+
 template <class TYPE, class CLASS>
 struct is_member_object_pointer<TYPE CLASS::*>
     : is_const<const TYPE>::type {
@@ -111,6 +116,10 @@ struct is_member_object_pointer<TYPE CLASS::*>
     // retain the 'const' qualifier when added in this manner, and there are
     // no 'void' class members.
 };
+
+#ifdef BSLS_PLATFORM_CMP_MSVC
+# pragma warning(pop)
+#endif
 
 template <class TYPE, class CLASS>
 struct is_member_object_pointer<TYPE CLASS::* const>

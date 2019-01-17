@@ -9,10 +9,6 @@
 #include <stdio.h>   // 'printf'
 #include <stdlib.h>  // 'atoi'
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-# pragma warning(disable : 4181)  // 'const' applied to reference type
-#endif
-
 using namespace BloombergLP;
 
 //=============================================================================
@@ -76,6 +72,21 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+
+//=============================================================================
+//                      WARNING SUPPRESSION
+//-----------------------------------------------------------------------------
+
+// This test driver intentional creates types with unusual use of cv-qualifiers
+// in order to confirm that there are no strange corners of the type system
+// that are not addressed by this traits component.  Consequently, we disable
+// certain warnings from common compilers.
+
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+# pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+# pragma warning(disable : 4181)
+#endif
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING

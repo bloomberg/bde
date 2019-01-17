@@ -175,6 +175,11 @@ struct is_function<const volatile void> : false_type {
 #else  // This is the simplest implementation, for conforming compilers.
 namespace bsl {
 
+#ifdef BSLS_PLATFORM_CMP_MSVC
+# pragma warning(push)
+# pragma warning(disable: 4180)  // cv-qualifier has no effect on function type
+#endif
+
 template <class TYPE>
 struct is_function
     :  bsl::integral_constant<bool, !is_const<const TYPE>::value> {
@@ -186,6 +191,10 @@ struct is_function
     // that neither function types nor reference types can be cv-qualified so
     // that 'is_const<const TYPE>' will actually yield 'false'.
 };
+
+#ifdef BSLS_PLATFORM_CMP_MSVC
+# pragma warning(pop)
+#endif
 
 template <class TYPE>
 struct is_function<TYPE &> : false_type {
