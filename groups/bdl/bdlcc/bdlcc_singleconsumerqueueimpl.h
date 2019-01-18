@@ -66,6 +66,19 @@ BSLS_IDENT("$Id: $")
 // objects *by* *value*).  We recommend large objects be stored as
 // shared-pointers (or possibly raw pointers).
 //
+///WARNING: Synchronization Required on Destruction
+///------------------------------------------------
+// The behavior for the destructor is undefined unless all access or
+// modification of the object is completed prior to its destruction.  Some form
+// of synchronization, external to the component, is required to ensure the
+// precondition on the destructor is met.  For example, if two (or more)
+// threads are manipulating a queue, it is *not* safe to anticipate the number
+// of elements added to the queue, and destroy that queue immediately after the
+// last element is popped (without additional synchronization) because one of
+// the corresponding push functions may not have completed (push may, for
+// instance, signal waiting threads after the element is considered added to
+// the container).
+//
 ///Usage
 ///-----
 // There is no usage example for this component since it is not meant for
@@ -388,7 +401,8 @@ class SingleConsumerQueueImpl {
         // allocator is used.
 
     ~SingleConsumerQueueImpl();
-        // Destroy this object.
+        // Destroy this container.  The behavior is undefined unless all access
+        // or modification of the container has completed prior to this call.
 
     // MANIPULATORS
     int popFront(TYPE *value);

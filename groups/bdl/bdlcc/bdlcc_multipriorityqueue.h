@@ -63,6 +63,19 @@ BSLS_IDENT("$Id: $")
 // until it is able to complete successfully or until the specified time limit
 // expires.
 //
+///WARNING: Synchronization Required on Destruction
+///------------------------------------------------
+// The behavior for the destructor is undefined unless all access or
+// modification of the object is completed prior to its destruction.  Some form
+// of synchronization, external to the component, is required to ensure the
+// precondition on the destructor is met.  For example, if two (or more)
+// threads are manipulating a queue, it is *not* safe to anticipate the number
+// of elements added to the queue, and destroy that queue immediately after the
+// last element is popped (without additional synchronization) because one of
+// the corresponding push functions may not have completed (push may, for
+// instance, signal waiting threads after the element is considered added to
+// the queue).
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -582,7 +595,8 @@ class MultipriorityQueue {
         // (if specified).
 
     ~MultipriorityQueue();
-        // Destroy this object.
+        // Destroy this container.  The behavior is undefined unless all access
+        // or modification of the container has completed prior to this call.
 
     // MANIPULATORS
     int pushBack(const TYPE& item, int itemPriority);

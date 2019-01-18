@@ -132,6 +132,19 @@ BSLS_IDENT("$Id: $")
 // (which matches the epoch used in
 // 'bdlt::CurrentTime::now(bsls::SystemClockType::e_MONOTONIC)'.
 //
+///WARNING: Synchronization Required on Destruction
+///------------------------------------------------
+// The behavior for the destructor is undefined unless all access or
+// modification of the object is completed prior to its destruction.  Some form
+// of synchronization, external to the component, is required to ensure this
+// precondition on the destructor is met.  For example, if two (or more)
+// threads are manipulating a queue, it is *not* safe to anticipate the number
+// of elements added to the queue, and destroy that queue immediately after the
+// last element is popped (without additional synchronization) because one of
+// the corresponding push functions may not have completed (push may, for
+// instance, signal waiting threads after the element is considered added to
+// the queue).
+//
 ///Tips For Migrating From 'bcec_Queue'
 ///------------------------------------
 //: o 'InitialCapacity' has been eliminated.  Instead, construct your
@@ -669,7 +682,9 @@ class Deque {
         // allocator is used.
 
     ~Deque();
-        // Destroy this container.
+        // Destroy this container.  The behavior is undefined unless all access
+        // or modification of the container has completed prior to the
+        // destruction of this object.
 
     // MANIPULATORS
     void forcePushBack(const TYPE& item);

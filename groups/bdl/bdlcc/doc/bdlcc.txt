@@ -34,6 +34,17 @@
  makes sense.  Refer to the individual component documentation to understand
  how this general principle is carried out in specific components.
 
+ Unless otherwise stated, the behavior of the destructors of components in the
+ 'bdlcc' package is undefined unless all access or modification of the object
+ is completed prior to its destruction.  Some form of synchronization, external
+ to the component, is required to ensure this precondition on the destructor is
+ met.  For example, if two (or more) threads are manipulating a container, it
+ is *not* safe to anticipate the number of elements added to the container, and
+ destroy that container immediately after the last element is removed (without
+ additional synchronization) because one of the corresponding insert functions
+ may not have completed (the insert may, for instance, signal waiting threads
+ after the element is considered added to the container).
+
 /Hierarchical Synopsis
 /---------------------
  The 'bdlcc' package currently has 15 components having 4 levels of physical
