@@ -21,10 +21,12 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_issame.h>
+#include <bslmf_movableref.h>
 #include <bslmf_typelist.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -37,6 +39,7 @@
 #include <bslx_testinstreamexception.h>
 #include <bslx_testoutstream.h>
 
+#include <bsl_cstddef.h>    // 'bsl::size_t'
 #include <bsl_cstdlib.h>    // 'atoi'
 #include <bsl_iostream.h>
 #include <bsl_map.h>
@@ -50,6 +53,7 @@
 
 using namespace BloombergLP;
 using namespace bsl;
+using bsls::NameOf;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
@@ -644,8 +648,8 @@ class TestString {
                 if (!stream) {
                     return stream;
                 }
-                for (int i = 0; i < static_cast<int>(value.length()); ++i) {
-                    check += static_cast<unsigned char>(value[i]);
+                for (bsl::size_t i = 0; i < value.length(); ++i) {
+                    check = static_cast<unsigned char>(check + value[i]);
                 }
                 if (check != sum) {
                     stream.invalidate();
@@ -681,8 +685,8 @@ class TestString {
             }
             // Add redundant code (purely for the sake of example!).
             unsigned char sum = 0;
-            for (int i = 0; i < static_cast<int>(d_value.length()); ++i) {
-                sum += static_cast<unsigned char>(d_value[i]);
+            for (bsl::size_t i = 0; i < d_value.length(); ++i) {
+                sum = static_cast<unsigned char>(sum + d_value[i]);
             }
             stream.putUint8(sum);
           } break;
@@ -1505,6 +1509,489 @@ void dummyConvert(void *result, const bdlb::Variant<int>& value)
     value.apply(visitor);
 }
 
+// ----------------------------------------------------------------------------
+
+                          // ===========================
+                          // struct ReturningVisitorBase
+                          // ===========================
+
+struct ReturningVisitorBase {
+    // This struct, containing necessary common data and accessors, is the
+    // basis for visitors, returning references.
+
+  public:
+    // TYPES
+    typedef bslmf::MovableRefUtil MoveUtil;
+
+    // DATA
+    int d_int;                          // value for reference initialization
+
+    int d_intOperatorNumCalled;         // flag indicating that operator
+                                        // accepting 'int' reference has been
+                                        // called
+
+    int d_testIntOperatorNumCalled;     // number of times that operator
+                                        // accepting 'TestInt' reference has
+                                        // been called
+
+    int d_stringOperatorNumCalled;      // number of times that operator
+                                        // accepting 'bsl::string' reference
+                                        // has been called
+
+    int d_testStringOperatorNumCalled;  // number of times that operator
+                                        // accepting 'TestString' reference has
+                                        // been called
+
+    int d_nilOperatorNumCalled;         // number of times that operator
+                                        // accepting 'bslmf::Nil' object has
+                                        // been called
+
+    // CREATORS
+    ReturningVisitorBase()
+        // Create a 'ReturningVisitorBase' object, having default value.
+    : d_int(0)
+    , d_intOperatorNumCalled(0)
+    , d_testIntOperatorNumCalled(0)
+    , d_stringOperatorNumCalled(0)
+    , d_testStringOperatorNumCalled(0)
+    , d_nilOperatorNumCalled(0)
+    {}
+
+    explicit ReturningVisitorBase(int value)
+        // Create a 'ReturningVisitorBase' object, having the specified
+        // 'value'.
+    : d_int(value)
+    , d_intOperatorNumCalled(0)
+    , d_testIntOperatorNumCalled(0)
+    , d_stringOperatorNumCalled(0)
+    , d_testStringOperatorNumCalled(0)
+    , d_nilOperatorNumCalled(0)
+    {}
+
+    // ACCESSORS
+    int intOperatorNumCalled() const
+        // Return the number of times the operator accepting constant referense
+        // to 'int' object was called.
+    {
+        return d_intOperatorNumCalled;
+    }
+
+    int testIntOperatorNumCalled() const
+        // Return the number of times the operator accepting constant referense
+        // to 'TestInt' object was called.
+    {
+        return d_testIntOperatorNumCalled;
+    }
+
+    int stringOperatorNumCalled() const
+        // Return the number of times the operator accepting constant referense
+        // to 'bsl::string' object was called.
+    {
+        return d_stringOperatorNumCalled;
+    }
+
+    int testStringOperatorNumCalled() const
+        // Return the number of times the operator accepting constant referense
+        // to 'TestString' object was called.
+    {
+        return d_testStringOperatorNumCalled;
+    }
+
+    int nilOperatorNumCalled() const
+        // Return the number of times the operator accepting 'bslmf::Nil'
+        // object was called.
+    {
+        return d_nilOperatorNumCalled;
+    }
+
+    const int& value() const
+    {
+        return d_int;
+    }
+
+};
+
+// ----------------------------------------------------------------------------
+
+                          // =========================
+                          // class RefReturningVisitor
+                          // =========================
+
+class RefReturningVisitor : public ReturningVisitorBase {
+    // This class simply verifies that returning lvalue reference visitor can
+    // be applied to the 'bdlb::Variant' object.  This visitor only supports 4
+    // types: 'int', 'TestInt', 'bsl::string', and 'TestString'.
+
+  public:
+    // TYPES
+    typedef int& VisitorResultType;
+
+    // CREATORS
+    explicit RefReturningVisitor()
+        // Create a 'ReturningVisitorBase' object, having default value.
+    {}
+
+    explicit RefReturningVisitor(int value)
+        // Create a 'RefReturningVisitor' object, having the specified 'value'.
+    : ReturningVisitorBase(value)
+    {
+    }
+
+    // MANIPULATORS
+    int& operator()(const int&)
+        // Set appropriate boolean flag and return a reference providing
+        // modifiable access to the value of this object.
+    {
+        ++d_intOperatorNumCalled;
+        return d_int;
+    }
+
+    int& operator()(const TestInt&)
+        // Set appropriate boolean flag and return a reference providing
+        // modifiable access to the value of this object.
+    {
+        ++d_testIntOperatorNumCalled;
+        return d_int;
+    }
+
+    int& operator()(const bsl::string&)
+        // Set appropriate boolean flag and return a reference providing
+        // modifiable access to the value of this object.
+    {
+        ++d_stringOperatorNumCalled;
+        return d_int;
+    }
+
+    int& operator()(const TestString&)
+        // Set appropriate boolean flag and return a reference providing
+        // modifiable access to the value of this object.
+    {
+        ++d_testStringOperatorNumCalled;
+        return d_int;
+    }
+
+    int& operator()(bslmf::Nil)
+        // Set appropriate boolean flag and return a reference providing
+        // modifiable access to the value of this object.
+    {
+        ++d_nilOperatorNumCalled;
+        return d_int;
+    }
+};
+
+// ----------------------------------------------------------------------------
+
+                          // ==============================
+                          // class ConstRefReturningVisitor
+                          // ==============================
+
+class ConstRefReturningVisitor : public ReturningVisitorBase {
+    // This class simply verifies that returning constant lvalue reference
+    // visitor can be applied to the 'bdlb::Variant' object.  This visitor only
+    // supports 4 types: 'int', 'TestInt', 'bsl::string', and 'TestString'.
+
+  public:
+    // TYPES
+    typedef const int& VisitorResultType;
+
+    // CREATORS
+    ConstRefReturningVisitor()
+        // Create a 'ReturningVisitorBase' object, having default value.
+    {}
+
+    explicit ConstRefReturningVisitor(int value)
+        // Create a 'ConstRefReturningVisitor' object, having the specified
+        // 'value'.
+    : ReturningVisitorBase(value)
+    {}
+
+    // MANIPULATORS
+    const int& operator()(const int&)
+        // Set appropriate boolean flag and return a reference providing
+        // non-modifiable access to the value of this object.
+    {
+        ++d_intOperatorNumCalled;
+        return d_int;
+    }
+
+    const int& operator()(const TestInt&)
+        // Set appropriate boolean flag and return a reference providing
+        // non-modifiable access to the value of this object.
+    {
+        ++d_testIntOperatorNumCalled;
+        return d_int;
+    }
+
+    const int& operator()(const bsl::string&)
+        // Set appropriate boolean flag and return a reference providing
+        // non-modifiable access to the value of this object.
+    {
+        ++d_stringOperatorNumCalled;
+        return d_int;
+    }
+
+    const int& operator()(const TestString&)
+        // Set appropriate boolean flag and return a reference providing
+        // non-modifiable access to the value of this object.
+    {
+        ++d_testStringOperatorNumCalled;
+        return d_int;
+    }
+
+    const int& operator()(bslmf::Nil)
+        // Set appropriate boolean flag and return a reference providing
+        // non-modifiable access to the value of this object.
+    {
+        ++d_nilOperatorNumCalled;
+        return d_int;
+    }
+};
+
+// ----------------------------------------------------------------------------
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+                        // ===============================
+                        // class RvalueRefReturningVisitor
+                        // ===============================
+
+class RvalueRefReturningVisitor : public ReturningVisitorBase {
+    // This class simply verifies that returning rvalue reference visitor can
+    // be applied to the 'bdlb::Variant' object.  This visitor only supports 4
+    // types: 'int', 'TestInt', 'bsl::string', and 'TestString'.
+
+  public:
+    // TYPES
+    typedef int&& VisitorResultType;
+
+    // CREATORS
+    RvalueRefReturningVisitor()
+        // Create a 'ReturningVisitorBase' object, having default value.
+    {}
+
+    explicit RvalueRefReturningVisitor(int value)
+        // Create a 'RvalueRefReturningVisitor' object, having the specified
+        // 'value'.
+    : ReturningVisitorBase(value)
+    {}
+
+    // MANIPULATORS
+    int&& operator()(const int&)
+        // Set appropriate boolean flag and return a rvalue reference providing
+        // modifiable access to the value of this object.
+    {
+        ++d_intOperatorNumCalled;
+        return MoveUtil::move(d_int);
+    }
+
+    int&& operator()(const TestInt&)
+        // Set appropriate boolean flag and return a rvalue reference providing
+        // modifiable access to the value of this object.
+    {
+        ++d_testIntOperatorNumCalled;
+        return MoveUtil::move(d_int);
+    }
+
+    int&& operator()(const bsl::string&)
+        // Set appropriate boolean flag and return a rvalue reference providing
+        // modifiable access to the value of this object.
+    {
+        ++d_stringOperatorNumCalled;
+        return MoveUtil::move(d_int);
+    }
+
+    int&& operator()(const TestString&)
+        // Set appropriate boolean flag and return a rvalue reference providing
+        // modifiable access to the value of this object.
+    {
+        ++d_testStringOperatorNumCalled;
+        return MoveUtil::move(d_int);
+    }
+
+    int&& operator()(bslmf::Nil)
+        // Set appropriate boolean flag and return a rvalue reference providing
+        // modifiable access to the value of this object.
+    {
+        ++d_nilOperatorNumCalled;
+        return MoveUtil::move(d_int);
+    }
+};
+
+// ----------------------------------------------------------------------------
+
+                       // ====================================
+                       // class ConstRvalueRefReturningVisitor
+                       // ====================================
+
+class ConstRvalueRefReturningVisitor : public ReturningVisitorBase {
+    // This class simply verifies that returning constant rvalue reference
+    // visitor can be applied to the 'bdlb::Variant' object.  This visitor only
+    // supports 4 types: 'int', 'TestInt', 'bsl::string', and 'TestString'.
+
+  public:
+    // TYPES
+    typedef const int&& VisitorResultType;
+
+    // CREATORS
+    ConstRvalueRefReturningVisitor()
+        // Create a 'ReturningVisitorBase' object, having default value.
+    {}
+
+    explicit ConstRvalueRefReturningVisitor(int value)
+        // Create a 'ConstRvalueRefReturningVisitor' object, having the
+        // specified 'value'.
+    : ReturningVisitorBase(value)
+    {}
+
+    // MANIPULATORS
+    const int&& operator()(const int&)
+        // Set appropriate boolean flag and return a rvalue reference providing
+        // non-modifiable access to the value of this object.
+    {
+        ++d_intOperatorNumCalled;
+        return MoveUtil::move(d_int);
+    }
+
+    const int&& operator()(const TestInt&)
+        // Set appropriate boolean flag and return a rvalue reference providing
+        // non-modifiable access to the value of this object.
+    {
+        ++d_testIntOperatorNumCalled;
+        return MoveUtil::move(d_int);
+    }
+
+    const int&& operator()(const bsl::string&)
+        // Set appropriate boolean flag and return a rvalue reference providing
+        // non-modifiable access to the value of this object.
+    {
+        ++d_stringOperatorNumCalled;
+        return MoveUtil::move(d_int);
+    }
+
+    const int&& operator()(const TestString&)
+        // Set appropriate boolean flag and return a rvalue reference providing
+        // non-modifiable access to the value of this object.
+    {
+        ++d_testStringOperatorNumCalled;
+        return MoveUtil::move(d_int);
+    }
+
+    const int&& operator()(bslmf::Nil)
+        // Set appropriate boolean flag and return a rvalue reference providing
+        // non-modifiable access to the value of this object.
+    {
+        ++d_nilOperatorNumCalled;
+        return MoveUtil::move(d_int);
+    }
+};
+#endif
+// ----------------------------------------------------------------------------
+
+                     // ===================================
+                     // class ResultTypeRefReturningVisitor
+                     // ===================================
+
+class ResultTypeRefReturningVisitor : public RefReturningVisitor {
+    // This class is completely identical to the 'RefReturningVisitor', except
+    // the additionally declared 'ResultType'.
+
+  public:
+    //TYPES
+    typedef int& ResultType;
+
+    // CREATORS
+    ResultTypeRefReturningVisitor()
+        // Create a 'ResultTypeRefReturningVisitor' object, having default
+        // value.
+    {}
+
+    explicit ResultTypeRefReturningVisitor(int value)
+        // Create a 'ResultTypeRefReturningVisitor' object, having the
+        // specified 'value'.
+    : RefReturningVisitor(value)
+    {}
+};
+// ----------------------------------------------------------------------------
+
+                  // ========================================
+                  // class ResultTypeConstRefReturningVisitor
+                  // ========================================
+
+class ResultTypeConstRefReturningVisitor : public ConstRefReturningVisitor {
+    // This class is completely identical to the 'ConstRefReturningVisitor',
+    // except the additionally declared 'ResultType'.
+
+  public:
+    // TYPES
+    typedef const int& ResultType;
+
+    // CREATORS
+    ResultTypeConstRefReturningVisitor()
+        // Create a 'ResultTypeConstRefReturningVisitor' object, having default
+        // value.
+    {}
+
+    explicit ResultTypeConstRefReturningVisitor(int value)
+        // Create a 'ResultTypeConstRefReturningVisitor' object, having the
+        // specified 'value'.
+    : ConstRefReturningVisitor(value)
+    {}
+};
+
+// ----------------------------------------------------------------------------
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+                  // =========================================
+                  // class ResultTypeRvalueRefReturningVisitor
+                  // =========================================
+
+class ResultTypeRvalueRefReturningVisitor : public RvalueRefReturningVisitor {
+    // This class is completely identical to the 'RvalueRefReturningVisitor',
+    // except the additionally declared 'ResultType'.
+
+  public:
+    // TYPES
+    typedef int&& ResultType;
+
+    // CREATORS
+    ResultTypeRvalueRefReturningVisitor()
+        // Create a 'ResultTypeRvalueRefReturningVisitor' object, having
+        // default value.
+    {}
+
+    explicit ResultTypeRvalueRefReturningVisitor(int value)
+        // Create a 'ResultTypeRvalueRefReturningVisitor' object, having the
+        // specified 'value'.
+    : RvalueRefReturningVisitor(value)
+    {}
+};
+
+// ----------------------------------------------------------------------------
+
+                // ==============================================
+                // class ResultTypeConstRvalueRefReturningVisitor
+                // ==============================================
+
+class ResultTypeConstRvalueRefReturningVisitor :
+                                        public ConstRvalueRefReturningVisitor {
+    // This class is completely identical to the
+    // 'ConstRvalueRefReturningVisitor', except the additionally declared
+    // 'ResultType'.
+
+  public:
+    // TYPES
+    typedef const int&& ResultType;
+
+    // CREATORS
+    ResultTypeConstRvalueRefReturningVisitor()
+        // Create a 'ResultTypeConstRvalueRefReturningVisitor' object, having
+        // default value.
+    {}
+
+    explicit ResultTypeConstRvalueRefReturningVisitor(int value)
+        // Create a 'ResultTypeConstRvalueRefReturningVisitor' object, having
+        // the specified 'value'.
+    : ConstRvalueRefReturningVisitor(value)
+    {}
+};
+#endif
 // ----------------------------------------------------------------------------
 
                           // =======================
@@ -3045,6 +3532,369 @@ class Security {
 };
 
 }  // close namespace MOVING_OBJECT_CONTAINING_CONST_VARIANT
+
+namespace FUNCTIONS_FOR_TESTING_APPLY {
+
+template <class VARIANT, class VISITOR, class VALUE_TYPE>
+void applyTestRTNS(const VALUE_TYPE& defaultValue,
+                   int               intOpCalled,
+                   int               testIntOpCalled,
+                   int               stringOpCalled,
+                   int               testStringOpCalled,
+                   int               nilOpCalled)
+    // Check if object of (template parameter) 'VISITOR' can be applied to the
+    // object of (template parameter) 'VARIANT' (not specifying 'ResultType')
+    // with and without the specified 'defaultValue' and verify the number of
+    // calls of visitor's operators.
+{
+    typedef typename VISITOR::VisitorResultType RetType;
+
+    // The following combinations are tested:
+    //
+    //      VARIANT STATE  ACTION             PARAMETERS
+    //      =============  =================  =========================
+    // switch {
+    //   0.   set variant  apply              ( visitor               )
+    //   1.   set variant  applyRaw           ( visitor               )
+    //   2.   set variant  apply<RetType>     ( visitor               )
+    //   3.   set variant  applyRaw<RetType>  ( visitor               )
+    //   4.   set variant  apply              ( visitor, defaultValue )
+    //   5.   set variant  apply<RetType>     ( visitor, defaultValue )
+    //   6. unset variant  apply              ( visitor, defaultValue )
+    //   7. unset variant  apply<RetType>     ( visitor, defaultValue )
+    // }
+    // 8.   unset variant  apply              ( visitor               )
+    // 9.   unset variant  apply<RetType>     ( visitor               )
+    //
+    // Note, that the last two combinations are tested outside of the 'switch'
+    // scope, because values to compare results with are different for them.
+
+    for (int i = 0; i < 8; ++i) {
+
+        VARIANT  variant;
+        VISITOR  visitor(i);
+
+        const void *EXPECTED_ADDR = &visitor.value();
+        const void *returnAddr    = 0;
+
+        switch (i) {
+          case 0:
+            {
+                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                variant.apply(visitor);
+            }
+            break;
+          case 1:
+            {
+                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                variant.applyRaw(visitor);
+            }
+            break;
+          case 2:
+            {
+                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                RetType returnValue = variant.template apply<RetType>(visitor);
+                returnAddr = &returnValue;
+                ASSERTV(EXPECTED_ADDR == returnAddr);
+            }
+            break;
+          case 3:
+            {
+                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                RetType returnValue =
+                                   variant.template applyRaw<RetType>(visitor);
+                returnAddr = &returnValue;
+                ASSERTV(EXPECTED_ADDR == returnAddr);
+            }
+            break;
+          case 4:
+            {
+                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                variant.apply(visitor, defaultValue);
+            }
+            break;
+          case 5:
+            {
+                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                RetType returnValue = variant.template apply<RetType>(
+                                                                 visitor,
+                                                                 defaultValue);
+                returnAddr = &returnValue;
+                ASSERTV(EXPECTED_ADDR == returnAddr);
+            }
+            break;
+          case 6:
+            {
+                variant.apply(visitor, defaultValue);
+            }
+            break;
+          case 7:
+            {
+                RetType returnValue = variant.template apply<RetType>(
+                                                                 visitor,
+                                                                 defaultValue);
+                returnAddr = &returnValue;
+                ASSERTV(EXPECTED_ADDR == returnAddr);
+            }
+            break;
+          default:
+            ASSERT(!"Should never be here!");
+        }
+
+        ASSERTV(i, intOpCalled, visitor.intOperatorNumCalled(),
+                intOpCalled        == visitor.intOperatorNumCalled()       );
+        ASSERTV(i, testIntOpCalled, visitor.testIntOperatorNumCalled(),
+                testIntOpCalled    == visitor.testIntOperatorNumCalled()   );
+        ASSERTV(i, stringOpCalled, visitor.stringOperatorNumCalled(),
+                stringOpCalled     == visitor.stringOperatorNumCalled()    );
+        ASSERTV(i, testStringOpCalled, visitor.testStringOperatorNumCalled(),
+                testStringOpCalled == visitor.testStringOperatorNumCalled());
+        ASSERTV(i, nilOpCalled, visitor.nilOperatorNumCalled(),
+                nilOpCalled        == visitor.nilOperatorNumCalled()       );
+
+    }
+
+    VARIANT variant1;
+    VISITOR visitor1;
+
+    variant1.apply(visitor1);
+
+    ASSERT(0 == visitor1.intOperatorNumCalled()       );
+    ASSERT(0 == visitor1.testIntOperatorNumCalled()   );
+    ASSERT(0 == visitor1.stringOperatorNumCalled()    );
+    ASSERT(0 == visitor1.testStringOperatorNumCalled());
+    ASSERT(1 == visitor1.nilOperatorNumCalled()       );
+
+    VARIANT variant2;
+    VISITOR visitor2;
+
+    variant2.template apply<RetType>(visitor2);
+
+    ASSERT(0 == visitor2.intOperatorNumCalled()       );
+    ASSERT(0 == visitor2.testIntOperatorNumCalled()   );
+    ASSERT(0 == visitor2.stringOperatorNumCalled()    );
+    ASSERT(0 == visitor2.testStringOperatorNumCalled());
+    ASSERT(1 == visitor2.nilOperatorNumCalled()       );
+
+}
+
+template <class VARIANT, class VISITOR, class VALUE_TYPE>
+void applyTestRTS(const VALUE_TYPE& defaultValue,
+                  int               intOpCalled,
+                  int               testIntOpCalled,
+                  int               stringOpCalled,
+                  int               testStringOpCalled,
+                  int               nilOpCalled)
+    // Check if object of (template parameter) 'VISITOR' can be applied to the
+    // object of (template parameter) 'VARIANT' (specifying 'ResultType') with
+    // and without the specified 'defaultValue' and verify the number of calls
+    // of visitor's operators.
+{
+    typedef typename VISITOR::ResultType RetType;
+
+    // The following combinations are tested:
+    //
+    //      VARIANT STATE  ACTION             PARAMETERS
+    //      =============  =================  =========================
+    // switch {
+    //   0.   set variant  apply              ( visitor               )
+    //   1.   set variant  applyRaw           ( visitor               )
+    //   2.   set variant  apply<RetType>     ( visitor               )
+    //   3.   set variant  applyRaw<RetType>  ( visitor               )
+    //   4.   set variant  apply              ( visitor, defaultValue )
+    //   5.   set variant  apply<RetType>     ( visitor, defaultValue )
+    //   6. unset variant  apply              ( visitor, defaultValue )
+    //   7. unset variant  apply<RetType>     ( visitor, defaultValue )
+    // }
+    // 8.   unset variant  apply              ( visitor               )
+    // 9.   unset variant  apply<RetType>     ( visitor               )
+    //
+    // Note, that the last two combinations are tested outside of the 'switch'
+    // scope, because values to compare results with are different for them.
+
+    for (int i = 0; i < 8; ++i) {
+
+        VARIANT variant;
+        VISITOR visitor(i);
+
+        const void *EXPECTED_ADDR = &visitor.value();
+        const void *returnAddr    = 0;
+
+        switch (i) {
+          case 0:
+            {
+                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                RetType returnValue = variant.apply(visitor);
+                returnAddr = &returnValue;
+                ASSERTV(EXPECTED_ADDR == returnAddr);
+            }
+            break;
+          case 1:
+            {
+                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                RetType returnValue = variant.applyRaw(visitor);
+                returnAddr = &returnValue;
+                ASSERTV(EXPECTED_ADDR == returnAddr);
+            }
+            break;
+          case 2:
+            {
+                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                RetType returnValue = variant.template apply<RetType>(visitor);
+                returnAddr = &returnValue;
+                ASSERTV(EXPECTED_ADDR == returnAddr);
+            }
+            break;
+          case 3:
+            {
+                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                RetType returnValue = variant.template applyRaw<RetType>(
+                                                                      visitor);
+                returnAddr = &returnValue;
+                ASSERTV(EXPECTED_ADDR == returnAddr);
+            }
+            break;
+          case 4:
+            {
+                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                RetType returnValue = variant.apply(visitor, defaultValue);
+                returnAddr = &returnValue;
+                ASSERTV(EXPECTED_ADDR == returnAddr);
+            }
+            break;
+          case 5:
+            {
+                variant.template createInPlace<VALUE_TYPE>(defaultValue);
+                RetType returnValue = variant.template apply<RetType>(
+                                                                 visitor,
+                                                                 defaultValue);
+                returnAddr = &returnValue;
+                ASSERTV(EXPECTED_ADDR == returnAddr);
+            }
+            break;
+          case 6:
+            {
+                RetType returnValue = variant.apply(visitor, defaultValue);
+                returnAddr = &returnValue;
+                ASSERTV(EXPECTED_ADDR == returnAddr);
+            }
+            break;
+          case 7:
+            {
+                RetType returnValue =
+                        variant.template apply<RetType>(visitor, defaultValue);
+                returnAddr = &returnValue;
+                ASSERTV(EXPECTED_ADDR == returnAddr);
+            }
+            break;
+          default:
+            ASSERT(!"Should never be here!");
+        }
+
+        ASSERTV(i, intOpCalled, visitor.intOperatorNumCalled(),
+                intOpCalled        == visitor.intOperatorNumCalled()       );
+        ASSERTV(i, testIntOpCalled, visitor.testIntOperatorNumCalled(),
+                testIntOpCalled    == visitor.testIntOperatorNumCalled()   );
+        ASSERTV(i, stringOpCalled, visitor.stringOperatorNumCalled(),
+                stringOpCalled     == visitor.stringOperatorNumCalled()    );
+        ASSERTV(i, testStringOpCalled, visitor.testStringOperatorNumCalled(),
+                testStringOpCalled == visitor.testStringOperatorNumCalled());
+        ASSERTV(i, nilOpCalled, visitor.nilOperatorNumCalled(),
+                nilOpCalled        == visitor.nilOperatorNumCalled()       );
+
+    }
+
+    VARIANT variant1;
+    VISITOR visitor1;
+
+    RetType returnValue1 = variant1.apply(visitor1);
+
+    const void *EXPECTED_ADDR1 = &visitor1.value();
+    const void *returnAddr1    = &returnValue1;
+
+    ASSERTV(EXPECTED_ADDR1 == returnAddr1);
+
+    ASSERT(0 == visitor1.intOperatorNumCalled()       );
+    ASSERT(0 == visitor1.testIntOperatorNumCalled()   );
+    ASSERT(0 == visitor1.stringOperatorNumCalled()    );
+    ASSERT(0 == visitor1.testStringOperatorNumCalled());
+    ASSERT(1 == visitor1.nilOperatorNumCalled()       );
+
+    VARIANT variant2;
+    VISITOR visitor2;
+
+    RetType returnValue2 = variant2.template apply<RetType>(visitor2);
+
+    const void *EXPECTED_ADDR2 = &visitor2.value();
+    const void *returnAddr2    = &returnValue2;
+
+    ASSERTV(EXPECTED_ADDR2 == returnAddr2);
+
+    ASSERT(0 == visitor2.intOperatorNumCalled()       );
+    ASSERT(0 == visitor2.testIntOperatorNumCalled()   );
+    ASSERT(0 == visitor2.stringOperatorNumCalled()    );
+    ASSERT(0 == visitor2.testStringOperatorNumCalled());
+    ASSERT(1 == visitor2.nilOperatorNumCalled()       );
+
+}
+
+template <class VISITOR>
+void testReferenceResultTypeNotSpecified()
+    // Test 'apply' and 'applyRaw' functions with visitors returning references
+    // and not specifying 'ResultType'.
+{
+    typedef bdlb::VariantImp<
+                  bslmf::TypeList<int, TestInt, bsl::string, TestString> > Obj;
+
+    {
+        if (veryVerbose) {
+            cout << "\t" << NameOf<VISITOR>().name() << endl;
+        }
+
+        // Specify the desired default values.
+
+        const int         INT(1);
+        const TestInt     TINT(1);
+        const bsl::string STR("a");
+        const TestString  TSTR("b");
+
+        //                                INT  TINT STR  TSTR NIL
+        //                                ===  ==== ===  ==== ===
+        applyTestRTNS<Obj, VISITOR>(INT ,  1,   0,   0,   0,   0  );
+        applyTestRTNS<Obj, VISITOR>(TINT,  0,   1,   0,   0,   0  );
+        applyTestRTNS<Obj, VISITOR>(STR ,  0,   0,   1,   0,   0  );
+        applyTestRTNS<Obj, VISITOR>(TSTR,  0,   0,   0,   1,   0  );
+    }
+}
+
+template <class VISITOR>
+void testReferenceResultTypeSpecified()
+    // Test 'apply' and 'applyRaw' functions with visitors returning references
+    // and specifying 'ResultType'.
+{
+    typedef bdlb::VariantImp<
+                  bslmf::TypeList<int, TestInt, bsl::string, TestString> > Obj;
+
+    if (veryVerbose) {
+        cout << "\t" << NameOf<VISITOR>().name() << endl;
+    }
+
+    // Specify the desired default values.
+
+    const int         INT(1);
+    const TestInt     TINT(1);
+    const bsl::string STR("a");
+    const TestString  TSTR("b");
+
+    //                                INT  TINT STR  TSTR NIL
+    //                                ===  ==== ===  ==== ===
+    applyTestRTS<Obj, VISITOR>(INT ,  1,   0,   0,   0,   0  );
+    applyTestRTS<Obj, VISITOR>(TINT,  0,   1,   0,   0,   0  );
+    applyTestRTS<Obj, VISITOR>(STR ,  0,   0,   1,   0,   0  );
+    applyTestRTS<Obj, VISITOR>(TSTR,  0,   0,   0,   1,   0  );
+}
+
+}  // close namespace FUNCTIONS_FOR_TESTING_APPLY
 
 // ============================================================================
 //                            OUT-OF-LINE TEST CASES
@@ -26336,11 +27186,14 @@ void TestUtil::testCase16()
     }
 }
 
+
 void TestUtil::testCase15()
 {
     if (verbose) cout << endl
                       << "TESTING VISITORS (return values)" << endl
                       << "================================" << endl;
+
+    using namespace FUNCTIONS_FOR_TESTING_APPLY;
 
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
@@ -26544,7 +27397,7 @@ void TestUtil::testCase15()
     if (verbose) cout << "\nTesting that visitors do not modify the value."
                       << endl;
     {
-        Obj tmp(1);  // dummy used to initialize the variant
+        Obj   tmp(1);  // dummy used to initialize the variant
         VWrap wrappedVariant(tmp, &oa);
         VWrap wrappedVariant2(tmp, &oa);
         wrappedVariant.variant().createInPlace<bsl::string>(STRING_DATA[1]);
@@ -26556,6 +27409,24 @@ void TestUtil::testCase15()
 
         ASSERT(STRING_DATA[1] == wrappedVariant.variant().the<bsl::string>());
         ASSERT(STRING_DATA[1] == wrappedVariant2.variant().the<bsl::string>());
+    }
+
+    if (verbose) cout << "\nTesting reference returning visitors."  << endl;
+    {
+        testReferenceResultTypeNotSpecified<RefReturningVisitor>();
+        testReferenceResultTypeNotSpecified<ConstRefReturningVisitor>();
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        testReferenceResultTypeNotSpecified<RvalueRefReturningVisitor>();
+        testReferenceResultTypeNotSpecified<ConstRvalueRefReturningVisitor>();
+#endif
+        testReferenceResultTypeSpecified<ResultTypeRefReturningVisitor>();
+        testReferenceResultTypeSpecified<ResultTypeConstRefReturningVisitor>();
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+        testReferenceResultTypeSpecified<
+                                        ResultTypeRvalueRefReturningVisitor>();
+        testReferenceResultTypeSpecified<
+                                   ResultTypeConstRvalueRefReturningVisitor>();
+#endif
     }
 }
 
@@ -26977,7 +27848,7 @@ void TestUtil::testCase13()
         bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard guard(&da);
 
-        Obj mX(&oa);  const Obj& X = mX;
+        Obj mX(&oa);
 
         ASSERT(0 == oa.numBlocksTotal());
         ASSERT(0 == da.numBlocksTotal());
@@ -27606,9 +28477,7 @@ int main(int argc, char *argv[])
 
     List x[4];
 
-    //*************************************
-    // Note that 'x[3]' is uninitialized. *
-    //*************************************
+    // Note that 'x[3]' is uninitialized.
 
     x[0].assign(1);
     x[1].assign(1.1);
@@ -27680,9 +28549,7 @@ int main(int argc, char *argv[])
 //    public:
 //      typedef bool ResultType;
 //
-//      //*************************************************************
-//      // Note that the return type of 'operator()' is 'ResultType'. *
-//      //*************************************************************
+//      // Note that the return type of 'operator()' is 'ResultType'.
 //
 //      template <class TYPE>
 //      ResultType operator()(TYPE& value) const
@@ -27760,9 +28627,7 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < 3; ++i) {
 
-        //*****************************************************
-        // Note that the return type is explicitly specified. *
-        //*****************************************************
+        // Note that the return type is explicitly specified.
 
         bsl::string ret = x[i].apply<bsl::string>(visitor);
         bsl::cout << ret << bsl::endl;
@@ -28343,6 +29208,8 @@ int main(int argc, char *argv[])
         //      by the visitor.
         //   6. Unless explicitly modified by the visitor, visiting the
         //      variant does not modify the variant in any way.
+        //   7. Visitors returning refrences (either lvalue or rvalue, constant
+        //      or not) can be succesfully applied by variant.
         //
         // Plan:
         //   To address concern 1, simply create a visitor that modifies
@@ -28377,6 +29244,10 @@ int main(int argc, char *argv[])
         //   To address concern 6, create a (non-'const') variant and use the
         //   visitor of concern 5 to visit it.  After visiting, verify that the
         //   value held by the variant is not modified in any way.
+        //
+        //   To address concern 7, create visitors that return different
+        //   references from function call operators, apply them and verify
+        //   that appropriate operators are called.
         //
         // Testing:
         //   VISITOR::ResultType apply(VISITOR& visitor);
@@ -28580,16 +29451,16 @@ int main(int argc, char *argv[])
             Obj mX(&oa);  const Obj& X = mX;
             ASSERT(X.isUnset());
 
-            Obj *mR = &mX.assignTo<TestInt>(77.7);
+            Obj *mR = &mX.assignTo<TestInt>('a');
             ASSERT(               X.is<TestInt>());
-            ASSERT(TestInt(77) == X.the<TestInt>());
+            ASSERT(TestInt(97) == X.the<TestInt>());
             ASSERT(mR == &mX);
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
 
-            mR = &mX.assignTo<TestInt>(33.4);
+            mR = &mX.assignTo<TestInt>('b');
             ASSERT(               X.is<TestInt>());
-            ASSERT(TestInt(33) == X.the<TestInt>());
+            ASSERT(TestInt(98) == X.the<TestInt>());
             ASSERT(mR == &mX);
             ASSERT(dam.isTotalSame());
             ASSERT(oam.isTotalSame());
@@ -28695,7 +29566,7 @@ int main(int argc, char *argv[])
             bslx::TestOutStream out(0);  X.bdexStreamOut(out, version);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
 
             bslx::TestInStream in(OD, LOD);  ASSERT(in);
             ASSERT(!in.isEmpty());
@@ -28728,7 +29599,7 @@ int main(int argc, char *argv[])
             bslx::TestOutStream out(0);  X.bdexStreamOut(out, version);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
 
             bslx::TestInStream in(OD, LOD);  ASSERT(in);
             ASSERT(!in.isEmpty());
@@ -28767,7 +29638,7 @@ int main(int argc, char *argv[])
                     bslx::OutStreamFunctions::bdexStreamOut(out, U, VERSION);
 
                     const char *const OD  = out.data();
-                    const int         LOD = out.length();
+                    const bsl::size_t LOD = out.length();
 
                     bslx::TestInStream bdexInStream(OD, LOD);
                     ASSERTV(U_SPEC, bdexInStream);
@@ -28889,14 +29760,14 @@ int main(int argc, char *argv[])
 
             bslx::TestOutStream out(0);
             bslx::OutStreamFunctions::bdexStreamOut(out, Y1, VERSION);
-            const int LOD1 = out.length();
+            const bsl::size_t LOD1 = out.length();
             bslx::OutStreamFunctions::bdexStreamOut(out, Y2, VERSION);
-            const int LOD2 = out.length();
+            const bsl::size_t LOD2 = out.length();
             bslx::OutStreamFunctions::bdexStreamOut(out, Y3, VERSION);
-            const int LOD  = out.length();
+            const bsl::size_t LOD  = out.length();
             const char *const OD = out.data();
 
-            for (int i = 0; i < LOD; ++i) {
+            for (bsl::size_t i = 0; i < LOD; ++i) {
                 bslx::TestInStream bdexInStream(OD, i);
                 bslx::TestInStream& in = bdexInStream;
                 ASSERTV(i, in);  ASSERTV(i, !i == in.isEmpty());
@@ -28961,7 +29832,7 @@ int main(int argc, char *argv[])
             bslx::OutStreamFunctions::bdexStreamOut(out, z, VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
 
             TObj t(X);
             ASSERT(W != t);   ASSERT(X == t);   ASSERT(Y != t);
@@ -28985,7 +29856,7 @@ int main(int argc, char *argv[])
             bslx::OutStreamFunctions::bdexStreamOut(out, z, VERSION);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
 
             TObj t(X);
             ASSERT(W != t);  ASSERT(X == t);    ASSERT(Y != t);
@@ -29004,7 +29875,7 @@ int main(int argc, char *argv[])
             bslx::OutStreamFunctions::bdexStreamOut(out, z, version);
 
             const char *const OD  = out.data();
-            const int         LOD = out.length();
+            const bsl::size_t LOD = out.length();
 
             TObj t(X);
             ASSERT(W != t);  ASSERT(X == t);    ASSERT(Y != t);
