@@ -1882,7 +1882,7 @@ class LoggerManager {
                                       const char         *categoryName) const;
         // Load into the specified '*levels' the threshold levels that would be
         // set for a newly created category, irrespective of whether a category
-        // name with the specified 'categoryName' is already in the registry.
+        // with the specified 'categoryName' is already in the registry.
         // Return 0 on success and a non-zero value otherwise.  Use the
         // specified 'categoryName' when calling the default threshold levels
         // callback, if such a callback exists.  This method will fail if the
