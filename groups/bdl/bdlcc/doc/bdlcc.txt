@@ -34,13 +34,16 @@
  makes sense.  Refer to the individual component documentation to understand
  how this general principle is carried out in specific components.
 
- It is not safe to destroy thread-aware containers before ALL manipulator or
- accessor calls on the object have completed, which usually will require some
- synchonization external to the object.  For example, it is NOT safe to
- conclude that a 'push' call has completed just because the pushed item has
- been removed from the container -- the 'push' call may contain synchronization
- activity that is done AFTER the item is in the container and available for
- removal.
+ The behavior for the destructor is undefined unless all access or
+ modification of the object is completed prior to its destruction.  Some form
+ of synchronization, external to the component, is required to ensure this
+ precondition on the destructor is met.  For example, if two (or more) threads
+ are manipulating a container, it is *not* safe to anticipate the number of
+ elements added to the container, and destroy that container immediately after
+ the last element is removed (without additional synchronization) because one
+ of the corresponding insert functions may not have completed (the insert may,
+ for instance, signal waiting threads after the element is considered added
+ to the container).
 
 /Hierarchical Synopsis
 /---------------------
