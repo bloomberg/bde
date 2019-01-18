@@ -106,6 +106,25 @@ BSLS_IDENT("$Id: $")
 // 'BALL_LOG_SET_DYNAMIC_CATEGORY'), class-scope categories are not destroyed
 // until the logger manager singleton is destroyed.
 //
+///Macro for Defining Categories at Namespace or Global Scope
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following macro is used to establish logging categories that have
+// namespace or global scope:
+//
+//: 'BALL_LOG_SET_NAMESPACE_CATEGORY(CATEGORY)':
+//:     Set a category for logging to the specified 'CATEGORY' (assumed to be
+//:     of type convertible to 'const char *') in the namespace (or global)
+//:     scope within which this macro is used.  Similar to
+//:     'BALL_LOG_SET_CATEGORY', the category is set *once* only, the first
+//:     time that it is accessed (i.e., it is not a dynamic category).  This
+//:     macro may be used, in '.cpp' files *only*, at most once in any given
+//:     namespace and at most once at global scope (or else a compiler
+//:     diagnostic will result).  Do *NOT* use this macro in '.h' files.
+//
+// Note that similar to block-scope categories (see 'BALL_LOG_SET_CATEGORY' and
+// 'BALL_LOG_SET_DYNAMIC_CATEGORY'), namespace-scope categories are not
+// destroyed until the logger manager singleton is destroyed.
+//
 ///Macros for Defining Hierarchical Categories
 ///- - - - - - - - - - - - - - - - - - - - - -
 // The following macros are used to establish logging categories having
@@ -154,6 +173,19 @@ BSLS_IDENT("$Id: $")
 //:     use of this macro may occur in either a 'public', 'private', or
 //:     'protected' section of a class's interface, although 'private' should
 //:     be preferred.
+//:
+//: 'BALL_LOG_SET_NAMESPACE_CATEGORY_HIERARCHICALLY(CATEGORY)'
+//:     Set a category for logging to the specified 'CATEGORY' (assumed to be
+//:     of type convertible to 'const char *') in the namespace (or global)
+//:     scope within which this macro is used.  Similar to
+//:     'BALL_LOG_SET_CATEGORY_HIERARCHICALLY', the category is set *once*
+//:     only, using the 'ball::Log::setCategoryHierarchically' function, the
+//:     first time that it is accessed (i.e., it is not a dynamic category).
+//:     (See the function-level documentation for
+//:     'ball::Log::setCategoryHierarchically' for more information.)  This
+//:     macro may be used, in '.cpp' files *only*, at most once in any given
+//:     namespace and at most once at global scope (or else a compiler
+//:     diagnostic will result).  Do *NOT* use this macro in '.h' files.
 //
 ///Macros for Logging Records
 /// - - - - - - - - - - - - -
@@ -945,9 +977,9 @@ const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(
         { 0 }                                                                 \
     };
 
-                       // ==========================
-                       // Class-Scope Category Macro
-                       // ==========================
+                       // ===========================
+                       // Class-Scope Category Macros
+                       // ===========================
 
 #define BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)                                 \
     static                                                                    \
@@ -993,6 +1025,47 @@ const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(
         return &holder;                                                       \
     }                                                                         \
     enum { BALL_LOG_CATEGORYHOLDER = 0 }
+
+                       // ===============================
+                       // Namespace-Scope Category Macros
+                       // ===============================
+
+#define BALL_LOG_SET_NAMESPACE_CATEGORY(CATEGORY)                             \
+namespace {                                                                   \
+    static                                                                    \
+    const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(int)  \
+    {                                                                         \
+        static BloombergLP::ball::CategoryHolder holder = {                   \
+            { BloombergLP::ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },  \
+                                                                 { 0 }, { 0 } \
+        };                                                                    \
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!holder.category())) {      \
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                               \
+            BloombergLP::ball::Log::setCategory(&holder, CATEGORY);           \
+        }                                                                     \
+        return &holder;                                                       \
+    }                                                                         \
+    enum { BALL_LOG_CATEGORYHOLDER = 0 };                                     \
+}
+
+#define BALL_LOG_SET_NAMESPACE_CATEGORY_HIERARCHICALLY(CATEGORY)              \
+namespace {                                                                   \
+    static                                                                    \
+    const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(int)  \
+    {                                                                         \
+        static BloombergLP::ball::CategoryHolder holder = {                   \
+            { BloombergLP::ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },  \
+                                                                 { 0 }, { 0 } \
+        };                                                                    \
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!holder.category())) {      \
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                               \
+            BloombergLP::ball::Log::setCategoryHierarchically(&holder,        \
+                                                              CATEGORY);      \
+        }                                                                     \
+        return &holder;                                                       \
+    }                                                                         \
+    enum { BALL_LOG_CATEGORYHOLDER = 0 };                                     \
+}
 
                  // ====================================
                  // Implementation Details: Do *NOT* Use

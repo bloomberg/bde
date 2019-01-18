@@ -149,20 +149,21 @@ using bsl::flush;
 // [26] RULE-BASED LOGGING: logMessage(const Category *, int, Record *);
 // [27] BALL_LOG_IS_ENABLED(SEVERITY)
 // [28] BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)
-// [32] setCategoryHierarchically(const char *);
-// [32] setCategoryHierarchically(CategoryHolder *, const char *);
-// [33] BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(const char *);
-// [33] BALL_LOG_SET_CATEGORY_HIERARCHICALLY(const char *);
-// [34] BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(const char *);
+// [29] BALL_LOG_SET_NAMESPACE_CATEGORY(CATEGORY)
+// [33] setCategoryHierarchically(const char *);
+// [33] setCategoryHierarchically(CategoryHolder *, const char *);
+// [34] BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(const char *);
+// [34] BALL_LOG_SET_CATEGORY_HIERARCHICALLY(const char *);
+// [35] BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(const char *);
 // ----------------------------------------------------------------------------
-// [36] USAGE EXAMPLE
-// [37] RULE-BASED LOGGING USAGE EXAMPLE
-// [38] CLASS-SCOPE LOGGING USAGE EXAMPLE
-// [39] BASIC LOGGING USAGE EXAMPLE
-// [29] CONCERN: 'BALL_LOG_*_BLOCK' MACROS
-// [30] CONCERN: 'BALL_LOGCB_*_BLOCK' MACROS
-// [31] CONCERN: DEGENERATE LOG MACROS USAGE
-// [35] CONCERN: The logging macros can be used recursively.
+// [30] CONCERN: 'BALL_LOG_*_BLOCK' MACROS
+// [31] CONCERN: 'BALL_LOGCB_*_BLOCK' MACROS
+// [32] CONCERN: DEGENERATE LOG MACROS USAGE
+// [36] CONCERN: The logging macros can be used recursively
+// [37] USAGE EXAMPLE
+// [38] RULE-BASED LOGGING USAGE EXAMPLE
+// [39] CLASS-SCOPE LOGGING USAGE EXAMPLE
+// [40] BASIC LOGGING USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1125,7 +1126,7 @@ const Cat *defaultCat = 0;
 
 namespace indices {
 
-// In test cases 32, 33, and 34, we want to call 'setCategoryHierarchically',
+// In test cases 33, 34, and 35, we want to call 'setCategoryHierarchically',
 // often with category holder objects passed.  Also, the d'tor of the category
 // manager (part of the logger manager) will traverse all the category holders
 // that have been initialized, resetting them.  So it's necessary that the
@@ -1133,9 +1134,9 @@ namespace indices {
 // manager.
 //
 // This problem is solved by having templates with integer arguments.  In test
-// cases 32, we use template function 'testSetCategoryHierarchically', in test
-// case 33, we use template function 'testLocalMacros' defined below, in test
-// case 34, it is template class 'TestClassMacro' defined further below.  Thus,
+// cases 33, we use template function 'testSetCategoryHierarchically', in test
+// case 34, we use template function 'testLocalMacros' defined below, in test
+// case 35, it is template class 'TestClassMacro' defined further below.  Thus,
 // we can instantiate these templates with many different integer values, and
 // get a different instantiation of the static category holder in each one.
 //
@@ -1513,8 +1514,8 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// -- Test case 32 uses only things above here.  'Flags' & 'testLocalMacros'
-// are used by test case 33, and 'TestClassMacro' is used by test case 34.
+// -- Test case 33 uses only things above here.  'Flags' & 'testLocalMacros'
+// are used by test case 34, and 'TestClassMacro' is used by test case 35.
 
 // 'Flags' is the type of the last argument passed to 'testLocalMacros<int>()',
 // which indicates whether the category sought is to be static (the default) or
@@ -1642,8 +1643,8 @@ testLocalMacros(const Agg&          newLevels,
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// -- Test case 34 uses some of the things above here, and everything below
-// here, while test case 32 & test case 33 use only things above here.
+// -- Test case 35 uses some of the things above here, and everything below
+// here, while test case 33 & test case 34 use only things above here.
 
 template <int KK>
 class TestClassMacro {
@@ -1805,10 +1806,10 @@ TestClassMacro<KK>::operator()(const Agg&            classLevels,
 }  // close namespace BALL_LOG_HIERARCHICAL_CATEGORIES
 
 // ============================================================================
-//                         CASE 28 RELATED ENTITIES
+//                         CASE 29 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 
-namespace BALL_LOG_TEST_CASE_28 {
+namespace BALL_LOG_TEST_CASE_29 {
 
 void globalFunctionThatLogsToLocalCategory()
     // Log a record to the block-scope category "GLOBAL CATEGORY".
@@ -1972,7 +1973,7 @@ void ClassScopeLogger<TYPE>::outoflineMethodThatLogsToLocalCategory()
     BALL_LOG_INFO << "INFO log to static local category";
 }
 
-}  // close namespace BALL_LOG_TEST_CASE_28
+}  // close namespace BALL_LOG_TEST_CASE_29
 
 // ============================================================================
 //                         CASE 24 RELATED ENTITIES
@@ -2822,6 +2823,29 @@ struct ThreadFunctor {
 
 }  // close namespace BALL_LOG_TEST_CASE_MINUS_1
 
+// Please note that this harmlessly looking line introduces the category for
+// the whole translation unit.
+BALL_LOG_SET_NAMESPACE_CATEGORY("BALL_LOG.T");
+
+namespace BALL_LOG_TEST_NAMESPACE_LOGGING {
+    BALL_LOG_SET_NAMESPACE_CATEGORY("NS.A");
+
+    void logNamespaceCategory() {
+        BALL_LOG_INFO << "INFO log in namespace A";
+    }
+
+    namespace BALL_LOG_TEST_NAMESPACE_LOGGING_B {
+        BALL_LOG_SET_NAMESPACE_CATEGORY_HIERARCHICALLY("NS.A.B");
+
+        void logNamespaceCategory() {
+            BALL_LOG_INFO << "INFO log in namespace A.B";
+        }
+
+    }  // close namespace BALL_LOG_TEST_NAMESPACE_LOGGING_B
+
+}  // close namespace BALL_LOG_TEST_NAMESPACE_LOGGING
+
+
 // ============================================================================
 //                         CASE -2 RELATED ENTITIES
 // ----------------------------------------------------------------------------
@@ -2868,7 +2892,7 @@ int main(int argc, char *argv[])
     TestAllocator ta("test", veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 39: {
+      case 40: {
         // --------------------------------------------------------------------
         // BASIC LOGGING USAGE EXAMPLE
         //
@@ -2944,7 +2968,7 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 // logging configuration.  The special macro 'BALL_LOG_OUTPUT_STREAM' provides
 // access to the log stream within the code.
       } break;
-      case 38: {
+      case 39: {
         // --------------------------------------------------------------------
         // CLASS-SCOPE LOGGING USAGE EXAMPLE
         //
@@ -3004,7 +3028,7 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
         }
 
       } break;
-      case 37: {
+      case 38: {
         // --------------------------------------------------------------------
         // RULE-BASED LOGGING USAGE EXAMPLE
         //
@@ -3077,7 +3101,7 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 // ERROR example.cpp:129 EXAMPLE.CATEGORY Processing the third message.
 //..
       } break;
-      case 36: {
+      case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -3330,7 +3354,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
       } break;
-      case 35: {
+      case 36: {
         // --------------------------------------------------------------------
         // TESTING RECURSIVE USE OF LOGGING MACROS
         //
@@ -3349,7 +3373,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //:   results.  (C-1, 2)
         //
         // Testing:
-        //   CONCERN: The logging macros can be used recursively.
+        //   CONCERN: The logging macros can be used recursively
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << bsl::endl
@@ -3772,7 +3796,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOGCB_TRACE(callback) << "Outer TRACE";
         }
       } break;
-      case 34: {
+      case 35: {
         // --------------------------------------------------------------------
         // TESTING CLASS HIERARCHICAL CATEGORY MACROS
         //
@@ -4098,7 +4122,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         ASSERT(0 == da.numAllocations());
       } break;
-      case 33: {
+      case 34: {
         // --------------------------------------------------------------------
         // TESTING LOCAL HIERARCHICAL CATEGORY MACROS
         //
@@ -4436,7 +4460,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         ASSERT(0 == da.numAllocations());
       } break;
-      case 32: {
+      case 33: {
         // --------------------------------------------------------------------
         // TESTING HIERARCHICAL CATEGORIES
         //
@@ -4796,7 +4820,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         ASSERT(0 == da.numAllocations());
       } break;
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
         // TESTING DEGENERATE LOG MACROS USAGE
         //  Sanity test of the degenerate log macros use cases.
@@ -4979,7 +5003,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOGCB_STREAM_BLOCK(severity + 1, callback) {}
         }
       } break;
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // TESTING 'BALL_LOGCB_*_BLOCK' MACROS
         //
@@ -5611,7 +5635,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERTV(N + 3 == observer->numPublishedRecords());
         }
       } break;
-      case 29: {
+      case 30: {
         // --------------------------------------------------------------------
         // TESTING 'BALL_LOG_*_BLOCK' MACROS
         //
@@ -6264,6 +6288,129 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERTV(N + 6 == observer->numPublishedRecords());
         }
       } break;
+      case 29: {
+        // --------------------------------------------------------------------
+        // TESTING NAMESPACE-SCOPE LOGGING
+        //
+        // Concerns:
+        //: 1 That no more than one namespace-scope category can be defined in
+        //:   a namespace.
+        //:
+        //: 2 That all manner of logging macros (stream-based, callback-based,
+        //:   variadic) work with namespace-scope categories.
+        //:
+        //: 3 That static and dynamic categories hide namespace-scope
+        //:   categories.
+        //
+        // Plan:
+        //: 1 Using brute-force, define two namespace-scope categories that
+        //:   together exercise all of the concerns.  (C-1..3)
+        //
+        // Testing:
+        //   BALL_LOG_SET_NAMESPACE_CATEGORY(CATEGORY)
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "\nTESTING NAMESPACE-SCOPE LOGGING"
+                               << "\n==============================="
+                               << bsl::endl;
+
+        using namespace BloombergLP;  // okay here
+
+        bslma::TestAllocator ta(veryVeryVeryVerbose);
+        ball::LoggerManagerConfiguration lmc;
+        lmc.setDefaultThresholdLevelsIfValid(
+                                 ball::Severity::e_OFF,    // record level
+                                 ball::Severity::e_TRACE,  // passthrough level
+                                 ball::Severity::e_OFF,    // trigger level
+                                 ball::Severity::e_OFF);   // triggerAll level
+        ball::LoggerManagerScopedGuard lmg(TO, lmc, &ta);
+
+        ball::LoggerManager&  manager = ball::LoggerManager::singleton();
+
+        ASSERT(1 == ball::TestObserver::numInstances());
+
+        // This log should pick up the global namespace category.
+        BALL_LOG_INFO << "INFO log in the top level namespace category";
+
+        ASSERT(1 == TO->numPublishedRecords());
+        ASSERT(0 == bsl::strcmp(
+                      "BALL_LOG.T",
+                      TO->lastPublishedRecord().fixedFields().category()));
+
+        // Exercise logging in BALL_LOG_TEST_NAMESPACE_LOGGING
+        {
+            using namespace BALL_LOG_TEST_NAMESPACE_LOGGING;
+            logNamespaceCategory();
+
+            ASSERT(2 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "NS.A",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            // Looking up and changing category threshold levels.
+            ball::Category *category = manager.lookupCategory("NS.A");
+            ASSERT(0 != category);
+
+            int rc = category->setLevels(ball::Severity::e_TRACE,
+                                         ball::Severity::e_TRACE,
+                                         ball::Severity::e_ERROR,
+                                         ball::Severity::e_FATAL);
+            ASSERT(0 == rc);
+
+            // Nested namespace logging
+            BALL_LOG_TEST_NAMESPACE_LOGGING_B::logNamespaceCategory();
+
+            ASSERT(3 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "NS.A.B",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            // Checking that category levels were inherited from the parent
+            category = manager.lookupCategory("NS.A.B");
+            ASSERT(0 != category);
+            ASSERT(ball::Severity::e_TRACE == category->recordLevel());
+            ASSERT(ball::Severity::e_TRACE == category->passLevel());
+            ASSERT(ball::Severity::e_ERROR == category->triggerLevel());
+            ASSERT(ball::Severity::e_FATAL == category->triggerAllLevel());
+
+            // Testing that local/class scopes take precedence.
+            BALL_LOG_TEST_CASE_29::ClassScopeLoggerA::
+                                          classMethodThatLogsToClassCategory();
+
+            ASSERT(4 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "CLASS CATEGORY A",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            BALL_LOG_TEST_CASE_29::ClassScopeLoggerA mX;
+            const BALL_LOG_TEST_CASE_29::ClassScopeLoggerA& X = mX;
+
+            // 'outoflineMethodThatLogsToLocalCategory' logs two messages, the
+            // first to the class-scope category and the second to a static
+            // category defined at block scope.
+
+            mX.outoflineMethodThatLogsToLocalCategory();
+
+            ASSERT(6 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "STATIC LOCAL CATEGORY",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            X.inlineMethodThatLogsToClassCategory();
+
+            ASSERT(7 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "CLASS CATEGORY A",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            BALL_LOG_TEST_CASE_29::globalFunctionThatLogsToLocalCategory();
+
+            ASSERT(8 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "GLOBAL CATEGORY",
+                          TO->lastPublishedRecord().fixedFields().category()));
+        }
+      } break;
       case 28: {
         // --------------------------------------------------------------------
         // TESTING CLASS-SCOPE LOGGING
@@ -6300,7 +6447,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                << "\n==========================="
                                << bsl::endl;
 
-        using namespace BALL_LOG_TEST_CASE_28;
+        using namespace BALL_LOG_TEST_CASE_29;
         using namespace BloombergLP;  // okay here
 
         bslma::TestAllocator ta(veryVeryVeryVerbose);
