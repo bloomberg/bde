@@ -14,18 +14,25 @@ BSLS_IDENT_RCSID(bdls_osutil_cpp, "$Id$ $CSID$")
 
 #include <bdls_processutil.h>
 
+#include <bslmf_assert.h>
+#include <bsls_platform.h>
+
 #include <bsl_cstring.h>
 #include <bsl_sstream.h>
 
-#include <bslmf_assert.h>
-
-#include <bsls_platform.h>
-
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-# include <bsl_limits.h>
+# undef u_VISTA_OR_LATER
+# if 6 <= BSLS_PLATFORM_OS_VER_MAJOR
+#   define u_VISTA_OR_LATER 1
+# endif
 
-# include "windows.h"
-# include "VersionHelpers.h"
+# include <windows.h>
+# ifdef u_VISTA_OR_LATER
+#   include <bsl_limits.h>
+#   include "VersionHelpers.h"
+# else
+#   include <process.h>
+# endif
 #else
 # include <unistd.h>
 # include <sys/utsname.h>
@@ -52,6 +59,7 @@ int OsUtil::getOsInfo(bsl::string *osName,
 
     *osName = "Windows";
 
+#ifdef u_VISTA_OR_LATER
     // On Windows, 'WORD' means a 16-bit unsigned int.
 
     WORD major = 0;
@@ -83,16 +91,54 @@ int OsUtil::getOsInfo(bsl::string *osName,
     --servicePackMajor;
 
     // Os version
+
     bsl::ostringstream version;
     version << major << '.' << minor;
     *osVersion = version.str();
     version.str("");
 
     // Service pack number
+
     if (servicePackMajor) {
+        // Note that we are incapable of detecting any 'servicePackMinor'
+        // version other than 0.  But it seems rational that if Microsoft had
+        // any plans for non-zero 'servicePackMinor' version at or after
+        // Vista, they would have made 'IsWindowsVersionOrGreater' take 4 args
+        // instead of 3.
+
         version << "Service Pack " << servicePackMajor << ".0";
     }
     *osPatch = version.str();
+
+#else
+
+    OSVERSIONINFOEX osvi;
+
+    bsl::memset(&osvi, 0, sizeof(OSVERSIONINFOEX));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+
+    if (!GetVersionEx((OSVERSIONINFO *)&osvi)) {
+        return -1;
+    }
+
+    // Os version
+
+    bsl::ostringstream version;
+    version << osvi.dwMajorVersion << '.' << osvi.dwMinorVersion;
+    *osVersion = version.str();
+
+    version.clear();
+    version.str("");
+
+    // Service pack number
+
+    if (osvi.wServicePackMajor) {
+        version << "Service Pack " << osvi.wServicePackMajor << '.'
+                << osvi.wServicePackMinor;
+    }
+    *osPatch = version.str();
+
+#endif
 
     return 0;
 }
