@@ -329,7 +329,8 @@ BSLS_IDENT("$Id: $")
 //      k_NUM_TRACE =  1        // max # of trace messages in a very short time
 //  };
 //
-//  const Int64 k_NS_PER_HOUR = bdlt::TimeUnitRatio::k_NANOSECONDS_PER_HOUR;
+//  const Int64 k_NS_PER_HOUR =
+//                    BloombergLP::bdlt::TimeUnitRatio::k_NANOSECONDS_PER_HOUR;
 //
 //  const Int64 k_NS_PER_INFO  = k_NS_PER_HOUR / k_NUM_INFO;
 //                 // long-term minimum nanoseconds per info message permitted

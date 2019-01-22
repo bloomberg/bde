@@ -248,9 +248,8 @@ Log_Formatter::Log_Formatter(const Category *category,
 : d_category_p(category)
 , d_record_p(Log::getRecord(category, fileName, lineNumber))
 , d_severity(severity)
-{
-    d_buffer = Log::obtainMessageBuffer(&d_bufferLen);
-}
+, d_buffer(Log::obtainMessageBuffer(&d_bufferLen))
+{}
 
 Log_Formatter::~Log_Formatter()
 {

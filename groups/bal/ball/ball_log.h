@@ -1571,10 +1571,10 @@ class Log_Formatter {
     const int                d_severity;    // severity at which record is
                                             // logged
 
+    int                      d_bufferLen;   // length of buffer
+
     bslma::ManagedPtr<char>  d_buffer;      // buffer for formatted user log
                                             // message
-
-    int                      d_bufferLen;   // length of buffer
 
   private:
     // NOT IMPLEMENTED
