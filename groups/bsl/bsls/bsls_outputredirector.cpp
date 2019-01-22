@@ -25,17 +25,6 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 namespace bsls {
 
-namespace {
-inline int fstatFunc(int fd, OutputRedirector::StatType *buf)
-{
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-    return fstat(fd, buf);
-#else
-    return fstat64(fd, buf);
-#endif
-}
-} // close anonymous namespace
-
 // PRIVATE MANIPULATORS
 void OutputRedirector::cleanup()
 {
@@ -45,13 +34,15 @@ void OutputRedirector::cleanup()
 
 void OutputRedirector::cleanupFiles()
 {
+    if (-1 != d_duplicatedOriginalFd) {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-    _close(d_duplicatedOriginalFd);
+        _close(d_duplicatedOriginalFd);
 #else
-    close(d_duplicatedOriginalFd);
+        close(d_duplicatedOriginalFd);
 #endif
 
-    d_duplicatedOriginalFd = -1;
+        d_duplicatedOriginalFd = -1;
+    }
 
     if (d_isFileCreatedFlag) {
         unlink(d_fileName);
@@ -100,7 +91,9 @@ bool OutputRedirector::generateTempFileName()
 OutputRedirector::OutputRedirector(Stream which,
                                    bool   verbose,
                                    bool   veryVerbose)
-: d_stream(which)
+: d_fileName()
+, d_outputBuffer()
+, d_stream(which)
 , d_isRedirectingFlag(false)
 , d_isFileCreatedFlag(false)
 , d_isOutputReadyFlag(false)
@@ -111,8 +104,9 @@ OutputRedirector::OutputRedirector(Stream which,
 {
     BSLS_ASSERT(which == e_STDOUT_STREAM || which == e_STDERR_STREAM);
 
+#if 0  // These are workarounds for compilers not doing value initialization
     d_fileName[0] = '\0';
-    memset(&d_originalStat, 0, sizeof(struct stat));
+#endif
 }
 
 OutputRedirector::~OutputRedirector()
@@ -168,7 +162,6 @@ void OutputRedirector::enable()
     const int originalFD = fileno(redirectedStream());
 
     BSLS_ASSERT(-1 != originalFD);
-    BSLS_ASSERT(0 == fstatFunc(originalFD, &d_originalStat));
 
     if (d_duplicatedOriginalFd == -1) {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
@@ -424,11 +417,6 @@ FILE *OutputRedirector::nonRedirectedStream() const
     } else {
         return stdout;                                                // RETURN
     }
-}
-
-const OutputRedirector::StatType& OutputRedirector::originalStat() const
-{
-    return d_originalStat;
 }
 
 size_t OutputRedirector::outputSize() const
