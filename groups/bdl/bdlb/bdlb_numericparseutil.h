@@ -284,12 +284,11 @@ struct NumericParseUtil {
         // '[SHRT_MIN .. SHRT_MAX]' range the 'result' will be the longest
         // number that does not over/underflow and 'remainder' will start at
         // the first digit that would make the number too large/small.  Return
-        // zero on success, and a non-zero value otherwise.  Return zero on
-        // success, and a non-zero value otherwise.  The value of 'result' is
-        // unchanged if a parse failure occurs.  The behavior is undefined
-        // unless '2 <= base' and 'base <= 36' (i.e., bases where digits are
-        // representable by characters in the range ['0'-'9'], ['a'-'z'] or
-        // ['A'-'Z']).
+        // zero on success, and a non-zero value otherwise.  The value of
+        // 'result' is unchanged if a parse failure occurs.  The behavior is
+        // undefined unless '2 <= base' and 'base <= 36' (i.e., bases where
+        // digits are representable by characters in the range ['0'-'9'],
+        // ['a'-'z'] or ['A'-'Z']).
         //
         // A parse failure can occur for the following reasons:
         //..
@@ -377,10 +376,9 @@ struct NumericParseUtil {
         // '[0 .. USHRT_MAX]' range the 'result' will be the longest number
         // that does not over/underflow and 'remainder' will start at the first
         // digit that would make the number too large/small.  Return zero on
-        // success, and a non-zero value otherwise.  Return zero on success,
-        // and a non-zero value otherwise.  The value of 'result' is unchanged
-        // if a parse failure occurs.  The behavior is undefined unless
-        // '2 <= base' and 'base <= 36' (i.e., bases where digits are
+        // success, and a non-zero value otherwise.  The value of 'result' is
+        // unchanged if a parse failure occurs.  The behavior is undefined
+        // unless '2 <= base' and 'base <= 36' (i.e., bases where digits are
         // representable by characters in the range ['0'-'9'], ['a'-'z'] or
         // ['A'-'Z']).
         //

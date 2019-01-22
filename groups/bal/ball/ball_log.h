@@ -693,9 +693,13 @@ BSLS_IDENT("$Id: $")
 // 'ball::Severity::e_DEBUG' level, which is below the default configured
 // logging threshold.
 //..
-//  ball::StreamObserver observer(&bsl::cout);
-//  ball::LoggerManagerConfiguration configuration;
-//  ball::LoggerManagerScopedGuard lmg(&observer, configuration);
+//  ball::LoggerManagerConfiguration lmConfig;
+//  ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
+//
+//  bsl::shared_ptr<ball::StreamObserver> observer =
+//                          bsl::make_shared<ball::StreamObserver>(&bsl::cout);
+//
+//  ball::LoggerManager::singleton().registerObserver(observer, "default");
 //
 //  BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
 //

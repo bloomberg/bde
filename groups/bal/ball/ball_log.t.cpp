@@ -2913,15 +2913,15 @@ int main(int argc, char *argv[])
 
             using namespace BloombergLP;    // OK here
 
-            ball::StreamObserver observer(&bsl::cout);
+            ball::LoggerManagerConfiguration lmConfig;
+            lmConfig.setDefaultThresholdLevelsIfValid(Sev::e_TRACE);
+            ball::LoggerManagerScopedGuard lmGuard(lmConfig);
 
-            ball::LoggerManagerConfiguration lmc;
-            lmc.setDefaultThresholdLevelsIfValid(
-                  Sev::e_OFF,    // record level
-                  Sev::e_TRACE,  // passthrough level
-                  Sev::e_OFF,    // trigger level
-                  Sev::e_OFF);   // triggerAll level
-            ball::LoggerManagerScopedGuard lmg(&observer, lmc);
+            bsl::shared_ptr<ball::StreamObserver> observer =
+                            bsl::make_shared<ball::StreamObserver>(&bsl::cout);
+
+            ball::LoggerManager::singleton().registerObserver(observer,
+                                                              "default");
 
 if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 ///Example 1: A Basic Logging Example
@@ -2992,13 +2992,13 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 
         {
             bslma::TestAllocator ta(veryVeryVeryVerbose);
-            ball::LoggerManagerConfiguration lmc;
-            lmc.setDefaultThresholdLevelsIfValid(
+            ball::LoggerManagerConfiguration lmConfig;
+            lmConfig.setDefaultThresholdLevelsIfValid(
                   Sev::e_TRACE,  // record level
                   Sev::e_TRACE,  // passthrough level
                   Sev::e_ERROR,  // trigger level
                   Sev::e_FATAL); // triggerAll level
-            ball::LoggerManagerScopedGuard lmg(TO, lmc, &ta);
+            ball::LoggerManagerScopedGuard lmg(TO, lmConfig, &ta);
 
             ASSERT(1 == ball::TestObserver::numInstances());
             ASSERT(0 == TO->numPublishedRecords());
@@ -3062,14 +3062,18 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 // 'ball::Severity::e_DEBUG' level, which is below the default configured
 // logging threshold.
 //..
-    ball::StreamObserver observer(&bsl::cout);
-    ball::LoggerManagerConfiguration configuration;
-    ball::LoggerManagerScopedGuard lmg(&observer, configuration);
-//
+    ball::LoggerManagerConfiguration lmConfig;
+    ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
+
+    bsl::shared_ptr<ball::StreamObserver> observer =
+                            bsl::make_shared<ball::StreamObserver>(&bsl::cout);
+
+    ball::LoggerManager::singleton().registerObserver(observer, "default");
+
     BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
-//
+
     bsl::vector<char> message;
-//
+
     BALL_LOG_ERROR << "Processing the first message.";
     processData(3938908, 2, 9001, message);
 //..
@@ -3082,7 +3086,7 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
     ball::Rule rule("*", 0, ball::Severity::e_TRACE, 0, 0);
     rule.addPredicate(ball::Predicate("uuid", 3938908));
     ball::LoggerManager::singleton().addRule(rule);
-//
+
     BALL_LOG_ERROR << "Processing the second message.";
     processData(3938908, 2, 9001, message);
 //..
@@ -3125,9 +3129,13 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 
         if (verbose) bsl::cout << "Initialize logger manager" << bsl::endl;
 
-        ball::StreamObserver observer(&cout);
-        ball::LoggerManagerConfiguration lmc;
-        ball::LoggerManagerScopedGuard lmg(&observer, lmc);
+        ball::LoggerManagerConfiguration lmConfig;
+        ball::LoggerManagerScopedGuard lmGuard(lmConfig);
+
+        bsl::shared_ptr<ball::StreamObserver> observer =
+                            bsl::make_shared<ball::StreamObserver>(&bsl::cout);
+
+        ball::LoggerManager::singleton().registerObserver(observer, "default");
 
         ball::Administration::addCategory(
                                       "EQUITY.NASD",
