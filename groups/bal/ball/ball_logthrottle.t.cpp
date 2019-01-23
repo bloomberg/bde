@@ -22,6 +22,7 @@
 #include <bslma_allocator.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_default.h>
+#include <bslma_managedptr.h>
 #include <bslma_testallocator.h>
 
 #include <bslmt_barrier.h>
@@ -197,8 +198,6 @@ static bool veryVeryVeryVerbose;
 
 namespace {
 
-using namespace BloombergLP;
-
 namespace u {
 
 const double epsilon = 2e-9;        // 2 nanoseconds (the timer used by the
@@ -215,7 +214,7 @@ double doubleClock()
     enum { k_BILLION = 1000 * 1000 * 1000 };
 
     return static_cast<double>(
-                    bsls::SystemTime::nowMonotonicClock().totalNanoseconds()) /
+       BloombergLP::bsls::SystemTime::nowMonotonicClock().totalNanoseconds()) /
                                                                      k_BILLION;
 }
 
@@ -228,20 +227,20 @@ void doubleSleep(double timeInSeconds)
     ASSERT(timeInSeconds <= 2.0);       // Don't want this test driver to take
                                         // too long.
 
-    bslmt::ThreadUtil::microSleep(static_cast<int>(timeInSeconds * 1e6));
+    BloombergLP::bslmt::ThreadUtil::microSleep(static_cast<int>(
+                                                         timeInSeconds * 1e6));
 }
 
-ball::Severity::Level nextSev()
+BloombergLP::ball::Severity::Level nextSev()
     // Return a different severity from the 'enum' 'ball::Severity::Level'
     // every time this is called, rotating through the defined values.
 {
-    static const ball::Severity::Level severities[] = {
-                                        BloombergLP::ball::Severity::e_TRACE,
-                                        BloombergLP::ball::Severity::e_DEBUG,
-                                        BloombergLP::ball::Severity::e_INFO,
-                                        BloombergLP::ball::Severity::e_WARN,
-                                        BloombergLP::ball::Severity::e_ERROR,
-                                        BloombergLP::ball::Severity::e_FATAL };
+    static const Level severities[] = {Sev::e_TRACE,
+                                       Sev::e_DEBUG,
+                                       Sev::e_INFO,
+                                       Sev::e_WARN,
+                                       Sev::e_ERROR,
+                                       Sev::e_FATAL };
     enum { k_NUM_SEVERITIES = sizeof severities / sizeof *severities };
     static int idx = -1;
 
@@ -270,51 +269,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, u::TestType testType)
     }
 
     return stream;
-}
-
-const char FILL = static_cast<char>(0xbb);
-
-inline
-char *messageBuffer(int *bufferSize = 0)
-    // Return the current message buffer, and if the optionally specified
-    // 'bufferSize' is non-zero, update the '*bufferSize' with the buffer size.
-{
-    int dummyBufferSize;
-    bufferSize = bufferSize ? bufferSize : &dummyBufferSize;
-
-    BloombergLP::bslmt::Mutex *mutex = 0;
-    char *buffer = BloombergLP::ball::Log::obtainMessageBuffer(&mutex,
-                                                               bufferSize);
-    BloombergLP::ball::Log::releaseMessageBuffer(mutex);
-    return buffer;
-}
-
-inline
-static void scribbleBuffer()
-    // Assign 'FILL' to each of the 'messageBufferSize' bytes starting at the
-    // address returned by 'messageBuffer'.
-{
-    int   bufferSize;
-    char *buffer = messageBuffer(&bufferSize);
-    bsl::memset(buffer, FILL, bufferSize);
-}
-
-static
-bool isBufferUnchangedSinceScribbled()
-    // Return 'true' if no portion of the buffer returned by 'messageBuffer'
-    // has been overwritten since 'scribbleBuffer' was last called, and 'false'
-    // otherwise.
-{
-    int bufferSize;
-    const char *p   = messageBuffer(&bufferSize);
-    const char *end = p + bufferSize;
-
-    while (p < end) {
-        if (*p++ != FILL) {
-            return false;                                             // RETURN
-        }
-    }
-    return true;
 }
 
 static bool isRecordOkay(const BloombergLP::ball::TestObserver&  observer,
@@ -422,7 +376,8 @@ double RadiationMeterReceiver::yield()
         k_NUM_TRACE =  1        // max # of trace messages in a very short time
     };
 //
-    const Int64 k_NS_PER_HOUR = bdlt::TimeUnitRatio::k_NANOSECONDS_PER_HOUR;
+    const Int64 k_NS_PER_HOUR =
+                      BloombergLP::bdlt::TimeUnitRatio::k_NANOSECONDS_PER_HOUR;
 //
     const Int64 k_NS_PER_INFO  = k_NS_PER_HOUR / k_NUM_INFO;
                    // long-term minimum nanoseconds per info message permitted
@@ -854,10 +809,10 @@ enum { k_NUM_THREADS             = 40,
        k_NANOSECONDS_PER_MESSAGE = 1000 * 1000 * 1000,
        k_ATTEMPTS_PER_THREAD     = k_PERMITTED * 100 / k_NUM_THREADS };
 
-bslmt::Barrier  barrier(k_NUM_THREADS + 1);
-bsls::AtomicInt atomicBarrier(0);
-bsls::AtomicInt idKey(0);
-bsls::AtomicInt numAttempts(0);
+BloombergLP::bslmt::Barrier  barrier(k_NUM_THREADS + 1);
+BloombergLP::bsls::AtomicInt atomicBarrier(0);
+BloombergLP::bsls::AtomicInt idKey(0);
+BloombergLP::bsls::AtomicInt numAttempts(0);
 
 class Func {
     // This 'class' is a functor for multithreaded testing.
@@ -947,7 +902,7 @@ void testMain(BloombergLP::ball::TestObserver *TO,
                                       0,
                                       0);
 
-    bslmt::ThreadGroup tg(alloc);
+    BloombergLP::bslmt::ThreadGroup tg(alloc);
 
     tg.addThreads(Func(testType), k_NUM_THREADS);
 
@@ -1603,7 +1558,7 @@ int main(int argc, char *argv[])
                                      BloombergLP::ball::Severity::e_FATAL - 1,
                                      BloombergLP::ball::Severity::e_FATAL - 1);
 
-        ball::Severity::Level sev = u::nextSev();
+        Level sev = u::nextSev();
 
         for (int ti = 0; ti < 2; ++ti) {
             const bool  doTraces    = ti;
@@ -1806,19 +1761,23 @@ int main(int argc, char *argv[])
             if (veryVerbose) cout <<
                       "\tTesting Buffer Overflow with 'ostream' Macro" << endl;
             {
-                int bufLen;    const int& BUFLEN = bufLen;
-                messageBuffer(&bufLen);
-                char *longString;
-                char *cpyString;
-                {
-                    const int EXCESS = 128;
-                    const int NN      = BUFLEN + EXCESS;
-                    longString = new char[NN];
-                    bsl::fill(longString + 0, longString + NN, 'x');
-                    longString[NN-1] = '\0';
-                    cpyString  = new char[NN];
-                    bsl::strcpy(cpyString, longString);
-                }
+                const int                BUFLEN     =
+                    LoggerManager::singleton().getLogger().messageBufferSize();
+                const int                EXCESS     = 128;
+                const int                NN         = BUFLEN + EXCESS;
+                char                    *longString = (char *) ta.allocate(NN);
+                char                    *cpyString  = (char *) ta.allocate(NN);
+
+                BloombergLP::bslma::ManagedPtr<char>  managedLongString(
+                                                                    longString,
+                                                                    &ta);
+                BloombergLP::bslma::ManagedPtr<char>  managedCpyString(
+                                                                     cpyString,
+                                                                     &ta);
+
+                bsl::fill(longString + 0, longString + NN, 'x');
+                longString[NN - 1] = '\0';
+                bsl::strcpy(cpyString, longString);
 
                 np += doTraces;
                 for (int ii = 0; ii < 10; ++ii) {
@@ -1927,9 +1886,6 @@ int main(int argc, char *argv[])
                     ASSERTV(expElseCounter, elseCounter,
                                                 expElseCounter == elseCounter);
                 }
-
-                delete [] longString;
-                delete [] cpyString;
             }
         }
 
@@ -2100,9 +2056,9 @@ int main(int argc, char *argv[])
                                    BloombergLP::ball::Severity::e_FATAL - 1,
                                    BloombergLP::ball::Severity::e_FATAL - 1);
 
-        const int    n = 1;                     // numEventsPerPeriod
-        const Int64  p = 1000 * 1000 * 1000;    // NANOSECONDS_PER_MESSAGE
-        ball::Severity::Level sev;
+        const int   n = 1;                     // numEventsPerPeriod
+        const Int64 p = 1000 * 1000 * 1000;    // NANOSECONDS_PER_MESSAGE
+        Level       sev;
 
         BALL_LOG_SET_CATEGORY("sieve")
 
@@ -2121,13 +2077,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "BALL_LOGTHROTTLEVA(" <<
                                                    sev << ") - " << jj << endl;
         for (int ii = 0; ii < 10; ++ii) {
-            scribbleBuffer();
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_0_ARGS);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_0_ARGS);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, sev, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2137,13 +2094,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "BALL_LOGTHROTTLEVA(" <<
                                                    sev << ") - " << jj << endl;
         for (int ii = 0; ii < 10; ++ii) {
-            scribbleBuffer();
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_1_ARGS, 1);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_1_ARGS, 1);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, sev, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2153,13 +2111,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "BALL_LOGTHROTTLEVA(" <<
                                                    sev << ") - " << jj << endl;
         for (int ii = 0; ii < 10; ++ii) {
-            scribbleBuffer();
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, sev, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2169,13 +2128,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "BALL_LOGTHROTTLEVA(" <<
                                                    sev << ") - " << jj << endl;
         for (int ii = 0; ii < 10; ++ii) {
-            scribbleBuffer();
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, sev, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2185,13 +2145,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "BALL_LOGTHROTTLEVA(" <<
                                                    sev << ") - " << jj << endl;
         for (int ii = 0; ii < 10; ++ii) {
-            scribbleBuffer();
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, sev, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2201,13 +2162,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "BALL_LOGTHROTTLEVA(" <<
                                                    sev << ") - " << jj << endl;
         for (int ii = 0; ii < 10; ++ii) {
-            scribbleBuffer();
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_5_ARGS, 1,2,3,4,5);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, sev, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2217,15 +2179,16 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "BALL_LOGTHROTTLEVA(" <<
                                                    sev << ") - " << jj << endl;
         for (int ii = 0; ii < 10; ++ii) {
-            scribbleBuffer();
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, sev, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2235,15 +2198,16 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "BALL_LOGTHROTTLEVA(" <<
                                                    sev << ") - " << jj << endl;
         for (int ii = 0; ii < 10; ++ii) {
-            scribbleBuffer();
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5,
                                                                          6, 7);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6,
                                                                             7);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, sev, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2253,15 +2217,16 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "BALL_LOGTHROTTLEVA(" <<
                                                    sev << ") - " << jj << endl;
         for (int ii = 0; ii < 10; ++ii) {
-            scribbleBuffer();
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5,
                                                                       6, 7, 8);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6,
                                                                          7, 8);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, sev, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2271,15 +2236,16 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "BALL_LOGTHROTTLEVA(" <<
                                                    sev << ") - " << jj << endl;
         for (int ii = 0; ii < 10; ++ii) {
-            scribbleBuffer();
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             BALL_LOGTHROTTLEVA(NONE, n, p, FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5,
                                                                       6,7,8,9);
-            ASSERT(1 == isBufferUnchangedSinceScribbled());
+            ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA(sev, n, p, FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5,
                                                                       6,7,8,9);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, sev, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2295,15 +2261,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_0_ARGS);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_0_ARGS);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2314,15 +2283,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_1_ARGS, 1);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_1_ARGS, 1);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2333,15 +2305,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2352,15 +2327,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2371,15 +2349,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2390,16 +2371,19 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4,
                                                                             5);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2410,17 +2394,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4,
                                                                          5, 6);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2431,17 +2418,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4,
                                                                        5, 6,7);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5,
                                                                          6, 7);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2452,17 +2442,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,
                                                                           7,8);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,7,
                                                                             8);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2473,17 +2466,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noTRACE")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,
                                                                         7,8,9);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_TRACE(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,7,8,
                                                                             9);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, TRACE, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2496,15 +2492,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_0_ARGS);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_0_ARGS);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2515,15 +2514,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_1_ARGS, 1);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_1_ARGS, 1);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2534,15 +2536,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2553,15 +2558,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2572,15 +2580,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2591,16 +2602,19 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4,
                                                                             5);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2611,17 +2625,21 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4,
                                                                          5, 6);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2632,17 +2650,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4,
                                                                        5, 6,7);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5,
                                                                          6, 7);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2653,17 +2674,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,
                                                                           7,8);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,7,
                                                                             8);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2674,17 +2698,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noDEBUG")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,
                                                                         7,8,9);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_DEBUG(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,7,8,
                                                                             9);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, DEBUG, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2697,15 +2724,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_0_ARGS);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_0_ARGS);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2716,15 +2746,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_1_ARGS, 1);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_1_ARGS, 1);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2735,15 +2768,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2754,15 +2790,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2773,15 +2812,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2792,16 +2834,19 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4,
                                                                             5);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2812,17 +2857,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4,
                                                                          5, 6);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2833,17 +2881,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4,
                                                                        5, 6,7);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6,
                                                                             7);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2854,16 +2905,19 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,
                                                                           7,8);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,7,8);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2874,17 +2928,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noINFO")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,
                                                                         7,8,9);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_INFO(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,7,8,
                                                                             9);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, INFO, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2897,15 +2954,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_0_ARGS);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_0_ARGS);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2916,15 +2976,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_1_ARGS, 1);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_1_ARGS, 1);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2935,15 +2998,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2954,15 +3020,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2973,15 +3042,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -2992,16 +3064,19 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4,
                                                                             5);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3012,17 +3087,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4,
                                                                          5, 6);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3033,17 +3111,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4,
                                                                        5, 6,7);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6,
                                                                             7);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3054,16 +3135,19 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,
                                                                           7,8);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,7,8);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3074,17 +3158,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noWARN")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,
                                                                         7,8,9);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_WARN(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,7,8,
                                                                             9);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, WARN, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3097,15 +3184,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_0_ARGS);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_0_ARGS);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3116,15 +3206,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_1_ARGS, 1);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_1_ARGS, 1);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3135,15 +3228,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3154,15 +3250,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3173,15 +3272,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3192,16 +3294,19 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4,
                                                                             5);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3212,17 +3317,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4,
                                                                          5, 6);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3233,17 +3341,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4,
                                                                        5, 6,7);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5,
                                                                          6, 7);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3254,17 +3365,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,
                                                                           7,8);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,7,
                                                                             8);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3275,17 +3389,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noERROR")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,
                                                                         7,8,9);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_ERROR(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,7,8,
                                                                             9);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, ERROR, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3298,15 +3415,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_0_ARGS);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_0_ARGS);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3317,15 +3437,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_1_ARGS, 1);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_1_ARGS, 1);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3336,15 +3459,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_2_ARGS, 1, 2);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3355,15 +3481,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_3_ARGS, 1, 2, 3);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3374,15 +3503,18 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3393,16 +3525,19 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4,
                                                                             5);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 1;
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3413,17 +3548,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4,
                                                                          5, 6);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5,
                                                                             6);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3434,17 +3572,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4,
                                                                        5, 6,7);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5,
                                                                          6, 7);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3455,17 +3596,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,
                                                                           7,8);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_8_ARGS, 1,2,3,4,5,6,7,
                                                                             8);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3476,17 +3620,20 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < 10; ++ii) {
             {
                 BALL_LOG_SET_CATEGORY("noFATAL")
-                scribbleBuffer();
+                const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
                 BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,
                                                                         7,8,9);
-                ASSERT(1 == isBufferUnchangedSinceScribbled());
+                ASSERT(PREVIOUS_RECORD == TO->lastPublishedRecord());
             }
 
+            const BloombergLP::ball::Record PREVIOUS_RECORD =
+                                                     TO->lastPublishedRecord();
             const int LINE = L_ + 2;
             BALL_LOGTHROTTLEVA_FATAL(n, p, FORMAT_SPEC_9_ARGS, 1,2,3,4,5,6,7,8,
                                                                             9);
-            ASSERTV(ii, isBufferUnchangedSinceScribbled(),
-                                    !!ii == isBufferUnchangedSinceScribbled());
+            ASSERTV(ii,
+                    !!ii == (PREVIOUS_RECORD == TO->lastPublishedRecord()));
             ASSERT(isRecordOkay(*TO, CAT, FATAL, FILE, LINE, MESSAGE[jj]));
             ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
@@ -3495,22 +3642,21 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout <<
                          "Truncation on buffer overflow with 'printf' macro\n";
         {
-            int bufLen;    const int& BUFLEN = bufLen;
-            messageBuffer(&bufLen);
-            char *longString;
-            {
-                const int EXCESS = 128;
-                const int NN     = BUFLEN + EXCESS;
-                longString = new char[NN];
-                bsl::fill(longString + 0, longString + NN, 'x');
-                longString[NN-1] = '\0';
-            }
+            const int                BUFLEN     =
+                    LoggerManager::singleton().getLogger().messageBufferSize();
+            const int                EXCESS     = 128;
+            const int                NN         = BUFLEN + EXCESS;
+            char                    *longString = (char *) ta.allocate(NN);
+
+            BloombergLP::bslma::ManagedPtr<char> managedString(longString,
+                                                               &ta);
+
+            bsl::fill(longString + 0, longString + NN, 'x');
+            longString[NN - 1] = '\0';
 
             // Severity passed as arg
 
-            int severity;
-
-            severity = DEBUG;
+            int severity = DEBUG;
             ++np;
             for (int ii = 0; ii < 10; ++ii) {
                 longString[BUFLEN - 2] = 'a';
@@ -3786,8 +3932,6 @@ int main(int argc, char *argv[])
                 ASSERTV(np, TO->numPublishedRecords(),
                                               TO->numPublishedRecords() == np);
             }
-
-            delete [] longString;
         }
 
         // Note that the following is expressly meant to test the modifications

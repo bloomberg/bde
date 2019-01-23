@@ -128,6 +128,17 @@ void Log::releaseMessageBuffer(bslmt::Mutex *mutex)
     mutex->unlock();
 }
 
+bslma::ManagedPtr<char> Log::obtainMessageBuffer(int *bufferSize)
+{
+    if (LoggerManager::isInitialized()) {
+        return LoggerManager::singleton().getLogger().obtainMessageBuffer(
+                                                        bufferSize);  // RETURN
+    }
+    else {
+        return LoggerManager::obtainMessageBuffer(bufferSize);        // RETURN
+    }
+}
+
 const Category *Log::setCategory(const char *categoryName)
 {
     BSLS_ASSERT(categoryName);
@@ -237,16 +248,13 @@ Log_Formatter::Log_Formatter(const Category *category,
 : d_category_p(category)
 , d_record_p(Log::getRecord(category, fileName, lineNumber))
 , d_severity(severity)
-, d_mutex_p(0)
-{
-    d_buffer_p = Log::obtainMessageBuffer(&d_mutex_p, &d_bufferLen);
-}
+, d_buffer(Log::obtainMessageBuffer(&d_bufferLen))
+{}
 
 Log_Formatter::~Log_Formatter()
 {
-    d_buffer_p[d_bufferLen - 1] = '\0';
-    bslmt::LockGuard<bslmt::Mutex> lockGuard(d_mutex_p, 1);
-    d_record_p->fixedFields().setMessage(d_buffer_p);
+    d_buffer.get()[d_bufferLen - 1] = '\0';
+    d_record_p->fixedFields().setMessage(d_buffer.get());
     Log::logMessage(d_category_p, d_severity, d_record_p);
 }
 

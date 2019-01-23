@@ -104,6 +104,20 @@ namespace ball {
 
 namespace {
 
+// HELPER FUNCTIONS
+void bufferPoolDeleter(void *buffer, void *pool)
+    // Release the specified 'buffer' back to the specified 'pool'.  The
+    // behavior is undefined unless 'pool' refers to an instance of
+    // 'bdlma::ConcurrentPool', and 'buffer' was allocated from 'pool' and has
+    // not yet been deallocated.
+{
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(pool);
+
+    bdlma::ConcurrentPool *p = static_cast<bdlma::ConcurrentPool *>(pool);
+    p->deallocate(buffer);
+}
+
 const char *filterName(
    bsl::string                                             *filteredNameBuffer,
    const char                                              *originalName,
@@ -275,6 +289,7 @@ Logger::Logger(const bsl::shared_ptr<Observer>&            observer,
 , d_recordBuffer_p(recordBuffer)
 , d_populator(populator)
 , d_publishAll(publishAllCallback)
+, d_bufferPool(scratchBufferSize, globalAllocator)
 , d_scratchBufferSize(scratchBufferSize)
 , d_logOrder(logOrder)
 , d_triggerMarkers(triggerMarkers)
@@ -286,6 +301,7 @@ Logger::Logger(const bsl::shared_ptr<Observer>&            observer,
 
     // 'snprintf' message buffer
     d_scratchBuffer_p = (char *)d_allocator_p->allocate(d_scratchBufferSize);
+    d_bufferPool.reserveCapacity(4);
 }
 
 Logger::~Logger()
@@ -491,6 +507,18 @@ char *Logger::obtainMessageBuffer(bslmt::Mutex **mutex, int *bufferSize)
     *mutex      = &d_scratchBufferMutex;
     *bufferSize = d_scratchBufferSize;
     return d_scratchBuffer_p;
+}
+
+bslma::ManagedPtr<char> Logger::obtainMessageBuffer(int *bufferSize)
+{
+    *bufferSize = d_scratchBufferSize;
+    char *buffer = static_cast<char *>(d_bufferPool.allocate());
+
+    bslma::ManagedPtr<char> bufferManagedPtr(
+                                      buffer,
+                                      static_cast<void *>(&d_bufferPool),
+                                      bufferPoolDeleter);
+    return bufferManagedPtr;
 }
 
                            // -------------------
@@ -867,6 +895,36 @@ char *LoggerManager::obtainMessageBuffer(bslmt::Mutex **mutex,
     *bufferSize = k_DEFAULT_LOGGER_BUFFER_SIZE;
 
     return buffer;
+}
+
+bslma::ManagedPtr<char> LoggerManager::obtainMessageBuffer(int *bufferSize)
+{
+    const int k_DEFAULT_LOGGER_BUFFER_SIZE = 8192;
+
+    static bsls::ObjectBuffer<bdlma::ConcurrentPool> staticPool;
+
+    BSLMT_ONCE_DO {
+        // These objects must remain valid for the lifetime of the task, and
+        // are intentionally never destroyed.  This function may be called on
+        // program termination, e.g., if a statically initialized object
+        // performs logging during its destruction.
+        new (staticPool.buffer()) bdlma::ConcurrentPool(
+                                                 k_DEFAULT_LOGGER_BUFFER_SIZE);
+    }
+
+    char *buffer;
+
+    buffer = static_cast<char *>(staticPool.object().allocate());
+
+    bslma::ManagedPtr<char> bufferManagedPtr(
+                                      buffer,
+                                      static_cast<void *>(staticPool.buffer()),
+                                      bufferPoolDeleter);
+
+
+    *bufferSize = k_DEFAULT_LOGGER_BUFFER_SIZE;
+
+    return bufferManagedPtr;
 }
 
 void LoggerManager::shutDownSingleton()
