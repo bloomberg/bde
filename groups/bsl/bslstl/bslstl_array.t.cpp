@@ -1,11 +1,20 @@
 // bslstl_array.t.cpp                                                 -*-C++-*-
 #include <bslstl_array.h>
 
+#include <bslh_hash.h>
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bslmf_movableref.h>
+
+#include <bsltf_movabletesttype.h>
+#include <bsltf_templatetestfacility.h>
+#include <bsltf_testvaluesarray.h>
+
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
@@ -13,19 +22,15 @@
 #include <bsls_outputredirector.h>
 #include <bsls_util.h>
 
-#include <bsltf_movabletesttype.h>
-#include <bsltf_templatetestfacility.h>
-#include <bsltf_testvaluesarray.h>
-
-#include <stdexcept>
 #include <algorithm>
 #include <cstddef>
-#include <utility>
+#include <ctype.h>
 #include <limits.h>
+#include <stdexcept>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+#include <utility>
 
 using namespace BloombergLP;
 using namespace bslstl;
@@ -112,17 +117,19 @@ using namespace bslstl;
 // [16] bool operator<=(const array<T,S>&, const array<T,S>&);
 // [16] bool operator>=(const array<T,S>&, const array<T,S>&);
 // [ 8] void swap(array<T,S>&, array<T,S>&);
-// [21] T& get(array<T, N>& p)
-// [21] const T& get(const array<T, N>& p)
-// [21] const T&& get(const array<T, N>&& p)
-// [21] T&& get(array<T, N>&& p)
-//
+// [21] std::tuple_element<bsl::array<T, N> >
+// [21] std::tuple_size<bsl::array<T, N> >
+// [21] T& get(bsl::array<T, N>& p)
+// [21] const T& get(const bsl::array<T, N>& p)
+// [21] const T&& get(const bsl::array<T, N>&& p)
+// [21] T&& get(bsl::array<T, N>&& p)
+// [22] void hashAppend(HASHALG& hashAlg, const bsl::array<T, N>&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [22] USAGE EXAMPLE
+// [23] USAGE EXAMPLE
 
 // TEST APPARATUS: GENERATOR FUNCTIONS
-// [ 3] int ggg(array<T,S> *object, const char *spec, int vF = 1);
+// [ 3] int ggg(array<T,S> *object, const char *spec, bool verboseFlag);
 // [ 3] array<T,S>& gg(array<T,S> *object, const char *spec);
 
 // ============================================================================
@@ -194,80 +201,6 @@ static bool             verbose;
 static bool         veryVerbose;
 static bool     veryVeryVerbose;
 static bool veryVeryVeryVerbose;
-
-//track number of objects constructed with default constructor
-static int s_numConstructed = 0;
-
-//track if comparison operators use any operators other than <
-static bool s_operators = false;
-
-//=============================================================================
-//                  HELPER CLASSES FOR TESTING
-//-----------------------------------------------------------------------------
-
-                            // ====================
-                            // class CountedDefault
-                            // ====================
-
-template<class TYPE>
-class CountedDefault {
-    //Wrapper class to track number of times constructor and destructor called.
-  public:
-    CountedDefault();
-    ~CountedDefault();
-
-  private:
-    TYPE d_val;
-    CountedDefault(const CountedDefault& other); // = delete;
-};
-
-template<class TYPE>
-CountedDefault<TYPE>::CountedDefault()
-{
-    s_numConstructed += 1;
-}
-template <class TYPE>
-CountedDefault<TYPE>::~CountedDefault()
-{
-    s_numConstructed -= 1;
-}
-
-                            // ==============
-                            // class LessThan
-                            // ==============
-
-class LessThan {
-    //class that supports only 'operator<'.
-  public:
-
-    bool operator<(const LessThan& other) const;
-    bool operator>(const LessThan& other) const;
-    bool operator<=(const LessThan& other) const;
-    bool operator>=(const LessThan& other) const;
-    LessThan();
-    explicit LessThan(int v);
-
-  private:
-    int d_val;
-};
-
-LessThan::LessThan(): d_val(0){}
-LessThan::LessThan(int v): d_val(v){}
-bool LessThan::operator<(const LessThan& other) const{
-    return d_val < other.d_val;
-}
-bool LessThan::operator>(const LessThan& other) const{
-    s_operators = true;
-    return d_val > other.d_val;
-}
-bool LessThan::operator<=(const LessThan& other) const{
-    s_operators = true;
-    return d_val <= other.d_val;
-}
-bool LessThan::operator>=(const LessThan& other) const{
-    s_operators = true;
-    return d_val >= other.d_val;
-}
 
 //=============================================================================
 //                 GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -366,10 +299,13 @@ int ggg(bsl::array<TYPE, SIZE> *object,
                 printf("Error, bad character (%c) "
                        "in spec (%s) at position %zd.\n", spec[i], spec, i);
             }
-            return i;  // Discontinue processing this spec.           // RETURN
+
+            // Discontinue processing this spec.
+
+            return static_cast<int>(i);                               // RETURN
         }
     }
-    for (; i < SIZE; ++i){
+    for (; i < SIZE; ++i) {
         (*object)[i] = TestFacility::create<TYPE>(0);
     }
     resetMovedInto(object);
@@ -386,89 +322,1675 @@ bsl::array<TYPE, SIZE>& gg(bsl::array<TYPE, SIZE> *object,
     return *object;
 }
 
-
 //=============================================================================
-//                                USAGE EXAMPLE
+//                  HELPER CLASSES AND FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-namespace UsageExample {
-///Usage
-///-----
-// In this section we show intended use of this component.
-//
-///Example 1: Returning an array from a function
-///- - - - - - - - - - - - - - - - -
-// Suppose we want to define a function that will return an array of floats.
-// If a raw array was used, the size would need to be tracked seperately
-// because raw arrays decay to pointers.  With bsl::array the result can be
-// returned by value.
-//..
-typedef bsl::array<float, 3> Point;
+                            // ====================
+                            // class CountedDefault
+                            // ====================
 
-Point createPoint(float f1, float f2, float f3)
-{
-    bsl::array<float, 3> ret = {f1, f2, f3};
-    return ret;
-}
-// Create a bsl::array object containing three values set to the specified
-// 'f1', 'f2', 'f3'.
-
-void usageExample(){
-    Point p1 = createPoint(1.0, 1.0, 1.0);
-    Point p2 = createPoint(2.0, 2.0, 2.0);
-    Point p3 = createPoint(3.0, 3.0, 3.0);
-
-    bsl::array<Point, 3> points = {p1, p2, p3};
-
-    for(size_t i = 0; i < points.size(); ++i){
-        for(size_t j = 0; j < points[i].size(); ++j){
-            points[i][j] *= 2.0f;
-        }
-    }
-}
-// Use the createPoint function to generate 3 arrays of floats.  The arrays
-// are returned by copy and the 'size()' member function is used to access
-// the size of the arrays that could not be done with a raw array.
-
-}  // close namespace UsageExample
-
-//=============================================================================
-//                                 MAIN PROGRAM
-//-----------------------------------------------------------------------------
-
-// Generate arrays using aggregate initialization for testCase13.
 template<class TYPE>
-struct AggregateTest {
+class CountedDefault
+    //Wrapper class to track number of times constructor and destructor called.
+{
+  private:
+    // CLASS DATA
+
+    static int s_numConstructed;  // track number of objects constructed with
+                                  // default constructor
+    // DATA
+    TYPE d_val;                   // value
+
+    // NOT IMPLEMENTED
+    CountedDefault(const CountedDefault& other); // = delete;
+
+  public:
+    // CLASS METHODS
+    static int numConstructed();
+
+    // CREATORS
+    CountedDefault();
+    ~CountedDefault();
+};
+                            // --------------------
+                            // class CountedDefault
+                            // --------------------
+// CLASS DATA
+template<class TYPE>
+int CountedDefault<TYPE>::s_numConstructed = 0;
+
+// CLASS METHODS
+template <class TYPE>
+int CountedDefault<TYPE>::numConstructed()
+{
+    return s_numConstructed;
+}
+
+// CREATORS
+template<class TYPE>
+CountedDefault<TYPE>::CountedDefault()
+{
+    s_numConstructed += 1;
+}
+
+template <class TYPE>
+CountedDefault<TYPE>::~CountedDefault()
+{
+    s_numConstructed -= 1;
+}
+
+                            // ======================
+                            // class LessThanTestType
+                            // ======================
+
+class LessThanTestType
+    // Class that supports only 'operator<'.
+ {
+  private:
+    // DATA
+    int d_val;
+
+  public:
+    // CREATORS
+    LessThanTestType();
+    explicit LessThanTestType(int v);
+
+    // ACCESSORS
+    bool operator<(const LessThanTestType& other) const;
+
+};
+                            // ----------------------
+                            // class LessThanTestType
+                            // ----------------------
+
+LessThanTestType::LessThanTestType()
+: d_val(0)
+{}
+
+LessThanTestType::LessThanTestType(int v)
+: d_val(v)
+{}
+
+bool LessThanTestType::operator<(const LessThanTestType& other) const
+{
+    return d_val < other.d_val;
+}
+
+                            // ====================
+                            // struct AggregateTest
+                            // ====================
+
+template<class TYPE, size_t SIZE>
+struct AggregateTest
+    // This 'struct' provides a namespace for utility functions that generate
+    // arrays using aggregate initialization for 'testCase13()'.
+{
+    static void testAggregate(const char* spec)
+    {
+        (void) spec;  // supress compiler warning
+        ASSERTV(SIZE, !"Test is not implemented for this size!");
+    }
+};
+
+template<class TYPE>
+struct AggregateTest<TYPE, 5>
+    // This 'struct' provides a namespace for utility functions that generate
+    // arrays using aggregate initialization for 'testCase13()'.
+{
+    typedef bsltf::TemplateTestFacility TestFacility;
+    typedef bsl::array<TYPE, 5>         Obj;
+
+    static void testAggregate(const char* spec)
+    {
+        Obj        mW;
+        const Obj& W             = gg(&mW, spec);
+        const TYPE DEFAULT_VALUE = TestFacility::create<TYPE>(0);
+
+        Obj        mX5 = {TestFacility::create<TYPE>(spec[0]),
+                          TestFacility::create<TYPE>(spec[1]),
+                          TestFacility::create<TYPE>(spec[2]),
+                          TestFacility::create<TYPE>(spec[3]),
+                          TestFacility::create<TYPE>(spec[4])};
+        const Obj& X5  = mX5;
+
+        ASSERTV(X5.size(), 5    == X5.size());
+        ASSERTV(           W[0] == X5[0]);
+        ASSERTV(           W[1] == X5[1]);
+        ASSERTV(           W[2] == X5[2]);
+        ASSERTV(           W[3] == X5[3]);
+        ASSERTV(           W[4] == X5[4]);
+
+        Obj        mX4 = {TestFacility::create<TYPE>(spec[0]),
+                          TestFacility::create<TYPE>(spec[1]),
+                          TestFacility::create<TYPE>(spec[2]),
+                          TestFacility::create<TYPE>(spec[3])};
+        const Obj& X4  = mX4;
+
+        ASSERTV(X4.size(), 5             == X4.size());
+        ASSERTV(           W[0]          == X4[0]);
+        ASSERTV(           W[1]          == X4[1]);
+        ASSERTV(           W[2]          == X4[2]);
+        ASSERTV(           W[3]          == X4[3]);
+        ASSERTV(           DEFAULT_VALUE == X4[4]);
+
+
+        Obj        mX3 = {TestFacility::create<TYPE>(spec[0]),
+                          TestFacility::create<TYPE>(spec[1]),
+                          TestFacility::create<TYPE>(spec[2])};
+        const Obj& X3  = mX3;
+
+        ASSERTV(X3.size(), 5             == X3.size());
+        ASSERTV(           W[0]          == X3[0]);
+        ASSERTV(           W[1]          == X3[1]);
+        ASSERTV(           W[2]          == X3[2]);
+        ASSERTV(           DEFAULT_VALUE == X3[3]);
+        ASSERTV(           DEFAULT_VALUE == X3[4]);
+
+
+        Obj        mX2 = {TestFacility::create<TYPE>(spec[0]),
+                          TestFacility::create<TYPE>(spec[1])};
+        const Obj& X2  = mX2;
+
+        ASSERTV(X2.size(), 5             == X2.size());
+        ASSERTV(           W[0]          == X2[0]);
+        ASSERTV(           W[1]          == X2[1]);
+        ASSERTV(           DEFAULT_VALUE == X2[2]);
+        ASSERTV(           DEFAULT_VALUE == X2[3]);
+        ASSERTV(           DEFAULT_VALUE == X2[4]);
+
+
+        Obj        mX1 = {TestFacility::create<TYPE>(spec[0])};
+        const Obj& X1  = mX1;
+
+        ASSERTV(X1.size(), 5             == X1.size());
+        ASSERTV(           W[0]          == X1[0]);
+        ASSERTV(           DEFAULT_VALUE == X1[1]);
+        ASSERTV(           DEFAULT_VALUE == X1[2]);
+        ASSERTV(           DEFAULT_VALUE == X1[3]);
+        ASSERTV(           DEFAULT_VALUE == X1[4]);
+
+
+        Obj        mX0 = {};
+        const Obj& X0  = mX0;
+
+        ASSERTV(X0.size(), 5             == X0.size());
+        ASSERTV(           DEFAULT_VALUE == X0[0]);
+        ASSERTV(           DEFAULT_VALUE == X0[1]);
+        ASSERTV(           DEFAULT_VALUE == X0[2]);
+        ASSERTV(           DEFAULT_VALUE == X0[3]);
+        ASSERTV(           DEFAULT_VALUE == X0[4]);
+    }
+};
+
+template<class TYPE>
+struct AggregateTest<TYPE, 4>
+    // This 'struct' provides a namespace for utility functions that generate
+    // arrays using aggregate initialization for 'testCase13()'.
+{
+    typedef bsltf::TemplateTestFacility TestFacility;
+    typedef bsl::array<TYPE, 4>         Obj;
+
+    static void testAggregate(const char* spec)
+    {
+        Obj        mW;
+        const Obj& W             = gg(&mW, spec);
+        const TYPE DEFAULT_VALUE = TestFacility::create<TYPE>(0);
+
+        Obj        mX4 = {TestFacility::create<TYPE>(spec[0]),
+                          TestFacility::create<TYPE>(spec[1]),
+                          TestFacility::create<TYPE>(spec[2]),
+                          TestFacility::create<TYPE>(spec[3])};
+        const Obj& X4  = mX4;
+
+        ASSERTV(X4.size(), 4    == X4.size());
+        ASSERTV(           W[0] == X4[0]);
+        ASSERTV(           W[1] == X4[1]);
+        ASSERTV(           W[2] == X4[2]);
+        ASSERTV(           W[3] == X4[3]);
+
+        Obj        mX3 = {TestFacility::create<TYPE>(spec[0]),
+                          TestFacility::create<TYPE>(spec[1]),
+                          TestFacility::create<TYPE>(spec[2])};
+        const Obj& X3  = mX3;
+
+        ASSERTV(X3.size(), 4             == X3.size());
+        ASSERTV(           W[0]          == X3[0]);
+        ASSERTV(           W[1]          == X3[1]);
+        ASSERTV(           W[2]          == X3[2]);
+        ASSERTV(           DEFAULT_VALUE == X3[3]);
+
+        Obj        mX2 = {TestFacility::create<TYPE>(spec[0]),
+                          TestFacility::create<TYPE>(spec[1])};
+        const Obj& X2  = mX2;
+
+        ASSERTV(X2.size(), 4             == X2.size());
+        ASSERTV(           W[0]          == X2[0]);
+        ASSERTV(           W[1]          == X2[1]);
+        ASSERTV(           DEFAULT_VALUE == X2[2]);
+        ASSERTV(           DEFAULT_VALUE == X2[3]);
+
+        Obj        mX1 = {TestFacility::create<TYPE>(spec[0])};
+        const Obj& X1  = mX1;
+
+        ASSERTV(X1.size(), 4             == X1.size());
+        ASSERTV(           W[0]          == X1[0]);
+        ASSERTV(           DEFAULT_VALUE == X1[1]);
+        ASSERTV(           DEFAULT_VALUE == X1[2]);
+        ASSERTV(           DEFAULT_VALUE == X1[3]);
+
+        Obj        mX0 = {};
+        const Obj& X0  = mX0;
+
+        ASSERTV(X0.size(), 4             == X0.size());
+        ASSERTV(           DEFAULT_VALUE == X0[0]);
+        ASSERTV(           DEFAULT_VALUE == X0[1]);
+        ASSERTV(           DEFAULT_VALUE == X0[2]);
+        ASSERTV(           DEFAULT_VALUE == X0[3]);
+    }
+};
+
+template<class TYPE>
+struct AggregateTest<TYPE, 3>
+    // This 'struct' provides a namespace for utility functions that generate
+    // arrays using aggregate initialization for 'testCase13()'.
+{
+    typedef bsltf::TemplateTestFacility TestFacility;
+    typedef bsl::array<TYPE, 3>         Obj;
+
+    static void testAggregate(const char* spec)
+    {
+        Obj        mW;
+        const Obj& W             = gg(&mW, spec);
+        const TYPE DEFAULT_VALUE = TestFacility::create<TYPE>(0);
+
+        Obj        mX3 = {TestFacility::create<TYPE>(spec[0]),
+                          TestFacility::create<TYPE>(spec[1]),
+                          TestFacility::create<TYPE>(spec[2])};
+        const Obj& X3  = mX3;
+
+        ASSERTV(X3.size(), 3             == X3.size());
+        ASSERTV(           W[0]          == X3[0]);
+        ASSERTV(           W[1]          == X3[1]);
+        ASSERTV(           W[2]          == X3[2]);
+
+        Obj        mX2 = {TestFacility::create<TYPE>(spec[0]),
+                          TestFacility::create<TYPE>(spec[1])};
+        const Obj& X2  = mX2;
+
+        ASSERTV(X2.size(), 3             == X2.size());
+        ASSERTV(           W[0]          == X2[0]);
+        ASSERTV(           W[1]          == X2[1]);
+        ASSERTV(           DEFAULT_VALUE == X2[2]);
+
+        Obj        mX1 = {TestFacility::create<TYPE>(spec[0])};
+        const Obj& X1  = mX1;
+
+        ASSERTV(X1.size(), 3             == X1.size());
+        ASSERTV(           W[0]          == X1[0]);
+        ASSERTV(           DEFAULT_VALUE == X1[1]);
+        ASSERTV(           DEFAULT_VALUE == X1[2]);
+
+        Obj        mX0 = {};
+        const Obj& X0  = mX0;
+
+        ASSERTV(X0.size(), 3             == X0.size());
+        ASSERTV(           DEFAULT_VALUE == X0[0]);
+        ASSERTV(           DEFAULT_VALUE == X0[1]);
+        ASSERTV(           DEFAULT_VALUE == X0[2]);
+    }
+};
+
+template<class TYPE>
+struct AggregateTest<TYPE, 2>
+    // This 'struct' provides a namespace for utility functions that generate
+    // arrays using aggregate initialization for 'testCase13()'.
+{
+    typedef bsltf::TemplateTestFacility TestFacility;
+    typedef bsl::array<TYPE, 2>         Obj;
+
+    static void testAggregate(const char* spec)
+    {
+        Obj        mW;
+        const Obj& W             = gg(&mW, spec);
+        const TYPE DEFAULT_VALUE = TestFacility::create<TYPE>(0);
+
+        Obj        mX2 = {TestFacility::create<TYPE>(spec[0]),
+                          TestFacility::create<TYPE>(spec[1])};
+        const Obj& X2  = mX2;
+
+        ASSERTV(X2.size(), 2             == X2.size());
+        ASSERTV(           W[0]          == X2[0]);
+        ASSERTV(           W[1]          == X2[1]);
+
+        Obj        mX1 = {TestFacility::create<TYPE>(spec[0])};
+        const Obj& X1  = mX1;
+
+        ASSERTV(X1.size(), 2             == X1.size());
+        ASSERTV(           W[0]          == X1[0]);
+        ASSERTV(           DEFAULT_VALUE == X1[1]);
+
+        Obj        mX0 = {};
+        const Obj& X0  = mX0;
+
+        ASSERTV(X0.size(), 2             == X0.size());
+        ASSERTV(           DEFAULT_VALUE == X0[0]);
+        ASSERTV(           DEFAULT_VALUE == X0[1]);
+    }
+};
+
+template<class TYPE>
+struct AggregateTest<TYPE, 1>
+    // This 'struct' provides a namespace for utility functions that generate
+    // arrays using aggregate initialization for 'testCase13()'.
+{
+    typedef bsltf::TemplateTestFacility TestFacility;
+    typedef bsl::array<TYPE, 1>         Obj;
+
+    static void testAggregate(const char* spec)
+    {
+        Obj        mW;
+        const Obj& W             = gg(&mW, spec);
+        const TYPE DEFAULT_VALUE = TestFacility::create<TYPE>(0);
+
+        Obj        mX1 = {TestFacility::create<TYPE>(spec[0])};
+        const Obj& X1  = mX1;
+
+        ASSERTV(X1.size(), 1             == X1.size());
+        ASSERTV(           W[0]          == X1[0]);
+
+        Obj        mX0 = {};
+        const Obj& X0  = mX0;
+
+        ASSERTV(X0.size(), 1             == X0.size());
+        ASSERTV(           DEFAULT_VALUE == X0[0]);
+    }
+};
+
+template<class TYPE>
+struct AggregateTest<TYPE, 0>
+    // This 'struct' provides a namespace for utility functions that generate
+    // arrays using aggregate initialization for 'testCase13()'.
+{
+    typedef bsltf::TemplateTestFacility TestFacility;
+    typedef bsl::array<TYPE, 0>         Obj;
+
+    static void testAggregate(const char* spec)
+    {
+        (void) spec;  // suppress compiler warning
+
+        Obj        mX0 = {};
+        const Obj& X0  = mX0;
+
+        ASSERTV(X0.size(), 0 == X0.size());
+    }
+};
+
+template <class T>
+bool isPtrConstant(const T *)
+    // This specialization of 'isPtrConstant' is called for const pointer
+    // types and always returns 'true'.
+{
+    return true;
+}
+
+template <class T>
+bool isPtrConstant(T *)
+    // This specialization of 'isPtrConstant' is called for pointer types and
+    // always returns 'false'.
+{
+    return false;
+}
+
+template <class T>
+bool isRefConstant(const T&)
+    // This specialization of 'isRefConstant' is called for const reference
+    // types and always returns 'true'.
+{
+    return true;
+}
+
+template <class T>
+bool isRefConstant(T&)
+    // This specialization of 'isRefConstant' is called for reference types and
+    // always returns 'false'.
+{
+    return false;
+}
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+template <class T>
+bool isRefConstant(const T&&)
+    // This specialization of 'isRefConstant' is called for const rvalue
+    // reference types and always returns 'true'.
+{
+    return true;
+}
+
+template <class T>
+bool isRefConstant(T&&)
+    // This specialization of 'isRefConstant' is called for rvalue reference
+    // types and always returns 'false'.
+{
+    return false;
+}
+#endif
+
+template<class TYPE, size_t SIZE>
+struct TupleApiTest
+    // This 'struct' provides a namespace for utility function that test
+    // tuple-API for bsl::arrays.
+{
     typedef bsltf::TemplateTestFacility TestFacility;
 
-    static bsl::array<TYPE, 0> getAggregate(const char* spec,
-            bsl::integral_constant<size_t, 0>);
-    static bsl::array<TYPE, 1> getAggregate(const char* spec,
-            bsl::integral_constant<size_t, 1>);
-    static bsl::array<TYPE, 2> getAggregate(const char* spec,
-            bsl::integral_constant<size_t, 2>);
-    static bsl::array<TYPE, 3> getAggregate(const char* spec,
-            bsl::integral_constant<size_t, 3>);
-    static bsl::array<TYPE, 4> getAggregate(const char* spec,
-            bsl::integral_constant<size_t, 4>);
+    static void testTupleApi()
+    {
+        ASSERTV(SIZE, !"Test is not implemented for this size!");
+    }
 };
+
+template<class T>
+struct TupleApiTest<T, 5>
+    // This specialization of 'TupleApiTest' provides a namespace for utility
+    // function that test tuple-API for bsl::arrays of size 5.
+{
+    static void testTupleApi()
+    {
+
+
+        typedef                bsl::array<         T, 5>     TA ;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+        typedef                bsl::array<const    T, 5>     CTA;
+        typedef                bsl::array<volatile T, 5>     VTA;
+
+        typedef const          bsl::array<         T, 5>   C_TA ;
+        typedef const          bsl::array<const    T, 5>   C_CTA;
+        typedef const          bsl::array<volatile T, 5>   C_VTA;
+
+        typedef       volatile bsl::array<         T, 5>   V_TA ;
+        typedef       volatile bsl::array<const    T, 5>   V_CTA;
+        typedef       volatile bsl::array<volatile T, 5>   V_VTA;
+
+        typedef const volatile bsl::array<         T, 5>  CV_TA ;
+        typedef const volatile bsl::array<const    T, 5>  CV_CTA;
+        typedef const volatile bsl::array<volatile T, 5>  CV_VTA;
+
+        // Testing 'tuple_size'.
+        {
+            typedef native_std::tuple_size< TA     > TS_TA    ;
+            typedef native_std::tuple_size< CTA    > TS_CTA   ;
+            typedef native_std::tuple_size< VTA    > TS_VTA   ;
+            typedef native_std::tuple_size< C_TA   > TS_C_TA  ;
+            typedef native_std::tuple_size< C_CTA  > TS_C_CTA ;
+            typedef native_std::tuple_size< C_VTA  > TS_C_VTA ;
+            typedef native_std::tuple_size< V_TA   > TS_V_TA  ;
+            typedef native_std::tuple_size< V_CTA  > TS_V_CTA ;
+            typedef native_std::tuple_size< V_VTA  > TS_V_VTA ;
+            typedef native_std::tuple_size< CV_TA  > TS_CV_TA ;
+            typedef native_std::tuple_size< CV_CTA > TS_CV_CTA;
+            typedef native_std::tuple_size< CV_VTA > TS_CV_VTA;
+
+            ASSERT((5u == TS_TA::value    ));
+            ASSERT((5u == TS_CTA::value   ));
+            ASSERT((5u == TS_VTA::value   ));
+            ASSERT((5u == TS_C_TA::value  ));
+            ASSERT((5u == TS_C_CTA::value ));
+            ASSERT((5u == TS_C_VTA::value ));
+            ASSERT((5u == TS_V_TA::value  ));
+            ASSERT((5u == TS_V_CTA::value ));
+            ASSERT((5u == TS_V_VTA::value ));
+            ASSERT((5u == TS_CV_TA::value ));
+            ASSERT((5u == TS_CV_CTA::value));
+            ASSERT((5u == TS_CV_VTA::value));
+        }
+
+        // Testing 'tuple_element'.
+        {
+            typedef native_std::tuple_element< 0 ,     TA > TE0_TA    ;
+            typedef native_std::tuple_element< 0 ,    CTA > TE0_CTA   ;
+            typedef native_std::tuple_element< 0 ,    VTA > TE0_VTA   ;
+            typedef native_std::tuple_element< 1u,     TA > TE1_TA    ;
+            typedef native_std::tuple_element< 1u,    CTA > TE1_CTA   ;
+            typedef native_std::tuple_element< 1u,    VTA > TE1_VTA   ;
+            typedef native_std::tuple_element< 2u,     TA > TE2_TA    ;
+            typedef native_std::tuple_element< 2u,    CTA > TE2_CTA   ;
+            typedef native_std::tuple_element< 2u,    VTA > TE2_VTA   ;
+            typedef native_std::tuple_element< 3u,     TA > TE3_TA    ;
+            typedef native_std::tuple_element< 3u,    CTA > TE3_CTA   ;
+            typedef native_std::tuple_element< 3u,    VTA > TE3_VTA   ;
+            typedef native_std::tuple_element< 4u,     TA > TE4_TA    ;
+            typedef native_std::tuple_element< 4u,    CTA > TE4_CTA   ;
+            typedef native_std::tuple_element< 4u,    VTA > TE4_VTA   ;
+
+            typedef native_std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
+            typedef native_std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
+            typedef native_std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
+            typedef native_std::tuple_element< 1u,  C_TA  > TE1_C_TA  ;
+            typedef native_std::tuple_element< 1u,  C_CTA > TE1_C_CTA ;
+            typedef native_std::tuple_element< 1u,  C_VTA > TE1_C_VTA ;
+            typedef native_std::tuple_element< 2u,  C_TA  > TE2_C_TA  ;
+            typedef native_std::tuple_element< 2u,  C_CTA > TE2_C_CTA ;
+            typedef native_std::tuple_element< 2u,  C_VTA > TE2_C_VTA ;
+            typedef native_std::tuple_element< 3u,  C_TA  > TE3_C_TA  ;
+            typedef native_std::tuple_element< 3u,  C_CTA > TE3_C_CTA ;
+            typedef native_std::tuple_element< 3u,  C_VTA > TE3_C_VTA ;
+            typedef native_std::tuple_element< 4u,  C_TA  > TE4_C_TA  ;
+            typedef native_std::tuple_element< 4u,  C_CTA > TE4_C_CTA ;
+            typedef native_std::tuple_element< 4u,  C_VTA > TE4_C_VTA ;
+
+            typedef native_std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
+            typedef native_std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
+            typedef native_std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
+            typedef native_std::tuple_element< 1u,  V_TA  > TE1_V_TA  ;
+            typedef native_std::tuple_element< 1u,  V_CTA > TE1_V_CTA ;
+            typedef native_std::tuple_element< 1u,  V_VTA > TE1_V_VTA ;
+            typedef native_std::tuple_element< 2u,  V_TA  > TE2_V_TA  ;
+            typedef native_std::tuple_element< 2u,  V_CTA > TE2_V_CTA ;
+            typedef native_std::tuple_element< 2u,  V_VTA > TE2_V_VTA ;
+            typedef native_std::tuple_element< 3u,  V_TA  > TE3_V_TA  ;
+            typedef native_std::tuple_element< 3u,  V_CTA > TE3_V_CTA ;
+            typedef native_std::tuple_element< 3u,  V_VTA > TE3_V_VTA ;
+            typedef native_std::tuple_element< 4u,  V_TA  > TE4_V_TA  ;
+            typedef native_std::tuple_element< 4u,  V_CTA > TE4_V_CTA ;
+            typedef native_std::tuple_element< 4u,  V_VTA > TE4_V_VTA ;
+
+            typedef native_std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
+            typedef native_std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
+            typedef native_std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
+            typedef native_std::tuple_element< 1u, CV_TA  > TE1_CV_TA ;
+            typedef native_std::tuple_element< 1u, CV_CTA > TE1_CV_CTA;
+            typedef native_std::tuple_element< 1u, CV_VTA > TE1_CV_VTA;
+            typedef native_std::tuple_element< 2u, CV_TA  > TE2_CV_TA ;
+            typedef native_std::tuple_element< 2u, CV_CTA > TE2_CV_CTA;
+            typedef native_std::tuple_element< 2u, CV_VTA > TE2_CV_VTA;
+            typedef native_std::tuple_element< 3u, CV_TA  > TE3_CV_TA ;
+            typedef native_std::tuple_element< 3u, CV_CTA > TE3_CV_CTA;
+            typedef native_std::tuple_element< 3u, CV_VTA > TE3_CV_VTA;
+            typedef native_std::tuple_element< 4u, CV_TA  > TE4_CV_TA ;
+            typedef native_std::tuple_element< 4u, CV_CTA > TE4_CV_CTA;
+            typedef native_std::tuple_element< 4u, CV_VTA > TE4_CV_VTA;
+
+            // Aliases for returned types.
+
+            typedef const          T  C_T;
+            typedef       volatile T  V_T;
+            typedef const volatile T CV_T;
+
+            ASSERT((bsl::is_same<   T,  typename TE0_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE0_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE0_VTA::type    >::value));
+            ASSERT((bsl::is_same<   T,  typename TE1_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE1_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE1_VTA::type    >::value));
+            ASSERT((bsl::is_same<   T,  typename TE2_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE2_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE2_VTA::type    >::value));
+            ASSERT((bsl::is_same<   T,  typename TE3_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE3_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE3_VTA::type    >::value));
+            ASSERT((bsl::is_same<   T,  typename TE4_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE4_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE4_VTA::type    >::value));
+
+            ASSERT((bsl::is_same<  C_T, typename TE0_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE0_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_C_VTA::type  >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE1_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE1_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_C_VTA::type  >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE2_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE2_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_C_VTA::type  >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE3_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE3_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE3_C_VTA::type  >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE4_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE4_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE4_C_VTA::type  >::value));
+
+            ASSERT((bsl::is_same<  V_T, typename TE0_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE0_V_VTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE1_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE1_V_VTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE2_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE2_V_VTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE3_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE3_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE3_V_VTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE4_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE4_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE4_V_VTA::type  >::value));
+
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_VTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_CV_VTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_CV_VTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE3_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE3_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE3_CV_VTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE4_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE4_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE4_CV_VTA::type >::value));
+        }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+
+        // Testing 'T& get(array&)' and 'const T& get(const array&)'.
+        {
+            TA        mX;
+            const TA& X = mX;
+
+            ASSERT(true          ==         isRefConstant(bsl::get<0>( X)));
+            ASSERT(true          ==         isRefConstant(bsl::get<1>( X)));
+            ASSERT(true          ==         isRefConstant(bsl::get<2>( X)));
+            ASSERT(true          ==         isRefConstant(bsl::get<3>( X)));
+            ASSERT(true          ==         isRefConstant(bsl::get<4>( X)));
+
+            ASSERT( X.d_data + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
+            ASSERT( X.d_data + 1 == bsls::Util::addressOf(bsl::get<1>( X)));
+            ASSERT( X.d_data + 2 == bsls::Util::addressOf(bsl::get<2>( X)));
+            ASSERT( X.d_data + 3 == bsls::Util::addressOf(bsl::get<3>( X)));
+            ASSERT( X.d_data + 4 == bsls::Util::addressOf(bsl::get<4>( X)));
+
+            ASSERT(false         ==         isRefConstant(bsl::get<0>(mX)));
+            ASSERT(false         ==         isRefConstant(bsl::get<1>(mX)));
+            ASSERT(false         ==         isRefConstant(bsl::get<2>(mX)));
+            ASSERT(false         ==         isRefConstant(bsl::get<3>(mX)));
+            ASSERT(false         ==         isRefConstant(bsl::get<4>(mX)));
+
+            ASSERT(mX.d_data + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
+            ASSERT(mX.d_data + 1 == bsls::Util::addressOf(bsl::get<1>(mX)));
+            ASSERT(mX.d_data + 2 == bsls::Util::addressOf(bsl::get<2>(mX)));
+            ASSERT(mX.d_data + 3 == bsls::Util::addressOf(bsl::get<3>(mX)));
+            ASSERT(mX.d_data + 4 == bsls::Util::addressOf(bsl::get<4>(mX)));
+        }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        // Testing 'T&& get(array&&)' and 'const T&& get(const array&&)'.
+        {
+            typedef bslmf::MovableRefUtil MoveUtil;
+
+            const char* SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
+
+            TA mW; const  TA& W  = gg(&mW,  SPEC);
+
+            TA mX0; const TA& X0 = gg(&mX0, SPEC);
+            TA mX1; const TA& X1 = gg(&mX1, SPEC);
+            TA mX2; const TA& X2 = gg(&mX2, SPEC);
+            TA mX3; const TA& X3 = gg(&mX3, SPEC);
+            TA mX4; const TA& X4 = gg(&mX4, SPEC);
+
+            ASSERT(true  == isRefConstant(bsl::get<0>(MoveUtil::move( X0))));
+            ASSERT(true  == isRefConstant(bsl::get<1>(MoveUtil::move( X1))));
+            ASSERT(true  == isRefConstant(bsl::get<2>(MoveUtil::move( X2))));
+            ASSERT(true  == isRefConstant(bsl::get<3>(MoveUtil::move( X3))));
+            ASSERT(true  == isRefConstant(bsl::get<4>(MoveUtil::move( X4))));
+
+            ASSERT(W[0]  ==               bsl::get<0>(MoveUtil::move( X0)));
+            ASSERT(W[1]  ==               bsl::get<1>(MoveUtil::move( X1)));
+            ASSERT(W[2]  ==               bsl::get<2>(MoveUtil::move( X2)));
+            ASSERT(W[3]  ==               bsl::get<3>(MoveUtil::move( X3)));
+            ASSERT(W[4]  ==               bsl::get<4>(MoveUtil::move( X4)));
+
+            ASSERT(false == isRefConstant(bsl::get<0>(MoveUtil::move(mX0))));
+            ASSERT(false == isRefConstant(bsl::get<1>(MoveUtil::move(mX1))));
+            ASSERT(false == isRefConstant(bsl::get<2>(MoveUtil::move(mX2))));
+            ASSERT(false == isRefConstant(bsl::get<3>(MoveUtil::move(mX3))));
+            ASSERT(false == isRefConstant(bsl::get<4>(MoveUtil::move(mX4))));
+
+            ASSERT(W[0] ==                bsl::get<0>(MoveUtil::move(mX0)));
+            ASSERT(W[1] ==                bsl::get<1>(MoveUtil::move(mX1)));
+            ASSERT(W[2] ==                bsl::get<2>(MoveUtil::move(mX2)));
+            ASSERT(W[3] ==                bsl::get<3>(MoveUtil::move(mX3)));
+            ASSERT(W[4] ==                bsl::get<4>(MoveUtil::move(mX4)));
+        }
+#endif
+    }
+};
+
+template<class T>
+struct TupleApiTest<T, 4>
+    // This specialization of 'TupleApiTest' provides a namespace for utility
+    // function that test tuple-API for bsl::arrays of size 4.
+{
+    static void testTupleApi()
+    {
+        typedef                bsl::array<         T, 4>     TA ;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+        typedef                bsl::array<const    T, 4>     CTA;
+        typedef                bsl::array<volatile T, 4>     VTA;
+
+        typedef const          bsl::array<         T, 4>   C_TA ;
+        typedef const          bsl::array<const    T, 4>   C_CTA;
+        typedef const          bsl::array<volatile T, 4>   C_VTA;
+
+        typedef       volatile bsl::array<         T, 4>   V_TA ;
+        typedef       volatile bsl::array<const    T, 4>   V_CTA;
+        typedef       volatile bsl::array<volatile T, 4>   V_VTA;
+
+        typedef const volatile bsl::array<         T, 4>  CV_TA ;
+        typedef const volatile bsl::array<const    T, 4>  CV_CTA;
+        typedef const volatile bsl::array<volatile T, 4>  CV_VTA;
+
+        // Testing 'tuple_size'.
+        {
+            typedef native_std::tuple_size< TA     > TS_TA    ;
+            typedef native_std::tuple_size< CTA    > TS_CTA   ;
+            typedef native_std::tuple_size< VTA    > TS_VTA   ;
+            typedef native_std::tuple_size< C_TA   > TS_C_TA  ;
+            typedef native_std::tuple_size< C_CTA  > TS_C_CTA ;
+            typedef native_std::tuple_size< C_VTA  > TS_C_VTA ;
+            typedef native_std::tuple_size< V_TA   > TS_V_TA  ;
+            typedef native_std::tuple_size< V_CTA  > TS_V_CTA ;
+            typedef native_std::tuple_size< V_VTA  > TS_V_VTA ;
+            typedef native_std::tuple_size< CV_TA  > TS_CV_TA ;
+            typedef native_std::tuple_size< CV_CTA > TS_CV_CTA;
+            typedef native_std::tuple_size< CV_VTA > TS_CV_VTA;
+
+            ASSERT((4u == TS_TA::value    ));
+            ASSERT((4u == TS_CTA::value   ));
+            ASSERT((4u == TS_VTA::value   ));
+            ASSERT((4u == TS_C_TA::value  ));
+            ASSERT((4u == TS_C_CTA::value ));
+            ASSERT((4u == TS_C_VTA::value ));
+            ASSERT((4u == TS_V_TA::value  ));
+            ASSERT((4u == TS_V_CTA::value ));
+            ASSERT((4u == TS_V_VTA::value ));
+            ASSERT((4u == TS_CV_TA::value ));
+            ASSERT((4u == TS_CV_CTA::value));
+            ASSERT((4u == TS_CV_VTA::value));
+        }
+
+        // Testing 'tuple_element'.
+        {
+            typedef native_std::tuple_element< 0 ,     TA > TE0_TA    ;
+            typedef native_std::tuple_element< 0 ,    CTA > TE0_CTA   ;
+            typedef native_std::tuple_element< 0 ,    VTA > TE0_VTA   ;
+            typedef native_std::tuple_element< 1u,     TA > TE1_TA    ;
+            typedef native_std::tuple_element< 1u,    CTA > TE1_CTA   ;
+            typedef native_std::tuple_element< 1u,    VTA > TE1_VTA   ;
+            typedef native_std::tuple_element< 2u,     TA > TE2_TA    ;
+            typedef native_std::tuple_element< 2u,    CTA > TE2_CTA   ;
+            typedef native_std::tuple_element< 2u,    VTA > TE2_VTA   ;
+            typedef native_std::tuple_element< 3u,     TA > TE3_TA    ;
+            typedef native_std::tuple_element< 3u,    CTA > TE3_CTA   ;
+            typedef native_std::tuple_element< 3u,    VTA > TE3_VTA   ;
+
+            typedef native_std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
+            typedef native_std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
+            typedef native_std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
+            typedef native_std::tuple_element< 1u,  C_TA  > TE1_C_TA  ;
+            typedef native_std::tuple_element< 1u,  C_CTA > TE1_C_CTA ;
+            typedef native_std::tuple_element< 1u,  C_VTA > TE1_C_VTA ;
+            typedef native_std::tuple_element< 2u,  C_TA  > TE2_C_TA  ;
+            typedef native_std::tuple_element< 2u,  C_CTA > TE2_C_CTA ;
+            typedef native_std::tuple_element< 2u,  C_VTA > TE2_C_VTA ;
+            typedef native_std::tuple_element< 3u,  C_TA  > TE3_C_TA  ;
+            typedef native_std::tuple_element< 3u,  C_CTA > TE3_C_CTA ;
+            typedef native_std::tuple_element< 3u,  C_VTA > TE3_C_VTA ;
+
+            typedef native_std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
+            typedef native_std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
+            typedef native_std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
+            typedef native_std::tuple_element< 1u,  V_TA  > TE1_V_TA  ;
+            typedef native_std::tuple_element< 1u,  V_CTA > TE1_V_CTA ;
+            typedef native_std::tuple_element< 1u,  V_VTA > TE1_V_VTA ;
+            typedef native_std::tuple_element< 2u,  V_TA  > TE2_V_TA  ;
+            typedef native_std::tuple_element< 2u,  V_CTA > TE2_V_CTA ;
+            typedef native_std::tuple_element< 2u,  V_VTA > TE2_V_VTA ;
+            typedef native_std::tuple_element< 3u,  V_TA  > TE3_V_TA  ;
+            typedef native_std::tuple_element< 3u,  V_CTA > TE3_V_CTA ;
+            typedef native_std::tuple_element< 3u,  V_VTA > TE3_V_VTA ;
+
+            typedef native_std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
+            typedef native_std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
+            typedef native_std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
+            typedef native_std::tuple_element< 1u, CV_TA  > TE1_CV_TA ;
+            typedef native_std::tuple_element< 1u, CV_CTA > TE1_CV_CTA;
+            typedef native_std::tuple_element< 1u, CV_VTA > TE1_CV_VTA;
+            typedef native_std::tuple_element< 2u, CV_TA  > TE2_CV_TA ;
+            typedef native_std::tuple_element< 2u, CV_CTA > TE2_CV_CTA;
+            typedef native_std::tuple_element< 2u, CV_VTA > TE2_CV_VTA;
+            typedef native_std::tuple_element< 3u, CV_TA  > TE3_CV_TA ;
+            typedef native_std::tuple_element< 3u, CV_CTA > TE3_CV_CTA;
+            typedef native_std::tuple_element< 3u, CV_VTA > TE3_CV_VTA;
+
+            // Aliases for returned types.
+
+            typedef const          T  C_T;
+            typedef       volatile T  V_T;
+            typedef const volatile T CV_T;
+
+            ASSERT((bsl::is_same<   T,  typename TE0_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE0_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE0_VTA::type    >::value));
+            ASSERT((bsl::is_same<   T,  typename TE1_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE1_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE1_VTA::type    >::value));
+            ASSERT((bsl::is_same<   T,  typename TE2_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE2_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE2_VTA::type    >::value));
+            ASSERT((bsl::is_same<   T,  typename TE3_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE3_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE3_VTA::type    >::value));
+
+            ASSERT((bsl::is_same<  C_T, typename TE0_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE0_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_C_VTA::type  >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE1_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE1_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_C_VTA::type  >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE2_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE2_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_C_VTA::type  >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE3_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE3_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE3_C_VTA::type  >::value));
+
+            ASSERT((bsl::is_same<  V_T, typename TE0_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE0_V_VTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE1_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE1_V_VTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE2_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE2_V_VTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE3_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE3_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE3_V_VTA::type  >::value));
+
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_VTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_CV_VTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_CV_VTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE3_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE3_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE3_CV_VTA::type >::value));
+        }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+
+        // Testing 'T& get(array&)' and 'const T& get(const array&)'.
+        {
+            TA        mX;
+            const TA& X = mX;
+
+            ASSERT(mX.d_data + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
+            ASSERT(mX.d_data + 1 == bsls::Util::addressOf(bsl::get<1>(mX)));
+            ASSERT(mX.d_data + 2 == bsls::Util::addressOf(bsl::get<2>(mX)));
+            ASSERT(mX.d_data + 3 == bsls::Util::addressOf(bsl::get<3>(mX)));
+
+            ASSERT( X.d_data + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
+            ASSERT( X.d_data + 1 == bsls::Util::addressOf(bsl::get<1>( X)));
+            ASSERT( X.d_data + 2 == bsls::Util::addressOf(bsl::get<2>( X)));
+            ASSERT( X.d_data + 3 == bsls::Util::addressOf(bsl::get<3>( X)));
+
+            ASSERT(false         ==         isRefConstant(bsl::get<0>(mX)));
+            ASSERT(false         ==         isRefConstant(bsl::get<1>(mX)));
+            ASSERT(false         ==         isRefConstant(bsl::get<2>(mX)));
+            ASSERT(false         ==         isRefConstant(bsl::get<3>(mX)));
+
+            ASSERT(true          ==         isRefConstant(bsl::get<0>( X)));
+            ASSERT(true          ==         isRefConstant(bsl::get<1>( X)));
+            ASSERT(true          ==         isRefConstant(bsl::get<2>( X)));
+            ASSERT(true          ==         isRefConstant(bsl::get<3>( X)));
+        }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        // Testing 'T&& get(array&&)' and 'const T&& get(const array&&)'.
+        {
+            typedef bslmf::MovableRefUtil MoveUtil;
+
+            const char* SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
+
+            TA mW; const  TA& W  = gg(&mW,  SPEC);
+
+            TA mX0; const TA& X0 = gg(&mX0, SPEC);
+            TA mX1; const TA& X1 = gg(&mX1, SPEC);
+            TA mX2; const TA& X2 = gg(&mX2, SPEC);
+            TA mX3; const TA& X3 = gg(&mX3, SPEC);
+
+            ASSERT(true  == isRefConstant(bsl::get<0>(MoveUtil::move( X0))));
+            ASSERT(true  == isRefConstant(bsl::get<1>(MoveUtil::move( X1))));
+            ASSERT(true  == isRefConstant(bsl::get<2>(MoveUtil::move( X2))));
+            ASSERT(true  == isRefConstant(bsl::get<3>(MoveUtil::move( X3))));
+
+            ASSERT(W[0]  ==               bsl::get<0>(MoveUtil::move( X0)));
+            ASSERT(W[1]  ==               bsl::get<1>(MoveUtil::move( X1)));
+            ASSERT(W[2]  ==               bsl::get<2>(MoveUtil::move( X2)));
+            ASSERT(W[3]  ==               bsl::get<3>(MoveUtil::move( X3)));
+
+            ASSERT(false == isRefConstant(bsl::get<0>(MoveUtil::move(mX0))));
+            ASSERT(false == isRefConstant(bsl::get<1>(MoveUtil::move(mX1))));
+            ASSERT(false == isRefConstant(bsl::get<2>(MoveUtil::move(mX2))));
+            ASSERT(false == isRefConstant(bsl::get<3>(MoveUtil::move(mX3))));
+
+            ASSERT(W[0] ==                bsl::get<0>(MoveUtil::move(mX0)));
+            ASSERT(W[1] ==                bsl::get<1>(MoveUtil::move(mX1)));
+            ASSERT(W[2] ==                bsl::get<2>(MoveUtil::move(mX2)));
+            ASSERT(W[3] ==                bsl::get<3>(MoveUtil::move(mX3)));
+        }
+#endif
+    }
+};
+
+template<class T>
+struct TupleApiTest<T, 3>
+    // This specialization of 'TupleApiTest' provides a namespace for utility
+    // function that test tuple-API for bsl::arrays of size 3.
+{
+    static void testTupleApi()
+    {
+        typedef                bsl::array<         T, 3>     TA ;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+        typedef                bsl::array<const    T, 3>     CTA;
+        typedef                bsl::array<volatile T, 3>     VTA;
+
+        typedef const          bsl::array<         T, 3>   C_TA ;
+        typedef const          bsl::array<const    T, 3>   C_CTA;
+        typedef const          bsl::array<volatile T, 3>   C_VTA;
+
+        typedef       volatile bsl::array<         T, 3>   V_TA ;
+        typedef       volatile bsl::array<const    T, 3>   V_CTA;
+        typedef       volatile bsl::array<volatile T, 3>   V_VTA;
+
+        typedef const volatile bsl::array<         T, 3>  CV_TA ;
+        typedef const volatile bsl::array<const    T, 3>  CV_CTA;
+        typedef const volatile bsl::array<volatile T, 3>  CV_VTA;
+
+        // Testing 'tuple_size'.
+        {
+            typedef native_std::tuple_size< TA     > TS_TA    ;
+            typedef native_std::tuple_size< CTA    > TS_CTA   ;
+            typedef native_std::tuple_size< VTA    > TS_VTA   ;
+            typedef native_std::tuple_size< C_TA   > TS_C_TA  ;
+            typedef native_std::tuple_size< C_CTA  > TS_C_CTA ;
+            typedef native_std::tuple_size< C_VTA  > TS_C_VTA ;
+            typedef native_std::tuple_size< V_TA   > TS_V_TA  ;
+            typedef native_std::tuple_size< V_CTA  > TS_V_CTA ;
+            typedef native_std::tuple_size< V_VTA  > TS_V_VTA ;
+            typedef native_std::tuple_size< CV_TA  > TS_CV_TA ;
+            typedef native_std::tuple_size< CV_CTA > TS_CV_CTA;
+            typedef native_std::tuple_size< CV_VTA > TS_CV_VTA;
+
+            ASSERT((3u == TS_TA::value    ));
+            ASSERT((3u == TS_CTA::value   ));
+            ASSERT((3u == TS_VTA::value   ));
+            ASSERT((3u == TS_C_TA::value  ));
+            ASSERT((3u == TS_C_CTA::value ));
+            ASSERT((3u == TS_C_VTA::value ));
+            ASSERT((3u == TS_V_TA::value  ));
+            ASSERT((3u == TS_V_CTA::value ));
+            ASSERT((3u == TS_V_VTA::value ));
+            ASSERT((3u == TS_CV_TA::value ));
+            ASSERT((3u == TS_CV_CTA::value));
+            ASSERT((3u == TS_CV_VTA::value));
+        }
+        // Testing 'tuple_element'.
+        {
+            typedef native_std::tuple_element< 0 ,     TA > TE0_TA    ;
+            typedef native_std::tuple_element< 0 ,    CTA > TE0_CTA   ;
+            typedef native_std::tuple_element< 0 ,    VTA > TE0_VTA   ;
+            typedef native_std::tuple_element< 1u,     TA > TE1_TA    ;
+            typedef native_std::tuple_element< 1u,    CTA > TE1_CTA   ;
+            typedef native_std::tuple_element< 1u,    VTA > TE1_VTA   ;
+            typedef native_std::tuple_element< 2u,     TA > TE2_TA    ;
+            typedef native_std::tuple_element< 2u,    CTA > TE2_CTA   ;
+            typedef native_std::tuple_element< 2u,    VTA > TE2_VTA   ;
+
+            typedef native_std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
+            typedef native_std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
+            typedef native_std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
+            typedef native_std::tuple_element< 1u,  C_TA  > TE1_C_TA  ;
+            typedef native_std::tuple_element< 1u,  C_CTA > TE1_C_CTA ;
+            typedef native_std::tuple_element< 1u,  C_VTA > TE1_C_VTA ;
+            typedef native_std::tuple_element< 2u,  C_TA  > TE2_C_TA  ;
+            typedef native_std::tuple_element< 2u,  C_CTA > TE2_C_CTA ;
+            typedef native_std::tuple_element< 2u,  C_VTA > TE2_C_VTA ;
+
+            typedef native_std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
+            typedef native_std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
+            typedef native_std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
+            typedef native_std::tuple_element< 1u,  V_TA  > TE1_V_TA  ;
+            typedef native_std::tuple_element< 1u,  V_CTA > TE1_V_CTA ;
+            typedef native_std::tuple_element< 1u,  V_VTA > TE1_V_VTA ;
+            typedef native_std::tuple_element< 2u,  V_TA  > TE2_V_TA  ;
+            typedef native_std::tuple_element< 2u,  V_CTA > TE2_V_CTA ;
+            typedef native_std::tuple_element< 2u,  V_VTA > TE2_V_VTA ;
+
+            typedef native_std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
+            typedef native_std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
+            typedef native_std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
+            typedef native_std::tuple_element< 1u, CV_TA  > TE1_CV_TA ;
+            typedef native_std::tuple_element< 1u, CV_CTA > TE1_CV_CTA;
+            typedef native_std::tuple_element< 1u, CV_VTA > TE1_CV_VTA;
+            typedef native_std::tuple_element< 2u, CV_TA  > TE2_CV_TA ;
+            typedef native_std::tuple_element< 2u, CV_CTA > TE2_CV_CTA;
+            typedef native_std::tuple_element< 2u, CV_VTA > TE2_CV_VTA;
+
+            // Aliases for returned types.
+
+            typedef const          T  C_T;
+            typedef       volatile T  V_T;
+            typedef const volatile T CV_T;
+
+            ASSERT((bsl::is_same<   T,  typename TE0_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE0_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE0_VTA::type    >::value));
+            ASSERT((bsl::is_same<   T,  typename TE1_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE1_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE1_VTA::type    >::value));
+            ASSERT((bsl::is_same<   T,  typename TE2_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE2_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE2_VTA::type    >::value));
+
+            ASSERT((bsl::is_same<  C_T, typename TE0_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE0_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_C_VTA::type  >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE1_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE1_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_C_VTA::type  >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE2_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE2_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_C_VTA::type  >::value));
+
+            ASSERT((bsl::is_same<  V_T, typename TE0_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE0_V_VTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE1_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE1_V_VTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE2_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE2_V_VTA::type  >::value));
+
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_VTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_CV_VTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE2_CV_VTA::type >::value));
+        }
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+
+        // Testing 'T& get(array&)' and 'const T& get(const array&)'.
+        {
+            TA        mX;
+            const TA& X = mX;
+
+            ASSERT(mX.d_data + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
+            ASSERT(mX.d_data + 1 == bsls::Util::addressOf(bsl::get<1>(mX)));
+            ASSERT(mX.d_data + 2 == bsls::Util::addressOf(bsl::get<2>(mX)));
+
+            ASSERT( X.d_data + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
+            ASSERT( X.d_data + 1 == bsls::Util::addressOf(bsl::get<1>( X)));
+            ASSERT( X.d_data + 2 == bsls::Util::addressOf(bsl::get<2>( X)));
+
+            ASSERT(false         ==         isRefConstant(bsl::get<0>(mX)));
+            ASSERT(false         ==         isRefConstant(bsl::get<1>(mX)));
+            ASSERT(false         ==         isRefConstant(bsl::get<2>(mX)));
+
+            ASSERT(true          ==         isRefConstant(bsl::get<0>( X)));
+            ASSERT(true          ==         isRefConstant(bsl::get<1>( X)));
+            ASSERT(true          ==         isRefConstant(bsl::get<2>( X)));
+        }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        // Testing 'T&& get(array&&)' and 'const T&& get(const array&&)'.
+        {
+            typedef bslmf::MovableRefUtil MoveUtil;
+
+            const char* SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
+
+            TA mW; const  TA& W  = gg(&mW,  SPEC);
+
+            TA mX0; const TA& X0 = gg(&mX0, SPEC);
+            TA mX1; const TA& X1 = gg(&mX1, SPEC);
+            TA mX2; const TA& X2 = gg(&mX2, SPEC);
+
+            ASSERT(true  == isRefConstant(bsl::get<0>(MoveUtil::move( X0))));
+            ASSERT(true  == isRefConstant(bsl::get<1>(MoveUtil::move( X1))));
+            ASSERT(true  == isRefConstant(bsl::get<2>(MoveUtil::move( X2))));
+
+            ASSERT(W[0]  ==               bsl::get<0>(MoveUtil::move( X0)));
+            ASSERT(W[1]  ==               bsl::get<1>(MoveUtil::move( X1)));
+            ASSERT(W[2]  ==               bsl::get<2>(MoveUtil::move( X2)));
+
+            ASSERT(false == isRefConstant(bsl::get<0>(MoveUtil::move(mX0))));
+            ASSERT(false == isRefConstant(bsl::get<1>(MoveUtil::move(mX1))));
+            ASSERT(false == isRefConstant(bsl::get<2>(MoveUtil::move(mX2))));
+
+            ASSERT(W[0] ==                bsl::get<0>(MoveUtil::move(mX0)));
+            ASSERT(W[1] ==                bsl::get<1>(MoveUtil::move(mX1)));
+            ASSERT(W[2] ==                bsl::get<2>(MoveUtil::move(mX2)));
+        }
+#endif
+    }
+};
+
+template<class T>
+struct TupleApiTest<T, 2>
+    // This specialization of 'TupleApiTest' provides a namespace for utility
+    // function that test tuple-API for bsl::arrays of size 2.
+{
+    static void testTupleApi()
+    {
+        typedef                bsl::array<         T, 2>     TA ;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+        typedef                bsl::array<const    T, 2>     CTA;
+        typedef                bsl::array<volatile T, 2>     VTA;
+
+        typedef const          bsl::array<         T, 2>   C_TA ;
+        typedef const          bsl::array<const    T, 2>   C_CTA;
+        typedef const          bsl::array<volatile T, 2>   C_VTA;
+
+        typedef       volatile bsl::array<         T, 2>   V_TA ;
+        typedef       volatile bsl::array<const    T, 2>   V_CTA;
+        typedef       volatile bsl::array<volatile T, 2>   V_VTA;
+
+        typedef const volatile bsl::array<         T, 2>  CV_TA ;
+        typedef const volatile bsl::array<const    T, 2>  CV_CTA;
+        typedef const volatile bsl::array<volatile T, 2>  CV_VTA;
+
+        // Testing 'tuple_size'.
+        {
+            typedef native_std::tuple_size< TA     > TS_TA    ;
+            typedef native_std::tuple_size< CTA    > TS_CTA   ;
+            typedef native_std::tuple_size< VTA    > TS_VTA   ;
+            typedef native_std::tuple_size< C_TA   > TS_C_TA  ;
+            typedef native_std::tuple_size< C_CTA  > TS_C_CTA ;
+            typedef native_std::tuple_size< C_VTA  > TS_C_VTA ;
+            typedef native_std::tuple_size< V_TA   > TS_V_TA  ;
+            typedef native_std::tuple_size< V_CTA  > TS_V_CTA ;
+            typedef native_std::tuple_size< V_VTA  > TS_V_VTA ;
+            typedef native_std::tuple_size< CV_TA  > TS_CV_TA ;
+            typedef native_std::tuple_size< CV_CTA > TS_CV_CTA;
+            typedef native_std::tuple_size< CV_VTA > TS_CV_VTA;
+
+            ASSERT((2u == TS_TA::value    ));
+            ASSERT((2u == TS_CTA::value   ));
+            ASSERT((2u == TS_VTA::value   ));
+            ASSERT((2u == TS_C_TA::value  ));
+            ASSERT((2u == TS_C_CTA::value ));
+            ASSERT((2u == TS_C_VTA::value ));
+            ASSERT((2u == TS_V_TA::value  ));
+            ASSERT((2u == TS_V_CTA::value ));
+            ASSERT((2u == TS_V_VTA::value ));
+            ASSERT((2u == TS_CV_TA::value ));
+            ASSERT((2u == TS_CV_CTA::value));
+            ASSERT((2u == TS_CV_VTA::value));
+        }
+
+        // Testing 'tuple_element'.
+        {
+            typedef native_std::tuple_element< 0 ,     TA > TE0_TA    ;
+            typedef native_std::tuple_element< 0 ,    CTA > TE0_CTA   ;
+            typedef native_std::tuple_element< 0 ,    VTA > TE0_VTA   ;
+            typedef native_std::tuple_element< 1u,     TA > TE1_TA    ;
+            typedef native_std::tuple_element< 1u,    CTA > TE1_CTA   ;
+            typedef native_std::tuple_element< 1u,    VTA > TE1_VTA   ;
+
+            typedef native_std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
+            typedef native_std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
+            typedef native_std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
+            typedef native_std::tuple_element< 1u,  C_TA  > TE1_C_TA  ;
+            typedef native_std::tuple_element< 1u,  C_CTA > TE1_C_CTA ;
+            typedef native_std::tuple_element< 1u,  C_VTA > TE1_C_VTA ;
+
+            typedef native_std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
+            typedef native_std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
+            typedef native_std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
+            typedef native_std::tuple_element< 1u,  V_TA  > TE1_V_TA  ;
+            typedef native_std::tuple_element< 1u,  V_CTA > TE1_V_CTA ;
+            typedef native_std::tuple_element< 1u,  V_VTA > TE1_V_VTA ;
+
+            typedef native_std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
+            typedef native_std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
+            typedef native_std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
+            typedef native_std::tuple_element< 1u, CV_TA  > TE1_CV_TA ;
+            typedef native_std::tuple_element< 1u, CV_CTA > TE1_CV_CTA;
+            typedef native_std::tuple_element< 1u, CV_VTA > TE1_CV_VTA;
+
+            // Aliases for returned types.
+
+            typedef const          T  C_T;
+            typedef       volatile T  V_T;
+            typedef const volatile T CV_T;
+
+            ASSERT((bsl::is_same<   T,  typename TE0_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE0_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE0_VTA::type    >::value));
+            ASSERT((bsl::is_same<   T,  typename TE1_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE1_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE1_VTA::type    >::value));
+
+            ASSERT((bsl::is_same<  C_T, typename TE0_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE0_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_C_VTA::type  >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE1_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE1_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_C_VTA::type  >::value));
+
+            ASSERT((bsl::is_same<  V_T, typename TE0_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE0_V_VTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE1_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE1_V_VTA::type  >::value));
+
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_VTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE1_CV_VTA::type >::value));
+        }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+
+        // Testing 'T& get(array&)' and 'const T& get(const array&)'.
+        {
+            TA        mX;
+            const TA& X = mX;
+
+            ASSERT(mX.d_data + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
+            ASSERT(mX.d_data + 1 == bsls::Util::addressOf(bsl::get<1>(mX)));
+
+            ASSERT( X.d_data + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
+            ASSERT( X.d_data + 1 == bsls::Util::addressOf(bsl::get<1>( X)));
+
+            ASSERT(false         ==         isRefConstant(bsl::get<0>(mX)));
+            ASSERT(false         ==         isRefConstant(bsl::get<1>(mX)));
+
+            ASSERT(true          ==         isRefConstant(bsl::get<0>( X)));
+            ASSERT(true          ==         isRefConstant(bsl::get<1>( X)));
+        }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        // Testing 'T&& get(array&&)' and 'const T&& get(const array&&)'.
+        {
+            typedef bslmf::MovableRefUtil MoveUtil;
+
+            const char* SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
+
+            TA mW; const  TA& W  = gg(&mW,  SPEC);
+
+            TA mX0; const TA& X0 = gg(&mX0, SPEC);
+            TA mX1; const TA& X1 = gg(&mX1, SPEC);
+
+            ASSERT(true  == isRefConstant(bsl::get<0>(MoveUtil::move( X0))));
+            ASSERT(true  == isRefConstant(bsl::get<1>(MoveUtil::move( X1))));
+
+            ASSERT(W[0]  ==               bsl::get<0>(MoveUtil::move( X0)));
+            ASSERT(W[1]  ==               bsl::get<1>(MoveUtil::move( X1)));
+
+            ASSERT(false == isRefConstant(bsl::get<0>(MoveUtil::move(mX0))));
+            ASSERT(false == isRefConstant(bsl::get<1>(MoveUtil::move(mX1))));
+
+            ASSERT(W[0] ==                bsl::get<0>(MoveUtil::move(mX0)));
+            ASSERT(W[1] ==                bsl::get<1>(MoveUtil::move(mX1)));
+        }
+#endif
+    }
+};
+
+template<class T>
+struct TupleApiTest<T, 1>
+    // This specialization of 'TupleApiTest' provides a namespace for utility
+    // function that test tuple-API for bsl::arrays of size 1.
+{
+    static void testTupleApi()
+    {
+        typedef                bsl::array<         T, 1>     TA ;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+        typedef                bsl::array<const    T, 1>     CTA;
+        typedef                bsl::array<volatile T, 1>     VTA;
+
+        typedef const          bsl::array<         T, 1>   C_TA ;
+        typedef const          bsl::array<const    T, 1>   C_CTA;
+        typedef const          bsl::array<volatile T, 1>   C_VTA;
+
+        typedef       volatile bsl::array<         T, 1>   V_TA ;
+        typedef       volatile bsl::array<const    T, 1>   V_CTA;
+        typedef       volatile bsl::array<volatile T, 1>   V_VTA;
+
+        typedef const volatile bsl::array<         T, 1>  CV_TA ;
+        typedef const volatile bsl::array<const    T, 1>  CV_CTA;
+        typedef const volatile bsl::array<volatile T, 1>  CV_VTA;
+        // Testing 'tuple_size'.
+        {
+            typedef native_std::tuple_size< TA     > TS_TA    ;
+            typedef native_std::tuple_size< CTA    > TS_CTA   ;
+            typedef native_std::tuple_size< VTA    > TS_VTA   ;
+            typedef native_std::tuple_size< C_TA   > TS_C_TA  ;
+            typedef native_std::tuple_size< C_CTA  > TS_C_CTA ;
+            typedef native_std::tuple_size< C_VTA  > TS_C_VTA ;
+            typedef native_std::tuple_size< V_TA   > TS_V_TA  ;
+            typedef native_std::tuple_size< V_CTA  > TS_V_CTA ;
+            typedef native_std::tuple_size< V_VTA  > TS_V_VTA ;
+            typedef native_std::tuple_size< CV_TA  > TS_CV_TA ;
+            typedef native_std::tuple_size< CV_CTA > TS_CV_CTA;
+            typedef native_std::tuple_size< CV_VTA > TS_CV_VTA;
+
+            ASSERT((1u == TS_TA::value    ));
+            ASSERT((1u == TS_CTA::value   ));
+            ASSERT((1u == TS_VTA::value   ));
+            ASSERT((1u == TS_C_TA::value  ));
+            ASSERT((1u == TS_C_CTA::value ));
+            ASSERT((1u == TS_C_VTA::value ));
+            ASSERT((1u == TS_V_TA::value  ));
+            ASSERT((1u == TS_V_CTA::value ));
+            ASSERT((1u == TS_V_VTA::value ));
+            ASSERT((1u == TS_CV_TA::value ));
+            ASSERT((1u == TS_CV_CTA::value));
+            ASSERT((1u == TS_CV_VTA::value));
+        }
+
+        // Testing 'tuple_element'.
+        {
+            typedef native_std::tuple_element< 0 ,     TA > TE0_TA    ;
+            typedef native_std::tuple_element< 0 ,    CTA > TE0_CTA   ;
+            typedef native_std::tuple_element< 0 ,    VTA > TE0_VTA   ;
+
+            typedef native_std::tuple_element< 0 ,  C_TA  > TE0_C_TA  ;
+            typedef native_std::tuple_element< 0 ,  C_CTA > TE0_C_CTA ;
+            typedef native_std::tuple_element< 0 ,  C_VTA > TE0_C_VTA ;
+
+            typedef native_std::tuple_element< 0 ,  V_TA  > TE0_V_TA  ;
+            typedef native_std::tuple_element< 0 ,  V_CTA > TE0_V_CTA ;
+            typedef native_std::tuple_element< 0 ,  V_VTA > TE0_V_VTA ;
+
+            typedef native_std::tuple_element< 0 , CV_TA  > TE0_CV_TA ;
+            typedef native_std::tuple_element< 0 , CV_CTA > TE0_CV_CTA;
+            typedef native_std::tuple_element< 0 , CV_VTA > TE0_CV_VTA;
+
+            // Aliases for returned types.
+
+            typedef const          T  C_T;
+            typedef       volatile T  V_T;
+            typedef const volatile T CV_T;
+
+            ASSERT((bsl::is_same<   T,  typename TE0_TA::type     >::value));
+            ASSERT((bsl::is_same< C_T,  typename TE0_CTA::type    >::value));
+            ASSERT((bsl::is_same< V_T,  typename TE0_VTA::type    >::value));
+
+            ASSERT((bsl::is_same<  C_T, typename TE0_C_TA::type   >::value));
+            ASSERT((bsl::is_same<  C_T, typename TE0_C_CTA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_C_VTA::type  >::value));
+
+            ASSERT((bsl::is_same<  V_T, typename TE0_V_TA::type   >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_V_CTA::type  >::value));
+            ASSERT((bsl::is_same<  V_T, typename TE0_V_VTA::type  >::value));
+
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_TA::type  >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_CTA::type >::value));
+            ASSERT((bsl::is_same< CV_T, typename TE0_CV_VTA::type >::value));
+        }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+
+        // Testing 'T& get(array&)' and 'const T& get(const array&)'.
+        {
+            TA        mX;
+            const TA& X = mX;
+
+            ASSERT(mX.d_data + 0 == bsls::Util::addressOf(bsl::get<0>(mX)));
+
+            ASSERT( X.d_data + 0 == bsls::Util::addressOf(bsl::get<0>( X)));
+
+            ASSERT(false         ==         isRefConstant(bsl::get<0>(mX)));
+
+            ASSERT(true          ==         isRefConstant(bsl::get<0>( X)));
+        }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+        // Testing 'T&& get(array&&)' and 'const T&& get(const array&&)'.
+        {
+            typedef bslmf::MovableRefUtil MoveUtil;
+
+            const char* SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
+
+            TA mW; const  TA& W  = gg(&mW,  SPEC);
+
+            TA mX0; const TA& X0 = gg(&mX0, SPEC);
+
+            ASSERT(true  == isRefConstant(bsl::get<0>(MoveUtil::move( X0))));
+
+            ASSERT(W[0]  ==               bsl::get<0>(MoveUtil::move( X0)));
+
+            ASSERT(false == isRefConstant(bsl::get<0>(MoveUtil::move(mX0))));
+
+            ASSERT(W[0] ==                bsl::get<0>(MoveUtil::move(mX0)));
+        }
+#endif
+    }
+};
+
+template<class T>
+struct TupleApiTest<T, 0>
+    // This specialization of 'TupleApiTest' provides a namespace for utility
+    // function that test tuple-API for bsl::arrays of size 0`.
+{
+    static void testTupleApi()
+    {
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+        typedef                bsl::array<         T, 0>     TA ;
+        typedef                bsl::array<const    T, 0>     CTA;
+        typedef                bsl::array<volatile T, 0>     VTA;
+
+        typedef const          bsl::array<         T, 0>   C_TA ;
+        typedef const          bsl::array<const    T, 0>   C_CTA;
+        typedef const          bsl::array<volatile T, 0>   C_VTA;
+
+        typedef       volatile bsl::array<         T, 0>   V_TA ;
+        typedef       volatile bsl::array<const    T, 0>   V_CTA;
+        typedef       volatile bsl::array<volatile T, 0>   V_VTA;
+
+        typedef const volatile bsl::array<         T, 0>  CV_TA ;
+        typedef const volatile bsl::array<const    T, 0>  CV_CTA;
+        typedef const volatile bsl::array<volatile T, 0>  CV_VTA;
+        // Testing 'tuple_size'.
+        {
+            typedef native_std::tuple_size< TA     > TS_TA    ;
+            typedef native_std::tuple_size< CTA    > TS_CTA   ;
+            typedef native_std::tuple_size< VTA    > TS_VTA   ;
+            typedef native_std::tuple_size< C_TA   > TS_C_TA  ;
+            typedef native_std::tuple_size< C_CTA  > TS_C_CTA ;
+            typedef native_std::tuple_size< C_VTA  > TS_C_VTA ;
+            typedef native_std::tuple_size< V_TA   > TS_V_TA  ;
+            typedef native_std::tuple_size< V_CTA  > TS_V_CTA ;
+            typedef native_std::tuple_size< V_VTA  > TS_V_VTA ;
+            typedef native_std::tuple_size< CV_TA  > TS_CV_TA ;
+            typedef native_std::tuple_size< CV_CTA > TS_CV_CTA;
+            typedef native_std::tuple_size< CV_VTA > TS_CV_VTA;
+
+            ASSERT((0 == TS_TA::value    ));
+            ASSERT((0 == TS_CTA::value   ));
+            ASSERT((0 == TS_VTA::value   ));
+            ASSERT((0 == TS_C_TA::value  ));
+            ASSERT((0 == TS_C_CTA::value ));
+            ASSERT((0 == TS_C_VTA::value ));
+            ASSERT((0 == TS_V_TA::value  ));
+            ASSERT((0 == TS_V_CTA::value ));
+            ASSERT((0 == TS_V_VTA::value ));
+            ASSERT((0 == TS_CV_TA::value ));
+            ASSERT((0 == TS_CV_CTA::value));
+            ASSERT((0 == TS_CV_VTA::value));
+        }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+    }
+};
+
+template <class TYPE, size_t SIZE>
+bool testEqualityComparison(const bsl::array<TYPE, SIZE>& array1,
+                            const bsl::array<TYPE, SIZE>& array2,
+                            bool                          specsAreEqual)
+    // Compare the specified 'array1' and 'array2' and return 'true' if they
+    // are equal (populated based on the same specifation (the specified
+    // 'specsAreEqual' is true)) and 'false' otherwise.
+{
+    bool result = true;
+    if (specsAreEqual) {
+        result &=  (array1 == array2);
+        result &=  (array2 == array1);
+        result &= !(array1 != array2);
+        result &= !(array2 != array1);
+    }
+    else {
+        result &= !(array1 == array2);
+        result &= !(array2 == array1);
+        result &=  (array1 != array2);
+        result &=  (array2 != array1);
+    }
+    return result;
+}
+
+struct CopyState {
+  public:
+    // TYPES
+    enum Enum {
+        // Enumeration of copy state.
+
+        e_NOT_COPIED,  // The type was not involved in a copy operation.
+
+        e_COPIED,      // The type was involved in a copy operation.
+
+        e_UNKNOWN      // The type does not expose move-state information.
+    };
+};
+
+                             // ======================
+                             // class CopyOnlyTestType
+                             // ======================
+
+class CopyOnlyTestType {
+    // This class, that does not support move constructors, provides an
+    // unconstrained (value-semantic) attribute type that records when copy
+    // semantics have been invoked with the object instance as the source
+    // parameter.
+
+    // DATA
+    int                     d_value;       // object's value
+    mutable CopyState::Enum d_copiedFrom;  // copied-from state
+    mutable CopyState::Enum d_copiedInto;  // copied-into state
+
+  public:
+    // CREATORS
+    CopyOnlyTestType()
+        // Create an object having the null value.
+    : d_value(0)
+    , d_copiedFrom(CopyState::e_NOT_COPIED)
+    , d_copiedInto(CopyState::e_NOT_COPIED)
+    {}
+
+    CopyOnlyTestType(int value)
+        // Create an object that has the specified 'value'.
+    : d_value(value)
+    , d_copiedFrom(CopyState::e_NOT_COPIED)
+    , d_copiedInto(CopyState::e_NOT_COPIED)
+    {}
+
+    CopyOnlyTestType(const CopyOnlyTestType& original)
+        // Create an object having the value of the specified 'original'
+        // object.
+    : d_value(original.d_value)
+    , d_copiedFrom(CopyState::e_NOT_COPIED)
+    , d_copiedInto(CopyState::e_COPIED)
+    {
+        original.d_copiedFrom = CopyState::e_COPIED;
+    }
+
+    // MANIPULATORS
+    CopyOnlyTestType& operator=(CopyOnlyTestType rhs)
+    {
+        d_value          = rhs.d_value;
+        d_copiedFrom     = CopyState::e_NOT_COPIED;
+        d_copiedInto     = CopyState::e_COPIED;
+        rhs.d_copiedFrom = CopyState::e_COPIED;
+
+        return *this;
+    }
+
+    void setCopiedFrom(CopyState::Enum value)
+    {
+        d_copiedFrom = value;
+    }
+
+    void setCopiedInto(CopyState::Enum value)
+    {
+        d_copiedInto = value;
+    }
+
+    void resetCopyState()
+    {
+        d_copiedFrom = CopyState::e_NOT_COPIED;
+        d_copiedInto = CopyState::e_NOT_COPIED;
+    }
+
+    // ACCESSORS
+    int value() const
+        // Return the value of this object.
+    {
+        return d_value;
+    }
+
+    CopyState::Enum copiedInto() const
+        // Return the copy state of this object as target of a copy operation.
+    {
+        return d_copiedInto;
+    }
+
+    CopyState::Enum copiedFrom() const
+        // Return the copy state of this object as source of a copy operation.
+    {
+        return d_copiedFrom;
+    }
+
+};
+
+// ============================================================================
+//                          TEST DRIVER TEMPLATE
+// ----------------------------------------------------------------------------
 
 template<class TYPE, size_t SIZE>
 struct TestDriver {
 
     typedef bsl::array<TYPE, SIZE> Obj;
 
-    typedef typename Obj::iterator               iterator;
-    typedef typename Obj::const_iterator         const_iterator;
-    typedef typename Obj::reverse_iterator       reverse_iterator;
-    typedef typename Obj::const_reverse_iterator const_reverse_iterator;
+    typedef typename Obj::iterator               Iter;
+    typedef typename Obj::const_iterator         CIter;
+    typedef typename Obj::reverse_iterator       RIter;
+    typedef typename Obj::const_reverse_iterator CRIter;
     typedef typename Obj::value_type             ValueType;
+
+    typedef bslmf::MovableRefUtil                MoveUtil;
 
     typedef bsltf::TestValuesArray<TYPE>         TestValues;
     typedef bsltf::TemplateTestFacility          TestFacility;
 
+    static void testCase22();
+        // Test 'hashAppend'.
+
     static void testCase21();
-        // Test tuple interface
+        // Test tuple interface.
 
     static void testCase20();
         // Test 'data' member.
@@ -516,7 +2038,7 @@ struct TestDriver {
         // Test equality operator ('operator==').
 
     static void testCase5();
-        // Test debug print.
+        // Test output (<<) operator.  This test case tests nothing.
 
     static void testCase4();
         // Test basic accessors ('size' and 'operator[]').
@@ -534,8 +2056,11 @@ struct TestDriver {
 template<class TYPE>
 struct TestDriverWrapper{
 
+    static void testCase22();
+        // Test 'hashAppend'.
+
     static void testCase21();
-        // Test tuple interface
+        // Test tuple interface.
 
     static void testCase20();
         // Test 'data' member.
@@ -583,7 +2108,7 @@ struct TestDriverWrapper{
         // Test equality operator ('operator==').
 
     static void testCase5();
-        // Test debug print.
+        // Test output (<<) operator.  This test case tests nothing.
 
     static void testCase4();
         // Test basic accessors ('size' and 'operator[]').
@@ -603,17 +2128,107 @@ struct TestDriverWrapper{
                                 // ----------
 
 template<class TYPE>
+void TestDriverWrapper<TYPE>::testCase22()
+{
+    using bsls::NameOf;
+
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
+
+    TestDriver<TYPE, 0>::testCase22();
+    TestDriver<TYPE, 1>::testCase22();
+    TestDriver<TYPE, 2>::testCase22();
+    TestDriver<TYPE, 3>::testCase22();
+    TestDriver<TYPE, 4>::testCase22();
+    TestDriver<TYPE, 5>::testCase22();
+}
+
+template <class TYPE, size_t SIZE>
+void TestDriver<TYPE, SIZE>::testCase22()
+{
+    // ------------------------------------------------------------------------
+    // TESTING 'hashAppend'
+    //
+    // Concerns:
+    //: 1 Objects constructed with the same values hash as equal.
+    //:
+    //: 2 Unequal objects hash as unequal (not required, but we can hope).
+    //
+    // Plan:
+    //: 1 Specify a set S of unique object values having various
+    //:   minor or subtle differences.
+    //:
+    //: 2 Verify the correctness of hash values matching using all elements of
+    //:   the cross product S X S.  (C-1..2)
+    //
+    // Testing:
+    //   void hashAppend(HASHALG& hashAlg, const bsl::array<T, N>&);
+    // ------------------------------------------------------------------------
+
+
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
+
+    typedef ::BloombergLP::bslh::Hash<> Hasher;
+    typedef Hasher::result_type         HashType;
+    Hasher                              hasher;
+
+    const int NUM_SPECS = 6;
+
+    static const struct {
+        int         d_line;               // source line number
+        const char *d_spec_p[NUM_SPECS];  // specification strings
+    } DATA[] = {
+        //line   spec 1   spec 2   spec 3   spec 4   spec 5   spec 6
+        //----   -------  -------  -------  -------  -------  -------
+        { L_,  { "",      "",      "",      "",      "",      ""     } },  // 0
+        { L_,  { "A",     "B",     "C",     "D",     "E",     "F"    } },  // 1
+        { L_,  { "AA",    "AB",    "BA",    "BB",    "AC",    "CA"   } },  // 2
+        { L_,  { "AAA",   "AAB",   "ABA",   "BAA",   "BBB",   "AAC"  } },  // 3
+        { L_,  { "AAAA",  "AAAB",  "AABA",  "ABAA",  "BAAA",  "BBBB" } },  // 4
+        { L_,  { "AAAAA", "AAAAB", "AAABA", "AABAA", "ABAAA", "BAAAA"} },  // 5
+    };
+
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    ASSERTV("This size is not supported", SIZE, NUM_DATA > SIZE);
+
+    for (size_t i = 0; i < NUM_SPECS; ++i) {
+        const char *const SPEC1 = DATA[SIZE].d_spec_p[i];
+
+        Obj mX1; const Obj& X1 = gg(&mX1, SPEC1);
+
+        for (size_t j = 0; j < NUM_SPECS; ++j) {
+            const char* const SPEC2 = DATA[SIZE].d_spec_p[j];
+
+            if (veryVerbose)
+                printf("\t\t\tComparing %s and %s.\n", SPEC1, SPEC2);
+
+            Obj mX2; const Obj& X2 = gg(&mX2, SPEC2);
+
+            HashType hX1 = hasher(X1);
+            HashType hX2 = hasher(X2);
+            if (0 != SIZE) {
+                ASSERTV(SIZE, i, j, (i == j) == (hX1 == hX2));
+            }
+            else {
+                ASSERTV(SIZE, i, j, hX1 == hX2);
+            }
+        }
+    }
+}
+
+template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase21()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase21();
     TestDriver<TYPE, 1>::testCase21();
     TestDriver<TYPE, 2>::testCase21();
     TestDriver<TYPE, 3>::testCase21();
     TestDriver<TYPE, 4>::testCase21();
+    TestDriver<TYPE, 5>::testCase21();
 }
 
 template <class TYPE, size_t SIZE>
@@ -623,9 +2238,7 @@ void TestDriver<TYPE, SIZE>::testCase21()
     // TESTING TUPLE INTERFACE
     //
     // Concerns:
-    //: 1 'get' free functions return correct value.
-    //:
-    //: 2 'get' free functions return correct types.
+    //: 1 The 'get' function returns array's element with requested index.
     //:
     // Plan:
     //: 1 Create an array from spec string.
@@ -633,58 +2246,20 @@ void TestDriver<TYPE, SIZE>::testCase21()
     //: 2 Test that 'get' free function returns correct value on all overloads.
     //:
     //: 3 Test that 'get' free function returns correct type for rvalue
-    //:   references.
+    //:   references.  (C-1)
     //:
     // Testing:
-    // T& get(array<T, N>& p)
-    // const T& get(const array<T, N>& p)
-    // const T&& get(const array<T, N>&& p)
-    // T&& get(array<T, N>&& p)
+    //   std::tuple_element<bsl::array<T, N> >
+    //   std::tuple_size<bsl::array<T, N> >
+    //   T& get(bsl::array<T, N>& p)
+    //   const T& get(const bsl::array<T, N>& p)
+    //   const T&& get(const bsl::array<T, N>&& p)
+    //   T&& get(bsl::array<T, N>&& p)
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    if (0 == SIZE) {
-        if (verbose) printf("\t\tNo valid index to test");
-        return;
-    }
-
-    static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;     // specification string
-    } DATA[] = {
-    //------^
-    //line spec
-    //---- --------------------------------------------------------------------
-    { L_,  "",                                                               },
-    { L_,  "A",                                                              },
-    { L_,  "BC",                                                             },
-    { L_,  "CAB",                                                            },
-    { L_,  "DABC",                                                           },
-    { L_,  "EDCBA",                                                          }
-    //------v
-    };
-
-    const char* const   SPEC   = DATA[SIZE].d_spec_p;
-
-    Obj mW; const Obj& W = gg(&mW, SPEC);
-
-    if (verbose) printf("\nTesting 'get' free function.\n");
-
-    ASSERTV(bsls::Util::addressOf(bsl::get<SIZE-1>(mW))
-         == bsls::Util::addressOf(mW[SIZE-1]));
-    ASSERTV(bsls::Util::addressOf(bsl::get<SIZE-1>(W))
-         == bsls::Util::addressOf(W[SIZE-1]));
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-    if (verbose) printf("\nTesting 'get' free function with rvalues.\n");
-    {
-        TYPE&& mX       = bsl::get<SIZE-1>(std::move(mW));
-        const TYPE&& X  = bsl::get<SIZE-1>(std::move(W));
-        ASSERTV(mX == TestFacility::create<TYPE>(SPEC[SIZE-1]));
-        ASSERTV(X  == TestFacility::create<TYPE>(SPEC[SIZE-1]));
-    }
-#endif
+    TupleApiTest<TYPE, SIZE>::testTupleApi();
 }
 
 template<class TYPE>
@@ -692,13 +2267,14 @@ void TestDriverWrapper<TYPE>::testCase20()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase20();
     TestDriver<TYPE, 1>::testCase20();
     TestDriver<TYPE, 2>::testCase20();
     TestDriver<TYPE, 3>::testCase20();
     TestDriver<TYPE, 4>::testCase20();
+    TestDriver<TYPE, 5>::testCase20();
 }
 
 template <class TYPE, size_t SIZE>
@@ -713,25 +2289,27 @@ void TestDriver<TYPE, SIZE>::testCase20()
     //: 2 'data' has the correct signature when used on a const object.
     //:
     // Plan:
-    //: 1 Default construct array
+    //: 1 Using special function verify that 'data()' returns constant pointer
+    //:   for the constant objects and non-constant pointer otherwise.  (C-2)
     //:
-    //: 2 Test 'data' member returns a pointer to the array member variable
-    //:
-    //: 3 Test 'data' member has the correct signature
-    //:
+    //: 2 Test 'data' member returns a pointer to the array member variable.
+    //:   (C-1)
+    //
     // Testing:
     //  pointer data();
     //  const_pointer data() const;
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    Obj mW;
-    const Obj& W = mW;
+    Obj        mX;
+    const Obj& X = mX;
 
-    ASSERTV(mW.data() == mW.d_data);
-    ASSERTV(W.data() == W.d_data);
-    ASSERT((bsl::is_same<typename Obj::const_pointer, const TYPE*>::value));
+    ASSERTV(SIZE, false == isPtrConstant(mX.data()));
+    ASSERTV(SIZE, true  == isPtrConstant( X.data()));
+
+    ASSERTV(mX.d_data == mX.data());
+    ASSERTV( X.d_data ==  X.data());
 }
 
 template<class TYPE>
@@ -739,12 +2317,13 @@ void TestDriverWrapper<TYPE>::testCase19()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 1>::testCase19();
     TestDriver<TYPE, 2>::testCase19();
     TestDriver<TYPE, 3>::testCase19();
     TestDriver<TYPE, 4>::testCase19();
+    TestDriver<TYPE, 5>::testCase19();
 }
 
 template <class TYPE, size_t SIZE>
@@ -754,21 +2333,23 @@ void TestDriver<TYPE, SIZE>::testCase19()
     // TESTING 'front' AND 'back'
     //
     // Concerns:
-    //: 1 'front' member modifies last elememt of object correctly
+    //: 1 'front' member accesses first elememt of object correctly.
     //:
-    //: 2 'front' member accesses last elememt of object correctly
+    //: 2 'back' member accesses last elememt of object correctly.
     //:
-    //: 3 'back' member modifies last elememt of object correctly
-    //:
-    //: 4 'back' member accesses last elememt of object correctly
-    //:
+    //: 3 Asserted precondition violations are detected when enabled.
+    //
     // Plan:
     //: 1 Generate an array from a spec string
     //:
-    //: 2 Test 'front' and 'back' access correctly
+    //: 2 Verify  that the address of the referenced element returned from
+    //:   'front' and 'back' are the addresses of the first and last elements.
+    //:   (C-1..2)
     //:
-    //: 3 Test 'front' and 'back' modify correctly
-    //:
+    //: 3 Verify that, in appropriate build modes, defensive checks are
+    //:   triggered for invalid attribute values, but not triggered for
+    //:   adjacent valid ones.  (C-3)
+    //
     // Testing:
     //  reference front();
     //  const_reference front() const;
@@ -776,59 +2357,68 @@ void TestDriver<TYPE, SIZE>::testCase19()
     //  const_reference back() const;
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;     // specification string
-    } DATA[] = {
-    //------^
-    //line spec
-    //---- --------------------------------------------------------------------
-    { L_,  "",                                                               },
-    { L_,  "A",                                                              },
-    { L_,  "BC",                                                             },
-    { L_,  "CAB",                                                            },
-    { L_,  "DABC",                                                           },
-    { L_,  "EDCBA",                                                          }
-    //------v
-    };
+    if (0 != SIZE) {
+        if (veryVerbose) printf("\t\t\tTesting basic behavior.\n");
 
-    const char* const SPEC = DATA[SIZE].d_spec_p;
-    const char        V    = 'V';
+        Obj        mX;
+        const Obj& X = mX;
 
-    if (verbose) printf("\nGenerating array from spec string %s.\n", SPEC);
+        const TYPE  *EXP_FRONT_ADDRESS = mX.d_data;
+        const TYPE  *EXP_BACK_ADDRESS  = mX.d_data + SIZE -1;
 
-    Obj mW; const Obj& W = gg(&mW, SPEC);
+        ASSERTV(SIZE, false == isRefConstant(mX.front()));
+        ASSERTV(SIZE, true  == isRefConstant( X.front()));
+        ASSERTV(SIZE, false == isRefConstant(mX.back() ));
+        ASSERTV(SIZE, true  == isRefConstant( X.back() ));
 
-    if (verbose) printf("\nTest 'front' and 'back' access correctly.\n");
+        TYPE&        fr                = mX.front();
+        const TYPE&  fcr               = X.front();
+        TYPE&        br                = mX.back();
+        const TYPE&  bcr               = X.back();
 
-    ASSERTV(&(W.front()) == &(W[0]));
-    ASSERTV(&(W.back()) == &(W[SIZE-1]));
+        ASSERTV(SIZE, EXP_FRONT_ADDRESS == bsls::Util::addressOf(fr ));
+        ASSERTV(SIZE, EXP_FRONT_ADDRESS == bsls::Util::addressOf(fcr));
 
-    if (verbose) printf("\nTest 'front' and 'back' modify correctly.\n");
+        ASSERTV(SIZE, EXP_BACK_ADDRESS  == bsls::Util::addressOf(br ));
+        ASSERTV(SIZE, EXP_BACK_ADDRESS  == bsls::Util::addressOf(bcr));
+    }
 
-    mW.front() = TestFacility::create<TYPE>(V);
-    ASSERTV(W.front() == TestFacility::create<TYPE>(V));
+    if (veryVerbose) printf("\t\t\tNegative Testing.\n");
+    {
+        bsls::AssertTestHandlerGuard hG;
+        Obj        mX;
+        const Obj& X = mX;
 
-    mW.back() = TestFacility::create<TYPE>(V);
-    ASSERTV(W.back() == TestFacility::create<TYPE>(V));
+        if (0 == SIZE) {
+            ASSERT_FAIL(mX.front());
+            ASSERT_FAIL( X.front());
+            ASSERT_FAIL(mX.back());
+            ASSERT_FAIL( X.back());
+        }
+        else {
+            ASSERT_PASS(mX.front());
+            ASSERT_PASS( X.front());
+            ASSERT_PASS(mX.back());
+            ASSERT_PASS( X.back());
+        }
+    }
 }
-
-
 
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase18()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase18();
     TestDriver<TYPE, 1>::testCase18();
     TestDriver<TYPE, 2>::testCase18();
     TestDriver<TYPE, 3>::testCase18();
     TestDriver<TYPE, 4>::testCase18();
+    TestDriver<TYPE, 5>::testCase18();
 }
 
 template <class TYPE, size_t SIZE>
@@ -838,100 +2428,64 @@ void TestDriver<TYPE, SIZE>::testCase18()
     // TESTING 'at'
     //
     // Concerns:
-    //: 1 'at' member accesses state of object correctly
+    //: 1 The 'at' method accesses each element both as a reference offering
+    //:   modifiable access and as a const-reference.
     //:
-    //: 2 'at' member modifies state of object correctly
-    //:
-    //: 3 Elements can be set using 'at' for any type that supports
+    //: 2 Elements can be set using 'at' for any type that supports
     //:   the assignment operator.
     //
     // Plan:
     //: 1 Construct an array from the spec string and verify all values are
     //:   accessed as expected.
     //:
-    //: 2 Modify each element one at a time and verify the rest of the array
-    //:   was not changed and that the element was modified as expected.
+    //: 2 Verify  that the address of the referenced element returned from 'at'
+    //:   is the same as that return by adding the specified index to the
+    //:   'd_data' pointer.  (C-1..2)
     //:
-    //: 3 Verify that 'out_of_range' exception thrown when 'pos >= size()'
-    //:
+    //: 3 Verify that 'out_of_range' exception thrown when 'pos >= size()'.
+    //:   (C-3)
     //
     // Testing:
     //  reference at();
     //  const_reference at();
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;     // specification string
-    } DATA[] = {
-    //------^
-    //line spec
-    //---- --------------------------------------------------------------------
-    { L_,  "",                                                               },
-    { L_,  "A",                                                              },
-    { L_,  "BC",                                                             },
-    { L_,  "CAB",                                                            },
-    { L_,  "DABC",                                                           },
-    { L_,  "EDCBA",                                                          }
-    //------v
-    };
+    const char* SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
 
-    const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec_p;
-    const size_t        LENGTH = strlen(DATA[SIZE].d_spec_p);
-    const TestValues    EXP(DATA[SIZE].d_spec_p);
-
-    const char V = 'V';
-
-    if (verbose) printf("Testing 'at' accesses state of object correctly\n");
+    if (veryVerbose)
+        printf("\t\t\tTesting 'at' accesses state of object correctly\n");
     {
-        Obj        mW;
-        const Obj& W = gg(&mW, SPEC);
+        Obj mX; const Obj& X = gg(&mX, SPEC);
 
-        if (veryVerbose) printf("\t\tTesting on container values %s.\n", SPEC);
+        for (size_t i = 0; i < SIZE; ++i) {
+            const TYPE  *EXP_ADDRESS = mX.d_data + i;
+            TYPE&        r  = mX.at(i);
+            const TYPE&  cr = X.at(i);
 
-        for (size_t i = 0; i < LENGTH; ++i) {
-            TYPE&       xi = mW.at(i);
-            const TYPE& Xi = W.at(i);
-            ASSERTV(LINE, i, xi, EXP[i] == mW.at(i));
-            ASSERTV(LINE, i, Xi, EXP[i] == W.at(i));
-        }
-    }
-
-    if (verbose) printf("Testing modifying container values.\n");
-    {
-        Obj        mW;
-        const Obj& W  = gg(&mW, SPEC);
-        Obj        mX = W;
-        const Obj& X  = mX;
-
-        for (size_t i = 0; i < LENGTH; ++i) {
-            mW.at(i) = TestFacility::create<TYPE>(V);
-            for (size_t j = 0; j <= i; ++j) {
-                ASSERTV(LINE, j, TestFacility::create<TYPE>(V) == mW.at(j));
-                ASSERTV(LINE, j, TestFacility::create<TYPE>(V) == W.at(j));
-            }
-            for (size_t j = i+1; j < LENGTH; ++j) {
-                ASSERTV(LINE, j, mX[j] == mW.at(j));
-                ASSERTV(LINE, j, X[j] == W.at(j));
-            }
+            ASSERTV(SIZE, i, mX.d_data[i] == r                        );
+            ASSERTV(SIZE, i,  X.d_data[i] == cr                       );
+            ASSERTV(SIZE, i, EXP_ADDRESS  == bsls::Util::addressOf( r));
+            ASSERTV(SIZE, i, EXP_ADDRESS  == bsls::Util::addressOf(cr));
         }
     }
 
 #if defined(BDE_BUILD_TARGET_NO_EXC)
-    if (verbose) {
-        printf("No testing for 'out_of_range' as exceptions are disbaled.\n");
+    if (veryVerbose) {
+        printf("\t\t\tNo testing for 'out_of_range' as exceptions are"
+               " disabled.\n");
     }
 #else
-    if (verbose) printf("Testing for out_of_range exceptions thrown by at() "
-                        "when pos >= size().\n");
+    if (veryVerbose)
+        printf("\t\t\tTesting for out_of_range exceptions thrown by 'at()' "
+               "when pos >= size().\n");
     {
-        Obj        mW;
-        const Obj& W = gg(&mW, SPEC);
+        Obj        mX;
+        const Obj& X = gg(&mX, SPEC);
 
         const int NUM_TRIALS = 2;
+
         // Check exception behavior for non-const version of 'at()'.  Checking
         // the behavior for 'pos == size()' and 'pos > size()'.
 
@@ -940,31 +2494,32 @@ void TestDriver<TYPE, SIZE>::testCase18()
         for (trials = 0; trials < NUM_TRIALS; ++trials)
         {
             try {
-                mW.at(LENGTH + trials);
-                ASSERTV(LENGTH, trials, mW.size(), false);
+                mX.at(SIZE + trials);
+                ASSERTV(SIZE, trials, mX.size(), false);
             }
             catch (const std::out_of_range&) {
                 ++exceptions;
                 if (veryVerbose) {
-                    printf("\t\tIn out_of_range exception.\n");
-                    T_ T_ P_(LINE); P(trials);
+                    printf("\t\t\tIn out_of_range exception.\n");
+                    T_ T_ P_(SIZE); P(trials);
                 }
             }
         }
         ASSERTV(exceptions, trials, exceptions == trials);
 
         exceptions = 0;
+
         // Check exception behavior for const version of at()
         for (trials = 0; trials < NUM_TRIALS; ++trials)
         {
             try {
-                W.at(LENGTH + trials);
-                ASSERTV(LENGTH, trials, W.size(), false);
+                X.at(SIZE + trials);
+                ASSERTV(SIZE, trials, X.size(), false);
             } catch (const std::out_of_range&) {
                 ++exceptions;
                 if (veryVerbose) {
                     printf("\t\tIn out_of_range exception." );
-                    T_ T_ P_(LINE); P(trials);
+                    T_ T_ P_(SIZE); P(trials);
                 }
             }
         }
@@ -973,19 +2528,19 @@ void TestDriver<TYPE, SIZE>::testCase18()
 #endif
 }
 
-
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase17()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase17();
     TestDriver<TYPE, 1>::testCase17();
     TestDriver<TYPE, 2>::testCase17();
     TestDriver<TYPE, 3>::testCase17();
     TestDriver<TYPE, 4>::testCase17();
+    TestDriver<TYPE, 5>::testCase17();
 }
 
 template <class TYPE, size_t SIZE>
@@ -1001,34 +2556,38 @@ void TestDriver<TYPE, SIZE>::testCase17()
     //:
     //
     // Plan:
-    //: 1 Create an 'array', 'w'.
+    //: 1 Create two arrays using default constructor and populate one of them.
     //:
-    //: 2 Test that 'max_size()' returns a value equal to 'SIZE'.
+    //: 2 Test that if 'empty()' returns 'true' if the arrays have size 0 and
+    //:   'false' otherwise.  (C-1)
     //:
-    //: 3 Test that if 'empty()' returns 'true' if the array has size 0 and
-    //:   'false' otherwise.
-    //:
+    //: 3 Test that 'max_size()' returns a value equal to 'SIZE' for both
+    //:   arrays.  (C-2)
     //
     // Testing:
     //  bool empty() const;
     //  size_type max_size() const;
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    Obj mW; const Obj& W = mW;
+    const char* SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
 
-    ASSERT(W.empty() == (0 == SIZE));
-    ASSERT(W.max_size() == SIZE);
+    Obj mX1; const Obj& X1 = mX1;
+    Obj mX2; const Obj& X2 = gg(&mX1, SPEC);
+
+    ASSERT((0 == SIZE) == X1.empty());
+    ASSERT(SIZE        == X1.max_size());
+    ASSERT((0 == SIZE) == X2.empty());
+    ASSERT(SIZE        == X2.max_size());
 }
-
 
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase16()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase16();
     TestDriver<TYPE, 1>::testCase16();
@@ -1044,180 +2603,92 @@ void TestDriver<TYPE, SIZE>::testCase16()
     // TESTING COMPARISON OPERATORS
     //
     // Concerns:
-    //: 1 <, >, <=, >= operators lexicographically compare arrays of types
-    //:   supporting the < operator.
+    //: 1 '<', '>', '<=', '>=' operators lexicographically compare arrays of
+    //:   types supporting the '<' operator.
     //:
     //: 2 Comparison operators work on 0 length arrays.
     //:
-    //: 3 Only operator < is used to perform comparisons.
+    //: 3 Only operator '<' is used to perform comparisons.
     //
     // Plan:
     //: 1 Create a variety of spec strings for each length.
     //:
     //: 2 Test that every operator gives expected results for each combination
     //:   of arrays generated by the spec strings of the length being tested.
+    //:
+    //: 3 Perform step P-2 for arrays of objects of special type, that supports
+    //:   only 'operator<'.  (C-1..3)
     //
     // Testing:
     //  bool operator<(const array& lhs, const array& rhs);
     //  bool operator>(const array& lhs, const array& rhs);
     //  bool operator<=(const array& lhs, const array& rhs);
     //  bool operator>=(const array& lhs, const array& rhs);
-
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
+
+    const int NUM_SPECS = 6;
 
     static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;  // specification string
+        int         d_line;               // source line number
+        const char *d_spec_p[NUM_SPECS];  // specification strings
     } DATA[] = {
-    //------^
-    //line spec1
-    //---- --------------------------------------------------------------------
-    { L_,  "",                                                               },
-    { L_,  "A",                                                              },
-    { L_,  "AAB",                                                            },
-    { L_,  "AB",                                                             },
-    { L_,  "ABB",                                                            },
-    { L_,  "ABCC",                                                           },
-    { L_,  "B",                                                              },
-    { L_,  "BAAAA",                                                          },
-    { L_,  "BBAAA",                                                          },
-    { L_,  "D"                                                               }
-    //------v
+        //line   spec 1   spec 2   spec 3   spec 4   spec 5   spec 6
+        //----   -------  -------  -------  -------  -------  -------
+        { L_,  { "",      "",      "",      "",      "",      ""     } },  // 0
+        { L_,  { "A",     "B",     "C",     "D",     "E",     "F"    } },  // 1
+        { L_,  { "AA",    "AB",    "BA",    "BB",    "AC",    "CA"   } },  // 2
+        { L_,  { "AAA",   "AAB",   "ABA",   "BAA",   "BBB",   "AAC"  } },  // 3
+        { L_,  { "AAAA",  "AAAB",  "AABA",  "ABAA",  "BAAA",  "BBBB" } },  // 4
+        { L_,  { "AAAAA", "AAAAB", "AAABA", "AABAA", "ABAAA", "BAAAA"} },  // 5
     };
 
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    if (verbose) printf("\nValidating all four relational operators.\n");
-    {
-        for (size_t i = 0; i < NUM_DATA; ++i) {
-            if (strlen(DATA[i].d_spec_p) > SIZE) {
-                continue;
+    ASSERTV("This size is not supported", SIZE, NUM_DATA > SIZE);
+
+    for (size_t i = 0; i < NUM_SPECS; ++i) {
+        const char *const SPEC1 = DATA[SIZE].d_spec_p[i];
+
+        Obj mX1; const Obj& X1 = gg(&mX1, SPEC1);
+
+        for (size_t j = 0; j < NUM_SPECS; ++j) {
+            const char* const SPEC2 = DATA[SIZE].d_spec_p[j];
+
+            if (veryVerbose)
+                printf("\t\t\tComparing %s and %s.\n", SPEC1, SPEC2);
+
+            Obj mX2; const Obj& X2 = gg(&mX2, SPEC2);
+
+            if (0 > strcmp(SPEC1, SPEC2)) {
+                ASSERTV(SPEC1, SPEC2, X1 < X2);
             }
-
-            Obj mW; const Obj& W = gg(&mW, DATA[i].d_spec_p);
-
-            ASSERTV(W <= W);
-            ASSERTV(W >= W);
-
-            for (size_t j = 0; j != i; ++j) {
-                if(strlen(DATA[j].d_spec_p) > SIZE) {
-                    continue;
-                }
-
-                if (veryVerbose) printf("\tComparing %s and %s.\n",
-                        DATA[j].d_spec_p, DATA[i].d_spec_p);
-
-                Obj mX; const Obj& X = gg(&mX, DATA[j].d_spec_p);
-
-                ASSERTV(DATA[j].d_spec_p, DATA[i].d_spec_p, X, W, X < W);
-                ASSERTV(DATA[j].d_spec_p, DATA[i].d_spec_p, X, W, X <= W);
-                ASSERTV(DATA[i].d_spec_p, DATA[j].d_spec_p, W, X, W > X);
-                ASSERTV(DATA[i].d_spec_p, DATA[j].d_spec_p, W, X, W >= X);
+            else if (0 == strcmp(SPEC1, SPEC2)) {
+                ASSERTV(SPEC1, SPEC2, X1 <= X2);
+                ASSERTV(SPEC1, SPEC2, X1 >= X2);
             }
-
-            for (size_t j = i+1; j < NUM_DATA; ++j) {
-                if(strlen(DATA[j].d_spec_p) > SIZE) {
-                    continue;
-                }
-
-                if (veryVerbose) printf("\tComparing %s and %s.\n",
-                        DATA[j].d_spec_p, DATA[i].d_spec_p);
-
-                Obj mX; const Obj& X = gg(&mX, DATA[j].d_spec_p);
-
-                ASSERTV(DATA[i].d_spec_p, DATA[j].d_spec_p, W, X, W < X);
-                ASSERTV(DATA[i].d_spec_p, DATA[j].d_spec_p, W, X, W <= X);
-                ASSERTV(DATA[j].d_spec_p, DATA[i].d_spec_p, X, W, X > W);
-                ASSERTV(DATA[j].d_spec_p, DATA[i].d_spec_p, X, W, X >= W);
+            else {
+                ASSERTV(SPEC1, SPEC2, X1 > X2);
             }
         }
     }
-
-    if (verbose) printf("\nConfirming comparisons use only 'operator<'.\n");
-    {
-        bsl::array<LessThan, 3>        mX;
-        const bsl::array<LessThan, 3>& X = mX;
-        mX[0] = LessThan(1);
-        mX[1] = LessThan(2);
-        mX[2] = LessThan(3);
-
-        (void) (X < X);
-        (void) (X <= X);
-        (void) (X > X);
-        (void) (X >= X);
-
-        ASSERTV(s_operators == false);
-    }
 }
-
 
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase15()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase15();
     TestDriver<TYPE, 1>::testCase15();
     TestDriver<TYPE, 2>::testCase15();
     TestDriver<TYPE, 3>::testCase15();
     TestDriver<TYPE, 4>::testCase15();
-}
+    TestDriver<TYPE, 5>::testCase15();
 
-
-template <class TYPE>
-bsl::array<TYPE, 0>
-AggregateTest<TYPE>::getAggregate(const char* spec,
-        bsl::integral_constant<size_t, 0>)
-{
-    ASSERT(strlen(spec) == 0);
-    bsl::array<TYPE, 0> ret = {{}};
-    return ret;
-}
-
-template <class TYPE>
-bsl::array<TYPE, 1>
-AggregateTest<TYPE>::getAggregate(const char* spec,
-        bsl::integral_constant<size_t, 1>)
-{
-    bsl::array<TYPE, 1> ret = {{TestFacility::create<TYPE>(spec[0])}};
-    return ret;
-}
-
-template <class TYPE>
-bsl::array<TYPE, 2>
-AggregateTest<TYPE>::getAggregate(const char* spec,
-        bsl::integral_constant<size_t, 2>)
-{
-    bsl::array<TYPE, 2> ret = {{TestFacility::create<TYPE>(spec[0]),
-             TestFacility::create<TYPE>(spec[1])}};
-        return ret;
-}
-
-template <class TYPE>
-bsl::array<TYPE, 3>
-AggregateTest<TYPE>::getAggregate(const char* spec,
-        bsl::integral_constant<size_t, 3>)
-{
-    bsl::array<TYPE, 3> ret = {{TestFacility::create<TYPE>(spec[0]),
-             TestFacility::create<TYPE>(spec[1]),
-             TestFacility::create<TYPE>(spec[2])}};
-        return ret;
-}
-
-template <class TYPE>
-bsl::array<TYPE, 4>
-AggregateTest<TYPE>::getAggregate(const char* spec,
-        bsl::integral_constant<size_t, 4>)
-{
-    bsl::array<TYPE, 4> ret = {{TestFacility::create<TYPE>(spec[0]),
-             TestFacility::create<TYPE>(spec[1]),
-             TestFacility::create<TYPE>(spec[2]),
-             TestFacility::create<TYPE>(spec[3])}};
-        return ret;
 }
 
 template <class TYPE, size_t SIZE>
@@ -1236,76 +2707,28 @@ void TestDriver<TYPE, SIZE>::testCase15()
     // Plan:
     //: 1 Use aggregate initialization to create arrays of a variety of sizes.
     //:
-    //: 2 Ensure elements all have expected values.
+    //: 2 Ensure elements all have expected values.  (C-1)
     //:
-    //: 3 Ensure any elements not provided in braces were value initialized.
-    //:
+    //: 3 Ensure any elements not provided in braces were default value
+    //:   initialized.  (C-2)
     //
     // Testing:
-    //  array<V> a = {{vt1, vt2, vt3}}
     //  array<V> a = {vt1, vt2, vt3}
-
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;     // specification string
-        const char *d_results_p;  // expected element values
-    } DATA[] = {
-    //------^
-    //line spec                                result
-    //---- ----------------------------------- --------------------------------
-    { L_,  "",                                 ""                            },
-    { L_,  "A",                                "A"                           },
-    { L_,  "BC",                               "BC"                          },
-    { L_,  "CAB",                              "CAB"                         },
-    { L_,  "DABC",                             "DABC"                        }
-    //------v
-    };
+    const char* SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
 
-    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
-
-    const char* const   SPEC   = DATA[SIZE].d_spec_p;
-
-    if (verbose) printf("\ntesting initialization of all elemenets.\n");
-    {
-        Obj        mW;
-        const Obj& W = mW;
-
-        Obj        mX;
-        const Obj& X = mX;
-
-        mW = AggregateTest<TYPE>::getAggregate(SPEC,
-                bsl::integral_constant<size_t, SIZE>());
-        mX = gg(&mX, SPEC);
-
-        ASSERTV(W==X);
-    }
-
-    if (verbose) printf("\ntest that extra elements are value-initialized.\n");
-
-    if(SIZE == 4)
-    {
-        bsl::array<TYPE, 4> mW = {{TestFacility::create<TYPE>(SPEC[0]),
-             TestFacility::create<TYPE>(SPEC[1]),
-             TestFacility::create<TYPE>(SPEC[2])}};
-
-        const bsl::array<TYPE, 4>& W = mW;
-
-        ASSERTV(W[SIZE-1] == TestFacility::create<TYPE>(0));
-    }
+    AggregateTest<TYPE, SIZE>::testAggregate(SPEC);
 }
-
-
 
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase14()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase14();
     TestDriver<TYPE, 1>::testCase14();
@@ -1325,33 +2748,28 @@ void TestDriver<TYPE, SIZE>::testCase14()
     //:
     //: 2 'const_iterator' is a pointer to 'const TYPE'.
     //:
-    //: 3 'begin' and 'end' return mutable iterators for a
-    //:   reference to a modifiable array, and non-mutable iterators
-    //:   otherwise.
+    //: 3 The ranges '[begin(), end())' and '[cbegin(), cend())' traverse the
+    //:   elements of the array in index order.
     //:
-    //: 4 The range '[begin(), end())' traverses the elements of the array in
-    //:   index order.
-    //:
-    //: 5 'reverse_iterator' and 'const_reverse_iterator' are
+    //: 4 'reverse_iterator' and 'const_reverse_iterator' are
     //:   implemented by the (fully-tested) 'bslstl::ReverseIterator' over a
     //:   pointer to 'TYPE' or 'const TYPE'.
     //:
-    //: 6 The range '[rbegin(), rend())' traverses the elements of the array in
-    //:   reverse index order.
+    //: 5 The ranges '[rbegin(), rend())' and '[crbegin(), crend())' traverse
+    //:   the elements of the array in reverse index order.
     //
     // Plan:
-    //: 1 Construct an array w from the 'SPEC'.
+    //: 1 Use 'bsl::is_same' trait to verify iterator types.  (C-1,2,4)
     //:
-    //: 2 Access and modify each element using iterators, then change each
-    //:   element back.
+    //: 2 Construct an array from the 'SPEC'.
     //:
-    //: 3 Repeat step 2 with reverse iterators.
+    //: 3 Access each element using iterators, and verify that iterators point
+    //:   to the expected addresses.
     //:
-    //: 4 Access each element of a const array using const iterators and const
-    //:   reverse iterators to ensure the values are as expected.
+    //: 4 Repeat step P-2 with reverse iterators.
     //:
-    //: 5 Use 'bsl::is_same' to check that the iterators are correct types.
-    //:
+    //: 5 Access each element of a const array using const iterators and const
+    //:   reverse iterators to ensure the addresses are as expected.  (C-3,5)
     //
     // Testing:
     //  iterator begin();
@@ -1366,125 +2784,75 @@ void TestDriver<TYPE, SIZE>::testCase14()
     //  const_iterator cend() const;
     //  const_reverse_iterator crbegin() const;
     //  const_reverse_iterator crend() const;
-
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    if (verbose) printf("\nTesting iterators are correct types.\n");
-    ASSERT( (bsl::is_same<iterator, TYPE *>::value));
-    ASSERT( (bsl::is_same<const_iterator, const TYPE *>::value));
-#ifdef BSLS_PLATFORM_CMP_SUN
-#else
-    ASSERT( (bsl::is_same<reverse_iterator,
-                               bsl::reverse_iterator<TYPE *> >::value));
-    ASSERT( (bsl::is_same<const_reverse_iterator,
-                            bsl::reverse_iterator<const TYPE *> >::value));
+    if (veryVerbose) printf("\t\t\tTesting iterators are correct types.\n");
+
+    ASSERT( (bsl::is_same<Iter,        TYPE *>::value));
+    ASSERT( (bsl::is_same<CIter, const TYPE *>::value));
+#ifndef BSLS_PLATFORM_CMP_SUN
+    ASSERT( (bsl::is_same<RIter, bsl::reverse_iterator<TYPE *> >::value));
+    ASSERT( (bsl::is_same<CRIter,
+                          bsl::reverse_iterator<const TYPE *> >::value));
 #endif
 
-    static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;     // specification string
-        const char *d_results_p;  // expected element values
-    } DATA[] = {
-    //------^
-    //line spec                                result
-    //---- ----------------------------------- --------------------------------
-    { L_,  "",                                 ""                            },
-    { L_,  "A",                                "A"                           },
-    { L_,  "BC",                               "BC"                          },
-    { L_,  "CAB",                              "CAB"                         },
-    { L_,  "DABC",                             "DABC"                        },
-    { L_,  "EDCBA",                            "EDCBA"                       }
-    //------v
-    };
+    const char *SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
 
-    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+    Obj        mX;
+    const Obj& X     = gg(&mX, SPEC);
+    int        count = 0;
 
-    const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec_p;
+    if (veryVerbose) printf("\t\t\tTesting forward functions.\n");
 
-    if (verbose) printf("\nTesting iterator functions.\n");
+    Iter    it = mX.begin();
+    CIter  cit =  X.begin();
+    CIter ccit =  X.cbegin();
 
-    const char V = 'V';
-
-    Obj        mW;
-    const Obj& W = mW;
-
-    mW = gg(&mW, SPEC);
-    int count = 0;
-
-    if (verbose) printf("\nTesting iterator goes through entire array.\n");
-    for (typename Obj::iterator it = mW.begin(); it != mW.end(); ++it){
-        ASSERTV(LINE, bsls::Util::addressOf(*it) == W.d_data + count);
-        ++count;
-        ASSERTV(LINE, TestFacility::getIdentifier(*it)==SPEC[it - mW.begin()]);
-
-        if (verbose) printf("\tTesting iterator changes elements correctly\n");
-
-        *it = TestFacility::create<TYPE>(V);
-        ASSERTV(LINE, W[it - mW.begin()] == TestFacility::create<TYPE>(V));
-    }
-    ASSERTV(count, SIZE, count == SIZE);
-
-    if (verbose) printf("\nTesting reverse iterators.\n");
-
-    //reset array
-    mW = gg(&mW, SPEC);
-
-    count = 0;
-    for (typename Obj::reverse_iterator it = mW.rbegin();it != mW.rend();++it){
-        ASSERTV(TestFacility::getIdentifier(*it)==SPEC[SIZE-1-count]);
-
-        if (verbose) printf("\tTest reverse iter changes elems correctly.\n");
-
-        *it = TestFacility::create<TYPE>(V);
-        ASSERTV(LINE,
-                bsls::Util::addressOf(*it) == W.d_data + SIZE - 1 - count);
-        ASSERTV(LINE, W[SIZE - 1 - count] == TestFacility::create<TYPE>(V));
+    for (;
+         it != mX.end() && cit != X.end() && ccit != X.cend();
+         ++it, ++cit, ++ccit) {
+        ASSERTV(SIZE, X.d_data + count == bsls::Util::addressOf(  *it));
+        ASSERTV(SIZE, X.d_data + count == bsls::Util::addressOf( *cit));
+        ASSERTV(SIZE, X.d_data + count == bsls::Util::addressOf(*ccit));
+        ASSERTV(SIZE, SPEC[count] == TestFacility::getIdentifier(  *it));
+        ASSERTV(SIZE, SPEC[count] == TestFacility::getIdentifier( *cit));
+        ASSERTV(SIZE, SPEC[count] == TestFacility::getIdentifier(*ccit));
 
         ++count;
     }
-    ASSERTV(count, SIZE, count == SIZE);
 
-    //reset array
-    mW = gg(&mW, SPEC);
-    count = 0;
+    ASSERTV(SIZE, count, SIZE == count);
+    ASSERTV(SIZE,   it == mX.end());
+    ASSERTV(SIZE,  cit ==  X.end());
+    ASSERTV(SIZE, ccit ==  X.cend());
 
-    if (verbose) printf("\nTesting iterators on const arrays.\n");
+    if (veryVerbose) printf("\t\t\tTesting reverse functions.\n");
 
-    for (typename Obj::const_iterator it = W.begin(); it != W.end(); ++it){
-        ASSERTV(LINE, &(*it) == W.d_data + count);
-        ++count;
-        ASSERTV(LINE, TestFacility::getIdentifier(*it)==SPEC[it - W.begin()]);
+    count = static_cast<int>(SIZE);
+
+    RIter    rit = mX.rbegin();
+    CRIter  crit =  X.rbegin();
+    CRIter ccrit =  X.crbegin();
+
+    for (;
+         rit != mX.rend() && crit != X.rend() && ccrit != X.crend();
+         ++rit, ++crit, ++ccrit) {
+        ASSERTV(SIZE, X.d_data + count - 1 == bsls::Util::addressOf(  *rit));
+        ASSERTV(SIZE, X.d_data + count - 1 == bsls::Util::addressOf( *crit));
+        ASSERTV(SIZE, X.d_data + count - 1 == bsls::Util::addressOf(*ccrit));
+        ASSERTV(SIZE, SPEC[count - 1] == TestFacility::getIdentifier(  *rit));
+        ASSERTV(SIZE, SPEC[count - 1] == TestFacility::getIdentifier( *crit));
+        ASSERTV(SIZE, SPEC[count - 1] == TestFacility::getIdentifier(*ccrit));
+
+        --count;
     }
-    ASSERTV(count, SIZE, count == SIZE);
-    count = 0;
-    for (typename Obj::const_reverse_iterator it = W.rbegin();
-            it != W.rend();it++){
-        ASSERTV(LINE, &(*it) == W.d_data + SIZE - 1 - count);
-        ASSERTV(TestFacility::getIdentifier(*it)==SPEC[SIZE-1-count]);
-        count++;
-    }
-    ASSERTV(count, SIZE, count == SIZE);
-    count = 0;
 
-    if (verbose) printf("\nTesting cend(), cbegin(), crend(), crbegin().\n");
-
-    for (typename Obj::const_iterator it = mW.cbegin(); it != mW.cend(); it++){
-        ASSERTV(LINE, &(*it) == W.d_data + count);
-        count++;
-        ASSERTV(LINE, TestFacility::getIdentifier(*it)==SPEC[it-mW.cbegin()]);
-    }
-    ASSERTV(count, SIZE, count == SIZE);
-    count = 0;
-    for (typename Obj::const_reverse_iterator it = mW.crbegin();
-            it != mW.crend();it++){
-        ASSERTV(LINE, &(*it) == W.d_data + SIZE - 1 - count);
-        ASSERTV(TestFacility::getIdentifier(*it)==SPEC[SIZE-1-count]);
-        count++;
-    }
-    ASSERTV(count, SIZE, count == SIZE);
+    ASSERTV(SIZE, count,     0 == count);
+    ASSERTV(SIZE,          rit == mX.rend());
+    ASSERTV(SIZE,         crit ==  X.rend());
+    ASSERTV(SIZE,        ccrit ==  X.crend());
 
 }
 
@@ -1493,13 +2861,14 @@ void TestDriverWrapper<TYPE>::testCase13()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase13();
     TestDriver<TYPE, 1>::testCase13();
     TestDriver<TYPE, 2>::testCase13();
     TestDriver<TYPE, 3>::testCase13();
     TestDriver<TYPE, 4>::testCase13();
+    TestDriver<TYPE, 5>::testCase13();
 }
 
 template <class TYPE, size_t SIZE>
@@ -1513,87 +2882,52 @@ void TestDriver<TYPE, SIZE>::testCase13()
     //:
     //: 2 Fill works on default constructed arrays.
     //:
-    //: 3 Fill works on arrays that already contain values.
+    //: 3 Fill works on arrays that already contain non-default values.
     //:
-    //: 4 Fill can be called without effect on arrays of length 0
+    //: 4 Fill can be called without effect on arrays of length 0.
     //
     // Plan:
-    //: 1 Default construct an array w.
+    //: 1 Default construct an array X1.
     //:
-    //: 2 Construct an array x from the 'SPEC'.
+    //: 2 Construct an array X2 from the 'SPEC'.
     //:
-    //: 3 Construct an array y such that all elements are the value v.
+    //: 3 Use 'fill()' to modify value of each element of arrays with some
+    //:   value 'v'.
     //:
-    //: 4 Use fill to fill w and x with v. Test w == x == y.
-    //:
-    //: 5 Modify each element of w and test that the other elements dont change
+    //: 4 Verify values of elements of arrays.  (C-1..4)
     //
     // Testing:
     //   void fill(const T& value)
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;     // specification string
-        const char *d_results_p;  // expected element values
-    } DATA[] = {
-    //------^
-    //line spec                                result
-    //---- ----------------------------------- --------------------------------
-    { L_,  "",                                 ""                            },
-    { L_,  "A",                                "A"                           },
-    { L_,  "BC",                               "BC"                          },
-    { L_,  "CAB",                              "CAB"                         },
-    { L_,  "DABC",                             "DABC"                        },
-    { L_,  "EDCBA",                            "EDCBA"                       }
-    //------v
-    };
+    const char *SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
 
-    static const char TEST_VALS[] = "ABCDEFGHIJKLMNOPQRSTUV";
+    const TestValues VALUES(SPEC);
+    const size_t     VALUES_NUM = VALUES.size();
 
-    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
-
-    const char* const   SPEC   = DATA[SIZE].d_spec_p;
-
-    for(size_t i = 0; i < strlen(TEST_VALS); ++i){
+    for(size_t i = 0; i < VALUES_NUM; ++i) {
 
         // Array default constructed to test fill on.
-        Obj mW; const Obj& W = mW;
+
+        Obj mX1; const Obj& X1 = mX1;
 
         // Array generated from a spec to test fill on.
-        Obj mX; const Obj& X = gg(&mX, SPEC);
 
-        //Values to fill arrays with
-        const char V = TEST_VALS[i];
+        Obj mX2; const Obj& X2 = gg(&mX2, SPEC);
 
-        mW.fill(TestFacility::create<TYPE>(V));
-        mX.fill(TestFacility::create<TYPE>(V));
-
-        if (verbose) printf("\nTesting W and X were properly filled\n");
-
-        for(size_t j = 0; j < SIZE; ++j){
-            ASSERTV(W[j] == TestFacility::create<TYPE>(V));
-            ASSERTV(W[j] == X[j]);
-            ASSERTV(X[j] == TestFacility::create<TYPE>(V));
+        for (size_t j = 0; j < SIZE; ++j) {
+            ASSERTV(SIZE, j, X2[j] ==  VALUES[j]);
         }
 
-        //Value to change single elements to for testing.
-        const char N = 'W';
+        mX1.fill(VALUES[i]);
+        mX2.fill(VALUES[i]);
 
-        if (verbose) printf("\tTesting changes to W have no side effects\n");
-        for (size_t i = 0; i != SIZE; ++i) {
-            mW[i] = TestFacility::create<TYPE>(N);
-            for (size_t j = 0; j != SIZE; ++j) {
-                if(j != i) ASSERT(TestFacility::getIdentifier(W[j]) == V);
-            }
 
-            //check changes to W didnt change X.
-            for(size_t j = 0; j != SIZE; ++j){
-                ASSERTV(X[j] == TestFacility::create<TYPE>(V));
-            }
-            mW[i] = TestFacility::create<TYPE>(V);
+        for(size_t j = 0; j < SIZE; ++j) {
+            ASSERTV(X1[j] == VALUES[i]);
+            ASSERTV(X2[j] == VALUES[i]);
         }
     }
 }
@@ -1603,13 +2937,14 @@ void TestDriverWrapper<TYPE>::testCase12()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase12();
     TestDriver<TYPE, 1>::testCase12();
     TestDriver<TYPE, 2>::testCase12();
     TestDriver<TYPE, 3>::testCase12();
     TestDriver<TYPE, 4>::testCase12();
+    TestDriver<TYPE, 5>::testCase12();
 }
 
 template <class TYPE, size_t SIZE>
@@ -1619,90 +2954,141 @@ void TestDriver<TYPE, SIZE>::testCase12()
     // TESTING MOVE ASSIGNMENT
     //
     // Concerns:
-    //: 1 A class with a compiler generated move assignment operator will be
-    //:   copied.
+    //: 1 The move assignment operator calls copy assignment operator for each
+    //:   element of type without move assignment operator.
     //:
-    //: 2 A class with an explicit move assignment operator will have the move
-    //:   assignment operator called.
+    //: 2 The move assignment operator calls move assignment operator for each
+    //:   element of type having move assignment operator.
     //:
     //
     // Plan:
-    //: 1 Move construct an array of a type with a default generated move
-    //:   constructor. Ensure the new array has the expected values.
+    //: 1 Construct two arrays (source and target) using default constructor
+    //:   and populate them with different values. Call the move-assignment
+    //:   operator and verify the values of the target object.
     //:
-    //: 2 Move construct an array of a type with an explicit move assignment
-    //:   operator. Ensure the new array has the expected values and that the
-    //:   move assignment operator was called.
+    //: 2 Call the move-assignment operator for two arrays with elements of a
+    //:   special type allowing to track down movement of each element and
+    //:   verify that all elements of the source object are moved.  (C-2)
     //:
-    // Testing:
+    //: 3 Call the move-assignment operator for two arrays with elements of a
+    //:   special type without move assignment operator allowing to track down
+    //:   copying of each element and verify that all elements of the source
+    //:   object are copied.  (C-1)
     //
+    // Testing:
+    //   array& operator=(array&& other);
     // ------------------------------------------------------------------------
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;     // specification string
-    } DATA[] = {
-    //------^
-    //line spec
-    //---- --------------------------------------------------------------------
-    { L_,  ""                                                                },
-    { L_,  "A"                                                               },
-    { L_,  "BC"                                                              },
-    { L_,  "CAB"                                                             },
-    { L_,  "DABC"                                                            },
-    { L_,  "EDCBA"                                                           }
-    //------v
-    };
+    const char *SPEC1 = "ABCDEFGHIJKLMNOPQRSTUV";
+    const char *SPEC2 = "VUTSRQPONMLKJIHGFEDCBA";
 
-    const char* const SPEC = DATA[SIZE].d_spec_p;
+    if(veryVerbose) printf("\t\t\tTesting basic behavior.\n");
+    {
+        // Create control objects.
 
-    Obj mW;
-    gg(&mW, SPEC);
+        Obj mW1; const Obj& W1 = gg(&mW1, SPEC1);
+        Obj mW2; const Obj& W2 = gg(&mW2, SPEC2);
 
-    Obj mX; const Obj& X = mX;
+        // Create source object.
+        Obj mX; const Obj& X = gg(&mX, SPEC1);
 
-    if(verbose) printf("\nTesting that lhs is properly set.\n");
+        // Create target object.
 
-    mX = std::move(mW);
-    for(size_t i = 0; i < SIZE; ++i){
-        ASSERTV(X[i] == TestFacility::create<TYPE>(SPEC[i]));
+         Obj mY; const Obj& Y = gg(&mY, SPEC2);
+
+        ASSERTV(SIZE, W1 == X);
+        ASSERTV(SIZE, W2 == Y);
+        if (0 != SIZE) {
+            ASSERTV(SIZE, W1 != Y);
+        }
+
+        // Move assignment.
+
+        mY = MoveUtil::move(mX);
+
+        // Verification.
+        if (0 != SIZE) {
+            ASSERTV(SIZE, W2 != Y);
+        }
+        ASSERTV(SIZE, W1 == Y);
+
     }
 
-    bsl::array<bsltf::MovableTestType, SIZE> mY;
-    const bsl::array<bsltf::MovableTestType, SIZE>& Y = gg(&mY, SPEC);
+    if (veryVerbose)
+        printf("\t\t\tTesting that move assignment operator is called for"
+               " elements.\n");
+    {
+        bsl::array<bsltf::MovableTestType, SIZE>        mX;
+        const bsl::array<bsltf::MovableTestType, SIZE>&  X = gg(&mX, SPEC1);
 
-    bsl::array<bsltf::MovableTestType, SIZE> mZ;
-    const bsl::array<bsltf::MovableTestType, SIZE>& Z = mZ;
+        bsl::array<bsltf::MovableTestType, SIZE>        mY;
+        const bsl::array<bsltf::MovableTestType, SIZE>&  Y = gg(&mY, SPEC2);
 
-    mZ = std::move(mY);
+        for(size_t i = 0; i < SIZE; ++i) {
+            ASSERTV(SIZE, bsltf::MoveState::e_NOT_MOVED  == X[i].movedFrom());
+            ASSERTV(SIZE, bsltf::MoveState::e_NOT_MOVED  == X[i].movedInto());
+            ASSERTV(SIZE, bsltf::MoveState::e_NOT_MOVED  == Y[i].movedFrom());
+            ASSERTV(SIZE, bsltf::MoveState::e_NOT_MOVED  == Y[i].movedInto());
+        }
 
-    if(verbose) printf("\nTesting that elements are in proper move states.\n");
+        mY = MoveUtil::move(mX);
 
-    for(size_t i = 0; i < SIZE; ++i){
-        ASSERTV(bsltf::MoveState::e_MOVED      == Y[i].movedFrom());
-        ASSERTV(bsltf::MoveState::e_NOT_MOVED  == Y[i].movedInto());
-        ASSERTV(bsltf::MoveState::e_NOT_MOVED  == Z[i].movedFrom());
-        ASSERTV(bsltf::MoveState::e_MOVED      == Z[i].movedInto());
+        for(size_t i = 0; i < SIZE; ++i) {
+            ASSERTV(SIZE, bsltf::MoveState::e_MOVED      == X[i].movedFrom());
+            ASSERTV(SIZE, bsltf::MoveState::e_NOT_MOVED  == X[i].movedInto());
+            ASSERTV(SIZE, bsltf::MoveState::e_NOT_MOVED  == Y[i].movedFrom());
+            ASSERTV(SIZE, bsltf::MoveState::e_MOVED      == Y[i].movedInto());
+        }
+    }
+
+    if(veryVerbose)
+        printf( "\t\t\tTesting that copy assignment operator is called for"
+                " elements.\n");
+    {
+        bsl::array<CopyOnlyTestType, SIZE>        mX;
+        const bsl::array<CopyOnlyTestType, SIZE>&  X = gg(&mX, SPEC1);
+
+        bsl::array<CopyOnlyTestType, SIZE>        mY;
+        const bsl::array<CopyOnlyTestType, SIZE>&  Y = gg(&mY, SPEC2);
+
+        for(size_t i = 0; i < SIZE; ++i) {
+            mX[i].resetCopyState();
+            mY[i].resetCopyState();
+
+            ASSERTV(SIZE, CopyState::e_NOT_COPIED  == X[i].copiedFrom());
+            ASSERTV(SIZE, CopyState::e_NOT_COPIED  == X[i].copiedInto());
+            ASSERTV(SIZE, CopyState::e_NOT_COPIED  == Y[i].copiedFrom());
+            ASSERTV(SIZE, CopyState::e_NOT_COPIED  == Y[i].copiedInto());
+        }
+
+        mY = MoveUtil::move(mX);
+
+        for(size_t i = 0; i < SIZE; ++i) {
+            ASSERTV(SIZE, CopyState::e_COPIED      == X[i].copiedFrom());
+            ASSERTV(SIZE, CopyState::e_NOT_COPIED  == X[i].copiedInto());
+            ASSERTV(SIZE, CopyState::e_NOT_COPIED  == Y[i].copiedFrom());
+            ASSERTV(SIZE, CopyState::e_COPIED      == Y[i].copiedInto());
+        }
     }
 #endif
 }
-
 
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase11()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase11();
     TestDriver<TYPE, 1>::testCase11();
     TestDriver<TYPE, 2>::testCase11();
     TestDriver<TYPE, 3>::testCase11();
     TestDriver<TYPE, 4>::testCase11();
+    TestDriver<TYPE, 5>::testCase11();
 }
 
 template <class TYPE, size_t SIZE>
@@ -1712,73 +3098,100 @@ void TestDriver<TYPE, SIZE>::testCase11()
     // TESTING MOVE CONSTRUCTOR
     //
     // Concerns:
-    //: 1 A class with a compiler generated move constructor will be copy
-    //:   constructed.
+    //: 1 The move constructor calls copy constructor for each element of type
+    //:   without move constructor.
     //:
-    //: 2 A class with an explicit move constructor will have the move
-    //:   constructor called.
+    //: 2 The move constructor calls move constructor for each element of type
+    //:   having move constructor.
     //:
     //
     // Plan:
     //: 1 Move construct an array of a type with a default generated move
     //:   constructor. Ensure the new array has the expected values.
     //:
-    //: 2 Move construct an array of a type with an explicit move constructor.
-    //:   Ensure the new array has the expected values and that the move
-    //:   constructor was called.
+    //: 2 Move construct an array of a special type allowing to track down
+    //:   movement of each element and verify that all elements are moved.
+    //:   (C-2)
     //:
+    //: 3 Move construct an array of a special type without move constructor
+    //:   allowing to track down copying of each element and verify that all
+    //:   elements are copied.  (C-1)
     //
     // Testing:
-    //
+    //   array(array&& original);
     // ------------------------------------------------------------------------
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;     // specification string
-    } DATA[] = {
-    //------^
-    //line spec
-    //---- --------------------------------------------------------------------
-    { L_,  ""                                                                },
-    { L_,  "A"                                                               },
-    { L_,  "BC"                                                              },
-    { L_,  "CAB"                                                             },
-    { L_,  "DABC"                                                            },
-    { L_,  "EDCBA"                                                           }
-    //------v
-    };
+    const char *SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
 
-    const char* const   SPEC   = DATA[SIZE].d_spec_p;
+    if(veryVerbose) printf("\t\t\tTesting basic behavior.\n");
+    {
+        // Create control objects.
 
-    Obj mW;
-    gg(&mW, SPEC);
+        Obj mW; const Obj& W = gg(&mW, SPEC);
 
-    Obj mX = std::move(mW);  // Construction being tested
+        // Create source object.
+        Obj mX; const Obj& X = gg(&mX, SPEC);
 
-    const Obj& X  = mX;
+        ASSERTV(SIZE, W == X);
 
-    if(verbose) printf("\nTesting that lhs is properly set.\n");
+        // Move construction.
 
-    for(size_t i = 0; i < SIZE; ++i){
-        ASSERTV(X[i], X[i] == TestFacility::create<TYPE>(SPEC[i]));
+        Obj mY = MoveUtil::move(mX); const Obj& Y  = mY;
+
+        // Verification.
+
+        ASSERTV(SIZE, W == Y);
     }
 
-    if(verbose) printf("\nTesting that elements are in proper move states.\n");
+    if(veryVerbose)
+        printf(
+              "\t\t\tTesting that move constructor is called for elements.\n");
+    {
+        bsl::array<bsltf::MovableTestType, SIZE>        mX;
+        const bsl::array<bsltf::MovableTestType, SIZE>&  X = gg(&mX, SPEC);
 
-    bsl::array<bsltf::MovableTestType, SIZE> mY;
-    const bsl::array<bsltf::MovableTestType, SIZE>& Y = gg(&mY, SPEC);
+        for(size_t i = 0; i < SIZE; ++i) {
+            ASSERTV(bsltf::MoveState::e_NOT_MOVED  == X[i].movedFrom());
+            ASSERTV(bsltf::MoveState::e_NOT_MOVED  == X[i].movedInto());
+        }
 
-    bsl::array<bsltf::MovableTestType, SIZE> mZ = std::move(mY);
-    const bsl::array<bsltf::MovableTestType, SIZE>& Z = mZ;
+        bsl::array<bsltf::MovableTestType, SIZE>        mY =
+                                                            MoveUtil::move(mX);
+        const bsl::array<bsltf::MovableTestType, SIZE>&  Y = mY;
 
-    for(size_t i = 0; i < SIZE; ++i){
-        ASSERTV(bsltf::MoveState::e_MOVED      == Y[i].movedFrom());
-        ASSERTV(bsltf::MoveState::e_NOT_MOVED  == Y[i].movedInto());
-        ASSERTV(bsltf::MoveState::e_NOT_MOVED  == Z[i].movedFrom());
-        ASSERTV(bsltf::MoveState::e_MOVED      == Z[i].movedInto());
+        for(size_t i = 0; i < SIZE; ++i) {
+            ASSERTV(bsltf::MoveState::e_MOVED      == X[i].movedFrom());
+            ASSERTV(bsltf::MoveState::e_NOT_MOVED  == X[i].movedInto());
+            ASSERTV(bsltf::MoveState::e_NOT_MOVED  == Y[i].movedFrom());
+            ASSERTV(bsltf::MoveState::e_MOVED      == Y[i].movedInto());
+        }
+    }
+
+    if(veryVerbose)
+        printf(
+              "\t\t\tTesting that copy constructor is called for elements.\n");
+    {
+        bsl::array<CopyOnlyTestType, SIZE>        mX;
+        const bsl::array<CopyOnlyTestType, SIZE>&  X = gg(&mX, SPEC);
+
+        for(size_t i = 0; i < SIZE; ++i) {
+            mX[i].resetCopyState();
+            ASSERTV(CopyState::e_NOT_COPIED  == X[i].copiedFrom());
+            ASSERTV(CopyState::e_NOT_COPIED  == X[i].copiedInto());
+        }
+
+        bsl::array<CopyOnlyTestType, SIZE>        mY = MoveUtil::move(mX);
+        const bsl::array<CopyOnlyTestType, SIZE>&  Y = mY;
+
+        for(size_t i = 0; i < SIZE; ++i) {
+            ASSERTV(CopyState::e_COPIED      == X[i].copiedFrom());
+            ASSERTV(CopyState::e_NOT_COPIED  == X[i].copiedInto());
+            ASSERTV(CopyState::e_NOT_COPIED  == Y[i].copiedFrom());
+            ASSERTV(CopyState::e_COPIED      == Y[i].copiedInto());
+        }
     }
 #endif
 }
@@ -1788,13 +3201,14 @@ void TestDriverWrapper<TYPE>::testCase9()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase9();
     TestDriver<TYPE, 1>::testCase9();
     TestDriver<TYPE, 2>::testCase9();
     TestDriver<TYPE, 3>::testCase9();
     TestDriver<TYPE, 4>::testCase9();
+    TestDriver<TYPE, 5>::testCase9();
 }
 
 template <class TYPE, size_t SIZE>
@@ -1805,90 +3219,140 @@ void TestDriver<TYPE, SIZE>::testCase9()
     //
     // Concerns:
     //: 1 The value of any array can be assigned to any other array of the same
-    //:   type as long as the element type is assignable.
+    //:   type and size as long as the element type is assignable.
     //:
-    //: 2 The 'rhs' value must not be affected by the operation.
+    //: 2 The source object must not be affected by the operation.
     //:
-    //: 3 'rhs' going out of scope has no effect on the value of 'lhs' after
-    //:   the assignment.
+    //: 3 The source object going out of scope has no effect on the value of
+    //:   the target object after the assignment and vice versa.
     //:
-    //: 4 Modifications to 'rhs' have no effect on the value of 'lhs' after
-    //:   the assignment.
+    //: 4 Modifications to the source object have no effect on the value of the
+    //:   target object after the assignment and vice versa.
     //:
     //: 5 Aliasing ('x = x'): The assignment operator must always work -- even
-    //:   when the 'lhs' and 'rhs' are the same object.
-    //:
+    //:   when the the target object and the source object are the same object.
     //
     // Plan:
-    //: 1 Construct array w from the 'SPEC' and arrays y and z from a
-    //:   different 'SPEC' string.
+    //: 1 Construct two pairs (object - source) of arrays having different
+    //:   values and assign them in pairs.
     //:
-    //: 2 Set w = y. Check y == z and w == z.
+    //: 2 Verify that returned values point to target objects, and the values
+    //:   of target object are become equal to the source objects.  (C-1)
     //:
-    //: 3 Modify y and check that w is still equal to z.
+    //: 3 In the first pair modify and then destroy the target object and
+    //:   verify that the source object remains unchanged.  (C-2..3)
     //:
-    //: 4 Set w = w and check that w is still equal to z.
+    //: 4 In the second pair modify and then let the source object go out of
+    //:   scope and verify that the target object remains unchanged.  (C-4)
     //:
+    //: 5 Create an array and assign it to itself. Verify that its value
+    //:   remains unchanged.  (C-5)
     //
     // Testing:
     //   array& operator=(const array& rhs);
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;     // specification string
-        const char *d_results_p;  // expected element values
-    } DATA[] = {
-    //------^
-    //line spec                                result
-    //---- ----------------------------------- --------------------------------
-    { L_,  "",                                 ""                            },
-    { L_,  "A",                                "A"                           },
-    { L_,  "BC",                               "BC"                          },
-    { L_,  "CAB",                              "CAB"                         },
-    { L_,  "DABC",                             "DABC"                        },
-    { L_,  "EDCBA",                            "EDCBA"                       }
-    //------v
-    };
+    const char *SPEC1 = "ABCDEFGHIJKLMNOPQRSTUV";
+    const char *SPEC2 = "VUTSRQPONMLKJIHGFEDCBA";
 
-    //Simple spec list to generate arrays to test assignment operator with
-    static const char *DATA2[] = { "", "A", "AA", "AAA", "AAAA", "AAAAA"};
+    // Create control objects.
 
-    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+    Obj mW1; const Obj& W1 = gg(&mW1, SPEC1);
+    Obj mW2; const Obj& W2 = gg(&mW2, SPEC2);
 
-    const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec_p;
-    const char* const   SPEC2  = DATA2[SIZE];
+    // Create source objects.
 
-    if (verbose) printf("\nConstructing arrays from different specs\n");
+    bsls::ObjectBuffer<Obj>       xBuf1;
+    new (xBuf1.buffer()) Obj();
+    bslma::DestructorProctor<Obj> proctorX1(xBuf1.address());
+    Obj&                          mX1 = xBuf1.object();
+    const Obj&                    X1 = gg(&mX1, SPEC1);
 
-    Obj mW; const Obj& W = mW;
-    Obj mZ; const Obj& Z = mZ;
+    Obj mX2; const Obj& X2 = gg(&mX2, SPEC2);
+
+    ASSERTV(SIZE, W1 == X1);
+    ASSERTV(SIZE, W2 == X2);
+
     {
-        Obj mY; const Obj& Y = mY;
-        mW  = gg(&mW, SPEC);
-        mY  = gg(&mY, SPEC2);
-        mZ  = gg(&mZ, SPEC2);
+        Obj mY1; const Obj& Y1 = gg(&mY1, SPEC2);
+        Obj mY2; const Obj& Y2 = gg(&mY2, SPEC1);
 
-        if (verbose) printf("\tTesting operator= does not modify 'rhs'\n");
-        mW = mY;
-        ASSERTV(LINE, Y == Z);
-        ASSERTV(LINE, W == Z);
+        ASSERTV(SIZE, W2 == Y1);
+        ASSERTV(SIZE, W1 == Y2);
 
-        if (verbose) printf("\tTesting modifications to 'rhs' does not\n"
-                            "\taffect 'lhs' after assignment\n");
-        mY = gg(&mY, SPEC);
-        ASSERTV(LINE, W == Z);
+        // Copy-assignment.
 
-        mW = mW;
-        ASSERTV(LINE, W == Z);
+        Obj *mR1 = &(mY1 = X1);
+        Obj *mR2 = &(mY2 = X2);
+
+        // Verify the returned value.
+
+        ASSERTV(SIZE, &Y1 == mR1);
+        ASSERTV(SIZE, &Y2 == mR2);
+
+        // Verify that values of target objects are the same as that of the
+        // source objects.
+
+        ASSERTV(SIZE, X1 == Y1);
+        ASSERTV(SIZE, X2 == Y2);
+
+        // Verify that values of source objects remain unchanged.
+
+        ASSERTV(SIZE, W1 == X1);
+        ASSERTV(SIZE, W2 == X2);
+
+        if (0 != SIZE) {
+            // Verify that subsequent changes in the source object have no
+            // effect on the copy-constructed object.
+
+            mX1[0] = TestFacility::create<TYPE>(SPEC2[0]);
+
+            ASSERTV(SIZE, W1 != X1);
+            ASSERTV(SIZE, W1 == Y1);
+
+            // Verify that subsequent changes in the copy-constructed object
+            // have no effect on the source object.
+
+            mY2[0] = TestFacility::create<TYPE>(SPEC1[0]);
+
+            ASSERTV(SIZE, W2 != Y2);
+            ASSERTV(SIZE, W2 == X2);
+        }
+
+        // Verify that destruction of the source object have no effect on the
+        // copy-constructed object.
+
+        proctorX1.release();
+        xBuf1.address()->~Obj();
+        ASSERTV(SIZE, W1 == Y1);
     }
-    //mY goes out of scope
-    if (verbose) printf("\tTesting 'rhs' going out of scope does not\n"
-                        "\taffect 'lhs' after assignment\n");
-    ASSERTV(LINE, W == Z);
+
+    // Verify that destruction of the copy-constructed object have no effect on
+    // the source object.
+
+    ASSERTV(SIZE, W2 == X2);
+
+    // Self-assignment.
+    {
+        Obj mW; const Obj& W = gg(&mW, SPEC1);
+        Obj mX; const Obj& X = gg(&mX, SPEC1);
+
+        ASSERTV(SIZE, W == X);
+
+        // Copy-assignment.
+
+        Obj *mR = &(mX = X);
+
+        // Verify the returned value.
+
+        ASSERTV(SIZE, &X == mR);
+
+        // Verify that value of object remain unchanged.
+
+        ASSERTV(SIZE, W == X);
+    }
 }
 
 template<class TYPE>
@@ -1896,13 +3360,14 @@ void TestDriverWrapper<TYPE>::testCase8()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase8();
     TestDriver<TYPE, 1>::testCase8();
     TestDriver<TYPE, 2>::testCase8();
     TestDriver<TYPE, 3>::testCase8();
     TestDriver<TYPE, 4>::testCase8();
+    TestDriver<TYPE, 5>::testCase8();
 }
 
 template <class TYPE, size_t SIZE>
@@ -1921,92 +3386,66 @@ void TestDriver<TYPE, SIZE>::testCase8()
     //:
     //
     // Plan:
-    //: 1 Construct arrays 'w' and 'x' based on the same spec string.
+    //: 1 Construct arrays 'W1' (control) and 'X1' based on the same spec
+    //:   string.
     //:
-    //: 2 Construct arrays 'y' and 'z' constructed from the same spec
-    //:   string which is different from 'w' and 'x' above.
+    //: 2 Construct arrays 'W2' (control) and 'X2' constructed from the same
+    //:   spec string different from the P-1 spec.
     //:
-    //: 3 Use the free 'swap' function to swap w and y, then confirm that
-    //:   'w == z' and 'y == x' respectively.
+    //: 3 Use the free 'swap' function to swap X1 and X2, then confirm that
+    //:   'W1 == X2' and 'W2 == X1' respectively.
     //:
-    //: 4 Use the member 'swap' function to swap w and y, then confirm that
-    //:   'w == x' and 'y == z' respectively.
+    //: 4 Use the member 'swap' function to swap X1 and X2, then confirm that
+    //:   'W1 == X1' and 'W2 == X2' respectively.
     //
     // Testing:
     //   void swap(array&);
     //   void swap(array<T,A>& lhs, array<T,A>& rhs);
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;     // specification string
-        const char *d_results_p;  // expected element values
-    } DATA[] = {
-    //------^
-    //line spec                                result
-    //---- ----------------------------------- --------------------------------
-    { L_,  "",                                 ""                            },
-    { L_,  "A",                                "A"                           },
-    { L_,  "BC",                               "BC"                          },
-    { L_,  "CAB",                              "CAB"                         },
-    { L_,  "DABC",                             "DABC"                        },
-    { L_,  "EDCBA",                            "EDCBA"                       }
-    //------v
-    };
 
-    //Simple spec list to generate arrays to swap with
-    static const char *DATA2[] = { "", "A", "AA", "AAA", "AAAA", "AAAAA"};
+    const char *SPEC1 = "ABCDEFGHIJKLMNOPQRSTUV";
+    const char *SPEC2 = "VUTSRQPONMLKJIHGFEDCBA";
 
-    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+    // Create control objects.
 
-    const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec_p;
-    const char* const   SPEC2  = DATA2[SIZE];
+    Obj mW1; const Obj& W1 = gg(&mW1, SPEC1);
+    Obj mW2; const Obj& W2 = gg(&mW2, SPEC2);
 
-    Obj mW; const Obj& W = mW;
-    Obj mX; const Obj& X = mX;
-    Obj mY; const Obj& Y = mY;
-    Obj mZ; const Obj& Z = mZ;
+    Obj mX1; const Obj& X1 = gg(&mX1, SPEC1);
+    Obj mX2; const Obj& X2 = gg(&mX2, SPEC2);
 
-    if (verbose) printf("\nConstructing arrays from the different specs");
+    ASSERTV(SIZE, W1 == X1);
+    ASSERTV(SIZE, W2 == X2);
 
-    mW = gg(&mW, SPEC);
-    mX = gg(&mX, SPEC);
-    mY = gg(&mY, SPEC2);
-    mZ = gg(&mZ, SPEC2);
+    if (veryVerbose) printf("\t\t\tTesting free 'swap' function\n");
 
-    ASSERTV(LINE, W == X);
-    ASSERTV(LINE, Y == Z);
+    swap(mX1, mX2);
+    ASSERTV(SIZE, W1 == X2);
+    ASSERTV(SIZE, W2 == X1);
 
-    if (verbose) printf("\nTesting free 'swap' function\n");
+    if (veryVerbose) printf("\t\t\tTesting member 'swap' function\n");
 
-    swap(mW, mY);
-    ASSERTV(LINE, W == Z);
-    ASSERTV(LINE, Y == X);
-
-    if (verbose) printf("\nTesting member 'swap' function\n");
-
-    mW.swap(mY);
-    ASSERTV(LINE, W == X);
-    ASSERTV(LINE, Y == Z);
+    mX1.swap(mX2);
+    ASSERTV(SIZE, W1 == X1);
+    ASSERTV(SIZE, W2 == X2);
 }
-
-
 
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase7()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase7();
     TestDriver<TYPE, 1>::testCase7();
     TestDriver<TYPE, 2>::testCase7();
     TestDriver<TYPE, 3>::testCase7();
     TestDriver<TYPE, 4>::testCase7();
+    TestDriver<TYPE, 5>::testCase7();
 }
 
 template <class TYPE, size_t SIZE>
@@ -2031,84 +3470,99 @@ void TestDriver<TYPE, SIZE>::testCase7()
     //:   affect the original object
     //
     // Plan:
-    //: 1 Construct two arrays w and x based on the 'SPEC'.
+    //: 1 Construct two pairs of array(W1, X1 and W2, X2) based on the 'SPEC1'
+    //:   and 'SPEC2' respectively.
     //:
-    //: 2 Copy-construct an array y from the array w constructed in step 1.
+    //: 2 Copy-construct arrays Y1 and Y2 from the arrays X1 and X2
+    //:   respectively.
     //:
-    //: 3 Check the arrays w, x, and y are all equal.
+    //: 3 Verify that the array XN is equal to YN.  (C-1..2)
     //:
-    //: 4 Modify the copy-constructed array y and check that w and x are
-    //:   still equal. Also check that y and w are no longer equal.
+    //: 3 Verify that the array WN is equal to XN.  (C-3)
     //:
-    //: 5 Copy-construct another array z from x. Then modify x and check
-    //:   that x and z are no longer equal.
+    //: 4 Modify the source array X1 and verify that W1 and Y1 are
+    //:   still equal.
     //:
+    //: 5 Modify the copy-constructed array Y2 and check that W2 and X2 are
+    //:   still equal.
+    //:
+    //: 6 Destroy X1 and verify that W1 and Y1 are still equal.  (C-4)
+    //:
+    //: 7 Allow 'Y2' to go out of scope and verify that W2 and X2 are still
+    //:   equal.  (C-5)
     //
     // Testing:
     //   array<T,S>(const array<T,S>& original);
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;     // specification string
-        const char *d_results_p;  // expected element values
-    } DATA[] = {
-    //------^
-    //line spec                                result
-    //---- ----------------------------------- --------------------------------
-    { L_,  "",                                 ""                            },
-    { L_,  "A",                                "A"                           },
-    { L_,  "BC",                               "BC"                          },
-    { L_,  "CAB",                              "CAB"                         },
-    { L_,  "DABC",                             "DABC"                        },
-    { L_,  "EDCBA",                            "EDCBA"                       }
-    //------v
-    };
-    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+    const char *SPEC1 = "ABCDEFGHIJKLMNOPQRSTUV";
+    const char *SPEC2 = "VUTSRQPONMLKJIHGFEDCBA";
 
-    const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec_p;
-    const size_t        LENGTH = strlen(DATA[SIZE].d_results_p);
+    // Create control objects.
 
-    Obj mW; const Obj& W = gg(&mW, SPEC);
-    Obj mX; const Obj& X = gg(&mX, SPEC);
+    Obj mW1; const Obj& W1 = gg(&mW1, SPEC1);
+    Obj mW2; const Obj& W2 = gg(&mW2, SPEC2);
 
-    Obj mY = Obj(W); const Obj& Y  = mY;
+    // Create source objects.
 
-    if (verbose) printf("\tTesting copy compares as equal to original.\n");
+    bsls::ObjectBuffer<Obj>       xBuf1;
+    new (xBuf1.buffer()) Obj();
+    bslma::DestructorProctor<Obj> proctorX1(xBuf1.address());
+    Obj&                          mX1 = xBuf1.object();
+    const Obj&                    X1 = gg(&mX1, SPEC1);
 
-    ASSERTV(LINE, mY == mW);
-    ASSERTV(LINE, Y == W);
-    ASSERTV(LINE, mY == mX);
-    ASSERTV(LINE, Y == X);
+    Obj mX2; const Obj& X2 = gg(&mX2, SPEC2);
 
-    if (verbose) printf(
-                   "\tTesting modifications to copy do not affect original\n");
+    ASSERTV(SIZE, W1 == X1);
+    ASSERTV(SIZE, W2 == X2);
 
-    for (size_t i = 0; i < LENGTH; ++i){
-        const char s = SPEC[i];
-        mY[i] = TestFacility::create<TYPE>(s+1);
+    {
+        Obj mY1 = Obj(X1); const Obj& Y1 = mY1;
+        Obj mY2 = Obj(X2); const Obj& Y2 = mY2;
 
-        ASSERTV(LINE, !(Y == X));
-        ASSERTV(LINE, !(Y == W));
-        ASSERTV(LINE, !(mY == mX));
-        ASSERTV(LINE, !(mY == mW));
+        // Verify that values of new objects are the same as that of the
+        // original objects.
+
+        ASSERTV(SIZE, X1 == Y1);
+        ASSERTV(SIZE, X2 == Y2);
+
+        // Verify that values of original objects remain unchanged.
+
+        ASSERTV(SIZE, W1 == X1);
+        ASSERTV(SIZE, W2 == X2);
+
+        if (0 != SIZE) {
+            // Verify that subsequent changes in the source object have no
+            // effect on the copy-constructed object.
+
+            mX1[0] = TestFacility::create<TYPE>(SPEC2[0]);
+
+            ASSERTV(SIZE, W1 != X1);
+            ASSERTV(SIZE, W1 == Y1);
+
+            // Verify that subsequent changes in the copy-constructed object
+            // have no effect on the source object.
+
+            mY2[0] = TestFacility::create<TYPE>(SPEC1[0]);
+
+            ASSERTV(SIZE, W2 != Y2);
+            ASSERTV(SIZE, W2 == X2);
+        }
+
+        // Verify that destruction of the source object have no effect on the
+        // copy-constructed object.
+
+        proctorX1.release();
+        xBuf1.address()->~Obj();
+        ASSERTV(SIZE, W1 == Y1);
     }
 
-    Obj mZ = Obj(X); const Obj& Z  = mZ;
+    // Verify that destruction of the copy-constructed object have no effect on
+    // the source object.
 
-    if (verbose) printf(
-                   "\tTesting modifications to original do not affect copy\n");
-
-    for (size_t i = 0; i < LENGTH; ++i){
-        const char s = SPEC[i];
-        mX[i] = TestFacility::create<TYPE>(s+1);
-
-        ASSERTV(Z, X, LINE, !(Z == X));
-        ASSERTV(Z, X, LINE, !(mZ == mX));
-    }
+    ASSERTV(SIZE, W2 == X2);
 }
 
 template<class TYPE>
@@ -2116,21 +3570,21 @@ void TestDriverWrapper<TYPE>::testCase6()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase6();
     TestDriver<TYPE, 1>::testCase6();
     TestDriver<TYPE, 2>::testCase6();
     TestDriver<TYPE, 3>::testCase6();
     TestDriver<TYPE, 4>::testCase6();
+    TestDriver<TYPE, 5>::testCase6();
 }
 
 template <class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase6()
 {
     // ------------------------------------------------------------------------
-    // TESTING 'OPERATOR=='
-    //   Ensure operator== properly compares equality.
+    // TESTING COMPARISON OPERATORS
     //
     // Concerns:
     //: 1 Arrays constructed with the same values are returned as equal.
@@ -2138,273 +3592,84 @@ void TestDriver<TYPE, SIZE>::testCase6()
     //: 2 Unequal arrays are always returned as unequal
     //
     // Plan:
-    //: 1 For each set of 'SPEC' of different length:
+    //: 1 Default construct two instances of the array having certain (template
+    //:   parameter) SIZE.
     //:
-    //:   1 Default construct two instances of the array.
+    //: 2 Populate the arrays based on two SPECs using the 'gg' function.
     //:
-    //:   2 Populate the arrays based on the same SPEC Using the 'gg' function.
+    //: 3 Verify that 'operator==' returns 'true' and 'operator!=' returns
+    //:   'false' when comparing equal arrays (based on the same spec) or the
+    //:   same arrays.  (C-1)
     //:
-    //:   3 Verify that operator== returns true when comparing the arrays.
-    //:
-    //:   4 Modify an element in one of the arrays.
-    //:
-    //:   5 Verify that operator== returns false when comparing the arrays
+    //: 4 Verify that 'operator==' returns false and 'operator!=' returns
+    //:   'true' when comparing unequal arrays.  (C-2)
+    //
     // Testing:
     //   bool operator==(const array& rhs, const array& lhs);
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    using bsls::NameOf;
+
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
+
+    const int NUM_SPECS = 6;
 
     static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;     // specification string
-        const char *d_results_p;  // expected element values
+        int         d_line;               // source line number
+        const char *d_spec_p[NUM_SPECS];  // specification strings
     } DATA[] = {
-    //------^
-    //line spec                                result
-    //---- ----------------------------------- --------------------------------
-    { L_,  "",                                 ""                            },
-    { L_,  "A",                                "A"                           },
-    { L_,  "BC",                               "BC"                          },
-    { L_,  "CAB",                              "CAB"                         },
-    { L_,  "DABC",                             "DABC"                        },
-    { L_,  "EDCBA",                            "EDCBA"                       }
-    //------v
+        //line   spec 1   spec 2   spec 3   spec 4   spec 5   spec 6
+        //----   -------  -------  -------  -------  -------  -------
+        { L_,  { "",      "",      "",      "",      "",      ""     } },  // 0
+        { L_,  { "A",     "B",     "C",     "D",     "E",     "F"    } },  // 1
+        { L_,  { "AA",    "AB",    "BA",    "BB",    "AC",    "CA"   } },  // 2
+        { L_,  { "AAA",   "AAB",   "ABA",   "BAA",   "BBB",   "AAC"  } },  // 3
+        { L_,  { "AAAA",  "AAAB",  "AABA",  "ABAA",  "BAAA",  "BBBB" } },  // 4
+        { L_,  { "AAAAA", "AAAAB", "AAABA", "AABAA", "ABAAA", "BAAAA"} },  // 5
     };
+
     enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-    const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec_p;
-    const size_t        LENGTH = strlen(DATA[SIZE].d_results_p);
+    ASSERTV("This size is not supported", SIZE, NUM_DATA > SIZE);
 
-    if (verbose) printf(
-                    "Testing arrays with the same values compare as equal.\n");
-    {
-        Obj mY; const Obj& Y = mY;
-        Obj mZ; const Obj& Z = mZ;
+    for (size_t i = 0; i < NUM_SPECS; ++i) {
+        const char *const SPEC1 = DATA[SIZE].d_spec_p[i];
 
-        if (veryVerbose) printf(
-                        "\tVerify default constructed array equals itself.\n");
-        ASSERTV(LINE, mY == mY);
-        ASSERTV(LINE, Y == Y);
-        ASSERTV(LINE, mZ == mZ);
-        ASSERTV(LINE, Z == Z);
+        Obj mX1; const Obj& X1 = gg(&mX1, SPEC1);
 
-        if (veryVerbose) printf(
-                "\tVerify arrays generated with the same 'SPEC' are equal.\n");
-        Obj mW; const Obj& W = gg(&mW, SPEC);
-        Obj mX; const Obj& X = gg(&mX, SPEC);
+        for (size_t j = 0; j < NUM_SPECS; ++j) {
+            const char* const SPEC2 = DATA[SIZE].d_spec_p[j];
 
-        ASSERTV(LINE, mW == mW);
-        ASSERTV(LINE,  W == mW);
-        ASSERTV(LINE,  W ==  X);
-        ASSERTV(LINE, mW ==  X);
-    }
+            if (veryVerbose)
+                printf("\t\t\tComparing %s and %s.\n", SPEC1, SPEC2);
 
-    if (verbose) printf("Testing arrays do not compare equal after modifying "
-                        "elements in one of the arrays.\n");
-    {
-        typedef bsltf::TemplateTestFacility TestFacility;
+            Obj mX2; const Obj& X2 = gg(&mX2, SPEC2);
 
-        Obj mW; const Obj& W = gg(&mW, SPEC);
-
-        for (size_t i = 0; i < LENGTH; ++i) {
-            Obj mX; const Obj& X = gg(&mX, SPEC);
-
-            const char s = SPEC[i];
-            mW[i]        = TestFacility::create<TYPE>(s + 1);
-
-            ASSERTV(W, X, LINE, !(W == X));
-            ASSERTV(X, W, LINE, !(X == W));
+            if (0 == strcmp(SPEC1, SPEC2)) {
+                ASSERTV(NameOf<TYPE>().name(), SPEC1, SPEC2,
+                        testEqualityComparison(X1, X2, true));
+            }
+            else  {
+                ASSERTV(NameOf<TYPE>().name(), SPEC1, SPEC2,
+                        testEqualityComparison(X1, X2, false));
+            }
         }
     }
 }
-
-template<class TYPE>
-void TestDriverWrapper<TYPE>::testCase5()
-{
-    using bsls::NameOf;
-
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
-
-    TestDriver<TYPE, 0>::testCase5();
-    TestDriver<TYPE, 1>::testCase5();
-    TestDriver<TYPE, 2>::testCase5();
-    TestDriver<TYPE, 3>::testCase5();
-    TestDriver<TYPE, 4>::testCase5();
-}
-
-template <class TYPE, size_t SIZE>
-void TestDriver<TYPE, SIZE>::testCase5()
-{
-    // ------------------------------------------------------------------------
-    // TESTING PRINT CONCERNS
-    //
-    // Concerns:
-    //: 1 The standard test values that support 'debugprint' can be printed
-    //:   using the standard test-driver 'P' and 'P_' macros.
-    //:
-    //: 2 The printed values are correct when inspected by hand, running this
-    //:   test case in 'verbose' mode.
-    //
-    // Plan:
-    //: 1 Create a constant array object, passing a value
-    //:   specification.
-    //:
-    //: 2 Loop over all the values, and in verbose mode print the values, and
-    //:   the corresponding 'SPEC' character, using the 'P_' and 'P' macros.
-    //:
-    //: 3 Run in verbose mode to inspect the printed value, and confirm all the
-    //:   printed stings have the expected values.
-    //
-    // Testing:
-    //  CONCERN: all values in the array are printable with 'P()' macro
-    // ------------------------------------------------------------------------
-
-    using bsls::NameOf;
-
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
-
-    const char   *SPEC = "ABCDEFGHIJKLMNOPQRSTUVWXY";
-    Obj           mW;
-    const Obj     VALUES     = gg(&mW, SPEC);
-    const size_t  NUM_VALUES = VALUES.size();
-
-    if (verbose) {
-        printf("\tPrinting test values for manual validation\n");
-        printf("\t\tSPEC: %s\n", SPEC);
-        // Rely on manual inspection, no automatic validation in verbose mode.
-
-        { T_ P(VALUES) }
-        for (size_t i = 0; i != NUM_VALUES; ++i) {
-            { T_ T_ P_(i) P_(SPEC[i]) P(VALUES[i]) }
-        }
-        puts("\n");
-    }
-    else {
-        // Intercept stdout and read back formatted results to validate for the
-        // test result.
-#if 0
-
-        bsls::OutputRedirector redirector(
-                                      bsls::OutputRedirector::e_STDOUT_STREAM,
-                                      true,
-                                      true);
-
-#if 1
-        redirector.disable();
-#else
-        // Write just the test values, and parse them back as integers, with
-        // adjustments for known corner cases.
-
-        for (size_t i = 0; i != NUM_VALUES; ++i) {
-            redirector.enable();
-            redirector.clear();
-            P_(VALUES[i]);
-
-            if (!redirector.load()) {
-                redirector.disable();
-                ASSERT(!"Could not load redirected output into buffer.");
-                break;
-            }
-            redirector.disable();
-
-            if (!redirector.isOutputReady()) {
-                ASSERT(!"Redirected output buffer is empty.");
-                break;
-            }
-            if (redirector.outputSize() < 12 ) {
-                ASSERT(!"Redirected output buffer is shorted than expected.");
-                break;
-            }
-
-            const char *printedText = redirector.getOutput();
-            ASSERT(0 == strncmp("VALUES[i] = ", printedText, 12));
-
-            printedText += 12;
-            if ('{' == *printedText) {
-                ++printedText;
-            }
-
-            if (bsl::is_member_pointer<TYPE>::value) {
-                // There is no 'debugprint' overload for member-pointers.
-                // Instead, member-pointers match the overload for 'bool' with
-                // a built-in conversion, so we expect the output to be simply
-                // "true" for a non-null value, and "false" for a null member
-                // pointer.  We can spot the latter case as it has the testing
-                // framework gives null the identifier '0'.
-
-                if (0 == bsltf::TemplateTestFacility::getIdentifier(VALUES[i]))
-                {
-                    ASSERTV(i, printedText,
-                            0 == strncmp("false", printedText, 5));
-                }
-                else {
-                    ASSERTV(i, printedText,
-                            0 == strncmp("true", printedText, 4));
-                }
-            }
-            else {
-                // For types other than member-pointer, the output format is an
-                // integer, potentially TYPE, potentially in hexadecimal
-                // format, that can be parsed simply with 'strtol'.  Note that
-                // we should check that some output was consumed by the call to
-                // 'strtol', otherwise we might be fooled if '0' is a valid
-                // result (as happens for 'const char *').
-
-                char *result = 0;
-
-                // Note that pointer values are usually printed as hex, but IBM
-                // fails to precede the hex-string with '0x', forcing use of
-                // the explicit hexadecimal radix.  Note that 'const char *'
-                // values are actually string representations, holding the
-                // decimal string representation of the corresponding ID.
-
-                const int radix = bsl::is_pointer<TYPE>::value &&
-                                  !bsl::is_same<const char *, TYPE>::value
-                                  ? 16  : 0;
-                const long parsedValue = strtol(printedText, &result, radix);
-                if (result == printedText) {
-                    if (bsl::is_pointer<TYPE>::value) {
-                        ASSERTV(
-                     NameOf<TYPE>().name(),
-                     result,
-                     bsltf::TemplateTestFacility::getIdentifier(VALUES[i]),
-                     bsltf::TemplateTestFacility::getIdentifier(VALUES[i]) == 0
-                     || !"Parsing redirected output did not consume any text");
-                    }
-                    else {
-                        ASSERTV(NameOf<TYPE>().name(), result,
-                        !"Parsing redirected output did not consume any text");
-                    }
-                }
-                else {
-                    ASSERTV(NameOf<TYPE>().name(),
-                            'A' + i,
-                            parsedValue,
-                            printedText,
-                            long('A' + i) == parsedValue);
-                }
-            }
-        }
-#endif
-#endif
-    }
-}
-
 
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase4()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase4();
     TestDriver<TYPE, 1>::testCase4();
     TestDriver<TYPE, 2>::testCase4();
     TestDriver<TYPE, 3>::testCase4();
     TestDriver<TYPE, 4>::testCase4();
+    TestDriver<TYPE, 5>::testCase4();
 }
 
 template <class TYPE, size_t SIZE>
@@ -2412,74 +3677,75 @@ void TestDriver<TYPE, SIZE>::testCase4()
 {
     // ------------------------------------------------------------------------
     // TESTING BASIC ACCESSORS
-    //   Ensure each basic accessor:
-    //     - operator[]
-    //     - size
-    //   properly interprets object state.
     //
     // Concerns:
     //: 1 Each accessor returns the value of the correct property of the
     //:   object.
     //:
     //: 2 Each accessor method is declared 'const'.
+    //:
+    //: 3 Asserted precondition violations are detected when enabled.
     //
     // Plan:
-    //: 1 Use 'gg' function to populate the object based on the spec string.
+    //: 1 Use 'gg' function to populate an object based on the spec string and
+    //:   obtain constant reference to this object.
     //:
-    //: 2 Verify the object contains the expected number of elements.
+    //: 2 Using 'size()' verify the object contains the expected number of
+    //:   elements.
     //:
-    //: 3 Iterate through all elements and verify the values are as expected.
+    //: 3 Iterate through all elements using 'operator[]' and verify the values
+    //:   are as expected.  (C-1..2)
     //:
+    //: 4 Verify that, in appropriate build modes, defensive checks are
+    //:   triggered for invalid attribute values, but not triggered for
+    //:   adjacent valid ones.  (C-3)
     //
     // Testing:
     //   reference operator[](size_type position) const;
-    //   reference at(size_type position) const;
     //   size_type size();
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    static const struct {
-        int         d_line;       // source line number
-        const char *d_spec_p;     // specification string
-        const char *d_results_p;  // expected element values
-    } DATA[] = {
-    //------^
-    //line spec                                result
-    //---- ----------------------------------- --------------------------------
-    { L_,  "",                                 ""                            },
-    { L_,  "A",                                "A"                           },
-    { L_,  "BC",                               "BC"                          },
-    { L_,  "CAB",                              "CAB"                         },
-    { L_,  "DABC",                             "DABC"                        },
-    { L_,  "EDCBA",                            "EDCBA"                       }
-    //------v
-    };
-    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+    const char*      SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
+    const TestValues EXP(SPEC);
 
-    const int           LINE   = DATA[SIZE].d_line;
-    const char* const   SPEC   = DATA[SIZE].d_spec_p;
-    const size_t        LENGTH = strlen(DATA[SIZE].d_results_p);
-    const TestValues    EXP(DATA[SIZE].d_results_p);
+    if (veryVerbose) printf("\t\t\tTesting 'operator[]'.\n");
 
-    if (verbose) printf("\nTesting operator[] and function at() access state"
-                        "of object correctly\n");
     {
-        Obj        mW;
-        const Obj& W = gg(&mW, SPEC);
+        Obj        mX;
+        const Obj& X = gg(&mX, SPEC);
 
-        if (veryVerbose) printf("\t\tTesting on container values %s.\n", SPEC);
+        for (size_t i = 0; i < SIZE; ++i) {
+                  TYPE&      valueRef = mX[i];
+            const TYPE& constValueRef =  X[i];
 
-        for (size_t i = 0; i < LENGTH; ++i) {
-            ASSERTV(LINE, i, EXP[i] == mW[i]);
-            ASSERTV(LINE, i, EXP[i] == W[i]);
+            ASSERTV(i, mX.d_data + i == bsls::Util::addressOf(     valueRef));
+            ASSERTV(i,  X.d_data + i == bsls::Util::addressOf(constValueRef));
+            ASSERTV(i, EXP[i]        ==                            valueRef );
+            ASSERTV(i, EXP[i]        ==                       constValueRef );
         }
-        if (verbose) printf ("Testing size() returns correct object length\n");
-
-        ASSERT(mW.size() == SIZE);
-        ASSERT(W.size() == SIZE);
     }
 
+    if (veryVerbose) printf ("\t\t\tTesting 'size()'.\n");
+    {
+        Obj        mX;
+        const Obj& X = mX;
+
+        ASSERT(SIZE == X.size());
+    }
+
+    if (veryVerbose) printf("\t\t\tNegative Testing.\n");
+    {
+        bsls::AssertTestHandlerGuard hG;
+        Obj        mX;
+        const Obj& X = gg(&mX, SPEC);
+
+        ASSERT_FAIL( X[SIZE    ]);
+        if (0 != SIZE) {
+            ASSERT_PASS( X[SIZE - 1]);
+        }
+    }
 }
 
 template<class TYPE>
@@ -2487,13 +3753,14 @@ void TestDriverWrapper<TYPE>::testCase3()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase3();
     TestDriver<TYPE, 1>::testCase3();
     TestDriver<TYPE, 2>::testCase3();
     TestDriver<TYPE, 3>::testCase3();
     TestDriver<TYPE, 4>::testCase3();
+    TestDriver<TYPE, 5>::testCase3();
 }
 
 template <class TYPE, size_t SIZE>
@@ -2501,144 +3768,163 @@ void TestDriver<TYPE, SIZE>::testCase3()
 {
     // ------------------------------------------------------------------------
     // TESTING GENERATOR FUNCTIONS
-    //   Ensure that the gg function works as expected and that valid generator
-    //   syntax produced the expected results.
+    //   Ensure that the 'gg' and 'ggg' function work as expected and that
+    //   valid generator syntax produced the expected results.
     //
     // Concerns:
-    //: 1 'gg' function returns an 'array' that accurately represents an array
-    //:   created by the test facility using the 'spec' of the correct size.
+    //: 1 Valid generator syntax produces expected results.
+    //:
+    //: 2 Invalid syntax is detected and reported.
     //
     // Plan:
-    //: 1 For the sequence of 'spec' values with length equal to the length of
-    //:   the array type to be tested, create an array using the gg function
-    //:   and the 'spec' string.
+    //: 1 For the sequence of valid 'spec' values with length equal to the
+    //:   length of the array type to be tested, adjust a default constructed
+    //:   array using the 'gg' function.
     //:
-    //: 2 For each index in the array:
+    //: 2 Verify that the element at any index is equal to the element at the
+    //:   same index in the corrosponding test values array 'EXP' which was
+    //:   constructed by the same 'spec' string.  (C-1)
     //:
-    //:     1: Check that the element at that index is equal to the element at
-    //:        that index in the corrosponding test values array 'EXP' which
-    //:        was constructed by the same 'spec' string.
+    //: 3 For the sequence of invalid 'spec' values with length equal to the
+    //:   length of the array type to be tested, adjust an array using the 'gg'
+    //:   function.
+    //:
+    //: 4 Verify that invalid symbol is determined correctly and array
+    //:   adjustment is finished at that symbol.  (C-2)
     //
     // Testing:
+    //   int ggg(array<T,S> *object, const char *spec, bool verboseFlag);
     //   array<T,A>& gg(array<T,A> *object, const char *spec);
     // ------------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    if (verbose) printf("\nTesting generator on valid specs.\n");
+    if (veryVerbose) printf("\t\t\tTesting generator on valid specs.\n");
     {
-        static const struct {
-            int         d_line;     // source line number
-            const char *d_spec_p;     // specification string
-            const char *d_results_p;  // expected element values
-        } DATA[] = {
-        //------^
-        //line spec                                result
-        //---- ----------------------------------- ----------------------------
-        { L_,  "",                                 ""                        },
-        { L_,  "A",                                "A"                       },
-        { L_,  "BC",                               "BC"                      },
-        { L_,  "CAB",                              "CAB"                     },
-        { L_,  "DABC",                             "DABC"                    },
-        { L_,  "EDCBA",                            "EDCBA"                   }
-        //------v
-        };
-        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        const int           LINE   = DATA[SIZE].d_line;
-        const char* const   SPEC   = DATA[SIZE].d_spec_p;
-        const size_t        LENGTH = strlen(DATA[SIZE].d_results_p);
-        const TestValues    EXP(DATA[SIZE].d_results_p);
+        const char*      SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
+        const TestValues EXP(SPEC);
 
-        Obj        mW;
-        const Obj& W = gg(&mW, SPEC);
+        Obj        mX;
+        const Obj& X = gg(&mX, SPEC);
 
-        for (size_t i = 0; i < LENGTH; ++i) {
-            ASSERTV(LINE, i, EXP[i] == mW.d_data[i]);
-            ASSERTV(LINE, i, EXP[i] == W.d_data[i]);
+        ASSERTV(bsls::Util::addressOf(mX) == bsls::Util::addressOf(X));
+        for (size_t i = 0; i < SIZE; ++i) {
+            ASSERTV(i, EXP[i] == X.d_data[i]);
         }
     }
-    if (verbose) printf("\nTesting generator on invalid specs.\n");
+
+    if (veryVerbose) printf("\t\t\tTesting generator on invalid specs.\n");
     {
         static const struct {
             int         d_lineNum;  // source line number
-            const char *d_spec_p_p;   // specification string
+            const char *d_spec_p;   // specification string
             int         d_index;    // offending character index
         } DATA[] = {
-            //line  spec      index
-            //----  --------  -----
-            { L_,   "",       -1,   },  // control
+            //line  spec     index
+            //----  -------- -----
+            // length = 0
+            { L_,   "",      -1,   },  // control
 
-            { L_,   " ",       0,   },
-            { L_,   ".",       0,   },
-            { L_,   "E",      -1,   },  // control
-            { L_,   "Z",       0,   },
+            // length = 1
+            { L_,   " ",      0,   },
+            { L_,   ".",      0,   },
+            { L_,   "E",     -1,   },  // control
+            { L_,   "Z",      0,   },
 
-            { L_,   "AE",     -1,   },  // control
-            { L_,   "aE",      0,   },
-            { L_,   "Ae",      1,   },
-            { L_,   ".~",      0,   },
-            { L_,   "~!",      0,   },
-            { L_,   "  ",      0,   },
+            // length = 2
+            { L_,   "AE",    -1,   },  // control
+            { L_,   "aE",     0,   },
+            { L_,   "Ae",     1,   },
+            { L_,   ".~",     0,   },
+            { L_,   "~!",     0,   },
+            { L_,   "  ",     0,   },
 
-            { L_,   "ABC",    -1,   },  // control
-            { L_,   " BC",     0,   },
-            { L_,   "A C",     1,   },
-            { L_,   "AB ",     2,   },
-            { L_,   "?#:",     0,   },
-            { L_,   "   ",     0,   },
+            // length = 3
+            { L_,   "ABC",   -1,   },  // control
+            { L_,   " BC",    0,   },
+            { L_,   "A C",    1,   },
+            { L_,   "AB ",    2,   },
+            { L_,   "?#:",    0,   },
+            { L_,   "   ",    0,   },
 
+            // length = 4
+            { L_,   "ABCD",  -1,   },  // control
+            { L_,   "aBCD",   0,   },
+            { L_,   "ABcD",   2,   },
+            { L_,   "ABCd",   3,   },
+            { L_,   "AbCd",   1,   },
+
+            // length = 5
             { L_,   "ABCDE",  -1,   },  // control
             { L_,   "aBCDE",   0,   },
             { L_,   "ABcDE",   2,   },
-            { L_,   "ABCDe",   4,   },
-            { L_,   "AbCdE",   1,   }
+            { L_,   "ABCdE",   3,   },
+            { L_,   "ABCDe",   4,   }
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        for (int ti = 0; ti < NUM_DATA ; ++ti) {
-            const int          LINE  = DATA[ti].d_lineNum;
-            const char *const SPEC   = DATA[ti].d_spec_p_p;
+        const char       *ORIG_SPEC = "VUTSRQPONMLKJIHGFEDCBA";
+        const TestValues  ORIG_EXP(ORIG_SPEC);
+
+        for (size_t ti = 0; ti < NUM_DATA ; ++ti) {
+            const int         LINE   = DATA[ti].d_lineNum;
+            const char *const SPEC   = DATA[ti].d_spec_p;
             const int         INDEX  = DATA[ti].d_index;
             const int         LENGTH = static_cast<int>(strlen(SPEC));
+            const TestValues  EXP(SPEC);
 
+            if (LENGTH == SIZE) {
+                Obj        mX;
+                const Obj& X = gg(&mX, ORIG_SPEC);
 
-            if (LENGTH == SIZE){
-                Obj mX;
+                for (size_t tj = 0; tj < SIZE; ++tj) {
+                    ASSERTV(tj, ORIG_EXP[tj] == X.d_data[tj]);
+                }
 
-                if (veryVerbose) printf("\t\tSpec = \"%s\"\n", SPEC);
+                if (veryVerbose) printf("\t\t\tSpec = \"%s\"\n", SPEC);
 
                 int result = ggg(&mX, SPEC, veryVerbose);
                 ASSERTV(LINE, INDEX, result, SPEC, INDEX == result);
+
+                if (-1 == INDEX) {
+                    for (size_t tj = 0; tj < SIZE; ++tj) {
+                        ASSERTV(tj, EXP[tj] == X.d_data[tj]);
+                    }
+                }
+                else {
+                    for (int tj = 0; tj < INDEX; ++tj) {
+                        ASSERTV(tj, EXP[tj] == X.d_data[tj]);
+                    }
+                    for (int tj = INDEX; tj < static_cast<int>(SIZE); ++tj) {
+                        ASSERTV(tj, ORIG_EXP[tj] == X.d_data[tj]);
+                    }
+                }
             }
         }
     }
 }
-
 
 template<class TYPE>
 void TestDriverWrapper<TYPE>::testCase2()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase2();
     TestDriver<TYPE, 1>::testCase2();
     TestDriver<TYPE, 2>::testCase2();
     TestDriver<TYPE, 3>::testCase2();
     TestDriver<TYPE, 4>::testCase2();
+    TestDriver<TYPE, 5>::testCase2();
 }
 
 template<class TYPE, size_t SIZE>
 void TestDriver<TYPE, SIZE>::testCase2()
 {
     // --------------------------------------------------------------------
-    // TESTING DEFAULT CTOR, PRIMARY MANIPULATORS, AND DTOR
-    //   Ensure that we can use the default constructor to create an
-    //   object (having the default-constructed value), use the primary
-    //   manipulators to put that object into any state relevant for
-    //   thorough testing, and use the destructor to destroy it safely.
+    // TESTING PRIMARY MANIPULATORS
     //
     // Concerns:
     //: 1 An object created with the default constructor defalt constructs
@@ -2650,20 +3936,30 @@ void TestDriver<TYPE, SIZE>::testCase2()
     //: 3 Elements can be set using 'operator[]' for any type that supports
     //:   the assignment operator.
     //:
+    //: 4 Asserted precondition violations are detected when enabled.
+    //
     // Plan:
     //: 1 For each array of different length:
     //:
-    //:   1 Construct an array of that length.
+    //:   1 Use default constructor to create an array of elements of special
+    //:     type, counting the number of constructor and destructor
+    //:     invocations.
     //:
-    //:   2 Verify that the correct number of elements was constructed.
+    //:   2 Verify the size of the constructed array, using 'size()', that
+    //:     hasn't been tested yet.
     //:
-    //:   3 Verify all elements are deleted when the array is destroyed.
+    //:   3 Verify that the correct number of elements was constructed.  (C-1)
     //:
-    //:   4 Construct an array based on the 'SPEC' configuration for the
-    //:     current length.
+    //:   4 Verify all elements are deleted when the array is destroyed.  (C-2)
     //:
-    //:   5 Verify that the value of each element is correct by inspecting
-    //:     d_data.
+    //:   5 Create an array and modify it using 'operator[]'.
+    //:
+    //:   6 Verify that the value of each element is correct by inspecting
+    //:     d_data.  (C-3)
+    //:
+    //:   7 Verify that, in appropriate build modes, defensive checks are
+    //:     triggered for invalid attribute values, but not triggered for
+    //:     adjacent valid ones (using the 'BSLS_ASSERTTEST_*' macros).  (C-4)
     //
     // Testing:
     //   array();
@@ -2671,92 +3967,92 @@ void TestDriver<TYPE, SIZE>::testCase2()
     //   reference operator[](size_type position);
     // --------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
-    static const struct {
-        int         d_line;     // source line number
-        const char *d_spec_p;     // specification string
-        const char *d_spec2_p;    // second specification string
-        const char *d_results_p;  // expected element values
-    } DATA[] = {
-    //------^
-    //line spec            spec2               result
-    //---- --------------- ------------------- --------------------------------
-    { L_,  "",             "",                 ""                            },
-    { L_,  "A",            "B",                "B"                           },
-    { L_,  "BC",           "CD",               "CD"                          },
-    { L_,  "CAB",          "ABC",              "ABC"                         },
-    { L_,  "DABC",         "CABD",             "CABD"                        },
-    { L_,  "EDCBA",        "DECBA",            "DECBA"                       }
-    //------v
-    };
-    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+    typedef CountedDefault<TYPE>         VALUE_TYPE;
+    typedef bsl::array<VALUE_TYPE, SIZE> OBJ;
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    if (verbose) printf("\tCreate an object 'c' using CountedDefault to count "
-                        "how many elements are constructed (default ctor).\n");
+    if (veryVerbose) printf("\t\t\tTesting defasult constructor.\n");
     {
-    ASSERT(s_numConstructed == 0);
-    bsl::array<CountedDefault<TYPE>, SIZE> c;
+        ASSERT(VALUE_TYPE::numConstructed() == 0);
 
-    ASSERT(SIZE == c.size());
-    ASSERTV(s_numConstructed, SIZE == s_numConstructed || SIZE == 0);
+        OBJ        mX1;
+        const OBJ& X1 = mX1;
+
+        ASSERT(SIZE == X1.size());
+        ASSERTV(VALUE_TYPE::numConstructed(),
+                0 == SIZE ? 1    == VALUE_TYPE::numConstructed()
+                          : SIZE == VALUE_TYPE::numConstructed());
+
+        Obj        mX2;
+        const Obj& X2 = mX2;
+
+        ASSERT(SIZE == X2.size());
+
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (verbose) printf("\tDestructor destroys each element.\n");
+    if (veryVerbose) printf("\t\t\tTesting destructor.\n");
 
-    ASSERTV(s_numConstructed, 0 == s_numConstructed);
+    ASSERTV(VALUE_TYPE::numConstructed(), 0 == VALUE_TYPE::numConstructed());
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (verbose) printf("\tTesting operator[] (Primary manipulator).\n");
+    if (0 != SIZE) {
+        if (veryVerbose) printf("\t\t\tTesting operator[].\n");
+        {
+            const char *SPEC1 = "ABCDEFGHIJKLMNOPQRSTUV";
+            const char *SPEC2 = "VUTSRQPONMLKJIHGFEDCBA";
+            const TestValues  EXP1(SPEC1);
+            const TestValues  EXP2(SPEC2);
+
+            Obj        mX;
+            const Obj& X = mX;
+
+            for (size_t i = 0; i < SIZE; ++i) {
+
+                mX[i] = TestFacility::create<TYPE>(SPEC1[i]);
+            }
+
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERTV(SIZE, i, EXP1[i] == X.d_data[i]);
+            }
+
+            if (veryVerbose) printf(
+                 "\t\t\t\tTesting modifying container values from %s to %s.\n",
+                 SPEC1,
+                 SPEC2);
+
+            for (size_t i = 0; i < SIZE; ++i) {
+                for (size_t j = i; j < SIZE; ++j) {
+                    ASSERTV(SIZE, i, j, EXP1[j] == X.d_data[j]);
+                }
+                mX[i] = TestFacility::create<TYPE>(SPEC2[i]);
+                for (size_t j = 0; j < i; ++j) {
+                    ASSERTV(SIZE, i, j, EXP2[j] == X.d_data[j]);
+                }
+
+                ASSERTV(SIZE, i, EXP2[i] == X.d_data[i]);
+
+                for (size_t j = i + 1; j < SIZE; ++j) {
+                    ASSERTV(SIZE, i, j, EXP1[j] == X.d_data[j]);
+                }
+            }
+        }
+    }
+
+
+    if (veryVerbose) printf("\t\t\tNegative Testing.\n");
     {
-        const int           LINE   = DATA[SIZE].d_line;
-        const char* const   SPEC   = DATA[SIZE].d_spec_p;
-        const char* const   SPEC2   = DATA[SIZE].d_spec2_p;
-        const size_t        LENGTH = strlen(DATA[SIZE].d_results_p);
-        const TestValues    EXP(DATA[SIZE].d_spec_p);
-        const TestValues    EXP2(DATA[SIZE].d_results_p);
-
-        Obj        mW;
-        const Obj& W = mW;
-
+        bsls::AssertTestHandlerGuard hG;
         Obj        mX;
-        const Obj& X = mX;
 
-        if (veryVerbose) printf("\t\tTesting on container values %s.\n", SPEC);
-
-        for (size_t i = 0; i < LENGTH; ++i) {
-            mW[i] = TestFacility::create<TYPE>(SPEC[i]);
-            mX[i] = TestFacility::create<TYPE>(SPEC[i]);
-        }
-
-        for (size_t i = 0; i < LENGTH; ++i) {
-            ASSERTV(LINE, i, EXP[i] == mW.d_data[i]);
-            ASSERTV(LINE, i, EXP[i] == W.d_data[i]);
-        }
-
-        if (veryVerbose) printf(
-                     "\t\tTesting modifying container values from %s to %s.\n",
-                     SPEC,
-                     SPEC2);
-
-        for (size_t i = 0; i < LENGTH; ++i) {
-            mW[i] = TestFacility::create<TYPE>(SPEC2[i]);
-            for (size_t j = 0; j <= i; ++j) {
-                ASSERTV(LINE, j, EXP2[j] == mW.d_data[j]);
-                ASSERTV(LINE, j, EXP2[j] == W.d_data[j]);
-            }
-            for (size_t j = i+1; j < LENGTH; ++j) {
-                ASSERTV(LINE, j, mX.d_data[j] == mW.d_data[j]);
-                ASSERTV(LINE, j, X.d_data[j] == W.d_data[j]);
-            }
+        ASSERT_FAIL(mX[SIZE    ]);
+        if (0 != SIZE) {
+            ASSERT_PASS(mX[SIZE - 1]);
         }
     }
-
 }
 
 template<class TYPE>
@@ -2764,7 +4060,7 @@ void TestDriverWrapper<TYPE>::testCase1()
 {
     using bsls::NameOf;
 
-    if (verbose) printf("\nFor array of type: '%s'\n", NameOf<TYPE>().name());
+    if (verbose) printf("\tFor array of type: '%s'\n", NameOf<TYPE>().name());
 
     TestDriver<TYPE, 0>::testCase1();
     TestDriver<TYPE, 1>::testCase1();
@@ -2785,65 +4081,115 @@ void TestDriver<TYPE, SIZE>::testCase1()
     //:   testing in subsequent test cases.
     //
     // Plan:
-    //: 1 Create an object 'w' (default ctor).           { w:D           }
-    //: 2 Test mutation methods on 'w'.                  { w:D           }
-    //: 3 Create an object 'x' (copy from 'w').          { w:D x:V       }
-    //: 4 Test comparison methods on 'w' and 'x'.        { w:D x:V       }
+    //: 1 Create an object 'x' (default ctor).           { x:D           }
+    //: 2 Test mutation methods on 'x'.                  { x:D           }
+    //: 3 Create an object 'y' (copy from 'x').          { x:D y:V       }
+    //: 4 Test comparison methods on 'x' and 'y'.        { x:D y:V       }
     //
     // Testing:
     //   BREATHING TEST
     // --------------------------------------------------------------------
 
-    if (verbose) printf("\tof length " ZU "\n", SIZE);
+    if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (verbose) printf("\n 1. Create an object 'w' (default ctor)."
-                        "\t\t{ w:D           }\n");
+    if (veryVerbose) printf("\t\t1. Create an object 'x' (default ctor)."
+                            "\t\t{ x:D           }\n");
 
-    Obj mW; const Obj& W = mW;
+    Obj mX; const Obj& X = mX;
 
-    ASSERT(SIZE == mW.size());
-    ASSERT(SIZE == mW.max_size());
-    ASSERT(SIZE == W.size());
-    ASSERT(SIZE == W.max_size());
+    ASSERT(SIZE == mX.size());
+    ASSERT(SIZE == mX.max_size());
+    ASSERT(SIZE == X.size());
+    ASSERT(SIZE == X.max_size());
 
     if (0 == SIZE)
         return;                                                       // RETURN
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (verbose) printf("\n 2. Test mutation methods on 'w' "
-                        "\t\t{ w:D x:V        }\n");
+    if (veryVerbose) printf("\t\t2. Test mutation methods on 'x' "
+                            "\t\t{ x:D y:V        }\n");
 
     for (size_t i = 0; i < SIZE; ++i) {
-        mW[i] = i;
+        mX[i] = static_cast<ValueType>(i);
     }
 
-    ASSERT(mW[SIZE-1] == SIZE-1);
+    ASSERT(mX[SIZE-1] == SIZE-1);
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (verbose) printf("\n 3. Create an object 'x' (copy from 'w') "
-                        "\t\t{ w:D x:V        }\n");
+    if (veryVerbose) printf("\t\t3. Create an object 'y' (copy from 'x') "
+                            "\t\t{ x:D y:V        }\n");
 
-    Obj mX(mW); const Obj& X = mX;
+    Obj mY(mX); const Obj& Y = mY;
 
     for (size_t i = 0; i < SIZE; ++i) {
-        ASSERT(X[i] == W[i]);
+        ASSERT(Y[i] == X[i]);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    if (verbose) printf("\n 4. Test comparison methods on 'w' and 'x'"
-                        "\t\t{ w:D x:V        }\n");
+    if (veryVerbose) printf("\t\t4. Test comparison methods on 'x' and 'y'"
+                            "\t\t{ x:D y:V        }\n");
 
-    ASSERT(X == W);
-    ASSERT(X <= W);
-    ASSERT(X >= W);
-    ASSERT(!(X < W));
-    ASSERT(!(X > W));
+    ASSERT(Y == X);
+    ASSERT(Y <= X);
+    ASSERT(Y >= X);
+    ASSERT(!(Y < X));
+    ASSERT(!(Y > X));
 }
+
+//=============================================================================
+//                                USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+namespace UsageExample {
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Returning an array from a function
+///- - - - - - - - - - - - - - - - -
+// Suppose we want to define a function that will return an array of floats.
+// If a raw array was used, the size would need to be tracked seperately
+// because raw arrays decay to pointers.  With bsl::array the result can be
+// returned by value.
+//..
+typedef bsl::array<float, 3> Point;
+
+Point createPoint(float f1, float f2, float f3)
+{
+    bsl::array<float, 3> ret = {f1, f2, f3};
+    return ret;
+}
+// Create a bsl::array object containing three values set to the specified
+// 'f1', 'f2', 'f3'.
+
+void usageExample()
+{
+    Point p1 = createPoint(1.0, 1.0, 1.0);
+    Point p2 = createPoint(2.0, 2.0, 2.0);
+    Point p3 = createPoint(3.0, 3.0, 3.0);
+
+    bsl::array<Point, 3> points = {p1, p2, p3};
+
+    for(size_t i = 0; i < points.size(); ++i) {
+        for(size_t j = 0; j < points[i].size(); ++j) {
+            points[i][j] *= 2.0f;
+        }
+    }
+}
+// Use the createPoint function to generate 3 arrays of floats.  The arrays
+// are returned by copy and the 'size()' member function is used to access
+// the size of the arrays that could not be done with a raw array.
+
+}  // close namespace UsageExample
+
+//=============================================================================
+//                                 MAIN PROGRAM
+//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -2852,6 +4198,9 @@ int main(int argc, char *argv[])
             veryVerbose = argc > 3;
         veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
+
+    (void)     veryVeryVerbose;  // suppress compiler warning
+    (void) veryVeryVeryVerbose;  // suppress compiler warning
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&defaultAllocator);
@@ -2865,8 +4214,8 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP05
 // BDE_VERIFY pragma: -TP17
 // BDE_VERIFY pragma: -TP30
-    switch (test){ case 0:
-      case 22: {
+    switch (test) { case 0:
+      case 23: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -2888,6 +4237,22 @@ int main(int argc, char *argv[])
 
           UsageExample::usageExample();
       } break;
+      case 22: {
+        // --------------------------------------------------------------------
+        // TESTING HASH APPEND
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'hashAppend'"
+                            "\n====================\n");
+
+        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper
+                     , testCase22
+                     , signed char
+                     , size_t
+                     , bsltf::TemplateTestFacility::ObjectPtr
+                     , bsltf::TemplateTestFacility::FunctionPtr
+                     , const char *);
+      } break;
       case 21: {
         // --------------------------------------------------------------------
         // TESTING TUPLE INTERFACE
@@ -2896,7 +4261,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TUPLE INTERFACE"
                             "\n=======================\n");
 
-        // Test tuple interface.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase21,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -2909,7 +4273,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'data'"
                             "\n==============\n");
 
-        // Test 'data' member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase20,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -2922,7 +4285,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'front' AND 'back'"
                             "\n==========================\n");
 
-        // Test 'front' and 'back' members.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase19,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -2935,7 +4297,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'at'"
                             "\n============\n");
 
-        // Test 'at' member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase18,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -2961,13 +4322,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING COMPARISON OPERATORS"
                             "\n============================\n");
 
-        // Test comparison operators.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase16,
                       signed char,
                       const char *,
                       bsltf::TemplateTestFacility::ObjectPtr,
-                      bsltf::TemplateTestFacility::FunctionPtr);
+                      bsltf::TemplateTestFacility::FunctionPtr,
+                      LessThanTestType);
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -2990,7 +4351,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING ITERATORS"
                             "\n=================\n");
 
-        // Test iterators.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase14,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -3003,7 +4363,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING 'fill'"
                             "\n==============\n");
 
-        // Test 'fill' member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase13,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
@@ -3016,12 +4375,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING MOVE ASSIGNMENT"
                             "\n=======================\n");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        if (verbose) printf("move semantics not supported on this compiler\n");
-#else
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase12,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+#else
+        if (verbose)
+            printf("Move semantic is not supported on this compiler\n");
 #endif
       } break;
       case 11: {
@@ -3032,12 +4392,13 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING MOVE CONSTRUCTOR"
                             "\n========================\n");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-        if (verbose) printf("move semantics not supported on this compiler\n");
-#else
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase11,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+#else
+        if (verbose)
+            printf("Move semantic is not supported on this compiler\n");
 #endif
       } break;
       case 10: {
@@ -3093,11 +4454,11 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING 'OPERATOR=='
+        // TESTING COMPARISON OPERATORS
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING 'OPERATOR=='"
-                            "\n====================\n");
+        if (verbose) printf("\nTESTING COMPARISON OPERATORS"
+                            "\n============================\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase6,
@@ -3105,15 +4466,15 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING PRINT CONCERNS
+        // TESTING OUTPUT (<<) OPERATOR
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING PRINT CONCERNS"
-                            "\n======================\n");
+        if (verbose) printf("\nTESTING OUTPUT (<<) OPERATOR"
+                            "\n============================\n");
 
-        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
-                      testCase5,
-                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+        if (verbose)
+            printf("There is no output operator for this component.\n");
+
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -3141,12 +4502,12 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING DEFAULT CTOR, PRIMARY MANIPULATORS, AND DTOR
+        // TESTING PRIMARY MANIPULATORS
         // --------------------------------------------------------------------
 
         if (verbose) printf(
-                   "\nTESTING DEFAULT CTOR, PRIMARY MANIPULATORS, AND DTOR"
-                   "\n====================================================\n");
+                   "\nTESTING PRIMARY MANIPULATORS"
+                   "\n============================\n");
 
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
                       testCase2,
@@ -3179,7 +4540,7 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: pop
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -29,7 +29,7 @@ BSLS_IDENT("$Id: $")
 // The unordered containers are a feature of the C++11 library, rather than
 // C++03, so might not be present in all native libraries on the platforms we
 // support.  Detect the native header using '__has_include' where available.
-# if __has_include(<unordered_map>)
+# if __has_include(<unordered_set>)
 #  include <unordered_set>
 # endif
 #endif

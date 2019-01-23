@@ -32,11 +32,13 @@ BSLS_IDENT("$Id: $")
 #   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
-
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <array>
-#   else
-#     include BSL_NATIVE_CPP_LIB_HEADER(array)
+#
+#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#       if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#         include_next <array>
+#       else
+#         include BSL_NATIVE_CPP_LIB_HEADER(array)
+#       endif
 #   endif
 
 #else // defined(BSL_OVERRIDES_STD)

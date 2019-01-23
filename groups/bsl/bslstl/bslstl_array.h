@@ -152,7 +152,14 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_iterator.h>
 #include <bslstl_stdexceptutil.h>
 
+#include <bslalg_rangecompare.h>
+#include <bslalg_swaputil.h>
+
+#include <bslh_hash.h>
+
 #include <bslmf_assert.h>
+#include <bslmf_movableref.h>
+
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -335,104 +342,105 @@ struct array {
 };
 
 // FREE OPERATORS
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-bool operator==(const array<VALUE_TYPE, SIZE1>& lhs,
-                const array<VALUE_TYPE, SIZE2>& rhs);
+template <class VALUE_TYPE, size_t SIZE>
+bool operator==(const array<VALUE_TYPE, SIZE>& lhs,
+                const array<VALUE_TYPE, SIZE>& rhs);
     // Return 'true' if the specified 'lhs' has the same value as the specified
     // 'rhs'; return false otherwise.  Two arrays have the same value if each
     // element has the same value as the corresponding element in the other
     // array.
 
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-bool operator!=(const array<VALUE_TYPE, SIZE1>& lhs,
-                const array<VALUE_TYPE, SIZE2>& rhs);
+template <class VALUE_TYPE, size_t SIZE>
+bool operator!=(const array<VALUE_TYPE, SIZE>& lhs,
+                const array<VALUE_TYPE, SIZE>& rhs);
     // Return 'true' if the specified 'lhs' does not have the same value as the
-    // specified 'rhs'; return false otherwise.  Two arrays have the same value
-    // if they have the same 'size' and each element has the same value as the
-    // corresponding element in the other array.
+    // specified 'rhs'; return false otherwise.  Two arrays do not have the
+    // same value if  some element in the ordered sequence of elements of 'lhs'
+    // does not have the same value as the corresponding element in the ordered
+    // sequence of elements of 'rhs'.
 
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-bool operator<(const array<VALUE_TYPE, SIZE1>& lhs,
-               const array<VALUE_TYPE, SIZE2>& rhs);
+template <class VALUE_TYPE, size_t SIZE>
+bool operator<(const array<VALUE_TYPE, SIZE>& lhs,
+               const array<VALUE_TYPE, SIZE>& rhs);
     // Return 'true' if the specified 'lhs' is lexicographically less than the
     // specified 'rhs' by using the comparison operators of 'VALUE_TYPE' on
     // each element; return 'false' otherwise.
 
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-bool operator>(const array<VALUE_TYPE, SIZE1>& lhs,
-               const array<VALUE_TYPE, SIZE2>& rhs);
+template <class VALUE_TYPE, size_t SIZE>
+bool operator>(const array<VALUE_TYPE, SIZE>& lhs,
+               const array<VALUE_TYPE, SIZE>& rhs);
     // Return 'true' if the specified 'lhs' is lexicographically greater than
     // the specified 'rhs' by using the comparison operators of 'VALUE_TYPE' on
     // each element; return 'false' otherwise.
 
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-bool operator<=(const array<VALUE_TYPE, SIZE1>& lhs,
-                const array<VALUE_TYPE, SIZE2>& rhs);
+template <class VALUE_TYPE, size_t SIZE>
+bool operator<=(const array<VALUE_TYPE, SIZE>& lhs,
+                const array<VALUE_TYPE, SIZE>& rhs);
     // Return 'true' if the specified 'lhs' is lexicographically less than the
     // specified 'rhs' by using the comparison operators of 'VALUE_TYPE' on
     // each element or if 'lhs' and 'rhs' are equal; return 'false' otherwise.
 
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-bool operator>=(const array<VALUE_TYPE, SIZE1>& lhs,
-                const array<VALUE_TYPE, SIZE2>& rhs);
+template <class VALUE_TYPE, size_t SIZE>
+bool operator>=(const array<VALUE_TYPE, SIZE>& lhs,
+                const array<VALUE_TYPE, SIZE>& rhs);
     // Return 'true' if the specified 'lhs' is lexicographically greater than
     // the specified 'rhs' by using the comparison operators of 'VALUE_TYPE' on
     // each element or if 'lhs' and 'rhs' are equal; return 'false' otherwise.
 
+// FREE FUNCTIONS
 template <class VALUE_TYPE, size_t SIZE>
 void swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs);
     // Call 'swap' using ADL on each element of the specified 'lhs' with the
     // corresponding element in the specified 'rhs'.
 
-template<size_t I, class T, size_t N>
-T& get(array<T, N>& p);
+template<size_t INDEX, class T, size_t N>
+T& get(array<T, N>& a) BSLS_KEYWORD_NOEXCEPT;
     // Return a reference providing modifiable access to the element of the
-    // specified 'p', having the ordinal number specified by the (template
-    // parameter) 'I'.  This function will not compile unless 'I < N'.
+    // specified 'a', having the ordinal number specified by the (template
+    // parameter) 'INDEX'.  This function will not compile unless 'INDEX < N'.
 
-template<size_t I, class T, size_t N>
-const T& get(const array<T, N>& p);
+template<size_t INDEX, class T, size_t N>
+const T& get(const array<T, N>& a) BSLS_KEYWORD_NOEXCEPT;
     // Return a reference providing non-modifiable access to the element of the
-    // specified 'p', having the ordinal number specified by the (template
-    // parameter) 'I'.  This function will not compile unless 'I < N'.
+    // specified 'a', having the ordinal number specified by the (template
+    // parameter) 'INDEX'.  This function will not compile unless 'INDEX < N'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template<size_t I, class T, size_t N>
-const T&& get(const array<T, N>&& p);
-    // Return an rvalue reference providing non-modifiable access to the
-    // element of the specified 'p', having the ordinal number specified by the
-    // (template parameter) 'I'.  This function will not compile unless 
-    // 'I < N'.
-
-template<size_t I, class T, size_t N>
-T&& get(array<T, N>&& p);
+template<size_t INDEX, class T, size_t N>
+T&& get(array<T, N>&& a) BSLS_KEYWORD_NOEXCEPT;
     // Return an rvalue reference providing modifiable access to the element of
-    // the specified 'p', having the ordinal number specified by the (template
-    // parameter) 'I'.  This function will not compile unless 'I < N'.
-#endif
+    // the specified 'a', having the ordinal number specified by the (template
+    // parameter) 'INDEX'.  This function will not compile unless 'INDEX < N'.
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+template<size_t INDEX, class T, size_t N>
+const T&& get(const array<T, N>&& a) BSLS_KEYWORD_NOEXCEPT;
+    // Return an rvalue reference providing non-modifiable access to the
+    // element of the specified 'a', having the ordinal number specified by the
+    // (template parameter) 'INDEX'.  This function will not compile unless
+    // 'INDEX < N'.
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
-# if defined(BSL_OVERRIDES_STD) && defined(std)
-#   undef std
-#   define BSLSTL_PAIR_RESTORE_STD
-# endif
+// HASH SPECIALIZATIONS
+template <class HASHALG, class T, size_t N>
+void hashAppend(HASHALG& hashAlg, const array<T, N>&  input);
+    // Pass the specified 'input' to the specified 'hashAlg'
 
 }  // close namespace bsl
 
-namespace std {
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
 
+namespace std {
 
                              // ====================
                              // struct tuple_element
                              // ====================
 
-template<size_t I, class T, size_t N>
-struct tuple_element<I, bsl::array<T, N> >
+template<size_t INDEX, class T, size_t N>
+struct tuple_element<INDEX, bsl::array<T, N> >
 {
     // This partial specialization of 'tuple_element' provides compile-time
     // access to the type of the array's elements.
-    BSLMF_ASSERT(I < N);
+    BSLMF_ASSERT(INDEX < N);
     // TYPES
     typedef T type;
 };
@@ -450,14 +458,9 @@ struct tuple_size<bsl::array<T, N> > : integral_constant<size_t, N>
 
 }  // close namespace std
 
-namespace bsl {
-
-# if defined(BSLSTL_PAIR_RESTORE_STD)
-#   define std bsl
-#   undef BSLSTL_PAIR_RESTORE_STD
-# endif
-
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
+
+namespace bsl {
 
 // ============================================================================
 //                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
@@ -471,7 +474,7 @@ namespace bsl {
 template <class VALUE_TYPE, size_t SIZE>
 void array<VALUE_TYPE, SIZE>::fill(const VALUE_TYPE& value)
 {
-    for (size_t i = 0; i != SIZE; ++i) {
+    for (size_t i = 0; i < SIZE; ++i) {
         d_data[i] = value;
     }
 }
@@ -479,9 +482,8 @@ void array<VALUE_TYPE, SIZE>::fill(const VALUE_TYPE& value)
 template <class VALUE_TYPE, size_t SIZE>
 void array<VALUE_TYPE, SIZE>::swap(array<VALUE_TYPE, SIZE>& rhs)
 {
-    using std::swap;
-    for (size_t i = 0; i != SIZE; ++i) {
-        swap(d_data[i], rhs[i]);
+    for (size_t i = 0; i < SIZE; ++i) {
+        BloombergLP::bslalg::SwapUtil::swap(d_data + i, rhs.d_data + i);
     }
 }
 
@@ -667,111 +669,111 @@ array<VALUE_TYPE, SIZE>::data() const
     return d_data;
 }
 
-}  // close namespace bsl
-
 // FREE OPERATORS
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-bool bsl::operator==(const array<VALUE_TYPE, SIZE1>& lhs,
-                     const array<VALUE_TYPE, SIZE2>& rhs)
+template <class VALUE_TYPE, size_t SIZE>
+bool operator==(const array<VALUE_TYPE, SIZE>& lhs,
+                const array<VALUE_TYPE, SIZE>& rhs)
 {
-    if (SIZE1 != SIZE2){
-        return false;                                                 // RETURN
-    }
-    for (size_t i = 0; i != SIZE1; ++i) {
-        if (lhs[i] != rhs[i])
-            return false;                                             // RETURN
-    }
-    return true;                                                      // RETURN
+    return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+                                                    lhs.end(),
+                                                    lhs.size(),
+                                                    rhs.begin(),
+                                                    rhs.end(),
+                                                    rhs.size());
 }
 
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-bool bsl::operator!=(const array<VALUE_TYPE, SIZE1>& lhs,
-                     const array<VALUE_TYPE, SIZE2>& rhs)
+template <class VALUE_TYPE, size_t SIZE>
+bool operator!=(const array<VALUE_TYPE, SIZE>& lhs,
+                const array<VALUE_TYPE, SIZE>& rhs)
 {
-    if (SIZE1 != SIZE2){
-        return true;                                                  // RETURN
-    }
     return !(lhs == rhs);
 }
 
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-bool bsl::operator<(const array<VALUE_TYPE, SIZE1>& lhs,
-                    const array<VALUE_TYPE, SIZE2>& rhs)
+template <class VALUE_TYPE, size_t SIZE>
+bool operator<(const array<VALUE_TYPE, SIZE>& lhs,
+               const array<VALUE_TYPE, SIZE>& rhs)
 {
-    typename array<VALUE_TYPE, SIZE1>::const_iterator first1 = lhs.begin();
-    typename array<VALUE_TYPE, SIZE1>::const_iterator last1  = lhs.end();
-    typename array<VALUE_TYPE, SIZE1>::const_iterator first2 = rhs.begin();
-    typename array<VALUE_TYPE, SIZE1>::const_iterator last2  = rhs.end();
-    while (first1 != last1) {
-        if (first1 == last1 || *first2 < *first1){
-            return false;                                             // RETURN
-        }
-        if (*first1 < *first2){
-            return true;                                              // RETURN
-        }
-        ++first1;
-        ++first2;
-    }
-    return first2 != last2;                                           // RETURN
+    return 0 > BloombergLP::bslalg::RangeCompare::lexicographical(lhs.begin(),
+                                                                  lhs.end(),
+                                                                  lhs.size(),
+                                                                  rhs.begin(),
+                                                                  rhs.end(),
+                                                                  rhs.size());
 }
 
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-bool bsl::operator>(const array<VALUE_TYPE, SIZE1>& lhs,
-                    const array<VALUE_TYPE, SIZE2>& rhs)
+template <class VALUE_TYPE, size_t SIZE>
+bool operator>(const array<VALUE_TYPE, SIZE>& lhs,
+               const array<VALUE_TYPE, SIZE>& rhs)
 {
     return rhs < lhs;
 }
 
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-bool bsl::operator<=(const array<VALUE_TYPE, SIZE1>& lhs,
-                     const array<VALUE_TYPE, SIZE2>& rhs)
+template <class VALUE_TYPE, size_t SIZE>
+bool operator<=(const array<VALUE_TYPE, SIZE>& lhs,
+                const array<VALUE_TYPE, SIZE>& rhs)
 {
     return !(rhs < lhs);
 }
 
-template <class VALUE_TYPE, size_t SIZE1, size_t SIZE2>
-bool bsl::operator>=(const array<VALUE_TYPE, SIZE1>& lhs,
-                     const array<VALUE_TYPE, SIZE2>& rhs)
+template <class VALUE_TYPE, size_t SIZE>
+bool operator>=(const array<VALUE_TYPE, SIZE>& lhs,
+                const array<VALUE_TYPE, SIZE>& rhs)
 {
     return !(lhs < rhs);
 }
 
+// FREE FUNCTIONS
 template <class VALUE_TYPE, size_t SIZE>
-void bsl::swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs)
+void swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs)
 {
     lhs.swap(rhs);
 }
 
-template<size_t I, class T, size_t N>
-T& bsl::get(array<T, N>& p)
+template<size_t INDEX, class T, size_t N>
+T& get(array<T, N>& a) BSLS_KEYWORD_NOEXCEPT
 {
-    return p[I];
+    return a[INDEX];
 }
 
-template<size_t I, class T, size_t N>
-const T& bsl::get(const array<T, N>& p)
+template<size_t INDEX, class T, size_t N>
+const T& get(const array<T, N>& a) BSLS_KEYWORD_NOEXCEPT
 {
-    return p[I];
+    return a[INDEX];
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template<size_t I, class T, size_t N>
-const T&& bsl::get(const array<T, N>&& p)
+template<size_t INDEX, class T, size_t N>
+T&& get(array<T, N>&& a) BSLS_KEYWORD_NOEXCEPT
 {
-    return std::move(p[I]);
+    return BloombergLP::bslmf::MovableRefUtil::move(a[INDEX]);
 }
 
-template<size_t I, class T, size_t N>
-T&& bsl::get(array<T, N>&& p)
+template<size_t INDEX, class T, size_t N>
+const T&& get(const array<T, N>&& a) BSLS_KEYWORD_NOEXCEPT
 {
-    return std::move(p[I]);
+    return BloombergLP::bslmf::MovableRefUtil::move(a[INDEX]);
 }
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+
+// HASH SPECIALIZATIONS
+template <class HASHALG, class T, size_t N>
+void hashAppend(HASHALG& hashAlg, const array<T, N>&  input)
+{
+    using ::BloombergLP::bslh::hashAppend;
+
+    hashAppend(hashAlg, N);
+    for (size_t i = 0; i < N; ++i)
+    {
+        hashAppend(hashAlg, input[i]);
+    }
+}
+
+}  // close namespace bsl
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
