@@ -161,8 +161,8 @@ class SingleProducerQueueImpl_PopCompleteGuard {
         // specified 'isEmpty' is 'true'.
 
     ~SingleProducerQueueImpl_PopCompleteGuard();
-        // Destroy this object and invoke the static 'TYPE::popComplete' method
-        // with the managed 'node'.
+        // Destroy this object and invoke the 'TYPE::popComplete' method with
+        // the managed 'node'.
 };
 
                       // =============================

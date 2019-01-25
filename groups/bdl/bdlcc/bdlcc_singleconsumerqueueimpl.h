@@ -168,7 +168,7 @@ class SingleConsumerQueueImpl_MarkReclaimProctor {
   public:
     // CREATORS
     SingleConsumerQueueImpl_MarkReclaimProctor(TYPE *queue, NODE *node);
-        // Create a 'popComplete' proctor managing the specified 'node' of the
+        // Create a 'markReclaim' proctor managing the specified 'node' of the
         // specified 'queue'.
 
     ~SingleConsumerQueueImpl_MarkReclaimProctor();
