@@ -217,7 +217,7 @@ struct integral_constant {
     static BSLS_KEYWORD_CONSTEXPR_MEMBER TYPE value = VAL;
 
     // ACCESSORS
-    operator value_type() const;
+    BSLS_KEYWORD_CONSTEXPR operator value_type() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'VAL'.
 };
 

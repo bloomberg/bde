@@ -233,6 +233,15 @@ void ExitFunction::operator()() const
     // needed to compile the C++11 usage example.
 #endif
 
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) || \
+    !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+# undef BDLB_SCOPEEXIT_COMPILE_CPP11_EXAMPLE
+    // However, some early compilers supporting C++11 features do not fully
+    // conforming to the standard, so some 'bdlb::ScopeGuard' features are not
+    // not available.  If we detect such a compiler, #undef the macro that
+    // guards the usage examples that make full use of the C++11-enabled API.
+#endif
+
 #ifdef BDE_BUILD_TARGET_EXC
 ///Using a scope exit guard in C++11
 ///- - - - - - - - - - - - - - - - -
@@ -545,7 +554,7 @@ int main(int argc, char *argv[])
                           << "FACTORY FUNCTION" << endl
                           << "================" << endl;
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#if defined(BDLB_SCOPEEXIT_COMPILE_CPP11_EXAMPLE)
 
         int counter = 0;
         {

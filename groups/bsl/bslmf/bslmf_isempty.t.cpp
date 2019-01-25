@@ -3,6 +3,7 @@
 #include <bslmf_isempty.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
@@ -379,7 +380,9 @@ int main(int argc, char *argv[])
         TEST_IS_EMPTY(UnionType, false);
         // Tiny union doesn't work because is_class cannot be fully implemented
         // without compiler support.
-//        TEST_IS_EMPTY(TinyUnionType, false);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+        TEST_IS_EMPTY(TinyUnionType, false);
+#endif
 
         // Concern 3: non-empty classes
         TEST_IS_EMPTY(NonEmptyStruct, false);
@@ -387,7 +390,7 @@ int main(int argc, char *argv[])
         TEST_IS_EMPTY(ClassWithVirtualBase, false);
         TEST_IS_EMPTY(ClassWithNonEmptyBase, false);
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
         TEST_IS_EMPTY(   EmptyFinalStruct, true );
         TEST_IS_EMPTY(NonEmptyFinalStruct, false);
 #endif
