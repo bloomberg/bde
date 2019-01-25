@@ -38,10 +38,9 @@ bsls::Types::Int64 fastMod(int *number, int base)
     // store the result back into 'number'; return the value of the original
     // 'number' divided by 'base'.  The behavior is undefined unless
     // '1 <= base'.  Note that, for efficiency, this function uses the native
-    // '%' operator that, for an initially negative '*number' may, depending
-    // on the platform, have a positive or negative result (whose absolute
-    // value is less then 'base'), but in either case will satisfy the
-    // constraint:
+    // '%' operator that, for an initially negative '*number' may, depending on
+    // the platform, have a positive or negative result (whose absolute value
+    // is less then 'base'), but in either case will satisfy the constraint:
     //..
     //  *number == *number % base + (*number / base) * base
     //..
@@ -65,10 +64,9 @@ bsls::Types::Int64 fastMod(bsls::Types::Int64 *number, bsls::Types::Int64 base)
     // store the result back into 'number'; return the value of the original
     // 'number' divided by 'base'.  The behavior is undefined unless
     // '1 <= base'.  Note that, for efficiency, this function uses the native
-    // '%' operator that, for an initially negative '*number' may, depending
-    // on the platform, have a positive or negative result (whose absolute
-    // value is less then 'base'), but in either case will satisfy the
-    // constraint:
+    // '%' operator that, for an initially negative '*number' may, depending on
+    // the platform, have a positive or negative result (whose absolute value
+    // is less then 'base'), but in either case will satisfy the constraint:
     //..
     //  *number == *number % base + (*number / base) * base
     //..
@@ -190,12 +188,26 @@ int printToBufferFormatted(char       *result,
 #endif
 }
 
-                                // ----------
-                                // class Time
-                                // ----------
+                                 // ----------
+                                 // class Time
+                                 // ----------
 
 // CLASS DATA
 bsls::AtomicInt64 Time::s_invalidRepresentationCount(0);
+
+// PRIVATE ACCESSORS
+bsls::Types::Int64 Time::invalidMicrosecondsFromMidnight() const
+{
+    BSLS_ASSERT(k_REP_MASK > d_value);
+    BSLS_ASSERT_SAFE(0 && "detected invalid 'bdlt::Time'; see TEAM 579660115");
+    BSLS_REVIEW_INVOKE("detected invalid 'bdlt::Time'; see TEAM 579660115");
+
+#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
+    return d_value * TimeUnitRatio::k_US_PER_MS;
+#else
+    return (d_value >> 32) * TimeUnitRatio::k_US_PER_MS;
+#endif
+}
 
 // MANIPULATORS
 int Time::addHours(int hours)
