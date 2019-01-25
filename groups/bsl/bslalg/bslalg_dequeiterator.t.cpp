@@ -163,8 +163,8 @@ TestDriver<VALUE_TYPE, BLOCK_LENGTH>::getValues(const Obj **valuesPtr)
     // inside a function template.  For safety, we always fill the arenas with
     // junk and use padding at the boundaries.
 
-    std::memset(globalArena1, 0xa7, sizeof globalArena1);
-    std::memset(globalArena2, 0xa9, sizeof globalArena2);
+    memset(globalArena1, 0xa7, sizeof globalArena1);
+    memset(globalArena2, 0xa9, sizeof globalArena2);
 
     Block (&blocks)[NUM_BLOCKS] = *reinterpret_cast<Block(*)[NUM_BLOCKS]>
                                                    ((char**)globalArena1 + 16);

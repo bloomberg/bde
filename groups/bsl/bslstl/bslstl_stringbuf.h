@@ -154,15 +154,10 @@ BSL_OVERRIDES_STD mode"
 #include <bsls_libraryfeatures.h>
 
 #include <algorithm>
-
-#include <cstddef>       // for 'std::size_t', 'std::ptrdiff_t'
-
+#include <cstddef>
 #include <ios>
-
 #include <istream>
-
 #include <ostream>
-
 #include <streambuf>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE

@@ -195,6 +195,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 #include <bslmf_functionpointertraits.h>
 #include <bslmf_isconvertible.h>
+#include <bslmf_islvaluereference.h>
 #include <bslmf_ismemberobjectpointer.h>
 #include <bslmf_isreference.h>
 #include <bslmf_isrvaluereference.h>

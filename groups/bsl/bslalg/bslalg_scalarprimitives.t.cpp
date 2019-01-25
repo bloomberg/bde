@@ -19,6 +19,7 @@
 #include <bsls_bsltestutil.h>
 #include <bsls_objectbuffer.h>
 
+#include <stddef.h>
 #include <stdio.h>      // 'printf'
 #include <stdlib.h>     // 'atoi'
 #include <string.h>
@@ -455,14 +456,14 @@ class my_ClassFussy {
     static int destructorInvocations;
 
     // CLASS METHODS
-    static void* operator new(std::size_t size)
+    static void* operator new(size_t size)
         // Should never be invoked
     {
         BSLS_ASSERT_OPT(0);
         return ::operator new(size);
     }
 
-    static void* operator new(std::size_t /* size */, void *ptr)
+    static void* operator new(size_t /* size */, void *ptr)
         // Should never be invoked
     {
         BSLS_ASSERT_OPT(0);
@@ -903,7 +904,7 @@ struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
     static const int EXP_VAL = (expVal);                                      \
     bslma::Allocator *const EXP_ALLOC = (expAlloc);                           \
     my_ClassDef rawBuf;                                                       \
-    std::memset(&rawBuf, 92, sizeof(rawBuf));                                 \
+    memset(&rawBuf, 92, sizeof(rawBuf));                                      \
     Type *objPtr = (Type*) &rawBuf;                                           \
     pre(&rawBuf);                                                             \
     Obj:: op ;                                                                \
@@ -923,7 +924,7 @@ struct IsPair<my_PairBB<T1, T2> > : bsl::true_type { };
     static const int EXP_VAL1 = (expVal1);                                    \
     bslma::Allocator *const EXP_ALLOC1 = (expA1);                             \
     my_ClassDef rawBuf[2];                                                    \
-    std::memset(rawBuf, 92, sizeof(rawBuf));                                  \
+    memset(rawBuf, 92, sizeof(rawBuf));                                       \
     Type *objPtr = (Type*) rawBuf;                                            \
     pre(rawBuf);                                                              \
     Obj:: op ;                                                                \
@@ -1441,7 +1442,7 @@ bool operator==(const ConstructTestTypeAllocArgT& lhs,
     ConstructTestTypeNoAlloc  *objPtr =  rawBuf.address();                    \
     ConstructTestTypeNoAlloc&  mX     = *objPtr;                              \
     const ConstructTestTypeNoAlloc& X =  mX;                                  \
-    std::memset(static_cast<void *>(&mX), 92, sizeof mX);                     \
+    memset(static_cast<void *>(&mX), 92, sizeof mX);                          \
     Obj:: op ;                                                                \
     ASSERT(EXP == X);                                                         \
   }
@@ -1454,7 +1455,7 @@ bool operator==(const ConstructTestTypeAllocArgT& lhs,
     ConstructTestTypeAlloc  *objPtr =  rawBuf.address();                      \
     ConstructTestTypeAlloc&  mX     = *objPtr;                                \
     const ConstructTestTypeAlloc& X = *objPtr;                                \
-    std::memset(static_cast<void *>(&mX), 92, sizeof mX);                     \
+    memset(static_cast<void *>(&mX), 92, sizeof mX);                          \
     Obj:: op ;                                                                \
     ASSERT(EXP == X);                                                         \
     ASSERT(alloc == X.d_allocator);                                           \
@@ -1466,7 +1467,7 @@ bool operator==(const ConstructTestTypeAllocArgT& lhs,
     ConstructTestTypeAllocArgT  *objPtr =  rawBuf.address();                  \
     ConstructTestTypeAllocArgT&  mX     = *objPtr;                            \
     const ConstructTestTypeAllocArgT& X = *objPtr;                            \
-    std::memset(static_cast<void *>(&mX), 92, sizeof mX);                     \
+    memset(static_cast<void *>(&mX), 92, sizeof mX);                          \
     Obj:: op ;                                                                \
     ASSERT(EXP == X);                                                         \
     ASSERT(alloc == X.d_allocator);                                           \
@@ -2234,7 +2235,7 @@ int main(int argc, char *argv[])
         {
             my_ClassDef rawBuf;
             my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
-            std::memset(&rawBuf, 92, sizeof rawBuf);
+            memset(&rawBuf, 92, sizeof rawBuf);
             const int CCI = my_ClassFussy::copyConstructorInvocations;
             Obj::construct(objPtr, VF, (bslma::Allocator*)TA);
             ASSERT(CCI == my_ClassFussy::copyConstructorInvocations);
@@ -2246,7 +2247,7 @@ int main(int argc, char *argv[])
         {
             my_ClassDef rawBuf;
             my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
-            std::memset(&rawBuf, 92, sizeof rawBuf);
+            memset(&rawBuf, 92, sizeof rawBuf);
             const int CCI = my_ClassFussy::copyConstructorInvocations;
             const int CVI = my_ClassFussy::conversionConstructorInvocations;
             const int VF  = 3;
@@ -2315,7 +2316,7 @@ int main(int argc, char *argv[])
             ASSERT(isMovedFrom(fromObj.second));
             objPtr->~my_PairAA_4_4();
 
-            std::memset(rawBuf, 91, sizeof(rawBuf));
+            memset(rawBuf, 91, sizeof(rawBuf));
             fromObj = PAAV4V4;
             Obj::moveConstruct(objPtr, fromObj, XA);
             ASSERT(4  == rawBuf[0].d_value);
@@ -2362,7 +2363,7 @@ int main(int argc, char *argv[])
             my_ClassDef rawBuf;
             my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
             my_ClassFussy fromObj(3);
-            std::memset(&rawBuf, 92, sizeof rawBuf);
+            memset(&rawBuf, 92, sizeof rawBuf);
             const int CCI = my_ClassFussy::moveConstructorInvocations;
             Obj::moveConstruct(objPtr, fromObj, XA);
             ASSERT(CCI == my_ClassFussy::moveConstructorInvocations);
@@ -2447,7 +2448,7 @@ int main(int argc, char *argv[])
         {
             my_ClassDef rawBuf;
             my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
-            std::memset(&rawBuf, 92, sizeof rawBuf);
+            memset(&rawBuf, 92, sizeof rawBuf);
             const int CCI = my_ClassFussy::copyConstructorInvocations;
             Obj::copyConstruct(objPtr, VF, XA);
             ASSERT(CCI == my_ClassFussy::copyConstructorInvocations);
@@ -2564,7 +2565,7 @@ int main(int argc, char *argv[])
         {
             my_ClassDef rawBuf;
             my_ClassFussy *objPtr = (my_ClassFussy *) &rawBuf;
-            std::memset(&rawBuf, 92, sizeof rawBuf);
+            memset(&rawBuf, 92, sizeof rawBuf);
             const int DCI = my_ClassFussy::defaultConstructorInvocations;
             Obj::defaultConstruct(objPtr, XA);
             ASSERT(DCI == my_ClassFussy::defaultConstructorInvocations);
@@ -2638,7 +2639,7 @@ int main(int argc, char *argv[])
         // 'defaultConstruct' invokes default constructor, with defaulted
         // arguments, even if type does not take an allocator.
 
-        std::memset(&rawBuf, 92, sizeof(rawBuf));
+        memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::defaultConstruct((my_Class1*) &rawBuf,
                                                    theAlloc);
         ASSERT(0 == rawBuf.d_allocator_p);
@@ -2647,7 +2648,7 @@ int main(int argc, char *argv[])
         // 'copyConstruct' invokes copy constructor, even if type does not take
         // an allocator.
 
-        std::memset(&rawBuf, 92, sizeof(rawBuf));
+        memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::copyConstruct((my_Class1*) &rawBuf,
                                                 v1, theAlloc);
         ASSERT(0 == rawBuf.d_allocator_p);
@@ -2656,7 +2657,7 @@ int main(int argc, char *argv[])
         // 'copyConstruct' invokes copy constructor, passing the allocator if
         // type takes an allocator.
 
-        std::memset(&rawBuf, 92, sizeof(rawBuf));
+        memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::copyConstruct((my_Class2*) &rawBuf,
                                                 v2, theAlloc);
         ASSERT(theAlloc == rawBuf.d_allocator_p);
@@ -2665,7 +2666,7 @@ int main(int argc, char *argv[])
         // 'construct' invokes constructor, even if type does not take an
         // allocator.
 
-        std::memset(&rawBuf, 92, sizeof(rawBuf));
+        memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::construct((my_Class1*) &rawBuf,
                                             3, theAlloc);
         ASSERT(0 == rawBuf.d_allocator_p);
@@ -2673,7 +2674,7 @@ int main(int argc, char *argv[])
 
         // 'destroy' invokes destructor ... with no particular constraints.
 
-        std::memset(&rawBuf, 92, sizeof(rawBuf));
+        memset(&rawBuf, 92, sizeof(rawBuf));
         bslma::DestructionUtil::destroy((my_Class1*) &rawBuf);
         ASSERT(0  == rawBuf.d_allocator_p);
         ASSERT(91 == rawBuf.d_value);
@@ -2681,7 +2682,7 @@ int main(int argc, char *argv[])
         // 'construct' invokes constructor, passing the allocator if type takes
         // an allocator.
 
-        std::memset(&rawBuf, 92, sizeof(rawBuf));
+        memset(&rawBuf, 92, sizeof(rawBuf));
         bslalg::ScalarPrimitives::construct((my_Class2*) &rawBuf,
                                             4, theAlloc);
         ASSERT(theAlloc == rawBuf.d_allocator_p);
@@ -2689,7 +2690,7 @@ int main(int argc, char *argv[])
 
         // 'destroy' invokes destructor ... with no particular constraints.
 
-        std::memset(&rawBuf, 92, sizeof(rawBuf));
+        memset(&rawBuf, 92, sizeof(rawBuf));
         bslma::DestructionUtil::destroy((my_Class2*) &rawBuf);
         ASSERT(0  == rawBuf.d_allocator_p);
         ASSERT(92 == rawBuf.d_value);

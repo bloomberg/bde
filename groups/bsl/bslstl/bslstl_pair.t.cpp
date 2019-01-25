@@ -27,6 +27,7 @@
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_types.h>
@@ -671,8 +672,8 @@ class StrictlyAllocated {
 
   private:
     // NOT IMPLEMENTED
-    StrictlyAllocated(const StrictlyAllocated&) BSLS_CPP11_DELETED;
-    explicit StrictlyAllocated(int) BSLS_CPP11_DELETED;
+    StrictlyAllocated(const StrictlyAllocated&) BSLS_KEYWORD_DELETED;
+    explicit StrictlyAllocated(int) BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS

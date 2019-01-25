@@ -235,7 +235,7 @@ public:
             StringBufTest strBuf(initialStr, bsl::ios_base::in);
 
             // reset the read buffer
-            std::memset(readbuf, -1, readbufSize);
+            memset(readbuf, -1, readbufSize);
 
             // read some characters with 'xsgetn'
             std::streamsize readChars = strBuf.xsgetn(readbuf, n);
@@ -970,12 +970,12 @@ int main(int argc, char *argv[])
             bsl::stringbuf buf2("abc");
             std::streamsize res2 = buf2.sgetn(read_buf, read_buf_size);
             ASSERT(res2 == std::streamsize(read_buf_size));
-            ASSERT(std::strncmp(read_buf, "abc", 3) == 0);
+            ASSERT(strncmp(read_buf, "abc", 3) == 0);
 
             bsl::stringbuf buf3("de");
             std::streamsize res3 = buf3.sgetn(read_buf, read_buf_size);
             ASSERT(res3 == 2);
-            ASSERT(std::strncmp(read_buf, "dec", 3) == 0);
+            ASSERT(strncmp(read_buf, "dec", 3) == 0);
                 // 'c' left from the previous sgetn
         }
 

@@ -1,6 +1,9 @@
 // bslmf_isvoid.t.cpp                                                 -*-C++-*-
 #include <bslmf_isvoid.h>
 
+#include <bslmf_integralconstant.h>
+#include <bslmf_metaint.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>   // 'printf'

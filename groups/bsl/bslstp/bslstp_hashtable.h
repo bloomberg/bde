@@ -54,6 +54,8 @@
 #include <bslstp_iterator.h> // const and nonconst traits for iterator
 #include <bslstp_util.h>
 
+#include <bslalg_scalarprimitives.h>
+
 #include <bslma_destructionutil.h>
 
 #include <bsls_exceptionutil.h>
@@ -65,14 +67,8 @@
 #include <bslstl_vector.h>
 
 #include <algorithm>
-
-#include <iterator>
-
 #include <functional>
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslalg_scalarprimitives.h>
-#endif
+#include <iterator>
 
 // Hashtable class, used to implement the hashed associative containers
 // hash_set, hash_map, hash_multiset, and hash_multimap.
