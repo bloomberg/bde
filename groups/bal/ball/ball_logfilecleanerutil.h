@@ -51,15 +51,17 @@ BSLS_IDENT("$Id: $")
 // * A single '*' is appended to the converted pattern when it does not
 //   terminate with '*'.  (This is necessary for capturing rotated log files.)
 //
-// -------------------+--------------------
-//  Log File Pattern  | File Pattern
-// -------------------+--------------------
-//  "a.log"           | "a.log*"
-//  "a.log.%T"        | "a.log.*"
-//  "a.log.%Y"        | "a.log.*"
-//  "a.log.%Y%M%D"    | "a.log.*"
-//  "a.%T.log"        | "a.*.log*"
-// -------------------+--------------------
+//..
+//  -------------------+---------------
+//   Log File Pattern  | File Pattern
+//  -------------------+---------------
+//   "a.log"           | "a.log*"
+//   "a.log.%T"        | "a.log.*"
+//   "a.log.%Y"        | "a.log.*"
+//   "a.log.%Y%M%D"    | "a.log.*"
+//   "a.%T.log"        | "a.*.log*"
+//  -------------------+---------------
+//..
 //
 ///Usage
 ///-----

@@ -42,9 +42,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// The following code snippets illustrate the basic usage of a
-// 'ball::DefaultAttributeContainer'.  A 'ball::DefaultAttributeContainer'
-// initially has no attributes when created by the default constructor:
+// This section illustrates the intended use of this component.
+//
+///Example 1: Basic Usage
+/// - - - - - - - - - - -
+// A 'ball::DefaultAttributeContainer' initially has no attributes when created
+// by the default constructor:
 //..
 //    ball::DefaultAttributeContainer attributeContainer;
 //..
