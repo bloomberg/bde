@@ -67,6 +67,7 @@
       bsls_objectbuffer
 
    7. bsls_alignmentfromtype
+      bsls_assertimputil
       bsls_atomicoperations_sparc_sun_cc_default                      !PRIVATE!
       bsls_cpp11                                         !DEPRECATED!
       bsls_libraryfeatures
@@ -75,7 +76,6 @@
 
    6. bsls_alignmenttotype
       bsls_annotation
-      bsls_assertimputil
       bsls_atomicoperations_powerpc32_aix_xlc                         !PRIVATE!
       bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
       bsls_keyword
