@@ -59,7 +59,11 @@ BSLS_IDENT_RCSID(balst_stacktraceresolverimpl_xcoff_cpp,"$Id$ $CSID$")
 #define __AR_BIG__
 
 #include <ar.h>
-#include <demangle.h>
+#if defined(BSLS_PLATFORM_CMP_GNU)
+# include <cxxabi.h>
+#else
+# include <demangle.h>
+#endif
 
 #include <sys/ldr.h>
 #include <xcoff.h>      // includes: filehdr.h, aouthdr.h, scnhdr.h, linenum.h,
@@ -581,12 +585,10 @@ enum {
                                             // 'd_symbolBuf_p'
 };
 
-typedef balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>
-                                                            StackTraceResolver;
-
-typedef StackTraceResolver::UintPtr UintPtr;
-typedef StackTraceResolver::Uint64  Uint64;
-typedef StackTraceResolver::Offset  Offset;
+typedef bsls::Types::UintPtr            UintPtr;
+typedef bsls::Types::Int64              Int64;
+typedef bsls::Types::Uint64             Uint64;
+typedef bdls::FilesystemUtil::Offset    Offset;
 
 template <typename TYPE>
 inline
@@ -634,16 +636,57 @@ bool symbolsMatch(const SYMENT& a, const SYMENT& b)
 inline
 long long ll(long long x)
     // Return the specified 'x'.  This function is a shorthand way to gently
-    // coerce types to 'long long' for compatibility with '%llu', %lld', and
-    // '%llx' in 'zprintf' and 'eprintf' traces.
+    // coerce types to 'long long' for compatibility with '%lld', and '%llx' in
+    // 'zprintf' and 'eprintf' traces.
 {
     return x;
 }
+
+inline
+long long unsigned llu(long long unsigned x)
+    // Return the specified 'x'.  This function is a shorthand way to gently
+    // coerce types to 'long long' for compatibility with '%llu', and '%llx' in
+    // 'zprintf' and 'eprintf' traces.
+{
+    return x;
+}
+
+#if defined(BSLS_PLATFORM_CMP_GNU)
+                              // ===============
+                              // class FreeGuard
+                              // ===============
+
+
+class FreeGuard {
+    // This 'class' will manage a buffer, which was allocated by 'malloc' and
+    // is returned by '__cxa_demangle'.
+
+    // DATA
+    char *d_buffer;
+
+  public:
+    // CREATORS
+    explicit
+    FreeGuard(char *buffer)
+    : d_buffer(buffer)
+        // Create a 'FreeGuard' object that manages the specified 'buffer'.
+    {}
+
+    ~FreeGuard()
+        // If 'd_buffer' is non-null, free it.
+    {
+        if (d_buffer) {
+            ::free(d_buffer);
+        }
+    }
+};
+#endif
 
 }  // close namespace u
 }  // close unnamed namespace
 
 namespace BloombergLP {
+namespace balst {
 
  // ===========================================================================
  // struct balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>::
@@ -651,11 +694,12 @@ namespace BloombergLP {
  //               == struct local::StackTraceResolver::AuxInfo
  // ===========================================================================
 
-bslmt::QLock u::StackTraceResolver::s_demangleQLock = BSLMT_QLOCK_INITIALIZER;
+bslmt::QLock StackTraceResolverImpl<ObjectFileFormat::Xcoff>::
+                                     s_demangleQLock = BSLMT_QLOCK_INITIALIZER;
 
-struct u::StackTraceResolver::AuxInfo {
+struct StackTraceResolverImpl<ObjectFileFormat::Xcoff>::AuxInfo {
     // Objects of this type exist in the array 'd_auxInfo' in class
-    // u::StackTraceResolver in a 1-1 correspondence with the elements of the
+    // StackTraceResolver in a 1-1 correspondence with the elements of the
     // 'd_segFramePtrs_p' and 'd_segAddresses_p' arrays in that class.  Note
     // that 'SYMENT' and 'AUXENT' are types defined as part of the Xcoff
     // standard.
@@ -694,7 +738,7 @@ struct u::StackTraceResolver::AuxInfo {
     bool    d_sourceSymEntValid;   // whether 'd_sourceSymEnt' is valid
 };
 
-struct u::StackTraceResolver::LoadAuxInfosInfo {
+struct StackTraceResolverImpl<ObjectFileFormat::Xcoff>::LoadAuxInfosInfo {
     // This 'struct' contains pointers to variables in the routine
     // 'loadSymbols' with the same names (minus the 'd_' prefix.  This struct
     // is only used for communicating between 'loadSymbols' and 'loadAuxInfos'.
@@ -720,11 +764,10 @@ struct u::StackTraceResolver::LoadAuxInfosInfo {
 
      // -------------------------------------------------------------------
      // class balst::StackTraceResolverImpl<balst::ObjectFileFormat::Xcoff>
-     //                == class u::StackTraceResolver
      // -------------------------------------------------------------------
 
 // PRIVATE CREATORS
-u::StackTraceResolver::StackTraceResolverImpl(
+StackTraceResolverImpl<ObjectFileFormat::Xcoff>::StackTraceResolverImpl(
                                               balst::StackTrace *stackTrace,
                                               bool               demangle)
 : d_helper(0)
@@ -759,12 +802,13 @@ u::StackTraceResolver::StackTraceResolverImpl(
     d_symbolBuf_p  = (char *) allocator()->allocate(u::k_SYMBOL_BUF_LEN);
 }
 
-u::StackTraceResolver::~StackTraceResolverImpl()
+StackTraceResolverImpl<ObjectFileFormat::Xcoff>::~StackTraceResolverImpl()
 {
 }
 
 // PRIVATE MANIPULATORS
-int u::StackTraceResolver::findArchiveMember(const char *memberName)
+int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::findArchiveMember(
+                                                        const char *memberName)
 {
     fl_hdr archiveHeader;
     if (d_helper->readExact(&archiveHeader, sizeof(archiveHeader), 0)) {
@@ -834,9 +878,10 @@ int u::StackTraceResolver::findArchiveMember(const char *memberName)
     return -1;
 }
 
-u::Offset u::StackTraceResolver::findCsectIndex(const char *symbolAddress,
-                                                const char *csectEndAddress,
-                                                u::Offset   primarySymIndex)
+u::Offset StackTraceResolverImpl<ObjectFileFormat::Xcoff>::findCsectIndex(
+                                                   const char *symbolAddress,
+                                                   const char *csectEndAddress,
+                                                   u::Offset   primarySymIndex)
 {
     // This is the performance critical part of the code, at least for deep
     // backtraces.  Oleg rewrote the implementation to keep the addresses
@@ -864,7 +909,8 @@ u::Offset u::StackTraceResolver::findCsectIndex(const char *symbolAddress,
     return -1;
 }
 
-int u::StackTraceResolver::findIncludeFile(syment    *includeSymEnt,
+int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::findIncludeFile(
+                                           syment    *includeSymEnt,
                                            u::Offset  firstLineNumberOffset,
                                            u::Offset  lineNumberOffset,
                                            u::Offset  symStartIndex,
@@ -883,7 +929,7 @@ int u::StackTraceResolver::findIncludeFile(syment    *includeSymEnt,
 
     bool bincl = false;
     bool binclFunctionStart = false;
-    Uint64 binclValue;
+    Int64 binclValue;
     for (Offset symIndex = symStartIndex; symIndex < symEndIndex; ++symIndex){
         if (symIndex >= symBufEndIndex) {
             // read a bufferful of symbols, this always happens the first time
@@ -903,20 +949,20 @@ int u::StackTraceResolver::findIncludeFile(syment    *includeSymEnt,
             }
             symBufStartIndex = symIndex;
             symBufEndIndex = symBufStartIndex + numSymsToRead;
-            zprintf("Now [%lu,%lu) in buffer\n", u::ll(symBufStartIndex),
+            zprintf("Now [%lld,%lld) in buffer\n", u::ll(symBufStartIndex),
                                                         u::ll(symBufEndIndex));
         }
         SYMENT *symEnt = (SYMENT *) (d_symbolBuf_p +
                                        (symIndex - symBufStartIndex) * SYMESZ);
         if (C_BINCL == symEnt->n_sclass) {
             bincl = true;
-            binclValue = static_cast<UintPtr>(symEnt->n_value);
-            zprintf("%llu BINCL %llu (need %llu)\n", u::ll(symIndex),
+            binclValue = static_cast<IntPtr>(symEnt->n_value);
+            zprintf("%lld BINCL %lld (need %lld)\n", u::ll(symIndex),
                                    u::ll(binclValue), u::ll(lineNumberOffset));
         }
         else {
             if (C_EINCL == symEnt->n_sclass && bincl) {
-                Uint64 einclValue = static_cast<UintPtr>(symEnt->n_value);
+                Int64 einclValue = static_cast<IntPtr>(symEnt->n_value);
 
                 zprintf("%llu EINCL %llu (need %llu)\n", u::ll(symIndex),
                                    u::ll(einclValue), u::ll(lineNumberOffset));
@@ -1009,10 +1055,11 @@ int u::StackTraceResolver::findIncludeFile(syment    *includeSymEnt,
                               : 0;
 }
 
-int u::StackTraceResolver::findLineNumber(int         *outLineNumber,
-                                          u::Offset   *outLineNumberOffset,
-                                          u::Offset    lineBufStartOffset,
-                                          const void  *segAddress)
+int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::findLineNumber(
+                                              int         *outLineNumber,
+                                              u::Offset   *outLineNumberOffset,
+                                              u::Offset    lineBufStartOffset,
+                                              const void  *segAddress)
 {
     // The scratch buffer is 32 K, which is equivalent to about 3200 lines of
     // code.  We don't want to read that much every time, so read in smaller
@@ -1021,7 +1068,7 @@ int u::StackTraceResolver::findLineNumber(int         *outLineNumber,
     // multiple of LINESZ.
 
     enum { k_SHORT_BUF_LEN = 4000 - 4000 % LINESZ };
-    BSLMF_ASSERT(k_SHORT_BUF_LEN <= u::k_SCRATCH_BUF_LEN);
+    BSLMF_ASSERT(static_cast<int>(k_SHORT_BUF_LEN) <= u::k_SCRATCH_BUF_LEN);
 
     Offset       lineBufEndOffset = lineBufStartOffset;
     Offset       maxScan          = d_archiveMemberSize - lineBufStartOffset;
@@ -1072,7 +1119,7 @@ int u::StackTraceResolver::findLineNumber(int         *outLineNumber,
             // skip the first 'LINENO', it is a special one for the beginning
             // of the function
 
-            zprintf("at (%d) ptr=%p symNdx=%u lnno=%d sizeof(LINENO)=%d\n",
+            zprintf("at (%lld) ptr=%p symNdx=%u lnno=%d sizeof(LINENO)=%d\n",
                     lineOffset,
                     lineno,
                     lineno->l_addr.l_symndx,
@@ -1082,7 +1129,7 @@ int u::StackTraceResolver::findLineNumber(int         *outLineNumber,
         else {
             char *addr = (char *)
                           (lineno->l_addr.l_paddr + d_virtualToPhysicalOffset);
-            zprintf("at (%d) ptr=%p paddr=%lu lnno=%d %s\n", lineOffset,
+            zprintf("at (%lld) ptr=%p paddr=%p lnno=%d %s\n", lineOffset,
                                             lineno, addr, (int) lineno->l_lnno,
                                                addr <= segAddress ? "<" : ".");
             if (0 == lineno->l_lnno) {
@@ -1104,7 +1151,7 @@ int u::StackTraceResolver::findLineNumber(int         *outLineNumber,
         }
     }
 
-    zprintf("Detected lineNumber=%d, lineNumberOffset=%lu\n",
+    zprintf("Detected lineNumber=%d, lineNumberOffset=%lld\n",
                                                  lineNumber, lineNumberOffset);
 
     // Aix seems to start line numbers at 0, disagreeing with __LINE__, vi,
@@ -1117,7 +1164,7 @@ int u::StackTraceResolver::findLineNumber(int         *outLineNumber,
     return 0;
 }
 
-void u::StackTraceResolver::loadAuxInfos(
+void StackTraceResolverImpl<ObjectFileFormat::Xcoff>::loadAuxInfos(
                                   const LoadAuxInfosInfo *info,
                                   const char             *functionBeginAddress,
                                   const char             *functionEndAddress)
@@ -1164,8 +1211,9 @@ void u::StackTraceResolver::loadAuxInfos(
     }
 }
 
-int u::StackTraceResolver::loadSymbols(u::Offset numSyms,
-                                       int       textSectionNum)
+int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::loadSymbols(
+                                                      u::Offset numSyms,
+                                                      int       textSectionNum)
 {
     if (0 == numSyms) {
         return 0;                                                     // RETURN
@@ -1239,7 +1287,7 @@ int u::StackTraceResolver::loadSymbols(u::Offset numSyms,
         if (d_helper->readExact(d_symbolBuf_p,
                                 numSymsToRead * SYMESZ,
                                 symBufStartOffset)) {
-            eprintf("failed to read %d symbols from offset %lu, errno %d\n",
+            eprintf("failed to read %lld symbols from offset %lld, errno %d\n",
                                       numSymsToRead, symBufStartOffset, errno);
             return -1;                                                // RETURN
         }
@@ -1247,7 +1295,7 @@ int u::StackTraceResolver::loadSymbols(u::Offset numSyms,
         const Offset symBufEndIndex = symIndex + numSymsToRead;
             // last index we're processing
 
-        zprintf("Parsing [%lu, %lu)\n", symIndex, symBufEndIndex);
+        zprintf("Parsing [%lld, %lld)\n", symIndex, symBufEndIndex);
 
         // The symbol buffer contains objects of type 'SYMENT' and 'AUXENT',
         // both of which are the same size 'SYMESZ', (not the same as
@@ -1397,7 +1445,7 @@ int u::StackTraceResolver::loadSymbols(u::Offset numSyms,
                             }
                         }
                     }
-                    else if (csectIndex != (UintPtr) - 1) {
+                    else if (csectIndex != static_cast<IntPtr>(-1)) {
 #ifdef __XCOFF_32__
                         funcEndIndex = auxEnt->x_sym.x_fcnary.x_fcn.x_endndx;
 #else
@@ -1406,7 +1454,7 @@ int u::StackTraceResolver::loadSymbols(u::Offset numSyms,
                         if (symEnt->n_scnum != textSectionNum &&
                                                      funcEndIndex <= numSyms) {
                             zprintf("wrong section %d, need %d, skipping"
-                                                         " to next function\n",
+                                                 " to next function at %lld\n",
                                     (int) symEnt->n_scnum, textSectionNum,
                                                                  funcEndIndex);
 
@@ -1424,7 +1472,7 @@ int u::StackTraceResolver::loadSymbols(u::Offset numSyms,
 #else
                             lineNumberOffset = auxEnt->x_fcn.x_lnnoptr;
 #endif
-                            zprintf("FCN lnnoptr=%lu funcend=%lu\n",
+                            zprintf("FCN lnnoptr=%lld funcend=%lld\n",
                                                lineNumberOffset, funcEndIndex);
                         }
                     }
@@ -1458,7 +1506,8 @@ int u::StackTraceResolver::loadSymbols(u::Offset numSyms,
     return 0;
 }
 
-const char *u::StackTraceResolver::getSourceName(const auxent *sourceAuxEnt)
+const char *StackTraceResolverImpl<ObjectFileFormat::Xcoff>::getSourceName(
+                                                    const auxent *sourceAuxEnt)
 {
     return 0 == sourceAuxEnt->x_file._x.x_zeroes
            ? d_helper->loadString(d_stringTableOffset +
@@ -1471,7 +1520,8 @@ const char *u::StackTraceResolver::getSourceName(const auxent *sourceAuxEnt)
                                 allocator());
 }
 
-const char *u::StackTraceResolver::getSymbolName(const syment *sourceSymEnt)
+const char *StackTraceResolverImpl<ObjectFileFormat::Xcoff>::getSymbolName(
+                                                    const syment *sourceSymEnt)
 {
     const char *srcName = 0;
 
@@ -1494,11 +1544,12 @@ const char *u::StackTraceResolver::getSymbolName(const syment *sourceSymEnt)
     return srcName;
 }
 
-int u::StackTraceResolver::resolveSegment(void       *segmentPtr,
-                                          u::UintPtr  segmentSize,
-                                          const char *libraryFileName,
-                                          const char *displayFileName,
-                                          const char *archiveMemberName)
+int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::resolveSegment(
+                                                 void       *segmentPtr,
+                                                 u::UintPtr  segmentSize,
+                                                 const char *libraryFileName,
+                                                 const char *displayFileName,
+                                                 const char *archiveMemberName)
 {
     int rc;
 
@@ -1642,43 +1693,70 @@ int u::StackTraceResolver::resolveSegment(void       *segmentPtr,
 
     for (int i = 0; i < d_numCurrAddresses; ++i) {
         AuxInfo               *auxInfo = d_segAuxInfos_p + i;
-        balst::StackTraceFrame *frame   = d_segFramePtrs_p[i];
+        balst::StackTraceFrame *frame  = d_segFramePtrs_p[i];
 
         if (auxInfo->d_symEntValid) {
             const char *symbolName = getSymbolName(&auxInfo->d_symEnt);
             frame->setMangledSymbolName(symbolName);
             zprintf("Loaded symbol name: %s\n",
                                            frame->mangledSymbolName().c_str());
+            frame->setSymbolName("");
 
-            bsl::auto_ptr<Name> name;
             if (d_demangle) {
-                // Note that 'Demangle' is not thread safe.
+                // Note that 'Demangle' is not thread safe.  '__cxa_demangle'
+                // is probably thread-safe, but let's be safe.
 
-                bslmt::QLockGuard guard(&s_demangleQLock);
+                bslmt::QLockGuard lockGuard(&s_demangleQLock);
 
-                // Note that 'Demangle' allocates with 'new', and that
-                // 'remainder' is passed as a reference to a modifiable.  Also
-                // note that whoever wrote 'Demangle' didn't know how to use
-                // 'const'.
+#               if defined(BSLS_PLATFORM_CMP_GNU)
+                    // Note that this demangling call has never worked.  The
+                    // code is just left here so that, should GNU / XCOFF
+                    // should become a higher priority, we will know that this
+                    // approach was not successful.
 
-                char *remainder = 0;
-                name.reset(Demangle(const_cast<char *>(symbolName),
-                                    remainder));
-                if (name.get() && remainder && *remainder) {
-                    // For some reason, Demangle may leave some trailing crud
-                    // at the end of the string pointed at by 'name'.
-                    // 'remainder' points to the end of the identifier and the
-                    // beginning of that crud.
+                    // When called this way, '__cxa_demangle' returns a buffer
+                    // allocated via 'malloc', which 'u::FreeGuard' will free
+                    // if appropriate.
 
-                    *remainder = 0;
-                }
+                    int status;
+                    char *demangled = abi::__cxa_demangle(
+                                            frame->mangledSymbolName().c_str(),
+                                            0,
+                                            0,
+                                            &status);
+                    u::FreeGuard freeGuard(demangled);
+                    if (0 == status && demangled) {
+                        zprintf("Demangled to %s\n", demangled);
+                        frame->setSymbolName(demangled);
+                    }
+#               else
+                    // Note that 'Demangle' allocates with 'new', and that
+                    // 'remainder' is passed as a reference to a modifiable.
+                    // Assigning the result of 'Demangle' to an 'auto_ptr'
+                    // means it will be free with 'delete', or that no freeing
+                    // will occur if 'Demangle' returns 0.  Also note that
+                    // whoever wrote 'Demangle' didn't know how to use 'const'.
+
+                    bsl::auto_ptr<Name> name;
+                    char *remainder = 0;
+                    name.reset(Demangle(const_cast<char *>(symbolName),
+                                        remainder));
+                    if (name.get() && remainder && *remainder) {
+                        // For some reason, Demangle may leave some trailing
+                        // crud at the end of the string pointed at by 'name'.
+                        // 'remainder' points to the end of the identifier and
+                        // the beginning of that crud.
+
+                        *remainder = 0;
+                    }
+                    if (name.get()) {
+                        char *text = name->Text();
+                        zprintf("Demangled to %s\n", text);
+                        frame->setSymbolName(text);
+                    }
+#               endif
             }
-            if (name.get()) {
-                char *text = name->Text();
-                zprintf("Demangled to %s\n", text);
-                frame->setSymbolName(text);
-            }
-            else {
+            if (false == frame->isSymbolNameKnown()) {
                 zprintf("Did not demangle: %s\n",
                                            frame->mangledSymbolName().c_str());
                 frame->setSymbolName(frame->mangledSymbolName());
@@ -1768,11 +1846,12 @@ int u::StackTraceResolver::resolveSegment(void       *segmentPtr,
 }
 
 // PUBLIC CLASS METHODS
-int u::StackTraceResolver::resolve(balst::StackTrace *stackTrace,
-                                   bool               demangle)
+int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::resolve(
+                                                 balst::StackTrace *stackTrace,
+                                                 bool               demangle)
 {
-    u::StackTraceResolver resolver(stackTrace,
-                                   demangle);
+    StackTraceResolverImpl<ObjectFileFormat::Xcoff> resolver(stackTrace,
+                                                             demangle);
 
     enum { BUF_SIZE = (8 << 10) - 64 };
     char *ldInfoBuf = (char *) resolver.allocator()->allocate(BUF_SIZE);
@@ -1849,6 +1928,7 @@ int u::StackTraceResolver::resolve(balst::StackTrace *stackTrace,
     return 0;
 }
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

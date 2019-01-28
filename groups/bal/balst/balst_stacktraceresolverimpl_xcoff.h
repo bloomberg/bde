@@ -86,9 +86,12 @@ class StackTraceResolverImpl<ObjectFileFormat::Xcoff> {
 
   public:
     // PUBLIC TYPES
+    typedef bsls::Types::IntPtr  IntPtr;  // 32 bit signed on 32 bit, 64 bit
+                                          // signed on 64 bit
     typedef bsls::Types::UintPtr UintPtr; // 32 bit unsigned on 32 bit, 64 bit
                                           // unsigned on 64 bit
 
+    typedef bsls::Types::Int64   Int64;
     typedef bsls::Types::Uint64  Uint64;
 
     typedef bdls::FilesystemUtil::Offset  // Usually used for offsets in a

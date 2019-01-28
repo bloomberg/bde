@@ -251,9 +251,7 @@ BSLS_IDENT("$Id: $")
 //
 //      bsl::string line(d_allocator_p);
 //
-//      while (!input.bad() && !input.eof()) {
-//          bsl::getline(input, line);
-//
+//      while (bsl::getline(input, line), !line.empty()) {
 //          bsl::size_t colon = line.find(':');
 //          if (bsl::string::npos != colon) {
 //              const bsl::string& field = line.substr(0, colon);
@@ -276,7 +274,7 @@ BSLS_IDENT("$Id: $")
 //                                                               line << "'\n";
 //              }
 //          }
-//          else if (!line.empty()) {
+//          else {
 //              cerr << "Garbled line '" << line << "'\n";
 //          }
 //      }

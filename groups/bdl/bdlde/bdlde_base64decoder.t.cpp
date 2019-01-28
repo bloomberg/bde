@@ -306,6 +306,8 @@ void loopMeter(unsigned index, unsigned length, unsigned size = 50)
 
 typedef bdlde::Base64Decoder Obj;
 
+static const char ff = static_cast<char>(-1);
+
                         // ==================
                         // Named STATE Values
                         // ==================
@@ -713,7 +715,7 @@ bool isState(Obj *object, int state)
 
     int enabled = globalAssertsEnabled;
 
-    char b[3] = { -1, -1, -1 };
+    char b[3] = { ff, ff, ff };
     char input = 'A';
     int  numOut = -1;
     int  numIn = -1;
@@ -984,7 +986,7 @@ bool isState(Obj *object, int state)
         bool a3 = 0 == object->isMaximal();             ASSERT(a3 || !enabled);
         bool a4 = 0 == object->isInitialState();        ASSERT(a4 || !enabled);
 
-        char b[3] = { -1, -1, -1 };
+        char b[3] = { ff, ff, ff };
         int  numOut = -1;
         int  result = object->endConvert(b, &numOut);
 
@@ -4264,7 +4266,7 @@ DEFINE_TEST_CASE(6)
                     input[INPUT_INDEX] = char(i);
 
                     int  nOut = -1;
-                    char b[1] = { -1 };
+                    char b[1] = { ff };
                     Obj  obj(false); // Do this test in Relaxed mode.
 
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
@@ -4370,7 +4372,7 @@ DEFINE_TEST_CASE(6)
                     input[INPUT_INDEX] = char(i);
 
                     int  nOut = -1;
-                    char b[2] = { -1, -1 };
+                    char b[2] = { ff, ff };
                     Obj  obj(true); // Do this test in Strict Mode.
 
                     const int res = obj.convert(b, &nOut, &nIn, B, E);
@@ -4435,7 +4437,7 @@ DEFINE_TEST_CASE(6)
                     ++count;
                     if (veryVeryVerbose) { T_ T_ P_(c) P(int(c)) }
 
-                    char b[3] = { -1, -1, -1 };
+                    char b[3] = { ff, ff, ff };
                     int  nOut = -1;
                     int  nIn = -1;
                     input[INPUT_INDEX] = c;
@@ -4878,7 +4880,7 @@ DEFINE_TEST_CASE(3)
                 ASSERT(1 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
 
-                char b[3] = { -1, -1, -1 };
+                char b[3] = { ff, ff, ff };
                 int  numOut = -1;
                 int  result = obj.endConvert(b, &numOut);
 
@@ -4909,7 +4911,7 @@ DEFINE_TEST_CASE(3)
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
 
-                char              b[3] = { -1, -1, -1 };
+                char              b[3] = { ff, ff, ff };
                 int               numOut = -1;
                 int               numIn = -1;
                 const char        input = 'A';
@@ -4978,7 +4980,7 @@ DEFINE_TEST_CASE(3)
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(1 == obj.outputLength());
 
-                char              b[3] = { 0, -1, -1 };
+                char              b[3] = { 0, ff, ff };
                 int               numOut = -1;
                 int               numIn = -1;
                 const char        input = 'A';
@@ -5031,7 +5033,7 @@ DEFINE_TEST_CASE(3)
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(2 == obj.outputLength());
 
-                char              b[3] = { 0, 0, -1 };
+                char              b[3] = { 0, 0, ff };
                 int               numOut = -1;
                 int               numIn = -1;
                 const char        input = 'A';
@@ -5068,7 +5070,7 @@ DEFINE_TEST_CASE(3)
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(3 == obj.outputLength());
 
-                char              b[3] = { -1, -1, -1 };
+                char              b[3] = { ff, ff, ff };
                 int               numOut = -1;
                 int               numIn = -1;
                 char              input = 'A';
@@ -5105,7 +5107,7 @@ DEFINE_TEST_CASE(3)
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
 
-                char              b[3] = { -1, -1, -1 };
+                char              b[3] = { ff, ff, ff };
                 int               numOut = -1;
                 int               numIn = -1;
                 const char        input = 'A';
@@ -5142,7 +5144,7 @@ DEFINE_TEST_CASE(3)
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(2 == obj.outputLength());  // "AAA="
 
-                char b[4] = { -1, -1, -1, -1 };
+                char b[4] = { ff, ff, ff, ff };
                 int  numOut = -1;
                 int  result = obj.endConvert(b, &numOut);
 
@@ -5176,7 +5178,7 @@ DEFINE_TEST_CASE(3)
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(1 == obj.outputLength());
 
-                char b[3] = { -1, -1, -1 };
+                char b[3] = { ff, ff, ff };
                 int  numOut = -1;
                 int  numIn = -1;
 
@@ -5214,7 +5216,7 @@ DEFINE_TEST_CASE(3)
                 ASSERT(0 == obj.isInitialState());
                 ASSERT(0 == obj.outputLength());
 
-                char b[3] = { -1, -1, -1 };
+                char b[3] = { ff, ff, ff };
                 int  numOut = -1;
                 int  numIn = -1;
 
