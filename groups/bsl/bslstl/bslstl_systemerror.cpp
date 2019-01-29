@@ -113,7 +113,7 @@ int bsl::error_code::value() const
 }
 
 bsl::error_code::
-operator BloombergLP::bsls::UnspecifiedBool<error_code>::BoolType() const
+operator BloombergLP::bsls::UnspecifiedBool<bsl::error_code>::BoolType() const
 {
     return BloombergLP::bsls::UnspecifiedBool<error_code>::makeValue(value());
 }
@@ -172,7 +172,8 @@ int bsl::error_condition::value() const
 }
 
 bsl::error_condition::
-operator BloombergLP::bsls::UnspecifiedBool<error_condition>::BoolType() const
+operator BloombergLP::bsls::UnspecifiedBool<bsl::error_condition>::BoolType()
+    const
 {
     return BloombergLP::bsls::UnspecifiedBool<error_condition>::makeValue(
         value());
