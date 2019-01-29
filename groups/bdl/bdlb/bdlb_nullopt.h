@@ -9,8 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  NullOptType: tag indicating the next parameter is an allocator
-//
-//  nullOpt: A literal value of type 'NullOptType'
+//  nullOpt:     a literal value of type 'NullOptType'
 //
 //@SEE_ALSO: bdlb_nullablevalue
 //
@@ -50,26 +49,24 @@ class NullOptType {
 
   private:
     // PRIVATE CREATORS
-
     BSLS_KEYWORD_CONSTEXPR NullOptType()
         // Create a 'NullOptType' value.  This constructor is not accessible to
         // users.
     {
-        // This 'constexpr' function is defined inline only to allow use
-        // initialializing the 'nullOpt' value below.
+        // This 'constexpr' function is defined inline only to allow its use
+        // when called from 'makeInitialValue' to initialialize the 'constexpr'
+        // value, 'nullOpt', below.
     }
 
   public:
-
     // CLASS METHODS
-
     static BSLS_KEYWORD_CONSTEXPR NullOptType makeInitialValue()
         // Return a value initialized 'NullOptType' object.  It is undefined
         // behavior to call this function other than to initialize the global
-        // constant, 'nullOpt' below.
+        // constant, 'nullOpt', below.
     {
-        // This 'constexpr' function is defined inline only to allow use
-        // initialializing the 'nullOpt' value below.
+        // This 'constexpr' function is defined inline only to allow its use
+        // initialializing the 'constexpr' value, 'nullOpt', below.
 
         return NullOptType();
     }
