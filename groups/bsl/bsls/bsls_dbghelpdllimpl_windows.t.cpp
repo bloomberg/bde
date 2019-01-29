@@ -64,6 +64,12 @@ typedef bsls::Types::UintPtr UintPtr;
 
 enum { FIRST_LINE = __LINE__ };
 
+#if  (BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000)
+enum { e_SOURCE = false };
+#else
+enum { e_SOURCE = true };
+#endif
+
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -135,15 +141,22 @@ int main(int argc, char *argv[])
         ZeroMemory(&line, sizeof(IMAGEHLP_LINE64));
         line.SizeOfStruct = sizeof(line);
         DWORD offsetFromLine;
-
         int rc = bsls::DbghelpDllImpl_Windows::symGetLineFromAddr64(
-                                                               (DWORD64) &main,
-                                                               &offsetFromLine,
-                                                               &line);
-        ASSERT(rc);
-
-        printf("Source file: %s\n", line.FileName);
-        printf("Line #: %d\n", line.LineNumber);
+                                                          (DWORD64) &main + 20,
+                                                          &offsetFromLine,
+                                                          &line);
+        if (e_SOURCE) {
+            ASSERT(rc && "Didn't find source file name and line number.");
+            if (rc) {
+                printf("Source file: %s\n", line.FileName);
+                printf("Line #: %d\n", line.LineNumber);
+            }
+        }
+	else {
+	    if (rc) {
+	    	printf("Resolving succeeded\n");
+	    }
+	}
 #endif
       }  break;
       case 4: {
@@ -193,7 +206,7 @@ int main(int argc, char *argv[])
                                                       sym);
 #endif
         ASSERT(rc);
-        ASSERTV(sym->Name, !strncmp("testFunction", sym->Name, 12));
+        ASSERTV(sym->Name, strstr(sym->Name, "testFunction"));
 
         free(sym);
 #endif
@@ -224,15 +237,24 @@ int main(int argc, char *argv[])
                                                       (DWORD64) testFunction(),
                                                       &offsetFromLine,
                                                       &line);
-        ASSERT(rc);
-
-        const char *pc = line.FileName + strlen(line.FileName);
-        while (pc > line.FileName && '\\' != pc[-1]) {
-            --pc;
+        if (e_SOURCE) {
+            ASSERT(rc);
+            if (rc) {
+                ASSERT(line.FileName);
+                const char *pc = line.FileName + strlen(line.FileName);
+                while (pc > line.FileName && '\\' != pc[-1]) {
+                    --pc;
+                }
+                ASSERTV(pc, !strcmp(pc,"bsls_dbghelpdllimpl_windows.t.cpp"));
+                ASSERT(line.LineNumber > FIRST_LINE);
+                ASSERT(line.LineNumber < SECOND_LINE);
+            }
         }
-        ASSERTV(pc, !strcmp(pc,"bsls_dbghelpdllimpl_windows.t.cpp"));
-        ASSERT(line.LineNumber > FIRST_LINE);
-        ASSERT(line.LineNumber < SECOND_LINE);
+        else {
+            if (rc) {
+                printf("Resolve unexpectedly succeeded.\n");
+            }
+        }
 #endif
       }  break;
       case 2: {
