@@ -15,35 +15,55 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #include <system_error>
 
 namespace bsl {
 
-using native_std::error_category;
-using native_std::error_code;
-using native_std::error_condition;
-using native_std::system_error;
+    using native_std::error_category;
+    using native_std::error_code;
+    using native_std::error_condition;
+    using native_std::system_error;
+    using native_std::is_error_code_enum;
+    using native_std::is_error_condition_enum;
+    using native_std::errc;
+    using native_std::generic_category;
+    using native_std::system_category;
+    using native_std::make_error_code;
+    using native_std::make_error_condition;
 
-using native_std::generic_category;
-using native_std::system_category;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    using native_std::is_error_code_enum_v;
+    using native_std::is_error_condition_enum_v;
+#elif defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+    template <class TYPE>
+    constexpr bool is_error_code_enum_v =
+                                   native_std::is_error_code_enum<TYPE>::value;
+        // This template variable represents the result value of the
+        // 'native_std::is_error_code_enum' meta-function.
 
-}  // close bsl namespace
+    template <class TYPE>
+    constexpr bool is_error_condition_enum_v =
+                              native_std::is_error_condition_enum<TYPE>::value;
+        // This template variable represents the result value of the
+        // 'native_std::is_error_condition_enum' meta-function.
+
+#endif
+
+}  // close package namespace
 
 #else
-
-// Include Bloomberg's implementation.
 
 #include <bslstl_systemerror.h>
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2015 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
