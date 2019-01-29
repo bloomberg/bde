@@ -53,6 +53,7 @@ bslstl_stringbuf
 bslstl_stringref
 bslstl_stringrefdata
 bslstl_stringstream
+bslstl_systemerror
 bslstl_treeiterator
 bslstl_treenode
 bslstl_treenodepool

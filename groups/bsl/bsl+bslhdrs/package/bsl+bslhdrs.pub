@@ -49,7 +49,6 @@ bsl_shared_mutex.h
 bsl_stdexcept.h
 bsl_streambuf.h
 bsl_strstream.h
-bsl_system_error.h
 bsl_thread.h
 bsl_tuple.h
 bsl_type_traits.h
