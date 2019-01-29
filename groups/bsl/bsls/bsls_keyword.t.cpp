@@ -24,9 +24,12 @@ using namespace std;
 // [ 4] BSLS_KEYWORD_EXPLICIT
 // [ 5] BSLS_KEYWORD_FINAL (class)
 // [ 6] BSLS_KEYWORD_FINAL (function)
+// [  ] BSLS_KEYWORD_INLINE_CONSTEXPR
+// [  ] BSLS_KEYWORD_INLINE_VARIABLE
 // [ 7] BSLS_KEYWORD_NOEXCEPT
-// [ 7] BSLS_KEYWORD_NOEXCEPT_SPECIFICATION
+// [  ] BSLS_KEYWORD_NOEXCEPT_AVAILABLE
 // [ 7] BSLS_KEYWORD_NOEXCEPT_OPERATOR
+// [ 7] BSLS_KEYWORD_NOEXCEPT_SPECIFICATION
 // [ 8] BSLS_KEYWORD_OVERRIDE
 //-----------------------------------------------------------------------------
 // [10] USAGE EXAMPLE
@@ -1017,7 +1020,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -18,6 +18,7 @@ bdlb_indexspanstringutil
 bdlb_indexspanutil
 bdlb_nullableallocatedvalue
 bdlb_nullablevalue
+bdlb_nullopt
 bdlb_nulloutputiterator
 bdlb_numericparseutil
 bdlb_literalutil
