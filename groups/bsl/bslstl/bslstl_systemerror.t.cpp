@@ -28,7 +28,7 @@ using namespace bsl;
 // FREE OPERATORS:
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [36] USAGE EXAMPLE
+// [ 2] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION

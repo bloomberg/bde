@@ -8,7 +8,6 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide C++11-defined error classes and functions for C++03.
 //
 //@CLASSES:
-//  bsl::errc:                    C++03 version of std::errc
 //  bsl::error_category:          C++03 version of std::error_category
 //  bsl::error_code:              C++03 version of std::error_code
 //  bsl::error_condition:         C++03 version of std::error_condition
@@ -16,7 +15,7 @@ BSLS_IDENT("$Id: $")
 //  bsl::is_error_code_enum:      C++03 version of std::is_error_code_enum
 //  bsl::is_error_condition_enum: C++03 version of std::is_error_condition_enum
 //
-//@DESCRIPTION: This component defines seven classes ('bsl::errc',
+//@DESCRIPTION: This component defines an enumeration 'bsl::errc', six classes
 // 'bsl::error_category', 'bsl::error_code', 'bsl::error_condition',
 // 'bsl::system_error', 'bsl::is_error_code_enum', and
 // 'bsl::is_error_condition_enum'), four named functions
@@ -37,7 +36,10 @@ BSL_OVERRIDES_STD mode"
 #include <bslmf_enableif.h>
 #include <bslmf_integralconstant.h>
 
-#include <cerrno>
+#include <bsls_unspecifiedbool.h>
+
+#include <errno.h>
+
 #include <cstring>
 #include <functional>
 #include <ostream>
@@ -82,11 +84,11 @@ enum errc {
     // This enumeration provides named literals for the 'errno' values defined
     // in the '<cerrno>' header.
     //
-    // Note that in the C++11 standard, this is defined as an 'enum class', so
-    // that literals can be qualified with 'errc::' and objects of the type can
-    // be declared as 'errc'.  In C++03 mode, we cannot have both, and we have
-    // chosen in favor of allowing the literals to be qualified, so objects of
-    // the type must be declared as 'errc::errc'.
+    // Note that in the C++11 standard, 'errc' is defined as an 'enum class',
+    // so that literals can be qualified with 'errc::' and objects of the type
+    // can be declared as 'errc'.  In C++03 mode, we cannot have both, and we
+    // have chosen in favor of allowing the literals to be qualified, so
+    // objects of the type must be declared as 'errc::errc'.
 
     address_family_not_supported       = EAFNOSUPPORT,
     address_in_use                     = EADDRINUSE,
@@ -167,7 +169,7 @@ enum errc {
     value_too_large                    = EOVERFLOW,
     wrong_protocol_type                = EPROTOTYPE
 };
-};
+}  // close namespace errc
 
                        // -----------------------------
                        // class is_error_condition_enum
@@ -201,9 +203,6 @@ class error_category {
         // Destroy this object.
 
     // ACCESSORS
-    virtual const char *name() const = 0;
-        // Return the name of this error category.
-
     virtual error_condition default_error_condition(int value) const;
         // Return an 'error_condition' object initialized with the specified
         // 'value' and this object as the error category.
@@ -216,6 +215,9 @@ class error_category {
     virtual std::string message(int value) const = 0;
         // Return a string describing the error condition denoted by the
         // specified 'value'.
+
+    virtual const char *name() const = 0;
+        // Return the name of this error category.
 
     bool operator==(const error_category& other) const;
         // Return whether this object is the same as the specified 'other'.
@@ -245,9 +247,9 @@ class error_code {
         // Create an object of this type initialized with the specified 'value'
         // and 'category'.
 
-    template <class ErrorCodeEnum>
-    error_code(typename enable_if<is_error_code_enum<ErrorCodeEnum>::value,
-                                  ErrorCodeEnum>::type value);
+    template <class ERROR_CODE_ENUM>
+    error_code(typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
+                                  ERROR_CODE_ENUM>::type value);
         // Construct an object of this type initialized with the specified
         // 'value' and generic category.  Note that this constructor exists
         // only for those types designated as error codes via the
@@ -259,10 +261,10 @@ class error_code {
     void assign(int value, const error_category& category);
         // Set this object to hold the specified 'value' and 'category'.
 
-    template <class ErrorCodeEnum>
+    template <class ERROR_CODE_ENUM>
     error_code&
-    operator=(typename enable_if<is_error_code_enum<ErrorCodeEnum>::value,
-                                 ErrorCodeEnum>::type value);
+    operator=(typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
+                                 ERROR_CODE_ENUM>::type value);
         // Set this object to hold the specified 'value' and generic category.
         // Note that this operator exists only for those types designated as
         // error codes via the 'is_error_code_enum' trait template.  Note that
@@ -273,9 +275,6 @@ class error_code {
         // Set this object to hold the value 0 and the system category.
 
     // ACCESSORS
-    int value() const;
-        // Return the value held by this object.
-
     const error_category& category() const;
         // Return a 'const' reference to the category held by this object.
 
@@ -286,7 +285,10 @@ class error_code {
     std::string message() const;
         // Return a string describing this object.
 
-    operator bool() const;
+    int value() const;
+        // Return the value held by this object.
+
+    operator BloombergLP::bsls::UnspecifiedBool<error_code>::BoolType() const;
         // Return whether the value held by this object is non-zero.
 
   private:
@@ -312,10 +314,10 @@ class error_condition {
         // Create an object of this type initialized with the specified 'value'
         // and 'category'.
 
-    template <class ErrorConditionEnum>
-    error_condition(
-        typename enable_if<is_error_condition_enum<ErrorConditionEnum>::value,
-                           ErrorConditionEnum>::type value);
+    template <class ERROR_CONDITION_ENUM>
+    error_condition(typename enable_if<
+                    is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
+                    ERROR_CONDITION_ENUM>::type value);
         // Construct an object of this type initialized with the specified
         // 'value' and generic category.  Note that this constructor exists
         // only for those types designated as error conditions via the
@@ -325,10 +327,11 @@ class error_condition {
     void assign(int value, const error_category& category);
         // Set this object to hold the specified 'value' and 'category'.
 
-    template <class ErrorConditionEnum>
-    error_condition& operator=(
-        typename enable_if<is_error_condition_enum<ErrorConditionEnum>::value,
-                           ErrorConditionEnum>::type value);
+    template <class ERROR_CONDITION_ENUM>
+    error_condition&
+    operator=(typename enable_if<
+              is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
+              ERROR_CONDITION_ENUM>::type value);
         // Set this object to hold the specified 'value' and generic category.
         // Note that this operator exists only for those types designated as
         // error conditions via the 'is_error_condition_enum' trait template.
@@ -337,16 +340,17 @@ class error_condition {
         // Set this object to hold the value 0 and the generic category.
 
     // ACCESSORS
-    int value() const;
-        // Return the value held by this object.
-
     const error_category& category() const;
         // Return a 'const' reference to the category held by this object.
 
     std::string message() const;
         // Return a string describing this object.
 
-    operator bool() const;
+    int value() const;
+        // Return the value held by this object.
+
+    operator BloombergLP::bsls::UnspecifiedBool<error_condition>::BoolType()
+    const;
         // Return whether the value held by this object is non-zero.
 
   private:
@@ -366,7 +370,7 @@ class system_error : public std::runtime_error {
     // CREATORS
     system_error(error_code code, const std::string& what);
     system_error(error_code code, const char *what);
-    system_error(error_code code);
+    system_error(error_code code);                                  // IMPLICIT
         // Create an object of this type holding the specified 'code'.
         // Optionally specify a string 'what' to be added to the description of
         // this object.
@@ -374,8 +378,8 @@ class system_error : public std::runtime_error {
     system_error(int                   value,
                  const error_category& category,
                  const std::string&    what);
-    system_error(int code, const error_category& category, const char *what);
-    system_error(int code, const error_category& category);
+    system_error(int value, const error_category& category, const char *what);
+    system_error(int value, const error_category& category);
         // Create an object of this type holding an error code holding the
         // specified 'value' and 'category'.  Optionally specify a string
         // 'what' to be added to the description of this object.
@@ -385,6 +389,7 @@ class system_error : public std::runtime_error {
         // Return a 'const' reference to the error code held by this object.
 
   private:
+    // DATA
     error_code d_code;  // error code
 };
 
@@ -406,6 +411,7 @@ error_condition make_error_condition(errc::errc value);
 
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const error_code& object)
+    // Hash the specified 'object' using the specified 'hashAlg'.
 {
     using ::BloombergLP::bslh::hashAppend;
     hashAppend(hashAlg, static_cast<const void *>(&object.category()));
@@ -414,6 +420,7 @@ void hashAppend(HASHALG& hashAlg, const error_code& object)
 
 template <class HASHALG>
 void hashAppend(HASHALG& hashAlg, const error_condition& object)
+    // Hash the specified 'object' using the specified 'hashAlg'.
 {
     using ::BloombergLP::bslh::hashAppend;
     hashAppend(hashAlg, static_cast<const void *>(&object.category()));
@@ -425,13 +432,14 @@ bool operator==(const error_code& lhs, const error_code& rhs);
 bool operator==(const error_code& lhs, const error_condition& rhs);
 bool operator==(const error_condition& lhs, const error_code& rhs);
 bool operator==(const error_condition& lhs, const error_condition& rhs);
-    // Return whether the specfied 'lhs' and 'rhs' are equal or equivalent.
+    // Return whether the specified 'lhs' and 'rhs' are equal or equivalent.
 
 bool operator!=(const error_code&, const error_code&);
 bool operator!=(const error_code&, const error_condition&);
 bool operator!=(const error_condition&, const error_code&);
 bool operator!=(const error_condition&, const error_condition&);
-    // Return whether the specfied 'lhs' and 'rhs' are not equal or equivalent.
+    // Return whether the specified 'lhs' and 'rhs' are not equal or
+    // equivalent.
 
 bool operator<(const error_code& lhs, const error_code& rhs);
 bool operator<(const error_condition& lhs, const error_condition& rhs);
@@ -447,22 +455,22 @@ bool operator<(const error_condition& lhs, const error_condition& rhs);
                               // ----------------
 
 // CREATORS
-template <class ErrorCodeEnum>
+template <class ERROR_CODE_ENUM>
 inline
 error_code::error_code(
-    typename enable_if<is_error_code_enum<ErrorCodeEnum>::value,
-                       ErrorCodeEnum>::type value)
+                 typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
+                                    ERROR_CODE_ENUM>::type value)
 : d_value(make_error_code(value).value())
 , d_category_p(&make_error_code(value).category())
 {
 }
 
-template <class ErrorCodeEnum>
+template <class ERROR_CODE_ENUM>
 inline
 error_code&
 error_code::
-operator=(typename enable_if<is_error_code_enum<ErrorCodeEnum>::value,
-                             ErrorCodeEnum>::type value)
+operator=(typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
+                             ERROR_CODE_ENUM>::type value)
 {
     d_value = make_error_code(value).value();
     d_category_p = &make_error_code(value).category();
@@ -475,6 +483,7 @@ inline
 std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
                             std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
                             const error_code&                           code)
+    // Write the specified 'code' to 'stream'.
 {
     return stream << code.category().name() << ':' << code.value();
 }
@@ -484,22 +493,22 @@ std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
                            // ---------------------
 
 // CREATORS
-template <class ErrorConditionEnum>
+template <class ERROR_CONDITION_ENUM>
 inline
 error_condition::error_condition(
-    typename enable_if<is_error_condition_enum<ErrorConditionEnum>::value,
-                       ErrorConditionEnum>::type value)
+       typename enable_if<is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
+                          ERROR_CONDITION_ENUM>::type value)
 : d_value(make_error_condition(value).value())
 , d_category_p(&make_error_condition(value).category())
 {
 }
 
-template <class ErrorConditionEnum>
+template <class ERROR_CONDITION_ENUM>
 inline
 error_condition&
 error_condition::operator=(
-    typename enable_if<is_error_condition_enum<ErrorConditionEnum>::value,
-                       ErrorConditionEnum>::type value)
+       typename enable_if<is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
+                          ERROR_CONDITION_ENUM>::type value)
 {
     d_value = make_error_condition(value).value();
     d_category_p = &make_error_condition(value).category();

@@ -18,11 +18,6 @@ bsl::error_category::~error_category()
 }
 
 // ACCESSORS
-const char *bsl::error_category::name() const
-{
-    return "error_category";
-}
-
 bsl::error_condition bsl::error_category::default_error_condition(
                                                                int value) const
 {
@@ -44,6 +39,11 @@ bool bsl::error_category::equivalent(const error_code& code,
 std::string bsl::error_category::message(int value) const
 {
     return std::strerror(value);
+}
+
+const char *bsl::error_category::name() const
+{
+    return "error_category";
 }
 
 bool bsl::error_category::operator==(const error_category& other) const
@@ -92,11 +92,6 @@ void bsl::error_code::clear()
 }
 
 // ACCESSORS
-int bsl::error_code::value() const
-{
-    return d_value;
-}
-
 const bsl::error_category& bsl::error_code::category() const
 {
     return *d_category_p;
@@ -112,15 +107,21 @@ std::string bsl::error_code::message() const
     return category().message(value());
 }
 
-bsl::error_code::operator bool() const
+int bsl::error_code::value() const
 {
-    return 0 != value();
+    return d_value;
+}
+
+bsl::error_code::
+operator BloombergLP::bsls::UnspecifiedBool<error_code>::BoolType() const
+{
+    return BloombergLP::bsls::UnspecifiedBool<error_code>::makeValue(value());
 }
 
 // FREE FUNCTIONS
-bsl::error_code bsl::make_error_code(errc::errc code)
+bsl::error_code bsl::make_error_code(errc::errc value)
 {
-    return error_code(static_cast<int>(code), generic_category());
+    return error_code(static_cast<int>(value), generic_category());
 }
 
                            // ---------------------
@@ -155,11 +156,6 @@ void bsl::error_condition::clear()
 }
 
 // ACCESSORS
-int bsl::error_condition::value() const
-{
-    return d_value;
-}
-
 const bsl::error_category& bsl::error_condition::category() const
 {
     return *d_category_p;
@@ -170,15 +166,22 @@ std::string bsl::error_condition::message() const
     return category().message(value());
 }
 
-bsl::error_condition::operator bool() const
+int bsl::error_condition::value() const
 {
-    return 0 != value();
+    return d_value;
+}
+
+bsl::error_condition::
+operator BloombergLP::bsls::UnspecifiedBool<error_condition>::BoolType() const
+{
+    return BloombergLP::bsls::UnspecifiedBool<error_condition>::makeValue(
+        value());
 }
 
 // FREE FUNCTIONS
-bsl::error_condition bsl::make_error_condition(errc::errc code)
+bsl::error_condition bsl::make_error_condition(errc::errc value)
 {
-    return error_condition(static_cast<int>(code), generic_category());
+    return error_condition(static_cast<int>(value), generic_category());
 }
 
 // FREE OPERATORS
@@ -297,11 +300,11 @@ class generic_category_impl : public bsl::error_category {
     // The single object of this class represents the generic category.
 
     // ACCESSORS
-    const char *name() const;
-        // Return a string describing this category.
-
     std::string message(int value) const;
         // Return a string describing the specified 'value'.
+
+    const char *name() const;
+        // Return a string describing this category.
 };
 
                         // ---------------------------
@@ -309,14 +312,14 @@ class generic_category_impl : public bsl::error_category {
                         // ---------------------------
 
 // ACCESSORS
-const char *generic_category_impl::name() const
-{
-    return "generic";
-}
-
 std::string generic_category_impl::message(int value) const
 {
     return bsl::error_category::message(value);
+}
+
+const char *generic_category_impl::name() const
+{
+    return "generic";
 }
 
 }  // close unnamed namespace
@@ -338,22 +341,22 @@ class system_category_impl : public bsl::error_category {
     // The single object of this class represents the system category.
 
     // ACCESSORS
-    const char *name() const;
-        // Return a string describing this category.
-
     std::string message(int value) const;
         // Return a string describing the specified 'value'.
+
+    const char *name() const;
+        // Return a string describing this category.
 };
 
 // ACCESSORS
-const char *system_category_impl::name() const
-{
-    return "system";
-}
-
 std::string system_category_impl::message(int value) const
 {
     return bsl::error_category::message(value);
+}
+
+const char *system_category_impl::name() const
+{
+    return "system";
 }
 
 }  // close unnamed namespace
