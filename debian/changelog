@@ -1,9 +1,16 @@
-bsl-internal (3.20.0.0) unstable; urgency=low
+bsl-internal (3.21.0.0) unstable; urgency=low
 
+  * 1e9ee1b32 Bump version to 3.21.0
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 30 Jan 2019 10:53:22 -0500
+
+bsl-internal (3.20.0.0) git; urgency=low
+
+  * 0e4422892 Changelog for version 3.20.0.0
   * ce966b001 Bump version to 3.20.0
   * bd9a2e8a0 fixed versions where gcc declares nodiscard and maybe_unused available
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 28 Jan 2019 12:11:25 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 28 Jan 2019 12:29:26 -0500
 
 bsl-internal (3.19.0.0) git; urgency=low
 
