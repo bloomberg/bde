@@ -22,6 +22,142 @@ BSLS_IDENT("$Id: $")
 // ('bsl::generic_category', 'bsl::system_category', 'bsl::make_error_code',
 // and 'bsl::make_error_condition'), and a variety of operators that provide
 // implementations of the C++11 'system_error' facility in C++03 mode.
+//
+///Usage
+///-----
+// In this section we show intended use of this component.
+//
+///Example 1: Dedicated Error Category
+///- - - - - - - - - - - - - - - - - -
+// Suppose we have a dedicated system with a set of possible errors, and we
+// want to be able to throw descriptive exceptions when an error occurs.  We
+// can use the 'system_error' capabilities of the C++ standard for this.
+//
+// First, we define the set of error codes for our system.
+//..
+// namespace car_errc {
+// enum car_errc {
+//     car_wheels_came_off = 1,
+//     car_engine_fell_out = 2
+// };
+// }  // close namespace car_errc
+//..
+// Then, we enable the trait marking this as an error code.
+//..
+// namespace bsl {
+// template <>
+// struct is_error_code_enum<car_errc::car_errc> : public true_type {
+// };
+// }  // close namespace bsl
+//..
+// Next, we create an error category that will give us descriptive messages.
+//..
+// namespace {
+// struct car_category_impl : public bsl::error_category {
+//     // ACCESSORS
+//     std::string message(int value) const;
+//         // Return a string describing the specified 'value'.
+//
+//     const char *name() const;
+//         // Return a string describing this error category.
+// };
+//
+//  // ACCESSORS
+//  std::string car_category_impl::message(int value) const {
+//      switch (value) {
+//        case car_errc::car_wheels_came_off: return "The wheels came off";
+//        case car_errc::car_engine_fell_out: return "The engine fell out";
+//        default:                            return "Some car problem";
+//      }
+//  }
+//
+//  const char *car_category_impl::name() const {
+//      return "car_category";
+//  }
+//  }  // close unnamed namespace
+//..
+// Then, we define functions to get our unique category object, and to make
+// error codes and error conditions from our enumeration values.
+//..
+//  const error_category& car_category()
+//      // Return a 'const' reference to the unique car category object.
+//  {
+//      static car_category_impl car_category_object;
+//      return car_category_object;
+//  }
+//
+//  bsl::error_code make_error_code(car_errc::car_errc value)
+//      // Return a car category error code of the specified 'value'.
+//  {
+//      return bsl::error_code(static_cast<int>(value), car_category());
+//  }
+//
+//  bsl::error_condition make_error_condition(car_errc::car_errc value)
+//      // Return a car category error condition of the specified 'value'.
+//  {
+//      return bsl::error_condition(static_cast<int>(value), car_category());
+//  }
+//..
+// Now, we define an exception class for exceptions of our category.
+//..
+//  class car_error : public std::runtime_error {
+//    public:
+//      // CREATORS
+//      car_error(car_errc::car_errc value);                        // IMPLICIT
+//      car_error(car_errc::car_errc value, const std::string& what);
+//          // Create an object of this type holding the specified 'value'.
+//          // Optionally specify 'what' as extra annotation.
+//
+//      // ACCESSORS
+//      const error_code& code() const;
+//          // Return a 'const' reference to the error code of this object.
+//
+//    private:
+//      bsl::error_code d_code;  // error code
+//  };
+//
+//  // CREATORS
+//  car_error::car_error(car_errc::car_errc value)
+//  : std::runtime_error(car_category().message(value))
+//  , d_code(make_error_code(value))
+//  {
+//  }
+//
+//  car_error::car_error(car_errc::car_errc value, const std::string& what)
+//  : std::runtime_error(what + ": " + car_category().message(value))
+//  , d_code(make_error_code(value))
+//  {
+//  }
+//
+//  // ACCESSORS
+//  const bsl::error_code& car_error::code() const
+//  {
+//      return d_code;
+//  }
+//..
+// Finally, we can throw, catch, and examine these exceptions.
+//..
+//  try {
+//      throw car_error(car_errc::car_engine_fell_out, "testing car_errc");
+//  }
+//  catch (const std::runtime_error& e) {
+//      if (verbose) {
+//          P(e.what());
+//      }
+//      ASSERT(strstr(e.what(), "testing car_errc"));
+//      ASSERT(strstr(e.what(), "The engine fell out"));
+//      try {
+//          throw;
+//      }
+//      catch (const car_error& e) {
+//          if (verbose) {
+//              P_(e.code().category().name()) P(e.code().value())
+//          }
+//          ASSERT(car_errc::car_engine_fell_out == e.code().value());
+//          ASSERT(car_category() == e.code().category());
+//      }
+//  }
+//..
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
