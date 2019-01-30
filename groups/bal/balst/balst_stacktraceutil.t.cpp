@@ -39,6 +39,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_functional.h>
+#include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -482,12 +483,40 @@ void testStackTrace(const balst::StackTrace& st, int tolerateMisses = 0)
 
 namespace MANY_COMPONENTS_TEST_CASE {
 
+struct Passed {
+    // DATA
+    bool d_symbolPresent;
+    bool d_mangledSymbolGood;
+    bool d_symbolGood;
+    bool d_line;
+    bool d_fullPath;
+    bool d_sourceFileName;
+
+    // CREATOR
+    Passed()
+    : d_symbolPresent(false)
+    , d_symbolGood(false)
+    , d_mangledSymbolGood(false)
+    , d_line(false)
+    , d_fullPath(false)
+    , d_sourceFileName(false)
+    {}
+};
+
+
  struct Data {
-    int         d_line;
-    void       *d_funcPtr;
-    const char *d_demangledName;
-    const char *d_mangledSearch;
-    const char *d_sourceName;
+    // DATA
+    int             d_line;
+    void           *d_funcPtr;
+    const char     *d_demangledName;
+    const char     *d_mangledSearch;
+    const char     *d_sourceName;
+    mutable Passed  d_passed;
+
+    // CREATOR
+    Data()
+    : d_passed()
+    {}
 };
 
 template <class TYPE>
@@ -515,9 +544,20 @@ void pushVec(bsl::vector<Data> *dst,
 
     void *& ptr = data.d_funcPtr;
     UintPtr uPtr, *uPtr_p;
-    if (PLAT_WIN) {
-        enum { k_DIM = sizeof(funcPtr) / sizeof(void *) };
 
+    enum { k_DIM = sizeof(funcPtr) / sizeof(void *) };
+    BSLS_ASSERT(k_DIM * sizeof(void *) == sizeof(funcPtr));
+
+    if (!e_BIG_ENDIAN || sizeof(void *) == sizeof(funcPtr)) {
+        if (FORMAT_XCOFF) {
+            bsl::memcpy(&uPtr_p, &funcPtr, sizeof(void *));
+            uPtr = *uPtr_p;
+        }
+        else {
+            bsl::memcpy(&uPtr, &funcPtr, sizeof(void *));
+        }
+    }
+    else if (PLAT_WIN) {
         UintPtr uPtrs[k_DIM];
         ASSERT(sizeof(uPtrs) == sizeof(funcPtr));
         bsl::memcpy(uPtrs, &funcPtr, sizeof(uPtrs));
@@ -530,15 +570,6 @@ void pushVec(bsl::vector<Data> *dst,
                 cout << " 0x" << (void *) uPtrs[ii];
             }
             cout << endl;
-        }
-    }
-    if (!e_BIG_ENDIAN || sizeof(void *) == sizeof(funcPtr)) {
-        if (FORMAT_XCOFF) {
-            bsl::memcpy(&uPtr_p, &funcPtr, sizeof(void *));
-            uPtr = *uPtr_p;
-        }
-        else {
-            bsl::memcpy(&uPtr, &funcPtr, sizeof(void *));
         }
     }
     else if (FORMAT_XCOFF) {
@@ -1997,7 +2028,24 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING: Stack Trace With Many Components\n"
                              "=========================================\n";
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS) && BSLS_PLATFORM_CMP_VERSION < 2000
+        // The Windows resolver can't resolve function ptrs taken via
+        // '&<symbolName>'.  It seems to work just fine on ptrs harvested
+        // via a stack walkback, just not on function ptrs.  Perhaps when we
+        // get to the version after MSVC 2017 (cl-19.10) it will start to work
+        // out.
+        //
+        // I experimented with taking pointers from the location pointed at by
+        // the '&<symbolName' pointers, and from locations at various offsets
+        // from that, but that resulted in complete failure.
+
+        cout << "Test 14 Disabled on Windows up through MSVC 2017.\n";
+#else
+        cout << BSLS_PLATFORM_CMP_VERSION << endl;
+
         namespace TC = MANY_COMPONENTS_TEST_CASE;
+
+        const bsl::size_t npos = bsl::string::npos;
 
         bslma::TestAllocator ta;
         bsl::vector<TC::Data> v(&ta);
@@ -2074,21 +2122,14 @@ int main(int argc, char *argv[])
             const char                    *expMangled = D.d_mangledSearch;
             const char                    *sourceName = D.d_sourceName;
             const balst::StackTraceFrame&  frame      = st[ii];
+            TC::Passed&                    passed     = D.d_passed;
 
             const int startTestStatus = testStatus;
-
-            if (!frame.isSymbolNameKnown()) {
-                if (veryVerbose) {
-                    cout << "Unresolved symbol: "; P(LINE);
-                }
-                ++numFailed;
-                continue;                                           // CONTINUE
-            }
 
             if (FORMAT_XCOFF) {
                 bsl::size_t pos = expName.rfind("(");
                 pos = expName.rfind("::", pos);
-                ASSERT(bsl::string::npos != pos);
+                ASSERT(npos != pos);
                 ASSERT(':' == expName[pos]);
                 expName.insert(pos + 2, 1, '.');
             }
@@ -2097,72 +2138,60 @@ int main(int argc, char *argv[])
                 expName.resize(pos);
             }
 
-            // Search for enterprise namespace to get past func return type.
+            BSLS_ASSERT(npos != expName.find("BloombergLP"));
+            BSLS_ASSERT(!expName.empty());
+            BSLS_ASSERT(sourceName);
 
-            const bool blp = bsl::string::npos != expName.find("BloombergLP");
-            const char *name = blp ? bsl::strstr(frame.symbolName().c_str(),
-                                                 "BloombergLP")
-                                   : frame.symbolName().c_str();
-            ASSERTV(LINE, expName, frame.symbolName().c_str(), name);
-            if (expName.empty()) {
-                ASSERTV(LINE, expMangled, name, bsl::strstr(name, expMangled));
-            }
-            else {
-                ASSERTV(LINE, expName, name,
-                                          0 == bsl::strncmp(expName.c_str(),
-                                                            name,
-                                                            expName.length()));
-            }
+            // Search for space before '(' to 
+
+            ASSERTV(LINE, expName, (passed.d_symbolPresent =
+                                                 !frame.symbolName().empty()));
+
+            bsl::size_t pos = frame.symbolName().rfind('(');
+            pos = frame.symbolName().rfind(' ', pos);
+            pos = npos == pos ? 0 : pos + 1;
+            BSLS_ASSERT(pos <= frame.symbolName().length());
+
+            const char *name = &frame.symbolName()[pos];
+            ASSERTV(LINE, expName, name, (passed.d_symbolGood =
+                                         0 == bsl::strncmp(expName.c_str(),
+                                                           name,
+                                                           expName.length())));
 
             const char * const mangledName = frame.mangledSymbolName().c_str();
-            ASSERTV(LINE, mangledName, !blp ||
-                                       bsl::strstr(mangledName,"BloombergLP"));
             ASSERTV(LINE, mangledName, expMangled,
-                                         bsl::strstr(mangledName, expMangled));
+                                       (passed.d_mangledSymbolGood =
+                       npos != frame.mangledSymbolName().find("BloombergLP")));
+            ASSERTV(LINE, mangledName, expMangled,
+                                       (passed.d_mangledSymbolGood &=
+                       npos != frame.mangledSymbolName().find(expMangled)));
 
             if (DEBUG_ON && (!FORMAT_ELF || FORMAT_DWARF) && !FORMAT_DLADDR) {
-                ASSERTV(LINE, expName, !sourceName ||
-                                                frame.isSourceFileNameKnown());
+                ASSERTV(LINE, expName, (passed.d_sourceFileName =
+                                               frame.isSourceFileNameKnown()));
                 if (frame.isSourceFileNameKnown()) {
-                    if (sourceName) {
-                        ASSERTV(LINE, frame.sourceFileName(), sourceName,
-                                    bsl::strstr(frame.sourceFileName().c_str(),
-                                                                  sourceName));
+                    ASSERTV(LINE, frame.sourceFileName(), sourceName,
+                                       (passed.d_sourceFileName &=
+                             npos != frame.sourceFileName().find(sourceName)));
 
-                        TC::expandPath(&path, sourceName);
-                        const char *foundName = bsl::strstr(
-                                 frame.sourceFileName().c_str(), path.c_str());
-                        ASSERTV(LINE, expName, frame.sourceFileName(),
-                                                               path,foundName);
-                        if (foundName) {
-                            ASSERTV(LINE, path, foundName,
-                                        !bsl::strcmp(path.c_str(), foundName));
-                        }
-                    }
+                    const bool fullPath = PLAT_WIN
+                                         ? 3 <= frame.sourceFileName().length()
+                                           && ':'  == frame.sourceFileName()[1]
+                                           && '\\' == frame.sourceFileName()[2]
+                                         : '/' == frame.sourceFileName()[0];
 
-                    ASSERTV(expName, frame.sourceFileName(),
-                                   fileExists(frame.sourceFileName().c_str()));
+                    TC::expandPath(&path, sourceName);
+                    ASSERTV(LINE, frame.sourceFileName(), path, fullPath,
+                                       (passed.d_sourceFileName &=
+                                   npos != frame.sourceFileName().find(path)));
+
+                    ASSERTV(expName, frame.sourceFileName(), fullPath,
+                                  (passed.d_fullPath = fullPath &&
+                                  fileExists(frame.sourceFileName().c_str())));
                 }
 
                 ASSERTV(LINE, expName, frame.lineNumber(),
-                                                      frame.lineNumber() > 10);
-
-                if (veryVerbose) {
-                    bsl::string basename(&ta);
-                    bdls::PathUtil::getBasename(&basename,
-                                                frame.sourceFileName());
-
-                    if (veryVeryVerbose) {
-                        cout << "SymbolName-file:line: " << name << '-' <<
-                                               frame.sourceFileName() << ':' <<
-                                                    frame.lineNumber() << endl;
-                    }
-                    else {
-                        cout << "ExpSymbol-file:line: " << expMangled <<
-                                '-' << basename << ':' << frame.lineNumber() <<
-                                                                          endl;
-                    }
-                }
+                                    (passed.d_line = frame.lineNumber() > 10));
             }
             else {
                 static bool firstTime = true;
@@ -2172,12 +2201,13 @@ int main(int argc, char *argv[])
                 }
             }
 
-            const bool passed = startTestStatus == testStatus;
-            numPassed += passed;
-            numFailed += !passed;
+            bool thisPassed = startTestStatus == testStatus;
+            numPassed += thisPassed;
+            numFailed += !thisPassed;
 
             if (veryVerbose) {
-                cout << expName << ' ' << (passed ? "passed\n" : "failed\n");
+                cout << expName << ' ' << (thisPassed ? "passed\n" :
+                                                        "failed\n");
             }
         }
 
@@ -2185,8 +2215,30 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             cout << "Totals: " << numPassed << " passed " << numFailed <<
-                                                                  " failed\n.";
+                                                                  " failed.\n";
+
+            for (unsigned ii = 0; ii < v.size(); ++ii) {
+                const balst::StackTraceFrame& frame  = st[ii];
+                const TC::Passed&             passed = v[ii].d_passed;
+
+                const char slash = static_cast<char>(PLAT_WIN ? '\\' : '/');
+                bsl::size_t b = frame.sourceFileName().rfind(slash);
+                b = npos == b ? 0 : b;
+                const char *baseName = frame.sourceFileName().c_str() + b + 1;
+
+                cout << '(' << bsl::setw(2) << ii << "): " <<
+                        "sp("    << int(passed.d_symbolPresent) <<
+                        ") msg(" << int(passed.d_mangledSymbolGood) <<
+                        ") sg("  << int(passed.d_symbolGood) <<
+                        ") sfn(" << int(passed.d_sourceFileName) <<
+                        ") fp("  << int(passed.d_fullPath) <<
+                        ") l("   << int(passed.d_line) << ")  " <<
+                        frame.symbolName() <<
+                        ' ' << baseName << ':' <<
+                        frame.lineNumber() << endl;
+            }
         }
+#endif
       } break;
       case 13: {
         // --------------------------------------------------------------------
