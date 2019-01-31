@@ -8,6 +8,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_objectbuffer.h>
 #include <bsls_review.h>
 
 #include <bsl_cstdlib.h>
@@ -88,13 +89,126 @@ void aSsErT(bool condition, const char *message, int line)
 // BDE_VERIFY pragma: -FD01   // Function contracts replaced by expository text
 // BDE_VERIFY pragma: -FD03   // Function contracts replaced by expository text
 
+namespace test_case_1 {
 ///Usage
 ///-----
 // In this section we show intended use of this component.
 //
 ///Example 1: ...
 /// - - - - - - -
+// Suppose we are implementing a type that has an optional null (empty) state,
+// such as 'NullableValue'.  First we declare the class template.
+//..
+    namespace xyza {
+    template <class TYPE>
+    class NullableValue {
+        // This class can hold a value of (the template parameter) 'TYPE' or be
+        // in an empty "null" state.
+//..
+// Then, we privide a buffer than can be uninitialized or hold a valid object,
+// and a 'bool' variable to indicate whether an object is stored in the buffer.
+//..
+        bsls::ObjectBuffer<TYPE> d_value;
+        bool                     d_isNull;
+//..
+// Then, we provide a constructor that makes a copy of an argument of the given
+// 'TYPE'.
+//..
+      public:
+        // CREATORS
+        explicit NullableValue(const TYPE& value);
+            // Create an object having the specified 'value'.
+//..
+// Next, we provide an implicit constructor using 'bdlb::NullOptType' to allow
+// our users to explicitly create a nullable object in the null state.
+//..
+        NullableValue(bdlb::NullOptType);                           // IMPLICIT
+            // Create a null object.  Note that the passed argument is used
+            // only to select this constructor overload, the actual value is
+            // not used.
+//..
+// Then we provide accessors to indicate whether the object is in the null
+// state, and to return the wrapped value if one is avaialble.
+//..
+        // ACCESSORS
+        const TYPE& getValue() const;
+            // Return a reference to the non-modifiable object held by this
+            // 'NullableValue'.  The behavior is undefined if this object is
+            // null.
 
+        bool isNull() const;
+            // Return 'false' if this object holds a value, and 'true'
+            // otherwise.  Note that a 'NullableValue' that does not hold an
+            // object is said to be "null".
+    };
+
+    }  // close namespace xyza
+//..
+// Now we can write a function that consumes a nullable value.
+//..
+    namespace xyzb {
+
+    struct Utility {
+        static int unwrap(const xyza::NullableValue<int>& optionalValue);
+            // Return the value of the specified 'optionalValue' if it holds a
+            // value; otherwise, return 0.
+    };
+
+    int Utility::unwrap(const xyza::NullableValue<int>& optionalValue) {
+        if (optionalValue.isNull()) {
+            return 0;                                                 // RETURN
+        }
+
+        return optionalValue.getValue();
+    }
+
+    }  // close namespace xyzb
+//..
+// Finally, our clients can call 'xyza::Utility::unwrap' with either a nullable
+// value of their own, or with 'bdlb::nullOpt' to indicate a null object.
+//..
+    int xyz_main() {
+        return xyzb::Utility::unwrap(bdlb::nullOpt);
+    }
+//..
+
+// Implementation details elided from the example
+
+namespace xyza {
+
+template <class TYPE>
+inline
+NullableValue<TYPE>::NullableValue(const TYPE& value)
+: d_value()
+, d_isNull(false)
+{
+    new(d_value.address()) TYPE(value);
+}
+
+template <class TYPE>
+inline
+NullableValue<TYPE>::NullableValue(bdlb::NullOptType)
+: d_value()
+, d_isNull(true)
+{
+}
+
+template <class TYPE>
+inline
+const TYPE& NullableValue<TYPE>::getValue() const {
+    return d_value.object();
+}
+
+template <class TYPE>
+inline
+bool  NullableValue<TYPE>::isNull() const {
+    return d_isNull;
+}
+
+}  // close namespace xyza
+
+
+}  // close namespace test_case_1
 // BDE_VERIFY pragma: pop  // end of usage example-example relaxed rules
 
 //=============================================================================
@@ -142,7 +256,7 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-        // Pending...
+        ASSERT(0 == test_case_1::xyz_main());
 
       } break;
       case 1: {
