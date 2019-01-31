@@ -495,8 +495,8 @@ struct Passed {
     // CREATOR
     Passed()
     : d_symbolPresent(false)
-    , d_symbolGood(false)
     , d_mangledSymbolGood(false)
+    , d_symbolGood(false)
     , d_line(false)
     , d_fullPath(false)
     , d_sourceFileName(false)
@@ -2029,19 +2029,26 @@ int main(int argc, char *argv[])
                              "=========================================\n";
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && BSLS_PLATFORM_CMP_VERSION < 2000
-        // The Windows resolver can't resolve function ptrs taken via
-        // '&<symbolName>'.  It seems to work just fine on ptrs harvested
-        // via a stack walkback, just not on function ptrs.  Perhaps when we
-        // get to the version after MSVC 2017 (cl-19.10) it will start to work
-        // out.
-        //
-        // I experimented with taking pointers from the location pointed at by
-        // the '&<symbolName' pointers, and from locations at various offsets
-        // from that, but that resulted in complete failure.
-
-        cout << "Test 14 Disabled on Windows up through MSVC 2017.\n";
+        enum { e_BAD = true };
 #else
-        cout << BSLS_PLATFORM_CMP_VERSION << endl;
+        enum { e_BAD = false };
+#endif
+
+        if (e_BAD && (!verbose || bsl::strcmp(argv[2], "override"))) {
+            // The Windows resolver can't resolve function ptrs taken via
+            // '&<symbolName>'.  It seems to work just fine on ptrs harvested
+            // via a stack walkback, just not on function ptrs.  Perhaps when
+            // we get to the version after MSVC 2017 (cl-19.10) it will start
+            // to work out.
+            //
+            // I experimented with taking pointers from the location pointed at
+            // by the '&<symbolName>' pointers, and from locations at various
+            // offsets from that, but that resulted in complete failure.
+
+            cout << "Test 14 Disabled on Windows up through MSVC 2017.\n";
+            cout << "Run $0 " << test << " override\" to override and run.\n";
+            break;
+        }
 
         namespace TC = MANY_COMPONENTS_TEST_CASE;
 
@@ -2142,13 +2149,13 @@ int main(int argc, char *argv[])
             BSLS_ASSERT(!expName.empty());
             BSLS_ASSERT(sourceName);
 
-            // Search for space before '(' to 
-
             ASSERTV(LINE, expName, (passed.d_symbolPresent =
                                                  !frame.symbolName().empty()));
 
+            // Search for char delimiting between return value and func name.
+
             bsl::size_t pos = frame.symbolName().rfind('(');
-            pos = frame.symbolName().rfind(' ', pos);
+            pos = frame.symbolName().find_last_of(" *&", pos);
             pos = npos == pos ? 0 : pos + 1;
             BSLS_ASSERT(pos <= frame.symbolName().length());
 
@@ -2197,7 +2204,8 @@ int main(int argc, char *argv[])
                 static bool firstTime = true;
                 if (firstTime) {
                     firstTime = false;
-                    cout << "Line number test skipped\n" << endl;
+                    cout << "Line number / source file name test skipped"
+                                                        " on this platform.\n";
                 }
             }
 
@@ -2238,7 +2246,6 @@ int main(int argc, char *argv[])
                         frame.lineNumber() << endl;
             }
         }
-#endif
       } break;
       case 13: {
         // --------------------------------------------------------------------
