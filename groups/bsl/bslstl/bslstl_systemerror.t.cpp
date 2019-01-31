@@ -48,16 +48,16 @@ using namespace bsl;
 // [ 4] std::ostream& operator<<(std::ostream&, const error_code&)
 //
 // ERROR CATEGORY METHODS
-// [  ] error_category()
-// [  ] ~error_category()
-// [  ] error_condition default_error_condition(int)
-// [  ] bool equivalent(int, const error_condition&) const
-// [  ] bool equivalent(const error_code&, int) const
-// [  ] std::string message(int) const
-// [  ] const char *name() const
-// [  ] bool operator==(const error_category&) const
-// [  ] bool operator!=(const error_category&) const
-// [  ] bool operator<(const error_category&) const
+// [ 5] error_category()
+// [ 5] ~error_category()
+// [ 5] error_condition default_error_condition(int)
+// [ 5] bool equivalent(int, const error_condition&) const
+// [ 5] bool equivalent(const error_code&, int) const
+// [ 5] std::string message(int) const
+// [ 5] const char *name() const
+// [ 5] bool operator==(const error_category&) const
+// [ 5] bool operator!=(const error_category&) const
+// [ 5] bool operator<(const error_category&) const
 //
 // ERROR CODE METHODS
 // [  ] error_code()
@@ -329,6 +329,244 @@ int main(int argc, char *argv[])
     }
 //..
       } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING ERROR CATEGORY METHODS
+        //   Test the metthods of the 'bsl::error_caegory' class.
+        //
+        // Concerns:
+        //: 1 This class is abstract, so testing methods can only be done via
+        //:   a derived class.
+        //:
+        //: 2 Verify that this class has a default constructor.
+        //:
+        //: 3 Verify that this class has a virtual destructor.
+        //:
+        //: 4 Verify that 'default_error_condition' is virtual and that the
+        //:   default implementation creates an error condition using the
+        //:   object as category.
+        //:
+        //: 5 Verify that the 'equivalent' methods are virtual and that the
+        //:   default implementations match values correctly.
+        //:
+        //: 6 Verify that the 'message' method is virtual and that the default
+        //:   implementation uses 'strerror' to translate an error value.
+        //:
+        //: 7 Verify that the 'name' method is virtual and that there is a
+        //:   default implementation.
+        //:
+        //: 8 Verify that comparison operations form a total order on category
+        //:   objects.
+        //
+        // Plan:
+        //: 1 Create a concrete derived class that throws from its abstract
+        //:   method overrides, to serve as a base for further testing.  (C-1)
+        //:
+        //: 2 Have no user-defined constructors in the concrete class to show
+        //:   that the base-class default constructor is invoked.  (C-2)
+        //:
+        //: 3 Create a derived class that sets a valraible in its destructor,
+        //:   allocate an object of that class, delete it via a pointer to
+        //:   'error_category', and observe that the variable is set.  (C-3)
+        //:
+        //: 4 Create a derived class that invokes 'default_error_condition' of
+        //:   'error_category' with a modified parameter, and observe that the
+        //:   result has the same category as the invoking object and the
+        //:   modified value.  (C-4)
+        //:
+        //: 5 Create error code and condition objects with the concrete class
+        //:   as category and observe that the equivalence values are correct.
+        //:   Then define a derived class with different rules for equivalence
+        //:   and observe that those rules are followed when invoked from base
+        //:   references.  (C-5)
+        //:
+        //: 6 Create a derived class with a 'message' method that invokes the
+        //:   'error_category' method and prepends extra text.  Observe that
+        //:   the result via invocation from a base reference contains both of
+        //:   the expected texts.  (C-6)
+        //:
+        //: 7 Create a derived class that overrides the 'name' method and
+        //:   observe the valu ereturned when invoked from a base class
+        //:   reference.  (C-7)
+        //:
+        //: 8 Create an array of two of the concrete objects, initialize base
+        //:   references to the two objects, and verify that the comparisons
+        //:   return values consistent with the array ordering.  (C-8)
+        //
+        // Testing:
+        // [ 5] error_category()
+        // [ 5] ~error_category()
+        // [ 5] error_condition default_error_condition(int)
+        // [ 5] bool equivalent(int, const error_condition&) const
+        // [ 5] bool equivalent(const error_code&, int) const
+        // [ 5] std::string message(int) const
+        // [ 5] const char *name() const
+        // [ 5] bool operator==(const error_category&) const
+        // [ 5] bool operator!=(const error_category&) const
+        // [ 5] bool operator<(const error_category&) const
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING ERROR CATEGORY METHODS"
+                   "\n==============================\n");
+
+        struct concrete_error_category : public error_category {
+            std::string message(int) const { throw 0; }
+            const char *name() const { throw 0; }
+        };
+
+        if (veryVerbose) {
+            printf("default constructor\n");
+        }
+        {
+            concrete_error_category mX;
+        }
+
+        if (veryVerbose) {
+            printf("virtual destructor\n");
+        }
+        {
+            static bool destructor_called;
+            {
+                struct test_error_category : concrete_error_category {
+                    ~test_error_category() { destructor_called = true; }
+                };
+                test_error_category *pmX = new test_error_category;
+                error_category *pX = pmX;
+                destructor_called = false;
+                delete pX;
+            }
+            ASSERT(destructor_called);
+        }
+
+        if (veryVerbose) {
+            printf("default_error_condition\n");
+        }
+        {
+            struct test_error_category : concrete_error_category {
+                error_condition default_error_condition(int value) const {
+                    return error_category::default_error_condition(value + 1);
+                }
+            };
+            test_error_category mX;
+            error_category &X = mX;
+            ASSERT(3 == X.default_error_condition(2).value());
+            ASSERT(&mX == &X.default_error_condition(2).category());
+        }
+
+        if (veryVerbose) {
+            printf("equivalent\n");
+        }
+        {
+            struct test_error_category : concrete_error_category {
+                bool equivalent(int code, const error_condition&) const {
+                    return code == 3;
+                }
+                bool equivalent(const error_code&, int condition) const {
+                    return condition == 2;
+                }
+            };
+            {
+                if (veryVerbose) {
+                    printf("\tbase implementation\n");
+                }
+
+                if (veryVerbose) {
+                    printf("\t\tsame categories\n");
+                }
+                concrete_error_category mX;
+                error_category &X = mX;
+                ASSERT(!X.equivalent(2, X.default_error_condition(3)));
+                ASSERT( X.equivalent(2, X.default_error_condition(2)));
+                ASSERT(!X.equivalent(error_code(2, X), 3));
+                ASSERT( X.equivalent(error_code(2, X), 2));
+
+                if (veryVerbose) {
+                    printf("\t\tdifferent categories\n");
+                }
+                concrete_error_category mY;
+                error_category &Y = mY;
+                ASSERT(!X.equivalent(2, Y.default_error_condition(2)));
+                ASSERT(!X.equivalent(error_code(2, Y), 2));
+            }
+            {
+                if (veryVerbose) {
+                    printf("\toverridden implementation\n");
+                }
+
+                if (veryVerbose) {
+                    printf("\t\tsame categories\n");
+                }
+                test_error_category mX;
+                error_category &X = mX;
+                ASSERT(!X.equivalent(2, X.default_error_condition(3)));
+                ASSERT( X.equivalent(3, X.default_error_condition(2)));
+                ASSERT(!X.equivalent(error_code(2, X), 3));
+                ASSERT( X.equivalent(error_code(2, X), 2));
+
+                if (veryVerbose) {
+                    printf("\t\tdifferent categories\n");
+                }
+                concrete_error_category mY;
+                error_category &Y = mY;
+                ASSERT(X.equivalent(3, Y.default_error_condition(2)));
+                ASSERT(X.equivalent(error_code(2, Y), 2));
+            }
+        }
+
+        if (veryVerbose) {
+            printf("message\n");
+        }
+        {
+            struct test_error_category : concrete_error_category {
+                std::string message(int value) const {
+                    return "M: " + error_category::message(value);
+                }
+            };
+            test_error_category mX;
+            error_category &X = mX;
+            ASSERT(strstr(X.message(errc::no_link).data(), "M: "));
+            ASSERT(strstr(X.message(errc::no_link).data(), strerror(ENOLINK)));
+        }
+
+        if (veryVerbose) {
+            printf("name\n");
+        }
+        {
+            struct test_error_category : concrete_error_category {
+                const char *name() const {
+                    return "test_error_category";
+                }
+            };
+            test_error_category mX;
+            error_category &X = mX;
+            ASSERT(0 == strcmp("test_error_category", X.name()));
+        }
+
+        if (veryVerbose) {
+            printf("comparison operators\n");
+        }
+        {
+            concrete_error_category mX[2];
+            error_category &X1 = mX[0];
+            error_category &X2 = mX[1];
+
+            ASSERT(X1 == X1);
+            ASSERT(X2 == X2);
+            ASSERT(!(X1 == X2));
+            ASSERT(!(X2 == X1));
+
+            ASSERT(!(X1 != X1));
+            ASSERT(!(X2 != X2));
+            ASSERT(X1 != X2);
+            ASSERT(X2 != X1);
+
+            ASSERT(!(X1 < X1));
+            ASSERT(!(X2 < X2));
+            ASSERT(X1 < X2);
+            ASSERT(!(X2 < X1));
+        }
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING FREE COMPARISON OPERATORS
@@ -367,7 +605,7 @@ int main(int argc, char *argv[])
         //: 5 Verify that the ordering among conditions matches the ordering
         //:   among categories and values.  (C-5)
         //
-        // Testing
+        // Testing:
         //   bool operator==(const error_code&, const error_code&)
         //   bool operator==(const error_code&, const error_condition&)
         //   bool operator==(const error_condition&, const error_code&)
