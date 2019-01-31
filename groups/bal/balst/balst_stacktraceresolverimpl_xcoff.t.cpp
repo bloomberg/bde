@@ -205,14 +205,6 @@ bool safeCmp(const char *a, const char *b, int len = -1)
     return -1 == len ? !bsl::strcmp(a, b) : !bsl::strncmp(a, b, len);
 }
 
-static
-const char *ng(const char *str)
-    // null guard -- substitute "(null)" for the specified 'str' if 'str' is
-    // null.
-{
-    return str ? str : "(null)";
-}
-
 // knuth random number generator
 
 static bsls::Types::Uint64 bigRandSeed = 0;
@@ -225,7 +217,7 @@ UintPtr bigRand()
     typedef bsls::Types::Uint64 Uint64;
 
     Uint64 next = randA * bigRandSeed + randC;
-    UintPtr lowBits = next >> 32;
+    UintPtr lowBits = static_cast<UintPtr>(next >> 32);
     bigRandSeed = randA * next + randC;
 
     return (UintPtr) bigRandSeed ^ lowBits;
