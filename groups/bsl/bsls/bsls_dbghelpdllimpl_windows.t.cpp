@@ -64,16 +64,19 @@ typedef bsls::Types::UintPtr UintPtr;
 
 enum { FIRST_LINE = __LINE__ };
 
-#if  (BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000)
-enum { e_SOURCE = false };
-#else
-enum { e_SOURCE = true };
-#endif
-
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+// These are the only two functions that we take pointers to in this test
+// driver.  In both cases, they are static, because on Windows taking a
+// function pointer to a global function yields a pointer to some as yet
+// undeciphered strange linkage object, and resolving that pointer doesn't
+// work properly.  Resolving pointers obtained from a stack walk back does
+// work properly, which is confirmed in the balst test drivers, particularly
+// balst_stacktraceutil.t.cpp.
+
+static
 void *testFunction()
     // The function just returns a pointer into itself, cast to an unsigned int
     // but only after putting it through a transform that the optimizer can't
@@ -100,6 +103,12 @@ void *testFunction()
 }
 
 enum { SECOND_LINE = __LINE__ };
+
+static
+int usageFunction(int ii)
+{
+    return ii * ii * ii;
+}
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -142,21 +151,14 @@ int main(int argc, char *argv[])
         line.SizeOfStruct = sizeof(line);
         DWORD offsetFromLine;
         int rc = bsls::DbghelpDllImpl_Windows::symGetLineFromAddr64(
-                                                          (DWORD64) &main + 20,
-                                                          &offsetFromLine,
-                                                          &line);
-        if (e_SOURCE) {
-            ASSERT(rc && "Didn't find source file name and line number.");
-            if (rc) {
-                printf("Source file: %s\n", line.FileName);
-                printf("Line #: %d\n", line.LineNumber);
-            }
+                                                  (DWORD64) &usageFunction + 5,
+                                                  &offsetFromLine,
+                                                  &line);
+        ASSERT(rc && "Didn't find source file name and line number.");
+        if (rc) {
+            printf("Source file: %s\n", line.FileName);
+            printf("Line #: %d\n", line.LineNumber);
         }
-	else {
-	    if (rc) {
-	    	printf("Resolving succeeded\n");
-	    }
-	}
 #endif
       }  break;
       case 4: {
@@ -207,6 +209,7 @@ int main(int argc, char *argv[])
 #endif
         ASSERT(rc);
         ASSERTV(sym->Name, strstr(sym->Name, "testFunction"));
+        if (verbose) P(sym->Name);
 
         free(sym);
 #endif
@@ -237,23 +240,16 @@ int main(int argc, char *argv[])
                                                       (DWORD64) testFunction(),
                                                       &offsetFromLine,
                                                       &line);
-        if (e_SOURCE) {
-            ASSERT(rc);
-            if (rc) {
-                ASSERT(line.FileName);
-                const char *pc = line.FileName + strlen(line.FileName);
-                while (pc > line.FileName && '\\' != pc[-1]) {
-                    --pc;
-                }
-                ASSERTV(pc, !strcmp(pc,"bsls_dbghelpdllimpl_windows.t.cpp"));
-                ASSERT(line.LineNumber > FIRST_LINE);
-                ASSERT(line.LineNumber < SECOND_LINE);
+        ASSERT(rc);
+        if (rc) {
+            ASSERT(line.FileName);
+            const char *pc = line.FileName + strlen(line.FileName);
+            while (pc > line.FileName && '\\' != pc[-1]) {
+                --pc;
             }
-        }
-        else {
-            if (rc) {
-                printf("Resolve unexpectedly succeeded.\n");
-            }
+            ASSERTV(pc, !strcmp(pc,"bsls_dbghelpdllimpl_windows.t.cpp"));
+            ASSERT(line.LineNumber > FIRST_LINE);
+            ASSERT(line.LineNumber < SECOND_LINE);
         }
 #endif
       }  break;
