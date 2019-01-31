@@ -510,7 +510,7 @@ struct Passed {
     void           *d_funcPtr;
     const char     *d_demangledName;
     const char     *d_mangledSearch;
-    const char     *d_sourceName;
+    const char     *d_baseName;
     mutable Passed  d_passed;
 
     // CREATOR
@@ -526,7 +526,7 @@ void pushVec(bsl::vector<Data> *dst,
              TYPE               funcPtr,
              const char        *demangledName,
              const char        *mangledSearch,
-             const char        *sourceName)
+             const char        *baseName)
     // Pack the args into a 'Data' record and push them onto the specified
     // '*dst'.  We couldn't just declare a static table because g++ gave errors
     // or warnings whenever we casted a non-static member function ptr to a
@@ -621,7 +621,7 @@ void pushVec(bsl::vector<Data> *dst,
 
     data.d_demangledName = demangledName;
     data.d_mangledSearch = mangledSearch;
-    data.d_sourceName    = sourceName;
+    data.d_baseName      = baseName;
 
     dst->push_back(data);
 }
@@ -2127,7 +2127,7 @@ int main(int argc, char *argv[])
             const int                      LINE       = D.d_line;
             bsl::string                    expName(D.d_demangledName, &ta);
             const char                    *expMangled = D.d_mangledSearch;
-            const char                    *sourceName = D.d_sourceName;
+            const char                    *baseName   = D.d_baseName;
             const balst::StackTraceFrame&  frame      = st[ii];
             TC::Passed&                    passed     = D.d_passed;
 
@@ -2147,7 +2147,7 @@ int main(int argc, char *argv[])
 
             BSLS_ASSERT(npos != expName.find("BloombergLP"));
             BSLS_ASSERT(!expName.empty());
-            BSLS_ASSERT(sourceName);
+            BSLS_ASSERT(baseName);
 
             ASSERTV(LINE, expName, (passed.d_symbolPresent =
                                                  !frame.symbolName().empty()));
@@ -2177,24 +2177,26 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, expName, (passed.d_sourceFileName =
                                                frame.isSourceFileNameKnown()));
                 if (frame.isSourceFileNameKnown()) {
-                    ASSERTV(LINE, frame.sourceFileName(), sourceName,
+                    ASSERTV(LINE, frame.sourceFileName(), baseName,
                                        (passed.d_sourceFileName &=
-                             npos != frame.sourceFileName().find(sourceName)));
+                               npos != frame.sourceFileName().find(baseName)));
 
-                    const bool fullPath = PLAT_WIN
-                                         ? 3 <= frame.sourceFileName().length()
-                                           && ':'  == frame.sourceFileName()[1]
-                                           && '\\' == frame.sourceFileName()[2]
-                                         : '/' == frame.sourceFileName()[0];
+                    passed.d_fullPath = PLAT_WIN
+                                      ? 3 <= frame.sourceFileName().length()
+                                          && ':'  == frame.sourceFileName()[1]
+                                          && '\\' == frame.sourceFileName()[2]
+                                      : '/' == frame.sourceFileName()[0];
 
-                    TC::expandPath(&path, sourceName);
-                    ASSERTV(LINE, frame.sourceFileName(), path, fullPath,
+                    TC::expandPath(&path, baseName);
+                    ASSERTV(LINE, frame.sourceFileName(), path,
+                                                             passed.d_fullPath,
                                        (passed.d_sourceFileName &=
                                    npos != frame.sourceFileName().find(path)));
 
-                    ASSERTV(expName, frame.sourceFileName(), fullPath,
-                                  (passed.d_fullPath = fullPath &&
-                                  fileExists(frame.sourceFileName().c_str())));
+                    ASSERTV(expName, frame.sourceFileName(), passed.d_fullPath,
+                                       (passed.d_sourceFileName &=
+                                                         (!passed.d_fullPath ||
+                                 fileExists(frame.sourceFileName().c_str()))));
                 }
 
                 ASSERTV(LINE, expName, frame.lineNumber(),
@@ -2232,7 +2234,8 @@ int main(int argc, char *argv[])
                 const char slash = static_cast<char>(PLAT_WIN ? '\\' : '/');
                 bsl::size_t b = frame.sourceFileName().rfind(slash);
                 b = npos == b ? 0 : b;
-                const char *baseName = frame.sourceFileName().c_str() + b + 1;
+                const char *foundBaseName = frame.sourceFileName().c_str() +
+                                                                         b + 1;
 
                 cout << '(' << bsl::setw(2) << ii << "): " <<
                         "sp("    << int(passed.d_symbolPresent) <<
@@ -2242,7 +2245,7 @@ int main(int argc, char *argv[])
                         ") fp("  << int(passed.d_fullPath) <<
                         ") l("   << int(passed.d_line) << ")  " <<
                         frame.symbolName() <<
-                        ' ' << baseName << ':' <<
+                        ' ' << foundBaseName << ':' <<
                         frame.lineNumber() << endl;
             }
         }
