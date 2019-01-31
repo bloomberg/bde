@@ -9,24 +9,91 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-//=============================================================================
+// ============================================================================
 //                             TEST PLAN
-//-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //
 //                              Overview
 //                              --------
-// The component under test defines
+// The component under test defines a systematic way to create sets of error
+// categories and error codes and conditions of those categories.  Error
+// categories, in addition to serving as tags, are also responsible for
+// providing string versions of error values.
 //
-// ============================================================================
+// ----------------------------------------------------------------------------
 //
-// CREATORS:
+// TRAITS
+// [ 2] is_error_code_enum<TYPE>
+// [ 2] is_error_condition_enum<TYPE>
 //
-/// MANIPULATORS:
+// FREE FUNCTIONS
+// [ 3] generic_category()
+// [ 3] system_category()
+// [ 3] make_error_code(errc::errc)
+// [ 3] make_error_condition(errc::errc)
+// [ 3] hashAppend(HASHALG&, const error_code&)
+// [ 3] hashAppend(HASHALG&, const error_condition&)
 //
-// ACCESSORS:
+// FREE OPERATORS
+// [ 4] bool operator==(const error_code&, const error_code&)
+// [ 4] bool operator==(const error_code&, const error_condition&)
+// [ 4] bool operator==(const error_condition&, const error_code&)
+// [ 4] bool operator==(const error_condition&, const error_condition&)
+// [ 4] bool operator!=(const error_code&, const error_code&)
+// [ 4] bool operator!=(const error_code&, const error_condition&)
+// [ 4] bool operator!=(const error_condition&, const error_code&)
+// [ 4] bool operator!=(const error_condition&, const error_condition&)
+// [ 4] bool operator<(const error_code&, const error_code&)
+// [ 4] bool operator<(const error_condition&, const error_condition&)
+// [ 4] std::ostream& operator<<(std::ostream&, const error_code&)
 //
-// FREE OPERATORS:
-//-----------------------------------------------------------------------------
+// ERROR CATEGORY METHODS
+// [  ] error_category()
+// [  ] ~error_category()
+// [  ] error_condition default_error_condition(int)
+// [  ] bool equivalent(int, const error_condition&) const
+// [  ] bool equivalent(const error_code&, int) const
+// [  ] std::string message(int) const
+// [  ] const char *name() const
+// [  ] bool operator==(const error_category&) const
+// [  ] bool operator!=(const error_category&) const
+// [  ] bool operator<(const error_category&) const
+//
+// ERROR CODE METHODS
+// [  ] error_code()
+// [  ] error_code(int, const error_category&)
+// [  ] error_code(ERROR_CODE_ENUM)
+// [  ] void assign(int, const error_category&)
+// [  ] error_code& operator=(ERROR_CODE_ENUM)
+// [  ] void clear()
+// [  ] const error_category& category() const
+// [  ] error_condition default_error_condition() const
+// [  ] std::string message() const
+// [  ] int value() const
+// [  ] operator BoolType() const
+//
+// ERROR CONDITION METHODS
+// [  ] error_condition()
+// [  ] error_condition(int, const error_category&)
+// [  ] error_condition(ERROR_CODE_ENUM)
+// [  ] void assign(int, const error_category&)
+// [  ] error_condition& operator=(ERROR_CODE_ENUM)
+// [  ] void clear()
+// [  ] const error_category& category() const
+// [  ] std::string message() const
+// [  ] int value() const
+// [  ] operator BoolType() const
+//
+// SYSTEM ERROR METHODS
+// [  ] system_error(error_code, const std::string&)
+// [  ] system_error(error_code, const char *)
+// [  ] system_error(error_code)
+// [  ] system_error(int, const error_category&, const std::string&)
+// [  ] system_error(int, const error_category&, const char *)
+// [  ] system_error(int, const error_category&)
+// [  ] const error_code& code() const
+//
+// ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] USAGE EXAMPLE
 
@@ -218,7 +285,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 2: {
+      case 99: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -261,6 +328,325 @@ int main(int argc, char *argv[])
         }
     }
 //..
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING FREE COMPARISON OPERATORS
+        //   Test the several comparison operators of this component.
+        //
+        // Concerns:
+        //: 1 Pairs of error codes are equal if and only if their values and
+        //:   categories match.
+        //:
+        //: 2 Pairs of error condtions are equal if and only if their values
+        //:   and categories match.
+        //:
+        //: 3 An error code and error condition are equal if and only if their
+        //:   values and categories match.
+        //:
+        //: 4 Pairs of error codes sort lexicographically by category then
+        //:   value.
+        //:
+        //: 5 Pairs of error condtions sort lexicographically by category then
+        //:   value.
+        //
+        // Plan:
+        //: 1 Create four error codes with combinations of two values and two
+        //:   categories and verify the equality operations among them.  (C-1)
+        //:
+        //: 2 Create four error conditions with combinations of two values and
+        //:   two categories and verify the equality operations among them.
+        //:   (C-2)
+        //:
+        //: 3 Perform cross comparisons between the error codes and conditions
+        //:   from the above steps.  (C-3)
+        //:
+        //: 4 Verify that the ordering among codes matches the ordering among
+        //:   categories and values.  (C-4)
+        //:
+        //: 5 Verify that the ordering among conditions matches the ordering
+        //:   among categories and values.  (C-5)
+        //
+        // Testing
+        //   bool operator==(const error_code&, const error_code&)
+        //   bool operator==(const error_code&, const error_condition&)
+        //   bool operator==(const error_condition&, const error_code&)
+        //   bool operator==(const error_condition&, const error_condition&)
+        //   bool operator!=(const error_code&, const error_code&)
+        //   bool operator!=(const error_code&, const error_condition&)
+        //   bool operator!=(const error_condition&, const error_code&)
+        //   bool operator!=(const error_condition&, const error_condition&)
+        //   bool operator<(const error_code&, const error_code&)
+        //   bool operator<(const error_condition&, const error_condition&)
+        //   std::ostream& operator<<(std::ostream&, const error_code&)
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING FREE COMPARISON OPERATORS"
+                   "\n=================================\n");
+
+        const bsl::error_code codes[4] = {
+            bsl::error_code(bsl::errc::no_link, generic_category()),
+            bsl::error_code(bsl::errc::timed_out, generic_category()),
+            bsl::error_code(bsl::errc::no_link, system_category()),
+            bsl::error_code(bsl::errc::timed_out, system_category()),
+        };
+        const bsl::error_condition conditions[4] = {
+            bsl::error_condition(bsl::errc::no_link, generic_category()),
+            bsl::error_condition(bsl::errc::timed_out, generic_category()),
+            bsl::error_condition(bsl::errc::no_link, system_category()),
+            bsl::error_condition(bsl::errc::timed_out, system_category()),
+        };
+
+        if (veryVerbose) {
+            printf("Comparing error codes\n");
+        }
+        for (int i = 0; i < 4; ++i) {
+            const bsl::error_code &ci = codes[i];
+            if (veryVeryVerbose) {
+                printf("%d %s %d\n",
+                       i, ci.category().name(), ci.value());
+            }
+            for (int j = 0; j < 4; ++j) {
+                const bsl::error_code &cj = codes[j];
+                if (veryVeryVerbose) {
+                    printf("\t%d %s %d\n",
+                           j, cj.category().name(), cj.value());
+                }
+                ASSERT((i == j) == (ci == cj));
+                ASSERT((i != j) == (ci != cj));
+                if (ci.category() < cj.category()) {
+                    ASSERT(ci < cj);
+                }
+                else if (cj.category() < ci.category()) {
+                    ASSERT(cj < ci);
+                }
+                else {
+                    ASSERT((ci.value() < cj.value()) == (ci < cj));
+                }
+            }
+        }
+
+        if (veryVerbose) {
+            printf("Comparing error conditions\n");
+        }
+        for (int i = 0; i < 4; ++i) {
+            const bsl::error_condition &ci = conditions[i];
+            if (veryVeryVerbose) {
+                printf("%d %s %d\n",
+                       i, ci.category().name(), ci.value());
+            }
+            for (int j = 0; j < 4; ++j) {
+                const bsl::error_condition &cj = conditions[j];
+                if (veryVeryVerbose) {
+                    printf("\t%d %s %d\n",
+                           j, cj.category().name(), cj.value());
+                }
+                ASSERT((i == j) == (ci == cj));
+                ASSERT((i != j) == (ci != cj));
+                if (ci.category() < cj.category()) {
+                    ASSERT(ci < cj);
+                }
+                else if (cj.category() < ci.category()) {
+                    ASSERT(cj < ci);
+                }
+                else {
+                    ASSERT((ci.value() < cj.value()) == (ci < cj));
+                }
+            }
+        }
+
+        if (veryVerbose) {
+            printf("Comparing error codes and conditions\n");
+        }
+        for (int i = 0; i < 4; ++i) {
+            const bsl::error_code &ci = codes[i];
+            if (veryVeryVerbose) {
+                printf("%d %s %d\n",
+                       i, ci.category().name(), ci.value());
+            }
+            for (int j = 0; j < 4; ++j) {
+                const bsl::error_condition &cj = conditions[j];
+                if (veryVeryVerbose) {
+                    printf("\t%d %s %d\n",
+                           j, cj.category().name(), cj.value());
+                }
+                ASSERT((i == j) == (ci == cj));
+                ASSERT((j == i) == (cj == ci));
+                ASSERT((i != j) == (ci != cj));
+                ASSERT((j != i) == (cj != ci));
+            }
+        }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING FREE FUNCTIONS
+        //   Test the several free functions of this component.
+        //
+        // Concerns:
+        //: 1 generic_category() returns the same unique object each call
+        //: 2 system_category() returns the same unique object each call
+        //: 3 make_error_code returns a generic error code
+        //: 4 make_error_condition returns a generic error condition
+        //: 5 an error_code can be hashed
+        //: 6 an error_condition can be hashed
+        //
+        // Plan:
+        //: 1 Verify that several calls to generic_category() return the same
+        //:   object.  (C-1)
+        //:
+        //: 2 Verify that several calls to system_category() return the same
+        //:   onject, distinct from generic_category().  (C-2)
+        //:
+        //: 3 Verify that a code created by make_error_code contains the value
+        //:   with which it was constructed, and is of generic category.  (C-3)
+        //:
+        //: 4 Verify that a condition created by make_error_code contains the
+        //:   value with which it was constructed, and is of generic category.
+        //:   (C-4)
+        //:
+        //: 5 Verify that a code can be hashed, and that codes with different
+        //:   values or categories hash to different values.  (C-5)
+        //:
+        //: 6 Verify that a condition can be hashed, and that codes with
+        //:   different values or categories hash to different values.  (C-6)
+        //
+        // Testing:
+        //   generic_category()
+        //   system_category()
+        //   make_error_code(errc::errc)
+        //   make_error_condition(errc::errc)
+        //   hashAppend(HASHALG&, const error_code&)
+        //   hashAppend(HASHALG&, const error_condition&)
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING FREE FUNCTIONS"
+                   "\n======================\n");
+
+        if (veryVerbose) {
+            printf("generic_category() is always the same\n");
+        }
+        const bsl::error_category *g1 = &generic_category();
+        const bsl::error_category *g2 = &generic_category();
+        const bsl::error_category *g3 = &generic_category();
+        ASSERT(g1 == g2);
+        ASSERT(g2 == g3);
+
+        if (veryVerbose) {
+            printf("system_category() is always the same\n");
+        }
+        const bsl::error_category *s1 = &system_category();
+        const bsl::error_category *s2 = &system_category();
+        const bsl::error_category *s3 = &system_category();
+        ASSERT(s1 == s2);
+        ASSERT(s2 == s3);
+
+        if (veryVerbose) {
+            printf("generic_category() and system_category() are distinct\n");
+        }
+        ASSERT(g1 != s1);
+
+        if (veryVerbose) {
+            printf("make_error_code\n");
+        }
+        bsl::error_code code = bsl::make_error_code(bsl::errc::timed_out);
+        ASSERT(bsl::errc::timed_out == code.value());
+        ASSERT(g1 == &code.category());
+
+        if (veryVerbose) {
+            printf("make_error_condition\n");
+        }
+        bsl::error_condition condition =
+            bsl::make_error_condition(bsl::errc::no_link);
+        ASSERT(bsl::errc::no_link == condition.value());
+        ASSERT(g1 == &condition.category());
+
+        BloombergLP::bslh::Hash<> hasher;
+
+        if (veryVerbose) {
+            printf("hashing error codes\n");
+        }
+        const bsl::error_code codes[4] = {
+            bsl::error_code(bsl::errc::no_link, generic_category()),
+            bsl::error_code(bsl::errc::timed_out, generic_category()),
+            bsl::error_code(bsl::errc::no_link, system_category()),
+            bsl::error_code(bsl::errc::timed_out, system_category()),
+        };
+        for (int i = 0; i < 4; ++i) {
+            const bsl::error_code &ci = codes[i];
+            if (veryVeryVerbose) {
+                printf("%d %s %d %u\n",
+                       i, ci.category().name(), ci.value(), hasher(ci));
+            }
+            for (int j = i; j < 4; ++j) {
+                const bsl::error_code &cj = codes[j];
+                if (veryVeryVerbose) {
+                    printf("\t%d %s %d %u\n",
+                           j, cj.category().name(), cj.value(), hasher(cj));
+                }
+                ASSERT((i == j) == (hasher(ci) == hasher(cj)));
+            }
+        }
+
+        if (veryVerbose) {
+            printf("hashing error conditions\n");
+        }
+        const bsl::error_condition conditions[4] = {
+            bsl::error_condition(bsl::errc::no_link, generic_category()),
+            bsl::error_condition(bsl::errc::timed_out, generic_category()),
+            bsl::error_condition(bsl::errc::no_link, system_category()),
+            bsl::error_condition(bsl::errc::timed_out, system_category()),
+        };
+        for (int i = 0; i < 4; ++i) {
+            const bsl::error_condition &ci = conditions[i];
+            if (veryVeryVerbose) {
+                printf("%d %s %d %u\n",
+                       i, ci.category().name(), ci.value(), hasher(ci));
+            }
+            for (int j = i; j < 4; ++j) {
+                const bsl::error_condition &cj = conditions[j];
+                if (veryVeryVerbose) {
+                    printf("\t%d %s %d %u\n",
+                           j, cj.category().name(), cj.value(), hasher(cj));
+                }
+                ASSERT((i == j) ==
+                       (hasher(conditions[i]) == hasher(conditions[j])));
+            }
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING TRAITS
+        //   Verify that the code identification traits are set correctly.
+        //
+        // Concerns:
+        //: 1 bsl::is_error_code_enum<bsl::errc::errc>::value is false
+        //: 2 bsl::is_error_condition_enum<bsl::errc::errc>::value is true
+        //: 3 bsl::is_error_code_enum<other>::value is false
+        //: 4 bsl::is_error_condition_enum<other>::value is false
+        //
+        // Plan:
+        //: 1 Verify the trait value for each concern.  (C-1..4)
+        //
+        // Testing:
+        //   is_error_code_enum<TYPE>
+        //   is_error_condition_enum<TYPE>
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING TRAITS"
+                            "\n==============\n");
+
+        if (veryVerbose) {
+            P(bsl::is_error_code_enum<bsl::errc::errc>::value);
+            P(bsl::is_error_condition_enum<bsl::errc::errc>::value);
+            P(bsl::is_error_code_enum<char>::value);
+            P(bsl::is_error_condition_enum<char>::value);
+        }
+        ASSERT(!bsl::is_error_code_enum<bsl::errc::errc>::value);
+        ASSERT(bsl::is_error_condition_enum<bsl::errc::errc>::value);
+        ASSERT(!bsl::is_error_code_enum<char>::value);
+        ASSERT(!bsl::is_error_condition_enum<char>::value);
       } break;
       case 1: {
         // --------------------------------------------------------------------
