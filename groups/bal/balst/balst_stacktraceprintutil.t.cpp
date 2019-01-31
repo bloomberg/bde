@@ -243,6 +243,8 @@ bsl::ostream *out_p;    // pointer to either 'cout' or a dummy stringstream
                         // that is never output, depending on the value of
                         // 'verbose'.
 
+const char *execName;
+
 static inline
 bool problem()
 {
@@ -363,6 +365,12 @@ void top()
     bsl::string dump(&ta);
     (*testDumpUnion.d_funcPtr)(&dump);
 
+    bsl::string inExec(execName, &ta);
+    const char slash = e_FORMAT_WINDOWS ? '\\' : '/';
+    bsl::size_t pos = inExec.rfind(slash);
+    pos = bsl::string::npos == pos ? 0 : pos + 1;
+    inExec.erase(0, pos);
+
     if (!(e_FORMAT_ELF && !e_FORMAT_DWARF) && !e_FORMAT_DLADDR &&
                                 !e_FORMAT_WINDOWS && e_DEBUG_ON && !e_OPT_ON) {
         // Elf doesn't provide souce file names of global routines,
@@ -381,16 +389,16 @@ void top()
                              ? "printStackTraceToString(bsl::basic_string<char"
                              : "printStackTraceToString");
         matches.push_back(" source:balst_stacktraceprintutil.h");
-        matches.push_back(" in balst_stacktraceprintutil.t");
+        matches.push_back(inExec.c_str());
         matches.push_back("\n");
         matches.push_back("CASE_4");
         matches.push_back(e_DEMANGLE_PARENS ? "top()" : "top");
         matches.push_back(" source:balst_stacktraceprintutil.t.cpp");
-        matches.push_back(" in balst_stacktraceprintutil.t");
+        matches.push_back(inExec.c_str());
         matches.push_back("\n");
         matches.push_back("main");
         matches.push_back(" source:balst_stacktraceprintutil.t.cpp");
-        matches.push_back(" in balst_stacktraceprintutil.t");
+        matches.push_back(inExec.c_str());
         matches.push_back("\n");
         if (!e_DEMANGLE_COLONS) {
             matches.erase(bsl::remove_if(matches.begin(),
@@ -708,7 +716,7 @@ bool called = false;
 
 bool top(bslma::Allocator *alloc)
 {
-    const bool ts = testStatus;
+    const int ts = testStatus;
 
     called = true;
 
@@ -818,6 +826,8 @@ int main(int argc, char *argv[])
     int test    = argc > 1 ? bsl::atoi(argv[1]) : 0;
     verbose     = argc > 2;
     veryVerbose = argc > 3;
+
+    execName = argv[0];
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
