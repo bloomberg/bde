@@ -95,7 +95,7 @@ using namespace bsl;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] USAGE EXAMPLE
+// [ 9] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -140,15 +140,46 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
-// ============================================================================
-//              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
-// ----------------------------------------------------------------------------
-
-#define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
-
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//            GLOBAL TYPEDEFS/CONSTANTS/FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace bsl {
+
+void debugprint(const error_category &category)
+    // Print a descrriptive form of the specified 'category'.
+{
+    printf("error_category<%s>", category.name());
+}
+
+void debugprint(const error_code &code)
+    // Print a descrriptive form of the specified 'code'.
+{
+    printf("error_code<%d, '%s', %s>",
+           code.value(),
+           code.message().c_str(),
+           code.category().name());
+}
+
+void debugprint(const error_condition &condition)
+    // Print a descrriptive form of the specified 'condition'.
+{
+    printf("error_condition<%d, '%s', %s>",
+           condition.value(),
+           condition.message().c_str(),
+           condition.category().name());
+}
+
+void debugprint(const system_error &error)
+    // Print a descrriptive form of the specified 'error'.
+{
+    printf("system_error<%d, '%s', %s>",
+           error.code().value(),
+           error.what(),
+           error.code().category().name());
+}
+
+}  // close namespace bsl
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -288,7 +319,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 99: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -368,7 +399,7 @@ int main(int argc, char *argv[])
             ASSERT(strstr(X.what(), strerror(EIO)));
             ASSERT(strstr(X.what(), "@@@"));
         }
-        
+
         {
             system_error        mX(ec, "@@@");
             const system_error& X = mX;
@@ -376,7 +407,7 @@ int main(int argc, char *argv[])
             ASSERT(strstr(X.what(), strerror(EIO)));
             ASSERT(strstr(X.what(), "@@@"));
         }
-        
+
         {
             system_error        mX(ec);
             const system_error& X = mX;
@@ -460,8 +491,8 @@ int main(int argc, char *argv[])
             printf("error_condition(int, const error_category&)\n");
         }
         {
-            error_condition mX(static_cast<int>(errc::no_link),
-                               generic_category());
+            error_condition        mX(static_cast<int>(errc::no_link),
+                                      generic_category());
             const error_condition& X = mX;
             ASSERT(&generic_category() == &X.category());
             ASSERT(ENOLINK == X.value());
@@ -503,8 +534,8 @@ int main(int argc, char *argv[])
             printf("void clear()\n");
         }
         {
-            error_condition mX(static_cast<int>(errc::no_link),
-                               generic_category());
+            error_condition        mX(static_cast<int>(errc::no_link),
+                                      generic_category());
             const error_condition& X = mX;
             mX.clear();
             ASSERT(&generic_category() == &X.category());
@@ -524,8 +555,8 @@ int main(int argc, char *argv[])
             printf("std::string message() const\n");
         }
         {
-            error_condition mX(static_cast<int>(errc::no_link),
-                               generic_category());
+            error_condition        mX(static_cast<int>(errc::no_link),
+                                      generic_category());
             const error_condition& X = mX;
             ASSERT(strerror(ENOLINK) == X.message());
         }
@@ -534,8 +565,8 @@ int main(int argc, char *argv[])
             printf("int value() const\n");
         }
         {
-            error_condition mX(static_cast<int>(errc::no_link),
-                               generic_category());
+            error_condition        mX(static_cast<int>(errc::no_link),
+                                      generic_category());
             const error_condition& X = mX;
             ASSERT(ENOLINK == X.value());
         }
@@ -612,7 +643,8 @@ int main(int argc, char *argv[])
             printf("error_code(int, const error_category&)\n");
         }
         {
-            error_code mX(static_cast<int>(errc::no_link), generic_category());
+            error_code        mX(static_cast<int>(errc::no_link),
+                                 generic_category());
             const error_code& X = mX;
             ASSERT(&generic_category() == &X.category());
             ASSERT(ENOLINK == X.value());
@@ -654,7 +686,8 @@ int main(int argc, char *argv[])
             printf("void clear()\n");
         }
         {
-            error_code mX(static_cast<int>(errc::no_link), generic_category());
+            error_code        mX(static_cast<int>(errc::no_link),
+                                 generic_category());
             const error_code& X = mX;
             mX.clear();
             ASSERT(&system_category() == &X.category());
@@ -674,7 +707,8 @@ int main(int argc, char *argv[])
             printf("error_condition default_error_condition() const\n");
         }
         {
-            error_code mX(static_cast<int>(errc::no_link), generic_category());
+            error_code             mX(static_cast<int>(errc::no_link),
+                                      generic_category());
             const error_code&      X  = mX;
             error_condition        mY = X.default_error_condition();
             const error_condition& Y  = mY;
@@ -686,7 +720,8 @@ int main(int argc, char *argv[])
             printf("std::string message() const\n");
         }
         {
-            error_code mX(static_cast<int>(errc::no_link), generic_category());
+            error_code        mX(static_cast<int>(errc::no_link),
+                                 generic_category());
             const error_code& X = mX;
             ASSERT(strerror(ENOLINK) == X.message());
         }
@@ -695,7 +730,8 @@ int main(int argc, char *argv[])
             printf("int value() const\n");
         }
         {
-            error_code mX(static_cast<int>(errc::no_link), generic_category());
+            error_code        mX(static_cast<int>(errc::no_link),
+                                 generic_category());
             const error_code& X = mX;
             ASSERT(ENOLINK == X.value());
         }
@@ -755,7 +791,7 @@ int main(int argc, char *argv[])
         //: 2 Have no user-defined constructors in the concrete class to show
         //:   that the base-class default constructor is invoked.  (C-2)
         //:
-        //: 3 Create a derived class that sets a valraible in its destructor,
+        //: 3 Create a derived class that sets a variable in its destructor,
         //:   allocate an object of that class, delete it via a pointer to
         //:   'error_category', and observe that the variable is set.  (C-3)
         //:
@@ -776,7 +812,7 @@ int main(int argc, char *argv[])
         //:   the expected texts.  (C-6)
         //:
         //: 7 Create a derived class that overrides the 'name' method and
-        //:   observe the valu ereturned when invoked from a base class
+        //:   observe the value returned when invoked from a base class
         //:   reference.  (C-7)
         //:
         //: 8 Create an array of two of the concrete objects, initialize base
@@ -784,16 +820,16 @@ int main(int argc, char *argv[])
         //:   return values consistent with the array ordering.  (C-8)
         //
         // Testing:
-        // [ 5] error_category()
-        // [ 5] ~error_category()
-        // [ 5] error_condition default_error_condition(int)
-        // [ 5] bool equivalent(int, const error_condition&) const
-        // [ 5] bool equivalent(const error_code&, int) const
-        // [ 5] std::string message(int) const
-        // [ 5] const char *name() const
-        // [ 5] bool operator==(const error_category&) const
-        // [ 5] bool operator!=(const error_category&) const
-        // [ 5] bool operator<(const error_category&) const
+        //   error_category()
+        //   ~error_category()
+        //   error_condition default_error_condition(int)
+        //   bool equivalent(int, const error_condition&) const
+        //   bool equivalent(const error_code&, int) const
+        //   std::string message(int) const
+        //   const char *name() const
+        //   bool operator==(const error_category&) const
+        //   bool operator!=(const error_category&) const
+        //   bool operator<(const error_category&) const
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -801,8 +837,11 @@ int main(int argc, char *argv[])
                    "\n==============================\n");
 
         struct concrete_error_category : public error_category {
-            std::string message(int) const { throw 0; }
-            const char *name() const { throw 0; }
+            std::string message(int) const { throw; }
+                // Terminating do-nothing implementation.
+
+            const char *name() const { throw; }
+                // Terminating do-nothing implementation.
         };
 
         if (veryVerbose) {
@@ -820,9 +859,10 @@ int main(int argc, char *argv[])
             {
                 struct test_error_category : concrete_error_category {
                     ~test_error_category() { destructor_called = true; }
+                        // Detectable destructor.
                 };
                 test_error_category *pmX = new test_error_category;
-                error_category *pX = pmX;
+                error_category      *pX = pmX;
                 destructor_called = false;
                 delete pX;
             }
@@ -834,12 +874,15 @@ int main(int argc, char *argv[])
         }
         {
             struct test_error_category : concrete_error_category {
-                error_condition default_error_condition(int value) const {
+                error_condition default_error_condition(int value) const
+                    // Return the result if invoking the base implementation
+                    // with the specified 'value' modified.
+                {
                     return error_category::default_error_condition(value + 1);
                 }
             };
             test_error_category mX;
-            error_category &X = mX;
+            error_category&     X = mX;
             ASSERT(3 == X.default_error_condition(2).value());
             ASSERT(&mX == &X.default_error_condition(2).category());
         }
@@ -849,10 +892,14 @@ int main(int argc, char *argv[])
         }
         {
             struct test_error_category : concrete_error_category {
-                bool equivalent(int code, const error_condition&) const {
+                bool equivalent(int code, const error_condition&) const
+                    // Return whether the specified 'code' is 3.
+                {
                     return code == 3;
                 }
-                bool equivalent(const error_code&, int condition) const {
+                bool equivalent(const error_code&, int condition) const
+                    // Return whether the specified 'condition' is 2.
+                {
                     return condition == 2;
                 }
             };
@@ -865,7 +912,7 @@ int main(int argc, char *argv[])
                     printf("\t\tsame categories\n");
                 }
                 concrete_error_category mX;
-                error_category &X = mX;
+                error_category&         X = mX;
                 ASSERT(!X.equivalent(2, X.default_error_condition(3)));
                 ASSERT( X.equivalent(2, X.default_error_condition(2)));
                 ASSERT(!X.equivalent(error_code(2, X), 3));
@@ -875,7 +922,7 @@ int main(int argc, char *argv[])
                     printf("\t\tdifferent categories\n");
                 }
                 concrete_error_category mY;
-                error_category &Y = mY;
+                error_category&         Y = mY;
                 ASSERT(!X.equivalent(2, Y.default_error_condition(2)));
                 ASSERT(!X.equivalent(error_code(2, Y), 2));
             }
@@ -888,7 +935,7 @@ int main(int argc, char *argv[])
                     printf("\t\tsame categories\n");
                 }
                 test_error_category mX;
-                error_category &X = mX;
+                error_category&     X = mX;
                 ASSERT(!X.equivalent(2, X.default_error_condition(3)));
                 ASSERT( X.equivalent(3, X.default_error_condition(2)));
                 ASSERT(!X.equivalent(error_code(2, X), 3));
@@ -898,7 +945,7 @@ int main(int argc, char *argv[])
                     printf("\t\tdifferent categories\n");
                 }
                 concrete_error_category mY;
-                error_category &Y = mY;
+                error_category&         Y = mY;
                 ASSERT(X.equivalent(3, Y.default_error_condition(2)));
                 ASSERT(X.equivalent(error_code(2, Y), 2));
             }
@@ -909,12 +956,15 @@ int main(int argc, char *argv[])
         }
         {
             struct test_error_category : concrete_error_category {
-                std::string message(int value) const {
+                std::string message(int value) const
+                    // Return a string describing the specified 'value' using
+                    // the base implementation plus extra annotation.
+                {
                     return "M: " + error_category::message(value);
                 }
             };
             test_error_category mX;
-            error_category &X = mX;
+            error_category&     X = mX;
             ASSERT(strstr(X.message(errc::no_link).data(), "M: "));
             ASSERT(strstr(X.message(errc::no_link).data(), strerror(ENOLINK)));
         }
@@ -924,12 +974,14 @@ int main(int argc, char *argv[])
         }
         {
             struct test_error_category : concrete_error_category {
-                const char *name() const {
+                const char *name() const
+                    // Return a string naming this category.
+                {
                     return "test_error_category";
                 }
             };
             test_error_category mX;
-            error_category &X = mX;
+            error_category&     X = mX;
             ASSERT(0 == strcmp("test_error_category", X.name()));
         }
 
@@ -938,8 +990,8 @@ int main(int argc, char *argv[])
         }
         {
             concrete_error_category mX[2];
-            error_category &X1 = mX[0];
-            error_category &X2 = mX[1];
+            error_category&         X1 = mX[0];
+            error_category&         X2 = mX[1];
 
             ASSERT(X1 == X1);
             ASSERT(X2 == X2);
@@ -966,7 +1018,7 @@ int main(int argc, char *argv[])
         //: 1 Pairs of error codes are equal if and only if their values and
         //:   categories match.
         //:
-        //: 2 Pairs of error condtions are equal if and only if their values
+        //: 2 Pairs of error conditions are equal if and only if their values
         //:   and categories match.
         //:
         //: 3 An error code and error condition are equal if and only if their
@@ -975,7 +1027,7 @@ int main(int argc, char *argv[])
         //: 4 Pairs of error codes sort lexicographically by category then
         //:   value.
         //:
-        //: 5 Pairs of error condtions sort lexicographically by category then
+        //: 5 Pairs of error conditions sort lexicographically by category then
         //:   value.
         //
         // Plan:
@@ -1013,7 +1065,7 @@ int main(int argc, char *argv[])
             printf("\nTESTING FREE COMPARISON OPERATORS"
                    "\n=================================\n");
 
-        const bsl::error_code codes[4] = {
+        const bsl::error_code      codes[4] = {
             bsl::error_code(bsl::errc::no_link, generic_category()),
             bsl::error_code(bsl::errc::timed_out, generic_category()),
             bsl::error_code(bsl::errc::no_link, system_category()),
@@ -1124,7 +1176,7 @@ int main(int argc, char *argv[])
         //:   object.  (C-1)
         //:
         //: 2 Verify that several calls to system_category() return the same
-        //:   onject, distinct from generic_category().  (C-2)
+        //:   object, distinct from generic_category().  (C-2)
         //:
         //: 3 Verify that a code created by make_error_code contains the value
         //:   with which it was constructed, and is of generic category.  (C-3)
@@ -1204,13 +1256,13 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 4; ++i) {
             const bsl::error_code &ci = codes[i];
             if (veryVeryVerbose) {
-                printf("%d %s %d %u\n",
+                printf("%d %s %d %lu\n",
                        i, ci.category().name(), ci.value(), hasher(ci));
             }
             for (int j = i; j < 4; ++j) {
                 const bsl::error_code &cj = codes[j];
                 if (veryVeryVerbose) {
-                    printf("\t%d %s %d %u\n",
+                    printf("\t%d %s %d %lu\n",
                            j, cj.category().name(), cj.value(), hasher(cj));
                 }
                 ASSERT((i == j) == (hasher(ci) == hasher(cj)));
@@ -1229,13 +1281,13 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 4; ++i) {
             const bsl::error_condition &ci = conditions[i];
             if (veryVeryVerbose) {
-                printf("%d %s %d %u\n",
+                printf("%d %s %d %lu\n",
                        i, ci.category().name(), ci.value(), hasher(ci));
             }
             for (int j = i; j < 4; ++j) {
                 const bsl::error_condition &cj = conditions[j];
                 if (veryVeryVerbose) {
-                    printf("\t%d %s %d %u\n",
+                    printf("\t%d %s %d %lu\n",
                            j, cj.category().name(), cj.value(), hasher(cj));
                 }
                 ASSERT((i == j) ==
@@ -1279,24 +1331,339 @@ int main(int argc, char *argv[])
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
-        //   We want to exercise basic
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        //: 1 The class is sufficiently functional to enable comprehensive
+        //:   testing in subsequent test cases.
+        //
+        // Plan:
+        //: 1 Create four test objects by using the default, initializing, and
+        //:   copy constructors.
+        //:
+        //: 2 Exercise the basic value-semantic methods and the equality
+        //:   operators using these test objects.
+        //:
+        //: 3 Invoke the primary manipulator, copy constructor, and assignment
+        //:   operator without and with aliasing.
+        //:
+        //: 4 Use the basic accessors to verify the expected results.  (C-1)
         //
         // Testing:
-        //   This "test" *exercises* basic functionality.
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        system_error s(errc::file_exists, system_category());
-        system_error g(errc::file_exists, generic_category());
-        system_error sw(errc::file_exists, system_category(), "sw");
-        system_error gw(errc::file_exists, generic_category(), "gw");
-        P(s.what());
-        P(g.what());
-        P(sw.what());
-        P(gw.what());
-        ASSERT(true);
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf("\n 1. Create an object x1. to VA).\n");
+        const error_category &C1 = system_category();
+        if (verbose) { T_ P(C1) }
+
+        error_code        mD1(errc::io_error, C1);
+        const error_code& D1 = mD1;
+        if (verbose) { T_ P(D1) }
+
+        error_condition        mN1(errc::no_link, C1);
+        const error_condition& N1 = mN1;
+        if (verbose) { T_ P(N1) }
+
+        system_error        mS1(D1, "breathing");
+        const system_error& S1 = mS1;
+        if (verbose) { T_ P(S1) }
+
+        if (verbose) printf("\ta. Check initial state of x1.\n");
+        ASSERT(0 == strcmp("system", C1.name()));
+        ASSERT(EIO == D1.value());
+        ASSERT(&C1 == &D1.category());
+        ASSERT(ENOLINK == N1.value());
+        ASSERT(&C1 == &N1.category());
+        ASSERT(strstr(S1.what(), "breathing"));
+        ASSERT(strstr(S1.what(), strerror(EIO)));
+
+        if (verbose) printf("\tb. Equality operators: x1 <op> x1.\n");
+        ASSERT(C1 == C1);
+        ASSERT(!(C1 != C1));
+        ASSERT(D1 == D1);
+        ASSERT(!(D1 != D1));
+        ASSERT(N1 == N1);
+        ASSERT(!(N1 != N1));
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf("\n 2. Create an object x2 (copy from x1).\n");
+        error_code        mD2(D1);
+        const error_code& D2 = mD2;
+        if (verbose) { T_ P(D2) }
+
+        error_condition        mN2(N1);
+        const error_condition& N2 = mN2;
+        if (verbose) { T_ P(N2) }
+
+        system_error        mS2(S1);
+        const system_error& S2 = mS2;
+        if (verbose) { T_ P(S2) }
+
+        if (verbose) printf("\ta. Check the initial state of x2.\n");
+        ASSERT(EIO == D2.value());
+        ASSERT(&C1 == &D2.category());
+        ASSERT(ENOLINK == N2.value());
+        ASSERT(&C1 == &N2.category());
+        ASSERT(strstr(S2.what(), "breathing"));
+        ASSERT(strstr(S2.what(), strerror(EIO)));
+
+        if (verbose) printf("\tb. Equality operators: x2 <op> x1, x2.\n");
+        ASSERT(D2 == D1);
+        ASSERT(D2 == D2);
+        ASSERT(!(D2 != D1));
+        ASSERT(!(D2 != D2));
+        ASSERT(N2 == N1);
+        ASSERT(N2 == N2);
+        ASSERT(!(N2 != N1));
+        ASSERT(!(N2 != N2));
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf("\n 3. Set x1 to a new value.\n");
+
+        const error_category &C2 = generic_category();
+        if (verbose) { T_ P(C2) }
+
+        mD1.assign(errc::timed_out, C2);
+        if (verbose) { T_ P(D1) }
+
+        mN1.assign(errc::text_file_busy, C2);
+        if (verbose) { T_ P(N1) }
+
+        if (verbose) printf("\ta. Check new state of x1.\n");
+        ASSERT(ETIMEDOUT == D1.value());
+        ASSERT(&C2 == &D1.category());
+        ASSERT(ETXTBSY == N1.value());
+        ASSERT(&C2 == &N1.category());
+
+        if (verbose) printf("\tb. Equality operators: x1 <op> x1, x2.\n");
+        ASSERT(C1 != C2);
+        ASSERT(!(C1 == C2));
+        ASSERT(D1 == D1);
+        ASSERT(!(D1 != D1));
+        ASSERT(D1 != D2);
+        ASSERT(!(D1 == D2));
+        ASSERT(N1 == N1);
+        ASSERT(!(N1 != N1));
+        ASSERT(N1 != N2);
+        ASSERT(!(N1 == N2));
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf("\n 4. Create a default object x3().\n");
+
+        error_code        mD3;
+        const error_code& D3 = mD3;
+        if (verbose) { T_ P(D3); }
+
+        error_condition        mN3;
+        const error_condition& N3 = mN3;
+        if (verbose) { T_ P(N3); }
+
+        if (verbose) printf("\ta. Check initial state of x3.\n");
+        ASSERT(0 == D3.value());
+        ASSERT(&C1 == &D3.category());
+        ASSERT(0 == N3.value());
+        ASSERT(&C2 == &N3.category());
+
+        if (verbose) printf("\tb. Equality operators: x3 <op> x1, x2, x3.\n");
+        ASSERT(!(D3 == D1));
+        ASSERT(!(D3 == D2));
+        ASSERT(D3 == D3);
+        ASSERT(D3 != D1);
+        ASSERT(D3 != D2);
+        ASSERT(!(D3 != D3));
+        ASSERT(!(N3 == N1));
+        ASSERT(!(N3 == N2));
+        ASSERT(N3 == N3);
+        ASSERT(N3 != N1);
+        ASSERT(N3 != N2);
+        ASSERT(!(N3 != N3));
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf("\n 5. Create an object x4 (copy from x3).\n");
+
+        error_code        mD4(D3);
+        const error_code& D4 = mD4;
+        if (verbose) { T_ P(D4) }
+
+        error_condition        mN4(N3);
+        const error_condition& N4 = mN4;
+        if (verbose) { T_ P(N4) }
+
+        if (verbose) printf("\ta. Check initial state of x4.\n");
+        ASSERT(0 == D4.value());
+        ASSERT(&C1 == &D4.category());
+        ASSERT(0 == N4.value());
+        ASSERT(&C2 == &N4.category());
+
+        if (verbose)
+            printf("\tb. Equality operators: x4 <op> x1, x2, x3, x4.\n");
+        ASSERT(!(D4 == D1));
+        ASSERT(!(D4 == D2));
+        ASSERT(D4 == D3);
+        ASSERT(D4 == D4);
+        ASSERT(D4 != D1);
+        ASSERT(D4 != D2);
+        ASSERT(!(D4 != D4));
+        ASSERT(!(D4 != D4));
+        ASSERT(!(N4 == N1));
+        ASSERT(!(N4 == N2));
+        ASSERT(N4 == N3);
+        ASSERT(N4 == N4);
+        ASSERT(N4 != N1);
+        ASSERT(N4 != N2);
+        ASSERT(!(N4 != N3));
+        ASSERT(!(N4 != N4));
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf("\n 6. Set x3 to a new value VC.\n");
+
+        mD3.assign(errc::file_exists, C1);
+        if (verbose) { T_ P(D3) }
+
+        mN3.assign(errc::not_a_directory, C1);
+        if (verbose) { T_ P(N3) }
+
+        if (verbose) printf("\ta. Check new state of x3.\n");
+        ASSERT(EEXIST == D3.value());
+        ASSERT(&C1 == &D3.category());
+        ASSERT(ENOTDIR == N3.value());
+        ASSERT(&C1 == &N3.category());
+
+        if (verbose)
+            printf("\tb. Equality operators: x4 <op> x1, x2, x3, x4.\n");
+        ASSERT(!(D3 == D1));
+        ASSERT(!(D3 == D2));
+        ASSERT(D3 == D3);
+        ASSERT(!(D3 == D4));
+        ASSERT(D3 != D1);
+        ASSERT(D3 != D2);
+        ASSERT(!(D3 != D3));
+        ASSERT(D3 != D4);
+        ASSERT(!(N3 == N1));
+        ASSERT(!(N3 == N2));
+        ASSERT(N3 == N3);
+        ASSERT(!(N3 == N4));
+        ASSERT(N3 != N1);
+        ASSERT(N3 != N2);
+        ASSERT(!(N3 != N3));
+        ASSERT(N3 != N4);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf("\n 7. Assign x2 = x1.\n");
+
+        mD2 = D1;
+        if (verbose) { T_ P(D2) }
+
+        mN2 = N1;
+        if (verbose) { T_ P(N2) }
+
+        mS2 = S1;
+        if (verbose) { T_ P(S2) }
+
+        if (verbose) printf("\ta. Check new state of x2.\n");
+        ASSERT(ETIMEDOUT == D2.value());
+        ASSERT(&C2 == &D2.category());
+        ASSERT(ETXTBSY == N2.value());
+        ASSERT(&C2 == &N2.category());
+        ASSERT(strstr(S2.what(), "breathing"));
+        ASSERT(strstr(S2.what(), strerror(EIO)));
+
+        if (verbose)
+            printf("\tb. Equality operators: x2 <op> x1, x2, x3, x4.\n");
+        ASSERT(D2 == D1);
+        ASSERT(D2 == D2);
+        ASSERT(!(D2 == D3));
+        ASSERT(!(D2 == D4));
+        ASSERT(!(D2 != D1));
+        ASSERT(!(D2 != D2));
+        ASSERT(D2 != D3);
+        ASSERT(D2 != D4);
+        ASSERT(N2 == N1);
+        ASSERT(N2 == N2);
+        ASSERT(!(N2 == N3));
+        ASSERT(!(N2 == N4));
+        ASSERT(!(N2 != N1));
+        ASSERT(!(N2 != N2));
+        ASSERT(N2 != N3);
+        ASSERT(N2 != N4);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf("\n 8. Assign x2 = x3.\n");
+
+        mD2 = D3;
+        if (verbose) { T_ P(D2) }
+
+        mN2 = N3;
+        if (verbose) { T_ P(N2) }
+
+        if (verbose) printf("\ta. Check new state of x2.\n");
+        ASSERT(EEXIST == D2.value());
+        ASSERT(&C1 == &D2.category());
+        ASSERT(ENOTDIR == N2.value());
+        ASSERT(&C1 == &N2.category());
+
+        if (verbose)
+            printf("\tb. Equality operators: x2 <op> x1, x2, x3, x4.\n");
+        ASSERT(!(D2 == D1));
+        ASSERT(D2 == D2);
+        ASSERT(D2 == D3);
+        ASSERT(!(D2 == D4));
+        ASSERT(D2 != D1);
+        ASSERT(!(D2 != D2));
+        ASSERT(!(D2 != D3));
+        ASSERT(D2 != D4);
+        ASSERT(!(N2 == N1));
+        ASSERT(N2 == N2);
+        ASSERT(N2 == N3);
+        ASSERT(!(N2 == N4));
+        ASSERT(N2 != N1);
+        ASSERT(!(N2 != N2));
+        ASSERT(!(N2 != N3));
+        ASSERT(N2 != N4);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        if (verbose) printf("\n 9. Assign x1 = x1 (aliasing).\n");
+
+        mD1 = D1;
+        if (verbose) { T_ P(D1) }
+
+        mN1 = N1;
+        if (verbose) { T_ P(N1) }
+
+        mS1 = S1;
+        if (verbose) { T_ P(S1) }
+
+        if (verbose) printf("\ta. Check new state of x1.\n");
+        ASSERT(ETIMEDOUT == D1.value());
+        ASSERT(&C2 == &D1.category());
+        ASSERT(ETXTBSY == N1.value());
+        ASSERT(&C2 == &N1.category());
+        ASSERT(strstr(S1.what(), "breathing"));
+        ASSERT(strstr(S1.what(), strerror(EIO)));
+
+        if (verbose)
+            printf("\tb. Equality operators: x1 <op> x1, x2, x3, x4.\n");
+        ASSERT(!(D2 == D1));
+        ASSERT(D2 == D2);
+        ASSERT(D2 == D3);
+        ASSERT(!(D2 == D4));
+        ASSERT(D2 != D1);
+        ASSERT(!(D2 != D2));
+        ASSERT(!(D2 != D3));
+        ASSERT(D2 != D4);
+        ASSERT(!(N2 == N1));
+        ASSERT(N2 == N2);
+        ASSERT(N2 == N3);
+        ASSERT(!(N2 == N4));
+        ASSERT(N2 != N1);
+        ASSERT(!(N2 != N2));
+        ASSERT(!(N2 != N3));
+        ASSERT(N2 != N4);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

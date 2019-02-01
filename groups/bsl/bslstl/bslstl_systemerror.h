@@ -214,9 +214,9 @@ class is_error_condition_enum : public false_type {
     // 'error_condition' template methods.
 };
 
-                                 // =========
-                                 // enum errc
-                                 // =========
+                                // ===========
+                                // enum 'errc'
+                                // ===========
 
 namespace errc {
 enum errc {
@@ -376,6 +376,11 @@ class error_category {
 class error_code {
     // Objects of this class are intended to hold system-specific error values.
 
+  private:
+    // PRIVATE TYPES
+    typedef BloombergLP::bsls::UnspecifiedBool<error_code> UnspecifiedBool;
+    typedef UnspecifiedBool::BoolType                      BoolType;
+
   public:
     // CREATORS
     error_code();
@@ -389,7 +394,7 @@ class error_code {
     template <class ERROR_CODE_ENUM>
     error_code(ERROR_CODE_ENUM value,
                typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
-                                  int>::type = 0);
+                                  int>::type = 0);                  // IMPLICIT
         // Construct an object of this type initialized with the specified
         // 'value' and generic category.  Note that this constructor exists
         // only for those types designated as error codes via the
@@ -428,7 +433,7 @@ class error_code {
     int value() const;
         // Return the value held by this object.
 
-    operator BloombergLP::bsls::UnspecifiedBool<error_code>::BoolType() const;
+    operator BoolType() const;
         // Return whether the value held by this object is non-zero.
 
   private:
@@ -444,6 +449,12 @@ class error_code {
 class error_condition {
     // Objects of this class are intended to hold portable error values.
 
+  private:
+    // PRIVATE TYPES
+    typedef BloombergLP::bsls::UnspecifiedBool<error_condition>
+                                      UnspecifiedBool;
+    typedef UnspecifiedBool::BoolType BoolType;
+
   public:
     // CREATORS
     error_condition();
@@ -458,7 +469,7 @@ class error_condition {
     error_condition(ERROR_CONDITION_ENUM value,
                     typename enable_if<
                         is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
-                        int>::type = 0);
+                        int>::type = 0);                            // IMPLICIT
         // Construct an object of this type initialized with the specified
         // 'value' and generic category.  Note that this constructor exists
         // only for those types designated as error conditions via the
@@ -489,8 +500,7 @@ class error_condition {
     int value() const;
         // Return the value held by this object.
 
-    operator BloombergLP::bsls::UnspecifiedBool<error_condition>::BoolType()
-    const;
+    operator BoolType() const;
         // Return whether the value held by this object is non-zero.
 
   private:
@@ -550,21 +560,21 @@ error_condition make_error_condition(errc::errc value);
     // generic category.
 
 template <class HASHALG>
-void hashAppend(HASHALG& hashAlg, const error_code& object)
-    // Hash the specified 'object' using the specified 'hashAlg'.
+void hashAppend(HASHALG& hashAlgorithm, const error_code& object)
+    // Hash the specified 'object' using the specified 'hashAlgorithm'.
 {
     using ::BloombergLP::bslh::hashAppend;
-    hashAppend(hashAlg, static_cast<const void *>(&object.category()));
-    hashAppend(hashAlg, object.value());
+    hashAppend(hashAlgorithm, static_cast<const void *>(&object.category()));
+    hashAppend(hashAlgorithm, object.value());
 }
 
 template <class HASHALG>
-void hashAppend(HASHALG& hashAlg, const error_condition& object)
-    // Hash the specified 'object' using the specified 'hashAlg'.
+void hashAppend(HASHALG& hashAlgorithm, const error_condition& object)
+    // Hash the specified 'object' using the specified 'hashAlgorithm'.
 {
     using ::BloombergLP::bslh::hashAppend;
-    hashAppend(hashAlg, static_cast<const void *>(&object.category()));
-    hashAppend(hashAlg, object.value());
+    hashAppend(hashAlgorithm, static_cast<const void *>(&object.category()));
+    hashAppend(hashAlgorithm, object.value());
 }
 
 // FREE OPERATORS
@@ -597,9 +607,10 @@ bool operator<(const error_condition& lhs, const error_condition& rhs);
 // CREATORS
 template <class ERROR_CODE_ENUM>
 inline
-error_code::error_code(
-    ERROR_CODE_ENUM value,
-    typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value, int>::type)
+error_code::error_code(ERROR_CODE_ENUM value,
+                       typename enable_if<
+                           is_error_code_enum<ERROR_CODE_ENUM>::value,
+                           int>::type)                              // IMPLICIT
 : d_value(value)
 , d_category_p(&generic_category())
 {
@@ -634,10 +645,11 @@ std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
 // CREATORS
 template <class ERROR_CONDITION_ENUM>
 inline
-error_condition::error_condition(
-    ERROR_CONDITION_ENUM value,
-    typename enable_if<is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
-                       int>::type)
+error_condition::error_condition(ERROR_CONDITION_ENUM value,
+                                 typename enable_if<
+                                     is_error_condition_enum<
+                                         ERROR_CONDITION_ENUM>::value,
+                                     int>::type)                    // IMPLICIT
 : d_value(value)
 , d_category_p(&generic_category())
 {

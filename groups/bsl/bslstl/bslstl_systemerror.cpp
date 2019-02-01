@@ -112,10 +112,9 @@ int bsl::error_code::value() const
     return d_value;
 }
 
-bsl::error_code::
-operator BloombergLP::bsls::UnspecifiedBool<bsl::error_code>::BoolType() const
+bsl::error_code::operator BoolType() const
 {
-    return BloombergLP::bsls::UnspecifiedBool<error_code>::makeValue(value());
+    return UnspecifiedBool::makeValue(value());
 }
 
 // FREE FUNCTIONS
@@ -171,12 +170,9 @@ int bsl::error_condition::value() const
     return d_value;
 }
 
-bsl::error_condition::
-operator BloombergLP::bsls::UnspecifiedBool<bsl::error_condition>::BoolType()
-    const
+bsl::error_condition::operator BoolType() const
 {
-    return BloombergLP::bsls::UnspecifiedBool<error_condition>::makeValue(
-        value());
+    return UnspecifiedBool::makeValue(value());
 }
 
 // FREE FUNCTIONS
