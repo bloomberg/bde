@@ -35,26 +35,17 @@
 namespace bsl {
 
 // FREE OPERATORS
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-void PrintTo(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  str,
-             basic_ostream<CHAR_TYPE, CHAR_TRAITS>                *os_p);
+void PrintTo(const string&  str,
+             ostream       *os_p);
     // Write the specified 'str' to the specified '*os_p', surrounded by double
     // quotes.
 
+void PrintTo(const wstring&  str,
+             ostream       *os_p);
+    // Write the specified 'wstr' to the specified '*os_p', surrounded by
+    // double quotes, writing non-printable characters with '\x...' escapes.
+
 }  // close namespace bsl
-
-// ============================================================================
-//                       FUNCTION TEMPLATE DEFINITIONS
-// ============================================================================
-
-// FREE OPERATORS
-template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-void bsl::PrintTo(
-               const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&  str,
-               bsl::basic_ostream<CHAR_TYPE, CHAR_TRAITS>                *os_p)
-{
-    *os_p << '"' << str << '"' << bsl::flush;
-}
 
 #endif
 
