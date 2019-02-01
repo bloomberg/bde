@@ -1112,11 +1112,11 @@ typedef bsl::pair<int, bsl::shared_ptr<bsl::string> > PairBulkType;
 
 typedef struct ThreadData {
     Cache_TestUtilType *d_cacheTestUtil_p; // Pointer to bdlcc::Cache object
-    unsigned short      d_sleep;           // sleep time, millisec
+    int                 d_sleep;           // sleep time, microsec
     char                d_lockType;        // 'R' - Read, 'W' - Write
 
     ThreadData(Cache_TestUtilType *cacheTestUtil_p,
-               unsigned short      sleep,
+               int                 sleep,
                char                lockType)
     : d_cacheTestUtil_p(cacheTestUtil_p)
     , d_sleep(sleep)
@@ -1124,7 +1124,7 @@ typedef struct ThreadData {
     {}
 } ThreadData;
 
-const unsigned short k_SLEEP_PERIOD = 100; // Sleep period of 100 millisec.
+const int k_SLEEP_PERIOD = 100*1000; // Sleep period of 100 millisec.
 
 extern "C" void *workThread(void *arg)
 {
@@ -1138,7 +1138,7 @@ extern "C" void *workThread(void *arg)
         tdp->d_cacheTestUtil_p->lockWrite();
     }
     smp.post();
-    bslmt::ThreadUtil::microSleep(tdp->d_sleep * 1000, 0);
+    bslmt::ThreadUtil::microSleep(tdp->d_sleep, 0);
     tdp->d_cacheTestUtil_p->unlock();
     return 0;
 }
@@ -1183,13 +1183,13 @@ void testTestingUtil()
 
     // LockWrite / LockWrite test
     {
+        // Time the duration how long it took to lock write
+        TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
         smp.wait();
 
-        // Time the duration how long it took to lock write
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
         cache_TestUtil.lockWrite();
+
         TimeType endTime = bsls::TimeUtil::getTimer();
         int      durationWW = static_cast<int>((endTime - startTime) / 1000);
         cache_TestUtil.unlock();
@@ -1200,13 +1200,13 @@ void testTestingUtil()
 
     // LockWrite / LockRead test
     {
+        // Time the duration how long it took to lock read
+        TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
         smp.wait();
 
-        // Time the duration how long it took to lock read
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
         cache_TestUtil.lockRead();
+
         TimeType endTime = bsls::TimeUtil::getTimer();
         int      durationWR = static_cast<int>((endTime - startTime) / 1000);
         cache_TestUtil.unlock();
@@ -1219,13 +1219,13 @@ void testTestingUtil()
 
     // LockRead / LockWrite test
     {
+        // Time the duration how long it took to lock write
+        TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
 
-        // Time the duration how long it took to lock write
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
         cache_TestUtil.lockWrite();
+
         TimeType endTime = bsls::TimeUtil::getTimer();
         int      durationRW = static_cast<int>((endTime - startTime) / 1000);
         cache_TestUtil.unlock();
@@ -1238,11 +1238,11 @@ void testTestingUtil()
     {
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
-
         // Time the duration how long it took to lock read
-
         TimeType startTime = bsls::TimeUtil::getTimer();
+
         cache_TestUtil.lockRead();
+
         TimeType endTime = bsls::TimeUtil::getTimer();
         int      durationRR = static_cast<int>((endTime - startTime) / 1000);
         cache_TestUtil.unlock();
@@ -1363,13 +1363,13 @@ void testLocking()
 
     // LockRead / insert(const KEYTYPE& key, const VALUETYPE& value) test
     {
+        // Time the duration how long it took to run 'insert'
+        TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
 
-        // Time the duration how long it took to run 'insert'
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
         cache.insert(1, "John");
+
         TimeType endTime = bsls::TimeUtil::getTimer();
         int      duration = static_cast<int>((endTime - startTime) / 1000);
         bslmt::ThreadUtil::join(handle, &result);
@@ -1379,12 +1379,10 @@ void testLocking()
 
     // LockRead / insert(const KEYTYPE& key, const ValuePtrType& valuePtr) test
     {
+        // Time the duration how long it took to run 'insert'
+        TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
-
-        // Time the duration how long it took to run 'insert'
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
 
         bsl::shared_ptr<bsl::string> valuePtr;
         valuePtr.createInplace(&talloc, "V2", &talloc);
@@ -1399,12 +1397,10 @@ void testLocking()
 
     // LockRead / insertBulk
     {
+        // Time the duration how long it took to run 'insertBulk'
+        TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
-
-        // Time the duration how long it took to run 'insertBulk'
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
 
         bsl::shared_ptr<bsl::string> valuePtr;
         bsl::vector<PairBulkType>    insertData(2, &talloc);
@@ -1423,13 +1419,13 @@ void testLocking()
 
     // LockRead / erase
     {
+        // Time the duration how long it took to run 'erase'
+        TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
 
-        // Time the duration how long it took to run 'erase'
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
         cache.erase(1);
+
         TimeType endTime = bsls::TimeUtil::getTimer();
         int      duration = static_cast<int>((endTime - startTime) / 1000);
         bslmt::ThreadUtil::join(handle, &result);
@@ -1439,12 +1435,10 @@ void testLocking()
 
     // LockRead / eraseBulk
     {
+        // Time the duration how long it took to run 'eraseBulk'
+        TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
-
-        // Time the duration how long it took to run 'eraseBulk'
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
 
         bsl::vector<int> eraseKeys(&talloc);
         eraseKeys.push_back(3);
@@ -1460,13 +1454,13 @@ void testLocking()
 
     // LockRead / clear
     {
+        // Time the duration how long it took to run 'clear'
+        TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
 
-        // Time the duration how long it took to run 'clear'
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
         cache.clear();
+
         TimeType endTime = bsls::TimeUtil::getTimer();
         int      duration = static_cast<int>((endTime - startTime) / 1000);
         bslmt::ThreadUtil::join(handle, &result);
@@ -1477,13 +1471,13 @@ void testLocking()
     // LockRead / popFront
     {
         cache.insert(6, "Jack");
+        // Time the duration how long it took to run 'popFront'
+        TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
 
-        // Time the duration how long it took to run 'popFront'
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
         cache.popFront();
+
         TimeType endTime = bsls::TimeUtil::getTimer();
         int      duration = static_cast<int>((endTime - startTime) / 1000);
         bslmt::ThreadUtil::join(handle, &result);
@@ -1493,12 +1487,10 @@ void testLocking()
 
     // LockWrite / size
     {
+        // Time the duration how long it took to run 'size'
+        TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
         smp.wait();
-
-        // Time the duration how long it took to run 'size'
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
 
         std::size_t size = cache.size();
         (void) size;
@@ -1514,9 +1506,7 @@ void testLocking()
     {
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
-
         // Time the duration how long it took to run 'size'
-
         TimeType startTime = bsls::TimeUtil::getTimer();
 
         std::size_t size = cache.size();
@@ -1534,14 +1524,14 @@ void testLocking()
         cache.insert(7, "Steve");
         cache.insert(8, "Ofer");
         TestVisitor visitor;
+        // Time the duration how long it took to run 'visit'
+        TimeType startTime = bsls::TimeUtil::getTimer();
 
         bslmt::ThreadUtil::create(&handle, workThread, &tdWrite);
         smp.wait();
 
-        // Time the duration how long it took to run 'visit'
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
         cache.visit(visitor);
+
         TimeType endTime = bsls::TimeUtil::getTimer();
         int      duration = static_cast<int>((endTime - startTime) / 1000);
         bslmt::ThreadUtil::join(handle, &result);
@@ -1552,14 +1542,13 @@ void testLocking()
     // LockRead / visit
     {
         TestVisitor visitor;
-
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
-
         // Time the duration how long it took to run 'visit'
-
         TimeType startTime = bsls::TimeUtil::getTimer();
+
         cache.visit(visitor);
+
         TimeType endTime = bsls::TimeUtil::getTimer();
         int      duration = static_cast<int>((endTime - startTime) / 1000);
         bslmt::ThreadUtil::join(handle, &result);
@@ -1570,16 +1559,14 @@ void testLocking()
     // LockRead / tryGetValue, LRU
     {
         // The default cache eviction policy is LRU.
+
+        // Time the duration how long it took to run 'tryGetValue'
+        TimeType startTime = bsls::TimeUtil::getTimer();
         bslmt::ThreadUtil::create(&handle, workThread, &tdRead);
         smp.wait();
 
-        // Time the duration how long it took to run 'tryGetValue'
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
-
         bsl::shared_ptr<bsl::string> valuePtr;
-
-        int rc = cache.tryGetValue(&valuePtr, 8);
+        int                          rc = cache.tryGetValue(&valuePtr, 8);
         (void) rc;
 
         TimeType endTime = bsls::TimeUtil::getTimer();
@@ -1596,17 +1583,15 @@ void testLocking()
     ThreadData         tdFifoRead( &fifoCache_TestUtil, k_SLEEP_PERIOD, 'R');
     // LockWrite / tryGetValue, FIFO
     {
+        // Time the duration how long it took to run 'tryGetValue'
+        TimeType startTime = bsls::TimeUtil::getTimer();
+
         // The default cache eviction policy is LRU - need to create a FIFO one
         bslmt::ThreadUtil::create(&handle, workThread, &tdFifoWrite);
         smp.wait();
 
-        // Time the duration how long it took to run 'tryGetValue'
-
-        TimeType startTime = bsls::TimeUtil::getTimer();
-
         bsl::shared_ptr<bsl::string> valuePtr;
-
-        int rc = fifoCache.tryGetValue(&valuePtr, 8);
+        int                          rc = fifoCache.tryGetValue(&valuePtr, 8);
         (void) rc;
 
         TimeType endTime = bsls::TimeUtil::getTimer();
@@ -1621,14 +1606,11 @@ void testLocking()
         // The default cache eviction policy is LRU - need to create a FIFO one
         bslmt::ThreadUtil::create(&handle, workThread, &tdFifoRead);
         smp.wait();
-
         // Time the duration how long it took to run 'tryGetValue'
-
         TimeType startTime = bsls::TimeUtil::getTimer();
 
         bsl::shared_ptr<bsl::string> valuePtr;
-
-        int rc = fifoCache.tryGetValue(&valuePtr, 8);
+        int                          rc = fifoCache.tryGetValue(&valuePtr, 8);
         (void) rc;
 
         TimeType endTime = bsls::TimeUtil::getTimer();
