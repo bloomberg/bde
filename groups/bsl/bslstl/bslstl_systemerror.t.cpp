@@ -166,32 +166,35 @@ void aSsErT(bool condition, const char *message, int line)
 //
 // First, we define the set of error codes for our system.
 //..
-   namespace car_errc {
-   enum car_errc {
-       car_wheels_came_off = 1,
-       car_engine_fell_out = 2
-   };
-   }  // close namespace car_errc
+    namespace car_errc {
+    enum car_errc {
+        car_wheels_came_off = 1,
+        car_engine_fell_out = 2
+    };
+    }  // close namespace car_errc
 //..
-// Then, we enable the trait marking this as an error code.
+// Then, we enable the traits marking this as an error code and condition.
 //..
-   namespace bsl {
-   template <>
-   struct is_error_code_enum<car_errc::car_errc> : public true_type {
-   };
-   }  // close namespace bsl
+    namespace bsl {
+    template <>
+    struct is_error_code_enum<car_errc::car_errc> : public true_type {
+    };
+    template <>
+    struct is_error_condition_enum<car_errc::car_errc> : public true_type {
+    };
+    }  // close namespace bsl
 //..
 // Next, we create an error category that will give us descriptive messages.
 //..
-   namespace {
-   struct car_category_impl : public bsl::error_category {
-       // ACCESSORS
-       std::string message(int value) const;
-           // Return a string describing the specified 'value'.
+    namespace {
+    struct car_category_impl : public bsl::error_category {
+        // ACCESSORS
+        std::string message(int value) const;
+            // Return a string describing the specified 'value'.
 
-       const char *name() const;
-           // Return a string describing this error category.
-   };
+        const char *name() const;
+            // Return a string describing this error category.
+    };
 
     // ACCESSORS
     std::string car_category_impl::message(int value) const {
@@ -329,10 +332,331 @@ int main(int argc, char *argv[])
     }
 //..
       } break;
+      case 8: {
+        // --------------------------------------------------------------------
+        // TESTING SYSTEM ERROR METHODS
+        //   Test the metthods of the 'bsl::system_error' class.
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING SYSTEM ERROR METHODS"
+                   "\n============================\n");
+
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING ERROR CONDITION METHODS
+        //   Test the metthods of the 'bsl::error_condition' class.
+        //
+        // Concerns:
+        //:  1 The default constructor makes a generic condition with value 0.
+        //:  2 The value/category constructor preserves its arguments.
+        //:  3 The templated constructor makes a generic condition.
+        //:  4 The 'assign' method preserves its arguments.
+        //:  5 Templated assignment makes a generic condition.
+        //:  6 'clear' makes a generic condition with value 0.
+        //:  7 The 'category' method retrieves the correct category.
+        //:  8 The 'message' method uses 'strerror' for its result.
+        //:  9 The 'value' method retrieves the correct value.
+        //: 10 Use in boolean context checks whether the value is non-zero.
+        //
+        // Plan:
+        //:  1 Exercise each method in entirely obvious ways.  (C-1..10)
+        //
+        // Testing:
+        //   error_condition()
+        //   error_condition(int, const error_category&)
+        //   error_condition(ERROR_CODE_ENUM)
+        //   void assign(int, const error_category&)
+        //   error_condition& operator=(ERROR_CODE_ENUM)
+        //   void clear()
+        //   const error_category& category() const
+        //   std::string message() const
+        //   int value() const
+        //   operator BoolType() const
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING ERROR CONDITION METHODS"
+                   "\n===============================\n");
+
+        if (veryVerbose) {
+            printf("error_condition()\n");
+        }
+        {
+            error_condition        mX;
+            const error_condition& X = mX;
+            ASSERT(&generic_category() == &X.category());
+            ASSERT(0 == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("error_condition(int, const error_category&)\n");
+        }
+        {
+            error_condition mX(static_cast<int>(errc::no_link),
+                               generic_category());
+            const error_condition& X = mX;
+            ASSERT(&generic_category() == &X.category());
+            ASSERT(ENOLINK == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("error_condition(ERROR_CODE_ENUM)\n");
+        }
+        {
+            error_condition        mX(car_errc::car_engine_fell_out);
+            const error_condition& X = mX;
+            ASSERT(&generic_category() == &X.category());
+            ASSERT(car_errc::car_engine_fell_out == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("void assign(int, const error_category&)\n");
+        }
+        {
+            error_condition        mX;
+            const error_condition& X = mX;
+            mX.assign(car_errc::car_engine_fell_out, car_category());
+            ASSERT(&car_category() == &X.category());
+            ASSERT(car_errc::car_engine_fell_out == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("error_condition& operator=(ERROR_CODE_ENUM)\n");
+        }
+        {
+            error_condition        mX;
+            const error_condition& X = (mX = car_errc::car_engine_fell_out);
+            ASSERT(&mX == &X);
+            ASSERT(&generic_category() == &X.category());
+            ASSERT(car_errc::car_engine_fell_out == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("void clear()\n");
+        }
+        {
+            error_condition mX(static_cast<int>(errc::no_link),
+                               generic_category());
+            const error_condition& X = mX;
+            mX.clear();
+            ASSERT(&generic_category() == &X.category());
+            ASSERT(0 == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("const error_category& category() const\n");
+        }
+        {
+            error_condition        mX(0, system_category());
+            const error_condition& X = mX;
+            ASSERT(&system_category() == &X.category());
+        }
+
+        if (veryVerbose) {
+            printf("std::string message() const\n");
+        }
+        {
+            error_condition mX(static_cast<int>(errc::no_link),
+                               generic_category());
+            const error_condition& X = mX;
+            ASSERT(strerror(ENOLINK) == X.message());
+        }
+
+        if (veryVerbose) {
+            printf("int value() const\n");
+        }
+        {
+            error_condition mX(static_cast<int>(errc::no_link),
+                               generic_category());
+            const error_condition& X = mX;
+            ASSERT(ENOLINK == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("operator BoolType() const\n");
+        }
+        {
+            error_condition        mX;
+            const error_condition& X = mX;
+            ASSERT(!(X));
+            if (X) {
+                ASSERT(false);
+            }
+            mX = car_errc::car_engine_fell_out;
+            ASSERT(X);
+            if (X) {
+            }
+            else {
+                ASSERT(false);
+            }
+        }
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING ERROR CODE METHODS
+        //   Test the metthods of the 'bsl::error_code' class.
+        //
+        // Concerns:
+        //:  1 The default constructor makes a system code with value 0.
+        //:  2 The value/category constructor preserves its arguments.
+        //:  3 The templated constructor makes a generic code.
+        //:  4 The 'assign' method preserves its arguments.
+        //:  5 Templated assignment makes a generic code.
+        //:  6 'clear' makes a system code with value 0.
+        //:  7 The 'category' method retrieves the correct category.
+        //:  8 The 'default_error_condition' makes an equivalent condition.
+        //:  9 The 'message' method uses 'strerror' for its result.
+        //: 10 The 'value' method retrieves the correct value.
+        //: 11 Use in boolean context checks whether the value is non-zero.
+        //
+        // Plan:
+        //:  1 Exercise each method in entirely obvious ways.  (C-1..11)
+        //
+        // Testing:
+        //   error_code()
+        //   error_code(int, const error_category&)
+        //   error_code(ERROR_CODE_ENUM)
+        //   void assign(int, const error_category&)
+        //   error_code& operator=(ERROR_CODE_ENUM)
+        //   void clear()
+        //   const error_category& category() const
+        //   error_condition default_error_condition() const
+        //   std::string message() const
+        //   int value() const
+        //   operator BoolType() const
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nTESTING ERROR CODE METHODS"
+                   "\n==========================\n");
+
+        if (veryVerbose) {
+            printf("error_code()\n");
+        }
+        {
+            error_code        mX;
+            const error_code& X = mX;
+            ASSERT(&system_category() == &X.category());
+            ASSERT(0 == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("error_code(int, const error_category&)\n");
+        }
+        {
+            error_code mX(static_cast<int>(errc::no_link), generic_category());
+            const error_code& X = mX;
+            ASSERT(&generic_category() == &X.category());
+            ASSERT(ENOLINK == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("error_code(ERROR_CODE_ENUM)\n");
+        }
+        {
+            error_code        mX(car_errc::car_engine_fell_out);
+            const error_code& X = mX;
+            ASSERT(&generic_category() == &X.category());
+            ASSERT(car_errc::car_engine_fell_out == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("void assign(int, const error_category&)\n");
+        }
+        {
+            error_code        mX;
+            const error_code& X = mX;
+            mX.assign(car_errc::car_engine_fell_out, car_category());
+            ASSERT(&car_category() == &X.category());
+            ASSERT(car_errc::car_engine_fell_out == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("error_code& operator=(ERROR_CODE_ENUM)\n");
+        }
+        {
+            error_code        mX;
+            const error_code& X = (mX = car_errc::car_engine_fell_out);
+            ASSERT(&mX == &X);
+            ASSERT(&generic_category() == &X.category());
+            ASSERT(car_errc::car_engine_fell_out == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("void clear()\n");
+        }
+        {
+            error_code mX(static_cast<int>(errc::no_link), generic_category());
+            const error_code& X = mX;
+            mX.clear();
+            ASSERT(&system_category() == &X.category());
+            ASSERT(0 == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("const error_category& category() const\n");
+        }
+        {
+            error_code        mX(0, system_category());
+            const error_code& X = mX;
+            ASSERT(&system_category() == &X.category());
+        }
+
+        if (veryVerbose) {
+            printf("error_condition default_error_condition() const\n");
+        }
+        {
+            error_code mX(static_cast<int>(errc::no_link), generic_category());
+            const error_code&      X  = mX;
+            error_condition        mY = X.default_error_condition();
+            const error_condition& Y  = mY;
+            ASSERT(&Y.category() == &X.category());
+            ASSERT(Y.value() == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("std::string message() const\n");
+        }
+        {
+            error_code mX(static_cast<int>(errc::no_link), generic_category());
+            const error_code& X = mX;
+            ASSERT(strerror(ENOLINK) == X.message());
+        }
+
+        if (veryVerbose) {
+            printf("int value() const\n");
+        }
+        {
+            error_code mX(static_cast<int>(errc::no_link), generic_category());
+            const error_code& X = mX;
+            ASSERT(ENOLINK == X.value());
+        }
+
+        if (veryVerbose) {
+            printf("operator BoolType() const\n");
+        }
+        {
+            error_code        mX;
+            const error_code& X = mX;
+            ASSERT(!(X));
+            if (X) {
+                ASSERT(false);
+            }
+            mX = car_errc::car_engine_fell_out;
+            ASSERT(X);
+            if (X) {
+            }
+            else {
+                ASSERT(false);
+            }
+        }
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING ERROR CATEGORY METHODS
-        //   Test the metthods of the 'bsl::error_caegory' class.
+        //   Test the metthods of the 'bsl::error_category' class.
         //
         // Concerns:
         //: 1 This class is abstract, so testing methods can only be done via

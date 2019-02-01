@@ -35,32 +35,35 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the set of error codes for our system.
 //..
-// namespace car_errc {
-// enum car_errc {
-//     car_wheels_came_off = 1,
-//     car_engine_fell_out = 2
-// };
-// }  // close namespace car_errc
+//  namespace car_errc {
+//  enum car_errc {
+//      car_wheels_came_off = 1,
+//      car_engine_fell_out = 2
+//  };
+//  }  // close namespace car_errc
 //..
-// Then, we enable the trait marking this as an error code.
+// Then, we enable the traits marking this as an error code and condition.
 //..
-// namespace bsl {
-// template <>
-// struct is_error_code_enum<car_errc::car_errc> : public true_type {
-// };
-// }  // close namespace bsl
+//  namespace bsl {
+//  template <>
+//  struct is_error_code_enum<car_errc::car_errc> : public true_type {
+//  };
+//  template <>
+//  struct is_error_condition_enum<car_errc::car_errc> : public true_type {
+//  };
+//  }  // close namespace bsl
 //..
 // Next, we create an error category that will give us descriptive messages.
 //..
-// namespace {
-// struct car_category_impl : public bsl::error_category {
-//     // ACCESSORS
-//     std::string message(int value) const;
-//         // Return a string describing the specified 'value'.
+//  namespace {
+//  struct car_category_impl : public bsl::error_category {
+//      // ACCESSORS
+//      std::string message(int value) const;
+//          // Return a string describing the specified 'value'.
 //
-//     const char *name() const;
-//         // Return a string describing this error category.
-// };
+//      const char *name() const;
+//          // Return a string describing this error category.
+//  };
 //
 //  // ACCESSORS
 //  std::string car_category_impl::message(int value) const {
@@ -384,8 +387,9 @@ class error_code {
         // and 'category'.
 
     template <class ERROR_CODE_ENUM>
-    error_code(typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
-                                  ERROR_CODE_ENUM>::type value);
+    error_code(ERROR_CODE_ENUM value,
+               typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
+                                  int>::type = 0);
         // Construct an object of this type initialized with the specified
         // 'value' and generic category.  Note that this constructor exists
         // only for those types designated as error codes via the
@@ -398,9 +402,9 @@ class error_code {
         // Set this object to hold the specified 'value' and 'category'.
 
     template <class ERROR_CODE_ENUM>
-    error_code&
-    operator=(typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
-                                 ERROR_CODE_ENUM>::type value);
+    typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
+                       error_code&>::type
+    operator=(ERROR_CODE_ENUM value);
         // Set this object to hold the specified 'value' and generic category.
         // Note that this operator exists only for those types designated as
         // error codes via the 'is_error_code_enum' trait template.  Note that
@@ -451,9 +455,10 @@ class error_condition {
         // and 'category'.
 
     template <class ERROR_CONDITION_ENUM>
-    error_condition(typename enable_if<
-                    is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
-                    ERROR_CONDITION_ENUM>::type value);
+    error_condition(ERROR_CONDITION_ENUM value,
+                    typename enable_if<
+                        is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
+                        int>::type = 0);
         // Construct an object of this type initialized with the specified
         // 'value' and generic category.  Note that this constructor exists
         // only for those types designated as error conditions via the
@@ -464,10 +469,9 @@ class error_condition {
         // Set this object to hold the specified 'value' and 'category'.
 
     template <class ERROR_CONDITION_ENUM>
-    error_condition&
-    operator=(typename enable_if<
-              is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
-              ERROR_CONDITION_ENUM>::type value);
+    typename enable_if<is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
+                       error_condition&>::type
+    operator=(ERROR_CONDITION_ENUM value);
         // Set this object to hold the specified 'value' and generic category.
         // Note that this operator exists only for those types designated as
         // error conditions via the 'is_error_condition_enum' trait template.
@@ -594,22 +598,21 @@ bool operator<(const error_condition& lhs, const error_condition& rhs);
 template <class ERROR_CODE_ENUM>
 inline
 error_code::error_code(
-                 typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
-                                    ERROR_CODE_ENUM>::type value)
-: d_value(make_error_code(value).value())
-, d_category_p(&make_error_code(value).category())
+    ERROR_CODE_ENUM value,
+    typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value, int>::type)
+: d_value(value)
+, d_category_p(&generic_category())
 {
 }
 
 template <class ERROR_CODE_ENUM>
 inline
-error_code&
-error_code::
-operator=(typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
-                             ERROR_CODE_ENUM>::type value)
+typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
+                   error_code&>::type
+error_code::operator=(ERROR_CODE_ENUM value)
 {
-    d_value = make_error_code(value).value();
-    d_category_p = &make_error_code(value).category();
+    d_value = value;
+    d_category_p = &generic_category();
     return *this;
 }
 
@@ -632,22 +635,22 @@ std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
 template <class ERROR_CONDITION_ENUM>
 inline
 error_condition::error_condition(
-       typename enable_if<is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
-                          ERROR_CONDITION_ENUM>::type value)
-: d_value(make_error_condition(value).value())
-, d_category_p(&make_error_condition(value).category())
+    ERROR_CONDITION_ENUM value,
+    typename enable_if<is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
+                       int>::type)
+: d_value(value)
+, d_category_p(&generic_category())
 {
 }
 
 template <class ERROR_CONDITION_ENUM>
 inline
-error_condition&
-error_condition::operator=(
-       typename enable_if<is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
-                          ERROR_CONDITION_ENUM>::type value)
+typename enable_if<is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
+                   error_condition&>::type
+error_condition::operator=(ERROR_CONDITION_ENUM value)
 {
-    d_value = make_error_condition(value).value();
-    d_category_p = &make_error_condition(value).category();
+    d_value = value;
+    d_category_p = &generic_category();
     return *this;
 }
 
