@@ -60,38 +60,38 @@ using namespace bsl;
 // [ 5] bool operator<(const error_category&) const
 //
 // ERROR CODE METHODS
-// [  ] error_code()
-// [  ] error_code(int, const error_category&)
-// [  ] error_code(ERROR_CODE_ENUM)
-// [  ] void assign(int, const error_category&)
-// [  ] error_code& operator=(ERROR_CODE_ENUM)
-// [  ] void clear()
-// [  ] const error_category& category() const
-// [  ] error_condition default_error_condition() const
-// [  ] std::string message() const
-// [  ] int value() const
-// [  ] operator BoolType() const
+// [ 6] error_code()
+// [ 6] error_code(int, const error_category&)
+// [ 6] error_code(ERROR_CODE_ENUM)
+// [ 6] void assign(int, const error_category&)
+// [ 6] error_code& operator=(ERROR_CODE_ENUM)
+// [ 6] void clear()
+// [ 6] const error_category& category() const
+// [ 6] error_condition default_error_condition() const
+// [ 6] std::string message() const
+// [ 6] int value() const
+// [ 6] operator BoolType() const
 //
 // ERROR CONDITION METHODS
-// [  ] error_condition()
-// [  ] error_condition(int, const error_category&)
-// [  ] error_condition(ERROR_CODE_ENUM)
-// [  ] void assign(int, const error_category&)
-// [  ] error_condition& operator=(ERROR_CODE_ENUM)
-// [  ] void clear()
-// [  ] const error_category& category() const
-// [  ] std::string message() const
-// [  ] int value() const
-// [  ] operator BoolType() const
+// [ 7] error_condition()
+// [ 7] error_condition(int, const error_category&)
+// [ 7] error_condition(ERROR_CODE_ENUM)
+// [ 7] void assign(int, const error_category&)
+// [ 7] error_condition& operator=(ERROR_CODE_ENUM)
+// [ 7] void clear()
+// [ 7] const error_category& category() const
+// [ 7] std::string message() const
+// [ 7] int value() const
+// [ 7] operator BoolType() const
 //
 // SYSTEM ERROR METHODS
-// [  ] system_error(error_code, const std::string&)
-// [  ] system_error(error_code, const char *)
-// [  ] system_error(error_code)
-// [  ] system_error(int, const error_category&, const std::string&)
-// [  ] system_error(int, const error_category&, const char *)
-// [  ] system_error(int, const error_category&)
-// [  ] const error_code& code() const
+// [ 8] system_error(error_code, const std::string&)
+// [ 8] system_error(error_code, const char *)
+// [ 8] system_error(error_code)
+// [ 8] system_error(int, const error_category&, const std::string&)
+// [ 8] system_error(int, const error_category&, const char *)
+// [ 8] system_error(int, const error_category&)
+// [ 8] const error_code& code() const
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -336,12 +336,78 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING SYSTEM ERROR METHODS
         //   Test the metthods of the 'bsl::system_error' class.
+        //
+        // Concerns:
+        //: 1 The constructors build an object with the correct code.
+        //: 2 The optional 'what' parameter can be observed.
+        //
+        // Plan:
+        //: 1 Construct objects with each of the constructors.  (C-1)
+        //: 2 Retrieve the code and message to verify preservation.  (C-2)
+        //
+        // Testing:
+        //   system_error(error_code, const std::string&)
+        //   system_error(error_code, const char *)
+        //   system_error(error_code)
+        //   system_error(int, const error_category&, const std::string&)
+        //   system_error(int, const error_category&, const char *)
+        //   system_error(int, const error_category&)
+        //   const error_code& code() const
         // --------------------------------------------------------------------
 
         if (verbose)
             printf("\nTESTING SYSTEM ERROR METHODS"
                    "\n============================\n");
 
+        error_code ec(errc::io_error, system_category());
+
+        {
+            system_error        mX(ec, std::string("@@@"));
+            const system_error& X = mX;
+            ASSERT(ec == X.code());
+            ASSERT(strstr(X.what(), strerror(EIO)));
+            ASSERT(strstr(X.what(), "@@@"));
+        }
+        
+        {
+            system_error        mX(ec, "@@@");
+            const system_error& X = mX;
+            ASSERT(ec == X.code());
+            ASSERT(strstr(X.what(), strerror(EIO)));
+            ASSERT(strstr(X.what(), "@@@"));
+        }
+        
+        {
+            system_error        mX(ec);
+            const system_error& X = mX;
+            ASSERT(EIO == X.code().value());
+            ASSERT(strstr(X.what(), strerror(EIO)));
+        }
+
+        {
+            system_error        mX(errc::io_error,
+                                   system_category(),
+                                   std::string("@@@"));
+            const system_error& X = mX;
+            ASSERT(ec == X.code());
+            ASSERT(strstr(X.what(), strerror(EIO)));
+            ASSERT(strstr(X.what(), "@@@"));
+        }
+
+        {
+            system_error        mX(errc::io_error, system_category(), "@@@");
+            const system_error& X = mX;
+            ASSERT(ec == X.code());
+            ASSERT(strstr(X.what(), strerror(EIO)));
+            ASSERT(strstr(X.what(), "@@@"));
+        }
+
+        {
+            system_error        mX(errc::io_error, system_category());
+            const system_error& X = mX;
+            ASSERT(ec == X.code());
+            ASSERT(strstr(X.what(), strerror(EIO)));
+        }
       } break;
       case 7: {
         // --------------------------------------------------------------------
