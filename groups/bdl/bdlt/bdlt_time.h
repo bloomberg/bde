@@ -133,9 +133,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-                                // ==========
-                                // class Time
-                                // ==========
+                                 // ==========
+                                 // class Time
+                                 // ==========
 
 class Time {
     // This class implements a value-semantic type that represents the time of
@@ -192,6 +192,12 @@ class Time {
         // Return the difference, in microseconds, between the value of this
         // object and 00:00:00.000000.  If the value of this object is
         // 24:00:00.000000, it is treated as 00:00:00.000000.
+
+    bsls::Types::Int64 invalidMicrosecondsFromMidnight() const;
+        // Invoke a review failure notifying that a 'bdlt::Time' instance is
+        // being used in an invalid state.  The behavior is undefined unless
+        // this object has the old represenation ('k_REP_MASK > d_value') and
+        // 'BSLS_ASSERT_SAFE' is not active.
 
     bsls::Types::Int64 updatedRepresentation() const;
         // If 'd_value' was stored using the current representation scheme,
@@ -313,8 +319,8 @@ class Time {
                 bsls::Types::Int64 microseconds = 0);
         // Add to the value of this time object the specified (signed) number
         // of 'hours', and the optionally specified (signed) numbers of
-        // 'minutes', 'seconds', 'milliseconds', and 'microseconds'; return
-        // the (signed) number of times that the 23:59:59.999999 -
+        // 'minutes', 'seconds', 'milliseconds', and 'microseconds'; return the
+        // (signed) number of times that the 23:59:59.999999 -
         // 00:00:00.000000 boundary was crossed in performing the operation.
         // Unspecified arguments default to 0.
 
@@ -603,9 +609,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Time& time);
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-                                // ----------
-                                // class Time
-                                // ----------
+                                 // ----------
+                                 // class Time
+                                 // ----------
 
 // PRIVATE MANIPULATORS
 inline
@@ -621,18 +627,12 @@ void Time::setMicrosecondsFromMidnight(bsls::Types::Int64 totalMicroseconds)
 inline
 bsls::Types::Int64 Time::microsecondsFromMidnight() const
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(k_REP_MASK <= d_value)) {
-        return d_value & (~k_REP_MASK);                               // RETURN
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(k_REP_MASK > d_value)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        return invalidMicrosecondsFromMidnight();                     // RETURN
     }
 
-    BSLS_ASSERT_SAFE(0 && "detected invalid 'bdlt::Time'; see TEAM 579660115");
-    BSLS_REVIEW_INVOKE("detected invalid 'bdlt::Time'; see TEAM 579660115");
-
-#if BSLS_PLATFORM_IS_LITTLE_ENDIAN
-    return d_value * TimeUnitRatio::k_US_PER_MS;
-#else
-    return (d_value >> 32) * TimeUnitRatio::k_US_PER_MS;
-#endif
+    return d_value & (~k_REP_MASK);
 }
 
 inline

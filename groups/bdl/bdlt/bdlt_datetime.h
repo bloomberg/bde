@@ -267,9 +267,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-                              // ==============
-                              // class Datetime
-                              // ==============
+                               // ==============
+                               // class Datetime
+                               // ==============
 
 class Datetime {
     // This class implements a simply-constrained value-semantic type
@@ -331,8 +331,11 @@ class Datetime {
         // detection of an invalid date.
 
     bool validateAndTraceLogRepresentation() const;
-        // Return 'true' if the representation is valid, and 'false' otherwise.
-        // If invalid, provide simplified stack trace through BSLS_LOG.
+        // Return 'true' if the representation is valid.  Invoke a review
+        // failure notifying of an invalid use of a 'bdlt::Datetime' instance
+        // and return 'false' if the represenation is invalid and
+        // 'BSLS_ASSERT_SAFE' is inactive.  The behavior is undefined if the
+        // representation is invalid and 'BSLS_ASSERT_SAFE' is active.
 
   public:
     // CLASS METHODS
@@ -1047,9 +1050,9 @@ void hashAppend(HASHALG& hashAlg, const Datetime& object);
 //                             INLINE DEFINITIONS
 // ============================================================================
 
-                              // --------------
-                              // class Datetime
-                              // --------------
+                               // --------------
+                               // class Datetime
+                               // --------------
 
 // PRIVATE MANIPULATOR
 inline
