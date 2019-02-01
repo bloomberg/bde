@@ -44,7 +44,7 @@ BSLS_IDENT("$Id: $")
 //      bsls::ObjectBuffer<TYPE> d_value;
 //      bool                     d_isNull;
 //..
-// Then, we provide a constructor that makes a copy of an argument of the given
+// Next, we provide a constructor that makes a copy of an argument of the given
 // 'TYPE'.
 //..
 //    public:
@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 //      explicit NullableValue(const TYPE& value);
 //          // Create an object having the specified 'value'.
 //..
-// Next, we provide an implicit constructor using 'bdlb::NullOptType' to allow
+// Then, we provide an implicit constructor using 'bdlb::NullOptType' to allow
 // our users to explicitly create a nullable object in the null state.
 //..
 //      NullableValue(bdlb::NullOptType);                           // IMPLICIT
@@ -60,7 +60,7 @@ BSLS_IDENT("$Id: $")
 //          // only to select this constructor overload, the actual value is
 //          // not used.
 //..
-// Then we provide accessors to indicate whether the object is in the null
+// Next we provide accessors to indicate whether the object is in the null
 // state, and to return the wrapped value if one is avaialble.
 //..
 //      // ACCESSORS
@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 //
 //  }  // close namespace xyza
 //..
-// Now we can write a function that consumes a nullable value.
+// Now, we can write a function that consumes a nullable value.
 //..
 //  namespace xyzb {
 //
