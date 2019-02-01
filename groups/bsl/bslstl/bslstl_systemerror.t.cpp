@@ -1256,13 +1256,13 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 4; ++i) {
             const bsl::error_code &ci = codes[i];
             if (veryVeryVerbose) {
-                printf("%d %s %d %lu\n",
+                printf("%d %s %d %zu\n",
                        i, ci.category().name(), ci.value(), hasher(ci));
             }
             for (int j = i; j < 4; ++j) {
                 const bsl::error_code &cj = codes[j];
                 if (veryVeryVerbose) {
-                    printf("\t%d %s %d %lu\n",
+                    printf("\t%d %s %d %zu\n",
                            j, cj.category().name(), cj.value(), hasher(cj));
                 }
                 ASSERT((i == j) == (hasher(ci) == hasher(cj)));
@@ -1281,13 +1281,13 @@ int main(int argc, char *argv[])
         for (int i = 0; i < 4; ++i) {
             const bsl::error_condition &ci = conditions[i];
             if (veryVeryVerbose) {
-                printf("%d %s %d %lu\n",
+                printf("%d %s %d %zu\n",
                        i, ci.category().name(), ci.value(), hasher(ci));
             }
             for (int j = i; j < 4; ++j) {
                 const bsl::error_condition &cj = conditions[j];
                 if (veryVeryVerbose) {
-                    printf("\t%d %s %d %lu\n",
+                    printf("\t%d %s %d %zu\n",
                            j, cj.category().name(), cj.value(), hasher(cj));
                 }
                 ASSERT((i == j) ==
