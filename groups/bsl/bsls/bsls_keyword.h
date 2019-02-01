@@ -15,11 +15,12 @@ BSLS_IDENT("$Id: $")
 //  BSLS_KEYWORD_DELETED: C++11 '= delete' function definition
 //  BSLS_KEYWORD_EXPLICIT: C++11 'explicit' for conversion operators
 //  BSLS_KEYWORD_FINAL: C++11 'final' keyword
+//  BSLS_KEYWORD_INLINE_CONSTEXPR: Combination macro for 'inline constexpr'
 //  BSLS_KEYWORD_INLINE_VARIABLE: C++17 'inline' keyword for variables
 //  BSLS_KEYWORD_NOEXCEPT: C++11 'noexcept' keyword
 //  BSLS_KEYWORD_NOEXCEPT_AVAILABLE: 'C++11' 'noexcept' flag
-//  BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...): C++11 noexcept function qualfier
 //  BSLS_KEYWORD_NOEXCEPT_OPERATOR(expr): C++11 'noexcept' operation
+//  BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...): C++11 noexcept function qualfier
 //  BSLS_KEYWORD_OVERRIDE: C++11 'override' keyword
 //
 //@DESCRIPTION: This component provides a suite of macros that simplify the use
@@ -63,7 +64,12 @@ BSLS_IDENT("$Id: $")
 //:     This macro inserts the keyword 'final' when compiling with C++11 or
 //:     later mode and inserts nothing when compiling with C++03 mode.
 //:
-//: 'BSLS_KEYWORD_INLINE_VARIAVLE'
+//: 'BSLS_KEYWORD_INLINE_CONSTEXPR'
+//:     This macro inserts the keywords 'inline constexpr' when compiling with
+//:     C++17 or later mode and inserts the best approximation in earlier
+//:     dialects, ultimately degrading down to 'static const' in C++03.
+//:
+//: 'BSLS_KEYWORD_INLINE_VARIABLE'
 //:     This macro inserts the keyword 'inline' when compiling with C++17 or
 //:     later mode and inserts nothing when compiling with C++03/C++11/C++14
 //:     mode.
@@ -284,59 +290,67 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-#define BSLS_KEYWORD_CONSTEXPR        constexpr
-#define BSLS_KEYWORD_CONSTEXPR_MEMBER constexpr
+# define BSLS_KEYWORD_CONSTEXPR        constexpr
+# define BSLS_KEYWORD_CONSTEXPR_MEMBER constexpr
 #else
-#define BSLS_KEYWORD_CONSTEXPR
-#define BSLS_KEYWORD_CONSTEXPR_MEMBER const
+# define BSLS_KEYWORD_CONSTEXPR
+# define BSLS_KEYWORD_CONSTEXPR_MEMBER const
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-#define BSLS_KEYWORD_CONSTEXPR_RELAXED constexpr
+# define BSLS_KEYWORD_CONSTEXPR_RELAXED constexpr
 #else
-#define BSLS_KEYWORD_CONSTEXPR_RELAXED
+# define BSLS_KEYWORD_CONSTEXPR_RELAXED
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
-#define BSLS_KEYWORD_DELETED = delete
+# define BSLS_KEYWORD_DELETED = delete
 #else
-#define BSLS_KEYWORD_DELETED
+# define BSLS_KEYWORD_DELETED
 #endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-#define BSLS_KEYWORD_NOEXCEPT noexcept
-#define BSLS_KEYWORD_NOEXCEPT_AVAILABLE true
-#define BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...) noexcept(__VA_ARGS__)
-#define BSLS_KEYWORD_NOEXCEPT_OPERATOR(...)      noexcept(__VA_ARGS__)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_CONSTEXPR
+# define BSLS_KEYWORD_INLINE_CONSTEXPR inline constexpr
+#elif defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+# define BSLS_KEYWORD_INLINE_CONSTEXPR constexpr
 #else
-#define BSLS_KEYWORD_NOEXCEPT
-#define BSLS_KEYWORD_NOEXCEPT_AVAILABLE false
-#define BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...)
-#define BSLS_KEYWORD_NOEXCEPT_OPERATOR(...) false
-#endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-#define BSLS_KEYWORD_EXPLICIT   explicit
-#else
-#define BSLS_KEYWORD_EXPLICIT
-#endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_FINAL
-#define BSLS_KEYWORD_FINAL      final
-#else
-#define BSLS_KEYWORD_FINAL
-#endif
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-#define BSLS_KEYWORD_OVERRIDE   override
-#else
-#define BSLS_KEYWORD_OVERRIDE
+# define BSLS_KEYWORD_INLINE_CONSTEXPR static const
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-#define BSLS_KEYWORD_INLINE_VARIABLE inline
+# define BSLS_KEYWORD_INLINE_VARIABLE inline
 #else
-#define BSLS_KEYWORD_INLINE_VARIABLE
+# define BSLS_KEYWORD_INLINE_VARIABLE
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+# define BSLS_KEYWORD_NOEXCEPT noexcept
+# define BSLS_KEYWORD_NOEXCEPT_AVAILABLE true
+# define BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...) noexcept(__VA_ARGS__)
+# define BSLS_KEYWORD_NOEXCEPT_OPERATOR(...)      noexcept(__VA_ARGS__)
+#else
+# define BSLS_KEYWORD_NOEXCEPT
+# define BSLS_KEYWORD_NOEXCEPT_AVAILABLE false
+# define BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...)
+# define BSLS_KEYWORD_NOEXCEPT_OPERATOR(...) false
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+# define BSLS_KEYWORD_EXPLICIT   explicit
+#else
+# define BSLS_KEYWORD_EXPLICIT
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_FINAL
+# define BSLS_KEYWORD_FINAL      final
+#else
+# define BSLS_KEYWORD_FINAL
+#endif
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+# define BSLS_KEYWORD_OVERRIDE   override
+#else
+# define BSLS_KEYWORD_OVERRIDE
 #endif
 
 // ----------------------------------------------------------------------------
