@@ -126,7 +126,8 @@ class RWMutex {
         // Create an RW mutex initialized to an unlocked state.
 
     ~RWMutex();
-        // Destroy this RW mutex.
+        // Destroy this RW mutex.  The behavior is undefined if the mutex
+        // is in a locked state.
 
     // MANIPULATORS
     void lockRead();
