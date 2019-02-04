@@ -243,6 +243,8 @@ bsl::ostream *out_p;    // pointer to either 'cout' or a dummy stringstream
                         // that is never output, depending on the value of
                         // 'verbose'.
 
+const char *execName;
+
 static inline
 bool problem()
 {
@@ -295,8 +297,9 @@ FUNC_PTR funcFoilOptimizer(const FUNC_PTR funcPtr)
 
 bool checkOutput(const bsl::string&               str,
                  const bsl::vector<const char *>& matches)
-    // check that the specified 'str' contains all the strings specified in the
-    // vector 'matches' in order.  Note that 'matches' may be modified.
+    // The specified 'matches' vector contains a sequence of strings.  This
+    // function is to assert that all of those strings are present, as
+    // substrings, in order, in the specified 'str'.
 {
     const int ts = testStatus;
 
@@ -363,13 +366,23 @@ void top()
     bsl::string dump(&ta);
     (*testDumpUnion.d_funcPtr)(&dump);
 
+    bsl::string inExec(execName, &ta);
+    const char slash = e_FORMAT_WINDOWS ? '\\' : '/';
+    bsl::size_t pos = inExec.rfind(slash);
+    pos = bsl::string::npos == pos ? 0 : pos + 1;
+    inExec.erase(0, pos);
+
+    // The call to 'checkOutput' will verify that all the strings present in
+    // the vector 'matches' occur, in order, in the string 'dump' which
+    // contains the output of 'printStackTraceToString'.
+
+    bsl::vector<const char *> matches(&ta);
+
     if (!(e_FORMAT_ELF && !e_FORMAT_DWARF) && !e_FORMAT_DLADDR &&
                                 !e_FORMAT_WINDOWS && e_DEBUG_ON && !e_OPT_ON) {
         // Elf doesn't provide souce file names of global routines,
         // Dladdr never provides source file names for anything,
         // Windows often doesn't provide the source file name.
-
-        bsl::vector<const char *> matches(&ta);
 
         matches.push_back("BloombergLP");
         matches.push_back("::");
@@ -381,16 +394,16 @@ void top()
                              ? "printStackTraceToString(bsl::basic_string<char"
                              : "printStackTraceToString");
         matches.push_back(" source:balst_stacktraceprintutil.h");
-        matches.push_back(" in balst_stacktraceprintutil.t");
+        matches.push_back(inExec.c_str());
         matches.push_back("\n");
         matches.push_back("CASE_4");
         matches.push_back(e_DEMANGLE_PARENS ? "top()" : "top");
         matches.push_back(" source:balst_stacktraceprintutil.t.cpp");
-        matches.push_back(" in balst_stacktraceprintutil.t");
+        matches.push_back(inExec.c_str());
         matches.push_back("\n");
         matches.push_back("main");
         matches.push_back(" source:balst_stacktraceprintutil.t.cpp");
-        matches.push_back(" in balst_stacktraceprintutil.t");
+        matches.push_back(inExec.c_str());
         matches.push_back("\n");
         if (!e_DEMANGLE_COLONS) {
             matches.erase(bsl::remove_if(matches.begin(),
@@ -398,12 +411,8 @@ void top()
                                          isColonPair),
                           matches.end());
         }
-
-        checkOutput(dump, matches);
     }
     else {
-        bsl::vector<const char *> matches(&ta);
-
         matches.push_back("BloombergLP");
         matches.push_back("::");
         matches.push_back("balst");
@@ -425,9 +434,9 @@ void top()
                                          isColonPair),
                           matches.end());
         }
-
-        checkOutput(dump, matches);
     }
+
+    checkOutput(dump, matches);
 
     int lines = 0;
     for (bsl::size_t pos = 0; pos < dump.length(); ++lines, ++pos) {
@@ -708,7 +717,7 @@ bool called = false;
 
 bool top(bslma::Allocator *alloc)
 {
-    const bool ts = testStatus;
+    const int ts = testStatus;
 
     called = true;
 
@@ -818,6 +827,8 @@ int main(int argc, char *argv[])
     int test    = argc > 1 ? bsl::atoi(argv[1]) : 0;
     verbose     = argc > 2;
     veryVerbose = argc > 3;
+
+    execName = argv[0];
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 

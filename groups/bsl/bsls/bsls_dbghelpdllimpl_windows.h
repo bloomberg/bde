@@ -75,11 +75,21 @@ BSLS_IDENT("$Id: $")
 //..
 //  #if defined(BSLS_PLATFORM_OS_WINDOWS) && defined(BDE_BUILD_TARGET_DBG)
 //..
-// First, we lock the mutex:
+// First, we declare our static function.  Note that it must be static, as
+// taking the address of a global function with '&' doesn't resolve
+// straightforwardly on Windows.
+//..
+//  static int usageFunction(int ii)
+//      // Return the cube of the specified 'ii'.
+//  {
+//      return ii * ii * ii;
+//  }
+//..
+// Next, in 'main', we lock the mutex:
 //..
 //  bsls::BslLockGuard guard(&bsls::DbghelpDllImpl_Windows::lock());
 //..
-// Next, we set the options for the 'dbghelp.dll' library.  Note that any call
+// Then, we set the options for the 'dbghelp.dll' library.  Note that any call
 // to any of the functions in 'bsls::DbghelpDllImpl_Windows' other than 'lock'
 // will load the 'dbghelp.dll' library if necessary.
 //..
@@ -87,19 +97,19 @@ BSLS_IDENT("$Id: $")
 //                                              | SYMOPT_LOAD_LINES
 //                                              | SYMOPT_DEFERRED_LOADS);
 //..
-// Then, we declare and initialize some variables to hold our results:
+// Next, we declare and initialize some variables to hold our results:
 //..
 //  IMAGEHLP_LINE64 line;
 //  ZeroMemory(&line, sizeof(IMAGEHLP_LINE64));
 //  line.SizeOfStruct = sizeof(line);
 //  DWORD offsetFromLine;
 //..
-// Next, we do the call that finds the line number and source file name:
+// Now, we do the call that finds the line number and source file name:
 //..
 //  int rc = bsls::DbghelpDllImpl_Windows::symGetLineFromAddr64(
-//                                                             (DWORD64) &main,
-//                                                             &offsetFromLine,
-//                                                             &line);
+//                                                (DWORD64) &usageFunction + 5,
+//                                                &offsetFromLine,
+//                                                &line);
 //  assert(rc);
 //..
 // Finally, we print out our results:
