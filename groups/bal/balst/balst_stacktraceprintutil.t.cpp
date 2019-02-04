@@ -297,8 +297,9 @@ FUNC_PTR funcFoilOptimizer(const FUNC_PTR funcPtr)
 
 bool checkOutput(const bsl::string&               str,
                  const bsl::vector<const char *>& matches)
-    // check that the specified 'str' contains all the strings specified in the
-    // vector 'matches' in order.  Note that 'matches' may be modified.
+    // The specified 'matches' vector contains a sequence of strings.  This
+    // function is to assert that all of those strings are present, as
+    // substrings, in order, in the specified 'str'.
 {
     const int ts = testStatus;
 
@@ -371,13 +372,17 @@ void top()
     pos = bsl::string::npos == pos ? 0 : pos + 1;
     inExec.erase(0, pos);
 
+    // The call to 'checkOutput' will verify that all the strings present in
+    // the vector 'matches' occur, in order, in the string 'dump' which
+    // contains the output of 'printStackTraceToString'.
+
+    bsl::vector<const char *> matches(&ta);
+
     if (!(e_FORMAT_ELF && !e_FORMAT_DWARF) && !e_FORMAT_DLADDR &&
                                 !e_FORMAT_WINDOWS && e_DEBUG_ON && !e_OPT_ON) {
         // Elf doesn't provide souce file names of global routines,
         // Dladdr never provides source file names for anything,
         // Windows often doesn't provide the source file name.
-
-        bsl::vector<const char *> matches(&ta);
 
         matches.push_back("BloombergLP");
         matches.push_back("::");
@@ -406,12 +411,8 @@ void top()
                                          isColonPair),
                           matches.end());
         }
-
-        checkOutput(dump, matches);
     }
     else {
-        bsl::vector<const char *> matches(&ta);
-
         matches.push_back("BloombergLP");
         matches.push_back("::");
         matches.push_back("balst");
@@ -433,9 +434,9 @@ void top()
                                          isColonPair),
                           matches.end());
         }
-
-        checkOutput(dump, matches);
     }
+
+    checkOutput(dump, matches);
 
     int lines = 0;
     for (bsl::size_t pos = 0; pos < dump.length(); ++lines, ++pos) {

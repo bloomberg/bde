@@ -104,8 +104,8 @@ void *testFunction()
 
 enum { SECOND_LINE = __LINE__ };
 
-static
-int usageFunction(int ii)
+static int usageFunction(int ii)
+    // Return the cube of the specified 'ii'.
 {
     return ii * ii * ii;
 }
@@ -292,6 +292,8 @@ int main(int argc, char *argv[])
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
+
+    (void) usageFunction(0);    // suppress 'unused' warning.
 
     return testStatus;
 }

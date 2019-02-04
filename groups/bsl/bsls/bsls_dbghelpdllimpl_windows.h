@@ -79,8 +79,8 @@ BSLS_IDENT("$Id: $")
 // taking the address of a global function with '&' doesn't resolve
 // straightforwardly on Windows.
 //..
-//  static
-//  int usageFunction(int ii)
+//  static int usageFunction(int ii)
+//      // Return the cube of the specified 'ii'.
 //  {
 //      return ii * ii * ii;
 //  }

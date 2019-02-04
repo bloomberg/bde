@@ -2029,12 +2029,13 @@ int main(int argc, char *argv[])
                              "=========================================\n";
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS) && BSLS_PLATFORM_CMP_VERSION < 2000
-        enum { e_BAD = true };
+        enum { k_NON_WALKBACK_FUNCTION_PTRS_RESOLVABLE = false };
 #else
-        enum { e_BAD = false };
+        enum { k_NON_WALKBACK_FUNCTION_PTRS_RESOLVABLE = true };
 #endif
 
-        if (e_BAD && (!verbose || bsl::strcmp(argv[2], "override"))) {
+        if (!k_NON_WALKBACK_FUNCTION_PTRS_RESOLVABLE &&
+                              (!verbose || bsl::strcmp(argv[2], "override"))) {
             // The Windows resolver can't resolve function ptrs taken via
             // '&<symbolName>'.  It seems to work just fine on ptrs harvested
             // via a stack walkback, just not on function ptrs.  Perhaps when
@@ -2043,7 +2044,7 @@ int main(int argc, char *argv[])
             //
             // I experimented with taking pointers from the location pointed at
             // by the '&<symbolName>' pointers, and from locations at various
-            // offsets from that, but that resulted in complete failure.
+            // offsets from that, but this always resulted in complete failure.
 
             cout << "Test 14 Disabled on Windows up through MSVC 2017.\n";
             cout << "Run $0 " << test << " override\" to override and run.\n";
