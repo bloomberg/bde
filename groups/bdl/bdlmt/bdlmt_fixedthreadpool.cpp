@@ -211,7 +211,9 @@ FixedThreadPool::FixedThreadPool(
 , d_threadAttributes(threadAttributes, basicAllocator)
 , d_numThreads(numThreads)
 {
-    BSLS_ASSERT_OPT(0 != d_numThreads);
+    BSLS_ASSERT_OPT(1          <= numThreads);
+    BSLS_ASSERT_OPT(1          <= maxNumPendingJobs);
+    BSLS_ASSERT_OPT(0x01FFFFFF >= maxNumPendingJobs);
 
     disable();
 
