@@ -70,7 +70,7 @@ using namespace bsl;
 // [ 6] error_condition default_error_condition() const
 // [ 6] std::string message() const
 // [ 6] int value() const
-// [ 6] operator BoolType() const
+// [ 6] operator int BloombergLP::bsls::UnspecifiedBool::*()
 //
 // ERROR CONDITION METHODS
 // [ 7] error_condition()
@@ -82,7 +82,7 @@ using namespace bsl;
 // [ 7] const error_category& category() const
 // [ 7] std::string message() const
 // [ 7] int value() const
-// [ 7] operator BoolType() const
+// [ 7] operator int BloombergLP::bsls::UnspecifiedBool::*()
 //
 // SYSTEM ERROR METHODS
 // [ 8] system_error(error_code, const std::string&)
@@ -470,7 +470,7 @@ int main(int argc, char *argv[])
         //   const error_category& category() const
         //   std::string message() const
         //   int value() const
-        //   operator BoolType() const
+        //   operator int BloombergLP::bsls::UnspecifiedBool::*()
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -622,7 +622,7 @@ int main(int argc, char *argv[])
         //   error_condition default_error_condition() const
         //   std::string message() const
         //   int value() const
-        //   operator BoolType() const
+        //   operator int BloombergLP::bsls::UnspecifiedBool::*()
         // --------------------------------------------------------------------
 
         if (verbose)
