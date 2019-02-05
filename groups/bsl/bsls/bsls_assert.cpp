@@ -30,7 +30,7 @@ namespace {
 static
 void printError(const char *comment, const char *file, int line)
     // Log a formatted message with the contents of the specified 'comment',
-    // 'file', 'line' number, and a severity of 'e_ERROR'.
+    // 'file', 'line' number, and a severity of 'e_FATAL'.
 {
     if (!comment) {
         comment = "(* Unspecified Comment Text *)";
@@ -46,7 +46,7 @@ void printError(const char *comment, const char *file, int line)
         file = "(* Empty File Name *)";
     }
 
-    bsls::Log::logFormattedMessage(bsls::LogSeverity::e_ERROR,
+    bsls::Log::logFormattedMessage(bsls::LogSeverity::e_FATAL,
                                    file,
                                    line,
                                    "Assertion failed: %s",
@@ -56,7 +56,7 @@ void printError(const char *comment, const char *file, int line)
 static
 void printError(const bsls::AssertViolation& violation)
     // Log a formatted message with the contents of the specified 'violation'
-    // and a severity of 'e_ERROR'.
+    // and a severity of 'e_FATAL'.
 {
     const char *comment = violation.comment();
     if (!comment) {
@@ -87,7 +87,7 @@ void printError(const bsls::AssertViolation& violation)
     int line = violation.lineNumber();
 
 
-    bsls::Log::logFormattedMessage(bsls::LogSeverity::e_ERROR,
+    bsls::Log::logFormattedMessage(bsls::LogSeverity::e_FATAL,
                                    file,
                                    line,
                                    "Assertion failed: %s",
@@ -258,7 +258,7 @@ void Assert::invokeHandler(const bsls::AssertViolation& violation)
             AtomicOperations::setInt(&failureReturnCount, 1 << 29);
         }
 
-        Log::logFormattedMessage(LogSeverity::e_ERROR,
+        Log::logFormattedMessage(LogSeverity::e_FATAL,
                                  violation.fileName(),
                                  violation.lineNumber(),
                                  "BSLS_ASSERT failure: '%s'",
@@ -267,7 +267,7 @@ void Assert::invokeHandler(const bsls::AssertViolation& violation)
         // Do not use %p to print pointers.  On some platform it automatically
         // prefixes with '0x', on AIX it does not.
 
-        BSLS_LOG_ERROR("Bad 'bsls_assert' configuration: "
+        BSLS_LOG_FATAL("Bad 'bsls_assert' configuration: "
                        "violation handler at 0x%llx must not return.",
                        reinterpret_cast<Types::Uint64>(failureHandlerPtr));
     }
@@ -346,7 +346,7 @@ void Assert::failByThrow(const bsls::AssertViolation& violation)
                                   violation.assertLevel());
     }
     else {
-        bsls::Log::logMessage(bsls::LogSeverity::e_ERROR,
+        bsls::Log::logMessage(bsls::LogSeverity::e_FATAL,
                               violation.fileName(),
                               violation.lineNumber(),
                               "BSLS_ASSERT: An uncaught exception is pending;"
@@ -387,7 +387,7 @@ void Assert::failThrow(const char *comment, const char *file, int line)
                                   "LEGACY");
     }
     else {
-        bsls::Log::logMessage(bsls::LogSeverity::e_ERROR,
+        bsls::Log::logMessage(bsls::LogSeverity::e_FATAL,
                               file,
                               line,
                               "BSLS_ASSERT: An uncaught exception is pending;"
