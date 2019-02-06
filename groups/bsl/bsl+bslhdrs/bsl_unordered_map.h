@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
-//@SEE_ALSO: package bsl+stdhdrs
+//@SEE_ALSO: package bos+stdhdrs in the bos package group
 //
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
 // defined in the corresponding C++ standard header.  Include the native
@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 
 #ifdef BSL_OVERRIDES_STD
-// BDE configuration requires 'bsl+stdhdrs' be in the search path, so this
+// BDE configuration requires 'bos+stdhdrs' be in the search path, so this
 // #include is guaranteed to succeed.
 
 # include <unordered_map>

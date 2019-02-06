@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
-//@SEE_ALSO: bsl+stdhdrs
+//@SEE_ALSO: bos+stdhdrs
 //
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_algorithm>' instead.  This component provides a namespace for
@@ -18,12 +18,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This component is for use by the 'bsl+stdhdrs' package.  Use 'algorithm'
+// This component is for use by the 'bos+stdhdrs' package.  Use 'algorithm'
 // directly.
 
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
-#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
 #error "include <bsl_algorithm.h> instead of <bslstl_algorithmworkaround.h> in\
  BSL_OVERRIDES_STD mode"
 #endif

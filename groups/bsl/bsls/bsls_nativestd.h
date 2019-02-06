@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 // as a macro or if 'BSL_DEFINED_NATIVE_STD' is already defined.  Any other
 // header that defines the 'native_std' namespace should also define the
 // 'BSL_DEFINED_NATIVE_STD' macro.  For more info on bde-stl mode, please see
-// 'bsl+stdhdrs/doc/bsl+stdhdrs.txt'.
+// 'bos/bos+stdhdrs/doc/bos+stdhdrs.txt'.
 //
 ///Usage
 ///-----

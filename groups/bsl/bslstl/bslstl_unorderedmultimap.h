@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::unordered_multimap : hashed-map container
 //
-//@SEE_ALSO: bsl+stdhdrs
+//@SEE_ALSO: package bos+stdhdrs in the bos package group
 //
 //@DESCRIPTION: This component defines a single class template,
 // 'bsl::unordered_multimap', implementing the standard container holding a
@@ -570,7 +570,7 @@ BSLS_IDENT("$Id: $")
 // an inverse concordance, and how to use the inverse concordance to find the
 // context (surrounding words) of a word of interest.
 
-#if defined(BSL_OVERRIDES_STD) && !defined(BSL_STDHDRS_PROLOGUE_IN_EFFECT)
+#if defined(BSL_OVERRIDES_STD) && !defined(BOS_STDHDRS_PROLOGUE_IN_EFFECT)
 // Prevent 'bslstl' headers from being included directly in 'BSL_OVERRIDES_STD'
 // mode.  Doing so is unsupported, and is likely to cause compilation errors.
 #error "<bslstl_unorderedmultimap.h> header can't be included directly in \

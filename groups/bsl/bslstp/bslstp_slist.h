@@ -905,8 +905,8 @@ void slist<_Tp,_Alloc>::sort()
 //# include <stl/debug/bslstp_stl_slist.h>
 //#endif
 
-// This needs to be updated whenever bsl_stdhdrs_epilogue.h changes.
-#ifdef BSL_STDHDRS_DEFINED_STD_MACRO
+// This needs to be updated whenever bos_stdhdrs_epilogue.h changes.
+#ifdef BOS_STDHDRS_DEFINED_STD_MACRO
 #undef std
 #define BSLSTP_DEFINE_STD
 #endif

@@ -13,6 +13,7 @@ function(bdeproj_package_setup_interface package)
 
     bde_struct_get_field(pkgName ${package} NAME)
 
+    #[[
     set(noOverrideStdPackages bslstl bslstp)
     if(NOT ${pkgName} IN_LIST noOverrideStdPackages)
         bde_struct_get_field(interfaceTarget ${package} INTERFACE_TARGET)
@@ -20,6 +21,7 @@ function(bdeproj_package_setup_interface package)
             ${interfaceTarget} PRIVATE BSL_OVERRIDES_STD
         )
     endif()
+    ]]
 endfunction()
 
 bde_prefixed_override(bdeproj project_process_uors)
@@ -34,6 +36,7 @@ function(bdeproj_project_process_uors proj listDir)
         ${listDir}/groups/bal
         ${listDir}/groups/bbl
         ${listDir}/groups/bdl
+        ${listDir}/groups/bos
         ${listDir}/groups/bsl
         ${listDir}/groups/bos
     )

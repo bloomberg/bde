@@ -817,8 +817,8 @@ BSLS_IDENT("$Id: $")
 // implementations, so we also include '<cstddef>'.  Note that we cannot
 // include non-standard headers if they define anything with 'std' in it,
 // because this header may be included while '#define std bsl' is active.  If
-// we include standard headers, our "intercept" headers (see 'bsl+stdhdrs'
-// package) will ensure the proper inclusion.
+// we include standard headers, our "intercept" headers (see 'bos+stdhdrs'
+// package in the 'bos' package group) will ensure the proper inclusion.
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
 // On platforms that support it we use '__has_include' to give a better error
