@@ -14,22 +14,30 @@ BSLS_IDENT_RCSID(bdls_osutil_cpp, "$Id$ $CSID$")
 
 #include <bdls_processutil.h>
 
-#include <bsl_cstring.h>
-#include <bsl_sstream.h>
-
 #include <bslmf_assert.h>
-
 #include <bsls_platform.h>
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <windows.h>
-#include <process.h>
-#include <cstring>
-#else
-#include <unistd.h>
-#include <sys/utsname.h>
-#endif
+#include <bsl_cstring.h>
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+# include <bdlsb_fixedmemoutstreambuf.h>
+# include <windows.h>
+
+# define   U_VISTA_OR_LATER 0
+# if 6 <= BSLS_PLATFORM_OS_VER_MAJOR
+#   undef  U_VISTA_OR_LATER
+#   define U_VISTA_OR_LATER 1
+# endif
+# if 0 != U_VISTA_OR_LATER
+#   include <bsl_limits.h>
+#   include <VersionHelpers.h>
+# else
+#   include <process.h>
+# endif
+#else
+# include <unistd.h>
+# include <sys/utsname.h>
+#endif
 
 namespace BloombergLP {
 
@@ -51,9 +59,72 @@ int OsUtil::getOsInfo(bsl::string *osName,
 
     *osName = "Windows";
 
+#if 0 != U_VISTA_OR_LATER
+    // On Windows, 'WORD' means a 16-bit unsigned int.
+
+    WORD major = 0;
+    WORD minor = 0;
+    WORD servicePackMajor = 0;
+
+    const WORD maxWord = bsl::numeric_limits<WORD>::max();
+
+    while (IsWindowsVersionOrGreater(major, minor, servicePackMajor)) {
+        if (major >= maxWord) {
+            return -1;                                                // RETURN
+        }
+        ++major;
+    }
+    --major;
+    while (IsWindowsVersionOrGreater(major, minor, servicePackMajor)) {
+        if (minor >= maxWord) {
+            return -1;                                                // RETURN
+        }
+        ++minor;
+    }
+    --minor;
+    while (IsWindowsVersionOrGreater(major, minor, servicePackMajor)) {
+        if (servicePackMajor >= maxWord) {
+            return -1;                                                // RETURN
+        }
+        ++servicePackMajor;
+    }
+    --servicePackMajor;
+
+    // Os version
+
+    // We want to do this with a minimum of allocations.  Both an
+    // 'ostringstream' and 'sprintf' would allocate memory, so we us a
+    // 'bdlsb::FixedMemOutStreamBuf"
+
+    char buf[256];
+    bdlsb::FixedMemOutStreamBuf sb(buf, sizeof(buf));
+    bsl::ostream ostr(&sb);
+
+    ostr << major << '.' << minor << bsl::ends;
+    *osVersion = buf;
+
+    // Service pack number
+
+    sb.pubsetbuf(buf, sizeof(buf));
+    buf[0] = 0;
+
+    if (servicePackMajor) {
+        // Note that we are incapable of detecting any 'servicePackMinor'
+        // version other than 0.  But it seems rational that if Microsoft had
+        // any plans for non-zero 'servicePackMinor' version at or after
+        // Vista, they would have made 'IsWindowsVersionOrGreater' take 4 args
+        // instead of 3.
+
+        ostr << "Service Pack " << servicePackMajor << ".0" << bsl::ends;
+    }
+
+    *osPatch = buf;
+
+#else
+
     OSVERSIONINFOEX osvi;
 
-    memset(&osvi, 0, sizeof(OSVERSIONINFOEX));
+    bsl::memset(&osvi, 0, sizeof(OSVERSIONINFOEX));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 
     if (!GetVersionEx((OSVERSIONINFO *)&osvi)) {
@@ -61,18 +132,31 @@ int OsUtil::getOsInfo(bsl::string *osName,
     }
 
     // Os version
-    bsl::ostringstream version;
-    version << osvi.dwMajorVersion << '.' << osvi.dwMinorVersion;
-    *osVersion = version.str();
 
-    version.clear();
-    version.str("");
+    // We want to do this with a minimum of allocations.  Both an
+    // 'ostringstream' and 'sprintf' would allocate memory, so we us a
+    // 'bdlsb::FixedMemOutStreamBuf"
+
+    char buf[256];
+    bdlsb::FixedMemOutStreamBuf sb(buf, sizeof(buf));
+    bsl::ostream ostr(&sb);
+
+    ostr << osvi.dwMajorVersion << '.' << osvi.dwMinorVersion << bsl::ends;
+    *osVersion = buf;
+
+    sb.pubsetbuf(buf, sizeof(buf));
+    buf[0] = 0;
+
     // Service pack number
+
     if (osvi.wServicePackMajor) {
-        version << "Service Pack " << osvi.wServicePackMajor << '.'
-                << osvi.wServicePackMinor;
+        ostr << "Service Pack " << osvi.wServicePackMajor << '.'
+             << osvi.wServicePackMinor << bsl::ends;
     }
-    *osPatch = version.str();
+    *osPatch = buf;
+
+#endif
+
     return 0;
 }
 }  // close package namespace
