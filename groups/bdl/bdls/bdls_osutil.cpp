@@ -30,7 +30,7 @@ BSLS_IDENT_RCSID(bdls_osutil_cpp, "$Id$ $CSID$")
 # endif
 # if 0 != U_VISTA_OR_LATER
 #   include <bsl_limits.h>
-#   include "VersionHelpers.h"
+#   include <VersionHelpers.h>
 # else
 #   include <process.h>
 # endif
