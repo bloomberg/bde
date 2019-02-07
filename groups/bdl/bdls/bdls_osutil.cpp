@@ -20,14 +20,15 @@ BSLS_IDENT_RCSID(bdls_osutil_cpp, "$Id$ $CSID$")
 #include <bsl_cstring.h>
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
-# undef u_VISTA_OR_LATER
-# if 6 <= BSLS_PLATFORM_OS_VER_MAJOR
-#   define u_VISTA_OR_LATER 1
-# endif
-
 # include <bdlsb_fixedmemoutstreambuf.h>
 # include <windows.h>
-# ifdef u_VISTA_OR_LATER
+
+# define   U_VISTA_OR_LATER 0
+# if 6 <= BSLS_PLATFORM_OS_VER_MAJOR
+#   undef  U_VISTA_OR_LATER
+#   define U_VISTA_OR_LATER 1
+# endif
+# if 0 != U_VISTA_OR_LATER
 #   include <bsl_limits.h>
 #   include "VersionHelpers.h"
 # else
@@ -37,7 +38,6 @@ BSLS_IDENT_RCSID(bdls_osutil_cpp, "$Id$ $CSID$")
 # include <unistd.h>
 # include <sys/utsname.h>
 #endif
-
 
 namespace BloombergLP {
 
@@ -59,7 +59,7 @@ int OsUtil::getOsInfo(bsl::string *osName,
 
     *osName = "Windows";
 
-#ifdef u_VISTA_OR_LATER
+#if 0 != U_VISTA_OR_LATER
     // On Windows, 'WORD' means a 16-bit unsigned int.
 
     WORD major = 0;
