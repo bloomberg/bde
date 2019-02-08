@@ -287,6 +287,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_functional.h>
 
 #include <bsls_platform.h>
+#include <bsls_review.h>
 
 #include <bsl_string.h>
 #include <bsl_vector.h>

@@ -66,6 +66,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_cmath.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 namespace BloombergLP {
 namespace bdlsta {

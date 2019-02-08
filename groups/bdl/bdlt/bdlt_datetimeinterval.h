@@ -136,6 +136,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_log.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 

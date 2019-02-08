@@ -135,6 +135,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_time.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>        // 'Int64', 'Uint64'
 

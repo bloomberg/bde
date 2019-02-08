@@ -198,6 +198,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_iosfwd.h>

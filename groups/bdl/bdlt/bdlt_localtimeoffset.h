@@ -191,6 +191,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
+#include <bsls_review.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 

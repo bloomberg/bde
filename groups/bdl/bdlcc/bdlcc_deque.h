@@ -442,6 +442,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_timeinterval.h>
 

@@ -75,6 +75,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_string.h>
 #include <bsl_cstddef.h>

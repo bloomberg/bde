@@ -293,6 +293,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_platform.h>
+
 #include <bsl_cstdio.h>
 
 // ============================================================================
@@ -644,7 +646,7 @@ class Bind_TestArgAlloc {
 
     // CREATORS
 
-#if 0 && defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
     // TBD: This is probably an IBM xlC compiler bug.  Reproduce in a small
     // test case later.
     Bind_TestArgAlloc(int value);                                   // IMPLICIT
@@ -656,7 +658,7 @@ class Bind_TestArgAlloc {
         // 'allocator' to supply memory.  If 'allocator' is 0, use the
         // currently installed default allocator.
 
-#if 0 && defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
     Bind_TestArgAlloc(const Bind_TestArgAlloc&  original);
     Bind_TestArgAlloc(const Bind_TestArgAlloc&  original,
                       bslma::Allocator         *allocator);
@@ -1129,7 +1131,7 @@ AllocPtr Bind_TestSlotsAllocBase<AllocPtr>::getZ2()
 
 namespace bdlf {
 
-#if 0 && defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
 template <int ID>
 Bind_TestArgAlloc<ID>::Bind_TestArgAlloc(int value)
 : d_allocator_p(bslma::Default::allocator(0))
@@ -1146,7 +1148,7 @@ Bind_TestArgAlloc<ID>::Bind_TestArgAlloc(int               value,
 {
 }
 
-#if 0 && defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
+#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0900
 template <int ID>
 Bind_TestArgAlloc<ID>::Bind_TestArgAlloc(const Bind_TestArgAlloc& original)
 : d_allocator_p(bslma::Default::allocator(0))

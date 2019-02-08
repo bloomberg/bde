@@ -187,7 +187,8 @@ struct ByteOrderUtil_Impl<TYPE, 8> {
                              static_cast<BloombergLP::bsls::Types::Uint64>(x)))
 
 #elif defined(BSLS_PLATFORM_CPU_POWERPC) && defined(BSLS_PLATFORM_CMP_IBM)    \
-  && !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS)
+    && BSLS_PLATFORM_CMP_VER_MAJOR >= 0x0800 &&                               \
+     !defined(BSLS_BYTEORDERUTIL_IMPL_DISABLE_COUNTERPRODUCTIVE_MACROS)
 
 // ----------------------------------------------------------------------------
 // POWERPC-AIX

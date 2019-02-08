@@ -33,7 +33,12 @@ BSLS_IDENT("$Id$")
 #ifdef BDLDFP_DECIMALPLATFORM_INTELDFP
 #include <bdldfp_decimal.h>
 #include <bdldfp_decimalimputil.h>
+#include <bdldfp_decimalimputil_inteldfp.h>
 #include <bdldfp_intelimpwrapper.h>
+
+#include <bsls_assert.h>
+
+#include <bsl_cstring.h>
 
 namespace BloombergLP {
 namespace bdldfp {
