@@ -330,10 +330,15 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimal.h>
 #include <bdldfp_decimalconvertutil_inteldfp.h>
 #include <bdldfp_decimalimputil.h>
+#include <bdldfp_decimalimputil_inteldfp.h>
 #include <bdldfp_decimalutil.h>
+#include <bdldfp_intelimpwrapper.h>
 
+#include <bsls_assert.h>
+#include <bsls_byteorder.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstring.h>
 

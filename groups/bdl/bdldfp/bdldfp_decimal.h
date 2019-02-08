@@ -545,6 +545,7 @@ BSLS_IDENT("$Id$")
 #include <bdlscm_version.h>
 
 #include <bdldfp_decimalimputil.h>
+#include <bdldfp_decimalstorage.h>
 
 #include <bslh_hash.h>
 
@@ -553,14 +554,17 @@ BSLS_IDENT("$Id$")
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_assert.h>
 #include <bsls_keyword.h>
 
+#include <bsl_cstddef.h>
+#include <bsl_cstring.h>
 #include <bsl_ios.h>
 #include <bsl_iosfwd.h>
 #include <bsl_iterator.h>
 #include <bsl_limits.h>
 #include <bsl_locale.h>
-#include <bsl_cstddef.h>
+
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>

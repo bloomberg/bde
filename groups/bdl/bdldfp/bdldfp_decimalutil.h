@@ -73,10 +73,13 @@ BSLS_IDENT("$Id$")
 
 #include <bdldfp_decimal.h>
 #include <bdldfp_decimalformatconfig.h>
+#include <bdldfp_decimalimputil_inteldfp.h>
 #include <bdldfp_decimalplatform.h>
 #include <bdldfp_uint128.h>
 
+#include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_string.h>
 

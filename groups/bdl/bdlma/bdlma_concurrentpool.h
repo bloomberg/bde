@@ -270,6 +270,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations.h>
 #include <bsls_blockgrowth.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsl_cstddef.h>
 

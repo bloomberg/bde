@@ -334,6 +334,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomicoperations.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_performancehint.h>
+#include <bsls_review.h>
 
 #include <bsl_climits.h>
 #include <bsl_functional.h>

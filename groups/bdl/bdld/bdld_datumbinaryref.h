@@ -94,6 +94,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>

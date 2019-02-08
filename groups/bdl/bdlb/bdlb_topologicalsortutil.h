@@ -419,6 +419,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_assert.h>
+
 #include <bsl_iterator.h>
 #include <bsl_queue.h>
 #include <bsl_unordered_map.h>

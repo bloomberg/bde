@@ -117,10 +117,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 
+#include <bsl_cstring.h>
 #include <bsl_ios.h>       // for 'bsl::streamsize'
 #include <bsl_streambuf.h>
-#include <bsl_cstring.h>
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && defined(min)
     // Note: on Windows -> WinDef.h:#define min(a,b) ...

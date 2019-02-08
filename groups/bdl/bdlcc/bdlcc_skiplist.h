@@ -354,6 +354,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_alignmentfromtype.h>
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_ostream.h>
 #include <bsl_vector.h>

@@ -170,6 +170,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_datetime.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_ctime.h>            // 'bsl::tm'
 

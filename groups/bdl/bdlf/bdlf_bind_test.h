@@ -293,6 +293,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_platform.h>
+
 #include <bsl_cstdio.h>
 
 // ============================================================================

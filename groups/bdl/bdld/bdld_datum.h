@@ -514,9 +514,11 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_nil.h>
 
 #include <bsls_alignedbuffer.h>
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_climits.h>

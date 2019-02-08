@@ -318,6 +318,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bslmt_lockguard.h>
 #include <bdlmt_threadpool.h>
 
 #include <bdlcc_objectpool.h>
@@ -333,6 +334,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_readlockguard.h>
 #include <bslmt_semaphore.h>
 
+#include <bsls_assert.h>
 #include <bsls_atomic.h>
 
 #include <bsl_deque.h>

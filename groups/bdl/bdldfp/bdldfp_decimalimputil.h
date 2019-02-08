@@ -131,7 +131,8 @@ BSLS_IDENT("$Id$")
 #include <bdldfp_decimalformatconfig.h>
 #include <bdldfp_decimalimputil_inteldfp.h>
 #include <bdldfp_decimalplatform.h>
-#include <bdldfp_uint128.h>
+#include <bdldfp_decimalstorage.h>
+#include <bdldfp_intelimpwrapper.h>
 #include <bdldfp_uint128.h>
 
 #include <bslmf_assert.h>

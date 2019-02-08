@@ -93,6 +93,7 @@
 #include <bdlb_nullablevalue.h>
 
 #include <bslmf_assert.h>
+#include <bsls_review.h>
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
