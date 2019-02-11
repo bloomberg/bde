@@ -92,6 +92,7 @@ typedef bdls::FdStreamBuf_FileHandler  ObjFileHandler;
 typedef bdls::FdStreamBuf              Obj;
 typedef bdls::FilesystemUtil           FileUtil;
 typedef FileUtil::FileDescriptor       FdType;
+typedef bsls::Types::IntPtr            IntPtr;
 
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -104,6 +105,12 @@ bool veryVeryVeryVerbose;
 
 namespace {
 namespace u {
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+enum { e_WINDOWS = 1 };
+#else
+enum { e_WINDOWS = 0 };
+#endif
 
 int accum = 0x73a8f325;
 const int mask17 = 1 << 17;
@@ -128,6 +135,7 @@ char randChar()
 }
 
 // can't use 'random()' because it does not exist on Windows
+
 int randInt()
 {
     static int accum = 0x12345678;
@@ -141,12 +149,14 @@ int diskLength(const char *string)
     // Given the specified 'string' without CRs, calculate the length it would
     // be if the NLs were translated to CRNLs.
 {
-#ifdef BSLS_PLATFORM_OS_UNIX
-    return bsl::strlen(string);
-#else
-    int unixLen = bsl::strlen(string);
-    return unixLen + bsl::count(string, string + unixLen, '\n');
-#endif
+    if (e_WINDOWS) {
+        IntPtr unixLen = bsl::strlen(string);
+        unixLen += bsl::count(string, string + unixLen, '\n');
+        return static_cast<int>(unixLen);                             // RETURN
+    }
+    else {
+        return static_cast<int>(bsl::strlen(string));                 // RETURN
+    }
 }
 
 int doRead(ObjFileHandler *fh, char *buf, int len)
@@ -224,15 +234,6 @@ class CtrlZAllocator : public bslma::TestAllocator {
     }
 };
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS)
-        enum { e_WINDOWS = 1 };
-#else
-        enum { e_WINDOWS = 0 };
-#endif
-
-}  // close namespace u
-}  // close unnamed namespace
-
 static Obj::pos_type nullSeek(int line, Obj *sb, bool checkSeek)
     // Do a null seek, making sure that
 {
@@ -250,6 +251,12 @@ static Obj::pos_type nullSeek(int line, Obj *sb, bool checkSeek)
 
     return ret1;
 }
+
+static Obj  *nullSeekFdStreamBuf;
+static bool  nullSeekCheckSeek;
+#define U_NULL_SEEK()    u::nullSeek(L_,                                      \
+                                     u::nullSeekFdStreamBuf,                  \
+                                     u::nullSeekCheckSeek)
 
 bsl::string printableString(const bsl::string& str,
                             bsl::size_t        start,
@@ -277,11 +284,16 @@ bsl::string printableString(const bsl::string& str,
 
     return ret;
 }
-        
 
-static Obj  *nullSeekFdStreamBuf;
-static bool  nullSeekCheckSeek;
-#define NULL_SEEK()    nullSeek(L_, nullSeekFdStreamBuf, nullSeekCheckSeek)
+inline
+int intStrLen(const char *str)
+    // Return the length of the specified 'str', as an 'int'.
+{
+    return static_cast<int>(bsl::strlen(str));
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
 // ============================================================================
 //                              USAGE EXAMPLES
@@ -355,9 +367,9 @@ int main(int argc, char *argv[])
                            "Horatio, than are dreamt of in your philosophy.\n";
         const char line3[] = "Wherever you go, there you are.  B Banzai\n";
 
-        const int lengthLine1 = sizeof(line1) - 1;
-        const int lengthLine2 = sizeof(line2) - 1;
-        const int lengthLine3 = sizeof(line3) - 1;
+        const IntPtr lengthLine1 = sizeof(line1) - 1;
+        const IntPtr lengthLine2 = sizeof(line2) - 1;
+        const IntPtr lengthLine3 = sizeof(line3) - 1;
 
         // We start by selecting a file name for our (temporary) file.
 
@@ -660,25 +672,25 @@ int main(int argc, char *argv[])
                         "This line is exactly as long as line 2,\n"
                         "and I mean EXACTLY, counting the chars EXACTLY ...\n";
 
-        const int lLen1 = sizeof(line1) - 1;
-        const int lLen2 = sizeof(line2) - 1;
-        const int lLen3 = sizeof(line3) - 1;
-        const int lLen4 = sizeof(line4) - 1;
+        const IntPtr lLen1 = sizeof(line1) - 1;
+        const IntPtr lLen2 = sizeof(line2) - 1;
+        const IntPtr lLen3 = sizeof(line3) - 1;
+        const IntPtr lLen4 = sizeof(line4) - 1;
 
         ASSERT(lLen1 == lLen3);
         ASSERT(lLen2 == lLen4);
 
         for (int ti = 0; ti < 4; ++ti) {
             int isText        = !!(ti & 1);
-            nullSeekCheckSeek = !!(ti & 2);
+            u::nullSeekCheckSeek = !!(ti & 2);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
             if (isText) continue;
 #endif
 
-            const int eLen1 = lLen1 + isText;
-            const int eLen3 = lLen3 + isText;
-            const int eLen4 = lLen4 + 2 * isText;
+            const IntPtr eLen1 = lLen1 + isText;
+            const IntPtr eLen3 = lLen3 + isText;
+            const IntPtr eLen4 = lLen4 + 2 * isText;
 
             // We start by selecting a file name for our (temporary) file.
 
@@ -705,7 +717,7 @@ int main(int argc, char *argv[])
                 ASSERT(u::invalid != fd);
 
                 Obj sb(fd, true, true, !isText, &ta);
-                nullSeekFdStreamBuf = &sb;
+                u::nullSeekFdStreamBuf = &sb;
 
                 // Impose a very small buffer, so that buffer overflow code
                 // will frequently be exercised.
@@ -717,7 +729,7 @@ int main(int argc, char *argv[])
 
                 // P-4
 
-                ASSERT(eLen1 == NULL_SEEK());
+                ASSERT(eLen1 == U_NULL_SEEK());
 
                 ASSERT(lLen2 == sb.sputn(line2, lLen2));
                 ASSERT(lLen3 == sb.sputn(line3, lLen3));
@@ -731,7 +743,7 @@ int main(int argc, char *argv[])
 
                 // P-1
 
-                ASSERT(eLen1 == NULL_SEEK());
+                ASSERT(eLen1 == U_NULL_SEEK());
 
                 bsl::memset(buf, 0, sizeof(buf));
                 ASSERT(lLen2 == sb.sgetn(buf, lLen2));
@@ -749,23 +761,23 @@ int main(int argc, char *argv[])
 
                 // P-2
 
-                ASSERT(eLen1 == NULL_SEEK());
+                ASSERT(eLen1 == U_NULL_SEEK());
 
                 ASSERT(lLen4 == sb.sputn(line4, lLen4));
 
                 // P-5
 
-                LOOP3_ASSERT(eLen1, eLen4, NULL_SEEK(),
-                                                 eLen1 + eLen4 == NULL_SEEK());
+                LOOP3_ASSERT(eLen1, eLen4, U_NULL_SEEK(),
+                                               eLen1 + eLen4 == U_NULL_SEEK());
 
                 bsl::memset(buf, 0, sizeof(buf));
-                int sts = sb.sgetn(buf, lLen3);
+                IntPtr sts = sb.sgetn(buf, lLen3);
                 LOOP2_ASSERT(lLen3, sts, lLen3 == sts);
                 ASSERT(0 == bsl::strcmp(line3, buf));
 
                 // P-3
 
-                ASSERT(eLen1 + eLen4 + eLen3 == NULL_SEEK());
+                ASSERT(eLen1 + eLen4 + eLen3 == U_NULL_SEEK());
 
                 ASSERT(0 == sb.pubseekpos(0));
 
@@ -773,7 +785,7 @@ int main(int argc, char *argv[])
                 ASSERT(lLen1 == sb.sgetn(buf, lLen1));
                 ASSERT(0 == bsl::strcmp(line1, buf));
 
-                ASSERT(eLen1 == NULL_SEEK());
+                ASSERT(eLen1 == U_NULL_SEEK());
 
                 bsl::memset(buf, 0, sizeof(buf));
                 ASSERT(lLen4 == sb.sgetn(buf, lLen4));
@@ -781,13 +793,13 @@ int main(int argc, char *argv[])
 
                 // C-3
 
-                ASSERT(eLen1 + eLen4 == NULL_SEEK());
+                ASSERT(eLen1 + eLen4 == U_NULL_SEEK());
 
                 bsl::memset(buf, 0, sizeof(buf));
                 ASSERT(lLen3 == sb.sgetn(buf, lLen3));
                 ASSERT(0 == bsl::strcmp(line3, buf));
 
-                ASSERT(eLen1 + eLen4 + eLen3 == NULL_SEEK());
+                ASSERT(eLen1 + eLen4 + eLen3 == U_NULL_SEEK());
 
                 ASSERT(0 == sb.pubseekpos(0));
 
@@ -796,29 +808,29 @@ int main(int argc, char *argv[])
                                       == sb.sgetn(buf, lLen1 + lLen4 + lLen3));
                 ASSERT(bsl::string(line1) + line4 + line3 == buf);
 
-                ASSERT(eLen1 + eLen4 + eLen3 == NULL_SEEK());
+                ASSERT(eLen1 + eLen4 + eLen3 == U_NULL_SEEK());
 
                 ASSERT(0 == sb.pubseekpos(0));
 
                 // P-8
 
-                ASSERT(0 == NULL_SEEK());
+                ASSERT(0 == U_NULL_SEEK());
 
                 ASSERT(lLen3 == sb.sputn(line3, lLen3));
 
-                ASSERT(eLen3 == NULL_SEEK());
+                ASSERT(eLen3 == U_NULL_SEEK());
 
                 bsl::memset(buf, 0, sizeof(buf));
                 ASSERT(lLen4 == sb.sgetn(buf, lLen4));
                 LOOP2_ASSERT(line4, buf, 0 == bsl::strcmp(line4, buf));
 
-                ASSERT(eLen3 + eLen4 == NULL_SEEK());
+                ASSERT(eLen3 + eLen4 == U_NULL_SEEK());
 
                 ASSERT(lLen1 == sb.sputn(line1, lLen1));
 
                 // P-6
 
-                ASSERT(eLen3 + eLen4 + eLen1 == NULL_SEEK());
+                ASSERT(eLen3 + eLen4 + eLen1 == U_NULL_SEEK());
 
                 ASSERT(100 == sb.pubseekpos(100));
 
@@ -833,7 +845,7 @@ int main(int argc, char *argv[])
 
                 // P-7
 
-                ASSERT(0 == NULL_SEEK());
+                ASSERT(0 == U_NULL_SEEK());
 
                 bsl::memset(buf, 0, sizeof(buf));
                 ASSERT(lLen3 == sb.sgetn(buf, lLen3));
@@ -848,13 +860,13 @@ int main(int argc, char *argv[])
                 ASSERT(0 == bsl::strcmp(line1, buf));
 
                 ASSERT(0 == sb.pubseekpos(0));
-                ASSERT(0 == NULL_SEEK());
+                ASSERT(0 == U_NULL_SEEK());
 
                 ASSERT(lLen3 + lLen4 + lLen1
                                       == sb.sgetn(buf, lLen3 + lLen4 + lLen1));
                 ASSERT(bsl::string(line3) + line4 + line1 == buf);
 
-                ASSERT(eLen3 + eLen4 + eLen1 == NULL_SEEK());
+                ASSERT(eLen3 + eLen4 + eLen1 == U_NULL_SEEK());
 
                 sb.clear();
 
@@ -945,7 +957,7 @@ int main(int argc, char *argv[])
             const char *matchStr = u::e_WINDOWS ? data.d_windowsMatchStr
                                                 : data.d_unixMatchStr;
 
-            bsl::size_t patternLen = bsl::strlen(pattern);
+            IntPtr patternLen = bsl::strlen(pattern);
             ASSERTV(patternLen, 10 == patternLen);
 
             FileUtil::Offset rc = FileUtil::seek(
@@ -998,7 +1010,7 @@ int main(int argc, char *argv[])
             ASSERTV(to - trBuf, fileSize, to - trBuf <= fileSize);
             const bsl::string searchStr(trBuf, to - trBuf, &ta);
             const bsl::size_t notOf = searchStr.find_first_not_of(matchStr);
-            ASSERTV(LINE, notOf, printableString(searchStr, notOf, 10),
+            ASSERTV(LINE, notOf, u::printableString(searchStr, notOf, 10),
                                                                 npos == notOf);
 
             rc = FileUtil::seek(fd, 0, FileUtil::e_SEEK_FROM_BEGINNING);
@@ -1324,7 +1336,7 @@ int main(int argc, char *argv[])
                                          sb.pubseekoff(0, bsl::ios_base::cur));
 
         bsl::memset(buf, 0, sizeof(buf));
-        int sts = sb.sgetn(buf, lineLength3);
+        IntPtr sts = sb.sgetn(buf, lineLength3);
         LOOP2_ASSERT(lineLength3, sts, lineLength3 == sts);
         ASSERT(0 == bsl::strcmp(line3, buf));
 
@@ -1399,8 +1411,8 @@ int main(int argc, char *argv[])
         const char line2[] =
                            "There are more things in heaven and earth,\n"
                            "Horatio, than are dreamt of in your philosophy.\n";
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         const char dLine1[] = "To be or not to be, that is the question.\r\n";
@@ -1571,8 +1583,8 @@ int main(int argc, char *argv[])
         const char line2[] =
                            "There are more things in heaven and earth,\n"
                            "Horatio, than are dreamt of in your philosophy.\n";
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         const char dLine1[] = "To be or not to be, that is the question.\r\n";
@@ -1883,9 +1895,9 @@ int main(int argc, char *argv[])
         const char line2[] = "ABCDEFGH or not to be, that is the question.\n";
         const char line2Trunc[] = "ABCDEFGH or not to be, that is the questio";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
-        const int len2Trunc = bsl::strlen(line2Trunc);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
+        const int len2Trunc = u::intStrLen(line2Trunc);
 
         FileUtil::remove(fnBuf);
 
@@ -1913,7 +1925,7 @@ int main(int argc, char *argv[])
         ASSERT(bsl::char_traits<char>::eof() != sb.sputbackc('A'));
 
         bsl::memset(buf, 0, sizeof(buf));
-        int sts = sb.sgetn(buf, len2Trunc);
+        IntPtr sts = sb.sgetn(buf, len2Trunc);
         LOOP2_ASSERT(len1, sts, len2Trunc == sts);
         LOOP_ASSERT(buf, !bsl::strcmp(line2Trunc, buf));
 
@@ -1975,7 +1987,7 @@ int main(int argc, char *argv[])
 
         const char line1[] = "To be or not to be, that is the question.\n";
 
-        const int len1 = bsl::strlen(line1);
+        const int len1 = u::intStrLen(line1);
 
         FileUtil::remove(fnBuf);
         FileUtil::remove(fnBuf2);
@@ -2176,8 +2188,8 @@ int main(int argc, char *argv[])
                            "There are more things in heaven and earth,\n"
                            "Horatio, than are dreamt of in your philosophy.\n";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
 
         FileUtil::remove(fnBuf);
         FileUtil::remove(fnBuf2);
@@ -2489,9 +2501,9 @@ int main(int argc, char *argv[])
                            "Horatio, than are dreamt of in your philosophy.\n";
         const char line3[] = "Whatever you go, there you are.  B Banzai\n";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
-        const int len3 = bsl::strlen(line3);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
+        const int len3 = u::intStrLen(line3);
 
         FileUtil::remove(fnBuf);
         FileUtil::remove(fnBuf2);
@@ -2648,9 +2660,9 @@ int main(int argc, char *argv[])
                            "Horatio, than are dreamt of in your philosophy.\n";
         const char line3[] = "Whatever you go, there you are.  B Banzai\n";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
-        const int len3 = bsl::strlen(line3);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
+        const int len3 = u::intStrLen(line3);
 
         FileUtil::remove(fnBuf);
 
@@ -2779,9 +2791,9 @@ int main(int argc, char *argv[])
                            "Horatio, than are dreamt of in your philosophy.\n";
         const char line3[] = "Whatever you go, there you are.  B Banzai\n";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
-        const int len3 = bsl::strlen(line3);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
+        const int len3 = u::intStrLen(line3);
 
         FileUtil::remove(fnBuf);
 
@@ -2896,8 +2908,8 @@ int main(int argc, char *argv[])
                            "There are more things in heaven and earth,\n"
                            "Horatio, than are dreamt of in your philosophy.\n";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
 
         // Create file
 
@@ -3094,8 +3106,8 @@ int main(int argc, char *argv[])
                            "There are more things in heaven and earth,\n"
                            "Horatio, than are dreamt of in your philosophy.\n";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
 
         const int dLen1 = u::diskLength(line1);
         const int dLen2 = u::diskLength(line2);
@@ -3354,7 +3366,7 @@ int main(int argc, char *argv[])
             Int64 nextGoal = j + halfGig;
             for (; j < nextGoal; j += sz) {
                 *first8Bytes = j;
-                int sts = sb.sputn(bufToWrite, sz);
+                IntPtr sts = sb.sputn(bufToWrite, sz);
                 LOOP_ASSERT(sts, sz == sts);
             }
             cout << j << " bytes written\n";
