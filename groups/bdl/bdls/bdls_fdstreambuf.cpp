@@ -211,7 +211,16 @@ int FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
         char       *from = buffer;
         char       *to   = buffer;
         const char *last = buffer + bytesRead - 1;
-        for (; from <= last && *from != CTRLZ; ++from) {
+        for (; from <= last; ++from) {
+            if (CTRLZ == *from) {
+                // pretend we're at end of file if hit ^Z
+
+                d_peekBuffer     = CTRLZ;
+                d_peekBufferFlag = true;
+
+                break;
+            }
+
             if (*from != '\r') {
                 *to++ = *from;
             }
@@ -244,12 +253,6 @@ int FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
             }
         }
 
-        // pretend we're at end of file if hit ^Z
-
-        if (CTRLZ == *from) {
-            d_peekBuffer     = CTRLZ;
-            d_peekBufferFlag = true;
-        }
         bytesRead = to - buffer;
     }
 
