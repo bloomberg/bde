@@ -18651,7 +18651,6 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations == ta.numDeallocations());
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
         if (verbose)
             printf("\nTesting constructor (with deleter function type)"
                    "\n------------------------------------------------\n");
@@ -18678,7 +18677,6 @@ int main(int argc, char *argv[])
         }
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations == ta.numDeallocations());
-#endif  // BSLS_PLATFORM_CMP_IBM
 
         if (verbose) printf(
                 "\nTesting constructor (with deleter and bslma::allocator)"
@@ -18913,7 +18911,6 @@ int main(int argc, char *argv[])
         ASSERT(numDeallocations+1 == ta.numDeallocations());
 
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
         if (verbose) printf(
                   "\nTesting ctor (with function type and bslma allocator)"
                   "\n-----------------------------------------------------\n");
@@ -19029,7 +19026,6 @@ int main(int argc, char *argv[])
         ASSERT(1 == numDeletes);
         ASSERT(numDeallocations+1 == ta.numDeallocations());
 
-#endif  // ! BSLS_PLATFORM_CMP_IBM
 
         if (verbose) printf("\nTesting constructor (with rep)"
                             "\n------------------------------\n");

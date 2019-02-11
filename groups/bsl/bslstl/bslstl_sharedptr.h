@@ -6340,7 +6340,7 @@ shared_ptr<ELEMENT_TYPE>::load(COMPATIBLE_TYPE               *ptr,
 // ACCESSORS
 template <class ELEMENT_TYPE>
 inline
-# if defined(BSLS_PLATFORM_CMP_IBM)
+# if defined(BSLS_PLATFORM_CMP_IBM)     // Last tested with xlC 12.1
 shared_ptr<ELEMENT_TYPE>::operator typename shared_ptr::BoolType() const
                                                           BSLS_KEYWORD_NOEXCEPT
 # else

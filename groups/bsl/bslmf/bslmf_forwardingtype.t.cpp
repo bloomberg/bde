@@ -143,7 +143,7 @@ void aSsErT(bool condition, const char *message, int line)
 #if defined(BSLS_PLATFORM_CMP_IBM)
 # define BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION 1
     // This is an obscure bug encountered on AIX with xlC, last tested with
-    // version 12.2.  The problem is the compiler fails to find a match when
+    // version 12.1.  The problem is the compiler fails to find a match when
     // passing a pointer-to-cv-qualified-member-function as an argument to a
     // function:
     //..
@@ -1293,12 +1293,9 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("Function types\n");
 
-#if (!defined(BSLS_PLATFORM_CMP_IBM)  || (BSLS_PLATFORM_CMP_VERSION < 0x0800))
-        // xlc-8 seems to have problems with function types.
         TEST_FWD_TYPE(void()        , void(&)());
         TEST_FWD_TYPE(int(int)      , int(&)(int));
         TEST_FWD_TYPE(void(int&)    , void(&)(int&));
-#endif
 
         TEST_FWD_TYPE(void(&)()     , void(&)());
         TEST_FWD_TYPE(int(&)(int)   , int(&)(int));

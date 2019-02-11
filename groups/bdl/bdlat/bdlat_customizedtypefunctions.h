@@ -463,10 +463,21 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 #include <bslmf_metaint.h>
 
+#include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_string.h>
 
+
+#if defined(BSLS_PLATFORM_CMP_IBM)       // Need a workaround for ADL bug.
+    // IBM xlC will not perform argument-dependent lookup if the function being
+    // called has already been declared and found by ordinary name lookup in
+    // some scope at the point of the template function *definition* (not
+    // instantiation).  We work around this bug by not declaring these
+    // functions until *after* the template definitions that call them.
+# define BDLAT_CUSTOMIZEDTYPEFUNCTIONS_HAS_INHIBITED_ADL 1
+    // Last verified with xlC 12.1
+#endif
 
 
 
@@ -535,7 +546,7 @@ namespace bdlat_CustomizedTypeFunctions {
         // Load into the specified 'result' the value of the specified
         // 'object'.
 
-#if ! defined(BSLS_PLATFORM_CMP_IBM)
+#if ! defined(BDLAT_CUSTOMIZEDTYPEFUNCTIONS_HAS_INHIBITED_ADL)
     // OVERLOADABLE FUNCTIONS
 
     // The following functions should be overloaded for other types (in their
@@ -733,7 +744,7 @@ bdlat_CustomizedTypeFunctions::convertToBaseType(const TYPE&  object)
       // namespace bdlat_CustomizedTypeFunctions (OVERLOADABLE FUNCTIONS)
       // ----------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BDLAT_CUSTOMIZEDTYPEFUNCTIONS_HAS_INHIBITED_ADL)
 namespace bdlat_CustomizedTypeFunctions {
     // xlC 6 will not do Koenig (argument-dependent) lookup if the function
     // being called has already been declared in some scope at the point of

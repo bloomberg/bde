@@ -328,18 +328,19 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_util.h>
 
 #include <cstddef>  // 'std::size_t'
-
 #include <cstring>  // 'memset', 'memcpy', 'memmove'
-
 #include <cwchar>   // 'wmemset'
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_constructorproxy.h>
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
-# define BSLALG_ARRAYPRIMITIVES_CANNOT_REMOVE_POINTER_FROM_FUNCTION_POINTER
+#if defined(BSLS_PLATFORM_CMP_IBM)      // IBM needs specific workarounds.
+# define BSLALG_ARRAYPRIMITIVES_CANNOT_REMOVE_POINTER_FROM_FUNCTION_POINTER 1
     // xlC has problem removing pointer from function pointer types.
+
+# define BSLALG_ARRAYPRIMITIVES_NON_ZERO_NULL_VALUE_FOR_MEMBER_POINTERS 1
+    // xlC representation for a null member pointer is not all zero bits.
 #endif
 
 namespace BloombergLP {
@@ -3195,7 +3196,7 @@ void ArrayPrimitives::defaultConstruct(
         k_VALUE = bsl::is_fundamental<TargetType>::value
                || bsl::is_enum<TargetType>::value
                || bsl::is_pointer<TargetType>::value
-#if !defined(BSLS_PLATFORM_CMP_IBM)
+#if !defined(BSLALG_ARRAYPRIMITIVES_NON_ZERO_NULL_VALUE_FOR_MEMBER_POINTERS)
                || bsl::is_member_pointer<TargetType>::value
 #endif
               ? Imp::e_HAS_TRIVIAL_DEFAULT_CTOR_TRAITS

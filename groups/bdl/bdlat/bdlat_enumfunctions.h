@@ -278,8 +278,19 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
 
 #include <bsl_string.h>
+
+#if defined(BSLS_PLATFORM_CMP_IBM)       // Need a workaround for ADL bug.
+    // IBM xlC will not perform argument-dependent lookup if the function being
+    // called has already been declared and found by ordinary name lookup in
+    // some scope at the point of the template function *definition* (not
+    // instantiation).  We work around this bug by not declaring these
+    // functions until *after* the template definitions that call them.
+# define BDLAT_ENUMFUNCTIONS_HAS_INHIBITED_ADL 1
+    // Last verified with xlC 12.1
+#endif
 
 namespace BloombergLP {
 
@@ -348,7 +359,7 @@ namespace bdlat_EnumFunctions {
         // Return the string representation exactly matching the enumerator
         // name corresponding to the specified enumeration 'value'.
 
-#if ! defined(BSLS_PLATFORM_CMP_IBM)
+#if ! defined(BDLAT_ENUMFUNCTIONS_HAS_INHIBITED_ADL)
     // OVERLOADABLE FUNCTIONS
 
     // The following functions should be overloaded for other types (in their
@@ -419,13 +430,13 @@ void bdlat_EnumFunctions::toString(bsl::string *result, const TYPE& value)
            // namespace bdlat_EnumFunctions (OVERLOADABLE FUNCTIONS)
            // ------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BDLAT_ENUMFUNCTIONS_HAS_INHIBITED_ADL)
 namespace bdlat_EnumFunctions {
-    // xlC 6 will not do Koenig (argument-dependent) lookup if the function
-    // being called has already been declared in some scope at the point of
-    // the template function *definition* (not instantiation).  We work around
-    // this bug by not declaring these functions until *after* the template
-    // definitions that call them.
+    // IBM xlC will not perform argument-dependent lookup if the function being
+    // called has already been declared and found by ordinary name lookup in
+    // some scope at the point of the template function *definition* (not
+    // instantiation).  We work around this bug by not declaring these
+    // functions until *after* the template definitions that call them.
 
     // OVERLOADABLE FUNCTIONS
     // The following functions should be overloaded for other types (in their
