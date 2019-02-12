@@ -12,6 +12,8 @@
 #include <bslim_testutil.h>
 
 #include <bdls_filesystemutil.h>
+#include <bdls_memoryutil.h>
+#include <bdls_processutil.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
@@ -30,15 +32,6 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-
-// The following is added so that this component does not need a dependency on
-// bdls_processutil, since 'getProcessId' is only used to create unique file
-// names.
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -99,16 +92,32 @@ typedef bdls::FdStreamBuf_FileHandler  ObjFileHandler;
 typedef bdls::FdStreamBuf              Obj;
 typedef bdls::FilesystemUtil           FileUtil;
 typedef FileUtil::FileDescriptor       FdType;
+typedef bsls::Types::IntPtr            IntPtr;
 
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+bool verbose;
+bool veryVerbose;
+bool veryVeryVerbose;
+bool veryVeryVeryVerbose;
+
 namespace {
+namespace u {
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+enum { e_WINDOWS = 1 };
+#else
+enum { e_WINDOWS = 0 };
+#endif
 
 int accum = 0x73a8f325;
 const int mask17 = 1 << 17;
 const int mask6  = 1 << 6;
+
+static bdls::FilesystemUtil::FileDescriptor invalid;    // Initialized at start
+                                                        // of 'main'.
 
 void seedRandChar(int i)
 {
@@ -126,6 +135,7 @@ char randChar()
 }
 
 // can't use 'random()' because it does not exist on Windows
+
 int randInt()
 {
     static int accum = 0x12345678;
@@ -139,12 +149,14 @@ int diskLength(const char *string)
     // Given the specified 'string' without CRs, calculate the length it would
     // be if the NLs were translated to CRNLs.
 {
-#ifdef BSLS_PLATFORM_OS_UNIX
-    return bsl::strlen(string);
-#else
-    int unixLen = bsl::strlen(string);
-    return unixLen + bsl::count(string, string + unixLen, '\n');
-#endif
+    if (e_WINDOWS) {
+        IntPtr unixLen = bsl::strlen(string);
+        unixLen += bsl::count(string, string + unixLen, '\n');
+        return static_cast<int>(unixLen);                             // RETURN
+    }
+    else {
+        return static_cast<int>(bsl::strlen(string));                 // RETURN
+    }
 }
 
 int doRead(ObjFileHandler *fh, char *buf, int len)
@@ -164,15 +176,6 @@ int doRead(ObjFileHandler *fh, char *buf, int len)
 
         return charsSoFar;                                            // RETURN
     }
-}
-
-int getProcessId()
-{
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-    return static_cast<int>(GetCurrentProcessId());
-#else
-    return static_cast<int>(getpid());
-#endif
 }
 
 const struct {
@@ -206,7 +209,30 @@ int digits(bsls::Types::Int64 n)
     return 0;
 }
 
-}  // close unnamed namespace
+class CtrlZAllocator : public bslma::TestAllocator {
+    // The purpose of this allocator is to reproduce an intermittent bug
+    // reported in DRQS 137573159 where a read of a byte one past the end of
+    // buffer occurs, and if that bytes contains ^Z (26), the streambuf will
+    // mistakenly conclude that it encountered EOF.
+
+    typedef bslma::TestAllocator BaseAllocator;
+
+  public:
+    // CREATOR
+    CtrlZAllocator()
+    : BaseAllocator("CtrlZAlloc", veryVeryVeryVerbose)
+    {}
+
+    // MANIPULATOR
+    virtual void *allocate(size_type size)
+    {
+        enum { CTRLZ = 26 };
+
+        void *ret = this->BaseAllocator::allocate(size + 1);
+        bsl::memset(ret, CTRLZ, size + 1);
+        return ret;
+    }
+};
 
 static Obj::pos_type nullSeek(int line, Obj *sb, bool checkSeek)
     // Do a null seek, making sure that
@@ -228,7 +254,46 @@ static Obj::pos_type nullSeek(int line, Obj *sb, bool checkSeek)
 
 static Obj  *nullSeekFdStreamBuf;
 static bool  nullSeekCheckSeek;
-#define NULL_SEEK()    nullSeek(L_, nullSeekFdStreamBuf, nullSeekCheckSeek)
+#define U_NULL_SEEK()    u::nullSeek(L_,                                      \
+                                     u::nullSeekFdStreamBuf,                  \
+                                     u::nullSeekCheckSeek)
+
+bsl::string printableString(const bsl::string& str,
+                            bsl::size_t        start,
+                            bsl::size_t        len)
+{
+    // Return a string containing the first specified 'len' characters of the
+    // specified 'str', with carriage returns translated to "\\r" and newlines
+    // translated to "\\n" to facilitate human readability.
+
+    len = str.length() > start + len ? bsl::min<size_t>(str.length() - start,
+                                                        len)
+                                     : 0;
+    bsl::string ret;
+    ret.reserve(2 * len + 2);
+    ret += '"';
+    for (bsl::size_t ii = 0; ii < len; ++ii) {
+        char c = str[ii];
+        switch (c) {
+          case '\r': ret += "\\r";   break;
+          case '\n': ret += "\\n";   break;
+          default:   ret += str[ii]; break;
+       }
+    }
+    ret += '"';
+
+    return ret;
+}
+
+inline
+int intStrLen(const char *str)
+    // Return the length of the specified 'str', as an 'int'.
+{
+    return static_cast<int>(bsl::strlen(str));
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
 // ============================================================================
 //                              USAGE EXAMPLES
@@ -240,11 +305,15 @@ static bool  nullSeekCheckSeek;
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-//  bool     veryVeryVerbose = argc > 4;
-//  bool veryVeryVeryVerbose = argc > 5;
+    int             test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+                 verbose = argc > 2;  (void)             verbose;
+             veryVerbose = argc > 3;  (void)         veryVerbose;
+         veryVeryVerbose = argc > 4;  (void)     veryVeryVerbose;
+     veryVeryVeryVerbose = argc > 5;  (void) veryVeryVeryVerbose;
+
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    u::invalid = bdls::FilesystemUtil::k_INVALID_FD;
 
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
@@ -268,7 +337,7 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING STREAMBUF USAGE EXAMPLE
         //
@@ -298,20 +367,15 @@ int main(int argc, char *argv[])
                            "Horatio, than are dreamt of in your philosophy.\n";
         const char line3[] = "Wherever you go, there you are.  B Banzai\n";
 
-        const int lengthLine1 = sizeof(line1) - 1;
-        const int lengthLine2 = sizeof(line2) - 1;
-        const int lengthLine3 = sizeof(line3) - 1;
+        const IntPtr lengthLine1 = sizeof(line1) - 1;
+        const IntPtr lengthLine2 = sizeof(line2) - 1;
+        const IntPtr lengthLine3 = sizeof(line3) - 1;
 
         // We start by selecting a file name for our (temporary) file.
 
         char fileNameBuffer[100];
-        bsl::sprintf(fileNameBuffer,
-#ifdef BSLS_PLATFORM_OS_UNIX
-                     "/tmp/bdls_FdStreamBuf.usage.2.%d.txt",
-#else // windows
-                     "C:\\TEMP\\bdls_FdStreamBuf.usage.2.%d.txt",
-#endif
-                     getProcessId());
+        bsl::sprintf(fileNameBuffer, fileNameTemplate, "usage.2",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) bsl::cout << "Filename: " << fileNameBuffer << bsl::endl;
 
@@ -430,7 +494,7 @@ int main(int argc, char *argv[])
 
         bdls::FilesystemUtil::remove(fileNameBuffer);
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING STREAM USAGE EXAMPLE
         //
@@ -461,13 +525,8 @@ int main(int argc, char *argv[])
         // that name already exists:
 
         char fileNameBuffer[100];
-        bsl::sprintf(fileNameBuffer,
-#ifdef BSLS_PLATFORM_OS_UNIX
-                     "/tmp/bdls_FdStreamBuf.usage.1.%d.txt",
-#else // windows
-                     "C:\\TEMP\\bdls_FdStreamBuf.usage.1.%d.txt",
-#endif
-                     getProcessId());
+        bsl::sprintf(fileNameBuffer, fileNameTemplate, "usage.1",
+                                            bdls::ProcessUtil::getProcessId());
 
         // Then, make sure file does not already exist:
 
@@ -570,7 +629,7 @@ int main(int argc, char *argv[])
 
         bdls::FilesystemUtil::remove(fileNameBuffer);
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // TESTING NULL SEEKS
         //
@@ -613,31 +672,31 @@ int main(int argc, char *argv[])
                         "This line is exactly as long as line 2,\n"
                         "and I mean EXACTLY, counting the chars EXACTLY ...\n";
 
-        const int lLen1 = sizeof(line1) - 1;
-        const int lLen2 = sizeof(line2) - 1;
-        const int lLen3 = sizeof(line3) - 1;
-        const int lLen4 = sizeof(line4) - 1;
+        const IntPtr lLen1 = sizeof(line1) - 1;
+        const IntPtr lLen2 = sizeof(line2) - 1;
+        const IntPtr lLen3 = sizeof(line3) - 1;
+        const IntPtr lLen4 = sizeof(line4) - 1;
 
         ASSERT(lLen1 == lLen3);
         ASSERT(lLen2 == lLen4);
 
         for (int ti = 0; ti < 4; ++ti) {
             int isText        = !!(ti & 1);
-            nullSeekCheckSeek = !!(ti & 2);
+            u::nullSeekCheckSeek = !!(ti & 2);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
             if (isText) continue;
 #endif
 
-            const int eLen1 = lLen1 + isText;
-            const int eLen3 = lLen3 + isText;
-            const int eLen4 = lLen4 + 2 * isText;
+            const IntPtr eLen1 = lLen1 + isText;
+            const IntPtr eLen3 = lLen3 + isText;
+            const IntPtr eLen4 = lLen4 + 2 * isText;
 
             // We start by selecting a file name for our (temporary) file.
 
             char fileNameBuffer[100];
-            bsl::sprintf(fileNameBuffer, fileNameTemplate, "15",
-                                                               getProcessId());
+            bsl::sprintf(fileNameBuffer, fileNameTemplate, "16",
+                                            bdls::ProcessUtil::getProcessId());
 
             if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
@@ -655,10 +714,10 @@ int main(int argc, char *argv[])
                 FdType fd = FileUtil::open(fileNameBuffer,
                                            FileUtil::e_CREATE,
                                            FileUtil::e_READ_WRITE);
-                ASSERT(-1 != (int) fd);
+                ASSERT(u::invalid != fd);
 
                 Obj sb(fd, true, true, !isText, &ta);
-                nullSeekFdStreamBuf = &sb;
+                u::nullSeekFdStreamBuf = &sb;
 
                 // Impose a very small buffer, so that buffer overflow code
                 // will frequently be exercised.
@@ -670,7 +729,7 @@ int main(int argc, char *argv[])
 
                 // P-4
 
-                ASSERT(eLen1 == NULL_SEEK());
+                ASSERT(eLen1 == U_NULL_SEEK());
 
                 ASSERT(lLen2 == sb.sputn(line2, lLen2));
                 ASSERT(lLen3 == sb.sputn(line3, lLen3));
@@ -684,7 +743,7 @@ int main(int argc, char *argv[])
 
                 // P-1
 
-                ASSERT(eLen1 == NULL_SEEK());
+                ASSERT(eLen1 == U_NULL_SEEK());
 
                 bsl::memset(buf, 0, sizeof(buf));
                 ASSERT(lLen2 == sb.sgetn(buf, lLen2));
@@ -702,23 +761,23 @@ int main(int argc, char *argv[])
 
                 // P-2
 
-                ASSERT(eLen1 == NULL_SEEK());
+                ASSERT(eLen1 == U_NULL_SEEK());
 
                 ASSERT(lLen4 == sb.sputn(line4, lLen4));
 
                 // P-5
 
-                LOOP3_ASSERT(eLen1, eLen4, NULL_SEEK(),
-                                                 eLen1 + eLen4 == NULL_SEEK());
+                LOOP3_ASSERT(eLen1, eLen4, U_NULL_SEEK(),
+                                               eLen1 + eLen4 == U_NULL_SEEK());
 
                 bsl::memset(buf, 0, sizeof(buf));
-                int sts = sb.sgetn(buf, lLen3);
+                IntPtr sts = sb.sgetn(buf, lLen3);
                 LOOP2_ASSERT(lLen3, sts, lLen3 == sts);
                 ASSERT(0 == bsl::strcmp(line3, buf));
 
                 // P-3
 
-                ASSERT(eLen1 + eLen4 + eLen3 == NULL_SEEK());
+                ASSERT(eLen1 + eLen4 + eLen3 == U_NULL_SEEK());
 
                 ASSERT(0 == sb.pubseekpos(0));
 
@@ -726,7 +785,7 @@ int main(int argc, char *argv[])
                 ASSERT(lLen1 == sb.sgetn(buf, lLen1));
                 ASSERT(0 == bsl::strcmp(line1, buf));
 
-                ASSERT(eLen1 == NULL_SEEK());
+                ASSERT(eLen1 == U_NULL_SEEK());
 
                 bsl::memset(buf, 0, sizeof(buf));
                 ASSERT(lLen4 == sb.sgetn(buf, lLen4));
@@ -734,13 +793,13 @@ int main(int argc, char *argv[])
 
                 // C-3
 
-                ASSERT(eLen1 + eLen4 == NULL_SEEK());
+                ASSERT(eLen1 + eLen4 == U_NULL_SEEK());
 
                 bsl::memset(buf, 0, sizeof(buf));
                 ASSERT(lLen3 == sb.sgetn(buf, lLen3));
                 ASSERT(0 == bsl::strcmp(line3, buf));
 
-                ASSERT(eLen1 + eLen4 + eLen3 == NULL_SEEK());
+                ASSERT(eLen1 + eLen4 + eLen3 == U_NULL_SEEK());
 
                 ASSERT(0 == sb.pubseekpos(0));
 
@@ -749,29 +808,29 @@ int main(int argc, char *argv[])
                                       == sb.sgetn(buf, lLen1 + lLen4 + lLen3));
                 ASSERT(bsl::string(line1) + line4 + line3 == buf);
 
-                ASSERT(eLen1 + eLen4 + eLen3 == NULL_SEEK());
+                ASSERT(eLen1 + eLen4 + eLen3 == U_NULL_SEEK());
 
                 ASSERT(0 == sb.pubseekpos(0));
 
                 // P-8
 
-                ASSERT(0 == NULL_SEEK());
+                ASSERT(0 == U_NULL_SEEK());
 
                 ASSERT(lLen3 == sb.sputn(line3, lLen3));
 
-                ASSERT(eLen3 == NULL_SEEK());
+                ASSERT(eLen3 == U_NULL_SEEK());
 
                 bsl::memset(buf, 0, sizeof(buf));
                 ASSERT(lLen4 == sb.sgetn(buf, lLen4));
                 LOOP2_ASSERT(line4, buf, 0 == bsl::strcmp(line4, buf));
 
-                ASSERT(eLen3 + eLen4 == NULL_SEEK());
+                ASSERT(eLen3 + eLen4 == U_NULL_SEEK());
 
                 ASSERT(lLen1 == sb.sputn(line1, lLen1));
 
                 // P-6
 
-                ASSERT(eLen3 + eLen4 + eLen1 == NULL_SEEK());
+                ASSERT(eLen3 + eLen4 + eLen1 == U_NULL_SEEK());
 
                 ASSERT(100 == sb.pubseekpos(100));
 
@@ -786,7 +845,7 @@ int main(int argc, char *argv[])
 
                 // P-7
 
-                ASSERT(0 == NULL_SEEK());
+                ASSERT(0 == U_NULL_SEEK());
 
                 bsl::memset(buf, 0, sizeof(buf));
                 ASSERT(lLen3 == sb.sgetn(buf, lLen3));
@@ -801,13 +860,13 @@ int main(int argc, char *argv[])
                 ASSERT(0 == bsl::strcmp(line1, buf));
 
                 ASSERT(0 == sb.pubseekpos(0));
-                ASSERT(0 == NULL_SEEK());
+                ASSERT(0 == U_NULL_SEEK());
 
                 ASSERT(lLen3 + lLen4 + lLen1
                                       == sb.sgetn(buf, lLen3 + lLen4 + lLen1));
                 ASSERT(bsl::string(line3) + line4 + line1 == buf);
 
-                ASSERT(eLen3 + eLen4 + eLen1 == NULL_SEEK());
+                ASSERT(eLen3 + eLen4 + eLen1 == U_NULL_SEEK());
 
                 sb.clear();
 
@@ -816,6 +875,175 @@ int main(int argc, char *argv[])
                 FileUtil::remove(fileNameBuffer);
             }
         }
+      } break;
+      case 15: {
+        // --------------------------------------------------------------------
+        // WINDOWS READ PAST END OF BUFFER PROBLEM
+        //
+        // Concerns:
+        //: 1 Reproduce bug where 'FdStreamBuf_FileHandler::read' was reading
+        //    one past the end of the buffer looking for ^Z, causing an
+        //    intermittend error when that random byte happened to have that
+        //    error, reported in DRQS 137573159.
+        //
+        // Plan:
+        //: 1 Create memory alloctor, 'u::CtrlZAlloc' which, when asked to
+        //:   allocate 'n' bytes, allocates 'n + 1' bytes and fills the segment
+        //:   with '^Z' characters before returning it.
+        //:
+        //: 2 Create a huge file, many times the page size in length, filled
+        //:   with interesting patterns containing '\r' and '\n' sequences,
+        //:   since the code we're testing is the Windows imp which accesses
+        //:   text files and translates "\r\n" sequences to '\n' and leaves
+        //:   everything else alone.
+        //:
+        //: 3 Create a memory seqment which contains the sequence of bytes we
+        //:   expect to get from that file if read by an 'FdStreamBuf' in text
+        //:   mode.
+        //:
+        //: 4 Read the whole file with 'FdStreamBuf::sgetc' and compare
+        //:   everything to the expected pattern, and observe that you make it
+        //:   through the whole file.
+        //:
+        //: 5 Before the bug was fixed, an unexpected eof would occur at the
+        //:   first page boundary.  After the bug was fixed, everything passed.
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "WINDOWS READ PAST END OF BUFFER PROBLEM\n"
+                             "=======================================\n";
+
+        const int fileSize = bdls::MemoryUtil::pageSize() * 10 + 10;
+        const bsl::size_t npos = bsl::string::npos;
+
+        if (veryVerbose) { P_(bdls::MemoryUtil::pageSize());    P(fileSize); }
+
+        // We start by selecting a file name for our (temporary) file.
+
+        char fileNameBuffer[100];
+        bsl::sprintf(fileNameBuffer, fileNameTemplate, "15",
+                                            bdls::ProcessUtil::getProcessId());
+        if (verbose) cout << "Filename: " << fileNameBuffer << endl;
+
+        FileUtil::remove(fileNameBuffer);
+
+        FdType fd = FileUtil::open(fileNameBuffer,
+                                   FileUtil::e_CREATE,
+                                   FileUtil::e_READ_WRITE);
+        ASSERT(u::invalid != fd);
+
+        char *rawBuf = static_cast<char *>(ta.allocate(fileSize));
+        char *trBuf  = static_cast<char *>(ta.allocate(fileSize));
+
+        struct Data {
+            int         d_line;
+            const char *d_pattern;
+            const char *d_windowsMatchStr;
+            const char *d_unixMatchStr;
+        } DATA[] = {
+          { L_, "\r\r\r\r\r\r\r\r\r\r", "\r",         "\r"},
+          { L_, "\n\n\n\n\n\n\n\n\n\n", "\n",         "\n" },
+          { L_, "\r\n\r\n\r\n\r\n\r\n", "\n",         "\r\n" },
+          { L_, "abcdefghij",           "abcdefghij", "abcdefghij" },
+          { L_, "a\r\na\ra\na\ra",      "a\r\n",      "a\r\n" },
+          { L_, "a\r\naa\r\n\r\n\n",    "a\n",        "a\r\n" },
+          { L_, "\r\r\r\r\n\n\n\n\n\n", "\r\n",       "\r\n" }
+        };
+        enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
+
+        for (int ti = 0; ti < k_NUM_DATA; ++ti) {
+            const Data& data     = DATA[ti];
+            const int   LINE     = data.d_line;
+            const char *pattern  = data.d_pattern;
+            const char *matchStr = u::e_WINDOWS ? data.d_windowsMatchStr
+                                                : data.d_unixMatchStr;
+
+            IntPtr patternLen = bsl::strlen(pattern);
+            ASSERTV(patternLen, 10 == patternLen);
+
+            FileUtil::Offset rc = FileUtil::seek(
+                                              fd,
+                                              0,
+                                              FileUtil::e_SEEK_FROM_BEGINNING);
+            ASSERTV(rc, 0 == rc);
+
+            // Next, Create the file and open a file descriptor to it.  The
+            // boolean flags indicate that the file is writable, and not
+            // previously existing (and therefore must be created).
+
+            char * const end = rawBuf + fileSize;
+            char *pc = rawBuf;
+            for (; patternLen <= end - pc; pc += patternLen) {
+                bsl::memcpy(pc, pattern, patternLen);
+            }
+            bsl::memcpy(pc, pattern, end - pc);
+            end[-1] = '\r' == end[-1] ? *matchStr : end[-1];
+
+            rc = FileUtil::write(fd, rawBuf, fileSize);
+            ASSERTV(rc, fileSize == rc);
+
+            char *to;
+            if (u::e_WINDOWS) {
+                for (to = trBuf, pc = rawBuf; pc < end; ) {
+                    char c = *pc++;
+                    if ('\r' == c) {
+                        if (pc == end) {
+                            *to++ = '\r';
+                        }
+                        else if ('\n' == *pc) {
+                            *to++ = '\n';
+                            ++pc;
+                        }
+                        else {
+                            *to++ = '\r';
+                        }
+                    }
+                    else {
+                        *to++ = c;
+                    }
+                }
+            }
+            else {
+                bsl::memcpy(trBuf, rawBuf, fileSize);
+                to = trBuf + fileSize;
+            }
+
+            ASSERTV(to - trBuf, fileSize, to - trBuf <= fileSize);
+            const bsl::string searchStr(trBuf, to - trBuf, &ta);
+            const bsl::size_t notOf = searchStr.find_first_not_of(matchStr);
+            ASSERTV(LINE, notOf, u::printableString(searchStr, notOf, 10),
+                                                                npos == notOf);
+
+            rc = FileUtil::seek(fd, 0, FileUtil::e_SEEK_FROM_BEGINNING);
+            ASSERTV(rc, 0 == rc);
+
+            u::CtrlZAllocator cza;
+            Obj sb(fd, false, false, false, &cza);
+
+            const int eof = bsl::char_traits<char>::eof();
+            int ic;
+            for (pc = trBuf; pc <= to; ++pc, sb.sbumpc()) {
+                ic = sb.sgetc();
+                if (eof == ic) {
+                    ASSERTV(LINE, to - pc, pc == to);
+                    break;
+                }
+
+                char c = static_cast<char>(ic);
+                ASSERTV(ic, c, ic == c);
+                ASSERTV(matchStr, c, bsl::strchr(matchStr, c));
+                ASSERTV(LINE, int(c), int(*pc), pc - trBuf, c == *pc);
+
+            }
+            ASSERTV(LINE, ic, static_cast<char>(ic), eof, eof == ic);
+        }
+
+        ta.deallocate(rawBuf);
+        ta.deallocate(trBuf);
+
+        int rc = FileUtil::close(fd);
+        ASSERTV(rc, 0 == rc);
+
+        FileUtil::remove(fileNameBuffer);
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -839,7 +1067,8 @@ int main(int argc, char *argv[])
         // We start by selecting a file name for our (temporary) file.
 
         char fileNameBuffer[100];
-        bsl::sprintf(fileNameBuffer, fileNameTemplate, "14", getProcessId());
+        bsl::sprintf(fileNameBuffer, fileNameTemplate, "14",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
@@ -854,7 +1083,7 @@ int main(int argc, char *argv[])
         FdType fd = FileUtil::open(fileNameBuffer,
                                    FileUtil::e_CREATE,
                                    FileUtil::e_READ_WRITE);
-        ASSERT(-1 != (int) fd);
+        ASSERT(u::invalid != fd);
 
         // open a streamBuf (in text mode on Windows)
 
@@ -1051,7 +1280,8 @@ int main(int argc, char *argv[])
         // We start by selecting a file name for our (temporary) file.
 
         char fileNameBuffer[100];
-        bsl::sprintf(fileNameBuffer, fileNameTemplate, "13", getProcessId());
+        bsl::sprintf(fileNameBuffer, fileNameTemplate, "13",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fileNameBuffer << endl;
 
@@ -1066,7 +1296,7 @@ int main(int argc, char *argv[])
         FdType fd = FileUtil::open(fileNameBuffer,
                                    FileUtil::e_CREATE,
                                    FileUtil::e_READ_WRITE);
-        ASSERT(-1 != (int) fd);
+        ASSERT(u::invalid != fd);
 
         Obj sb(fd, true, true, true, &ta);
 
@@ -1106,7 +1336,7 @@ int main(int argc, char *argv[])
                                          sb.pubseekoff(0, bsl::ios_base::cur));
 
         bsl::memset(buf, 0, sizeof(buf));
-        int sts = sb.sgetn(buf, lineLength3);
+        IntPtr sts = sb.sgetn(buf, lineLength3);
         LOOP2_ASSERT(lineLength3, sts, lineLength3 == sts);
         ASSERT(0 == bsl::strcmp(line3, buf));
 
@@ -1172,7 +1402,8 @@ int main(int argc, char *argv[])
                   "========================================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "12", getProcessId());
+        bsl::sprintf(fnBuf, fileNameTemplate, "12",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -1180,8 +1411,8 @@ int main(int argc, char *argv[])
         const char line2[] =
                            "There are more things in heaven and earth,\n"
                            "Horatio, than are dreamt of in your philosophy.\n";
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         const char dLine1[] = "To be or not to be, that is the question.\r\n";
@@ -1189,15 +1420,15 @@ int main(int argc, char *argv[])
                          "There are more things in heaven and earth,\r\n"
                          "Horatio, than are dreamt of in your philosophy.\r\n";
 #endif
-        const int dLen1 = diskLength(line1);
-        const int dLen2 = diskLength(line2);
+        const int dLen1 = u::diskLength(line1);
+        const int dLen2 = u::diskLength(line2);
 
         FileUtil::remove(fnBuf);
 
         FdType fd = FileUtil::open(fnBuf,
                                    FileUtil::e_CREATE,
                                    FileUtil::e_READ_WRITE);
-        ASSERT(-1 != (int) fd);
+        ASSERT(u::invalid != fd);
 
         char buf[1000];
         {
@@ -1343,7 +1574,8 @@ int main(int argc, char *argv[])
                              "=====================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "11", getProcessId());
+        bsl::sprintf(fnBuf, fileNameTemplate, "11",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -1351,8 +1583,8 @@ int main(int argc, char *argv[])
         const char line2[] =
                            "There are more things in heaven and earth,\n"
                            "Horatio, than are dreamt of in your philosophy.\n";
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         const char dLine1[] = "To be or not to be, that is the question.\r\n";
@@ -1360,15 +1592,15 @@ int main(int argc, char *argv[])
                          "There are more things in heaven and earth,\r\n"
                          "Horatio, than are dreamt of in your philosophy.\r\n";
 #endif
-        const int dLen1 = diskLength(line1);
-        const int dLen2 = diskLength(line2);
+        const int dLen1 = u::diskLength(line1);
+        const int dLen2 = u::diskLength(line2);
 
         FileUtil::remove(fnBuf);
 
         FdType fd = FileUtil::open(fnBuf,
                                    FileUtil::e_CREATE,
                                    FileUtil::e_READ_WRITE);
-        ASSERT(-1 != (int) fd);
+        ASSERT(u::invalid != fd);
 
         char buf[1000];
         {
@@ -1512,14 +1744,15 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING MULTI-PAGE FILE\n"
                              "=======================\n";
 
-        enum { FILE_SIZE = 1 << 15 };
+        const int mFileSize = bdls::MemoryUtil::pageSize() * 4;
 
-        char *mirror = (char *) ta.allocate(FILE_SIZE);
+        char *mirror = (char *) ta.allocate(mFileSize);
         ASSERT(mirror);
-        bsl::memset(mirror, 0, FILE_SIZE);
+        bsl::memset(mirror, 0, mFileSize);
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "10", getProcessId());
+        bsl::sprintf(fnBuf, fileNameTemplate, "10",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -1528,34 +1761,34 @@ int main(int argc, char *argv[])
         FdType fd = FileUtil::open(fnBuf,
                                    FileUtil::e_CREATE,
                                    FileUtil::e_READ_WRITE);
-        ASSERT(-1 != (int) fd);
+        ASSERT(u::invalid != fd);
 
         Obj sb(fd, true, true, true, &ta);
 
-        for (int i = 0; i < FILE_SIZE; ++i) {
-            char c = randChar();
+        for (int i = 0; i < mFileSize; ++i) {
+            char c = u::randChar();
             mirror[i] = c;
             sb.sputc(c);
         }
 
         ASSERT(0 == sb.pubseekpos(0));
-        for (char *pc = mirror, *end = mirror + FILE_SIZE; pc < end; ++pc) {
+        for (char *pc = mirror, *end = mirror + mFileSize; pc < end; ++pc) {
             char c = static_cast<char>(sb.sbumpc());
             LOOP3_ASSERT(pc - mirror, c, *pc, c == *pc);
         }
 
         if (verbose) cout << "Writing\n";
 
-        ASSERT(FILE_SIZE / 2 == sb.pubseekoff(-FILE_SIZE / 2,
+        ASSERT(mFileSize / 2 == sb.pubseekoff(-mFileSize / 2,
                                               bsl::ios_base::end));
-        int offset = FILE_SIZE / 2;
+        int offset = mFileSize / 2;
         for (int pass = 2; pass < 100; ++pass) {
-            int r = randInt();
+            int r = u::randInt();
             int jump = (r & 0x4000) ? (r & 0x1fff) : -(r & 0x3fff);
             jump -= 0x800;
 
             int dest;
-            while ((dest = offset + jump, dest < 0 || dest >= FILE_SIZE)) {
+            while ((dest = offset + jump, dest < 0 || dest >= mFileSize)) {
                 jump /= 2;
             }
 
@@ -1567,7 +1800,7 @@ int main(int argc, char *argv[])
                                              bsl::ios_base::cur));
             }
             else {
-                ASSERT(dest == sb.pubseekoff(dest - FILE_SIZE,
+                ASSERT(dest == sb.pubseekoff(dest - mFileSize,
                                              bsl::ios_base::end));
             }
             offset = dest;
@@ -1576,32 +1809,32 @@ int main(int argc, char *argv[])
 
             char *pc = mirror + offset;
 
-            int length = randInt() & 0x1fff;
-            for (int end = bsl::min(offset + length, (int) FILE_SIZE - 1);
+            int length = u::randInt() & 0x1fff;
+            for (int end = bsl::min(offset + length, (int) mFileSize - 1);
                                                 offset < end; ++offset, ++pc) {
-                char c = randChar();
+                char c = u::randChar();
                 *pc = c;
                 sb.sputc(c);
             }
         }
 
         ASSERT(0 == sb.pubseekpos(0));
-        for (char *pc = mirror, *end = mirror + FILE_SIZE; pc < end; ++pc) {
+        for (char *pc = mirror, *end = mirror + mFileSize; pc < end; ++pc) {
             char c = static_cast<char>(sb.sbumpc());
             LOOP3_ASSERT(pc - mirror, c, *pc, c == *pc);
         }
 
         if (verbose) cout << "Reading\n";
 
-        ASSERT(FILE_SIZE / 2 == sb.pubseekoff(-FILE_SIZE / 2,
+        ASSERT(mFileSize / 2 == sb.pubseekoff(-mFileSize / 2,
                                               bsl::ios_base::end));
-        offset = FILE_SIZE / 2;
+        offset = mFileSize / 2;
         for (int pass = 2; pass < 100; ++pass) {
-            int r = randInt();
+            int r = u::randInt();
             int jump = (r & 0x4000) ? (r & 0x1fff) : -(r & 0x1fff);
 
             int dest;
-            while ((dest = offset + jump, dest < 0 || dest >= FILE_SIZE)) {
+            while ((dest = offset + jump, dest < 0 || dest >= mFileSize)) {
                 jump /= 2;
             }
 
@@ -1613,7 +1846,7 @@ int main(int argc, char *argv[])
                                              bsl::ios_base::cur));
             }
             else {
-                ASSERT(dest == sb.pubseekoff(dest - FILE_SIZE,
+                ASSERT(dest == sb.pubseekoff(dest - mFileSize,
                                              bsl::ios_base::end));
             }
             offset = dest;
@@ -1622,8 +1855,8 @@ int main(int argc, char *argv[])
 
             char *pc = mirror + offset;
 
-            int length = randInt() & 0xf;
-            for (int end = bsl::min(offset + length, (int) FILE_SIZE - 1);
+            int length = u::randInt() & 0xf;
+            for (int end = bsl::min(offset + length, (int) mFileSize - 1);
                                                 offset < end; ++offset, ++pc) {
                 const char c = static_cast<char>(sb.sbumpc());
                 ASSERT(c == *pc);
@@ -1653,7 +1886,8 @@ int main(int argc, char *argv[])
                              "=================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "9", getProcessId());
+        bsl::sprintf(fnBuf, fileNameTemplate, "9",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -1661,16 +1895,16 @@ int main(int argc, char *argv[])
         const char line2[] = "ABCDEFGH or not to be, that is the question.\n";
         const char line2Trunc[] = "ABCDEFGH or not to be, that is the questio";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
-        const int len2Trunc = bsl::strlen(line2Trunc);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
+        const int len2Trunc = u::intStrLen(line2Trunc);
 
         FileUtil::remove(fnBuf);
 
         FdType fd = FileUtil::open(fnBuf,
                                    FileUtil::e_CREATE,
                                    FileUtil::e_READ_WRITE);
-        ASSERT(-1 != (int) fd);
+        ASSERT(u::invalid != fd);
 
         Obj sb(fd, true);
 
@@ -1691,7 +1925,7 @@ int main(int argc, char *argv[])
         ASSERT(bsl::char_traits<char>::eof() != sb.sputbackc('A'));
 
         bsl::memset(buf, 0, sizeof(buf));
-        int sts = sb.sgetn(buf, len2Trunc);
+        IntPtr sts = sb.sgetn(buf, len2Trunc);
         LOOP2_ASSERT(len1, sts, len2Trunc == sts);
         LOOP_ASSERT(buf, !bsl::strcmp(line2Trunc, buf));
 
@@ -1744,14 +1978,16 @@ int main(int argc, char *argv[])
 
         char fnBuf[100];
         char fnBuf2[100];
-        bsl::sprintf(fnBuf,  fileNameTemplate, "8a", getProcessId());
-        bsl::sprintf(fnBuf2, fileNameTemplate, "8b", getProcessId());
+        bsl::sprintf(fnBuf,  fileNameTemplate, "8a",
+                                            bdls::ProcessUtil::getProcessId());
+        bsl::sprintf(fnBuf2, fileNameTemplate, "8b",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
         const char line1[] = "To be or not to be, that is the question.\n";
 
-        const int len1 = bsl::strlen(line1);
+        const int len1 = u::intStrLen(line1);
 
         FileUtil::remove(fnBuf);
         FileUtil::remove(fnBuf2);
@@ -1759,12 +1995,12 @@ int main(int argc, char *argv[])
         FdType fd = FileUtil::open(fnBuf,
                                    FileUtil::e_CREATE,
                                    FileUtil::e_READ_WRITE);
-        ASSERT(-1 != (int) fd);
+        ASSERT(u::invalid != fd);
 
         FdType fd2 = FileUtil::open(fnBuf2,
                                     FileUtil::e_CREATE,
                                     FileUtil::e_READ_WRITE);
-        ASSERT(-1 != (int) fd2);
+        ASSERT(u::invalid != fd2);
 
         {
             Obj sb(fd, true, false, true, &ta);
@@ -1779,7 +2015,7 @@ int main(int argc, char *argv[])
                                       // close fd
 
             ASSERT(!sb.isOpened());
-            ASSERT((FdType) -1 == sb.fileDescriptor());
+            ASSERT(u::invalid == sb.fileDescriptor());
 
             ASSERT(!sb.reset(fd, true, true, true));
 
@@ -1800,7 +2036,7 @@ int main(int argc, char *argv[])
             sb.release();
 
             ASSERT(!sb.isOpened());
-            ASSERT((FdType) -1 == sb.fileDescriptor());
+            ASSERT(u::invalid == sb.fileDescriptor());
 
             ASSERT(!sb.reset(fd, true, true));
 
@@ -1819,7 +2055,7 @@ int main(int argc, char *argv[])
             ASSERT(!sb.clear());         // should close fd
 
             ASSERT(!sb.isOpened());
-            ASSERT((FdType) -1 == sb.fileDescriptor());
+            ASSERT(u::invalid == sb.fileDescriptor());
 
             // open and get same fd, which verifies clear closed fd
 
@@ -1878,7 +2114,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\tTesting 'clear' on an invalid file handle" << endl;
+            cout << "\tTesting 'clear' on an u::invalid file handle" << endl;
         }
         {
             Obj mX(BOGUS_HANDLE, true, true, true, &ta); const Obj& X = mX;
@@ -1898,9 +2134,8 @@ int main(int argc, char *argv[])
         {
             char filename[100];
             bsl::sprintf(filename,
-                         fileNameTemplate, "reset-bad-handle", getProcessId());
-
-
+                         fileNameTemplate, "reset-bad-handle",
+                                            bdls::ProcessUtil::getProcessId());
 
             Obj mX(BOGUS_HANDLE, true, true, true, &ta); const Obj& X = mX;
 
@@ -1941,8 +2176,10 @@ int main(int argc, char *argv[])
 
         char fnBuf[100];
         char fnBuf2[100];
-        bsl::sprintf(fnBuf,  fileNameTemplate, "7a", getProcessId());
-        bsl::sprintf(fnBuf2, fileNameTemplate, "7b", getProcessId());
+        bsl::sprintf(fnBuf,  fileNameTemplate, "7a",
+                                            bdls::ProcessUtil::getProcessId());
+        bsl::sprintf(fnBuf2, fileNameTemplate, "7b",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -1951,8 +2188,8 @@ int main(int argc, char *argv[])
                            "There are more things in heaven and earth,\n"
                            "Horatio, than are dreamt of in your philosophy.\n";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
 
         FileUtil::remove(fnBuf);
         FileUtil::remove(fnBuf2);
@@ -1960,12 +2197,12 @@ int main(int argc, char *argv[])
         FdType fd = FileUtil::open(fnBuf,
                                    FileUtil::e_CREATE,
                                    FileUtil::e_READ_WRITE);
-        ASSERT(-1 != (int) fd);
+        ASSERT(u::invalid != fd);
 
         FdType fd2 = FileUtil::open(fnBuf2,
                                     FileUtil::e_CREATE,
                                     FileUtil::e_READ_WRITE);
-        ASSERT(-1 != (int) fd2);
+        ASSERT(u::invalid != fd2);
 
         {
             ObjFileHandler fh;
@@ -1985,7 +2222,7 @@ int main(int argc, char *argv[])
                                           // not close fd
 
             ASSERT(!fh.isOpened());
-            ASSERT((FdType) -1 == fh.fileDescriptor());
+            ASSERT(u::invalid == fh.fileDescriptor());
 
             ASSERT(!fh.reset(fd, true, true));
 
@@ -1998,7 +2235,7 @@ int main(int argc, char *argv[])
 
             char buf[1000];
             bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(len1 == doRead(&fh, buf, len1));
+            ASSERT(len1 == u::doRead(&fh, buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
 
             // will not close fd, even though willCloseOnReset was set
@@ -2006,7 +2243,7 @@ int main(int argc, char *argv[])
             fh.release();
 
             ASSERT(!fh.isOpened());
-            ASSERT((FdType) -1 == fh.fileDescriptor());
+            ASSERT(u::invalid == fh.fileDescriptor());
 
             ASSERT(!fh.reset(fd, true, true));
 
@@ -2019,13 +2256,13 @@ int main(int argc, char *argv[])
             // read, verifying fd was not closed
 
             bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(len1 == doRead(&fh, buf, len1));
+            ASSERT(len1 == u::doRead(&fh, buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
 
             ASSERT(!fh.clear());                 // should close fd
 
             ASSERT(!fh.isOpened());
-            ASSERT((FdType) -1 == fh.fileDescriptor());
+            ASSERT(u::invalid == fh.fileDescriptor());
 
             // open and get same fd, which verifies clear closed fd
 
@@ -2048,13 +2285,13 @@ int main(int argc, char *argv[])
             // read, verifying fd was not closed
 
             bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(len1 == doRead(&fh, buf, len1));
+            ASSERT(len1 == u::doRead(&fh, buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
 
             // read second copy of line1 verifying append worked
 
             bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(len1 == doRead(&fh, buf, len1));
+            ASSERT(len1 == u::doRead(&fh, buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
 
             ASSERT(!fh.reset(fd2, true, false));         // should not close fd
@@ -2067,7 +2304,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == fh.seek(0, FileUtil::e_SEEK_FROM_BEGINNING));
 
             bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(len2 == doRead(&fh, buf, len2));
+            ASSERT(len2 == u::doRead(&fh, buf, len2));
             ASSERT(!bsl::strcmp(line2, buf));
 
             ASSERT(!fh.reset(fd, true, false));          // should not close fd
@@ -2077,7 +2314,7 @@ int main(int argc, char *argv[])
             // verify first file still begins with line1
 
             bsl::memset(buf, 0, sizeof(buf));
-            ASSERT(len1 == doRead(&fh, buf, len1));
+            ASSERT(len1 == u::doRead(&fh, buf, len1));
             ASSERT(!bsl::strcmp(line1, buf));
 
             ASSERT(!fh.reset(fd2, true, true));          // should not close fd
@@ -2095,7 +2332,7 @@ int main(int argc, char *argv[])
             ObjFileHandler fh;
 
             ASSERT(!fh.isOpened());
-            ASSERT((FdType) -1 == fh.fileDescriptor());
+            ASSERT(u::invalid == fh.fileDescriptor());
 
             ASSERT(!fh.reset(fd, true, false));
 
@@ -2131,8 +2368,10 @@ int main(int argc, char *argv[])
                              "========================\n";
 
         char fnBuf[100], fnBuf2[100];
-        bsl::sprintf(fnBuf,  fileNameTemplate, "6a", getProcessId());
-        bsl::sprintf(fnBuf2, fileNameTemplate, "6b", getProcessId());
+        bsl::sprintf(fnBuf,  fileNameTemplate, "6a",
+                                            bdls::ProcessUtil::getProcessId());
+        bsl::sprintf(fnBuf2, fileNameTemplate, "6b",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -2141,8 +2380,8 @@ int main(int argc, char *argv[])
                            "There are more things in heaven and earth,\n"
                            "Horatio, than are dreamt of in your philosophy.\n";
 
-        const int dLen1 = diskLength(line1);
-        const int dLen2 = diskLength(line2);
+        const int dLen1 = u::diskLength(line1);
+        const int dLen2 = u::diskLength(line2);
 
         FileUtil::remove(fnBuf);
         FileUtil::remove(fnBuf2);
@@ -2151,7 +2390,7 @@ int main(int argc, char *argv[])
             FdType fd = FileUtil::open(fnBuf,
                                        FileUtil::e_CREATE,
                                        FileUtil::e_READ_WRITE);
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
             Obj sb(fd, true);
 
@@ -2170,7 +2409,7 @@ int main(int argc, char *argv[])
         FdType fd = FileUtil::open(fnBuf,
                                    FileUtil::e_OPEN,
                                    FileUtil::e_READ_ONLY);
-        ASSERT(-1 != (int) fd);
+        ASSERT(u::invalid != fd);
 
         {
             Obj sb(fd, true);
@@ -2196,7 +2435,7 @@ int main(int argc, char *argv[])
         ASSERT(fd == FileUtil::open(fnBuf,
                                     FileUtil::e_OPEN,
                                     FileUtil::e_READ_ONLY));
-        ASSERT(-1 != (int) fd);
+        ASSERT(u::invalid != fd);
 
         ASSERT(0 == FileUtil::close(fd));
 
@@ -2204,7 +2443,7 @@ int main(int argc, char *argv[])
             FdType fd2 = FileUtil::open(fnBuf2,
                                         FileUtil::e_CREATE,
                                         FileUtil::e_READ_WRITE);
-            ASSERT(-1 != (int) fd2);
+            ASSERT(u::invalid != fd2);
 
             {
                 Obj sb(fd2, true, false);
@@ -2249,8 +2488,10 @@ int main(int argc, char *argv[])
 
         char fnBuf[100];
         char fnBuf2[100];
-        bsl::sprintf(fnBuf,  fileNameTemplate, "5a", getProcessId());
-        bsl::sprintf(fnBuf2, fileNameTemplate, "5b", getProcessId());
+        bsl::sprintf(fnBuf,  fileNameTemplate, "5a",
+                                            bdls::ProcessUtil::getProcessId());
+        bsl::sprintf(fnBuf2, fileNameTemplate, "5b",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -2260,9 +2501,9 @@ int main(int argc, char *argv[])
                            "Horatio, than are dreamt of in your philosophy.\n";
         const char line3[] = "Whatever you go, there you are.  B Banzai\n";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
-        const int len3 = bsl::strlen(line3);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
+        const int len3 = u::intStrLen(line3);
 
         FileUtil::remove(fnBuf);
         FileUtil::remove(fnBuf2);
@@ -2272,7 +2513,7 @@ int main(int argc, char *argv[])
         FdType fd = FileUtil::open(fnBuf,
                                    FileUtil::e_CREATE,
                                    FileUtil::e_READ_WRITE);
-        ASSERT(-1 != (int) fd);
+        ASSERT(u::invalid != fd);
 
         {
             Obj sb(fd, true, true, true);
@@ -2324,7 +2565,7 @@ int main(int argc, char *argv[])
             ASSERT(fd == FileUtil::open(fnBuf,
                                         FileUtil::e_OPEN,
                                         FileUtil::e_READ_ONLY));
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
             Obj sb(fd, true, true, true, &ta);
 
@@ -2358,7 +2599,7 @@ int main(int argc, char *argv[])
             ASSERT(fd == FileUtil::open(fnBuf,
                                         FileUtil::e_OPEN,
                                         FileUtil::e_READ_ONLY));
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
             Obj sb(fd, true, true, true);
 
@@ -2408,7 +2649,8 @@ int main(int argc, char *argv[])
                              "================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "4", getProcessId());
+        bsl::sprintf(fnBuf, fileNameTemplate, "4",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -2418,9 +2660,9 @@ int main(int argc, char *argv[])
                            "Horatio, than are dreamt of in your philosophy.\n";
         const char line3[] = "Whatever you go, there you are.  B Banzai\n";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
-        const int len3 = bsl::strlen(line3);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
+        const int len3 = u::intStrLen(line3);
 
         FileUtil::remove(fnBuf);
 
@@ -2430,7 +2672,7 @@ int main(int argc, char *argv[])
             FdType fd = FileUtil::open(fnBuf,
                                        FileUtil::e_CREATE,
                                        FileUtil::e_READ_WRITE);
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
             Obj sb(fd, true, false, true, &ta);
 
@@ -2494,7 +2736,7 @@ int main(int argc, char *argv[])
             FdType fd = FileUtil::open(fnBuf,
                                        FileUtil::e_OPEN,
                                        FileUtil::e_READ_ONLY);
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
             Obj sb(fd, true, false, true, &ta);
 
@@ -2538,7 +2780,8 @@ int main(int argc, char *argv[])
                              "=================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "3", getProcessId());
+        bsl::sprintf(fnBuf, fileNameTemplate, "3",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -2548,9 +2791,9 @@ int main(int argc, char *argv[])
                            "Horatio, than are dreamt of in your philosophy.\n";
         const char line3[] = "Whatever you go, there you are.  B Banzai\n";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
-        const int len3 = bsl::strlen(line3);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
+        const int len3 = u::intStrLen(line3);
 
         FileUtil::remove(fnBuf);
 
@@ -2560,7 +2803,7 @@ int main(int argc, char *argv[])
             FdType fd = FileUtil::open(fnBuf,
                                        FileUtil::e_CREATE,
                                        FileUtil::e_READ_WRITE);
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
             Obj sb((FdType) -1, false);
             ASSERT(!sb.reset(fd, true, false, true));
@@ -2615,9 +2858,9 @@ int main(int argc, char *argv[])
             FdType fd = FileUtil::open(fnBuf,
                                        FileUtil::e_OPEN,
                                        FileUtil::e_READ_WRITE);
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
-            Obj sb((FdType) -1, false);
+            Obj sb(u::invalid, false);
             ASSERT(!sb.reset(fd, true, false, true));
 
             char buf[1000];
@@ -2655,7 +2898,8 @@ int main(int argc, char *argv[])
                              "================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "2", getProcessId());
+        bsl::sprintf(fnBuf, fileNameTemplate, "2",
+                                            bdls::ProcessUtil::getProcessId());
 
         if (verbose) cout << "Filename: " << fnBuf << endl;
 
@@ -2664,8 +2908,8 @@ int main(int argc, char *argv[])
                            "There are more things in heaven and earth,\n"
                            "Horatio, than are dreamt of in your philosophy.\n";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
 
         // Create file
 
@@ -2675,7 +2919,7 @@ int main(int argc, char *argv[])
             FdType fd = FileUtil::open(fnBuf,
                                        FileUtil::e_CREATE,
                                        FileUtil::e_READ_WRITE);
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
             Obj sb(fd, true, false, true, &ta);
 
@@ -2708,7 +2952,7 @@ int main(int argc, char *argv[])
             FdType fd = FileUtil::open(fnBuf,
                                        FileUtil::e_OPEN,
                                        FileUtil::e_READ_ONLY);
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
             Obj sb(fd, true, false, true, &ta);
 
@@ -2737,7 +2981,7 @@ int main(int argc, char *argv[])
             FdType fd = FileUtil::open(fnBuf,
                                        FileUtil::e_OPEN,
                                        FileUtil::e_READ_ONLY);
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
             Obj sb(fd, true, true, true, &ta);
             bsl::streamoff sts;
@@ -2854,18 +3098,19 @@ int main(int argc, char *argv[])
                              "============================================\n";
 
         char fnBuf[100];
-        bsl::sprintf(fnBuf, fileNameTemplate, "1", getProcessId());
+        bsl::sprintf(fnBuf, fileNameTemplate, "1",
+                                            bdls::ProcessUtil::getProcessId());
 
         const char line1[] = "To be or not to be, that is the question.\n";
         const char line2[] =
                            "There are more things in heaven and earth,\n"
                            "Horatio, than are dreamt of in your philosophy.\n";
 
-        const int len1 = bsl::strlen(line1);
-        const int len2 = bsl::strlen(line2);
+        const int len1 = u::intStrLen(line1);
+        const int len2 = u::intStrLen(line2);
 
-        const int dLen1 = diskLength(line1);
-        const int dLen2 = diskLength(line2);
+        const int dLen1 = u::diskLength(line1);
+        const int dLen2 = u::diskLength(line2);
 
         // Create file
 
@@ -2876,7 +3121,7 @@ int main(int argc, char *argv[])
                                        FileUtil::e_CREATE,
                                        FileUtil::e_READ_WRITE);
 
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
             ObjFileHandler sbFileHandler;
             ASSERT(!sbFileHandler.reset(fd, true, true, true));
@@ -2900,7 +3145,7 @@ int main(int argc, char *argv[])
             FdType fd = FileUtil::open(fnBuf,
                                        FileUtil::e_OPEN,
                                        FileUtil::e_READ_ONLY);
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
             ObjFileHandler sbFileHandler;
             ASSERT(!sbFileHandler.reset(fd, true, false, true));
@@ -2968,7 +3213,7 @@ int main(int argc, char *argv[])
             FdType fd = FileUtil::open(fnBuf,
                                        FileUtil::e_OPEN,
                                        FileUtil::e_READ_ONLY);
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
             ObjFileHandler sbFileHandler;
             ASSERT(!sbFileHandler.reset(fd, true, false, true));
@@ -2998,7 +3243,7 @@ int main(int argc, char *argv[])
             FdType fd = FileUtil::open(fnBuf,
                                        FileUtil::e_CREATE,
                                        FileUtil::e_READ_WRITE);
-            ASSERT(-1 != (int) fd);
+            ASSERT(u::invalid != fd);
 
             ObjFileHandler sbFileHandler;
             ASSERT(!sbFileHandler.reset(fd, true, true, false));
@@ -3015,7 +3260,7 @@ int main(int argc, char *argv[])
 
             char inBuf[100];
             bsl::memset(inBuf, 0, sizeof(inBuf));
-            int sts = doRead(&sbFileHandler, inBuf, len2);
+            int sts = u::doRead(&sbFileHandler, inBuf, len2);
             LOOP2_ASSERT(len2, sts, len2 == sts);
 
             ASSERT(!bsl::strcmp(inBuf, line2));
@@ -3024,7 +3269,7 @@ int main(int argc, char *argv[])
                                            FileUtil::e_SEEK_FROM_END));
 
             bsl::memset(inBuf, 0, sizeof(inBuf));
-            sts = doRead(&sbFileHandler, inBuf, len1);
+            sts = u::doRead(&sbFileHandler, inBuf, len1);
             LOOP2_ASSERT(len1, sts, len1 == sts);
 
             ASSERT(!bsl::strcmp(inBuf, line1));
@@ -3078,7 +3323,7 @@ int main(int argc, char *argv[])
         fn += "bdls_FdStreamBuf.-1.";
         {
             bsl::stringstream s;
-            s << getProcessId();
+            s << bdls::ProcessUtil::getProcessId();
 
             fn += s.str();
         }
@@ -3103,25 +3348,25 @@ int main(int argc, char *argv[])
         FdType fd = FileUtil::open(fn.c_str(),
                                    FileUtil::e_CREATE,
                                    FileUtil::e_READ_WRITE);
-        ASSERT(-1 != (int) fd);
+        ASSERT(u::invalid != fd);
 
         Obj sb(fd, true, true, true);
 
-        seedRandChar(0x12345678);
+        u::seedRandChar(0x12345678);
 
         Int64 rawBufToWrite[(1 << 16) / sizeof(Int64)];
         char *bufToWrite = (char *) rawBufToWrite;
         Int64 *first8Bytes = rawBufToWrite;
         const int sz = sizeof(rawBufToWrite);
         for (char *pc = bufToWrite; pc < bufToWrite + sz; ++pc) {
-            *pc = randChar();
+            *pc = u::randChar();
         }
 
         for (Int64 j = 0; j < fileSize; ) {
             Int64 nextGoal = j + halfGig;
             for (; j < nextGoal; j += sz) {
                 *first8Bytes = j;
-                int sts = sb.sputn(bufToWrite, sz);
+                IntPtr sts = sb.sputn(bufToWrite, sz);
                 LOOP_ASSERT(sts, sz == sts);
             }
             cout << j << " bytes written\n";
@@ -3196,7 +3441,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         for (int j = 0; j < 100; ++j) {
-            cout << (int) randChar() << endl;
+            cout << (int) u::randChar() << endl;
         }
       } break;
       case -3: {
@@ -3239,7 +3484,7 @@ int main(int argc, char *argv[])
         fn += "bdls_FdStreamBuf.-3.";
         {
             bsl::stringstream s;
-            s << getProcessId();
+            s << bdls::ProcessUtil::getProcessId();
 
             fn += s.str();
         }
@@ -3263,7 +3508,7 @@ int main(int argc, char *argv[])
         FdType fd = FileUtil::open(fn.c_str(),
                                    FileUtil::e_CREATE,
                                    FileUtil::e_READ_WRITE);
-        ASSERT(-1 != (int) fd);
+        ASSERT(u::invalid != fd);
 
         Obj sb(fd, true, true, false);
 
@@ -3277,7 +3522,7 @@ int main(int argc, char *argv[])
 
         while (bytesWritten < fileSize) {
             os << ++numToWrite << nl;
-            bytesWritten += digits(numToWrite) + 2;
+            bytesWritten += u::digits(numToWrite) + 2;
             if (bytesWritten >= mileStone) {
                 cout << bytesWritten << " bytes written\n";
                 mileStone += deltaMileStone;
@@ -3307,7 +3552,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(x, expected, x == expected);
                 break;
             }
-            bytesRead += digits(x) + 2;
+            bytesRead += u::digits(x) + 2;
             if (bytesRead >= mileStone) {
                 cout << bytesRead << " bytes read\n";
                 mileStone += deltaMileStone;
@@ -3356,7 +3601,7 @@ int main(int argc, char *argv[])
         fn += "bdls_FdStreamBuf.-4.";
         {
             bsl::stringstream s;
-            s << getProcessId();
+            s << bdls::ProcessUtil::getProcessId();
 
             fn += s.str();
         }
@@ -3387,7 +3632,7 @@ int main(int argc, char *argv[])
 
         while (bytesWritten < fileSize) {
             fs << ++numToWrite << nl;
-            bytesWritten += digits(numToWrite) + 2;
+            bytesWritten += u::digits(numToWrite) + 2;
             if (bytesWritten >= mileStone) {
                 cout << bytesWritten << " bytes written\n";
                 mileStone += deltaMileStone;
@@ -3413,7 +3658,7 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(x, expected, x == expected);
                 break;
             }
-            bytesRead += digits(x) + 2;
+            bytesRead += u::digits(x) + 2;
             if (bytesRead >= mileStone) {
                 cout << bytesRead << " bytes read\n";
                 mileStone += deltaMileStone;

@@ -211,7 +211,16 @@ int FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
         char       *from = buffer;
         char       *to   = buffer;
         const char *last = buffer + bytesRead - 1;
-        for (; from <= last && *from != CTRLZ; ++from) {
+        for (; from <= last; ++from) {
+            if (CTRLZ == *from) {
+                // pretend we're at end of file if hit ^Z
+
+                d_peekBuffer     = CTRLZ;
+                d_peekBufferFlag = true;
+
+                break;
+            }
+
             if (*from != '\r') {
                 *to++ = *from;
             }
@@ -244,12 +253,6 @@ int FdStreamBuf_FileHandler::read(char *buffer, int numBytes)
             }
         }
 
-        // pretend we're at end of file if hit ^Z
-
-        if (CTRLZ == *from) {
-            d_peekBuffer     = CTRLZ;
-            d_peekBufferFlag = true;
-        }
         bytesRead = to - buffer;
     }
 
@@ -1215,40 +1218,45 @@ bsl::streamsize FdStreamBuf::xsgetn(char *buffer, bsl::streamsize numBytes)
     char      *end   = buffer + numBytes;
     const int  eof   = traits_type::eof();
 
-    #ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     bool rethrow_seh = false;
     __try  { // Catch page mapping errors on memory-mapped files.
-    #endif
-    while (buffer < end) {
-        if (gptr() < egptr()) {
-            const int chunk = static_cast<int>(bsl::min(egptr() - gptr(),
-                                                        end - buffer));
-            traits_type::copy(buffer, gptr(), chunk);
-            buffer += chunk;
-            gbump(chunk);
-        }
-        else {
-            int c = sbumpc();
-            if (eof != c) {
-                *buffer = static_cast<char>(c);
-                ++buffer;
+#else
+    {
+#endif
+        while (buffer < end) {
+            if (gptr() < egptr()) {
+                const int chunk = static_cast<int>(bsl::min(egptr() - gptr(),
+                                                            end - buffer));
+                traits_type::copy(buffer, gptr(), chunk);
+                buffer += chunk;
+                gbump(chunk);
             }
             else {
-                break;
+                int c = sbumpc();
+                if (eof != c) {
+                    *buffer = static_cast<char>(c);
+                    ++buffer;
+                }
+                else {
+                    break;
+                }
             }
         }
-    }
-    #ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     } __except(GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ?
                EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
         // In an abundance of caution, do not 'throw' from inside '__except'.
+
         rethrow_seh = true;
     }
     if (rethrow_seh) {
         throw bsl::ios_base::failure(
             "FdStreamBuf::xsgetn EXCEPTION_IN_PAGE_ERROR");
     }
-    #endif
+#else
+    }
+#endif
 
     return buffer - start;
 }
@@ -1270,36 +1278,41 @@ bsl::streamsize FdStreamBuf::xsputn(const char      *buffer,
         return 0;                                                     // RETURN
     }
 
-    #ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     bool rethrow_seh = false;
     __try  { // Catch page mapping errors on memory-mapped files.
-    #endif
-    while (buffer < end) {
-        if (pptr() < epptr()) {
-            const int chunk = static_cast<int>(bsl::min(epptr() - pptr(),
-                                                        end - buffer));
-            traits_type::copy(pptr(), buffer, chunk);
-            buffer += chunk;
-            pbump(chunk);
-        }
-        else {
-            if (eof == sputc(*buffer)) {
-                break;
+#else
+    {
+#endif
+        while (buffer < end) {
+            if (pptr() < epptr()) {
+                const int chunk = static_cast<int>(bsl::min(epptr() - pptr(),
+                                                            end - buffer));
+                traits_type::copy(pptr(), buffer, chunk);
+                buffer += chunk;
+                pbump(chunk);
             }
-            ++buffer;
+            else {
+                if (eof == sputc(*buffer)) {
+                    break;
+                }
+                ++buffer;
+            }
         }
-    }
-    #ifdef BSLS_PLATFORM_OS_WINDOWS
+#ifdef BSLS_PLATFORM_OS_WINDOWS
     } __except(GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ?
                EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) {
         // In an abundance of caution, do not 'throw' from inside '__except'.
+
         rethrow_seh = true;
     }
     if (rethrow_seh) {
         throw bsl::ios_base::failure(
             "FdStreamBuf::xsputn EXCEPTION_IN_PAGE_ERROR");
     }
-    #endif
+#else
+    }
+#endif
 
     return buffer - start;
 }
