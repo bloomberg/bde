@@ -35,12 +35,12 @@
 namespace bsl {
 
 // FREE OPERATORS
-void PrintTo(const string& value, ostream *stream_p);
-    // Write the specified 'str' to the specified '*os_p', surrounded by double
-    // quotes.
+void PrintTo(const string& value, ostream *stream);
+    // Write the specified 'value' to the specified '*stream', surrounded by
+    // double quotes.
 
-void PrintTo(const wstring& str, ostream *os_p);
-    // Write the specified 'wstr' to the specified '*os_p', surrounded by
+void PrintTo(const wstring& value, ostream *stream);
+    // Write the specified 'value' to the specified '*stream', surrounded by
     // double quotes, writing non-printable characters with '\x...' escapes.
 
 }  // close namespace bsl
