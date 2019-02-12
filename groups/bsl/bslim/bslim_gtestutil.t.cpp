@@ -11,6 +11,7 @@
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 
 // Do not 'using' any namespaces.  We want to verify that everything works from
 // the global namespace.
@@ -79,6 +80,115 @@ void aSsErT(bool condition, const char *message, int line)
 // ============================================================================
 //            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
+
+// ============================================================================
+//            SIMULATE COMPETING 'PrintTo' DECLARATIONS IN GTEST
+// ----------------------------------------------------------------------------
+
+template <typename T>
+void PrintTo(const T& , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+void PrintTo(unsigned char, ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+void PrintTo(signed char , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+inline
+void PrintTo(char , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+inline
+void PrintTo(bool , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+void PrintTo(wchar_t , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+void PrintTo(const char* , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+inline
+void PrintTo(char* , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+inline
+void PrintTo(const signed char* , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+inline
+void PrintTo(signed char* , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+inline
+void PrintTo(const unsigned char* , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+inline
+void PrintTo(unsigned char* , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+void PrintTo(const wchar_t* , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+inline
+void PrintTo(wchar_t* , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+class string;
+inline
+void PrintTo(const ::string& , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+inline
+void PrintTo(const ::native_std::string& , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+class wstring;
+inline
+void PrintTo(const ::wstring& , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
+
+inline
+void PrintTo(const ::native_std::wstring& , ::native_std::ostream* )
+{
+    ASSERT(0);
+}
 
 // ============================================================================
 //                               MAIN PROGRAM
@@ -179,6 +289,29 @@ int main(int argc, char *argv[])
         PrintTo(s, &oss);
         ASSERTV(oss.str(), oss.str() == "woof");
         ASSERT(!oss.good());
+
+        oss.clear();
+        oss.str("");
+        bsl::wstring ws(&ta);
+        ws.push_back(wchar_t(0x80));
+        ws.push_back(wchar_t(0xabcd));
+        ws.push_back('m');
+        ws.push_back('e');
+        ws.push_back('o');
+        ws.push_back('w');
+        ws.push_back(wchar_t(0xf1d9));
+        ws.push_back(wchar_t(7));        // bell (non-printable ascii)
+
+        PrintTo(ws, &oss);
+
+        ASSERTV(sizeof(wchar_t), 2 == sizeof(wchar_t) || 4 == sizeof(wchar_t));
+
+        const char *exp = 2 == sizeof(wchar_t)
+                      ? "\"\\x0080\\xabcdmeow\\xf1d9\\x0007\""
+                      : "\"\\x00000080\\x0000abcdmeow\\x0000f1d9\\x00000007\"";
+        ASSERTV(oss.str(), exp, oss.str() == exp);
+
+        if (verbose) { P_(sizeof(wchar_t));    P(oss.str()); }
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
