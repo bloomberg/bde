@@ -3635,45 +3635,49 @@ int u::StackTraceResolver::processLoadedImage(const char *fileName,
 
     d_hidden.d_helper_p = &helper;
 
+    int numResolved = 0;
     for (int i = 0; i < numProgramHeaders; ++i) {
         const u::ElfProgramHeader *ph =
                   static_cast<const u::ElfProgramHeader *>(programHeaders) + i;
-        // if (ph->p_type == PT_LOAD && ph->p_offset == 0) {
-
-        if    (PT_LOAD == ph->p_type) {
+        if (PT_LOAD == ph->p_type) {
             // on Linux, textSegPtr will be 0, on Solaris && HPUX, baseAddress
             // will be 0.  We will always have 1 of the two, and since they
             // differ by ph->p_vaddr, we can always calculate the one we don't
             // have.
+
+            void *localTextSegPtr  = textSegPtr;
+            void *localBaseAddress = baseAddress;
 
             if (textSegPtr) {
                 BSLS_ASSERT(0 == baseAddress);
 
                 // calculating baseAddress from textSegPtr
 
-                baseAddress = static_cast<char *>(textSegPtr) - ph->p_vaddr;
+                localBaseAddress =
+                                 static_cast<char *>(textSegPtr) - ph->p_vaddr;
             }
             else {
                 // or the other way around
 
-                textSegPtr = static_cast<char *>(baseAddress) + ph->p_vaddr;
+                localTextSegPtr =
+                                static_cast<char *>(baseAddress) + ph->p_vaddr;
             }
 
             // 'resolveSegment' trashes scratch buffers A and B
 
-            rc = resolveSegment(baseAddress,    // base address
-                                textSegPtr,     // seg ptr
-                                ph->p_memsz,    // seg size
-                                name);          // file name
+            rc = resolveSegment(localBaseAddress,    // base address
+                                localTextSegPtr,     // seg ptr
+                                ph->p_memsz,         // seg size
+                                name);               // file name
             if (rc) {
                 return -1;                                            // RETURN
             }
 
-            return 0;                                                 // RETURN
+            ++numResolved;
         }
     }
 
-    return -1;
+    return 0 < numResolved ? 0 : -1;
 }
 
 int u::StackTraceResolver::resolveSegment(void       *segmentBaseAddress,
