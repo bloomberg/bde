@@ -2862,9 +2862,8 @@ Datum::DataType Datum::typeFromExtendedInternalType() const
                  k_NUM_EXTENDED_INTERNAL_TYPES);
 
     const ExtendedInternalDataType type = extendedInternalType();
-    const int convertLength = sizeof(convert) / sizeof(convert[0]);
 
-    BSLS_ASSERT_OPT(type < convertLength);
+    BSLS_ASSERT_OPT(type < k_NUM_EXTENDED_INTERNAL_TYPES);
 
     return convert[type];
 }
