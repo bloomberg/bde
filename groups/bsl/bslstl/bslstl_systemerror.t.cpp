@@ -221,12 +221,17 @@ int main(int argc, char *argv[])
                    "\n============================\n");
 
         error_code ec(static_cast<int>(errc::io_error), system_category());
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        const char *io_error = "io error";
+#else
+        const char *io_error = strerror(EIO);
+#endif
 
         {
             system_error        mX(ec, std::string("@@@"));
             const system_error& X = mX;
             ASSERT(ec == X.code());
-            ASSERT(strstr(X.what(), strerror(EIO)));
+            ASSERT(strstr(X.what(), io_error));
             ASSERT(strstr(X.what(), "@@@"));
         }
 
@@ -234,7 +239,7 @@ int main(int argc, char *argv[])
             system_error        mX(ec, "@@@");
             const system_error& X = mX;
             ASSERT(ec == X.code());
-            ASSERT(strstr(X.what(), strerror(EIO)));
+            ASSERT(strstr(X.what(), io_error));
             ASSERT(strstr(X.what(), "@@@"));
         }
 
@@ -242,7 +247,7 @@ int main(int argc, char *argv[])
             system_error        mX(ec);
             const system_error& X = mX;
             ASSERT(EIO == X.code().value());
-            ASSERT(strstr(X.what(), strerror(EIO)));
+            ASSERT(strstr(X.what(), io_error));
         }
 
         {
@@ -251,7 +256,7 @@ int main(int argc, char *argv[])
                                    std::string("@@@"));
             const system_error& X = mX;
             ASSERT(ec == X.code());
-            ASSERT(strstr(X.what(), strerror(EIO)));
+            ASSERT(strstr(X.what(), io_error));
             ASSERT(strstr(X.what(), "@@@"));
         }
 
@@ -260,7 +265,7 @@ int main(int argc, char *argv[])
                 static_cast<int>(errc::io_error), system_category(), "@@@");
             const system_error& X = mX;
             ASSERT(ec == X.code());
-            ASSERT(strstr(X.what(), strerror(EIO)));
+            ASSERT(strstr(X.what(), io_error));
             ASSERT(strstr(X.what(), "@@@"));
         }
 
@@ -269,7 +274,7 @@ int main(int argc, char *argv[])
                             system_category());
             const system_error& X = mX;
             ASSERT(ec == X.code());
-            ASSERT(strstr(X.what(), strerror(EIO)));
+            ASSERT(strstr(X.what(), io_error));
         }
       } break;
       case 1: {
@@ -300,6 +305,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+        const char *io_error = "io error";
+#else
+        const char *io_error = strerror(EIO);
+#endif
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) printf("\n 1. Create an object x1. to VA).\n");
         const error_category &C1 = system_category();
@@ -316,7 +326,7 @@ int main(int argc, char *argv[])
         ASSERT(&C1 == &S1.code().category());
         ASSERT(0 == strcmp("system", S1.code().category().name()));
         ASSERT(strstr(S1.what(), "breathing"));
-        ASSERT(strstr(S1.what(), strerror(EIO)));
+        ASSERT(strstr(S1.what(), io_error));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) printf("\n 2. Create an object x2 (copy from x1).\n");
@@ -326,7 +336,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\ta. Check the initial state of x2.\n");
         ASSERT(strstr(S2.what(), "breathing"));
-        ASSERT(strstr(S2.what(), strerror(EIO)));
+        ASSERT(strstr(S2.what(), io_error));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) printf("\n 7. Assign x2 = x1.\n");
@@ -336,7 +346,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\ta. Check new state of x2.\n");
         ASSERT(strstr(S2.what(), "breathing"));
-        ASSERT(strstr(S2.what(), strerror(EIO)));
+        ASSERT(strstr(S2.what(), io_error));
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) printf("\n 9. Assign x1 = x1 (aliasing).\n");
@@ -346,7 +356,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\ta. Check new state of x1.\n");
         ASSERT(strstr(S1.what(), "breathing"));
-        ASSERT(strstr(S1.what(), strerror(EIO)));
+        ASSERT(strstr(S1.what(), io_error));
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

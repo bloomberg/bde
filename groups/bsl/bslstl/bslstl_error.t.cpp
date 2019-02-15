@@ -492,7 +492,11 @@ int main(int argc, char *argv[])
             error_condition        mX(static_cast<int>(errc::no_link),
                                       generic_category());
             const error_condition& X = mX;
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+            ASSERT("no link" == X.message());
+#else
             ASSERT(strerror(ENOLINK) == X.message());
+#endif
         }
 
         if (veryVerbose) {
@@ -665,7 +669,11 @@ int main(int argc, char *argv[])
             error_code        mX(static_cast<int>(errc::no_link),
                                  generic_category());
             const error_code& X = mX;
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+            ASSERT("no link" == X.message());
+#else
             ASSERT(strerror(ENOLINK) == X.message());
+#endif
         }
 
         if (veryVerbose) {
