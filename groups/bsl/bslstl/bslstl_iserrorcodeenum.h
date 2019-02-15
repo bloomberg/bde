@@ -87,12 +87,12 @@ namespace bsl {
 #include <bslmf_integralconstant.h>
 
 namespace bsl {
-                          // ========================
-                          // class is_error_code_enum
-                          // ========================
+                         // =========================
+                         // struct is_error_code_enum
+                         // =========================
 
 template <class TYPE>
-class is_error_code_enum : public false_type
+struct is_error_code_enum : public false_type
     // This class template represents a trait defining whether the specified
     // enumeration type 'TYPE' is to be treated as an error code by the
     // 'error_code' template methods.

@@ -89,12 +89,12 @@ namespace bsl {
 #include <bslmf_integralconstant.h>
 
 namespace bsl {
-                       // =============================
-                       // class is_error_condition_enum
-                       // =============================
+                       // ==============================
+                       // struct is_error_condition_enum
+                       // ==============================
 
 template <class TYPE>
-class is_error_condition_enum : public false_type
+struct is_error_condition_enum : public false_type
     // This class template represents a trait defining whether the specified
     // enumeration type 'TYPE' is to be treated as an error condition by the
     // 'error_condition' template methods.

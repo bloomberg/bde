@@ -153,11 +153,11 @@ enum errc {
 };
 }  // close namespace errc
 
-                       // -----------------------------
-                       // class is_error_condition_enum
-                       // -----------------------------
+                       // ------------------------------
+                       // struct is_error_condition_enum
+                       // ------------------------------
 template <>
-class is_error_condition_enum<errc::errc> : public true_type {
+struct is_error_condition_enum<errc::errc> : public true_type {
     // Mark the 'errc' enumeration as an error condition.
 };
 

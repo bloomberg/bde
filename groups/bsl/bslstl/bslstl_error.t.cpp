@@ -640,6 +640,14 @@ int main(int argc, char *argv[])
         if (veryVerbose) {
             printf("error_condition default_error_condition() const\n");
         }
+#if defined(BSLS_PLATFORM_OS_LINUX) &&                                        \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+        // See {DRQS 138124392}.  There appears to be an error in some versions
+        // of the Linux system library (not the bslstl implementation) that
+        // corrupts the generic category object when
+        // 'default_error_condition()' is called, leading to crashes.
+        if (0)
+#endif
         {
             error_code             mX(static_cast<int>(errc::no_link),
                                       generic_category());
@@ -773,6 +781,7 @@ int main(int argc, char *argv[])
         struct concrete_error_category : public bsl::error_category {
             native_std::string message(int) const BSLS_KEYWORD_OVERRIDE
             {
+                ASSERT(false);
                 throw;
             }
                 // Terminating do-nothing implementation.
@@ -780,7 +789,8 @@ int main(int argc, char *argv[])
             const char *name() const
             BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE
             {
-                throw;
+                ASSERT(false);
+                return 0;
             }
                 // Terminating do-nothing implementation.
         };
@@ -1100,20 +1110,31 @@ int main(int argc, char *argv[])
         }
         for (int i = 0; i < 4; ++i) {
             const bsl::error_code &ci = codes[i];
-            if (veryVeryVerbose) {
-                printf("%d %s %d\n",
-                       i, ci.category().name(), ci.value());
-            }
             for (int j = 0; j < 4; ++j) {
                 const bsl::error_condition &cj = conditions[j];
                 if (veryVeryVerbose) {
-                    printf("\t%d %s %d\n",
-                           j, cj.category().name(), cj.value());
+                    printf("%d code %7s %3d "
+                           "%d condition %7s %3d "
+                           "ci==cj:%d ci!=cj:%d cj==ci:%d cj!=ci:%d\n",
+                           i, ci.category().name(), ci.value(),
+                           j, cj.category().name(), cj.value(),
+                           ci == cj, ci != cj, cj == ci, cj != ci);
                 }
-                ASSERT((i == j) == (ci == cj));
-                ASSERT((j == i) == (cj == ci));
-                ASSERT((i != j) == (ci != cj));
-                ASSERT((j != i) == (cj != ci));
+                if (ci.value() == cj.value() &&
+                    ci.category() == system_category() &&
+                    cj.category() == generic_category()) {
+                    if (veryVeryVerbose) {
+                        printf("\tskipping system-dependent comparison\n");
+                    }
+                    continue;
+                }
+                bool equal = ci.value() == cj.value() &&
+                             (ci.category() == system_category() ||
+                              cj.category() == generic_category());
+                ASSERTV(ci, cj, ci == cj, equal == (ci == cj));
+                ASSERTV(ci, cj, cj == ci, equal == (cj == ci));
+                ASSERTV(ci, cj, ci != cj, !equal == (ci != cj));
+                ASSERTV(ci, cj, cj != ci, !equal == (cj != ci));
             }
         }
       } break;
