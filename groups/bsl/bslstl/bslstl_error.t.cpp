@@ -1266,10 +1266,9 @@ int main(int argc, char *argv[])
             }
         }
 
-#if defined(BSLS_PLATFORM_OS_LINUX) &&                                        \
-    defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-// On this platform, the <system_error> header does not specialize 'std::hash'
-// for 'std::error_condition' as it is supposed to.
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        // The '<system_error>' header does not specialize 'std::hash' for
+        // 'std::error_condition' until C++17.
         if (veryVerbose) {
             printf("cannot test hashing error conditions\n");
         }
