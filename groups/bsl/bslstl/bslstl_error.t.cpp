@@ -1256,7 +1256,13 @@ int main(int argc, char *argv[])
                     printf("\t%d %s %d %zu\n",
                            j, cj.category().name(), cj.value(), hasher(cj));
                 }
-                ASSERT((i == j) == (hasher(ci) == hasher(cj)));
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+                // Windows implementation appears to not include the category.
+                bool equal = ci.value() == cj.value();
+#else
+                bool equal = i == j;
+#endif
+                ASSERT(equal == (hasher(ci) == hasher(cj)));
             }
         }
 
@@ -1294,8 +1300,13 @@ int main(int argc, char *argv[])
                     printf("\t%d %s %d %zu\n",
                            j, cj.category().name(), cj.value(), hasher(cj));
                 }
-                ASSERT((i == j) ==
-                       (hasher(conditions[i]) == hasher(conditions[j])));
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+                // Windows implementation appears to not include the category.
+                bool equal = ci.value() == cj.value();
+#else
+                bool equal = i == j;
+#endif
+                ASSERT(equal == (hasher(ci) == hasher(cj)));
             }
         }
 #endif
