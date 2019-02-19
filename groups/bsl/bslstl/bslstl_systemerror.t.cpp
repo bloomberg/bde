@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
             printf("\nTESTING SYSTEM ERROR METHODS"
                    "\n============================\n");
 
-        error_code ec(static_cast<int>(errc::io_error), system_category());
+        error_code ec(static_cast<int>(errc::io_error), generic_category());
 #ifdef BSLS_PLATFORM_OS_WINDOWS
         const char *io_error = "io error";
 #else
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
 
         {
             system_error        mX(static_cast<int>(errc::io_error),
-                                   system_category(),
+                                   generic_category(),
                                    std::string("@@@"));
             const system_error& X = mX;
             ASSERT(ec == X.code());
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
 
         {
             system_error mX(
-                static_cast<int>(errc::io_error), system_category(), "@@@");
+                static_cast<int>(errc::io_error), generic_category(), "@@@");
             const system_error& X = mX;
             ASSERT(ec == X.code());
             ASSERT(strstr(X.what(), io_error));
@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
 
         {
             system_error mX(static_cast<int>(errc::io_error),
-                            system_category());
+                            generic_category());
             const system_error& X = mX;
             ASSERT(ec == X.code());
             ASSERT(strstr(X.what(), io_error));
@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
 #endif
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         if (verbose) printf("\n 1. Create an object x1. to VA).\n");
-        const error_category &C1 = system_category();
+        const error_category &C1 = generic_category();
 
         error_code        mD1(static_cast<int>(errc::io_error), C1);
         const error_code& D1 = mD1;
@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\ta. Check initial state of x1.\n");
         ASSERT(EIO == S1.code().value());
         ASSERT(&C1 == &S1.code().category());
-        ASSERT(0 == strcmp("system", S1.code().category().name()));
+        ASSERT(0 == strcmp("generic", S1.code().category().name()));
         ASSERT(strstr(S1.what(), "breathing"));
         ASSERT(strstr(S1.what(), io_error));
 
