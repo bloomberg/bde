@@ -11,7 +11,9 @@ BSLS_IDENT("$Id: $")
 //  bsl::system_error:            C++03 version of std::system_error
 //
 //@DESCRIPTION: This component defines class 'bsl::system_error', a class used
-// for annotated exception objects about 'errno'-style errors.
+// for annotated exception objects about 'errno'-style errors.  In C++11 mode,
+// the vendor-supplied '<system_error>' implementation is used instead, and the
+// corresponding names from 'std' are imported into 'bsl'.
 //
 ///Usage
 ///-----
@@ -29,7 +31,7 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, do something that will fail and set 'errno'.
 //..
-//  (void)sqrt(-3.5);
+//  sqrt(-3.5);
 //..
 // Next, check that 'errno' was actually set.
 //..
@@ -39,7 +41,7 @@ BSLS_IDENT("$Id: $")
 //  error code stored within it.
 //..
 //  try {
-//      throw bsl::system_error(errno, system_category(), "sqrt(-3.5)");
+//      throw bsl::system_error(errno, generic_category(), "sqrt(-3.5)");
 //  }
 //  catch (bsl::runtime_error& e) {
 //      assert(0 != strstr(e.what(), "sqrt(-3.5)"));
@@ -47,8 +49,9 @@ BSLS_IDENT("$Id: $")
 //          throw;
 //      }
 //      catch (bsl::system_error& e) {
-//          assert(bsl::errc::argument_out_of_domain == e.code().value());
-//          assert(&system_category() == &e.code().category());
+//          assert(static_cast<int>(bsl::errc::argument_out_of_domain) ==
+//                 e.code().value());
+//          assert(&generic_category() == &e.code().category());
 //      }
 //  }
 //..

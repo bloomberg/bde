@@ -110,15 +110,6 @@ void BslTestUtil::callDebugprint(const bsl::system_error&  error,
 }  // close enterprise namespace
 
 //=============================================================================
-//                                USAGE EXAMPLE
-//-----------------------------------------------------------------------------
-
-///Usage
-///-----
-// In this section we show intended use of this component.
-//
-
-//=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
@@ -168,7 +159,7 @@ int main(int argc, char *argv[])
 //..
 // Then, do something that will fail and set 'errno'.
 //..
-    (void)sqrt(-3.5);
+    sqrt(-3.5);
 //..
 // Next, check that 'errno' was actually set.
 //..
@@ -178,7 +169,7 @@ int main(int argc, char *argv[])
 //  error code stored within it.
 //..
     try {
-        throw bsl::system_error(errno, system_category(), "sqrt(-3.5)");
+        throw bsl::system_error(errno, generic_category(), "sqrt(-3.5)");
     }
     catch (std::runtime_error& e) {
         ASSERT(0 != strstr(e.what(), "sqrt(-3.5)"));
@@ -188,7 +179,7 @@ int main(int argc, char *argv[])
         catch (bsl::system_error& e) {
             ASSERT(static_cast<int>(bsl::errc::argument_out_of_domain) ==
                    e.code().value());
-            ASSERT(&system_category() == &e.code().category());
+            ASSERT(&generic_category() == &e.code().category());
         }
     }
 //..

@@ -245,7 +245,7 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  condition,
     }
 
     const char *car_category_impl::name() const BSLS_KEYWORD_NOEXCEPT {
-        return "car_category";
+        return "car";
     }
     }  // close unnamed namespace
 //..

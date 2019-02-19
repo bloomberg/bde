@@ -15,13 +15,12 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a class template,
 // 'bsl::is_error_code_enum', intended to be specialized for enumeration types
-// that are designated as error codes for the '<system_error>' facility.  It
-// also defines a macro, 'BSL_IS_ERROR_CODE_ENUM_NAMESPACE', to be used as the
-// namespace in which to write such specializations.
-//
-// Note that when compiling in C++11 mode, we default to the standard library
-// implementation of this class template, in which case
-// 'BSL_IS_ERROR_CODE_ENUM_NAMESPACE' is defined to be the standard namespace.
+// that are designated as error codes for the '<system_error>' facility.  In
+// C++11 mode, the vendor-supplied '<system_error>' implementation is used
+// instead, and the corresponding names from 'std' are imported into 'bsl'.
+// This component also defines a macro, 'BSL_IS_ERROR_CODE_ENUM_NAMESPACE', to
+// be used as the namespace in which to write specializations of
+// 'is_error_code_enum'.
 //
 ///Usage
 ///-----

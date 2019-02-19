@@ -7,8 +7,24 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide C++11-defined error classes and functions for C++03.
 //
+//@MACROS:
+//  BSL_ERRC_ENUM:  type designating the 'errc' enumeration
+
 //@DESCRIPTION: This component defines an enumeration 'errc', and marks it
 // elgible to participate as an error condition in the 'system_error' facility.
+// In C++11 mode, the vendor-supplied '<system_error>' implementation is used
+// instead, and the corresponding names from 'std' are imported into 'bsl'.
+//
+// This component also defines the macro 'BSL_ERRC_ENUM' that can be used as
+// the type of the 'errc' enumeration in both C++03 and C++11 mode.  Because
+// 'errc' is defined as an 'enum class', we cannot emulate use of 'std::errc'
+// in C++03 mode - that tag can either be used to qualify the enumeration
+// literals or name the type, but not both.  This component chooses to have
+// 'bsl::errc' be the literal qualifier and 'BSL_ERRC_ENUM' be the type, so to
+// use this component portably, you would, for example, write
+//..
+//  BSL_ERRC_ENUM error_value = bsl::errc::io_error;
+//..
 //
 ///Usage
 ///-----
@@ -26,7 +42,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, we check for that error using the descriptive name.
 //..
-//  assert(static_cast<int>(bsl::errc::argument_out_of_domain) == errno);
+//  BSL_ERRC_ENUM expected = bsl::errc::argument_out_of_domain;
+//  assert(static_cast<int>(expected) == errno);
 //..
 
 #include <bslscm_version.h>

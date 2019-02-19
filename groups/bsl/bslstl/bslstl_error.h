@@ -16,7 +16,9 @@ BSLS_IDENT("$Id: $")
 // 'bsl::error_code', and 'bsl::error_condition', global functions
 // 'bsl::generic_category', 'bsl::system_category', 'bsl::make_error_code', and
 // 'bsl::make_error_condition', and a variety of operators that provide
-// implementations of the C++11 'system_error' facility in C++03 mode.
+// implementations of the C++11 'system_error' facility.  In C++11 mode, the
+// vendor-supplied '<system_error>' implementation is used instead, and the
+// corresponding names from 'std' are imported into 'bsl'.
 //
 ///Usage
 ///-----
@@ -43,10 +45,12 @@ BSLS_IDENT("$Id: $")
 //  template <>
 //  struct is_error_code_enum<car_errc::car_errc> : public true_type {
 //  };
+//  }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
+//  namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE {
 //  template <>
 //  struct is_error_condition_enum<car_errc::car_errc> : public true_type {
 //  };
-//  }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
+//  }  // close namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE
 //..
 // Next, we create an error category that will give us descriptive messages.
 //..
@@ -70,7 +74,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //
 //  const char *car_category_impl::name() const BSLS_KEYWORD_NOEXCEPT {
-//      return "car_category";
+//      return "car";
 //  }
 //  }  // close unnamed namespace
 //..
@@ -84,6 +88,7 @@ BSLS_IDENT("$Id: $")
 //      return car_category_object;
 //  }
 //
+//  namespace car_errc {
 //  bsl::error_code make_error_code(car_errc::car_errc value)
 //      // Return a car category error code of the specified 'value'.
 //  {
@@ -95,6 +100,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //      return bsl::error_condition(static_cast<int>(value), car_category());
 //  }
+//  }  // close namespace car_errc
 //..
 // Now, we define an exception class for exceptions of our category.
 //..
@@ -102,7 +108,7 @@ BSLS_IDENT("$Id: $")
 //    public:
 //      // CREATORS
 //      car_error(car_errc::car_errc value);                        // IMPLICIT
-//      car_error(car_errc::car_errc value, const native_std::string& what);
+//      car_error(car_errc::car_errc value, const std::string& what);
 //          // Create an object of this type holding the specified 'value'.
 //          // Optionally specify 'what' as extra annotation.
 //
@@ -121,8 +127,7 @@ BSLS_IDENT("$Id: $")
 //  {
 //  }
 //
-//  car_error::car_error(car_errc::car_errc        value,
-//                       const native_std::string& what)
+//  car_error::car_error(car_errc::car_errc value, const std::string& what)
 //  : std::runtime_error(what + ": " + car_category().message(value))
 //  , d_code(make_error_code(value))
 //  {

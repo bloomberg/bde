@@ -116,7 +116,8 @@ int main(int argc, char *argv[])
 //..
 // Finally, we check for that error using the descriptive name.
 //..
-    ASSERT(static_cast<int>(bsl::errc::argument_out_of_domain) == errno);
+    BSL_ERRC_ENUM expected = bsl::errc::argument_out_of_domain;
+    ASSERT(static_cast<int>(expected) == errno);
 //..
       } break;
       case 1: {
@@ -124,13 +125,20 @@ int main(int argc, char *argv[])
         // TESTING 'errc'
         //
         // Concerns:
-        //: 1 The usage example provided in the component header file compiles,
-        //:   links, and runs as shown.
+        //: 1 The 'BSL_ERRC_ENUM' macro can be used to declare 'errc' objects.
+        //: 2 'bsl::errc' can qualify 'errc' enumerationb literals.
+        //: 3 An 'errc' literal matches the 'POSIX' error code.
+        //: 4 The 'errc' type is registered as an error condition.
         //
         // Plan:
-        //: 1 Incorporate usage example from header into test driver, remove
-        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
-        //:   (C-1)
+        //: 1 Declare a 'BSL_ERRC_ENUM' object and initialize it with a
+        //:   'bsl::errc' qualified value.  (C-1,2)
+        //:
+        //: 2 Compare the value of the object with the corresponding 'POSIX'
+        //:   'errno' value.  (C-3)
+        //:
+        //: 3 Verify that 'is_error_condition' is true for 'BSL_ERRC_ENUM'.
+        //:   (C-4)
         //
         // Testing:
         //   BSL_ERRC_ENUM
