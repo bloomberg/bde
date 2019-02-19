@@ -38,11 +38,11 @@ BSLS_IDENT("$Id: $")
 //
 // First, we do something that will set an error value.
 //..
-//  sqrt(-1.5);
+//  strtod("1e2000", 0);
 //..
 // Finally, we check for that error using the descriptive name.
 //..
-//  BSL_ERRC_ENUM expected = bsl::errc::argument_out_of_domain;
+//  BSL_ERRC_ENUM expected = bsl::errc::result_out_of_range;
 //  assert(static_cast<int>(expected) == errno);
 //..
 

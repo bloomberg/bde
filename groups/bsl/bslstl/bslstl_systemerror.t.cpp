@@ -159,25 +159,25 @@ int main(int argc, char *argv[])
 //..
 // Then, do something that will fail and set 'errno'.
 //..
-    sqrt(-3.5);
+    strtod("1e2000", 0);
 //..
 // Next, check that 'errno' was actually set.
 //..
-    ASSERT(EDOM == errno);
+    ASSERTV(errno, ERANGE, ERANGE == errno);
 //..
 //  Finally, throw an annotated exception and verify the annotaion and the
 //  error code stored within it.
 //..
     try {
-        throw bsl::system_error(errno, generic_category(), "sqrt(-3.5)");
+        throw bsl::system_error(errno, generic_category(), "1e2000");
     }
     catch (std::runtime_error& e) {
-        ASSERT(0 != strstr(e.what(), "sqrt(-3.5)"));
+        ASSERT(0 != strstr(e.what(), "1e2000"));
         try {
             throw;
         }
         catch (bsl::system_error& e) {
-            ASSERT(static_cast<int>(bsl::errc::argument_out_of_domain) ==
+            ASSERT(static_cast<int>(bsl::errc::result_out_of_range) ==
                    e.code().value());
             ASSERT(&generic_category() == &e.code().category());
         }

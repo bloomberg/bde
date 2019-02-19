@@ -31,25 +31,25 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, do something that will fail and set 'errno'.
 //..
-//  sqrt(-3.5);
+//  strtod("1e2000", 0);
 //..
 // Next, check that 'errno' was actually set.
 //..
-//  assert(EDOM == errno);
+//  assert(ERANGE == errno);
 //..
 //  Finally, throw an annotated exception and verify the annotaion and the
 //  error code stored within it.
 //..
 //  try {
-//      throw bsl::system_error(errno, generic_category(), "sqrt(-3.5)");
+//      throw bsl::system_error(errno, generic_category(), "1e2000");
 //  }
 //  catch (bsl::runtime_error& e) {
-//      assert(0 != strstr(e.what(), "sqrt(-3.5)"));
+//      assert(0 != strstr(e.what(), "1e2000"));
 //      try {
 //          throw;
 //      }
 //      catch (bsl::system_error& e) {
-//          assert(static_cast<int>(bsl::errc::argument_out_of_domain) ==
+//          assert(static_cast<int>(bsl::errc::result_out_of_range) ==
 //                 e.code().value());
 //          assert(&generic_category() == &e.code().category());
 //      }
