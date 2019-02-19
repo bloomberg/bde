@@ -180,6 +180,7 @@ namespace bsl {
     using native_std::system_category;
     using native_std::make_error_code;
     using native_std::make_error_condition;
+    using native_std::hash;
 }
 
 #else
@@ -433,6 +434,19 @@ void hashAppend(HASHALG& hashAlgorithm, const error_condition& object)
     hashAppend(hashAlgorithm, static_cast<const void *>(&object.category()));
     hashAppend(hashAlgorithm, object.value());
 }
+
+template <class TYPE>
+struct hash;
+
+template <>
+struct hash<error_code> : BloombergLP::bslh::Hash<>
+{
+};
+
+template <>
+struct hash<error_condition> : BloombergLP::bslh::Hash<>
+{
+};
 
 // FREE OPERATORS
 bool operator==(const error_code& lhs, const error_code& rhs);

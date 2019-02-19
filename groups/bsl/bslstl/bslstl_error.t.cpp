@@ -1230,9 +1230,6 @@ int main(int argc, char *argv[])
         ASSERT(static_cast<int>(bsl::errc::no_link) == condition.value());
         ASSERT(g1 == &condition.category());
 
-#if 0
-        BloombergLP::bslh::Hash<> hasher;
-
         if (veryVerbose) {
             printf("hashing error codes\n");
         }
@@ -1247,6 +1244,7 @@ int main(int argc, char *argv[])
                             system_category()),
         };
         for (int i = 0; i < 4; ++i) {
+            bsl::hash<bsl::error_code> hasher;
             const bsl::error_code &ci = codes[i];
             if (veryVeryVerbose) {
                 printf("%d %s %d %zu\n",
@@ -1262,6 +1260,14 @@ int main(int argc, char *argv[])
             }
         }
 
+#if defined(BSLS_PLATFORM_OS_LINUX) &&                                        \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+// On this platform, the <system_error> header does not specialize 'std::hash'
+// for 'std::error_condition' as it is supposed to.
+        if (veryVerbose) {
+            printf("cannot test hashing error conditions\n");
+        }
+#else
         if (veryVerbose) {
             printf("hashing error conditions\n");
         }
@@ -1276,6 +1282,7 @@ int main(int argc, char *argv[])
                                  system_category()),
         };
         for (int i = 0; i < 4; ++i) {
+            bsl::hash<bsl::error_condition> hasher;
             const bsl::error_condition &ci = conditions[i];
             if (veryVeryVerbose) {
                 printf("%d %s %d %zu\n",
