@@ -23,12 +23,14 @@ BSLS_IDENT("$Id: $")
 // #include is guaranteed to succeed.
 # include <array>
 #elif defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
-// The unordered containers are a feature of the C++11 library, rather than
-// C++03, so might not be present in all native libraries on the platforms we
-// support.  Detect the native header using '__has_include' where available.
+// The array is a feature of the C++11 library, rather than C++03, so might not
+// be present in all native libraries on the platforms we support.  Detect the
+// native header using '__has_include' where available.
 # if __has_include(<array>)
 #  include <array>
 # endif
+#elif defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# include <array>
 #endif
 
 // Include Bloomberg's implementation, unless compilation is configured to
@@ -48,7 +50,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

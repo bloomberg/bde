@@ -19,14 +19,14 @@ BSLS_IDENT("$Id: $")
 // array of values of a template parameter type where the size is specified as
 // the second template parameter.
 //
-// An instantiation of 'array' is a value-semantic type whose salient attibutes
-// are its size and the sequence of values the array contains.  If 'array' is
-// instantiated with a value type that is not value-semantic, then the array
-// will not retain all of its value-semantic qualities.  In particular, if a
-// value type cannot be tested for equality, then an 'array' containing objects
-// of that type will fail to compile the equality comparison operator.
-// Similarly, if an 'array' is instantiated with a type that does not have a
-// copy-constructor, then the 'array' will not be copyable.
+// An instantiation of 'array' is a value-semantic type whose salient
+// attributes are its size and the sequence of values the array contains.  If
+// 'array' is instantiated with a value type that is not value-semantic, then
+// the array will not retain all of its value-semantic qualities.  In
+// particular, if a value type cannot be tested for equality, then an 'array'
+// containing objects of that type will fail to compile the equality comparison
+// operator.  Similarly, if an 'array' is instantiated with a type that does
+// not have a copy-constructor, then the 'array' will not be copyable.
 //
 // An array meets most the requirements of a container with random access
 // iterators in the C++ standard [array].  The 'array' implemented here follows
@@ -34,7 +34,7 @@ BSLS_IDENT("$Id: $")
 // standard otherwise.
 
 // An array lacks certain requirements of a sequential container.  Array lacks
-// insert, erase, emplace, and clear, as these functions would require
+// 'insert', 'erase', 'emplace', and 'clear', as these functions would require
 // modifying the size of the array.
 
 // An array also meets the requirements of an aggregate.  This means that an
@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Returning an array from a function
 ///- - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to define a function that will return an array of 'float's.
-// If a raw array were used, the size would need to be tracked seperately
+// If a raw array were used, the size would need to be tracked separately
 // because raw arrays decay to pointers when passed as function arguments, or
 // returned by-value.  'bsl::array' does not decay, and so provides a simple
 // solution to this problem.
@@ -135,7 +135,7 @@ BSLS_IDENT("$Id: $")
 //      }
 //  }
 //..
-// Use the 'createPoint' function to generate three 'float' arrays.  The arrays
+// Use the createPoint function to generate three arrays of floats.  The arrays
 // are returned by copy and the 'size()' member function is used to access the
 // size of the arrays that could not be done with a raw array.
 //..
@@ -153,7 +153,6 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_stdexceptutil.h>
 
 #include <bslalg_rangecompare.h>
-#include <bslalg_swaputil.h>
 
 #include <bslh_hash.h>
 
@@ -172,7 +171,12 @@ BSLS_IDENT("$Id: $")
 # include <tuple>  // 'std::tuple_size' etc.
 #endif
 
-#include <utility>
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#include <utility>     // std::swap (C++11)
+#else
+#include <algorithm>   // std::swap (C++03)
+#endif
+
 
 namespace bsl {
 
@@ -188,9 +192,11 @@ struct array {
     // required for a standard container.
 
 // BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -MN01
+// BDE_VERIFY pragma: -KS02  // Tag implicitly requires private declaration
+
     // DATA
     VALUE_TYPE d_data[(0 == SIZE) ? 1 : SIZE];
+
 // BDE_VERIFY pragma: pop
 
     // PUBLIC TYPES
@@ -219,17 +225,16 @@ struct array {
         // Only in C++11 and later.
     //! array(array&& original) = default;
         // Create an 'array' object having the same value as the specified
-        // 'original' object.  Every element is move constructed from
-        // the corresponding element in the specified 'original' if
-        // 'VALUE_TYPE' is move constructible; otherwise, 'array' is not move
-        // constructible.
+        // 'original' object.  Every element is move constructed from the
+        // corresponding element in the specified 'original' if 'VALUE_TYPE' is
+        // move constructible; otherwise, 'array' is not move constructible.
     //! ~array() = default;
         // Destroy this object.  Evert element is destroyed if 'VALUE_TYPE' is
         // destructible; otherwise, array is not destructible.
 
     // MANIPULATORS
     void fill(const VALUE_TYPE& value);
-        // Set every elemment in this array to the specified 'value' using the
+        // Set every element in this array to the specified 'value' using the
         // 'operator=' of 'value_type'.
 
     void swap(array& rhs);
@@ -287,7 +292,7 @@ struct array {
         // element in this array in the if 'VALUE_TYPE' is moves assignable;
         // otherwise, 'array' is not move assignable.
 
-    // BDE_VERIFY pragma: -FABC01
+    // BDE_VERIFY pragma: -FABC01  // Function not in alphanumeric order
     // ACCESSORS
     const_iterator begin() const;
     const_iterator cbegin() const;
@@ -393,27 +398,27 @@ void swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs);
     // Call 'swap' using ADL on each element of the specified 'lhs' with the
     // corresponding element in the specified 'rhs'.
 
-template<size_t INDEX, class T, size_t N>
-T& get(array<T, N>& a) BSLS_KEYWORD_NOEXCEPT;
+template<size_t INDEX, class TYPE, size_t SIZE>
+TYPE& get(array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT;
     // Return a reference providing modifiable access to the element of the
     // specified 'a', having the ordinal number specified by the (template
     // parameter) 'INDEX'.  This function will not compile unless 'INDEX < N'.
 
-template<size_t INDEX, class T, size_t N>
-const T& get(const array<T, N>& a) BSLS_KEYWORD_NOEXCEPT;
+template<size_t INDEX, class TYPE, size_t SIZE>
+const TYPE& get(const array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT;
     // Return a reference providing non-modifiable access to the element of the
     // specified 'a', having the ordinal number specified by the (template
     // parameter) 'INDEX'.  This function will not compile unless 'INDEX < N'.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template<size_t INDEX, class T, size_t N>
-T&& get(array<T, N>&& a) BSLS_KEYWORD_NOEXCEPT;
+template<size_t INDEX, class TYPE, size_t SIZE>
+TYPE&& get(array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT;
     // Return an rvalue reference providing modifiable access to the element of
     // the specified 'a', having the ordinal number specified by the (template
     // parameter) 'INDEX'.  This function will not compile unless 'INDEX < N'.
 
-template<size_t INDEX, class T, size_t N>
-const T&& get(const array<T, N>&& a) BSLS_KEYWORD_NOEXCEPT;
+template<size_t INDEX, class TYPE, size_t SIZE>
+const TYPE&& get(const array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT;
     // Return an rvalue reference providing non-modifiable access to the
     // element of the specified 'a', having the ordinal number specified by the
     // (template parameter) 'INDEX'.  This function will not compile unless
@@ -421,9 +426,9 @@ const T&& get(const array<T, N>&& a) BSLS_KEYWORD_NOEXCEPT;
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 // HASH SPECIALIZATIONS
-template <class HASHALG, class T, size_t N>
-void hashAppend(HASHALG& hashAlg, const array<T, N>&  input);
-    // Pass the specified 'input' to the specified 'hashAlg'
+template <class HASH_ALGORITHM, class TYPE, size_t SIZE>
+void hashAppend(HASH_ALGORITHM& hashAlgorithm, const array<TYPE, SIZE>& input);
+    // Pass the specified 'input' to the specified 'hashAlgorithm'
 
 }  // close namespace bsl
 
@@ -435,22 +440,22 @@ namespace std {
                              // struct tuple_element
                              // ====================
 
-template<size_t INDEX, class T, size_t N>
-struct tuple_element<INDEX, bsl::array<T, N> >
+template<size_t INDEX, class TYPE, size_t SIZE>
+struct tuple_element<INDEX, bsl::array<TYPE, SIZE> >
 {
     // This partial specialization of 'tuple_element' provides compile-time
     // access to the type of the array's elements.
-    BSLMF_ASSERT(INDEX < N);
+    BSLMF_ASSERT(INDEX < SIZE);
     // TYPES
-    typedef T type;
+    typedef TYPE type;
 };
 
                               // =================
                               // struct tuple_size
                               // =================
 
-template<class T, size_t N>
-struct tuple_size<bsl::array<T, N> > : integral_constant<size_t, N>
+template<class TYPE, size_t SIZE>
+struct tuple_size<bsl::array<TYPE, SIZE> > : integral_constant<size_t, SIZE>
 {
     // This meta-function provides a compile-time way to obtain the number of
     // elements in an array.
@@ -483,7 +488,7 @@ template <class VALUE_TYPE, size_t SIZE>
 void array<VALUE_TYPE, SIZE>::swap(array<VALUE_TYPE, SIZE>& rhs)
 {
     for (size_t i = 0; i < SIZE; ++i) {
-        BloombergLP::bslalg::SwapUtil::swap(d_data + i, rhs.d_data + i);
+        std::swap(*(d_data + i), *(rhs.d_data + i));
     }
 }
 
@@ -729,42 +734,42 @@ void swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs)
     lhs.swap(rhs);
 }
 
-template<size_t INDEX, class T, size_t N>
-T& get(array<T, N>& a) BSLS_KEYWORD_NOEXCEPT
+template<size_t INDEX, class TYPE, size_t SIZE>
+TYPE& get(array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT
 {
     return a[INDEX];
 }
 
-template<size_t INDEX, class T, size_t N>
-const T& get(const array<T, N>& a) BSLS_KEYWORD_NOEXCEPT
+template<size_t INDEX, class TYPE, size_t SIZE>
+const TYPE& get(const array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT
 {
     return a[INDEX];
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template<size_t INDEX, class T, size_t N>
-T&& get(array<T, N>&& a) BSLS_KEYWORD_NOEXCEPT
+template<size_t INDEX, class TYPE, size_t SIZE>
+TYPE&& get(array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT
 {
     return BloombergLP::bslmf::MovableRefUtil::move(a[INDEX]);
 }
 
-template<size_t INDEX, class T, size_t N>
-const T&& get(const array<T, N>&& a) BSLS_KEYWORD_NOEXCEPT
+template<size_t INDEX, class TYPE, size_t SIZE>
+const TYPE&& get(const array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT
 {
     return BloombergLP::bslmf::MovableRefUtil::move(a[INDEX]);
 }
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 // HASH SPECIALIZATIONS
-template <class HASHALG, class T, size_t N>
-void hashAppend(HASHALG& hashAlg, const array<T, N>&  input)
+template <class HASH_ALGORITHM, class TYPE, size_t SIZE>
+void hashAppend(HASH_ALGORITHM& hashAlgorithm, const array<TYPE, SIZE>& input)
 {
     using ::BloombergLP::bslh::hashAppend;
 
-    hashAppend(hashAlg, N);
-    for (size_t i = 0; i < N; ++i)
+    hashAppend(hashAlgorithm, SIZE);
+    for (size_t i = 0; i < SIZE; ++i)
     {
-        hashAppend(hashAlg, input[i]);
+        hashAppend(hashAlgorithm, input[i]);
     }
 }
 

@@ -35,15 +35,13 @@
 using namespace BloombergLP;
 using namespace bslstl;
 
-// BDE_VERIFY pragma: -FD01
-// BDE_VERIFY pragma: -AT02
-// BDE_VERIFY pragma: -AC02
+// BDE_VERIFY pragma: -TP06  // 'Testing' section should contain this item
 
 //=============================================================================
 //                              TEST PLAN
 //-----------------------------------------------------------------------------
-//                             Overview
-//                             --------
+//                              Overview
+//                              --------
 //
 // Primary Manipulators:
 //: o 'operator[]'
@@ -72,18 +70,18 @@ using namespace bslstl;
 // ----------------------------------------------------------------------------
 //
 // CREATORS
-// [ 2] array<T, S>();
-// [ 7] array<T,S>(const array<T,S>& original);
+// [ 2] array<TYPE, SIZE>();
+// [ 7] array<TYPE,SIZE>(const array<TYPE,SIZE>& original);
 // [ 2] ~array();
-// [15] array<T, S>{{v1, v2, v3}};
+// [15] array<TYPE, SIZE>{{v1, v2, v3}};
 //
 // MANIPULATORS
 // [14] iterator begin();
 // [14] iterator end();
 // [14] reverse_iterator rbegin();
 // [14] reverse_iterator rend();
-// [13] void fill(const T& value)
-// [ 9] array<T,S>& operator=(const array<T,S>& rhs);
+// [13] void fill(const TYPE& value)
+// [ 9] array<TYPE,SIZE>& operator=(const array<TYPE,SIZE>& rhs);
 // [ 8] void swap(array&);
 // [ 2] reference operator[](size_type position);
 // [18] reference at(size_type position);
@@ -110,27 +108,27 @@ using namespace bslstl;
 // [20] const_pointer data() const;
 //
 // FREE OPERATORS
-// [ 6] bool operator==(const array<T,S>&, const array<T,S>&);
-// [ 6] bool operator!=(const array<T,S>&, const array<T,S>&);
-// [16] bool operator<(const array<T,S>&, const array<T,S>&);
-// [16] bool operator>(const array<T,S>&, const array<T,S>&);
-// [16] bool operator<=(const array<T,S>&, const array<T,S>&);
-// [16] bool operator>=(const array<T,S>&, const array<T,S>&);
-// [ 8] void swap(array<T,S>&, array<T,S>&);
-// [21] std::tuple_element<bsl::array<T, N> >
-// [21] std::tuple_size<bsl::array<T, N> >
-// [21] T& get(bsl::array<T, N>& p)
-// [21] const T& get(const bsl::array<T, N>& p)
-// [21] const T&& get(const bsl::array<T, N>&& p)
-// [21] T&& get(bsl::array<T, N>&& p)
-// [22] void hashAppend(HASHALG& hashAlg, const bsl::array<T, N>&);
+// [ 6] bool operator==(const array<TYPE,SIZE>&, const array<TYPE,SIZE>&);
+// [ 6] bool operator!=(const array<TYPE,SIZE>&, const array<TYPE,SIZE>&);
+// [16] bool operator<(const array<TYPE,SIZE>&, const array<TYPE,SIZE>&);
+// [16] bool operator>(const array<TYPE,SIZE>&, const array<TYPE,SIZE>&);
+// [16] bool operator<=(const array<TYPE,SIZE>&, const array<TYPE,SIZE>&);
+// [16] bool operator>=(const array<TYPE,SIZE>&, const array<TYPE,SIZE>&);
+// [ 8] void swap(array<TYPE,SIZE>&, array<TYPE,SIZE>&);
+// [21] std::tuple_element<bsl::array<TYPE, SIZE> >
+// [21] std::tuple_size<bsl::array<TYPE, SIZE> >
+// [21] TYPE& get(bsl::array<TYPE, SIZE>& a)
+// [21] const TYPE& get(const bsl::array<TYPE, SIZE>& a)
+// [21] const TYPE&& get(const bsl::array<TYPE, SIZE>&& a)
+// [21] TYPE&& get(bsl::array<TYPE, SIZE>&& a)
+// [22] void hashAppend(HASH_ALGORITHM&, const bsl::array<TYPE, SIZE>&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [23] USAGE EXAMPLE
 
 // TEST APPARATUS: GENERATOR FUNCTIONS
-// [ 3] int ggg(array<T,S> *object, const char *spec, bool verboseFlag);
-// [ 3] array<T,S>& gg(array<T,S> *object, const char *spec);
+// [ 3] int ggg(array<TYPE,SIZE> *object, const char *spec, bool verboseFlag);
+// [ 3] array<TYPE,SIZE>& gg(array<TYPE,SIZE> *object, const char *spec);
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -186,11 +184,15 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -SP01:  //  Misspelled word 'printf'
+
 // ============================================================================
 //                  PRINTF FORMAT MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+// BDE_VERIFY pragma: pop
 
 //=============================================================================
 //                       GLOBAL OBJECTS SHARED BY TEST CASES
@@ -205,6 +207,10 @@ static bool veryVeryVeryVerbose;
 //=============================================================================
 //                 GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -FD01   // Function contracts are descriptive text
+// BDE_VERIFY pragma: -AC02   // Implicit copy ctor is not allocator-aware
 
 namespace bsl {
 
@@ -238,7 +244,7 @@ void debugprint(const array<TYPE, SIZE>& v)
 // The generating functions interpret the given 'spec' in order from left to
 // right to configure the object according to a custom language.  Uppercase
 // letters [A .. E] correspond to arbitrary (but unique) char values to be
-// created in the 'bsl::array<T, S>' object.
+// created in the 'bsl::array<TYPE, SIZE>' object.
 //..
 // LANGUAGE SPECIFICATION:
 // -----------------------
@@ -428,7 +434,7 @@ struct AggregateTest
 {
     static void testAggregate(const char* spec)
     {
-        (void) spec;  // supress compiler warning
+        (void) spec;  // suppress compiler warning
         ASSERTV(SIZE, !"Test is not implemented for this size!");
     }
 };
@@ -726,32 +732,32 @@ struct AggregateTest<TYPE, 0>
     }
 };
 
-template <class T>
-bool isPtrConstant(const T *)
+template <class TYPE>
+bool isPtrConstant(const TYPE *)
     // This specialization of 'isPtrConstant' is called for const pointer
     // types and always returns 'true'.
 {
     return true;
 }
 
-template <class T>
-bool isPtrConstant(T *)
+template <class TYPE>
+bool isPtrConstant(TYPE *)
     // This specialization of 'isPtrConstant' is called for pointer types and
     // always returns 'false'.
 {
     return false;
 }
 
-template <class T>
-bool isRefConstant(const T&)
+template <class TYPE>
+bool isRefConstant(const TYPE&)
     // This specialization of 'isRefConstant' is called for const reference
     // types and always returns 'true'.
 {
     return true;
 }
 
-template <class T>
-bool isRefConstant(T&)
+template <class TYPE>
+bool isRefConstant(TYPE&)
     // This specialization of 'isRefConstant' is called for reference types and
     // always returns 'false'.
 {
@@ -759,16 +765,16 @@ bool isRefConstant(T&)
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-template <class T>
-bool isRefConstant(const T&&)
+template <class TYPE>
+bool isRefConstant(const TYPE&&)
     // This specialization of 'isRefConstant' is called for const rvalue
     // reference types and always returns 'true'.
 {
     return true;
 }
 
-template <class T>
-bool isRefConstant(T&&)
+template <class TYPE>
+bool isRefConstant(TYPE&&)
     // This specialization of 'isRefConstant' is called for rvalue reference
     // types and always returns 'false'.
 {
@@ -789,8 +795,8 @@ struct TupleApiTest
     }
 };
 
-template<class T>
-struct TupleApiTest<T, 5>
+template<class TYPE>
+struct TupleApiTest<TYPE, 5>
     // This specialization of 'TupleApiTest' provides a namespace for utility
     // function that test tuple-API for bsl::arrays of size 5.
 {
@@ -798,23 +804,23 @@ struct TupleApiTest<T, 5>
     {
 
 
-        typedef                bsl::array<         T, 5>     TA ;
+        typedef                bsl::array<         TYPE, 5>     TA ;
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-        typedef                bsl::array<const    T, 5>     CTA;
-        typedef                bsl::array<volatile T, 5>     VTA;
+        typedef                bsl::array<const    TYPE, 5>     CTA;
+        typedef                bsl::array<volatile TYPE, 5>     VTA;
 
-        typedef const          bsl::array<         T, 5>   C_TA ;
-        typedef const          bsl::array<const    T, 5>   C_CTA;
-        typedef const          bsl::array<volatile T, 5>   C_VTA;
+        typedef const          bsl::array<         TYPE, 5>   C_TA ;
+        typedef const          bsl::array<const    TYPE, 5>   C_CTA;
+        typedef const          bsl::array<volatile TYPE, 5>   C_VTA;
 
-        typedef       volatile bsl::array<         T, 5>   V_TA ;
-        typedef       volatile bsl::array<const    T, 5>   V_CTA;
-        typedef       volatile bsl::array<volatile T, 5>   V_VTA;
+        typedef       volatile bsl::array<         TYPE, 5>   V_TA ;
+        typedef       volatile bsl::array<const    TYPE, 5>   V_CTA;
+        typedef       volatile bsl::array<volatile TYPE, 5>   V_VTA;
 
-        typedef const volatile bsl::array<         T, 5>  CV_TA ;
-        typedef const volatile bsl::array<const    T, 5>  CV_CTA;
-        typedef const volatile bsl::array<volatile T, 5>  CV_VTA;
+        typedef const volatile bsl::array<         TYPE, 5>  CV_TA ;
+        typedef const volatile bsl::array<const    TYPE, 5>  CV_CTA;
+        typedef const volatile bsl::array<volatile TYPE, 5>  CV_VTA;
 
         // Testing 'tuple_size'.
         {
@@ -913,9 +919,10 @@ struct TupleApiTest<T, 5>
 
             // Aliases for returned types.
 
-            typedef const          T  C_T;
-            typedef       volatile T  V_T;
-            typedef const volatile T CV_T;
+            typedef                TYPE    T;
+            typedef const          TYPE  C_T;
+            typedef       volatile TYPE  V_T;
+            typedef const volatile TYPE CV_T;
 
             ASSERT((bsl::is_same<   T,  typename TE0_TA::type     >::value));
             ASSERT((bsl::is_same< C_T,  typename TE0_CTA::type    >::value));
@@ -983,7 +990,7 @@ struct TupleApiTest<T, 5>
         }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
-        // Testing 'T& get(array&)' and 'const T& get(const array&)'.
+        // Testing 'TYPE& get(array&)' and 'const TYPE& get(const array&)'.
         {
             TA        mX;
             const TA& X = mX;
@@ -1014,7 +1021,7 @@ struct TupleApiTest<T, 5>
         }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Testing 'T&& get(array&&)' and 'const T&& get(const array&&)'.
+        // Testing 'TYPE&& get(array&&)' and 'const TYPE&& get(const array&&)'.
         {
             typedef bslmf::MovableRefUtil MoveUtil;
 
@@ -1056,30 +1063,30 @@ struct TupleApiTest<T, 5>
     }
 };
 
-template<class T>
-struct TupleApiTest<T, 4>
+template<class TYPE>
+struct TupleApiTest<TYPE, 4>
     // This specialization of 'TupleApiTest' provides a namespace for utility
     // function that test tuple-API for bsl::arrays of size 4.
 {
     static void testTupleApi()
     {
-        typedef                bsl::array<         T, 4>     TA ;
+        typedef                bsl::array<         TYPE, 4>     TA ;
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-        typedef                bsl::array<const    T, 4>     CTA;
-        typedef                bsl::array<volatile T, 4>     VTA;
+        typedef                bsl::array<const    TYPE, 4>     CTA;
+        typedef                bsl::array<volatile TYPE, 4>     VTA;
 
-        typedef const          bsl::array<         T, 4>   C_TA ;
-        typedef const          bsl::array<const    T, 4>   C_CTA;
-        typedef const          bsl::array<volatile T, 4>   C_VTA;
+        typedef const          bsl::array<         TYPE, 4>   C_TA ;
+        typedef const          bsl::array<const    TYPE, 4>   C_CTA;
+        typedef const          bsl::array<volatile TYPE, 4>   C_VTA;
 
-        typedef       volatile bsl::array<         T, 4>   V_TA ;
-        typedef       volatile bsl::array<const    T, 4>   V_CTA;
-        typedef       volatile bsl::array<volatile T, 4>   V_VTA;
+        typedef       volatile bsl::array<         TYPE, 4>   V_TA ;
+        typedef       volatile bsl::array<const    TYPE, 4>   V_CTA;
+        typedef       volatile bsl::array<volatile TYPE, 4>   V_VTA;
 
-        typedef const volatile bsl::array<         T, 4>  CV_TA ;
-        typedef const volatile bsl::array<const    T, 4>  CV_CTA;
-        typedef const volatile bsl::array<volatile T, 4>  CV_VTA;
+        typedef const volatile bsl::array<         TYPE, 4>  CV_TA ;
+        typedef const volatile bsl::array<const    TYPE, 4>  CV_CTA;
+        typedef const volatile bsl::array<volatile TYPE, 4>  CV_VTA;
 
         // Testing 'tuple_size'.
         {
@@ -1166,9 +1173,10 @@ struct TupleApiTest<T, 4>
 
             // Aliases for returned types.
 
-            typedef const          T  C_T;
-            typedef       volatile T  V_T;
-            typedef const volatile T CV_T;
+            typedef                TYPE    T;
+            typedef const          TYPE  C_T;
+            typedef       volatile TYPE  V_T;
+            typedef const volatile TYPE CV_T;
 
             ASSERT((bsl::is_same<   T,  typename TE0_TA::type     >::value));
             ASSERT((bsl::is_same< C_T,  typename TE0_CTA::type    >::value));
@@ -1224,7 +1232,7 @@ struct TupleApiTest<T, 4>
         }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
-        // Testing 'T& get(array&)' and 'const T& get(const array&)'.
+        // Testing 'TYPE& get(array&)' and 'const TYPE& get(const array&)'.
         {
             TA        mX;
             const TA& X = mX;
@@ -1251,7 +1259,7 @@ struct TupleApiTest<T, 4>
         }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Testing 'T&& get(array&&)' and 'const T&& get(const array&&)'.
+        // Testing 'TYPE&& get(array&&)' and 'const TYPE&& get(const array&&)'.
         {
             typedef bslmf::MovableRefUtil MoveUtil;
 
@@ -1288,30 +1296,30 @@ struct TupleApiTest<T, 4>
     }
 };
 
-template<class T>
-struct TupleApiTest<T, 3>
+template<class TYPE>
+struct TupleApiTest<TYPE, 3>
     // This specialization of 'TupleApiTest' provides a namespace for utility
     // function that test tuple-API for bsl::arrays of size 3.
 {
     static void testTupleApi()
     {
-        typedef                bsl::array<         T, 3>     TA ;
+        typedef                bsl::array<         TYPE, 3>     TA ;
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-        typedef                bsl::array<const    T, 3>     CTA;
-        typedef                bsl::array<volatile T, 3>     VTA;
+        typedef                bsl::array<const    TYPE, 3>     CTA;
+        typedef                bsl::array<volatile TYPE, 3>     VTA;
 
-        typedef const          bsl::array<         T, 3>   C_TA ;
-        typedef const          bsl::array<const    T, 3>   C_CTA;
-        typedef const          bsl::array<volatile T, 3>   C_VTA;
+        typedef const          bsl::array<         TYPE, 3>   C_TA ;
+        typedef const          bsl::array<const    TYPE, 3>   C_CTA;
+        typedef const          bsl::array<volatile TYPE, 3>   C_VTA;
 
-        typedef       volatile bsl::array<         T, 3>   V_TA ;
-        typedef       volatile bsl::array<const    T, 3>   V_CTA;
-        typedef       volatile bsl::array<volatile T, 3>   V_VTA;
+        typedef       volatile bsl::array<         TYPE, 3>   V_TA ;
+        typedef       volatile bsl::array<const    TYPE, 3>   V_CTA;
+        typedef       volatile bsl::array<volatile TYPE, 3>   V_VTA;
 
-        typedef const volatile bsl::array<         T, 3>  CV_TA ;
-        typedef const volatile bsl::array<const    T, 3>  CV_CTA;
-        typedef const volatile bsl::array<volatile T, 3>  CV_VTA;
+        typedef const volatile bsl::array<         TYPE, 3>  CV_TA ;
+        typedef const volatile bsl::array<const    TYPE, 3>  CV_CTA;
+        typedef const volatile bsl::array<volatile TYPE, 3>  CV_VTA;
 
         // Testing 'tuple_size'.
         {
@@ -1385,9 +1393,10 @@ struct TupleApiTest<T, 3>
 
             // Aliases for returned types.
 
-            typedef const          T  C_T;
-            typedef       volatile T  V_T;
-            typedef const volatile T CV_T;
+            typedef                TYPE    T;
+            typedef const          TYPE  C_T;
+            typedef       volatile TYPE  V_T;
+            typedef const volatile TYPE CV_T;
 
             ASSERT((bsl::is_same<   T,  typename TE0_TA::type     >::value));
             ASSERT((bsl::is_same< C_T,  typename TE0_CTA::type    >::value));
@@ -1431,7 +1440,7 @@ struct TupleApiTest<T, 3>
         }
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
-        // Testing 'T& get(array&)' and 'const T& get(const array&)'.
+        // Testing 'TYPE& get(array&)' and 'const TYPE& get(const array&)'.
         {
             TA        mX;
             const TA& X = mX;
@@ -1454,7 +1463,7 @@ struct TupleApiTest<T, 3>
         }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Testing 'T&& get(array&&)' and 'const T&& get(const array&&)'.
+        // Testing 'TYPE&& get(array&&)' and 'const TYPE&& get(const array&&)'.
         {
             typedef bslmf::MovableRefUtil MoveUtil;
 
@@ -1486,30 +1495,30 @@ struct TupleApiTest<T, 3>
     }
 };
 
-template<class T>
-struct TupleApiTest<T, 2>
+template<class TYPE>
+struct TupleApiTest<TYPE, 2>
     // This specialization of 'TupleApiTest' provides a namespace for utility
     // function that test tuple-API for bsl::arrays of size 2.
 {
     static void testTupleApi()
     {
-        typedef                bsl::array<         T, 2>     TA ;
+        typedef                bsl::array<         TYPE, 2>     TA ;
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-        typedef                bsl::array<const    T, 2>     CTA;
-        typedef                bsl::array<volatile T, 2>     VTA;
+        typedef                bsl::array<const    TYPE, 2>     CTA;
+        typedef                bsl::array<volatile TYPE, 2>     VTA;
 
-        typedef const          bsl::array<         T, 2>   C_TA ;
-        typedef const          bsl::array<const    T, 2>   C_CTA;
-        typedef const          bsl::array<volatile T, 2>   C_VTA;
+        typedef const          bsl::array<         TYPE, 2>   C_TA ;
+        typedef const          bsl::array<const    TYPE, 2>   C_CTA;
+        typedef const          bsl::array<volatile TYPE, 2>   C_VTA;
 
-        typedef       volatile bsl::array<         T, 2>   V_TA ;
-        typedef       volatile bsl::array<const    T, 2>   V_CTA;
-        typedef       volatile bsl::array<volatile T, 2>   V_VTA;
+        typedef       volatile bsl::array<         TYPE, 2>   V_TA ;
+        typedef       volatile bsl::array<const    TYPE, 2>   V_CTA;
+        typedef       volatile bsl::array<volatile TYPE, 2>   V_VTA;
 
-        typedef const volatile bsl::array<         T, 2>  CV_TA ;
-        typedef const volatile bsl::array<const    T, 2>  CV_CTA;
-        typedef const volatile bsl::array<volatile T, 2>  CV_VTA;
+        typedef const volatile bsl::array<         TYPE, 2>  CV_TA ;
+        typedef const volatile bsl::array<const    TYPE, 2>  CV_CTA;
+        typedef const volatile bsl::array<volatile TYPE, 2>  CV_VTA;
 
         // Testing 'tuple_size'.
         {
@@ -1572,9 +1581,10 @@ struct TupleApiTest<T, 2>
 
             // Aliases for returned types.
 
-            typedef const          T  C_T;
-            typedef       volatile T  V_T;
-            typedef const volatile T CV_T;
+            typedef                TYPE    T;
+            typedef const          TYPE  C_T;
+            typedef       volatile TYPE  V_T;
+            typedef const volatile TYPE CV_T;
 
             ASSERT((bsl::is_same<   T,  typename TE0_TA::type     >::value));
             ASSERT((bsl::is_same< C_T,  typename TE0_CTA::type    >::value));
@@ -1606,7 +1616,7 @@ struct TupleApiTest<T, 2>
         }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
-        // Testing 'T& get(array&)' and 'const T& get(const array&)'.
+        // Testing 'TYPE& get(array&)' and 'const TYPE& get(const array&)'.
         {
             TA        mX;
             const TA& X = mX;
@@ -1625,7 +1635,7 @@ struct TupleApiTest<T, 2>
         }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Testing 'T&& get(array&&)' and 'const T&& get(const array&&)'.
+        // Testing 'TYPE&& get(array&&)' and 'const TYPE&& get(const array&&)'.
         {
             typedef bslmf::MovableRefUtil MoveUtil;
 
@@ -1652,30 +1662,30 @@ struct TupleApiTest<T, 2>
     }
 };
 
-template<class T>
-struct TupleApiTest<T, 1>
+template<class TYPE>
+struct TupleApiTest<TYPE, 1>
     // This specialization of 'TupleApiTest' provides a namespace for utility
     // function that test tuple-API for bsl::arrays of size 1.
 {
     static void testTupleApi()
     {
-        typedef                bsl::array<         T, 1>     TA ;
+        typedef                bsl::array<         TYPE, 1>     TA ;
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-        typedef                bsl::array<const    T, 1>     CTA;
-        typedef                bsl::array<volatile T, 1>     VTA;
+        typedef                bsl::array<const    TYPE, 1>     CTA;
+        typedef                bsl::array<volatile TYPE, 1>     VTA;
 
-        typedef const          bsl::array<         T, 1>   C_TA ;
-        typedef const          bsl::array<const    T, 1>   C_CTA;
-        typedef const          bsl::array<volatile T, 1>   C_VTA;
+        typedef const          bsl::array<         TYPE, 1>   C_TA ;
+        typedef const          bsl::array<const    TYPE, 1>   C_CTA;
+        typedef const          bsl::array<volatile TYPE, 1>   C_VTA;
 
-        typedef       volatile bsl::array<         T, 1>   V_TA ;
-        typedef       volatile bsl::array<const    T, 1>   V_CTA;
-        typedef       volatile bsl::array<volatile T, 1>   V_VTA;
+        typedef       volatile bsl::array<         TYPE, 1>   V_TA ;
+        typedef       volatile bsl::array<const    TYPE, 1>   V_CTA;
+        typedef       volatile bsl::array<volatile TYPE, 1>   V_VTA;
 
-        typedef const volatile bsl::array<         T, 1>  CV_TA ;
-        typedef const volatile bsl::array<const    T, 1>  CV_CTA;
-        typedef const volatile bsl::array<volatile T, 1>  CV_VTA;
+        typedef const volatile bsl::array<         TYPE, 1>  CV_TA ;
+        typedef const volatile bsl::array<const    TYPE, 1>  CV_CTA;
+        typedef const volatile bsl::array<volatile TYPE, 1>  CV_VTA;
         // Testing 'tuple_size'.
         {
             typedef native_std::tuple_size< TA     > TS_TA    ;
@@ -1725,9 +1735,10 @@ struct TupleApiTest<T, 1>
 
             // Aliases for returned types.
 
-            typedef const          T  C_T;
-            typedef       volatile T  V_T;
-            typedef const volatile T CV_T;
+            typedef                TYPE    T;
+            typedef const          TYPE  C_T;
+            typedef       volatile TYPE  V_T;
+            typedef const volatile TYPE CV_T;
 
             ASSERT((bsl::is_same<   T,  typename TE0_TA::type     >::value));
             ASSERT((bsl::is_same< C_T,  typename TE0_CTA::type    >::value));
@@ -1747,7 +1758,7 @@ struct TupleApiTest<T, 1>
         }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
-        // Testing 'T& get(array&)' and 'const T& get(const array&)'.
+        // Testing 'TYPE& get(array&)' and 'const TYPE& get(const array&)'.
         {
             TA        mX;
             const TA& X = mX;
@@ -1762,7 +1773,7 @@ struct TupleApiTest<T, 1>
         }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-        // Testing 'T&& get(array&&)' and 'const T&& get(const array&&)'.
+        // Testing 'TYPE&& get(array&&)' and 'const TYPE&& get(const array&&)'.
         {
             typedef bslmf::MovableRefUtil MoveUtil;
 
@@ -1784,29 +1795,29 @@ struct TupleApiTest<T, 1>
     }
 };
 
-template<class T>
-struct TupleApiTest<T, 0>
+template<class TYPE>
+struct TupleApiTest<TYPE, 0>
     // This specialization of 'TupleApiTest' provides a namespace for utility
     // function that test tuple-API for bsl::arrays of size 0`.
 {
     static void testTupleApi()
     {
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-        typedef                bsl::array<         T, 0>     TA ;
-        typedef                bsl::array<const    T, 0>     CTA;
-        typedef                bsl::array<volatile T, 0>     VTA;
+        typedef                bsl::array<         TYPE, 0>     TA ;
+        typedef                bsl::array<const    TYPE, 0>     CTA;
+        typedef                bsl::array<volatile TYPE, 0>     VTA;
 
-        typedef const          bsl::array<         T, 0>   C_TA ;
-        typedef const          bsl::array<const    T, 0>   C_CTA;
-        typedef const          bsl::array<volatile T, 0>   C_VTA;
+        typedef const          bsl::array<         TYPE, 0>   C_TA ;
+        typedef const          bsl::array<const    TYPE, 0>   C_CTA;
+        typedef const          bsl::array<volatile TYPE, 0>   C_VTA;
 
-        typedef       volatile bsl::array<         T, 0>   V_TA ;
-        typedef       volatile bsl::array<const    T, 0>   V_CTA;
-        typedef       volatile bsl::array<volatile T, 0>   V_VTA;
+        typedef       volatile bsl::array<         TYPE, 0>   V_TA ;
+        typedef       volatile bsl::array<const    TYPE, 0>   V_CTA;
+        typedef       volatile bsl::array<volatile TYPE, 0>   V_VTA;
 
-        typedef const volatile bsl::array<         T, 0>  CV_TA ;
-        typedef const volatile bsl::array<const    T, 0>  CV_CTA;
-        typedef const volatile bsl::array<volatile T, 0>  CV_VTA;
+        typedef const volatile bsl::array<         TYPE, 0>  CV_TA ;
+        typedef const volatile bsl::array<const    TYPE, 0>  CV_CTA;
+        typedef const volatile bsl::array<volatile TYPE, 0>  CV_VTA;
         // Testing 'tuple_size'.
         {
             typedef native_std::tuple_size< TA     > TS_TA    ;
@@ -1844,7 +1855,7 @@ bool testEqualityComparison(const bsl::array<TYPE, SIZE>& array1,
                             const bsl::array<TYPE, SIZE>& array2,
                             bool                          specsAreEqual)
     // Compare the specified 'array1' and 'array2' and return 'true' if they
-    // are equal (populated based on the same specifation (the specified
+    // are equal (populated based on the same specification (the specified
     // 'specsAreEqual' is true)) and 'false' otherwise.
 {
     bool result = true;
@@ -1901,7 +1912,7 @@ class CopyOnlyTestType {
     , d_copiedInto(CopyState::e_NOT_COPIED)
     {}
 
-    CopyOnlyTestType(int value)
+    explicit CopyOnlyTestType(int value)
         // Create an object that has the specified 'value'.
     : d_value(value)
     , d_copiedFrom(CopyState::e_NOT_COPIED)
@@ -1929,6 +1940,12 @@ class CopyOnlyTestType {
         return *this;
     }
 
+    void resetCopyState()
+    {
+        d_copiedFrom = CopyState::e_NOT_COPIED;
+        d_copiedInto = CopyState::e_NOT_COPIED;
+    }
+
     void setCopiedFrom(CopyState::Enum value)
     {
         d_copiedFrom = value;
@@ -1937,12 +1954,6 @@ class CopyOnlyTestType {
     void setCopiedInto(CopyState::Enum value)
     {
         d_copiedInto = value;
-    }
-
-    void resetCopyState()
-    {
-        d_copiedFrom = CopyState::e_NOT_COPIED;
-        d_copiedInto = CopyState::e_NOT_COPIED;
     }
 
     // ACCESSORS
@@ -2047,7 +2058,7 @@ struct TestDriver {
         // Test generator functions 'ggg' and 'gg'.
 
     static void testCase2();
-        // Test primary manipulators, ctor, dtor.
+        // Test primary manipulators.
 
     static void testCase1();
         // Breathing Test. Exercises basic functionality.
@@ -2117,7 +2128,7 @@ struct TestDriverWrapper{
         // Test generator functions 'ggg' and 'gg'.
 
     static void testCase2();
-        // Test primary manipulators, ctor, dtor.
+        // Test primary manipulators.
 
     static void testCase1();
         // Breathing Test. Exercises basic functionality.
@@ -2161,9 +2172,8 @@ void TestDriver<TYPE, SIZE>::testCase22()
     //:   the cross product S X S.  (C-1..2)
     //
     // Testing:
-    //   void hashAppend(HASHALG& hashAlg, const bsl::array<T, N>&);
+    //   void hashAppend(HASH_ALGORITHM&, const bsl::array<TYPE, SIZE>&);
     // ------------------------------------------------------------------------
-
 
     if (verbose) printf("\t\tof length " ZU "\n", SIZE);
 
@@ -2249,12 +2259,12 @@ void TestDriver<TYPE, SIZE>::testCase21()
     //:   references.  (C-1)
     //:
     // Testing:
-    //   std::tuple_element<bsl::array<T, N> >
-    //   std::tuple_size<bsl::array<T, N> >
-    //   T& get(bsl::array<T, N>& p)
-    //   const T& get(const bsl::array<T, N>& p)
-    //   const T&& get(const bsl::array<T, N>&& p)
-    //   T&& get(bsl::array<T, N>&& p)
+    //   std::tuple_element<bsl::array<TYPE, SIZE> >
+    //   std::tuple_size<bsl::array<TYPE, SIZE> >
+    //   TYPE& get(bsl::array<TYPE, SIZE>& a)
+    //   const TYPE& get(const bsl::array<TYPE, SIZE>& a)
+    //   const TYPE&& get(const bsl::array<TYPE, SIZE>&& a)
+    //   TYPE&& get(bsl::array<TYPE, SIZE>&& a)
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\t\tof length " ZU "\n", SIZE);
@@ -2388,6 +2398,7 @@ void TestDriver<TYPE, SIZE>::testCase19()
     if (veryVerbose) printf("\t\t\tNegative Testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
+
         Obj        mX;
         const Obj& X = mX;
 
@@ -2897,7 +2908,7 @@ void TestDriver<TYPE, SIZE>::testCase13()
     //: 4 Verify values of elements of arrays.  (C-1..4)
     //
     // Testing:
-    //   void fill(const T& value)
+    //   void fill(const TYPE& value)
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\t\tof length " ZU "\n", SIZE);
@@ -3017,6 +3028,18 @@ void TestDriver<TYPE, SIZE>::testCase12()
 
     }
 
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1800
+    // According to https://msdn.microsoft.com/en-us/library/hh567368.aspx
+    // Visual Studio 2015 has the first MS compiler, that supports compiler
+    // generated move assignment operator:
+    //
+    //    "Rvalue references v3.0" adds new rules to automatically generate
+    //    move constructors and move assignment operators under certain
+    //    conditions. This is implemented in Visual Studio 2015.
+    //
+    // So this test fails with Visual Studio 2013, because compiler generated
+    // copy assignment operator is used.
+
     if (veryVerbose)
         printf("\t\t\tTesting that move assignment operator is called for"
                " elements.\n");
@@ -3043,6 +3066,7 @@ void TestDriver<TYPE, SIZE>::testCase12()
             ASSERTV(SIZE, bsltf::MoveState::e_MOVED      == Y[i].movedInto());
         }
     }
+#endif
 
     if(veryVerbose)
         printf( "\t\t\tTesting that copy assignment operator is called for"
@@ -3146,6 +3170,18 @@ void TestDriver<TYPE, SIZE>::testCase11()
         ASSERTV(SIZE, W == Y);
     }
 
+#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VERSION > 1800
+    // According to https://msdn.microsoft.com/en-us/library/hh567368.aspx
+    // Visual Studio 2015 has the first MS compiler, that supports compiler
+    // generated move constructor:
+    //
+    //    "Rvalue references v3.0" adds new rules to automatically generate
+    //    move constructors and move assignment operators under certain
+    //    conditions. This is implemented in Visual Studio 2015.
+    //
+    // So this test fails with Visual Studio 2013, because compiler generated
+    // copy constructor is used.
+
     if(veryVerbose)
         printf(
               "\t\t\tTesting that move constructor is called for elements.\n");
@@ -3169,6 +3205,7 @@ void TestDriver<TYPE, SIZE>::testCase11()
             ASSERTV(bsltf::MoveState::e_MOVED      == Y[i].movedInto());
         }
     }
+#endif
 
     if(veryVerbose)
         printf(
@@ -3400,7 +3437,7 @@ void TestDriver<TYPE, SIZE>::testCase8()
     //
     // Testing:
     //   void swap(array&);
-    //   void swap(array<T,A>& lhs, array<T,A>& rhs);
+    //   void swap(array<TYPE,SIZE>& lhs, array<TYPE,SIZE>& rhs);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\t\tof length " ZU "\n", SIZE);
@@ -3476,23 +3513,24 @@ void TestDriver<TYPE, SIZE>::testCase7()
     //: 2 Copy-construct arrays Y1 and Y2 from the arrays X1 and X2
     //:   respectively.
     //:
-    //: 3 Verify that the array XN is equal to YN.  (C-1..2)
+    //: 3 Verify that the array X1 is equal to Y1 and X2 is equal to Y2.
+    //:   (C-1..2)
     //:
-    //: 3 Verify that the array WN is equal to XN.  (C-3)
+    //: 4 Verify that the array W1 is equal to X1 and W2 is equal to X2.  (C-3)
     //:
-    //: 4 Modify the source array X1 and verify that W1 and Y1 are
+    //: 5 Modify the source array X1 and verify that W1 and Y1 are
     //:   still equal.
     //:
-    //: 5 Modify the copy-constructed array Y2 and check that W2 and X2 are
+    //: 6 Modify the copy-constructed array Y2 and check that W2 and X2 are
     //:   still equal.
     //:
-    //: 6 Destroy X1 and verify that W1 and Y1 are still equal.  (C-4)
+    //: 7 Destroy X1 and verify that W1 and Y1 are still equal.  (C-4)
     //:
-    //: 7 Allow 'Y2' to go out of scope and verify that W2 and X2 are still
+    //: 8 Allow Y2 to go out of scope and verify that W2 and X2 are still
     //:   equal.  (C-5)
     //
     // Testing:
-    //   array<T,S>(const array<T,S>& original);
+    //   array<TYPE,SIZE>(const array<TYPE,SIZE>& original);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\t\tof length " ZU "\n", SIZE);
@@ -3717,7 +3755,7 @@ void TestDriver<TYPE, SIZE>::testCase4()
         const Obj& X = gg(&mX, SPEC);
 
         for (size_t i = 0; i < SIZE; ++i) {
-                  TYPE&      valueRef = mX[i];
+            TYPE&       valueRef      = mX[i];
             const TYPE& constValueRef =  X[i];
 
             ASSERTV(i, mX.d_data + i == bsls::Util::addressOf(     valueRef));
@@ -3738,6 +3776,7 @@ void TestDriver<TYPE, SIZE>::testCase4()
     if (veryVerbose) printf("\t\t\tNegative Testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
+
         Obj        mX;
         const Obj& X = gg(&mX, SPEC);
 
@@ -3782,7 +3821,7 @@ void TestDriver<TYPE, SIZE>::testCase3()
     //:   array using the 'gg' function.
     //:
     //: 2 Verify that the element at any index is equal to the element at the
-    //:   same index in the corrosponding test values array 'EXP' which was
+    //:   same index in the corresponding test values array 'EXP' which was
     //:   constructed by the same 'spec' string.  (C-1)
     //:
     //: 3 For the sequence of invalid 'spec' values with length equal to the
@@ -3793,8 +3832,8 @@ void TestDriver<TYPE, SIZE>::testCase3()
     //:   adjustment is finished at that symbol.  (C-2)
     //
     // Testing:
-    //   int ggg(array<T,S> *object, const char *spec, bool verboseFlag);
-    //   array<T,A>& gg(array<T,A> *object, const char *spec);
+    //   int ggg(array<TYPE,SIZE> *object, const char *spec, bool verboseFlag);
+    //   array<TYPE,SIZE>& gg(array<TYPE,SIZE> *object, const char *spec);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\t\tof length " ZU "\n", SIZE);
@@ -4002,8 +4041,8 @@ void TestDriver<TYPE, SIZE>::testCase2()
     if (0 != SIZE) {
         if (veryVerbose) printf("\t\t\tTesting operator[].\n");
         {
-            const char *SPEC1 = "ABCDEFGHIJKLMNOPQRSTUV";
-            const char *SPEC2 = "VUTSRQPONMLKJIHGFEDCBA";
+            const char       *SPEC1 = "ABCDEFGHIJKLMNOPQRSTUV";
+            const char       *SPEC2 = "VUTSRQPONMLKJIHGFEDCBA";
             const TestValues  EXP1(SPEC1);
             const TestValues  EXP2(SPEC2);
 
@@ -4046,6 +4085,7 @@ void TestDriver<TYPE, SIZE>::testCase2()
     if (veryVerbose) printf("\t\t\tNegative Testing.\n");
     {
         bsls::AssertTestHandlerGuard hG;
+
         Obj        mX;
 
         ASSERT_FAIL(mX[SIZE    ]);
@@ -4141,10 +4181,14 @@ void TestDriver<TYPE, SIZE>::testCase1()
     ASSERT(!(Y > X));
 }
 
+// BDE_VERIFY pragma: pop
+
 //=============================================================================
 //                                USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+// BDE_VERIFY pragma: push   // Usage examples relax rules for doc clarity
+// BDE_VERIFY pragma: -FD01  // Function declaration requires contract
 namespace UsageExample {
 ///Usage
 ///-----
@@ -4152,10 +4196,11 @@ namespace UsageExample {
 //
 ///Example 1: Returning an array from a function
 ///- - - - - - - - - - - - - - - - -
-// Suppose we want to define a function that will return an array of floats.
-// If a raw array was used, the size would need to be tracked seperately
-// because raw arrays decay to pointers.  With bsl::array the result can be
-// returned by value.
+// Suppose we want to define a function that will return an array of 'float's.
+// If a raw array were used, the size would need to be tracked separately
+// because raw arrays decay to pointers when passed as function arguments, or
+// returned by-value.  'bsl::array' does not decay, and so provides a simple
+// solution to this problem.
 //..
 typedef bsl::array<float, 3> Point;
 
@@ -4181,11 +4226,13 @@ void usageExample()
         }
     }
 }
-// Use the createPoint function to generate 3 arrays of floats.  The arrays
-// are returned by copy and the 'size()' member function is used to access
-// the size of the arrays that could not be done with a raw array.
+// Use the createPoint function to generate three arrays of floats.  The arrays
+// are returned by copy and the 'size()' member function is used to access the
+// size of the arrays that could not be done with a raw array.
 
 }  // close namespace UsageExample
+
+// BDE_VERIFY pragma: pop  // End of usage example-example relaxed rules
 
 //=============================================================================
 //                                 MAIN PROGRAM
@@ -4202,18 +4249,21 @@ int main(int argc, char *argv[])
     (void)     veryVeryVerbose;  // suppress compiler warning
     (void) veryVeryVeryVerbose;  // suppress compiler warning
 
-    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    bslma::DefaultAllocatorGuard dag(&defaultAllocator);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
 
-    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
-    bslma::Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocator         ga("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&ga);
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -TP05
-// BDE_VERIFY pragma: -TP17
-// BDE_VERIFY pragma: -TP30
+// BDE_VERIFY pragma: push   // Usage examples relax rules for doc clarity
+// BDE_VERIFY pragma: -TP05  // Test doc is in delegated functions
+// BDE_VERIFY pragma: -TP12  // Comment should contain a 'Testing:' section
+// BDE_VERIFY pragma: -TP17  // No test-banners in a switch statement
+// BDE_VERIFY pragma: -TP30  // Comment should contain a 'Concerns:' section
+// BDE_VERIFY pragma: -TP33  // Comment should contain a 'Plan:' section
+
     switch (test) { case 0:
       case 23: {
         // --------------------------------------------------------------------
@@ -4239,7 +4289,7 @@ int main(int argc, char *argv[])
       } break;
       case 22: {
         // --------------------------------------------------------------------
-        // TESTING HASH APPEND
+        // TESTING 'hashAppend'
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'hashAppend'"
@@ -4428,11 +4478,11 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING SWAP
+        // TESTING 'swap'
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING SWAP"
-                            "\n============\n");
+        if (verbose) printf("\nTESTING 'swap'"
+                            "\n==============\n");
 
         // Test 'swap' member.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
@@ -4445,7 +4495,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING COPY CONSTRUCTOR"
-                            "\n====================\n");
+                            "\n========================\n");
 
         // Test copy constructor.
         BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(TestDriverWrapper,
@@ -4536,7 +4586,6 @@ int main(int argc, char *argv[])
     }
     return testStatus;
 }
-
 // BDE_VERIFY pragma: pop
 
 // ----------------------------------------------------------------------------
