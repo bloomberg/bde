@@ -94,6 +94,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bdlscm_version.h>
 
+#include <bdlb_printmethods.h>
+
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
@@ -122,6 +124,7 @@ class DatumError {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(DatumError, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumError, bdlb::HasPrintMethod);
 
     // CREATORS
     DatumError();

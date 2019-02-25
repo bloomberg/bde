@@ -4932,94 +4932,322 @@ int main(int argc, char *argv[])
 //            PER
 //            LEVEL
 //---- -----  ------ -----  ---------------------------------------------------
-{ L_,   0,     0,    DA1,   "[ ]\n"                                          },
-{ L_,   0,     1,    DA1,   "[ ]\n"                                          },
+{ L_,   0,     0,    DA1,   "[\n"
+                            "]\n"                                            },
+{ L_,   0,     1,    DA1,   "[\n"
+                            "]\n"                                            },
 { L_,   0,    -1,    DA1,   "[ ]"                                            },
-{ L_,   0,    -8,    DA1,   "[ ]\n"                                          },
-{ L_,   3,     0,    DA1,   "[ ]\n"                                          },
-{ L_,   3,     2,    DA1,   "      [ ]\n"                                    },
+{ L_,   0,    -8,    DA1,   "[\n"
+                            "]\n"                                            },
+{ L_,   3,     0,    DA1,   "[\n"
+                            "]\n"                                            },
+{ L_,   3,     2,    DA1,   "      [\n"
+                            "      ]\n"                                      },
 { L_,   3,    -2,    DA1,   "      [ ]"                                      },
-{ L_,   3,    -8,    DA1,   "            [ ]\n"                              },
-{ L_,  -3,     0,    DA1,   "[ ]\n"                                          },
-{ L_,  -3,     2,    DA1,   "[ ]\n"                                          },
+{ L_,   3,    -8,    DA1,   "            [\n"
+                            "            ]\n"                                },
+{ L_,  -3,     0,    DA1,   "[\n"
+                            "]\n"                                            },
+{ L_,  -3,     2,    DA1,   "[\n"
+                            "      ]\n"                                      },
 { L_,  -3,    -2,    DA1,   "[ ]"                                            },
-{ L_,  -3,    -8,    DA1,   "[ ]\n"                                          },
-{ L_,   2,     3,    DA1,   "      [ ]\n"                                    },
-{ L_,  -8,    -8,    DA1,   "[ ]\n"                                          },
+{ L_,  -3,    -8,    DA1,   "[\n"
+                            "            ]\n"                                },
+{ L_,   2,     3,    DA1,   "      [\n"
+                            "      ]\n"                                      },
+{ L_,  -8,    -8,    DA1,   "[\n"
+                            "]\n"                                            },
 { L_,  -9,    -9,    DA1,   "[ ]"                                            },
-{ L_,   0,     0,    DA2,   "[ 0 \"A string\" 05JAN2010 ]\n"                 },
-{ L_,   0,     1,    DA2,   "[ 0 \"A string\" 05JAN2010 ]\n"                 },
+{ L_,   0,     0,    DA2,   "[\n"
+                            "0\n"
+                            "\"A string\"\n"
+                            "05JAN2010\n"
+                            "]\n"                                            },
+{ L_,   0,     1,    DA2,   "[\n"
+                            " 0\n"
+                            " \"A string\"\n"
+                            " 05JAN2010\n"
+                            "]\n"                                            },
 { L_,   0,    -1,    DA2,   "[ 0 \"A string\" 05JAN2010 ]"                   },
-{ L_,   0,    -8,    DA2,   "[ 0 \"A string\" 05JAN2010 ]\n"                 },
-{ L_,   3,     0,    DA2,   "[ 0 \"A string\" 05JAN2010 ]\n"                 },
-{ L_,   3,     2,    DA2,   "      [ 0 \"A string\" 05JAN2010 ]\n"           },
+{ L_,   0,    -8,    DA2,   "[\n"
+                            "    0\n"
+                            "    \"A string\"\n"
+                            "    05JAN2010\n"
+                            "]\n"                                            },
+{ L_,   3,     0,    DA2,   "[\n"
+                            "0\n"
+                            "\"A string\"\n"
+                            "05JAN2010\n"
+                            "]\n"                                            },
+{ L_,   3,     2,    DA2,   "      [\n"
+                            "        0\n"
+                            "        \"A string\"\n"
+                            "        05JAN2010\n"
+                            "      ]\n"                                      },
 { L_,   3,    -2,    DA2,   "      [ 0 \"A string\" 05JAN2010 ]"             },
-{ L_,   3,    -8,    DA2,   "            [ 0 \"A string\" 05JAN2010 ]\n"     },
-{ L_,  -3,     0,    DA2,   "[ 0 \"A string\" 05JAN2010 ]\n"                 },
-{ L_,  -3,     2,    DA2,   "[ 0 \"A string\" 05JAN2010 ]\n"                 },
+{ L_,   3,    -8,    DA2,
+                            "            [\n"
+                            "                0\n"
+                            "                \"A string\"\n"
+                            "                05JAN2010\n"
+                            "            ]\n"                                },
+{ L_,  -3,     0,    DA2,   "[\n"
+                            "0\n"
+                            "\"A string\"\n"
+                            "05JAN2010\n"
+                            "]\n"                                            },
+{ L_,  -3,     2,    DA2,   "[\n"
+                            "        0\n"
+                            "        \"A string\"\n"
+                            "        05JAN2010\n"
+                            "      ]\n"                                      },
 { L_,  -3,    -2,    DA2,   "[ 0 \"A string\" 05JAN2010 ]"                   },
-{ L_,  -3,    -8,    DA2,   "[ 0 \"A string\" 05JAN2010 ]\n"                 },
-{ L_,  -8,    -8,    DA2,   "[ 0 \"A string\" 05JAN2010 ]\n"                 },
+{ L_,  -3,    -8,    DA2,   "[\n"
+                            "                0\n"
+                            "                \"A string\"\n"
+                            "                05JAN2010\n"
+                            "            ]\n"                                },
+{ L_,  -8,    -8,    DA2,   "[\n"
+                            "    0\n"
+                            "    \"A string\"\n"
+                            "    05JAN2010\n"
+                            "]\n"                                            },
 { L_,  -9,    -9,    DA2,   "[ 0 \"A string\" 05JAN2010 ]"                   },
-{ L_,   0,     0,    DM1,   "[ ]\n"                                          },
-{ L_,   0,     1,    DM1,   "[ ]\n"                                          },
+{ L_,   0,     0,    DM1,   "[\n"
+                            "]\n"                                            },
+{ L_,   0,     1,    DM1,   "[\n"
+                            "]\n"                                            },
 { L_,   0,    -1,    DM1,   "[ ]"                                            },
-{ L_,   0,    -8,    DM1,   "[ ]\n"                                          },
-{ L_,   3,     0,    DM1,   "[ ]\n"                                          },
-{ L_,   3,     2,    DM1,   "      [ ]\n"                                    },
+{ L_,   0,    -8,    DM1,   "[\n"
+                            "]\n"                                            },
+{ L_,   3,     0,    DM1,   "[\n"
+                            "]\n"                                            },
+{ L_,   3,     2,    DM1,   "      [\n"
+                            "      ]\n"                                      },
 { L_,   3,    -2,    DM1,   "      [ ]"                                      },
-{ L_,   3,    -8,    DM1,   "            [ ]\n"                              },
-{ L_,  -3,     0,    DM1,   "[ ]\n"                                          },
-{ L_,  -3,     2,    DM1,   "[ ]\n"                                          },
+{ L_,   3,    -8,    DM1,   "            [\n"
+                            "            ]\n"                                },
+{ L_,  -3,     0,    DM1,   "[\n"
+                            "]\n"                                            },
+{ L_,  -3,     2,    DM1,   "[\n"
+                            "      ]\n"                                      },
 { L_,  -3,    -2,    DM1,   "[ ]"                                            },
-{ L_,  -3,    -8,    DM1,   "[ ]\n"                                          },
-{ L_,   2,     3,    DM1,   "      [ ]\n"                                    },
-{ L_,  -8,    -8,    DM1,   "[ ]\n"                                          },
+{ L_,  -3,    -8,    DM1,   "[\n"
+                            "            ]\n"                                },
+{ L_,   2,     3,    DM1,   "      [\n"
+                            "      ]\n"                                      },
+{ L_,  -8,    -8,    DM1,   "[\n"
+                            "]\n"                                            },
 { L_,  -9,    -9,    DM1,   "[ ]"                                            },
-{ L_,   0,     0,    DM2,   "[ [ key1 = 1 ] [ key2 = 0.34 ] ]\n"             },
-{ L_,   0,     1,    DM2,   "[ [ key1 = 1 ] [ key2 = 0.34 ] ]\n"             },
+{ L_,   0,     0,    DM2,   "[\n"
+                            "[\n"
+                            "key1 = 1\n"
+                            "]\n"
+                            "[\n"
+                            "key2 = 0.34\n"
+                            "]\n"
+                            "]\n"                                           },
+{ L_,   0,     1,    DM2,   "[\n"
+                            " [\n"
+                            "  key1 = 1\n"
+                            " ]\n"
+                            " [\n"
+                            "  key2 = 0.34\n"
+                            " ]\n"
+                            "]\n"                                            },
 { L_,   0,    -1,    DM2,   "[ [ key1 = 1 ] [ key2 = 0.34 ] ]"               },
-{ L_,   0,    -8,    DM2,   "[ [ key1 = 1 ] [ key2 = 0.34 ] ]\n"             },
-{ L_,   3,     0,    DM2,   "[ [ key1 = 1 ] [ key2 = 0.34 ] ]\n"             },
-{ L_,   3,     2,    DM2,   "      [ [ key1 = 1 ] [ key2 = 0.34 ] ]\n"       },
+{ L_,   0,    -8,    DM2,   "[\n"
+                            "    [\n"
+                            "        key1 = 1\n"
+                            "    ]\n"
+                            "    [\n"
+                            "        key2 = 0.34\n"
+                            "    ]\n"
+                            "]\n"                                           },
+{ L_,   3,     0,    DM2,   "[\n"
+                            "[\n"
+                            "key1 = 1\n"
+                            "]\n"
+                            "[\n"
+                            "key2 = 0.34\n"
+                            "]\n"
+                            "]\n"                                            },
+{ L_,   3,     2,    DM2,   "      [\n"
+                            "        [\n"
+                            "          key1 = 1\n"
+                            "        ]\n"
+                            "        [\n"
+                            "          key2 = 0.34\n"
+                            "        ]\n"
+                            "      ]\n"                                      },
 { L_,   3,    -2,    DM2,   "      [ [ key1 = 1 ] [ key2 = 0.34 ] ]"         },
-{ L_,   3,    -8,    DM2,   "            [ [ key1 = 1 ] [ key2 = 0.34 ] ]\n" },
-{ L_,  -3,     0,    DM2,   "[ [ key1 = 1 ] [ key2 = 0.34 ] ]\n"             },
-{ L_,  -3,     2,    DM2,   "[ [ key1 = 1 ] [ key2 = 0.34 ] ]\n"             },
+{ L_,   3,    -8,    DM2,   "            [\n"
+                            "                [\n"
+                            "                    key1 = 1\n"
+                            "                ]\n"
+                            "                [\n"
+                            "                    key2 = 0.34\n"
+                            "                ]\n"
+                            "            ]\n"                                },
+{ L_,  -3,     0,    DM2,   "[\n"
+                            "[\n"
+                            "key1 = 1\n"
+                            "]\n"
+                            "[\n"
+                            "key2 = 0.34\n"
+                            "]\n"
+                            "]\n"                                            },
+{ L_,  -3,     2,    DM2,   "[\n"
+                            "        [\n"
+                            "          key1 = 1\n"
+                            "        ]\n"
+                            "        [\n"
+                            "          key2 = 0.34\n"
+                            "        ]\n"
+                            "      ]\n"                                      },
 { L_,  -3,    -2,    DM2,   "[ [ key1 = 1 ] [ key2 = 0.34 ] ]"               },
-{ L_,  -3,    -8,    DM2,   "[ [ key1 = 1 ] [ key2 = 0.34 ] ]\n"             },
-{ L_,   2,     3,    DM2,   "      [ [ key1 = 1 ] [ key2 = 0.34 ] ]\n"       },
-{ L_,  -8,    -8,    DM2,   "[ [ key1 = 1 ] [ key2 = 0.34 ] ]\n"             },
+{ L_,  -3,    -8,    DM2,   "[\n"
+                            "                [\n"
+                            "                    key1 = 1\n"
+                            "                ]\n"
+                            "                [\n"
+                            "                    key2 = 0.34\n"
+                            "                ]\n"
+                            "            ]\n"                                },
+{ L_,   2,     3,    DM2,   "      [\n"
+                            "         [\n"
+                            "            key1 = 1\n"
+                            "         ]\n"
+                            "         [\n"
+                            "            key2 = 0.34\n"
+                            "         ]\n"
+                            "      ]\n"                                      },
+{ L_,  -8,    -8,    DM2,   "[\n"
+                            "    [\n"
+                            "        key1 = 1\n"
+                            "    ]\n"
+                            "    [\n"
+                            "        key2 = 0.34\n"
+                            "    ]\n"
+                            "]\n"                                            },
 { L_,  -9,    -9,    DM2,   "[ [ key1 = 1 ] [ key2 = 0.34 ] ]"               },
-{ L_,   0,     0,    DM3,   "[ ]\n"                                          },
-{ L_,   0,     1,    DM3,   "[ ]\n"                                          },
+{ L_,   0,     0,    DM3,   "[\n"
+                            "]\n"                                            },
+{ L_,   0,     1,    DM3,   "[\n"
+                            "]\n"                                            },
 { L_,   0,    -1,    DM3,   "[ ]"                                            },
-{ L_,   0,    -8,    DM3,   "[ ]\n"                                          },
-{ L_,   3,     0,    DM3,   "[ ]\n"                                          },
-{ L_,   3,     2,    DM3,   "      [ ]\n"                                    },
+{ L_,   0,    -8,    DM3,   "[\n"
+                            "]\n"                                            },
+{ L_,   3,     0,    DM3,   "[\n"
+                            "]\n"                                            },
+{ L_,   3,     2,    DM3,   "      [\n"
+                            "      ]\n"                                      },
 { L_,   3,    -2,    DM3,   "      [ ]"                                      },
-{ L_,   3,    -8,    DM3,   "            [ ]\n"                              },
-{ L_,  -3,     0,    DM3,   "[ ]\n"                                          },
-{ L_,  -3,     2,    DM3,   "[ ]\n"                                          },
+{ L_,   3,    -8,    DM3,   "            [\n"
+                            "            ]\n"                                },
+{ L_,  -3,     0,    DM3,   "[\n"
+                            "]\n"                                            },
+{ L_,  -3,     2,    DM3,   "[\n"
+                            "      ]\n"                                      },
 { L_,  -3,    -2,    DM3,   "[ ]"                                            },
-{ L_,  -3,    -8,    DM3,   "[ ]\n"                                          },
-{ L_,   2,     3,    DM3,   "      [ ]\n"                                    },
-{ L_,  -8,    -8,    DM3,   "[ ]\n"                                          },
+{ L_,  -3,    -8,    DM3,   "[\n"
+                            "            ]\n"                                },
+{ L_,   2,     3,    DM3,   "      [\n"
+                            "      ]\n"                                      },
+{ L_,  -8,    -8,    DM3,   "[\n"
+                            "]\n"                                            },
 { L_,  -9,    -9,    DM3,   "[ ]"                                            },
-{ L_,   0,     0,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]\n"              },
-{ L_,   0,     1,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]\n"              },
-{ L_,   0,    -1,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]"                },
-{ L_,   0,    -8,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]\n"              },
-{ L_,   3,     0,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]\n"              },
-{ L_,   3,     2,    DM4,   "      [ [ key1 = 2 ] [ key2 = 8.2 ] ]\n"        },
-{ L_,   3,    -2,    DM4,   "      [ [ key1 = 2 ] [ key2 = 8.2 ] ]"          },
-{ L_,   3,    -8,    DM4,   "            [ [ key1 = 2 ] [ key2 = 8.2 ] ]\n"  },
-{ L_,  -3,     0,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]\n"              },
-{ L_,  -3,     2,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]\n"              },
-{ L_,  -3,    -2,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]"                },
-{ L_,  -3,    -8,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]\n"              },
-{ L_,   2,     3,    DM4,   "      [ [ key1 = 2 ] [ key2 = 8.2 ] ]\n"        },
-{ L_,  -8,    -8,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]\n"              },
+{ L_,   0,     0,    DM4,   "[\n"
+                            "[\n"
+                            "key1 = 2\n"
+                            "]\n"
+                            "[\n"
+                            "key2 = 8.2\n"
+                            "]\n"
+                            "]\n"                                           },
+{ L_,   0,     1,    DM4,   "[\n"
+                            " [\n"
+                            "  key1 = 2\n"
+                            " ]\n"
+                            " [\n"
+                            "  key2 = 8.2\n"
+                            " ]\n"
+                            "]\n"                                            },
+{ L_,   0,    -1,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]"               },
+{ L_,   0,    -8,    DM4,   "[\n"
+                            "    [\n"
+                            "        key1 = 2\n"
+                            "    ]\n"
+                            "    [\n"
+                            "        key2 = 8.2\n"
+                            "    ]\n"
+                            "]\n"                                           },
+{ L_,   3,     0,    DM4,   "[\n"
+                            "[\n"
+                            "key1 = 2\n"
+                            "]\n"
+                            "[\n"
+                            "key2 = 8.2\n"
+                            "]\n"
+                            "]\n"                                            },
+{ L_,   3,     2,    DM4,   "      [\n"
+                            "        [\n"
+                            "          key1 = 2\n"
+                            "        ]\n"
+                            "        [\n"
+                            "          key2 = 8.2\n"
+                            "        ]\n"
+                            "      ]\n"                                      },
+{ L_,   3,    -2,    DM4,   "      [ [ key1 = 2 ] [ key2 = 8.2 ] ]"         },
+{ L_,   3,    -8,    DM4,   "            [\n"
+                            "                [\n"
+                            "                    key1 = 2\n"
+                            "                ]\n"
+                            "                [\n"
+                            "                    key2 = 8.2\n"
+                            "                ]\n"
+                            "            ]\n"                                },
+{ L_,  -3,     0,    DM4,   "[\n"
+                            "[\n"
+                            "key1 = 2\n"
+                            "]\n"
+                            "[\n"
+                            "key2 = 8.2\n"
+                            "]\n"
+                            "]\n"                                            },
+{ L_,  -3,     2,    DM4,   "[\n"
+                            "        [\n"
+                            "          key1 = 2\n"
+                            "        ]\n"
+                            "        [\n"
+                            "          key2 = 8.2\n"
+                            "        ]\n"
+                            "      ]\n"                                      },
+{ L_,  -3,    -2,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]"               },
+{ L_,  -3,    -8,    DM4,   "[\n"
+                            "                [\n"
+                            "                    key1 = 2\n"
+                            "                ]\n"
+                            "                [\n"
+                            "                    key2 = 8.2\n"
+                            "                ]\n"
+                            "            ]\n"                                },
+{ L_,   2,     3,    DM4,   "      [\n"
+                            "         [\n"
+                            "            key1 = 2\n"
+                            "         ]\n"
+                            "         [\n"
+                            "            key2 = 8.2\n"
+                            "         ]\n"
+                            "      ]\n"                                      },
+{ L_,  -8,    -8,    DM4,   "[\n"
+                            "    [\n"
+                            "        key1 = 2\n"
+                            "    ]\n"
+                            "    [\n"
+                            "        key2 = 8.2\n"
+                            "    ]\n"
+                            "]\n"                                            },
 { L_,  -9,    -9,    DM4,   "[ [ key1 = 2 ] [ key2 = 8.2 ] ]"                },
             };
 
@@ -7628,12 +7856,15 @@ int main(int argc, char *argv[])
                 expObjStr << "["                << "\n"
                           << "3"                << "\n"
                           << "2.25"             << "\n"
-                          << "error(3,'error')" << "\n"
+                          << "error("           << "\n"
+                          << "3,'error'"        << "\n"
+                          << ")"                << "\n"
                           << "]"                << "\n";
 
                 obj.print(objStr, 0, 0);
 
-                ASSERT(expObjStr.str() == objStr.str());
+                ASSERTV(expObjStr.str(), objStr.str(),
+                        expObjStr.str() == objStr.str());
 
                 // Clearing streams.
 
@@ -7645,12 +7876,15 @@ int main(int argc, char *argv[])
                 expObjStr << "["                    << "\n"
                           << "    3"                << "\n"
                           << "    2.25"             << "\n"
-                          << "    error(3,'error')" << "\n"
+                          << "    error("           << "\n"
+                          << "        3,'error'"    << "\n"
+                          << "    )"                << "\n"
                           << "]"                    << "\n";
 
                 obj.print(objStr);
 
-                ASSERT(expObjStr.str() == objStr.str());
+                ASSERTV(expObjStr.str(), objStr.str(),
+                        expObjStr.str() == objStr.str());
             }
 
             if (verbose) cout << "\tTesting level adjustment." << endl;
@@ -7663,12 +7897,15 @@ int main(int argc, char *argv[])
                 expObjStr << "["                 << "\n"
                           << " 3"                << "\n"
                           << " 2.25"             << "\n"
-                          << " error(3,'error')" << "\n"
+                          << " error("           << "\n"
+                          << "  3,'error'"       << "\n"
+                          << " )"                << "\n"
                           << "]"                 << "\n";
 
                 obj.print(objStr, 0, 1);
 
-                ASSERT(expObjStr.str() == objStr.str());
+                ASSERTV(expObjStr.str(), objStr.str(),
+                        expObjStr.str() == objStr.str());
 
                 // Clearing streams.
 
@@ -7680,12 +7917,15 @@ int main(int argc, char *argv[])
                 expObjStr << "    ["                 << "\n"
                           << "     3"                << "\n"
                           << "     2.25"             << "\n"
-                          << "     error(3,'error')" << "\n"
+                          << "     error("           << "\n"
+                          << "      3,'error'"       << "\n"
+                          << "     )"                << "\n"
                           << "    ]"                 << "\n";
 
                 obj.print(objStr, 4, 1);
 
-                ASSERT(expObjStr.str() == objStr.str());
+                ASSERTV(expObjStr.str(), objStr.str(),
+                        expObjStr.str() == objStr.str());
             }
 
             Datum::destroy(ARRAY[2], &oa);
@@ -9410,8 +9650,33 @@ int main(int argc, char *argv[])
 { L_,  -9, -9, Datum::createDecimal64(BDLDFP_DECIMAL_DD(12.345), &oa),
                                                     "12.345"                 },
 { L_,   0,  0, Datum::createDouble(0.25),           "0.25"                NL },
-{ L_,   0,  0, Datum::createError(3),               "error(3)"            NL },
-{ L_,   0,  0, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"     NL },
+{ L_,   0,  0, Datum::createError(3),
+                                                   "error(" NL "3" NL ")" NL },
+{ L_,   0,  0, Datum::createError(-1, "msg", &oa),
+                                            "error(" NL "-1,'msg'" NL ")" NL },
+{ L_,   0,  1, Datum::createError(-1, "msg", &oa),
+                                           "error(" NL " -1,'msg'" NL ")" NL },
+{ L_,   0, -1, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"        },
+{ L_,   0, -8, Datum::createError(-1, "msg", &oa),
+                                    "error(" NL "    -1,'msg'" NL ")"     NL },
+{ L_,   3,  0, Datum::createError(-1, "msg", &oa),
+                                            "error(" NL "-1,'msg'" NL ")" NL },
+{ L_,   3,  2, Datum::createError(-1, "msg", &oa),
+                        "      error(" NL "        -1,'msg'" NL "      )" NL },
+{ L_,   3, -2, Datum::createError(-1, "msg", &oa),
+                                                  "      error(-1,'msg')"    },
+{ L_,   3, -8, Datum::createError(-1, "msg", &oa),
+    "            error(" NL "                -1,'msg'" NL "            )" NL },
+{ L_,  -3,  0, Datum::createError(-1, "msg", &oa),
+                                        "error(" NL "-1,'msg'" NL ")"     NL },
+{ L_,  -3,  2, Datum::createError(-1, "msg", &oa),
+                          "error(" NL "        -1,'msg'" NL "      )"     NL },
+{ L_,  -3, -2, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"        },
+{ L_,  -3, -8, Datum::createError(-1, "msg", &oa),
+                "error(" NL "                -1,'msg'" NL "            )" NL },
+{ L_,  -8, -8, Datum::createError(-1, "msg", &oa),
+                                        "error(" NL "    -1,'msg'" NL ")" NL },
+{ L_,  -9, -9, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"        },
 { L_,   0,  0, Datum::createInteger(-18),           "-18"                 NL },
 { L_,   0,  0, Datum::createInteger64(987654, &oa), "987654"              NL },
 { L_,   0,  0, Datum::createTime(bdlt::Time()),     "24:00:00.000000"     NL },

@@ -496,13 +496,15 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdld_datumerror.h>
 #include <bdld_datumudt.h>
 
-#include <bdlt_date.h>
-#include <bdlt_epochutil.h>
-#include <bdlt_time.h>
-#include <bdlt_datetime.h>
-#include <bdlt_datetimeinterval.h>
+#include <bdlb_printmethods.h>
 
 #include <bdldfp_decimal.h>
+
+#include <bdlt_date.h>
+#include <bdlt_datetime.h>
+#include <bdlt_datetimeinterval.h>
+#include <bdlt_epochutil.h>
+#include <bdlt_time.h>
 
 #include <bsl_algorithm.h>
 
@@ -1549,6 +1551,7 @@ class Datum {
     BSLMF_NESTED_TRAIT_DECLARATION(Datum,
                                    bsl::is_trivially_default_constructible);
     BSLMF_NESTED_TRAIT_DECLARATION(Datum, bslmf::IsBitwiseMoveable);
+    BSLMF_NESTED_TRAIT_DECLARATION(Datum, bdlb::HasPrintMethod);
 
     // CREATORS
     //! Datum() = default;
@@ -2169,6 +2172,8 @@ class DatumArrayRef {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(DatumArrayRef, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumArrayRef, bdlb::HasPrintMethod);
+
 
     // CREATORS
     DatumArrayRef();
@@ -2261,6 +2266,11 @@ class DatumIntMapEntry {
     Datum d_value;  // value for this entry
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumIntMapEntry,
+                                   bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumIntMapEntry, bdlb::HasPrintMethod);
+
     // CREATORS
       DatumIntMapEntry();
         // Create a 'DatumIntMapEntry' object.
@@ -2302,9 +2312,6 @@ class DatumIntMapEntry {
         // human-readable format is not fully specified, and can change without
         // notice.
 
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(DatumIntMapEntry,
-                                                   bsl::is_trivially_copyable);
 };
 
 // FREE OPERATORS
@@ -2357,6 +2364,10 @@ class DatumIntMapRef {
                                         // sorted or not
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapRef, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapRef, bdlb::HasPrintMethod);
+
     // CREATORS
       DatumIntMapRef(const DatumIntMapEntry *data,
                     SizeType                 size,
@@ -2404,9 +2415,6 @@ class DatumIntMapRef {
         // not valid on entry, this operation has no effect.  Note that this
         // human-readable format is not fully specified, and can change without
         // notice.
-
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapRef, bsl::is_trivially_copyable);
 };
 
 // FREE OPERATORS
@@ -2446,6 +2454,10 @@ class DatumMapEntry {
     Datum             d_value;  // value for this entry
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapEntry, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapEntry, bdlb::HasPrintMethod);
+
     // CREATORS
     DatumMapEntry();
         // Create a 'DatumMapEntry' object.
@@ -2486,9 +2498,6 @@ class DatumMapEntry {
         // not valid on entry, this operation has no effect.  Note that this
         // human-readable format is not fully specified, and can change without
         // notice.
-
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapEntry, bsl::is_trivially_copyable);
 };
 
 // FREE OPERATORS
@@ -2544,6 +2553,10 @@ class DatumMapRef {
                                      // the keys or not
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapRef, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapRef, bdlb::HasPrintMethod);
+
     // CREATORS
     DatumMapRef(const DatumMapEntry *data,
                 SizeType             size,
@@ -2596,9 +2609,6 @@ class DatumMapRef {
         // not valid on entry, this operation has no effect.  Note that this
         // human-readable format is not fully specified, and can change without
         // notice.
-
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(DatumMapRef, bsl::is_trivially_copyable);
 };
 
 // FREE OPERATORS

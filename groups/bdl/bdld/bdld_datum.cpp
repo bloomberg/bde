@@ -133,9 +133,13 @@ BSLS_IDENT_RCSID(bdld_datum_cpp,"$Id$ $CSID$")
 // support perfect forwarding using the 'BSLS_COMPILERFEATURES_FORWARD', and
 // 'BSLS_COMPILERFEATURES_FORWARDING_REF' macros.
 
-#include <bdlt_currenttime.h>
+#include <bdlb_print.h>
+#include <bdlb_printmethods.h>
+
 #include <bdldfp_decimal.h>
 #include <bdldfp_decimalconvertutil.h>
+
+#include <bdlt_currenttime.h>
 
 #include <bslim_printer.h>
 #include <bslma_allocator.h>
@@ -598,7 +602,6 @@ class Datum_StreamVisitor {
     void operator()(bslmf::Nil value) const;
         // Write the specified 'value' into 'd_stream'.
 
-
     void operator()(bool value) const;
         // Write the specified 'value' into 'd_stream'.
 
@@ -629,30 +632,33 @@ void Datum_StreamVisitor::operator()(bslmf::Nil value) const
 {
     (void) value;
     if (!d_stream.bad()) {
-        bslim::Printer printer(&d_stream, d_level, d_spacesPerLevel);
-        printer.start(true);
+        bdlb::Print::indent(d_stream, d_level, d_spacesPerLevel);
         d_stream << "[nil]";
-        printer.end(true);
+        if (0 <= d_spacesPerLevel) {
+            d_stream << '\n';
+        }
     }
 }
 
 void Datum_StreamVisitor::operator()(bool value) const
 {
     if (!d_stream.bad()) {
-        bslim::Printer printer(&d_stream, d_level, d_spacesPerLevel);
-        printer.start(true);
+        bdlb::Print::indent(d_stream, d_level, d_spacesPerLevel);
         d_stream << (value ? "true" : "false");
-        printer.end(true);
+        if (0 <= d_spacesPerLevel) {
+            d_stream << '\n';
+        }
     }
 }
 
 void Datum_StreamVisitor::operator()(const bslstl::StringRef& value) const
 {
     if (!d_stream.bad()) {
-        bslim::Printer printer(&d_stream, d_level, d_spacesPerLevel);
-        printer.start(true);
+        bdlb::Print::indent(d_stream, d_level, d_spacesPerLevel);
         d_stream << '"' << value << '"';
-        printer.end(true);
+        if (0 <= d_spacesPerLevel) {
+            d_stream << '\n';
+        }
     }
 }
 
@@ -660,10 +666,7 @@ template <class BDLD_TYPE>
 void Datum_StreamVisitor::operator()(const BDLD_TYPE& value) const
 {
     if (!d_stream.bad()) {
-        bslim::Printer printer(&d_stream, d_level, d_spacesPerLevel);
-        printer.start(true);
-        d_stream << value;
-        printer.end(true);
+        bdlb::PrintMethods::print(d_stream, value, d_level, d_spacesPerLevel);
     }
 }
 
