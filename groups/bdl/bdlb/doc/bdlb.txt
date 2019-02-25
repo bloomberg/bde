@@ -11,7 +11,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 35 components having 4 levels of physical
+ The 'bdlb' package currently has 36 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -44,6 +44,7 @@
      bdlb_guid
      bdlb_hashutil
      bdlb_literalutil
+     bdlb_nullopt
      bdlb_nulloutputiterator
      bdlb_print
      bdlb_random
@@ -120,6 +121,9 @@
 :
 : 'bdlb_nullablevalue':
 :      Provide a template for nullable (in-place) objects.
+:
+: 'bdlb_nullopt':
+:      Provide a tag type to precede allocator arguments.
 :
 : 'bdlb_nulloutputiterator':
 :      Provide an output iterator type that discards output.
