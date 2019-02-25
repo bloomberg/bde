@@ -21,6 +21,9 @@ BSLS_IDENT_RCSID(bdls_osutil_cpp, "$Id$ $CSID$")
 
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 # include <bdlsb_fixedmemoutstreambuf.h>
+
+# include <bsl_ostream.h>
+
 # include <windows.h>
 
 # define   U_VISTA_OR_LATER 0
