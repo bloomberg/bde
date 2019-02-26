@@ -223,6 +223,8 @@ template <class TYPE> using underlying_type_t =
     using native_std::conjunction;
     using native_std::disjunction;
     using native_std::negation;
+
+    // native_std:::void_t is supplied by bslmf_voidtype.h
 #endif
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
@@ -508,6 +510,7 @@ constexpr bool is_base_of_v = native_std::is_base_of<TYPE1, TYPE2>::value;
 #include <bslmf_removepointer.h>
 #include <bslmf_removereference.h>
 #include <bslmf_removevolatile.h>
+#include <bslmf_voidtype.h>
 #endif  // BSL_OVERRIDES_STD
 
 #endif

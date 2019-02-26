@@ -10,10 +10,6 @@
 
 using namespace BloombergLP;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-# define BSLMF_ISFUNCTION_NO_ABOMINABLE_TYPES
-#endif
-
 //=============================================================================
 //                                TEST PLAN
 //-----------------------------------------------------------------------------
@@ -29,7 +25,6 @@ using namespace BloombergLP;
 // PUBLIC CLASS DATA
 // [ 1] bsl::is_function::value
 // [ 1] bsl::is_function_v
-//
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 
@@ -75,6 +70,14 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+
+//=============================================================================
+//              PLATFORM DEFECT TRACKING MACROS TO SUPPORT TESTING
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
+# define BSLMF_ISFUNCTION_NO_ABOMINABLE_TYPES 1
+#endif
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -236,8 +239,8 @@ typedef int ExternCFunc15Elipsis(int, int, int, int, int, int, int, int, int,
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const&&,          result);        \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE volatile&&,       result);        \
     TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const volatile&&, result);
-    // Test an r-value  references to cv-qualified combinations on the
-    // specified 'TYPE'.
+    // Test r-value references to cv-qualified combinations on the specified
+    // 'TYPE'.
 #else
 # define TYPE_ASSERT_CVQ_RVALREF(META_FUNC, TYPE, result)
 #endif
@@ -248,8 +251,8 @@ typedef int ExternCFunc15Elipsis(int, int, int, int, int, int, int, int, int,
    TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const&& noexcept,          result);\
    TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE volatile&& noexcept,       result);\
    TYPE_ASSERT_IS_FUNCTION(META_FUNC, TYPE const volatile&& noexcept, result);
-    // Test an r-value  references to cv-qualified combinations on the
-    //  specified 'noexcept' 'TYPE'.
+    // Test r-value references to cv-qualified combinations on the specified
+    // 'noexcept' 'TYPE'.
 #else
 # define TYPE_ASSERT_CVQ_RVALREF_NOEXCEPT(META_FUNC, TYPE, result)
 #endif

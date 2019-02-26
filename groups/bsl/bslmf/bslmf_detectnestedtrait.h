@@ -328,32 +328,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslmf_conditional.h>
 #include <bslmf_integralconstant.h>
-#include <bslmf_isconvertible.h>
 #include <bslmf_isconvertibletoany.h>
-#include <bslmf_isfunction.h>
 #include <bslmf_matchanytype.h>
-#include <bslmf_metaint.h>
 #include <bslmf_nestedtraitdeclaration.h>
-
-#include <bsls_platform.h>
-
-#if defined(BSLS_PLATFORM_CMP_IBM)                                            \
- ||(defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5150)
-// IBM xlC and Sun CC compilers have a hard time handling function types in
-// some of the template instantiations required by this component, so we simply
-// treat function types as 'void' types.  This gives the same result as neither
-// can hold a nested typedef.  Last tested with xlC 12.
-# define BSLMF_DETECTNESTEDTRAIT_CANNOT_COMPILE_WITH_FUNCTION_TYPES  1
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_IBM)
-# define BSLMF_DETECTNESTEDTRAIT_NO_SUPPORT_FOR_ARRAY_TYPES   1
-#endif
+#include <bslmf_voidtype.h>
 
 namespace BloombergLP {
-
 namespace bslmf {
 
                         // =======================
@@ -362,7 +343,7 @@ namespace bslmf {
 
 template <class TYPE, template <class> class TRAIT>
 class DetectNestedTrait_Imp {
-    // Implementation of class to detect whether the specified 'TRAIT'
+    // This implementation 'class' detects whether the specified 'TRAIT'
     // parameter is associated with the specified 'TYPE' parameter using the
     // nested type trait mechanism.  The 'k_VALUE' constant will be true iff
     // 'TYPE' is convertible to 'NestedTraitDeclaration<TYPE, TRAIT>'.
@@ -389,58 +370,35 @@ class DetectNestedTrait_Imp {
         k_CONVERTIBLE_TO_ANY_TYPE     = IsConvertibleToAny<TYPE>::value
     };
 
-  public:
-    // PUBLIC CONSTANTS
-
     enum {
         k_VALUE = k_CONVERTIBLE_TO_NESTED_TRAIT && !k_CONVERTIBLE_TO_ANY_TYPE
-    };
         // Non-zero if 'TRAIT' is associated with 'TYPE' using the nested type
         // trait mechanism; otherwise zero.
+    };
 
-    typedef bsl::integral_constant<bool, k_VALUE> Type;
-        // Type representing the result of this metafunction.  Equivalent to
-        // 'true_type' if 'TRAIT' is associated with 'TYPE' using the nested
-        // type trait mechanism; otherwise 'false_type'.
+  public:
+    // PUBLIC TYPES
+    typedef bsl::integral_constant<bool, k_VALUE> type;
+        // Type representing the result of this metafunction.  An alias for
+        // 'bsl::true_type' if 'TRAIT' is associated with 'TYPE' using the
+        // nested type trait mechanism; otherwise an alias for
+        // 'bsl::false_type'.
 };
 
-template <template <class> class TRAIT>
-struct DetectNestedTrait_Imp<void, TRAIT> {
-    // Implementation of 'DetectNestedTrait' for 'void' type.  Short-circuits
-    // to 'bsl::false_type' because 'void' can't have any nested traits.
-
-    typedef bsl::false_type Type;
-};
-
-#if defined(BSLMF_DETECTNESTEDTRAIT_NO_SUPPORT_FOR_ARRAY_TYPES)
 template <class TYPE, template <class> class TRAIT>
-struct DetectNestedTrait_Imp<TYPE[], TRAIT> {
-    // Implementation of 'DetectNestedTrait' for array-of-unknown-bound type.
-    // This specialization is required to work around compiler bugs with the
-    // IBM xlC compiler and old Microsoft compilers. which fail to parse this
-    // case (array-of-unknown-bound) as a valid partial specialization.  The
-    // nested 'Type' is always 'bsl::false_type' as array types cannot have any
-    // nested traits.
+struct DetectNestedTrait_Imp<const TYPE, TRAIT>
+    : DetectNestedTrait_Imp<TYPE, TRAIT>::type {};
 
-    typedef bsl::false_type Type;
-};
-#endif
-
-#if !defined(BSLMF_DETECTNESTEDTRAIT_CANNOT_COMPILE_WITH_FUNCTION_TYPES)
 template <class TYPE, template <class> class TRAIT>
-struct DetectNestedTrait : DetectNestedTrait_Imp<TYPE, TRAIT>::Type {
-    // Metafunction to detect whether the specified 'TRAIT' parameter is
-    // associated with the specified 'TYPE' parameter using the nested type
-    // trait mechanism.  Inherits from 'true_type' iff 'TYPE' is convertible to
-    // 'NestedTraitDeclaration<TYPE, TRAIT>' and from 'false_type' otherwise.
-};
+struct DetectNestedTrait_Imp<volatile TYPE, TRAIT>
+    : DetectNestedTrait_Imp<TYPE, TRAIT>::type {};
 
-#else
 template <class TYPE, template <class> class TRAIT>
-struct DetectNestedTrait : DetectNestedTrait_Imp<
-                       typename bsl::conditional< bsl::is_function<TYPE>::value
-                                                , void
-                                                , TYPE>::type, TRAIT>::Type {
+struct DetectNestedTrait_Imp<const volatile TYPE, TRAIT>
+    : DetectNestedTrait_Imp<TYPE, TRAIT>::type {};
+
+template <class TYPE, template <class> class TRAIT, class = void>
+struct DetectNestedTrait : bsl::false_type {
     // Metafunction to detect whether the specified 'TRAIT' parameter is
     // associated with the specified 'TYPE' parameter using the nested type
     // trait mechanism.  Inherits from 'true_type' iff 'TYPE' is convertible to
@@ -458,57 +416,19 @@ struct DetectNestedTrait : DetectNestedTrait_Imp<
 };
 
 template <class TYPE, template <class> class TRAIT>
-struct DetectNestedTrait<TYPE &, TRAIT> : bsl::false_type {
-    // This partial specialization handles function references, and all other
-    // reference types, which might cause a problem for the primary template on
-    // compilers that cannot handle template specialization of function types.
-};
-#endif
-
-
-// Additional partial template specializations ensure that cv-qualified types
-// have (or do not have) the same traits as the corresponding cv-unqualified
-// type.
-
-#if defined(BSLS_REMOVECONST_WORKAROUND_CONST_MULTIDIMENSIONAL_ARRAY)
-// XLC has an issue removing const-qualifiers from array types.  The rendundant
-// use of 'bsl::remove_const' below is a work-around, which utilizes the
-// work-arounds already in place for XLC in the 'bslmf_removeconst' component.
-// See 'bslmf_removeconst' for more information.
-
-template <class TYPE, template <class> class TRAIT>
-struct DetectNestedTrait<const TYPE, TRAIT>
-     : DetectNestedTrait<typename bsl::remove_const<TYPE>::type, TRAIT>::Type {
-};
-
-#else
-
-template <class TYPE, template <class> class TRAIT>
-struct DetectNestedTrait<const TYPE, TRAIT>
-     : DetectNestedTrait<TYPE, TRAIT>::Type {
-};
-
-#endif
-
-
-template <class TYPE, template <class> class TRAIT>
-struct DetectNestedTrait<volatile TYPE, TRAIT>
-     : DetectNestedTrait<TYPE, TRAIT>::Type {
-};
-
-template <class TYPE, template <class> class TRAIT>
-struct DetectNestedTrait<const volatile TYPE, TRAIT>
-     : DetectNestedTrait<TYPE, TRAIT>::Type {
+struct DetectNestedTrait<TYPE, TRAIT, BSLMF_VOIDTYPE(int TYPE::*)>
+    : DetectNestedTrait_Imp<TYPE, TRAIT>::type {
+    // This partial specialization is a filter for class types, as only class
+    // types can support a nested trait.
 };
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BSLMF_DETECTNESTEDTRAIT)
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

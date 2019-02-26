@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ismemberfunctionpointer.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
+#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
 namespace bsl {
 
                        // ===============================
@@ -159,6 +159,9 @@ struct is_member_object_pointer<TYPE CLASS::* const volatile>
 // functions with a C-style elipsis, erroneously reporting such functions as
 // data members.  However, xlC appears to have sufficient compenstating bugs
 // that this implementation gives the correct result in such cases too.
+//
+// Sun CC uses the same implementation purely to reduce compiler warnings that
+// cannot be silenced with a pragma (unlike for MSVC).
 
 namespace BloombergLP {
 namespace bslmf {
