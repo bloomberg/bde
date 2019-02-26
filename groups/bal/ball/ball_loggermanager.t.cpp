@@ -564,7 +564,8 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
 //..
     // myApp2.cpp
 
-    int main() {
+    int main()
+    {
         // ...
 
         ball::LoggerManager::CategoryNameFilterCallback nameFilter(&toLower);
@@ -1242,6 +1243,7 @@ class MyObserver : public ball::Observer {
 
   public:
     // CREATORS
+    explicit
     MyObserver(bsl::ostream& stream) : d_publishCount(0), d_stream(stream)
     {
     }
@@ -1619,6 +1621,7 @@ class TestObserverVisitor {
     // This class implements a test observer visitor.  This visitor will verify
     // that all observers in the registry of the logger manager supplied at
     // construction were visited.
+
   private:
     // DATA
     const ball::LoggerManager *d_loggerManager_p;
@@ -1662,6 +1665,7 @@ class TempDirectoryGuard {
     bsl::string       d_dirName;      // path to the created directory
     bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     TempDirectoryGuard(const TempDirectoryGuard&);
     TempDirectoryGuard& operator=(const TempDirectoryGuard&);
@@ -3136,13 +3140,12 @@ int main(int argc, char *argv[])
                     X.numCategories(),
                     oldNumCategories + 1 == X.numCategories());
 
-            if(veryVerbose)
-                           cout << "\tConfirm record passed directly." << endl;
+            if (veryVerbose) cout << "\tConfirm record passed directly.\n";
 
             ASSERTV(observer.numPublishedRecords(),
                     1 == observer.numPublishedRecords());
 
-            if(veryVerbose) cout << "\tConfirm values in record." << endl;
+            if (veryVerbose) cout << "\tConfirm values in record." << endl;
 
             const ball::Record& record = observer.lastPublishedRecord();
             const ball::RecordAttributes& attributes = record.fixedFields();
@@ -3166,15 +3169,15 @@ int main(int argc, char *argv[])
                     attributes.message(),
                     0 == strcmp(message, attributes.message()));
 
-            if(veryVerbose) cout << "\t\tMessage: "
-                                 << attributes.message()
-                                 << endl;
+            if (veryVerbose) cout << "\t\tMessage: "
+                                  << attributes.message()
+                                  << endl;
 
-            if(veryVerbose) cout << "\tDestroy scoped guard." << endl;
+            if (veryVerbose) cout << "\tDestroy scoped guard." << endl;
             // Let guard fall out of this scope
         }
 
-        if(veryVerbose) cout << "\tConfirm old handler restored." << endl;
+        if (veryVerbose) cout << "\tConfirm old handler restored." << endl;
         ASSERT(bsls::Log::logMessageHandler() == oldBslsHandler);
 
       } break;
@@ -3218,6 +3221,7 @@ int main(int argc, char *argv[])
 
           public:
             // CREATORS
+            explicit
             InitializationVerifier(bool isInitializedFlag)
             : d_isInitializedFlag(isInitializedFlag)
             {

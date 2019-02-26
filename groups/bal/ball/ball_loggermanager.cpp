@@ -285,6 +285,7 @@ Logger::Logger(const bsl::shared_ptr<Observer>&            observer,
     BSLS_ASSERT(d_allocator_p);
 
     // 'snprintf' message buffer
+
     d_scratchBuffer_p = (char *)d_allocator_p->allocate(d_scratchBufferSize);
 }
 
@@ -701,6 +702,7 @@ LoggerManager& LoggerManager::initSingleton(
     BSLS_ASSERT(observer);
 
     // Make shared pointer with nil deleter.
+
     bsl::shared_ptr<Observer> observerWrapper(
                              observer,
                              bslstl::SharedPtrNilDeleter(),
@@ -711,9 +713,11 @@ LoggerManager& LoggerManager::initSingleton(
     initSingletonImpl(configuration, globalAllocator);
 
     // Note that this call can fail if we call 'initSingleton' more than once.
+
     s_singleton_p->registerObserver(observerWrapper, k_INTERNAL_OBSERVER_NAME);
 
     // But we check that there is an observer registered under internal name.
+
     BSLS_ASSERT(s_singleton_p->findObserver(k_INTERNAL_OBSERVER_NAME));
 
     return *s_singleton_p;
@@ -1115,6 +1119,7 @@ void LoggerManager::deallocateLogger(Logger *logger)
 Logger& LoggerManager::getLogger()
 {
     // TBD: optimize it using thread local storage
+
     d_defaultLoggersLock.lockRead();
     bsl::map<void *, Logger *>::iterator itr =
             d_defaultLoggers.find((void *)bslmt::ThreadUtil::selfIdAsUint64());
