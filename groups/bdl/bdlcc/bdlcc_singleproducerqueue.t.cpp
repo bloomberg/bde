@@ -101,6 +101,7 @@ using namespace bsl;
 // [13] USAGE EXAMPLE
 // [ 3] Obj& gg(Obj *object, const char *spec);
 // [ 3] int ggg(Obj *object, const char *spec);
+// [ 2] CONCERN: 0 == e_SUCCESS
 // [10] CONCERN: 'popFront' and 'tryPopFront' honor move-semantics
 // [11] CONCERN: template requirements
 // [12] CONCERN: ordering guarantee
@@ -444,6 +445,10 @@ public:
 typedef bdlcc::SingleProducerQueue<int>          Obj;
 
 typedef bdlcc::SingleProducerQueue<bsl::string>  AllocObj;
+
+const int e_SUCCESS  = Obj::e_SUCCESS;
+const int e_EMPTY    = Obj::e_EMPTY;
+const int e_DISABLED = Obj::e_DISABLED;
 
 // ============================================================================
 //                   GLOBAL METHODS FOR TESTING
@@ -1354,7 +1359,7 @@ int main(int argc, char *argv[])
 
             int rv = X.waitUntilEmpty();
 
-            ASSERT(0 == rv);
+            ASSERT(e_SUCCESS == rv);
             ASSERT(allocations == defaultAllocator.numAllocations());
 
             s_continue = 0;
@@ -1385,7 +1390,7 @@ int main(int argc, char *argv[])
 
             int rv = X.waitUntilEmpty();
 
-            ASSERT(0 == rv);
+            ASSERT(e_SUCCESS == rv);
             ASSERT(allocations == defaultAllocator.numAllocations());
 
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
@@ -1424,7 +1429,7 @@ int main(int argc, char *argv[])
 
             int rv = X.waitUntilEmpty();
 
-            ASSERT(0 != rv);
+            ASSERT(e_DISABLED == rv);
             ASSERT(allocations == defaultAllocator.numAllocations());
 
             interval = bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
@@ -1494,51 +1499,51 @@ int main(int argc, char *argv[])
 
             value = 7;
             rv = mX.tryPopFront(&value);
-            ASSERT( 0 != rv);
-            ASSERT( 0 == X.numElements());
-            ASSERT( 7 == value);
+            ASSERT(e_EMPTY == rv);
+            ASSERT(      0 == X.numElements());
+            ASSERT(      7 == value);
 
             value = 3;
             rv = mX.tryPopFront(&value);
-            ASSERT( 0 != rv);
-            ASSERT( 0 == X.numElements());
-            ASSERT( 3 == value);
+            ASSERT(e_EMPTY == rv);
+            ASSERT(      0 == X.numElements());
+            ASSERT(      3 == value);
 
             mX.pushBack(0);
             mX.pushBack(1);
             mX.pushBack(2);
-            ASSERT( 3 == X.numElements());
+            ASSERT(3 == X.numElements());
 
             bsls::Types::Int64 na = sa.numAllocations();
             bsls::Types::Int64 nd = sa.numDeallocations();
 
             rv = mX.tryPopFront(&value);
-            ASSERT( 0 == rv);
-            ASSERT( 2 == X.numElements());
-            ASSERT( 0 == value);
-            ASSERT(na == sa.numAllocations());
-            ASSERT(nd == sa.numDeallocations());
+            ASSERT(e_SUCCESS == rv);
+            ASSERT(        2 == X.numElements());
+            ASSERT(        0 == value);
+            ASSERT(       na == sa.numAllocations());
+            ASSERT(       nd == sa.numDeallocations());
 
             rv = mX.tryPopFront(&value);
-            ASSERT( 0 == rv);
-            ASSERT( 1 == X.numElements());
-            ASSERT( 1 == value);
-            ASSERT(na == sa.numAllocations());
-            ASSERT(nd == sa.numDeallocations());
+            ASSERT(e_SUCCESS == rv);
+            ASSERT(        1 == X.numElements());
+            ASSERT(        1 == value);
+            ASSERT(       na == sa.numAllocations());
+            ASSERT(       nd == sa.numDeallocations());
 
             rv = mX.tryPopFront(&value);
-            ASSERT( 0 == rv);
-            ASSERT( 0 == X.numElements());
-            ASSERT( 2 == value);
-            ASSERT(na == sa.numAllocations());
-            ASSERT(nd == sa.numDeallocations());
+            ASSERT(e_SUCCESS == rv);
+            ASSERT(        0 == X.numElements());
+            ASSERT(        2 == value);
+            ASSERT(       na == sa.numAllocations());
+            ASSERT(       nd == sa.numDeallocations());
 
             rv = mX.tryPopFront(&value);
-            ASSERT( 0 != rv);
-            ASSERT( 0 == X.numElements());
-            ASSERT( 2 == value);
-            ASSERT(na == sa.numAllocations());
-            ASSERT(nd == sa.numDeallocations());
+            ASSERT(e_EMPTY == rv);
+            ASSERT(      0 == X.numElements());
+            ASSERT(      2 == value);
+            ASSERT(     na == sa.numAllocations());
+            ASSERT(     nd == sa.numDeallocations());
 
             mX.pushBack(0);
             mX.pushBack(0);
@@ -1640,12 +1645,12 @@ int main(int argc, char *argv[])
             int rv;
 
             rv = mX.tryPushBack(0);
-            ASSERT(0 == rv);
-            ASSERT(1 == X.numElements());
+            ASSERT(e_SUCCESS == rv);
+            ASSERT(        1 == X.numElements());
 
             rv = mX.tryPushBack(1);
-            ASSERT(0 == rv);
-            ASSERT(2 == X.numElements());
+            ASSERT(e_SUCCESS == rv);
+            ASSERT(        2 == X.numElements());
 
             int value;
 
@@ -1658,8 +1663,8 @@ int main(int argc, char *argv[])
             mX.disablePushBack();
 
             rv = mX.tryPushBack(0);
-            ASSERT(0 != rv);
-            ASSERT(0 == X.numElements());
+            ASSERT(e_DISABLED == rv);
+            ASSERT(         0 == X.numElements());
         }
 
         if (verbose) {
@@ -1676,14 +1681,14 @@ int main(int argc, char *argv[])
             int moveCtr = 0;
 
             rv = mX.tryPushBack(MoveTester(0, &moveCtr));
-            ASSERT(0 == rv);
-            ASSERT(1 == X.numElements());
-            ASSERT(1 == moveCtr);
+            ASSERT(e_SUCCESS == rv);
+            ASSERT(        1 == X.numElements());
+            ASSERT(        1 == moveCtr);
 
             rv = mX.tryPushBack(MoveTester(1, &moveCtr));
-            ASSERT(0 == rv);
-            ASSERT(2 == X.numElements());
-            ASSERT(2 == moveCtr);
+            ASSERT(e_SUCCESS == rv);
+            ASSERT(        2 == X.numElements());
+            ASSERT(        2 == moveCtr);
 
             MoveTester value(-1);
 
@@ -1698,9 +1703,9 @@ int main(int argc, char *argv[])
             mX.disablePushBack();
 
             rv = mX.tryPushBack(MoveTester(0, &moveCtr));
-            ASSERT(0 != rv);
-            ASSERT(0 == X.numElements());
-            ASSERT(4 == moveCtr);
+            ASSERT(e_DISABLED == rv);
+            ASSERT(         0 == X.numElements());
+            ASSERT(         4 == moveCtr);
         }
 #endif
       } break;
@@ -1799,25 +1804,25 @@ int main(int argc, char *argv[])
             int rv;
 
             rv = mX.pushBack(0);
-            ASSERT(0 == rv);
-            ASSERT(1 == X.numElements());
+            ASSERT(e_SUCCESS == rv);
+            ASSERT(        1 == X.numElements());
 
             mX.disablePopFront();
             mX.disablePushBack();
 
             rv = X.waitUntilEmpty();
-            ASSERT(0 != rv);
-            ASSERT(1 == X.numElements());
+            ASSERT(e_DISABLED == rv);
+            ASSERT(         1 == X.numElements());
 
             int value = 7;
             rv = mX.popFront(&value);
-            ASSERT(7 == value);
-            ASSERT(0 != rv);
-            ASSERT(1 == X.numElements());
+            ASSERT(e_DISABLED == rv);
+            ASSERT(         7 == value);
+            ASSERT(         1 == X.numElements());
 
             rv = mX.pushBack(0);
-            ASSERT(0 != rv);
-            ASSERT(1 == X.numElements());
+            ASSERT(e_DISABLED == rv);
+            ASSERT(         1 == X.numElements());
         }
       } break;
       case 5: {
@@ -2135,7 +2140,7 @@ int main(int argc, char *argv[])
                     Obj::value_type value;
 
                     int rv = mX.popFront(&value);
-                    ASSERT(0 == rv);
+                    ASSERT(e_SUCCESS == rv);
 
                     if (veryVerbose) { T_ P_(EXP[i]) P(value) }
 
@@ -2262,11 +2267,14 @@ int main(int argc, char *argv[])
         //   int pushBack(const TYPE& value);
         //   int popFront(TYPE *value);
         //   void removeAll();
+        //   CONCERN: 0 == e_SUCCESS
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "PRIMARY MANIPULATORS TEST" << endl
                           << "=========================" << endl;
+
+        ASSERT(0 == Obj::e_SUCCESS);
 
         bsl::string longString;
         {
@@ -2475,25 +2483,25 @@ int main(int argc, char *argv[])
             int rv;
 
             rv = mX.popFront(&value);
-            ASSERT( 0 == rv);
-            ASSERT( 8 == X.numElements());
-            ASSERT( 0 == value);
-            ASSERT(na == sa.numAllocations());
-            ASSERT(nd == sa.numDeallocations());
+            ASSERT(e_SUCCESS == rv);
+            ASSERT(        8 == X.numElements());
+            ASSERT(        0 == value);
+            ASSERT(       na == sa.numAllocations());
+            ASSERT(       nd == sa.numDeallocations());
 
             rv = mX.popFront(&value);
-            ASSERT( 0 == rv);
-            ASSERT( 7 == X.numElements());
-            ASSERT( 1 == value);
-            ASSERT(na == sa.numAllocations());
-            ASSERT(nd == sa.numDeallocations());
+            ASSERT(e_SUCCESS == rv);
+            ASSERT(        7 == X.numElements());
+            ASSERT(        1 == value);
+            ASSERT(       na == sa.numAllocations());
+            ASSERT(       nd == sa.numDeallocations());
 
             rv = mX.popFront(&value);
-            ASSERT( 0 == rv);
-            ASSERT( 6 == X.numElements());
-            ASSERT( 2 == value);
-            ASSERT(na == sa.numAllocations());
-            ASSERT(nd == sa.numDeallocations());
+            ASSERT(e_SUCCESS == rv);
+            ASSERT(        6 == X.numElements());
+            ASSERT(        2 == value);
+            ASSERT(       na == sa.numAllocations());
+            ASSERT(       nd == sa.numDeallocations());
 
             mX.pushBack(0);
             mX.pushBack(0);
