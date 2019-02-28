@@ -12,6 +12,7 @@
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_nil.h>
 
@@ -60,9 +61,9 @@ using namespace bsl;
 // etc.  Although the 'bdlf::Bind_TestType*' classes have value semantics, a
 // full value-semantic test driver is an overkill here.
 //-----------------------------------------------------------------------------
-// [ 1] TESTING HELPER FUNCTIONS/CLASSES
-// [ 2] TESTING BSLALG_DECLARE_NESTED_TRAITS
-// [ 3] TESTING USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE
+// [ 1] Concern: HELPER FUNCTIONS/CLASSES
+// [ 2] Concern: TYPE TRAITS
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -644,7 +645,7 @@ int main(int argc, char *argv[])
 
 
         if (verbose) printf("\nTESTING USAGE EXAMPLE"
-                            "\n==============\n");
+                            "\n=====================\n");
 
         using namespace BDEF_BIND_TEST_USAGE_EXAMPLE;
 
@@ -666,13 +667,27 @@ int main(int argc, char *argv[])
         //   template parameters.
         //
         // Testing:
-        //   BSLALG_DECLARE_NESTED_TRAITS
+        //   Concern: TYPE TRAITS
         // ------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING TRAITS"
                             "\n==============\n");
 
         if (verbose) printf("\tAsserting traits of test classes.\n");
+        {
+            ASSERT(!bslma::UsesBslmaAllocator<
+                                        bdlf::Bind_TestArgNoAlloc<1> >::value);
+            ASSERT(!bslma::UsesBslmaAllocator<
+                                           bdlf::Bind_TestTypeNoAlloc>::value);
+
+            ASSERT( bslma::UsesBslmaAllocator<
+                                          bdlf::Bind_TestArgAlloc<1> >::value);
+            ASSERT( bslma::UsesBslmaAllocator<
+                                             bdlf::Bind_TestTypeAlloc>::value);
+        }
+
+        if (verbose) printf(
+                      "\tAsserting deprecated traits API for test classes.\n");
         {
             ASSERT(0 == (bslalg::HasTrait<bdlf::Bind_TestArgNoAlloc<1>,
                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
@@ -686,7 +701,6 @@ int main(int argc, char *argv[])
             ASSERT(1 == (bslalg::HasTrait<bdlf::Bind_TestTypeAlloc,
                                  bslalg::TypeTraitUsesBslmaAllocator>::VALUE));
         }
-
       } break;
       case 1: {
         // ------------------------------------------------------------------
@@ -714,11 +728,11 @@ int main(int argc, char *argv[])
         //   global 'function[0-14]': same as for member functions.
         //
         // Testing:
-        //   TESTING HELPER FUNCTIONS/CLASSES
+        //   Concern: HELPER FUNCTIONS/CLASSES
         // ------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING HELPER FUNCTIONS/CLASSES"
-                            "\n================================\n");
+        if (verbose) printf("\nTESTING TEST APPARATUS"
+                            "\n======================\n");
 
         if (verbose) printf("\tTestUtil machinery.\n");
         ASSERT( bdlf::Bind_TestUtil::isBitwiseMoveableType(3));

@@ -130,6 +130,23 @@ void aSsErT(bool condition, const char *message, int line)
 // cause the test driver to fail.
 
 //=============================================================================
+//                      WARNING SUPPRESSION
+//-----------------------------------------------------------------------------
+
+// This test driver intentional creates types with unusual use of cv-qualifiers
+// in order to confirm that there are no strange corners of the type system
+// that are not addressed by this traits component.  Consequently, we disable
+// certain warnings from common compilers.
+
+#if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
+# pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+# pragma warning(disable : 4180)
+#elif defined(BSLS_PLATFORM_CMP_SUN)
+# pragma error_messages (off, functypequal)
+#endif
+
+//=============================================================================
 //                  COMPONENT-SPECIFIC MACROS FOR TESTING
 //-----------------------------------------------------------------------------
 

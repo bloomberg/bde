@@ -17,10 +17,12 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bslmf_haspointersemantics.h>
+#include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_nil.h>
 
-#include <bsls_platform.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>        // 'atoi'
@@ -95,7 +97,7 @@ using namespace bsl;  // automatically added by script
 // (case 6).
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] TESTING BSLALG_DECLARE_NESTED_TRAITS
+// [ 2] TESTING BSLMF_NESTED_TRAIT_DECLARATION
 // [ 3] MIXING BOUND ARGUMENTS AND PLACEHOLDERS
 // [ 4] PASSING 'bdlf_bind' OBJECTS AS PARAMETERS
 // [ 5] RESPECTING THE SIGNATURE OF THE INVOKABLE
@@ -3404,7 +3406,7 @@ DEFINE_TEST_CASE(2) {
         //   set of template parameters.
         //
         // Testing:
-        //   TESTING BSLALG_DECLARE_NESTED_TRAITS
+        //   TESTING BSLMF_NESTED_TRAIT_DECLARATION
         // ------------------------------------------------------------------
 
         (void)veryVerbose;

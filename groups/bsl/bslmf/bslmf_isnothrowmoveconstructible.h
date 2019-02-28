@@ -62,6 +62,15 @@ namespace bsl {
 template <class TYPE>
 struct is_nothrow_move_constructible;
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class TYPE>
+BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_nothrow_move_constructible_v
+                                  = is_nothrow_move_constructible<TYPE>::value;
+    // This template variable represents the result value of the
+    // 'bsl::is_nothrow_move_constructible' metafunction.
+#endif
+
 }  // close namespace bsl
 
 namespace BloombergLP {
@@ -257,15 +266,6 @@ struct is_nothrow_move_constructible
     // no-throw move constructible unless they are also trivially copyable, so
     // there are no cv-qualified partial specializations of this trait.
 };
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_nothrow_move_constructible_v
-                                  = is_nothrow_move_constructible<TYPE>::value;
-    // This template variable represents the result value of the
-    // 'bsl::is_nothrow_move_constructible' metafunction.
-#endif
 
 }  // close namespace bsl
 

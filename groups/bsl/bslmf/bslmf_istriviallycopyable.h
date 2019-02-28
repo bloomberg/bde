@@ -117,10 +117,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_detectnestedtrait.h>
 #include <bslmf_integralconstant.h>
-#include <bslmf_isenum.h>
-#include <bslmf_isfundamental.h>
-#include <bslmf_ismemberpointer.h>
-#include <bslmf_ispointer.h>
 #include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
@@ -128,6 +124,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_isenum.h>
 #include <bsls_timeinterval.h>   // see DRQS 131017375
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
@@ -142,7 +139,7 @@ BSLS_IDENT("$Id: $")
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-#define BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
+#define BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION 1
 // Early implementations of C++11 type traits did not always provide the
 // necessary compiler intrinsic to detect the 'trivial' traits, so we use an
 // additional component-level feature macro to detect whether native support is
@@ -184,8 +181,21 @@ struct Nil;
                          // struct IsTriviallyCopyable_Imp
                          // ==============================
 
-template <class TYPE, bool K_INTRINSIC = false>
-struct IsTriviallyCopyable_DetectTrait
+# if defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
+template < class TYPE
+         , bool  IS_TRIVIAL = ::native_std::is_trivially_copyable<TYPE>::value
+         , class = void>
+struct IsTriviallyCopyable_Imp
+    : bsl::integral_constant<bool, IS_TRIVIAL> {
+    // This 'struct' template implements a meta-function to determine whether
+    // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
+    // copyable.
+};
+
+template <class TYPE>
+struct IsTriviallyCopyable_Imp<TYPE,
+                               false,
+                               BSLMF_VOIDTYPE(int TYPE::*)>
     :  DetectNestedTrait<TYPE, bsl::is_trivially_copyable>::type {
     // This 'struct' template implements a meta-function to determine whether
     // the (non-cv-qualified) (template parameter) 'TYPE' has been explicitly
@@ -195,45 +205,41 @@ struct IsTriviallyCopyable_DetectTrait
     // be optimized away.
 };
 
+# else
+template <class TYPE, class = void>
+struct IsTriviallyCopyable_Scalar : bsl::false_type {};
 template <class TYPE>
-struct IsTriviallyCopyable_DetectTrait<TYPE, true>
-    :  bsl::true_type {
+struct IsTriviallyCopyable_Scalar<TYPE,
+                                  BSLMF_VOIDTYPE2(TYPE[sizeof(TYPE)], TYPE())>
+    : bsl::true_type {
+    // This implementation-detail trait determines whether 'TYPE' is a scalar
+    // type (an arithmetic type, enumeration, pointer, or pointer-to-member).
+    // This implementation takes advantage of a previous layer of filtering
+    // handling all class-types, and only object types being valid as both
+    // array elements, and return values from functions.  Note that the array
+    // bound 'sizeof(TYPE)' is needed only so that the Sun CC compiler will
+    // filter function types, which a compiler bug would otherwise accept.
+};
+
+
+template <class TYPE, class = void>
+struct IsTriviallyCopyable_Imp
+    : IsTriviallyCopyable_Scalar<TYPE>::type {
     // This 'struct' template implements a meta-function to determine whether
     // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
+    // copyable.  Without compiler support, only scalar types are trivially
     // copyable.
 };
 
-#ifdef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
 template <class TYPE>
-struct IsTriviallyCopyable_Intrinsic
-    : IsTriviallyCopyable_DetectTrait<
-                      TYPE,
-                      ::native_std::is_trivially_copyable<TYPE>::value>::type {
+struct IsTriviallyCopyable_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
+    :  DetectNestedTrait<TYPE, bsl::is_trivially_copyable>::type {
     // This 'struct' template implements a meta-function to determine whether
-    // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
-    // copyable.
-};
-#else
-template <class TYPE>
-struct IsTriviallyCopyable_Intrinsic
-    : IsTriviallyCopyable_DetectTrait<
-                                TYPE,
-                                bsl::is_fundamental<TYPE>::value
-                                || bsl::is_enum<TYPE>::value
-                                || bsl::is_pointer<TYPE>::value
-                                || bsl::is_member_pointer<TYPE>::value>::type {
-    // This 'struct' template implements a meta-function to determine whether
-    // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
-    // copyable.  Without compiler support, only scalar types are trivial
-    // copyable.
+    // the (non-cv-qualified) (template parameter) class 'TYPE' has been
+    // explicitly tagged with the trivially copyable trait.
 };
 
-template <>
-struct IsTriviallyCopyable_Intrinsic<void> : bsl::false_type {
-    // This explicit specialization reports that 'void' is not a trivially
-    // copyable type, despite being a fundamental type.
-};
-#endif
+# endif // BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
 template <class NON_CV_TYPE, class = void>
@@ -266,7 +272,7 @@ namespace bsl {
 
 template <class TYPE>
 struct is_trivially_copyable
-: BloombergLP::bslmf::IsTriviallyCopyable_Intrinsic<TYPE>::type {
+    : BloombergLP::bslmf::IsTriviallyCopyable_Imp<TYPE>::type {
     // This 'struct' template implements a meta-function to determine whether
     // the (template parameter) 'TYPE' is trivially copyable.  This 'struct'
     // derives from 'bsl::true_type' if the 'TYPE' is trivially copyable, and
@@ -280,6 +286,12 @@ struct is_trivially_copyable
     // other types defaults to 'false').  To support other trivially copyable
     // types, this template must be specialized to inherit from
     // 'bsl::true_type' for them.
+};
+
+template <>
+struct is_trivially_copyable<void> : false_type {
+    // The type 'void' is not trivially copyable, and it avoid numerous futher
+    // template instantiations to just say so.
 };
 
 template <class TYPE>
@@ -332,21 +344,27 @@ template <class TYPE>
 struct is_trivially_copyable<const TYPE>
     :  is_trivially_copyable<TYPE>::type {
     // This partial specialization ensures that const-qualified types have the
-    // same result as their element type.
+    // same result as their unqualified type.
 };
 
 template <class TYPE>
 struct is_trivially_copyable<volatile TYPE>
     :  is_trivially_copyable<TYPE>::type {
     // This partial specialization ensures that volatile-qualified types have
-    // the same result as their element type.
+    // the same result as their unqualified type.  Note that volatile copy
+    // constructors are never trivial, but the ISO standard treats all trivial
+    // types, including volatile trivial types, as if they were trivially
+    // copyable.
 };
 
 template <class TYPE>
 struct is_trivially_copyable<const volatile TYPE>
     :  is_trivially_copyable<TYPE>::type {
     // This partial specialization ensures that const-volatile-qualified types
-    // have the same result as their element type.
+    // have the same result as their unqualified type.  Note that volatile copy
+    // constructors are never trivial, but the ISO standard treats all trivial
+    // types, including volatile trivial types, as if they were trivially
+    // copyable.
 };
 #endif
 
@@ -368,19 +386,21 @@ template <class TYPE, size_t LEN>
 struct is_trivially_copyable<volatile TYPE[LEN]>
     :  is_trivially_copyable<TYPE>::type {
     // This partial specialization ensures that volatile-qualified array types
-    // have the same result as their element type.
+    // have the same result as their element type.  Note that volatile copy
+    // constructors are never trivial, but the ISO standard treats all trivial
+    // types, including volatile trivial types, as if they were trivially
+    // copyable.
 };
 
 template <class TYPE, size_t LEN>
 struct is_trivially_copyable<const volatile TYPE[LEN]>
     :  is_trivially_copyable<TYPE>::type {
     // This partial specialization ensures that const-volatile-qualified array
-    // types have the same result as their element type.
+    // types have the same result as their element type.  Note that volatile
+    // copy constructors are never trivial, but the ISO standard treats all
+    // trivial types, including volatile trivial types, as if they were
+    // trivially copyable.
 };
-
-#if !defined(BSLS_PLATFORM_CMP_IBM)
-// Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
-// correctly handling arrays of unknown bound as template parameters.
 
 template <class TYPE>
 struct is_trivially_copyable<TYPE[]>
@@ -401,6 +421,9 @@ struct is_trivially_copyable<volatile TYPE[]>
     :  is_trivially_copyable<TYPE>::type {
     // This partial specialization ensures that volatile-qualified
     // array-of-unknown-bound types have the same result as their element type.
+    // Note that volatile copy constructors are never trivial, but the ISO
+    // standard treats all trivial types, including volatile trivial types, as
+    // if they were trivially copyable.
 };
 
 template <class TYPE>
@@ -408,8 +431,10 @@ struct is_trivially_copyable<const volatile TYPE[]>
     :  is_trivially_copyable<TYPE>::type {
     // This partial specialization ensures that const-volatile-qualified
     // array-of-unknown-bound types have the same result as their element type.
+    // Note that volatile copy constructors are never trivial, but the ISO
+    // standard treats all trivial types, including volatile trivial types, as
+    // if they were trivially copyable.
 };
-#endif
 
 ///IMPLEMENTATION NOTE
 ///-------------------

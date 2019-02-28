@@ -107,50 +107,49 @@ BSLS_IDENT("$Id: $")
 // Now, we verify whether each type is trivially default-constructible using
 // 'bsl::is_trivially_default_constructible':
 //..
-//  assert(true  ==
-//          bsl::is_trivially_default_constructible<MyFundamentalType>::value);
-//  assert(false ==
-//      bsl::is_trivially_default_constructible<
+//  void showUsage()
+//  {
+//      assert(true  == bsl::is_trivially_default_constructible<
+//                                                  MyFundamentalType>::value);
+//      assert(false == bsl::is_trivially_default_constructible<
 //                                         MyFundamentalTypeReference>::value);
-//  assert(true  ==
-//      bsl::is_trivially_default_constructible<
+//      assert(true  == bsl::is_trivially_default_constructible<
 //                                MyTriviallyDefaultConstructibleType>::value);
-//  assert(false ==
-//      bsl::is_trivially_default_constructible<
+//      assert(false == bsl::is_trivially_default_constructible<
 //                             MyNonTriviallyDefaultConstructibleType>::value);
 //..
 // Note that if the current compiler supports the variable templates C++14
 // feature, then we can re-write the snippet of code above as follows:
 //..
 //#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-//  assert(true  ==
-//          bsl::is_trivially_default_constructible_v<MyFundamentalType>);
-//  assert(false ==
-//      bsl::is_trivially_default_constructible_v<MyFundamentalTypeReference>);
-//  assert(true  ==
-//      bsl::is_trivially_default_constructible_v<
+//      assert(true  == bsl::is_trivially_default_constructible_v<
+//                                                         MyFundamentalType>);
+//      assert(false == bsl::is_trivially_default_constructible_v<
+//                                                MyFundamentalTypeReference>);
+//      assert(true  == bsl::is_trivially_default_constructible_v<
 //                                       MyTriviallyDefaultConstructibleType>);
-//  assert(false ==
-//      bsl::is_trivially_default_constructible_v<
+//      assert(false == bsl::is_trivially_default_constructible_v<
 //                                    MyNonTriviallyDefaultConstructibleType>);
 //#endif
+//  }
 //..
 
 #include <bslscm_version.h>
 
 #include <bslmf_detectnestedtrait.h>
 #include <bslmf_integralconstant.h>
-#include <bslmf_isenum.h>
-#include <bslmf_isfundamental.h>
-#include <bslmf_ismemberpointer.h>
-#include <bslmf_ispointer.h>
-#include <bslmf_isreference.h>
+#include <bslmf_isconst.h>
+#include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 #include <stddef.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_isenum.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
 
@@ -162,46 +161,81 @@ struct is_trivially_default_constructible;
 namespace BloombergLP {
 namespace bslmf {
 
-                         // ==========================================
-                         // struct IsTriviallyDefaultConstructible_Imp
-                         // ==========================================
+
+#if defined(BSLS_PLATFORM_CMP_IBM)
+                    // =============================================
+                    // struct IsTriviallyDefaultConstructible_Scalar
+                    // =============================================
+
+template <class TYPE, class = void>
+struct IsTriviallyDefaultConstructible_Scalar : bsl::false_type {};
+template <class TYPE>
+struct IsTriviallyDefaultConstructible_Scalar<
+                                            TYPE,
+                                            BSLMF_VOIDTYPE(TYPE[sizeof(TYPE)])>
+    : bsl::true_type {
+    // This implementation-detail trait determines whether 'TYPE' is a scalar
+    // type (an arithmetic type, enumeration, pointer, or pointer-to-member).
+    // This implementation takes advantage of a previous layer of filtering
+    // handling all class-types, and only object types being valid as both
+    // array elements, and return values from functions.  Note that the array
+    // bound 'sizeof(TYPE)' is needed only so that the Sun CC compiler will
+    // filter function types, which a compiler bug would otherwise accept.
+};
+
+                    // ==========================================
+                    // struct IsTriviallyDefaultConstructible_Imp
+                    // ==========================================
+
+template <class TYPE, class = void>
+struct IsTriviallyDefaultConstructible_Imp
+    : IsTriviallyDefaultConstructible_Scalar<TYPE>::type {};
 
 template <class TYPE>
+struct IsTriviallyDefaultConstructible_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
+    : DetectNestedTrait<TYPE, bsl::is_trivially_default_constructible>::type {
+};
+#else
+                    // ==========================================
+                    // struct IsTriviallyDefaultConstructible_Imp
+                    // ==========================================
+
+# if defined(BSLS_PLATFORM_CMP_MSVC)
+#   pragma warning(push)
+#   pragma warning(disable: 4180)  // cv-qualifier has no effect on function type
+# elif defined(BSLS_PLATFORM_CMP_SUN)
+#   pragma error_messages (off, functypequal)
+# endif
+
+template <class TYPE, class = void>
 struct IsTriviallyDefaultConstructible_Imp
-: bsl::integral_constant<
-                     bool,
-                     !bsl::is_reference<TYPE>::value
-                     && (  bsl::is_fundamental<TYPE>::value
-                        || bsl::is_enum<TYPE>::value
-                        || bsl::is_pointer<TYPE>::value
-                        || bsl::is_member_pointer<TYPE>::value
-                        || DetectNestedTrait<TYPE,
-                            bsl::is_trivially_default_constructible>::value)> {
-    // This 'struct' template implements a meta-function to determine whether
-    // the (non-cv-qualified) (template parameter) 'TYPE' is trivially
-    // default-constructible.
+    : bsl::is_const<const TYPE>::type {}; // false for functions and references
+
+template <class TYPE>
+struct IsTriviallyDefaultConstructible_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
+    : DetectNestedTrait<TYPE, bsl::is_trivially_default_constructible>::type {
 };
 
-template <>
-struct IsTriviallyDefaultConstructible_Imp<void> : bsl::false_type {
-    // This explicit specialization reports that 'void' is not a trivially
-    // default constructible type, despite being a fundamental type.
-};
+# if defined(BSLS_PLATFORM_CMP_MSVC)
+#   pragma warning(pop)
+# elif defined(BSLS_PLATFORM_CMP_SUN)
+#   pragma error_messages (default, functypequal)
+# endif
 
+#endif  // BSLS_PLATFORM_CMP_IBM
 
 }  // close package namespace
 }  // close enterprise namespace
 
 namespace bsl {
 
-                         // =========================================
-                         // struct is_trivially_default_constructible
-                         // =========================================
+                    // =========================================
+                    // struct is_trivially_default_constructible
+                    // =========================================
 
 template <class TYPE>
 struct is_trivially_default_constructible
-    : BloombergLP::bslmf::IsTriviallyDefaultConstructible_Imp<
-                                              typename remove_cv<TYPE>::type> {
+    : BloombergLP::bslmf::IsTriviallyDefaultConstructible_Imp<TYPE>::type {
     // This 'struct' template implements a meta-function to determine whether
     // the (template parameter) 'TYPE' is trivially default-constructible.
     // This 'struct' derives from 'bsl::true_type' if the 'TYPE' is trivially
@@ -267,10 +301,6 @@ struct is_trivially_default_constructible<const volatile TYPE[LEN]>
     // types have the same result as their element type.
 };
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
-// Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
-// correctly handling arrays of unknown bound as template parameters.
-
 template <class TYPE>
 struct is_trivially_default_constructible<TYPE[]>
     :  is_trivially_default_constructible<TYPE>::type {
@@ -298,9 +328,27 @@ struct is_trivially_default_constructible<const volatile TYPE[]>
     // This partial specialization ensures that const-volatile-qualified
     // array-of-unknown-bound types have the same result as their element type.
 };
-#endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class TYPE>
+struct is_trivially_default_constructible<TYPE&> : false_type {
+    // This partial specialization ensures that references are never detected
+    // as trivially default constructible.  Note that this specialization is
+    // required for the Sun CC compiler (last tested at for version 12.3) but
+    // provides a useful short-circuit in other platforms, so is retained
+    // unconditionally.  There is no motivation to detect support and add a
+    // similar overload for rvalue references.
+};
+
+template <>
+struct is_trivially_default_constructible<void> : false_type {
+    // This explicit specialization ensures that 'void' is never detected as
+    // trivially default constructible.  Note that this specialization is
+    // required for the Sun CC compiler (last tested at for version 12.3) but
+    // provides a useful short-circuit in other platforms, so is retained
+    // unconditionally.
+};
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES)
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_trivially_default_constructible_v

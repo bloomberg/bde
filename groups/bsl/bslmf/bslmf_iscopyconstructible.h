@@ -220,10 +220,6 @@ struct is_copy_constructible<const volatile TYPE[LEN]> : false_type
     // types have the result false.
 };
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
-// Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
-// correctly handling arrays of unknown bound as template parameters.
-
 template <class TYPE>
 struct is_copy_constructible<TYPE[]> : false_type
 {
@@ -251,8 +247,6 @@ struct is_copy_constructible<const volatile TYPE[]> : false_type
     // This partial specialization ensures that const-volatile-qualified
     // array-of-unknown-bound types have the result 'false'.
 };
-
-#endif  // defined(BSLS_PLATFORM_CMP_IBM)
 
 }  // close namespace bsl
 

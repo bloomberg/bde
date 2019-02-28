@@ -42,10 +42,11 @@ BSLS_IDENT("$Id: $")
 // an arbitrary 'TYPE' is not bitwise-moveable, as bitwise moving a type that
 // is not bitwise moveable is likely to result in a dangling pointer.  Thus, it
 // is necessary to explicitly associate the bitwise moveable trait with a class
-// (via template specialization or by use of the 'BSLMF_DECLARE_NESTED_TRAIT'
-// macro) in order for generic algorithms to recognize that class as bitwise
-// moveable.  As a special case, one-byte objects are deduced as bitwise
-// moveable unless explicitly annotated otherwise (see-below).
+// (via template specialization or by use of the
+// 'BSLMF_NESTED_TRAIT_DECLARATION' macro) in order for generic algorithms to
+// recognize that class as bitwise moveable.  As a special case, one-byte
+// objects are deduced as bitwise moveable unless explicitly annotated
+// otherwise (see-below).
 //
 ///What Classes are Not Bitwise Moveable?
 ///--------------------------------------
@@ -559,13 +560,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslmf_conditional.h>
 #include <bslmf_detectnestedtrait.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isempty.h>
-#include <bslmf_isfunction.h>
-#include <bslmf_isreference.h>
 #include <bslmf_istriviallycopyable.h>
+#include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
@@ -579,22 +578,18 @@ BSLS_IDENT("$Id: $")
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
-#if !defined(BSLS_PLATFORM_CMP_IBM)
-// Last checked with the xlC 12.1 compiler.  The IBM xlC compiler has problems
-// correctly handling arrays of unknown bound as template parameters.
-# define BSLMF_ISBITWISEMOVEABLE_NO_SUPPORT_FOR_ARRAY_OF_UNKNOWN_BOUND 1
-#endif
-
 namespace BloombergLP {
-
 namespace bslmf {
 
 template <class TYPE>
 struct IsBitwiseMoveable;
 
-template <class TYPE, bool = bsl::is_reference<TYPE>::value
-                          || bsl::is_function<TYPE>::value>
-struct IsBitwiseMoveable_Imp : bsl::false_type {
+                        // ============================
+                        // struct IsBitwiseMoveable_Imp
+                        // ============================
+
+template <class TYPE, class = void>
+struct IsBitwiseMoveable_Imp : bsl::is_trivially_copyable<TYPE>::type {
     // Function types and reference types are not object types, and so are not
     // bitwise-movable.  Both categories of types must be explicitly handled by
     // a distinct template specialization to avoid attempting to instantiate
@@ -603,7 +598,7 @@ struct IsBitwiseMoveable_Imp : bsl::false_type {
 };
 
 template <class TYPE>
-struct IsBitwiseMoveable_Imp<TYPE, false> {
+struct IsBitwiseMoveable_Imp<TYPE, BSLMF_VOIDTYPE(int TYPE::*)> {
     // Core implementation of the 'IsBitwiseMoveable' trait.  A class is
     // detected as being bitwise moveable iff it is trivially copyable or it
     // has a nested trait declaration for the 'IsBitwiseMoveable' trait.  In
@@ -617,14 +612,14 @@ struct IsBitwiseMoveable_Imp<TYPE, false> {
 
   private:
     static const bool k_NestedBitwiseMoveableTrait =
-        DetectNestedTrait<TYPE, IsBitwiseMoveable>::value;
+                             DetectNestedTrait<TYPE, IsBitwiseMoveable>::value;
+
+    static const bool k_VALUE = sizeof(TYPE) == 1
+                           || k_NestedBitwiseMoveableTrait
+                           || bsl::is_trivially_copyable<TYPE>::value;
 
   public:
-    static const bool value = bsl::is_trivially_copyable<TYPE>::value
-                           || k_NestedBitwiseMoveableTrait
-                           || sizeof(TYPE) == 1;
-
-    typedef bsl::integral_constant<bool, value> type;
+    typedef bsl::integral_constant<bool, k_VALUE> type;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT) && \
     defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
@@ -637,11 +632,6 @@ struct IsBitwiseMoveable_Imp<TYPE, false> {
     // more conservative logic for automatically deducing the
     // 'IsBitwiseMoveableTrait'.  The more conservative logic is shown below
     // for future reference:
-
-    static_assert(!bsl::is_reference<TYPE>::value,
-   "This imp-detail instantiation should not be selected for reference types");
-    static_assert(!bsl::is_function<TYPE>::value,
-    "This imp-detail instantiation should not be selected for function types");
 
     static const bool k_ValueWithoutOnebyteHeuristic =
                   bsl::is_trivially_copyable<TYPE>::value
@@ -713,7 +703,6 @@ struct IsBitwiseMoveable<const volatile TYPE[LEN]>
    : IsBitwiseMoveable<TYPE>::type {
 };
 
-#if !defined(BSLMF_ISBITWISEMOVEABLE_NO_SUPPORT_FOR_ARRAY_OF_UNKNOWN_BOUND)
 template <class TYPE>
 struct IsBitwiseMoveable<TYPE[]>
    : IsBitwiseMoveable<TYPE>::type {
@@ -733,16 +722,23 @@ template <class TYPE>
 struct IsBitwiseMoveable<const volatile TYPE[]>
    : IsBitwiseMoveable<TYPE>::type {
 };
-#endif // BSLMF_ISBITWISEMOVEABLE_NO_SUPPORT_FOR_ARRAY_OF_UNKNOWN_BOUND
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template <class TYPE>
+struct IsBitwiseMoveable<TYPE&&> : bsl::false_type {};
+#endif
+template <class TYPE>
+struct IsBitwiseMoveable<TYPE&> : bsl::false_type {};
+    // Reference types are never bitwise movable, so short-circuit further
+    // template instantiations.
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 #endif // ! defined(INCLUDED_BSLMF_ISBITWISEMOVEABLE)
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

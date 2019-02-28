@@ -130,6 +130,19 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 //=============================================================================
+//                      WARNING SUPPRESSION
+//-----------------------------------------------------------------------------
+
+// This test driver intentionally creates unusual types to cover the range of
+// possible test cases.  Some of those trigger compiler warnings as unusual
+// types can be surprising, so we unilaterally disable those warnings with a
+// pragma where we can.
+
+#if defined(BSLS_PLATFORM_CMP_SUN)
+# pragma error_messages (off, refarray0)
+#endif
+
+//=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 

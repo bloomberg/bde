@@ -46,7 +46,6 @@ using namespace BloombergLP;
 // PUBLIC CLASS DATA
 // [ 1] bsl::is_trivially_copyable::value
 // [ 1] bsl::is_trivially_copyable_v
-//
 // ----------------------------------------------------------------------------
 // [ 5] USAGE EXAMPLE
 // [ 2] EXTENDING bsl::is_trivially_copyable
@@ -96,15 +95,9 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
-// ============================================================================
-//                      DEFECT DETECTION MACROS
-// ----------------------------------------------------------------------------
-
-#define BSLMF_ISTRIVIALLYCOPYABLE_NO_NESTED_FOR_ABOMINABLE_FUNCTIONS  1
-    // At the moment, 'bsl::is_convertible' will give a hard error when invoked
-    // with an abominable function type, as used in 'DetectNestedTrait'.  There
-    // is a separate patch coming for this, at which point these tests should
-    // be re-enabled.
+//=============================================================================
+//                  MACROS TO TRUST NATIVE ORACLE (IF AVAILABLE)
+//-----------------------------------------------------------------------------
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 # define BSLMF_ISTRIVIALLYCOPYABLE_USE_NATIVE_ORACLE        1
@@ -129,6 +122,31 @@ void aSsErT(bool condition, const char *message, int line)
     // copyable rejects volatile-qualified scalars, and will not be fixed until
     // gcc 10 is released (next year at the time of authoring this comment).
     // See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85679 for more details.
+#endif
+
+//=============================================================================
+//                  COMPILER DEFECT MACROS TO GUIDE TESTING
+//-----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
+# define BSLMF_ISTRIVIALLYCOPYABLE_ABOMINABLE_FUNCTION_MATCH_CONST 1
+// The Solaris CC compiler matches 'const' qualified abominable functions as
+// 'const'-qualified template parameters, but does not strip the 'const'
+// qualifier when passing that template parameter onto the next instantiation.
+// Therefore, 'is_trivially_copyable<void() const>' requests infinite template
+// recursion.  We opt to not try a workaround in the header for this platform,
+// where we delegate to the same implementation as the primary template, as
+// that would leave an awkward difference in behavior between for 'const'
+// qualified class types between using a nested trait and directly specializing
+// the trait.
+#endif
+
+#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 0x1900)   \
+ || defined(BSLMF_ISTRIVIALLYCOPYABLE_ABOMINABLE_FUNCTION_MATCH_CONST)
+# define BSLMF_ISTRIVIALLYCOPYABLE_NO_ABOMINABLE_FUNCTIONS  1
+// Older MSVC compilers do not parse abominable function types, so it does not
+// matter whether trait would support them or not, we can simply disable such
+// tests on this platform.
 #endif
 
 // ============================================================================
@@ -164,7 +182,6 @@ void aSsErT(bool condition, const char *message, int line)
 //  ASSERT_IS_TRIVIALLY_COPYABLE_TYPE        : a type, plus pointer/references
 //  ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE : an object type, plus all
 //                                             reasonable variations
-//
 
 // Macro: ASSERT_IS_TRIVIALLY_COPYABLE_CONSULT_ORACLE
 //   This macro validates that the 'bsl' trait has the same result as the
@@ -316,6 +333,14 @@ enum class EnumClassType {
 };
 #endif
 
+struct Incomplete;
+    // This class supports testing the 'is_trivially_copyable' trait for
+    // incomplete class types.
+
+union Uncomplete;
+    // This union supports testing the 'is_trivially_copyable' trait for
+    // incomplete union types.
+
 class MyTriviallyCopyableType {
 };
 
@@ -384,6 +409,12 @@ struct UserDefinedNonTcTestType {
     UserDefinedNonTcTestType() {}
     UserDefinedNonTcTestType(const UserDefinedNonTcTestType&) {}
 };
+
+struct NativeTestClass { int d_data; };
+union  NativeTestUnion { int d_data; };
+    // These class and union types are large enough to defeat the small class
+    // algorithm used by 'bsl::is_trivially_copyable' to emulate detection of
+    // trivial types in C++03.
 
 }  // close unnamed namespace
 
@@ -689,10 +720,77 @@ int main(int argc, char *argv[])
         // C-5 : Function types are not object types, nor cv-qualifiable.
         ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(void(),                false);
         ASSERT_IS_TRIVIALLY_COPYABLE_TYPE(int(float,double...),  false);
-#ifndef BSLMF_ISTRIVIALLYCOPYABLE_NO_NESTED_FOR_ABOMINABLE_FUNCTIONS
+#if !defined(BSLMF_ISTRIVIALLYCOPYABLE_NO_ABOMINABLE_FUNCTIONS)
         ASSERT_IS_TRIVIALLY_COPYABLE(void() const,               false);
         ASSERT_IS_TRIVIALLY_COPYABLE(int(float,double...) const, false);
 #endif
+
+        // C-6 : Pointer types are mostly tested as object types in the macros
+        // above, but we should add a few extra cases to recursively validate
+        // them as object types in their own right, and to handle the untested
+        // case of function pointers, and pointers to 'void'.
+
+        // Typedefs are needed to avoid strange parsings in the test macros.
+        typedef void VoidFn();
+        typedef void MoreFn(float, double...);
+
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(int *, true);
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(void *, true);
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(VoidFn *, true);
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(MoreFn *, true);
+
+        // C-11: Compiler detects intrinsically trivially copyable class types
+        //       when native traits are supported
+#if defined(BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION)
+# define TRUE_IF_INTRINSIC true
+#else
+# define TRUE_IF_INTRINSIC false
+#endif
+
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(NativeTestClass,
+                                                            TRUE_IF_INTRINSIC);
+        ASSERT_IS_TRIVIALLY_COPYABLE_OBJECT_TYPE(NativeTestUnion,
+                                                            TRUE_IF_INTRINSIC);
+#undef TRUE_IF_INTRINSIC
+
+        // Verify no surprises for incomplete types
+#if defined(BSLMF_ISTRIVIALLYCOPYABLE_SHOW_ERROR_FOR_INCOMPLETE_CLASS)
+        ASSERT(!bsl::is_trivially_copyable<Incomplete>::value);
+        ASSERT(!bsl::is_trivially_copyable<const Incomplete>::value);
+        ASSERT(!bsl::is_trivially_copyable<volatile Incomplete>::value);
+        ASSERT(!bsl::is_trivially_copyable<const volatile Incomplete>::value);
+#endif
+
+        ASSERT( bsl::is_trivially_copyable<Incomplete *>::value);
+        ASSERT( bsl::is_trivially_copyable<const Incomplete *>::value);
+        ASSERT( bsl::is_trivially_copyable<volatile Incomplete *>::value);
+        ASSERT( bsl::is_trivially_copyable<
+                                          const volatile Incomplete *>::value);
+
+        ASSERT(!bsl::is_trivially_copyable<Incomplete &>::value);
+        ASSERT(!bsl::is_trivially_copyable<const Incomplete &>::value);
+        ASSERT(!bsl::is_trivially_copyable<volatile Incomplete &>::value);
+        ASSERT(!bsl::is_trivially_copyable<
+                                          const volatile Incomplete &>::value);
+
+#if defined(BSLMF_ISTRIVIALLYCOPYABLE_SHOW_ERROR_FOR_INCOMPLETE_Union)
+        ASSERT(!bsl::is_trivially_copyable<Uncomplete>::value);
+        ASSERT(!bsl::is_trivially_copyable<const Uncomplete>::value);
+        ASSERT(!bsl::is_trivially_copyable<volatile Uncomplete>::value);
+        ASSERT(!bsl::is_trivially_copyable<const volatile Uncomplete>::value);
+#endif
+
+        ASSERT( bsl::is_trivially_copyable<Uncomplete *>::value);
+        ASSERT( bsl::is_trivially_copyable<const Uncomplete *>::value);
+        ASSERT( bsl::is_trivially_copyable<volatile Uncomplete *>::value);
+        ASSERT( bsl::is_trivially_copyable<
+                                          const volatile Uncomplete *>::value);
+
+        ASSERT(!bsl::is_trivially_copyable<Uncomplete &>::value);
+        ASSERT(!bsl::is_trivially_copyable<const Uncomplete &>::value);
+        ASSERT(!bsl::is_trivially_copyable<volatile Uncomplete &>::value);
+        ASSERT(!bsl::is_trivially_copyable<
+                                          const volatile Uncomplete &>::value);
       } break;
       default: {
           fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
