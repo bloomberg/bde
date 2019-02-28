@@ -16,6 +16,7 @@
 #include <bslim_testutil.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslmt_threadutil.h>
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
@@ -110,9 +111,17 @@ typedef bdls::ProcessUtil     Obj;
 namespace {
 namespace u {
 
+bslma::TestAllocator uda("u_default");
+
+bsl::size_t npos = bsl::string::npos;
+
 #if defined BSLS_PLATFORM_OS_UNIX
+enum { e_UNIX = true };
+
 const char slash = '/';
 #else
+enum { e_UNIX = false };
+
 const char slash = '\\';
 #endif
 
@@ -152,23 +161,26 @@ bool isRelative(const bsl::string& path)
 
 int resolvePath(bsl::string *result, const char *origPath)
 {
+    result->assign(origPath);
+
 #if defined BSLS_PLATFORM_OS_UNIX
 #   ifndef PATH_MAX
     enum { PATH_MAX = 4 * 1024 };
 #   endif
 
-    result->resize(PATH_MAX);
-    const char *ret = ::realpath(origPath, &(*result)[0]);
+    bsl::string buf(&uda);
+    buf.resize(PATH_MAX);
+    const char *ret = ::realpath(origPath, &buf[0]);
     if (!ret) {
         return -1;                                                    // RETURN
     }
-    bsl::size_t n = result->find('\0');
-    if (bsl::string::npos == n || PATH_MAX <= n) {
+    bsl::size_t n = buf.find('\0');
+    if (npos == n || PATH_MAX <= n) {
         return -1;                                                    // RETURN
     }
-    result->resize(n);
-#else
-    result->assign(origPath);
+    buf.resize(n);
+
+    *result = buf;
 #endif
 
     return 0;
@@ -201,6 +213,8 @@ int main(int argc, char *argv[])
     // allocator, but must not leak from it.
 
     bslma::TestAllocator         ta("test",    veryVeryVeryVerbose);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard daGuard(&da);
 
     // 'hostName' is used in multiple test cases in combination with process id
     // to make reliably unique temporary file names.  '$HOSTNAME' is not set in
@@ -348,8 +362,8 @@ int main(int argc, char *argv[])
         int rc;
 
         char dirName[1024];
-        bsl::sprintf(dirName, "tmp.bdls_processutil.t.case5.%s.%d.dir",
-                                                hostName, Obj::getProcessId());
+        bsl::sprintf(dirName, "tmp.bdls_processutil.t.case%d.%s.%d.dir",
+                                          test, hostName, Obj::getProcessId());
 
         {
             // 'FUtil::remove' uses the default allocator on directories, and
@@ -365,33 +379,36 @@ int main(int argc, char *argv[])
 #if defined BSLS_PLATFORM_OS_CYGWIN || defined BSLS_PLATFORM_OS_HPUX
         // These two platforms can't handle spaces in the executable name.
 
-        const char * const execName = "case5.exec.t";
+        const char * const execName = "case4.exec.t";
+        const char * const linkName = "case4.link.t";
 #elif defined BSLS_PLATFORM_OS_WINDOWS
-        const char * const execName = "case5.exec.a b  c.t.exe";
+        const char * const execName = "case4.exec.a b  c.t.exe";
 #else
-        const char * const execName = "case5.exec.a b  c.t";
+        const char * const execName = "case4.exec.a b  c.t";
+        const char * const linkName = "case4.link.a b  c.t";
 #endif
 
         const int prevTest = test - 1;  // case # of previous test, the main
                                         // 'getPathToExecutable' test case
 
         bsl::string execCpDst(dirName, &ta);    // copy destination of exec
-        execCpDst += u::slash;    // '/' on Unix, '\\' on Windows
+        execCpDst += u::slash;
         execCpDst += execName;
 
 #if defined BSLS_PLATFORM_OS_UNIX
 
         bsl::string scriptName(dirName, &ta);
-        scriptName += "/case5.script.sh";
+        scriptName += "/case4.script.sh";
         FILE *fp = bsl::fopen(scriptName.c_str(), "w");
         ASSERT(fp);
         bsl::fprintf(fp, ":\n");
         bsl::fprintf(fp, "cp '%s' '%s'\n", argv[0], execCpDst.c_str());
         bsl::fprintf(fp, "chmod a+rwx '%s'\n", execCpDst.c_str());
         bsl::fprintf(fp, "cd %s >/dev/null 2>&1\n", dirName);
+        bsl::fprintf(fp, "ln -s '%s' '%s'\n", execName, linkName);
         bsl::fprintf(fp, "%s", veryVerbose ? "pwd; ls -l\n" : "");
         bsl::fprintf(fp, "exec './%s' %d%s%s%s%s\n",
-                                    execName, prevTest,
+                                    linkName, prevTest,
                                               verbose ? " v" : "",
                                               veryVerbose ? " v" : "",
                                               veryVeryVerbose ? " v" : "",
@@ -405,7 +422,7 @@ int main(int argc, char *argv[])
 #else   // Windows
 
         bsl::string scriptName(dirName, &ta);
-        scriptName += "\\case5.script.bat";
+        scriptName += "\\case4.script.bat";
         FILE *fp = bsl::fopen(scriptName.c_str(), "w");
         ASSERT(fp);
         bsl::fprintf(fp, "%s", !veryVerbose ?  "@echo off\n" : "");
@@ -429,6 +446,14 @@ int main(int argc, char *argv[])
             testStatus = bsl::min(101, testStatus + rc);
         }
 
+        if (!u::e_UNIX) {
+            // Windows needs a few seconds after the script finishes to be
+            // allowed to delete the script and the executable at 'execCpDst'
+            // and the directory 'dirName' containing them.
+
+            bslmt::ThreadUtil::microSleep(0, 5);    // 5 seconds
+        }
+
         ASSERT(FUtil::isDirectory(dirName));
         {
             // 'FUtil::remove' uses the default allocator on directories
@@ -438,6 +463,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == rc);
         }
         ASSERT(!FUtil::exists(dirName));
+        ASSERT(!FUtil::exists(execCpDst));
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -449,10 +475,10 @@ int main(int argc, char *argv[])
         //:   platforms will not be able to cope with this.
         //
         // Plan:
-        //: 1 Determine if 'argv[0]' is relative.  This is still a useful
-        //:   test if 'argv[0]' is absolute, but it's a better test if it's
-        //:   relative, so test case 5 runs this test case with a relative
-        //:   'argv[0]'.
+        //: 1 Determine if 'argv[0]' is relative.  This is still a useful test
+        //:   if 'argv[0]' is absolute, but it's a better test if it's
+        //:   relative, so the next test case runs this test case with a
+        //:   relative 'argv[0]'.
         //:
         //: 2 Get the current working directory.
         //:
@@ -530,17 +556,35 @@ int main(int argc, char *argv[])
 
         bsl::string execName("woof", &ta);
         int gpteRc = Obj::getPathToExecutable(&execName);
+        ASSERTV(gpteRc, execName, 0 == gpteRc);
         ASSERT(!execName.empty());
+        ASSERT(bsl::strlen(execName.c_str()) == execName.length());
         const bool execNameIsRelative = u::isRelative(execName);
         const bool execNameExists = FUtil::exists(execName);
         const bool execNameIsExec = u::isExecutable(execName);
         const bool sizeMatches = execSize == FUtil::getFileSize(execName);
 
+        bsl::string procNameAfterCd("meow", &ta);
+        int gpnRc = Obj::getProcessName(&procNameAfterCd);
+        ASSERTV(gpnRc, procNameAfterCd, 0 == gpnRc);
+        ASSERT(!procNameAfterCd.empty());
+
+        const char * const target = u::npos == procNameAfterCd.find("case4")
+                                  ? "bdls_processutil."
+                                  : u::e_UNIX
+                                  ? "link"
+                                  : "exec";
+        ASSERTV(procNameAfterCd, target, u::npos !=
+                                                 procNameAfterCd.find(target));
+        if (!u::e_UNIX) {
+            ASSERTV(execName, procNameAfterCd, execName == procNameAfterCd);
+        }
+
         if (verbose) {
             P_(origCwd);    P_(cwd);   P(procExists);
             P_(execNameBeforeCd);      P(execName);
             P_(execNameIsRelative);    P_(execNameExists);   P(execNameIsExec);
-            P(sizeMatches);
+            P_(sizeMatches);           P(procNameAfterCd);
         }
 
         if (expFindExec) {
