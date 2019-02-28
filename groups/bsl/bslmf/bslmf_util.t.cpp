@@ -138,6 +138,93 @@ class Obj {
 };
 
 //=============================================================================
+//                              USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+
+class Foo {};
+
+template <class TYPE>
+class Binder {
+    TYPE d_value;
+
+  public:
+    Binder(const TYPE& value) : d_value(value) {}
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    Binder(const TYPE&& value) : d_value(value) {}
+#endif
+    const TYPE& value() const { return d_value; }
+};
+
+struct MyBindUtil {
+    template <class ARG_TYPE>
+    static Binder<typename bsl::remove_reference<ARG_TYPE>::type> bind(
+                                                                  ARG_TYPE arg)
+    {
+        return Binder<typename bsl::remove_reference<ARG_TYPE>::type>(arg);
+    }
+};
+
+struct  MyFunction {
+  template <class ARG_TYPE>
+  MyFunction(const ARG_TYPE &) {}
+};
+
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: Using 'bslmf::Util::forward
+///---------------------------------------
+// Clients should generally not use 'bsls::Util::forward' directly, instead it
+// should be used via 'BSLS_COMPILERFEATURES_FORWARD' in conjunction with
+// 'BSLS_COMPILERFEATURES_FORWARD_REF'.  Here we show a simple function using
+// 'BSLS_COMPILERFEATURES_FORWARD':
+//..
+    template <class RESULT_TYPE>
+    struct FactoryUtil {
+//
+       template <class ARG_TYPE>
+       RESULT_TYPE create(BSLS_COMPILERFEATURES_FORWARD_REF(ARG_TYPE) arg) {
+         return RESULT_TYPE(BSLS_COMPILERFEATURES_FORWARD(ARG_TYPE, arg));
+       }
+    };
+//..
+// Notice that 'bsls::Util::forward' is only used in conjunction with
+// 'BSLS_COMPILERFEATURES_FORWARD_REF' because, in the example above, if the
+// 'create' function's parameter type was 'ARG_TYPE&& ' then it is a
+// C++11-only(!) forwarding reference, and we would simply use the standard
+// 'std::forward'.  Alternatively, if the parameter type was
+// 'MovableRef<ARG_TYPE>' then 'arg' is *not* a forwarding-reference to be
+// forwarded (certainly not in C++03).
+//
+///Example 2: Using 'bslmf::Util::forwardAsReference'
+///--------------------------------------------------
+// Suppose we had a template facility, 'MyBindUtil::bind' that does not support
+// 'bslmf::MovableRef', but will accept true r-value references (on supported
+// compilers).  Here we use 'forwardAsReference' to forward a supplied
+// 'bslmf::MovableRef' as a true r-value reference (on supporting compilers),
+// and a const reference otherwise.  Note that the definitions of 'MyFunction'
+// and 'MyBindUtil' are elided and meant to represent 'bsl::function' and
+// 'bdlf::BindUtil::bind' respectively:
+//..
+    void doSomething(bslmf::MovableRef<Foo> value) {
+      MyFunction f = MyBindUtil::bind(
+                                 bslmf::Util::forwardAsReference<Foo>(value));
+//
+      //...
+      (void)f;
+//
+    }
+//..
+// Note that because 'MyBindUtil::bind' does not support 'MovableRef', without
+// 'forwardAsReferene' the call to 'bind' might either fail to compile, or
+// worse, bind the 'MyFunction' instance to a reference to 'value' (rather a
+// new object moved-from 'value') on C++03 platforms.
+//..
+
+
+//=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
@@ -174,26 +261,76 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        Obj mA; const Obj& A = mA;
-        ASSERT(false == A.copied());
-        ASSERT(false == A.moved());
+        if (verbose) {
+            printf("\tTest Util::forward\n");
+        }
+        {
+            Obj        mA;
+            const Obj& A = mA;
+            ASSERT(false == A.copied());
+            ASSERT(false == A.moved());
 
-        bsls::ObjectBuffer<Obj> buf;
-        Obj& mX = buf.object(); const Obj& X = mX;
+            bsls::ObjectBuffer<Obj> buf;
+            Obj&                    mX = buf.object();
+            const Obj&              X  = mX;
 
-        CUtil::construct(buf.address(),  A);
-        ASSERT( true == X.copied());
-        ASSERT(false == X.moved());
+            CUtil::construct(buf.address(), A);
+            ASSERT(true == X.copied());
+            ASSERT(false == X.moved());
 
-        CUtil::construct(buf.address(), mA);
-        ASSERT( true == X.copied());
-        ASSERT(false == X.moved());
+            CUtil::construct(buf.address(), mA);
+            ASSERT(true == X.copied());
+            ASSERT(false == X.moved());
 
-        CUtil::construct(buf.address(), bslmf::MovableRefUtil::move(mA));
-        ASSERT(false == X.copied());
-        ASSERT( true == X.moved());
+            CUtil::construct(buf.address(), bslmf::MovableRefUtil::move(mA));
+            ASSERT(false == X.copied());
+            ASSERT(true == X.moved());
+        }
 
-        ASSERT(sizeof(bool) == sizeof(bslmf::Util::declval<Obj>().copied()));
+        if (verbose) {
+            printf("\tTest Util::declval\n");
+        }
+        {
+            ASSERT(sizeof(bool) ==
+                   sizeof(bslmf::Util::declval<Obj>().copied()));
+        }
+
+        if (verbose) {
+            printf("\tTest Util::forwardAsRef\n");
+        }
+        {
+            Obj        mA;
+            const Obj& A = mA;
+            ASSERT(false == A.copied());
+            ASSERT(false == A.moved());
+
+            bsls::ObjectBuffer<Obj> buf;
+            Obj&                    mX = buf.object();
+            const Obj&              X  = mX;
+
+            CUtil::construct(buf.address(),
+                             bslmf::Util::forwardAsReference<Obj>(mA));
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+            ASSERT(false == X.copied());
+            ASSERT(true == X.moved());
+#else
+            ASSERT(true == X.copied());
+            ASSERT(false == X.moved());
+#endif
+
+            CUtil::construct(buf.address(),
+                             bslmf::Util::forwardAsReference<Obj>(
+                                 bslmf::MovableRefUtil::move(mA)));
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+            ASSERT(false == X.copied());
+            ASSERT(true == X.moved());
+#else
+            ASSERT(true == X.copied());
+            ASSERT(false == X.moved());
+#endif
+        }
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
