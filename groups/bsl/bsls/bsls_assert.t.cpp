@@ -321,7 +321,7 @@ void HandlerReturnTest::recordingLogMessageHandler(
                                              int                      line,
                                              const char              *message)
 {
-    ASSERT(bsls::LogSeverity::e_ERROR == severity);
+    ASSERTV(severity, bsls::LogSeverity::e_FATAL == severity);
     ASSERT(s_loggerInvocationCount < 2);
 
     if (globalVeryVeryVerbose) {
@@ -360,7 +360,7 @@ void HandlerReturnTest::countingLogMessageHandler(
                                              int                      line,
                                              const char              *message)
 {
-    ASSERT(bsls::LogSeverity::e_ERROR == severity);
+    ASSERTV(severity, bsls::LogSeverity::e_FATAL == severity);
 
     ++s_loggerInvocationCount;
 
