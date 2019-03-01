@@ -461,9 +461,11 @@ class BidirectionalNodePool {
         // maintained by this object.
 
     void reserveNodes(size_type numNodes);
-        // Reserve memory from this pool to satisfy memory requests for at
+        // Add to this pool sufficient memory to satisfy memory requests for at
         // least the specified 'numNodes' before the pool replenishes.  The
-        // behavior is undefined unless '0 < numNodes'.
+        // behavior is undefined unless '0 < numNodes'.  Note that the
+        // additional memory is added irrespective of the amount of free memory
+        // when called.
 
     void swapRetainAllocators(BidirectionalNodePool& other);
         // Efficiently exchange the nodes of this object with those of the

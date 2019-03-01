@@ -370,9 +370,10 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
 
     void reserve(size_type numBlocks);
         // Dynamically allocate a new chunk containing the specified
-        // 'numBlocks' number of blocks, and use the chunk to replenish the
-        // free memory list of this pool.  The behavior is undefined unless
-        // '0 < numBlocks'.
+        // 'numBlocks' number of blocks, and add the chunk to the free memory
+        // list of this pool.  The behavior is undefined unless
+        // '0 < numBlocks'.  Note that the additional memory is added
+        // irrespective of the amount of free memory when called.
 
     void release();
         // Relinquish all memory currently allocated via this pool object.

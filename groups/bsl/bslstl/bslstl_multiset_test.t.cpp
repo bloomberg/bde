@@ -6862,6 +6862,10 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
     //:   allocates no memory.
     //:
     //:13 Any memory allocation is exception neutral.
+    //:
+    //:14 QoI: Range constructors allocate a single block for nodes when the
+    //:   number of elements can be determined.  (The contained elements may
+    //:   require additional allocations.)
     //
     // Plan:
     //: 1 Using the table-driven technique:
@@ -6925,6 +6929,11 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
     //:   automatic variable in the presence of injected exceptions (using the
     //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros); represent any string
     //:   arguments in terms of 'string' using a "scratch" allocator.
+    //:
+    //: 4 Invoke the 'testRangeCtorOptimization' function that creates a
+    //:   container for a non-allocating type by passing random iterators to
+    //:   the range constructor, and specifying a test allocator to supply
+    //:   memory.
     //
     // Testing:
     //   multiset(ITER first, ITER last, const A& alloc);
@@ -7151,6 +7160,116 @@ void MetaTestDriver<KEY, COMP>::testCase27()
     TestDriver<KEY, COMP, A01>::testCase27_dispatch();
     TestDriver<KEY, COMP, A10>::testCase27_dispatch();
     TestDriver<KEY, COMP, A11>::testCase27_dispatch();
+}
+
+static void testRangeCtorOptimization()
+{
+   if (verbose) printf("\nTest Range CTOR Optimization\n");
+
+   typedef int                DataType;
+   typedef bsl::multiset<int> ContainerType;
+
+   const DataType ARRAY[] = { DataType( 0), DataType( 0)
+                            , DataType( 1), DataType( 1)
+                            , DataType( 2), DataType( 2)
+                            , DataType( 3), DataType( 3)
+                            , DataType( 4), DataType( 4)
+                            , DataType( 5), DataType( 5)
+                            , DataType( 6), DataType( 6)
+                            , DataType( 7), DataType( 7)
+                            , DataType( 8), DataType( 8)
+                            , DataType( 9), DataType( 9)
+                            , DataType(10), DataType(10)
+                            , DataType(11), DataType(11)
+                            , DataType(12), DataType(12)
+                            , DataType(13), DataType(13)
+                            , DataType(14), DataType(14)
+                            , DataType(15), DataType(15)
+                            , DataType(16), DataType(16)
+                            , DataType(17), DataType(17)
+                            , DataType(18), DataType(18)
+                            , DataType(19), DataType(19)
+                            , DataType(20), DataType(20)
+                            , DataType(21), DataType(21)
+                            , DataType(22), DataType(22)
+                            , DataType(23), DataType(23)
+                            , DataType(24), DataType(24)
+                            , DataType(25), DataType(25)
+                            , DataType(26), DataType(26)
+                            , DataType(27), DataType(27)
+                            , DataType(28), DataType(28)
+                            , DataType(29), DataType(29)
+                            , DataType(30), DataType(30)
+                            , DataType(31), DataType(31)
+                            , DataType(32), DataType(32)
+                            , DataType(33), DataType(33)
+                            , DataType(34), DataType(34)
+                            , DataType(35), DataType(35)
+                            , DataType(36), DataType(36)
+                            , DataType(37), DataType(37)
+                            , DataType(38), DataType(38)
+                            , DataType(39), DataType(39)
+                         // , DataType(x0), DataType(x0)
+                         // , DataType(x1), DataType(x1)
+                         // , DataType(x2), DataType(x2)
+                         // , DataType(x3), DataType(x3)
+                         // , DataType(x4), DataType(x4)
+                         // , DataType(x5), DataType(x5)
+                         // , DataType(x6), DataType(x6)
+                         // , DataType(x7), DataType(x7)
+                         // , DataType(x8), DataType(x8)
+                         // , DataType(x9), DataType(x9)
+                            };
+    const std::size_t NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
+
+    bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
+
+    if (verbose) {
+        printf("\nAfore: Object-Allocator\n");
+        sa.print();
+    }
+
+    bsls::Types::Int64 numBlocksInUseAfore = sa.numBlocksInUse();
+
+    // Pointers into an array are (protypical) random iterators.
+
+    ContainerType        mX(ARRAY, ARRAY + NUM_ELEMENTS, &sa);
+    const ContainerType& X = mX;
+
+    bsls::Types::Int64 numBlocksInUseAfter = sa.numBlocksInUse();
+
+    if (verbose) {
+        P(X.size());
+        printf("\nAfter: Object-Allocator\n");
+        sa.print();
+    }
+
+    ASSERT(NUM_ELEMENTS == X.size());
+    ASSERT(1            == numBlocksInUseAfter - numBlocksInUseAfore);
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    if (verbose) {
+        printf("\nAfore: Default-Allocator\n");
+        da.print();
+    }
+
+    numBlocksInUseAfore = da.numBlocksInUse();
+
+    ContainerType        mY(ARRAY, ARRAY + NUM_ELEMENTS);
+    const ContainerType& Y = mY;
+
+    numBlocksInUseAfter = da.numBlocksInUse();
+
+    if (verbose) {
+        P(Y.size());
+        printf("\nAfter: Default-Allocator\n");
+        da.print();
+    }
+
+    ASSERT(NUM_ELEMENTS == Y.size());
+    ASSERT(1            == numBlocksInUseAfter - numBlocksInUseAfore);
 }
 
 // ============================================================================
@@ -7524,21 +7643,24 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // VALUE CONSTRUCTORS
+        // RANGE (TEMPLATE) CONSTRUCTORS:
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTesting Value Constructor"
-                            "\n=========================\n");
+        if (verbose) printf("\nRANGE (TEMPLATE) CONSTRUCTORS"
+                            "\n=============================\n");
 
         RUN_EACH_TYPE(TestDriver,
                       testCase12,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR,
                       bsltf::MovableTestType,
                       bsltf::MovableAllocTestType);
+
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase12,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+
+        testRangeCtorOptimization();
       } break;
       case 11: // falls through
       case 10: // falls through

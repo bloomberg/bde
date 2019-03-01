@@ -532,6 +532,7 @@ BSL_OVERRIDES_STD mode"
 #endif
 #include <bslscm_version.h>
 
+#include <bslstl_iteratorutil.h>
 #include <bslstl_mapcomparator.h>
 #include <bslstl_pair.h>
 #include <bslstl_stdexceptutil.h>
@@ -1996,6 +1997,14 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
 , d_tree()
 {
     if (first != last) {
+
+        size_type numElements =
+                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+
+        if (0 < numElements) {
+            nodeFactory().reserveNodes(numElements);
+        }
+
         BloombergLP::bslalg::RbTreeUtilTreeProctor<NodeFactory> proctor(
                                                                &d_tree,
                                                                &nodeFactory());
@@ -2040,6 +2049,14 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
 , d_tree()
 {
     if (first != last) {
+
+        size_type numElements =
+                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+
+        if (0 < numElements) {
+            nodeFactory().reserveNodes(numElements);
+        }
+
         BloombergLP::bslalg::RbTreeUtilTreeProctor<NodeFactory> proctor(
                                                                &d_tree,
                                                                &nodeFactory());
