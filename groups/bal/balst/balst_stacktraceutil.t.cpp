@@ -949,7 +949,7 @@ void case_8_recurse(int *depth)
 
 #if defined(BSLS_PLATFORM_OS_UNIX) &&                                         \
     !defined(BSLS_PLATFORM_OS_DARWIN) &&                                      \
-    !(defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CPU_SPARC))
+    !(defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CMP_GNU))
 // The goal here is to create an identifier > 32,000 bytes
 // and < '((1 << 15) - 64)' bytes long.
 
