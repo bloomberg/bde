@@ -165,23 +165,14 @@ int main(int argc, char *argv[])
 //..
     ASSERTV(errno, ERANGE, ERANGE == errno);
 //..
-//  Finally, throw an annotated exception and verify the annotaion and the
+//  Finally, prepare an annotated exception and verify the annotaion and the
 //  error code stored within it.
 //..
-    try {
-        throw bsl::system_error(errno, generic_category(), "1e2000");
-    }
-    catch (std::runtime_error& e) {
-        ASSERT(0 != strstr(e.what(), "1e2000"));
-        try {
-            throw;
-        }
-        catch (bsl::system_error& e) {
-            ASSERT(static_cast<int>(bsl::errc::result_out_of_range) ==
-                   e.code().value());
-            ASSERT(&generic_category() == &e.code().category());
-        }
-    }
+    bsl::system_error annotated(errno, generic_category(), "1e2000");
+    ASSERT(strstr(annotated.what(), "1e2000"));
+    ASSERT(static_cast<int>(bsl::errc::result_out_of_range) ==
+           annotated.code().value());
+    ASSERT(&generic_category() == &annotated.code().category());
 //..
       } break;
       case 2: {

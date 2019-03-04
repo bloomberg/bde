@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide C++11-defined error code trait for C++03.
 //
 //@CLASSES:
-//  bsl::is_error_code_enum:      C++03 version of std::is_error_code_enum
+//  bsl::is_error_code_enum: C++03 version of std::is_error_code_enum
 //
 //@MACROS:
 //  BSL_IS_ERROR_CODE_ENUM_NAMESPACE:  namespace in which to specialize
@@ -36,33 +36,35 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the set of error values for our system.
 //..
-//  namespace car_errc {
-//  enum car_errc {
+//  struct car_errc {
+//  enum ENum {
 //      car_wheels_came_off = 1,
 //      car_engine_fell_out = 2
 //  };
-//  }  // close namespace car_errc
+//  };
 //..
 // Then, we enable the trait marking this as an error code.
 //..
 //  namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
-//  template <>
-//  struct is_error_code_enum<car_errc::car_errc> : public true_type {
-//  };
+//  template <> struct is_error_code_enum<car_errc::car_errc>
+//  : bsl::public true_type { };
 //  }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
 //..
 // Finally, we verify that the trait marks our type as eligible.
 //..
-//  assert(is_error_code_enum<car_errc::car_errc>::value);
+//  assert(is_error_code_enum<car_errc::Enum>::value);
 //..
 
 #include <bslscm_version.h>
 
+#include <bslmf_integralconstant.h>
+
+#include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_nativestd.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-
-#include <bsls_nativestd.h>
 
 #include <system_error>
 
@@ -73,9 +75,13 @@ namespace bsl {
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     using native_std::is_error_code_enum_v;
-#elif defined BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#elif defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
     template <class TYPE>
-    constexpr bool is_error_code_enum_v = is_error_code_enum<TYPE>::value;
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
+    inline
+#endif
+    BSLS_KEYWORD_CONSTEXPR bool is_error_code_enum_v =
+        is_error_code_enum<TYPE>::value;
 #endif
 }  // close namespace bsl
 
@@ -83,15 +89,13 @@ namespace bsl {
 
 #define BSL_IS_ERROR_CODE_ENUM_NAMESPACE bsl
 
-#include <bslmf_integralconstant.h>
-
 namespace bsl {
                          // =========================
                          // struct is_error_code_enum
                          // =========================
 
 template <class TYPE>
-struct is_error_code_enum : public false_type
+struct is_error_code_enum : public bsl::false_type
     // This class template represents a trait defining whether the specified
     // enumeration type 'TYPE' is to be treated as an error code by the
     // 'error_code' template methods.

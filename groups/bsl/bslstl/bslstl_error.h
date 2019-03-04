@@ -8,9 +8,9 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide C++11-defined error classes and functions for C++03.
 //
 //@CLASSES:
-//  bsl::error_category:          C++03 version of std::error_category
-//  bsl::error_code:              C++03 version of std::error_code
-//  bsl::error_condition:         C++03 version of std::error_condition
+//  bsl::error_category:  C++03 version of std::error_category
+//  bsl::error_code:      C++03 version of std::error_code
+//  bsl::error_condition: C++03 version of std::error_condition
 //
 //@DESCRIPTION: This component defines classes 'bsl::error_category',
 // 'bsl::error_code', and 'bsl::error_condition', global functions
@@ -27,29 +27,29 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Dedicated Error Category
 ///- - - - - - - - - - - - - - - - - -
 // Suppose we have a dedicated system with a set of possible errors, and we
-// want to be able to throw descriptive exceptions when an error occurs.  We
-// can use the 'system_error' capabilities of the C++ standard for this.
+// want to check if such an error hass occurred.  We can use the 'system_error'
+// capabilities of the C++ standard for this.
 //
 // First, we define the set of error codes for our system.
 //..
-//  namespace car_errc {
-//  enum car_errc {
-//      car_wheels_came_off = 1,
-//      car_engine_fell_out = 2
+//  struct car_errc {
+//      // TYPES
+//      enum Enum {
+//          car_wheels_came_off = 1,
+//          car_engine_fell_out = 2
+//      };
 //  };
-//  }  // close namespace car_errc
 //..
 // Then, we enable the traits marking this as an error code and condition.
 //..
 //  namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
-//  template <>
-//  struct is_error_code_enum<car_errc::car_errc> : public true_type {
-//  };
+//  template <> struct is_error_code_enum<car_errc::Enum>
+//  : public bsl::true_type { };
 //  }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
+//
 //  namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE {
-//  template <>
-//  struct is_error_condition_enum<car_errc::car_errc> : public true_type {
-//  };
+//  template <> struct is_error_condition_enum<car_errc::Enum>
+//  : public bsl::true_type { };
 //  }  // close namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE
 //..
 // Next, we create an error category that will give us descriptive messages.
@@ -57,10 +57,10 @@ BSLS_IDENT("$Id: $")
 //  namespace {
 //  struct car_category_impl : public bsl::error_category {
 //      // ACCESSORS
-//      native_std::string message(int value) const;
+//      native_std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
 //          // Return a string describing the specified 'value'.
 //
-//      const char *name() const BSLS_KEYWORD_NOEXCEPT;
+//      const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
 //          // Return a string describing this error category.
 //  };
 //
@@ -88,92 +88,70 @@ BSLS_IDENT("$Id: $")
 //      return car_category_object;
 //  }
 //
-//  namespace car_errc {
-//  bsl::error_code make_error_code(car_errc::car_errc value)
+//  bsl::error_code make_error_code(car_errc::Enum value)
 //      // Return a car category error code of the specified 'value'.
 //  {
 //      return bsl::error_code(static_cast<int>(value), car_category());
 //  }
 //
-//  bsl::error_condition make_error_condition(car_errc::car_errc value)
+//  bsl::error_condition make_error_condition(car_errc::Enum value)
 //      // Return a car category error condition of the specified 'value'.
 //  {
 //      return bsl::error_condition(static_cast<int>(value), car_category());
 //  }
-//  }  // close namespace car_errc
 //..
-// Now, we define an exception class for exceptions of our category.
+// Now, we write a function that can potentially have errors.
 //..
-//  class car_error : public std::runtime_error {
-//    public:
-//      // CREATORS
-//      car_error(car_errc::car_errc value);                        // IMPLICIT
-//      car_error(car_errc::car_errc value, const std::string& what);
-//          // Create an object of this type holding the specified 'value'.
-//          // Optionally specify 'what' as extra annotation.
-//
-//      // ACCESSORS
-//      const error_code& code() const;
-//          // Return a 'const' reference to the error code of this object.
-//
-//    private:
-//      bsl::error_code d_code;  // error code
-//  };
-//
-//  // CREATORS
-//  car_error::car_error(car_errc::car_errc value)
-//  : std::runtime_error(car_category().message(value))
-//  , d_code(make_error_code(value))
+//  void drive(bsl::error_code *code, int distance)
+//      // Drive a car for the specified 'distance' and set the specified
+//      // 'code' to describe any problems encountered.
 //  {
-//  }
-//
-//  car_error::car_error(car_errc::car_errc value, const std::string& what)
-//  : std::runtime_error(what + ": " + car_category().message(value))
-//  , d_code(make_error_code(value))
-//  {
-//  }
-//
-//  // ACCESSORS
-//  const bsl::error_code& car_error::code() const
-//  {
-//      return d_code;
-//  }
-//..
-// Finally, we can throw, catch, and examine these exceptions.
-//..
-//  try {
-//      throw car_error(car_errc::car_engine_fell_out, "testing car_errc");
-//  }
-//  catch (const std::runtime_error& e) {
-//      if (verbose) {
-//          P(e.what());
+//      if (distance > 1000) {
+//          *code = make_error_code(car_errc::car_engine_fell_out);
 //      }
-//      ASSERT(strstr(e.what(), "testing car_errc"));
-//      ASSERT(strstr(e.what(), "The engine fell out"));
-//      try {
-//          throw;
+//      else if (distance > 100) {
+//           *code = make_error_code(car_errc::car_wheels_came_off);
 //      }
-//      catch (const car_error& e) {
-//          if (verbose) {
-//              P_(e.code().category().name()) P(e.code().value())
-//          }
-//          ASSERT(car_errc::car_engine_fell_out == e.code().value());
-//          ASSERT(car_category() == e.code().category());
+//      else {
+//           *code = bsl::error_code(0, car_category());
 //      }
 //  }
+//..
+// Finally, we can exercise the function and check for errors.
+//..
+//  bsl::error_code code;
+//  drive(&code, 50);
+//  assert(!code);
+//  drive(&code, 500);
+//  assert(strstr(code.message().c_str(), "wheels"));
+//  drive(&code, 5000);
+//  assert(strstr(code.message().c_str(), "engine"));
 //..
 
 #include <bslscm_version.h>
-
-#include <bsls_libraryfeatures.h>
-
 #include <bslstl_errc.h>
 #include <bslstl_iserrorcodeenum.h>
 #include <bslstl_iserrorconditionenum.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <bslh_hash.h>
 
+#include <bslmf_enableif.h>
+#include <bslmf_integralconstant.h>
+
+#include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
+#include <bsls_unspecifiedbool.h>
+
+#include <errno.h>
+
+#include <cstring>
+#include <functional>
+#include <ostream>
+#include <stdexcept>
+#include <string>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #include <system_error>
 
@@ -185,26 +163,9 @@ namespace bsl {
     using native_std::system_category;
     using native_std::make_error_code;
     using native_std::make_error_condition;
-    using native_std::hash;
 }
 
 #else
-
-#include <bslh_hash.h>
-
-#include <bslmf_enableif.h>
-#include <bslmf_integralconstant.h>
-
-#include <bsls_keyword.h>
-#include <bsls_unspecifiedbool.h>
-
-#include <errno.h>
-
-#include <cstring>
-#include <functional>
-#include <ostream>
-#include <stdexcept>
-#include <string>
 
 namespace bsl {
 
@@ -413,12 +374,12 @@ const error_category& generic_category();
 const error_category& system_category();
     // Return a 'const' reference to the unique system category object.
 
-error_code make_error_code(errc::errc value);
+error_code make_error_code(errc::Enum value);
     // Return an 'error_code' object holding the specified 'value' and generic
     // category.  Note that the category is generic rather than system because
     // that is what the standard specifies.
 
-error_condition make_error_condition(errc::errc value);
+error_condition make_error_condition(errc::Enum value);
     // Return an 'error_condition' object holding the specified 'value' and
     // generic category.
 
@@ -439,19 +400,6 @@ void hashAppend(HASHALG& hashAlgorithm, const error_condition& object)
     hashAppend(hashAlgorithm, static_cast<const void *>(&object.category()));
     hashAppend(hashAlgorithm, object.value());
 }
-
-template <class TYPE>
-struct hash;
-
-template <>
-struct hash<error_code> : BloombergLP::bslh::Hash<>
-{
-};
-
-template <>
-struct hash<error_condition> : BloombergLP::bslh::Hash<>
-{
-};
 
 // FREE OPERATORS
 bool operator==(const error_code& lhs, const error_code& rhs);
@@ -476,11 +424,97 @@ bool operator<(const error_condition& lhs, const error_condition& rhs);
 //                             INLINE DEFINITIONS
 // ============================================================================
 
+                            // --------------------
+                            // class error_category
+                            // --------------------
+
+//CREATORS
+inline
+error_category::error_category()
+{
+}
+
+inline
+error_category::~error_category()
+{
+}
+
+// ACCESSORS
+inline
+error_condition error_category::default_error_condition(
+                                         int value) const BSLS_KEYWORD_NOEXCEPT
+{
+    return error_condition(value, *this);
+}
+
+inline
+bool error_category::equivalent(
+                  int                    code,
+                  const error_condition& condition) const BSLS_KEYWORD_NOEXCEPT
+{
+    return default_error_condition(code) == condition;
+}
+
+inline
+bool error_category::equivalent(
+                       const error_code& code,
+                       int               condition) const BSLS_KEYWORD_NOEXCEPT
+{
+    return *this == code.category() && code.value() == condition;
+}
+
+inline
+native_std::string error_category::message(int value) const
+{
+    return strerror(value);
+}
+
+inline
+const char *error_category::name() const BSLS_KEYWORD_NOEXCEPT
+{
+    return "error_category";
+}
+
+inline
+bool error_category::operator==(
+                       const error_category& other) const BSLS_KEYWORD_NOEXCEPT
+{
+    return this == &other;
+}
+
+inline
+bool error_category::operator!=(
+                       const error_category& other) const BSLS_KEYWORD_NOEXCEPT
+{
+    return !(*this == other);
+}
+
+inline
+bool error_category::operator<(
+                       const error_category& other) const BSLS_KEYWORD_NOEXCEPT
+{
+    return native_std::less<const error_category *>()(this, &other);
+}
+
                               // ----------------
                               // class error_code
                               // ----------------
 
 // CREATORS
+inline
+error_code::error_code()
+: d_value(0)
+, d_category_p(&system_category())
+{
+}
+
+inline
+error_code::error_code(int value, const error_category& category)
+: d_value(value)
+, d_category_p(&category)
+{
+}
+
 template <class ERROR_CODE_ENUM>
 inline
 error_code::error_code(ERROR_CODE_ENUM value,
@@ -490,6 +524,22 @@ error_code::error_code(ERROR_CODE_ENUM value,
 : d_value(make_error_code(value).value())
 , d_category_p(&make_error_code(value).category())
 {
+}
+
+
+// MANIPULATORS
+inline
+void error_code::assign(int value, const error_category& category)
+{
+    d_value = value;
+    d_category_p = &category;
+}
+
+inline
+void error_code::clear()
+{
+    d_value = 0;
+    d_category_p = &system_category();
 }
 
 template <class ERROR_CODE_ENUM>
@@ -503,12 +553,50 @@ error_code::operator=(ERROR_CODE_ENUM value)
     return *this;
 }
 
+// ACCESSORS
+inline
+const error_category& error_code::category() const
+{
+    return *d_category_p;
+}
+
+inline
+error_condition error_code::default_error_condition() const
+{
+    return category().default_error_condition(value());
+}
+
+inline
+native_std::string error_code::message() const
+{
+    return category().message(value());
+}
+
+inline
+int error_code::value() const
+{
+    return d_value;
+}
+
+inline
+error_code::operator BoolType() const
+{
+    return UnspecifiedBool::makeValue(value());
+}
+
+// FREE FUNCTIONS
+inline
+error_code make_error_code(errc::Enum value)
+{
+    return error_code(static_cast<int>(value), generic_category());
+}
+
 // FREE OPERATORS
 template <class CHAR_TYPE, class CHAR_TRAITS>
 inline
-std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
-                            std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
-                            const error_code&                           code)
+native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+                     native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+                     const error_code&                                  code)
     // Write the specified 'code' to 'stream'.
 {
     return stream << code.category().name() << ':' << code.value();
@@ -519,16 +607,44 @@ std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
                            // ---------------------
 
 // CREATORS
+inline
+error_condition::error_condition()
+: d_value(0)
+, d_category_p(&generic_category())
+{
+}
+
+inline
+error_condition::error_condition(int value, const error_category& category)
+: d_value(value)
+, d_category_p(&category)
+{
+}
+
 template <class ERROR_CONDITION_ENUM>
 inline
-error_condition::error_condition(ERROR_CONDITION_ENUM value,
-                                 typename enable_if<
-                                     is_error_condition_enum<
-                                         ERROR_CONDITION_ENUM>::value,
-                                     BoolType>::type)               // IMPLICIT
+error_condition::error_condition(
+    ERROR_CONDITION_ENUM value,
+    typename enable_if<is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
+                       BoolType>::type)                             // IMPLICIT
 : d_value(make_error_condition(value).value())
 , d_category_p(&make_error_condition(value).category())
 {
+}
+
+// MANIPULATORS
+inline
+void error_condition::assign(int value, const error_category& category)
+{
+    d_value = value;
+    d_category_p = &category;
+}
+
+inline
+void error_condition::clear()
+{
+    d_value = 0;
+    d_category_p = &generic_category();
 }
 
 template <class ERROR_CONDITION_ENUM>
@@ -542,7 +658,128 @@ error_condition::operator=(ERROR_CONDITION_ENUM value)
     return *this;
 }
 
+// ACCESSORS
+inline
+const error_category& error_condition::category() const
+{
+    return *d_category_p;
+}
+
+inline
+native_std::string error_condition::message() const
+{
+    return category().message(value());
+}
+
+inline
+int error_condition::value() const
+{
+    return d_value;
+}
+
+inline
+error_condition::operator BoolType() const
+{
+    return UnspecifiedBool::makeValue(value());
+}
+
+// FREE FUNCTIONS
+inline
+error_condition make_error_condition(errc::Enum value)
+{
+    return error_condition(static_cast<int>(value), generic_category());
+}
+
+// FREE OPERATORS
+inline
+bool operator==(const error_code& lhs, const error_code& rhs)
+{
+    return lhs.category() == rhs.category() && lhs.value() == rhs.value();
+}
+
+inline
+bool operator==(const error_code& lhs, const error_condition& rhs)
+{
+    return lhs.category().equivalent(lhs.value(), rhs) ||
+           rhs.category().equivalent(lhs, rhs.value());
+}
+
+inline
+bool operator==(const error_condition& lhs, const error_code& rhs)
+{
+    return rhs.category().equivalent(rhs.value(), lhs) ||
+           lhs.category().equivalent(rhs, lhs.value());
+}
+
+inline
+bool operator==(const error_condition& lhs, const error_condition& rhs)
+{
+    return lhs.category() == rhs.category() && lhs.value() == rhs.value();
+}
+
+inline
+bool operator!=(const error_code& lhs, const error_code& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bool operator!=(const error_code& lhs, const error_condition& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bool operator!=(const error_condition& lhs, const error_code& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bool operator!=(const error_condition& lhs, const error_condition& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bool operator<(const error_code& lhs, const error_code& rhs)
+{
+    return lhs.category() < rhs.category() ||
+           (lhs.category() == rhs.category() && lhs.value() < rhs.value());
+}
+
+inline
+bool operator<(const error_condition& lhs, const error_condition& rhs)
+{
+    return lhs.category() < rhs.category() ||
+           (lhs.category() == rhs.category() && lhs.value() < rhs.value());
+}
 }  // close namespace bsl
+
+#ifdef std
+#undef std
+#define BSLSTL_ERROR_STD_DEFINED
+#endif
+
+namespace std {
+template <class TYPE>
+struct hash;
+
+template <>
+struct hash<bsl::error_code> : BloombergLP::bslh::Hash<>
+{
+};
+
+template <>
+struct hash<bsl::error_condition> : BloombergLP::bslh::Hash<>
+{
+};
+}  // close namespace std
+
+#ifdef BSLSTL_ERROR_STD_DEFINED
+#undef BSLSTL_ERROR_STD_DEFINED
+#define std bsl
+#endif
 
 #endif
 #endif

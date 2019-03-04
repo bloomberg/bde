@@ -203,24 +203,24 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  condition,
 //
 // First, we define the set of error codes for our system.
 //..
-    namespace car_errc {
-    enum car_errc {
-        car_wheels_came_off = 1,
-        car_engine_fell_out = 2
+    struct car_errc {
+        // TYPES
+        enum Enum {
+            car_wheels_came_off = 1,
+            car_engine_fell_out = 2
+        };
     };
-    }  // close namespace car_errc
 //..
 // Then, we enable the traits marking this as an error code and condition.
 //..
     namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
-    template <>
-    struct is_error_code_enum<car_errc::car_errc> : public true_type {
-    };
+    template <> struct is_error_code_enum<car_errc::Enum>
+    : public bsl::true_type { };
     }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
+
     namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE {
-    template <>
-    struct is_error_condition_enum<car_errc::car_errc> : public true_type {
-    };
+    template <> struct is_error_condition_enum<car_errc::Enum>
+    : public bsl::true_type { };
     }  // close namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE
 //..
 // Next, we create an error category that will give us descriptive messages.
@@ -228,10 +228,10 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  condition,
     namespace {
     struct car_category_impl : public bsl::error_category {
         // ACCESSORS
-        native_std::string message(int value) const;
+        native_std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
             // Return a string describing the specified 'value'.
 
-        const char *name() const BSLS_KEYWORD_NOEXCEPT;
+        const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
             // Return a string describing this error category.
     };
 
@@ -259,55 +259,33 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  condition,
         return car_category_object;
     }
 
-    namespace car_errc {
-    bsl::error_code make_error_code(car_errc value)
+    bsl::error_code make_error_code(car_errc::Enum value)
         // Return a car category error code of the specified 'value'.
     {
         return bsl::error_code(static_cast<int>(value), car_category());
     }
 
-    bsl::error_condition make_error_condition(car_errc value)
+    bsl::error_condition make_error_condition(car_errc::Enum value)
         // Return a car category error condition of the specified 'value'.
     {
         return bsl::error_condition(static_cast<int>(value), car_category());
     }
-    }  // close namespace car_errc
 //..
-// Now, we define an exception class for exceptions of our category.
+// Now, we write a function that can potentially have errors.
 //..
-    class car_error : public std::runtime_error {
-      public:
-        // CREATORS
-        car_error(car_errc::car_errc value);                        // IMPLICIT
-        car_error(car_errc::car_errc value, const std::string& what);
-            // Create an object of this type holding the specified 'value'.
-            // Optionally specify 'what' as extra annotation.
-
-        // ACCESSORS
-        const error_code& code() const;
-            // Return a 'const' reference to the error code of this object.
-
-      private:
-        bsl::error_code d_code;  // error code
-    };
-
-    // CREATORS
-    car_error::car_error(car_errc::car_errc value)
-    : std::runtime_error(car_category().message(value))
-    , d_code(make_error_code(value))
+    void drive(bsl::error_code *code, int distance)
+        // Drive a car for the specified 'distance' and set the specified
+        // 'code' to describe any problems encountered.
     {
-    }
-
-    car_error::car_error(car_errc::car_errc value, const std::string& what)
-    : std::runtime_error(what + ": " + car_category().message(value))
-    , d_code(make_error_code(value))
-    {
-    }
-
-    // ACCESSORS
-    const bsl::error_code& car_error::code() const
-    {
-        return d_code;
+        if (distance > 1000) {
+            *code = make_error_code(car_errc::car_engine_fell_out);
+        }
+        else if (distance > 100) {
+             *code = make_error_code(car_errc::car_wheels_came_off);
+        }
+        else {
+             *code = bsl::error_code(0, car_category());
+        }
     }
 //..
 
@@ -349,28 +327,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-// Finally, we can throw, catch, and examine these exceptions.
+// Finally, we can exercise the function and check for errors.
 //..
-    try {
-        throw car_error(car_errc::car_engine_fell_out, "testing car_errc");
-    }
-    catch (const std::runtime_error& e) {
-        if (verbose) {
-            P(e.what());
-        }
-        ASSERT(strstr(e.what(), "testing car_errc"));
-        ASSERT(strstr(e.what(), "The engine fell out"));
-        try {
-            throw;
-        }
-        catch (const car_error& e) {
-            if (verbose) {
-                P_(e.code().category().name()) P(e.code().value())
-            }
-            ASSERT(car_errc::car_engine_fell_out == e.code().value());
-            ASSERT(car_category() == e.code().category());
-        }
-    }
+    bsl::error_code code;
+    drive(&code, 50);
+    ASSERT(!code);
+    drive(&code, 500);
+    ASSERT(strstr(code.message().c_str(), "wheels"));
+    drive(&code, 5000);
+    ASSERT(strstr(code.message().c_str(), "engine"));
 //..
       } break;
       case 7: {
@@ -1244,7 +1209,7 @@ int main(int argc, char *argv[])
                             system_category()),
         };
         for (int i = 0; i < 4; ++i) {
-            bsl::hash<bsl::error_code> hasher;
+            std::hash<bsl::error_code> hasher;
             const bsl::error_code &ci = codes[i];
             if (veryVeryVerbose) {
                 printf("%d %s %d %zu\n",

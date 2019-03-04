@@ -11,28 +11,31 @@ BSLS_IDENT("$Id$ $CSID$")
                              // ------------------
 
 // CREATORS
-bsl::system_error::system_error(error_code code, const std::string& what)
-: std::runtime_error(what + std::string(": ") + code.message())
+bsl::system_error::system_error(error_code                code,
+                                const native_std::string& what)
+: native_std::runtime_error(what + native_std::string(": ") + code.message())
 , d_code(code)
 {
 }
 
 bsl::system_error::system_error(error_code code, const char *what)
-: std::runtime_error(what + std::string(": ") + code.message())
+: native_std::runtime_error(what + native_std::string(": ") + code.message())
 , d_code(code)
 {
 }
 
 bsl::system_error::system_error(error_code code)
-: std::runtime_error(code.message())
+: native_std::runtime_error(code.message())
 , d_code(code)
 {
 }
 
-bsl::system_error::system_error(int                   value,
-                                const error_category& category,
-                                const std::string&    what)
-: std::runtime_error(what + std::string(": ") + category.message(value))
+bsl::system_error::system_error(int                       value,
+                                const error_category&     category,
+                                const native_std::string& what)
+: native_std::runtime_error(what +
+                            native_std::string(": ") +
+                            category.message(value))
 , d_code(value, category)
 {
 }
@@ -40,13 +43,15 @@ bsl::system_error::system_error(int                   value,
 bsl::system_error::system_error(int                    value,
                                 const error_category&  category,
                                 const char            *what)
-: std::runtime_error(what + std::string(": ") + category.message(value))
+: native_std::runtime_error(what +
+                            native_std::string(": ") +
+                            category.message(value))
 , d_code(value, category)
 {
 }
 
 bsl::system_error::system_error(int value, const error_category& category)
-: std::runtime_error(category.message(value))
+: native_std::runtime_error(category.message(value))
 , d_code(value, category)
 {
 }

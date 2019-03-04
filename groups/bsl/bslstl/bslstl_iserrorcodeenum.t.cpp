@@ -23,6 +23,7 @@ using namespace bsl;
 //
 // TRAITS
 // [ 1] is_error_code_enum<TYPE>::value
+// [ 1] BSL_IS_ERROR_CODE_ENUM_NAMESPACE
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 
@@ -81,7 +82,7 @@ namespace ErrorValues {
 
 namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
 template <>
-struct is_error_code_enum<ErrorValues::Eligible> : true_type
+struct is_error_code_enum<ErrorValues::Eligible> : bsl::true_type
     // Specialize trait to mark 'Eligible' as an error code.
 {
 };
@@ -90,7 +91,7 @@ template struct is_error_code_enum<ErrorValues::Ineligible>;
     // Use the default trait to see whether 'Ineligible' is an error code.
 
 template <>
-struct is_error_code_enum<ErrorValues::MarkedIneligible> : false_type
+struct is_error_code_enum<ErrorValues::MarkedIneligible> : bsl::false_type
     // Specialize trait to mark 'MarkedIneligible' as not an error code.
 {
 };
@@ -114,18 +115,18 @@ struct is_error_code_enum<ErrorValues::MarkedIneligible> : false_type
 //
 // First, we define the set of error values for our system.
 //..
-    namespace car_errc {
-    enum car_errc {
-        car_wheels_came_off = 1,
-        car_engine_fell_out = 2
+    struct car_errc {
+        enum Enum {
+            car_wheels_came_off = 1,
+            car_engine_fell_out = 2
+        };
     };
-    }  // close namespace car_errc
 //..
 // Then, we enable the trait marking this as an error code.
 //..
     namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
     template <>
-    struct is_error_code_enum<car_errc::car_errc> : public true_type {
+    struct is_error_code_enum<car_errc::Enum> : public bsl::true_type {
     };
     }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
 //..
@@ -170,7 +171,7 @@ int main(int argc, char *argv[])
 
 // Finally, we verify that the trait marks our type as eligible.
 //..
-    ASSERT(is_error_code_enum<car_errc::car_errc>::value);
+    ASSERT(is_error_code_enum<car_errc::Enum>::value);
 //..
       } break;
       case 1: {
@@ -182,19 +183,21 @@ int main(int argc, char *argv[])
         //: 1 A type marked as a code reports that it is.
         //: 2 By default types do not report as codes.
         //: 3 A type marked as not a code reports that it is not.
+        //: 4 Specializing in BSL_IS_ERROR_CODE_ENUM_NAMESPACE works.
         //
         // Plan:
         //: 1 Create an enum with the trait specialized as true and test that
-        //:   the trait reports as true.
+        //:   the trait reports as true.  (C-1,4)
         //:
         //: 2 Create an enum without specializing the trait and test that the
-        //:   trait reports as false.
+        //:   trait reports as false.  (C-2)
         //:
         //: 3 Create an enum with the trait specialized as false and test that
-        //:   the trait reports as false.
+        //:   the trait reports as false.  (C-3,4)
         //
         // Testing:
         //   is_error_code_enum<TYPE>::value
+        //   BSL_IS_ERROR_CODE_ENUM_NAMESPACE
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'is_error_code_enum<TYPE>'"

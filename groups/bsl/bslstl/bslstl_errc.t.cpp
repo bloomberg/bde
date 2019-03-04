@@ -17,11 +17,13 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test defines an enumeration defining longer and more
-// descriptive symbolic names for 'errno' error value.
+// descriptive symbolic names for 'errno' error value and a macro designating
+// the type of the enumeration.
 //
 // ----------------------------------------------------------------------------
 //
-// [ 1] USAGE EXAMPLE
+// [ 2] USAGE EXAMPLE
+// [ 1] BSL_ERRC_ENUM
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -126,7 +128,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The 'BSL_ERRC_ENUM' macro can be used to declare 'errc' objects.
-        //: 2 'bsl::errc' can qualify 'errc' enumerationb literals.
+        //: 2 'bsl::errc' can qualify 'errc' enumeration literals.
         //: 3 An 'errc' literal matches the 'POSIX' error code.
         //: 4 The 'errc' type is registered as an error condition.
         //

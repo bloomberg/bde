@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide C++11-defined error classes and functions for C++03.
 //
 //@CLASSES:
-//  bsl::system_error:            C++03 version of std::system_error
+//  bsl::system_error: C++03 version of std::system_error
 //
 //@DESCRIPTION: This component defines class 'bsl::system_error', a class used
 // for annotated exception objects about 'errno'-style errors.  In C++11 mode,
@@ -37,43 +37,23 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(ERANGE == errno);
 //..
-//  Finally, throw an annotated exception and verify the annotaion and the
+//  Finally, prepare an annotated exception and verify the annotaion and the
 //  error code stored within it.
 //..
-//  try {
-//      throw bsl::system_error(errno, generic_category(), "1e2000");
-//  }
-//  catch (bsl::runtime_error& e) {
-//      assert(0 != strstr(e.what(), "1e2000"));
-//      try {
-//          throw;
-//      }
-//      catch (bsl::system_error& e) {
-//          assert(static_cast<int>(bsl::errc::result_out_of_range) ==
-//                 e.code().value());
-//          assert(&generic_category() == &e.code().category());
-//      }
-//  }
+//  bsl::system_error annotated(errno, generic_category(), "1e2000");
+//  assert(strstr(annotated.what(), "1e2000"));
+//  assert(static_cast<int>(bsl::errc::result_out_of_range) ==
+//         annotated.code().value());
+//  assert(&generic_category() == &annotated.code().category());
 //..
 
 #include <bslscm_version.h>
 
 #include <bsls_libraryfeatures.h>
+#include <bsls_nativestd.h>
 
 #include <bslstl_errc.h>
 #include <bslstl_error.h>
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-
-#include <bsls_nativestd.h>
-
-#include <system_error>
-
-namespace bsl {
-    using native_std::system_error;
-}  // close namespace bsl
-
-#else
 
 #include <errno.h>
 
@@ -83,27 +63,37 @@ namespace bsl {
 #include <stdexcept>
 #include <string>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+
+#include <system_error>
+
+namespace bsl {
+    using native_std::system_error;
+}  // close namespace bsl
+
+#else
+
 namespace bsl {
 
                              // ==================
                              // class system_error
                              // ==================
 
-class system_error : public std::runtime_error {
+class system_error : public native_std::runtime_error {
     // This class represents exceptions that have an associated error code.
 
   public:
     // CREATORS
-    system_error(error_code code, const std::string& what);
+    system_error(error_code code, const native_std::string& what);
     system_error(error_code code, const char *what);
     system_error(error_code code);                                  // IMPLICIT
         // Create an object of this type holding the specified 'code'.
         // Optionally specify a string 'what' to be added to the description of
         // this object.
 
-    system_error(int                   value,
-                 const error_category& category,
-                 const std::string&    what);
+    system_error(int                       value,
+                 const error_category&     category,
+                 const native_std::string& what);
     system_error(int value, const error_category& category, const char *what);
     system_error(int value, const error_category& category);
         // Create an object of this type holding an error code holding the
