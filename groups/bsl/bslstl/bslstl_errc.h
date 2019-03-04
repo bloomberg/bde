@@ -5,6 +5,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
+// BDE_VERIFY pragma: -TP25  // CLASSES are not defined in C++11
+
 //@PURPOSE: Provide C++11-defined error classes and functions for C++03.
 //
 //@CLASSES:
@@ -14,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //  BSL_ERRC_ENUM: type designating the 'errc' enumeration
 
 //@DESCRIPTION: This component defines an enumeration 'bsl::errc::Enum', and
-// marks it elgible to participate as an error condition in the 'system_error'
+// marks it eligible to participate as an error condition in the 'system_error'
 // facility.  In C++11 mode, the vendor-supplied '<system_error>'
 // implementation is used instead, and the corresponding names from 'std' are
 // imported into 'bsl'.
@@ -70,8 +72,8 @@ BSLS_IDENT("$Id: $")
 #define BSL_ERRC_ENUM bsl::errc
 
 namespace bsl {
-    using native_std::errc;
-};
+using native_std::errc;
+}  // close namespace bsl
 
 #else
 
@@ -85,7 +87,7 @@ namespace bsl {
 
 struct errc {
     // This class defines an enumeration type that provides named literals for
-    // the 'errno' values defined in the '<cerrno>' header. Note that in the
+    // the 'errno' values defined in the '<cerrno>' header.  Note that in the
     // C++11 standard, 'std::errc' is defined as an 'enum class', so that
     // literals can be qualified with 'std::errc::' and objects of the type can
     // be declared as 'std::errc'.  In C++03 mode, we cannot have both, and we

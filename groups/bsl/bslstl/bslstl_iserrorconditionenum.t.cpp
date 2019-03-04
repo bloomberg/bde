@@ -76,10 +76,12 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 namespace ErrorValues {
-    enum Eligible         { e_eligible          = 1 };
-    enum Ineligible       { e_ineligible        = 2 };
-    enum MarkedIneligible { e_marked_ineligible = 3 };
-}
+enum Eligible         { e_eligible          = 1 };
+enum Ineligible       { e_ineligible        = 2 };
+enum MarkedIneligible { e_marked_ineligible = 3 };
+}  // close namespace ErrorValues
+
+// BDE_VERIFY pragma: -NT01  // namespace comment depends on macro
 
 namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE {
 template <>
@@ -132,6 +134,8 @@ struct is_error_condition_enum<ErrorValues::MarkedIneligible> : bsl::false_type
     };
     }  // close namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE
 //..
+
+// BDE_VERIFY pragma: +NT01  // namespace comment depends on macro
 
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING

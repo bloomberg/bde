@@ -142,7 +142,7 @@ void aSsErT(bool condition, const char *message, int line)
 namespace BloombergLP {
 namespace bsls {
 template <>
-void BslTestUtil::callDebugprint(const bsl::error_category&  category,
+void BslTestUtil::callDebugprint(const bsl::error_category&  object,
                                  const char                 *leadingString,
                                  const char                 *trailingString)
     // Print a descrriptive form of the specified 'category' bracketed by the
@@ -150,12 +150,12 @@ void BslTestUtil::callDebugprint(const bsl::error_category&  category,
 {
     printf("%serror_category<%s>%s",
            leadingString,
-           category.name(),
+           object.name(),
            trailingString);
 }
 
 template <>
-void BslTestUtil::callDebugprint(const bsl::error_code&  code,
+void BslTestUtil::callDebugprint(const bsl::error_code&  object,
                                  const char             *leadingString,
                                  const char             *trailingString)
     // Print a descrriptive form of the specified 'code' bracketed by the
@@ -163,14 +163,14 @@ void BslTestUtil::callDebugprint(const bsl::error_code&  code,
 {
     printf("%serror_code<%d, '%s', %s>%s",
            leadingString,
-           code.value(),
-           code.message().c_str(),
-           code.category().name(),
+           object.value(),
+           object.message().c_str(),
+           object.category().name(),
            trailingString);
 }
 
 template <>
-void BslTestUtil::callDebugprint(const bsl::error_condition&  condition,
+void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
                                  const char                  *leadingString,
                                  const char                  *trailingString)
     // Print a descrriptive form of the specified 'condition' bracketed by the
@@ -178,14 +178,16 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  condition,
 {
     printf("%serror_condition<%d, '%s', %s>%s",
            leadingString,
-           condition.value(),
-           condition.message().c_str(),
-           condition.category().name(),
+           object.value(),
+           object.message().c_str(),
+           object.category().name(),
            trailingString);
 }
 
 }  // close namespace bsls
 }  // close enterprise namespace
+
+// BDE_VERIFY pragma: -NT01  // close namespace comment depends on macro
 
 //=============================================================================
 //                                USAGE EXAMPLE
@@ -288,6 +290,8 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  condition,
         }
     }
 //..
+
+// BDE_VERIFY pragma: +NT01  // close namespace comment depends on macro
 
 //=============================================================================
 //                      GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -753,6 +757,7 @@ int main(int argc, char *argv[])
 
         struct concrete_error_category : public bsl::error_category {
             native_std::string message(int) const BSLS_KEYWORD_OVERRIDE
+                // Unused implementation.
             {
                 ASSERT(false);
                 throw;
@@ -761,6 +766,7 @@ int main(int argc, char *argv[])
 
             const char *name() const
             BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE
+                // Unused implementation.
             {
                 ASSERT(false);
                 return 0;
@@ -783,6 +789,7 @@ int main(int argc, char *argv[])
             {
                 struct test_error_category : concrete_error_category {
                     ~test_error_category() BSLS_KEYWORD_OVERRIDE
+                        // Mark that the destructor has been called.
                     {
                         destructor_called = true;
                     }
@@ -999,7 +1006,7 @@ int main(int argc, char *argv[])
             printf("\nTESTING FREE COMPARISON OPERATORS"
                    "\n=================================\n");
 
-        const bsl::error_code codes[4] = {
+        const bsl::error_code      codes[4] = {
             bsl::error_code(static_cast<int>(bsl::errc::no_link),
                             generic_category()),
             bsl::error_code(static_cast<int>(bsl::errc::timed_out),
@@ -1210,7 +1217,7 @@ int main(int argc, char *argv[])
         };
         for (int i = 0; i < 4; ++i) {
             std::hash<bsl::error_code> hasher;
-            const bsl::error_code &ci = codes[i];
+            const bsl::error_code&     ci = codes[i];
             if (veryVeryVerbose) {
                 printf("%d %s %d %zu\n",
                        i, ci.category().name(), ci.value(), hasher(ci));

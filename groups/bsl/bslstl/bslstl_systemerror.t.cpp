@@ -92,17 +92,17 @@ namespace BloombergLP {
 namespace bsls {
 
 template <>
-void BslTestUtil::callDebugprint(const bsl::system_error&  error,
+void BslTestUtil::callDebugprint(const bsl::system_error&  object,
                                  const char               *leadingString,
                                  const char               *trailingString)
-    // Print a descrriptive form of the specified 'error' bracketed by the
+    // Print a descriptive form of the specified 'error' bracketed by the
     // specified 'leadingString' and 'trailingString'.
 {
     printf("%ssystem_error<%d, '%s', %s>%s",
            leadingString,
-           error.code().value(),
-           error.what(),
-           error.code().category().name(),
+           object.code().value(),
+           object.what(),
+           object.code().category().name(),
            trailingString);
 }
 
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
       case 2: {
         // --------------------------------------------------------------------
         // TESTING SYSTEM ERROR METHODS
-        //   Test the metthods of the 'bsl::system_error' class.
+        //   Test the methods of the 'bsl::system_error' class.
         //
         // Concerns:
         //: 1 The constructors build an object with the correct code.
@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
 #endif
 
         {
-            system_error        mX(ec, std::string("@@@"));
+            system_error        mX(ec, native_std::string("@@@"));
             const system_error& X = mX;
             ASSERT(ec == X.code());
             ASSERT(strstr(X.what(), io_error));
@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
         {
             system_error        mX(static_cast<int>(errc::io_error),
                                    generic_category(),
-                                   std::string("@@@"));
+                                   native_std::string("@@@"));
             const system_error& X = mX;
             ASSERT(ec == X.code());
             ASSERT(strstr(X.what(), io_error));
@@ -243,8 +243,9 @@ int main(int argc, char *argv[])
         }
 
         {
-            system_error mX(
-                static_cast<int>(errc::io_error), generic_category(), "@@@");
+            system_error        mX(static_cast<int>(errc::io_error),
+                                   generic_category(),
+                                   "@@@");
             const system_error& X = mX;
             ASSERT(ec == X.code());
             ASSERT(strstr(X.what(), io_error));
@@ -252,8 +253,8 @@ int main(int argc, char *argv[])
         }
 
         {
-            system_error mX(static_cast<int>(errc::io_error),
-                            generic_category());
+            system_error        mX(static_cast<int>(errc::io_error),
+                                   generic_category());
             const system_error& X = mX;
             ASSERT(ec == X.code());
             ASSERT(strstr(X.what(), io_error));

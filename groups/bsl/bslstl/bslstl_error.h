@@ -5,6 +5,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
+// BDE_VERIFY pragma: -TP25  // CLASSES are not defined in C++11
+
 //@PURPOSE: Provide C++11-defined error classes and functions for C++03.
 //
 //@CLASSES:
@@ -27,7 +29,7 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Dedicated Error Category
 ///- - - - - - - - - - - - - - - - - -
 // Suppose we have a dedicated system with a set of possible errors, and we
-// want to check if such an error hass occurred.  We can use the 'system_error'
+// want to check if such an error has occurred.  We can use the 'system_error'
 // capabilities of the C++ standard for this.
 //
 // First, we define the set of error codes for our system.
@@ -156,14 +158,14 @@ BSLS_IDENT("$Id: $")
 #include <system_error>
 
 namespace bsl {
-    using native_std::error_category;
-    using native_std::error_code;
-    using native_std::error_condition;
-    using native_std::generic_category;
-    using native_std::system_category;
-    using native_std::make_error_code;
-    using native_std::make_error_condition;
-}
+using native_std::error_category;
+using native_std::error_code;
+using native_std::error_condition;
+using native_std::generic_category;
+using native_std::system_category;
+using native_std::make_error_code;
+using native_std::make_error_condition;
+}  // close namespace bsl
 
 #else
 
@@ -624,9 +626,9 @@ error_condition::error_condition(int value, const error_category& category)
 template <class ERROR_CONDITION_ENUM>
 inline
 error_condition::error_condition(
-    ERROR_CONDITION_ENUM value,
-    typename enable_if<is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
-                       BoolType>::type)                             // IMPLICIT
+       ERROR_CONDITION_ENUM value,
+       typename enable_if<is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
+                          BoolType>::type)                          // IMPLICIT
 : d_value(make_error_condition(value).value())
 , d_category_p(&make_error_condition(value).category())
 {

@@ -1,9 +1,11 @@
-// bslstl_iserrorcondition.h                                          -*-C++-*-
+// bslstl_iserrorconditionenum.h                                      -*-C++-*-
 #ifndef INCLUDED_BSLSTL_ISERRORCONDITIONENUM
 #define INCLUDED_BSLSTL_ISERRORCONDITIONENUM
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
+
+// BDE_VERIFY pragma: -TP25  // CLASSES are not defined in C++11
 
 //@PURPOSE: Provide C++11-defined error condition trait for C++03.
 //
@@ -62,6 +64,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
 
+// BDE_VERIFY pragma: -SLM01  // Do not complain about macro leaking
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #include <system_error>
@@ -69,17 +73,17 @@ BSLS_IDENT("$Id: $")
 #define BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE std
 
 namespace bsl {
-    using native_std::is_error_condition_enum;
+using native_std::is_error_condition_enum;
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    using native_std::is_error_condition_enum_v;
+using native_std::is_error_condition_enum_v;
 #elif defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    template <class TYPE>
+template <class TYPE>
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-    inline
+inline
 #endif
-    BSLS_KEYWORD_CONSTEXPR bool is_error_condition_enum_v =
-        is_error_condition_enum<TYPE>::value;
+BSLS_KEYWORD_CONSTEXPR bool is_error_condition_enum_v =
+    is_error_condition_enum<TYPE>::value;
 #endif
 }  // close namespace bsl
 

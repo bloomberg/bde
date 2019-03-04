@@ -5,6 +5,8 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
+// BDE_VERIFY pragma: -TP25  // CLASSES are not defined in C++11
+
 //@PURPOSE: Provide C++11-defined error classes and functions for C++03.
 //
 //@CLASSES:
@@ -37,7 +39,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  assert(ERANGE == errno);
 //..
-//  Finally, prepare an annotated exception and verify the annotaion and the
+//  Finally, prepare an annotated exception and verify the annotation and the
 //  error code stored within it.
 //..
 //  bsl::system_error annotated(errno, generic_category(), "1e2000");
@@ -68,7 +70,7 @@ BSLS_IDENT("$Id: $")
 #include <system_error>
 
 namespace bsl {
-    using native_std::system_error;
+using native_std::system_error;
 }  // close namespace bsl
 
 #else
