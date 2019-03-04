@@ -218,7 +218,7 @@ class SingleConsumerQueue {
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
-    ~SingleConsumerQueue();
+    // ~SingleConsumerQueue() = default;
         // Destroy this object.
 
     // MANIPULATORS
@@ -352,11 +352,6 @@ SingleConsumerQueue<TYPE>::SingleConsumerQueue(
                                               bsl::size_t       capacity,
                                               bslma::Allocator *basicAllocator)
 : d_impl(capacity, basicAllocator)
-{
-}
-
-template <class TYPE>
-SingleConsumerQueue<TYPE>::~SingleConsumerQueue()
 {
 }
 

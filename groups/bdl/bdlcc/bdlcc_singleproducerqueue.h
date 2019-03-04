@@ -237,7 +237,7 @@ class SingleProducerQueue {
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
-    ~SingleProducerQueue();
+    // ~SingleProducerQueue() = default;
         // Destroy this object.
 
     // MANIPULATORS
@@ -373,11 +373,6 @@ SingleProducerQueue<TYPE>::SingleProducerQueue(
                                               bsl::size_t       capacity,
                                               bslma::Allocator *basicAllocator)
 : d_impl(capacity, basicAllocator)
-{
-}
-
-template <class TYPE>
-SingleProducerQueue<TYPE>::~SingleProducerQueue()
 {
 }
 
