@@ -951,10 +951,11 @@ typedef bdls::FilesystemUtil::Offset  Offset;
 #ifdef u_DWARF
 typedef balst::StackTraceResolver_DwarfReader Reader;
 typedef u::Reader::Section                    Section;
+
+static const u::UintPtr minusOne  = ~static_cast<u::UintPtr>(0);
 #endif
 
 static const u::Offset  maxOffset = LLONG_MAX;
-static const u::UintPtr minusOne  = ~static_cast<u::UintPtr>(0);
 
 BSLMF_ASSERT(sizeof(u::Uint64) == sizeof(u::Offset));
 BSLMF_ASSERT(sizeof(u::UintPtr) == sizeof(void *));

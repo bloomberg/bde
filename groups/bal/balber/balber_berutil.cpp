@@ -252,7 +252,7 @@ void assembleDouble(double    *value,
         longLongValue |= DOUBLE_SIGN_MASK;
     }
 
-    *value = reinterpret_cast<double&>(longLongValue);
+    bsl::memcpy(value, &longLongValue, sizeof(double));
 }
 
 inline
@@ -264,8 +264,8 @@ void parseDouble(int       *exponent,
     // specified 'mantissa', and specified 'sign' values from their value of
     // exponent, mantissa, and sign in 'value' respectively.
 {
-    unsigned long long longLongValue
-                                = reinterpret_cast<unsigned long long&>(value);
+    unsigned long long longLongValue;
+    bsl::memcpy(&longLongValue, &value, sizeof(long long));
 
     *sign     = longLongValue & DOUBLE_SIGN_MASK ? 1 : 0;
     *exponent = static_cast<int>(
