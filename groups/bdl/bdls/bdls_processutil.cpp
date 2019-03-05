@@ -13,22 +13,25 @@
 BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 
 #include <bdls_filesystemutil.h>
+#include <bdls_pathutil.h>
+
+#include <bdlsb_fixedmemoutstreambuf.h>
 
 #include <bslma_allocator.h>
-#include <bslma_deallocatorguard.h>
-#include <bslma_default.h>
 #include <bslmf_assert.h>
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdio.h>
+#include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
 
 #include <sys/types.h>        // must precede 'stat.h'
 #include <sys/stat.h>         // 'stat'
 
 #if defined BSLS_PLATFORM_OS_UNIX
+# include <limits.h>           // 'PATH_MAX'
 # include <unistd.h>           // 'getpid'
 
 # if defined BSLS_PLATFORM_OS_AIX
@@ -53,6 +56,24 @@ BSLS_IDENT_RCSID(bdls_processutil_cpp,"$Id$ $CSID$")
 
 namespace {
 namespace u {
+
+using namespace BloombergLP;
+
+#if defined BSLS_PLATFORM_OS_UNIX
+const char *slash = "/";
+#else
+const char *slash = "\\";
+#endif
+#if defined BSLS_PLATFORM_OS_LINUX
+enum { e_IS_LINUX = 1 };
+#else
+enum { e_IS_LINUX = 0 };
+#endif
+#if defined PATH_MAX
+enum { k_PATH_MAX = PATH_MAX };
+#else
+enum { k_PATH_MAX = 4 * 1024 };
+#endif
 
 inline
 int getPid()
@@ -94,38 +115,40 @@ bool isExecutable(const bsl::string& path)
     return isExecutable(path.c_str());
 }
 
-void appendInt(char *buf, int intValue)
-    // Append the specified 'intValue', in decimal ascii, to the specified
-    // 'buf';
+#if defined(BSLS_PLATFORM_OS_UNIX)
+void resolveSymLinksIfAny(bsl::string *fileName)
+    // If the specified '*fileName' is a symlink, resolve it it and overwrite
+    // '*fileName' with the new value, but only if the new value refers to
+    // an executable file.  The behavior is undefined unless '*fileName' is
+    // an executable file or a symlink to one.
 {
-    // The purpose of this function is to get around needing to use 'sprintf',
-    // which calls 'malloc', to write the pid to a buffer.
+    BSLS_ASSERT_SAFE(isExecutable(*fileName));
 
-    buf = buf + bsl::strlen(buf);
+    struct stat s;
+    int rc = ::lstat(fileName->c_str(), &s);
+    if (0 == rc && S_ISLNK(s.st_mode)) {
+        // It's a symbolic link.  Resolve it.
 
-    bool sign = intValue < 0;
-    if (sign) {
-        *buf++ = '-';
+        bsl::string linkStr(k_PATH_MAX, '\0');
+
+        const char *linkStr_p = ::realpath(fileName->c_str(), &linkStr[0]);
+        if (linkStr_p == linkStr.c_str()) {
+            const bsl::size_t len = linkStr.find('\0');
+            linkStr.resize(len);
+
+            if (isExecutable(linkStr)) {
+                fileName->assign(linkStr);
+            }
+        }
     }
-
-    int denominator = sign ? -1 : +1;
-    BSLS_ASSERT(0 <= intValue / denominator);
-    while (10 <= intValue / denominator) {
-        denominator *= 10;
-    }
-
-    for (; 0 != denominator; denominator /= 10) {
-        const int digit = intValue /  denominator;
-        intValue                   %= denominator;
-
-        BSLS_ASSERT(0 <= digit);
-        BSLS_ASSERT(     digit < 10);
-
-        *buf++ = static_cast<char>(digit + '0');
-    }
-
-    *buf = 0;
 }
+#else
+inline
+void resolveSymLinksIfAny(bsl::string *)
+    // No symlinks on Windows.  No-op.
+{
+}
+#endif
 
 }  // close namespace u
 }  // close unnamed namespace
@@ -214,16 +237,16 @@ int ProcessUtil::getProcessName(bsl::string *result)
     //:   executable, use 'argv0' since that will not have symlinks resolved.
 
     char cmdLineFileName[100];
-    bsl::strcpy( cmdLineFileName, "/proc/");
-    u::appendInt(cmdLineFileName, u::getPid());
-    bsl::strcat( cmdLineFileName, "/cmdline");
-    bsl::ifstream cmdLineIstream;
-    cmdLineIstream.open(cmdLineFileName,
+    bdlsb::FixedMemOutStreamBuf sb(cmdLineFileName, sizeof(cmdLineFileName));
+    bsl::ostream os(&sb);
+    os << "/proc/" << u::getPid() << "/cmdline" << bsl::ends;
+    bsl::ifstream cmdLineFile;
+    cmdLineFile.open(cmdLineFileName,
                         bsl::ios_base::in | bsl::ios_base::binary);
 
     bsl::string argv0;
-    if (cmdLineIstream.is_open()) {
-        bsl::getline(cmdLineIstream, argv0, '\0');
+    if (cmdLineFile.is_open()) {
+        bsl::getline(cmdLineFile, argv0, '\0');
 
         if (!argv0.empty() && u::isExecutable(argv0)) {
             result->assign(argv0);
@@ -231,12 +254,14 @@ int ProcessUtil::getProcessName(bsl::string *result)
         }
     }
 
-    // OK, most likely either '/proc' is unavailable, or 'argv0' was a relative
-    // path and we've changed the current directory since task startup.
+    // Either '/proc' is unavailable, or 'argv0' was a relative path and we've
+    // changed the current directory since task startup.
 
     // '::getexecname' will return 'argv[0]' with symlinks resolved (which
-    // might be a full path when 'argv[0]' was relative), or 0 if it fails.  No
-    // known limit on length.
+    // might be a full path even though 'argv[0]' was relative), or 0 if it
+    // fails.  No known limit on length.  Note this will still not result in
+    // the path to the executable if 'argv[0]' was relative and the working
+    // directory has changed since task startup.
 
     const char *execName = ::getexecname();
     if (execName && *execName &&
@@ -244,6 +269,11 @@ int ProcessUtil::getProcessName(bsl::string *result)
         result->assign(execName);
         return 0;                                                     // RETURN
     }
+
+    // Probably 'argv[0]' was relative and we've changed directories.  If we
+    // have anything in 'argv0', return it as it may be useful as a process
+    // name.
+
     if (!argv0.empty()) {
         result->assign(argv0);
         return 0;                                                     // RETURN
@@ -256,7 +286,9 @@ int ProcessUtil::getProcessName(bsl::string *result)
     // This code seems to be returning 'argv[0]' except that, on Windows,
     // 'argv[0]' is always an absolute path, even if it was specified on the
     // command line as a relative path.  The following code yields the full
-    // path.
+    // path.  Also, on some Unix shells within windows, 'argv[0]' contains
+    // '/'s instead of '\\' and hence won't work with the file system,whereas
+    // 'GetModuleFileName' below will return a usable path.
 
     bsl::wstring wResult(64 * 1024, '\0');
     DWORD length = GetModuleFileNameW(0, &wResult[0], wResult.length());
@@ -298,64 +330,56 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
     rc = getProcessName(&processName);
     if (0 == rc && u::isExecutable(processName)) {
         result->assign(processName);
+
+        u::resolveSymLinksIfAny(result);
+
         return 0;                                                     // RETURN
     }
 
     // Probably 'argv[0]' was a relative path and we've changed the current
-    // directory since task startup.  Employ some alternatives to get the
-    // executable.
+    // directory since task startup.  Get the orignal directory from '$PWD' and
+    // see if we can build the correct path to the executabel with that.
+
+    const char *taskStartupDir = ::getenv("PWD");
+    if (PathUtil::isRelative(processName) && taskStartupDir &&
+                           FilesystemUtil::isDirectory(taskStartupDir, true)) {
+        if (*u::slash != taskStartupDir[bsl::strlen(taskStartupDir) - 1]) {
+            processName.insert(0, u::slash);
+        }
+        processName.insert(0, taskStartupDir);
+
+        if (u::isExecutable(processName)) {
+            result->assign(processName);
+
+            u::resolveSymLinksIfAny(result);
+
+            return 0;                                                 // RETURN
+        }
+    }
+
+    // At this point we abandon trying to fix 'processName' and try a radically
+    // different solution based on "/proc", which might or might not be
+    // available.
 
 #if  defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX || \
                                                defined BSLS_PLATFORM_OS_SOLARIS
-# if defined BSLS_PLATFORM_OS_LINUX
-    const char *suffix = "/exe";
-# else
-    const char *suffix = "/object/a.out";
-# endif
-
     char linkName[100];
-    bsl::strcpy( linkName, "/proc/");
-    u::appendInt(linkName, u::getPid());
-    bsl::strcat( linkName, suffix);
-
-    // 'linkName' may be a symlink or hardlink.  If it's a symlink, resolve it,
-    // otherwise return 'linkName', which won't look anything like 'argv[0]'
-    // but will at least allow the caller to access the executable.  But if
-    // '/proc' is unavailable (sometimes the case) it won't work.
+    bdlsb::FixedMemOutStreamBuf sb(linkName, sizeof(linkName));
+    bsl::ostream os(&sb);
+    os << "/proc/" << u::getPid() << (u::e_IS_LINUX ? "/exe" : "/object/a.out")
+       << bsl::ends;
 
     if (u::isExecutable(linkName)) {
-        struct stat s;
-        rc = ::lstat(linkName, &s);
-        if (0 == rc && S_ISLNK(s.st_mode)) {
-            // It's a symbolic link.  Resolve it.
+        // "/proc" was available (not always the case).
+        //
+        // 'linkName' may be a symlink or hardlink.  If it's a symlink, resolve
+        // it, otherwise return 'linkName', which won't look anything like
+        // 'argv[0]' but will at least allow the caller to access the
+        // executable.
 
-            enum { k_BUF_LEN = 64 * 1024 };
+        *result = linkName;
+        u::resolveSymLinksIfAny(result);
 
-            bslma::Allocator *alloc = bslma::Default::defaultAllocator();
-            char *linkBuf = static_cast<char *>(alloc->allocate(k_BUF_LEN));
-            bslma::DeallocatorGuard<bslma::Allocator> guard(linkBuf, alloc);
-
-            // If successful, 'readlink' returns the number of bytes in the
-            // result.
-
-            int numChars = static_cast<int>(::readlink(linkName,
-                                                       linkBuf,
-                                                       k_BUF_LEN));
-            if (0 < numChars && numChars < k_BUF_LEN) {
-                linkBuf[numChars] = 0;
-                if (u::isExecutable(linkBuf)) {
-                    result->assign(linkBuf, numChars);
-                    return 0;                                         // RETURN
-                }
-            }
-        }
-
-        // 'linkName' is either a hard link, or 'readlink' failed or the
-        // executable name was too long for the buffer.  At least we know that
-        // 'linkName' will give a path to the executable file, though it
-        // doesn't look anything like 'argv[0]'.
-
-        result->assign(linkName);
         return 0;                                                     // RETURN
     }
 

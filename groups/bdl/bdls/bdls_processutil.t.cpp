@@ -228,6 +228,20 @@ int main(int argc, char *argv[])
     ASSERT(0 == ::gethostname(hostName, k_HOST_NAME_BUF_LEN - 1));
 #endif
 
+    bsl::string argv0(argv[0], &ta);
+    bsl::string baseArgv0(     &ta);
+    {
+#if defined BSLS_PLATFORM_OS_WINDOWS
+        for (char *pc = &argv0[0]; *pc; ++pc) {
+            if ('/' == *pc) {
+            *pc = '\\';
+            }
+        }
+#endif
+        int rc = PathUtil::getBasename(&baseArgv0, argv0);
+        ASSERT(0 == rc);
+    }
+
     switch(test) { case 0:
       case 6: {
         // --------------------------------------------------------------------
@@ -455,13 +469,8 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(FUtil::isDirectory(dirName));
-        {
-            // 'FUtil::remove' uses the default allocator on directories
-
-            bslma::DefaultAllocatorGuard removeGuard(&ta);
-            rc = FUtil::remove(dirName, true);
-            ASSERT(0 == rc);
-        }
+        rc = FUtil::remove(dirName, true);
+        ASSERT(0 == rc);
         ASSERT(!FUtil::exists(dirName));
         ASSERT(!FUtil::exists(execCpDst));
       } break;
@@ -511,18 +520,23 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING 'getPathToExecutable'\n"
                              "===========================\n";
 
-        ASSERTV(argv[0], FUtil::exists(argv[0]));
-        const bsls::Types::Int64 execSize = FUtil::getFileSize(argv[0]);
+        ASSERTV(argv0, FUtil::exists(argv0));
+        const bsls::Types::Int64 execSize = FUtil::getFileSize(argv0);
         ASSERTV(execSize, 8 * 1024 < execSize);
 
         // Detect relative path on Unix or Windows
 
-        const bool argv0IsRelative = u::isRelative(argv[0]);
+        const bool argv0IsRelative = u::isRelative(argv0);
 
         bsl::string origCwd(&ta);
         int rc = FUtil::getWorkingDirectory(&origCwd);
         ASSERT(0 == rc);
         ASSERT(3 < origCwd.length());    // not root
+
+        bsl::string procNameBeforeCd("meow", &ta);
+        int gpnbRc = Obj::getProcessName(&procNameBeforeCd);
+        ASSERTV(gpnbRc, procNameBeforeCd, 0 == gpnbRc);
+        ASSERT(!procNameBeforeCd.empty());
 
         bsl::string execNameBeforeCd("meow", &ta);
         rc = Obj::getPathToExecutable(&execNameBeforeCd);
@@ -541,8 +555,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == rc);
         ASSERTV(origCwd, cwd, origCwd != cwd);
 
-        ASSERTV(cwd, argv[0], FUtil::exists(argv[0]), argv0IsRelative,
-                                   FUtil::exists(argv[0]) == !argv0IsRelative);
+        ASSERTV(cwd, argv0, FUtil::exists(argv0), argv0IsRelative,
+                                   FUtil::exists(argv0) == !argv0IsRelative);
 
         const bool procExists = FUtil::isDirectory("/proc", true);
 
@@ -570,7 +584,7 @@ int main(int argc, char *argv[])
         ASSERT(!procNameAfterCd.empty());
 
         const char * const target = u::npos == procNameAfterCd.find("case4")
-                                  ? "bdls_processutil."
+                                  ? baseArgv0.c_str()
                                   : u::e_UNIX
                                   ? "link"
                                   : "exec";
@@ -582,6 +596,7 @@ int main(int argc, char *argv[])
 
         if (verbose) {
             P_(origCwd);    P_(cwd);   P(procExists);
+            P_(procNameBeforeCd);      P(procNameAfterCd);
             P_(execNameBeforeCd);      P(execName);
             P_(execNameIsRelative);    P_(execNameExists);   P(execNameIsExec);
             P_(sizeMatches);           P(procNameAfterCd);
@@ -628,15 +643,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING 'getProcessName'\n"
                              "========================\n";
 
-        const char componentName[] = { "bdls_processutil" };
-
-        ASSERTV(argv[0], bsl::strstr(argv[0], componentName));
-
         bsl::string name(&ta);
         int rc = Obj::getProcessName(&name);
         ASSERTV(rc, 0 == rc);
 
-        ASSERTV(name, bsl::string::npos != name.find(componentName));
+        ASSERTV(name, bsl::string::npos != name.find(baseArgv0));
+
+        if (verbose) P(name);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -648,15 +661,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "BREATHING TEST\n"
                              "==============\n";
-
-        bsl::string argv0(argv[0], &ta);
-#if defined BSLS_PLATFORM_OS_WINDOWS
-        for (char *pc = &argv0[0]; *pc; ++pc) {
-            if ('/' == *pc) {
-                *pc = '\\';
-            }
-        }
-#endif
 
         const int pid = bdls::ProcessUtil::getProcessId();
         ASSERT(0 != pid);
