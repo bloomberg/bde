@@ -265,7 +265,7 @@ void parseDouble(int       *exponent,
     // exponent, mantissa, and sign in 'value' respectively.
 {
     unsigned long long longLongValue;
-    bsl::memcpy(&longLongValue, &value, sizeof(long long));
+    bsl::memcpy(&longLongValue, &value, sizeof(unsigned long long));
 
     *sign     = longLongValue & DOUBLE_SIGN_MASK ? 1 : 0;
     *exponent = static_cast<int>(
