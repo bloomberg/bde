@@ -863,7 +863,7 @@ int MiniReader::advanceToEndNode()
 
     const Node& node = currentNode();
 
-    BSLS_ASSERT(node.d_type == e_NODE_TYPE_ELEMENT);
+    BSLS_ASSERT(node.d_type == e_NODE_TYPE_ELEMENT);  (void)node;
 
     if (isEmptyElement()) {  // Empty element so we already skipped the body
         return 0;                                                     // RETURN

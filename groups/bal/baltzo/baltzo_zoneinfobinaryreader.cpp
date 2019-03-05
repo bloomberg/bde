@@ -99,7 +99,7 @@ struct RawLeapInfo64 {
 
 BSLMF_ASSERT(12 == sizeof(RawLeapInfo64));
 
-const bsls::Types::Int64 MINIMUM_ZIC_TRANSITION = -576460752303423488;
+const bsls::Types::Int64 MINIMUM_ZIC_TRANSITION = -576460752303423488LL;
     // The value is a constant, used by the ZIC compiler (which "compiles" the
     // data into zoneinfo binary files), and is used as the time point for the
     // first local time transition to simplify the logic for determining the

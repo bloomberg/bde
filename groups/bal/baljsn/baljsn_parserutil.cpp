@@ -30,18 +30,6 @@ BSLS_IDENT_RCSID(baljsn_parserutil_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace {
 
-inline
-bool isValidNextChar(int nextChar)
-    // Return 'true' if the specified 'nextChar' refers to a valid next
-    // character and 'false' otherwise.
-{
-    return bsl::streambuf::traits_type::eof() == nextChar
-        || bsl::isspace(nextChar)
-        || ',' == static_cast<char>(nextChar)
-        || ']' == static_cast<char>(nextChar)
-        || '}' == static_cast<char>(nextChar);
-}
-
 template <class TYPE>
 int loadInfOrNan(TYPE *value, bslstl::StringRef data)
 {
