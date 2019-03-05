@@ -4,66 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-
-                             // ------------------
-                             // class system_error
-                             // ------------------
-
-// CREATORS
-bsl::system_error::system_error(error_code                code,
-                                const native_std::string& what)
-: native_std::runtime_error(what + native_std::string(": ") + code.message())
-, d_code(code)
-{
-}
-
-bsl::system_error::system_error(error_code code, const char *what)
-: native_std::runtime_error(what + native_std::string(": ") + code.message())
-, d_code(code)
-{
-}
-
-bsl::system_error::system_error(error_code code)
-: native_std::runtime_error(code.message())
-, d_code(code)
-{
-}
-
-bsl::system_error::system_error(int                       value,
-                                const error_category&     category,
-                                const native_std::string& what)
-: native_std::runtime_error(what +
-                            native_std::string(": ") +
-                            category.message(value))
-, d_code(value, category)
-{
-}
-
-bsl::system_error::system_error(int                    value,
-                                const error_category&  category,
-                                const char            *what)
-: native_std::runtime_error(what +
-                            native_std::string(": ") +
-                            category.message(value))
-, d_code(value, category)
-{
-}
-
-bsl::system_error::system_error(int value, const error_category& category)
-: native_std::runtime_error(category.message(value))
-, d_code(value, category)
-{
-}
-
-// ACCESSORS
-const bsl::error_code& bsl::system_error::code() const
-{
-    return d_code;
-}
-
-#endif
-
 // ----------------------------------------------------------------------------
 // Copyright 2019 Bloomberg Finance L.P.
 //
