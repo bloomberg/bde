@@ -39,10 +39,11 @@ BSLS_IDENT("$Id: $")
 // First, we define the set of error values for our system.
 //..
 //  struct car_errc {
-//  enum ENum {
-//      car_wheels_came_off = 1,
-//      car_engine_fell_out = 2
-//  };
+//      // TYPES
+//      enum Enum {
+//          car_wheels_came_off = 1,
+//          car_engine_fell_out = 2
+//      };
 //  };
 //..
 // Then, we enable the trait marking this as an error code.

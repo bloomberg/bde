@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <string>
+
 using namespace BloombergLP;
 using namespace bsl;
 

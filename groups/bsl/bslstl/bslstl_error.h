@@ -146,6 +146,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_unspecifiedbool.h>
 
 #include <errno.h>
+#include <string.h>
 
 #include <cstring>
 #include <functional>

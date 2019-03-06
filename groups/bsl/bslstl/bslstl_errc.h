@@ -14,7 +14,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSL_ERRC_ENUM: type designating the 'errc' enumeration
-
+//
 //@DESCRIPTION: This component defines an enumeration 'bsl::errc::Enum', and
 // marks it eligible to participate as an error condition in the 'system_error'
 // facility.  In C++11 mode, the vendor-supplied '<system_error>'

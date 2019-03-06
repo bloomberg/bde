@@ -85,7 +85,7 @@ const error_category& system_category()
     return system_category_object;
 }
 
-}  // close bsl namespace
+}  // close namespace bsl
 
 #endif
 

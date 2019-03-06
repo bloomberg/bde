@@ -118,6 +118,7 @@ struct is_error_code_enum<ErrorValues::MarkedIneligible> : bsl::false_type
 // First, we define the set of error values for our system.
 //..
     struct car_errc {
+        // TYPES
         enum Enum {
             car_wheels_came_off = 1,
             car_engine_fell_out = 2

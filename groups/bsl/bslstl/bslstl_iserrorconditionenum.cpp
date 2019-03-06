@@ -1,4 +1,4 @@
-// bslstl_iserrorconditionenum.h                                      -*-C++-*-
+// bslstl_iserrorconditionenum.cpp                                    -*-C++-*-
 #include <bslstl_iserrorconditionenum.h>
 
 #include <bsls_ident.h>
