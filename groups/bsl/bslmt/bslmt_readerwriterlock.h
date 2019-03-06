@@ -210,6 +210,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsls_atomic.h>
 #include <bsls_atomicoperations.h>
 
 #include <bslmt_condition.h>
@@ -286,7 +287,7 @@ class ReaderWriterLock {
 
     volatile SignalState   d_signalState;
 
-    volatile char          d_owned;
+    bsls::AtomicBool       d_owned;
 
     // NOT IMPLEMENTED
     ReaderWriterLock(const ReaderWriterLock&);
@@ -392,7 +393,7 @@ class ReaderWriterLock {
 inline
 bslmt::ReaderWriterLock::ReaderWriterLock()
 : d_signalState(e_NOT_SIGNALED)
-, d_owned(0)
+, d_owned(false)
 {
     bsls::AtomicOperations::initInt64(&d_rwCount, READ_OK);
 }
