@@ -169,9 +169,10 @@ class DatumError {
         // absolute value indicates the number of spaces per indentation level
         // for this and all of its nested objects.  If 'level' is negative,
         // suppress indentation of the first line.  If 'spacesPerLevel' is
-        // negative, format the entire output on one line, suppressing all but
-        // the initial indentation (as governed by 'level').  If 'stream' is
-        // not valid on entry, this operation has no effect.  Note that this
+        // negative, suppress all but the initial indentation (as governed by
+        // 'level').  For readability the entire output is formatted on one
+        // line, regardless of the 'spacesPerLevel' value. If 'stream' is not
+        // valid on entry, this operation has no effect.  Note that this
         // human-readable format is not fully specified, and can change without
         // notice.
 };

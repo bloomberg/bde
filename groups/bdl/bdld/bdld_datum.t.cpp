@@ -7856,9 +7856,7 @@ int main(int argc, char *argv[])
                 expObjStr << "["                << "\n"
                           << "3"                << "\n"
                           << "2.25"             << "\n"
-                          << "error("           << "\n"
-                          << "3,'error'"        << "\n"
-                          << ")"                << "\n"
+                          << "error(3,'error')" << "\n"
                           << "]"                << "\n";
 
                 obj.print(objStr, 0, 0);
@@ -7876,9 +7874,7 @@ int main(int argc, char *argv[])
                 expObjStr << "["                    << "\n"
                           << "    3"                << "\n"
                           << "    2.25"             << "\n"
-                          << "    error("           << "\n"
-                          << "        3,'error'"    << "\n"
-                          << "    )"                << "\n"
+                          << "    error(3,'error')" << "\n"
                           << "]"                    << "\n";
 
                 obj.print(objStr);
@@ -7897,9 +7893,7 @@ int main(int argc, char *argv[])
                 expObjStr << "["                 << "\n"
                           << " 3"                << "\n"
                           << " 2.25"             << "\n"
-                          << " error("           << "\n"
-                          << "  3,'error'"       << "\n"
-                          << " )"                << "\n"
+                          << " error(3,'error')" << "\n"
                           << "]"                 << "\n";
 
                 obj.print(objStr, 0, 1);
@@ -7917,9 +7911,7 @@ int main(int argc, char *argv[])
                 expObjStr << "    ["                 << "\n"
                           << "     3"                << "\n"
                           << "     2.25"             << "\n"
-                          << "     error("           << "\n"
-                          << "      3,'error'"       << "\n"
-                          << "     )"                << "\n"
+                          << "     error(3,'error')" << "\n"
                           << "    ]"                 << "\n";
 
                 obj.print(objStr, 4, 1);
@@ -9650,32 +9642,23 @@ int main(int argc, char *argv[])
 { L_,  -9, -9, Datum::createDecimal64(BDLDFP_DECIMAL_DD(12.345), &oa),
                                                     "12.345"                 },
 { L_,   0,  0, Datum::createDouble(0.25),           "0.25"                NL },
-{ L_,   0,  0, Datum::createError(3),
-                                                   "error(" NL "3" NL ")" NL },
-{ L_,   0,  0, Datum::createError(-1, "msg", &oa),
-                                            "error(" NL "-1,'msg'" NL ")" NL },
-{ L_,   0,  1, Datum::createError(-1, "msg", &oa),
-                                           "error(" NL " -1,'msg'" NL ")" NL },
+{ L_,   0,  0, Datum::createError(3),               "error(3)"            NL },
+{ L_,   0,  0, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"     NL },
+{ L_,   0,  1, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"     NL },
 { L_,   0, -1, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"        },
-{ L_,   0, -8, Datum::createError(-1, "msg", &oa),
-                                    "error(" NL "    -1,'msg'" NL ")"     NL },
-{ L_,   3,  0, Datum::createError(-1, "msg", &oa),
-                                            "error(" NL "-1,'msg'" NL ")" NL },
+{ L_,   0, -8, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"     NL },
+{ L_,   3,  0, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"     NL },
 { L_,   3,  2, Datum::createError(-1, "msg", &oa),
-                        "      error(" NL "        -1,'msg'" NL "      )" NL },
+                                                  "      error(-1,'msg')" NL },
 { L_,   3, -2, Datum::createError(-1, "msg", &oa),
                                                   "      error(-1,'msg')"    },
 { L_,   3, -8, Datum::createError(-1, "msg", &oa),
-    "            error(" NL "                -1,'msg'" NL "            )" NL },
-{ L_,  -3,  0, Datum::createError(-1, "msg", &oa),
-                                        "error(" NL "-1,'msg'" NL ")"     NL },
-{ L_,  -3,  2, Datum::createError(-1, "msg", &oa),
-                          "error(" NL "        -1,'msg'" NL "      )"     NL },
+                                            "            error(-1,'msg')" NL },
+{ L_,  -3,  0, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"     NL },
+{ L_,  -3,  2, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"     NL },
 { L_,  -3, -2, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"        },
-{ L_,  -3, -8, Datum::createError(-1, "msg", &oa),
-                "error(" NL "                -1,'msg'" NL "            )" NL },
-{ L_,  -8, -8, Datum::createError(-1, "msg", &oa),
-                                        "error(" NL "    -1,'msg'" NL ")" NL },
+{ L_,  -3, -8, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"     NL },
+{ L_,  -8, -8, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"     NL },
 { L_,  -9, -9, Datum::createError(-1, "msg", &oa),  "error(-1,'msg')"        },
 { L_,   0,  0, Datum::createInteger(-18),           "-18"                 NL },
 { L_,   0,  0, Datum::createInteger64(987654, &oa), "987654"              NL },
