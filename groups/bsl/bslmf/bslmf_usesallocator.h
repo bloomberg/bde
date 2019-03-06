@@ -27,8 +27,8 @@ BSLS_IDENT("$Id: $")
 // 'A', then 'T' has a constructor that takes either 1) 'allocator_arg_t' as a
 // first argument and 'A' as a second argument, or 2) 'A' as the last argument.
 // Alternatively, the 'uses_allocator' template may be specialized for a type
-// 'T' that does not have a nested alias named 'allocator_type', where 'T' can
-// be constructed with 'A' as detailed above.
+// 'T' that does not have a nested alias named 'allocator_type', where 'T'
+// can be constructed with 'A' as detailed above.
 //
 // Note that the template variable 'uses_allocator_v' is defined in the C++17
 // standard as an inline variable.  If the current compiler supports the inline
@@ -80,7 +80,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_integralconstant.h>
 #include <bslmf_isconvertible.h>
-#include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -88,17 +87,44 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslmf {
 
-template <class TYPE, class ALLOC, class = void>
+                 // =====================================
+                 // struct UsesAllocator_HasAllocatorType
+                 // =====================================
+
+template <class TYPE>
+struct UsesAllocator_HasAllocatorType {
+    // This 'struct' template provides a mechanism for determining whether a
+    // given type defines a nested type named 'allocator_type'.  The 'value' is
+    // 'true' if the (template parameter) 'TYPE' provides such an alias, and
+    // 'false' otherwise.
+
+  private:
+    typedef struct { char a;    } yes_type;
+    typedef struct { char a[2]; } no_type;
+
+    template <class BDE_OTHER_TYPE>
+    static yes_type match(typename BDE_OTHER_TYPE::allocator_type *);
+    template <class BDE_OTHER_TYPE>
+    static no_type match(...);
+        // Return 'yes_type' if the (template parameter) 'BDE_OTHER_TYPE'
+        // defines a type named 'allocator_type', and 'no_type' otherwise.
+
+  public:
+    static const bool value = sizeof(match<TYPE>(0)) == sizeof(yes_type);
+    typedef bsl::integral_constant<bool, value> type;
+};
+
+template <class TYPE,
+          class ALLOC,
+          bool = UsesAllocator_HasAllocatorType<TYPE>::value>
 struct UsesAllocator_Imp : bsl::false_type {
     // This 'struct' template derives from 'bsl::false_type' when the (template
     // parameter) type 'TYPE' does not have a nested alias 'allocator_type'.
 };
 
 template <class TYPE, class ALLOC>
-struct UsesAllocator_Imp<TYPE,
-                         ALLOC,
-                         BSLMF_VOIDTYPE(typename TYPE::allocator_type)>
-    : bsl::is_convertible<ALLOC, typename TYPE::allocator_type>::type {
+struct UsesAllocator_Imp<TYPE, ALLOC, true>
+: bsl::is_convertible<ALLOC, typename TYPE::allocator_type>::type {
     // This 'struct' template derives from 'bsl::true_type' when the (template
     // parameter) 'TYPE' has a nested alias 'allocator_type' and the (template
     // parameter) type 'ALLOC' is convertible to 'TYPE::allocator_type', and
@@ -123,6 +149,7 @@ struct uses_allocator
     // 'TYPE' uses 'ALLOCATOR_TYPE' and from 'bsl::false_type' otherwise.  This
     // meta-function has the same syntax as the 'uses_allocator' meta-function
     // defined in the C++11 standard [allocator.uses.trait].
+
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES

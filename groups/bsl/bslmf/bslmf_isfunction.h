@@ -62,7 +62,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_integralconstant.h>
 #include <bslmf_isconst.h>
-#include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -73,21 +72,113 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_functionpointertraits.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
-// This is the simplest implementation, for conforming compilers.  It relies
-// only on the property that function types and reference types are the only
-// type categories that cannot be explicitly cv-qualified.
+#if defined(BSLS_PLATFORM_CMP_IBM)
+// The IBM xlC compiler produces a "hard" error (not eligible for SFINAE) when
+// trying to apply cv-qualifiers to a template parameter (or typedef) that is a
+// function type.  Hence, a more oblique approach is needed to detect all
+// function types on this platform.  This implementation relies on the fact
+// that you cannot form an array of function types.
+
+namespace BloombergLP {
+namespace bslmf {
+
+struct IsFunction_Imp {
+    struct FalseType {
+        // This 'struct' provides a type larger than 'char' to be used in
+        // unevaluated contexts, allowing 'sizeof(selected overload)' to
+        // distinguish which overload was called when all other overloads
+        // return a 'char'.
+
+        char d_dummy[17];  // Member to guarantee 'sizeof(FalseType) > 1'
+    };
+
+    template <class TYPE>
+    static FalseType test(int TYPE::*, void *);
+        // This function will match any class type, including abstract types.
+
+    template <class TYPE>
+    static FalseType test(TYPE (*)[2], ...);
+        // This function will match all types other than those that cannot be
+        // used to form an array.  This includes function types, reference
+        // types, void types, and abstract types.  Further overloads and
+        // specializations will filter the reference, array, and abstract
+        // types.
+
+    template <class TYPE>
+    static char test(...);
+        // This function, when called with '0' in a non-evaluated context, will
+        // match anything that the previous overloads fail to match, which will
+        // include all function types, reference types, void types, and arrays
+        // of unknown bound.
+};
+
+} // close package namespace
+} // close enterprise namespace
 
 namespace bsl {
 
-# ifdef BSLS_PLATFORM_CMP_MSVC
-#   pragma warning(push)
-#   pragma warning(disable: 4180) // cv-qualifier does not change function type
-# endif
+template <class TYPE>
+struct is_function : integral_constant<bool,
+           sizeof(BloombergLP::bslmf::IsFunction_Imp::test<TYPE>(0, 0)) == 1> {
+    // This 'struct' template implements the 'is_function' meta-function
+    // defined in the C++11 standard [meta.unary.cat] to determine if the
+    // (template parameter) 'TYPE' is a function type.  This 'struct' derives
+    // from 'bsl::true_type' if the 'TYPE' is a function type, and
+    // from 'bsl::false_type' otherwise.
+};
 
-                        // ====================
-                        // struct 'is_function'
-                        // ====================
+template <class TYPE>
+struct is_function<TYPE []> : false_type {
+    // Array types are, self-evidently, never function types.  Arrays of
+    // unknown bound will be misdiagnosed by the 'IsFunction_Imp' detector, so
+    // this template is partially specialized to resolve such cases.
+};
+
+template <class TYPE>
+struct is_function<TYPE &> : false_type {
+    // Reference types are, self-evidently, never function types.  This
+    // template is partially specialized to resolve such cases, as the
+    // detection idiom embodied in 'IsFunction_Imp' would yield the wrong
+    // result otherwise.
+};
+
+template <>
+struct is_function<void> : false_type {
+    // 'void' types are not functions.  It is easier to provide 4 cv-qualified
+    // explicit specializations than introduce a further dependency and chain
+    // template instantiations through 'remove_cv'.
+};
+
+template <>
+struct is_function<const void> : false_type {
+    // 'void' types are not functions.  It is easier to provide 4 cv-qualified
+    // explicit specializations than introduce a further dependency and chain
+    // template instantiations through 'remove_cv'.
+};
+
+template <>
+struct is_function<volatile void> : false_type {
+    // 'void' types are not functions.  It is easier to provide 4 cv-qualified
+    // explicit specializations than introduce a further dependency and chain
+    // template instantiations through 'remove_cv'.
+};
+
+template <>
+struct is_function<const volatile void> : false_type {
+    // 'void' types are not functions.  It is easier to provide 4 cv-qualified
+    // explicit specializations than introduce a further dependency and chain
+    // template instantiations through 'remove_cv'.
+};
+
+} // close namespace bsl
+
+#else  // This is the simplest implementation, for conforming compilers.
+namespace bsl {
+
+#ifdef BSLS_PLATFORM_CMP_MSVC
+# pragma warning(push)
+# pragma warning(disable: 4180)  // cv-qualifier has no effect on function type
+#endif
 
 template <class TYPE>
 struct is_function
@@ -101,9 +192,9 @@ struct is_function
     // that 'is_const<const TYPE>' will actually yield 'false'.
 };
 
-# ifdef BSLS_PLATFORM_CMP_MSVC
-#   pragma warning(pop)
-# endif
+#ifdef BSLS_PLATFORM_CMP_MSVC
+# pragma warning(pop)
+#endif
 
 template <class TYPE>
 struct is_function<TYPE &> : false_type {
@@ -125,153 +216,21 @@ struct is_function<TYPE &&> : false_type {
 };
 # endif
 
-# ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_function_v = is_function<TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_function' meta-function.
-# endif
+#endif
+
 }  // close namespace bsl
-#else  // BSLS_PLATFORM_CMP_IBM / BSLS_PLATFORM_CMP_SUN
-// The IBM xlC compiler produces a "hard" error (not eligible for SFINAE) when
-// trying to apply cv-qualifiers to a template parameter (or typedef) that is a
-// function type.  Hence, a more oblique approach is needed to detect all
-// function types on this platform.  This implementation relies on the fact
-// that you cannot form an array of function types.
-
-// While Sun CC can use the preferred implementation above, it also spams a lot
-// of warnings about spurious cv-qualifiers.  This alternative approach should
-// avoid that concern, and is almost as simple.  Measuring the resulting test
-// driver size and compile time suggests that the implementations are
-// interchangable, so prefer the one with fewer warnings.
-
-namespace BloombergLP {
-namespace bslmf {
-
-template <class TYPE, class = void>
-struct IsFunction_Imp;
-    // Forward declaration of implementation detail class that will perform
-    // most of the metaprogramming to determine whether the template parameter
-    // 'TYPE' is a function type.  The second template parameter is unused,
-    // other than providing a context for SFINAE-able type expressions.
-
-} // close package namespace
-} // close enterprise namespace
-
-namespace bsl {
-                        // ====================
-                        // struct 'is_function'
-                        // ====================
-
-template <class TYPE>
-struct is_function : BloombergLP::bslmf::IsFunction_Imp<TYPE>::type {
-    // This 'struct' template implements the 'is_function' meta-function
-    // defined in the C++11 standard [meta.unary.cat] to determine if the
-    // (template parameter) 'TYPE' is a function type.  This 'struct' derives
-    // from 'bsl::true_type' if the 'TYPE' is a function type, and from
-    // 'bsl::false_type' otherwise.
-};
-
-template <class TYPE>           struct is_function<TYPE[ ]> : false_type {};
-template <class TYPE, size_t N> struct is_function<TYPE[N]> : false_type {};
-    // Array types are never functions, but pass the filter in the 'Imp' trait
-    // above on both compilers relying on this workaround, regardless of what
-    // the stnadard says.
-
-# if defined(BSLS_PLATFORM_CMP_SUN)
-// The Sun implementation below relies on function types not being valid array
-// elements.  We must specialize for any other types that are not valid array
-// elements.
-
-template <class TYPE>
-struct is_function<TYPE&> : false_type {};
-    // Reference types are never functions, nor can they be array elements, so
-    // a partial specialization is required to give the correct result.  The
-    // Sun CC compiler does not support rvalue-references, so there is no need
-    // to conditionally add an extra specialization to handle those.
-
-template <> struct is_function<void>                : false_type {};
-template <> struct is_function<const void>          : false_type {};
-template <> struct is_function<volatile void>       : false_type {};
-template <> struct is_function<const volatile void> : false_type {};
-    // 'void' is not a function type, nor can it be array element, so explicit
-    // specializations are required to give the correct result.
-# endif
-}  // close namespace bsl
-
-// ============================================================================
-//                          CLASS TEMPLATE DEFINTIONS
-// ============================================================================
-
-namespace BloombergLP {
-namespace bslmf {
-
-                    // ====================================
-                    // struct 'IsFunction_FilterClassTypes'
-                    // ====================================
-
-template <class TYPE, class = void>
-struct IsFunction_FilterClassTypes : bsl::true_type {
-    // This 'struct' template implements a meta-function to determine if the
-    // (template parameter) 'TYPE' is not a class (or union) type.  This
-    // 'struct' derives from 'bsl::false_type' if the 'TYPE' is a class type,
-    // and from 'bsl::true_type' otherwise.  Note that due to other filters
-    // applied before querying this implementation-detail trait, a 'true_type'
-    // result implies that 'TYPE' must be a function type.
-};
-
-template <class TYPE>
-struct IsFunction_FilterClassTypes<TYPE, BSLMF_VOIDTYPE(int TYPE::*)>
-    : bsl::false_type {
-    // This partial specialization provide the 'false_type' result for all
-    // (potentially incomplete or abstract) class types.  All other object
-    // types, will be filterered at earlier stages of decuction.
-};
-
-                        // =======================
-                        // struct 'IsFunction_Imp'
-                        // =======================
-
-template <class TYPE, class>
-struct IsFunction_Imp : IsFunction_FilterClassTypes<TYPE>::type {
-    // The template paramter 'TYPE' shall be a function type, or an incomplete
-    // or abstract class type.  We filter array, referenence, cv-'void', and
-    // complete non-abstract object types at the higher level trait; that just
-    // leaves incomplete and abstract cv-qualified class types to distinguish
-    // from functions, in a warning-free manner.
-};
-
-# if defined(BSLS_PLATFORM_CMP_IBM)
-template <class TYPE>
-struct IsFunction_Imp<TYPE, BSLMF_VOIDTYPE(TYPE())> : bsl::false_type {
-    // This partial specialization provide the 'false_type' result for all
-    // (non-abstract) object types, reference types, and cv-'void'.
-};
-
-#else // Sun CC
-// Sun CC permits template parameters of function types that return functions,
-// so we need a different workaround for this platform.
-
-template <class TYPE>
-struct IsFunction_Imp<TYPE, BSLMF_VOIDTYPE(TYPE[sizeof(TYPE)])>
-    : bsl::false_type {
-    // This partial specialization provide the 'false_type' result for all
-    // complete (non-abstract) object types.  The 'sizeof' is required to
-    // remove function types (and potentially incomplete class types) from
-    // this filter, as Sun CC will otherwise accept arrays of function types as
-    // a valid template type parameter.
-};
-# endif // Sun CC
-
-} // close package namespace
-} // close enterprise namespace
-#endif  // BSLS_PLATFORM_CMP_IBM / BSLS_PLATFORM_CMP_SUN
+#endif
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2017 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
