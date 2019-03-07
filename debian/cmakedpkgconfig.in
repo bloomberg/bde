@@ -3,7 +3,7 @@
     "platforms": {
         "amd64": [
             {
-                "ufids": [ "opt_exc_mt", "opt_exc_mt_64" ],
+                "ufids": [ "opt_exc_mt"],
                 "targets": [ "all" ],
                 "install": {
                     "libbal-dev": [ "bal", "bal-symlinks",
@@ -33,10 +33,38 @@
                 }
             },
             {
-                "ufids": [ "opt_dbg_exc_mt", "opt_dbg_exc_mt_64",
-                           "opt_exc_mt_pic",
-                           "dbg_exc_mt", "dbg_exc_mt_64",
-                           "dbg_exc_mt_safe", "dbg_exc_mt_64_safe"],
+                "ufids": [ "opt_exc_mt_64_pic" ],
+                "targets": [ "all" ],
+                "install": {
+                    "libbal-dev": [ "bal", "bal-symlinks",
+                                    "bal-release-symlink", "bal-pkgconfig",
+                                    "bal-pic-symlink-hack" ],
+                    "libbbl-dev": [ "bbl", "bbl-symlinks",
+                                    "bbl-release-symlink", "bbl-pkgconfig",
+                                    "bbl-pic-symlink-hack" ],
+                    "libbdl-dev": [ "bdl", "bdl-symlinks",
+                                    "bdl-release-symlink", "bdl-pkgconfig",
+                                    "bdl-pic-symlink-hack" ],
+                    "libbsl-dev": [ "bsl", "bsl-symlinks",
+                                    "bsl-release-symlink", "bsl-pkgconfig",
+                                    "bsl-pic-symlink-hack" ],
+                    "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks",
+                                          "inteldfp-release-symlink",
+                                          "inteldfp-pkgconfig",
+                                          "inteldfp-pic-symlink-hack" ],
+                    "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
+                                          "pcre2-release-symlink",
+                                          "pcre2-pkgconfig",
+                                          "pcre2-pic-symlink-hack" ],
+                    "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
+                                          "decnumber-release-symlink",
+                                          "decnumber-pkgconfig",
+                                          "decnumber-pic-symlink-hack" ]
+                }
+            },
+            {
+                "ufids": [ "opt_dbg_exc_mt", "opt_exc_mt_pic",
+                           "dbg_exc_mt", "dbg_exc_mt_safe" ],
                 "targets": [ "all" ],
                 "install": {
                     "libbal-dev": [ "bal", "bal-symlinks" ],
@@ -46,6 +74,28 @@
                     "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks" ],
                     "libpcre2-dev":     [ "pcre2", "pcre2-symlinks" ],
                     "libdecnumber-dev": [ "decnumber", "decnumber-symlinks" ]
+                }
+            },
+            {
+                "ufids": [ "opt_dbg_exc_mt_64_pic",
+                           "dbg_exc_mt_64_pic",
+                           "dbg_exc_mt_64_safe_pic" ],
+                "targets": [ "all" ],
+                "install": {
+                    "libbal-dev": [ "bal", "bal-symlinks",
+                                    "bal-pic-symlink-hack" ],
+                    "libbbl-dev": [ "bbl", "bbl-symlinks",
+                                    "bbl-pic-symlink-hack" ],
+                    "libbdl-dev": [ "bdl", "bdl-symlinks",
+                                    "bdl-pic-symlink-hack" ],
+                    "libbsl-dev": [ "bsl", "bsl-symlinks",
+                                    "bsl-pic-symlink-hack" ],
+                    "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks",
+                                          "inteldfp-pic-symlink-hack" ],
+                    "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
+                                          "pcre2-pic-symlink-hack" ],
+                    "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
+                                          "decnumber-pic-symlink-hack" ]
                 }
             },
             {
@@ -58,7 +108,7 @@
         ],
         "aix6_powerpc": [
             {
-                "ufids": [ "opt_exc_mt", "opt_exc_mt_64" ],
+                "ufids": [ "opt_exc_mt" ],
                 "targets": [ "all" ],
                 "install": {
                     "libbal-dev": [ "bal", "bal-symlinks",
@@ -88,10 +138,38 @@
                 }
             },
             {
-                "ufids": [ "opt_dbg_exc_mt", "opt_dbg_exc_mt_64",
-                           "opt_exc_mt_pic",
-                           "dbg_exc_mt", "dbg_exc_mt_64",
-                           "dbg_exc_mt_safe", "dbg_exc_mt_64_safe"],
+                "ufids": [ "opt_exc_mt_64_pic" ],
+                "targets": [ "all" ],
+                "install": {
+                    "libbal-dev": [ "bal", "bal-symlinks",
+                                    "bal-release-symlink", "bal-pkgconfig",
+                                    "bal-pic-symlink-hack" ],
+                    "libbbl-dev": [ "bbl", "bbl-symlinks",
+                                    "bbl-release-symlink", "bbl-pkgconfig",
+                                    "bbl-pic-symlink-hack" ],
+                    "libbdl-dev": [ "bdl", "bdl-symlinks",
+                                    "bdl-release-symlink", "bdl-pkgconfig",
+                                    "bdl-pic-symlink-hack" ],
+                    "libbsl-dev": [ "bsl", "bsl-symlinks",
+                                    "bsl-release-symlink", "bsl-pkgconfig",
+                                    "bsl-pic-symlink-hack" ],
+                    "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks",
+                                          "inteldfp-release-symlink",
+                                          "inteldfp-pkgconfig",
+                                          "inteldfp-pic-symlink-hack" ],
+                    "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
+                                          "pcre2-release-symlink",
+                                          "pcre2-pkgconfig",
+                                          "pcre2-pic-symlink-hack" ],
+                    "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
+                                          "decnumber-release-symlink",
+                                          "decnumber-pkgconfig",
+                                          "decnumber-pic-symlink-hack" ]
+                }
+            },
+            {
+                "ufids": [ "opt_dbg_exc_mt", "opt_exc_mt_pic",
+                           "dbg_exc_mt", "dbg_exc_mt_safe" ],
                 "targets": [ "all" ],
                 "install": {
                     "libbal-dev": [ "bal", "bal-symlinks" ],
@@ -101,6 +179,28 @@
                     "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks" ],
                     "libpcre2-dev":     [ "pcre2", "pcre2-symlinks" ],
                     "libdecnumber-dev": [ "decnumber", "decnumber-symlinks" ]
+                }
+            },
+            {
+                "ufids": [ "opt_dbg_exc_mt_64_pic",
+                           "dbg_exc_mt_64_pic",
+                           "dbg_exc_mt_64_safe_pic" ],
+                "targets": [ "all" ],
+                "install": {
+                    "libbal-dev": [ "bal", "bal-symlinks",
+                                    "bal-pic-symlink-hack" ],
+                    "libbbl-dev": [ "bbl", "bbl-symlinks",
+                                    "bbl-pic-symlink-hack" ],
+                    "libbdl-dev": [ "bdl", "bdl-symlinks",
+                                    "bdl-pic-symlink-hack" ],
+                    "libbsl-dev": [ "bsl", "bsl-symlinks",
+                                    "bsl-pic-symlink-hack" ],
+                    "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks",
+                                          "inteldfp-pic-symlink-hack" ],
+                    "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
+                                          "pcre2-pic-symlink-hack" ],
+                    "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
+                                          "decnumber-pic-symlink-hack" ]
                 }
             },
             {
@@ -113,7 +213,7 @@
         ],
         "solaris10_sparc": [
             {
-                "ufids": [ "opt_exc_mt", "opt_exc_mt_64" ],
+                "ufids": [ "opt_exc_mt" ],
                 "targets": [ "all" ],
                 "install": {
                     "libbal-dev": [ "bal", "bal-symlinks",
@@ -143,10 +243,38 @@
                 }
             },
             {
-                "ufids": [ "opt_dbg_exc_mt", "opt_dbg_exc_mt_64",
-                           "opt_exc_mt_pic",
-                           "dbg_exc_mt", "dbg_exc_mt_64",
-                           "dbg_exc_mt_safe", "dbg_exc_mt_64_safe"],
+                "ufids": [ "opt_exc_mt_64_pic" ],
+                "targets": [ "all" ],
+                "install": {
+                    "libbal-dev": [ "bal", "bal-symlinks",
+                                    "bal-release-symlink", "bal-pkgconfig",
+                                    "bal-pic-symlink-hack" ],
+                    "libbbl-dev": [ "bbl", "bbl-symlinks",
+                                    "bbl-release-symlink", "bbl-pkgconfig",
+                                    "bbl-pic-symlink-hack" ],
+                    "libbdl-dev": [ "bdl", "bdl-symlinks",
+                                    "bdl-release-symlink", "bdl-pkgconfig",
+                                    "bdl-pic-symlink-hack" ],
+                    "libbsl-dev": [ "bsl", "bsl-symlinks",
+                                    "bsl-release-symlink", "bsl-pkgconfig",
+                                    "bsl-pic-symlink-hack" ],
+                    "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks",
+                                          "inteldfp-release-symlink",
+                                          "inteldfp-pkgconfig",
+                                          "inteldfp-pic-symlink-hack" ],
+                    "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
+                                          "pcre2-release-symlink",
+                                          "pcre2-pkgconfig",
+                                          "pcre2-pic-symlink-hack" ],
+                    "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
+                                          "decnumber-release-symlink",
+                                          "decnumber-pkgconfig",
+                                          "decnumber-pic-symlink-hack" ]
+                }
+            },
+            {
+                "ufids": [ "opt_dbg_exc_mt", "opt_exc_mt_pic",
+                           "dbg_exc_mt", "dbg_exc_mt_safe"],
                 "targets": [ "all" ],
                 "install": {
                     "libbal-dev": [ "bal", "bal-symlinks" ],
@@ -156,6 +284,28 @@
                     "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks" ],
                     "libpcre2-dev":     [ "pcre2", "pcre2-symlinks" ],
                     "libdecnumber-dev": [ "decnumber", "decnumber-symlinks" ]
+                }
+            },
+            {
+                "ufids": [ "opt_dbg_exc_mt_64_pic",
+                           "dbg_exc_mt_64_pic",
+                           "dbg_exc_mt_64_safe_pic" ],
+                "targets": [ "all" ],
+                "install": {
+                    "libbal-dev": [ "bal", "bal-symlinks",
+                                    "bal-pic-symlink-hack" ],
+                    "libbbl-dev": [ "bbl", "bbl-symlinks",
+                                    "bbl-pic-symlink-hack" ],
+                    "libbdl-dev": [ "bdl", "bdl-symlinks",
+                                    "bdl-pic-symlink-hack" ],
+                    "libbsl-dev": [ "bsl", "bsl-symlinks",
+                                    "bsl-pic-symlink-hack" ],
+                    "libinteldfp-dev":  [ "inteldfp", "inteldfp-symlinks",
+                                          "inteldfp-pic-symlink-hack" ],
+                    "libpcre2-dev":     [ "pcre2", "pcre2-symlinks",
+                                          "pcre2-pic-symlink-hack" ],
+                    "libdecnumber-dev": [ "decnumber", "decnumber-symlinks",
+                                          "decnumber-pic-symlink-hack" ]
                 }
             },
             {
