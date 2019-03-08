@@ -199,7 +199,8 @@ struct ResultType : ResultType_BdeIdiom<FUNC, FALLBACK> {
 };
 
 template <class FUNC, class FALLBACK>
-struct ResultType<FUNC, FALLBACK, BSLMF_VOIDTYPE(typename FUNC::result_type)> {
+struct ResultType<FUNC, FALLBACK,
+                  typename VoidType<typename FUNC::result_type>::type> {
     // Specialization of 'ResultType' for when 'FUNC::result_type' exists,
     // i.e., when the C++ standard idiom for 'result_type' is used.
 
@@ -234,9 +235,8 @@ struct ResultType_BdeIdiom : ResultType_Fallback<FALLBACK> {
 };
 
 template <class FUNC, class FALLBACK>
-struct ResultType_BdeIdiom<FUNC,
-                           FALLBACK,
-                           BSLMF_VOIDTYPE(typename FUNC::ResultType)> {
+struct ResultType_BdeIdiom<FUNC, FALLBACK,
+                  typename VoidType<typename FUNC::ResultType>::type> {
     // Metafunction to detect the BDE 'ResultType' idiom as part of the
     // implementation of 'bslmf::ResultType'.  This specialization is
     // instantiated by 'ResultType' only if 'FUNC::result_type' does not exist
