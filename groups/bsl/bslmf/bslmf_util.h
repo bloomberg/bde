@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 // as a 'bslmf::MovableRef<T>'.  This operation is typically used via
 // 'BSLS_COMPILERFEATURES_FORWARD' (along with
 // 'BSLS_COMPILERFEATURES_FORWARD_REF') when forwarding arguments in a generic
-// context.  See {Usage Example}.
+// context.  See {Usage}.
 //
 ///'bslmf::Util::forwardAsReference'
 ///---------------------------------
@@ -88,7 +88,6 @@ BSLS_IDENT("$Id: $")
 // 'forwardAsReference' the call to 'bind' might either fail to compile, or
 // worse, bind the 'MyFunction' instance to a reference to 'value' (rather a
 // new object moved-from 'value') on C++03 platforms.
-//..
 
 #include <bslscm_version.h>
 
