@@ -228,9 +228,9 @@ class SingleConsumerQueue {
         // until it is not empty.  Return 0 on success, and a non-zero value
         // otherwise.  Specifically, return 'e_DISABLED' if
         // 'isPopFrontDisabled()'.  On failure, 'value' is not changed.
-        // Threads blocked due to the queue being empty will return a non-zero
-        // value if 'disablePopFront' is invoked.  The behavior is undefined
-        // unless the invoker of this method is the single consumer.
+        // Threads blocked due to the queue being empty will return
+        // 'e_DISABLED' if 'disablePopFront' is invoked.  The behavior is
+        // undefined unless the invoker of this method is the single consumer.
 
     int pushBack(const TYPE& value);
         // Append the specified 'value' to the back of this queue.  Return 0 on
@@ -255,10 +255,11 @@ class SingleConsumerQueue {
         // Attempt to remove the element from the front of this queue without
         // blocking, and, if successful, load the specified 'value' with the
         // removed element.  Return 0 on success, and a non-zero value
-        // otherwise.  Specifically, return 'e_EMPTY' if the queue was empty,
-        // and 'e_DISABLED' if 'isPopFrontDisabled()'.  On failure, 'value' is
-        // not changed.  The behavior is undefined unless the invoker of this
-        // method is the single consumer.
+        // otherwise.  Specifically, return 'e_DISABLED' if
+        // 'isPopFrontDisabled()', and 'e_EMPTY' if '!isPopFrontDisabled()' and
+        // the queue was empty.  On failure, 'value' is not changed.  The
+        // behavior is undefined unless the invoker of this method is the
+        // single consumer.
 
     int tryPushBack(const TYPE& value);
         // Append the specified 'value' to the back of this queue.  Return 0 on
