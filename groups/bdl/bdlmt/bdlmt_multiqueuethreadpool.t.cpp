@@ -111,7 +111,8 @@ using namespace BloombergLP;
 // [25] DRQS 112259433: 'drain' and 'deleteQueue' can deadlock
 // [26] DRQS 113734461: 'deleteQueue' copies cleanupFunctor
 // [27] DRQS 118269630: 'drain' may not drain underlying threadpool
-// [28] USAGE EXAMPLE 1
+// [28] DRQS 139148629: deadlock when job pauses another queue
+// [29] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -520,6 +521,21 @@ static bsls::AtomicInt s_case27Count(0);
 void case27Counter()
 {
     --s_case27Count;
+}
+
+static bsls::AtomicInt s_case28Count(0);
+
+Obj *s_case28Obj_p = 0;
+
+void case28Job()
+{
+    int queueId = s_case28Obj_p->createQueue();
+
+    ASSERT(0 == s_case28Obj_p->enqueueJob(queueId, noop));
+
+    s_case28Obj_p->pauseQueue(queueId);
+
+    ++s_case28Count;
 }
 
 // ============================================================================
@@ -1384,7 +1400,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 28: {
+      case 29: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1464,6 +1480,49 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      }  break;
+      case 28: {
+        // --------------------------------------------------------------------
+        // DRQS 139148629: deadlock when job pauses another queue
+        //
+        // Concerns:
+        //: 1 That deadlock can occur in a 'bdlmt::MultiQueueThreadPool' with
+        //:   one thread when a job from one queue pauses a different queue.
+        //
+        // Plan:
+        //: 1 Recreate the scenario and verify the deadlock no longer occurs.
+        //
+        // Testing:
+        //   DRQS 139148629: deadlock when job pauses another queue
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout
+            << "DRQS 139148629: deadlock when job pauses another queue\n"
+            << "======================================================\n";
+        }
+
+        Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
+
+        s_case28Obj_p = &mX;
+
+        mX.start();
+        int queueId = mX.createQueue();
+
+        ASSERT(0 == mX.enqueueJob(queueId, case28Job));
+
+        for (int i = 0; i < 10 && 0 == s_case28Count; ++i) {
+            bslmt::ThreadUtil::microSleep(100000);
+        }
+
+        ASSERT(1 == s_case28Count);
+
+        if (0 == s_case28Count) {
+            exit(0);
+        }
+
+        mX.drain();
+        mX.stop();
       }  break;
       case 27: {
         // --------------------------------------------------------------------

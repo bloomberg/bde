@@ -111,7 +111,8 @@ int MultiQueueThreadPool_Queue::pause()
 
         d_runState = e_PAUSING;
 
-        if (bslmt::ThreadUtil::self() == d_processor) {
+        if (   bslmt::ThreadUtil::self()          == d_processor
+            || bslmt::ThreadUtil::invalidHandle() == d_processor) {
             return 0;                                                 // RETURN
         }
 
