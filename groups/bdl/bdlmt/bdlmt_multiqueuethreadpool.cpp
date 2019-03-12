@@ -201,7 +201,6 @@ bool MultiQueueThreadPool_Queue::enqueueDeletion(
 
     bool isProcessingThread = bslmt::ThreadUtil::self() == d_processor;
 
-
     Job job = bdlf::BindUtil::bind(&MultiQueueThreadPool::deleteQueueCb,
                                    d_multiQueueThreadPool_p,
                                    this,
@@ -209,6 +208,11 @@ bool MultiQueueThreadPool_Queue::enqueueDeletion(
                                    isProcessingThread ? 0 : completionSignal);
 
     if (e_NOT_SCHEDULED == d_runState || e_PAUSED == d_runState) {
+        // Note that 'd_numActiveQueues' is decremented at the completion of
+        // 'deleteQueueCb' so must be incremented here.
+
+        ++d_multiQueueThreadPool_p->d_numActiveQueues;
+
         int rc = d_multiQueueThreadPool_p->d_threadPool_p->enqueueJob(job);
 
         BSLS_ASSERT(0 == rc);  (void)rc;
@@ -324,10 +328,6 @@ void MultiQueueThreadPool::deleteQueueCb(
 {
     BSLS_ASSERT(queue);
 
-    if (completionSignal) {
-        completionSignal->arrive();
-    }
-
     if (cleanup) {
         cleanup();
     }
@@ -335,6 +335,12 @@ void MultiQueueThreadPool::deleteQueueCb(
     // Note that 'd_queuePool' does its own synchronization.
 
     d_queuePool.releaseObject(queue);
+
+    if (completionSignal) {
+        completionSignal->arrive();
+    }
+
+    --d_numActiveQueues;
 }
 
 // CREATORS
@@ -694,7 +700,7 @@ void MultiQueueThreadPool::shutdown()
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

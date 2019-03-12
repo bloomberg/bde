@@ -807,12 +807,14 @@ void MultiQueueThreadPool_Queue::setPaused()
                                                     enqueueJob(d_list.front());
 
         BSLS_ASSERT(0 == status);  (void)status;
+
+        // Note that 'd_numActiveQueues' is decremented at the completion of
+        // 'deleteQueueCb', and hence should not be modified on this execution
+        // path.
     }
-
-    // Note that decreasing the number of active queues must be done last to
-    // ensure the 'enqueueJob' above will always succeed.
-
-    --d_multiQueueThreadPool_p->d_numActiveQueues;
+    else {
+        --d_multiQueueThreadPool_p->d_numActiveQueues;
+    }
 }
 
 // ACCESSORS
@@ -996,7 +998,7 @@ const ThreadPool& MultiQueueThreadPool::threadPool() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

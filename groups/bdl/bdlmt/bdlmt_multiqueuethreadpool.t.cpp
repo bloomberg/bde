@@ -112,7 +112,8 @@ using namespace BloombergLP;
 // [26] DRQS 113734461: 'deleteQueue' copies cleanupFunctor
 // [27] DRQS 118269630: 'drain' may not drain underlying threadpool
 // [28] DRQS 139148629: deadlock when job pauses another queue
-// [29] USAGE EXAMPLE 1
+// [29] DRQS 138890062: 'deleteQueueCb' running after destructor
+// [30] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -536,6 +537,19 @@ void case28Job()
     s_case28Obj_p->pauseQueue(queueId);
 
     ++s_case28Count;
+}
+
+static bslmt::Barrier *s_case29Barrier_p;
+
+void case29Job()
+{
+    s_case29Barrier_p->wait();
+
+    // If the destructor waits for the 'deleteQueueCb' to complete, the
+    // following will time-out.
+
+    ASSERT(0 != s_case29Barrier_p->timedWait(
+                   bsls::SystemTime::nowRealtimeClock().addMilliseconds(100)));
 }
 
 // ============================================================================
@@ -1400,7 +1414,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 29: {
+      case 30: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1481,6 +1495,55 @@ int main(int argc, char *argv[]) {
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       }  break;
+      case 29: {
+        // --------------------------------------------------------------------
+        // DRQS 138890062: 'deleteQueueCb' running after destructor
+        //
+        // Concerns:
+        //: 1 The method 'deleteQueueCb' can complete after the destructor has
+        //:   completed.
+        //
+        // Plan:
+        //: 1 Recreate the scenario and verify that the destructor will not
+        //:   complete before the 'deleteQueueCb' method.
+        //
+        // Testing:
+        //   DRQS 138890062: 'deleteQueueCb' running after destructor
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout
+            << "DRQS 138890062: 'deleteQueueCb' running after destructor\n"
+            << "========================================================\n";
+        }
+
+        bslmt::Barrier barrier(2);
+
+        s_case29Barrier_p = &barrier;
+
+        bdlmt::ThreadPool pool(bslmt::ThreadAttributes(), 4, 4, 30);
+
+        pool.start();
+
+        {
+            Obj mX(&pool);
+
+            mX.start();
+            int queueId = mX.createQueue();
+
+            mX.deleteQueue(queueId, case29Job);
+
+            barrier.wait();
+        }
+
+        // If the destructor waited for the 'deleteQueueCb' to complete, the
+        // following will time-out.
+
+        ASSERT(0 != barrier.timedWait(
+                   bsls::SystemTime::nowRealtimeClock().addMilliseconds(200)));
+
+        pool.shutdown();
+      } break;
       case 28: {
         // --------------------------------------------------------------------
         // DRQS 139148629: deadlock when job pauses another queue
@@ -1523,7 +1586,7 @@ int main(int argc, char *argv[]) {
 
         mX.drain();
         mX.stop();
-      }  break;
+      } break;
       case 27: {
         // --------------------------------------------------------------------
         // DRQS 118269630: 'drain' may not drain underlying threadpool
@@ -4262,7 +4325,7 @@ int main(int argc, char *argv[]) {
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
