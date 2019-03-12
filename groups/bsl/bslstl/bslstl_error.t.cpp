@@ -59,7 +59,7 @@ using namespace bsl;
 // [ 5] error_condition default_error_condition(int)
 // [ 5] bool equivalent(int, const error_condition&) const
 // [ 5] bool equivalent(const error_code&, int) const
-// [ 5] std::string message(int) const
+// [ 5] native_std::string message(int) const
 // [ 5] const char *name() const
 // [ 5] bool operator==(const error_category&) const
 // [ 5] bool operator!=(const error_category&) const
@@ -74,7 +74,7 @@ using namespace bsl;
 // [ 6] void clear()
 // [ 6] const error_category& category() const
 // [ 6] error_condition default_error_condition() const
-// [ 6] std::string message() const
+// [ 6] native_std::string message() const
 // [ 6] int value() const
 // [ 6] operator int BloombergLP::bsls::UnspecifiedBool::*()
 //
@@ -86,7 +86,7 @@ using namespace bsl;
 // [ 7] error_condition& operator=(ERROR_CODE_ENUM)
 // [ 7] void clear()
 // [ 7] const error_category& category() const
-// [ 7] std::string message() const
+// [ 7] native_std::string message() const
 // [ 7] int value() const
 // [ 7] operator int BloombergLP::bsls::UnspecifiedBool::*()
 //
@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
         //   error_condition& operator=(ERROR_CODE_ENUM)
         //   void clear()
         //   const error_category& category() const
-        //   std::string message() const
+        //   native_std::string message() const
         //   int value() const
         //   operator int BloombergLP::bsls::UnspecifiedBool::*()
         // --------------------------------------------------------------------
@@ -457,7 +457,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-            printf("std::string message() const\n");
+            printf("native_std::string message() const\n");
         }
         {
             error_condition        mX(static_cast<int>(errc::no_link),
@@ -529,7 +529,7 @@ int main(int argc, char *argv[])
         //   void clear()
         //   const error_category& category() const
         //   error_condition default_error_condition() const
-        //   std::string message() const
+        //   native_std::string message() const
         //   int value() const
         //   operator int BloombergLP::bsls::UnspecifiedBool::*()
         // --------------------------------------------------------------------
@@ -634,7 +634,7 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-            printf("std::string message() const\n");
+            printf("native_std::string message() const\n");
         }
         {
             error_code        mX(static_cast<int>(errc::no_link),
@@ -746,7 +746,7 @@ int main(int argc, char *argv[])
         //   error_condition default_error_condition(int)
         //   bool equivalent(int, const error_condition&) const
         //   bool equivalent(const error_code&, int) const
-        //   std::string message(int) const
+        //   native_std::string message(int) const
         //   const char *name() const
         //   bool operator==(const error_category&) const
         //   bool operator!=(const error_category&) const
@@ -1307,13 +1307,13 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
         if (veryVerbose) {
-            P(bsl::is_error_code_enum<BSL_ERRC_ENUM>::value);
-            P(bsl::is_error_condition_enum<BSL_ERRC_ENUM>::value);
+            P(bsl::is_error_code_enum<bsl::ErrcEnum>::value);
+            P(bsl::is_error_condition_enum<bsl::ErrcEnum>::value);
             P(bsl::is_error_code_enum<char>::value);
             P(bsl::is_error_condition_enum<char>::value);
         }
-        ASSERT(!bsl::is_error_code_enum<BSL_ERRC_ENUM>::value);
-        ASSERT(bsl::is_error_condition_enum<BSL_ERRC_ENUM>::value);
+        ASSERT(!bsl::is_error_code_enum<bsl::ErrcEnum>::value);
+        ASSERT(bsl::is_error_condition_enum<bsl::ErrcEnum>::value);
         ASSERT(!bsl::is_error_code_enum<char>::value);
         ASSERT(!bsl::is_error_condition_enum<char>::value);
       } break;

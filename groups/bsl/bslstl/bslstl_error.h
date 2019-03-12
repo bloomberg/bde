@@ -260,8 +260,7 @@ class error_code {
     // Construct an object of this type initialized with the specified 'value'
     // and generic category.  Note that this constructor exists only for those
     // types designated as error codes via the 'is_error_code_enum' trait
-    // template.  Note that this object is constructed with the generic rather
-    // than system category, because that is what the standard specifies.
+    // template.
 
     // MANIPULATORS
     void assign(int value, const error_category& category);
@@ -288,7 +287,7 @@ class error_code {
         // Return an 'error_condition' object initialized with the value and
         // category of this object.
 
-    std::string message() const;
+    native_std::string message() const;
         // Return a string describing this object.
 
     int value() const;
@@ -355,7 +354,7 @@ class error_condition {
     const error_category& category() const;
         // Return a 'const' reference to the category held by this object.
 
-    std::string message() const;
+    native_std::string message() const;
         // Return a string describing this object.
 
     int value() const;
@@ -387,22 +386,12 @@ error_condition make_error_condition(errc::Enum value);
     // generic category.
 
 template <class HASHALG>
-void hashAppend(HASHALG& hashAlgorithm, const error_code& object)
+void hashAppend(HASHALG& hashAlgorithm, const error_code& object);
     // Hash the specified 'object' using the specified 'hashAlgorithm'.
-{
-    using ::BloombergLP::bslh::hashAppend;
-    hashAppend(hashAlgorithm, static_cast<const void *>(&object.category()));
-    hashAppend(hashAlgorithm, object.value());
-}
 
 template <class HASHALG>
-void hashAppend(HASHALG& hashAlgorithm, const error_condition& object)
+void hashAppend(HASHALG& hashAlgorithm, const error_condition& object);
     // Hash the specified 'object' using the specified 'hashAlgorithm'.
-{
-    using ::BloombergLP::bslh::hashAppend;
-    hashAppend(hashAlgorithm, static_cast<const void *>(&object.category()));
-    hashAppend(hashAlgorithm, object.value());
-}
 
 // FREE OPERATORS
 bool operator==(const error_code& lhs, const error_code& rhs);
@@ -422,6 +411,13 @@ bool operator<(const error_code& lhs, const error_code& rhs);
 bool operator<(const error_condition& lhs, const error_condition& rhs);
     // Return whether the specified 'lhs' is lexicographically less than the
     // specified 'rhs', ordered by category then value.
+
+template <class CHAR_TYPE, class CHAR_TRAITS>
+inline
+native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
+                     native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
+                     const error_code&                                  code);
+    // Write the specified 'code' to 'stream'.
 
 // ============================================================================
 //                             INLINE DEFINITIONS
@@ -588,6 +584,14 @@ error_code::operator BoolType() const
 }
 
 // FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlgorithm, const error_code& object)
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlgorithm, static_cast<const void *>(&object.category()));
+    hashAppend(hashAlgorithm, object.value());
+}
+
 inline
 error_code make_error_code(errc::Enum value)
 {
@@ -600,7 +604,6 @@ inline
 native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& operator<<(
                      native_std::basic_ostream<CHAR_TYPE, CHAR_TRAITS>& stream,
                      const error_code&                                  code)
-    // Write the specified 'code' to 'stream'.
 {
     return stream << code.category().name() << ':' << code.value();
 }
@@ -687,6 +690,15 @@ error_condition::operator BoolType() const
 }
 
 // FREE FUNCTIONS
+template <class HASHALG>
+void hashAppend(HASHALG& hashAlgorithm, const error_condition& object)
+    // Hash the specified 'object' using the specified 'hashAlgorithm'.
+{
+    using ::BloombergLP::bslh::hashAppend;
+    hashAppend(hashAlgorithm, static_cast<const void *>(&object.category()));
+    hashAppend(hashAlgorithm, object.value());
+}
+
 inline
 error_condition make_error_condition(errc::Enum value)
 {

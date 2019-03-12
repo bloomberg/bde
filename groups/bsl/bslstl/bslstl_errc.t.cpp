@@ -23,7 +23,7 @@ using namespace bsl;
 // ----------------------------------------------------------------------------
 //
 // [ 2] USAGE EXAMPLE
-// [ 1] BSL_ERRC_ENUM
+// [ 1] bsl::ErrcEnum
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
 //..
 // Finally, we check for that error using the descriptive name.
 //..
-    BSL_ERRC_ENUM expected = bsl::errc::result_out_of_range;
+    bsl::ErrcEnum expected = bsl::errc::result_out_of_range;
     ASSERT(static_cast<int>(expected) == errno);
 //..
       } break;
@@ -127,31 +127,31 @@ int main(int argc, char *argv[])
         // TESTING 'errc'
         //
         // Concerns:
-        //: 1 The 'BSL_ERRC_ENUM' macro can be used to declare 'errc' objects.
+        //: 1 The 'bsl::ErrcEnum' type can be used to declare 'errc' objects.
         //: 2 'bsl::errc' can qualify 'errc' enumeration literals.
         //: 3 An 'errc' literal matches the 'POSIX' error code.
         //: 4 The 'errc' type is registered as an error condition.
         //
         // Plan:
-        //: 1 Declare a 'BSL_ERRC_ENUM' object and initialize it with a
+        //: 1 Declare a 'bsl::ErrcEnum' object and initialize it with a
         //:   'bsl::errc' qualified value.  (C-1,2)
         //:
         //: 2 Compare the value of the object with the corresponding 'POSIX'
         //:   'errno' value.  (C-3)
         //:
-        //: 3 Verify that 'is_error_condition' is true for 'BSL_ERRC_ENUM'.
+        //: 3 Verify that 'is_error_condition' is true for 'bsl::ErrcEnum'.
         //:   (C-4)
         //
         // Testing:
-        //   BSL_ERRC_ENUM
+        //   bsl::ErrcEnum
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING 'errc'"
                             "\n==============\n");
 
-        BSL_ERRC_ENUM value = bsl::errc::inappropriate_io_control_operation;
+        bsl::ErrcEnum value = bsl::errc::inappropriate_io_control_operation;
         ASSERT(ENOTTY == static_cast<int>(value));
-        ASSERT(bsl::is_error_condition_enum<BSL_ERRC_ENUM>::value);
+        ASSERT(bsl::is_error_condition_enum<bsl::ErrcEnum>::value);
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
