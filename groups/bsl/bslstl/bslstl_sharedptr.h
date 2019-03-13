@@ -4498,7 +4498,7 @@ class enable_shared_from_this {
 
 
     bsl::weak_ptr<const ELEMENT_TYPE> weak_from_this() const
-                                                          BSLS_KEYWORD_NOEXCEPT;
+                                                         BSLS_KEYWORD_NOEXCEPT;
         // Return a 'weak_ptr' holding a weak reference (with only 'const'
         // access) to this managed object if this object is currently managed
         // by 'shared_ptr', and return an expired 'weak_ptr' otherwise.  If
@@ -5631,7 +5631,7 @@ typename enable_if<
 shared_ptr<ELEMENT_TYPE>::operator=(
                  native_std::unique_ptr<COMPATIBLE_TYPE, UNIQUE_DELETER>&& rhs)
 {
-    SelfType(rhs).swap(*this);
+    SelfType(BloombergLP::bslmf::MovableRefUtil::move(rhs)).swap(*this);
     return *this;
 }
 #endif
@@ -6441,7 +6441,7 @@ shared_ptr<ELEMENT_TYPE>::managedPtr() const
 template <class ELEMENT_TYPE>
 inline
 BloombergLP::bslma::SharedPtrRep *shared_ptr<ELEMENT_TYPE>::rep() const
-                                                            BSLS_KEYWORD_NOEXCEPT
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return d_rep_p;
 }
@@ -6620,7 +6620,7 @@ weak_ptr<ELEMENT_TYPE>::operator=(
 template <class ELEMENT_TYPE>
 weak_ptr<ELEMENT_TYPE>& weak_ptr<ELEMENT_TYPE>::operator=(
                                              const weak_ptr<ELEMENT_TYPE>& rhs)
-                                                            BSLS_KEYWORD_NOEXCEPT
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
 #if 1
     weak_ptr tmp(rhs);
