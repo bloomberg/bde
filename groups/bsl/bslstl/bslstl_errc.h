@@ -10,7 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide C++11-defined error classes and functions for C++03.
 //
 //@CLASSES:
-//  bsl::errc: contains definition for 'errc' enumeration type
+//  bsl::errc: namespace for 'errc' enumeration type
+//  bsl::ErrcEnum: 'typedef' for 'bsl::errc::Enum' or 'std::errc'
 //
 //@DESCRIPTION: This component defines an enumeration 'bsl::errc::Enum', and
 // marks it eligible to participate as an error condition in the 'system_error'

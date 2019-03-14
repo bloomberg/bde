@@ -10,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide C++11-defined error classes and functions for C++03.
 //
 //@CLASSES:
-//  bsl::error_category:  C++03 version of std::error_category
-//  bsl::error_code:      C++03 version of std::error_code
+//  bsl::error_category: C++03 version of std::error_category
+//  bsl::error_code: C++03 version of std::error_code
 //  bsl::error_condition: C++03 version of std::error_condition
 //
 //@DESCRIPTION: This component defines classes 'bsl::error_category',
