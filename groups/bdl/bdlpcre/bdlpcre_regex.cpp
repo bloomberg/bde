@@ -458,7 +458,7 @@ bool RegEx::isJitAvailable()
     (void) result;
 
     BSLS_ASSERT(0 <= pcre2_config(PCRE2_CONFIG_JIT, &result));
-    BSLS_ASSERT(k_IS_JIT_SUPPORTED == result);
+    BSLS_ASSERT(k_IS_JIT_SUPPORTED == (0 != result));
 
     return k_IS_JIT_SUPPORTED;
 }

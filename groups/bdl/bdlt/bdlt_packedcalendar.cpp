@@ -179,8 +179,9 @@ int numWeekendDaysInRangeImp(const Date&         firstDate,
 
     // Get the (precomputed) partial week at the end of the range to be
     // considered.
-    const DayOfWeekSet& myPartialWeek = *reinterpret_cast<const DayOfWeekSet*>(
-                                        &(s_partialWeeks[dayOfWeek][len % 7]));
+    DayOfWeekSet myPartialWeek;
+    *reinterpret_cast<unsigned char *>(&myPartialWeek) =
+                                            s_partialWeeks[dayOfWeek][len % 7];
     const DayOfWeekSet  mySet = myPartialWeek & weekendDays;
 
     return numWeekendDays + mySet.length();

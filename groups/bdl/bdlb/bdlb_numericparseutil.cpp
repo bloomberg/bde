@@ -28,6 +28,7 @@ namespace bdlb {
 
 namespace {
 
+#if defined(BSLS_PLATFORM_OS_LINUX)
 static
 int doubleSign(double number)
     // Return 0 if the specified 'number' is positive, and a non-zero value
@@ -43,6 +44,7 @@ int doubleSign(double number)
 #endif
     return bytes[pos] & 0x80;
 }
+#endif
 
 }  // close unnamed namespace
 
