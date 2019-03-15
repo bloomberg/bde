@@ -14,7 +14,7 @@ namespace {
                         // ===========================
 
 class generic_category_impl : public error_category {
-    // The single object of this class represents the generic category.
+    // This 'class' represents the generic category.
 
     // ACCESSORS
     native_std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
@@ -55,7 +55,7 @@ namespace {
                          // ==========================
 
 class system_category_impl : public error_category {
-    // The single object of this class represents the system category.
+    // This 'class' represents the system category.
 
     // ACCESSORS
     native_std::string message(int value) const BSLS_KEYWORD_OVERRIDE;

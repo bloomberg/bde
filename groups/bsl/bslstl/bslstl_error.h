@@ -173,7 +173,6 @@ using native_std::make_error_condition;
 namespace bsl {
 
 // FORWARD DECLARATIONS
-
 class error_code;
 class error_condition;
 
@@ -182,7 +181,7 @@ class error_condition;
                             // ====================
 
 class error_category {
-    // This class acts as a base for types that represent the source and
+    // This 'class' acts as a base for types that represent the source and
     // encoding of error categories.
 
   private:
@@ -236,7 +235,7 @@ class error_category {
                               // ================
 
 class error_code {
-    // Objects of this class are intended to hold system-specific error values.
+    // This 'class' represents a system-specific error value.
 
   private:
     // PRIVATE TYPES
@@ -256,11 +255,12 @@ class error_code {
     template <class ERROR_CODE_ENUM>
     error_code(ERROR_CODE_ENUM value,
                typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
-                                  BoolType>::type = 0);             // IMPLICIT
-    // Construct an object of this type initialized with the specified 'value'
-    // and generic category.  Note that this constructor exists only for those
-    // types designated as error codes via the 'is_error_code_enum' trait
-    // template.
+                                  BoolType>::type = 0);              // IMPLICT
+        // Construct an object of this type initialized with the specified
+        // 'value' and its category (found from an overloaded call to
+        // 'make_error_code').  Note that this constructor exists only for
+        // those types designated as error codes via the 'is_error_code_enum'
+        // trait template.
 
     // MANIPULATORS
     void assign(int value, const error_category& category);
@@ -270,11 +270,12 @@ class error_code {
     typename enable_if<is_error_code_enum<ERROR_CODE_ENUM>::value,
                        error_code&>::type
     operator=(ERROR_CODE_ENUM value);
-        // Set this object to hold the specified 'value' and generic category.
-        // Note that this operator exists only for those types designated as
-        // error codes via the 'is_error_code_enum' trait template.  Note that
-        // this object is set to the generic rather than system category,
-        // because that is what the standard specifies.
+        // Set this object to hold the specified 'value' and its category
+        // (found from an overloaded call to 'make_error_code').  Note that
+        // this operator exists only for those types designated as error codes
+        // via the 'is_error_code_enum' trait template.  Note that this object
+        // is set to the generic rather than system category, because that is
+        // what the standard specifies.
 
     void clear();
         // Set this object to hold the value 0 and the system category.
@@ -307,7 +308,7 @@ class error_code {
                            // =====================
 
 class error_condition {
-    // Objects of this class are intended to hold portable error values.
+    // This 'class' represents a portable error value.
 
   private:
     // PRIVATE TYPES
@@ -331,8 +332,9 @@ class error_condition {
                         is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
                         BoolType>::type = 0);                       // IMPLICIT
         // Construct an object of this type initialized with the specified
-        // 'value' and generic category.  Note that this constructor exists
-        // only for those types designated as error conditions via the
+        // 'value' and its category (found from an overloaded call to
+        // 'make_error_condition').  Note that this constructor exists only for
+        // those types designated as error conditions via the
         // 'is_error_condition_enum' trait template.
 
     // MANIPULATORS
@@ -343,9 +345,10 @@ class error_condition {
     typename enable_if<is_error_condition_enum<ERROR_CONDITION_ENUM>::value,
                        error_condition&>::type
     operator=(ERROR_CONDITION_ENUM value);
-        // Set this object to hold the specified 'value' and generic category.
-        // Note that this operator exists only for those types designated as
-        // error conditions via the 'is_error_condition_enum' trait template.
+        // Set this object to hold the specified 'value' and its category
+        // (found from an overloaded call to 'make_error_condition').  Note
+        // that this operator exists only for those types designated as error
+        // conditions via the 'is_error_condition_enum' trait template.
 
     void clear();
         // Set this object to hold the value 0 and the generic category.

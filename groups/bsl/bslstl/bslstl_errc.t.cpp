@@ -17,8 +17,8 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under test defines an enumeration defining longer and more
-// descriptive symbolic names for 'errno' error value and a macro designating
-// the type of the enumeration.
+// descriptive symbolic names for 'errno' error value and a type alias
+// designating the type of the enumeration.
 //
 // ----------------------------------------------------------------------------
 //

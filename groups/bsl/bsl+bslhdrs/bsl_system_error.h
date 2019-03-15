@@ -10,10 +10,8 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: package bsl+stdhdrs
 //
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
-// defined in the corresponding C++ standard header.  Include the native
-// compiler-provided standard header, and also directly include Bloomberg's
-// implementation of the C++ standard type (if one exists).  Finally, place the
-// included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
+// defined in the corresponding C++ standard header.  In C++03 mode we provide
+// our own implementation, and in C++11 or later we import the 'std' names.
 
 #include <bslstl_errc.h>
 #include <bslstl_error.h>

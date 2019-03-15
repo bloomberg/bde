@@ -147,7 +147,7 @@ template <>
 void BslTestUtil::callDebugprint(const bsl::error_category&  object,
                                  const char                 *leadingString,
                                  const char                 *trailingString)
-    // Print a descrriptive form of the specified 'category' bracketed by the
+    // Print a descriptive form of the specified 'category' bracketed by the
     // specified 'leadingString' and 'trailingString'.
 {
     printf("%serror_category<%s>%s",
@@ -160,7 +160,7 @@ template <>
 void BslTestUtil::callDebugprint(const bsl::error_code&  object,
                                  const char             *leadingString,
                                  const char             *trailingString)
-    // Print a descrriptive form of the specified 'code' bracketed by the
+    // Print a descriptive form of the specified 'code' bracketed by the
     // specified 'leadingString' and 'trailingString'.
 {
     printf("%serror_code<%d, '%s', %s>%s",
@@ -175,7 +175,7 @@ template <>
 void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
                                  const char                  *leadingString,
                                  const char                  *trailingString)
-    // Print a descrriptive form of the specified 'condition' bracketed by the
+    // Print a descriptive form of the specified 'condition' bracketed by the
     // specified 'leadingString' and 'trailingString'.
 {
     printf("%serror_condition<%d, '%s', %s>%s",
@@ -347,14 +347,14 @@ int main(int argc, char *argv[])
       case 7: {
         // --------------------------------------------------------------------
         // TESTING ERROR CONDITION METHODS
-        //   Test the metthods of the 'bsl::error_condition' class.
+        //   Test the methods of the 'bsl::error_condition' class.
         //
         // Concerns:
         //:  1 The default constructor makes a generic condition with value 0.
         //:  2 The value/category constructor preserves its arguments.
-        //:  3 The templated constructor makes a generic condition.
+        //:  3 The templated constructor makes a matching condition.
         //:  4 The 'assign' method preserves its arguments.
-        //:  5 Templated assignment makes a generic condition.
+        //:  5 Templated assignment makes a matching condition.
         //:  6 'clear' makes a generic condition with value 0.
         //:  7 The 'category' method retrieves the correct category.
         //:  8 The 'message' method uses 'strerror' for its result.
@@ -440,7 +440,7 @@ int main(int argc, char *argv[])
         }
         {
             error_condition        mX(static_cast<int>(errc::no_link),
-                                      generic_category());
+                                      system_category());
             const error_condition& X = mX;
             mX.clear();
             ASSERT(&generic_category() == &X.category());
@@ -502,14 +502,14 @@ int main(int argc, char *argv[])
       case 6: {
         // --------------------------------------------------------------------
         // TESTING ERROR CODE METHODS
-        //   Test the metthods of the 'bsl::error_code' class.
+        //   Test the methods of the 'bsl::error_code' class.
         //
         // Concerns:
         //:  1 The default constructor makes a system code with value 0.
         //:  2 The value/category constructor preserves its arguments.
-        //:  3 The templated constructor makes a generic code.
+        //:  3 The templated constructor makes a matching code.
         //:  4 The 'assign' method preserves its arguments.
-        //:  5 Templated assignment makes a generic code.
+        //:  5 Templated assignment makes a matching code.
         //:  6 'clear' makes a system code with value 0.
         //:  7 The 'category' method retrieves the correct category.
         //:  8 The 'default_error_condition' makes an equivalent condition.
@@ -679,7 +679,7 @@ int main(int argc, char *argv[])
       case 5: {
         // --------------------------------------------------------------------
         // TESTING ERROR CATEGORY METHODS
-        //   Test the metthods of the 'bsl::error_category' class.
+        //   Test the methods of the 'bsl::error_category' class.
         //
         // Concerns:
         //: 1 This class is abstract, so testing methods can only be done via
@@ -1143,9 +1143,9 @@ int main(int argc, char *argv[])
         //: 3 Verify that a code created by make_error_code contains the value
         //:   with which it was constructed, and is of generic category.  (C-3)
         //:
-        //: 4 Verify that a condition created by make_error_code contains the
-        //:   value with which it was constructed, and is of generic category.
-        //:   (C-4)
+        //: 4 Verify that a condition created by make_error_condition contains
+        //:   the value with which it was constructed, and is of generic
+        //:   category.  (C-4)
         //:
         //: 5 Verify that a code can be hashed, and that codes with different
         //:   values or categories hash to different values.  (C-5)
