@@ -1,5 +1,5 @@
-// bslfwd_buildtarget.t.cpp                                           -*-C++-*-
-#include <bslfwd_buildtarget.h>
+// bslfwd_bsls_types.t.cpp                                            -*-C++-*-
+#include <bslfwd_bsls_types.h>
 int main() { return -1; }
 
 // ----------------------------------------------------------------------------

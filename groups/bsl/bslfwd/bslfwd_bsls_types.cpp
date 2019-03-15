@@ -1,5 +1,5 @@
-// bslfwd_buildtarget.cpp                                             -*-C++-*-
-#include <bslfwd_buildtarget.h>
+// bslfwd_bsls_types.cpp                                              -*-C++-*-
+#include <bslfwd_bsls_types.h>
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
