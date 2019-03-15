@@ -1,5 +1,5 @@
-// bsla_alloc.t.cpp                                                   -*-C++-*-
-#include <bsla_alloc.h>
+// bsla_error.t.cpp                                                   -*-C++-*-
+#include <bsla_error.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -75,19 +75,6 @@
 //:   a context where annotation 'BSLA_XXXX' must *not* result in a
 //:   compiler message.
 //
-// The table below classifies each of the annotations provided by this
-// component by the entities to which it can be applied (i.e., function,
-// variable, and type) and the expected result (optimization, error, warning,
-// conditional warning, absence of warning).  The tag(s) found in the
-// right-most column appear as comments throughout this test driver.  They can
-// be used as an aid to navigation to the test code for each annotation, and an
-// aid to assuring test coverage.
-//..
-//  No  Annotation                            E Result     Tag
-//  --  ------------------------------------  - --------   ----------
-//   1  BSLA_ALLOC_SIZE(x)         F optim.      1fo
-//   2  BSLA_ALLOC_SIZE_MUL(x, y)  F optim.      2fo
-//..
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -145,18 +132,19 @@ void aSsErT(bool condition, const char *message, int line)
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
-void *test_ALLOC_SIZE(void *ptr, size_t size) BSLA_ALLOC_SIZE(2);
-void *test_ALLOC_SIZE(void *ptr, size_t size)
+int test_ERROR() BSLA_ERROR("myError: Do not call 'test_ERROR'");
+int test_ERROR()
 {
-    return realloc(ptr, size);
+    return 1;
 }
 
-void *test_ALLOC_SIZE_MUL(size_t count, size_t size)
-                                          BSLA_ALLOC_SIZE_MUL(1, 2);
-void *test_ALLOC_SIZE_MUL(size_t count, size_t size)
-{
-    return calloc(count, size);
-}
+// ============================================================================
+//                  DEFINITION OF ANNOTATED VARIABLES
+// ----------------------------------------------------------------------------
+
+// ============================================================================
+//                  DEFINITION OF ANNOTATED TYPES
+// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
@@ -166,16 +154,15 @@ void *test_ALLOC_SIZE_MUL(size_t count, size_t size)
 //                  USAGE WITH EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
-#if U_TRIGGER_WARNINGS
-
-#endif
-
 // ============================================================================
 //                  USAGE WITH EXPECTED COMPILER ERRORS
 // ----------------------------------------------------------------------------
 
 #if U_TRIGGER_ERRORS
-
+void use_with_error_message_Error()
+{
+    (void) test_ERROR();
+}
 #endif
 
 // ============================================================================
@@ -192,16 +179,9 @@ static void printFlags()
 
     printf("\nprintFlags: bsls_annotation Macros\n");
 
-    printf("\nBSLA_ALLOC_SIZE(x): ");
-#ifdef BSLA_ALLOC_SIZE
-    printf("%s\n", STRINGIFY(BSLA_ALLOC_SIZE(x)) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\nBSLA_ALLOC_SIZE_MUL(x, y): ");
-#ifdef BSLA_ALLOC_SIZE_MUL
-    printf("%s\n", STRINGIFY(BSLA_ALLOC_SIZE_MUL(x, y)) );
+    printf("\nBSLA_ERROR(x): ");
+#ifdef BSLA_ERROR
+    printf("%s\n", STRINGIFY(BSLA_ERROR(x)) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -209,29 +189,14 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
-    P(BSLA_ALLOC_SIZE_IS_ACTIVE);
-    P(BSLA_ALLOC_SIZE_MUL_IS_ACTIVE);
+    P(BSLA_ERROR_IS_ACTIVE);
 
     printf("\n\n---------------------------------------------\n");
     printf(    "printFlags: bsls_annotation Referenced Macros\n");
 
-    printf("\nBSLS_PLATFORM_CMP_CLANG: ");
-#ifdef BSLS_PLATFORM_CMP_CLANG
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_CLANG) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
     printf("\nBSLS_PLATFORM_CMP_GNU: ");
 #ifdef BSLS_PLATFORM_CMP_GNU
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\nBSLS_PLATFORM_CMP_VERSION: ");
-#ifdef BSLS_PLATFORM_CMP_VERSION
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_VERSION) );
 #else
     printf("UNDEFINED\n");
 #endif

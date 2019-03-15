@@ -1,4 +1,4 @@
-// bsls_deprecated.t.cpp                                              -*-C++-*-
+// bsla_deprecated.t.cpp                                              -*-C++-*-
 #include <bsla_deprecated.h>
 
 #include <bsls_bsltestutil.h>
@@ -26,10 +26,7 @@
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // task using a compliant compiler, each time defining different values of
 // the boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor
-// variables.
-// 'U_TRIGGER_*' preprocessor variables (each undefined by
-// default), and check the build output for the proper behavior.  In each case,
-// the concerns are:
+// variables.  In each case, the concerns are:
 //
 //: o Did the build succeed or not?
 //:
@@ -78,20 +75,6 @@
 //:   a context where annotation 'BSLA_XXXX' must *not* result in a
 //:   compiler message.
 //
-// The table below classifies each of the annotations provided by this
-// component by the entities to which it can be applied (i.e., function,
-// variable, and type) and the expected result (optimization, error, warning,
-// conditional warning, absence of warning).  The tag(s) found in the
-// right-most column appear as comments throughout this test driver.  They can
-// be used as an aid to navigation to the test code for each annotation, and an
-// aid to assuring test coverage.
-//..
-//  No  Annotation                            E Result     Tag
-//  --  ------------------------------------  - --------   ----------
-//  14  BSLA_DEPRECATED            F warn       14fw
-//                                            V warn       14vw
-//                                            T warn       14tw
-//..
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -178,19 +161,19 @@ struct Test_DEPRECATED_type {
 
 #if U_TRIGGER_WARNINGS
 
-void use_with_warning_message_DEPRECATED_function()                  // {14fw }
+void use_with_warning_message_DEPRECATED_function()
 {
     test_DEPRECATED_function();
 }
 
-int use_with_warning_message_DEPRECATED_type()                       // {14tw }
+int use_with_warning_message_DEPRECATED_type()
 {
     Test_DEPRECATED_type instance_of_DEPRECATED_TYPE;
     instance_of_DEPRECATED_TYPE.d_d = 0;
     return instance_of_DEPRECATED_TYPE.d_d;
 }
 
-void use_with_warning_message_DEPRECATED_variable()                  // {14vw }
+void use_with_warning_message_DEPRECATED_variable()
 {
     (void) test_DEPRECATED_variable;
 }
@@ -213,31 +196,31 @@ static void printFlags()
 {
     printf("printFlags: Enter\n");
 
-    printf("\n  printFlags: bsls_annotation Macros\n");
+    printf("\nprintFlags: bsls_annotation Macros\n");
 
-    printf("\n  BSLA_DEPRECATED: ");
+    printf("\nBSLA_DEPRECATED: ");
 #ifdef BSLA_DEPRECATED
     printf("%s\n", STRINGIFY(BSLA_DEPRECATED) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n\n  ------------------------------\n");
-    printf(    "  printFlags: *_IS_ACTIVE Macros\n\n");
+    printf("\n\n------------------------------\n");
+    printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
     P(BSLA_DEPRECATED_IS_ACTIVE);
 
-    printf("\n\n  ---------------------------------------------\n");
-    printf(    "  printFlags: bsls_annotation Referenced Macros\n");
+    printf("\n\n---------------------------------------------\n");
+    printf(    "printFlags: bsls_annotation Referenced Macros\n");
 
-    printf("\n  BSLS_PLATFORM_CMP_CLANG: ");
+    printf("\nBSLS_PLATFORM_CMP_CLANG: ");
 #ifdef BSLS_PLATFORM_CMP_CLANG
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_CLANG) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_GNU: ");
+    printf("\nBSLS_PLATFORM_CMP_GNU: ");
 #ifdef BSLS_PLATFORM_CMP_GNU
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU) );
 #else
@@ -281,7 +264,7 @@ int main(int argc, char **argv)
         //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
         //:   preprocessor variable is defined to 1.
         //:
-        //: 3 When 'U_TRiGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
+        //: 3 When 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
         //:   to 0, the compile is successful and with no warnings.
         //
         // Plan:

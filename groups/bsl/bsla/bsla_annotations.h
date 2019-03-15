@@ -24,8 +24,8 @@ BSLS_IDENT("$Id: $")
 //  BSLA_NULL_TERMINATED_AT(x): warn if argument at 'x' is non-NULL
 //  BSLA_PRINTF(s, n): validate 'printf' format and arguments
 //  BSLA_SCANF(s, n): validate 'scanf' format and arguments
-//  BSLA_USED: emit annotated entity even if not referenced
 //  BSLA_UNUSED: do not warn if annotated entity is unused
+//  BSLA_USED: emit annotated entity even if not referenced
 //  BSLA_WARNING("msg"): emit warning message during compilation
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
@@ -234,201 +234,24 @@ BSLS_IDENT("$Id: $")
 //  int foo BSLA_ABC BSLA_XYZ;
 //..
 
-#include <bsls_platform.h>
-#include <bsls_compilerfeatures.h>
-
-#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300) || \
-    defined(BSLS_PLATFORM_CMP_CLANG)
-    #define BSLA_ALLOC_SIZE(argIndex)                                         \
-                          __attribute__((__alloc_size__(argIndex)))
-    #define BSLA_ALLOC_SIZE_MUL(argIndex1, argIndex2)                         \
-                          __attribute__((__alloc_size__(argIndex1, argIndex2)))
-
-    #define BSLA_ALLOC_SIZE_IS_ACTIVE     1
-    #define BSLA_ALLOC_SIZE_MUL_IS_ACTIVE 1
-#else
-    #define BSLA_ALLOC_SIZE(x)
-    #define BSLA_ALLOC_SIZE_MUL(x, y)
-
-    #define BSLA_ALLOC_SIZE_IS_ACTIVE     0
-    #define BSLA_ALLOC_SIZE_MUL_IS_ACTIVE 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
-    #define BSLA_ARG_NON_NULL(...)   __attribute__((__nonnull__(__VA_ARGS__)))
-    #define BSLA_ARGS_NON_NULL       __attribute__((__nonnull__))
-
-    #define BSLA_ARG_NON_NULL_IS_ACTIVE  1
-    #define BSLA_ARGS_NON_NULL_IS_ACTIVE 1
-#else
-    #define BSLA_ARG_NON_NULL(...)
-    #define BSLA_ARGS_NON_NULL
-
-    #define BSLA_ARG_NON_NULL_IS_ACTIVE  0
-    #define BSLA_ARGS_NON_NULL_IS_ACTIVE 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
-    #define BSLA_DEPRECATED __attribute__((__deprecated__))
-
-    #define BSLA_DEPRECATED_IS_ACTIVE 1
-#else
-    #define BSLA_DEPRECATED
-
-    #define BSLA_DEPRECATED_IS_ACTIVE 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_GNU)
-    // '__error__' and '__warning__' attributes are not supported by clang as
-    // of version 7.0.
-    #define BSLA_ERROR(x)   __attribute__((__error__(x)))
-
-    #define BSLA_ERROR_IS_ACTIVE 1
-#else
-    #define BSLA_ERROR(x)
-
-    #define BSLA_ERROR_IS_ACTIVE 0
-#endif
-
-#ifdef BSLA_FALLTHROUGH
-#error BSLA_FALLTHROUGH previously #defined
-#endif
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH)
-    #define BSLA_FALLTHROUGH [[ fallthrough ]]
-#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 70000
-    #define BSLA_FALLTHROUGH __attribute__((fallthrough))
-#elif defined(BSLS_PLATFORM_CMP_CLANG)
-    #if __cplusplus >= 201103L && defined(__has_warning)
-        #if  __has_feature(cxx_attributes) && \
-             __has_warning("-Wimplicit-fallthrough")
-            #define BSLA_FALLTHROUGH [[clang::fallthrough]]
-        #endif
-    #endif
-#endif
-#ifdef BSLA_FALLTHROUGH
-    #define BSLA_FALLTHROUGH_IS_ACTIVE 1
-#else
-    #define BSLA_FALLTHROUGH
-
-    #define BSLA_FALLTHROUGH_IS_ACTIVE 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                      \
-    defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
-    defined(BSLS_PLATFORM_CMP_IBM)
-    #define BSLA_FORMAT(arg) __attribute__((format_arg(arg)))
-
-    #define BSLA_FORMAT_IS_ACTIVE 1
-#else
-    #define BSLA_FORMAT(arg)
-
-    #define BSLA_FORMAT_IS_ACTIVE 0
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD)
-    #define BSLA_NODISCARD [[ nodiscard ]]
-
-    #define BSLA_NODISCARD_IS_ACTIVE 1
-#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
-    #define BSLA_NODISCARD __attribute__((warn_unused_result))
-
-    #define BSLA_NODISCARD_IS_ACTIVE 1
-#else
-    #define BSLA_NODISCARD
-
-    #define BSLA_NODISCARD_IS_ACTIVE 0
-#endif
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
-    #define BSLA_NORETURN [[ noreturn ]]
-
-    #define BSLA_NORETURN 1
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-    #define BSLA_NORETURN __declspec(noreturn)
-
-    #define BSLA_NORETURN_IS_ACTIVE 1
-#else
-    #define BSLA_NORETURN
-
-    #define BSLA_NORETURN_IS_ACTIVE 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
-    #define BSLA_NULL_TERMINATED         __attribute__((__sentinel__))
-    #define BSLA_NULL_TERMINATED_AT(x)   __attribute__((__sentinel__(x)))
-
-    #define BSLA_NULL_TERMINATED_IS_ACTIVE    1
-    #define BSLA_NULL_TERMINATED_AT_IS_ACTIVE 1
-#else
-    #define BSLA_NULL_TERMINATED
-    #define BSLA_NULL_TERMINATED_AT(x)
-
-    #define BSLA_NULL_TERMINATED_IS_ACTIVE    0
-    #define BSLA_NULL_TERMINATED_AT_IS_ACTIVE 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                      \
-    defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
-    defined(BSLS_PLATFORM_CMP_HP)    ||                                      \
-    defined(BSLS_PLATFORM_CMP_IBM)
-    #define BSLA_PRINTF(fmt, arg) __attribute__((format(printf, fmt, arg)))
-
-    #define BSLA_PRINTF_IS_ACTIVE 1
-#else
-    #define BSLA_PRINTF(fmt, arg)
-
-    #define BSLA_PRINTF_IS_ACTIVE 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                      \
-    defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
-    defined(BSLS_PLATFORM_CMP_HP)    ||                                      \
-    defined(BSLS_PLATFORM_CMP_IBM)
-    #define BSLA_SCANF(fmt, arg) __attribute__((format(scanf,  fmt, arg)))
-
-    #define BSLA_SCANF_IS_ACTIVE 1
-#else
-    #define BSLA_SCANF(fmt, arg)
-
-    #define BSLA_SCANF_IS_ACTIVE 0
-#endif
+#include <bsla_alloc.h>
+#include <bsla_arg.h>
+#include <bsla_deprecated.h>
+#include <bsla_error.h>
+#include <bsla_fallthrough.h>
+#include <bsla_format.h>
+#include <bsla_nodiscard.h>
+#include <bsla_noreturn.h>
+#include <bsla_null.h>
+#include <bsla_printf.h>
+#include <bsla_scanf.h>
+#include <bsla_unused.h>
+#include <bsla_used.h>
+#include <bsla_warning.h>
 
 // Note that we could conceivably migrate this to use '[[maybe_unused]]' when
 // available, but that has more specific constraints over where it can be
 // syntactically placed than the older vendor annotations.
-
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
-    #define BSLA_UNUSED     __attribute__((__unused__))
-
-    #define BSLA_UNUSED_IS_ACTIVE 1
-#else
-    #define BSLA_UNUSED
-
-    #define BSLA_UNUSED_IS_ACTIVE 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
-    #define BSLA_USED       __attribute__((__used__))
-
-    #define BSLA_USED_IS_ACTIVE 1
-#else
-    #define BSLA_USED
-
-    #define BSLA_USED_IS_ACTIVE 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_GNU)
-    // '__error__' and '__warning__' attributes are not supported by clang as
-    // of version 7.0.
-
-    #define BSLA_WARNING(x) __attribute__((__warning__(x)))
-
-    #define BSLA_WARNING_IS_ACTIVE 1
-#else
-    #define BSLA_WARNING(x)
-
-    #define BSLA_WARNING_IS_ACTIVE 0
-#endif
 
 #endif
 

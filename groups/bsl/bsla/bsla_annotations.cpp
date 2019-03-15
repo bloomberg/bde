@@ -1,4 +1,4 @@
-// bsls_annotations.cpp                                               -*-C++-*-
+// bsla_annotations.cpp                                               -*-C++-*-
 #include <bsla_annotations.h>
 
 #include <bsls_ident.h>

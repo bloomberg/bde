@@ -1,4 +1,4 @@
-// bsls_deprecated.cpp                                                -*-C++-*-
+// bsla_deprecated.cpp                                                -*-C++-*-
 #include <bsla_deprecated.h>
 
 #include <bsls_ident.h>

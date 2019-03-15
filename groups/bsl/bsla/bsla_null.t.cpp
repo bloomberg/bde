@@ -1,5 +1,5 @@
-// bsla_alloc.t.cpp                                                   -*-C++-*-
-#include <bsla_alloc.h>
+// bsla_null.t.cpp                                                    -*-C++-*-
+#include <bsla_null.h>
 
 #include <bsls_bsltestutil.h>
 
@@ -74,20 +74,6 @@
 //:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
 //:   a context where annotation 'BSLA_XXXX' must *not* result in a
 //:   compiler message.
-//
-// The table below classifies each of the annotations provided by this
-// component by the entities to which it can be applied (i.e., function,
-// variable, and type) and the expected result (optimization, error, warning,
-// conditional warning, absence of warning).  The tag(s) found in the
-// right-most column appear as comments throughout this test driver.  They can
-// be used as an aid to navigation to the test code for each annotation, and an
-// aid to assuring test coverage.
-//..
-//  No  Annotation                            E Result     Tag
-//  --  ------------------------------------  - --------   ----------
-//   1  BSLA_ALLOC_SIZE(x)         F optim.      1fo
-//   2  BSLA_ALLOC_SIZE_MUL(x, y)  F optim.      2fo
-//..
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -145,28 +131,95 @@ void aSsErT(bool condition, const char *message, int line)
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
-void *test_ALLOC_SIZE(void *ptr, size_t size) BSLA_ALLOC_SIZE(2);
-void *test_ALLOC_SIZE(void *ptr, size_t size)
+void test_NULL_TERMINATED(void *, ...) BSLA_NULL_TERMINATED;
+void test_NULL_TERMINATED(void *, ...)
 {
-    return realloc(ptr, size);
 }
 
-void *test_ALLOC_SIZE_MUL(size_t count, size_t size)
-                                          BSLA_ALLOC_SIZE_MUL(1, 2);
-void *test_ALLOC_SIZE_MUL(size_t count, size_t size)
+void test_NULL_TERMINATED_AT2(void *, ...) BSLA_NULL_TERMINATED_AT(2);
+void test_NULL_TERMINATED_AT2(void *, ...)
 {
-    return calloc(count, size);
 }
+
+void test_NULL_TERMINATED_AT3(void *, ...) BSLA_NULL_TERMINATED_AT(3);
+void test_NULL_TERMINATED_AT3(void *, ...)
+{
+}
+
+// ============================================================================
+//                  DEFINITION OF ANNOTATED VARIABLES
+// ----------------------------------------------------------------------------
+
+// ============================================================================
+//                  DEFINITION OF ANNOTATED TYPES
+// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
+
+void use_without_diagnostic_message_NULL_TERMINATED()
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer3[2];
+    char buffer4[2];
+    test_NULL_TERMINATED(buffer1, buffer2, buffer3, buffer4, NULL);
+}
+
+void use_without_diagnostic_message_NULL_TERMINATED_AT2()
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED_AT2(buffer1, buffer2, NULL, buffer4, buffer5);
+}
+
+void use_without_diagnostic_message_NULL_TERMINATED_AT3()
+{
+    char buffer1[2];
+    char buffer3[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED_AT3(buffer1, NULL, buffer3, buffer4, buffer5);
+}
 
 // ============================================================================
 //                  USAGE WITH EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
 #if U_TRIGGER_WARNINGS
+
+void use_with_warning_message_NULL_TERMINATED()
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer3[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED(buffer1, buffer2, buffer3, buffer4, buffer5);
+}
+
+void use_with_warning_message_NULL_TERMINATED_AT2()
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer3[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED_AT2(buffer1, buffer2, buffer3, buffer4, buffer5);
+}
+
+void use_with_warning_message_NULL_TERMINATED_AT3()
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer3[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED_AT3(buffer1, buffer2, buffer3, buffer4, buffer5);
+}
 
 #endif
 
@@ -192,16 +245,16 @@ static void printFlags()
 
     printf("\nprintFlags: bsls_annotation Macros\n");
 
-    printf("\nBSLA_ALLOC_SIZE(x): ");
-#ifdef BSLA_ALLOC_SIZE
-    printf("%s\n", STRINGIFY(BSLA_ALLOC_SIZE(x)) );
+    printf("\nBSLA_NULL_TERMINATED: ");
+#ifdef BSLA_NULL_TERMINATED
+    printf("%s\n", STRINGIFY(BSLA_NULL_TERMINATED) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\nBSLA_ALLOC_SIZE_MUL(x, y): ");
-#ifdef BSLA_ALLOC_SIZE_MUL
-    printf("%s\n", STRINGIFY(BSLA_ALLOC_SIZE_MUL(x, y)) );
+    printf("\nBSLA_NULL_TERMINATED_AT(x): ");
+#ifdef BSLA_NULL_TERMINATED_AT
+    printf("%s\n", STRINGIFY(BSLA_NULL_TERMINATED_AT(x)) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -209,8 +262,8 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
-    P(BSLA_ALLOC_SIZE_IS_ACTIVE);
-    P(BSLA_ALLOC_SIZE_MUL_IS_ACTIVE);
+    P(BSLA_NULL_TERMINATED_AT_IS_ACTIVE);
+    P(BSLA_NULL_TERMINATED_IS_ACTIVE);
 
     printf("\n\n---------------------------------------------\n");
     printf(    "printFlags: bsls_annotation Referenced Macros\n");
@@ -225,13 +278,6 @@ static void printFlags()
     printf("\nBSLS_PLATFORM_CMP_GNU: ");
 #ifdef BSLS_PLATFORM_CMP_GNU
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\nBSLS_PLATFORM_CMP_VERSION: ");
-#ifdef BSLS_PLATFORM_CMP_VERSION
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_VERSION) );
 #else
     printf("UNDEFINED\n");
 #endif

@@ -1,4 +1,4 @@
-// bsls_arg.t.cpp                                                     -*-C++-*-
+// bsla_arg.t.cpp                                                     -*-C++-*-
 #include <bsla_arg.h>
 
 #include <bsls_bsltestutil.h>
@@ -26,10 +26,7 @@
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // task using a compliant compiler, each time defining different values of
 // the boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor
-// variables.
-// 'U_TRIGGER_*' preprocessor variables (each undefined by
-// default), and check the build output for the proper behavior.  In each case,
-// the concerns are:
+// variables.  In each case, the concerns are:
 //
 //: o Did the build succeed or not?
 //:
@@ -187,7 +184,7 @@ void test_ARGS_NON_NULL(void *, void *)
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
-void use_without_diagnostic_message_ARG1_NON_NULL()                  // { 8fwn}
+void use_without_diagnostic_message_ARG1_NON_NULL()
 {
     char buffer1[2];
     test_ARG1_NON_NULL(buffer1, NULL, NULL);
@@ -200,7 +197,7 @@ void use_without_diagnostic_message_ARG2_NON_NULL()
     ASSERT('a' == ret);
 }
 
-void use_without_diagnostic_message_ARGS_NON_NULL()                  // { 9fwn}
+void use_without_diagnostic_message_ARGS_NON_NULL()
 {
     char buffer1[2];
     char buffer2[2];
@@ -214,7 +211,7 @@ void use_without_diagnostic_message_ARGS_NON_NULL()                  // { 9fwn}
 
 #if U_TRIGGER_WARNINGS
 
-void use_with_warning_message_ARG1_NON_NULL()                        // { 8fwy}
+void use_with_warning_message_ARG1_NON_NULL()
 {
     test_ARG1_NON_NULL(NULL, NULL, NULL);
 }
@@ -224,7 +221,7 @@ void use_with_warning_message_ARG2_NON_NULL()
     test_ARG2_NON_NULL(NULL, NULL, NULL);
 }
 
-void use_with_warning_message_ARGS_NON_NULL()                        // { 9fwy}
+void use_with_warning_message_ARGS_NON_NULL()
 {
     char buffer1[2];
     char buffer2[2];
@@ -252,39 +249,39 @@ static void printFlags()
 {
     printf("printFlags: Enter\n");
 
-    printf("\n  printFlags: bsls_annotation Macros\n");
+    printf("\nprintFlags: bsls_annotation Macros\n");
 
-    printf("\n  BSLA_ARGS_NON_NULL: ");
+    printf("\nBSLA_ARGS_NON_NULL: ");
 #ifdef BSLA_ARGS_NON_NULL
     printf("%s\n", STRINGIFY(BSLA_ARGS_NON_NULL) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_ARG_NON_NULL(...): ");
+    printf("\nBSLA_ARG_NON_NULL(...): ");
 #ifdef BSLA_ARG_NON_NULL
     printf("%s\n", STRINGIFY(BSLA_ARG_NON_NULL(...)) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n\n  ------------------------------\n");
-    printf(    "  printFlags: *_IS_ACTIVE Macros\n\n");
+    printf("\n\n------------------------------\n");
+    printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
     P(BSLA_ARGS_NON_NULL_IS_ACTIVE);
     P(BSLA_ARG_NON_NULL_IS_ACTIVE);
 
-    printf("\n\n  ---------------------------------------------\n");
-    printf(    "  printFlags: bsls_annotation Referenced Macros\n");
+    printf("\n\n---------------------------------------------\n");
+    printf(    "printFlags: bsls_annotation Referenced Macros\n");
 
-    printf("\n  BSLS_PLATFORM_CMP_CLANG: ");
+    printf("\nBSLS_PLATFORM_CMP_CLANG: ");
 #ifdef BSLS_PLATFORM_CMP_CLANG
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_CLANG) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_GNU: ");
+    printf("\nBSLS_PLATFORM_CMP_GNU: ");
 #ifdef BSLS_PLATFORM_CMP_GNU
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU) );
 #else
@@ -328,7 +325,7 @@ int main(int argc, char **argv)
         //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
         //:   preprocessor variable is defined to 1.
         //:
-        //: 3 When 'U_TRiGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
+        //: 3 When 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
         //:   to 0, the compile is successful and with no warnings.
         //
         // Plan:

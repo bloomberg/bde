@@ -1,4 +1,4 @@
-// bsls_annotations.t.cpp                                             -*-C++-*-
+// bsla_annotations.t.cpp                                             -*-C++-*-
 #include <bsla_annotations.h>
 
 #include <bsls_bsltestutil.h>
@@ -26,10 +26,7 @@
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // task using a compliant compiler, each time defining different values of
 // the boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor
-// variables.
-// 'U_TRIGGER_*' preprocessor variables (each undefined by
-// default), and check the build output for the proper behavior.  In each case,
-// the concerns are:
+// variables.  In each case, the concerns are:
 //
 //: o Did the build succeed or not?
 //:
@@ -77,39 +74,6 @@
 //:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
 //:   a context where annotation 'BSLA_XXXX' must *not* result in a
 //:   compiler message.
-//
-// The table below classifies each of the annotations provided by this
-// component by the entities to which it can be applied (i.e., function,
-// variable, and type) and the expected result (optimization, error, warning,
-// conditional warning, absence of warning).  The tag(s) found in the
-// right-most column appear as comments throughout this test driver.  They can
-// be used as an aid to navigation to the test code for each annotation, and an
-// aid to assuring test coverage.
-//..
-//  No  Annotation                            E Result     Tag
-//  --  ------------------------------------  - --------   ----------
-//   1  BSLA_ALLOC_SIZE(x)         F optim.      1fo
-//   2  BSLA_ALLOC_SIZE_MUL(x, y)  F optim.      2fo
-//   3  BSLA_ERROR("msg")          F error       3fe
-//   4  BSLA_WARNING("msg")        F warn        4fw
-//   5  BSLA_PRINTF(s, n)          F warn cond.  5fwy, 5fwn
-//   6  BSLA_SCANF(s, n)           F warn cond.  6fwy, 6fwn
-//   7  BSLA_FORMAT(n)             F warn cond.  7fwy, 7fwn
-//   8  BSLA_ARG_NON_NULL(...)     F warn cond.  8fwy, 8fwn
-//   9  BSLA_ARGS_NON_NULL         F warn cond.  9fwy, 9fwn
-//  10  BSLA_NULL_TERMINATED       F warn cond. 10fwy,10fwn
-//  11  BSLA_NULL_TERMINATED_AT(x) F warn cond. 11fwy,11fwn
-//  12
-//  13  BSLA_NODISCARD             F warn cond. 13fwy,13fwn
-//  14  BSLA_DEPRECATED            F warn       14fw
-//                                            V warn       14vw
-//                                            T warn       14tw
-//  15 BSLA_UNUSED                 F warn not   15fwn
-//                                            V warn not   15vwn
-//                                            T warn not   15twn
-//  16 BSLA_FALLTHROUGH            F warn not   16fwn
-//  17 BSLA_NORETURN               F error      17fe
-//..
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -168,14 +132,14 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 void *test_ALLOC_SIZE(void *ptr, size_t size) BSLA_ALLOC_SIZE(2);
-void *test_ALLOC_SIZE(void *ptr, size_t size)                        // { 1fo }
+void *test_ALLOC_SIZE(void *ptr, size_t size)
 {
     return realloc(ptr, size);
 }
 
 void *test_ALLOC_SIZE_MUL(size_t count, size_t size)
                                           BSLA_ALLOC_SIZE_MUL(1, 2);
-void *test_ALLOC_SIZE_MUL(size_t count, size_t size)                 // { 2fo }
+void *test_ALLOC_SIZE_MUL(size_t count, size_t size)
 {
     return calloc(count, size);
 }
@@ -219,7 +183,7 @@ int test_ERROR()
 }
 
 static
-int test_FALLTHROUGH_function(int i);                                // {16fwn}
+int test_FALLTHROUGH_function(int i);
 int test_FALLTHROUGH_function(int i)
 {
     switch (i)
@@ -291,8 +255,14 @@ void test_SCANF(const char *, ...)
 }
 
 static
-void test_UNUSED_function() BSLA_UNUSED;                  // {15fwn}
-void test_UNUSED_function()
+void test_UNUSED_function_no_warning() BSLA_UNUSED;
+void test_UNUSED_function_no_warning()
+{
+}
+
+static
+void test_UNUSED_function_warning();
+void test_UNUSED_function_warning()
 {
 }
 
@@ -308,16 +278,18 @@ int test_WARNING()
 
 int test_DEPRECATED_variable BSLA_DEPRECATED;
 
-#if BSLA_UNUSED_IS_ACTIVE
 static
-int test_UNUSED_variable_no_warning     BSLA_UNUSED;                 // {15vwn}
-#endif
+int test_UNUSED_variable_no_warning     BSLA_UNUSED;
 
-#if U_TRiGGER_WARNINGS
 static
-int test_UNUSED_variable_warninng;                                   // {15vwn}
-#endif
+int test_UNUSED_variable_warning;
 
+#if BSLA_USED_IS_ACTIVE
+
+static
+int test_USED_variable_no_warning BSLA_USED;
+
+#endif
 
 // ============================================================================
 //                  DEFINITION OF ANNOTATED TYPES
@@ -329,17 +301,13 @@ struct Test_DEPRECATED_type {
 
 namespace {
 
-#if BSLA_UNUSED_IS_ACTIVE
 struct Test_UNUSED_type_no_warning {
     int d_d;
 } BSLA_UNUSED;
-#endif
 
-#if U_TRiGGER_WARNINGS
 struct Test_UNUSED_type_warning {
     int d_d;
 };
-#endif
 
 }  // close unnamed namespace
 
@@ -347,12 +315,7 @@ struct Test_UNUSED_type_warning {
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
-void use_without_diagnostic_message_FORMAT()                         // { 7fwn}
-{
-    test_PRINTF(test_FORMAT("FR", "Name: %s"), "Michael Bloomberg");
-}
-
-void use_without_diagnostic_message_ARG1_NON_NULL()                  // { 8fwn}
+void use_without_diagnostic_message_ARG1_NON_NULL()
 {
     char buffer1[2];
     test_ARG1_NON_NULL(buffer1, NULL, NULL);
@@ -365,7 +328,7 @@ void use_without_diagnostic_message_ARG2_NON_NULL()
     ASSERT('a' == ret);
 }
 
-void use_without_diagnostic_message_ARGS_NON_NULL()                  // { 9fwn}
+void use_without_diagnostic_message_ARGS_NON_NULL()
 {
     char buffer1[2];
     char buffer2[2];
@@ -373,17 +336,22 @@ void use_without_diagnostic_message_ARGS_NON_NULL()                  // { 9fwn}
     test_ARGS_NON_NULL(buffer1, buffer2);
 }
 
-int use_without_diagnostic_message_NODISCARD()                       // {13fwn}
-{
-    return test_NODISCARD();
-}
-
-int use_without_diagnostic_message_FALLTHROUGH()                    // {16fwwn}
+int use_without_diagnostic_message_FALLTHROUGH()
 {
     return test_FALLTHROUGH_function(17);
 }
 
-void use_without_diagnostic_message_NULL_TERMINATED()                // {10fwn}
+void use_without_diagnostic_message_FORMAT()
+{
+    test_PRINTF(test_FORMAT("FR", "Name: %s"), "Michael Bloomberg");
+}
+
+int use_without_diagnostic_message_NODISCARD()
+{
+    return test_NODISCARD();
+}
+
+void use_without_diagnostic_message_NULL_TERMINATED()
 {
     char buffer1[2];
     char buffer2[2];
@@ -392,7 +360,7 @@ void use_without_diagnostic_message_NULL_TERMINATED()                // {10fwn}
     test_NULL_TERMINATED(buffer1, buffer2, buffer3, buffer4, NULL);
 }
 
-void use_without_diagnostic_message_NULL_TERMINATED_AT2()            // {11fwn}
+void use_without_diagnostic_message_NULL_TERMINATED_AT2()
 {
     char buffer1[2];
     char buffer2[2];
@@ -415,14 +383,14 @@ BSLA_NORETURN void use_without_diagnostic_message_NORETURN()
     ::exit(1);
 }
 
-void use_without_diagnostic_message_PRINTF()                         // { 5fwn}
+void use_without_diagnostic_message_PRINTF()
 {
     test_PRINTF("%s", "string");
     test_PRINTF("%d", 1);
     test_PRINTF("%f", 3.14159);
 }
 
-void use_without_diagnostic_message_SCANF()                          // { 6fwn}
+void use_without_diagnostic_message_SCANF()
 {
     char   buffer[20];
     int    i;
@@ -433,13 +401,34 @@ void use_without_diagnostic_message_SCANF()                          // { 6fwn}
     test_SCANF("%lf", &d);
 }
 
+#if !U_TRIGGER_WARNINGS
+
+void use_without_diagnostic_message_UNUSED()
+{
+    (void) Test_UNUSED_type_warning();
+
+    (void) test_UNUSED_variable_warning;
+    (void) test_UNUSED_function_warning();
+
+# if !BSLA_UNUSED_IS_ACTIVE
+
+    (void) Test_UNUSED_type_no_warning();
+
+    (void) test_UNUSED_variable_no_warning;
+    (void) test_UNUSED_function_no_warning();
+
+# endif
+}
+
+#endif
+
 // ============================================================================
 //                  USAGE WITH EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
 #if U_TRIGGER_WARNINGS
 
-void use_with_warning_message_ARG1_NON_NULL()                        // { 8fwy}
+void use_with_warning_message_ARG1_NON_NULL()
 {
     test_ARG1_NON_NULL(NULL, NULL, NULL);
 }
@@ -449,7 +438,7 @@ void use_with_warning_message_ARG2_NON_NULL()
     test_ARG2_NON_NULL(NULL, NULL, NULL);
 }
 
-void use_with_warning_message_ARGS_NON_NULL()                        // { 9fwy}
+void use_with_warning_message_ARGS_NON_NULL()
 {
     char buffer1[2];
     char buffer2[2];
@@ -459,24 +448,24 @@ void use_with_warning_message_ARGS_NON_NULL()                        // { 9fwy}
     test_ARGS_NON_NULL(NULL, NULL);
 }
 
-void use_with_warning_message_DEPRECATED_function()                  // {14fw }
+void use_with_warning_message_DEPRECATED_function()
 {
     test_DEPRECATED_function();
 }
 
-int use_with_warning_message_DEPRECATED_type()                       // {14tw }
+int use_with_warning_message_DEPRECATED_type()
 {
     Test_DEPRECATED_type instance_of_DEPRECATED_TYPE;
     instance_of_DEPRECATED_TYPE.d_d = 0;
     return instance_of_DEPRECATED_TYPE.d_d;
 }
 
-void use_with_warning_message_DEPRECATED_variable()                  // {14vw }
+void use_with_warning_message_DEPRECATED_variable()
 {
     (void) test_DEPRECATED_variable;
 }
 
-int use_with_warning_message_FALLTHROUGH(int i)                      // {16fwn}
+int use_with_warning_message_FALLTHROUGH(int i)
 {
     switch (i)
     {
@@ -499,17 +488,26 @@ int use_with_warning_message_FALLTHROUGH(int i)                      // {16fwn}
     }
 }
 
-void use_with_warning_message_FORMAT()                               // { 7fwy}
+void use_with_warning_message_FORMAT()
 {
     test_PRINTF(test_FORMAT("FR", "Name: %s"), 3);
 }
 
-void use_with_warning_message_NODISCARD()                            // {13fwy}
+void use_with_warning_message_NODISCARD()
 {
     test_NODISCARD();
 }
 
-void use_with_warning_message_NULL_TERMINATED()                      // {10fwy}
+void use_with_warning_message_NORETURN()
+{
+}
+
+
+BSLA_NORETURN void use_with_error_message_NORETURN_function()
+{
+}
+
+void use_with_warning_message_NULL_TERMINATED()
 {
     char buffer1[2];
     char buffer2[2];
@@ -519,7 +517,7 @@ void use_with_warning_message_NULL_TERMINATED()                      // {10fwy}
     test_NULL_TERMINATED(buffer1, buffer2, buffer3, buffer4, buffer5);
 }
 
-void use_with_warning_message_NULL_TERMINATED_AT2()                  // {11fwy}
+void use_with_warning_message_NULL_TERMINATED_AT2()
 {
     char buffer1[2];
     char buffer2[2];
@@ -538,14 +536,14 @@ void use_with_warning_message_NULL_TERMINATED_AT3()
     test_NULL_TERMINATED_AT3(buffer1, buffer2, buffer3, buffer4, buffer5);
 }
 
-void use_with_warning_message_PRINTF()                               // { 5fwy}
+void use_with_warning_message_PRINTF()
 {
     test_PRINTF("%s", 3.14159);
     test_PRINTF("%d", "string");
     test_PRINTF("%f", "other string");
 }
 
-void use_with_warning_message_SCANF()                                // { 6fwy}
+void use_with_warning_message_SCANF()
 {
     char   buffer[20];
     int    i;
@@ -555,7 +553,10 @@ void use_with_warning_message_SCANF()                                // { 6fwy}
     test_SCANF("%f", buffer);
 }
 
-void use_with_warning_message_WARNING()                              // { 4fw }
+static
+int test_UNUSED_variable_warninng;
+
+void use_with_warning_message_WARNING()
 {
     (void) test_WARNING();
 }
@@ -567,14 +568,12 @@ void use_with_warning_message_WARNING()                              // { 4fw }
 // ----------------------------------------------------------------------------
 
 #if U_TRIGGER_ERRORS
-void use_with_error_message_Error()                                  // { 3fe }
+
+void use_with_error_message_Error()
 {
     (void) test_ERROR();
 }
 
-BSLA_NORETURN void use_with_error_message_NORETURN_function()         // {17fe}
-{
-}
 #endif
 
 // ============================================================================
@@ -589,129 +588,129 @@ static void printFlags()
 {
     printf("printFlags: Enter\n");
 
-    printf("\n  printFlags: bsls_annotation Macros\n");
+    printf("\nprintFlags: bsls_annotation Macros\n");
 
-    printf("\n  BSLA_ALLOC_SIZE(x): ");
+    printf("\nBSLA_ALLOC_SIZE(x): ");
 #ifdef BSLA_ALLOC_SIZE
     printf("%s\n", STRINGIFY(BSLA_ALLOC_SIZE(x)) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_ALLOC_SIZE_MUL(x, y): ");
+    printf("\nBSLA_ALLOC_SIZE_MUL(x, y): ");
 #ifdef BSLA_ALLOC_SIZE_MUL
     printf("%s\n", STRINGIFY(BSLA_ALLOC_SIZE_MUL(x, y)) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_ARGS_NON_NULL: ");
+    printf("\nBSLA_ARGS_NON_NULL: ");
 #ifdef BSLA_ARGS_NON_NULL
     printf("%s\n", STRINGIFY(BSLA_ARGS_NON_NULL) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_ARG_NON_NULL(...): ");
+    printf("\nBSLA_ARG_NON_NULL(...): ");
 #ifdef BSLA_ARG_NON_NULL
     printf("%s\n", STRINGIFY(BSLA_ARG_NON_NULL(...)) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_DEPRECATED: ");
+    printf("\nBSLA_DEPRECATED: ");
 #ifdef BSLA_DEPRECATED
     printf("%s\n", STRINGIFY(BSLA_DEPRECATED) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_ERROR(x): ");
+    printf("\nBSLA_ERROR(x): ");
 #ifdef BSLA_ERROR
     printf("%s\n", STRINGIFY(BSLA_ERROR(x)) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_FALLTHROUGH: ");
+    printf("\nBSLA_FALLTHROUGH: ");
 #ifdef BSLA_FALLTHROUGH
     printf("%s\n", STRINGIFY(BSLA_FALLTHROUGH) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_FORMAT(arg): ");
+    printf("\nBSLA_FORMAT(arg): ");
 #ifdef BSLA_FORMAT
     printf("%s\n", STRINGIFY(BSLA_FORMAT(arg)) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_NODISCARD: ");
+    printf("\nBSLA_NODISCARD: ");
 #ifdef BSLA_NODISCARD
     printf("%s\n", STRINGIFY(BSLA_NODISCARD) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_NORETURN: ");
+    printf("\nBSLA_NORETURN: ");
 #ifdef BSLA_NORETURN
     printf("%s\n", STRINGIFY(BSLA_NORETURN) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_NULL_TERMINATED: ");
+    printf("\nBSLA_NULL_TERMINATED: ");
 #ifdef BSLA_NULL_TERMINATED
     printf("%s\n", STRINGIFY(BSLA_NULL_TERMINATED) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_NULL_TERMINATED_AT(x): ");
+    printf("\nBSLA_NULL_TERMINATED_AT(x): ");
 #ifdef BSLA_NULL_TERMINATED_AT
     printf("%s\n", STRINGIFY(BSLA_NULL_TERMINATED_AT(x)) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_PRINTF(fmt, arg): ");
+    printf("\nBSLA_PRINTF(fmt, arg): ");
 #ifdef BSLA_PRINTF
     printf("%s\n", STRINGIFY(BSLA_PRINTF(fmt, arg)) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_SCANF(fmt, arg): ");
+    printf("\nBSLA_SCANF(fmt, arg): ");
 #ifdef BSLA_SCANF
     printf("%s\n", STRINGIFY(BSLA_SCANF(fmt, arg)) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_UNUSED: ");
+    printf("\nBSLA_UNUSED: ");
 #ifdef BSLA_UNUSED
     printf("%s\n", STRINGIFY(BSLA_UNUSED) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_USED: ");
+    printf("\nBSLA_USED: ");
 #ifdef BSLA_USED
     printf("%s\n", STRINGIFY(BSLA_USED) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLA_WARNING(x): ");
+    printf("\nBSLA_WARNING(x): ");
 #ifdef BSLA_WARNING
     printf("%s\n", STRINGIFY(BSLA_WARNING(x)) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n\n  ------------------------------\n");
-    printf(    "  printFlags: *_IS_ACTIVE Macros\n\n");
+    printf("\n\n------------------------------\n");
+    printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
     P(BSLA_ALLOC_SIZE_IS_ACTIVE);
     P(BSLA_ALLOC_SIZE_MUL_IS_ACTIVE);
@@ -731,10 +730,10 @@ static void printFlags()
     P(BSLA_USED_IS_ACTIVE);
     P(BSLA_WARNING_IS_ACTIVE);
 
-    printf("\n\n  ---------------------------------------------\n");
-    printf(    "  printFlags: bsls_annotation Referenced Macros\n");
+    printf("\n\n---------------------------------------------\n");
+    printf(    "printFlags: bsls_annotation Referenced Macros\n");
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH: ");
+    printf("\nBSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH: ");
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
     printf("%s\n",
               STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH) );
@@ -742,7 +741,7 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED: ");
+    printf("\nBSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED: ");
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
     printf("%s\n",
              STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED) );
@@ -750,7 +749,7 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: ");
+    printf("\nBSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: ");
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
     printf("%s\n",
                 STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD) );
@@ -758,7 +757,7 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: ");
+    printf("\nBSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: ");
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
     printf("%s\n",
                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN) );
@@ -766,42 +765,56 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_CLANG: ");
+    printf("\nBSLS_PLATFORM_CMP_CLANG: ");
 #ifdef BSLS_PLATFORM_CMP_CLANG
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_CLANG) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_GNU: ");
+    printf("\nBSLS_PLATFORM_CMP_GNU: ");
 #ifdef BSLS_PLATFORM_CMP_GNU
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_HP: ");
+    printf("\nBSLS_PLATFORM_CMP_HP: ");
 #ifdef BSLS_PLATFORM_CMP_HP
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_HP) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_IBM: ");
+    printf("\nBSLS_PLATFORM_CMP_IBM: ");
 #ifdef BSLS_PLATFORM_CMP_IBM
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_IBM) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  BSLS_PLATFORM_CMP_MSVC: ");
+    printf("\nBSLS_PLATFORM_CMP_MSVC: ");
 #ifdef BSLS_PLATFORM_CMP_MSVC
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_MSVC) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\n  __has_warning: ");
+    printf("\nBSLS_PLATFORM_CMP_VERSION: ");
+#ifdef BSLS_PLATFORM_CMP_VERSION
+    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_VERSION) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n__has_feature: ");
+#ifdef __has_feature
+    printf("DEFINED\n");
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n__has_warning: ");
 #ifdef __has_warning
     printf("DEFINED\n");
 #else
@@ -845,7 +858,7 @@ int main(int argc, char **argv)
         //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
         //:   preprocessor variable is defined to 1.
         //:
-        //: 3 When 'U_TRiGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
+        //: 3 When 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
         //:   to 0, the compile is successful and with no warnings.
         //
         // Plan:

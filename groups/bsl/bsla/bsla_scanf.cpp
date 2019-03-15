@@ -1,5 +1,5 @@
-// bsla_alloc.cpp                                                     -*-C++-*-
-#include <bsla_alloc.h>
+// bsla_scanf.cpp                                                     -*-C++-*-
+#include <bsla_scanf.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")

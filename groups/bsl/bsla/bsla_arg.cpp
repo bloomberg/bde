@@ -1,4 +1,4 @@
-// bsls_arg.cpp                                                       -*-C++-*-
+// bsla_arg.cpp                                                       -*-C++-*-
 #include <bsla_arg.h>
 
 #include <bsls_ident.h>
