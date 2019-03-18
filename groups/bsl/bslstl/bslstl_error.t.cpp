@@ -202,93 +202,158 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
 ///Example 1: Dedicated Error Category
 ///- - - - - - - - - - - - - - - - - -
 // Suppose we have a dedicated system with a set of possible errors, and we
-// want to be able to throw descriptive exceptions when an error occurs.  We
-// can use the 'system_error' capabilities of the C++ standard for this.
+// want to check if such an error has occurred.  We can use the 'system_error'
+// capabilities of the C++ standard for this.
 //
-// First, we define the set of error codes for our system.
+// First, open the namespaces for this component.
 //..
-    struct car_errc {
+    // carfx_errors.h
+    namespace BloombergLP {
+    namespace carfx {
+//..
+//  Then define an 'enum' component to specify the set of error codes for the
+//  system, and also use the component to define the system error machinery to
+//  use it properly.  For exposition, all methods will be defined 'inline' so
+//  that they can appear in sequence.  In practice, they would be defined in
+//  separate implementation files.  (For the example, many of the methods
+//  normally present are elided.)
+//..
+    struct Errors {
         // TYPES
         enum Enum {
-            car_wheels_came_off = 1,
-            car_engine_fell_out = 2
+            e_WHEELS_CAME_OFF = 1,
+            e_ENGINE_FELL_OUT = 2
         };
-    };
-//..
-// Then, we enable the traits marking this as an error code and condition.
-//..
-    namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
-    template <> struct is_error_code_enum<car_errc::Enum>
-    : public bsl::true_type { };
-    }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
 
-    namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE {
-    template <> struct is_error_condition_enum<car_errc::Enum>
-    : public bsl::true_type { };
-    }  // close namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE
+        // CLASS METHODS
+        static const char *toAscii(Enum value);
+            // Return a string representing the specified 'value'.
+
+        // ... other enumeration class methods ...
+    };
+
+    // CLASS METHODS
+    inline
+    const char *Errors::toAscii(Enum value) {
+        switch (value) {
+          case e_WHEELS_CAME_OFF: return "WHEELS_CAME_OFF";           // RETURN
+          case e_ENGINE_FELL_OUT: return "ENGINE_FELL_OUT";           // RETURN
+          default: return "(* UNKNOWN *)";                            // RETURN
+        }
+    }
 //..
-// Next, we create an error category that will give us descriptive messages.
+// Next, define a category class that represents these errors.  The address of
+// a singleton object of the category class is used to uniquely identify the
+// error type.  This class is meant to be private to the implementation.  The
+// 'bsl::error_category' base class has two abstract virtual methods that must
+// be defined by derived classes.  Note that 'native_std::string' is used,
+// since the base 'error_category' class may be the 'std' one and its methods
+// are being overridden.
 //..
-    namespace {
-    struct car_category_impl : public bsl::error_category {
+    struct Errors_Category : public bsl::error_category {
         // ACCESSORS
         native_std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
             // Return a string describing the specified 'value'.
 
-        const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+         const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
             // Return a string describing this error category.
+
+         // CLASS METHODS
+         static const bsl::error_category& category();
+            // Return a 'const' reference to the singleton of this category.
     };
 
     // ACCESSORS
-    native_std::string car_category_impl::message(int value) const {
-        switch (value) {
-          case car_errc::car_wheels_came_off: return "The wheels came off";
-          case car_errc::car_engine_fell_out: return "The engine fell out";
-          default:                            return "Some car problem";
-        }
+    inline
+    native_std::string Errors_Category::message(int value) const
+    {
+        // Note that an out-of-range cast to 'Errors::Enum' is formally
+        // undefined behavior, so the range check is necessary.
+        return Errors::e_WHEELS_CAME_OFF <= value &&
+               value <= Errors::e_ENGINE_FELL_OUT ?
+               Errors::toAscii(Errors::Enum(value)) :
+               "(* UNKNOWN *)";
     }
 
-    const char *car_category_impl::name() const BSLS_KEYWORD_NOEXCEPT {
-        return "car";
-    }
-    }  // close unnamed namespace
-//..
-// Then, we define functions to get our unique category object, and to make
-// error codes and error conditions from our enumeration values.
-//..
-    const error_category& car_category()
-        // Return a 'const' reference to the unique car category object.
+    inline
+    const char *Errors_Category::name() const BSLS_KEYWORD_NOEXCEPT
     {
-        static car_category_impl car_category_object;
-        return car_category_object;
+        return "carfx::Errors";
     }
 
-    bsl::error_code make_error_code(car_errc::Enum value)
-        // Return a car category error code of the specified 'value'.
+    // CLASS METHODS
+    inline
+    const bsl::error_category& Errors_Category::category()
     {
-        return bsl::error_code(static_cast<int>(value), car_category());
-    }
-
-    bsl::error_condition make_error_condition(car_errc::Enum value)
-        // Return a car category error condition of the specified 'value'.
-    {
-        return bsl::error_condition(static_cast<int>(value), car_category());
+        // Note that for C++03, 'BSLMT_ONCE_DO' may be used to protect the
+        // static initialization, although the likelihood of a problem is
+        // vanishingly small.
+        static const Errors_Category singleton;
+        return singleton;
     }
 //..
-// Now, we write a function that can potentially have errors.
+//  Then define namespace-scope functions to return error codes and conditions
+//  for this error category.  (Normally a set of error values would be
+//  specified only as one of the two, but both are used here for illustrative
+//  purposes.)  These functions are at namespace scope because they need to be
+//  found by argument-dependent lookup of the enumeration value.
+//..
+    // FREE FUNCTIONS
+    inline
+    bsl::error_code make_error_code(Errors::Enum value)
+        // Return an error code for the specified 'value'.
+    {
+        return bsl::error_code(static_cast<int>(value),
+                               Errors_Category::category());
+    }
+
+    inline
+    bsl::error_condition make_error_condition(Errors::Enum value)
+        // Return an error condition for the specified 'value'.
+    {
+        return bsl::error_condition(static_cast<int>(value),
+                                    Errors_Category::category());
+    }
+//..
+//  Next, close the component namespaces.
+//..
+    }  // close package namespace
+    }  // close enterprise namespace
+//..
+//  Then create specializations for the class templates that tag enumeration
+//  types as eligible to be treated as error codes or conditions.  Note that
+//  these specializations must appear in the same namespace in which the class
+//  templates are defined, and this component provides macros naming these
+//  namespaces portably.  Again, for exposition, 'Errors::Enum' is marked as
+//  both an error code and an error condition.
+//..
+    namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
+    template <>
+    struct is_error_code_enum<BloombergLP::carfx::Errors::Enum>
+    : public bsl::true_type { };
+    }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
+
+    namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE {
+    template <>
+    struct is_error_condition_enum<BloombergLP::carfx::Errors::Enum>
+    : public bsl::true_type { };
+    }  // close namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE
+//..
+// Now, write a function that can potentially have errors.
 //..
     void drive(bsl::error_code *code, int distance)
         // Drive a car for the specified 'distance' and set the specified
         // 'code' to describe any problems encountered.
     {
+        using namespace BloombergLP::carfx;
         if (distance > 1000) {
-            *code = make_error_code(car_errc::car_engine_fell_out);
+            *code = make_error_code(Errors::e_ENGINE_FELL_OUT);
         }
         else if (distance > 100) {
-             *code = make_error_code(car_errc::car_wheels_came_off);
+            *code = make_error_code(Errors::e_WHEELS_CAME_OFF);
         }
         else {
-             *code = bsl::error_code(0, car_category());
+            *code = make_error_code(Errors::Enum(0));
         }
     }
 //..
@@ -333,15 +398,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-// Finally, we can exercise the function and check for errors.
+// Finally, exercise the function and check for errors.
 //..
     bsl::error_code code;
     drive(&code, 50);
     ASSERT(!code);
     drive(&code, 500);
-    ASSERT(strstr(code.message().c_str(), "wheels"));
+    ASSERT(strstr(code.message().c_str(), "WHEELS"));
     drive(&code, 5000);
-    ASSERT(strstr(code.message().c_str(), "engine"));
+    ASSERT(strstr(code.message().c_str(), "ENGINE"));
 //..
       } break;
       case 7: {
@@ -406,10 +471,10 @@ int main(int argc, char *argv[])
             printf("error_condition(ERROR_CODE_ENUM)\n");
         }
         {
-            error_condition        mX(car_errc::car_engine_fell_out);
+            error_condition        mX(carfx::Errors::e_ENGINE_FELL_OUT);
             const error_condition& X = mX;
-            ASSERT(&car_category() == &X.category());
-            ASSERT(car_errc::car_engine_fell_out == X.value());
+            ASSERT(&carfx::Errors_Category::category() == &X.category());
+            ASSERT(carfx::Errors::e_ENGINE_FELL_OUT == X.value());
         }
 
         if (veryVerbose) {
@@ -418,10 +483,10 @@ int main(int argc, char *argv[])
         {
             error_condition        mX;
             const error_condition& X = mX;
-            mX.assign(static_cast<int>(car_errc::car_engine_fell_out),
-                      car_category());
-            ASSERT(&car_category() == &X.category());
-            ASSERT(car_errc::car_engine_fell_out == X.value());
+            mX.assign(static_cast<int>(carfx::Errors::e_ENGINE_FELL_OUT),
+                      carfx::Errors_Category::category());
+            ASSERT(&carfx::Errors_Category::category() == &X.category());
+            ASSERT(carfx::Errors::e_ENGINE_FELL_OUT == X.value());
         }
 
         if (veryVerbose) {
@@ -429,10 +494,10 @@ int main(int argc, char *argv[])
         }
         {
             error_condition        mX;
-            const error_condition& X = (mX = car_errc::car_engine_fell_out);
+            const error_condition& X = (mX = carfx::Errors::e_ENGINE_FELL_OUT);
             ASSERT(&mX == &X);
-            ASSERT(&car_category() == &X.category());
-            ASSERT(car_errc::car_engine_fell_out == X.value());
+            ASSERT(&carfx::Errors_Category::category() == &X.category());
+            ASSERT(carfx::Errors::e_ENGINE_FELL_OUT == X.value());
         }
 
         if (veryVerbose) {
@@ -490,7 +555,7 @@ int main(int argc, char *argv[])
             if (X) {
                 ASSERT(false);
             }
-            mX = car_errc::car_engine_fell_out;
+            mX = carfx::Errors::e_ENGINE_FELL_OUT;
             ASSERT(X);
             if (X) {
             }
@@ -563,10 +628,10 @@ int main(int argc, char *argv[])
             printf("error_code(ERROR_CODE_ENUM)\n");
         }
         {
-            error_code        mX(car_errc::car_engine_fell_out);
+            error_code        mX(carfx::Errors::e_ENGINE_FELL_OUT);
             const error_code& X = mX;
-            ASSERT(&car_category() == &X.category());
-            ASSERT(car_errc::car_engine_fell_out == X.value());
+            ASSERT(&carfx::Errors_Category::category() == &X.category());
+            ASSERT(carfx::Errors::e_ENGINE_FELL_OUT == X.value());
         }
 
         if (veryVerbose) {
@@ -575,9 +640,10 @@ int main(int argc, char *argv[])
         {
             error_code        mX;
             const error_code& X = mX;
-            mX.assign(car_errc::car_engine_fell_out, car_category());
-            ASSERT(&car_category() == &X.category());
-            ASSERT(car_errc::car_engine_fell_out == X.value());
+            mX.assign(carfx::Errors::e_ENGINE_FELL_OUT,
+                      carfx::Errors_Category::category());
+            ASSERT(&carfx::Errors_Category::category() == &X.category());
+            ASSERT(carfx::Errors::e_ENGINE_FELL_OUT == X.value());
         }
 
         if (veryVerbose) {
@@ -585,10 +651,10 @@ int main(int argc, char *argv[])
         }
         {
             error_code        mX;
-            const error_code& X = (mX = car_errc::car_engine_fell_out);
+            const error_code& X = (mX = carfx::Errors::e_ENGINE_FELL_OUT);
             ASSERT(&mX == &X);
-            ASSERT(&car_category() == &X.category());
-            ASSERT(car_errc::car_engine_fell_out == X.value());
+            ASSERT(&carfx::Errors_Category::category() == &X.category());
+            ASSERT(carfx::Errors::e_ENGINE_FELL_OUT == X.value());
         }
 
         if (veryVerbose) {
@@ -667,7 +733,7 @@ int main(int argc, char *argv[])
             if (X) {
                 ASSERT(false);
             }
-            mX = car_errc::car_engine_fell_out;
+            mX = carfx::Errors::e_ENGINE_FELL_OUT;
             ASSERT(X);
             if (X) {
             }
