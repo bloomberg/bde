@@ -445,6 +445,11 @@ class CerrBufferGuard {
 
 };
 
+void logNamespaceOverride() {
+    BALL_LOG_SET_CATEGORY("BALL_LOG.T.OVERRIDE.U");
+    BALL_LOG_INFO << "INFO log in namespace BALL_LOG.T.OVERRIDE.U";
+}
+
 }  // close namespace u
 }  // close unnamed namespace
 
@@ -2825,7 +2830,15 @@ struct ThreadFunctor {
 
 // Please note that this harmlessly looking line introduces the category for
 // the whole translation unit.
+
 BALL_LOG_SET_NAMESPACE_CATEGORY("BALL_LOG.T");
+
+namespace {
+    void logNamespaceOverride() {
+        BALL_LOG_SET_CATEGORY("BALL_LOG.T.OVERRIDE");
+        BALL_LOG_INFO << "INFO log in namespace BALL_LOG.T.OVERRIDE";
+    }
+}
 
 namespace BALL_LOG_TEST_NAMESPACE_LOGGING {
     BALL_LOG_SET_NAMESPACE_CATEGORY("NS.A");
@@ -6345,12 +6358,25 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       "BALL_LOG.T",
                       TO->lastPublishedRecord().fixedFields().category()));
 
+
+        logNamespaceOverride();
+        ASSERT(2 == TO->numPublishedRecords());
+        ASSERT(0 == bsl::strcmp(
+                      "BALL_LOG.T.OVERRIDE",
+                      TO->lastPublishedRecord().fixedFields().category()));
+
+        u::logNamespaceOverride();
+        ASSERT(3 == TO->numPublishedRecords());
+        ASSERT(0 == bsl::strcmp(
+                      "BALL_LOG.T.OVERRIDE.U",
+                      TO->lastPublishedRecord().fixedFields().category()));
+
         // Exercise logging in BALL_LOG_TEST_NAMESPACE_LOGGING
         {
             using namespace BALL_LOG_TEST_NAMESPACE_LOGGING;
             logNamespaceCategory();
 
-            ASSERT(2 == TO->numPublishedRecords());
+            ASSERT(4 == TO->numPublishedRecords());
             ASSERT(0 == bsl::strcmp(
                           "NS.A",
                           TO->lastPublishedRecord().fixedFields().category()));
@@ -6368,7 +6394,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             // Nested namespace logging
             BALL_LOG_TEST_NAMESPACE_LOGGING_B::logNamespaceCategory();
 
-            ASSERT(3 == TO->numPublishedRecords());
+            ASSERT(5 == TO->numPublishedRecords());
             ASSERT(0 == bsl::strcmp(
                           "NS.A.B",
                           TO->lastPublishedRecord().fixedFields().category()));
@@ -6385,7 +6411,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOG_TEST_CASE_29::ClassScopeLoggerA::
                                           classMethodThatLogsToClassCategory();
 
-            ASSERT(4 == TO->numPublishedRecords());
+            ASSERT(6 == TO->numPublishedRecords());
             ASSERT(0 == bsl::strcmp(
                           "CLASS CATEGORY A",
                           TO->lastPublishedRecord().fixedFields().category()));
@@ -6399,21 +6425,21 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             mX.outoflineMethodThatLogsToLocalCategory();
 
-            ASSERT(6 == TO->numPublishedRecords());
+            ASSERT(8 == TO->numPublishedRecords());
             ASSERT(0 == bsl::strcmp(
                           "STATIC LOCAL CATEGORY",
                           TO->lastPublishedRecord().fixedFields().category()));
 
             X.inlineMethodThatLogsToClassCategory();
 
-            ASSERT(7 == TO->numPublishedRecords());
+            ASSERT(9 == TO->numPublishedRecords());
             ASSERT(0 == bsl::strcmp(
                           "CLASS CATEGORY A",
                           TO->lastPublishedRecord().fixedFields().category()));
 
             BALL_LOG_TEST_CASE_29::globalFunctionThatLogsToLocalCategory();
 
-            ASSERT(8 == TO->numPublishedRecords());
+            ASSERT(10 == TO->numPublishedRecords());
             ASSERT(0 == bsl::strcmp(
                           "GLOBAL CATEGORY",
                           TO->lastPublishedRecord().fixedFields().category()));
