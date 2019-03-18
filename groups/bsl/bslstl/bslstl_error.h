@@ -82,11 +82,11 @@ BSLS_IDENT("$Id: $")
 //      native_std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
 //          // Return a string describing the specified 'value'.
 //
-//       const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
+//      const char *name() const BSLS_KEYWORD_NOEXCEPT BSLS_KEYWORD_OVERRIDE;
 //          // Return a string describing this error category.
 //
 //       // CLASS METHODS
-//       static const bsl::error_category& category();
+//      static const bsl::error_category& category();
 //          // Return a 'const' reference to the singleton of this category.
 //  };
 //
