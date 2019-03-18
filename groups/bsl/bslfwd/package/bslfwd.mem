@@ -5,3 +5,4 @@ bslfwd_bslmf_nil
 bslfwd_bsls_asserttestexception
 bslfwd_bsls_stopwatch
 bslfwd_bsls_types
+bslfwd_buildtarget
