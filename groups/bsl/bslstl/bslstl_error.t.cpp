@@ -211,12 +211,12 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
     namespace BloombergLP {
     namespace carfx {
 //..
-//  Then define an 'enum' component to specify the set of error codes for the
-//  system, and also use the component to define the system error machinery to
-//  use it properly.  For exposition, all methods will be defined 'inline' so
-//  that they can appear in sequence.  In practice, they would be defined in
-//  separate implementation files.  (For the example, many of the methods
-//  normally present are elided.)
+// Then define an 'enum' component to specify the set of error codes for the
+// system, and also use the component to define the system error machinery to
+// use it properly.  For exposition, all methods will be defined 'inline' so
+// that they can appear in sequence.  In practice, they would be defined in
+// separate implementation files.  (For the example, many of the methods
+// normally present are elided.)
 //..
     struct Errors {
         // TYPES
@@ -242,15 +242,15 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
         }
     }
 //..
-// Next, define a category class that represents these errors.  The address of
-// a singleton object of the category class is used to uniquely identify the
-// error type.  This class is meant to be private to the implementation.  The
-// 'bsl::error_category' base class has two abstract virtual methods that must
-// be defined by derived classes.  Note that 'native_std::string' is used,
-// since the base 'error_category' class may be the 'std' one and its methods
-// are being overridden.
+// Next, we define a category class that represents these errors.  This class
+// derives from 'bsl::error_category' and overrides the two pure virtual
+// methods required for a minimal implementation.  Note that the return type of
+// the virtual 'message' method is 'native_std::string' which allows the same
+// implementation to be used both in C++03 and C++11 modes.  We also define the
+// 'category' class method that maintains a singleton instance of the category
+// class uniquely identifying the error type.
 //..
-    struct Errors_Category : public bsl::error_category {
+    struct ErrorsCategory : public bsl::error_category {
         // ACCESSORS
         native_std::string message(int value) const BSLS_KEYWORD_OVERRIDE;
             // Return a string describing the specified 'value'.
@@ -265,7 +265,7 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
 
     // ACCESSORS
     inline
-    native_std::string Errors_Category::message(int value) const
+    native_std::string ErrorsCategory::message(int value) const
     {
         // Note that an out-of-range cast to 'Errors::Enum' is formally
         // undefined behavior, so the range check is necessary.
@@ -276,27 +276,27 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
     }
 
     inline
-    const char *Errors_Category::name() const BSLS_KEYWORD_NOEXCEPT
+    const char *ErrorsCategory::name() const BSLS_KEYWORD_NOEXCEPT
     {
         return "carfx::Errors";
     }
 
     // CLASS METHODS
     inline
-    const bsl::error_category& Errors_Category::category()
+    const bsl::error_category& ErrorsCategory::category()
     {
         // Note that for C++03, 'BSLMT_ONCE_DO' may be used to protect the
         // static initialization, although the likelihood of a problem is
         // vanishingly small.
-        static const Errors_Category singleton;
+        static const ErrorsCategory singleton;
         return singleton;
     }
 //..
-//  Then define namespace-scope functions to return error codes and conditions
-//  for this error category.  (Normally a set of error values would be
-//  specified only as one of the two, but both are used here for illustrative
-//  purposes.)  These functions are at namespace scope because they need to be
-//  found by argument-dependent lookup of the enumeration value.
+// Then define namespace-scope functions to return error codes and conditions
+// for this error category.  (Normally a set of error values would be
+// specified only as one of the two, but both are used here for illustrative
+// purposes.)  These functions are at namespace scope because they need to be
+// found by argument-dependent lookup of the enumeration value.
 //..
     // FREE FUNCTIONS
     inline
@@ -304,7 +304,7 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
         // Return an error code for the specified 'value'.
     {
         return bsl::error_code(static_cast<int>(value),
-                               Errors_Category::category());
+                               ErrorsCategory::category());
     }
 
     inline
@@ -312,20 +312,20 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
         // Return an error condition for the specified 'value'.
     {
         return bsl::error_condition(static_cast<int>(value),
-                                    Errors_Category::category());
+                                    ErrorsCategory::category());
     }
 //..
-//  Next, close the component namespaces.
+// Next, close the component namespaces.
 //..
     }  // close package namespace
     }  // close enterprise namespace
 //..
-//  Then create specializations for the class templates that tag enumeration
-//  types as eligible to be treated as error codes or conditions.  Note that
-//  these specializations must appear in the same namespace in which the class
-//  templates are defined, and this component provides macros naming these
-//  namespaces portably.  Again, for exposition, 'Errors::Enum' is marked as
-//  both an error code and an error condition.
+// Then create specializations for the class templates that tag enumeration
+// types as eligible to be treated as error codes or conditions.  These
+// specializations must appear in the same namespace in which the class
+// templates are defined, and this component provides macros naming these
+// namespaces portably.  Again, for exposition, 'Errors::Enum' is marked as
+// both an error code and an error condition.
 //..
     namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
     template <>
@@ -473,7 +473,7 @@ int main(int argc, char *argv[])
         {
             error_condition        mX(carfx::Errors::e_ENGINE_FELL_OUT);
             const error_condition& X = mX;
-            ASSERT(&carfx::Errors_Category::category() == &X.category());
+            ASSERT(&carfx::ErrorsCategory::category() == &X.category());
             ASSERT(carfx::Errors::e_ENGINE_FELL_OUT == X.value());
         }
 
@@ -484,8 +484,8 @@ int main(int argc, char *argv[])
             error_condition        mX;
             const error_condition& X = mX;
             mX.assign(static_cast<int>(carfx::Errors::e_ENGINE_FELL_OUT),
-                      carfx::Errors_Category::category());
-            ASSERT(&carfx::Errors_Category::category() == &X.category());
+                      carfx::ErrorsCategory::category());
+            ASSERT(&carfx::ErrorsCategory::category() == &X.category());
             ASSERT(carfx::Errors::e_ENGINE_FELL_OUT == X.value());
         }
 
@@ -496,7 +496,7 @@ int main(int argc, char *argv[])
             error_condition        mX;
             const error_condition& X = (mX = carfx::Errors::e_ENGINE_FELL_OUT);
             ASSERT(&mX == &X);
-            ASSERT(&carfx::Errors_Category::category() == &X.category());
+            ASSERT(&carfx::ErrorsCategory::category() == &X.category());
             ASSERT(carfx::Errors::e_ENGINE_FELL_OUT == X.value());
         }
 
@@ -630,7 +630,7 @@ int main(int argc, char *argv[])
         {
             error_code        mX(carfx::Errors::e_ENGINE_FELL_OUT);
             const error_code& X = mX;
-            ASSERT(&carfx::Errors_Category::category() == &X.category());
+            ASSERT(&carfx::ErrorsCategory::category() == &X.category());
             ASSERT(carfx::Errors::e_ENGINE_FELL_OUT == X.value());
         }
 
@@ -641,8 +641,8 @@ int main(int argc, char *argv[])
             error_code        mX;
             const error_code& X = mX;
             mX.assign(carfx::Errors::e_ENGINE_FELL_OUT,
-                      carfx::Errors_Category::category());
-            ASSERT(&carfx::Errors_Category::category() == &X.category());
+                      carfx::ErrorsCategory::category());
+            ASSERT(&carfx::ErrorsCategory::category() == &X.category());
             ASSERT(carfx::Errors::e_ENGINE_FELL_OUT == X.value());
         }
 
@@ -653,7 +653,7 @@ int main(int argc, char *argv[])
             error_code        mX;
             const error_code& X = (mX = carfx::Errors::e_ENGINE_FELL_OUT);
             ASSERT(&mX == &X);
-            ASSERT(&carfx::Errors_Category::category() == &X.category());
+            ASSERT(&carfx::ErrorsCategory::category() == &X.category());
             ASSERT(carfx::Errors::e_ENGINE_FELL_OUT == X.value());
         }
 
