@@ -2404,7 +2404,18 @@ void set<KEY, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
                 BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
 
     if (0 < numElements) {
-        nodeFactory().reserveNodesIfNeeded(numElements);
+
+        while (nodeFactory().hasFreeNodes() && first != last) {
+            insert(*first);
+            ++first;
+            --numElements;
+        }
+
+        if (0 == numElements) {
+            return;                                                   // RETURN
+        }
+
+        nodeFactory().reserveNodes(numElements);
     }
 
     while (first != last) {
