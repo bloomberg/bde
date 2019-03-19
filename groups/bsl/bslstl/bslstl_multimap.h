@@ -2238,6 +2238,13 @@ inline
 void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
                                                          INPUT_ITERATOR last)
 {
+    size_type numElements =
+                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+
+    if (0 < numElements) {
+        nodeFactory().reserveNodesIfNeeded(numElements);
+    }
+
     while (first != last) {
         insert(*first);
         ++first;

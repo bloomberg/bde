@@ -375,6 +375,13 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
         // '0 < numBlocks'.  Note that the additional memory is added
         // irrespective of the amount of free memory when called.
 
+    void reserveIfNeeded(size_type numBlocks);
+        // Dynanmically allocate and add to the free list a chunk of blocks
+        // that so that 'numFreeBlocks()' equals the specified 'numBlocks'.
+        // This method has time complexity 'O(numBlocks)'.  If
+        // 'numBlocks <= numFreeBlocks()' on entry, no allocation occurs.  The
+        // behavior is undefined unless '0 < numBlocks'.
+
     void release();
         // Relinquish all memory currently allocated via this pool object.
 
@@ -401,6 +408,18 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
         // allocator traits for the node-type.  Note that this operation
         // returns a base-class ('AllocatorType') reference to this object.
 
+    bool hasFreeBlocks() const;
+        // Return 'true' if '0 < numFreeBlocks()', and 'false' otherwise.
+
+    size_type freeBlockDeficiency(size_type numBlocks) const;
+        // Return the number of free blocks lacking for the pool to have
+        // at least 'numBlock' free blocks available.  This method has
+        // time complexity 'O(numBlocks)'.
+
+    size_type numFreeBlocks() const;
+        // Return the number of free blocks available in this pool.  This
+        // method has time complexity proporational to the number of free
+        // blocks.
 
 };
 
@@ -576,13 +595,14 @@ void SimplePool<VALUE, ALLOCATOR>::reserve(size_type numBlocks)
     d_freeList_p  = begin;
 }
 
-// ACCESSORS
 template <class VALUE, class ALLOCATOR>
-inline
-const typename SimplePool<VALUE, ALLOCATOR>::AllocatorType&
-SimplePool<VALUE, ALLOCATOR>::allocator() const
+void SimplePool<VALUE, ALLOCATOR>::reserveIfNeeded(size_type numBlocks)
 {
-    return *this;
+    size_type deficiency = freeBlockDeficiency(numBlocks);
+
+    if (0 < deficiency) {
+        reserve(deficiency);
+    }
 }
 
 template <class VALUE, class ALLOCATOR>
@@ -611,6 +631,52 @@ void SimplePool<VALUE, ALLOCATOR>::release()
 #pragma GCC diagnostic pop
 #endif
 
+}
+
+// ACCESSORS
+template <class VALUE, class ALLOCATOR>
+inline
+const typename SimplePool<VALUE, ALLOCATOR>::AllocatorType&
+SimplePool<VALUE, ALLOCATOR>::allocator() const
+{
+    return *this;
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+bool SimplePool<VALUE, ALLOCATOR>::hasFreeBlocks() const
+{
+    return d_freeList_p;
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+typename
+SimplePool<VALUE, ALLOCATOR>::size_type
+SimplePool<VALUE, ALLOCATOR>::freeBlockDeficiency(size_type numBlocks) const
+{
+    size_type deficiency = numBlocks;
+
+    for (Block *cur = d_freeList_p; deficiency && cur; cur = cur->d_next_p) {
+        --deficiency;
+    }
+
+    return deficiency;
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+typename
+SimplePool<VALUE, ALLOCATOR>::size_type
+SimplePool<VALUE, ALLOCATOR>::numFreeBlocks() const
+{
+    size_type count = 0;
+
+    for (Block *cur = d_freeList_p; cur; cur = cur->d_next_p) {
+        ++count;
+    }
+
+    return count;
 }
 
 }  // close package namespace

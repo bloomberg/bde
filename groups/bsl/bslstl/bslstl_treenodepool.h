@@ -485,10 +485,16 @@ class TreeNodePool {
 
     void reserveNodes(size_type numNodes);
         // Add to this pool sufficient memory to satisfy memory requests for at
-        // least the specified 'numNodes' before the pool replenishes.  The
-        // behavior is undefined unless '0 < numNodes'.  Note that the
-        // additional memory is added irrespective of the amount of free memory
-        // when called.
+        // least the specified 'numNodes'.  The additional memory is added
+        // irrespective of the amount of free memory when called.  The behavior
+        // is undefined unless '0 < numNodes'.
+
+    void reserveNodesIfNeeded(size_type numNodes);
+        // Add to this pool sufficient memory to satisfy memory requests for at
+        // least the specified 'numNodes' before the pool replenishes.  There
+        // is no allocation if the pool has sufficient memory on entry, This
+        // method has time complexity 'O(numNodes)'.  The behavior is undefined
+        // unless '0 < numNodes'.
 
     void swap(TreeNodePool& other);
         // Efficiently exchange the nodes of this object with those of the
@@ -513,6 +519,14 @@ class TreeNodePool {
         // Return a reference providing non-modifiable access to the rebound
         // allocator traits for the node-type.  Note that this operation
         // returns a base-class ('NodeAlloc') reference to this object.
+
+    bool hasFreeNodes() const;
+        // Return 'true' if '0 < numFreeNodes()', and 'false' otherwise.
+
+    size_type numFreeNodes() const;
+        // Return the number of free nodes.  This method has time complexity
+        // proportional to the number of free nodes.
+
 };
 
 // ============================================================================
@@ -968,6 +982,15 @@ void TreeNodePool<VALUE, ALLOCATOR>::reserveNodes(size_type numNodes)
 
 template <class VALUE, class ALLOCATOR>
 inline
+void TreeNodePool<VALUE, ALLOCATOR>::reserveNodesIfNeeded(size_type numNodes)
+{
+    BSLS_ASSERT_SAFE(0 < numNodes);
+
+    d_pool.reserveIfNeeded(numNodes);
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
 void TreeNodePool<VALUE, ALLOCATOR>::swap(
                                          TreeNodePool<VALUE, ALLOCATOR>& other)
 {
@@ -1001,6 +1024,22 @@ const typename SimplePool<TreeNode<VALUE>, ALLOCATOR>::AllocatorType&
 TreeNodePool<VALUE, ALLOCATOR>::allocator() const
 {
     return d_pool.allocator();
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+bool TreeNodePool<VALUE, ALLOCATOR>::hasFreeNodes() const
+{
+    return d_pool.hasFreeBlocks();
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+typename
+TreeNodePool<VALUE, ALLOCATOR>::size_type
+TreeNodePool<VALUE, ALLOCATOR>::numFreeNodes() const
+{
+    return d_pool.numFreeBlocks();
 }
 
 }  // close package namespace
