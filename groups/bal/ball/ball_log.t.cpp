@@ -446,6 +446,7 @@ class CerrBufferGuard {
 };
 
 void logNamespaceOverride() {
+    // Override the outer logging category and log a test message.
     BALL_LOG_SET_CATEGORY("BALL_LOG.T.OVERRIDE.U");
     BALL_LOG_INFO << "INFO log in namespace BALL_LOG.T.OVERRIDE.U";
 }
@@ -688,6 +689,7 @@ void processData(int                      uuid,
 //..
 
 }  // close enterprise namespace
+
 
 // ============================================================================
 //                         CASE 35 RELATED ENTITIES
@@ -2834,11 +2836,13 @@ struct ThreadFunctor {
 BALL_LOG_SET_NAMESPACE_CATEGORY("BALL_LOG.T");
 
 namespace {
-    void logNamespaceOverride() {
+    void logNamespaceOverride()
+        // Override the outer logging category and log a test message.
+    {
         BALL_LOG_SET_CATEGORY("BALL_LOG.T.OVERRIDE");
         BALL_LOG_INFO << "INFO log in namespace BALL_LOG.T.OVERRIDE";
     }
-}
+}  // close unnamed namespace
 
 namespace BALL_LOG_TEST_NAMESPACE_LOGGING {
     BALL_LOG_SET_NAMESPACE_CATEGORY("NS.A");
@@ -2857,6 +2861,34 @@ namespace BALL_LOG_TEST_NAMESPACE_LOGGING {
     }  // close namespace BALL_LOG_TEST_NAMESPACE_LOGGING_B
 
 }  // close namespace BALL_LOG_TEST_NAMESPACE_LOGGING
+
+namespace BALL_LOG_TEST_NAMESPACE_LOGGING2 {
+
+template <class TYPE>
+class Test {
+  public:
+    int func();
+        // Log a test message into local category.
+};
+
+template<class TYPE>
+int Test<TYPE>::func()
+{
+    BALL_LOG_SET_CATEGORY("NS.LM2");
+    BALL_LOG_INFO << "func";
+    return 0;
+}
+
+BALL_LOG_SET_NAMESPACE_CATEGORY("NS.L2");
+
+void func2()
+    // Log a test message into namespace category.
+{
+    BALL_LOG_INFO << "func2";
+}
+
+}  // close namespace BALL_LOG_TEST_NAMESPACE_LOGGING2
+
 
 
 // ============================================================================
@@ -6444,6 +6476,24 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                           "GLOBAL CATEGORY",
                           TO->lastPublishedRecord().fixedFields().category()));
         }
+
+        // Exercise logging in BALL_LOG_TEST_NAMESPACE_LOGGING2
+        {
+            BALL_LOG_TEST_NAMESPACE_LOGGING2::Test<int> a;
+            a.func();
+            ASSERT(11 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "NS.LM2",
+                          TO->lastPublishedRecord().fixedFields().category()));
+
+            BALL_LOG_TEST_NAMESPACE_LOGGING2::func2();
+            ASSERT(12 == TO->numPublishedRecords());
+            ASSERT(0 == bsl::strcmp(
+                          "NS.L2",
+                          TO->lastPublishedRecord().fixedFields().category()));
+        }
+
+
       } break;
       case 28: {
         // --------------------------------------------------------------------
