@@ -489,13 +489,6 @@ class TreeNodePool {
         // irrespective of the amount of free memory when called.  The behavior
         // is undefined unless '0 < numNodes'.
 
-    void reserveNodesIfNeeded(size_type numNodes);
-        // Add to this pool sufficient memory to satisfy memory requests for at
-        // least the specified 'numNodes' before the pool replenishes.  There
-        // is no allocation if the pool has sufficient memory on entry, This
-        // method has time complexity 'O(numNodes)'.  The behavior is undefined
-        // unless '0 < numNodes'.
-
     void swap(TreeNodePool& other);
         // Efficiently exchange the nodes of this object with those of the
         // specified 'other' object.  This method provides the no-throw
@@ -978,15 +971,6 @@ void TreeNodePool<VALUE, ALLOCATOR>::reserveNodes(size_type numNodes)
     BSLS_ASSERT_SAFE(0 < numNodes);
 
     d_pool.reserve(numNodes);
-}
-
-template <class VALUE, class ALLOCATOR>
-inline
-void TreeNodePool<VALUE, ALLOCATOR>::reserveNodesIfNeeded(size_type numNodes)
-{
-    BSLS_ASSERT_SAFE(0 < numNodes);
-
-    d_pool.reserveIfNeeded(numNodes);
 }
 
 template <class VALUE, class ALLOCATOR>

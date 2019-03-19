@@ -60,7 +60,6 @@ using namespace bslstl;
 // [ 5] void deleteNode(bslalg::RbTreeNode *node);
 // [  ] bslalg::RbTreeNode *moveIntoNewNode(bslalg::RbTreeNode *original);
 // [ 6] void reserveNodes(size_type numNodes);
-// [ 6] void reserveNodesIfNeeded(size_type numNodes);
 // [ 8] void swap(TreeNodePool& other);
 // [ 8] void swapExchangeAllocators(TreeNodePool& other);
 // [ 8] void swapRetainAllocators(TreeNodePool& other);
@@ -1209,8 +1208,6 @@ void TestDriver<VALUE>::testCase6()
     //
     // Testing:
     //   void reserveNodes(size_type numNodes);
-    //   void reserveNodesIfNeeded(size_type numNodes);
-    //
     // --------------------------------------------------------------------
 
     if (verbose) printf("\nMANIPULATOR 'reserve'"

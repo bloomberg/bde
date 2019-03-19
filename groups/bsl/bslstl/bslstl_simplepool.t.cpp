@@ -48,14 +48,12 @@ using namespace bslstl;
 // [ 2] VALUE *allocate();
 // [ 5] void deallocate(void *address);
 // [ 6] void reserve(size_type numBlocks);
-// [14] void reserveIfNeeded(size_type numBlocks);
 // [ 7] void release();
 // [ 8] void swap(SimplePool<VALUE, ALLOCATOR>& other);
 //
 // ACCESSORS
 // [ 4] const AllocatorType& allocator() const;
 // [13] bool hasFreeBlocks() const;
-// [13] size_type freeBlockDeficiency(size_t numBlocks) const;
 // [13] size_type numFreeBlocks() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -263,9 +261,6 @@ class TestDriver {
 
   public:
     // TEST CASES
-    static void testCase14();
-        // Test 'reserveIfNeeded' method.
-
     static void testCase13();
         // Test other accessors.
 
@@ -361,117 +356,6 @@ void TestDriver<VALUE>::createFreeBlocks(Obj *result, int numBlocks)
 }
 
 template<class VALUE>
-void TestDriver<VALUE>::testCase14()
-{
-    // ------------------------------------------------------------------------
-    // TEST 'reserveIfNeeded' METHOD
-    //
-    // Concerns:
-    //: 1 The number of blocks added to the pool, if any, is the exact number
-    //:   (not larger) needed to meet the request.
-    //:
-    //: 2 If the pool has sufficient free blocks to meet the request, none are
-    //:   added.
-    //:
-    //: 3 Added blocks, if any, are obtained in a single allocation.
-    //:
-    //: 4 Allocations are made from the pool's object allocator.
-    //:
-    //: 4 The method works correctly on an empty pool.
-    //:
-    //: 5 The method works doest not change the pool when the block request is
-    //:   0.
-    //
-    // Plan:
-    //: 1 For a series of pool objects having some available free blocks, and
-    //:   invoke the 'reserveIfNeeded' method with block requests of
-    //:   0, and non-zero requests that are less than, equal to, and greater
-    //:   than the number of free blocks.  Confirm that the change in the
-    //:   number of free blocks and allocator usage match expectations.
-    //:
-    //: 2 For an pool having no free blocks, invoke the 'reserveIfNeeded'
-    //:   method requesting 0 and a non-zero number of free blocks.  Confirm 
-    //:   that resulting number of free blocks and allocator usage match
-    //:   expectations.
-    //:
-    //: 3 Confirm that blocks reserved by 'reservedIfNeeded' are actually
-    //:   allocatable.
-    //
-    // Testing:
-    //   void reserveIfNeeded(size_type numBlocks);
-    //-------------------------------------------------------------------------
-
-    if (verbose) printf("\nTEST 'reserveIfNeeded' METHOD"
-                        "\n=============================\n");
-
-    bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
-
-    if (verbose) printf("\nEmpty Pool\n");
-    {
-        Obj mX(&sa); const Obj& X = mX;
-
-        ASSERT(0 == X.numFreeBlocks());
-
-        bslma::TestAllocatorMonitor sam(&sa);
-
-        mX.reserveIfNeeded(0);
-        ASSERT( 0 == X.numFreeBlocks());
-        ASSERT( 0 == sam.numBlocksTotalChange());
-
-        mX.reserveIfNeeded(20);
-
-        ASSERT(20 == X.numFreeBlocks());
-        ASSERT( 1 == sam.numBlocksTotalChange());
-
-        int count = 0;
-        while (0 < X.numFreeBlocks() ) {
-            VALUE *ptr = mX.allocate();
-            ASSERT(ptr);
-            ++count;
-        }
-        ASSERT(20 == count);
-    }
-
-    if (verbose) printf("\nNon-Empty Pool\n");
-    {
-        const typename Obj::size_type INITIAL_FREE_BLOCKS  = 10;
-
-        typename Obj::size_type REQUESTED_BLOCKS[] = {
-                                          0    // null request
-                                       ,  5    //      enough blocks available 
-                                       , 10    // just enough blocks available
-                                       , 15 }; //  not enough blocks available
-
-        typename Obj::size_type NUM_REQUESTED_BLOCKS =
-                                                      sizeof  REQUESTED_BLOCKS
-                                                    / sizeof *REQUESTED_BLOCKS;
-
-        for (typename Obj::size_type i = 0; i < NUM_REQUESTED_BLOCKS; ++i) {
-            const typename Obj::size_type BLOCK_REQUEST = REQUESTED_BLOCKS[i];
-
-            if (veryVerbose) { T_ P_(INITIAL_FREE_BLOCKS) P(REQUESTED_BLOCKS) }
-
-            Obj mX(&sa); const Obj& X = mX;
-
-            mX.reserve(INITIAL_FREE_BLOCKS);
-            ASSERT(INITIAL_FREE_BLOCKS == X.numFreeBlocks());
-
-            bslma::TestAllocatorMonitor sam(&sa);
-
-            mX.reserveIfNeeded(BLOCK_REQUEST);
-
-            if (BLOCK_REQUEST <= INITIAL_FREE_BLOCKS) {
-                ASSERT(INITIAL_FREE_BLOCKS == X.numFreeBlocks());
-                ASSERT(0                   == sam.numBlocksTotalChange());
-            } else {
-                ASSERT(BLOCK_REQUEST       == X.numFreeBlocks());
-                ASSERT(1                   == sam.numBlocksTotalChange());
-            }
-        }
-    }
-}
-
-template<class VALUE>
 void TestDriver<VALUE>::testCase13()
 {
     // ------------------------------------------------------------------------
@@ -492,10 +376,7 @@ void TestDriver<VALUE>::testCase13()
     //:   1 Call the 'reserve' method for the current size block request.
     //:   2 Confirm that the accessors show the expected before and after the
     //:     call to the 'reserve' method.
-    //:   3 Confirm that 'freeBlockDeficiency' returns the expected value for
-    //:     the known number of free blocks in the object and for its
-    //:     'numBlocks' argument.
-    //:   4 Confirm that the pool invokes its allocator for memory when there
+    //:   3 Confirm that the pool invokes its allocator for memory when there
     //:     are no free blocks and 'allocate' is called.
     //:
     //: 2 Accessor are always called via a 'const' alias to the pool.
@@ -505,7 +386,6 @@ void TestDriver<VALUE>::testCase13()
     //
     // Testing:
     //   bool hasFreeBlocks() const;
-    //   size_type freeBlockDeficiency(size_t numBlocks) const;
     //   size_type numFreeBlocks() const;
     //-------------------------------------------------------------------------
 
@@ -573,17 +453,6 @@ void TestDriver<VALUE>::testCase13()
             ASSERTV(CONFIG, true      == X.hasFreeBlocks()); 
 
 	        ASSERT(oam.isTotalSame());
-
-
-	        for (typename Obj::size_type i = 0; i < numBlocks; ++i) {
-
-                if (veryVerbose) { T_ T_ P(i) }
-
-                ASSERT(i == X.freeBlockDeficiency(numBlocks + i));
-            }
-
-	        ASSERT(oam.isTotalSame());
-	
 	
 	        for (size_t i = 0; i <= numBlocks; ++i) {
 
@@ -1750,14 +1619,6 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 14: {
-        // --------------------------------------------------------------------
-        // TEST 'reserveIfNeeded' METHOD
-        // --------------------------------------------------------------------
-
-          RUN_EACH_TYPE(TestDriver, testCase14, TEST_TYPES);
-
-       } break;
       case 13: {
         // --------------------------------------------------------------------
         // OTHER ACCESSORS
