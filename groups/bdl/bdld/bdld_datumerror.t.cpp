@@ -372,6 +372,7 @@ int main(int argc, char **argv)
       case 5: {
         // --------------------------------------------------------------------
         // TESTING STREAM OUTPUT
+        //   Note that 'bdld::DatumError' object
         //
         // Concerns:
         //: 1 Stream output operator and 'print' method put object's value to
@@ -420,7 +421,7 @@ int main(int argc, char **argv)
             const Obj obj1(5);
             const Obj obj2(5, "generic error");
 
-            if (verbose) cout << "\tTesting single-line format." << endl;
+            if (verbose) cout << "\tTesting single-line parameters." << endl;
             {
                 ostringstream objStr1;
                 ostringstream objStr2;
@@ -438,7 +439,7 @@ int main(int argc, char **argv)
                 ASSERT(expObjStr2.str() == objStr2.str());
             }
 
-            if (verbose) cout << "\tTesting multi-line format." << endl;
+            if (verbose) cout << "\tTesting multi-line parameters." << endl;
             {
                 ostringstream objStr1;
                 ostringstream objStr2;
@@ -448,13 +449,9 @@ int main(int argc, char **argv)
 
                 // 0 spaces per level.
 
-                expObjStr1 << "error(" << "\n"
-                           << "5" << "\n"
-                           << ")"<< "\n";
+                expObjStr1 << "error(5)"<< "\n";
 
-                expObjStr2 << "error(" << "\n"
-                           << "5,'generic error'" << "\n"
-                           << ")"<< "\n";
+                expObjStr2 << "error(5,'generic error')"<< "\n";
 
                 obj1.print(objStr1, 0, 0);
                 obj2.print(objStr2, 0, 0);
@@ -472,13 +469,9 @@ int main(int argc, char **argv)
 
                 // 4 spaces per level.
 
-                expObjStr1 << "error(" << "\n"
-                           << "    5" << "\n"
-                           << ")"<< "\n";
+                expObjStr1 << "error(5)"<< "\n";
 
-                expObjStr2 << "error(" << "\n"
-                           << "    5,'generic error'" << "\n"
-                           << ")"<< "\n";
+                expObjStr2 << "error(5,'generic error')"<< "\n";
 
                 obj1.print(objStr1, 0, 4);
                 obj2.print(objStr2, 0, 4);
@@ -497,13 +490,9 @@ int main(int argc, char **argv)
 
                 // Level 0.
 
-                expObjStr1 << "error(" << "\n"
-                           << " 5" << "\n"
-                           << ")"<< "\n";
+                expObjStr1 << "error(5)"<< "\n";
 
-                expObjStr2 << "error(" << "\n"
-                           << " 5,'generic error'" << "\n"
-                           << ")"<< "\n";
+                expObjStr2 << "error(5,'generic error')"<< "\n";
 
                 obj1.print(objStr1, 0, 1);
                 obj2.print(objStr2, 0, 1);
@@ -521,13 +510,9 @@ int main(int argc, char **argv)
 
                 // Level 4.
 
-                expObjStr1 << "    error(" << "\n"
-                           << "     5" << "\n"
-                           << "    )"<< "\n";
+                expObjStr1 << "    error(5)" << "\n";
 
-                expObjStr2 << "    error(" << "\n"
-                           << "     5,'generic error'" << "\n"
-                           << "    )"<< "\n";
+                expObjStr2 << "    error(5,'generic error')"<< "\n";
 
                 obj1.print(objStr1, 4, 1);
                 obj2.print(objStr2, 4, 1);
