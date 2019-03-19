@@ -117,7 +117,8 @@ class MovableAllocTestType {
 
   public:
     // CREATORS
-    explicit MovableAllocTestType(bslma::Allocator *basicAllocator = 0);
+    MovableAllocTestType();
+    explicit MovableAllocTestType(bslma::Allocator *basicAllocator);
         // Create a 'MovableAllocTestType' object having the (default)
         // attribute values:
         //..

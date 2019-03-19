@@ -21,9 +21,8 @@ BSLS_IDENT("$Id: $")
 // 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
 // places them in the 'std' namespace.
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
+#include <bsls_libraryfeatures.h>
 
 #ifndef BSL_OVERRIDES_STD
 
@@ -52,13 +51,13 @@ BSLS_IDENT("$Id: $")
 #   include <bsl_stdhdrs_incpaths.h>
 #   endif
 
-#if 0 // Native STL header disabled until we routinely test for C++11 *libs*
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <unordered_set>
-#   else
-#     include BSL_NATIVE_CPP_LIB_HEADER(unordered_set)
+#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#     if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#       include_next <unordered_set>
+#     else
+#       include BSL_NATIVE_CPP_LIB_HEADER(unordered_set)
+#     endif
 #   endif
-#endif
 
 #   ifndef BSL_INCLUDE_BSL_UNORDERED_SET
 #   define BSL_INCLUDE_BSL_UNORDERED_SET
@@ -71,10 +70,10 @@ BSLS_IDENT("$Id: $")
 
 #endif  // BSL_OVERRIDES_STD
 
-#endif  // INCLUDED_NATIVE_SET
+#endif  // INCLUDED_NATIVE_UNORDERED_SET
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

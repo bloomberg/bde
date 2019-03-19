@@ -22,6 +22,14 @@ namespace bsltf {
                         // -------------------
 
 // CREATORS
+AllocTestType::AllocTestType()
+: d_allocator_p(bslma::Default::allocator(0))
+, d_self_p(this)
+{
+    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = 0;
+}
+
 AllocTestType::AllocTestType(bslma::Allocator *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_self_p(this)

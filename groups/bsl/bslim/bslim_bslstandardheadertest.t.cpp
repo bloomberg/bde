@@ -10,6 +10,7 @@
 #include <bslmf_movableref.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
@@ -18,6 +19,7 @@
 // #include all of the headers defined in bsl+bslhdrs.
 
 #include <bsl_algorithm.h>
+#include <bsl_array.h>
 #include <bsl_bitset.h>
 #include <bsl_c_assert.h>
 #include <bsl_c_ctype.h>
@@ -114,7 +116,6 @@
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#include <bsl_array.h>
 #include <bsl_atomic.h>
 #include <bsl_cfenv.h>
 #include <bsl_chrono.h>

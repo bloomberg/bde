@@ -25,14 +25,15 @@ BSLS_IDENT("$Id: $")
 // #include is guaranteed to succeed.
 
 # include <unordered_set>
-#else
+#elif defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
 // The unordered containers are a feature of the C++11 library, rather than
 // C++03, so might not be present in all native libraries on the platforms we
-// support.  Currently the 'BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS' is
-// never defined, but this sketches out our plan for future support.
-# ifdef BSLS_COMPILERFEATURES_SUPPORT_CPP11_HEADERS
+// support.  Detect the native header using '__has_include' where available.
+# if __has_include(<unordered_set>)
 #  include <unordered_set>
 # endif
+#elif defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# include <unordered_set>
 #endif
 
 // Include Bloomberg's implementation, unless compilation is configured to
@@ -53,7 +54,7 @@ BSLS_IDENT("$Id: $")
 #endif  // INCLUDED_BSL_UNORDERED_SET
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
