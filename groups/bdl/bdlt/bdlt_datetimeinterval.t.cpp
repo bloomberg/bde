@@ -29,14 +29,13 @@
 #include <bslx_versionfunctions.h>
 
 #include <bsl_climits.h>     // 'INT_MAX', 'INT_MIN'
+#include <bsl_cmath.h>
 #include <bsl_cstdlib.h>     // 'atoi'
 #include <bsl_cstring.h>     // 'memcmp'
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
-
-#include <cmath>
 
 using namespace BloombergLP;
 using namespace bsl;
