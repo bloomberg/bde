@@ -379,7 +379,7 @@ Blob::Blob(const Blob& original, bslma::Allocator *basicAllocator)
     BSLS_ASSERT_SAFE(0 == assertInvariants());
 }
 
-Blob::Blob(bslmf::MovableRef<Blob> original)
+Blob::Blob(bslmf::MovableRef<Blob> original) BSLS_KEYWORD_NOEXCEPT
 : d_buffers(MoveUtil::move(MoveUtil::access(original).d_buffers))
 , d_totalSize(MoveUtil::move(MoveUtil::access(original).d_totalSize))
 , d_dataLength(MoveUtil::move(MoveUtil::access(original).d_dataLength))

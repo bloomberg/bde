@@ -383,6 +383,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
@@ -435,7 +436,7 @@ class BlobBuffer {
         // Create a blob buffer having the same value as the specified
         // 'original' blob buffer.
 
-    BlobBuffer(bslmf::MovableRef<BlobBuffer> original);
+    BlobBuffer(bslmf::MovableRef<BlobBuffer> original) BSLS_KEYWORD_NOEXCEPT;
         // Create a blob buffer object having the same value as the specified
         // 'original' object by moving the contents of 'original' to the
         // newly-created object.  'original' is left in a valid but unspecified
@@ -642,7 +643,7 @@ class Blob {
         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is 0,
         // the currently installed default allocator is used.
 
-    Blob(bslmf::MovableRef<Blob> original);
+    Blob(bslmf::MovableRef<Blob> original) BSLS_KEYWORD_NOEXCEPT;
         // Create a blob object having the same value as the specified
         // 'original' object by moving the contents of 'original' to the
         // newly-created object.  The allocator associated with 'original' is
@@ -889,6 +890,7 @@ BlobBuffer::BlobBuffer(const BlobBuffer& original)
 
 inline
 BlobBuffer::BlobBuffer(bslmf::MovableRef<BlobBuffer> original)
+                                                          BSLS_KEYWORD_NOEXCEPT
 : d_buffer(MoveUtil::move(MoveUtil::access(original).d_buffer))
 , d_size(MoveUtil::move(MoveUtil::access(original).d_size))
 {
