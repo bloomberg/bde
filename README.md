@@ -22,7 +22,7 @@ The following commands can be used to configure and build the BDE repository:
    $ git clone bbgithub:bde/bde
    $ git clone bbgithub:bde/bde-tools
    $ export PATH=$PWD/bde-tools/bin:$PATH      # add bde-tools to the 'PATH'
-   $ bde bde/
+   $ cd bde
    ```    
 2. From the root of this source repository, run:
 
