@@ -17,15 +17,20 @@ in the [BDE Tools](https://bbgithub.dev.bloomberg.com/bde/bde-tools/)
 repository. 
 
 The following commands can be used to configure and build the BDE repository:
-
-1. From the root of this source repository, run:
+1. Clone the `bde` resporitory and add `bde-tools` to your `PATH`:
+   ```shell
+   $ git clone bbgithub:bde/bde
+   $ git clone bbgithub:bde/bde-tools
+   $ export PATH=$PWD/bde-tools/bin:$PATH      # add bde-tools to the 'PATH'
+   $ bde bde/
+   ```    
+2. From the root of this source repository, run:
 
    ```shell
-   $ eval `bde_build_env.py -t dbg_exc_mt_64_cpp11`
-   $ cmake_build.py configure
+   $ cmake_build.py configure -u dbg_exc_mt_64_cpp11 --build_dir _build
    ```
 
-2. To build the libraries, but not the test drivers, run:
+3. To build the libraries, but not the test drivers, run:
 
    ```shell
    $ cmake_build.py build
