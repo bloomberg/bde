@@ -27,7 +27,8 @@ The following commands can be used to configure and build the BDE repository:
 2. From the root of this source repository, run:
 
    ```shell
-   $ cmake_build.py configure -u dbg_exc_mt_64_cpp11 --build_dir _build
+   $ export BDE_CMAKE_BUILD_DIR=$PWD/_build   # configure the build directory
+   $ cmake_build.py configure -u dbg_exc_mt_64_cpp11
    ```
 
 3. To build the libraries, but not the test drivers, run:
