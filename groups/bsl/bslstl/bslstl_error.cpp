@@ -7,7 +7,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 namespace bsl {
-namespace {
                             // --------------------
                             // class error_category
                             // --------------------
@@ -15,6 +14,8 @@ namespace {
 error_category::~error_category()
 {
 }
+
+namespace {
 
                         // ===========================
                         // class generic_category_impl
