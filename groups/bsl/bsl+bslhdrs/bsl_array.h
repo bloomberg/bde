@@ -22,15 +22,17 @@ BSLS_IDENT("$Id: $")
 // BDE configuration requires 'bsl+stdhdrs' be in the search path, so this
 // #include is guaranteed to succeed.
 # include <array>
-#elif defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
+#elif defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
 // The array is a feature of the C++11 library, rather than C++03, so might not
 // be present in all native libraries on the platforms we support.  Detect the
 // native header using '__has_include' where available.
 # if __has_include(<array>)
 #  include <array>
 # endif
-#elif defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#else
 # include <array>
+#endif
 #endif
 
 // Include Bloomberg's implementation, unless compilation is configured to
