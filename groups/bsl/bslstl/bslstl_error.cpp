@@ -8,6 +8,13 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace bsl {
 namespace {
+                            // --------------------
+                            // class error_category
+                            // --------------------
+
+error_category::~error_category()
+{
+}
 
                         // ===========================
                         // class generic_category_impl

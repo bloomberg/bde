@@ -501,11 +501,6 @@ error_category::error_category()
 {
 }
 
-inline
-error_category::~error_category()
-{
-}
-
 // ACCESSORS
 inline
 error_condition error_category::default_error_condition(
