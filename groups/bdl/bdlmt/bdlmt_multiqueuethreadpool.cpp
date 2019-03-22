@@ -126,7 +126,7 @@ int MultiQueueThreadPool_Queue::pause()
 
 void MultiQueueThreadPool_Queue::executeFront()
 {
-    ++d_multiQueueThreadPool_p->d_numDequeued;
+    ++d_multiQueueThreadPool_p->d_numExecuted;
 
     Job functor;
     {
@@ -206,6 +206,8 @@ bool MultiQueueThreadPool_Queue::enqueueDeletion(
                                    this,
                                    cleanupFunctor,
                                    isProcessingThread ? 0 : completionSignal);
+
+    d_multiQueueThreadPool_p->d_numDeleted += static_cast<int>(d_list.size());
 
     if (e_NOT_SCHEDULED == d_runState || e_PAUSED == d_runState) {
         // Note that 'd_numActiveQueues' is decremented at the completion of
@@ -362,8 +364,9 @@ MultiQueueThreadPool::MultiQueueThreadPool(
 , d_nextId(1)
 , d_state(e_STATE_STOPPED)
 , d_numActiveQueues(0)
-, d_numDequeued(0)
+, d_numExecuted(0)
 , d_numEnqueued(0)
+, d_numDeleted(0)
 {
     d_threadPool_p = new (*d_allocator_p) ThreadPool(threadAttributes,
                                                      minThreads,
@@ -387,8 +390,9 @@ MultiQueueThreadPool::MultiQueueThreadPool(ThreadPool       *threadPool,
 , d_nextId(1)
 , d_state(e_STATE_STOPPED)
 , d_numActiveQueues(0)
-, d_numDequeued(0)
+, d_numExecuted(0)
 , d_numEnqueued(0)
+, d_numDeleted(0)
 {
     BSLS_ASSERT(threadPool);
 }

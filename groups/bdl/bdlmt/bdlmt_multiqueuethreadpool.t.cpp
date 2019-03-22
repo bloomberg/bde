@@ -86,11 +86,12 @@ using namespace BloombergLP;
 // [ 2] void start();
 // [ 2] void stop();
 // [ 2] void shutdown();
-// [13] void numProcessedReset(int *, int *);
+// [13] void numProcessedReset(int *, int *, int * = 0);
 //
 // ACCESSORS
-// [13] void numProcessed(int *, int *) const;
+// [13] void numProcessed(int *, int *, int * = 0) const;
 // [ 4] int numQueues() const;
+// [13] int numElements() const;
 // [ 4] int numElements(int id) const;
 // [ 6] bool isEnabled(int id);
 // [ 2] const bdlmt::ThreadPool& threadPool() const;
@@ -2556,10 +2557,11 @@ int main(int argc, char *argv[]) {
       }  break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING numProcessed AND numProcessedReset
+        // TESTING numElements, numProcessed, AND numProcessedReset
         //
         // Concerns:
-        //   numProcessed and numProcessedReset return values as expected.
+        //   The return values for 'numElements', 'numProcessed', and
+        //   'numProcessedReset' are as expected.
         //
         // Plan:
         //   In a loop over the same object under test, start the pool,
@@ -2568,13 +2570,18 @@ int main(int argc, char *argv[]) {
         //   return values as expected.
         //
         // Testing:
-        //   void numProcessed(int *, int *)
-        //   void numProcessedReset(int *, int *)
+        //   void numElements() const;
+        //   void numProcessed(int *, int *, int * = 0) const;
+        //   void numProcessedReset(int *, int *, int * = 0);
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "Testing numProcessed and numProcessedReset" << endl
-                 << "==========================================" << endl;
+            cout <<
+               "TESTING 'numElements', 'numProcessed', AND 'numProcessedReset'"
+                 << endl
+                 <<
+               "=============================================================="
+                 << endl;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         {
@@ -2604,11 +2611,15 @@ int main(int argc, char *argv[]) {
                    &ta);
             const Obj& X = mX;
 
+            // verify methods without optional 'numDeleted'
+
             for (int i = 1; i <= k_NUM_ITERATIONS; ++i) {
-                int numEnqueued = -1, numDequeued = -1;
-                X.numProcessed(&numDequeued, &numEnqueued);
-                ASSERT(0 == numDequeued);
+                int numEnqueued = -1, numExecuted = -1;
+                X.numProcessed(&numExecuted, &numEnqueued);
+                ASSERT(0 == numExecuted);
                 ASSERT(0 == numEnqueued);
+
+                ASSERT(numEnqueued - numExecuted == X.numElements());
 
                 if (veryVerbose)
                     cout << "Iteration " << i << "\n";
@@ -2616,7 +2627,7 @@ int main(int argc, char *argv[]) {
                 int  QUEUE_IDS[k_NUM_QUEUES];
                 Func QUEUE_NOOP[k_NUM_QUEUES];
 
-                bslmt::Barrier barrier(1+k_NUM_QUEUES);
+                bslmt::Barrier barrier(1 + k_NUM_QUEUES);
                 Func           block;  // blocks on barrier
                 makeFunc(&block, waitOnBarrier, &barrier, 1);
 
@@ -2633,45 +2644,57 @@ int main(int argc, char *argv[]) {
                               0 == mX.enqueueJob(QUEUE_IDS[k], QUEUE_NOOP[k]));
                     }
                 }
+
                 if (veryVerbose)
                     cout << "   waiting for barrier\n";
                 barrier.wait();
                 if (veryVerbose)
                     cout << "   passed barrier\n";
-                X.numProcessed(&numDequeued, &numEnqueued);
+
+                int numElements = X.numElements();
+                X.numProcessed(&numExecuted, &numEnqueued);
 
                 LOOP3_ASSERT(i,
                              k_NUM_QUEUES * (1 + i * k_NUM_JOBS),
                              numEnqueued,
                              k_NUM_QUEUES * (1 + i * k_NUM_JOBS)
                                                                == numEnqueued);
-                LOOP_ASSERT(i, 0 < numDequeued);
+                LOOP_ASSERT(i, 0 <  numExecuted);
                 // on Linux, IBM, and Solaris 10, code is so optimized that
                 // sometimes equality holds (the pool is already drained)
-                LOOP_ASSERT(i, numDequeued <= numEnqueued);
+                LOOP_ASSERT(i, numExecuted <= numEnqueued);
+
+                ASSERT(numEnqueued >= X.numElements());
+
+                ASSERT(numEnqueued - numExecuted <= numElements);
+                ASSERT(numEnqueued - numExecuted >= X.numElements());
 
                 if (veryVerbose)
                     cout << "   waiting for threadpool stop\n";
                 mX.stop();
                 if (veryVerbose)
                     cout << "   threadpool stopped\n";
-                X.numProcessed(&numDequeued, &numEnqueued);
+                X.numProcessed(&numExecuted, &numEnqueued);
 
                 LOOP3_ASSERT(i,
                              k_NUM_QUEUES * (1 + i * k_NUM_JOBS),
                              numEnqueued,
                              k_NUM_QUEUES * (1 + i * k_NUM_JOBS)
                                                                == numEnqueued);
-                LOOP_ASSERT(i, numDequeued == numEnqueued);
+                LOOP_ASSERT(i, numExecuted == numEnqueued);
 
-                int numEnqueued2 = -1, numDequeued2 = -1;
-                mX.numProcessedReset(&numDequeued2, &numEnqueued2);
+                ASSERT(0 == X.numElements());
+
+                int numEnqueued2 = -1, numExecuted2 = -1;
+                mX.numProcessedReset(&numExecuted2, &numEnqueued2);
                 LOOP_ASSERT(i, numEnqueued2 == numEnqueued);
-                LOOP_ASSERT(i, numDequeued2 == numDequeued);
+                LOOP_ASSERT(i, numExecuted2 == numExecuted);
 
-                X.numProcessed(&numDequeued, &numEnqueued);
-                LOOP_ASSERT(i, 0 == numDequeued);
+                X.numProcessed(&numExecuted, &numEnqueued);
+                LOOP_ASSERT(i, 0 == numExecuted);
                 LOOP_ASSERT(i, 0 == numEnqueued);
+
+                ASSERT(0 == X.numElements());
 
                 mX.start();
 
@@ -2681,11 +2704,187 @@ int main(int argc, char *argv[]) {
                 }
 
                 mX.stop();
-                mX.numProcessed(&numDequeued, &numEnqueued);
-                LOOP2_ASSERT(i, numDequeued, 0 == numDequeued);
+                mX.numProcessed(&numExecuted, &numEnqueued);
+                LOOP2_ASSERT(i, numExecuted, 0 == numExecuted);
                 LOOP2_ASSERT(i, numEnqueued, 0 == numEnqueued);
+
+                ASSERT(0 == X.numElements());
+            }
+
+            // verify methods with optional 'numDeleted'
+
+            for (int i = 1; i <= k_NUM_ITERATIONS; ++i) {
+                int numEnqueued = -1, numExecuted = -1, numDeleted = -1;
+                X.numProcessed(&numExecuted, &numEnqueued, &numDeleted);
+                ASSERT(0 == numExecuted);
+                ASSERT(0 == numEnqueued);
+                ASSERT(0 == numDeleted);
+
+                ASSERT(numEnqueued - numExecuted - numDeleted ==
+                                                              X.numElements());
+
+                if (veryVerbose)
+                    cout << "Iteration " << i << "\n";
+                ASSERT(0 == mX.start());
+                int  QUEUE_IDS[k_NUM_QUEUES];
+                Func QUEUE_NOOP[k_NUM_QUEUES];
+
+                bslmt::Barrier barrier(1 + k_NUM_QUEUES);
+                Func           block;  // blocks on barrier
+                makeFunc(&block, waitOnBarrier, &barrier, 1);
+
+                for (int j = 0; j < k_NUM_QUEUES; ++j) {
+                    QUEUE_NOOP[j] = Func(&noop);
+                    int id = QUEUE_IDS[j] = mX.createQueue();
+                    LOOP2_ASSERT(i, j, 0 == mX.enqueueJob(id, block));
+                }
+                ASSERT(k_NUM_QUEUES == X.numQueues());
+
+                for (int j = 0; j < i * k_NUM_JOBS; ++j) {
+                    for (int k = 0; k < k_NUM_QUEUES; ++k) {
+                        LOOP3_ASSERT(i, j, k,
+                              0 == mX.enqueueJob(QUEUE_IDS[k], QUEUE_NOOP[k]));
+                    }
+                }
+
+                if (veryVerbose)
+                    cout << "   waiting for barrier\n";
+                barrier.wait();
+                if (veryVerbose)
+                    cout << "   passed barrier\n";
+
+                int numElements = X.numElements();
+                X.numProcessed(&numExecuted, &numEnqueued, &numDeleted);
+
+                LOOP3_ASSERT(i,
+                             k_NUM_QUEUES * (1 + i * k_NUM_JOBS),
+                             numEnqueued,
+                             k_NUM_QUEUES * (1 + i * k_NUM_JOBS)
+                                                               == numEnqueued);
+                LOOP_ASSERT(i, 0 <  numExecuted);
+                LOOP_ASSERT(i, 0 == numDeleted);
+                // on Linux, IBM, and Solaris 10, code is so optimized that
+                // sometimes equality holds (the pool is already drained)
+                LOOP_ASSERT(i, numExecuted <= numEnqueued);
+
+                ASSERT(numEnqueued >= X.numElements());
+
+                ASSERT(numEnqueued - numExecuted - numDeleted <= numElements);
+                ASSERT(numEnqueued - numExecuted - numDeleted >=
+                                                              X.numElements());
+
+                if (veryVerbose)
+                    cout << "   waiting for threadpool stop\n";
+                mX.stop();
+                if (veryVerbose)
+                    cout << "   threadpool stopped\n";
+                X.numProcessed(&numExecuted, &numEnqueued, &numDeleted);
+
+                LOOP3_ASSERT(i,
+                             k_NUM_QUEUES * (1 + i * k_NUM_JOBS),
+                             numEnqueued,
+                             k_NUM_QUEUES * (1 + i * k_NUM_JOBS)
+                                                               == numEnqueued);
+                LOOP_ASSERT(i, numExecuted == numEnqueued);
+                LOOP_ASSERT(i, 0 == numDeleted);
+
+                ASSERT(0 == X.numElements());
+
+                int numEnqueued2 = -1, numExecuted2 = -1, numDeleted2 = -1;
+                mX.numProcessedReset(&numExecuted2,
+                                     &numEnqueued2,
+                                     &numDeleted2);
+                LOOP_ASSERT(i, numEnqueued2 == numEnqueued);
+                LOOP_ASSERT(i, numExecuted2 == numExecuted);
+                LOOP_ASSERT(i, numDeleted2  == numDeleted);
+
+                X.numProcessed(&numExecuted, &numEnqueued, &numDeleted);
+                LOOP_ASSERT(i, 0 == numExecuted);
+                LOOP_ASSERT(i, 0 == numEnqueued);
+                LOOP_ASSERT(i, 0 == numDeleted);
+
+                ASSERT(0 == X.numElements());
+
+                mX.start();
+
+                for (int j = 0; j < k_NUM_QUEUES; ++j) {
+                    int rc = mX.deleteQueue(QUEUE_IDS[j]);
+                    ASSERT(0 == rc);
+                }
+
+                mX.stop();
+                mX.numProcessed(&numExecuted, &numEnqueued, &numDeleted);
+                LOOP2_ASSERT(i, numExecuted, 0 == numExecuted);
+                LOOP2_ASSERT(i, numEnqueued, 0 == numEnqueued);
+                LOOP2_ASSERT(i, numDeleted,  0 == numDeleted);
+
+                ASSERT(0 == X.numElements());
+            }
+
+            // verify 'deleteQueue' affects 'numDeleted' as expected
+
+            for (int i = 1; i <= k_NUM_ITERATIONS; ++i) {
+                bslmt::Barrier barrier(2);
+                Func           block;  // blocks on barrier
+                makeFunc(&block, waitOnBarrier, &barrier, 2);
+
+                int id = mX.createQueue();
+
+                mX.start();
+
+                int numEnqueued = -1, numExecuted = -1, numDeleted = -1;
+                mX.numProcessedReset(&numExecuted, &numEnqueued, &numDeleted);
+
+                {
+                    for (int j = 0; j < k_NUM_JOBS; ++j) {
+                        ASSERT(0 == mX.enqueueJob(id, noop));
+                    }
+                    ASSERT(0 == mX.enqueueJob(id, block));
+                    for (int j = 0; j < i; ++j) {
+                        ASSERT(0 == mX.enqueueJob(id, noop));
+                    }
+                }
+
+                int numElements = X.numElements();
+                X.numProcessed(&numExecuted, &numEnqueued, &numDeleted);
+
+                ASSERT(k_NUM_JOBS + 1 + i == numEnqueued);
+                ASSERT(                 0 <= numExecuted);
+                ASSERT(                 0 == numDeleted);
+
+                ASSERT(numEnqueued               >= X.numElements());
+                ASSERT(numEnqueued - numExecuted <= numElements);
+                ASSERT(numEnqueued - numExecuted >= X.numElements());
+
+                barrier.wait();
+
+                X.numProcessed(&numExecuted, &numEnqueued, &numDeleted);
+
+                ASSERT(k_NUM_JOBS + 1 + i == numEnqueued);
+                ASSERT(k_NUM_JOBS + 1     == numExecuted);
+                ASSERT(                 0 == numDeleted);
+
+                ASSERT(numEnqueued - numExecuted == X.numElements());
+
+                mX.deleteQueue(id, noop);
+
+                barrier.wait();
+
+                mX.drain();
+
+                X.numProcessed(&numExecuted, &numEnqueued, &numDeleted);
+
+                ASSERT(k_NUM_JOBS + 1 + i == numEnqueued);
+                ASSERT(k_NUM_JOBS + 1     == numExecuted);
+                ASSERT(                 i == numDeleted);
+
+                ASSERT(numEnqueued - numExecuted - numDeleted ==
+                                                              X.numElements());
+
+                mX.stop();
             }
         }
+
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
@@ -2931,10 +3130,10 @@ int main(int argc, char *argv[]) {
         }
         LOOP_ASSERT(Sleeper::s_finished, 0 == Sleeper::s_finished);
 
-        int numDequeued, numEnqueued;
-        X.numProcessed(&numDequeued, &numEnqueued);
+        int numExecuted, numEnqueued;
+        X.numProcessed(&numExecuted, &numEnqueued);
         LOOP_ASSERT(numEnqueued, k_NUM_QUEUES == numEnqueued);
-        Y.numProcessed(&numDequeued, &numEnqueued);
+        Y.numProcessed(&numExecuted, &numEnqueued);
         LOOP_ASSERT(numEnqueued, k_NUM_QUEUES == numEnqueued);
 
         mX.stop();
@@ -2944,12 +3143,12 @@ int main(int argc, char *argv[]) {
         double time = now() - startTime;
         LOOP_ASSERT(time, time >= SLEEP_A_LITTLE_TIME - jumpTheGun);
 
-        X.numProcessed(&numDequeued, &numEnqueued);
+        X.numProcessed(&numExecuted, &numEnqueued);
         LOOP_ASSERT(numEnqueued, k_NUM_QUEUES == numEnqueued);
-        LOOP_ASSERT(numDequeued, k_NUM_QUEUES == numDequeued);
-        Y.numProcessed(&numDequeued, &numEnqueued);
+        LOOP_ASSERT(numExecuted, k_NUM_QUEUES == numExecuted);
+        Y.numProcessed(&numExecuted, &numEnqueued);
         LOOP_ASSERT(numEnqueued, k_NUM_QUEUES == numEnqueued);
-        LOOP_ASSERT(numDequeued, k_NUM_QUEUES == numDequeued);
+        LOOP_ASSERT(numExecuted, k_NUM_QUEUES == numExecuted);
 
         Sleeper::s_finished = 0;
 
