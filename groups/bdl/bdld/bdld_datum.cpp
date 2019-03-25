@@ -633,7 +633,7 @@ void Datum_StreamVisitor::operator()(bslmf::Nil value) const
     (void) value;
     if (!d_stream.bad()) {
         bdlb::Print::indent(d_stream, d_level, d_spacesPerLevel);
-        d_stream << "nil";
+        d_stream << "[nil]";
         if (0 <= d_spacesPerLevel) {
             d_stream << '\n';
         }
