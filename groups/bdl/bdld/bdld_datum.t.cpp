@@ -1309,7 +1309,8 @@ void BenchmarkSuite::run(int   iterations,
     BENCHMARK(createDouble(1.23), isDouble(), theDouble(), double);
 
     {
-        unsigned char buffer[8]; // big enough fox max encoding size
+        unsigned char buffer[8]; // big enough for max encoding size
+        (void) buffer;           // suppress compiler warnings
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
         Decimal64      aSmallDecimal64(BDLDFP_DECIMAL_DD(1.));
@@ -9575,20 +9576,20 @@ int main(int argc, char *argv[])
 { L_,  -8, -8, Datum::createBoolean(false),         "false"               NL },
 { L_,  -9, -9, Datum::createBoolean(true),          "true"                   },
 { L_,  -9, -9, Datum::createBoolean(false),         "false"                  },
-{ L_,   0,  0, Datum::createNull(),                 "nil"                 NL },
-{ L_,   0,  1, Datum::createNull(),                 "nil"                 NL },
-{ L_,   0, -1, Datum::createNull(),                 "nil"                    },
-{ L_,   0, -8, Datum::createNull(),                 "nil"                 NL },
-{ L_,   3,  0, Datum::createNull(),                 "nil"                 NL },
-{ L_,   3,  2, Datum::createNull(),                 "      nil"           NL },
-{ L_,   3, -2, Datum::createNull(),                 "      nil"              },
-{ L_,   3, -8, Datum::createNull(),                 "            nil"     NL },
-{ L_,  -3,  0, Datum::createNull(),                 "nil"                 NL },
-{ L_,  -3,  2, Datum::createNull(),                 "nil"                 NL },
-{ L_,  -3, -2, Datum::createNull(),                 "nil"                    },
-{ L_,  -3, -8, Datum::createNull(),                 "nil"                 NL },
-{ L_,  -8, -8, Datum::createNull(),                 "nil"                 NL },
-{ L_,  -9, -9, Datum::createNull(),                 "nil"                    },
+{ L_,   0,  0, Datum::createNull(),                 "[nil]"               NL },
+{ L_,   0,  1, Datum::createNull(),                 "[nil]"               NL },
+{ L_,   0, -1, Datum::createNull(),                 "[nil]"                  },
+{ L_,   0, -8, Datum::createNull(),                 "[nil]"               NL },
+{ L_,   3,  0, Datum::createNull(),                 "[nil]"               NL },
+{ L_,   3,  2, Datum::createNull(),                 "      [nil]"         NL },
+{ L_,   3, -2, Datum::createNull(),                 "      [nil]"            },
+{ L_,   3, -8, Datum::createNull(),                 "            [nil]"   NL },
+{ L_,  -3,  0, Datum::createNull(),                 "[nil]"               NL },
+{ L_,  -3,  2, Datum::createNull(),                 "[nil]"               NL },
+{ L_,  -3, -2, Datum::createNull(),                 "[nil]"                  },
+{ L_,  -3, -8, Datum::createNull(),                 "[nil]"               NL },
+{ L_,  -8, -8, Datum::createNull(),                 "[nil]"               NL },
+{ L_,  -9, -9, Datum::createNull(),                 "[nil]"                  },
 // Mainly testing that the quotes are placed correctly.
 { L_,   0,  0, Datum::createStringRef("", 0, &oa),  "\"\""                NL },
 { L_,   0,  1, Datum::createStringRef("", 0, &oa),  "\"\""                NL },
