@@ -124,7 +124,8 @@ using namespace bslstl;
 // [22] void hashAppend(HASH_ALGORITHM&, const bsl::array<TYPE, SIZE>&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [23] USAGE EXAMPLE
+// [24] USAGE EXAMPLE
+// [23] CONCERN: 'constexpr' FUNCTIONS ARE USABLE IN CONSTANT EVALUATION
 
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(array<TYPE,SIZE> *object, const char *spec, bool verboseFlag);
@@ -2585,7 +2586,7 @@ void TestDriver<TYPE, SIZE>::testCase17()
     const char* SPEC = "ABCDEFGHIJKLMNOPQRSTUV";
 
     Obj mX1; const Obj& X1 = mX1;
-    Obj mX2; const Obj& X2 = gg(&mX1, SPEC);
+    Obj mX2; const Obj& X2 = gg(&mX2, SPEC);
 
     ASSERT((0 == SIZE) == X1.empty());
     ASSERT(SIZE        == X1.max_size());
@@ -3008,7 +3009,7 @@ void TestDriver<TYPE, SIZE>::testCase12()
 
         // Create target object.
 
-         Obj mY; const Obj& Y = gg(&mY, SPEC2);
+        Obj mY; const Obj& Y = gg(&mY, SPEC2);
 
         ASSERTV(SIZE, W1 == X);
         ASSERTV(SIZE, W2 == Y);
@@ -3780,7 +3781,9 @@ void TestDriver<TYPE, SIZE>::testCase4()
         Obj        mX;
         const Obj& X = gg(&mX, SPEC);
 
+#if !defined(BSLSTL_ARRAY_DISABLE_CONSTEXPR_CONTRACTS)
         ASSERT_FAIL( X[SIZE    ]);
+#endif
         if (0 != SIZE) {
             ASSERT_PASS( X[SIZE - 1]);
         }
@@ -4265,7 +4268,7 @@ int main(int argc, char *argv[])
 // BDE_VERIFY pragma: -TP33  // Comment should contain a 'Plan:' section
 
     switch (test) { case 0:
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4285,7 +4288,103 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
-          UsageExample::usageExample();
+        UsageExample::usageExample();
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING 'constexpr' EVALUATION
+        //  This component provides many 'constexpr' functions whose runtime
+        //  behavior has already been validated by earlier calls, but need
+        //  additional tests to ensure that the 'constexpr' behavior is
+        //  respected for arrays of literal types.  Testing all 'constexpr'
+        //  methods for 'array<int, 7>' should suffice.  For testing purposes,
+        //  we will assume any compiler that supports 'constexpr' has long
+        //  since supported 'static_assert'.
+        //
+        // Concerns:
+        //: 1 All methods defined with the 'BSLS_KEYWORD_CONSTEXPR' macro can
+        //:   be used in constant evaluation on a C++11 compiler (or later).
+        //:   o empty
+        //:   o max_size
+        //:   o size
+        //:   o get  (x2)
+        //:
+        //: 2 All methods defined with the 'BSLS_KEYWORD_CONSTEXPR_RELAXED'
+        //:   macro can be used in constant evaluation on a C++14 compiler (or
+        //:   later).
+        //:   o operator[]
+        //:   o at
+        //:   o front
+        //:   o back
+        //:   o get  (x2)
+        //
+        // Plan:
+        //: 1 Call each of the listed 'constexpr' functions from a
+        //:   'static_assert' expression, guarded by a macro check that C++11
+        //:   'constexpr' is available.
+        //:   o empty
+        //:   o max_size
+        //:   o size
+        //:   o get
+        //:   (C-1)
+        //:
+        //: 2 Call each of the listed 'constexpr' functions from a
+        //:   'static_assert' expression, guarded by a macro check that C++14
+        //:   'constexpr' is available.
+        //:   o operator[]
+        //:   o at
+        //:   o front
+        //:   o back
+        //:   (C-2)
+        //
+        // Testing:
+        //   CONCERN: 'constexpr' FUNCTIONS ARE USABLE IN CONSTANT EVALUATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'constexpr' EVALUATION"
+                            "\n==============================\n");
+
+        typedef bsl::array<int, 7> Obj;
+
+        static BSLS_KEYWORD_CONSTEXPR Obj X = { 1, 1, 2, 3, 5, 8, 13 };
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+        static_assert(7 == X.size(),     "Bad value for 'size'");
+        static_assert(7 == X.max_size(), "Bad value for 'max_size'");
+
+        static_assert(!X.empty(),        "Array should not be empty");
+
+        static_assert( 1 == bsl::get<0>(X), "Bad value for 'get' at index 0");
+        static_assert( 1 == bsl::get<1>(X), "Bad value for 'get' at index 1");
+        static_assert( 2 == bsl::get<2>(X), "Bad value for 'get' at index 2");
+        static_assert( 3 == bsl::get<3>(X), "Bad value for 'get' at index 3");
+        static_assert( 5 == bsl::get<4>(X), "Bad value for 'get' at index 4");
+        static_assert( 8 == bsl::get<5>(X), "Bad value for 'get' at index 5");
+        static_assert(13 == bsl::get<6>(X), "Bad value for 'get' at index 6");
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)
+        static_assert( 1 == X[0], "Bad value at index 0");
+        static_assert( 1 == X[1], "Bad value at index 1");
+        static_assert( 2 == X[2], "Bad value at index 2");
+        static_assert( 3 == X[3], "Bad value at index 3");
+        static_assert( 5 == X[4], "Bad value at index 4");
+        static_assert( 8 == X[5], "Bad value at index 5");
+        static_assert(13 == X[6], "Bad value at index 6");
+
+# if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION >= 60000
+        static_assert( 1 == X.at(0), "Bad value 'at' index 0");
+        static_assert( 1 == X.at(1), "Bad value 'at' index 1");
+        static_assert( 2 == X.at(2), "Bad value 'at' index 2");
+        static_assert( 3 == X.at(3), "Bad value 'at' index 3");
+        static_assert( 5 == X.at(4), "Bad value 'at' index 4");
+        static_assert( 8 == X.at(5), "Bad value 'at' index 5");
+        static_assert(13 == X.at(6), "Bad value 'at' index 6");
+# endif
+
+        static_assert( 1 == X.front(), "Bad value at 'front' of array");
+        static_assert(13 == X.back(),  "Bad value at 'back' of array");
+#endif
       } break;
       case 22: {
         // --------------------------------------------------------------------

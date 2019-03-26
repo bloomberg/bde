@@ -164,6 +164,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nativestd.h>
+#include <bsls_platform.h>
 
 #include <stddef.h>
 
@@ -175,6 +176,22 @@ BSLS_IDENT("$Id: $")
 #include <utility>     // std::swap (C++11)
 #else
 #include <algorithm>   // std::swap (C++03)
+#endif
+
+
+// DEFECT DETECTION MACROS
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED)            \
+ && defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 60000
+// gcc 5.4 (and earlier) does not allow non-'constexpr' code in a relaxed
+// 'constexpr' function, such as a 'BSLS_ASSERT' macro.  As use of such code in
+// this component is limited to function templates, the effect is to silently
+// disable the 'constexpr'-ness of those functions, which parse correctly and
+// evaluate as expected at run-time, but fail to compile in a constant
+// evaluation context.  In order to support C++14 standard conformance, we
+// choose to disable our BDE contract checks on platforms affected by this
+// compiler bug.
+# define BSLSTL_ARRAY_DISABLE_CONSTEXPR_CONTRACTS       1
 #endif
 
 
@@ -243,21 +260,21 @@ struct array {
         // by overload resolution including at least the namespaces 'std' and
         // the associated namespaces of 'VALUE_TYPE'.
 
-    iterator begin();
+    iterator begin() BSLS_KEYWORD_NOEXCEPT;
         // Return an iterator providing modifiable access to the first element
         // in this array; return a past-the-end iterator if this array has size
         // 0.
 
-    iterator end();
+    iterator end() BSLS_KEYWORD_NOEXCEPT;
         // Return a past-the-end iterator providing modifiable access to this
         // array.
 
-    reverse_iterator rbegin();
+    reverse_iterator rbegin() BSLS_KEYWORD_NOEXCEPT;
         // Return a reverse iterator providing modifiable access to the last
         // element in this array; return a past-the-end iterator if this array
         // has size 0.
 
-    reverse_iterator rend();
+    reverse_iterator rend() BSLS_KEYWORD_NOEXCEPT;
         // Return the past-the-end reverse iterator providing modifiable access
         // to this array.
 
@@ -279,7 +296,7 @@ struct array {
         // Return a reference to the last element in this array.  The behavior
         // is undefined unless 'SIZE > 0'.
 
-    pointer data();
+    pointer data() BSLS_KEYWORD_NOEXCEPT;
         // Return the address of the first element of the underlying raw array.
         // Return a valid 'T*' which cannot be dereferenced if the 'SIZE' is 0.
 
@@ -294,54 +311,56 @@ struct array {
 
     // BDE_VERIFY pragma: -FABC01  // Function not in alphanumeric order
     // ACCESSORS
-    const_iterator begin() const;
-    const_iterator cbegin() const;
+    const_iterator begin() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
         // Return an iterator providing non-modifiable access to the first
         // element in this array; return a past-the-end iterator if this array
         // has size 0.
 
-    const_iterator end() const;
-    const_iterator cend() const;
+    const_iterator end() const BSLS_KEYWORD_NOEXCEPT;
+    const_iterator cend() const BSLS_KEYWORD_NOEXCEPT;
         // Return a past-the-end iterator providing non-modifiable access to
         // this array.
 
-    const_reverse_iterator rbegin() const;
-    const_reverse_iterator crbegin() const;
+    const_reverse_iterator rbegin() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator crbegin() const BSLS_KEYWORD_NOEXCEPT;
         // Return a reverse iterator providing non-modifiable access to the
         // last element in this array, and the past-the-end reverse iterator
         // if this array has size 0.
 
-    const_reverse_iterator rend() const;
-    const_reverse_iterator crend() const;
+    const_reverse_iterator rend() const BSLS_KEYWORD_NOEXCEPT;
+    const_reverse_iterator crend() const BSLS_KEYWORD_NOEXCEPT;
         // Return the past-the-end reverse iterator providing non-modifiable
         // access to this 'array'.
 
-    bool empty() const;
+    BSLS_KEYWORD_CONSTEXPR bool empty() const BSLS_KEYWORD_NOEXCEPT;
         // Return 'true' if the array has size 0, and 'false' otherwise.
 
-    size_type size() const;
-    size_type max_size() const;
+    BSLS_KEYWORD_CONSTEXPR size_type size() const BSLS_KEYWORD_NOEXCEPT;
+    BSLS_KEYWORD_CONSTEXPR size_type max_size() const BSLS_KEYWORD_NOEXCEPT;
         // Return the number of elements in this array.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     const_reference operator[](size_type position) const;
         // Return a reference providing non-modifiable access to the element at
         // the specified 'position' in this array.  The behavior is undefined
         // unless 'position < size()'.
 
+    BSLS_KEYWORD_CONSTEXPR_RELAXED
     const_reference at(size_type position) const;
         // Return a reference providing non-modifiable access to the element at
         // the specified 'position' in this array.  Throw an 'out_of_range'
         // exception if 'position >= size()'.
 
-    const_reference front() const;
+    BSLS_KEYWORD_CONSTEXPR_RELAXED const_reference front() const;
         // Return a reference providing non-modifiable access to the first
         // element in this array.  The behavior is undefined unless 'SIZE > 0'.
 
-    const_reference back() const;
+    BSLS_KEYWORD_CONSTEXPR_RELAXED const_reference back() const;
         // Return a reference providing non-modifiable access to the last
         // element in this array.  Behavior is undefined unless 'SIZE > 0'.
 
-    const_pointer data() const;
+    const_pointer data() const BSLS_KEYWORD_NOEXCEPT;
         // Return the address of the first element of the underlying raw array.
         // Return a valid 'T*' which cannot be dereferenced if the 'SIZE' is 0.
 };
@@ -399,12 +418,14 @@ void swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs);
     // corresponding element in the specified 'rhs'.
 
 template<size_t INDEX, class TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_RELAXED
 TYPE& get(array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT;
     // Return a reference providing modifiable access to the element of the
     // specified 'a', having the ordinal number specified by the (template
     // parameter) 'INDEX'.  This function will not compile unless 'INDEX < N'.
 
 template<size_t INDEX, class TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR
 const TYPE& get(const array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT;
     // Return a reference providing non-modifiable access to the element of the
     // specified 'a', having the ordinal number specified by the (template
@@ -412,12 +433,14 @@ const TYPE& get(const array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template<size_t INDEX, class TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_RELAXED
 TYPE&& get(array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT;
     // Return an rvalue reference providing modifiable access to the element of
     // the specified 'a', having the ordinal number specified by the (template
     // parameter) 'INDEX'.  This function will not compile unless 'INDEX < N'.
 
 template<size_t INDEX, class TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR
 const TYPE&& get(const array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT;
     // Return an rvalue reference providing non-modifiable access to the
     // element of the specified 'a', having the ordinal number specified by the
@@ -445,7 +468,10 @@ struct tuple_element<INDEX, bsl::array<TYPE, SIZE> >
 {
     // This partial specialization of 'tuple_element' provides compile-time
     // access to the type of the array's elements.
+
+    // STATIC CHECKS
     BSLMF_ASSERT(INDEX < SIZE);
+
     // TYPES
     typedef TYPE type;
 };
@@ -494,101 +520,106 @@ void array<VALUE_TYPE, SIZE>::swap(array<VALUE_TYPE, SIZE>& rhs)
 
 // ACCESSORS
 template <class VALUE_TYPE, size_t SIZE>
-typename array<VALUE_TYPE, SIZE>::iterator array<VALUE_TYPE, SIZE>::begin()
+typename array<VALUE_TYPE, SIZE>::iterator
+array<VALUE_TYPE, SIZE>::begin() BSLS_KEYWORD_NOEXCEPT
 {
     return d_data;
 }
 
 template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::const_iterator
-array<VALUE_TYPE, SIZE>::begin() const
+array<VALUE_TYPE, SIZE>::begin() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_data;
 }
 
 template <class VALUE_TYPE, size_t SIZE>
-typename array<VALUE_TYPE, SIZE>::iterator array<VALUE_TYPE, SIZE>::end()
+typename array<VALUE_TYPE, SIZE>::iterator
+array<VALUE_TYPE, SIZE>::end() BSLS_KEYWORD_NOEXCEPT
 {
     return d_data + SIZE;
 }
 
 template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::const_iterator
-array<VALUE_TYPE, SIZE>::end() const
+array<VALUE_TYPE, SIZE>::end() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_data + SIZE;
 }
 
 template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::reverse_iterator
-array<VALUE_TYPE, SIZE>::rbegin()
+array<VALUE_TYPE, SIZE>::rbegin() BSLS_KEYWORD_NOEXCEPT
 {
     return array<VALUE_TYPE, SIZE>::reverse_iterator(d_data + SIZE);
 }
 
 template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::const_reverse_iterator
-array<VALUE_TYPE, SIZE>::rbegin() const
+array<VALUE_TYPE, SIZE>::rbegin() const BSLS_KEYWORD_NOEXCEPT
 {
     return array<VALUE_TYPE, SIZE>::const_reverse_iterator(d_data + SIZE);
 }
 
 template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::reverse_iterator
-array<VALUE_TYPE, SIZE>::rend()
+array<VALUE_TYPE, SIZE>::rend() BSLS_KEYWORD_NOEXCEPT
 {
     return array<VALUE_TYPE, SIZE>::reverse_iterator(d_data);
 }
 
 template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::const_reverse_iterator
-array<VALUE_TYPE, SIZE>::rend() const
+array<VALUE_TYPE, SIZE>::rend() const BSLS_KEYWORD_NOEXCEPT
 {
     return array<VALUE_TYPE, SIZE>::const_reverse_iterator(d_data);
 }
 
 template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::const_iterator
-array<VALUE_TYPE, SIZE>::cbegin() const
+array<VALUE_TYPE, SIZE>::cbegin() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_data;
 }
 
 template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::const_iterator
-array<VALUE_TYPE, SIZE>::cend() const
+array<VALUE_TYPE, SIZE>::cend() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_data + SIZE;
 }
 
 template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::const_reverse_iterator
-array<VALUE_TYPE, SIZE>::crbegin() const
+array<VALUE_TYPE, SIZE>::crbegin() const BSLS_KEYWORD_NOEXCEPT
 {
     return array<VALUE_TYPE, SIZE>::const_reverse_iterator(d_data + SIZE);
 }
 
 template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::const_reverse_iterator
-array<VALUE_TYPE, SIZE>::crend() const
+array<VALUE_TYPE, SIZE>::crend() const BSLS_KEYWORD_NOEXCEPT
 {
     return array<VALUE_TYPE, SIZE>::const_reverse_iterator(d_data);
 }
 
 template <class VALUE_TYPE, size_t SIZE>
-bool array<VALUE_TYPE, SIZE>::empty() const
+BSLS_KEYWORD_CONSTEXPR
+bool array<VALUE_TYPE, SIZE>::empty() const BSLS_KEYWORD_NOEXCEPT
 {
     return SIZE == 0;
 }
 
 template <class VALUE_TYPE, size_t SIZE>
-size_t array<VALUE_TYPE, SIZE>::size() const
+BSLS_KEYWORD_CONSTEXPR
+size_t array<VALUE_TYPE, SIZE>::size() const BSLS_KEYWORD_NOEXCEPT
 {
     return SIZE;
 }
 
 template <class VALUE_TYPE, size_t SIZE>
-size_t array<VALUE_TYPE, SIZE>::max_size() const
+BSLS_KEYWORD_CONSTEXPR
+size_t array<VALUE_TYPE, SIZE>::max_size() const BSLS_KEYWORD_NOEXCEPT
 {
     return SIZE;
 }
@@ -602,10 +633,14 @@ array<VALUE_TYPE, SIZE>::operator[](size_type position)
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_RELAXED
 typename array<VALUE_TYPE, SIZE>::const_reference
 array<VALUE_TYPE, SIZE>::operator[](size_type position) const
 {
+#if !defined(BSLSTL_ARRAY_DISABLE_CONSTEXPR_CONTRACTS)
     BSLS_ASSERT(position < SIZE);
+#endif
+
     return d_data[position];
 }
 
@@ -621,8 +656,9 @@ typename array<VALUE_TYPE, SIZE>::reference array<VALUE_TYPE, SIZE>::at(
 }
 
 template <class VALUE_TYPE, size_t SIZE>
-typename array<VALUE_TYPE, SIZE>::const_reference array<VALUE_TYPE, SIZE>::at(
-                                                      size_type position) const
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+typename array<VALUE_TYPE, SIZE>::const_reference
+array<VALUE_TYPE, SIZE>::at(size_type position) const
 {
     if (position >= SIZE) {
         BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
@@ -632,133 +668,58 @@ typename array<VALUE_TYPE, SIZE>::const_reference array<VALUE_TYPE, SIZE>::at(
 }
 
 template <class VALUE_TYPE, size_t SIZE>
-typename array<VALUE_TYPE, SIZE>::reference array<VALUE_TYPE, SIZE>::front()
+typename array<VALUE_TYPE, SIZE>::reference
+array<VALUE_TYPE, SIZE>::front()
 {
     BSLS_ASSERT(SIZE > 0);
     return d_data[0];
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_RELAXED
 typename array<VALUE_TYPE, SIZE>::const_reference
 array<VALUE_TYPE, SIZE>::front() const
 {
+#if !defined(BSLSTL_ARRAY_DISABLE_CONSTEXPR_CONTRACTS)
     BSLS_ASSERT(SIZE > 0);
+#endif
+
     return d_data[0];
 }
 
 template <class VALUE_TYPE, size_t SIZE>
-typename array<VALUE_TYPE, SIZE>::reference array<VALUE_TYPE, SIZE>::back()
+typename array<VALUE_TYPE, SIZE>::reference
+array<VALUE_TYPE, SIZE>::back()
 {
     BSLS_ASSERT(SIZE > 0);
     return d_data[SIZE - 1];
 }
 
 template <class VALUE_TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_RELAXED
 typename array<VALUE_TYPE, SIZE>::const_reference
 array<VALUE_TYPE, SIZE>::back() const
 {
+#if !defined(BSLSTL_ARRAY_DISABLE_CONSTEXPR_CONTRACTS)
     BSLS_ASSERT(SIZE > 0);
+#endif
+
     return d_data[SIZE - 1];
 }
 
 template <class VALUE_TYPE, size_t SIZE>
-typename array<VALUE_TYPE, SIZE>::iterator array<VALUE_TYPE, SIZE>::data()
+typename array<VALUE_TYPE, SIZE>::iterator
+array<VALUE_TYPE, SIZE>::data() BSLS_KEYWORD_NOEXCEPT
 {
     return d_data;
 }
 
 template <class VALUE_TYPE, size_t SIZE>
 typename array<VALUE_TYPE, SIZE>::const_iterator
-array<VALUE_TYPE, SIZE>::data() const
+array<VALUE_TYPE, SIZE>::data() const BSLS_KEYWORD_NOEXCEPT
 {
     return d_data;
 }
-
-// FREE OPERATORS
-template <class VALUE_TYPE, size_t SIZE>
-bool operator==(const array<VALUE_TYPE, SIZE>& lhs,
-                const array<VALUE_TYPE, SIZE>& rhs)
-{
-    return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
-                                                    lhs.end(),
-                                                    lhs.size(),
-                                                    rhs.begin(),
-                                                    rhs.end(),
-                                                    rhs.size());
-}
-
-template <class VALUE_TYPE, size_t SIZE>
-bool operator!=(const array<VALUE_TYPE, SIZE>& lhs,
-                const array<VALUE_TYPE, SIZE>& rhs)
-{
-    return !(lhs == rhs);
-}
-
-template <class VALUE_TYPE, size_t SIZE>
-bool operator<(const array<VALUE_TYPE, SIZE>& lhs,
-               const array<VALUE_TYPE, SIZE>& rhs)
-{
-    return 0 > BloombergLP::bslalg::RangeCompare::lexicographical(lhs.begin(),
-                                                                  lhs.end(),
-                                                                  lhs.size(),
-                                                                  rhs.begin(),
-                                                                  rhs.end(),
-                                                                  rhs.size());
-}
-
-template <class VALUE_TYPE, size_t SIZE>
-bool operator>(const array<VALUE_TYPE, SIZE>& lhs,
-               const array<VALUE_TYPE, SIZE>& rhs)
-{
-    return rhs < lhs;
-}
-
-template <class VALUE_TYPE, size_t SIZE>
-bool operator<=(const array<VALUE_TYPE, SIZE>& lhs,
-                const array<VALUE_TYPE, SIZE>& rhs)
-{
-    return !(rhs < lhs);
-}
-
-template <class VALUE_TYPE, size_t SIZE>
-bool operator>=(const array<VALUE_TYPE, SIZE>& lhs,
-                const array<VALUE_TYPE, SIZE>& rhs)
-{
-    return !(lhs < rhs);
-}
-
-// FREE FUNCTIONS
-template <class VALUE_TYPE, size_t SIZE>
-void swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs)
-{
-    lhs.swap(rhs);
-}
-
-template<size_t INDEX, class TYPE, size_t SIZE>
-TYPE& get(array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT
-{
-    return a[INDEX];
-}
-
-template<size_t INDEX, class TYPE, size_t SIZE>
-const TYPE& get(const array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT
-{
-    return a[INDEX];
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-template<size_t INDEX, class TYPE, size_t SIZE>
-TYPE&& get(array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT
-{
-    return BloombergLP::bslmf::MovableRefUtil::move(a[INDEX]);
-}
-
-template<size_t INDEX, class TYPE, size_t SIZE>
-const TYPE&& get(const array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT
-{
-    return BloombergLP::bslmf::MovableRefUtil::move(a[INDEX]);
-}
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 // HASH SPECIALIZATIONS
 template <class HASH_ALGORITHM, class TYPE, size_t SIZE>
@@ -774,6 +735,96 @@ void hashAppend(HASH_ALGORITHM& hashAlgorithm, const array<TYPE, SIZE>& input)
 }
 
 }  // close namespace bsl
+
+// FREE OPERATORS
+template <class VALUE_TYPE, size_t SIZE>
+bool bsl::operator==(const array<VALUE_TYPE, SIZE>& lhs,
+                     const array<VALUE_TYPE, SIZE>& rhs)
+{
+    return BloombergLP::bslalg::RangeCompare::equal(lhs.begin(),
+                                                    lhs.end(),
+                                                    lhs.size(),
+                                                    rhs.begin(),
+                                                    rhs.end(),
+                                                    rhs.size());
+}
+
+template <class VALUE_TYPE, size_t SIZE>
+bool bsl::operator!=(const array<VALUE_TYPE, SIZE>& lhs,
+                     const array<VALUE_TYPE, SIZE>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template <class VALUE_TYPE, size_t SIZE>
+bool bsl::operator<(const array<VALUE_TYPE, SIZE>& lhs,
+                    const array<VALUE_TYPE, SIZE>& rhs)
+{
+    return 0 > BloombergLP::bslalg::RangeCompare::lexicographical(lhs.begin(),
+                                                                  lhs.end(),
+                                                                  lhs.size(),
+                                                                  rhs.begin(),
+                                                                  rhs.end(),
+                                                                  rhs.size());
+}
+
+template <class VALUE_TYPE, size_t SIZE>
+bool bsl::operator>(const array<VALUE_TYPE, SIZE>& lhs,
+                    const array<VALUE_TYPE, SIZE>& rhs)
+{
+    return rhs < lhs;
+}
+
+template <class VALUE_TYPE, size_t SIZE>
+bool bsl::operator<=(const array<VALUE_TYPE, SIZE>& lhs,
+                     const array<VALUE_TYPE, SIZE>& rhs)
+{
+    return !(rhs < lhs);
+}
+
+template <class VALUE_TYPE, size_t SIZE>
+bool bsl::operator>=(const array<VALUE_TYPE, SIZE>& lhs,
+                     const array<VALUE_TYPE, SIZE>& rhs)
+{
+    return !(lhs < rhs);
+}
+
+// FREE FUNCTIONS
+template <class VALUE_TYPE, size_t SIZE>
+void bsl::swap(array<VALUE_TYPE, SIZE>& lhs, array<VALUE_TYPE, SIZE>& rhs)
+{
+    lhs.swap(rhs);
+}
+
+template<size_t INDEX, class TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+TYPE& bsl::get(array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT
+{
+    return a.d_data[INDEX];
+}
+
+template<size_t INDEX, class TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR
+const TYPE& bsl::get(const array<TYPE, SIZE>& a) BSLS_KEYWORD_NOEXCEPT
+{
+    return a.d_data[INDEX];
+}
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+template<size_t INDEX, class TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR_RELAXED
+TYPE&& bsl::get(array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT
+{
+    return BloombergLP::bslmf::MovableRefUtil::move(a.d_data[INDEX]);
+}
+
+template<size_t INDEX, class TYPE, size_t SIZE>
+BSLS_KEYWORD_CONSTEXPR
+const TYPE&& bsl::get(const array<TYPE, SIZE>&& a) BSLS_KEYWORD_NOEXCEPT
+{
+    return BloombergLP::bslmf::MovableRefUtil::move(a.d_data[INDEX]);
+}
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
 #endif
 

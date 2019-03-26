@@ -6,7 +6,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assertimputil.h>
 #include <bsls_asserttestexception.h>
-#include <bsls_keyword.h>             // for testing only
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
 #include <bsls_pointercastutil.h>
@@ -106,22 +105,6 @@ static bool g_permitReturningHandlerRuntimeFlag = false;
 }  // close unnamed namespace
 
 namespace bsls {
-
-                          // ---------------------
-                          // class AssertViolation
-                          // ---------------------
-
-// CREATORS
-AssertViolation::AssertViolation(const char *comment,
-                                 const char *fileName,
-                                 int         lineNumber,
-                                 const char *assertLevel)
-: d_comment_p((comment == 0) ? "" : comment)
-, d_fileName_p((fileName == 0) ? "" : fileName)
-, d_lineNumber(lineNumber)
-, d_assertLevel_p((assertLevel == 0) ? "" : assertLevel)
-{
-}
 
                               // ------------
                               // class Assert

@@ -6,7 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 namespace bsl {
 
-}  // close package namespace
+}  // close namespace bsl
 
 // ----------------------------------------------------------------------------
 // Copyright 2019 Bloomberg Finance L.P.
