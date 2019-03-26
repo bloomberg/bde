@@ -1265,6 +1265,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_annotation.h>
 #include <bsls_atomicoperations.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
@@ -1463,6 +1464,7 @@ class AssertViolation {
 
   public:
     // CREATORS
+    BSLS_KEYWORD_CONSTEXPR
     AssertViolation(const char *comment,
                     const char *fileName,
                     int         lineNumber,
@@ -1818,10 +1820,24 @@ typedef bsls::AssertFailureHandlerGuard bsls_AssertFailureHandlerGuard;
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
+namespace bsls {
                           // ---------------------
                           // class AssertViolation
                           // ---------------------
-namespace bsls {
+
+// CREATORS
+BSLS_KEYWORD_CONSTEXPR
+inline
+AssertViolation::AssertViolation(const char *comment,
+                                 const char *fileName,
+                                 int         lineNumber,
+                                 const char *assertLevel)
+: d_comment_p((comment == 0) ? "" : comment)
+, d_fileName_p((fileName == 0) ? "" : fileName)
+, d_lineNumber(lineNumber)
+, d_assertLevel_p((assertLevel == 0) ? "" : assertLevel)
+{
+}
 
 // ACCESSORS
 inline
