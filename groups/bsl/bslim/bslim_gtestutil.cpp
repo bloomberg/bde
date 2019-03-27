@@ -56,6 +56,12 @@ void bsl::PrintTo(const bsl::wstring& value, bsl::ostream *stream)
     *stream << '"' << bsl::flush;
 }
 
+void bsl::PrintTo(const BloombergLP::bslstl::StringRef&  value,
+                  bsl::ostream                          *stream)
+{
+    *stream << '"' << value << '"' << bsl::flush;
+}
+
 namespace BloombergLP {
 namespace bslim {
 

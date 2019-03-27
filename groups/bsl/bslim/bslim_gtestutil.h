@@ -43,6 +43,10 @@ void PrintTo(const wstring& value, ostream *stream);
     // Write the specified 'value' to the specified '*stream', surrounded by
     // double quotes, writing non-printable characters with '\x...' escapes.
 
+void PrintTo(const BloombergLP::bslstl::StringRef& value, ostream *stream);
+    // Write the specified 'value' to the specified '*stream', surrounded by
+    // double quotes.
+
 }  // close namespace bsl
 
 #endif
