@@ -285,13 +285,14 @@ BSLS_IDENT("$Id: $")
 /// - - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports '[[noreturn]]' C++11
 // attribute syntax.  MSVC supports the attribute with alternative syntax
-// __declspec(noreturn), and earlier versions of GCC and Clang support the
-// alternative syntax '__attribute__((noreturn))'.
+// __declspec(noreturn), earlier versions of GCC and Clang support the
+// alternative syntax '__attribute__((noreturn))', and xlC supports the
+// alternative syntax '_Noreturn'.  This macro does not support alternative
+// syntaxes.
 //
 //: o Compiler support:
 //:   o GCC 4.8
 //:   o Clang 3.3
-//:   o IBM xlC 12.1
 //:   o Oracle CC 12.4
 //:   o MSVC 19.10
 //
@@ -943,7 +944,8 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 #endif
 #if defined(__IBMC_NORETURN)
-#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
+// xlC has '_Noreturn'
+//#define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 #endif
 // (not yet supported in xlC)
 //#define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
