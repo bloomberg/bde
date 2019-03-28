@@ -8,6 +8,15 @@ get_filename_component(repoName ${CMAKE_CURRENT_LIST_DIR} NAME)
 
 project(${repoName})
 
+# For info on how to build this library using Conan, e.g. for Windows
+# see https://bbgithub.dev.bloomberg.com/conan/conan-bde
+set(CONAN_BLD_INFO ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+if (EXISTS ${CONAN_BLD_INFO})
+    message(STATUS "Found generated conanbuildinfo.cmake, calling conan_basic_setup")
+    include(${CONAN_BLD_INFO})
+    conan_basic_setup(TARGETS)
+endif()
+
 include(bde_workspace)
 
 bde_process_workspace(
