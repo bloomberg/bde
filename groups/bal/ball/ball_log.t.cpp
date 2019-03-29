@@ -4549,7 +4549,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //:   'TC::testSetCategoryHierarchically<KK>' where 'KK' is a const
         //:   'int' value, which calls 'Log::setCategoryHierarchically',
         //:   possibly multiple times, and verifies that it behaves properly,
-        //:   and returns a reference to to a unique static 'TC::ResultRec' for
+        //:   and returns a reference to a unique static 'TC::ResultRec' for
         //:   each value of 'KK', which is loaded with the results of one of
         //:   the calls to 'Log::setCategoryHierarchically'.
         //:

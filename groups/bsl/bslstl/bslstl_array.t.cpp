@@ -3268,7 +3268,7 @@ void TestDriver<TYPE, SIZE>::testCase9()
     //:   target object after the assignment and vice versa.
     //:
     //: 5 Aliasing ('x = x'): The assignment operator must always work -- even
-    //:   when the the target object and the source object are the same object.
+    //:   when the target object and the source object are the same object.
     //
     // Plan:
     //: 1 Construct two pairs (object - source) of arrays having different

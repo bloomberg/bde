@@ -1825,7 +1825,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Datum& rhs);
     // format shown in the second column in the table below (based on the type
     // of value stored, indicated by the first column):
     //..
-    //  null                   - [nil]
+    //  null                   - nil
     //
     //  bool                   - true/false
     //

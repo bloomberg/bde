@@ -6449,7 +6449,7 @@ int main(int argc, char *argv[])
         //:  8 For a non-empty 'function', the 'target' accessor returns a
         //:    cv-qualified pointer to a copy of the invocable specified at
         //:    construction.
-        //:  9 If constructed with an invocable that wrapped in in a
+        //:  9 If constructed with an invocable that wrapped in a
         //:    'Function_NothrowWrapper', the invocable is always treated as
         //:    though it had a nothrow move constructor in concern 5.  Concern
         //:    7 and 8 apply as if the invocable were not wrapped.
