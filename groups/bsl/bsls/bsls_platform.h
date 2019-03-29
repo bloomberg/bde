@@ -754,7 +754,7 @@ struct bsls_Platform_Assert;
 
 // Determine endianness.
 
-// Glibc or Linux
+// Glibc or Linux or Cygwin
 #if defined(__GLIBC__) ||                                                     \
     defined(BSLS_PLATFORM_OS_LINUX) ||                                        \
     defined(BSLS_PLATFORM_OS_CYGWIN)
