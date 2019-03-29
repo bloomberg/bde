@@ -295,6 +295,23 @@ int MultiQueueThreadPool_Queue::resume()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
+    // If the queue is in the 'e_PAUSING' state, implying the pause will become
+    // effective when the "currently running job" completes, instead of failing
+    // to 'resume' (returning a non-zero value), the queue can be immediately
+    // returned to the 'e_SCHEDULED' state.  There are two caveats.  The
+    // 'e_PAUSING' state is used during deletion and there may be threads
+    // waiting for the "currently running job" to complete.
+
+    if (e_DELETING != d_enqueueState && e_PAUSING == d_runState) {
+        d_runState = e_SCHEDULED;
+
+        if (d_pauseCount) {
+            d_pauseBlock.post(d_pauseCount);
+            d_pauseCount = 0;
+        }
+        return 0;
+    }
+    
     if (e_PAUSED != d_runState) {
         return 1;                                                     // RETURN
     }

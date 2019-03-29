@@ -114,7 +114,8 @@ using namespace BloombergLP;
 // [27] DRQS 118269630: 'drain' may not drain underlying threadpool
 // [28] DRQS 139148629: deadlock when job pauses another queue
 // [29] DRQS 138890062: 'deleteQueueCb' running after destructor
-// [30] USAGE EXAMPLE 1
+// [30] DRQS 140150365: resume fails immediately after pause
+// [31] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -273,6 +274,7 @@ static void waitPauseAndIncrement(bslmt::Barrier  *barrier,
     // Wait on the specified 'barrier', pause the queue with the specified
     // 'queueId' in the specified 'pool' and then increment the specified
     // 'counter'.  Finally, wait on the barrier again.
+
     barrier->wait();
     int rc = pool->pauseQueue(queueId);
     ASSERT(0 == rc);
@@ -288,6 +290,19 @@ static void waitThenAppend(bslmt::Semaphore *semaphore,
     // the specified 'value'.
     semaphore->wait();
     value->push_back(letter);
+}
+
+static void waitPauseWait(bslmt::Barrier *barrier,
+                          Obj            *pool,
+                          int             queueId)
+{
+    // Wait on the specified 'barrier', resume the queue with the specified
+    // 'queueId' in the specified 'pool', and then wait on the 'barrier'.
+
+    barrier->wait();
+    int rc = pool->pauseQueue(queueId);
+    ASSERT(0 == rc);
+    barrier->wait();
 }
 
 static void addAppendJobAtFront(Obj         *pool,
@@ -1415,7 +1430,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1495,6 +1510,120 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      }  break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // DRQS 140150365: resume fails immediately after pause
+        //
+        // Concerns:
+        //: 1 The method 'resumeQueue' does not return an error when called
+        //:   quickly after 'pauseQueue'.
+        //:
+        //: 2 If 'pauseQueue' blocks, another thread that quickly runs
+        //:   'resumeQueue' unblocks the blocked thread (while the "currently
+        //:   executing job is completing").
+        //
+        // Plan:
+        //: 1 Recreate the scenario and verify that 'resumeQueue' succeeds.
+        //
+        // Testing:
+        //   DRQS 140150365: resume fails immediately after pause
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout
+               << "DRQS 140150365: 'resume' fails immediately after 'pause'\n"
+               << "========================================================\n";
+        }
+
+        {
+            // verify when 'pauseQueue' does not block
+
+            bslmt::Barrier controlBarrier(2);
+
+            Func job = bdlf::BindUtil::bind(&waitOnBarrier,
+                                            &controlBarrier,
+                                            1);
+
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
+
+            mX.start();
+            int queueId = mX.createQueue();
+
+            ASSERT(0 == mX.enqueueJob(queueId, job));
+
+            ASSERT(0 == mX.pauseQueue(queueId));
+
+            int rv = mX.resumeQueue(queueId);
+            ASSERT(0 == rv);
+
+            if (rv) {
+                exit(0);
+            }
+
+            controlBarrier.wait();
+        
+            mX.drain();
+            mX.stop();
+        }
+        {
+            // verify when 'pauseQueue' does block
+
+            bslmt::Barrier controlBarrier(2);
+
+            Func job = bdlf::BindUtil::bind(&waitOnBarrier,
+                                            &controlBarrier,
+                                            1);
+
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
+
+            mX.start();
+            int queueId = mX.createQueue();
+
+            bslmt::ThreadUtil::Handle pauseHandle;
+            bslmt::Barrier            pauseBarrier(2);
+
+            bslmt::ThreadUtil::create(
+                                   &pauseHandle,
+                                   bdlf::BindUtil::bind(&waitPauseWait,
+                                                        &pauseBarrier,
+                                                        &mX,
+                                                        queueId));
+
+            ASSERT(0 == mX.enqueueJob(queueId, job));
+
+            pauseBarrier.wait();
+
+            // Wait for the pausing thread to release the mutex protecting the
+            // queue and start waiting for a signal.  There is no good way to
+            // do this so a "sleep" is used.
+
+            bslmt::ThreadUtil::microSleep(200);
+
+            // Failing on the following 'ASSERT' implies the sleep was not
+            // effective.
+
+            ASSERT(0 == mX.resumeQueue(queueId));
+
+            controlBarrier.wait();
+
+            // If the pausing thread is still blocked, the following will
+            // time-out.
+
+            int rv = pauseBarrier.timedWait(
+                    bsls::SystemTime::nowRealtimeClock().addMilliseconds(200));
+
+            ASSERT(0 == rv);
+
+            if (0 != rv) {
+                exit(0);
+            }
+
+            ASSERT(0 == bslmt::ThreadUtil::join(pauseHandle));
+
+            mX.drain();
+            mX.stop();
+        }
       }  break;
       case 29: {
         // --------------------------------------------------------------------
