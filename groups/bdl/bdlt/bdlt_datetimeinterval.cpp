@@ -178,7 +178,8 @@ void DatetimeInterval::setTotalSecondsFromDouble(double seconds)
         // Ignoring fractional part to maintain as much accuracy from
         // 'seconds' as possible.
 
-    BSLS_ASSERT(bsl::numeric_limits<bsls::Types::Int64>::max() >=
+    BSLS_ASSERT(static_cast<double>(
+                             bsl::numeric_limits<bsls::Types::Int64>::max()) >=
                 fabs(wholeDays));
         // Failing for bsl::numeric_limits<bsls::Types::Int64>::min() is OK
         // here, because wholeDays has to fit into 32 bits.  Here we're just
