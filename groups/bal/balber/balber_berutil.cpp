@@ -131,12 +131,16 @@ BSLS_IDENT_RCSID(balber_berutil_cpp,"$Id$ $CSID$")
 
 #include <bslmf_assert.h>
 
+#include <bslmt_once.h>
+
 #include <bsls_assert.h>
+#include <bsls_log.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
 #include <bsl_cstring.h>
 #include <bsl_cstdint.h>
+
 
 namespace BloombergLP {
 
@@ -1093,13 +1097,30 @@ int BerUtil_Imp::getLength(bsl::streambuf *streamBuf,
     return SUCCESS;
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                          bsl::string    *value,
-                          int             length)
+int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
+                          bsl::string              *value,
+                          int                       length,
+                          const BerDecoderOptions&  options)
 {
     enum { SUCCESS = 0, FAILURE = -1 };
 
     if (0 == length) {
+        if (options.defaultEmptyStrings() && !value->empty()) {
+            BSLMT_ONCE_DO {
+                BSLS_LOG_WARN("[BDE_INTERNAL] The current process will decode "
+                              "an empty string as the default value for an "
+                              "element in the type currently being decoded.  "
+                              "This behavior is erroneous and will eventually "
+                              "be deprecated.  The owners of the current "
+                              "process should be contacted to audit it for "
+                              "dependence on this behavior.");
+            }
+        }
+
+        if (!options.defaultEmptyStrings()) {
+            value->clear();
+        }
+
         return SUCCESS;                                               // RETURN
     }
     else if (length < 0) {
@@ -1114,63 +1135,70 @@ int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
     return length == bytesConsumed ? SUCCESS : FAILURE;
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                          bdlt::Date      *value,
-                          int             length)
+int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
+                          bdlt::Date               *value,
+                          int                       length,
+                          const BerDecoderOptions&)
 {
     return length > k_MAX_BINARY_DATE_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
          : getBinaryDateValue(streamBuf, value, length);
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                          bdlt::Datetime  *value,
-                          int             length)
+int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
+                          bdlt::Datetime           *value,
+                          int                       length,
+                          const BerDecoderOptions&)
 {
     return length > k_MAX_BINARY_DATETIMETZ_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
          : getBinaryDatetimeValue(streamBuf, value, length);
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf  *streamBuf,
-                          bdlt::DatetimeTz *value,
-                          int              length)
+int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
+                          bdlt::DatetimeTz         *value,
+                          int                       length,
+                          const BerDecoderOptions&)
 {
     return length > k_MAX_BINARY_DATETIMETZ_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
          : getBinaryDatetimeTzValue(streamBuf, value, length);
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                          bdlt::DateTz    *value,
-                          int             length)
+int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
+                          bdlt::DateTz             *value,
+                          int                       length,
+                          const BerDecoderOptions&)
 {
     return length > k_MAX_BINARY_DATETZ_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
          : getBinaryDateTzValue(streamBuf, value, length);
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                          bdlt::Time      *value,
-                          int             length)
+int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
+                          bdlt::Time               *value,
+                          int                       length,
+                          const BerDecoderOptions&)
 {
     return length > k_MAX_BINARY_TIME_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
          : getBinaryTimeValue(streamBuf, value, length);
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf *streamBuf,
-                          bdlt::TimeTz    *value,
-                          int             length)
+int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
+                          bdlt::TimeTz             *value,
+                          int                       length,
+                          const BerDecoderOptions&)
 {
     return length > k_MAX_BINARY_TIMETZ_LENGTH
          ? getValueUsingIso8601(streamBuf, value, length)
          : getBinaryTimeTzValue(streamBuf, value, length);
 }
 
-int BerUtil_Imp::getValue(bsl::streambuf     *streamBuf,
-                          bdldfp::Decimal64  *value,
-                          int                 length)
+int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
+                          bdldfp::Decimal64        *value,
+                          int                       length,
+                          const BerDecoderOptions&)
 {
     enum { SUCCESS = 0, FAILURE = -1 };
 

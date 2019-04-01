@@ -360,9 +360,8 @@ int main(int argc, char *argv[])
                 int numBytesConsumed = 0;
 
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
+                ASSERT(SUCCESS ==
+                       Util::getValue(&isb, &value, &numBytesConsumed));
                 ASSERT(0   == isb.length());
                 ASSERT(LEN == numBytesConsumed);
                 LOOP2_ASSERT(VALUE, value, VALUE == value);
@@ -596,9 +595,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value1,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value1, &numBytesConsumed));
                     ASSERT(0      == isb.length());
                     ASSERT(LENGTH == numBytesConsumed);
                     LOOP_ASSERT(LINE, value1.is<bdlt::Date>());
@@ -618,9 +616,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value2,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value2, &numBytesConsumed));
                     ASSERT(0      == isb.length());
                     ASSERT(LENGTH == numBytesConsumed);
                     LOOP_ASSERT(LINE, value2.is<bdlt::Date>());
@@ -660,9 +657,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value1,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value1, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP_ASSERT(LINE, value1.is<bdlt::DateTz>());
@@ -682,9 +678,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value2,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value2, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP_ASSERT(LINE, value2.is<bdlt::DateTz>());
@@ -725,9 +720,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value1,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value1, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP_ASSERT(LINE, value1.is<bdlt::Time>());
@@ -747,9 +741,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value2,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value2, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP_ASSERT(LINE, value2.is<bdlt::Time>());
@@ -791,9 +784,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value1,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value1, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP_ASSERT(LINE, value1.is<bdlt::TimeTz>());
@@ -813,9 +805,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value2,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value2, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP_ASSERT(LINE, value2.is<bdlt::TimeTz>());
@@ -868,9 +859,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value1,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value1, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP_ASSERT(LINE, value1.is<bdlt::Datetime>());
@@ -890,9 +880,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value2,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value2, &numBytesConsumed));
                     ASSERT(0      == isb.length());
                     ASSERT(LENGTH == numBytesConsumed);
                     LOOP_ASSERT(LINE, value2.is<bdlt::Datetime>());
@@ -939,9 +928,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value1,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value1, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP_ASSERT(LINE, value1.is<bdlt::DatetimeTz>());
@@ -961,9 +949,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value2,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value2, &numBytesConsumed));
                     ASSERT(0      == isb.length());
                     ASSERT(LENGTH == numBytesConsumed);
                     LOOP_ASSERT(LINE, value2.is<bdlt::DatetimeTz>());
@@ -1157,9 +1144,8 @@ int main(int argc, char *argv[])
                 int numBytesConsumed = 0;
 
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
+                ASSERT(SUCCESS ==
+                       Util::getValue(&isb, &value, &numBytesConsumed));
                 ASSERT(0   == isb.length());
                 ASSERT(LEN == numBytesConsumed);
                 LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -1385,9 +1371,8 @@ int main(int argc, char *argv[])
                 int numBytesConsumed = 0;
 
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
+                ASSERT(SUCCESS ==
+                       Util::getValue(&isb, &value, &numBytesConsumed));
                 ASSERT(0   == isb.length());
                 ASSERT(LEN == numBytesConsumed);
                 LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -1481,9 +1466,8 @@ int main(int argc, char *argv[])
                 int numBytesConsumed = 0;
 
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
+                ASSERT(SUCCESS ==
+                       Util::getValue(&isb, &value, &numBytesConsumed));
                 ASSERT(0   == isb.length());
                 ASSERT(LEN == numBytesConsumed);
                 if (24 == HOUR) {
@@ -1660,9 +1644,8 @@ int main(int argc, char *argv[])
                 int numBytesConsumed = 0;
 
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
+                ASSERT(SUCCESS ==
+                       Util::getValue(&isb, &value, &numBytesConsumed));
                 ASSERT(0   == isb.length());
                 ASSERT(LEN == numBytesConsumed);
                 if (24 == HOUR) {
@@ -2089,9 +2072,8 @@ int main(int argc, char *argv[])
                 int numBytesConsumed = 0;
 
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
+                ASSERT(SUCCESS ==
+                       Util::getValue(&isb, &value, &numBytesConsumed));
                 ASSERT(0   == isb.length());
                 ASSERT(LEN == numBytesConsumed);
                 LOOP2_ASSERT(VALUE, value, VALUE == value);
@@ -2174,9 +2156,8 @@ int main(int argc, char *argv[])
                 int numBytesConsumed = 0;
 
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
+                ASSERT(SUCCESS ==
+                       Util::getValue(&isb, &value, &numBytesConsumed));
                 ASSERT(0   == isb.length());
                 ASSERT(LEN == numBytesConsumed);
                 LOOP2_ASSERT(VALUE, value, VALUE == value);
@@ -2647,9 +2628,8 @@ int main(int argc, char *argv[])
                 int numBytesConsumed = 0;
 
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
+                ASSERT(SUCCESS ==
+                       Util::getValue(&isb, &value, &numBytesConsumed));
                 ASSERT(0   == isb.length());
                 ASSERT(LEN == numBytesConsumed);
                 LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -2743,9 +2723,8 @@ int main(int argc, char *argv[])
                 int numBytesConsumed = 0;
 
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb,
-                                                 &value,
-                                                 &numBytesConsumed));
+                ASSERT(SUCCESS ==
+                       Util::getValue(&isb, &value, &numBytesConsumed));
                 ASSERT(0   == isb.length());
                 ASSERT(LEN == numBytesConsumed);
                 LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -2881,15 +2860,12 @@ int main(int argc, char *argv[])
                         bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
                                                        osb3.length());
 
-                        ASSERT(SUCCESS == Util::getValue(&isb1,
-                                                         &value1,
-                                                         &nbc1));
-                        ASSERT(SUCCESS == Util::getValue(&isb2,
-                                                         &value2,
-                                                         &nbc2));
-                        ASSERT(SUCCESS == Util::getValue(&isb3,
-                                                         &value3,
-                                                         &nbc3));
+                        ASSERT(SUCCESS ==
+                               Util::getValue(&isb1, &value1, &nbc1));
+                        ASSERT(SUCCESS ==
+                               Util::getValue(&isb2, &value2, &nbc2));
+                        ASSERT(SUCCESS ==
+                               Util::getValue(&isb3, &value3, &nbc3));
 
                         ASSERT(0       == isb1.length());
                         ASSERT(0       == isb2.length());
@@ -2931,15 +2907,12 @@ int main(int argc, char *argv[])
                         bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
                                                        osb3.length());
 
-                        ASSERT(SUCCESS == Util::getValue(&isb1,
-                                                         &value1,
-                                                         &nbc1));
-                        ASSERT(SUCCESS == Util::getValue(&isb2,
-                                                         &value2,
-                                                         &nbc2));
-                        ASSERT(SUCCESS == Util::getValue(&isb3,
-                                                         &value3,
-                                                         &nbc3));
+                        ASSERT(SUCCESS ==
+                               Util::getValue(&isb1, &value1, &nbc1));
+                        ASSERT(SUCCESS ==
+                               Util::getValue(&isb2, &value2, &nbc2));
+                        ASSERT(SUCCESS ==
+                               Util::getValue(&isb3, &value3, &nbc3));
 
                         ASSERT(0       == isb1.length());
                         ASSERT(0       == isb2.length());
@@ -3005,10 +2978,9 @@ int main(int argc, char *argv[])
 
                             bdlsb::FixedMemInStreamBuf isb(osb.data(),
                                                           osb.length());
-                            ASSERT(SUCCESS == Util::getValue(
-                                                           &isb,
-                                                           &value,
-                                                           &numBytesConsumed));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(
+                                       &isb, &value, &numBytesConsumed));
                             ASSERT(0      == isb.length());
                             ASSERT(LENGTH == numBytesConsumed);
                             LOOP2_ASSERT(VALUE, value, VALUE == value);
@@ -3033,10 +3005,9 @@ int main(int argc, char *argv[])
 
                             bdlsb::FixedMemInStreamBuf isb(osb.data(),
                                                           osb.length());
-                            ASSERT(SUCCESS == Util::getValue(
-                                                           &isb,
-                                                           &value,
-                                                           &numBytesConsumed));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(
+                                       &isb, &value, &numBytesConsumed));
                             ASSERT(0      == isb.length());
                             ASSERT(LENGTH == numBytesConsumed);
                             LOOP2_ASSERT(VALUE, value, VALUE == value);
@@ -3075,15 +3046,12 @@ int main(int argc, char *argv[])
                             bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
                                                            osb3.length());
 
-                            ASSERT(SUCCESS == Util::getValue(&isb1,
-                                                             &value1,
-                                                             &nbc1));
-                            ASSERT(SUCCESS == Util::getValue(&isb2,
-                                                             &value2,
-                                                             &nbc2));
-                            ASSERT(SUCCESS == Util::getValue(&isb3,
-                                                             &value3,
-                                                             &nbc3));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(&isb1, &value1, &nbc1));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(&isb2, &value2, &nbc2));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(&isb3, &value3, &nbc3));
 
                             ASSERT(0       == isb1.length());
                             ASSERT(0       == isb2.length());
@@ -3117,10 +3085,9 @@ int main(int argc, char *argv[])
 
                             bdlsb::FixedMemInStreamBuf isb(osb.data(),
                                                           osb.length());
-                            ASSERT(SUCCESS == Util::getValue(
-                                                           &isb,
-                                                           &value,
-                                                           &numBytesConsumed));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(
+                                       &isb, &value, &numBytesConsumed));
                             ASSERT(0      == isb.length());
                             ASSERT(LENGTH == numBytesConsumed);
                             LOOP2_ASSERT(VALUE, value, VALUE == value);
@@ -3145,10 +3112,9 @@ int main(int argc, char *argv[])
 
                             bdlsb::FixedMemInStreamBuf isb(osb.data(),
                                                           osb.length());
-                            ASSERT(SUCCESS == Util::getValue(
-                                                           &isb,
-                                                           &value,
-                                                           &numBytesConsumed));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(
+                                       &isb, &value, &numBytesConsumed));
                             ASSERT(0      == isb.length());
                             ASSERT(LENGTH == numBytesConsumed);
                             LOOP2_ASSERT(VALUE, value, VALUE == value);
@@ -3187,15 +3153,12 @@ int main(int argc, char *argv[])
                             bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
                                                            osb3.length());
 
-                            ASSERT(SUCCESS == Util::getValue(&isb1,
-                                                             &value1,
-                                                             &nbc1));
-                            ASSERT(SUCCESS == Util::getValue(&isb2,
-                                                             &value2,
-                                                             &nbc2));
-                            ASSERT(SUCCESS == Util::getValue(&isb3,
-                                                             &value3,
-                                                             &nbc3));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(&isb1, &value1, &nbc1));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(&isb2, &value2, &nbc2));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(&isb3, &value3, &nbc3));
 
                             ASSERT(0       == isb1.length());
                             ASSERT(0       == isb2.length());
@@ -3302,10 +3265,9 @@ int main(int argc, char *argv[])
 
                             bdlsb::FixedMemInStreamBuf isb(osb.data(),
                                                           osb.length());
-                            ASSERT(SUCCESS == Util::getValue(
-                                                           &isb,
-                                                           &value,
-                                                           &numBytesConsumed));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(
+                                       &isb, &value, &numBytesConsumed));
                             ASSERT(0      == isb.length());
                             ASSERT(LENGTH == numBytesConsumed);
                             LOOP2_ASSERT(VALUE, value, VALUE == value);
@@ -3344,15 +3306,12 @@ int main(int argc, char *argv[])
                             bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
                                                            osb3.length());
 
-                            ASSERT(SUCCESS == Util::getValue(&isb1,
-                                                             &value1,
-                                                             &nbc1));
-                            ASSERT(SUCCESS == Util::getValue(&isb2,
-                                                             &value2,
-                                                             &nbc2));
-                            ASSERT(SUCCESS == Util::getValue(&isb3,
-                                                             &value3,
-                                                             &nbc3));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(&isb1, &value1, &nbc1));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(&isb2, &value2, &nbc2));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(&isb3, &value3, &nbc3));
 
                             ASSERT(0       == isb1.length());
                             ASSERT(0       == isb2.length());
@@ -3380,10 +3339,9 @@ int main(int argc, char *argv[])
 
                             bdlsb::FixedMemInStreamBuf isb(osb.data(),
                                                           osb.length());
-                            ASSERT(SUCCESS == Util::getValue(
-                                                           &isb,
-                                                           &value,
-                                                           &numBytesConsumed));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(
+                                       &isb, &value, &numBytesConsumed));
                             ASSERT(0      == isb.length());
                             ASSERT(LENGTH == numBytesConsumed);
                             LOOP2_ASSERT(VALUE, value, VALUE == value);
@@ -3422,15 +3380,12 @@ int main(int argc, char *argv[])
                             bdlsb::FixedMemInStreamBuf isb3(osb3.data(),
                                                            osb3.length());
 
-                            ASSERT(SUCCESS == Util::getValue(&isb1,
-                                                             &value1,
-                                                             &nbc1));
-                            ASSERT(SUCCESS == Util::getValue(&isb2,
-                                                             &value2,
-                                                             &nbc2));
-                            ASSERT(SUCCESS == Util::getValue(&isb3,
-                                                             &value3,
-                                                             &nbc3));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(&isb1, &value1, &nbc1));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(&isb2, &value2, &nbc2));
+                            ASSERT(SUCCESS ==
+                                   Util::getValue(&isb3, &value3, &nbc3));
 
                             ASSERT(0       == isb1.length());
                             ASSERT(0       == isb2.length());
@@ -3672,9 +3627,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value, &numBytesConsumed));
                     ASSERT(0      == isb.length());
                     ASSERT(LENGTH == numBytesConsumed);
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -3692,9 +3646,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value, &numBytesConsumed));
                     ASSERT(0      == isb.length());
                     ASSERT(LENGTH == numBytesConsumed);
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -3751,9 +3704,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -3771,9 +3723,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -3839,9 +3790,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -3859,9 +3809,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -3895,9 +3844,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -3915,9 +3863,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -3953,9 +3900,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -3973,9 +3919,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -4033,9 +3978,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -4053,9 +3997,8 @@ int main(int argc, char *argv[])
                     int numBytesConsumed = 0;
 
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    ASSERT(SUCCESS == Util::getValue(&isb,
-                                                     &value,
-                                                     &numBytesConsumed));
+                    ASSERT(SUCCESS ==
+                           Util::getValue(&isb, &value, &numBytesConsumed));
                     ASSERT(0       == isb.length());
                     ASSERT(LENGTH  == numBytesConsumed);
                     LOOP3_ASSERT(LINE, VALUE, value, VALUE == value);
@@ -4739,10 +4682,9 @@ int main(int argc, char *argv[])
 
                 int numBytesConsumed = 0;
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                LOOP_ASSERT(LINE, SUCCESS  == Util::getValue(
-                                                           &isb,
-                                                           &val,
-                                                           &numBytesConsumed));
+                LOOP_ASSERT(LINE,
+                            SUCCESS ==
+                                Util::getValue(&isb, &val, &numBytesConsumed));
                 LOOP_ASSERT(LINE, 0 == isb.length());
                 LOOP2_ASSERT(VAL, val, VAL == val);
                 LOOP3_ASSERT(LINE,
@@ -4814,9 +4756,9 @@ int main(int argc, char *argv[])
 
                 int numBytesConsumed = 0;
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                LOOP_ASSERT(LINE, SUCCESS  == Util::getValue(
-                                                           &isb, &val,
-                                                           &numBytesConsumed));
+                LOOP_ASSERT(LINE,
+                            SUCCESS ==
+                                Util::getValue(&isb, &val, &numBytesConsumed));
                 LOOP_ASSERT(LINE, 0        == isb.length());
                 LOOP2_ASSERT(VAL, val, VAL == val);
                 LOOP3_ASSERT(LINE, LEN, numBytesConsumed,
@@ -5046,9 +4988,9 @@ int main(int argc, char *argv[])
                     int   numBytesConsumed = 0;
                     float f                = 0.0f;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS  == Util::getValue(
-                                                           &isb, &f,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &f, &numBytesConsumed));
                     LOOP3_ASSERT(LINE, F, f, F == f);
                     LOOP_ASSERT(LINE, (int)osb.length() == numBytesConsumed);
                 }
@@ -5245,8 +5187,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &ll,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &ll, &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0   == isb.length());
                     LOOP_ASSERT(LINE, ll  == LL);
                     LOOP_ASSERT(LINE, LEN == numBytesConsumed);
@@ -5280,8 +5223,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &vi,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &vi, &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0   == isb.length());
                     LOOP_ASSERT(LINE, vi  == VI);
                     LOOP_ASSERT(LINE, LEN == numBytesConsumed);
@@ -5318,8 +5262,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &l,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &l, &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0   == isb.length());
                     LOOP_ASSERT(LINE, l   == L);
                     LOOP_ASSERT(LINE, LEN == numBytesConsumed);
@@ -5356,8 +5301,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &s,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &s, &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0   == isb.length());
                     LOOP_ASSERT(LINE, s   == S);
                     LOOP_ASSERT(LINE, LEN == numBytesConsumed);
@@ -5392,8 +5338,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &c,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &c, &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0   == isb.length());
                     LOOP_ASSERT(LINE, c   == C);
                     LOOP_ASSERT(LINE, LEN == numBytesConsumed);
@@ -5512,8 +5459,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &ll,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &ll, &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0       == isb.length());
                     LOOP_ASSERT(LINE, ll  == LL);
                     LOOP_ASSERT(LINE, LEN == numBytesConsumed);
@@ -5547,8 +5495,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &vi,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &vi, &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP_ASSERT(LINE, vi  == VI);
                     LOOP_ASSERT(LINE, LEN == numBytesConsumed);
@@ -5584,8 +5533,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &l,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &l, &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0   == isb.length());
                     LOOP_ASSERT(LINE, l   == L);
                     LOOP_ASSERT(LINE, LEN == numBytesConsumed);
@@ -5621,8 +5571,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &s,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &s, &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0   == isb.length());
                     LOOP_ASSERT(LINE, s   == S);
                     LOOP_ASSERT(LINE, LEN == numBytesConsumed);
@@ -5656,8 +5607,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &c,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &c, &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0   == isb.length());
                     LOOP_ASSERT(LINE, c   == C);
                     LOOP_ASSERT(LINE, LEN == numBytesConsumed);
@@ -6356,10 +6308,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(
-                                                           &isb,
-                                                           &uc,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &uc, &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0   == isb.length());
                     LOOP_ASSERT(LINE, uc  == UC);
                     LOOP_ASSERT(LINE, LEN == numBytesConsumed);
@@ -6428,8 +6379,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(&isb, &c,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &c, &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0 == isb.length());
                     LOOP_ASSERT(LINE, c == C);
                     LOOP_ASSERT(LINE, LEN == numBytesConsumed);
@@ -6452,10 +6404,9 @@ int main(int argc, char *argv[])
 
                     int numBytesConsumed = 0;
                     bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                    LOOP_ASSERT(LINE, SUCCESS == Util::getValue(
-                                                           &isb,
-                                                           &sc,
-                                                           &numBytesConsumed));
+                    LOOP_ASSERT(LINE,
+                                SUCCESS == Util::getValue(
+                                               &isb, &sc, &numBytesConsumed));
                     LOOP_ASSERT(LINE, 0   == isb.length());
                     LOOP_ASSERT(LINE, sc  == SC);
                     LOOP_ASSERT(LINE, LEN == numBytesConsumed);
@@ -6494,8 +6445,8 @@ int main(int argc, char *argv[])
 
                 int numBytesConsumed = 0;
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb, &XA2,
-                                                 &numBytesConsumed));
+                ASSERT(SUCCESS ==
+                       Util::getValue(&isb, &XA2, &numBytesConsumed));
                 ASSERT(0       == isb.length());
                 ASSERT(XA1     == XA2);
                 ASSERT(2       == numBytesConsumed);
@@ -6513,8 +6464,8 @@ int main(int argc, char *argv[])
 
                 int numBytesConsumed = 0;
                 bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                ASSERT(SUCCESS == Util::getValue(&isb, &XB2,
-                                                 &numBytesConsumed));
+                ASSERT(SUCCESS ==
+                       Util::getValue(&isb, &XB2, &numBytesConsumed));
                 ASSERT(0       == isb.length());
                 ASSERT(XB1     == XB2);
                 ASSERT(2       == numBytesConsumed);

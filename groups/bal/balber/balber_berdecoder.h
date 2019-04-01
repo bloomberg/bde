@@ -1021,7 +1021,8 @@ int BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Simple)
 
     if (BerUtil::getValue(d_decoder->d_streamBuf,
                           variable,
-                          d_expectedLength) != 0) {
+                          d_expectedLength,
+                          *d_decoder->d_options) != 0) {
         return logError("Error reading value for simple type");
     }
 

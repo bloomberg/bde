@@ -39,22 +39,19 @@
 
 #include <bslim_testutil.h>
 
-#include <bsl_iostream.h>
-#include <bsl_iomanip.h>
+#include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bsl_cstdlib.h>
-
 #include <bsl_fstream.h>
+#include <bsl_iostream.h>
+#include <bsl_iomanip.h>
 
 using namespace BloombergLP;
 using namespace bsl;  // automatically added by script
 
 // ============================================================================
 //                             TEST PLAN
-// ----------------------------------------------------------------------------
-//
-//
-
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -85,6 +82,12 @@ static void aSsErT(int c, const char *s, int i) {
 #define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define ASSERT_EQ(X,Y) BSLIM_TESTUTIL_LOOP2_ASSERT(X,Y,X == Y)
+#define ASSERT_NE(X,Y) BSLIM_TESTUTIL_LOOP2_ASSERT(X,Y,X != Y)
+
+#define ASSERT1_EQ(L,X,Y) BSLIM_TESTUTIL_LOOP3_ASSERT(L,X,Y,X == Y)
+#define ASSERT1_NE(L,X,Y) BSLIM_TESTUTIL_LOOP3_ASSERT(L,X,Y,X != Y)
 
 #define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
 #define P            BSLIM_TESTUTIL_P   // Print identifier and value.
@@ -492,7 +495,7 @@ void printDiagnostic(balber::BerDecoder & decoder)
 #ifndef INCLUDED_TEST_SCHEMA
 #define INCLUDED_TEST_SCHEMA
 
-
+//@PURPOSE: Provide value-semantic attribute classes
 
 #include <bslalg_typetraits.h>
 
@@ -547,7 +550,9 @@ namespace test { class RawDataUnformatted; }
 namespace test { class Sqrt; }
 namespace test { class BigRecord; }
 namespace test { class Employee; }
+namespace test { class MyChoiceWithDefaultValues; }
 namespace test { class MySequenceWithAnonymousChoice; }
+namespace test { class MySequenceWithDefaultValues; }
 namespace test { class TimingRequest; }
 namespace test {
 
@@ -3826,6 +3831,257 @@ BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(test::Employee)
 
 namespace test {
 
+                      // ===============================
+                      // class MyChoiceWithDefaultValues
+                      // ===============================
+
+class MyChoiceWithDefaultValues {
+
+    // INSTANCE DATA
+    union {
+        bsls::ObjectBuffer< int >                  d_selection0;
+        bsls::ObjectBuffer< bsl::string >          d_selection1;
+        bsls::ObjectBuffer< MyEnumeration::Value > d_selection2;
+    };
+
+    int                                            d_selectionId;
+    bslma::Allocator                              *d_allocator_p;
+
+  public:
+    // TYPES
+
+    enum {
+        SELECTION_ID_UNDEFINED  = -1
+      , SELECTION_ID_SELECTION0 = 0
+      , SELECTION_ID_SELECTION1 = 1
+      , SELECTION_ID_SELECTION2 = 2
+    };
+
+    enum {
+        NUM_SELECTIONS = 3
+    };
+
+    enum {
+        SELECTION_INDEX_SELECTION0 = 0
+      , SELECTION_INDEX_SELECTION1 = 1
+      , SELECTION_INDEX_SELECTION2 = 2
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const int DEFAULT_INITIALIZER_SELECTION0;
+
+    static const char DEFAULT_INITIALIZER_SELECTION1[];
+
+    static const MyEnumeration::Value DEFAULT_INITIALIZER_SELECTION2;
+
+    static const bdlat_SelectionInfo SELECTION_INFO_ARRAY[];
+
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bslx' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdlat_SelectionInfo *lookupSelectionInfo(int id);
+        // Return selection information for the selection indicated by the
+        // specified 'id' if the selection exists, and 0 otherwise.
+
+    static const bdlat_SelectionInfo *lookupSelectionInfo(
+                                                       const char *name,
+                                                       int         nameLength);
+        // Return selection information for the selection indicated by the
+        // specified 'name' of the specified 'nameLength' if the selection
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit MyChoiceWithDefaultValues(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'MyChoiceWithDefaultValues' having the
+        // default value.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    MyChoiceWithDefaultValues(const MyChoiceWithDefaultValues& original,
+                             bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'MyChoiceWithDefaultValues' having the
+        // value of the specified 'original' object.  Use the optionally
+        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
+        // 0, the currently installed default allocator is used.
+
+    ~MyChoiceWithDefaultValues();
+        // Destroy this object.
+
+    // MANIPULATORS
+    MyChoiceWithDefaultValues& operator=(const MyChoiceWithDefaultValues& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bslx' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon default
+        // construction).
+
+    int makeSelection(int selectionId);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'selectionId'.  Return 0 on success, and
+        // non-zero value otherwise (i.e., the selection is not found).
+
+    int makeSelection(const char *name, int nameLength);
+        // Set the value of this object to be the default for the selection
+        // indicated by the specified 'name' of the specified 'nameLength'.
+        // Return 0 on success, and non-zero value otherwise (i.e., the
+        // selection is not found).
+
+    int& makeSelection0();
+    int& makeSelection0(int value);
+        // Set the value of this object to be a "Selection0" value.  Optionally
+        // specify the 'value' of the "Selection0".  If 'value' is not
+        // specified, the default "Selection0" value is used.
+
+    bsl::string& makeSelection1();
+    bsl::string& makeSelection1(const bsl::string& value);
+        // Set the value of this object to be a "Selection1" value.  Optionally
+        // specify the 'value' of the "Selection1".  If 'value' is not
+        // specified, the default "Selection1" value is used.
+
+    MyEnumeration::Value& makeSelection2();
+    MyEnumeration::Value& makeSelection2(MyEnumeration::Value value);
+        // Set the value of this object to be a "Selection2" value.  Optionally
+        // specify the 'value' of the "Selection2".  If 'value' is not
+        // specified, the default "Selection2" value is used.
+
+    template<class MANIPULATOR>
+    int manipulateSelection(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' on the address of the modifiable
+        // selection, supplying 'manipulator' with the corresponding selection
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if this object has a defined selection,
+        // and -1 otherwise.
+
+    int& selection0();
+        // Return a reference to the modifiable "Selection0" selection of this
+        // object if "Selection0" is the current selection.  The behavior is
+        // undefined unless "Selection0" is the selection of this object.
+
+    bsl::string& selection1();
+        // Return a reference to the modifiable "Selection1" selection of this
+        // object if "Selection1" is the current selection.  The behavior is
+        // undefined unless "Selection1" is the selection of this object.
+
+    MyEnumeration::Value& selection2();
+        // Return a reference to the modifiable "Selection2" selection of this
+        // object if "Selection2" is the current selection.  The behavior is
+        // undefined unless "Selection2" is the selection of this object.
+
+    // ACCESSORS
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bslx' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    int selectionId() const;
+        // Return the id of the current selection if the selection is defined,
+        // and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessSelection(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' on the non-modifiable selection,
+        // supplying 'accessor' with the corresponding selection information
+        // structure.  Return the value returned from the invocation of
+        // 'accessor' if this object has a defined selection, and -1 otherwise.
+
+    const int& selection0() const;
+        // Return a reference to the non-modifiable "Selection0" selection of
+        // this object if "Selection0" is the current selection.  The behavior
+        // is undefined unless "Selection0" is the selection of this object.
+
+    const bsl::string& selection1() const;
+        // Return a reference to the non-modifiable "Selection1" selection of
+        // this object if "Selection1" is the current selection.  The behavior
+        // is undefined unless "Selection1" is the selection of this object.
+
+    const MyEnumeration::Value& selection2() const;
+        // Return a reference to the non-modifiable "Selection2" selection of
+        // this object if "Selection2" is the current selection.  The behavior
+        // is undefined unless "Selection2" is the selection of this object.
+
+    bool isSelection0Value() const;
+        // Return 'true' if the value of this object is a "Selection0" value,
+        // and return 'false' otherwise.
+
+    bool isSelection1Value() const;
+        // Return 'true' if the value of this object is a "Selection1" value,
+        // and return 'false' otherwise.
+
+    bool isSelection2Value() const;
+        // Return 'true' if the value of this object is a "Selection2" value,
+        // and return 'false' otherwise.
+
+    bool isUndefinedValue() const;
+        // Return 'true' if the value of this object is undefined, and 'false'
+        // otherwise.
+
+    const char *selectionName() const;
+        // Return the symbolic name of the current selection of this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const MyChoiceWithDefaultValues& lhs, const MyChoiceWithDefaultValues& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects have the same
+    // value, and 'false' otherwise.  Two 'MyChoiceWithDefaultValues' objects have the same
+    // value if either the selections in both objects have the same ids and
+    // the same values, or both selections are undefined.
+
+inline
+bool operator!=(const MyChoiceWithDefaultValues& lhs, const MyChoiceWithDefaultValues& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' objects do not have the
+    // same values, as determined by 'operator==', and 'false' otherwise.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const MyChoiceWithDefaultValues& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close package namespace
+
+// TRAITS
+
+BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(test::MyChoiceWithDefaultValues)
+
+namespace test {
+
                     // ===================================
                     // class MySequenceWithAnonymousChoice
                     // ===================================
@@ -4047,6 +4303,236 @@ bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithAnonymousChoi
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(test::MySequenceWithAnonymousChoice)
+
+namespace test {
+
+                     // =================================
+                     // class MySequenceWithDefaultValues
+                     // =================================
+
+class MySequenceWithDefaultValues {
+
+    // INSTANCE DATA
+    bsl::string           d_attribute1;
+    int                   d_attribute0;
+    MyEnumeration::Value  d_attribute2;
+
+  public:
+    // TYPES
+    enum {
+        ATTRIBUTE_ID_ATTRIBUTE0 = 0
+      , ATTRIBUTE_ID_ATTRIBUTE1 = 1
+      , ATTRIBUTE_ID_ATTRIBUTE2 = 2
+    };
+
+    enum {
+        NUM_ATTRIBUTES = 3
+    };
+
+    enum {
+        ATTRIBUTE_INDEX_ATTRIBUTE0 = 0
+      , ATTRIBUTE_INDEX_ATTRIBUTE1 = 1
+      , ATTRIBUTE_INDEX_ATTRIBUTE2 = 2
+    };
+
+    // CONSTANTS
+    static const char CLASS_NAME[];
+
+    static const int DEFAULT_INITIALIZER_ATTRIBUTE0;
+
+    static const char DEFAULT_INITIALIZER_ATTRIBUTE1[];
+
+    static const MyEnumeration::Value DEFAULT_INITIALIZER_ATTRIBUTE2;
+
+    static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
+
+  public:
+    // CLASS METHODS
+    static int maxSupportedBdexVersion();
+        // Return the most current 'bdex' streaming version number supported by
+        // this class.  See the 'bslx' package-level documentation for more
+        // information on 'bdex' streaming of value-semantic types and
+        // containers.
+
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+        // Return attribute information for the attribute indicated by the
+        // specified 'id' if the attribute exists, and 0 otherwise.
+
+    static const bdlat_AttributeInfo *lookupAttributeInfo(
+                                                       const char *name,
+                                                       int         nameLength);
+        // Return attribute information for the attribute indicated by the
+        // specified 'name' of the specified 'nameLength' if the attribute
+        // exists, and 0 otherwise.
+
+    // CREATORS
+    explicit MySequenceWithDefaultValues(bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'MySequenceWithDefaultValues' having the
+        // default value.  Use the optionally specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.
+
+    MySequenceWithDefaultValues(const MySequenceWithDefaultValues& original,
+                                bslma::Allocator *basicAllocator = 0);
+        // Create an object of type 'MySequenceWithDefaultValues' having the
+        // value of the specified 'original' object.  Use the optionally
+        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
+        // 0, the currently installed default allocator is used.
+
+    ~MySequenceWithDefaultValues();
+        // Destroy this object.
+
+    // MANIPULATORS
+    MySequenceWithDefaultValues& operator=(const MySequenceWithDefaultValues& rhs);
+        // Assign to this object the value of the specified 'rhs' object.
+
+    template <class STREAM>
+    STREAM& bdexStreamIn(STREAM& stream, int version);
+        // Assign to this object the value read from the specified input
+        // 'stream' using the specified 'version' format and return a reference
+        // to the modifiable 'stream'.  If 'stream' is initially invalid, this
+        // operation has no effect.  If 'stream' becomes invalid during this
+        // operation, this object is valid, but its value is undefined.  If
+        // 'version' is not supported, 'stream' is marked invalid and this
+        // object is unaltered.  Note that no version is read from 'stream'.
+        // See the 'bslx' package-level documentation for more information on
+        // 'bdex' streaming of value-semantic types and containers.
+
+    void reset();
+        // Reset this object to the default value (i.e., its value upon
+        // default construction).
+
+    template<class MANIPULATOR>
+    int manipulateAttributes(MANIPULATOR& manipulator);
+        // Invoke the specified 'manipulator' sequentially on the address of
+        // each (modifiable) attribute of this object, supplying 'manipulator'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'manipulator' (i.e., the invocation that
+        // terminated the sequence).
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'id',
+        // supplying 'manipulator' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'manipulator' if 'id' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    template<class MANIPULATOR>
+    int manipulateAttribute(MANIPULATOR&  manipulator,
+                            const char   *name,
+                            int           nameLength);
+        // Invoke the specified 'manipulator' on the address of
+        // the (modifiable) attribute indicated by the specified 'name' of the
+        // specified 'nameLength', supplying 'manipulator' with the
+        // corresponding attribute information structure.  Return the value
+        // returned from the invocation of 'manipulator' if 'name' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    int& attribute0();
+        // Return a reference to the modifiable "Attribute0" attribute of this
+        // object.
+
+    bsl::string& attribute1();
+        // Return a reference to the modifiable "Attribute1" attribute of this
+        // object.
+
+    MyEnumeration::Value& attribute2();
+        // Return a reference to the modifiable "Attribute2" attribute of this
+        // object.
+
+    // ACCESSORS
+    bsl::ostream& print(bsl::ostream& stream,
+                        int           level = 0,
+                        int           spacesPerLevel = 4) const;
+        // Format this object to the specified output 'stream' at the
+        // optionally specified indentation 'level' and return a reference to
+        // the modifiable 'stream'.  If 'level' is specified, optionally
+        // specify 'spacesPerLevel', the number of spaces per indentation level
+        // for this and all of its nested objects.  Each line is indented by
+        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
+        // negative, suppress indentation of the first line.  If
+        // 'spacesPerLevel' is negative, suppress line breaks and format the
+        // entire output on one line.  If 'stream' is initially invalid, this
+        // operation has no effect.  Note that a trailing newline is provided
+        // in multiline mode only.
+
+    template <class STREAM>
+    STREAM& bdexStreamOut(STREAM& stream, int version) const;
+        // Write the value of this object to the specified output 'stream'
+        // using the specified 'version' format and return a reference to the
+        // modifiable 'stream'.  If 'version' is not supported, 'stream' is
+        // unmodified.  Note that 'version' is not written to 'stream'.
+        // See the 'bslx' package-level documentation for more information
+        // on 'bdex' streaming of value-semantic types and containers.
+
+    template<class ACCESSOR>
+    int accessAttributes(ACCESSOR& accessor) const;
+        // Invoke the specified 'accessor' sequentially on each
+        // (non-modifiable) attribute of this object, supplying 'accessor'
+        // with the corresponding attribute information structure until such
+        // invocation returns a non-zero value.  Return the value from the
+        // last invocation of 'accessor' (i.e., the invocation that terminated
+        // the sequence).
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR& accessor, int id) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'id', supplying 'accessor'
+        // with the corresponding attribute information structure.  Return the
+        // value returned from the invocation of 'accessor' if 'id' identifies
+        // an attribute of this class, and -1 otherwise.
+
+    template<class ACCESSOR>
+    int accessAttribute(ACCESSOR&   accessor,
+                        const char *name,
+                        int         nameLength) const;
+        // Invoke the specified 'accessor' on the (non-modifiable) attribute
+        // of this object indicated by the specified 'name' of the specified
+        // 'nameLength', supplying 'accessor' with the corresponding attribute
+        // information structure.  Return the value returned from the
+        // invocation of 'accessor' if 'name' identifies an attribute of this
+        // class, and -1 otherwise.
+
+    int attribute0() const;
+        // Return a reference to the non-modifiable "Attribute0" attribute of
+        // this object.
+
+    const bsl::string& attribute1() const;
+        // Return a reference to the non-modifiable "Attribute1" attribute of
+        // this object.
+
+    MyEnumeration::Value attribute2() const;
+        // Return a reference to the non-modifiable "Attribute2" attribute of
+        // this object.
+};
+
+// FREE OPERATORS
+inline
+bool operator==(const MySequenceWithDefaultValues& lhs, const MySequenceWithDefaultValues& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects have
+    // the same value, and 'false' otherwise.  Two attribute objects have the
+    // same value if each respective attribute has the same value.
+
+inline
+bool operator!=(const MySequenceWithDefaultValues& lhs, const MySequenceWithDefaultValues& rhs);
+    // Return 'true' if the specified 'lhs' and 'rhs' attribute objects do not
+    // have the same value, and 'false' otherwise.  Two attribute objects do
+    // not have the same value if one or more respective attributes differ in
+    // values.
+
+inline
+bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithDefaultValues& rhs);
+    // Format the specified 'rhs' to the specified output 'stream' and
+    // return a reference to the modifiable 'stream'.
+
+}  // close package namespace
+
+// TRAITS
+
+BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(test::MySequenceWithDefaultValues)
 
 namespace test {
 
@@ -6990,6 +7476,213 @@ int Employee::age() const
 
 
 
+                      // -------------------------------
+                      // class MyChoiceWithDefaultValues
+                      // -------------------------------
+
+// CLASS METHODS
+inline
+int MyChoiceWithDefaultValues::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// CREATORS
+inline
+MyChoiceWithDefaultValues::MyChoiceWithDefaultValues(bslma::Allocator *basicAllocator)
+: d_selectionId(SELECTION_ID_UNDEFINED)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+}
+
+inline
+MyChoiceWithDefaultValues::~MyChoiceWithDefaultValues()
+{
+    reset();
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& MyChoiceWithDefaultValues::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            short selectionId;
+            stream.getInt16(selectionId);
+            if (!stream) {
+                return stream;
+            }
+            switch (selectionId) {
+              case SELECTION_ID_SELECTION0: {
+                makeSelection0();
+                bslx::InStreamFunctions::bdexStreamIn(
+                    stream, d_selection0.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION1: {
+                makeSelection1();
+                bslx::InStreamFunctions::bdexStreamIn(
+                    stream, d_selection1.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION2: {
+                makeSelection2();
+                MyEnumeration::bdexStreamIn(
+                    stream, d_selection2.object(), 1);
+              } break;
+              case SELECTION_ID_UNDEFINED: {
+                reset();
+              } break;
+              default:
+                stream.invalidate();
+            }
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int MyChoiceWithDefaultValues::manipulateSelection(MANIPULATOR& manipulator)
+{
+    switch (d_selectionId) {
+      case MyChoiceWithDefaultValues::SELECTION_ID_SELECTION0:
+        return manipulator(&d_selection0.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION0]);
+      case MyChoiceWithDefaultValues::SELECTION_ID_SELECTION1:
+        return manipulator(&d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case MyChoiceWithDefaultValues::SELECTION_ID_SELECTION2:
+        return manipulator(&d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      default:
+        BSLS_ASSERT(MyChoiceWithDefaultValues::SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+int& MyChoiceWithDefaultValues::selection0()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION0 == d_selectionId);
+    return d_selection0.object();
+}
+
+inline
+bsl::string& MyChoiceWithDefaultValues::selection1()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+MyEnumeration::Value& MyChoiceWithDefaultValues::selection2()
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& MyChoiceWithDefaultValues::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+            stream.putInt16(d_selectionId);
+            switch (d_selectionId) {
+              case SELECTION_ID_SELECTION0: {
+                bslx::OutStreamFunctions::bdexStreamOut(
+                    stream, d_selection0.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION1: {
+                bslx::OutStreamFunctions::bdexStreamOut(
+                    stream, d_selection1.object(), 1);
+              } break;
+              case SELECTION_ID_SELECTION2: {
+                bslx::OutStreamFunctions::bdexStreamOut(
+                    stream, d_selection2.object(), 1);
+              } break;
+              default:
+                BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+            }
+      } break;
+    }
+    return stream;
+}
+
+inline
+int MyChoiceWithDefaultValues::selectionId() const
+{
+    return d_selectionId;
+}
+
+template <class ACCESSOR>
+int MyChoiceWithDefaultValues::accessSelection(ACCESSOR& accessor) const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION0:
+        return accessor(d_selection0.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION0]);
+      case SELECTION_ID_SELECTION1:
+        return accessor(d_selection1.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1]);
+      case SELECTION_ID_SELECTION2:
+        return accessor(d_selection2.object(),
+                SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2]);
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return -1;
+    }
+}
+
+inline
+const int& MyChoiceWithDefaultValues::selection0() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION0 == d_selectionId);
+    return d_selection0.object();
+}
+
+inline
+const bsl::string& MyChoiceWithDefaultValues::selection1() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION1 == d_selectionId);
+    return d_selection1.object();
+}
+
+inline
+const MyEnumeration::Value& MyChoiceWithDefaultValues::selection2() const
+{
+    BSLS_ASSERT(SELECTION_ID_SELECTION2 == d_selectionId);
+    return d_selection2.object();
+}
+
+inline
+bool MyChoiceWithDefaultValues::isSelection0Value() const
+{
+    return SELECTION_ID_SELECTION0 == d_selectionId;
+}
+
+inline
+bool MyChoiceWithDefaultValues::isSelection1Value() const
+{
+    return SELECTION_ID_SELECTION1 == d_selectionId;
+}
+
+inline
+bool MyChoiceWithDefaultValues::isSelection2Value() const
+{
+    return SELECTION_ID_SELECTION2 == d_selectionId;
+}
+
+inline
+bool MyChoiceWithDefaultValues::isUndefinedValue() const
+{
+    return SELECTION_ID_UNDEFINED == d_selectionId;
+}
+
+
                     // -----------------------------------
                     // class MySequenceWithAnonymousChoice
                     // -----------------------------------
@@ -7186,6 +7879,208 @@ const MySequenceWithAnonymousChoiceChoice& MySequenceWithAnonymousChoice::choice
 
 inline
 const bsl::string& MySequenceWithAnonymousChoice::attribute2() const
+{
+    return d_attribute2;
+}
+
+
+
+                     // ---------------------------------
+                     // class MySequenceWithDefaultValues
+                     // ---------------------------------
+
+// CLASS METHODS
+inline
+int MySequenceWithDefaultValues::maxSupportedBdexVersion()
+{
+    return 1;  // versions start at 1.
+}
+
+// MANIPULATORS
+template <class STREAM>
+STREAM& MySequenceWithDefaultValues::bdexStreamIn(STREAM& stream, int version)
+{
+    if (stream) {
+        switch (version) {
+          case 1: {
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_attribute0, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream, d_attribute1, 1);
+            MyEnumeration::bdexStreamIn(stream, d_attribute2, 1);
+          } break;
+          default: {
+            stream.invalidate();
+          }
+        }
+    }
+    return stream;
+}
+
+template <class MANIPULATOR>
+int MySequenceWithDefaultValues::manipulateAttributes(MANIPULATOR& manipulator)
+{
+    int ret;
+
+    ret = manipulator(&d_attribute0, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class MANIPULATOR>
+int MySequenceWithDefaultValues::manipulateAttribute(MANIPULATOR& manipulator, int id)
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ATTRIBUTE0: {
+        return manipulator(&d_attribute0, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0]);
+      } break;
+      case ATTRIBUTE_ID_ATTRIBUTE1: {
+        return manipulator(&d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+      } break;
+      case ATTRIBUTE_ID_ATTRIBUTE2: {
+        return manipulator(&d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class MANIPULATOR>
+int MySequenceWithDefaultValues::manipulateAttribute(
+        MANIPULATOR&  manipulator,
+        const char   *name,
+        int           nameLength)
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdlat_AttributeInfo *attributeInfo =
+                                         lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+        return NOT_FOUND;
+    }
+
+    return manipulateAttribute(manipulator, attributeInfo->d_id);
+}
+
+inline
+int& MySequenceWithDefaultValues::attribute0()
+{
+    return d_attribute0;
+}
+
+inline
+bsl::string& MySequenceWithDefaultValues::attribute1()
+{
+    return d_attribute1;
+}
+
+inline
+MyEnumeration::Value& MySequenceWithDefaultValues::attribute2()
+{
+    return d_attribute2;
+}
+
+// ACCESSORS
+template <class STREAM>
+STREAM& MySequenceWithDefaultValues::bdexStreamOut(STREAM& stream, int version) const
+{
+    switch (version) {
+      case 1: {
+        bslx::OutStreamFunctions::bdexStreamOut(stream, d_attribute0, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, d_attribute1, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(stream, d_attribute2, 1);
+      } break;
+    }
+    return stream;
+}
+
+template <class ACCESSOR>
+int MySequenceWithDefaultValues::accessAttributes(ACCESSOR& accessor) const
+{
+    int ret;
+
+    ret = accessor(d_attribute0, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+    if (ret) {
+        return ret;
+    }
+
+    ret = accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+    if (ret) {
+        return ret;
+    }
+
+    return ret;
+}
+
+template <class ACCESSOR>
+int MySequenceWithDefaultValues::accessAttribute(ACCESSOR& accessor, int id) const
+{
+    enum { NOT_FOUND = -1 };
+
+    switch (id) {
+      case ATTRIBUTE_ID_ATTRIBUTE0: {
+        return accessor(d_attribute0, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0]);
+      } break;
+      case ATTRIBUTE_ID_ATTRIBUTE1: {
+        return accessor(d_attribute1, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1]);
+      } break;
+      case ATTRIBUTE_ID_ATTRIBUTE2: {
+        return accessor(d_attribute2, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2]);
+      } break;
+      default:
+        return NOT_FOUND;
+    }
+}
+
+template <class ACCESSOR>
+int MySequenceWithDefaultValues::accessAttribute(
+        ACCESSOR&   accessor,
+        const char *name,
+        int         nameLength) const
+{
+    enum { NOT_FOUND = -1 };
+
+    const bdlat_AttributeInfo *attributeInfo =
+          lookupAttributeInfo(name, nameLength);
+    if (0 == attributeInfo) {
+       return NOT_FOUND;
+    }
+
+    return accessAttribute(accessor, attributeInfo->d_id);
+}
+
+inline
+int MySequenceWithDefaultValues::attribute0() const
+{
+    return d_attribute0;
+}
+
+inline
+const bsl::string& MySequenceWithDefaultValues::attribute1() const
+{
+    return d_attribute1;
+}
+
+inline
+MyEnumeration::Value MySequenceWithDefaultValues::attribute2() const
 {
     return d_attribute2;
 }
@@ -7847,6 +8742,47 @@ bsl::ostream& test::operator<<(
 
 inline
 bool test::operator==(
+        const test::MyChoiceWithDefaultValues& lhs,
+        const test::MyChoiceWithDefaultValues& rhs)
+{
+    typedef test::MyChoiceWithDefaultValues Class;
+    if (lhs.selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION0:
+            return lhs.selection0() == rhs.selection0();
+          case Class::SELECTION_ID_SELECTION1:
+            return lhs.selection1() == rhs.selection1();
+          case Class::SELECTION_ID_SELECTION2:
+            return lhs.selection2() == rhs.selection2();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+   }
+}
+
+inline
+bool test::operator!=(
+        const test::MyChoiceWithDefaultValues& lhs,
+        const test::MyChoiceWithDefaultValues& rhs)
+{
+    return !(lhs == rhs);
+}
+
+inline
+bsl::ostream& test::operator<<(
+        bsl::ostream& stream,
+        const test::MyChoiceWithDefaultValues& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool test::operator==(
         const test::MySequenceWithAnonymousChoice& lhs,
         const test::MySequenceWithAnonymousChoice& rhs)
 {
@@ -7869,6 +8805,35 @@ inline
 bsl::ostream& test::operator<<(
         bsl::ostream& stream,
         const test::MySequenceWithAnonymousChoice& rhs)
+{
+    return rhs.print(stream, 0, -1);
+}
+
+
+inline
+bool test::operator==(
+        const test::MySequenceWithDefaultValues& lhs,
+        const test::MySequenceWithDefaultValues& rhs)
+{
+    return  lhs.attribute0() == rhs.attribute0()
+         && lhs.attribute1() == rhs.attribute1()
+         && lhs.attribute2() == rhs.attribute2();
+}
+
+inline
+bool test::operator!=(
+        const test::MySequenceWithDefaultValues& lhs,
+        const test::MySequenceWithDefaultValues& rhs)
+{
+    return  lhs.attribute0() != rhs.attribute0()
+         || lhs.attribute1() != rhs.attribute1()
+         || lhs.attribute2() != rhs.attribute2();
+}
+
+inline
+bsl::ostream& test::operator<<(
+        bsl::ostream& stream,
+        const test::MySequenceWithDefaultValues& rhs)
 {
     return rhs.print(stream, 0, -1);
 }
@@ -7917,8 +8882,16 @@ bsl::ostream& test::operator<<(
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_2018.06.17.1
-// USING bas_codegen.pl -m msg --noTimestamps --noAggregateConversion -p test test_codec.xsd
+// GENERATED BY BLP_BAS_CODEGEN_VERSION
+// USING bas_codegen.pl -m msg --noTimestamps --noAggregateConversion --package test test_schema.xsd
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2019
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ------------------------------ END-OF-FILE ---------------------------------
 // test_schema.cpp              *DO NOT EDIT*              @generated -*-C++-*-
 
 #include <bdlat_formattingmode.h>
@@ -9935,6 +10908,315 @@ bsl::ostream& Employee::print(
 
 
 
+                      // -------------------------------
+                      // class MyChoiceWithDefaultValues
+                      // -------------------------------
+
+// CONSTANTS
+
+const char MyChoiceWithDefaultValues::CLASS_NAME[] = "MyChoiceWithDefaultValues";
+
+const int MyChoiceWithDefaultValues::DEFAULT_INITIALIZER_SELECTION0 = 100;
+
+const char MyChoiceWithDefaultValues::DEFAULT_INITIALIZER_SELECTION1[] = "default";
+
+const MyEnumeration::Value MyChoiceWithDefaultValues::DEFAULT_INITIALIZER_SELECTION2 = MyEnumeration::VALUE2;
+
+const bdlat_SelectionInfo MyChoiceWithDefaultValues::SELECTION_INFO_ARRAY[] = {
+    {
+        SELECTION_ID_SELECTION0,
+        "selection0",
+        sizeof("selection0") - 1,
+        "",
+        bdlat_FormattingMode::e_DEC
+    },
+    {
+        SELECTION_ID_SELECTION1,
+        "selection1",
+        sizeof("selection1") - 1,
+        "",
+        bdlat_FormattingMode::e_TEXT
+    },
+    {
+        SELECTION_ID_SELECTION2,
+        "selection2",
+        sizeof("selection2") - 1,
+        "",
+        bdlat_FormattingMode::e_DEFAULT
+    }
+};
+
+// CLASS METHODS
+
+const bdlat_SelectionInfo *MyChoiceWithDefaultValues::lookupSelectionInfo(
+        const char *name,
+        int         nameLength)
+{
+    for (int i = 0; i < 3; ++i) {
+        const bdlat_SelectionInfo& selectionInfo =
+                    MyChoiceWithDefaultValues::SELECTION_INFO_ARRAY[i];
+
+        if (nameLength == selectionInfo.d_nameLength
+        &&  0 == bsl::memcmp(selectionInfo.d_name_p, name, nameLength))
+        {
+            return &selectionInfo;
+        }
+    }
+
+    return 0;
+}
+
+const bdlat_SelectionInfo *MyChoiceWithDefaultValues::lookupSelectionInfo(int id)
+{
+    switch (id) {
+      case SELECTION_ID_SELECTION0:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION0];
+      case SELECTION_ID_SELECTION1:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1];
+      case SELECTION_ID_SELECTION2:
+        return &SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+MyChoiceWithDefaultValues::MyChoiceWithDefaultValues(
+    const MyChoiceWithDefaultValues& original,
+    bslma::Allocator *basicAllocator)
+: d_selectionId(original.d_selectionId)
+, d_allocator_p(bslma::Default::allocator(basicAllocator))
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION0: {
+        new (d_selection0.buffer())
+            int(original.d_selection0.object());
+      } break;
+      case SELECTION_ID_SELECTION1: {
+        new (d_selection1.buffer())
+            bsl::string(
+                original.d_selection1.object(), d_allocator_p);
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        new (d_selection2.buffer())
+            MyEnumeration::Value(original.d_selection2.object());
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+}
+
+// MANIPULATORS
+
+MyChoiceWithDefaultValues&
+MyChoiceWithDefaultValues::operator=(const MyChoiceWithDefaultValues& rhs)
+{
+    if (this != &rhs) {
+        switch (rhs.d_selectionId) {
+          case SELECTION_ID_SELECTION0: {
+            makeSelection0(rhs.d_selection0.object());
+          } break;
+          case SELECTION_ID_SELECTION1: {
+            makeSelection1(rhs.d_selection1.object());
+          } break;
+          case SELECTION_ID_SELECTION2: {
+            makeSelection2(rhs.d_selection2.object());
+          } break;
+          default:
+            BSLS_ASSERT(SELECTION_ID_UNDEFINED == rhs.d_selectionId);
+            reset();
+        }
+    }
+
+    return *this;
+}
+
+void MyChoiceWithDefaultValues::reset()
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION0: {
+        // no destruction required
+      } break;
+      case SELECTION_ID_SELECTION1: {
+        typedef bsl::string Type;
+        d_selection1.object().~Type();
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        typedef MyEnumeration::Value Type;
+        d_selection2.object().~Type();
+      } break;
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+    }
+
+    d_selectionId = SELECTION_ID_UNDEFINED;
+}
+
+int MyChoiceWithDefaultValues::makeSelection(int selectionId)
+{
+    switch (selectionId) {
+      case SELECTION_ID_SELECTION0: {
+        makeSelection0();
+      } break;
+      case SELECTION_ID_SELECTION1: {
+        makeSelection1();
+      } break;
+      case SELECTION_ID_SELECTION2: {
+        makeSelection2();
+      } break;
+      case SELECTION_ID_UNDEFINED: {
+        reset();
+      } break;
+      default:
+        return -1;
+    }
+    return 0;
+}
+
+int MyChoiceWithDefaultValues::makeSelection(const char *name, int nameLength)
+{
+    const bdlat_SelectionInfo *selectionInfo =
+                                         lookupSelectionInfo(name, nameLength);
+    if (0 == selectionInfo) {
+       return -1;
+    }
+
+    return makeSelection(selectionInfo->d_id);
+}
+
+int& MyChoiceWithDefaultValues::makeSelection0()
+{
+    if (SELECTION_ID_SELECTION0 == d_selectionId) {
+        d_selection0.object() = DEFAULT_INITIALIZER_SELECTION0;
+    }
+    else {
+        reset();
+        new (d_selection0.buffer())
+            int(DEFAULT_INITIALIZER_SELECTION0);
+        d_selectionId = SELECTION_ID_SELECTION0;
+    }
+
+    return d_selection0.object();
+}
+
+int& MyChoiceWithDefaultValues::makeSelection0(int value)
+{
+    if (SELECTION_ID_SELECTION0 == d_selectionId) {
+        d_selection0.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection0.buffer())
+                int(value);
+        d_selectionId = SELECTION_ID_SELECTION0;
+    }
+
+    return d_selection0.object();
+}
+
+bsl::string& MyChoiceWithDefaultValues::makeSelection1()
+{
+    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+        d_selection1.object() = DEFAULT_INITIALIZER_SELECTION1;
+    }
+    else {
+        reset();
+        new (d_selection1.buffer())
+            bsl::string(DEFAULT_INITIALIZER_SELECTION1, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION1;
+    }
+
+    return d_selection1.object();
+}
+
+bsl::string& MyChoiceWithDefaultValues::makeSelection1(const bsl::string& value)
+{
+    if (SELECTION_ID_SELECTION1 == d_selectionId) {
+        d_selection1.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection1.buffer())
+                bsl::string(value, d_allocator_p);
+        d_selectionId = SELECTION_ID_SELECTION1;
+    }
+
+    return d_selection1.object();
+}
+
+MyEnumeration::Value& MyChoiceWithDefaultValues::makeSelection2()
+{
+    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+        d_selection2.object() = DEFAULT_INITIALIZER_SELECTION2;
+    }
+    else {
+        reset();
+        new (d_selection2.buffer())
+            MyEnumeration::Value(DEFAULT_INITIALIZER_SELECTION2);
+        d_selectionId = SELECTION_ID_SELECTION2;
+    }
+
+    return d_selection2.object();
+}
+
+MyEnumeration::Value& MyChoiceWithDefaultValues::makeSelection2(MyEnumeration::Value value)
+{
+    if (SELECTION_ID_SELECTION2 == d_selectionId) {
+        d_selection2.object() = value;
+    }
+    else {
+        reset();
+        new (d_selection2.buffer())
+                MyEnumeration::Value(value);
+        d_selectionId = SELECTION_ID_SELECTION2;
+    }
+
+    return d_selection2.object();
+}
+
+// ACCESSORS
+
+bsl::ostream& MyChoiceWithDefaultValues::print(
+    bsl::ostream& stream,
+    int           level,
+    int           spacesPerLevel) const
+{
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION0: {
+        printer.printAttribute("selection0", d_selection0.object());
+      }  break;
+      case SELECTION_ID_SELECTION1: {
+        printer.printAttribute("selection1", d_selection1.object());
+      }  break;
+      case SELECTION_ID_SELECTION2: {
+        printer.printAttribute("selection2", d_selection2.object());
+      }  break;
+      default:
+        stream << "SELECTION UNDEFINED\n";
+    }
+    printer.end();
+    return stream;
+}
+
+
+const char *MyChoiceWithDefaultValues::selectionName() const
+{
+    switch (d_selectionId) {
+      case SELECTION_ID_SELECTION0:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION0].name();
+      case SELECTION_ID_SELECTION1:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION1].name();
+      case SELECTION_ID_SELECTION2:
+        return SELECTION_INFO_ARRAY[SELECTION_INDEX_SELECTION2].name();
+      default:
+        BSLS_ASSERT(SELECTION_ID_UNDEFINED == d_selectionId);
+        return "(* UNDEFINED *)";
+    }
+}
+
                     // -----------------------------------
                     // class MySequenceWithAnonymousChoice
                     // -----------------------------------
@@ -10063,6 +11345,138 @@ bsl::ostream& MySequenceWithAnonymousChoice::print(
     printer.start();
     printer.printAttribute("attribute1", d_attribute1);
     printer.printAttribute("choice", d_choice);
+    printer.printAttribute("attribute2", d_attribute2);
+    printer.end();
+    return stream;
+}
+
+
+
+                     // ---------------------------------
+                     // class MySequenceWithDefaultValues
+                     // ---------------------------------
+
+// CONSTANTS
+
+const char MySequenceWithDefaultValues::CLASS_NAME[] = "MySequenceWithDefaultValues";
+
+const int MySequenceWithDefaultValues::DEFAULT_INITIALIZER_ATTRIBUTE0 = 100;
+
+const char MySequenceWithDefaultValues::DEFAULT_INITIALIZER_ATTRIBUTE1[] = "default";
+
+const MyEnumeration::Value MySequenceWithDefaultValues::DEFAULT_INITIALIZER_ATTRIBUTE2 = MyEnumeration::VALUE2;
+
+const bdlat_AttributeInfo MySequenceWithDefaultValues::ATTRIBUTE_INFO_ARRAY[] = {
+    {
+        ATTRIBUTE_ID_ATTRIBUTE0,
+        "attribute0",
+        sizeof("attribute0") - 1,
+        "",
+        bdlat_FormattingMode::e_DEC
+    },
+    {
+        ATTRIBUTE_ID_ATTRIBUTE1,
+        "attribute1",
+        sizeof("attribute1") - 1,
+        "",
+        bdlat_FormattingMode::e_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ATTRIBUTE2,
+        "attribute2",
+        sizeof("attribute2") - 1,
+        "",
+        bdlat_FormattingMode::e_DEFAULT
+    }
+};
+
+// CLASS METHODS
+
+const bdlat_AttributeInfo *MySequenceWithDefaultValues::lookupAttributeInfo(
+        const char *name,
+        int         nameLength)
+{
+    for (int i = 0; i < 3; ++i) {
+        const bdlat_AttributeInfo& attributeInfo =
+                    MySequenceWithDefaultValues::ATTRIBUTE_INFO_ARRAY[i];
+
+        if (nameLength == attributeInfo.d_nameLength
+        &&  0 == bsl::memcmp(attributeInfo.d_name_p, name, nameLength))
+        {
+            return &attributeInfo;
+        }
+    }
+
+    return 0;
+}
+
+const bdlat_AttributeInfo *MySequenceWithDefaultValues::lookupAttributeInfo(int id)
+{
+    switch (id) {
+      case ATTRIBUTE_ID_ATTRIBUTE0:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE0];
+      case ATTRIBUTE_ID_ATTRIBUTE1:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE1];
+      case ATTRIBUTE_ID_ATTRIBUTE2:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ATTRIBUTE2];
+      default:
+        return 0;
+    }
+}
+
+// CREATORS
+
+MySequenceWithDefaultValues::MySequenceWithDefaultValues(bslma::Allocator *basicAllocator)
+: d_attribute1(DEFAULT_INITIALIZER_ATTRIBUTE1, basicAllocator)
+, d_attribute0(DEFAULT_INITIALIZER_ATTRIBUTE0)
+, d_attribute2(DEFAULT_INITIALIZER_ATTRIBUTE2)
+{
+}
+
+MySequenceWithDefaultValues::MySequenceWithDefaultValues(const MySequenceWithDefaultValues& original,
+                                                         bslma::Allocator *basicAllocator)
+: d_attribute1(original.d_attribute1, basicAllocator)
+, d_attribute0(original.d_attribute0)
+, d_attribute2(original.d_attribute2)
+{
+}
+
+MySequenceWithDefaultValues::~MySequenceWithDefaultValues()
+{
+}
+
+// MANIPULATORS
+
+MySequenceWithDefaultValues&
+MySequenceWithDefaultValues::operator=(const MySequenceWithDefaultValues& rhs)
+{
+    if (this != &rhs) {
+        d_attribute0 = rhs.d_attribute0;
+        d_attribute1 = rhs.d_attribute1;
+        d_attribute2 = rhs.d_attribute2;
+    }
+
+    return *this;
+}
+
+void MySequenceWithDefaultValues::reset()
+{
+    d_attribute0 = DEFAULT_INITIALIZER_ATTRIBUTE0;
+    d_attribute1 = DEFAULT_INITIALIZER_ATTRIBUTE1;
+    d_attribute2 = DEFAULT_INITIALIZER_ATTRIBUTE2;
+}
+
+// ACCESSORS
+
+bsl::ostream& MySequenceWithDefaultValues::print(
+        bsl::ostream& stream,
+        int           level,
+        int           spacesPerLevel) const
+{
+    bslim::Printer printer(&stream, level, spacesPerLevel);
+    printer.start();
+    printer.printAttribute("attribute0", d_attribute0);
+    printer.printAttribute("attribute1", d_attribute1);
     printer.printAttribute("attribute2", d_attribute2);
     printer.end();
     return stream;
@@ -10374,11 +11788,17 @@ const char *TimingRequest::selectionName() const
 }  // close package namespace
 }  // close enterprise namespace
 
-// GENERATED BY BLP_BAS_CODEGEN_2018.06.17.1
-// USING bas_codegen.pl -m msg --noTimestamps --noAggregateConversion -p test test_codec.xsd
-// ************************ END OF GENERATED CODE **************************
-
-// BDE_VERIFY pragma: pop
+// GENERATED BY BLP_BAS_CODEGEN_VERSION
+// USING bas_codegen.pl -m msg --noTimestamps --noAggregateConversion --package test test_schema.xsd
+// ----------------------------------------------------------------------------
+// NOTICE:
+//      Copyright (C) Bloomberg L.P., 2019
+//      All Rights Reserved.
+//      Property of Bloomberg L.P. (BLP)
+//      This software is made available solely pursuant to the
+//      terms of a BLP license agreement which governs its use.
+// ------------------------------ END-OF-FILE ---------------------------------
+// ************************* END OF GENERATED CODE ****************************
 
 // ============================================================================
 //                               USAGE EXAMPLE
@@ -10839,6 +12259,9 @@ int main(int argc, char *argv[])
         veryVerbose = argc > 3;
     veryVeryVerbose = argc > 4;
 
+    bslma::TestAllocator ta("testAllocator", veryVeryVerbose);
+    bslma::TestAllocatorMonitor tam(&ta);
+
     // CONCERN: 'BSLS_REVIEW' failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
@@ -10854,7 +12277,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //
@@ -10869,6 +12292,497 @@ int main(int argc, char *argv[])
                                << "\n=====================" << bsl::endl;
 
         usageExample();
+
+        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING decoding complex types with default elements
+        //
+        // Concerns:
+        //: 1 The "DefaultEmptyStrings" decoder option instructs a BER decoder
+        //:   to load the default value of elements only when it is true,
+        //:   the decoder reads an empty string, and the attribute has a
+        //:   default string value.
+        //:
+        //: 2 The "DefaultEmptyStrings" decoder option does not affect whether
+        //:   or not a BER decoder loads the default value of non-string
+        //:   types.
+        //:
+        //: 3 The "DefaultEmptyStrings" decoder option applies to elements of
+        //:   both sequences and choices.
+        //
+        // Plan:
+        //: 1 Create a choice type having an integer, string, and enumeration
+        //:   selection, each having a default value.
+        //:
+        //: 2 Perform a depth-ordered enumeration of encoding and then
+        //:   decoding each permutation of an instance of the choice type
+        //:   having a zero, unset, default, or arbitary value.
+        //:
+        //: 3 Validate that if the encoded object was an empty string
+        //:   selection, the decoded object is loaded with the default value
+        //:   if the "DefaultEmptyStrings" decoder option is set, and otherwise
+        //:   the decoded object is loaded with an empty string value.
+        //:
+        //: 4 Create a sequence type having integer, string, and enumeration
+        //:   attributes, each having a default value.
+        //:
+        //: 5 Perform a locally depth-ordered enumeration of encoding and
+        //:   an instance of the sequence type, testing each attribute in
+        //:   isolation.
+        //:
+        //: 6 For each attribute test, validate that the if the string
+        //:   attribute of the encoded object was empty, the decoded object
+        //:   is loaded with the default value if the "DefaultEmptyStrings"
+        //:   decoder option is set, and otherwise the decoded attribute is
+        //:   loaded with an empty string value.
+        //
+        // Testing:
+        //   Given 'TYPE' is a choice or sequence having selections or
+        //   attributes with default values, respectively:
+        //
+        //   int BerDecoder::decode(bsl::streambuf *streamBuf, TYPE *variable)
+        //   int BerDeocder::decode(bsl::istream&   stream   , TYPE *variable)
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            bsl::cout
+                << "\nTESTING decoding complex types with default elements"
+                << "\n===================================================="
+                << bsl::endl;
+
+        if (veryVerbose)
+            bsl::cout
+                << "\nTest decoding choices whose selections have defaults"
+                << "\n----------------------------------------------------"
+                << bsl::endl;
+        {
+            enum Selection {
+                INT,
+                STRING,
+                ENUM
+            };
+
+            enum Value {
+                ZERO,
+                UNSET,
+                DEFAULT,
+                ARBITRARY
+            };
+
+            typedef test::MyEnumeration::Value Enum;
+
+            static const int  ARBITRARY_INT      = 42;
+            static const char ARBITRARY_STRING[] = "I'm arbitrary!";
+            static const Enum ARBITRARY_ENUM     = test::MyEnumeration::VALUE1;
+
+            static const bool NO  = false;
+            static const bool YES = true;
+
+            static const struct {
+                int       d_line;
+                bool      d_defaultStrings;
+                Selection d_selection;
+                Value     d_encodedValue;
+                Value     d_decodedValue;
+            } DATA[] = {
+                //LINE DEFAULT STRINGS SELECTION ENCODED VALUE DECODED VALUE
+                //---- --------------- --------- ------------- -------------
+                {  L_ , NO            , INT     , ZERO        , ZERO        },
+                {  L_ , NO            , INT     , UNSET       , DEFAULT     },
+                {  L_ , NO            , INT     , DEFAULT     , DEFAULT     },
+                {  L_ , NO            , INT     , ARBITRARY   , ARBITRARY   },
+                {  L_ , NO            , STRING  , ZERO        , ZERO        },
+                {  L_ , NO            , STRING  , UNSET       , DEFAULT     },
+                {  L_ , NO            , STRING  , DEFAULT     , DEFAULT     },
+                {  L_ , NO            , STRING  , ARBITRARY   , ARBITRARY   },
+                {  L_ , NO            , ENUM    , ZERO        , ZERO        },
+                {  L_ , NO            , ENUM    , UNSET       , DEFAULT     },
+                {  L_ , NO            , ENUM    , DEFAULT     , DEFAULT     },
+                {  L_ , NO            , ENUM    , ARBITRARY   , ARBITRARY   },
+                {  L_ , YES           , INT     , ZERO        , ZERO        },
+                {  L_ , YES           , INT     , UNSET       , DEFAULT     },
+                {  L_ , YES           , INT     , DEFAULT     , DEFAULT     },
+                {  L_ , YES           , INT     , ARBITRARY   , ARBITRARY   },
+                {  L_ , YES           , STRING  , ZERO        , DEFAULT     },
+                {  L_ , YES           , STRING  , UNSET       , DEFAULT     },
+                {  L_ , YES           , STRING  , DEFAULT     , DEFAULT     },
+                {  L_ , YES           , STRING  , ARBITRARY   , ARBITRARY   },
+                {  L_ , YES           , ENUM    , ZERO        , ZERO        },
+                {  L_ , YES           , ENUM    , UNSET       , DEFAULT     },
+                {  L_ , YES           , ENUM    , DEFAULT     , DEFAULT     },
+                {  L_ , YES           , ENUM    , ARBITRARY   , ARBITRARY   }
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int       LINE            = DATA[i].d_line;
+                const bool      DEFAULT_STRINGS = DATA[i].d_defaultStrings;
+                const Selection SELECTION       = DATA[i].d_selection;
+                const Value     ENCODED_VALUE   = DATA[i].d_encodedValue;
+                const Value     DECODED_VALUE   = DATA[i].d_decodedValue;
+
+                typedef test::MyChoiceWithDefaultValues SerializableObject;
+
+                SerializableObject object(&ta);
+
+                switch (SELECTION) {
+                  case INT: {
+                    switch (ENCODED_VALUE) {
+                      case ZERO: {
+                        object.makeSelection0(0);
+                      } break;
+                      case UNSET: {
+                        object.makeSelection0();
+                      } break;
+                      case DEFAULT: {
+                        object.makeSelection0(
+                            SerializableObject::DEFAULT_INITIALIZER_SELECTION0);
+                      } break;
+                      case ARBITRARY: {
+                        object.makeSelection0(ARBITRARY_INT);
+                      } break;
+                    }
+                  } break;
+                  case STRING: {
+                    switch (ENCODED_VALUE) {
+                      case ZERO: {
+                        object.makeSelection1("");
+                      } break;
+                      case UNSET: {
+                        object.makeSelection1();
+                      } break;
+                      case DEFAULT: {
+                        object.makeSelection1(
+                            SerializableObject::DEFAULT_INITIALIZER_SELECTION1);
+                      } break;
+                      case ARBITRARY: {
+                        object.makeSelection1(ARBITRARY_STRING);
+                      } break;
+                    }
+                  } break;
+                  case ENUM: {
+                    switch (ENCODED_VALUE) {
+                      case ZERO: {
+                        object.makeSelection2(test::MyEnumeration::VALUE1);
+                      } break;
+                      case UNSET: {
+                        object.makeSelection2();
+                      } break;
+                      case DEFAULT: {
+                        object.makeSelection2(
+                            SerializableObject::DEFAULT_INITIALIZER_SELECTION2);
+                      } break;
+                      case ARBITRARY: {
+                        object.makeSelection2(ARBITRARY_ENUM);
+                      } break;
+                    }
+                  } break;
+                }
+
+                balber::BerEncoderOptions encoderOptions;
+                balber::BerEncoder encoder(&encoderOptions, &ta);
+
+                bdlsb::MemOutStreamBuf outStreamBuf(&ta);
+                int rc = encoder.encode(&outStreamBuf, object);
+                ASSERTV(rc, 0 == rc);
+
+                bdlsb::FixedMemInStreamBuf inStreamBuf(outStreamBuf.data(),
+                                                       outStreamBuf.length());
+
+                balber::BerDecoderOptions decoderOptions;
+                if (!DEFAULT_STRINGS) {
+                    decoderOptions.setDefaultEmptyStrings(false);
+                }
+                balber::BerDecoder decoder(&decoderOptions, &ta);
+
+                SerializableObject decodedObject;
+                rc = decoder.decode(&inStreamBuf, &decodedObject);
+                ASSERTV(rc, 0 == rc);
+
+                switch (SELECTION) {
+                  case INT: {
+                    ASSERTV(decodedObject.selectionId(),
+                            decodedObject.isSelection0Value());
+                    switch (DECODED_VALUE) {
+                      case ZERO: {
+                        ASSERT1_EQ(LINE, 0, decodedObject.selection0());
+                      } break;
+                      case UNSET: {
+                        ASSERT1_EQ(LINE, 0, decodedObject.selection0());
+                      } break;
+                      case DEFAULT: {
+                        ASSERT1_EQ(
+                            LINE,
+                            SerializableObject::DEFAULT_INITIALIZER_SELECTION0,
+                            decodedObject.selection0());
+                      } break;
+                      case ARBITRARY: {
+                        ASSERT1_EQ(
+                            LINE, ARBITRARY_INT, decodedObject.selection0());
+                      } break;
+                    }
+                  } break;
+                  case STRING: {
+                    ASSERTV(decodedObject.selectionId(),
+                            decodedObject.isSelection1Value());
+                    switch (DECODED_VALUE) {
+                      case ZERO: {
+                        ASSERT1_EQ(LINE, "", decodedObject.selection1());
+                      } break;
+                      case UNSET: {
+                        ASSERT1_EQ(LINE, "", decodedObject.selection1());
+                      } break;
+                      case DEFAULT: {
+                        ASSERT1_EQ(
+                            LINE,
+                            SerializableObject::DEFAULT_INITIALIZER_SELECTION1,
+                            decodedObject.selection1());
+                      } break;
+                      case ARBITRARY: {
+                        ASSERT1_EQ(LINE,
+                                   ARBITRARY_STRING,
+                                   decodedObject.selection1());
+                      } break;
+                    }
+                  } break;
+                  case ENUM: {
+                    ASSERTV(decodedObject.selectionId(),
+                            decodedObject.isSelection2Value());
+                    switch (DECODED_VALUE) {
+                      case ZERO: {
+                        ASSERT1_EQ(LINE, 0, decodedObject.selection2());
+                      } break;
+                      case UNSET: {
+                        ASSERT1_EQ(LINE, 0, decodedObject.selection2());
+                      } break;
+                      case DEFAULT: {
+                        ASSERT1_EQ(
+                            LINE,
+                            SerializableObject::DEFAULT_INITIALIZER_SELECTION2,
+                            decodedObject.selection2());
+                      } break;
+                      case ARBITRARY: {
+                        ASSERT1_EQ(
+                            LINE, ARBITRARY_ENUM, decodedObject.selection2());
+                      } break;
+                    }
+                  } break;
+                }
+            }
+        }
+
+        if (veryVerbose)
+            bsl::cout
+                << "\nTest decoding sequences whose attributes have defaults"
+                << "\n------------------------------------------------------"
+                << bsl::endl;
+        {
+            enum Value {
+                ZERO,
+                UNSET,
+                DEFAULT,
+                ARBITRARY
+            };
+
+            static const Value ARB = ARBITRARY;
+
+            typedef test::MyEnumeration::Value Enum;
+
+            static const int  ARBITRARY_INT      = 42;
+            static const char ARBITRARY_STRING[] = "I'm arbitrary";
+            static const Enum ARBITRARY_ENUM     = test::MyEnumeration::VALUE1;
+
+            static const bool N = false;
+            static const bool Y = true;
+
+            static const struct {
+                int   d_line;
+                bool  d_defaultStrings;
+                Value d_encodedAttr0;
+                Value d_encodedAttr1;
+                Value d_encodedAttr2;
+                Value d_decodedAttr0;
+                Value d_decodedAttr1;
+                Value d_decodedAttr2;
+            } DATA[] = {
+                //LN D  ATTR 0   ATTR 1   ATTR 2  DEC A 0  DEC A 1  DEC A 2
+                //-- - -------- -------- -------- -------- -------- --------
+                {L_, Y, UNSET  , UNSET  , UNSET  , DEFAULT, DEFAULT, DEFAULT},
+                {L_, Y, UNSET  , UNSET  , ZERO   , DEFAULT, DEFAULT, ZERO   },
+                {L_, Y, UNSET  , UNSET  , DEFAULT, DEFAULT, DEFAULT, DEFAULT},
+                {L_, Y, UNSET  , UNSET  , ARB    , DEFAULT, DEFAULT, ARB    },
+
+                {L_, Y, UNSET  , UNSET  , UNSET  , DEFAULT, DEFAULT, DEFAULT},
+                {L_, Y, UNSET  , ZERO   , UNSET  , DEFAULT, DEFAULT, DEFAULT},
+                {L_, Y, UNSET  , DEFAULT, UNSET  , DEFAULT, DEFAULT, DEFAULT},
+                {L_, Y, UNSET  , ARB    , UNSET  , DEFAULT, ARB    , DEFAULT},
+
+                {L_, Y, UNSET  , UNSET  , UNSET  , DEFAULT, DEFAULT, DEFAULT},
+                {L_, Y, ZERO   , UNSET  , UNSET  , ZERO   , DEFAULT, DEFAULT},
+                {L_, Y, DEFAULT, UNSET  , UNSET  , DEFAULT, DEFAULT, DEFAULT},
+                {L_, Y, ARB    , UNSET  , UNSET  , ARB    , DEFAULT, DEFAULT},
+
+                {L_, N, UNSET  , UNSET  , UNSET  , DEFAULT, DEFAULT, DEFAULT},
+                {L_, N, UNSET  , UNSET  , ZERO   , DEFAULT, DEFAULT, ZERO   },
+                {L_, N, UNSET  , UNSET  , DEFAULT, DEFAULT, DEFAULT, DEFAULT},
+                {L_, N, UNSET  , UNSET  , ARB    , DEFAULT, DEFAULT, ARB    },
+
+                {L_, N, UNSET  , UNSET  , UNSET  , DEFAULT, DEFAULT, DEFAULT},
+                {L_, N, UNSET  , ZERO   , UNSET  , DEFAULT, ZERO   , DEFAULT},
+                {L_, N, UNSET  , DEFAULT, UNSET  , DEFAULT, DEFAULT, DEFAULT},
+                {L_, N, UNSET  , ARB    , UNSET  , DEFAULT, ARB    , DEFAULT},
+
+                {L_, N, UNSET  , UNSET  , UNSET  , DEFAULT, DEFAULT, DEFAULT},
+                {L_, N, ZERO   , UNSET  , UNSET  , ZERO   , DEFAULT, DEFAULT},
+                {L_, N, DEFAULT, UNSET  , UNSET  , DEFAULT, DEFAULT, DEFAULT},
+                {L_, N, ARB    , UNSET  , UNSET  , ARB    , DEFAULT, DEFAULT},
+            };
+
+            static const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+            for (int i = 0; i != NUM_DATA; ++i) {
+                const int   LINE               = DATA[i].d_line;
+                const bool  DEFAULT_STRINGS    = DATA[i].d_defaultStrings;
+                const Value ENCODED_ATTRIBUTE0 = DATA[i].d_encodedAttr0;
+                const Value ENCODED_ATTRIBUTE1 = DATA[i].d_encodedAttr1;
+                const Value ENCODED_ATTRIBUTE2 = DATA[i].d_encodedAttr2;
+                const Value DECODED_ATTRIBUTE0 = DATA[i].d_decodedAttr0;
+                const Value DECODED_ATTRIBUTE1 = DATA[i].d_decodedAttr1;
+                const Value DECODED_ATTRIBUTE2 = DATA[i].d_decodedAttr2;
+
+                typedef test::MySequenceWithDefaultValues SerializableObject;
+
+                SerializableObject object(&ta);
+
+                switch (ENCODED_ATTRIBUTE0) {
+                  case ZERO: {
+                    object.attribute0() = 0;
+                  } break;
+                  case UNSET: {
+                    // do nothing
+                  } break;
+                  case DEFAULT: {
+                    object.attribute0() = SerializableObject::
+                    DEFAULT_INITIALIZER_ATTRIBUTE0;
+                  } break;
+                  case ARBITRARY: {
+                    object.attribute0() = ARBITRARY_INT;
+                  } break;
+                }
+
+                switch (ENCODED_ATTRIBUTE1) {
+                  case ZERO: {
+                    object.attribute1().clear();
+                  } break;
+                  case UNSET: {
+                    // do nothing
+                  } break;
+                  case DEFAULT: {
+                    object.attribute1() = SerializableObject::
+                    DEFAULT_INITIALIZER_ATTRIBUTE1;
+                  } break;
+                  case ARBITRARY: {
+                    object.attribute1() = ARBITRARY_STRING;
+                  } break;
+                }
+
+                switch (ENCODED_ATTRIBUTE2) {
+                  case ZERO: {
+                    object.attribute2() =
+                        static_cast<test::MyEnumeration::Value>(0);
+                  } break;
+                  case UNSET: {
+                    // do nothing
+                  } break;
+                  case DEFAULT: {
+                    object.attribute2() = SerializableObject::
+                    DEFAULT_INITIALIZER_ATTRIBUTE2;
+                  } break;
+                  case ARBITRARY: {
+                    object.attribute2() = ARBITRARY_ENUM;
+                  } break;
+                }
+
+                balber::BerEncoderOptions encoderOptions;
+                balber::BerEncoder        encoder(&encoderOptions, &ta);
+
+                bdlsb::MemOutStreamBuf outStreamBuf(&ta);
+                int rc = encoder.encode(&outStreamBuf, object);
+                ASSERTV(LINE, rc, 0 == rc);
+
+                bdlsb::FixedMemInStreamBuf inStreamBuf(outStreamBuf.data(),
+                                                       outStreamBuf.length());
+
+
+                balber::BerDecoderOptions decoderOptions;
+                if (!DEFAULT_STRINGS) {
+                    decoderOptions.setDefaultEmptyStrings(false);
+                }
+                balber::BerDecoder decoder(&decoderOptions, &ta);
+
+                SerializableObject decodedObject;
+                rc = decoder.decode(&inStreamBuf, &decodedObject);
+                ASSERTV(LINE, rc, 0 == rc);
+
+                switch (DECODED_ATTRIBUTE0) {
+                  case ZERO: {
+                    ASSERT1_EQ(LINE, 0, decodedObject.attribute0());
+                  } break;
+                  case UNSET: {
+                      ASSERT1_EQ(LINE, 0, decodedObject.attribute0());
+                  } break;
+                  case DEFAULT: {
+                    ASSERT1_EQ(
+                        LINE,
+                        SerializableObject::DEFAULT_INITIALIZER_ATTRIBUTE0,
+                        object.attribute0());
+                  } break;
+                  case ARBITRARY: {
+                    ASSERT1_EQ(LINE, ARBITRARY_INT, object.attribute0());
+                  } break;
+                }
+
+                switch (DECODED_ATTRIBUTE1) {
+                  case ZERO: {
+                    ASSERT1_EQ(LINE, "", decodedObject.attribute1());
+                  } break;
+                  case UNSET: {
+                    ASSERT1_EQ(LINE, "", decodedObject.attribute1());
+                  } break;
+                  case DEFAULT: {
+                    ASSERT1_EQ(
+                        LINE,
+                        SerializableObject::DEFAULT_INITIALIZER_ATTRIBUTE1,
+                        decodedObject.attribute1());
+                  } break;
+                  case ARBITRARY: {
+                    ASSERT1_EQ(
+                        LINE, ARBITRARY_STRING, decodedObject.attribute1());
+                  } break;
+                }
+
+                switch (DECODED_ATTRIBUTE2) {
+                  case ZERO: {
+                    ASSERT1_EQ(LINE, 0, decodedObject.attribute2());
+                  } break;
+                  case UNSET: {
+                    ASSERT1_EQ(LINE, 0, decodedObject.attribute2());
+                  } break;
+                  case DEFAULT: {
+                    ASSERT1_EQ(
+                        LINE,
+                        SerializableObject::DEFAULT_INITIALIZER_ATTRIBUTE2,
+                        object.attribute2());
+                  } break;
+                  case ARBITRARY: {
+                    ASSERT1_EQ(LINE, ARBITRARY_ENUM, object.attribute2());
+                  } break;
+                }
+            }
+        }
 
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;

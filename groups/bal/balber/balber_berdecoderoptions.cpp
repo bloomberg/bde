@@ -37,6 +37,7 @@ const int  balber::BerDecoderOptions::DEFAULT_MAX_DEPTH             =      32;
 const bool balber::BerDecoderOptions::DEFAULT_SKIP_UNKNOWN_ELEMENTS = true;
 const int  balber::BerDecoderOptions::DEFAULT_TRACE_LEVEL           =       0;
 const int  balber::BerDecoderOptions::DEFAULT_MAX_SEQUENCE_SIZE     = 8388608;
+const bool balber::BerDecoderOptions::DEFAULT_DEFAULT_EMPTY_STRINGS = true;
 
 const bdlat_AttributeInfo balber::BerDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
@@ -66,6 +67,14 @@ const bdlat_AttributeInfo balber::BerDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
         sizeof("MaxSequenceSize") - 1,     // name length
         "maximum sequence size",           // annotation
         bdlat_FormattingMode::e_DEC    // formatting mode
+    },
+    {
+        e_ATTRIBUTE_ID_DEFAULT_EMPTY_STRINGS,
+        "DefaultEmptyStrings",             // name
+        sizeof("DefaultEmptyStrings") - 1, // name length
+        "Option to decode empty strings as their default values",
+                                           // annotation
+        bdlat_FormattingMode::e_TEXT   // formatting mode
     }
 };
 
@@ -150,6 +159,30 @@ const bdlat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
                 return &ATTRIBUTE_INFO_ARRAY[
                                       e_ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS];
             }
+
+            if (bdlb::CharType::toUpper(name[0])=='D'
+             && bdlb::CharType::toUpper(name[1])=='E'
+             && bdlb::CharType::toUpper(name[2])=='F'
+             && bdlb::CharType::toUpper(name[3])=='A'
+             && bdlb::CharType::toUpper(name[4])=='U'
+             && bdlb::CharType::toUpper(name[5])=='L'
+             && bdlb::CharType::toUpper(name[6])=='T'
+             && bdlb::CharType::toUpper(name[7])=='E'
+             && bdlb::CharType::toUpper(name[8])=='M'
+             && bdlb::CharType::toUpper(name[9])=='P'
+             && bdlb::CharType::toUpper(name[10])=='T'
+             && bdlb::CharType::toUpper(name[11])=='Y'
+             && bdlb::CharType::toUpper(name[12])=='S'
+             && bdlb::CharType::toUpper(name[13])=='T'
+             && bdlb::CharType::toUpper(name[14])=='R'
+             && bdlb::CharType::toUpper(name[15])=='I'
+             && bdlb::CharType::toUpper(name[16])=='N'
+             && bdlb::CharType::toUpper(name[17])=='G'
+             && bdlb::CharType::toUpper(name[18])=='S')
+            {
+                return &ATTRIBUTE_INFO_ARRAY[
+                                      e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS];
+            }
         } break;
     }
     return 0;
@@ -166,6 +199,8 @@ const bdlat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(int id)
         return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_TRACE_LEVEL];
       case e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE:
         return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE];
+      case e_ATTRIBUTE_ID_DEFAULT_EMPTY_STRINGS:
+        return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS];
       default:
         return 0;
     }
@@ -219,6 +254,13 @@ bsl::ostream& BerDecoderOptions::print(bsl::ostream& stream,
                                   -levelPlus1,
                                   spacesPerLevel);
 
+        bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
+        stream << "DefaultEmptyStrings = ";
+        bdlb::PrintMethods::print(stream,
+                                  d_defaultEmptyStrings,
+                                  -levelPlus1,
+                                  spacesPerLevel);
+
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
     }
@@ -252,6 +294,13 @@ bsl::ostream& BerDecoderOptions::print(bsl::ostream& stream,
         stream << "MaxSequenceSize = ";
         bdlb::PrintMethods::print(stream,
                                   d_maxSequenceSize,
+                                  -levelPlus1,
+                                  spacesPerLevel);
+
+        stream << ' ';
+        stream << "DefaultEmptyStrings = ";
+        bdlb::PrintMethods::print(stream,
+                                  d_defaultEmptyStrings,
                                   -levelPlus1,
                                   spacesPerLevel);
 
