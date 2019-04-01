@@ -52,7 +52,12 @@ namespace bsl {
     using native_std::inplace_merge;
     using native_std::iter_swap;
     using native_std::lexicographical_compare;
-    using native_std::lower_bound;
+
+    // 'lower_bound' is provided in  in 'bslstl_algorithmworkaround' to
+    // work-around the STLPort standard library
+    //
+    // using native_std::lower_bound;
+
     using native_std::make_heap;
     using native_std::max;
     using native_std::max_element;
@@ -96,7 +101,13 @@ namespace bsl {
     using native_std::transform;
     using native_std::unique;
     using native_std::unique_copy;
-    using native_std::upper_bound;
+
+    // 'upper_bound' is provided in  in 'bslstl_algorithmworkaround' to
+    // work-around the STLPort standard library
+    //
+    // using native_std::upper_bound;
+
+
 
 #if __cplusplus < 201703L                 \
  &&!(defined(BSLS_PLATFORM_CMP_MSVC)   && \
