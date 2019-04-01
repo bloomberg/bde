@@ -20,7 +20,8 @@ BSLS_IDENT_RCSID(bdlt_datetimeinterval_cpp,"$Id$ $CSID$")
 #include <bsl_cstdio.h>    // 'sprintf'
 #include <bsl_ostream.h>
 
-#include <cmath>
+#include <bsl_cmath.h>
+#include <math.h>
 
 namespace BloombergLP {
 
@@ -174,21 +175,21 @@ void DatetimeInterval::assign(bsls::Types::Int64 days,
 void DatetimeInterval::setTotalSecondsFromDouble(double seconds)
 {
     double wholeDays;
-    modf(seconds / TimeUnitRatio::k_S_PER_D, &wholeDays);
+    bsl::modf(seconds / TimeUnitRatio::k_S_PER_D, &wholeDays);
         // Ignoring fractional part to maintain as much accuracy from
         // 'seconds' as possible.
 
     BSLS_ASSERT(static_cast<double>(
                              bsl::numeric_limits<bsls::Types::Int64>::max()) >=
-                fabs(wholeDays));
+                bsl::fabs(wholeDays));
         // Failing for bsl::numeric_limits<bsls::Types::Int64>::min() is OK
         // here, because wholeDays has to fit into 32 bits.  Here we're just
         // checking that we are not about to run into UB when casting to
         // bsls::Types::Int64.
 
     volatile double microseconds =
-                          (seconds - wholeDays * TimeUnitRatio::k_S_PER_D)
-                          * TimeUnitRatio::k_US_PER_S + copysign(0.5, seconds);
+                   (seconds - wholeDays * TimeUnitRatio::k_S_PER_D)
+                   * TimeUnitRatio::k_US_PER_S + copysign(0.5, seconds);
         // On GCC x86 platforms we have to force copying a floating-point value
         // to memory using 'volatile' type qualifier to round-down the value
         // stored in x87 unit register.

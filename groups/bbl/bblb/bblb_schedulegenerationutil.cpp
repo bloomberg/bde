@@ -250,7 +250,7 @@ void ScheduleGenerationUtil::generateFromDayInterval(
     int startCount = rationalCeiling(earliest - example, intervalInDays);
     int endCount   = rationalFloor(latest - example, intervalInDays);
 
-    schedule->reserve(abs(endCount - startCount) + 1);
+    schedule->reserve(bsl::abs(endCount - startCount) + 1);
 
     for (int count = startCount; count <= endCount; count++) {
         schedule->push_back(example + intervalInDays * count);

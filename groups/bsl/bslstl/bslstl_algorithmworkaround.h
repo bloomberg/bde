@@ -75,6 +75,129 @@ using native_std::count_if;
 
 #endif  // BSLS_PLATFORM_CMP_SUN && !BDE_BUILD_TARGET_STLPORT
 
+
+// DRQS 139734639: The following works around a deficiency in the STLPort
+// standard library that prevents using 'lower_bound' and 'upper_bound' to
+// search for a value of a different type than that held in the range being
+// searched (even if an appropriate 'operator<' is defined).
+
+
+#if   defined(BSLS_LIBRARYFEATURES_STDCPP_STLPORT)                            \
+   && defined(_STLPORT_VERSION)                                               \
+   && (_STLPORT_VERSION <= 0x452)
+
+template<class FORWARD_IT, class TYPE>
+FORWARD_IT lower_bound(FORWARD_IT first, FORWARD_IT last, const TYPE& value)
+{
+    typedef typename std::iterator_traits<FORWARD_IT>::difference_type
+        difference_type;
+
+    difference_type length = std::distance(first, last);
+
+    while (length > 0) {
+        difference_type half = length >> 1;
+        FORWARD_IT      it   = first;
+
+        std::advance(it, half);
+        if (*it < value) {
+            first = ++it;
+            length -= half + 1;
+        }
+        else {
+            length = half;
+        }
+    }
+    return first;
+}
+
+template <class FORWARD_IT, class TYPE, class COMPARE>
+FORWARD_IT lower_bound(FORWARD_IT  first,
+                       FORWARD_IT  last,
+                       const TYPE& value,
+                       COMPARE     comp)
+{
+    typedef typename std::iterator_traits<FORWARD_IT>::difference_type
+        difference_type;
+
+    difference_type length = std::distance(first, last);
+
+    while (length > 0) {
+        difference_type half = length >> 1;
+        FORWARD_IT       it   = first;
+
+        std::advance(it, half);
+        if (comp(*it, value)) {
+            first = ++it;
+            length -= half + 1;
+        }
+        else {
+            length = half;
+        }
+    }
+    return first;
+}
+
+template<class FORWARD_IT, class TYPE>
+FORWARD_IT upper_bound(FORWARD_IT first, FORWARD_IT last, const TYPE& value)
+{
+    typedef typename std::iterator_traits<FORWARD_IT>::difference_type
+        difference_type;
+
+    difference_type length = std::distance(first, last);
+
+    while (length > 0) {
+        difference_type half = length >> 1;
+        FORWARD_IT      it   = first;
+
+        std::advance(it, half);
+        if (!(value < *it)) {
+            first = ++it;
+            length -= half + 1;
+        }
+        else {
+            length = half;
+        }
+    }
+    return first;
+}
+
+template <class FORWARD_IT, class TYPE, class COMPARE>
+FORWARD_IT upper_bound(FORWARD_IT  first,
+                       FORWARD_IT  last,
+                       const TYPE& value,
+                       COMPARE     comp)
+{
+    typedef typename std::iterator_traits<FORWARD_IT>::difference_type
+        difference_type;
+
+    difference_type length = std::distance(first, last);
+
+    while (length > 0) {
+        difference_type half = length >> 1;
+        FORWARD_IT      it   = first;
+
+        std::advance(it, half);
+        if (!comp(value, *it)) {
+            first = ++it;
+            length -= half + 1;
+        }
+        else {
+            length = half;
+        }
+    }
+    return first;
+}
+
+#else
+
+// On all other platforms, use the compiler vendor supplied version of
+// 'lower_bound' and 'upper_bound'.
+
+using native_std::lower_bound;
+using native_std::upper_bound;
+#endif
+
+
 }  // close namespace bsl
 
 #endif
