@@ -144,8 +144,8 @@
 // [26] void push_front(T&& rvalue);
 // [17] void push_back(const T& value);
 // [26] void push_back(T&& rvalue);
-// [28] void emplace_front(Args&&... args);
-// [28] void emplace_back(Args&&... args);
+// [28] reference emplace_front(Args&&... args);
+// [28] reference emplace_back(Args&&... args);
 // [29] iterator emplace(const_iterator pos, Args&&... args);
 // [20] void pop_front();
 // [20] void pop_back();
@@ -5057,33 +5057,38 @@ void TestDriver<TYPE,ALLOC>::testCase28()
     //:   container with the order of the existing elements in the container
     //:   remaining unchanged.
     //:
-    //: 3 The internal memory management system is hooked up properly so that
+    //: 3 'emplace_back' and 'emplace_front' return reference pointing to the
+    //:   inserted element.
+    //:
+    //: 4 The internal memory management system is hooked up properly so that
     //:   *all* internally allocated memory draws from a user-supplied
     //:   allocator whenever one is specified.
     //:
-    //: 4 'emplace_back' and 'emplace_front' provide the strong exception
+    //: 5 'emplace_back' and 'emplace_front' provide the strong exception
     //:   guarantee.
     //:
-    //: 5 There is no effect on the validity of references to elements of the
+    //: 6 There is no effect on the validity of references to elements of the
     //:   container.  (TBD not yet tested)
     //
     // Plan:
     //: 1 For 'emplace_back', create objects of varying sizes, then append an
-    //:   additional element.                                          (C-1, 3)
+    //:   additional element.                                       (C-1, 3..4)
     //:
     //:   1 Verify that the element was added to the back of the container and
     //:     that the contents of the container is as expected.            (C-1)
     //:
-    //:   2 Verify all allocations are from the object's allocator.       (C-3)
+    //:   2 Verify that returned reference points to the inserted value.  (C-3)
     //:
-    //: 2 Repeat P-1 under the presence of exceptions.                    (C-4)
+    //:   3 Verify all allocations are from the object's allocator.       (C-4)
+    //:
+    //: 2 Repeat P-1 under the presence of exceptions.                    (C-5)
     //:
     //: 3 Repeat P-1..2 for 'emplace_front', but instead verify that the new
-    //:   element is added to the front of the container (P-1.1).      (C-2..4)
+    //:   element is added to the front of the container (P-1.1).      (C-2..5)
     //
     // Testing:
-    //   void emplace_back(Args&&... args);
-    //   void emplace_front(Args&&... args);
+    //   reference emplace_back(Args&&... args);
+    //   reference emplace_front(Args&&... args);
     // ------------------------------------------------------------------------
 
     const TestValues VALUES;
@@ -5151,11 +5156,17 @@ void TestDriver<TYPE,ALLOC>::testCase28()
 
                 ASSERTV(LINE, SIZE, X.size(), SIZE == X.size());
 
-                mX.emplace_back(VALUES[ELEMENT - 'A']);
+                const TYPE& RESULT = mX.emplace_back(VALUES[ELEMENT - 'A']);
 
                 if (veryVerbose) { T_ P_(LINE) P_(ELEMENT) P(X) }
 
-                ASSERTV(LINE, SIZE, X.size(), SIZE + 1 == X.size());
+                const TYPE *ADDRESS_OF_RESULT = bsls::Util::addressOf(RESULT);
+                const TYPE *ADDRESS_OF_LAST_ELEMENT =
+                                               bsls::Util::addressOf(X.back());
+
+                ASSERTV(LINE, SIZE, X.size(), SIZE + 1  == X.size());
+                ASSERTV(LINE, SIZE,
+                        ADDRESS_OF_LAST_ELEMENT == ADDRESS_OF_RESULT);
 
                 TestValues exp(EXPECTED);
                 ASSERTV(LINE, 0 == verifyContainer(X, exp, SIZE + 1));
@@ -5184,9 +5195,17 @@ void TestDriver<TYPE,ALLOC>::testCase28()
 
                     ExceptionProctor<Obj, ALLOC> proctor(&X, L_);
 
-                    mX.emplace_back(VALUES[ELEMENT - 'A']);
+                    const TYPE& RESULT =
+                                        mX.emplace_back(VALUES[ELEMENT - 'A']);
+
+                    const TYPE *ADDRESS_OF_RESULT =
+                                                 bsls::Util::addressOf(RESULT);
+                    const TYPE *ADDRESS_OF_LAST_ELEMENT =
+                                               bsls::Util::addressOf(X.back());
 
                     ASSERTV(LINE, SIZE, X.size(), SIZE + 1 == X.size());
+                    ASSERTV(LINE, SIZE,
+                            ADDRESS_OF_LAST_ELEMENT == ADDRESS_OF_RESULT);
 
                     TestValues exp(EXPECTED);
                     ASSERTV(LINE, 0 == verifyContainer(X, exp, SIZE + 1));
@@ -5260,11 +5279,17 @@ void TestDriver<TYPE,ALLOC>::testCase28()
 
                 ASSERTV(LINE, SIZE, X.size(), SIZE == X.size());
 
-                mX.emplace_front(VALUES[ELEMENT - 'A']);
+                const TYPE& RESULT = mX.emplace_front(VALUES[ELEMENT - 'A']);
 
                 if (veryVerbose) { T_ P_(LINE) P_(ELEMENT) P(X) }
 
+                const TYPE *ADDRESS_OF_RESULT = bsls::Util::addressOf(RESULT);
+                const TYPE *ADDRESS_OF_FIRST_ELEMENT =
+                                              bsls::Util::addressOf(X.front());
+
                 ASSERTV(LINE, SIZE, X.size(), SIZE + 1 == X.size());
+                ASSERTV(LINE, SIZE, X.size(),
+                        ADDRESS_OF_FIRST_ELEMENT == ADDRESS_OF_RESULT);
 
                 TestValues exp(EXPECTED);
                 ASSERTV(LINE, 0 == verifyContainer(X, exp, SIZE + 1));
@@ -5293,9 +5318,17 @@ void TestDriver<TYPE,ALLOC>::testCase28()
 
                     ExceptionProctor<Obj, ALLOC> proctor(&X, L_);
 
-                    mX.emplace_front(VALUES[ELEMENT - 'A']);
+                    const TYPE& RESULT =
+                                       mX.emplace_front(VALUES[ELEMENT - 'A']);
+
+                    const TYPE *ADDRESS_OF_RESULT =
+                                                 bsls::Util::addressOf(RESULT);
+                    const TYPE *ADDRESS_OF_FIRST_ELEMENT =
+                                              bsls::Util::addressOf(X.front());
 
                     ASSERTV(LINE, SIZE, X.size(), SIZE + 1 == X.size());
+                    ASSERTV(LINE, SIZE, X.size(),
+                            ADDRESS_OF_FIRST_ELEMENT == ADDRESS_OF_RESULT);
 
                     TestValues exp(EXPECTED);
                     ASSERTV(LINE, 0 == verifyContainer(X, exp, SIZE + 1));

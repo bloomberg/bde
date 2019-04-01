@@ -376,66 +376,88 @@ class queue {
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args>
-    void emplace(Args&&... args);
+    reference emplace(Args&&... args);
         // Push onto this queue a newly created 'value_type' object constructed
         // by forwarding 'get_allocator()' (if required) and the specified
         // (variable number of) 'args' to the corresponding constructor of
-        // 'value_type'.
+        // 'value_type'.  Return a reference providing modifiable access to the
+        // inserted element.
 
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_queue.h
-    void emplace();
+#ifndef BSLSTL_QUEUE_VARIADIC_LIMIT
+#define BSLSTL_QUEUE_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_QUEUE_VARIADIC_LIMIT_A
+#define BSLSTL_QUEUE_VARIADIC_LIMIT_A BSLSTL_QUEUE_VARIADIC_LIMIT
+#endif
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 0
+    reference emplace();
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 0
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 1
     template <class Args_01>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+    reference emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 1
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 2
     template <class Args_01,
               class Args_02>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+    reference emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 2
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+    reference emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 3
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+    reference emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 4
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04,
               class Args_05>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+    reference emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 5
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04,
               class Args_05,
               class Args_06>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+    reference emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 6
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -443,14 +465,16 @@ class queue {
               class Args_05,
               class Args_06,
               class Args_07>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+    reference emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 7
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -459,15 +483,17 @@ class queue {
               class Args_06,
               class Args_07,
               class Args_08>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+    reference emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 8
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -477,16 +503,18 @@ class queue {
               class Args_07,
               class Args_08,
               class Args_09>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+    reference emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 9
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -497,22 +525,24 @@ class queue {
               class Args_08,
               class Args_09,
               class Args_10>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+    reference emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_A >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
     template <class... Args>
-    void emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+    reference emplace(BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+
 // }}} END GENERATED CODE
 #endif
 
@@ -766,49 +796,71 @@ queue<VALUE, CONTAINER>& queue<VALUE, CONTAINER>::operator=(
 template <class VALUE, class CONTAINER>
 template <class... Args>
 inline
-void queue<VALUE, CONTAINER>::emplace(Args&&... args)
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::emplace(Args&&... args)
 {
     c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+    return back();
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_queue.h
+#ifndef BSLSTL_QUEUE_VARIADIC_LIMIT
+#define BSLSTL_QUEUE_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_QUEUE_VARIADIC_LIMIT_B
+#define BSLSTL_QUEUE_VARIADIC_LIMIT_B BSLSTL_QUEUE_VARIADIC_LIMIT
+#endif
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 0
 template <class VALUE, class CONTAINER>
 inline
-void queue<VALUE, CONTAINER>::emplace(
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::emplace(
                                )
 {
     c.emplace_back();
+    return back();
 }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 0
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 1
 template <class VALUE, class CONTAINER>
 template <class Args_01>
 inline
-void queue<VALUE, CONTAINER>::emplace(
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::emplace(
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
 {
     c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01));
+    return back();
 }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 1
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 2
 template <class VALUE, class CONTAINER>
 template <class Args_01,
           class Args_02>
 inline
-void queue<VALUE, CONTAINER>::emplace(
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::emplace(
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
 {
     c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
                    BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02));
+    return back();
 }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 2
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 3
 template <class VALUE, class CONTAINER>
 template <class Args_01,
           class Args_02,
           class Args_03>
 inline
-void queue<VALUE, CONTAINER>::emplace(
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::emplace(
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
@@ -816,15 +868,19 @@ void queue<VALUE, CONTAINER>::emplace(
     c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args_01,args_01),
                    BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
                    BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03));
+    return back();
 }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 3
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 4
 template <class VALUE, class CONTAINER>
 template <class Args_01,
           class Args_02,
           class Args_03,
           class Args_04>
 inline
-void queue<VALUE, CONTAINER>::emplace(
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::emplace(
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
@@ -834,8 +890,11 @@ void queue<VALUE, CONTAINER>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_02,args_02),
                    BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
                    BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04));
+    return back();
 }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 4
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 5
 template <class VALUE, class CONTAINER>
 template <class Args_01,
           class Args_02,
@@ -843,7 +902,8 @@ template <class Args_01,
           class Args_04,
           class Args_05>
 inline
-void queue<VALUE, CONTAINER>::emplace(
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::emplace(
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
@@ -855,8 +915,11 @@ void queue<VALUE, CONTAINER>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_03,args_03),
                    BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
                    BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05));
+    return back();
 }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 5
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 6
 template <class VALUE, class CONTAINER>
 template <class Args_01,
           class Args_02,
@@ -865,7 +928,8 @@ template <class Args_01,
           class Args_05,
           class Args_06>
 inline
-void queue<VALUE, CONTAINER>::emplace(
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::emplace(
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
@@ -879,8 +943,11 @@ void queue<VALUE, CONTAINER>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_04,args_04),
                    BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
                    BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06));
+    return back();
 }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 6
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 7
 template <class VALUE, class CONTAINER>
 template <class Args_01,
           class Args_02,
@@ -890,7 +957,8 @@ template <class Args_01,
           class Args_06,
           class Args_07>
 inline
-void queue<VALUE, CONTAINER>::emplace(
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::emplace(
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
@@ -906,8 +974,11 @@ void queue<VALUE, CONTAINER>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_05,args_05),
                    BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
                    BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07));
+    return back();
 }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 7
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 8
 template <class VALUE, class CONTAINER>
 template <class Args_01,
           class Args_02,
@@ -918,7 +989,8 @@ template <class Args_01,
           class Args_07,
           class Args_08>
 inline
-void queue<VALUE, CONTAINER>::emplace(
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::emplace(
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
@@ -936,8 +1008,11 @@ void queue<VALUE, CONTAINER>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_06,args_06),
                    BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
                    BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08));
+    return back();
 }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 8
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 9
 template <class VALUE, class CONTAINER>
 template <class Args_01,
           class Args_02,
@@ -949,7 +1024,8 @@ template <class Args_01,
           class Args_08,
           class Args_09>
 inline
-void queue<VALUE, CONTAINER>::emplace(
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::emplace(
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
@@ -969,8 +1045,11 @@ void queue<VALUE, CONTAINER>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_07,args_07),
                    BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
                    BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09));
+    return back();
 }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 9
 
+#if BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 10
 template <class VALUE, class CONTAINER>
 template <class Args_01,
           class Args_02,
@@ -983,7 +1062,8 @@ template <class Args_01,
           class Args_09,
           class Args_10>
 inline
-void queue<VALUE, CONTAINER>::emplace(
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::emplace(
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
                             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
@@ -1005,7 +1085,9 @@ void queue<VALUE, CONTAINER>::emplace(
                    BSLS_COMPILERFEATURES_FORWARD(Args_08,args_08),
                    BSLS_COMPILERFEATURES_FORWARD(Args_09,args_09),
                    BSLS_COMPILERFEATURES_FORWARD(Args_10,args_10));
+    return back();
 }
+#endif  // BSLSTL_QUEUE_VARIADIC_LIMIT_B >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -1013,10 +1095,12 @@ void queue<VALUE, CONTAINER>::emplace(
 template <class VALUE, class CONTAINER>
 template <class... Args>
 inline
-void queue<VALUE, CONTAINER>::emplace(
+typename queue<VALUE, CONTAINER>::reference
+queue<VALUE, CONTAINER>::emplace(
                                BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
 {
     c.emplace_back(BSLS_COMPILERFEATURES_FORWARD(Args,args)...);
+    return back();
 }
 // }}} END GENERATED CODE
 #endif
