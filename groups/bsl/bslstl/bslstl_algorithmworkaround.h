@@ -82,7 +82,9 @@ using native_std::count_if;
 // searched (even if an appropriate 'operator<' is defined).
 
 
-#ifdef BSLS_LIBRARYFEATURES_STDCPP_STLPORT
+#if   defined(BSLS_LIBRARYFEATURES_STDCPP_STLPORT)                            \
+   && defined(_STLPORT_VERSION)                                               \
+   && (_STLPORT_VERSION <= 0x452)
 
 template<class FORWARD_IT, class TYPE>
 FORWARD_IT lower_bound(FORWARD_IT first, FORWARD_IT last, const TYPE& value)
@@ -108,11 +110,11 @@ FORWARD_IT lower_bound(FORWARD_IT first, FORWARD_IT last, const TYPE& value)
     return first;
 }
 
-template <class FORWARD_IT, class TYPE, class Compare>
+template <class FORWARD_IT, class TYPE, class COMPARE>
 FORWARD_IT lower_bound(FORWARD_IT  first,
                        FORWARD_IT  last,
                        const TYPE& value,
-                       Compare     comp)
+                       COMPARE     comp)
 {
     typedef typename std::iterator_traits<FORWARD_IT>::difference_type
         difference_type;
@@ -159,11 +161,11 @@ FORWARD_IT upper_bound(FORWARD_IT first, FORWARD_IT last, const TYPE& value)
     return first;
 }
 
-template <class FORWARD_IT, class TYPE, class Compare>
-FORWARD_IT upper_bound(FORWARD_IT first,
-                      FORWARD_IT last,
-                      const TYPE&  value,
-                      Compare   comp)
+template <class FORWARD_IT, class TYPE, class COMPARE>
+FORWARD_IT upper_bound(FORWARD_IT  first,
+                       FORWARD_IT  last,
+                       const TYPE& value,
+                       COMPARE     comp)
 {
     typedef typename std::iterator_traits<FORWARD_IT>::difference_type
         difference_type;
