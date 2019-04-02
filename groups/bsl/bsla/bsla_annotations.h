@@ -237,10 +237,6 @@ BSLS_IDENT("$Id: $")
 //: macro 'BSLA_{X}_IS_ACTIVE' which is defined to 0 if 'BSLA_{X}' expands to
 //: nothing and defined to 1 if 'BSLA_{X}' explands to something and works.
 
-//
-///Usage
-///-----
-
 #include <bsla_allocsize.h>
 #include <bsla_deprecated.h>
 #include <bsla_error.h>
