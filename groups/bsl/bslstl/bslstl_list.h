@@ -3299,7 +3299,7 @@ inline
 typename list<VALUE, ALLOCATOR>::reference
 list<VALUE, ALLOCATOR>::emplace_back(ARGS&&... arguments)
 {
-    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
     return back();
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -3319,7 +3319,7 @@ typename list<VALUE, ALLOCATOR>::reference
 list<VALUE, ALLOCATOR>::emplace_back(
                           )
 {
-    emplace(end());
+    emplace(cend());
     return back();
 }
 #endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 0
@@ -3332,7 +3332,7 @@ typename list<VALUE, ALLOCATOR>::reference
 list<VALUE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
-    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01));
     return back();
 }
 #endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 1
@@ -3347,8 +3347,8 @@ list<VALUE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
-    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
     return back();
 }
 #endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 2
@@ -3365,9 +3365,9 @@ list<VALUE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
-    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03));
     return back();
 }
 #endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 3
@@ -3386,10 +3386,10 @@ list<VALUE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
-    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04));
     return back();
 }
 #endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 4
@@ -3410,11 +3410,11 @@ list<VALUE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
-    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05));
     return back();
 }
 #endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 5
@@ -3437,12 +3437,12 @@ list<VALUE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
-    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06));
     return back();
 }
 #endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 6
@@ -3467,13 +3467,13 @@ list<VALUE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
-    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07));
     return back();
 }
 #endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 7
@@ -3500,14 +3500,14 @@ list<VALUE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
-    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08));
     return back();
 }
 #endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 8
@@ -3536,15 +3536,15 @@ list<VALUE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
-    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09));
     return back();
 }
 #endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 9
@@ -3575,16 +3575,16 @@ list<VALUE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
                        BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
-    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10));
     return back();
 }
 #endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 10
@@ -3599,7 +3599,7 @@ typename list<VALUE, ALLOCATOR>::reference
 list<VALUE, ALLOCATOR>::emplace_back(
                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
-    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
     return back();
 }
 // }}} END GENERATED CODE

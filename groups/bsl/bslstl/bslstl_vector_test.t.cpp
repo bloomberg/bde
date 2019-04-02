@@ -4665,7 +4665,7 @@ void TestDriver<TYPE, ALLOC>::testCase27()
     //:
     //: 2 The capacity is increased as expected.
     //:
-    //: 3 The returned reference points to the inserted element.
+    //: 3 The returned reference provides access to the inserted element.
     //:
     //: 4 The internal memory management system is hooked up properly so that
     //:   *all* internally allocated memory draws from a user-supplied
@@ -4687,7 +4687,8 @@ void TestDriver<TYPE, ALLOC>::testCase27()
     //:   2 Ensure that the order is preserved for elements before and after
     //:     the insertion point.                                       (C-1..2)
     //:
-    //:   3 Verify that returned reference points to the inserted value.  (C-3)
+    //:   3 Verify that the returned reference provides access to the
+    //:     inserted value.  (C-3)
     //:
     //:   4 Compute the number of allocations and verify it is as expected.
     //:

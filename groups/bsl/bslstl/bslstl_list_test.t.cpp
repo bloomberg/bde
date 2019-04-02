@@ -7313,8 +7313,8 @@ void TestDriver<TYPE,ALLOC>::test17_emplace()
     //:
     //: 8 That 'emplace' passes 0 to 5 arguments to the 'T' constructor.
     //:
-    //: 9 'emplace_back' and 'emplace_front' return reference pointing to the
-    //:   inserted element.
+    //: 9 'emplace_back' and 'emplace_front' return a reference to the inserted
+    //:   element.
     //
     // Plan:
     //: 1 Create objects of various sizes and insert a distinct value into each

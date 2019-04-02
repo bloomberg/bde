@@ -1846,7 +1846,8 @@ class MovableVector
         // Return an iterator pointing the first element in this non-modifiable
         // vector (or the past-the-end iterator if this vector is empty).
     {
-        return d_vector.begin(); }
+        return d_vector.begin();
+    }
 
     const_iterator end() const
         // Return the past-the-end iterator for this non-modifiable vector.
@@ -3181,7 +3182,7 @@ void TestDriver<CONTAINER>::testCase18(bool isMovableContainer)
     //: 2 The reference returned from the assignment operator is to the target
     //:   object (i.e., '*this').
     //:
-    //: 3 'emplace_back' returns reference pointing to the inserted element.
+    //: 3 'emplace_back' returns a reference to the inserted element.
     //
     // Plan:
     //: 1 Instantiate this test method for the two instrumented helper

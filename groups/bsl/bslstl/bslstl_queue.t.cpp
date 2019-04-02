@@ -2901,7 +2901,8 @@ void TestDriver<VALUE, CONTAINER>::testCase19(bool isMovableContainer)
     //:   object (i.e., '*this').
     //
     //:
-    //: 3 'emplace_back' returns reference pointing to the inserted element.   //
+    //: 3 'emplace_back' returns a reference to the inserted element.
+    //
     // Plan:
     //: 1 Instantiate this test method for the two instrumented helper
     //:   container classes: 'NonMovableVector' and 'MovableVector'.

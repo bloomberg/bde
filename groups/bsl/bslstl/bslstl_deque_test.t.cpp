@@ -5057,8 +5057,8 @@ void TestDriver<TYPE,ALLOC>::testCase28()
     //:   container with the order of the existing elements in the container
     //:   remaining unchanged.
     //:
-    //: 3 'emplace_back' and 'emplace_front' return reference pointing to the
-    //:   inserted element.
+    //: 3 'emplace_back' and 'emplace_front' return a reference to the inserted
+    //:   element.
     //:
     //: 4 The internal memory management system is hooked up properly so that
     //:   *all* internally allocated memory draws from a user-supplied
