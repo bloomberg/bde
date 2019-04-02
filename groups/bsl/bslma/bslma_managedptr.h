@@ -1946,7 +1946,7 @@ void ManagedPtr<TARGET_TYPE>::swap(ManagedPtr& other)
 // ACCESSORS
 template <class TARGET_TYPE>
 inline
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_IBM)      // last confirmed with xlC 12.1
 ManagedPtr<TARGET_TYPE>::operator typename ManagedPtr::BoolType() const
 #else
 ManagedPtr<TARGET_TYPE>::operator BoolType() const

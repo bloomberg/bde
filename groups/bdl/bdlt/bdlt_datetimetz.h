@@ -234,6 +234,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlt_datetime.h>
 #include <bdlt_datetz.h>
+#include <bdlt_time.h>
 #include <bdlt_timetz.h>
 
 #include <bslh_hash.h>

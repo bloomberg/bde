@@ -85,6 +85,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bslx_instreamfunctions.h>
 #include <bslx_outstreamfunctions.h>

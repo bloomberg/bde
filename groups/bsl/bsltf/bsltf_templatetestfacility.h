@@ -1160,11 +1160,7 @@ TYPE TemplateTestFacility::create(int identifier)
     emplace(obj.address(),
             identifier,
             &bslma::MallocFreeAllocator::singleton());
-#if defined(BSLS_PLATFORM_CMP_IBM)
     return TYPE(bslmf::MovableRefUtil::move(obj.object()));
-#else
-    return TYPE(bslmf::MovableRefUtil::move(obj.object()));
-#endif
 }
 
 template <class TYPE, class ALLOCATOR>

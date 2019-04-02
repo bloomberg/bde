@@ -451,6 +451,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_fixutilconfiguration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_ostream.h>
 #include <bsl_string.h>

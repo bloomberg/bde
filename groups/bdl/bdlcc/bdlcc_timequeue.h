@@ -621,6 +621,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_timeinterval.h>
 
+#include <bsl_cstdint.h>
 #include <bsl_map.h>
 #include <bsl_vector.h>
 
@@ -685,7 +686,7 @@ class TimeQueue {
         {}
 
         explicit Key(int key)
-        : d_key(reinterpret_cast<const void*>(key))
+        : d_key(reinterpret_cast<const void*>(static_cast<bsl::intptr_t>(key)))
             // Create a 'Key' object having the specified 'key' value cast to a
             // 'void *'.
         {}

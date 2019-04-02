@@ -114,10 +114,12 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bdlt_calendar.h>
+#include <bdlt_calendarreverseiteratoradapter.h>
 #include <bdlt_date.h>
 #include <bdlt_dayofweek.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 namespace BloombergLP {
 namespace bdlt {

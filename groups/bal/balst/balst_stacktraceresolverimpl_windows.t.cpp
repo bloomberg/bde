@@ -108,6 +108,7 @@ static const bsl::size_t npos = bsl::string::npos;
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+const int funcStaticOneLine = L_ + 5;
 static
 int funcStaticOne(int i)
     // Target function to be resolved.  Never called.  Do some arbitary
@@ -305,7 +306,7 @@ int main(int argc, char *argv[])
                       "balst::StackTraceResolverImpl<Windows> breathing test\n"
                       "====================================================\n";
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS) && !defined(BDE_BUILD_TARGET_DBG)
+#if !defined(BDE_BUILD_TARGET_DBG)
         cout << "Resolving not supported without debug symbols\n";
         break;
 #endif
@@ -343,13 +344,19 @@ int main(int argc, char *argv[])
         }
 
         if (veryVerbose) {
-            cout << "Before resolving:\n" << st;
+            cout << "Before resolving:\n";
+            for (unsigned int ii = 0; ii < st.length(); ++ii) {
+                cout << st[ii] << endl;
+            }
         }
 
         Obj::resolve(&st, true);
 
         if (veryVerbose) {
-            cout << "After  resolving:\n" << st;
+            cout << "\nAfter  resolving:\n";
+            for (unsigned int ii = 0; ii < st.length(); ++ii) {
+                cout << st[ii] << endl;
+            }
         }
 
         for (unsigned int i = 0; i < st.length(); ++i) {
@@ -366,39 +373,70 @@ int main(int argc, char *argv[])
                                    "\\balst_stacktraceresolverimpl_windows."));
             LOOP_ASSERT(libName, npos != libName.find(".exe"));
 
-            const char *sourceName, *funcName;
+            bool isStaticFunc;
+            int  expLineNumber;
+            const char *sourceName, *mangleMatch, *demangledSymbol;
             switch (i) {
               case 0: {
-                funcName = "funcStaticOne";
-                sourceName = "balst_stacktraceresolverimpl_windows.t.cpp";
+                sourceName      = "balst_stacktraceresolverimpl_windows.t.cpp";
+                mangleMatch     = "funcStaticOne";
+                demangledSymbol = mangleMatch;
+                expLineNumber   = funcStaticOneLine;
+                isStaticFunc = true;
               } break;
               case 1: {
-                funcName = "funcGlobalOne";
-                sourceName = "balst_stacktraceresolverimpl_windows.t.cpp";
+                sourceName      = "balst_stacktraceresolverimpl_windows.t.cpp";
+                mangleMatch     = "funcGlobalOne";
+                demangledSymbol = mangleMatch;
+                expLineNumber   = -1;
+                isStaticFunc    = false;
               } break;
               case 2: {
-                funcName = "resolve";
-                sourceName = "balst_stacktraceresolverimpl_windows.cpp";
+                sourceName      = "balst_stacktraceresolverimpl_windows.cpp";
+                mangleMatch     = "resolve";
+                demangledSymbol = "BloombergLP::balst::StackTraceResolverImpl<"
+                                "BloombergLP::balst::ObjectFileFormat::Windows"
+                                                                  ">::resolve";
+                expLineNumber   = -1;
+                isStaticFunc = false;
               } break;
-            }
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-# if  (BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000)
-            if (0 == i) {
-                // Statics are invisible on most versions of the MSVC compiler.
-
+              default: {
+                ASSERT(0 && "unrecognized case");
                 continue;
+              }
             }
 
-            enum { e_SOURCE = false };
-            enum { e_DEMANGLE = false };
-# else
-            enum { e_SOURCE = true };
-            enum { e_DEMANGLE = true };
-# endif
+#if  (BSLS_PLATFORM_CMP_VERSION >= 1700 && BSLS_PLATFORM_CMP_VERSION < 2000)
+            // with the exception of static identifiers, taking function ptrs
+            // via '&<symbolName>' doesn't work right on Windows.  The Windows
+            // resolver is able to resolve addresses harvested via a stack walk
+            // back just fine, but function ptrs seemu to be a different beast.
+            // Possibly they point to some kind of record which somehow
+            // contains a pointer to the function.  But I experimented with
+            // retrieving pointers at a wide variety of offsets from the
+            // '&<symbolName>' location, and that didn't work at all.
+            //
+            // The object pointed at by the '&<symbolName>', if fed into the
+            // resolver, yields a garbled version of the symbol name, and
+            // resolving the source file name and symbol name doesn't work.
+            //
+            // So in this test, since we don't want a dependency on stack
+            // walkback, we will just resolve the func ptrs and settled for the
+            // garbled symbol name it yields, and not look at the source file
+            // name or line number.  When MSVC version >= cl-20.00 comes out,
+            // we'll re-examine this.
+            //
+            // Full testing of demangled symbols, source file names, and line
+            // numbers, will be done in balst_stacktraceutil.t.cpp.
+
+            const bool testSourceFile = isStaticFunc;
+            const bool testDemangled  = isStaticFunc;
+#else
+            const bool testSourceFile = true;
+            const bool testDemangled  = true;
 #endif
 
-            if (e_SOURCE) {
+            if (testSourceFile) {
                 bsl::size_t fnIdx;
                 LOOP_ASSERT(i, npos !=
                             (fnIdx = frame.sourceFileName().find(sourceName)));
@@ -408,20 +446,30 @@ int main(int argc, char *argv[])
                                      sourceName));
             }
 
-            if (e_DEMANGLE) {
-                LOOP3_ASSERT(i, frame.symbolName(), funcName,
-                                     i >= 2 || frame.symbolName() == funcName);
-                LOOP3_ASSERT(i, frame.symbolName(), funcName,
-                                    npos != frame.symbolName().find(funcName));
-                LOOP3_ASSERT(i, frame.mangledSymbolName(), funcName,
-                             npos != frame.mangledSymbolName().find(funcName));
+            LOOP3_ASSERT(i, frame.mangledSymbolName(), mangleMatch,
+                          npos != frame.mangledSymbolName().find(mangleMatch));
+
+            if (testDemangled) {
+                bsl::size_t pos = frame.symbolName().rfind('(');
+                pos = npos == pos ? frame.symbolName().length() : pos;
+                bsl::string symName(frame.symbolName(), &ta);
+                symName.resize(pos);
+                pos = symName.find_last_of(" *&", pos);
+                pos = npos == pos ? 0 : pos + 1;
+                symName.erase(0, pos);
+                if (veryVerbose) P(symName);
+                LOOP_ASSERT(symName, 4 < symName.length());
+                LOOP3_ASSERT(i, symName, demangledSymbol,
+                                                   symName == demangledSymbol);
             }
             else {
-                LOOP3_ASSERT(i, frame.symbolName(), funcName,
-                                    npos != frame.symbolName().find(funcName));
-                LOOP3_ASSERT(i, frame.mangledSymbolName(), funcName,
-                             npos != frame.mangledSymbolName().find(funcName));
+                LOOP3_ASSERT(i, frame.symbolName(), mangleMatch,
+                                 npos != frame.symbolName().find(mangleMatch));
             }
+
+            LOOP3_ASSERT(i, frame.lineNumber(), expLineNumber,
+                                                         expLineNumber == -1 ||
+                                 abs(frame.lineNumber() - expLineNumber) < 10);
 
             if (testStatus > iterationTestStatus) {
                 P(st[i]);

@@ -15,22 +15,44 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#include <bsls_compilerfeatures.h>
 #include <bsls_nativestd.h>
 
-#include <array>
+#ifdef BSL_OVERRIDES_STD
+// BDE configuration requires 'bsl+stdhdrs' be in the search path, so this
+// #include is guaranteed to succeed.
+# include <array>
+#elif defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE)
+// The array is a feature of the C++11 library, rather than C++03, so might not
+// be present in all native libraries on the platforms we support.  Detect the
+// native header using '__has_include' where available.
+# if __has_include(<array>)
+#  include <array>
+# endif
+#else
+# include <array>
+#endif
+#endif
 
-namespace bsl {
+// Include Bloomberg's implementation, unless compilation is configured to
+// override native types in the 'std' namespace with Bloomberg's
+// implementation, in which case the implementation file will be included by
+// the Bloomberg supplied standard header file.
 
-    using native_std::array;
-    using native_std::begin;
-    using native_std::end;
-
-}  // close package namespace
+#ifndef BSL_OVERRIDES_STD
+// According to C++11 Standard (24.6.5 range access)some functions (begin(),
+// cbegin() etc.) must be available not only via inclusion of the <iterator>
+// header, but also when <array> is included. To satisfy this requirement the
+// following inclusion is added.
+# include <bslstl_array.h>
+# include <bslstl_iterator.h>
+#endif
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

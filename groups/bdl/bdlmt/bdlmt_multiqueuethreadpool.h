@@ -318,6 +318,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bslmt_lockguard.h>
 #include <bdlmt_threadpool.h>
 
 #include <bdlcc_objectpool.h>
@@ -332,7 +333,9 @@ BSLS_IDENT("$Id: $")
 #include <bslmt_readerwritermutex.h>
 #include <bslmt_readlockguard.h>
 #include <bslmt_semaphore.h>
+#include <bslmt_writelockguard.h>
 
+#include <bsls_assert.h>
 #include <bsls_atomic.h>
 
 #include <bsl_deque.h>
@@ -559,7 +562,7 @@ class MultiQueueThreadPool {
 
     bsls::AtomicInt   d_numActiveQueues;    // number of non-empty queues
 
-    bsls::AtomicInt   d_numDequeued;        // the total number of requests
+    bsls::AtomicInt   d_numExecuted;        // the total number of requests
                                             // processed by this pool since the
                                             // last time this value was reset
 
@@ -567,6 +570,10 @@ class MultiQueueThreadPool {
                                             // enqueued into this pool since
                                             // the last time this value was
                                             // reset
+
+    bsls::AtomicInt   d_numDeleted;         // the total number of requests
+                                            // deleted from this pool since the
+                                            // last time this value was reset
   private:
     // NOT IMPLEMENTED
     MultiQueueThreadPool(const MultiQueueThreadPool&);
@@ -693,10 +700,15 @@ class MultiQueueThreadPool {
         // to call 'enableQueue' if a previous call to 'stop' is being
         // executed.
 
-    void numProcessedReset(int *numDequeued, int *numEnqueued);
-        // Load into the specified 'numDequeued' and 'numEnqueued' the number
+    void numProcessedReset(int *numExecuted,
+                           int *numEnqueued,
+                           int *numDeleted = 0);
+        // Load into the specified 'numExecuted' and 'numEnqueued' the number
         // of items dequeued / enqueued (respectively) since the last time
-        // these values were reset and reset these values.
+        // these values were reset and reset these values.  Optionally specify
+        // a 'numDeleted' used to load into the number of items deleted since
+        // the last time this value was reset.  Reset the count of deleted
+        // items.
 
     int pauseQueue(int id);
         // Wait until any currently-executing job on the queue with the
@@ -762,15 +774,23 @@ class MultiQueueThreadPool {
         // Return an instantaneous snapshot of the number of queues managed by
         // this object.
 
+    int numElements() const;
+        // Return an instantaneous snapshot of the total number of elements
+        // enqueued.
+
     int numElements(int id) const;
         // Return an instantaneous snapshot of the number of elements enqueued
         // in the queue associated with the specified 'id' as a non-negative
         // integer, or -1 if 'id' does not specify a valid queue.
 
-    void numProcessed(int *numDequeued, int *numEnqueued) const;
-        // Load into the specified 'numDequeued' and 'numEnqueued' the number
+    void numProcessed(int *numExecuted,
+                      int *numEnqueued,
+                      int *numDeleted = 0) const;
+        // Load into the specified 'numExecuted' and 'numEnqueued' the number
         // of items dequeued / enqueued (respectively) since the last time
-        // these values were reset.
+        // these values were reset.  Optionally specify a 'numDeleted' used to
+        // load into the number of items deleted since the last time this value
+        // was reset.
 
     const ThreadPool& threadPool() const;
         // Return a reference to the non-modifiable thread pool owned by this
@@ -805,12 +825,14 @@ void MultiQueueThreadPool_Queue::setPaused()
                                                     enqueueJob(d_list.front());
 
         BSLS_ASSERT(0 == status);  (void)status;
+
+        // Note that 'd_numActiveQueues' is decremented at the completion of
+        // 'deleteQueueCb', and hence should not be modified on this execution
+        // path.
     }
-
-    // Note that decreasing the number of active queues must be done last to
-    // ensure the 'enqueueJob' above will always succeed.
-
-    --d_multiQueueThreadPool_p->d_numActiveQueues;
+    else {
+        --d_multiQueueThreadPool_p->d_numActiveQueues;
+    }
 }
 
 // ACCESSORS
@@ -912,14 +934,21 @@ int MultiQueueThreadPool::enqueueJob(int id, const Job& functor)
 }
 
 inline
-void MultiQueueThreadPool::numProcessedReset(int *numDequeued,
-                                             int *numEnqueued)
+void MultiQueueThreadPool::numProcessedReset(int *numExecuted,
+                                             int *numEnqueued,
+                                             int *numDeleted)
 {
-    // Implementation note: This is not entirely thread-consistent, though
-    // thread safe.  If in between the two 'swap' operations the number
-    // enqueued changes, we can get a slightly inconsistent picture.
+    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-    *numDequeued = d_numDequeued.swap(0);
+    // To maintain consistency, all three must be zeroed atomically.
+    
+    *numExecuted = d_numExecuted.swap(0);
+    if (numDeleted) {
+        *numDeleted = d_numDeleted.swap(0);
+    }
+    else {
+        d_numDeleted = 0;
+    }
     *numEnqueued = d_numEnqueued.swap(0);
 }
 
@@ -953,6 +982,14 @@ bool MultiQueueThreadPool::isPaused(int id) const
 }
 
 inline
+int MultiQueueThreadPool::numElements() const
+{
+    // Access 'd_numEnqueued' last to ensure the result is non-negative.
+
+    return -(d_numExecuted + d_numDeleted) + d_numEnqueued;
+}
+
+inline
 int MultiQueueThreadPool::numElements(int id) const
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
@@ -967,10 +1004,17 @@ int MultiQueueThreadPool::numElements(int id) const
 }
 
 inline
-void MultiQueueThreadPool::numProcessed(int *numDequeued,
-                                        int *numEnqueued) const
+void MultiQueueThreadPool::numProcessed(int *numExecuted,
+                                        int *numEnqueued,
+                                        int *numDeleted) const
 {
-    *numDequeued = d_numDequeued;
+    // Access 'd_numEnqueued' last to ensure
+    // 'numEnqueued >= numExecuted + numDeleted'.
+
+    *numExecuted = d_numExecuted;
+    if (numDeleted) {
+        *numDeleted = d_numDeleted;
+    }
     *numEnqueued = d_numEnqueued;
 }
 
@@ -994,7 +1038,7 @@ const ThreadPool& MultiQueueThreadPool::threadPool() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

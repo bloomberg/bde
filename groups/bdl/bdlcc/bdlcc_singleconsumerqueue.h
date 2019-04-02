@@ -198,7 +198,7 @@ class SingleConsumerQueue {
 
     // PUBLIC CONSTANTS
     enum {
-        e_SUCCESS  = Impl::e_SUCCESS,
+        e_SUCCESS  = Impl::e_SUCCESS,  // must be 0
         e_EMPTY    = Impl::e_EMPTY,
         e_DISABLED = Impl::e_DISABLED
     };
@@ -218,56 +218,60 @@ class SingleConsumerQueue {
         // memory.  If 'basicAllocator' is 0, the currently installed default
         // allocator is used.
 
-    ~SingleConsumerQueue();
+    // ~SingleConsumerQueue() = default;
         // Destroy this object.
 
     // MANIPULATORS
     int popFront(TYPE* value);
         // Remove the element from the front of this queue and load that
         // element into the specified 'value'.  If the queue is empty, block
-        // until it is not empty.  Return 0 on success, and a non-zero value if
+        // until it is not empty.  Return 0 on success, and a non-zero value
+        // otherwise.  Specifically, return 'e_DISABLED' if
         // 'isPopFrontDisabled()'.  On failure, 'value' is not changed.
-        // Threads blocked due to the queue being empty will return a non-zero
-        // value if 'disablePopFront' is invoked.
+        // Threads blocked due to the queue being empty will return
+        // 'e_DISABLED' if 'disablePopFront' is invoked.  The behavior is
+        // undefined unless the invoker of this method is the single consumer.
 
     int pushBack(const TYPE& value);
         // Append the specified 'value' to the back of this queue.  Return 0 on
-        // success, and a nonzero value if 'isPushBackDisabled()'.  On failure,
-        // 'value' is not changed.  The behavior is undefined unless the
-        // invoker of this method is the single consumer.
+        // success, and a non-zero value otherwise.  Specifically, return
+        // 'e_DISABLED' if 'isPushBackDisabled()'.
 
     int pushBack(bslmf::MovableRef<TYPE> value);
         // Append the specified move-insertable 'value' to the back of this
         // queue.  'value' is left in a valid but unspecified state.  Return 0
-        // on success, and a nonzero value if 'isPushBackDisabled()'.  On
-        // failure, 'value' is not changed.  The behavior is undefined unless
-        // the invoker of this method is the single consumer.
+        // on success, and a non-zero value otherwise.  Specifically, return
+        // 'e_DISABLED' if 'isPushBackDisabled()'.  On failure, 'value' is not
+        // changed.
 
     void removeAll();
         // Remove all items currently in this queue.  Note that this operation
         // is not atomic; if other threads are concurrently pushing items into
         // the queue the result of 'numElements()' after this function returns
-        // is not guaranteed to be 0.
+        // is not guaranteed to be 0.  The behavior is undefined unless the
+        // invoker of this method is the single consumer.
 
     int tryPopFront(TYPE *value);
         // Attempt to remove the element from the front of this queue without
         // blocking, and, if successful, load the specified 'value' with the
-        // removed element.  Return 0 on success, 'e_EMPTY' if the queue was
-        // empty, and 'e_DISABLED' if 'isPopFrontDisabled()'.  On failure,
-        // 'value' is not changed.
+        // removed element.  Return 0 on success, and a non-zero value
+        // otherwise.  Specifically, return 'e_DISABLED' if
+        // 'isPopFrontDisabled()', and 'e_EMPTY' if '!isPopFrontDisabled()' and
+        // the queue was empty.  On failure, 'value' is not changed.  The
+        // behavior is undefined unless the invoker of this method is the
+        // single consumer.
 
     int tryPushBack(const TYPE& value);
         // Append the specified 'value' to the back of this queue.  Return 0 on
-        // success, and a nonzero value if 'isPushBackDisabled()'.  On failure,
-        // 'value' is not changed.  The behavior is undefined unless the
-        // invoker of this method is the single consumer.
+        // success, and a non-zero value otherwise.  Specifically, return
+        // 'e_DISABLED' if 'isPushBackDisabled()'.
 
     int tryPushBack(bslmf::MovableRef<TYPE> value);
         // Append the specified move-insertable 'value' to the back of this
         // queue.  'value' is left in a valid but unspecified state.  Return 0
-        // on success, and a nonzero value if 'isPushBackDisabled()'.  On
-        // failure, 'value' is not changed.  The behavior is undefined unless
-        // the invoker of this method is the single consumer.
+        // on success, and a non-zero value otherwise.  Specifically, return
+        // 'e_DISABLED' if 'isPushBackDisabled()'.  On failure, 'value' is not
+        // changed.
 
                        // Enqueue/Dequeue State
 
@@ -317,11 +321,10 @@ class SingleConsumerQueue {
 
     int waitUntilEmpty() const;
         // Block until all the elements in this queue are removed.  Return 0 on
-        // success, and a non-zero value if
-        // '!isEmpty() && isPopFrontDisabled()'.  A blocked thread waiting for
-        // the queue to empty will return a non-zero value if 'disablePopFront'
-        // is invoked.  The behavior is undefined unless the invoker of this
-        // method is the single consumer.
+        // success, and a non-zero value otherwise.  Specifically, return
+        // 'e_DISABLED' if '!isEmpty() && isPopFrontDisabled()'.  A blocked
+        // thread waiting for the queue to empty will return 'e_DISABLED' if
+        // 'disablePopFront' is invoked.
 
                                   // Aspects
 
@@ -350,11 +353,6 @@ SingleConsumerQueue<TYPE>::SingleConsumerQueue(
                                               bsl::size_t       capacity,
                                               bslma::Allocator *basicAllocator)
 : d_impl(capacity, basicAllocator)
-{
-}
-
-template <class TYPE>
-SingleConsumerQueue<TYPE>::~SingleConsumerQueue()
 {
 }
 
@@ -478,7 +476,7 @@ bslma::Allocator *SingleConsumerQueue<TYPE>::allocator() const
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

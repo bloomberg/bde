@@ -130,11 +130,11 @@ void bslmt::ReaderWriterLock::lockReadReserveWrite()
     }
 
     if (d_owned) {
-        d_owned = 0;
+        d_owned = false;
     }
 
     d_owner = ThreadUtil::selfId();
-    d_owned = 1;
+    d_owned = true;
 }
 
 void bslmt::ReaderWriterLock::lockWrite()
@@ -164,7 +164,7 @@ void bslmt::ReaderWriterLock::lockWrite()
         d_mutex.unlock();
     }
     d_owner = ThreadUtil::selfId();
-    d_owned = 1;
+    d_owned = true;
 }
 
 int bslmt::ReaderWriterLock::tryLockRead()
@@ -202,7 +202,7 @@ int bslmt::ReaderWriterLock::tryLockWrite()
              != rwcount );
 
     d_owner = ThreadUtil::selfId();
-    d_owned = 1;
+    d_owned = true;
     return 0;
 }
 
@@ -291,7 +291,7 @@ int bslmt::ReaderWriterLock::upgradeToWriteLock()
 
     if (!mine) {
         d_owner = me;
-        d_owned = 1;
+        d_owned = true;
     }
 
     return atomic ? 0 : 1;
@@ -353,7 +353,7 @@ int bslmt::ReaderWriterLock::tryUpgradeToWriteLock()
 
     if (!mine) {
         d_owner = me;
-        d_owned = 1;
+        d_owned = true;
     }
 
     return 0;
@@ -369,7 +369,7 @@ void bslmt::ReaderWriterLock::unlock()
                                                    ThreadUtil::selfId());
     int sigType;
 
-    if (mine) d_owned = 0;
+    if (mine) d_owned = false;
 
     do {
         sigType=e_SIG_NONE;

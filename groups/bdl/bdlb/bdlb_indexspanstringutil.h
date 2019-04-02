@@ -341,6 +341,8 @@ IndexSpanStringUtil::createFromPosImp(
     BSLS_ASSERT(end   <= string.size());
     BSLS_ASSERT(begin <= end);
 
+    (void)string;  // remove unused parameter warnings
+
     return IndexSpan(begin, end - begin);
 }
 
@@ -353,6 +355,8 @@ IndexSpanStringUtil::createImp(const bslstl::StringRefImp<CHAR_TYPE>& string,
 {
     BSLS_ASSERT(begin          <= string.size());
     BSLS_ASSERT(begin + length <= string.size());
+
+    (void)string;  // remove unused parameter warnings
 
     return IndexSpan(begin, length);
 }

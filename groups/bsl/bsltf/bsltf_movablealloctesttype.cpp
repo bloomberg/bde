@@ -22,6 +22,17 @@ namespace bsltf {
                         // --------------------------
 
 // CREATORS
+MovableAllocTestType::MovableAllocTestType()
+: d_data_p(0)
+, d_allocator_p(bslma::Default::allocator(0))
+, d_self_p(this)
+, d_movedFrom(bsltf::MoveState::e_NOT_MOVED)
+, d_movedInto(bsltf::MoveState::e_NOT_MOVED)
+{
+    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = 0;
+}
+
 MovableAllocTestType::MovableAllocTestType(bslma::Allocator *basicAllocator)
 : d_data_p(0)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))

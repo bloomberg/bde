@@ -270,6 +270,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bdlat_bdeatoverrides.h>
 

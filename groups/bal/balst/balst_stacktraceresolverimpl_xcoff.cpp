@@ -1708,53 +1708,53 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::resolveSegment(
 
                 bslmt::QLockGuard lockGuard(&s_demangleQLock);
 
-#               if defined(BSLS_PLATFORM_CMP_GNU)
-                    // Note that this demangling call has never worked.  The
-                    // code is just left here so that, should GNU / XCOFF
-                    // should become a higher priority, we will know that this
-                    // approach was not successful.
+#if defined(BSLS_PLATFORM_CMP_GNU)
+                // Note that this demangling call has never worked.  The code
+                // is just left here so that, should GNU / XCOFF should become
+                // a higher priority, we will know that this approach was not
+                // successful.
 
-                    // When called this way, '__cxa_demangle' returns a buffer
-                    // allocated via 'malloc', which 'u::FreeGuard' will free
-                    // if appropriate.
+                // When called this way, '__cxa_demangle' returns a buffer
+                // allocated via 'malloc', which 'u::FreeGuard' will free if
+                // appropriate.
 
-                    int status;
-                    char *demangled = abi::__cxa_demangle(
-                                            frame->mangledSymbolName().c_str(),
-                                            0,
-                                            0,
-                                            &status);
-                    u::FreeGuard freeGuard(demangled);
-                    if (0 == status && demangled) {
-                        zprintf("Demangled to %s\n", demangled);
-                        frame->setSymbolName(demangled);
-                    }
-#               else
-                    // Note that 'Demangle' allocates with 'new', and that
-                    // 'remainder' is passed as a reference to a modifiable.
-                    // Assigning the result of 'Demangle' to an 'auto_ptr'
-                    // means it will be free with 'delete', or that no freeing
-                    // will occur if 'Demangle' returns 0.  Also note that
-                    // whoever wrote 'Demangle' didn't know how to use 'const'.
+                int status;
+                char *demangled = abi::__cxa_demangle(
+                                        frame->mangledSymbolName().c_str(),
+                                        0,
+                                        0,
+                                        &status);
+                u::FreeGuard freeGuard(demangled);
+                if (0 == status && demangled) {
+                    zprintf("Demangled to %s\n", demangled);
+                    frame->setSymbolName(demangled);
+                }
+#else
+                // Note that 'Demangle' allocates with 'new', and that
+                // 'remainder' is passed as a reference to a modifiable.
+                // Assigning the result of 'Demangle' to an 'auto_ptr' means it
+                // will be free with 'delete', or that no freeing will occur if
+                // 'Demangle' returns 0.  Also note that whoever wrote
+                // 'Demangle' didn't know how to use 'const'.
 
-                    bsl::auto_ptr<Name> name;
-                    char *remainder = 0;
-                    name.reset(Demangle(const_cast<char *>(symbolName),
-                                        remainder));
-                    if (name.get() && remainder && *remainder) {
-                        // For some reason, Demangle may leave some trailing
-                        // crud at the end of the string pointed at by 'name'.
-                        // 'remainder' points to the end of the identifier and
-                        // the beginning of that crud.
+                bsl::auto_ptr<Name> name;
+                char *remainder = 0;
+                name.reset(Demangle(const_cast<char *>(symbolName),
+                                    remainder));
+                if (name.get() && remainder && *remainder) {
+                    // For some reason, Demangle may leave some trailing crud
+                    // at the end of the string pointed at by 'name'.
+                    // 'remainder' points to the end of the identifier and the
+                    // beginning of that crud.
 
-                        *remainder = 0;
-                    }
-                    if (name.get()) {
-                        char *text = name->Text();
-                        zprintf("Demangled to %s\n", text);
-                        frame->setSymbolName(text);
-                    }
-#               endif
+                    *remainder = 0;
+                }
+                if (name.get()) {
+                    char *text = name->Text();
+                    zprintf("Demangled to %s\n", text);
+                    frame->setSymbolName(text);
+                }
+#endif
             }
             if (false == frame->isSymbolNameKnown()) {
                 zprintf("Did not demangle: %s\n",

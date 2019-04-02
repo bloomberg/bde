@@ -90,10 +90,13 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bdlscm_version.h>
 
+#include <bdlb_printmethods.h>
+
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -124,6 +127,7 @@ class DatumBinaryRef {
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(DatumBinaryRef, bsl::is_trivially_copyable);
+    BSLMF_NESTED_TRAIT_DECLARATION(DatumBinaryRef, bdlb::HasPrintMethod);
 
     // CREATORS
     DatumBinaryRef();

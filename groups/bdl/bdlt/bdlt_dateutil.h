@@ -149,6 +149,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlt_serialdateimputil.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 namespace BloombergLP {
 namespace bdlt {

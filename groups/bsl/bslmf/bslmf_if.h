@@ -7,6 +7,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compile-time 'if/else' (conditional) meta-function.
 //
+//@DEPRECATED: use 'bsl::conditional' instead.
+//
 //@CLASSES:
 //  bslmf::If: meta-function for compile-time selection of one of two types
 //

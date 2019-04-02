@@ -98,11 +98,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
+#include <bdlt_time.h>
 
 #include <bslmf_integralconstant.h>
 #include <bslmf_istriviallycopyable.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
 

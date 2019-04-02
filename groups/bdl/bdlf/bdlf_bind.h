@@ -879,6 +879,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_if.h>
 #include <bslmf_matchanytype.h>
 #include <bslmf_memberfunctionpointertraits.h>
+#include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_nil.h>
 #include <bslmf_resulttype.h>
 #include <bslmf_tag.h>

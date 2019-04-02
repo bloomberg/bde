@@ -335,7 +335,7 @@ class SingleProducerQueueImpl {
 
     // PUBLIC CONSTANTS
     enum {
-        e_SUCCESS  =  0,
+        e_SUCCESS  =  0,  // must be 0
         e_EMPTY    = -1,
         e_DISABLED = -2
     };
@@ -360,23 +360,25 @@ class SingleProducerQueueImpl {
     int popFront(TYPE *value);
         // Remove the element from the front of this queue and load that
         // element into the specified 'value'.  If the queue is empty, block
-        // until it is not empty.  Return 0 on success, and a non-zero value if
+        // until it is not empty.  Return 0 on success, and a non-zero value
+        // otherwise.  Specifically, return 'e_DISABLED' if
         // 'isPopFrontDisabled()'.  On failure, 'value' is not changed.
-        // Threads blocked due to the queue being empty will return a non-zero
-        // value if 'disablePopFront' is invoked.
+        // Threads blocked due to the queue being empty will return
+        // 'e_DISABLED' if 'disablePopFront' is invoked.
 
     int pushBack(const TYPE& value);
         // Append the specified 'value' to the back of this queue.  Return 0 on
-        // success, and a nonzero value if 'isPushBackDisabled()'.  On failure,
-        // 'value' is not changed.  The behavior is undefined unless the
-        // invoker of this method is the single producer.
+        // success, and a non-zero value otherwise.  Specifically, return
+        // 'e_DISABLED' if 'isPushBackDisabled()'.  The behavior is undefined
+        // unless the invoker of this method is the single producer.
 
     int pushBack(bslmf::MovableRef<TYPE> value);
         // Append the specified move-insertable 'value' to the back of this
         // queue.  'value' is left in a valid but unspecified state.  Return 0
-        // on success, and a nonzero value if 'isPushBackDisabled()'.  On
-        // failure, 'value' is not changed.  The behavior is undefined unless
-        // the invoker of this method is the single producer.
+        // on success, and a non-zero value otherwise.  Specifically, return
+        // 'e_DISABLED' if 'isPushBackDisabled()'.  On failure, 'value' is not
+        // changed.  The behavior is undefined unless the invoker of this
+        // method is the single producer.
 
     void removeAll();
         // Remove all items currently in this queue.  Note that this operation
@@ -387,22 +389,24 @@ class SingleProducerQueueImpl {
     int tryPopFront(TYPE *value);
         // Attempt to remove the element from the front of this queue without
         // blocking, and, if successful, load the specified 'value' with the
-        // removed element.  Return 0 on success, 'e_EMPTY' if the queue was
-        // empty, and 'e_DISABLED' if 'isPopFrontDisabled()'.  On failure,
-        // 'value' is not changed.
+        // removed element.  Return 0 on success, and a non-zero value
+        // otherwise.  Specifically, return 'e_DISABLED' if
+        // 'isPopFrontDisabled()', and 'e_EMPTY' if '!isPopFrontDisabled()' and
+        // the queue was empty.  On failure, 'value' is not changed.
 
     int tryPushBack(const TYPE& value);
         // Append the specified 'value' to the back of this queue.  Return 0 on
-        // success, and a nonzero value if 'isPushBackDisabled()'.  On failure,
-        // 'value' is not changed.  The behavior is undefined unless the
-        // invoker of this method is the single producer.
+        // success, and a non-zero value otherwise.  Specifically, return
+        // 'e_DISABLED' if 'isPushBackDisabled()'.  The behavior is undefined
+        // unless the invoker of this method is the single producer.
 
     int tryPushBack(bslmf::MovableRef<TYPE> value);
         // Append the specified move-insertable 'value' to the back of this
         // queue.  'value' is left in a valid but unspecified state.  Return 0
-        // on success, and a nonzero value if 'isPushBackDisabled()'.  On
-        // failure, 'value' is not changed.  The behavior is undefined unless
-        // the invoker of this method is the single producer.
+        // on success, and a non-zero value otherwise.  Specifically, return
+        // 'e_DISABLED" if 'isPushBackDisabled()'.  On failure, 'value' is not
+        // changed.  The behavior is undefined unless the invoker of this
+        // method is the single producer.
 
                        // Enqueue/Dequeue State
 
@@ -452,10 +456,10 @@ class SingleProducerQueueImpl {
 
     int waitUntilEmpty() const;
         // Block until all the elements in this queue are removed.  Return 0 on
-        // success, and a non-zero value if
-        // '!isEmpty() && isPopFrontDisabled()'.  A blocked thread waiting for
-        // the queue to empty will return a non-zero value if 'disablePopFront'
-        // is invoked.
+        // success, and a non-zero value otherwise.  Specifically, return
+        // 'e_DISABLED' if '!isEmpty() && isPopFrontDisabled()'.  A blocked
+        // thread waiting for the queue to empty will return 'e_DISABLED' if
+        // 'disablePopFront' is invoked.
 
                                   // Aspects
 
@@ -1118,7 +1122,7 @@ bslma::Allocator *SingleProducerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>::
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

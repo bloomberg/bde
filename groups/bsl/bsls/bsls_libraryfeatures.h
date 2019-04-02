@@ -956,7 +956,7 @@ BSLS_IDENT("$Id: $")
         #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY                  1
         #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF                 1
     #endif
-    #if defined(__GXX_EXPERIMENTAL_CXX0X__)
+    #if defined(__GXX_EXPERIMENTAL_CXX0X__) && (__cplusplus >= 201103L)
         #if BSLS_PLATFORM_CMP_VERSION >= 40600
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS    1
         #endif
@@ -1095,6 +1095,8 @@ BSLS_IDENT("$Id: $")
         #if defined(__GXX_EXPERIMENTAL_CXX0X__)
             #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY              1
             #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF             1
+        #endif
+        #if defined(__GXX_EXPERIMENTAL_CXX0X__) && (__cplusplus >= 201103L)
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY   1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING 1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR 1
@@ -1111,6 +1113,8 @@ BSLS_IDENT("$Id: $")
         #if defined(__GXX_EXPERIMENTAL_CXX0X__)
             #define BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY              1
             #define BSLS_LIBRARYFEATURES_HAS_C99_SNPRINTF             1
+        #endif
+        #if defined(__GXX_EXPERIMENTAL_CXX0X__) && (__cplusplus >= 201103L)
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY   1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS    1
             #define BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING 1

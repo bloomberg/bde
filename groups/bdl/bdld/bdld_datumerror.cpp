@@ -27,23 +27,11 @@ bsl::ostream& DatumError::print(bsl::ostream& stream,
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start(true);
 
-    if (0 > spacesPerLevel) {   // single-line format
-        stream << "error(" << d_code;
-        if (!d_message.isEmpty()) {
-            stream << ",'" << d_message << "'";
-        }
-        stream << ")";
-    } else {                    // multi-line format
-        stream << "error(\n";
-        printer.printIndentation();
-        stream << d_code;
-        if (!d_message.isEmpty()) {
-            stream << ",'" << d_message << "'";
-        }
-        stream << "\n";
-        printer.printEndIndentation();
-        stream << ")";
+    stream << "error(" << d_code;
+    if (!d_message.isEmpty()) {
+        stream << ",'" << d_message << "'";
     }
+    stream << ")";
 
     printer.end(true);
 

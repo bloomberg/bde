@@ -92,12 +92,22 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 
 #include <bsl_climits.h>
 #include <bsl_cstdint.h>
 
-#ifdef BSLS_PLATFORM_CMP_IBM
+#ifdef BSLS_PLATFORM_CMP_IBM    // Use IBM intrinsics
 #include <builtins.h>
+# define BDLB_BITUTIL_USE_IBM_INTRINSICS 1
+    // Use the intrinsics that map directly to CPU instructions on IBM
+#endif
+
+
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+# define BDLB_BITUTIL_USE_GNU_INTRINSICS 1
+    // Use optimal intrinsics that know about CPU instruction sets on compilers
+    // the recognize the Gnu intrinsic spellings.
 #endif
 
 namespace BloombergLP {
@@ -249,9 +259,9 @@ int BitUtil::log2(uint64_t value)
 inline
 int BitUtil::numBitsSet(uint32_t value)
 {
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
     return __popcnt4(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     return __builtin_popcount(value);
 #else
     return privateNumBitsSet(value);
@@ -261,9 +271,9 @@ int BitUtil::numBitsSet(uint32_t value)
 inline
 int BitUtil::numBitsSet(uint64_t value)
 {
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
     return __popcnt8(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     return __builtin_popcountll(value);
 #else
     return privateNumBitsSet(value);
@@ -273,9 +283,9 @@ int BitUtil::numBitsSet(uint64_t value)
 inline
 int BitUtil::numLeadingUnsetBits(uint32_t value)
 {
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
     return __cntlz4(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     // '__builtin_clz(0)' is undefined
     return __builtin_clz(value | 1) + static_cast<int>(!value);
 #else
@@ -286,9 +296,9 @@ int BitUtil::numLeadingUnsetBits(uint32_t value)
 inline
 int BitUtil::numLeadingUnsetBits(uint64_t value)
 {
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
     return __cntlz8(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     // '__builtin_clzll(0)' is undefined
     return __builtin_clzll(value | 1) + static_cast<int>(!value);
 #else
@@ -299,9 +309,9 @@ int BitUtil::numLeadingUnsetBits(uint64_t value)
 inline
 int BitUtil::numTrailingUnsetBits(uint32_t value)
 {
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
     return __cnttz4(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     enum {
         k_INT32_MASK = k_BITS_PER_INT32 - 1
     };
@@ -320,9 +330,9 @@ int BitUtil::numTrailingUnsetBits(uint32_t value)
 inline
 int BitUtil::numTrailingUnsetBits(uint64_t value)
 {
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BDLB_BITUTIL_USE_IBM_INTRINSICS)
     return __cnttz8(value);
-#elif defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#elif defined(BDLB_BITUTIL_USE_GNU_INTRINSICS)
     enum {
         k_INT64_MASK = k_BITS_PER_INT64 - 1,
         k_INT32_MASK = k_BITS_PER_INT32 - 1
@@ -418,10 +428,6 @@ BitUtil::uint64_t BitUtil::withBitSet(uint64_t value, int index)
 
 }  // close package namespace
 }  // close enterprise namespace
-
-#if defined(BDLB_BITUTIL_NO_STDINT)
-# undef BDLB_BITUTIL_NO_STDINT
-#endif
 
 #endif
 

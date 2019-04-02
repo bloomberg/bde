@@ -21,10 +21,13 @@
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_isnothrowmoveconstructible.h>
+
 #include <bslx_byteoutstream.h>
 #include <bslx_marshallingutil.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_review.h>
 
 #include <bsl_algorithm.h>
@@ -1003,20 +1006,37 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         //: 1 The move operations move the data from one object to another.
+        //:
         //: 2 The moved-from object is in a usable state.
+        //:
         //: 3 Move works if the allocators differ and it copies.
+        //:
+        //: 4 The 'bsl::is_nothrow_move_constructible' trait is set for 'Blob'
+        //:   and 'BlobBuffer' in C++11 or later.
         //
         // Plan:
-        //:  1 Verify 'BlobBuffer' move constructor with explicit move.
-        //:  2 If C++11 or later, verify automatic move from temporary.
-        //:  3 Verify 'BlobBuffer' move assignment with explicit move.
-        //:  4 If C++11 or later, verify automatic move from temporary.
-        //:  5 Verify 'Blob' move constructor with explicit move.
-        //:  6 If C++11 or later, verify automatic move from temporary.
-        //:  7 Verify the previous two with differing allocators, too.
-        //:  8 Verify 'Blob' move assignment with explicit move.
-        //:  9 If C++11 or later, verify automatic move from temporary.
-        //: 10 Verify the previous two with differing allocators, too.
+        //: 1 Verify 'BlobBuffer' move constructor with explicit move.
+        //:
+        //: 2 If C++11 or later, verify automatic move from temporary.
+        //:
+        //: 3 Verify 'BlobBuffer' move assignment with explicit move.
+        //:
+        //: 4 If C++11 or later, verify automatic move from temporary.
+        //:
+        //: 5 Verify 'Blob' move constructor with explicit move.
+        //:
+        //: 6 If C++11 or later, verify automatic move from temporary.
+        //:
+        //: 7 Verify the previous two with differing allocators, too.
+        //:
+        //: 8 Verify 'Blob' move assignment with explicit move.
+        //:
+        //: 9 If C++11 or later, verify automatic move from temporary.
+        //:
+        //:10 Verify the previous two with differing allocators, too.
+        //:
+        //:11 Verify that the 'bsl::is_nothrow_move_constructible' trait is set
+        //:   when expected.
         //
         // Testing:
         //   MOVE OPERATIONS
@@ -1029,6 +1049,21 @@ int main(int argc, char *argv[])
         typedef bslmf::MovableRefUtil MoveUtil;
 
         typedef bsl::shared_ptr<char> BufT;
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+        const bool EXP_NOTHROW = true;
+#else
+        const bool EXP_NOTHROW = false;
+#endif
+
+        if (verbose) cout << "Testing 'is_nothrow_move_constructible' trait\n";
+        {
+            ASSERT(EXP_NOTHROW ==
+                 bsl::is_nothrow_move_constructible<bdlbb::Blob>::value);
+
+            ASSERT(EXP_NOTHROW ==
+                 bsl::is_nothrow_move_constructible<bdlbb::BlobBuffer>::value);
+        }
 
         if (verbose) cout << "Testing 'BlobBuffer' move construction\n";
         {

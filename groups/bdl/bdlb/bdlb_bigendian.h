@@ -101,6 +101,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlb_printmethods.h>
 
 #include <bslmf_istriviallycopyable.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_byteorder.h>
 #include <bsls_types.h>

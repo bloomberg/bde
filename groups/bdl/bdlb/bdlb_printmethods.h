@@ -224,6 +224,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_hasstliterators.h>
 
 #include <bslmf_ispair.h>
+#include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_selecttrait.h>
 
 #include <bsl_iomanip.h>

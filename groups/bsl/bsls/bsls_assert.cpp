@@ -6,7 +6,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assertimputil.h>
 #include <bsls_asserttestexception.h>
-#include <bsls_keyword.h>             // for testing only
 #include <bsls_log.h>
 #include <bsls_logseverity.h>
 #include <bsls_pointercastutil.h>
@@ -30,7 +29,7 @@ namespace {
 static
 void printError(const char *comment, const char *file, int line)
     // Log a formatted message with the contents of the specified 'comment',
-    // 'file', 'line' number, and a severity of 'e_ERROR'.
+    // 'file', 'line' number, and a severity of 'e_FATAL'.
 {
     if (!comment) {
         comment = "(* Unspecified Comment Text *)";
@@ -46,7 +45,7 @@ void printError(const char *comment, const char *file, int line)
         file = "(* Empty File Name *)";
     }
 
-    bsls::Log::logFormattedMessage(bsls::LogSeverity::e_ERROR,
+    bsls::Log::logFormattedMessage(bsls::LogSeverity::e_FATAL,
                                    file,
                                    line,
                                    "Assertion failed: %s",
@@ -56,7 +55,7 @@ void printError(const char *comment, const char *file, int line)
 static
 void printError(const bsls::AssertViolation& violation)
     // Log a formatted message with the contents of the specified 'violation'
-    // and a severity of 'e_ERROR'.
+    // and a severity of 'e_FATAL'.
 {
     const char *comment = violation.comment();
     if (!comment) {
@@ -87,7 +86,7 @@ void printError(const bsls::AssertViolation& violation)
     int line = violation.lineNumber();
 
 
-    bsls::Log::logFormattedMessage(bsls::LogSeverity::e_ERROR,
+    bsls::Log::logFormattedMessage(bsls::LogSeverity::e_FATAL,
                                    file,
                                    line,
                                    "Assertion failed: %s",
@@ -106,22 +105,6 @@ static bool g_permitReturningHandlerRuntimeFlag = false;
 }  // close unnamed namespace
 
 namespace bsls {
-
-                          // ---------------------
-                          // class AssertViolation
-                          // ---------------------
-
-// CREATORS
-AssertViolation::AssertViolation(const char *comment,
-                                 const char *fileName,
-                                 int         lineNumber,
-                                 const char *assertLevel)
-: d_comment_p((comment == 0) ? "" : comment)
-, d_fileName_p((fileName == 0) ? "" : fileName)
-, d_lineNumber(lineNumber)
-, d_assertLevel_p((assertLevel == 0) ? "" : assertLevel)
-{
-}
 
                               // ------------
                               // class Assert
@@ -258,7 +241,7 @@ void Assert::invokeHandler(const bsls::AssertViolation& violation)
             AtomicOperations::setInt(&failureReturnCount, 1 << 29);
         }
 
-        Log::logFormattedMessage(LogSeverity::e_ERROR,
+        Log::logFormattedMessage(LogSeverity::e_FATAL,
                                  violation.fileName(),
                                  violation.lineNumber(),
                                  "BSLS_ASSERT failure: '%s'",
@@ -267,7 +250,7 @@ void Assert::invokeHandler(const bsls::AssertViolation& violation)
         // Do not use %p to print pointers.  On some platform it automatically
         // prefixes with '0x', on AIX it does not.
 
-        BSLS_LOG_ERROR("Bad 'bsls_assert' configuration: "
+        BSLS_LOG_FATAL("Bad 'bsls_assert' configuration: "
                        "violation handler at 0x%llx must not return.",
                        reinterpret_cast<Types::Uint64>(failureHandlerPtr));
     }
@@ -346,7 +329,7 @@ void Assert::failByThrow(const bsls::AssertViolation& violation)
                                   violation.assertLevel());
     }
     else {
-        bsls::Log::logMessage(bsls::LogSeverity::e_ERROR,
+        bsls::Log::logMessage(bsls::LogSeverity::e_FATAL,
                               violation.fileName(),
                               violation.lineNumber(),
                               "BSLS_ASSERT: An uncaught exception is pending;"
@@ -387,7 +370,7 @@ void Assert::failThrow(const char *comment, const char *file, int line)
                                   "LEGACY");
     }
     else {
-        bsls::Log::logMessage(bsls::LogSeverity::e_ERROR,
+        bsls::Log::logMessage(bsls::LogSeverity::e_FATAL,
                               file,
                               line,
                               "BSLS_ASSERT: An uncaught exception is pending;"

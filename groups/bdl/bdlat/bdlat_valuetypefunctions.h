@@ -109,6 +109,17 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
+#if defined(BSLS_PLATFORM_CMP_IBM)       // Need a workaround for ADL bug.
+    // IBM xlC will not perform argument-dependent lookup if the function being
+    // called has already been declared and found by ordinary name lookup in
+    // some scope at the point of the template function *definition* (not
+    // instantiation).  We work around this bug by not declaring these
+    // functions until *after* the template definitions that call them.
+# define BDLAT_VALUETYPEFUNCTIONS_HAS_INHIBITED_ADL 1
+    // Last verified with xlC 12.1
+#endif
+
+
 namespace BloombergLP {
 
                       // ==================================
@@ -137,7 +148,7 @@ namespace bdlat_ValueTypeFunctions {
     // implementations (for 'bas_codegen.pl'-generated types).  Do *not* call
     // these functions directly.  Use the functions above instead.
 
-#if ! defined(BSLS_PLATFORM_CMP_IBM)
+#if ! defined(BDLAT_VALUETYPEFUNCTIONS_HAS_INHIBITED_ADL)
     template <class LHS_TYPE, class RHS_TYPE>
     int bdlat_valueTypeAssign(LHS_TYPE *lhs, const RHS_TYPE& rhs);
 
@@ -283,13 +294,13 @@ void bdlat_ValueTypeFunctions::reset(TYPE *object)
         // namespace bdlat_ValueTypeFunctions (OVERLOADABLE FUNCTIONS)
         // -----------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BDLAT_VALUETYPEFUNCTIONS_HAS_INHIBITED_ADL)
 namespace bdlat_ValueTypeFunctions {
-    // xlC 6 will not do Koenig (argument-dependent) lookup if the function
-    // being called has already been declared in some scope at the point of the
-    // template function *definition* (not instantiation).  We work around this
-    // bug by not declaring these functions until *after* the template
-    // definitions that call them.
+    // IBM xlC will not perform argument-dependent lookup if the function being
+    // called has already been declared and found by ordinary name lookup in
+    // some scope at the point of the template function *definition* (not
+    // instantiation).  We work around this bug by not declaring these
+    // functions until *after* the template definitions that call them.
 
     template <typename LHS_TYPE, typename RHS_TYPE>
     int bdlat_valueTypeAssign(LHS_TYPE *lhs, const RHS_TYPE& rhs);

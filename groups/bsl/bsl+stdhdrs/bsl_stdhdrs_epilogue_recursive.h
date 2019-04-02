@@ -120,6 +120,13 @@
 
 // 'bslstl' containers go here.
 
+#ifdef BSL_INCLUDE_BSL_ARRAY
+# ifndef INCLUDED_BSLSTL_ARRAY
+#   include <bslstl_array.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
 #ifdef BSL_INCLUDE_BSL_BITSET
 # ifndef INCLUDED_BSLSTL_BITSET
 #   include <bslstl_bitset.h>

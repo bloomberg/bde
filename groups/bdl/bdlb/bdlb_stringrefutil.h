@@ -142,6 +142,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bsls_review.h>
+
 #include <bsl_string.h>  // 'bslstl::StringRef'
 
 namespace BloombergLP {

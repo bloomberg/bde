@@ -283,6 +283,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
+#include <bsls_review.h>
 
 #include <bsl_utility.h>
 #include <bsl_vector.h>

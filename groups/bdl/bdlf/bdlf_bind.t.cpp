@@ -2019,8 +2019,8 @@ DEFINE_TEST_CASE(5) {
             // so as to pass them by value as in the following:
 
 #if !defined(BSLS_PLATFORM_CMP_SUN)
-    // The combination of bcef::Bind, Sun CC, bsl::cref/ref, ForwardingType,
-    // and who knows what else makes this test fail to compile.
+    // The combination of Sun CC, 'BindS', 'bsl::cref/ref', 'ForwardingType',
+    // and who knows what else, makes this test fail to compile.
 
             ASSERT(1 == bdlf::BindUtil::bind(&myFunctionWithConstnessMix,
                       X1, cref(X2), ref(mX3), ref(mX4)) // bound arguments
@@ -2088,7 +2088,7 @@ DEFINE_TEST_CASE(5) {
 #if !defined(BSLS_PLATFORM_CMP_IBM) && !defined(BSLS_PLATFORM_CMP_SUN)
             // The IBM xlC compiler is broken in ellipsis matching, meaning
             // 'bdlf::Bind_FuncTraitsHasNoEllipsis' will return 0 even for
-            // functions that does not have an ellipsis in its function
+            // functions that do not have an ellipsis in their function
             // signature.  When this happens, implicit version of 'bdlf::Bind'
             // will be used, and X2 will be forwarded (thanks to the wrapper)
             // instead of copied.  Therefore, the following assert will fail:

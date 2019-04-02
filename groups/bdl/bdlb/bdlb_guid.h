@@ -126,16 +126,17 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 
-#include <bsl_algorithm.h>
-#include <bsl_cstddef.h>
-#include <bsl_iosfwd.h>
-
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 #include <bsls_types.h>
+
+#include <bsl_algorithm.h>
+#include <bsl_cstddef.h>
+#include <bsl_iosfwd.h>
 
 namespace BloombergLP {
 namespace bdlb {

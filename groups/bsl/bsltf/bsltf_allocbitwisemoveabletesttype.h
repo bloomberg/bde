@@ -101,8 +101,8 @@ class AllocBitwiseMoveableTestType {
 
   public:
     // CREATORS
-    explicit AllocBitwiseMoveableTestType(
-                                         bslma::Allocator *basicAllocator = 0);
+    AllocBitwiseMoveableTestType();
+    explicit AllocBitwiseMoveableTestType(bslma::Allocator *basicAllocator);
         // Create a 'AllocBitwiseMoveableTestType' object having the (default)
         // attribute values:
         //..
@@ -174,6 +174,14 @@ bool operator!=(const AllocBitwiseMoveableTestType& lhs,
                         // ----------------------------------
 
 // CREATORS
+inline
+AllocBitwiseMoveableTestType::AllocBitwiseMoveableTestType()
+: d_allocator_p(bslma::Default::allocator(0))
+{
+    d_data_p = reinterpret_cast<int *>(d_allocator_p->allocate(sizeof(int)));
+    *d_data_p = 0;
+}
+
 inline
 AllocBitwiseMoveableTestType::AllocBitwiseMoveableTestType(
                                               bslma::Allocator *basicAllocator)

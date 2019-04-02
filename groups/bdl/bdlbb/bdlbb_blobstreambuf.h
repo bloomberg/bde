@@ -41,6 +41,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlbb_blob.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_ios.h>  // for 'bsl::streamsize'
 #include <bsl_streambuf.h>

@@ -596,6 +596,18 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_metaint.h>
 
 #include <bsls_assert.h>
+#include <bsls_platform.h>
+
+#if defined(BSLS_PLATFORM_CMP_IBM)       // Need a workaround for ADL bug.
+    // IBM xlC will not perform argument-dependent lookup if the function being
+    // called has already been declared and found by ordinary name lookup in
+    // some scope at the point of the template function *definition* (not
+    // instantiation).  We work around this bug by not declaring these
+    // functions until *after* the template definitions that call them.
+# define BDLAT_SEQUENCEFUNCTIONS_HAS_INHIBITED_ADL 1
+    // Last verified with xlC 12.1
+#endif
+
 
 namespace BloombergLP {
 
@@ -719,7 +731,7 @@ namespace bdlat_SequenceFunctions {
 
 
 
-#if ! defined(BSLS_PLATFORM_CMP_IBM)
+#if ! defined(BDLAT_SEQUENCEFUNCTIONS_HAS_INHIBITED_ADL)
     // OVERLOADABLE FUNCTIONS
 
     // The following functions should be overloaded for other types (in their
@@ -861,9 +873,9 @@ bool bdlat_SequenceFunctions::hasAttribute(const TYPE& object,
          // namespace bdlat_SequenceFunctions (OVERLOADABLE FUNCTIONS)
          // ----------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BDLAT_SEQUENCEFUNCTIONS_HAS_INHIBITED_ADL)
 namespace bdlat_SequenceFunctions {
-    // xlC 6 will not do Koenig (argument-dependent) lookup is the function
+    // xlC 6 will not do Koenig (argument-dependent) lookup if the function
     // being called has already been declared in some scope at the point of
     // the template function *definition* (not instantiation).  We work around
     // this bug by not declaring these functions until *after* the template

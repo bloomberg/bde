@@ -894,32 +894,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_ostream.h>
 
-// BDE_VERIFY pragma: push
-// BDE_VERIFY pragma: -AQQ01
-// BDE_VERIFY pragma: -AQS01
-// BDE_VERIFY pragma: -FB01
-// BDE_VERIFY pragma: -KS00
-// BDE_VERIFY pragma: -TR04
-// BDE_VERIFY pragma: -TR17
-
-                       // =======================
-                       // CategoryHolder Accessor
-                       // =======================
-
-// HELPER FUNCTIONS
-inline
-const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(
-                       const BloombergLP::ball::CategoryHolder& categoryHolder)
-    // Return the address of the specified 'categoryHolder'.  Note that this
-    // function facilitates consistent lookup of block-scope and class-scope
-    // category holders (see "Logging Macro Reuse" in the "IMPLEMENTATION
-    // NOTES" of the component implementation file for details).
-{
-    return &categoryHolder;
-}
-
-// BDE_VERIFY pragma: pop
-
                        // =========================
                        // Logging Macro Definitions
                        // =========================
@@ -1353,6 +1327,31 @@ namespace BloombergLP {
 namespace bslmt { class Mutex; }
 
 namespace ball {
+
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -AQQ01
+// BDE_VERIFY pragma: -AQS01
+// BDE_VERIFY pragma: -FB01
+// BDE_VERIFY pragma: -KS00
+// BDE_VERIFY pragma: -TR04
+// BDE_VERIFY pragma: -TR17
+
+                       // =======================
+                       // CategoryHolder Accessor
+                       // =======================
+
+inline
+const BloombergLP::ball::CategoryHolder* ball_log_getCategoryHolder(
+                       const BloombergLP::ball::CategoryHolder& categoryHolder)
+    // Return the address of the specified 'categoryHolder'.  Note that this
+    // function facilitates consistent lookup of block-scope and class-scope
+    // category holders (see "Logging Macro Reuse" in the "IMPLEMENTATION
+    // NOTES" of the component implementation file for details).
+{
+    return &categoryHolder;
+}
+
+// BDE_VERIFY pragma: pop
 
 class Record;
 
