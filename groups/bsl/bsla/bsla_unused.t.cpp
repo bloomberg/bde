@@ -1,21 +1,18 @@
 // bsla_unused.t.cpp                                                  -*-C++-*-
 #include <bsla_unused.h>
 
+#include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 
+#include <math.h>
 #include <stdio.h>
-#include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
+#include <stdlib.h>  // 'atoi'
 #include <string.h>  // 'strcmp'
 
 // Set this preprocessor variable to 1 to enable compile warnings being
 // generated, 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
-
-// Set this preprocessor variable to 1 to enable compile errors being
-// generated, 0 to disable them.
-
-#define U_TRIGGER_ERRORS 0
 
 // ============================================================================
 //                             TEST PLAN
@@ -24,9 +21,9 @@
 //                             --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of
-// the boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor
-// variables.  In each case, the concerns are:
+// task using a compliant compiler, each time defining different values of the
+// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// concerns are:
 //
 //: o Did the build succeed or not?
 //:
@@ -38,45 +35,27 @@
 //:   were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
-// does nothing.
+// does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variables are:
+// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
+// to 1, provoke all the compiler warnings caused by the macros under test.  If
+// set to 0, prevent any warnings from happening.
 //
-//: o 'U_TRIGGER_ERRORS': if defined, use the 'BSLA_ERROR(message)' annotation.
-//:   Note that the task should *not* build and the compiler output should show
-//:   the specified 'message'.
-//:
-//:   o Maintenance note: This is the only test that causes compiler failure.
-//:     If others are added, each will require an individual controlling
-//:     preprocessor variable.
-//:
-//: o 'U_TRIGGER_WARNINGS', if defined, use all the annotations
-//:   defined in this component, except those expected to cause compile-time
-//:   failure.
-//
-// For each annotation, 'BSLA_XXXX', we create a function named
-// 'test_XXXX' to which annotation 'BSLA_XXXX' is applied.  For the
-// two annotations that are also applicable to variables and types, we
-// additionally create 'test_XXXX_variable' and 'test_XXXX_type'.  These
-// entities are exercised in several ways:
-//
-//: o Some are just declared and, if appropriate, defined, with no other usage.
-//:   For example, the 'BSLA_ALLOC_SIZE(x)' is a hint for compiler
-//:   optimization; no compiler message expected.  Another example is
-//:   'BSLA_UNUSED'.  For that annotation there must be no other
-//:   usage to check if the usual compiler warning message is suppressed.
-//:
-//: o For other test functions, variables, and types, a function, variable, or
-//:   type (as appropriated) named 'use_with_warning_message_XXXX' is defined
-//:   such that a warning message should be generated.
-//:
-//: o Finally, for some 'use_with_warning_message_XXXX' entities, there is a
-//:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
-//:   a context where annotation 'BSLA_XXXX' must *not* result in a
-//:   compiler message.
+// The table below classifies each of the annotations provided by this
+// component by the entities to which it can be applied (i.e., function,
+// variable, and type) and the expected result (optimization, error, warning,
+// conditional warning, absence of warning).  The tag(s) found in the
+// right-most column appear as comments throughout this test driver.  They can
+// be used as an aid to navigation to the test code for each annotation, and an
+// aid to assuring test coverage.
+//..
+//  Annotation                            Result
+//  ------------------------------------  -------
+//  BSLA_UNUSED                           Warning
+//..
 // ----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
-
 // ----------------------------------------------------------------------------
 
 namespace bsls = BloombergLP::bsls;
@@ -126,6 +105,119 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define STRINGIFY2(...) "" #__VA_ARGS__
 #define STRINGIFY(a) STRINGIFY2(a)
+
+// ============================================================================
+//                                USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+//
+///Usage
+///-----
+//
+///Example 1: Unused Warnings:
+/// - - - - - - - - - - - - -
+// First, we define a namespace 'warn' within the unnamed namespace with a
+// type, a function, and a function in it.  They are unused:
+//..
+    namespace {
+    namespace warn {
+
+    struct ResultRec {
+        double d_x;
+        double d_y;
+    };
+
+    double x;
+
+    int quadratic(double *zeroA,
+                  double *zeroB,
+                  double a,
+                  double b,
+                  double c)
+        // Solve the quadratic function for the specified 'a', 'b', and 'c',
+        // where '0 = a * x^2 + b * x + c'.  If the quadratic has no solutions,
+        // return a non-zero value, and set the specified '*zeroA' and '*zeroB'
+        // to those solutions and return 0 otherwise.
+    {
+        const double discriminant = b * b - 4 * a * c;
+        if (discriminant < 0 || 0.0 == a) {
+            *zeroA = *zeroB = 0.0;
+            return -1;                                                // RETURN
+        }
+
+        const double root = ::sqrt(discriminant);
+        *zeroA = (-b + root) / (2 * a);
+        *zeroB = (-b - root) / (2 * a);
+
+        return 0;
+    }
+
+    }  // close namespace warn
+    }  // close unnamed namespace
+//..
+// Then, we observe the warnings:
+//..
+//  .../bsla_unused.t.cpp:130:12: warning: '{anonymous}::warn::x' defined but n
+//  ot used [-Wunused-variable]
+//       double x;
+//              ^
+//  .../bsla_unused.t.cpp:132:9: warning: 'int {anonymous}::warn::quadratic(dou
+//  ble*, double*, double, double, double)' defined but not used [-Wunused-func
+//  tion]
+//       int quadratic(double *zeroA,
+//           ^
+//..
+// Note that none of the compilers we are currently using issue a warning on
+// the unused 'warn::ResultRec', but some in the future might.
+//
+// Next, we define a namespace 'nowarn' within the unused namespace with
+// exactly the same unused entities, using the 'BSLA_UNUSED' annotation to
+// silence the warnings:
+//..
+    namespace {
+    namespace nowarn {
+
+    struct ResultRec {
+        double d_x;
+        double d_y;
+    } BSLA_UNUSED;
+
+    double x BSLA_UNUSED;
+
+    int quadratic(double *zeroA,
+                  double *zeroB,
+                  double a,
+                  double b,
+                  double c) BSLA_UNUSED;
+        // Solve the quadratic function for the specified 'a', 'b', and 'c',
+        // where '0 = a * x^2 + b * x + c'.  If the quadratic has no solutions,
+        // return a non-zero value, and set the specified '*zeroA' and '*zeroB'
+        // to those solutions and return 0 otherwise.
+
+    int quadratic(double *zeroA,
+                  double *zeroB,
+                  double a,
+                  double b,
+                  double c)
+    {
+        const double discriminant = b * b - 4 * a * c;
+        if (discriminant < 0 || 0.0 == a) {
+            *zeroA = *zeroB = 0.0;
+            return -1;                                                // RETURN
+        }
+
+        const double root = ::sqrt(discriminant);
+        *zeroA = (-b + root) / (2 * a);
+        *zeroB = (-b - root) / (2 * a);
+
+        return 0;
+    }
+
+    }  // close namespace nowarn
+    }  // close unnamed namespace
+//..
+// Finally, we observe that the warnings for the 'nowarn' namespace are
+// suppressed.
 
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
@@ -274,6 +366,50 @@ int main(int argc, char **argv)
     }
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 That the usage example builds and performs as expected.
+        //
+        // Plan:
+        //: 1 Build and test the usage example.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+#if !U_TRIGGER_WARNINGS
+        {
+            warn::ResultRec rr;
+
+            int rc = warn::quadratic(&rr.d_x, &rr.d_y, 1, 2, 1);
+            warn::x = rr.d_y;
+            P_(rc);    P_(rr.d_x);    P_(rr.d_y);    P(warn::x);
+            rc = warn::quadratic(&rr.d_x, &rr.d_y, 2, 2, 2);
+            P_(rc);    P_(rr.d_x);    P(rr.d_y);
+            rc = warn::quadratic(&rr.d_x, &rr.d_y, 2, 8, 2);
+            P_(rc);    P_(rr.d_x);    P(rr.d_y);
+        }
+# if !BSLS_UNUSED_IS_ACTIVE
+        {
+            nowarn::ResultRec rr;
+
+            int rc = nowarn::quadratic(&rr.d_x, &rr.d_y, 1, 2, 1);
+            nowarn::x = rr.d_y;
+            P_(rc);    P_(rr.d_x);    P_(rr.d_y);    P(nowarn::x);
+            rc = nowarn::quadratic(&rr.d_x, &rr.d_y, 2, 2, 2);
+            P_(rc);    P_(rr.d_x);    P(rr.d_y);
+            rc = nowarn::quadratic(&rr.d_x, &rr.d_y, 2, 8, 2);
+            P_(rc);    P_(rr.d_x);    P(rr.d_y);
+        }
+# endif
+#endif
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST

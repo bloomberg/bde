@@ -5,43 +5,72 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide support for compiler annotations for compile-time safety.
+//@PURPOSE: Provide a macro to flag a warning when a function is called.
 //
 //@CLASSES:
 //
 //@MACROS:
-//  BSLA_WARNING("msg"): emit warning message during compilation
+//  BSLA_WARNING(QUOTED_MESSAGE): emit warning message during compilation
+//  BSLA_WARNING_IS_ACTIVE: 0 if 'BSLA_WARNING' expands to nothing else 1
 //
-//  BSLA_WARNING_IS_ACTIVE
+//@SEE ALSO: bsla_annotations
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component provides amacros that indicates that a compiler
+//@DESCRIPTION: This component provides a macro that indicates that a compiler
 // warning should be emitted when a given function is called.
-//
-// The macro 'BSLA_WARNING_IS_ACTIVE' is defined to 0 when 'BSLA_WARNING'
-// expands ot nothing and 1 otherwise.
 //
 ///Macro
 ///-----
-//..
-//  BSLA_WARNING("message")
-//..
-// This annotation, when used, will cause a compile-time ewarning when a call
-// to the so-annotated function is not removed through dead-code elimination or
-// other optimizations.  While it is possible to leave the function undefined,
-// thus incurring a link-time failure, with the use of this macro the invalid
-// call will be diagnosed earlier (i.e., at compile time), and the diagnostic
-// will include the exact location of the function call.
+//: o BSLA_WARNING(QUOTED_MESSAGE)
+//:
+//: o This annotation, when used, will cause a compile-time warning containing
+//:   the specified 'QUOTED_MESSAGE', which must be a string contained in
+//:   double quotes, when a call to the so-annotated function is not removed
+//:   through dead-code elimination or other optimizations.  While it is
+//:   possible to leave the function undefined, thus incurring a link-time
+//:   failure, with the use of this macro the invalid call will be diagnosed
+//:   earlier (i.e., at compile time), and the diagnostic will include the
+//:   exact location of the function call.
+//
+//: o BSLA_WARNING_IS_ACTIVE
+//:
+//: o The macro 'BSLA_WARNING_IS_ACTIVE' is defined to 0 if 'BSLA_WARNING'
+//:   expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
+//
+///Example 1: Flagged Function:
+///- - - - - - - - - - - - - -
+// First, we declare and define a function annotated with 'BSLA_WARNING'.  Note
+// that the argument to 'BSLA_WARNING' must be a quoted string:
+//..
+//  void usageFunc() BSLA_WARNING("Don't call 'usageFunc'");
+//      // Do nothing.
+//
+//  void usageFunc()
+//  {
+//  }
+//..
+// Now, in 'main', we call 'usageFunc':
+//..
+//  usageFunc();
+//..
+// Finally, observe the following compile error:
+//..
+//  .../bsla_warning.t.cpp: In function 'int main(int, char**)':
+//  .../bsla_warning.t.cpp:246:16: warning: call to 'usageFunc' declared with a
+//  ttribute warning: Don't call 'usageFunc'
+//       usageFunc();
+//                  ^
+//..
 
 #include <bsls_platform.h>
 
 #if defined(BSLS_PLATFORM_CMP_GNU)
-    // '__error__' and '__warning__' attributes are not supported by clang as
-    // of version 7.0.
+    // The '__warning__' attribute is not supported by clang as of version
+    // 8.0.0.
 
     #define BSLA_WARNING(x) __attribute__((__warning__(x)))
 

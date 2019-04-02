@@ -5,35 +5,91 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide support for compiler annotations for compile-time safety.
+//@PURPOSE: Provide macro to issue a compiler warning if a function returns.
 //
 //@CLASSES:
 //
 //@MACROS:
-//  BSLA_NORETURN: error if function returns normally
+//  BSLA_NORETURN: issue a compiler warning if function returns normally
+//  BSLA_NORETURN_IS_ACTIVE: 1 if 'BSLA_NORETURN' is active and 0 otherwise
 //
-//  BSLA_NORETURN_IS_ACTIVE
+//@SEE ALSO: bsla_annotations
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component provides a preprocessor macro that
-// annotates a function as never returning, resulting in a compiler warning
-// if a path of control exists such that the function does return.
+//@DESCRIPTION: This component provides a preprocessor macro that annotates a
+// function as never returning, resulting in a compiler warning if a path of
+// control exists such that the function does return.
 //
-// The macro 'BSLA_RETURN_IS_ACTIVE' is defined to 0 if 'BSLA_NORETURN' expands
-// to nothing and 1 otherwise.
+///Macro Reference
+///---------------
+//: o BSLA_NORETURN
+//:
+//: o This annotation is used to tell the compiler that a specified function
+//:   will not return in a normal fashion.  The function can still exit via
+//:   other means such as throwing an exception or aborting the process.
 //
-///Macro
-///-----
-//..
-//  BSLA_NORETURN
-//..
-// This annotation is used to tell the compiler that a specified function will
-// not return in a normal fashion.  The function can still exit via other means
-// such as throwing an exception or aborting the process.
+//: o BSLA_NORETURN_IS_ACTIVE
+//:
+//: o The macro 'BSLA_NORETURN_IS_ACTIVE' is defined to 0 if 'BSLA_NORETURN'
+//:   expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
+//
+///Example 1: Assertion Handler
+/// - - - - - - - - - - - - - -
+// First, we create an assertion handler, 'myHandlerA', which never returns,
+// and annotate it 'BSLA_NORETURN' so that the compiler will warn if it does
+// return.
+//..
+//  BSLA_NORETURN void myHanderA(const bsls::AssertViolation& assertViolation)
+//  {
+//      printf("%s:%d %s", assertViolation.fileName(),
+//                         assertViolation.lineNumber(),
+//                         assertViolation.comment());
+//
+//      if      (::getenv("MY_HANDLER_THROW")) {
+//          throw -1;
+//      }
+//      else if (::getenv("MY_HANDLER_EXIT")) {
+//          ::exit(1);
+//      }
+//
+//      ::abort();
+//  }
+//..
+// Now, a new hire copies 'myHandlerA' and creates a new handler,
+// 'myHandlerB', which doesn't abort unless instructed to via an environment
+// variable, which he doesn't realize opens up the possibility of the handler
+// returning:
+//..
+//  BSLA_NORETURN void myHanderB(const bsls::AssertViolation& assertViolation)
+//  {
+//      printf("%s:%d %s", assertViolation.fileName(),
+//                         assertViolation.lineNumber(),
+//                         assertViolation.comment());
+//
+//      if      (::getenv("MY_HANDLER_THROW")) {
+//          throw -1;
+//      }
+//      else if (::getenv("MY_HANDLER_EXIT")) {
+//          ::exit(1);
+//      }
+//      else if (::getenv("MY_HANDLER_ABORT")) {
+//          ::abort();
+//      }
+//  }
+//..
+// Finally, we observe the compiler warning that occurs to point out the
+// possiblity of 'myHandlerB' returning:
+//..
+//  .../bsla_noreturn.t.cpp: In function 'void myHanderB(const BloombergLP::bsl
+//  s::AssertViolation&)':
+//  .../bsla_noreturn.t.cpp:158:5: warning: 'noreturn' function does return
+//       }
+//       ^
+//..
 
 #include <bsls_platform.h>
 #include <bsls_compilerfeatures.h>

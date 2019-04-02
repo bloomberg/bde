@@ -1,8 +1,6 @@
 // bsla_format.t.cpp                                                  -*-C++-*-
 #include <bsla_format.h>
 
-#include <bsla_printf.h>
-
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
@@ -14,11 +12,6 @@
 
 #define U_TRIGGER_WARNINGS 0
 
-// Set this preprocessor variable to 1 to enable compile errors being
-// generated, 0 to disable them.
-
-#define U_TRIGGER_ERRORS 0
-
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
@@ -26,9 +19,9 @@
 //                             --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of
-// the boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor
-// variables.  In each case, the concerns are:
+// task using a compliant compiler, each time defining different values of the
+// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// concerns are:
 //
 //: o Did the build succeed or not?
 //:
@@ -40,46 +33,26 @@
 //:   were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
-// does nothing.
+// does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variables are:
+// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
+// to 1, provoke all the compiler warnings caused by the macros under test.  If
+// set to 0, prevent any warnings from happening.
 //
-//: o 'U_TRIGGER_ERRORS': if defined, use the 'BSLA_ERROR(message)' annotation.
-//:   Note that the task should *not* build and the compiler output should show
-//:   the specified 'message'.
-//:
-//:   o Maintenance note: This is the only test that causes compiler failure.
-//:     If others are added, each will require an individual controlling
-//:     preprocessor variable.
-//:
-//: o 'U_TRIGGER_WARNINGS', if defined, use all the annotations
-//:   defined in this component, except those expected to cause compile-time
-//:   failure.
-//
-// For each annotation, 'BSLA_XXXX', we create a function named
-// 'test_XXXX' to which annotation 'BSLA_XXXX' is applied.  For the
-// two annotations that are also applicable to variables and types, we
-// additionally create 'test_XXXX_variable' and 'test_XXXX_type'.  These
-// entities are exercised in several ways:
-//
-//: o Some are just declared and, if appropriate, defined, with no other usage.
-//:   For example, the 'BSLA_ALLOC_SIZE(x)' is a hint for compiler
-//:   optimization; no compiler message expected.  Another example is
-//:   'BSLA_UNUSED'.  For that annotation there must be no other
-//:   usage to check if the usual compiler warning message is suppressed.
-//:
-//: o For other test functions, variables, and types, a function, variable, or
-//:   type (as appropriated) named 'use_with_warning_message_XXXX' is defined
-//:   such that a warning message should be generated.
-//:
-//: o Finally, for some 'use_with_warning_message_XXXX' entities, there is a
-//:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
-//:   a context where annotation 'BSLA_XXXX' must *not* result in a
-//:   compiler message.
-//
+// The table below classifies each of the annotations provided by this
+// component by the entities to which it can be applied (i.e., function,
+// variable, and type) and the expected result (optimization, error, warning,
+// conditional warning, absence of warning).  The tag(s) found in the
+// right-most column appear as comments throughout this test driver.  They can
+// be used as an aid to navigation to the test code for each annotation, and an
+// aid to assuring test coverage.
+//..
+//  Annotation                            Result
+//  ------------------------------------  --------
+//  BSLA_FORMAT                           Warning
+//..
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-
 // ----------------------------------------------------------------------------
 
 namespace bsls = BloombergLP::bsls;
@@ -131,18 +104,58 @@ void aSsErT(bool condition, const char *message, int line)
 #define STRINGIFY(a) STRINGIFY2(a)
 
 // ============================================================================
+//                              USAVE EXAMPLE
+// ----------------------------------------------------------------------------
+
+//
+///Usage
+///-----
+//
+///Example 1: A Language Translator Function:
+///- - - - - - - - - - - - - - - - - - - - -
+// First, we define an 'enum', 'Language' to indicate choice of languages:
+//..
+    enum Language {
+        e_ENGLISH,
+        e_SPANISH,
+        e_DUTCH,
+        e_FRENCH };
+//..
+// Then, we define a function 'prefixName' which will take a format string and
+// prefix it with the word 'name' in the selected language.  The 'BSLA_FORMAT'
+// argument indicates that the result will be a pointer to a 'printf'-style
+// format string equivalent to the format string passed to the third argument:
+//..
+    const char *prefixName(char *buf, Language lang, const char *format)
+                                                                BSLA_FORMAT(3);
+    const char *prefixName(char *buf, Language lang, const char *format)
+        // Create a buffer beginning with the word 'name' translated to the
+        // specified 'lang', followed by the specified format string 'format',
+        // using the specified 'buf' for memory.
+    {
+        const char *name = "";
+        switch (lang) {
+          case e_ENGLISH: name = "Name";   break;
+          case e_SPANISH: name = "Nombre"; break;
+          case e_DUTCH:   name = "Naam";   break;
+          case e_FRENCH:  name = "Nom";    break;
+        }
+        ::strcpy(buf, name);
+        ::strcat(buf, ": ");
+        ::strcat(buf, format);
+
+        return buf;
+    }
+//..
+
+// ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
-void test_PRINTF(const char *pattern, ...) BSLA_PRINTF(1, 2);
-void test_PRINTF(const char *pattern, ...)
-{
-    (void) pattern;
-}
-
+const char *test_FORMAT(const char *locale, const char *format) BSLA_FORMAT(2);
 const char *test_FORMAT(const char *locale, const char *format)
-                                                     BSLA_FORMAT(2);
-const char *test_FORMAT(const char *locale, const char *format)
+    // Return a string literal with the word 'name' translated according to
+    // the specified 'locale', similar to the specified 'format'.
 {
     if (0 == strcmp(locale, "FR") && 0 == strcmp(format, "Name: %s")) {
         return "Nom: %s";                                             // RETURN
@@ -165,7 +178,7 @@ const char *test_FORMAT(const char *locale, const char *format)
 
 void use_without_diagnostic_message_FORMAT()
 {
-    test_PRINTF(test_FORMAT("FR", "Name: %s"), "Michael Bloomberg");
+    printf(test_FORMAT("FR", "Name: %s"), "Michael Bloomberg");
 }
 
 // ============================================================================
@@ -176,7 +189,7 @@ void use_without_diagnostic_message_FORMAT()
 
 void use_with_warning_message_FORMAT()
 {
-    test_PRINTF(test_FORMAT("FR", "Name: %s"), 3);
+    printf(test_FORMAT("FR", "Name: %s"), 3);
 }
 
 #endif
@@ -259,34 +272,74 @@ int main(int argc, char **argv)
     }
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 That the usage example builds and performs as expected.
+        //
+        // Plan:
+        //: 1 Build and test the usage example.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+// Next, in 'main', we call 'printf' and 'scanf' using the return value of
+// 'prefixName' and passing correct arguments, and no warnings occur:
+//..
+    char buffer[1000];
+    ::printf(prefixName(buffer, e_SPANISH, "%s\n"), "Michael Bloomberg");
+//
+    char name[100];
+    ::scanf(prefixName(buffer, e_FRENCH, "%so"), name);
+//..
+// Now, we call 'printf' and 'scanf' passing arguments that won't match the
+// resulting format string:
+//..
+#if U_TRIGGER_WARNINGS
+    ::printf(prefixName(buffer, e_ENGLISH, "%s\n"), 2.7);
+    int x;
+    ::scanf(prefixName(buffer, e_DUTCH, "%s"), &x);
+#endif
+//..
+// Finally, we observe the following warning messages on clang:
+//..
+//  .../bsla_format.t.cpp:300:53: warning: format specifies type 'char *' but t
+//  he argument has type 'double' [-Wformat]
+//      ::printf(prefixName(buffer, e_ENGLISH, "%s\n"), 2.7);
+//                                              ~~      ^~~
+//                                              %f
+//  .../bsla_format.t.cpp:302:48: warning: format specifies type 'char *' but t
+//  he argument has type 'int *' [-Wformat]
+//      ::scanf(prefixName(buffer, e_DUTCH, "%s"), &x);
+//                                           ~~    ^~
+//                                           %d
+//..
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver does *not* build when the 'U_TRIGGER_ERRORS'
-        //:   preprocessor variable is defined to 1 and all expected output
-        //:   appears.
-        //:
-        //: 2 This test driver builds with all expected compiler warning
+        //: 1 This test driver builds with all expected compiler warning
         //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
         //:   preprocessor variable is defined to 1.
         //:
-        //: 3 When 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
-        //:   to 0, the compile is successful and with no warnings.
+        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
+        //:   successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_ERRORS' defined to and externally confirm
-        //:   that compilation of this task failed and the compiler output
-        //:   shows the expected message.  (C-1)
+        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to 1 and externally
+        //:   examine compiler output for expected warnings and the absence of
+        //:   warnings expected to be suppressed.  (C-1)
         //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to and externally examine
-        //:   compiler output for expected warnings and the absence of warnings
-        //:   expected to be suppressed.  (C-2)
-        //:
-        //: 3 Build with 'U_TRIGGER_ERRORS' and 'U_TRIGGER_WARNINGS' both
-        //:   defined to 0 and observe that the compile is successful with no
-        //:   warnings.
+        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
+        //:   compile is successful with no warnings.  (C-2)
         //
         // Testing:
         //   BREATHING TEST

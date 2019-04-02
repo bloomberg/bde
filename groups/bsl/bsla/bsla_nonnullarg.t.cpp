@@ -1,21 +1,16 @@
-// bsla_alloc.t.cpp                                                   -*-C++-*-
-#include <bsla_alloc.h>
+// bsla_nonnullarg.t.cpp                                              -*-C++-*-
+#include <bsla_nonnullarg.h>
 
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
+#include <stdlib.h>  // 'atoi'
 #include <string.h>  // 'strcmp'
 
 // Set this preprocessor variable to 1 to enable compile warnings being
 // generated, 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
-
-// Set this preprocessor variable to 1 to enable compile errors being
-// generated, 0 to disable them.
-
-#define U_TRIGGER_ERRORS 0
 
 // ============================================================================
 //                             TEST PLAN
@@ -24,9 +19,9 @@
 //                             --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of
-// the boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor
-// variables.  In each case, the concerns are:
+// task using a compliant compiler, each time defining different values of the
+// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// concerns are:
 //
 //: o Did the build succeed or not?
 //:
@@ -38,42 +33,11 @@
 //:   were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
-// does nothing.
+// does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variables are:
-//
-//: o 'U_TRIGGER_ERRORS': if defined, use the 'BSLA_ERROR(message)' annotation.
-//:   Note that the task should *not* build and the compiler output should show
-//:   the specified 'message'.
-//:
-//:   o Maintenance note: This is the only test that causes compiler failure.
-//:     If others are added, each will require an individual controlling
-//:     preprocessor variable.
-//:
-//: o 'U_TRIGGER_WARNINGS', if defined, use all the annotations
-//:   defined in this component, except those expected to cause compile-time
-//:   failure.
-//
-// For each annotation, 'BSLA_XXXX', we create a function named
-// 'test_XXXX' to which annotation 'BSLA_XXXX' is applied.  For the
-// two annotations that are also applicable to variables and types, we
-// additionally create 'test_XXXX_variable' and 'test_XXXX_type'.  These
-// entities are exercised in several ways:
-//
-//: o Some are just declared and, if appropriate, defined, with no other usage.
-//:   For example, the 'BSLA_ALLOC_SIZE(x)' is a hint for compiler
-//:   optimization; no compiler message expected.  Another example is
-//:   'BSLA_UNUSED'.  For that annotation there must be no other
-//:   usage to check if the usual compiler warning message is suppressed.
-//:
-//: o For other test functions, variables, and types, a function, variable, or
-//:   type (as appropriated) named 'use_with_warning_message_XXXX' is defined
-//:   such that a warning message should be generated.
-//:
-//: o Finally, for some 'use_with_warning_message_XXXX' entities, there is a
-//:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
-//:   a context where annotation 'BSLA_XXXX' must *not* result in a
-//:   compiler message.
+// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
+// to 1, provoke all the compiler warnings caused by the macros under test.  If
+// set to 0, prevent any warnings from happening.
 //
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
@@ -83,14 +47,14 @@
 // be used as an aid to navigation to the test code for each annotation, and an
 // aid to assuring test coverage.
 //..
-//  No  Annotation                            E Result     Tag
-//  --  ------------------------------------  - --------   ----------
-//   1  BSLA_ALLOC_SIZE(x)         F optim.      1fo
-//   2  BSLA_ALLOC_SIZE_MUL(x, y)  F optim.      2fo
+//  Annotation                            Result
+//  ------------------------------------  --------
+//  BSLA_NONNULLARG(...)                  warning
+//  BSLA_NONNULLARGS                      warning
 //..
 // ----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
-
 // ----------------------------------------------------------------------------
 
 namespace bsls = BloombergLP::bsls;
@@ -142,41 +106,153 @@ void aSsErT(bool condition, const char *message, int line)
 #define STRINGIFY(a) STRINGIFY2(a)
 
 // ============================================================================
+//                               USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+///Usage
+///-----
+//
+///Example 1: Passing Null to Arguments Annotated as Non-Null:
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we define a function 'usagePrint1' annotated such that a compiler
+// warning will occur if the first argument is null:
+//..
+    void usagePrint1(const char *string, int repitition) BSLA_NONNULLARG(1);
+        // Print the specified 'string' the specified 'repitition' times.
+///
+    void usagePrint1(const char *string, int repitition)
+    {
+        for (int ii = 0; ii < repitition; ++ii) {
+            printf("%s\n", string);
+        }
+    }
+//..
+// Then, we define a similar function annotaged with 'BSLA_NONNULLARGS'.  Note
+// that only the pointer argument is affected by the annotation.
+//..
+    void usagePrint2(const char *string, int repitition) BSLA_NONNULLARGS;
+        // Print the specified 'string' the specified 'repitition' times.
+//
+    void usagePrint2(const char *string, int repitition)
+    {
+        for (int ii = 0; ii < repitition; ++ii) {
+            printf("%s\n", string);
+        }
+    }
+//..
+
+// ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
-void *test_ALLOC_SIZE(void *ptr, size_t size) BSLA_ALLOC_SIZE(2);
-void *test_ALLOC_SIZE(void *ptr, size_t size)
+char test_NONNULLARG_1(const void *p, const void *q, const void *r)
+                                                            BSLA_NONNULLARG(1);
+    // Derefence the specified 'p' and return the result, ignoring the
+    // specified 'q' and 'r'.
+char test_NONNULLARG_1(const void *p, const void *q, const void *r)
 {
-    return realloc(ptr, size);
+    char c = *reinterpret_cast<const char *>(p);
+    (void) q;
+    (void) r;
+
+    return c;
 }
 
-void *test_ALLOC_SIZE_MUL(size_t count, size_t size)
-                                          BSLA_ALLOC_SIZE_MUL(1, 2);
-void *test_ALLOC_SIZE_MUL(size_t count, size_t size)
+int test_NONNULLARG_2_3(const void *p, const void *q, const void *r)
+                                                         BSLA_NONNULLARG(2, 3);
+    // Ignore the specified 'p' and return the sum of the chars pointed at by
+    // the specified 'q' and 'r'.
+
+int test_NONNULLARG_2_3(const void *p, const void *q, const void *r)
 {
-    return calloc(count, size);
+    (void) p;
+    return *static_cast<const char *>(q) + *static_cast<const char *>(r);
 }
+
+int test_NONNULLARGS(void *p, void *q) BSLA_NONNULLARGS;
+    // Return the sum of the characters pointed at by the specified 'p' and
+    // 'q'.
+
+int test_NONNULLARGS(void *p, void *q)
+{
+    return *static_cast<const char *>(p) + *static_cast<const char *>(q);
+}
+
+// ============================================================================
+//                  DEFINITION OF ANNOTATED VARIABLES
+// ----------------------------------------------------------------------------
+
+// ============================================================================
+//                  DEFINITION OF ANNOTATED TYPES
+// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
+void use_without_diagnostic_message_NONNULLARG_1()
+    // Call 'test_NONNULLARG_1' without provoking a warning.
+{
+    test_NONNULLARG_1("", NULL, NULL);
+}
+
+void use_without_diagnostic_message_ARG2_NONNULL()
+    // Call 'test_NONNULLARG_2_3' without provoking a warning.
+{
+    char buffer2[2] = { 'a', 0 };
+    int ret = test_NONNULLARG_2_3(NULL, buffer2, buffer2 + 1);
+    ASSERT('a' == ret);
+}
+
+void use_without_diagnostic_message_NONNULLARGS()
+    // Call 'test_NONNULLARGS' without provoking a warning.
+{
+    char buffer1[2];
+    char buffer2[2];
+
+    test_NONNULLARGS(buffer1, buffer2);
+}
+
 // ============================================================================
 //                  USAGE WITH EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
-
+                                                                              \
 #if U_TRIGGER_WARNINGS
+
+void use_with_warning_message_NONNULLARG_1()
+    // Call 'test_NONNULLARG_1' several times, each time provoking a warning.
+{
+    test_NONNULLARG_1(NULL, NULL, NULL);
+    test_NONNULLARG_1(NULL, "", "");
+    test_NONNULLARG_1(NULL, "", NULL);
+    test_NONNULLARG_1(NULL, NULL, "");
+}
+
+void use_with_warning_message_NONNULARG_2_3_NONNULL()
+    // Call 'test_NONNULLARG_2_3' several times, each time provoking a warning.
+{
+    test_NONNULLARG_2_3("", "", NULL);
+    test_NONNULLARG_2_3("", NULL,"");
+    test_NONNULLARG_2_3("", NULL, NULL);
+    test_NONNULLARG_2_3(NULL, NULL, NULL);
+}
+
+void use_with_warning_message_NONNULLARGS()
+    // Call 'test_NONNULLARGS' several times, each time provoking a warning.
+{
+    char buffer1[2];
+    char buffer2[2];
+
+    test_NONNULLARGS(NULL, buffer2);
+    test_NONNULLARGS(buffer1, NULL);
+    test_NONNULLARGS(NULL, NULL);
+}
 
 #endif
 
 // ============================================================================
 //                  USAGE WITH EXPECTED COMPILER ERRORS
 // ----------------------------------------------------------------------------
-
-#if U_TRIGGER_ERRORS
-
-#endif
 
 // ============================================================================
 //                              HELPER FUNCTIONS
@@ -192,16 +268,16 @@ static void printFlags()
 
     printf("\nprintFlags: bsls_annotation Macros\n");
 
-    printf("\nBSLA_ALLOC_SIZE(x): ");
-#ifdef BSLA_ALLOC_SIZE
-    printf("%s\n", STRINGIFY(BSLA_ALLOC_SIZE(x)) );
+    printf("\nBSLA_NONNULLARGS: ");
+#ifdef BSLA_NONNULLARGS
+    printf("%s\n", STRINGIFY(BSLA_NONNULLARGS) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\nBSLA_ALLOC_SIZE_MUL(x, y): ");
-#ifdef BSLA_ALLOC_SIZE_MUL
-    printf("%s\n", STRINGIFY(BSLA_ALLOC_SIZE_MUL(x, y)) );
+    printf("\nBSLA_NONNULLARG(...): ");
+#ifdef BSLA_NONNULLARG
+    printf("%s\n", STRINGIFY(BSLA_NONNULLARG(...)) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -209,8 +285,8 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
-    P(BSLA_ALLOC_SIZE_IS_ACTIVE);
-    P(BSLA_ALLOC_SIZE_MUL_IS_ACTIVE);
+    P(BSLA_NONNULLARGS_IS_ACTIVE);
+    P(BSLA_NONNULLARG_IS_ACTIVE);
 
     printf("\n\n---------------------------------------------\n");
     printf(    "printFlags: bsls_annotation Referenced Macros\n");
@@ -225,13 +301,6 @@ static void printFlags()
     printf("\nBSLS_PLATFORM_CMP_GNU: ");
 #ifdef BSLS_PLATFORM_CMP_GNU
     printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\nBSLS_PLATFORM_CMP_VERSION: ");
-#ifdef BSLS_PLATFORM_CMP_VERSION
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_VERSION) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -260,46 +329,85 @@ int main(int argc, char **argv)
     }
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 That the usage example builds and performs as expected.
+        //
+        // Plan:
+        //: 1 Build and test the usage example.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+// Next, in 'main', we call both functions with a non-null first argument, and
+// observe that no warning occurs.  Note that even though 0 is passed to the
+// integer argument to 'usagePrint2' and the 'BSLA_NONNULLARGS' annotation was
+// used, non-pointer arguments are not affected by that annotation.
+//..
+    usagePrint1("woof", 0);
+    usagePrint2("meow", 0);
+//..
+// Now, we call both functions passing a null pointer to the first argument,
+// and observe that we get compiler warnings on both calls.
+//..
+#if U_TRIGGER_WARNINGS
+    usagePrint1(NULL, -10);
+    usagePrint2(NULL, -10);
+#endif
+//..
+// Finally, we observe that the above two calls result in the following
+// warnings on clang:
+//..
+//  .../bsla_nonnullarg.t.cpp:359:25: warning: null passed to a callee that req
+//  uires a non-null argument [-Wnonnull]
+//      usagePrint1(NULL, -10);
+//                  ~~~~     ^
+//  .../bsla_nonnullarg.t.cpp:360:25: warning: null passed to a callee that req
+//  uires a non-null argument [-Wnonnull]
+//      usagePrint2(NULL, -10);
+//                  ~~~~     ^
+//..
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver does *not* build when the 'U_TRIGGER_ERRORS'
-        //:   preprocessor variable is defined to 1 and all expected output
-        //:   appears.
-        //:
-        //: 2 This test driver builds with all expected compiler warning
+        //: 1 This test driver builds with all expected compiler warning
         //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
         //:   preprocessor variable is defined to 1.
         //:
-        //: 3 When 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
-        //:   to 0, the compile is successful and with no warnings.
+        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
+        //:   successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_ERRORS' defined to and externally confirm
-        //:   that compilation of this task failed and the compiler output
-        //:   shows the expected message.  (C-1)
-        //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to and externally examine
+        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to and externally examine
         //:   compiler output for expected warnings and the absence of warnings
-        //:   expected to be suppressed.  (C-2)
+        //:   expected to be suppressed.  (C-1)
         //:
-        //: 3 Build with 'U_TRIGGER_ERRORS' and 'U_TRIGGER_WARNINGS' both
-        //:   defined to 0 and observe that the compile is successful with no
-        //:   warnings.
+        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
+        //:   compile is successful with no warnings.
+        //:
+        //: 3 Run with 'verbose' to get a listing of macro expansions.
         //
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============\n");
+        if (verbose) printf("BREATHING TEST\n"
+                            "==============\n");
 
         if (verbose) {
-            printf("\nThere are no run-time tests for this component."
-                   "\nManually run build-time tests using a conforming "
-                   "compiler.");
+            printf("There are no run-time tests for this component.\n"
+                   "Manually run build-time tests using a conforming "
+                   "compiler.\n");
 
             if (!veryVeryVerbose) printFlags();
 

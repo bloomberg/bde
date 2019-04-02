@@ -2,6 +2,8 @@
 #include <bsla_annotations.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #include <stdio.h>
 #include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
@@ -24,9 +26,9 @@
 //                             --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of
-// the boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor
-// variables.  In each case, the concerns are:
+// task using a compliant compiler, each time defining different values of the
+// boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor variables.
+// In each case, the concerns are:
 //
 //: o Did the build succeed or not?
 //:
@@ -50,21 +52,20 @@
 //:     If others are added, each will require an individual controlling
 //:     preprocessor variable.
 //:
-//: o 'U_TRIGGER_WARNINGS', if defined, use all the annotations
-//:   defined in this component, except those expected to cause compile-time
-//:   failure.
+//: o 'U_TRIGGER_WARNINGS', if defined, use all the annotations defined in this
+//:   component, except those expected to cause compile-time failure.
 //
-// For each annotation, 'BSLA_XXXX', we create a function named
-// 'test_XXXX' to which annotation 'BSLA_XXXX' is applied.  For the
-// two annotations that are also applicable to variables and types, we
-// additionally create 'test_XXXX_variable' and 'test_XXXX_type'.  These
-// entities are exercised in several ways:
+// For each annotation, 'BSLA_XXXX', we create a function named 'test_XXXX' to
+// which annotation 'BSLA_XXXX' is applied.  For the two annotations that are
+// also applicable to variables and types, we additionally create
+// 'test_XXXX_variable' and 'test_XXXX_type'.  These entities are exercised in
+// several ways:
 //
 //: o Some are just declared and, if appropriate, defined, with no other usage.
-//:   For example, the 'BSLA_ALLOC_SIZE(x)' is a hint for compiler
-//:   optimization; no compiler message expected.  Another example is
-//:   'BSLA_UNUSED'.  For that annotation there must be no other
-//:   usage to check if the usual compiler warning message is suppressed.
+//:   For example, the 'BSLA_ALLOCSIZE(x)' is a hint for compiler optimization;
+//:   no compiler message expected.  Another example is 'BSLA_UNUSED'.  For
+//:   that annotation there must be no other usage to check if the usual
+//:   compiler warning message is suppressed.
 //:
 //: o For other test functions, variables, and types, a function, variable, or
 //:   type (as appropriated) named 'use_with_warning_message_XXXX' is defined
@@ -72,8 +73,8 @@
 //:
 //: o Finally, for some 'use_with_warning_message_XXXX' entities, there is a
 //:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
-//:   a context where annotation 'BSLA_XXXX' must *not* result in a
-//:   compiler message.
+//:   a context where annotation 'BSLA_XXXX' must *not* result in a compiler
+//:   message.
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -131,21 +132,31 @@ void aSsErT(bool condition, const char *message, int line)
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
-void *test_ALLOC_SIZE(void *ptr, size_t size) BSLA_ALLOC_SIZE(2);
-void *test_ALLOC_SIZE(void *ptr, size_t size)
+void *test_ALLOCSIZE(void *ptr, size_t size) BSLA_ALLOCSIZE(2);
+    // Test the 'BSLA_ALLOCSIZE' macro.  Allocate a new block of memory of the
+    // specified 'size' and copy the minimum of 'size' and the size of the
+    // preexisting block at the specfied 'ptr' from 'ptr' to the new block,
+    // free the block at 'ptr', and return a pointer to the new block.  The
+    // 'BSLA_ALLOCSIZE' macro provides a hint to some compilers as to the size
+    // of the returned block.
+
+void *test_ALLOCSIZE(void *ptr, size_t size)
 {
     return realloc(ptr, size);
 }
 
-void *test_ALLOC_SIZE_MUL(size_t count, size_t size)
-                                          BSLA_ALLOC_SIZE_MUL(1, 2);
-void *test_ALLOC_SIZE_MUL(size_t count, size_t size)
+void *test_ALLOCSIZEMUL(size_t count, size_t size) BSLA_ALLOCSIZEMUL(1, 2);
+    // Test the 'BSLA_ALLOCSIZE' macro.  Allocate and return a new block of
+    // memory whose size is the product of the specified 'size' and 'count'.
+    // The 'BSLA_ALLOCSIZEMUL' macro provides a hint to some compilers as to
+    // the size of the returned block.
+
+void *test_ALLOCSIZEMUL(size_t count, size_t size)
 {
     return calloc(count, size);
 }
 
-char test_ARG1_NON_NULL(void *p, void *q, void *r)
-                                              BSLA_ARG_NON_NULL(1);
+char test_ARG1_NON_NULL(void *p, void *q, void *r) BSLA_NONNULLARG(1);
 char test_ARG1_NON_NULL(void *p, void *q, void *r)
 {
     char c = *reinterpret_cast<char *>(p);
@@ -155,8 +166,7 @@ char test_ARG1_NON_NULL(void *p, void *q, void *r)
     return c;
 }
 
-char test_ARG2_NON_NULL(void *p, void *q, void *r)
-                                              BSLA_ARG_NON_NULL(2, 3);
+char test_ARG2_NON_NULL(void *p, void *q, void *r) BSLA_NONNULLARG(2, 3);
 char test_ARG2_NON_NULL(void *p, void *q, void *r)
 {
     (void) p;
@@ -166,7 +176,7 @@ char test_ARG2_NON_NULL(void *p, void *q, void *r)
     return 'a';
 }
 
-void test_ARGS_NON_NULL(void *, void *) BSLA_ARGS_NON_NULL;
+void test_ARGS_NON_NULL(void *, void *) BSLA_NONNULLARGS;
 void test_ARGS_NON_NULL(void *, void *)
 {
 }
@@ -226,20 +236,20 @@ int test_NODISCARD()
     return 1;
 }
 
-void test_NULL_TERMINATED(void *, ...) BSLA_NULL_TERMINATED;
-void test_NULL_TERMINATED(void *, ...)
+void test_NULLTERMINATED(void *, ...) BSLA_NULLTERMINATED;
+void test_NULLTERMINATED(void *, ...)
 {
 }
 
-void test_NULL_TERMINATED_AT2(void *, ...)
-                                         BSLA_NULL_TERMINATED_AT(2);
-void test_NULL_TERMINATED_AT2(void *, ...)
+void test_NULLTERMINATEDAT2(void *, ...)
+                                         BSLA_NULLTERMINATEDAT(2);
+void test_NULLTERMINATEDAT2(void *, ...)
 {
 }
 
-void test_NULL_TERMINATED_AT3(void *, ...)
-                                         BSLA_NULL_TERMINATED_AT(3);
-void test_NULL_TERMINATED_AT3(void *, ...)
+void test_NULLTERMINATEDAT3(void *, ...)
+                                         BSLA_NULLTERMINATEDAT(3);
+void test_NULLTERMINATEDAT3(void *, ...)
 {
 }
 
@@ -351,31 +361,31 @@ int use_without_diagnostic_message_NODISCARD()
     return test_NODISCARD();
 }
 
-void use_without_diagnostic_message_NULL_TERMINATED()
+void use_without_diagnostic_message_NULLTERMINATED()
 {
     char buffer1[2];
     char buffer2[2];
     char buffer3[2];
     char buffer4[2];
-    test_NULL_TERMINATED(buffer1, buffer2, buffer3, buffer4, NULL);
+    test_NULLTERMINATED(buffer1, buffer2, buffer3, buffer4, NULL);
 }
 
-void use_without_diagnostic_message_NULL_TERMINATED_AT2()
+void use_without_diagnostic_message_NULLTERMINATEDAT2()
 {
     char buffer1[2];
     char buffer2[2];
     char buffer4[2];
     char buffer5[2];
-    test_NULL_TERMINATED_AT2(buffer1, buffer2, NULL, buffer4, buffer5);
+    test_NULLTERMINATEDAT2(buffer1, buffer2, NULL, buffer4, buffer5);
 }
 
-void use_without_diagnostic_message_NULL_TERMINATED_AT3()
+void use_without_diagnostic_message_NULLTERMINATEDAT3()
 {
     char buffer1[2];
     char buffer3[2];
     char buffer4[2];
     char buffer5[2];
-    test_NULL_TERMINATED_AT3(buffer1, NULL, buffer3, buffer4, buffer5);
+    test_NULLTERMINATEDAT3(buffer1, NULL, buffer3, buffer4, buffer5);
 }
 
 BSLA_NORETURN void use_without_diagnostic_message_NORETURN()
@@ -507,33 +517,33 @@ BSLA_NORETURN void use_with_error_message_NORETURN_function()
 {
 }
 
-void use_with_warning_message_NULL_TERMINATED()
+void use_with_warning_message_NULLTERMINATED()
 {
     char buffer1[2];
     char buffer2[2];
     char buffer3[2];
     char buffer4[2];
     char buffer5[2];
-    test_NULL_TERMINATED(buffer1, buffer2, buffer3, buffer4, buffer5);
+    test_NULLTERMINATED(buffer1, buffer2, buffer3, buffer4, buffer5);
 }
 
-void use_with_warning_message_NULL_TERMINATED_AT2()
+void use_with_warning_message_NULLTERMINATEDAT2()
 {
     char buffer1[2];
     char buffer2[2];
     char buffer3[2];
     char buffer4[2];
     char buffer5[2];
-    test_NULL_TERMINATED_AT2(buffer1, buffer2, buffer3, buffer4, buffer5);
+    test_NULLTERMINATEDAT2(buffer1, buffer2, buffer3, buffer4, buffer5);
 }
-void use_with_warning_message_NULL_TERMINATED_AT3()
+void use_with_warning_message_NULLTERMINATEDAT3()
 {
     char buffer1[2];
     char buffer2[2];
     char buffer3[2];
     char buffer4[2];
     char buffer5[2];
-    test_NULL_TERMINATED_AT3(buffer1, buffer2, buffer3, buffer4, buffer5);
+    test_NULLTERMINATEDAT3(buffer1, buffer2, buffer3, buffer4, buffer5);
 }
 
 void use_with_warning_message_PRINTF()
@@ -554,7 +564,7 @@ void use_with_warning_message_SCANF()
 }
 
 static
-int test_UNUSED_variable_warninng;
+int test_UNUSED_variable_warning;
 
 void use_with_warning_message_WARNING()
 {
@@ -590,16 +600,16 @@ static void printFlags()
 
     printf("\nprintFlags: bsls_annotation Macros\n");
 
-    printf("\nBSLA_ALLOC_SIZE(x): ");
-#ifdef BSLA_ALLOC_SIZE
-    printf("%s\n", STRINGIFY(BSLA_ALLOC_SIZE(x)) );
+    printf("\nBSLA_ALLOCSIZE(x): ");
+#ifdef BSLA_ALLOCSIZE
+    printf("%s\n", STRINGIFY(BSLA_ALLOCSIZE(x)) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\nBSLA_ALLOC_SIZE_MUL(x, y): ");
-#ifdef BSLA_ALLOC_SIZE_MUL
-    printf("%s\n", STRINGIFY(BSLA_ALLOC_SIZE_MUL(x, y)) );
+    printf("\nBSLA_ALLOCSIZEMUL(x, y): ");
+#ifdef BSLA_ALLOCSIZEMUL
+    printf("%s\n", STRINGIFY(BSLA_ALLOCSIZEMUL(x, y)) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -660,16 +670,16 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
-    printf("\nBSLA_NULL_TERMINATED: ");
-#ifdef BSLA_NULL_TERMINATED
-    printf("%s\n", STRINGIFY(BSLA_NULL_TERMINATED) );
+    printf("\nBSLA_NULLTERMINATED: ");
+#ifdef BSLA_NULLTERMINATED
+    printf("%s\n", STRINGIFY(BSLA_NULLTERMINATED) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\nBSLA_NULL_TERMINATED_AT(x): ");
-#ifdef BSLA_NULL_TERMINATED_AT
-    printf("%s\n", STRINGIFY(BSLA_NULL_TERMINATED_AT(x)) );
+    printf("\nBSLA_NULLTERMINATEDAT(x): ");
+#ifdef BSLA_NULLTERMINATEDAT
+    printf("%s\n", STRINGIFY(BSLA_NULLTERMINATEDAT(x)) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -712,18 +722,18 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
-    P(BSLA_ALLOC_SIZE_IS_ACTIVE);
-    P(BSLA_ALLOC_SIZE_MUL_IS_ACTIVE);
-    P(BSLA_ARGS_NON_NULL_IS_ACTIVE);
-    P(BSLA_ARG_NON_NULL_IS_ACTIVE);
+    P(BSLA_ALLOCSIZE_IS_ACTIVE);
+    P(BSLA_ALLOCSIZEMUL_IS_ACTIVE);
     P(BSLA_DEPRECATED_IS_ACTIVE);
     P(BSLA_ERROR_IS_ACTIVE);
     P(BSLA_FALLTHROUGH_IS_ACTIVE);
     P(BSLA_FORMAT_IS_ACTIVE);
     P(BSLA_NODISCARD_IS_ACTIVE);
+    P(BSLA_NONNULLARG_IS_ACTIVE);
+    P(BSLA_NONNULLARGS_IS_ACTIVE);
     P(BSLA_NORETURN_IS_ACTIVE);
-    P(BSLA_NULL_TERMINATED_AT_IS_ACTIVE);
-    P(BSLA_NULL_TERMINATED_IS_ACTIVE);
+    P(BSLA_NULLTERMINATEDAT_IS_ACTIVE);
+    P(BSLA_NULLTERMINATED_IS_ACTIVE);
     P(BSLA_PRINTF_IS_ACTIVE);
     P(BSLA_SCANF_IS_ACTIVE);
     P(BSLA_UNUSED_IS_ACTIVE);

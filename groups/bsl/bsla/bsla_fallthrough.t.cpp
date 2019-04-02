@@ -12,11 +12,6 @@
 
 #define U_TRIGGER_WARNINGS 0
 
-// Set this preprocessor variable to 1 to enable compile errors being
-// generated, 0 to disable them.
-
-#define U_TRIGGER_ERRORS 0
-
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
@@ -24,9 +19,9 @@
 //                             --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of
-// the boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor
-// variables.  In each case, the concerns are:
+// task using a compliant compiler, each time defining different values of the
+// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// concerns are:
 //
 //: o Did the build succeed or not?
 //:
@@ -38,42 +33,24 @@
 //:   were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
-// does nothing.
+// does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variables are:
+// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
+// to 1, provoke all the compiler warnings caused by the macros under test.  If
+// set to 0, prevent any warnings from happening.
 //
-//: o 'U_TRIGGER_ERRORS': if defined, use the 'BSLA_ERROR(message)' annotation.
-//:   Note that the task should *not* build and the compiler output should show
-//:   the specified 'message'.
-//:
-//:   o Maintenance note: This is the only test that causes compiler failure.
-//:     If others are added, each will require an individual controlling
-//:     preprocessor variable.
-//:
-//: o 'U_TRIGGER_WARNINGS', if defined, use all the annotations
-//:   defined in this component, except those expected to cause compile-time
-//:   failure.
-//
-// For each annotation, 'BSLA_XXXX', we create a function named
-// 'test_XXXX' to which annotation 'BSLA_XXXX' is applied.  For the
-// two annotations that are also applicable to variables and types, we
-// additionally create 'test_XXXX_variable' and 'test_XXXX_type'.  These
-// entities are exercised in several ways:
-//
-//: o Some are just declared and, if appropriate, defined, with no other usage.
-//:   For example, the 'BSLA_ALLOC_SIZE(x)' is a hint for compiler
-//:   optimization; no compiler message expected.  Another example is
-//:   'BSLA_UNUSED'.  For that annotation there must be no other
-//:   usage to check if the usual compiler warning message is suppressed.
-//:
-//: o For other test functions, variables, and types, a function, variable, or
-//:   type (as appropriated) named 'use_with_warning_message_XXXX' is defined
-//:   such that a warning message should be generated.
-//:
-//: o Finally, for some 'use_with_warning_message_XXXX' entities, there is a
-//:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
-//:   a context where annotation 'BSLA_XXXX' must *not* result in a
-//:   compiler message.
+// The table below classifies each of the annotations provided by this
+// component by the entities to which it can be applied (i.e., function,
+// variable, and type) and the expected result (optimization, error, warning,
+// conditional warning, absence of warning).  The tag(s) found in the
+// right-most column appear as comments throughout this test driver.  They can
+// be used as an aid to navigation to the test code for each annotation, and an
+// aid to assuring test coverage.
+//..
+//  Annotation                            Result
+//  ------------------------------------  --------
+//  BSLA_FALLTHROUGH                      Warning
+//..
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -128,24 +105,119 @@ void aSsErT(bool condition, const char *message, int line)
 #define STRINGIFY(a) STRINGIFY2(a)
 
 // ============================================================================
+//                                GLOBALS
+// ----------------------------------------------------------------------------
+
+int             test;
+bool         verbose;
+bool     veryVerbose;
+bool veryVeryVerbose;
+
+// ============================================================================
+//                                     USAGE
+// ----------------------------------------------------------------------------
+
+#if BSLA_FALLTHROUGH_IS_ACTIVE
+
+///Usage
+///-----
+//
+///Example 1: Suppressing Fall-Through Warnings in a 'switch' Statement:
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we define a function:
+//..
+    int usageFunction(int jj)
+        // Demonstrate the usage of 'BSLA_FALLTHROUGH', read the specified
+        // 'jj'.
+    {
+        for (int ii = 0; ii < 5; ++ii) {
+//..
+// Then, we have 'switch' in the function:
+//..
+            switch (ii) {
+              case 0: {
+                printf("%d\n", jj - 3);
+//..
+// Next, we see that 'BSLA_FALLTHROUGH;', as the last statement in a 'case'
+// block before falling through silences the fall-through warning from the
+// compiler:
+//..
+                 BSLA_FALLTHROUGH;
+              }
+              case 1:
+//..
+// Then, we see this also works on 'case's that don't have a '{}' block:
+//..
+                jj -= 6;
+                printf("%d\n", jj);
+                BSLA_FALLTHROUGH;
+              case 2: {
+                if (jj > 4) {
+                    printf("%d\n", jj + 10);
+//..
+// Next, we see that a 'BSLA_FALLTHROUGH;' works within a 'if' block, provided
+// that it's in the last statement in the flow of control before falling
+// through:
+//..
+                    BSLA_FALLTHROUGH;
+                }
+                else {
+                    return 0;                                         // RETURN
+                }
+              }
+              case 3: {
+                if (jj > 4) {
+                    continue;
+                }
+                else {
+                    printf("%d\n", ++jj);
+//..
+// Now, we see that a 'BSLA_FALLTHROUGH;' can also occur as the last statement
+// in an 'else' block.
+//..
+                    BSLA_FALLTHROUGH;
+                }
+              }
+              default: {
+                return 1;                                             // RETURN
+              } break;
+            }
+        }
+//
+        return -7;
+    }
+//..
+// Finally, we see that if we compile when 'BSLA_FALLTHROUGH_IS_ACTIVE' is set,
+// the above compiles with no warnings.
+
+#endif
+
+// ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
-int test_FALLTHROUGH_function(int i);
 int test_FALLTHROUGH_function(int i)
+    // Test the 'BSLA_FALLTHROUGH' macro.
 {
-    switch (i)
-    {
+    switch (i) {
       case 0: {
-        if (true) {
+        if (verbose) {
 #if BSLA_FALLTHROUGH_IS_ACTIVE
-            BSLA_FALLTHROUGH;
+            {{{{ BSLA_FALLTHROUGH; }}}}
 #else
             return 3;                                                 // RETURN
 #endif
         }
         else {
+#if BSLA_FALLTHROUGH_IS_ACTIVE
+            if (veryVerbose)
+                return 8;                                             // RETURN
+            else {
+                BSLA_FALLTHROUGH;
+            }
+#else
             return 7;                                                 // RETURN
+#endif
         }
       }
       case 1: {
@@ -184,11 +256,22 @@ int use_with_warning_message_FALLTHROUGH(int i)
       }
 #if U_TRIGGER_WARNINGS
       case 1: {
-        if (true) {
-            (void) i;
+        printf("%d\n", i * i + 1);
+      }
+      case 2: {
+        if (verbose)) {
+            printf("%d\n", i * i + 2);
         }
         else {
             return 7;                                                 // RETURN
+        }
+      }
+      case 3: {
+        if (verbose) {
+            return 7;                                                 // RETURN
+        }
+        else {
+            printf("%d\n", i * i + 3);
         }
       }
 #endif
@@ -199,10 +282,6 @@ int use_with_warning_message_FALLTHROUGH(int i)
 }
 
 #endif
-
-// ============================================================================
-//                  USAGE WITH EXPECTED COMPILER ERRORS
-// ----------------------------------------------------------------------------
 
 // ============================================================================
 //                              HELPER FUNCTIONS
@@ -304,16 +383,12 @@ int main(int argc, char **argv)
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver does *not* build when the 'U_TRIGGER_ERRORS'
-        //:   preprocessor variable is defined to 1 and all expected output
-        //:   appears.
-        //:
-        //: 2 This test driver builds with all expected compiler warning
+        //: 1 This test driver builds with all expected compiler warning
         //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
         //:   preprocessor variable is defined to 1.
         //:
-        //: 3 When 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
-        //:   to 0, the compile is successful and with no warnings.
+        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
+        //:   successful and with no warnings.
         //
         // Plan:
         //: 1 Build with 'U_TRIGGER_ERRORS' defined to and externally confirm

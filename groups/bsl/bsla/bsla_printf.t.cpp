@@ -1,8 +1,12 @@
 // bsla_printf.t.cpp                                                  -*-C++-*-
 #include <bsla_printf.h>
 
+#include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 
+#include <string>
+
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
 #include <string.h>  // 'strcmp'
@@ -12,11 +16,6 @@
 
 #define U_TRIGGER_WARNINGS 0
 
-// Set this preprocessor variable to 1 to enable compile errors being
-// generated, 0 to disable them.
-
-#define U_TRIGGER_ERRORS 0
-
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
@@ -24,9 +23,9 @@
 //                             --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of
-// the boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor
-// variables.  In each case, the concerns are:
+// task using a compliant compiler, each time defining different values of the
+// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// concerns are:
 //
 //: o Did the build succeed or not?
 //:
@@ -38,45 +37,27 @@
 //:   were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
-// does nothing.
+// does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variables are:
+// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
+// to 1, provoke all the compiler warnings caused by the macros under test.  If
+// set to 0, prevent any warnings from happening.
 //
-//: o 'U_TRIGGER_ERRORS': if defined, use the 'BSLA_ERROR(message)' annotation.
-//:   Note that the task should *not* build and the compiler output should show
-//:   the specified 'message'.
-//:
-//:   o Maintenance note: This is the only test that causes compiler failure.
-//:     If others are added, each will require an individual controlling
-//:     preprocessor variable.
-//:
-//: o 'U_TRIGGER_WARNINGS', if defined, use all the annotations
-//:   defined in this component, except those expected to cause compile-time
-//:   failure.
-//
-// For each annotation, 'BSLA_XXXX', we create a function named
-// 'test_XXXX' to which annotation 'BSLA_XXXX' is applied.  For the
-// two annotations that are also applicable to variables and types, we
-// additionally create 'test_XXXX_variable' and 'test_XXXX_type'.  These
-// entities are exercised in several ways:
-//
-//: o Some are just declared and, if appropriate, defined, with no other usage.
-//:   For example, the 'BSLA_ALLOC_SIZE(x)' is a hint for compiler
-//:   optimization; no compiler message expected.  Another example is
-//:   'BSLA_UNUSED'.  For that annotation there must be no other
-//:   usage to check if the usual compiler warning message is suppressed.
-//:
-//: o For other test functions, variables, and types, a function, variable, or
-//:   type (as appropriated) named 'use_with_warning_message_XXXX' is defined
-//:   such that a warning message should be generated.
-//:
-//: o Finally, for some 'use_with_warning_message_XXXX' entities, there is a
-//:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
-//:   a context where annotation 'BSLA_XXXX' must *not* result in a
-//:   compiler message.
+// The table below classifies each of the annotations provided by this
+// component by the entities to which it can be applied (i.e., function,
+// variable, and type) and the expected result (optimization, error, warning,
+// conditional warning, absence of warning).  The tag(s) found in the
+// right-most column appear as comments throughout this test driver.  They can
+// be used as an aid to navigation to the test code for each annotation, and an
+// aid to assuring test coverage.
+//..
+//  Annotation                            Result
+//  ------------------------------------  --------
+//  BSLA_PRINTF(FMTIDX, STARTIDX)         Warning
+//..
 // ----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
-
 // ----------------------------------------------------------------------------
 
 namespace bsls = BloombergLP::bsls;
@@ -128,11 +109,61 @@ void aSsErT(bool condition, const char *message, int line)
 #define STRINGIFY(a) STRINGIFY2(a)
 
 // ============================================================================
+//                                USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+//
+///Usage
+///-----
+//
+///Example 1: String Printf:
+/// - - - - - - - - - - - -
+// First, we define a function 'strPrintf' which takes a variable number of
+// arguments.  The second argument is the format string, and we annnotate it
+// with 'BSLA_PRINTF'
+//..
+    std::string strPrintf(size_t *numChars, const char *format, ...)
+                                                             BSLA_PRINTF(2, 3);
+    std::string strPrintf(size_t *numChars, const char *format, ...)
+        // Do an 'sprintf' write to a 'std::string' and return the string by
+        // value.  Ensure that the write can't overflow unless memory or
+        // address space is exhausted.  The specified '*numChars' is the number
+        // of characters written, the specified 'format' is the 'printf'-style
+        // format string, and the specified '...' is the variable-length list
+        // of arguments to be formatted.
+    {
+        std::string ret = " ";
+//
+        va_list ap;
+        va_start(ap, format);
+
+        // 'vnsprintf' returns the number of chars that WOULD have been written
+        // (not including the terminating '\0') had the buffer been long
+        // enough.
+
+        *numChars = ::vsnprintf(&ret[0], 1, format, ap);
+        va_end(ap);
+//
+        ret.resize(*numChars + 1);
+//
+        va_start(ap, format);
+        *numChars = ::vsnprintf(&ret[0], *numChars + 1, format, ap);
+        va_end(ap);
+//
+        BSLS_ASSERT(::strlen(ret.c_str()) == *numChars);
+//
+        ret.resize(*numChars);
+        return ret;
+    }
+//..
+
+// ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
 void test_PRINTF(const char *pattern, ...) BSLA_PRINTF(1, 2);
 void test_PRINTF(const char *pattern, ...)
+    // Do nothing with the specified 'pattern'.
 {
     (void) pattern;
 }
@@ -150,6 +181,7 @@ void test_PRINTF(const char *pattern, ...)
 // ----------------------------------------------------------------------------
 
 void use_without_diagnostic_message_PRINTF()
+    // Call 'test_PRINTF' a few times with correct arguments.
 {
     test_PRINTF("%s", "string");
     test_PRINTF("%d", 1);
@@ -256,34 +288,80 @@ int main(int argc, char **argv)
     }
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 That the usage example builds and performs as expected.
+        //
+        // Plan:
+        //: 1 Build and test the usage example.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+// Then, in 'main', we call the function correctly a couple of times:
+//..
+    size_t len;
+    std::string s;
+//
+    s = strPrintf(&len, "%s %s %s %g\n", "woof", "meow", "arf", 23.5);
+    ASSERT("woof meow arf 23.5\n" == s);
+    ASSERT(19 == len);
+    ASSERT(len == s.length());
+//
+    s = strPrintf(&len, "%s %s %s %s %s %s %s %s %s\n",
+        "The", "rain", "in", "Spain", "falls", "mainly", "in", "the", "plain");
+    ASSERT("The rain in Spain falls mainly in the plain\n" == s);
+    ASSERT(44 == len);
+    ASSERT(len == s.length());
+//..
+// Now, we call it with too many arguments and of the wrong type:
+//..
+#if U_TRIGGER_WARNINGS
+    s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
+#endif
+//..
+// Finally, we observe the compiler warnings on g++.
+//..
+//  .../bsla/bsla_printf.t.cpp:324:58: warning: format '%c' expects argument of
+//   type 'int', but argument 3 has type 'const char*' [-Wformat=]
+//       s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
+//                                                            ^
+//  .../bsla/bsla_printf.t.cpp:324:58: warning: format '%f' expects argument of
+//   type 'double', but argument 4 has type 'int' [-Wformat=]
+//  .../bsla/bsla_printf.t.cpp:324:58: warning: format '%g' expects argument of
+//   type 'double', but argument 5 has type 'int' [-Wformat=]
+//  .../bsla/bsla_printf.t.cpp:324:58: warning: too many arguments for format [
+//  -Wformat-extra-args]
+//..
+
+        (void) s;
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver does *not* build when the 'U_TRIGGER_ERRORS'
-        //:   preprocessor variable is defined to 1 and all expected output
-        //:   appears.
-        //:
-        //: 2 This test driver builds with all expected compiler warning
+        //: 1 This test driver builds with all expected compiler warning
         //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
         //:   preprocessor variable is defined to 1.
         //:
-        //: 3 When 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
-        //:   to 0, the compile is successful and with no warnings.
+        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
+        //:   successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_ERRORS' defined to and externally confirm
-        //:   that compilation of this task failed and the compiler output
-        //:   shows the expected message.  (C-1)
+        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to 1 and externally
+        //:   examine compiler output for expected warnings and the absence of
+        //:   warnings expected to be suppressed.  (C-1)
         //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to and externally examine
-        //:   compiler output for expected warnings and the absence of warnings
-        //:   expected to be suppressed.  (C-2)
-        //:
-        //: 3 Build with 'U_TRIGGER_ERRORS' and 'U_TRIGGER_WARNINGS' both
-        //:   defined to 0 and observe that the compile is successful with no
-        //:   warnings.
+        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
+        //:   compile is successful with no warnings.  (C-2)
         //
         // Testing:
         //   BREATHING TEST

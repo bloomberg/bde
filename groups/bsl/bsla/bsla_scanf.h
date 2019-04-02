@@ -5,56 +5,150 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide macro for checking 'scanf'-style format strings.
+//@PURPOSE: Provide a macro for checking 'scanf'-style format strings.
 //
 //@CLASSES:
 //
 //@MACROS:
-//  BSLA_SCANF(s, n): validate 'scanf' format and arguments
+//  BSLA_SCANF(FMTIDX, STARTIDX): validate 'scanf' format and arguments
+//  BSLA_SCANF_IS_ACTIVE: 0 if 'BSLA_SCANF' expands to nothing and 1 otherwise
 //
-//  BSLA_SCANF_IS_ACTIVE
+//@SEE ALSO: bsla_annotations
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component a preprocessor macro that indicates that one of
-// the arguments to a function is a 'scanf'-style format string, and that the
-// arguments starting at a certain index are to be checked for compatibility
-// with that format string.
+//@DESCRIPTION: This component provides a preprocessor macro that indicates
+// that one of the arguments to a function is a 'scanf'-style format string,
+// and that the arguments starting at a certain index are to be checked for
+// compatibility with that format string.
 //
-// The macro 'BSLA_SCANF_IS_ACTIVE' is defined to 0 if 'BSLA_SCANF' expands to
-// nothing and 1 otherwise.
+///Macro Reference
+///---------------
+//: o BSLA_SCANF(FMTIDX, STARTIDX)
+//:
+//: o This annotation instructs the compiler to perform additional checks on
+//:   so-annotated functions that take 'scanf'-style arguments, which should be
+//:   type-checked against a format string.
+//:
+//: o The 'FMTIDX' parameter is the one-based index to the 'const' format
+//:   string.  The 'STARTIDX' parameter is the one-based index to the first
+//:   variable argument to type-check against that format string.  For example:
+//..
+//  extern int my_scanf(void *obj, const char *format, ...) BSLA_SCANF(2, 3);
+//..
 //
-///Macro
-///-----
-//..
-//  BSLA_SCANF(stringIndex, firstToCheck)
-//..
-// These annotations perform additional compile-time checks on so-annotated
-// functions that take 'scantf'-style arguments, which should be type-checked
-// against a format string.
-//
-// The 'stringIndex' parameter is the one-based index to the 'const' format
-// string.  The 'firstToCheck' parameter is the one-based index to the first
-// variable argument to type-check against that format string.  For example:
-//..
-//  extern int my_scantf(void *obj, const char *format, ...) BSLA_SCANF(2, 3);
-//..
+//: o BSLA_SCANF_IS_ACTIVE
+//:
+//: o The macro 'BSLA_SCANF_IS_ACTIVE' is defined to 0 if 'BSLA_SCANF' expands
+//:   to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
+//
+///Example 1: Rand Populator:
+///- - - - - - - - - - - - -
+// Suppose we want to have a function that will populate a list of 'int's and
+// 'float' will random numbers in the range '[ 0 .. 100 )'.
+//
+// First, we define our function:
+//..
+//  int populateValues(const char *format, ...) BSLA_SCANF(1, 2);
+//      // Use the specified 'randGen' to populate 'int's and 'float's, passed
+//      // by pointer after the specified 'format', which will specify the
+//      // types of the variables passed.  Return the number of variables
+//      // populated, or -1 if the format string is invalid.
+//
+//  int populateValues(const char *format, ...)
+//  {
+//      int ret = 0;
+//
+//      va_list ap;
+//      va_start(ap, format);
+//
+//      for (const char *pc = format; *pc; ++pc) {
+//          if ('%' != *pc) {
+//              continue;
+//          }
+//          const char c = *++pc;
+//          if ('%' == c) {
+//              continue;
+//          }
+//          else if ('d' == c) {
+//              * va_arg(ap, int *)   = static_cast<unsigned>(rand()) % 100;
+//          }
+//          else if ('f' == c || 'e' == c || 'g' == c) {
+//              const int characteristic = static_cast<unsigned>(rand()) % 100;
+//              const int mantissa = static_cast<unsigned>(rand()) % 1000;
+//
+//              * va_arg(ap, float *) = static_cast<float>(characteristic +
+//                                                          mantissa / 1000.0);
+//          }
+//          else {
+//              // Unrecognized character.  Return a negative value.
+//
+//              ret = -1;
+//              break;
+//          }
+//
+//          ++ret;
+//      }
+//
+//      va_end(ap);
+//
+//      return ret;
+//  }
+//..
+// Tnen, in 'main', we call 'populateValues' properly:
+//..
+//  float ff[3] = { 0, 0, 0 };
+//  int   ii[3] = { 0, 0, 0 };
+//
+//  int numVars = populateValues("%d %g %g %d %d %g",
+//                             &ii[0], &ff[0], &ff[1], &ii[1], &ii[2], &ff[2]);
+//  assert(6 == numVars);
+//  for (int jj = 0; jj < 3; ++jj) {
+//      assert(0 <= ii[jj]);
+//      assert(0 <= ff[jj]);
+//      assert(     ii[jj] < 100);
+//      assert(     ff[jj] < 100);
+//  }
+//  printf("%d %g %g %d %d %g\n", ii[0], ff[0], ff[1], ii[1], ii[2], ff[2]);
+//..
+// Next, we observe that there are no compiler warnings and a reasonable set of
+// random numbers are output:
+//..
+//  83 86.777 15.793 35 86 92.649
+//..
+// Now, we make a call where the arguments don't match the format string:
+//..
+//  numVars = populateValues("%d %g", &ff[0], &ii[0]);
+//..
+// Finally, we observe the following compiler warnings on clang:
+//..
+//  .../bsla_scanf.t.cpp:351:39: warning: format specifies type 'int *' but the
+//   argument has type 'float *' [-Wformat]
+//      numVars = populateValues("%d %g", &ff[0], &ii[0]);
+//                                ~~      ^~~~~~
+//                                %f
+//  .../bsla_scanf.t.cpp:351:47: warning: format specifies type 'float *' but t
+//  he argument has type 'int *' [-Wformat]
+//      numVars = populateValues("%d %g", &ff[0], &ii[0]);
+//                                   ~~           ^~~~~~
+//                                   %d
+//..
 
-#include <bsls_platform.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
-#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                      \
-    defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
-    defined(BSLS_PLATFORM_CMP_HP)    ||                                      \
-    defined(BSLS_PLATFORM_CMP_IBM)
-    #define BSLA_SCANF(fmt, arg) __attribute__((format(scanf,  fmt, arg)))
+#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                       \
+    defined(BSLS_PLATFORM_CMP_CLANG) ||                                       \
+    defined(BSLS_PLATFORM_CMP_HP)
+    #define BSLA_SCANF(FMTIDX, STARTIDX)                                      \
+                               __attribute__((format(scanf, FMTIDX, STARTIDX)))
 
     #define BSLA_SCANF_IS_ACTIVE 1
 #else
-    #define BSLA_SCANF(fmt, arg)
+    #define BSLA_SCANF(FMTIDX, STARTIDX)
 
     #define BSLA_SCANF_IS_ACTIVE 0
 #endif

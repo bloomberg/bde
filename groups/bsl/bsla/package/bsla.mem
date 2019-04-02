@@ -1,13 +1,13 @@
-bsla_alloc
+bsla_allocsize
 bsla_annotations
-bsla_arg
 bsla_deprecated
 bsla_error
 bsla_fallthrough
 bsla_format
 bsla_nodiscard
+bsla_nonnullarg
 bsla_noreturn
-bsla_null
+bsla_nullterminated
 bsla_printf
 bsla_scanf
 bsla_unused

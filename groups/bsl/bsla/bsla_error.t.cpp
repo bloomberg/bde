@@ -7,11 +7,6 @@
 #include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
 #include <string.h>  // 'strcmp'
 
-// Set this preprocessor variable to 1 to enable compile warnings being
-// generated, 0 to disable them.
-
-#define U_TRIGGER_WARNINGS 0
-
 // Set this preprocessor variable to 1 to enable compile errors being
 // generated, 0 to disable them.
 
@@ -24,15 +19,10 @@
 //                             --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of
-// the boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor
-// variables.  In each case, the concerns are:
+// task using a compliant compiler, each time defining different values of the
+// boolean 'U_TRIGGER_ERRORS' preprocessor variable.  The concerns are:
 //
 //: o Did the build succeed or not?
-//:
-//: o Was the expected warning observed, or not?
-//:
-//: o Was the expected suppression of some warning, suppressed or not?
 //:
 //: o For annotations taking arguments, do the results show if the arguments
 //:   were properly passed to the underlying compiler directives?
@@ -49,35 +39,9 @@
 //:   o Maintenance note: This is the only test that causes compiler failure.
 //:     If others are added, each will require an individual controlling
 //:     preprocessor variable.
-//:
-//: o 'U_TRIGGER_WARNINGS', if defined, use all the annotations
-//:   defined in this component, except those expected to cause compile-time
-//:   failure.
-//
-// For each annotation, 'BSLA_XXXX', we create a function named
-// 'test_XXXX' to which annotation 'BSLA_XXXX' is applied.  For the
-// two annotations that are also applicable to variables and types, we
-// additionally create 'test_XXXX_variable' and 'test_XXXX_type'.  These
-// entities are exercised in several ways:
-//
-//: o Some are just declared and, if appropriate, defined, with no other usage.
-//:   For example, the 'BSLA_ALLOC_SIZE(x)' is a hint for compiler
-//:   optimization; no compiler message expected.  Another example is
-//:   'BSLA_UNUSED'.  For that annotation there must be no other
-//:   usage to check if the usual compiler warning message is suppressed.
-//:
-//: o For other test functions, variables, and types, a function, variable, or
-//:   type (as appropriated) named 'use_with_warning_message_XXXX' is defined
-//:   such that a warning message should be generated.
-//:
-//: o Finally, for some 'use_with_warning_message_XXXX' entities, there is a
-//:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
-//:   a context where annotation 'BSLA_XXXX' must *not* result in a
-//:   compiler message.
-//
 // ----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
-
 // ----------------------------------------------------------------------------
 
 namespace bsls = BloombergLP::bsls;
@@ -127,12 +91,34 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define STRINGIFY2(...) "" #__VA_ARGS__
 #define STRINGIFY(a) STRINGIFY2(a)
+// ============================================================================
+//                                   USAGE
+// ----------------------------------------------------------------------------
+
+//
+///Usage
+///-----
+//
+///Example 1: Flagging a Function for a Compiler Error if Used:
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we declare and define a function annotated with 'BSLA_ERROR'.  Note
+// that the argument to 'BSLA_ERROR' must be a quoted string:
+//..
+    void usageFunc() BSLA_ERROR("Don't call 'usageFunc'");
+        // Do nothing.
+//
+    void usageFunc()
+    {
+    }
+//..
 
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
-int test_ERROR() BSLA_ERROR("myError: Do not call 'test_ERROR'");
+int test_ERROR() BSLA_ERROR("Do not call 'test_ERROR'");
+    // Return 1.
+
 int test_ERROR()
 {
     return 1;
@@ -144,14 +130,6 @@ int test_ERROR()
 
 // ============================================================================
 //                  DEFINITION OF ANNOTATED TYPES
-// ----------------------------------------------------------------------------
-
-// ============================================================================
-//                  USAGE WITH NO EXPECTED COMPILER WARNINGS
-// ----------------------------------------------------------------------------
-
-// ============================================================================
-//                  USAGE WITH EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -225,6 +203,37 @@ int main(int argc, char **argv)
     }
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 That the usage example builds and performs as expected.
+        //
+        // Plan:
+        //: 1 Build and test the usage example.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+#if U_TRIGGER_ERRORS
+// Now, we call 'usageFunc':
+//..
+    usageFunc();
+//..
+// Finally, observe the following compile error:
+//..
+//  .../bsla_error.t.cpp:226:16: error: call to 'usageFunc' declared with attri
+//  bute error: Don't call 'usageFunc'
+//       usageFunc();
+//                  ^
+//..
+#endif
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST

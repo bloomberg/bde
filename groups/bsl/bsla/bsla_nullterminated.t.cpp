@@ -1,11 +1,11 @@
-// bsla_noreturn.t.cpp                                                -*-C++-*-
-#include <bsla_noreturn.h>
+// bsla_nullterminated.t.cpp                                          -*-C++-*-
+#include <bsla_nullterminated.h>
 
-#include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 
+#include <stdarg.h>
 #include <stdio.h>
-#include <stdlib.h>  // 'abort', 'atoi', 'getenv'
+#include <stdlib.h>  // 'atoi'
 #include <string.h>  // 'strcmp'
 
 // Set this preprocessor variable to 1 to enable compile warnings being
@@ -50,9 +50,11 @@
 //..
 //  Annotation                            Result
 //  ------------------------------------  -------
-//  BSLA_NORETURN                         Warning
+//  BSLA_NULLTERMINATED                   Warning
+//  BSLA_NULLTERMINATEDAT(ARG_IDX)        Warning
 //..
 // ----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
 // ----------------------------------------------------------------------------
 
@@ -105,6 +107,16 @@ void aSsErT(bool condition, const char *message, int line)
 #define STRINGIFY(a) STRINGIFY2(a)
 
 // ============================================================================
+//                                    GLOBAL
+// ----------------------------------------------------------------------------
+
+int                 test;
+bool             verbose;
+bool         veryVerbose;
+bool     veryVeryVerbose;
+bool veryVeryVeryVerbose;
+
+// ============================================================================
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
@@ -112,65 +124,98 @@ void aSsErT(bool condition, const char *message, int line)
 ///Usage
 ///-----
 //
-///Example 1: Assertion Handler
-/// - - - - - - - - - - - - - -
-// First, we create an assertion handler, 'myHandlerA', which never returns,
-// and annotate it 'BSLA_NORETURN' so that the compiler will warn if it does
-// return.
+///Example 1: 'catStrings' function:
+/// - - - - - - - - - - - - - - - -
+// Suppose we want to have a function that, passed a variable length argument
+// list of 'const char *' strings terminated by a 'NULL' pointer, concatenates
+// the strings, separated by spaces, into a buffer.
+//
+// First, we declare and define the function, annotated with
+// 'BSLA_NULL_TERMINATED':
 //..
-    BSLA_NORETURN void myHanderA(const bsls::AssertViolation& assertViolation)
+    void catStrings(char *outputBuffer, ...) BSLA_NULLTERMINATED;
+    void catStrings(char *outputBuffer, ...)
+        // The specified 'outputBuffer' is a buffer where the output of this
+        // function is placed.  The specified '...' is a 'NULL'-terminated list
+        // of 'const char *' strings, which are to be copied into
+        // 'outputBuffer', concatenated together and separated by spaces.  The
+        // behavior is undefined unless the '...' is a 'NULL'-terminated list
+        // of 'const char *' arguments.
     {
-        printf("%s:%d %s", assertViolation.fileName(),
-                           assertViolation.lineNumber(),
-                           assertViolation.comment());
+        *outputBuffer = 0;
 
-        if      (::getenv("MY_HANDLER_THROW")) {
-            throw -1;
+        va_list ap;
+        va_start(ap, outputBuffer);
+        const char *next;
+        for (bool first = 1; (next = va_arg(ap, const char *)); first = 0) {
+            ::strcat(outputBuffer, first ? "" : " ");
+            ::strcat(outputBuffer, next);
         }
-        else if (::getenv("MY_HANDLER_EXIT")) {
-            ::exit(1);
-        }
-
-        ::abort();
+        va_end(ap);
     }
 //..
-// Now, a new hire copies 'myHandlerA' and creates a new handler,
-// 'myHandlerB', which doesn't abort unless instructed to via an environment
-// variable, which he doesn't realize opens up the possibility of the handler
-// returning:
-//..
-#if U_TRIGGER_WARNINGS
-    BSLA_NORETURN void myHanderB(const bsls::AssertViolation& assertViolation)
-    {
-        printf("%s:%d %s", assertViolation.fileName(),
-                           assertViolation.lineNumber(),
-                           assertViolation.comment());
 
-        if      (::getenv("MY_HANDLER_THROW")) {
-            throw -1;
+//
+///Example 2: 'catVerdict' function:
+/// - - - - - - - - - - - - - - - -
+// Suppose we want to have a function that, passed a variable length argument
+// list of 'const char *' strings terminated by a 'NULL' pointer, concatenates
+// the strings, separated by spaces, into a buffer, and then there's one
+// integer argument, interpreted as a boolean, that determines what is to be
+// appended to the end of the buffer.
+//
+// First, we declare and define the function, annotated with
+// 'BSLA_NULL_TERMINATEDAT(1)':
+//..
+    void catVerdict(char *outputBuffer, ...) BSLA_NULLTERMINATEDAT(1);
+    void catVerdict(char *outputBuffer, ...)
+        // The specified 'outputBuffer' is a buffer where output is to be
+        // placed.  All but the last 2 of the specified '...' arguments are
+        // 'const char *' strings to be concatenated together into
+        // 'outputBuffer', separated by spaces.  The second-to-last argument is
+        // to be 'NULL', and the last argument is an 'int' interpreted as a
+        // boolean to determine whether the buffer is to end with a verdict of
+        // 'guilty' or 'not guilty'.  The behavior is undefined unless the
+        // types of all the arguments are correct and the second to last
+        // argument is 'NULL'.
+    {
+        *outputBuffer = 0;
+
+        va_list ap;
+        va_start(ap, outputBuffer);
+        const char *next;
+        for (bool first = 1; (next = va_arg(ap, const char *)); first = 0) {
+            ::strcat(outputBuffer, first ? "" : " ");
+            ::strcat(outputBuffer, next);
         }
-        else if (::getenv("MY_HANDLER_EXIT")) {
-            ::exit(1);
-        }
-        else if (::getenv("MY_HANDLER_ABORT")) {
-            ::abort();
-        }
+
+        const bool guilty = va_arg(ap, int);
+        ::strcat(outputBuffer, guilty ? ": guilty" : ": not guilty");
+        va_end(ap);
     }
-#endif
-//..
-// Finally, we observe the compiler warning that occurs to point out the
-// possiblity of 'myHandlerB' returning:
-//..
-//  .../bsla_noreturn.t.cpp: In function 'void myHanderB(const BloombergLP::bsl
-//  s::AssertViolation&)':
-//  .../bsla_noreturn.t.cpp:158:5: warning: 'noreturn' function does return
-//       }
-//       ^
 //..
 
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
+
+void test_NULL_TERMINATED(void *, ...) BSLA_NULLTERMINATED;
+void test_NULL_TERMINATED(void *, ...)
+    // Do things.
+{
+}
+
+void test_NULL_TERMINATED_AT2(void *, ...) BSLA_NULLTERMINATEDAT(2);
+void test_NULL_TERMINATED_AT2(void *, ...)
+    // Do things.
+{
+}
+
+void test_NULL_TERMINATED_AT3(void *, ...) BSLA_NULLTERMINATEDAT(3);
+void test_NULL_TERMINATED_AT3(void *, ...)
+    // Do things.
+{
+}
 
 // ============================================================================
 //                  DEFINITION OF ANNOTATED VARIABLES
@@ -184,14 +229,73 @@ void aSsErT(bool condition, const char *message, int line)
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
+void use_without_diagnostic_message_NULL_TERMINATED()
+    // Call 'test_NULL_TERMINATED' with a properly null-terminated list of
+    // pointers.
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer3[2];
+    char buffer4[2];
+    test_NULL_TERMINATED(buffer1, buffer2, buffer3, buffer4, NULL);
+}
+
+void use_without_diagnostic_message_NULL_TERMINATED_AT2()
+    // Call 'test_NULL_TERMINATED_AT2' with a properly null-terminated list of
+    // pointers.
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED_AT2(buffer1, buffer2, NULL, buffer4, buffer5);
+}
+
+void use_without_diagnostic_message_NULL_TERMINATED_AT3()
+    // Call 'test_NULL_TERMINATED_AT3' with a properly null-terminated list of
+    // pointers.
+{
+    char buffer1[2];
+    char buffer3[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED_AT3(buffer1, NULL, buffer3, buffer4, buffer5);
+}
+
 // ============================================================================
 //                  USAGE WITH EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
 #if U_TRIGGER_WARNINGS
 
-BSLA_NORETURN void use_with_error_message_NORETURN_function()
+void use_with_warning_message_NULL_TERMINATED()
 {
+    char buffer1[2];
+    char buffer2[2];
+    char buffer3[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED(buffer1, buffer2, buffer3, buffer4, buffer5);
+}
+
+void use_with_warning_message_NULL_TERMINATED_AT2()
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer3[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED_AT2(buffer1, buffer2, buffer3, buffer4, buffer5);
+}
+
+void use_with_warning_message_NULL_TERMINATED_AT3()
+{
+    char buffer1[2];
+    char buffer2[2];
+    char buffer3[2];
+    char buffer4[2];
+    char buffer5[2];
+    test_NULL_TERMINATED_AT3(buffer1, buffer2, buffer3, buffer4, buffer5);
 }
 
 #endif
@@ -210,9 +314,16 @@ static void printFlags()
 
     printf("\nprintFlags: bsls_annotation Macros\n");
 
-    printf("\nBSLA_NORETURN: ");
-#ifdef BSLA_NORETURN
-    printf("%s\n", STRINGIFY(BSLA_NORETURN) );
+    printf("\nBSLA_NULLTERMINATED: ");
+#ifdef BSLA_NULLTERMINATED
+    printf("%s\n", STRINGIFY(BSLA_NULLTERMINATED) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\nBSLA_NULLTERMINATEDAT(x): ");
+#ifdef BSLA_NULLTERMINATEDAT
+    printf("%s\n", STRINGIFY(BSLA_NULLTERMINATEDAT(x)) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -220,22 +331,22 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
-    P(BSLA_NORETURN_IS_ACTIVE);
+    P(BSLA_NULLTERMINATED_IS_ACTIVE);
+    P(BSLA_NULLTERMINATEDAT_IS_ACTIVE);
 
     printf("\n\n---------------------------------------------\n");
     printf(    "printFlags: bsls_annotation Referenced Macros\n");
 
-    printf("\nBSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
-    printf("%s\n",
-                 STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN) );
+    printf("\nBSLS_PLATFORM_CMP_CLANG: ");
+#ifdef BSLS_PLATFORM_CMP_CLANG
+    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_CLANG) );
 #else
     printf("UNDEFINED\n");
 #endif
 
-    printf("\nBSLS_PLATFORM_CMP_MSVC: ");
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_MSVC) );
+    printf("\nBSLS_PLATFORM_CMP_GNU: ");
+#ifdef BSLS_PLATFORM_CMP_GNU
+    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -249,10 +360,11 @@ static void printFlags()
 
 int main(int argc, char **argv)
 {
-    int                 test = argc > 1 ? atoi(argv[1]) : 0;
-    bool             verbose = argc > 2;
-    bool         veryVerbose = argc > 3;
-    bool     veryVeryVerbose = argc > 4;
+                   test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
     (void)        veryVerbose;  // unused variable warning
     (void)    veryVeryVerbose;  // unused variable warning
@@ -264,6 +376,83 @@ int main(int argc, char **argv)
     }
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 That the usage example builds and performs as expected.
+        //
+        // Plan:
+        //: 1 Build and test the usage example.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+
+{
+// Then, in 'main', we call 'catStrings' correctly:
+//..
+    char buf[1000];
+    catStrings(buf, "Now", "you", "see", "it.", NULL);
+    printf("%s\n", buf);
+//..
+// Which compiles without a warning and produces the output:
+//..
+//  Now you see it.
+//..
+// Now, we call 'catStrings" again and forget to add the terminating 'NULL':
+//..
+#if U_TRIGGER_WARNINGS
+if (veryVeryVeryVerbose) {
+    catStrings(buf, "Now", "you", "don't.");
+    printf("%s\n", buf);
+}
+#endif
+//..
+// Finally, we get the compiler warning:
+//..
+//  .../bsla_nullterminated.t.cpp:404:43: warning: missing sentinel in function
+//   call [-Wformat=]
+//       catStrings(buf, "Now", "you", "don't.");
+//                                         ^
+//..
+}
+
+{
+// Then, in 'main', we call 'catVerdict' correctly:
+//..
+    char buf[1000];
+    catVerdict(buf, "We find the", "defendant,", "Wile E. Coyote", NULL, 1);
+    printf("%s\n", buf);
+//..
+// Which compiles without a warning and produces the output:
+//..
+//  We find the defendant, Wile E. Coyote: guilty
+//..
+// Now we call 'catVerdict' and forget to put the integer that indicates guilt
+// or innocence after the 'NULL'.
+//..
+#if U_TRIGGER_WARNINGS
+if (veryVeryVeryVerbose) {
+    catVerdict(buf, "We find the", "defendant,", "Road Runner", NULL);
+    printf("%s\n", buf);
+}
+#endif
+//..
+// Finally, we get the compiler warning:
+//..
+//  .../bsla_nullterminated.t.cpp:420:69: warning: missing sentinel in function
+//   call [-Wformat=]
+//       catVerdict(buf, "We find the", "defendant,", "Road Runner", NULL);
+//                                                                       ^
+//..
+}
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
@@ -300,7 +489,6 @@ int main(int argc, char **argv)
 
             ASSERT(true); // remove unused warning for 'aSsErT'
         }
-
       } break;
       default: {
         fprintf( stderr, "WARNING: CASE `%d` NOT FOUND.\n" , test);

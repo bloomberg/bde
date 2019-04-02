@@ -1,21 +1,19 @@
 // bsla_scanf.t.cpp                                                   -*-C++-*-
 #include <bsla_scanf.h>
 
+#include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_types.h>
 
+#include <stdarg.h>  // varargs
 #include <stdio.h>
-#include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
+#include <stdlib.h>  // 'atoi'
 #include <string.h>  // 'strcmp'
 
 // Set this preprocessor variable to 1 to enable compile warnings being
 // generated, 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
-
-// Set this preprocessor variable to 1 to enable compile errors being
-// generated, 0 to disable them.
-
-#define U_TRIGGER_ERRORS 0
 
 // ============================================================================
 //                             TEST PLAN
@@ -24,9 +22,9 @@
 //                             --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of
-// the boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor
-// variables.  In each case, the concerns are:
+// task using a compliant compiler, each time defining different values of the
+// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// concerns are:
 //
 //: o Did the build succeed or not?
 //:
@@ -38,45 +36,27 @@
 //:   were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
-// does nothing.
+// does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variables are:
+// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
+// to 1, provoke all the compiler warnings caused by the macros under test.  If
+// set to 0, prevent any warnings from happening.
 //
-//: o 'U_TRIGGER_ERRORS': if defined, use the 'BSLA_ERROR(message)' annotation.
-//:   Note that the task should *not* build and the compiler output should show
-//:   the specified 'message'.
-//:
-//:   o Maintenance note: This is the only test that causes compiler failure.
-//:     If others are added, each will require an individual controlling
-//:     preprocessor variable.
-//:
-//: o 'U_TRIGGER_WARNINGS', if defined, use all the annotations
-//:   defined in this component, except those expected to cause compile-time
-//:   failure.
-//
-// For each annotation, 'BSLA_XXXX', we create a function named
-// 'test_XXXX' to which annotation 'BSLA_XXXX' is applied.  For the
-// two annotations that are also applicable to variables and types, we
-// additionally create 'test_XXXX_variable' and 'test_XXXX_type'.  These
-// entities are exercised in several ways:
-//
-//: o Some are just declared and, if appropriate, defined, with no other usage.
-//:   For example, the 'BSLA_ALLOC_SIZE(x)' is a hint for compiler
-//:   optimization; no compiler message expected.  Another example is
-//:   'BSLA_UNUSED'.  For that annotation there must be no other
-//:   usage to check if the usual compiler warning message is suppressed.
-//:
-//: o For other test functions, variables, and types, a function, variable, or
-//:   type (as appropriated) named 'use_with_warning_message_XXXX' is defined
-//:   such that a warning message should be generated.
-//:
-//: o Finally, for some 'use_with_warning_message_XXXX' entities, there is a
-//:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
-//:   a context where annotation 'BSLA_XXXX' must *not* result in a
-//:   compiler message.
+// The table below classifies each of the annotations provided by this
+// component by the entities to which it can be applied (i.e., function,
+// variable, and type) and the expected result (optimization, error, warning,
+// conditional warning, absence of warning).  The tag(s) found in the
+// right-most column appear as comments throughout this test driver.  They can
+// be used as an aid to navigation to the test code for each annotation, and an
+// aid to assuring test coverage.
+//..
+//  Annotation                            Result
+//  ------------------------------------  --------
+//  BSLA_SCANF(FMTIDX, STARTIDX)          Warning
+//..
 // ----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
-
 // ----------------------------------------------------------------------------
 
 namespace bsls = BloombergLP::bsls;
@@ -126,6 +106,68 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define STRINGIFY2(...) "" #__VA_ARGS__
 #define STRINGIFY(a) STRINGIFY2(a)
+
+// ============================================================================
+//                                USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+
+//
+///Usage
+///-----
+//
+///Example 1: Rand Populator:
+///- - - - - - - - - - - - -
+// Suppose we want to have a function that will populate a list of 'int's and
+// 'float' will random numbers in the range '[ 0 .. 100 )'.
+//
+// First, we define our function:
+//..
+    int populateValues(const char *format, ...) BSLA_SCANF(1, 2);
+        // Use the specified 'randGen' to populate 'int's and 'float's, passed
+        // by pointer after the specified 'format', which will specify the
+        // types of the variables passed.  Return the number of variables
+        // populated, or -1 if the format string is invalid.
+//
+    int populateValues(const char *format, ...)
+    {
+        int ret = 0;
+//
+        va_list ap;
+        va_start(ap, format);
+//
+        for (const char *pc = format; *pc; ++pc) {
+            if ('%' != *pc) {
+                continue;
+            }
+            const char c = *++pc;
+            if ('%' == c) {
+                continue;
+            }
+            else if ('d' == c) {
+                * va_arg(ap, int *)   = static_cast<unsigned>(rand()) % 100;
+            }
+            else if ('f' == c || 'e' == c || 'g' == c) {
+                const int characteristic = static_cast<unsigned>(rand()) % 100;
+                const int mantissa = static_cast<unsigned>(rand()) % 1000;
+
+                * va_arg(ap, float *) = static_cast<float>(characteristic +
+                                                            mantissa / 1000.0);
+            }
+            else {
+                // Unrecognized character.  Return a negative value.
+
+                ret = -1;
+                break;
+            }
+//
+            ++ret;
+        }
+//
+        va_end(ap);
+//
+        return ret;
+    }
+//..
 
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
@@ -180,10 +222,6 @@ void use_with_warning_message_SCANF()
 // ============================================================================
 //                  USAGE WITH EXPECTED COMPILER ERRORS
 // ----------------------------------------------------------------------------
-
-#if U_TRIGGER_ERRORS
-
-#endif
 
 // ============================================================================
 //                              HELPER FUNCTIONS
@@ -266,34 +304,87 @@ int main(int argc, char **argv)
     }
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 That the usage example builds and performs as expected.
+        //
+        // Plan:
+        //: 1 Build and test the usage example.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+// Tnen, in 'main', we call 'populateValues' properly:
+//..
+    float ff[3] = { 0, 0, 0 };
+    int   ii[3] = { 0, 0, 0 };
+//
+    int numVars = populateValues("%d %g %g %d %d %g",
+                               &ii[0], &ff[0], &ff[1], &ii[1], &ii[2], &ff[2]);
+    ASSERT(6 == numVars);
+    for (int jj = 0; jj < 3; ++jj) {
+        ASSERT(0 <= ii[jj]);
+        ASSERT(0 <= ff[jj]);
+        ASSERT(     ii[jj] < 100);
+        ASSERT(     ff[jj] < 100);
+    }
+if (verbose) {
+    printf("%d %g %g %d %d %g\n", ii[0], ff[0], ff[1], ii[1], ii[2], ff[2]);
+}
+//..
+// Next, we observe that there are no compiler warnings and a reasonable set of
+// random numbers are output:
+//..
+//  83 86.777 15.793 35 86 92.649
+//..
+// Now, we make a call where the arguments don't match the format string:
+//..
+#if U_TRIGGER_WARNINGS
+    numVars = populateValues("%d %g", &ff[0], &ii[0]);
+#endif
+//..
+// Finally, we observe the following compiler warnings on clang:
+//..
+//  .../bsla_scanf.t.cpp:351:39: warning: format specifies type 'int *' but the
+//   argument has type 'float *' [-Wformat]
+//      numVars = populateValues("%d %g", &ff[0], &ii[0]);
+//                                ~~      ^~~~~~
+//                                %f
+//  .../bsla_scanf.t.cpp:351:47: warning: format specifies type 'float *' but t
+//  he argument has type 'int *' [-Wformat]
+//      numVars = populateValues("%d %g", &ff[0], &ii[0]);
+//                                   ~~           ^~~~~~
+//                                   %d
+//..
+
+    (void) numVars;
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver does *not* build when the 'U_TRIGGER_ERRORS'
-        //:   preprocessor variable is defined to 1 and all expected output
-        //:   appears.
-        //:
-        //: 2 This test driver builds with all expected compiler warning
+        //: 1 This test driver builds with all expected compiler warning
         //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
         //:   preprocessor variable is defined to 1.
         //:
-        //: 3 When 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
-        //:   to 0, the compile is successful and with no warnings.
+        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
+        //:   successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_ERRORS' defined to and externally confirm
-        //:   that compilation of this task failed and the compiler output
-        //:   shows the expected message.  (C-1)
+        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to 1 and externally
+        //:   examine compiler output for expected warnings and the absence of
+        //:   warnings expected to be suppressed.  (C-1)
         //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to and externally examine
-        //:   compiler output for expected warnings and the absence of warnings
-        //:   expected to be suppressed.  (C-2)
-        //:
-        //: 3 Build with 'U_TRIGGER_ERRORS' and 'U_TRIGGER_WARNINGS' both
-        //:   defined to 0 and observe that the compile is successful with no
-        //:   warnings.
+        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
+        //:   compile is successful with no warnings.  (C-2)
         //
         // Testing:
         //   BREATHING TEST

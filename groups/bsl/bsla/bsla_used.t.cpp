@@ -1,82 +1,35 @@
 // bsla_used.t.cpp                                                    -*-C++-*-
 #include <bsla_used.h>
 
+#include <bsla_unused.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
 #include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
 #include <string.h>  // 'strcmp'
 
-// Set this preprocessor variable to 1 to enable compile warnings being
-// generated, 0 to disable them.
-
-#define U_TRIGGER_WARNINGS 0
-
-// Set this preprocessor variable to 1 to enable compile errors being
-// generated, 0 to disable them.
-
-#define U_TRIGGER_ERRORS 0
-
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// This test driver serves as a framework for manually checking the annotations
-// (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of
-// the boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor
-// variables.  In each case, the concerns are:
+// Build and run test case '1' with 'verbose' to see if 'BSLA_USED_IS_ACTIVE'
+// and 'BSLA_UNUSED_IS_ACTIVE' are set.  If both are set, build and run in the
+// debugger and observe that the unused static variable marked 'BSLA_USED' is
+// accessible from within 'main', and that a breakpoint can be put in the
+// unused static function marked 'BSLA_USED'.
 //
-//: o Did the build succeed or not?
-//:
-//: o Was the expected warning observed, or not?
-//:
-//: o Was the expected suppression of some warning, suppressed or not?
-//:
-//: o For annotations taking arguments, do the results show if the arguments
-//:   were properly passed to the underlying compiler directives?
-//
-// The single run-time "test" provided by this test driver, the BREATHING TEST,
-// does nothing.
-//
-// The controlling preprocessor variables are:
-//
-//: o 'U_TRIGGER_ERRORS': if defined, use the 'BSLA_ERROR(message)' annotation.
-//:   Note that the task should *not* build and the compiler output should show
-//:   the specified 'message'.
-//:
-//:   o Maintenance note: This is the only test that causes compiler failure.
-//:     If others are added, each will require an individual controlling
-//:     preprocessor variable.
-//:
-//: o 'U_TRIGGER_WARNINGS', if defined, use all the annotations
-//:   defined in this component, except those expected to cause compile-time
-//:   failure.
-//
-// For each annotation, 'BSLA_XXXX', we create a function named
-// 'test_XXXX' to which annotation 'BSLA_XXXX' is applied.  For the
-// two annotations that are also applicable to variables and types, we
-// additionally create 'test_XXXX_variable' and 'test_XXXX_type'.  These
-// entities are exercised in several ways:
-//
-//: o Some are just declared and, if appropriate, defined, with no other usage.
-//:   For example, the 'BSLA_ALLOC_SIZE(x)' is a hint for compiler
-//:   optimization; no compiler message expected.  Another example is
-//:   'BSLA_UNUSED'.  For that annotation there must be no other
-//:   usage to check if the usual compiler warning message is suppressed.
-//:
-//: o For other test functions, variables, and types, a function, variable, or
-//:   type (as appropriated) named 'use_with_warning_message_XXXX' is defined
-//:   such that a warning message should be generated.
-//:
-//: o Finally, for some 'use_with_warning_message_XXXX' entities, there is a
-//:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
-//:   a context where annotation 'BSLA_XXXX' must *not* result in a
-//:   compiler message.
+// At this time, g++ always emits unused static functions and variables whether
+// they are marked 'BSLA_USED' or not.  Clang, however, will omit unused static
+// variables and functions unless they are marked 'BSLA_USED'.
+//..
+//  Annotation                            Result
+//  ------------------------------------  --------------------
+//  BSLA_USED                             Emission of entities
+//..
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-
 // ----------------------------------------------------------------------------
 
 namespace bsls = BloombergLP::bsls;
@@ -143,16 +96,55 @@ void aSsErT(bool condition, const char *message, int line)
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
-#if BSLA_USED_IS_ACTIVE
+#if BSLA_UNUSED_IS_ACTIVE && BSLA_USED_IS_ACTIVE
 
-static
-int test_USED_variable_no_warning BSLA_USED;
+//
+///Usage
+///-----
+//
+///Example 1: Unused variables:
+///- - - - - - - - - - - - - -
+// First, we declare two unused static variables, one marked 'BSLA_UNUSED'
+// and the other marked 'BSLA_USED'.
+//..
+    static
+    int usage_UNUSED_variable_no_warning BSLA_UNUSED;
 
-static
-void test_USED_function_no_warning() BSLA_USED;
-void test_USED_function_no_warning()
-{
-}
+    static
+    int usage_USED_variable_no_warning BSLA_USED;
+//..
+// Finally, if we compile with clang and go into the debugger and stop in
+// 'main' which is in the same file and from which both variables are visible,
+// we observe that the variable marked 'BSLA_UNUSED' cannot be accessed, but
+// the the variable marked 'BSLA_USED' can.
+//..
+//
+///Example 2: Unused functions:
+///- - - - - - - - - - - - - -
+// First declare two unused static functions, one marked 'BSLA_UNUSED' and one
+// marked 'BSLA_USED':
+//..
+    static
+    void usage_UNUSED_function_no_warning(int woof) BSLA_UNUSED;
+        // Print the specified 'woof'.
+    static
+    void usage_UNUSED_function_no_warning(int woof)
+    {
+        printf("%d\n", woof);
+    }
+
+    static
+    void usage_USED_function_no_warning(int woof) BSLA_USED;
+        // Print the specified 'woof'.
+    static
+    void usage_USED_function_no_warning(int woof)
+    {
+        printf("%d\n", woof);
+    }
+//..
+// Finally, if we compile with clang and go into the debugger, we find that
+// we can put a breakpoint in the function marked 'BSLA_USED', but not in
+// the function marked 'BSLA_UNUSED'.
 
 #endif
 
@@ -160,17 +152,9 @@ void test_USED_function_no_warning()
 //                  USAGE WITH EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
-#if U_TRIGGER_WARNINGS
-
-#endif
-
 // ============================================================================
 //                  USAGE WITH EXPECTED COMPILER ERRORS
 // ----------------------------------------------------------------------------
-
-#if U_TRIGGER_ERRORS
-
-#endif
 
 // ============================================================================
 //                              HELPER FUNCTIONS
@@ -196,6 +180,7 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
+    P(BSLA_UNUSED_IS_ACTIVE);
     P(BSLA_USED_IS_ACTIVE);
 
     printf("\n\n---------------------------------------------\n");

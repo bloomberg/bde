@@ -4,18 +4,12 @@
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
-#include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
-#include <string.h>  // 'strcmp'
+#include <stdlib.h>  // 'atoi'
 
 // Set this preprocessor variable to 1 to enable compile warnings being
 // generated, 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
-
-// Set this preprocessor variable to 1 to enable compile errors being
-// generated, 0 to disable them.
-
-#define U_TRIGGER_ERRORS 0
 
 // ============================================================================
 //                             TEST PLAN
@@ -24,9 +18,9 @@
 //                             --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of
-// the boolean 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' preprocessor
-// variables.  In each case, the concerns are:
+// task using a compliant compiler, each time defining different values of the
+// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// concerns are:
 //
 //: o Did the build succeed or not?
 //:
@@ -38,46 +32,27 @@
 //:   were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
-// does nothing.
+// does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variables are:
+// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
+// to 1, provoke all the compiler warnings caused by the macros under test.  If
+// set to 0, prevent any warnings from happening.
 //
-//: o 'U_TRIGGER_ERRORS': if defined, use the 'BSLA_ERROR(message)' annotation.
-//:   Note that the task should *not* build and the compiler output should show
-//:   the specified 'message'.
-//:
-//:   o Maintenance note: This is the only test that causes compiler failure.
-//:     If others are added, each will require an individual controlling
-//:     preprocessor variable.
-//:
-//: o 'U_TRIGGER_WARNINGS', if defined, use all the annotations
-//:   defined in this component, except those expected to cause compile-time
-//:   failure.
-//
-// For each annotation, 'BSLA_XXXX', we create a function named
-// 'test_XXXX' to which annotation 'BSLA_XXXX' is applied.  For the
-// two annotations that are also applicable to variables and types, we
-// additionally create 'test_XXXX_variable' and 'test_XXXX_type'.  These
-// entities are exercised in several ways:
-//
-//: o Some are just declared and, if appropriate, defined, with no other usage.
-//:   For example, the 'BSLA_ALLOC_SIZE(x)' is a hint for compiler
-//:   optimization; no compiler message expected.  Another example is
-//:   'BSLA_UNUSED'.  For that annotation there must be no other
-//:   usage to check if the usual compiler warning message is suppressed.
-//:
-//: o For other test functions, variables, and types, a function, variable, or
-//:   type (as appropriated) named 'use_with_warning_message_XXXX' is defined
-//:   such that a warning message should be generated.
-//:
-//: o Finally, for some 'use_with_warning_message_XXXX' entities, there is a
-//:   corresponding 'use_without_diagnostic_message_XXXX' is defined to create
-//:   a context where annotation 'BSLA_XXXX' must *not* result in a
-//:   compiler message.
-//
+// The table below classifies each of the annotations provided by this
+// component by the entities to which it can be applied (i.e., function,
+// variable, and type) and the expected result (optimization, error, warning,
+// conditional warning, absence of warning).  The tag(s) found in the
+// right-most column appear as comments throughout this test driver.  They can
+// be used as an aid to navigation to the test code for each annotation, and an
+// aid to assuring test coverage.
+//..
+//  Annotation                            Result
+//  ------------------------------------  --------
+//  BSLA_DEPRECATED                       Warning
+//..
 // ----------------------------------------------------------------------------
+// [ 2] USAGE EXAMPLE
 // [ 1] BREATHING TEST
-
 // ----------------------------------------------------------------------------
 
 namespace bsls = BloombergLP::bsls;
@@ -129,10 +104,45 @@ void aSsErT(bool condition, const char *message, int line)
 #define STRINGIFY(a) STRINGIFY2(a)
 
 // ============================================================================
+//                                   USAGE
+// ----------------------------------------------------------------------------
+
+//
+///Usage
+///-----
+//
+///Example 1: Deprecating a type, a function, and a variable:
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we define a deprecated type 'UsageType':
+//..
+    struct UsageType {
+        int d_int;
+    } BSLA_DEPRECATED;
+//..
+// Then, we define a deprecated function 'usageFunc'.
+//..
+    void usageFunc() BSLA_DEPRECATED;
+    void usageFunc()
+    {
+        printf("Don't call me.\n");
+    }
+//..
+// Next, we define a deprecated variable 'usageVar'.
+//..
+    extern int usageVar BSLA_DEPRECATED;
+    int usageVar = 5;
+//..
+// Then, as long as we don't use them, no warnings will be issued.
+//
+
+// ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
 void test_DEPRECATED_function() BSLA_DEPRECATED;
+    // Provide a test function which, if called, will result in a deprecated
+    // compiler warning.
+
 void test_DEPRECATED_function()
 {
 }
@@ -142,12 +152,17 @@ void test_DEPRECATED_function()
 // ----------------------------------------------------------------------------
 
 int test_DEPRECATED_variable BSLA_DEPRECATED;
+    // Provide a test variable which, if used, will result in a deprecated
+    // compiler warning.
 
 // ============================================================================
 //                  DEFINITION OF ANNOTATED TYPES
 // ----------------------------------------------------------------------------
 
 struct Test_DEPRECATED_type {
+    // This 'struct' is a test type which, if used, will result in a deprecated
+    // compiler warning.
+
     int d_d;
 } BSLA_DEPRECATED;
 
@@ -162,11 +177,13 @@ struct Test_DEPRECATED_type {
 #if U_TRIGGER_WARNINGS
 
 void use_with_warning_message_DEPRECATED_function()
+    // Call 'test_DEPRECATED_function', provoking a compiler warning.
 {
     test_DEPRECATED_function();
 }
 
 int use_with_warning_message_DEPRECATED_type()
+    // Use 'Test_DEPRECATED_type', provoking a compiler warning.
 {
     Test_DEPRECATED_type instance_of_DEPRECATED_TYPE;
     instance_of_DEPRECATED_TYPE.d_d = 0;
@@ -174,6 +191,7 @@ int use_with_warning_message_DEPRECATED_type()
 }
 
 void use_with_warning_message_DEPRECATED_variable()
+    // Use 'test_DEPRECATED_variable', provoking a compiler warning.
 {
     (void) test_DEPRECATED_variable;
 }
@@ -251,34 +269,101 @@ int main(int argc, char **argv)
     }
 
     switch (test) { case 0:
+      case 2: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE
+        //
+        // Concern:
+        //: 1 That the usage example builds and performs as expected.
+        //
+        // Plan:
+        //: 1 Build and test the usage example.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("USAGE EXAMPLE\n"
+                            "=============\n");
+
+// Next, we conditionally to decide whether to use those 3 entities:
+//..
+    #if U_TRIGGER_WARNINGS
+//..
+// Then, we use 'UsageType':
+//..
+    UsageType ut;
+    ut.d_int = 5;
+    (void) ut.d_int;
+//..
+// Which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
+// the following warnings:
+//..
+//  .../bsla_deprecated.t.cpp:287:5: warning: 'UsageType' is deprecated [-Wdepr
+//  ecated-declarations]
+//      UsageType ut;
+//      ^
+//  .../bsla/bsla_deprecated.t.cpp:113:7: note: 'UsageType' has been explicitly
+//   marked deprecated here
+//      } BSLA_DEPRECATED;
+//        ^
+//..
+// Now, we call 'usageFunc':
+//..
+    usageFunc();
+//..
+// Which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
+// the following warnings:
+//..
+//  .../bsla_deprecated.t.cpp:309:5: warning: 'usageFunc' is deprecated [-Wdepr
+//  ecated-declarations]
+//      usageFunc();
+//      ^
+//  .../bsla_deprecated.t.cpp:117:22: note: 'usageFunc' has been explicitly mar
+//  ked deprecated here
+//      void usageFunc() BSLA_DEPRECATED;
+//                       ^
+//..
+// Finally, we access 'usageVar':
+//..
+    printf("%d\n", usageVar);
+//..
+// Which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
+// the following warnings:
+//..
+//  .../bsla_deprecated.t.cpp:329:20: warning: 'usageVar' is deprecated [-Wdepr
+//  ecated-declarations]
+//      printf("%d\n", usageVar);
+//                     ^
+//  .../bsla_deprecated.t.cpp:125:25: note: 'usageVar' has been explicitly mark
+//  ed deprecated here
+//      extern int usageVar BSLA_DEPRECATED;
+//                          ^
+    #endif
+//..
+
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver does *not* build when the 'U_TRIGGER_ERRORS'
-        //:   preprocessor variable is defined to 1 and all expected output
-        //:   appears.
-        //:
-        //: 2 This test driver builds with all expected compiler warning
+        //: 1 This test driver builds with all expected compiler warning
         //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
         //:   preprocessor variable is defined to 1.
         //:
-        //: 3 When 'U_TRIGGER_WARNINGS' and 'U_TRIGGER_ERRORS' are both defined
-        //:   to 0, the compile is successful and with no warnings.
+        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
+        //:   successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_ERRORS' defined to and externally confirm
-        //:   that compilation of this task failed and the compiler output
-        //:   shows the expected message.  (C-1)
-        //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to and externally examine
+        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to and externally examine
         //:   compiler output for expected warnings and the absence of warnings
-        //:   expected to be suppressed.  (C-2)
+        //:   expected to be suppressed.  (C-1)
         //:
-        //: 3 Build with 'U_TRIGGER_ERRORS' and 'U_TRIGGER_WARNINGS' both
-        //:   defined to 0 and observe that the compile is successful with no
-        //:   warnings.
+        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
+        //:   compile is successful with no warnings.
+        //:
+        //: 3 Run with 'verbose' to get a listing of macro expansions.
         //
         // Testing:
         //   BREATHING TEST

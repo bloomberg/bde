@@ -1,5 +1,5 @@
-// bsla_arg.cpp                                                       -*-C++-*-
-#include <bsla_arg.h>
+// bsla_nullterminated.cpp                                            -*-C++-*-
+#include <bsla_nullterminated.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
