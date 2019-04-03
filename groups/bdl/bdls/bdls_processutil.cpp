@@ -59,23 +59,7 @@ namespace u {
 
 using namespace BloombergLP;
 
-#if defined BSLS_PLATFORM_OS_UNIX
-const char *slash = "/";
-#else
-const char *slash = "\\";
-#endif
-#if defined BSLS_PLATFORM_OS_LINUX
-enum { e_IS_LINUX = 1 };
-#else
-enum { e_IS_LINUX = 0 };
-#endif
-#if defined PATH_MAX
-enum { k_PATH_MAX = PATH_MAX };
-#else
-enum { k_PATH_MAX = 4 * 1024 };
-#endif
-
-inline
+static inline
 int getPid()
     // Return the process id.  Having this be separate from 'Obj::getProcessId'
     // allows us to call it inline within the component.
@@ -87,7 +71,7 @@ int getPid()
 #endif
 }
 
-inline
+static inline
 bool isExecutable(const char *path)
     // On Unix, return 'true' if the file at the specified 'path' exists, is
     // not a directory, and is executable (or is a symbolic link to such a
@@ -109,18 +93,19 @@ bool isExecutable(const char *path)
     return 0 == rc && !(s.st_mode & S_IFDIR) && (s.st_mode & executableBits);
 }
 
-inline
+static inline
 bool isExecutable(const bsl::string& path)
 {
     return isExecutable(path.c_str());
 }
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
+static
 void resolveSymLinksIfAny(bsl::string *fileName)
-    // If the specified '*fileName' is a symlink, resolve it it and overwrite
-    // '*fileName' with the new value, but only if the new value refers to
-    // an executable file.  The behavior is undefined unless '*fileName' is
-    // an executable file or a symlink to one.
+    // If the specified 'fileName' is a symlink, resolve it and overwrite
+    // 'fileName' with the new value, but only if the new value refers to an
+    // executable file.  The behavior is undefined unless '*fileName' is an
+    // executable file or a symlink to one.
 {
     BSLS_ASSERT_SAFE(isExecutable(*fileName));
 
@@ -129,21 +114,26 @@ void resolveSymLinksIfAny(bsl::string *fileName)
     if (0 == rc && S_ISLNK(s.st_mode)) {
         // It's a symbolic link.  Resolve it.
 
-        bsl::string linkStr(k_PATH_MAX, '\0');
+#if defined PATH_MAX
+        bsl::string linkString(PATH_MAX, '\0');
+#else
+        bsl::string linkString(4 * 1204, '\0');
+#endif
 
-        const char *linkStr_p = ::realpath(fileName->c_str(), &linkStr[0]);
-        if (linkStr_p == linkStr.c_str()) {
-            const bsl::size_t len = linkStr.find('\0');
-            linkStr.resize(len);
+        const char *pLinkString = ::realpath(fileName->c_str(),
+                                             &linkString[0]);
+        const bsl::size_t len = linkString.find('\0');
+        if (0 != pLinkString && 0 < len && bsl::string::npos != len) {
+            linkString.resize(len);
 
-            if (isExecutable(linkStr)) {
-                fileName->assign(linkStr);
+            if (isExecutable(linkString)) {
+                fileName->assign(linkString);
             }
         }
     }
 }
 #else
-inline
+static inline
 void resolveSymLinksIfAny(bsl::string *)
     // No symlinks on Windows.  No-op.
 {
@@ -242,7 +232,7 @@ int ProcessUtil::getProcessName(bsl::string *result)
     os << "/proc/" << u::getPid() << "/cmdline" << bsl::ends;
     bsl::ifstream cmdLineFile;
     cmdLineFile.open(cmdLineFileName,
-                        bsl::ios_base::in | bsl::ios_base::binary);
+                     bsl::ios_base::in | bsl::ios_base::binary);
 
     bsl::string argv0;
     if (cmdLineFile.is_open()) {
@@ -287,7 +277,7 @@ int ProcessUtil::getProcessName(bsl::string *result)
     // 'argv[0]' is always an absolute path, even if it was specified on the
     // command line as a relative path.  The following code yields the full
     // path.  Also, on some Unix shells within windows, 'argv[0]' contains
-    // '/'s instead of '\\' and hence won't work with the file system,whereas
+    // '/'s instead of '\\'s and hence won't work with the file system, whereas
     // 'GetModuleFileName' below will return a usable path.
 
     bsl::wstring wResult(64 * 1024, '\0');
@@ -331,29 +321,24 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
     if (0 == rc && u::isExecutable(processName)) {
         result->assign(processName);
 
-        u::resolveSymLinksIfAny(result);
-
         return 0;                                                     // RETURN
     }
 
     // Probably 'argv[0]' was a relative path and we've changed the current
     // directory since task startup.  Get the orignal directory from '$PWD' and
-    // see if we can build the correct path to the executabel with that.
+    // see if we can build the correct path to the executable with that.
 
-    const char *taskStartupDir = ::getenv("PWD");
-    if (PathUtil::isRelative(processName) && taskStartupDir &&
-                           FilesystemUtil::isDirectory(taskStartupDir, true)) {
-        if (*u::slash != taskStartupDir[bsl::strlen(taskStartupDir) - 1]) {
-            processName.insert(0, u::slash);
-        }
-        processName.insert(0, taskStartupDir);
+    if (PathUtil::isRelative(processName)) {
+        const char *taskStartUpDir = ::getenv("PWD");
+        if (taskStartUpDir &&
+                           FilesystemUtil::isDirectory(taskStartUpDir, true)) {
+            bsl::string splicePath(taskStartUpDir);
+            rc = PathUtil::appendIfValid(&splicePath, processName);
+            if (0 == rc && u::isExecutable(splicePath)) {
+                result->assign(splicePath);
 
-        if (u::isExecutable(processName)) {
-            result->assign(processName);
-
-            u::resolveSymLinksIfAny(result);
-
-            return 0;                                                 // RETURN
+                return 0;                                             // RETURN
+            }
         }
     }
 
@@ -361,13 +346,17 @@ int ProcessUtil::getPathToExecutable(bsl::string *result)
     // different solution based on "/proc", which might or might not be
     // available.
 
-#if  defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX || \
+#if defined BSLS_PLATFORM_OS_LINUX || defined BSLS_PLATFORM_OS_AIX || \
                                                defined BSLS_PLATFORM_OS_SOLARIS
     char linkName[100];
     bdlsb::FixedMemOutStreamBuf sb(linkName, sizeof(linkName));
     bsl::ostream os(&sb);
-    os << "/proc/" << u::getPid() << (u::e_IS_LINUX ? "/exe" : "/object/a.out")
-       << bsl::ends;
+
+#if defined BSLS_PLATFORM_OS_LINUX
+    os << "/proc/" << u::getPid() << "/exe"          << bsl::ends;
+#else
+    os << "/proc/" << u::getPid() << "/object/a.out" << bsl::ends;
+#endif
 
     if (u::isExecutable(linkName)) {
         // "/proc" was available (not always the case).
