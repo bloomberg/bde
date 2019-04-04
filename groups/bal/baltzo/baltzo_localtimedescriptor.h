@@ -123,6 +123,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_review.h>
 
 #include <bsl_algorithm.h>
@@ -173,7 +174,8 @@ class LocalTimeDescriptor {
         // '[-86399 .. 86399]', and 'false' otherwise.
 
     // CREATORS
-    explicit LocalTimeDescriptor(bslma::Allocator *basicAllocator = 0);
+    LocalTimeDescriptor();
+    explicit LocalTimeDescriptor(bslma::Allocator *basicAllocator);
         // Create a 'LocalTimeDescriptor' object having the (default)
         // attribute values:
         //..
@@ -182,8 +184,8 @@ class LocalTimeDescriptor {
         //  description()        == ""
         //..
         // Optionally specify a 'basicAllocator' used to supply memory.  If
-        // 'basicAllocator' is 0, the currently installed default allocator is
-        // used.
+        // 'basicAllocator' is 0 or not supplied, the currently installed
+        // default allocator is used.
 
     LocalTimeDescriptor(int                       utcOffsetInSeconds,
                         bool                      dstInEffectFlag,
@@ -203,6 +205,25 @@ class LocalTimeDescriptor {
         // used to supply memory.  If 'basicAllocator' is 0, the currently
         // installed default allocator is used.
 
+    LocalTimeDescriptor(bslmf::MovableRef<LocalTimeDescriptor> original)
+                                                         BSLS_KEYWORD_NOEXCEPT;
+        // Create a 'LocalTimeDescriptor' object having the same value and the
+        // same allocator as the specified 'original' object.  The value of
+        // 'original' becomes unspecified but valid, and its allocator remains
+        // unchanged.
+
+    LocalTimeDescriptor(
+                       bslmf::MovableRef<LocalTimeDescriptor>  original,
+                       bslma::Allocator                       *basicAllocator);
+        // Create a 'LocalTimeDescriptor' object having the same value as the
+        // specified 'original' object, using the specified 'basicAllocator' to
+        // supply memory.  If 'basicAllocator' is 0, the currently installed
+        // default allocator is used.  The allocator of 'original' remains
+        // unchanged.  If 'original' and the newly created object have the same
+        // allocator then the value of 'original' becomes unspecified but
+        // valid, and no exceptions will be thrown; otherwise 'original' is
+        // unchanged (and an exception may be thrown).
+
     ~LocalTimeDescriptor();
         // Destroy this object.
 
@@ -211,7 +232,15 @@ class LocalTimeDescriptor {
         // Assign to this object the value of the specified 'rhs' object, and
         // return a non-'const' reference to this object.
 
-    void setDescription(const bslstl::StringRef&  value);
+    LocalTimeDescriptor& operator=(bslmf::MovableRef<LocalTimeDescriptor> rhs);
+        // Assign to this object the value of the specified 'rhs' object, and
+        // return a non-'const' reference to this object.  The allocators of
+        // this object and 'rhs' both remain unchanged.  If 'rhs' and this
+        // object have the same allocator then the value of 'rhs' becomes
+        // unspecified but valid, and no exceptions will be thrown; otherwise
+        // 'rhs' is unchanged (and an exception may be thrown).
+
+    void setDescription(const bslstl::StringRef& value);
         // Set the 'description' attribute of this object to the specified
         // 'value'.  Note that 'value' is not canonical, and is intended for
         // debugging only.
@@ -322,6 +351,14 @@ bool LocalTimeDescriptor::isValidUtcOffsetInSeconds(int value)
 
 // CREATORS
 inline
+LocalTimeDescriptor::LocalTimeDescriptor()
+: d_utcOffsetInSeconds(0)
+, d_dstInEffectFlag(false)
+, d_description()
+{
+}
+
+inline
 LocalTimeDescriptor::LocalTimeDescriptor(bslma::Allocator *basicAllocator)
 : d_utcOffsetInSeconds(0)
 , d_dstInEffectFlag(false)
@@ -353,6 +390,32 @@ LocalTimeDescriptor::LocalTimeDescriptor(
 }
 
 inline
+LocalTimeDescriptor::LocalTimeDescriptor(
+         bslmf::MovableRef<LocalTimeDescriptor> original) BSLS_KEYWORD_NOEXCEPT
+: d_utcOffsetInSeconds(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_utcOffsetInSeconds)),
+  d_dstInEffectFlag(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_dstInEffectFlag)),
+  d_description(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_description))
+{
+}
+
+inline
+LocalTimeDescriptor::LocalTimeDescriptor(
+                        bslmf::MovableRef<LocalTimeDescriptor>  original,
+                        bslma::Allocator                       *basicAllocator)
+: d_utcOffsetInSeconds(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_utcOffsetInSeconds))
+, d_dstInEffectFlag(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_dstInEffectFlag))
+, d_description(bslmf::MovableRefUtil::move(
+      bslmf::MovableRefUtil::access(original).d_description), basicAllocator)
+{
+}
+
+
+inline
 LocalTimeDescriptor::~LocalTimeDescriptor()
 {
     BSLS_REVIEW(isValidUtcOffsetInSeconds(d_utcOffsetInSeconds));
@@ -369,6 +432,25 @@ LocalTimeDescriptor& LocalTimeDescriptor::operator=(
     d_dstInEffectFlag    = rhs.d_dstInEffectFlag;
     return *this;
 }
+
+inline
+LocalTimeDescriptor& LocalTimeDescriptor::operator=(
+                                    bslmf::MovableRef<LocalTimeDescriptor> rhs)
+{
+    // Move 'd_description' first for strong exception guarantee.
+
+    d_description = bslmf::MovableRefUtil::move(
+        bslmf::MovableRefUtil::access(rhs).d_description);
+
+    d_utcOffsetInSeconds = bslmf::MovableRefUtil::move(
+        bslmf::MovableRefUtil::access(rhs).d_utcOffsetInSeconds);
+
+    d_dstInEffectFlag = bslmf::MovableRefUtil::move(
+        bslmf::MovableRefUtil::access(rhs).d_dstInEffectFlag);
+
+    return *this;
+}
+
 
 inline
 void LocalTimeDescriptor::setDescription(const bslstl::StringRef& value)
