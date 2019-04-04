@@ -140,9 +140,11 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 //          // there was an error processing the event.
 //      {
 //          // Update the metrics with the size of the 'eventMessage'.
-//          d_eventMessageSize.update(eventMessage.size());
+//          d_eventMessageSize.update(
+//                                   static_cast<double>(eventMessage.size()));
 //
 //          // ...   process the event
+//          (void)eventId;
 //
 //          return 0;
 //      }

@@ -96,21 +96,24 @@ BSLS_IDENT("$Id: $")
 //          // 'eventMessage' .  Return 0 on success, and a non-zero value
 //          // if there was an error handling the event.
 //      {
-//         int returnCode = 0;
+//          (void)eventId;
 //
-//         d_messageSize.update(eventMessage.size());
+//          int returnCode = 0;
 //
-//         bsls::TimeInterval start = bdlt::CurrentTime::now();
+//          d_messageSize.update(static_cast<int>(eventMessage.size()));
 //
-//         // Process 'data' ('returnCode' may change).
+//          bsls::TimeInterval start = bdlt::CurrentTime::now();
 //
-//         if (0 != returnCode) {
-//             d_failedRequests.increment();
-//         }
+//          // Process 'data' ('returnCode' may change).
 //
-//         bsls::TimeInterval end = bdlt::CurrentTime::now();
-//         d_elapsedTime.update((end - start).totalMicroseconds());
-//         return returnCode;
+//          if (0 != returnCode) {
+//              d_failedRequests.increment();
+//          }
+//
+//          bsls::TimeInterval end = bdlt::CurrentTime::now();
+//          d_elapsedTime.update(static_cast<int>(
+//                                         (end - start).totalMicroseconds()));
+//          return returnCode;
 //      }
 //
 //  // ...

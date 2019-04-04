@@ -363,7 +363,9 @@ int TestPublisher::indexOf(const balm::MetricId& id) const
     if (it == d_sortedRecords.end()) {
         return -1;                                                    // RETURN
     }
-    return (it->metricId() == id) ? it - d_sortedRecords.begin() : -1;
+    return (it->metricId() == id)
+          ? static_cast<int>(it - d_sortedRecords.begin())
+          : -1;
 }
 
 inline
@@ -1018,7 +1020,7 @@ int main(int argc, char *argv[])
 
                 sample.setTimeStamp(TIME_STAMP);
                 sample.appendGroup(records.data(),
-                                   records.size(),
+                                   static_cast<int>(records.size()),
                                    ELAPSED_TIME);
 
                 tp2.reset();

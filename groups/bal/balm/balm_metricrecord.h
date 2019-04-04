@@ -81,7 +81,7 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //          // Process the specified 'request'.
 //      {
 //          ++d_numRequests;
-//          d_totalRequestSize += request.size();
+//          d_totalRequestSize += static_cast<unsigned int>(request.size());
 //          d_minRequestSize   =  bsl::min(d_minRequestSize,
 //                                         (unsigned int)request.size());
 //          d_maxRequestSize   =  bsl::max(d_maxRequestSize,

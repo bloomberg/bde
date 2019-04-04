@@ -326,7 +326,7 @@ void MetricConcurrencyTest::runTest()
 
             int returnCode = 0;
 
-            d_messageSize.update(eventMessage.size());
+            d_messageSize.update(static_cast<double>(eventMessage.size()));
             bsls::Stopwatch stopwatch;
             stopwatch.start();
 
@@ -971,6 +971,7 @@ int main(int argc, char *argv[])
         Repository& repository = mgr.collectorRepository();
 
         (void)registry;
+        (void)repository;
 
         for (int i = 0; i < NUM_IDS; ++i) {
             const Category *CATEGORY = registry.getCategory(IDS[i]);

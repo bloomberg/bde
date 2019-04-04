@@ -95,7 +95,7 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 //
 //          int returnCode = 0;
 //
-//          d_messageSize.update(eventMessage.size());
+//          d_messageSize.update(static_cast<double>(eventMessage.size()));
 //          bsls::Stopwatch stopwatch;
 //          stopwatch.start();
 //
