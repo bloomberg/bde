@@ -14,14 +14,17 @@
 #include <balm_metricformat.h>
 #include <balm_publicationtype.h>
 
+#include <bdlf_bind.h>
+
+#include <bdlmt_fixedthreadpool.h>
+
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 
-#include <bslma_testallocator.h>
 #include <bslmt_barrier.h>
-#include <bdlmt_fixedthreadpool.h>
-#include <bdlf_bind.h>
+
+#include <bsls_types.h>
 
 #include <bsl_c_stdio.h>
 #include <bsl_cstddef.h>
@@ -147,6 +150,7 @@ void stringId(bsl::string *resultId, const char *heading, int value)
     int rc = snprintf(buffer, 100, "%s-%d", heading, value);
     BSLS_ASSERT(rc < 100);
     BSLS_ASSERT(rc > 0);
+    (void)rc;
     *resultId = buffer;
 }
 
@@ -164,6 +168,7 @@ void stringId(bsl::string *resultId,
     int rc = snprintf(buffer, 100, "%s-%d-%d", heading, value1, value2);
     BSLS_ASSERT(rc < 100);
     BSLS_ASSERT(rc > 0);
+    (void)rc;
     *resultId = buffer;
 }
 
@@ -249,7 +254,7 @@ void ConcurrencyTest::execute()
 
     d_barrier.wait();
 
-    for(int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 10; ++i) {
 
         // Create 4 strings unique for this iteration.
         bsl::string iterStringA, iterStringB, iterStringC, iterStringD;
@@ -264,8 +269,14 @@ void ConcurrencyTest::execute()
 
         // Create 2 strings unique across all threads & iterations.
         bsl::string uniqueString1, uniqueString2;
-        stringId(&uniqueString1, "U1", bslmt::ThreadUtil::selfIdAsInt(), i);
-        stringId(&uniqueString2, "U2", bslmt::ThreadUtil::selfIdAsInt(), i);
+        stringId(&uniqueString1,
+                 "U1",
+                 static_cast<int>(bslmt::ThreadUtil::selfIdAsInt()),
+                 i);
+        stringId(&uniqueString2,
+                 "U2",
+                 static_cast<int>(bslmt::ThreadUtil::selfIdAsInt()),
+                 i);
         const char *S1 = uniqueString1.c_str();
         const char *S2 = uniqueString2.c_str();
 
@@ -275,7 +286,8 @@ void ConcurrencyTest::execute()
         // The expected value for number of iterations is computed as:
         // (iteration * # of shared categories) +
         // (iteration * # of threads * # unique categories per thread)
-        ASSERT((i * 4) + (i * NUM_THREADS * 2) == startCategories.size());
+        ASSERT(static_cast<bsl::size_t>((i * 4) + (i * NUM_THREADS * 2)) ==
+                                                       startCategories.size());
 
         // Begin Test Iteration
         d_barrier.wait();
@@ -386,9 +398,10 @@ void ConcurrencyTest::execute()
         // This computation is used with the values i and i + 1 to create a
         // window of possible sizes at the end of the *current* threads
         // iteration (other threads may still be processing this iteration).
-        ASSERT((i * 4) + (NUM_THREADS * i * 2) + 6 <= categories.size());
-        ASSERT(((i + 1) * 4) + (NUM_THREADS * (i + 1) * 2) >=
-               categories.size());
+        ASSERT(static_cast<bsl::size_t>(
+                    (i * 4) + (NUM_THREADS * i * 2) + 6) <= categories.size());
+        ASSERT(static_cast<bsl::size_t>(
+            ((i + 1) * 4) + (NUM_THREADS * (i + 1) * 2)) >= categories.size());
 
         // End test iteration.
         d_barrier.wait();
@@ -600,7 +613,7 @@ int main(int argc, char *argv[])
                 bsl::cout << "\tverify an explict category" << bsl::endl;
             }
 
-            Obj mX(&testAllocator); const Obj& MX = mX;
+            Obj mX(&testAllocator);
 
             // Create a set of metrics and keys prior to the test.
             for (int i = 0;  i < NUM_METRICS; ++i) {
@@ -610,7 +623,8 @@ int main(int argc, char *argv[])
 
             // Perform test.
             for (int i = 0;  i < NUM_METRICS; ++i) {
-                const void *VALUE = (const void *)(i + 1);
+                const void *VALUE =
+                         (const void *)static_cast<bsls::Types::IntPtr>(i + 1);
                 mX.setUserData(METRICS[i].d_category, i, VALUE, false);
 
                 // Verify only the metrics belonging to METRIC[i]'s category
@@ -647,9 +661,9 @@ int main(int argc, char *argv[])
                                             temp.c_str());
                 for (int j = 0; j < NUM_METRICS; ++j) {
                     const void *EXP_VALUE =
-                        (0 == bsl::strcmp(METRICS[i].d_category,
-                                          METRICS[j].d_category))
-                        ? (const void *)(j + 1)
+                          (0 == bsl::strcmp(METRICS[i].d_category,
+                                            METRICS[j].d_category))
+                        ? (const void *)static_cast<bsls::Types::IntPtr>(j + 1)
                         : 0;
                     LOOP4_ASSERT(*id.description(),
                                  j,
@@ -665,7 +679,7 @@ int main(int argc, char *argv[])
                 bsl::cout << "\tverify a category prefix" << bsl::endl;
             }
 
-            Obj mX; const Obj& MX = mX;
+            Obj mX;
 
             // Create a set of metrics and keys prior to the test.
             for (int i = 0;  i < NUM_METRICS; ++i) {
@@ -675,7 +689,8 @@ int main(int argc, char *argv[])
 
             // Perform test.
             for (int i = 0;  i < NUM_METRICS; ++i) {
-                const void *VALUE = (const void *)(i + 1);
+                const void *VALUE =
+                         (const void *)static_cast<bsls::Types::IntPtr>(i + 1);
                 mX.setUserData(METRICS[i].d_category, i, VALUE, true);
 
                 P_(METRICS[i].d_category); P_(i); P(VALUE);
@@ -719,7 +734,7 @@ int main(int argc, char *argv[])
 
                     const void *EXP_VALUE =
                         0 == category.find(possiblePrefixCategory)
-                        ? (const void *)(j + 1)
+                        ? (const void *)static_cast<bsls::Types::IntPtr>(j + 1)
                         : 0;
                     LOOP4_ASSERT(*id.description(),
                                  j,
@@ -765,7 +780,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_METRICS = sizeof METRICS / sizeof *METRICS;
 
-        Obj mX; const Obj& MX = mX;
+        Obj mX;
 
         // Create the keys we will use.  Note that this test assumes indices
         // are incrementally generated starting at 0.
@@ -792,11 +807,17 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_METRICS; ++i) {
             balm::MetricId id = mX.getId(METRICS[i].d_category,
                                         METRICS[i].d_name);
-            mX.setUserData(id, i, (const void *)(i + 1));
+            mX.setUserData(
+                        id,
+                        i,
+                        (const void *)static_cast<bsls::Types::IntPtr>(i + 1));
             for (int j = 0; j < NUM_METRICS; ++j) {
                 balm::MetricId testId = mX.getId(METRICS[j].d_category,
                                                 METRICS[j].d_name);
-                const void *EXP_VALUE = j == i ? (const void *)(i + 1) : 0;
+                const void *EXP_VALUE =
+                          j == i
+                        ? (const void *)static_cast<bsls::Types::IntPtr>(i + 1)
+                        : 0;
                 ASSERT(EXP_VALUE == testId.description()->userData(i));
             }
         }
@@ -826,7 +847,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 bsl::cout << "\tBlackbox test" << bsl::endl;
             }
-            Obj mX; const Obj& MX = mX;
+            Obj mX;
             bsl::set<int> keys(Z);
             for (int i = 0; i < NUM_KEYS; ++i) {
                 int newKey = mX.createUserDataKey();
@@ -835,7 +856,7 @@ int main(int argc, char *argv[])
             }
         }
         {
-            Obj mX; const Obj& MX = mX;
+            Obj mX;
             if (veryVerbose) {
                 bsl::cout << "\tWhitebox test" << bsl::endl;
             }
@@ -901,7 +922,7 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator  testAllocator;
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-            Obj mX(&testAllocator); const Obj& MX = mX;
+            Obj mX(&testAllocator);
             for (int i = 0; i < NUM_METRICS; ++i) {
                 const char *CAT  = METRICS[i].d_category;
                 const char *NAME = METRICS[i].d_name;
@@ -921,7 +942,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\tVerify pooled format strings" << endl;
 
         BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-            Obj mX(&testAllocator); const Obj& MX = mX;
+            Obj mX(&testAllocator);
             balm::MetricId id1 = mX.addId("A", "A");
             balm::MetricId id2 = mX.addId("B", "B");
             mX.setFormat(id1, *FORMATS[1]);
@@ -984,7 +1005,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_TYPES = sizeof TYPES / sizeof *TYPES;
 
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         for (int i = 0; i < NUM_METRICS; ++i) {
             const char *CAT  = METRICS[i].d_category;
             const char *NAME = METRICS[i].d_name;
@@ -1182,7 +1203,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting unique addresses for string values"
                           << endl;
 
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         const Cat *CAT_A = mX.addCategory("A");
         const Cat *CAT_B = mX.getCategory("B");
         Id METRIC_AA = mX.addId("A", "A");
@@ -1240,7 +1261,7 @@ int main(int argc, char *argv[])
         //   ostream& print(ostream&, int, int);
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting output operators" << endl;
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         mX.addId("A", "A");
         mX.addId("A", "B");
         mX.addId("B", "A");
@@ -1409,7 +1430,7 @@ int main(int argc, char *argv[])
             Obj mX(Z); const Obj& MX = mX;
             MX.getAllCategories(&categories);
             ASSERT(0 == categories.size());
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
+            for (bsl::size_t i = 0; i < NUM_CATEGORIES; ++i) {
                 const char *CATEGORY = CATEGORIES[i];
 
                 if (i % 2 == 0) {
@@ -1446,13 +1467,14 @@ int main(int argc, char *argv[])
             initialVector.push_back((const balm::Category *)1);
             initialVector.push_back((const balm::Category *)2);
             initialVector.push_back((const balm::Category *)3);
-            const int INITIAL_SIZE = initialVector.size();
+            const bsl::size_t INITIAL_SIZE = initialVector.size();
 
             Obj mX(Z); const Obj& MX = mX;
             {
                 bsl::vector<const balm::Category *>
                                                    categories(initialVector,Z);
-                int exp_allocations = allocator.numAllocations();
+                bsls::Types::Int64 exp_allocations =
+                                                    allocator.numAllocations();
                 MX.getAllCategories(&categories);
                 ASSERT(categories      == initialVector);
                 ASSERT(exp_allocations <= allocator.numAllocations());
@@ -1472,7 +1494,8 @@ int main(int argc, char *argv[])
 
                 bsl::vector<const balm::Category *>
                                                    categories(initialVector,Z);
-                int exp_allocations = allocator.numAllocations() + 1;
+                bsls::Types::Int64 exp_allocations =
+                                                allocator.numAllocations() + 1;
                 MX.getAllCategories(&categories);
                 ASSERT(exp_allocations <= allocator.numAllocations());
 
@@ -1480,7 +1503,7 @@ int main(int argc, char *argv[])
                        categories.size());
 
                 // Verify that 'categories' starts with 'initialVector'.
-                for (int i = 0; i < INITIAL_SIZE; ++i) {
+                for (bsl::size_t i = 0; i < INITIAL_SIZE; ++i) {
                     ASSERT(initialVector[i] == categories[i]);
                 }
                 // Verify that 'categories' ends with 'exp_categories'.
@@ -1526,7 +1549,7 @@ int main(int argc, char *argv[])
                      << " created category." << endl;
             }
             Obj mX(Z); const Obj& MX = mX;
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
+            for (bsl::size_t i = 0; i < NUM_CATEGORIES; ++i) {
                 const char *CATEGORY = CATEGORIES[i];
 
                 const Cat *exp_cat = mX.addCategory(CATEGORY);
@@ -1547,7 +1570,7 @@ int main(int argc, char *argv[])
                      << endl;
             }
             Obj mX(Z); const Obj& MX = mX;
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
+            for (bsl::size_t i = 0; i < NUM_CATEGORIES; ++i) {
                 const char *CATEGORY = CATEGORIES[i];
 
                 const Cat *cat = mX.getCategory(CATEGORY);
@@ -1616,7 +1639,7 @@ int main(int argc, char *argv[])
             }
             bsl::set<bsl::string> categoryNames(Z);
             Obj mX(Z); const Obj& MX = mX;
-            for (int i = 0; i < NUM_METRICS; ++i) {
+            for (bsl::size_t i = 0; i < NUM_METRICS; ++i) {
                 const char *CATEGORY = METRICS[i].d_category;
                 const char *NAME     = METRICS[i].d_name;
                 categoryNames.insert(CATEGORY);
@@ -1641,7 +1664,7 @@ int main(int argc, char *argv[])
             }
             bsl::set<bsl::string> categoryNames(Z);
             Obj mX(Z); const Obj& MX = mX;
-            for (int i = 0; i < NUM_METRICS; ++i) {
+            for (bsl::size_t i = 0; i < NUM_METRICS; ++i) {
                 const char *CATEGORY = METRICS[i].d_category;
                 const char *NAME     = METRICS[i].d_name;
                 categoryNames.insert(CATEGORY);
@@ -1669,7 +1692,7 @@ int main(int argc, char *argv[])
             }
             bsl::set<bsl::string> categoryNames(Z);
             Obj mX(Z); const Obj& MX = mX;
-            for (int i = 0; i < NUM_METRICS; ++i) {
+            for (bsl::size_t i = 0; i < NUM_METRICS; ++i) {
                 const char *CATEGORY = METRICS[i].d_category;
                 const char *NAME     = METRICS[i].d_name;
                 categoryNames.insert(CATEGORY);
@@ -1766,7 +1789,7 @@ int main(int argc, char *argv[])
             bsl::set<bsl::string> categoryNames(Z);
 
             Obj mX(Z); const Obj& MX = mX;
-            for (int i = 0; i < NUM_METRICS; ++i) {
+            for (bsl::size_t i = 0; i < NUM_METRICS; ++i) {
                 const char *CATEGORY = METRICS[i].d_category;
                 const char *NAME     = METRICS[i].d_name;
                 categoryNames.insert(CATEGORY);
@@ -1816,7 +1839,7 @@ int main(int argc, char *argv[])
             }
 
             Obj mX(Z); const Obj& MX = mX;
-            for (int i = 0; i < NUM_CATEGORIES; ++i) {
+            for (bsl::size_t i = 0; i < NUM_CATEGORIES; ++i) {
                 const char *CATEGORY = CATEGORIES[i];
 
                 const Cat *cat = mX.addCategory(CATEGORY);
@@ -1853,7 +1876,7 @@ int main(int argc, char *argv[])
                           << "==============" << endl;
 
         {
-            Obj mX; const Obj& MX = mX;
+            Obj mX;
 
             if (veryVerbose) cout << "\tAdd and categories 'CA' and 'CB' and "
                                   << "verify initial state.\n";
@@ -1952,7 +1975,7 @@ int main(int argc, char *argv[])
                 { "AABA", "A" },
                 { "AABA", "B" },
             };
-            Obj mX; const Obj& MX = mX;
+            Obj mX;
             const int NUM_METRICS = sizeof(METRICS)/sizeof(*METRICS);
 
             for (int i = 0; i < NUM_KEYS; ++i) {
@@ -1974,8 +1997,12 @@ int main(int argc, char *argv[])
             // Set a key for a metric to all possible values
             for (int i = 0; i < NUM_KEYS; ++i) {
                 balm::MetricId id = mX.getId("A", "A");
-                mX.setUserData(id, i, (const void *)i);
-                ASSERT((const void *)i == id.description()->userData(i));
+                mX.setUserData(id,
+                               i,
+                               (const void *)
+                                          static_cast<bsls::Types::IntPtr>(i));
+                ASSERT((const void *)static_cast<bsls::Types::IntPtr>(i) ==
+                                                id.description()->userData(i));
                 mX.setUserData(id, i, 0);
                 ASSERT(0 == id.description()->userData(i));
             }

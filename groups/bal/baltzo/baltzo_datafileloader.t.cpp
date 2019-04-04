@@ -707,7 +707,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTest non-plausible directory" << endl;
         {
-            Obj mX; const Obj& X = mX;
+            Obj mX;
             baltzo::Zoneinfo timeZone;
 
             mX.configureRootPath("NotPlausibleDirectory");
@@ -719,7 +719,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTest with plausible directory" << endl;
         {
-            Obj mX; const Obj& X = mX;
+            Obj mX;
             baltzo::Zoneinfo timeZone;
 
             ASSERT(0 == mX.configureRootPathIfPlausible(TEST_DIRECTORY));
@@ -1084,7 +1084,7 @@ int main(int argc, char *argv[])
                           << "=====================================" << endl;
 
         {
-            Obj mX; const Obj& X = mX;
+            Obj mX;
 
             if (veryVerbose) cout << "\tNon-existant directory" << endl;
             {
@@ -1278,7 +1278,7 @@ int main(int argc, char *argv[])
                 cout << "\tTesting 'construction'." << endl;
             }
 
-            Obj mX(Z); const Obj& X = mX;
+            Obj mX(Z);
             ASSERT(0 != mX.configureRootPathIfPlausible("junk"));
             ASSERT(0 != mX.configureRootPathIfPlausible("."));
             bsl::string temp(Z);
@@ -1315,7 +1315,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) {
                 cout << "\tTesting 'loadTimeZone'." << endl;
             }
-            Obj mX(Z); const Obj& X = mX;
+            Obj mX(Z);
             mX.configureRootPath(TEST_DIRECTORY);
 
             bsl::string path(Z);

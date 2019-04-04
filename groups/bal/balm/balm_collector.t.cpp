@@ -13,18 +13,21 @@
 #include <bslma_testallocator.h>
 
 #include <bslma_testallocator.h>
+
 #include <bslmt_barrier.h>
 #include <bdlmt_fixedthreadpool.h>
+
 #include <bdlf_bind.h>
 
+#include <bsls_types.h>
+
+#include <bsl_cstring.h>
+#include <bsl_cstdlib.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
-
-#include <bsl_cstring.h>
-#include <bsl_cstdlib.h>
 
 #include <bslim_testutil.h>
 
@@ -649,7 +652,8 @@ int main(int argc, char *argv[])
         const int NUM_UPDATES = sizeof(UPDATES)/sizeof(*UPDATES);
 
         for (int i = 0; i < NUM_UPDATES; ++i) {
-            const Desc *METRIC = (const Desc *)(i + 1);
+            const Desc *METRIC =
+                         (const Desc *)static_cast<bsls::Types::IntPtr>(i + 1);
             Id id(METRIC);
             Obj mX(id); const Obj& MX = mX;
 

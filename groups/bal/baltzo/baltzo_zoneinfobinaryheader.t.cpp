@@ -2928,9 +2928,8 @@ int main(int argc, char *argv[])
 
         bslma::DefaultAllocatorGuard dag(&da);
 
-        Obj                   *objPtr = new (fa) Obj();
-        Obj&                   mX     = *objPtr;  const Obj& X = mX;
-        bslma::TestAllocator&  noa     =  da;
+        Obj  *objPtr = new (fa) Obj();
+        Obj&  mX     = *objPtr;  const Obj& X = mX;
 
         // Verify no allocation from the default allocator.
 

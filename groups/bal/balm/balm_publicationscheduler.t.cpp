@@ -570,7 +570,7 @@ int TestPublisher::invocations() const
 inline
 int TestPublisher::uniqueInvocations() const
 {
-    return d_invocations.size();
+    return static_cast<int>(d_invocations.size());
 }
 
 inline
@@ -759,6 +759,7 @@ void stringId(bsl::string *resultId, const char *heading, int value)
     int rc = snprintf(buffer, 100, "%s-%d", heading, value);
     BSLS_ASSERT(rc < 100);
     BSLS_ASSERT(rc > 0);
+    (void)rc;
     *resultId = buffer;
 }
 
@@ -776,6 +777,7 @@ void stringId(bsl::string *resultId,
     int rc = snprintf(buffer, 100, "%s-%d-%d", heading, value1, value2);
     BSLS_ASSERT(rc < 100);
     BSLS_ASSERT(rc > 0);
+    (void)rc;
     *resultId = buffer;
 }
 
@@ -820,7 +822,9 @@ class ConcurrencyTest {
 void ConcurrencyTest::execute()
 {
     bsl::string uniqueString1;
-    stringId(&uniqueString1, "US",  bslmt::ThreadUtil::selfIdAsInt());
+    stringId(&uniqueString1,
+             "US",
+             static_cast<int>(bslmt::ThreadUtil::selfIdAsInt()));
     const char *S1 = uniqueString1.c_str();
 
     Schedule schedule(d_allocator_p);
@@ -1007,7 +1011,7 @@ int countUniqueIntervals(const CategoryScheduleOracle& scheduleOracle,
     for (; it != scheduleOracle.end(); ++it) {
         intervals.insert(it->second);
     }
-    return intervals.size();
+    return static_cast<int>(intervals.size());
 }
 
 bool equalSchedule(const CategoryScheduleOracle& oracle,
@@ -1362,7 +1366,7 @@ int main(int argc, char *argv[])
 
         bdlmt::TimerEventScheduler  timer(&testAllocator);
         balm::MetricsManager       manager(&testAllocator);
-        Obj mX(&manager, &timer, &testAllocator); const Obj& MX = mX;
+        Obj mX(&manager, &timer, &testAllocator);
         {
             ConcurrencyTest tester(6, &mX, &timer, &defaultAllocator);
             tester.runTest();
@@ -1559,7 +1563,7 @@ int main(int argc, char *argv[])
         bdlmt::TimerEventScheduler timer(Z);
         balm::MetricsManager      manager(Z);
         balm::MetricRegistry&     reg = manager.metricRegistry();
-        Obj mX(&manager, &timer, Z); const Obj& MX = mX;
+        Obj mX(&manager, &timer, Z);
         mX.scheduleCategory(reg.getCategory("A"), bsls::TimeInterval(1, 0));
         mX.scheduleCategory(reg.getCategory("B"), bsls::TimeInterval(2, 0));
         mX.scheduleCategory(reg.getCategory("C"), bsls::TimeInterval(3, 0));
@@ -1757,7 +1761,8 @@ int main(int argc, char *argv[])
             //      the "oracle" 'CategoryScheduleOracle'
 
             Schedule schedule(Z);
-            ASSERT(intervalMap.size() == MX.getCategorySchedule(&schedule));
+            ASSERT(static_cast<int>(intervalMap.size()) ==
+                                            MX.getCategorySchedule(&schedule));
             ASSERT(equalSchedule(intervalMap, schedule));
         }
       } break;
@@ -1979,7 +1984,7 @@ int main(int argc, char *argv[])
                 }
 
                 for (bsl::size_t k = 0; k < elementsToRemove.size(); ++k) {
-                    const int idx = (k + j) % elementsToRemove.size();
+                    const bsl::size_t idx = (k + j) % elementsToRemove.size();
                     const Category *CATEGORY = elementsToRemove[idx];
 
                     // Remove the category (or default schedule) at this
@@ -2113,7 +2118,7 @@ int main(int argc, char *argv[])
             //       "oracle" (mapping category to frequency) describing the
             //       configuration.
             bdlmt::TimerEventScheduler timer(Z);
-            Obj mX(&manager, &timer, Z); const Obj& MX = mX;
+            Obj mX(&manager, &timer, Z);
 
             // Initialize the 'balm::PublicationScheduler' under test and the
             // 'CategorySchedule' object 'catSchedule'.
@@ -2171,7 +2176,8 @@ int main(int argc, char *argv[])
 
             // Wait 8 1/3 TIME_UNITs
             const double TIME_UNIT_MICRO = TIME_UNIT / NANOSECS_PER_MICROSEC;
-            const int WAIT_MICRO = (TIME_UNIT_MICRO*8) + (TIME_UNIT_MICRO/3);
+            const int WAIT_MICRO = static_cast<int>(
+                                (TIME_UNIT_MICRO * 8) + (TIME_UNIT_MICRO / 3));
             microSleep(WAIT_MICRO, 0);
             timer.stop();
 
@@ -2631,7 +2637,7 @@ int main(int argc, char *argv[])
                 balm::MetricSample sample(Z);
                 sample.setTimeStamp(timeStamp);
                 sample.appendGroup(records.data(),
-                                   records.size(),
+                                   static_cast<int>(records.size()),
                                    elapsedTime);
 
                 if (veryVeryVerbose) {
@@ -3087,7 +3093,7 @@ int main(int argc, char *argv[])
             const bsls::TimeInterval& INTVL_A = intvl_A;
             const bsls::TimeInterval& INTVL_B = intvl_B;
 
-            Obj mX(&manager, &timer, Z); const Obj& MX = mX;
+            Obj mX(&manager, &timer, Z);
 
             mX.scheduleCategory("A", INTVL_A);
             mX.scheduleCategory("B", INTVL_B);

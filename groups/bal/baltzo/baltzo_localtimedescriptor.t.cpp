@@ -1147,7 +1147,6 @@ int main(int argc, char *argv[])
                    "\nFree 'swap' function with different allocators." << endl;
         for (int ti = 0; ti < NUM_DATA; ++ti) {
             const int         LINE1   = DATA[ti].d_line;
-            const char        MEM1    = DATA[ti].d_mem;
             const int         OFFSET1 = DATA[ti].d_utcOffsetInSeconds;
             const bool        FLAG1   = DATA[ti].d_dstInEffectFlag;
             const char *const DESC1   = DATA[ti].d_description;

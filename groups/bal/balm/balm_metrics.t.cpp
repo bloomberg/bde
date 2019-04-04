@@ -924,12 +924,12 @@ void StandardIntMacroConcurrencyTest::execute()
         IntCollector *E = repository.getDefaultIntegerCollector("B", "E");
         IntCollector *F = repository.getDefaultIntegerCollector("B", "F");
 
-        ASSERT(withinInt(recordVal(A).total(), 0, 30 * REPS));
-        ASSERT(withinInt(recordVal(B).total(), 0, 20 * REPS));
-        ASSERT(withinInt(recordVal(C).total(), 0, 18 * REPS));
-        ASSERT(withinInt(recordVal(D).total(), 0, 15 * REPS));
-        ASSERT(withinInt(recordVal(E).total(), 0, 11 * REPS));
-        ASSERT(withinInt(recordVal(F).total(), 0,  6 * REPS));
+        ASSERT(withinDouble(recordVal(A).total(), 0, 30 * REPS));
+        ASSERT(withinDouble(recordVal(B).total(), 0, 20 * REPS));
+        ASSERT(withinDouble(recordVal(C).total(), 0, 18 * REPS));
+        ASSERT(withinDouble(recordVal(D).total(), 0, 15 * REPS));
+        ASSERT(withinDouble(recordVal(E).total(), 0, 11 * REPS));
+        ASSERT(withinDouble(recordVal(F).total(), 0,  6 * REPS));
 
         ASSERT(withinInt(recordVal(A).count(), 0, 9 * REPS));
         ASSERT(withinInt(recordVal(B).count(), 0, 5 * REPS));
@@ -1305,9 +1305,13 @@ void TlsIntMacroConcurrencyTest::runTest()
         // 'eventMessage'.  Return 0 on success, and a non-zero
         // value otherwise.
     {
+        (void)eventId;
+
         int returnCode = 0;
 
-        BALM_METRICS_UPDATE("processEvent", "msgSize", eventMessage.size());
+        BALM_METRICS_UPDATE("processEvent",
+                            "msgSize",
+                            static_cast<double>(eventMessage.size()));
         BALM_METRICS_TIME_BLOCK_MILLISECONDS("processingEvent", "elapsedTime");
 
         // Process 'data'.
@@ -1337,6 +1341,9 @@ void TlsIntMacroConcurrencyTest::runTest()
         // 'eventMessage'.  Return 0 on success, and a non-zero
         // value otherwise.
     {
+        (void)eventId;
+        (void)eventMessage;
+
         int returnCode = 0;
 
         Corp::bsls::Stopwatch stopwatch;
@@ -1489,6 +1496,9 @@ int main(int argc, char *argv[])
         BALM::MetricsManager& mgr = *DefaultManager::instance();
         Registry&   registry   = mgr.metricRegistry();
         Repository& repository = mgr.collectorRepository();
+
+        (void)registry;
+        (void)repository;
 
         LogTestMessageHandler::reset();
 
@@ -1711,6 +1721,8 @@ int main(int argc, char *argv[])
         BALM::MetricsManager &mgr = *DefaultManager::instance();
         Repository& repository = mgr.collectorRepository();
 
+        (void)repository;
+
         const int NUM_THREADS = 10;
         {
 
@@ -1741,6 +1753,8 @@ int main(int argc, char *argv[])
         BALM::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
         BALM::MetricsManager &mgr = *DefaultManager::instance();
         Repository& repository = mgr.collectorRepository();
+
+        (void)repository;
 
         const int NUM_THREADS = 10;
         {
@@ -1810,6 +1824,8 @@ int main(int argc, char *argv[])
         BALM::MetricsManager &mgr = *DefaultManager::instance();
         Repository& repository = mgr.collectorRepository();
 
+        (void)repository;
+
         const int NUM_THREADS = 10;
         {
 
@@ -1840,6 +1856,8 @@ int main(int argc, char *argv[])
         BALM::DefaultMetricsManagerScopedGuard scopedGuard(&testAllocator);
         BALM::MetricsManager &mgr = *DefaultManager::instance();
         Repository& repository = mgr.collectorRepository();
+
+        (void)repository;
 
         const int NUM_THREADS = 10;
         {

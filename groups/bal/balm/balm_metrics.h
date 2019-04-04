@@ -434,9 +434,13 @@ BSLS_IDENT("$Id: $")
 //      // 'eventMessage'.  Return 0 on success, and a non-zero
 //      // value otherwise.
 //  {
+//      (void)eventId;
+//
 //      int returnCode = 0;
 //
-//      BALM_METRICS_UPDATE("processEvent", "msgSize", eventMessage.size());
+//      BALM_METRICS_UPDATE("processEvent",
+//                          "msgSize",
+//                          static_cast<double>(eventMessage.size()));
 //      BALM_METRICS_TIME_BLOCK_MILLISECONDS("processingEvent", "elapsedTime");
 //
 //      // Process 'data'.
@@ -467,6 +471,9 @@ BSLS_IDENT("$Id: $")
 //      // 'eventMessage'.  Return 0 on success, and a non-zero
 //      // value otherwise.
 //  {
+//      (void)eventId;
+//      (void)eventMessage;
+//
 //      int returnCode = 0;
 //
 //      bsls::Stopwatch stopwatch;

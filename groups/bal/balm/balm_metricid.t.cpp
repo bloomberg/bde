@@ -136,8 +136,6 @@ int main(int argc, char *argv[])
 
     const char *NAME_A = "A";
     const char *NAME_B = "B";
-    const char *NAME_C = "C";
-    const char *NAME_D = "D";
 
     const Desc desc_AA(CAT_A, NAME_A); const Desc *DESC_AA = &desc_AA;
     const Desc desc_BA(CAT_B, NAME_A); const Desc *DESC_BA = &desc_BA;
