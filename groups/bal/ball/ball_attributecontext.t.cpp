@@ -1405,6 +1405,7 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::join(threads[0]);
         bslmt::ThreadUtil::join(threads[1]);
 
+        (void)args;
       } break;
       case 7: {
         // --------------------------------------------------------------------

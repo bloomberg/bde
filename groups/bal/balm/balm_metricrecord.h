@@ -30,7 +30,7 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //..
 //  Attribute      Type                    Description             Default
 //  ----------   ---------        ---------------------------      -------
-//   metricId     balm::MetricId    identifies the metric            invalid id
+//   metricId     balm::MetricId   identifies the metric            invalid id
 //   count        int              count of metric values           0
 //   total        double           total of metric values           0.0
 //   min          double           minimum metric value             Infinity

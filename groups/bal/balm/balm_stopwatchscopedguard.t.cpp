@@ -402,13 +402,15 @@ bool TestPublisher::contains(const balm::MetricId& id) const
             // Process the specified 'request'.  Return 0 on success, and a
             // non-zero value otherwise.
         {
-           int returnCode = 0;
+            (void)request;
 
-           balm::StopwatchScopedGuard guard(&d_elapsedTime);
+            int returnCode = 0;
+
+            balm::StopwatchScopedGuard guard(&d_elapsedTime);
 
     // ...
 
-           return returnCode;
+            return returnCode;
         }
 
     // ...

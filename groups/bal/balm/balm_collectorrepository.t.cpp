@@ -16,7 +16,9 @@
 
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+
 #include <bsls_assert.h>
+#include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
@@ -139,6 +141,7 @@ void stringId(bsl::string *resultId, const char *heading, int value)
     int rc = snprintf(buffer, 100, "%s-%d", heading, value);
     BSLS_ASSERT(rc < 100);
     BSLS_ASSERT(rc > 0);
+    (void)rc;
     *resultId = buffer;
 }
 
@@ -156,6 +159,7 @@ void stringId(bsl::string *resultId,
     int rc = snprintf(buffer, 100, "%s-%d-%d", heading, value1, value2);
     BSLS_ASSERT(rc < 100);
     BSLS_ASSERT(rc > 0);
+    (void)rc;
     *resultId = buffer;
 }
 
@@ -235,16 +239,23 @@ void ThreadTester::execute()
 
         // Create 2 strings unique across all threads & iterations.
         bsl::string uniqueString1, uniqueString2;
-        stringId(&uniqueString1, "U1", bslmt::ThreadUtil::selfIdAsInt(), i);
-        stringId(&uniqueString2, "U2", bslmt::ThreadUtil::selfIdAsInt(), i);
+        stringId(&uniqueString1,
+                 "U1",
+                 static_cast<int>(bslmt::ThreadUtil::selfIdAsInt()),
+                 i);
+        stringId(&uniqueString2,
+                 "U2",
+                 static_cast<int>(bslmt::ThreadUtil::selfIdAsInt()),
+                 i);
         const char *S1 = uniqueString1.c_str();
         const char *S2 = uniqueString2.c_str();
 
         const char *CATEGORIES[] = { A_VAL, B_VAL, S1, S2 };
-        const int NUM_CATEGORIES = sizeof (CATEGORIES) / sizeof (*CATEGORIES);
+        const bsl::size_t NUM_CATEGORIES =
+                                    sizeof (CATEGORIES) / sizeof (*CATEGORIES);
 
         const char *IDS[] = {"A", "B", S1, S2 };
-        const int NUM_IDS = sizeof (IDS) / sizeof (*IDS);
+        const bsl::size_t NUM_IDS = sizeof (IDS) / sizeof (*IDS);
 
         d_barrier.wait();
 
@@ -254,9 +265,9 @@ void ThreadTester::execute()
         // 'addIntegerCollector', and 'getAddedCollectors'.  Finally, set
         // the collectors to a known (non-default) state.
 
-        for (int j = 0; j < NUM_CATEGORIES; ++j) {
+        for (bsl::size_t j = 0; j < NUM_CATEGORIES; ++j) {
             const char *CATEGORY = CATEGORIES[j];
-            for (int k = 0; k < NUM_IDS; ++k) {
+            for (bsl::size_t k = 0; k < NUM_IDS; ++k) {
                 const char *ID = IDS[k];
                 balm::MetricId id = reg.getId(CATEGORY, ID);
                 Col  *col   = mX.getDefaultCollector(CATEGORY, ID);
@@ -288,7 +299,7 @@ void ThreadTester::execute()
         }
 
         // Call 'collectAndReset' on each test category.
-        for (int j = 0; j < NUM_CATEGORIES; ++j) {
+        for (bsl::size_t j = 0; j < NUM_CATEGORIES; ++j) {
             const char *CATEGORY = CATEGORIES[j];
             const balm::Category *category = REG.findCategory(CATEGORY);
 
@@ -302,7 +313,7 @@ void ThreadTester::execute()
 
                 // This category is unique to the current thread.
                 ASSERT(NUM_IDS == records.size());
-                for (int k = 0; k < NUM_IDS; ++k) {
+                for (bsl::size_t k = 0; k < NUM_IDS; ++k) {
                     const char *ID = IDS[k];
                     balm::MetricId id = reg.getId(CATEGORY, ID);
                     ASSERT(id == records[k].metricId());
@@ -314,8 +325,9 @@ void ThreadTester::execute()
             }
             else {
                 // This category is shared by all threads.
-                ASSERT(NUM_IDS <= records.size() &&
-                       (2 * NUM_THREADS) + 2 >= records.size());
+                ASSERT(   NUM_IDS <= records.size()
+                       && (2 * static_cast<bsl::size_t>(NUM_THREADS)) + 2
+                                                            >= records.size());
                 balm::MetricId idA = reg.getId(CATEGORY, "A");
                 balm::MetricId idB = reg.getId(CATEGORY, "B");
                 ASSERT(idA == records[0].metricId());
@@ -516,7 +528,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'collectAndReset'" << endl;
 
-        Registry reg(Z); const Registry& REG = reg;
+        Registry reg(Z);
         const char *CATEGORIES[] = {"A", "B", "C"};
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
         const char *METRICS[] = { "A", "B", "C" };
@@ -525,7 +537,7 @@ int main(int argc, char *argv[])
 
         // Iterator over the category being tested.
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
-            Obj mX(&reg, Z); const Obj& MX = mX;
+            Obj mX(&reg, Z);
 
             // Create collectors for all 3 categories and update them with test
             // values.
@@ -581,7 +593,7 @@ int main(int argc, char *argv[])
                     ColSPtrVector cols;
                     IColSPtrVector iCols;
                     mX.getAddedCollectors(&cols, &iCols, metric);
-                    for (int k = 0; k < cols.size(); ++k) {
+                    for (bsl::size_t k = 0; k < cols.size(); ++k) {
                         balm::MetricRecord E(metric,  j, 2 * j, -j, j);
                         balm::MetricRecord r1, r2;
 
@@ -605,7 +617,7 @@ int main(int argc, char *argv[])
                     ColSPtrVector cols(Z);
                     IColSPtrVector iCols(Z);
                     mX.getAddedCollectors(&cols, &iCols, metric);
-                    for (int l = 0; l < cols.size(); ++l) {
+                    for (bsl::size_t l = 0; l < cols.size(); ++l) {
                         balm::MetricRecord r1, r2;
                         cols[k]->load(&r1); iCols[k]->load(&r2);
                         ASSERT(metric == r1.metricId());
@@ -656,8 +668,9 @@ int main(int argc, char *argv[])
         //   getDefaultIntegerCollector(const StringRef&, const StringRef&);
         // --------------------------------------------------------------------
 
-        Registry reg(Z); const Registry& REG = reg;
+        Registry reg(Z);
         Id METRIC_AA = reg.getId("A", "A");
+        (void)METRIC_AA;
 
         struct {
             const char *d_category;
@@ -694,7 +707,7 @@ int main(int argc, char *argv[])
                 const char *CATEGORY =  METRICS[i].d_category;
 
                 Id id = reg.getId(CATEGORY, NAME);
-                Obj mX(&reg, Z); const Obj& MX = mX;
+                Obj mX(&reg, Z);
                 Col *col   = mX.getDefaultCollector(CATEGORY, NAME);
                 ICol *iCol = mX.getDefaultIntegerCollector(CATEGORY, NAME);
 
@@ -713,6 +726,7 @@ int main(int argc, char *argv[])
                 ColSPtrVector colV(Z);
                 IColSPtrVector iColV(Z);
                 int num = mX.getAddedCollectors(&colV, &iColV, id);
+                (void)num;
 
                 ASSERT(NUM_ADDITIONAL == colV.size());
                 ASSERT(NUM_ADDITIONAL == iColV.size());
@@ -734,7 +748,7 @@ int main(int argc, char *argv[])
 
                 {
                     Registry reg(Z); const Registry& REG = reg;
-                    Obj mX(&reg, Z); const Obj& MX = mX;
+                    Obj mX(&reg, Z);
 
                     ASSERT(!REG.findId(CATEGORY, NAME).isValid());
                     Col *col = mX.getDefaultCollector(CATEGORY, NAME);
@@ -744,7 +758,7 @@ int main(int argc, char *argv[])
                 }
                 {
                     Registry reg(Z); const Registry& REG = reg;
-                    Obj mX(&reg, Z); const Obj& MX = mX;
+                    Obj mX(&reg, Z);
 
                     ASSERT(!REG.findId(CATEGORY, NAME).isValid());
                     ICol *iCol = mX.getDefaultIntegerCollector(CATEGORY, NAME);
@@ -786,8 +800,9 @@ int main(int argc, char *argv[])
         //   addIntegerCollector(const StringRef&, const StringRef&);
         // --------------------------------------------------------------------
 
-        Registry reg(Z); const Registry& REG = reg;
+        Registry reg(Z);
         Id METRIC_AA = reg.getId("A", "A");
+        (void)METRIC_AA;
 
         struct {
             const char *d_category;
@@ -818,7 +833,7 @@ int main(int argc, char *argv[])
             }
 
             // Add collectors.
-            Obj mX(&reg, Z); const Obj& MX = mX;
+            Obj mX(&reg, Z);
             bsl::set<Id> ids(Z);
             bsl::map<Id, bsl::vector<Col *> >  cols(Z);
             bsl::map<Id, bsl::vector<ICol *> > icols(Z);
@@ -880,7 +895,7 @@ int main(int argc, char *argv[])
 
                 {
                     Registry reg(Z); const Registry& REG = reg;
-                    Obj mX(&reg, Z); const Obj& MX = mX;
+                    Obj mX(&reg, Z);
 
                     ASSERT(!REG.findId(CATEGORY, NAME).isValid());
                     Col *col = mX.addCollector(CATEGORY, NAME).get();
@@ -890,7 +905,7 @@ int main(int argc, char *argv[])
                 }
                 {
                     Registry reg(Z); const Registry& REG = reg;
-                    Obj mX(&reg, Z); const Obj& MX = mX;
+                    Obj mX(&reg, Z);
 
                     ASSERT(!REG.findId(CATEGORY, NAME).isValid());
                     ICol *iCol = mX.addIntegerCollector(CATEGORY, NAME).get();
@@ -931,7 +946,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nTesting 'collectAndReset'" << endl;
 
-        Registry reg(Z); const Registry& REG = reg;
+        Registry reg(Z);
         const char *CATEGORIES[] = {"A", "B", "C"};
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
         const char *METRICS[] = { "A", "B", "C" };
@@ -940,7 +955,7 @@ int main(int argc, char *argv[])
 
         // Iterator over the category being tested.
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
-            Obj mX(&reg, Z); const Obj& MX = mX;
+            Obj mX(&reg, Z);
 
             // Create collectors for all 3 categories and update them with test
             // values.
@@ -994,7 +1009,7 @@ int main(int argc, char *argv[])
                     ColSPtrVector cols;
                     IColSPtrVector iCols;
                     mX.getAddedCollectors(&cols, &iCols, metric);
-                    for (int k = 0; k < cols.size(); ++k) {
+                    for (bsl::size_t k = 0; k < cols.size(); ++k) {
                         balm::MetricRecord r1, r2;
                         cols[k]->load(&r1); iCols[k]->load(&r2);
                         ASSERT(balm::MetricRecord(metric) == r1);
@@ -1016,7 +1031,7 @@ int main(int argc, char *argv[])
                     ColSPtrVector cols(Z);
                     IColSPtrVector iCols(Z);
                     mX.getAddedCollectors(&cols, &iCols, metric);
-                    for (int l = 0; l < cols.size(); ++l) {
+                    for (bsl::size_t l = 0; l < cols.size(); ++l) {
                         balm::MetricRecord r1, r2;
                         cols[k]->load(&r1); iCols[k]->load(&r2);
                         ASSERT(metric == r1.metricId());
@@ -1066,8 +1081,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting 'getDefaultCollector' and "
                           << "'getDefaultIntegerCollector'" << endl;
 
-        Registry reg(Z); const Registry& REG = reg;
+        Registry reg(Z);
         Id METRIC_AA = reg.getId("A", "A");
+        (void)METRIC_AA;
 
         struct {
             const char *d_category;
@@ -1094,7 +1110,7 @@ int main(int argc, char *argv[])
             }
 
             // Add collectors.
-            Obj mX(&reg, Z); const Obj& MX = mX;
+            Obj mX(&reg, Z);
             bsl::set<Id> ids(Z);
             bsl::map<Id, Col *>  defCols(Z);
             bsl::map<Id, ICol *> defICols(Z);
@@ -1152,7 +1168,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_METRICS; ++i) {
                 Id id = reg.getId(METRICS[i].d_category, METRICS[i].d_name);
 
-                Obj mX(&reg, Z); const Obj& MX = mX;
+                Obj mX(&reg, Z);
                 Col *col   = mX.getDefaultCollector(id);
                 ICol *iCol = mX.getDefaultIntegerCollector(id);
 
@@ -1171,6 +1187,7 @@ int main(int argc, char *argv[])
                 ColSPtrVector colV(Z);
                 IColSPtrVector iColV(Z);
                 int num = mX.getAddedCollectors(&colV, &iColV, id);
+                (void)num;
 
                 ASSERT(NUM_ADDITIONAL == colV.size());
                 ASSERT(NUM_ADDITIONAL == iColV.size());
@@ -1268,7 +1285,7 @@ int main(int argc, char *argv[])
             }
 
             // Add collectors.
-            Obj mX(&reg, Z); const Obj& MX = mX;
+            Obj mX(&reg, Z);
             bsl::set<Id> ids(Z);
             bsl::map<Id, bsl::vector<Col *> >  cols(Z);
             bsl::map<Id, bsl::vector<ICol *> > icols(Z);
@@ -1309,9 +1326,10 @@ int main(int argc, char *argv[])
 
                 ColSPtrVector colV(Z);
                 IColSPtrVector iColV(Z);
-                const int NUM   = mX.getAddedCollectors(&colV, &iColV, *it);
+                const int NUM  = mX.getAddedCollectors(&colV, &iColV, *it);
 
-                ASSERT(exp_ColV.size() + exp_iColV.size() == NUM);
+                ASSERT(exp_ColV.size() + exp_iColV.size() ==
+                                                static_cast<bsl::size_t>(NUM));
                 ASSERT(vectorEquals(exp_ColV, colV));
                 ASSERT(vectorEquals(exp_iColV, iColV));
             }
@@ -1336,7 +1354,7 @@ int main(int argc, char *argv[])
             initialIColV.push_back(dummyICol);
 
             const int NUM_METRICS = 20;
-            Obj mX(&reg, Z); const Obj& MX = mX;
+            Obj mX(&reg, Z);
             for (int i = 0; i < NUM_METRICS; ++i) {
                 mX.addCollector(METRIC_AA).get();
                 mX.addIntegerCollector(METRIC_AA).get();
@@ -1345,7 +1363,7 @@ int main(int argc, char *argv[])
                 IColSPtrVector iColV(initialIColV, Z);
 
                 // Verify the number of allocations.
-                int numAllocations = allocator.numAllocations();
+                bsls::Types::Int64 numAllocations = allocator.numAllocations();
                 const int NUM = mX.getAddedCollectors(&colV,
                                                       &iColV,
                                                       METRIC_AA);
@@ -1358,7 +1376,7 @@ int main(int argc, char *argv[])
                 }
                 ASSERT(initialColV.size()  + i + 1 == colV.size());
                 ASSERT(initialIColV.size() + i + 1 == iColV.size());
-                for (int j = 0; j < initialColV.size(); ++j) {
+                for (bsl::size_t j = 0; j < initialColV.size(); ++j) {
                     ASSERT(initialColV[j]  == colV[j]);
                     ASSERT(initialIColV[j] == iColV[j]);
                 }
@@ -1455,7 +1473,7 @@ int main(int argc, char *argv[])
 
         }
         {
-            Obj mX(&reg, Z); const Obj& MX = mX;
+            Obj mX(&reg, Z);
             if (veryVerbose) {
                 cout << "\tTest getDefaultCollector(const bslstl::StringRef &,"
                      << " const bslstl::StringRef& )" << endl;
@@ -1552,7 +1570,7 @@ int main(int argc, char *argv[])
 
         }
         {
-            Obj mX(&reg, Z); const Obj& MX = mX;
+            Obj mX(&reg, Z);
             if (veryVerbose) {
                 cout << "\tTest getDefaultIntegerCollector(const "
                      << "bslstl::StringRef &, const bslstl::StringRef& )"
@@ -1585,7 +1603,7 @@ int main(int argc, char *argv[])
             ASSERT(COL_BB == mX.getDefaultIntegerCollector("B", "B"));
         }
         {
-            Obj mX(&reg, Z); const Obj& MX = mX;
+            Obj mX(&reg, Z);
 
             if (veryVerbose) {
                 cout << "\tTest 'getAddedCollectors'" << bsl::endl;
@@ -1628,7 +1646,7 @@ int main(int argc, char *argv[])
         }
         {
 
-            Obj mX(&reg, Z); const Obj& MX = mX;
+            Obj mX(&reg, Z);
 
             if (veryVerbose) {
                 cout << "\tTest 'collectAndReset'" << bsl::endl;

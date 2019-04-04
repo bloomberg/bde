@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
             if (verbose) cout << "Testing self-assignment" << endl;
 
             {
-                Obj mX;  const Obj& X = mX;
+                Obj mX;
                 mX.setMaxDepth(DEPTH1);
                 mX.setSkipUnknownElements(SKIP1);
 

@@ -214,10 +214,9 @@ typedef balm::MetricDescription::UserDataKey Key;
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
+    int        test = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    int     verbose = argc > 2;
     int veryVerbose = argc > 3;
-    int veryVeryVerbose = argc > 4;
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
@@ -439,7 +438,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tTesting primary bebavior" << endl;
         {
-            MMgr mgr(Z); const MMgr& MGR = mgr;
+            MMgr mgr(Z);
             Key key0 = mgr.metricRegistry().createUserDataKey();
             Key key1 = mgr.metricRegistry().createUserDataKey();
             Key key2 = mgr.metricRegistry().createUserDataKey();
@@ -668,9 +667,11 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tTesting primary bebavior" << endl;
         {
-            MMgr mgr(Z); const MMgr& MGR = mgr;
+            MMgr mgr(Z);
             Key key0 = mgr.metricRegistry().createUserDataKey();
             Key key1 = mgr.metricRegistry().createUserDataKey();
+
+            (void)key1;
 
             balm::MetricRegistry& registry = mgr.metricRegistry();
             registry.addId("A", "A");
@@ -704,6 +705,8 @@ int main(int argc, char *argv[])
 
             Key key0 = mgr.metricRegistry().createUserDataKey();
             Key key1 = mgr.metricRegistry().createUserDataKey();
+
+            (void)key1;
 
             balm::MetricRegistry& registry = mgr.metricRegistry();
             registry.addId("A", "A");
@@ -741,7 +744,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "\tTesting primary bebavior" << endl;
         {
-            MMgr mgr(Z); const MMgr& MGR = mgr;
+            MMgr mgr(Z);
             Key key0 = mgr.metricRegistry().createUserDataKey();
             Key key1 = Obj::createUserDataKey(&mgr);
             Key key2 = mgr.metricRegistry().createUserDataKey();
@@ -756,6 +759,8 @@ int main(int argc, char *argv[])
         {
             ASSERT(0 == balm::DefaultMetricsManager::instance());
             Key key1 = Obj::createUserDataKey();
+
+            (void)key1;
         }
 
         if (veryVerbose) cout << "\tTesting w/ default metrics manager"

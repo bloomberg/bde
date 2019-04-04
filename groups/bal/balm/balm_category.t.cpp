@@ -353,15 +353,15 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             for (int j = 0; j < NUM_DATA; ++j) {
                 Obj u(DATA[i].d_name, DATA[i].d_enabled); const Obj& U = u;
-                Obj w(DATA[j].d_name, DATA[j].d_enabled); const Obj& W = w;
+                Obj w(DATA[j].d_name, DATA[j].d_enabled);
 
-                ASSERT(DATA[i].d_name      == U.name());
+                ASSERT(DATA[i].d_name    == U.name());
                 ASSERT(DATA[i].d_enabled == U.enabled());
 
                 // Set the value.
                 u.setName(DATA[j].d_name);
 
-                ASSERT(DATA[j].d_name      == U.name());
+                ASSERT(DATA[j].d_name    == U.name());
             }
         }
       } break;

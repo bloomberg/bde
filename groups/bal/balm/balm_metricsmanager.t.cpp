@@ -720,7 +720,9 @@ int TestPublisher::indexOf(const balm::MetricId& id) const
     if (it == d_sortedRecords.end()) {
         return -1;                                                    // RETURN
     }
-    return (it->metricId() == id) ? it - d_sortedRecords.begin() : -1;
+    return (it->metricId() == id)
+         ? static_cast<int>(it - d_sortedRecords.begin())
+         : -1;
 }
 
 inline
@@ -857,6 +859,7 @@ void stringId(bsl::string *resultId, const char *heading, int value)
     int rc = snprintf(buffer, 100, "%s-%d", heading, value);
     BSLS_ASSERT(rc < 100);
     BSLS_ASSERT(rc > 0);
+    (void)rc;
     *resultId = buffer;
 }
 
@@ -874,6 +877,7 @@ void stringId(bsl::string *resultId,
     int rc = snprintf(buffer, 100, "%s-%d-%d", heading, value1, value2);
     BSLS_ASSERT(rc < 100);
     BSLS_ASSERT(rc > 0);
+    (void)rc;
     *resultId = buffer;
 }
 
@@ -918,15 +922,12 @@ void ConcurrencyTest::execute()
     // (but are unique to the test iteration), while 2 are unique across all
     // threads and iterations.
 
-    typedef bsl::shared_ptr<TestCallback> CbPtr;
-    typedef bsl::pair<CbHandle, CbPtr>    CallbackInfo;
-
     const int NUM_THREADS = d_barrier.numThreads();
 
     bslma::Allocator *Z = d_allocator_p;
     Obj *mX = d_manager_p; const Obj *MX = mX;
     Registry& registry = mX->metricRegistry();
-    for (bsls::Types::Uint64 i = 0; i < 10; ++i) {
+    for (int i = 0; i < 10; ++i) {
 
         // Create 2 strings unique for this iteration.
         bsl::string iterStringA, iterStringB;
@@ -937,8 +938,14 @@ void ConcurrencyTest::execute()
 
         // Create 2 strings unique across all threads & iterations.
         bsl::string uniqueString1, uniqueString2;
-        stringId(&uniqueString1, "U1", bslmt::ThreadUtil::selfIdAsInt(), i);
-        stringId(&uniqueString2, "U2", bslmt::ThreadUtil::selfIdAsInt(), i);
+        stringId(&uniqueString1,
+                 "U1",
+                 static_cast<int>(bslmt::ThreadUtil::selfIdAsInt()),
+                 i);
+        stringId(&uniqueString2,
+                 "U2",
+                 static_cast<int>(bslmt::ThreadUtil::selfIdAsInt()),
+                 i);
         const char *S1 = uniqueString1.c_str();
         const char *S2 = uniqueString2.c_str();
 
@@ -1019,7 +1026,7 @@ void ConcurrencyTest::execute()
         mX->collectSample(&sample,
                           &records,
                           allCategories.data(),
-                          allCategories.size());
+                          static_cast<int>(allCategories.size()));
 
         bdlt::Datetime now = bdlt::CurrentTime::utc();
 
@@ -1032,7 +1039,8 @@ void ConcurrencyTest::execute()
         ASSERT(withinWindow(sample.timeStamp(), now, 100));
 
         // Test 'publish'.
-        mX->publish(allCategories.data(), allCategories.size());
+        mX->publish(allCategories.data(),
+                    static_cast<int>(allCategories.size()));
 
         // Verify the callbacks were invoked.
         ASSERT(2 <= aCb.invocations());
@@ -1056,7 +1064,8 @@ void ConcurrencyTest::execute()
         ASSERT(1 == s2Pub.lastRecords().size());
         ASSERT(s2Pub.contains(idS2));
 
-        mX->publish(allCategories.data(), allCategories.size());
+        mX->publish(allCategories.data(),
+                    static_cast<int>(allCategories.size()));
 
         // Verify the callbacks were invoked.
         ASSERT(3 <= aCb.invocations());
@@ -1269,9 +1278,11 @@ void ConcurrencyTest::runTest()
             // if there was an error handling the event.
         {
            int returnCode = 0;
-           d_eventMessageSizes_p->update(eventMessage.size());
+           d_eventMessageSizes_p->update(
+                                     static_cast<double>(eventMessage.size()));
 
     // ...    (Process the event)
+           (void)eventId;
 
            if (0 != returnCode) {
                d_eventFailures_p->update(1);
@@ -1397,6 +1408,8 @@ void ConcurrencyTest::runTest()
     , d_callbackHandle(balm::MetricsManager::e_INVALID_HANDLE)
     , d_metricsManager_p(manager)
     {
+        (void)basicAllocator;
+
         d_eventsPerSecId = d_metricsManager_p->metricRegistry().getId(
                                            METRIC_CATEGORY, "EventsPerSecond");
 //..
@@ -1448,6 +1461,8 @@ void ConcurrencyTest::runTest()
         ++d_numEvents;
 
     // ...    (Process the request)
+        (void)eventId;
+        (void)eventMessage;
 
         return 0;
      }
@@ -1628,8 +1643,6 @@ int main(int argc, char *argv[])
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
 
         TestPublisher gtp(Z), tp1(Z), tp2(Z);
-        TestPublisher *TEST_PUBS[] = { &tp1, &tp2 };
-        const int NUM_PUBS = sizeof(TEST_PUBS) / sizeof(*TEST_PUBS);
 
         PubPtr gtpSPtr(&gtp, bslstl::SharedPtrNilDeleter(), 0);
         PubPtr tp1SPtr(&tp1, bslstl::SharedPtrNilDeleter(), 0);
@@ -1706,7 +1719,7 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\tTest 'publish' with 'resetFlag' 'false'"
                               << endl;
 
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         Repository& rep = mX.collectorRepository();
         Registry&   reg = mX.metricRegistry();
 
@@ -1721,7 +1734,7 @@ int main(int argc, char *argv[])
             }
         }
         mX.publishAll(false);
-        for (int i = 0; i < callbacks.size(); ++i) {
+        for (bsl::size_t i = 0; i < callbacks.size(); ++i) {
             ASSERT(!callbacks[i]->resetFlag());
         }
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
@@ -1776,9 +1789,11 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\tTest collectSample() for all categories"
                               << endl;
         {
-            Obj mX(Z); const Obj& MX = mX;
+            Obj mX(Z);
             Repository& rep = mX.collectorRepository();
             Registry&   reg = mX.metricRegistry();
+
+            (void)reg;
 
             for (int i = 0; i < NUM_CATEGORIES; ++i) {
                 for (int j = 0; j < NUM_METRICS; ++j) {
@@ -1852,7 +1867,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         bsl::vector<const Category *> allCategories(Z);
 
         Repository& rep = mX.collectorRepository();
@@ -1883,10 +1898,11 @@ int main(int argc, char *argv[])
             mX.collectSample(&sample,
                              &records,
                              cats.data(),
-                             cats.size(),
+                             static_cast<int>(cats.size()),
                              false);
-            ASSERT(NUM_METRICS * cats.size() == sample.numRecords());
-            ASSERT(cats.size()               == sample.numGroups());
+            ASSERT(static_cast<int>(NUM_METRICS * cats.size())
+                                                       == sample.numRecords());
+            ASSERT(static_cast<int>(cats.size())       == sample.numGroups());
             for (int i = 0; i < NUM_CATEGORIES; ++i ) {
                 // Verify the correct categories are in the sample (once)
                 const Category *CATEGORY = allCategories[i];
@@ -1919,11 +1935,12 @@ int main(int argc, char *argv[])
             mX.collectSample(&sample,
                              &records2,
                              cats.data(),
-                             cats.size(),
+                             static_cast<int>(cats.size()),
                              true);
-            ASSERT(NUM_METRICS * cats.size() == sample.numRecords());
-            ASSERT(cats.size()               == sample.numGroups());
-            ASSERT(records                   == records2);
+            ASSERT(static_cast<int>(NUM_METRICS * cats.size())
+                                                       == sample.numRecords());
+            ASSERT(static_cast<int>(cats.size())       == sample.numGroups());
+            ASSERT(records                             == records2);
             for (int i = 0; i < NUM_CATEGORIES; ++i ) {
                 // Verify the correct categories are in the sample (once)
                 const Category *CATEGORY = allCategories[i];
@@ -1985,7 +2002,7 @@ int main(int argc, char *argv[])
 
         {
             bslma::TestAllocator testAllocator;
-            Obj mX(&testAllocator); const Obj& MX = mX;
+            Obj mX(&testAllocator);
             TestPublisher tp(Z), tp1(Z), tp2(Z);
             PubPtr pub_p(&tp, bslstl::SharedPtrNilDeleter(), Z);
             PubPtr spub_p1(&tp1, bslstl::SharedPtrNilDeleter(), Z);
@@ -2050,7 +2067,7 @@ int main(int argc, char *argv[])
 
         {
             bslma::TestAllocator testAllocator;
-            Obj mX(&testAllocator); const Obj& MX = mX;
+            Obj mX(&testAllocator);
             TestPublisher tp(Z);
             PubPtr pub_p(&tp, bslstl::SharedPtrNilDeleter(), Z);
             mX.addGeneralPublisher(pub_p);
@@ -2094,16 +2111,16 @@ int main(int argc, char *argv[])
 
         TestPublisher tp1(Z), tp2(Z), tp3(Z), tp4(Z);
         TestPublisher *TEST_PUBS[] = { &tp1, &tp2, &tp3, &tp4 };
-        const int NUM_PUBS = sizeof(TEST_PUBS)/sizeof(*TEST_PUBS);
+        const bsl::size_t NUM_PUBS = sizeof(TEST_PUBS)/sizeof(*TEST_PUBS);
         bsl::set<balm::Publisher *> generalPublishers;
         {
             bslma::TestAllocator testAllocator;
             Obj mX(&testAllocator); const Obj& MX = mX;
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-                for (int i = 0; i < NUM_PUBS; ++i) {
+                for (bsl::size_t i = 0; i < NUM_PUBS; ++i) {
                     // Verify that the set of general publishers is correct
                     bsl::vector<balm::Publisher *> publishers;
-                    ASSERT(generalPublishers.size() ==
+                    ASSERT(static_cast<int>(generalPublishers.size()) ==
                            MX.findGeneralPublishers(&publishers));
                     for (bsl::size_t j = 0; j < publishers.size(); ++j) {
                         ASSERT(0 != publishers[j]);
@@ -2166,6 +2183,9 @@ int main(int argc, char *argv[])
 
         Obj mX(Z); const Obj& MX = mX;
         Registry& registry = mX.metricRegistry();
+
+        (void)registry;
+
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
             for (int j = 0; j < NUM_PUBLISHERS; ++j) {
                 PubPtr pub_p(new (*Z) TestPublisher(Z), Z);
@@ -2225,6 +2245,8 @@ int main(int argc, char *argv[])
         const int NUM_PUBLISHERS = 4;
         Obj mX(Z); const Obj& MX = mX;
         Registry& registry = mX.metricRegistry();
+
+        (void)registry;
 
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
             const char *CATEGORY = CATEGORIES[i];
@@ -2286,7 +2308,7 @@ int main(int argc, char *argv[])
         // Add 'TestCallback' functors to the metrics manager and store the
         // returned 'CallbackHandle'.
         CallbackMap callbacks(Z);
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
             for (int j = 0; j < NUM_METRICS; ++j) {
                 Id id = mX.metricRegistry().getId(CATEGORIES[i], METRICS[j]);
@@ -2373,7 +2395,7 @@ int main(int argc, char *argv[])
         const char *CATEGORIES[] = {"A", "B", "C", "Test", "12312category"};
         const int   NUM_CATEGORIES = sizeof (CATEGORIES)/sizeof (*CATEGORIES);
 
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         Registry& registry = mX.metricRegistry();
 
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
@@ -2440,7 +2462,7 @@ int main(int argc, char *argv[])
         const char *METRICS[] = { "A", "B", "C", "MyMetric", "903metric" };
         const int   NUM_METRICS = sizeof (METRICS) / sizeof (*METRICS);
 
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         Registry& registry     = mX.metricRegistry();
         Repository& repository = mX.collectorRepository();
 
@@ -2546,7 +2568,7 @@ int main(int argc, char *argv[])
 
         bsls::TimeInterval creationTime = bdlt::CurrentTime::now();
 
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         Registry& registry     = mX.metricRegistry();
         Repository& repository = mX.collectorRepository();
 
@@ -2592,9 +2614,10 @@ int main(int argc, char *argv[])
             ASSERT(EXP_INV == gPub.invocations());
 
             const balm::MetricSample& sample = gPub.lastSample();
-            ASSERT(combIt.current().size() == sample.numGroups());
-            ASSERT(NUM_METRICS * combIt.current().size() ==
-                   sample.numRecords());
+            ASSERT(static_cast<int>(combIt.current().size()) ==
+                                                           sample.numGroups());
+            ASSERT(static_cast<int>(NUM_METRICS * combIt.current().size()) ==
+                                                          sample.numRecords());
 
             // Verify the correct metrics were published.
             for (bsl::size_t i = 0; i < combIt.current().size(); ++i) {
@@ -2672,7 +2695,7 @@ int main(int argc, char *argv[])
         const char *METRICS[] = { "A", "B", "C", "MyMetric", "903metric" };
         const int   NUM_METRICS = sizeof (METRICS) / sizeof (*METRICS);
 
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         Registry& registry     = mX.metricRegistry();
         Repository& repository = mX.collectorRepository();
 
@@ -2727,7 +2750,7 @@ int main(int argc, char *argv[])
             else {
                 ASSERT(1 == gPub.invocations());
                 ASSERT(withinWindow(gPub.lastTimeStamp(), tmStamp, 10));
-                ASSERT(combIt.current().size() ==
+                ASSERT(static_cast<int>(combIt.current().size()) ==
                        gPub.lastSample().numGroups());
             }
 
@@ -2786,7 +2809,7 @@ int main(int argc, char *argv[])
         const char *METRICS[] = { "A", "B", "C", "MyMetric", "903metric" };
         const int   NUM_METRICS = sizeof (METRICS) / sizeof (*METRICS);
 
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         Registry& registry     = mX.metricRegistry();
         Repository& repository = mX.collectorRepository();
 
@@ -2874,7 +2897,7 @@ int main(int argc, char *argv[])
         const char *METRICS[] = { "A", "B", "C", "MyMetric", "903metric" };
         const int   NUM_METRICS = sizeof (METRICS) / sizeof (*METRICS);
 
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         Registry& registry     = mX.metricRegistry();
         Repository& repository = mX.collectorRepository();
 
@@ -2975,7 +2998,7 @@ int main(int argc, char *argv[])
         const char *METRICS[] = { "A", "B", "C", "MyMetric", "903metric" };
         const int   NUM_METRICS = sizeof (METRICS) / sizeof (*METRICS);
 
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         Registry& registry     = mX.metricRegistry();
         Repository& repository = mX.collectorRepository();
 
@@ -3024,7 +3047,8 @@ int main(int argc, char *argv[])
             else {
                 ASSERT(1 == gPub.invocations());
                 ASSERT(withinWindow(gPub.lastTimeStamp(), tmStamp, 10));
-                ASSERT(categorySet.size() == gPub.lastSample().numGroups());
+                ASSERT(static_cast<int>(categorySet.size()) ==
+                                                gPub.lastSample().numGroups());
             }
 
             // Verify the correct "specific" publishers have been invoked.
@@ -3163,7 +3187,8 @@ int main(int argc, char *argv[])
             const bsl::vector<const Category *>& categories = combIt.current();
             bdlt::Datetime tmStamp = bdlt::CurrentTime::utc();
             if (categories.size() > 0) {
-                mX.publish(categories.data(), categories.size());
+                mX.publish(categories.data(),
+                           static_cast<int>(categories.size()));
             }
 
             //   3. For each combination of (category, metric name) to be
@@ -3200,7 +3225,7 @@ int main(int argc, char *argv[])
                 bsl::vector<balm::Publisher *> specificPublishers(Z);
                 ASSERT(NUM_PUBLISHERS ==
                        MX.findSpecificPublishers(&specificPublishers, CAT));
-                for (int j = 0; j < specificPublishers.size(); ++j) {
+                for (bsl::size_t j = 0; j < specificPublishers.size(); ++j) {
                     TestPublisher *pub = (TestPublisher*)specificPublishers[j];
 
                     const int EXP_INV = combIt.includesElement(i) ? 1 : 0;
@@ -3242,7 +3267,7 @@ int main(int argc, char *argv[])
                 ASSERT(1 == pub->invocations());
                 ASSERT(withinWindow(pub->lastTimeStamp(), tmStamp, 10));
                 ASSERT(pub->lastSample().numGroups() ==
-                       combIt.current().size());
+                       static_cast<int>(combIt.current().size()));
                 ASSERT(2 * NUM_METRICS * categories.size() ==
                        pub->lastRecords().size());
                 for (int j = 0; j < NUM_CATEGORIES; ++j) {
@@ -3347,9 +3372,9 @@ int main(int argc, char *argv[])
 
                 bsl::set<balm::Publisher *> pubSet(Z);
                 pubSet.insert(pubsFound.begin(), pubsFound.end());
-                ASSERT(i + 1 == pubSet.size());
+                ASSERT(i + 1 == static_cast<int>(pubSet.size()));
                 for (int j = 0; j < NUM_PUBS; ++j) {
-                    const int EXP = i < j ? 0 : 1;
+                    const bsl::size_t EXP = i < j ? 0 : 1;
                     ASSERT(EXP == pubSet.count(TEST_PUBS[j]));
                 }
             }
@@ -3419,9 +3444,9 @@ int main(int argc, char *argv[])
                     ASSERT(j+1 == MX.findSpecificPublishers(&pubsFound, CAT));
                     bsl::set<balm::Publisher *> pubSet(Z);
                     pubSet.insert(pubsFound.begin(), pubsFound.end());
-                    ASSERT(j+1 == pubsFound.size());
+                    ASSERT(j+1 == static_cast<int>(pubsFound.size()));
                     for (int k = 0; k < NUM_PUBS; ++k) {
-                        const int EXP = j < k ? 0 : 1;
+                        const bsl::size_t EXP = j < k ? 0 : 1;
                         ASSERT(EXP == pubSet.count(TEST_PUBS[k]));
                     }
 
@@ -3518,7 +3543,7 @@ int main(int argc, char *argv[])
 
         // Add 'TestCallback' functors to the metrics manager and store the
         // returned 'CallbackHandle'.
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
             const char *CATEGORY = CATEGORIES[i];
             for (int j = 0; j < NUM_METRICS; ++j) {
@@ -3765,7 +3790,7 @@ int main(int argc, char *argv[])
 
                 sample.setTimeStamp(TIME_STAMP);
                 sample.appendGroup(records.data(),
-                                   records.size(),
+                                   static_cast<int>(records.size()),
                                    ELAPSED_TIME);
 
                 tp2.reset();
@@ -3877,7 +3902,9 @@ int main(int argc, char *argv[])
                     result1 += combination[j];
                 }
 
-                for (bsl::size_t j = 0; j < bsl::strlen(VALUES); ++j) {
+                for (int j = 0;
+                     j < static_cast<int>(bsl::strlen(VALUES));
+                     ++j) {
                     if (iter.includesElement(j)) {
                         result2 += VALUES[j];
                     }
@@ -3914,7 +3941,7 @@ int main(int argc, char *argv[])
                           << "BREATHING TEST: enable category" << endl
                           << "===============================" << endl;
 
-        Obj mX(Z); const Obj& MX = mX;
+        Obj mX(Z);
 
         mX.collectorRepository().getDefaultCollector("A", "A");
         mX.collectorRepository().getDefaultCollector("B", "B");

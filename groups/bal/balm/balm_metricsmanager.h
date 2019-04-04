@@ -150,9 +150,11 @@ BSLS_IDENT("$Id: $")
 //          // if there was an error handling the event.
 //      {
 //         int returnCode = 0;
-//         d_eventMessageSizes_p->update(eventMessage.size());
+//         d_eventMessageSizes_p->update(
+//                                   static_cast<double>(eventMessage.size()));
 //
 //  // ...    (Process the event)
+//         (void)eventId;
 //
 //         if (0 != returnCode) {
 //             d_eventFailures_p->update(1);
@@ -279,6 +281,8 @@ BSLS_IDENT("$Id: $")
 //  , d_callbackHandle(balm::MetricsManager::e_INVALID_HANDLE)
 //  , d_metricsManager_p(manager)
 //  {
+//      (void)basicAllocator;
+//
 //      d_eventsPerSecId = d_metricsManager_p->metricRegistry().getId(
 //                                        METRIC_CATEGORY, "eventsPerSecond");
 //..
@@ -331,6 +335,8 @@ BSLS_IDENT("$Id: $")
 //      ++d_numEvents;
 //
 //  // ...    (Process the event)
+//      (void)eventId;
+//      (void)eventMessage;
 //
 //      return 0;
 //   }

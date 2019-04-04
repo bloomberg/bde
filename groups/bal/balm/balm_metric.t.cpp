@@ -322,20 +322,22 @@ void MetricConcurrencyTest::runTest()
             // 'eventMessage' .  Return 0 on success, and a non-zero value
             // if there was an error handling the event.
         {
-           int returnCode = 0;
+            (void)eventId;
 
-           d_messageSize.update(eventMessage.size());
-           bsls::Stopwatch stopwatch;
-           stopwatch.start();
+            int returnCode = 0;
 
-           // Process 'data' ('returnCode' may change).
+            d_messageSize.update(eventMessage.size());
+            bsls::Stopwatch stopwatch;
+            stopwatch.start();
 
-           if (0 != returnCode) {
-               d_failedRequests.increment();
-           }
+            // Process 'data' ('returnCode' may change).
 
-           d_elapsedTime.update(stopwatch.elapsedTime());
-           return returnCode;
+            if (0 != returnCode) {
+                d_failedRequests.increment();
+            }
+
+            d_elapsedTime.update(stopwatch.elapsedTime());
+            return returnCode;
         }
 
     // ...
@@ -591,6 +593,8 @@ int main(int argc, char *argv[])
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
 
+            (void)registry;
+
             for (int i = 0; i < NUM_IDS; ++i) {
                 balm::Collector *col =
                                repository.getDefaultCollector(IDS[i], IDS[i]);
@@ -691,6 +695,8 @@ int main(int argc, char *argv[])
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
 
+            (void)registry;
+
             for (int i = 0; i < NUM_IDS; ++i) {
                 balm::Collector *col =
                                repository.getDefaultCollector(IDS[i], IDS[i]);
@@ -773,6 +779,9 @@ int main(int argc, char *argv[])
             balm::MetricsManager mgr(Z);
             Registry&   registry   = mgr.metricRegistry();
             Repository& repository = mgr.collectorRepository();
+
+            (void)registry;
+
             for (int i = 0; i < NUM_IDS; ++i) {
                 balm::Collector *col =
                                repository.getDefaultCollector(IDS[i], IDS[i]);
@@ -911,6 +920,8 @@ int main(int argc, char *argv[])
         Registry&   registry   = mgr.metricRegistry();
         Repository& repository = mgr.collectorRepository();
 
+        (void)registry;
+
         for (int i = 0; i < NUM_VALUES; ++i) {
             Obj u(repository.getDefaultCollector(VALUES[i], VALUES[i]));
             const Obj& U = u;
@@ -958,6 +969,8 @@ int main(int argc, char *argv[])
         balm::MetricsManager mgr(Z);
         Registry&   registry   = mgr.metricRegistry();
         Repository& repository = mgr.collectorRepository();
+
+        (void)registry;
 
         for (int i = 0; i < NUM_IDS; ++i) {
             const Category *CATEGORY = registry.getCategory(IDS[i]);

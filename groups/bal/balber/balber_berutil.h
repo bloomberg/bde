@@ -818,7 +818,7 @@ inline
 int BerUtil_Imp::getValue(bsl::streambuf           *streamBuf,
                           TYPE                     *value,
                           int                       length,
-                          const BerDecoderOptions&  options)
+                          const BerDecoderOptions&)
 {
     return BerUtil_Imp::getIntegerValue(streamBuf, value, length);
 }
