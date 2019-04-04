@@ -1507,9 +1507,9 @@ struct Log {
         // *Category*.  If the logger manager singleton is not initialized,
         // return 0 with no effect.  If a new category is created, it will have
         // the same threshold levels as the category in the logger manager
-        // singleton whose name is the longest prefix of 'categoryName', and
-        // the default levels of the logger manager singleton if no such
-        // category exists.
+        // singleton whose name is the longest non-empty prefix of
+        // 'categoryName' if such a category exists, and the threshold levels
+        // will be set as if 'setCategory' had been called otherwise.
 
     static const Category *setCategoryHierarchically(
                                                 CategoryHolder *categoryHolder,
@@ -1523,16 +1523,16 @@ struct Log {
         // *Category*.  If the logger manager singleton is not initialized,
         // return 0 with no effect.  If a new category is created, it will have
         // the same threshold levels as the category in the logger manager
-        // singleton whose name is the longest prefix of 'categoryName', and
-        // the default levels of the logger manager singleton if no such
-        // category exists.  If the specified 'categoryHolder' is non-zero,
-        // load it with the address of the returned category and the maximum
-        // threshold level of that category, and link 'categoryHolder' to the
-        // other holders (if any) that currently reference the category.  Note
-        // that this method has the same effect on the logger manager
-        // singleton's category registry as the one-argument
-        // 'setCategoryHierarchically' regardless of whether
-        // '0 == categoryHolder'.
+        // singleton whose name is the longest non-empty prefix of
+        // 'categoryName' if such a category exists, and the threshold levels
+        // will be set as if 'setCategory' had been called otherwise.  If the
+        // specified 'categoryHolder' is non-zero, load it with the address of
+        // the returned category and the maximum threshold level of that
+        // category, and link 'categoryHolder' to the other holders (if any)
+        // that currently reference the category.  Note that this method has
+        // the same effect on the logger manager singleton's category registry
+        // as the one-argument 'setCategoryHierarchically' regardless of
+        // whether '0 == categoryHolder'.
 
     static bool isCategoryEnabled(const CategoryHolder *categoryHolder,
                                   int                   severity);

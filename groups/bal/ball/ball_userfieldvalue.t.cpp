@@ -187,6 +187,7 @@ typedef ball::UserFieldValue Obj;
 typedef ball::UserFieldType  Type;
 
 typedef bsls::Types::Int64   Int64;
+typedef bsls::Types::IntPtr  IntPtr;
 
 // ============================================================================
 //                             GLOBAL TEST DATA
@@ -3352,12 +3353,12 @@ int main(int argc, char *argv[])
             };
             enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-            int oldLen = -1;
+            IntPtr oldLen = -1;
             for (int ti = 0; ti < NUM_DATA ; ++ti) {
                 const int         LINE   = DATA[ti].d_line;
                 const char *const SPEC   = DATA[ti].d_spec_p;
                 const int         INDEX  = DATA[ti].d_index;
-                const int         curLen = strlen(SPEC);
+                const IntPtr      curLen = strlen(SPEC);
 
                 if (curLen != oldLen) {
                     if (veryVerbose) cout << "\tof length "

@@ -160,6 +160,7 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 typedef ball::RecordAttributes Obj;
+typedef bsls::Types::IntPtr    IntPtr;
 
 struct my_RecordAttributes {
     bdlt::Datetime       timestamp;
@@ -1174,8 +1175,8 @@ int main(int argc, char *argv[])
                 X.print(out2, IND, SPL) << ends;
                 if (veryVerbose) cout << "ACTUAL FORMAT:  "<< endl<<buf1<<endl;
 
-                const int SZ = strlen(FMT) + 3;  // Count in the two '\0'.
-                const int REST = SIZE - SZ;
+                const IntPtr SZ = strlen(FMT) + 3;  // Count in the two '\0'.
+                const IntPtr REST = SIZE - SZ;
 
                 ASSERTV(ti, SZ < SIZE);  // Check buffer is large enough.
                 ASSERTV(ti, Z1 == buf1[SIZE - 1]);  // Check for overrun.

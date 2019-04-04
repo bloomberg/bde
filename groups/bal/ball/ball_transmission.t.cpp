@@ -15,6 +15,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>  // atoi()
 #include <bsl_cstring.h>  // strcmp(), memcmp(), memcpy()
@@ -103,8 +104,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef ball::Transmission Class;
-typedef Class::Cause       Enum;
+typedef ball::Transmission   Class;
+typedef Class::Cause         Enum;
+typedef bsls::Types::IntPtr  IntPtr;
 
 enum { NUM_ENUMS = Class::e_LENGTH };
 
@@ -325,7 +327,7 @@ int main(int argc, char *argv[])
             out << Enum(i) << ends;
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl <<endl;
 
-            const int SZ = strlen(FMT) + 1;
+            const IntPtr SZ = strlen(FMT) + 1;
             ASSERTV(i, SZ < SIZE);            // Check buffer is large enough.
             ASSERTV(i, XX == buf[SIZE - 1]);  // Check for overrun.
             ASSERTV(i, 0 == memcmp(buf, FMT, SZ));

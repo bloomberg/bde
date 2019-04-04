@@ -972,6 +972,7 @@ class Logger {
     // FRIENDS
     friend class LoggerManager;
 
+  private:
     // NOT IMPLEMENTED
     Logger(const Logger&);
     Logger& operator=(const Logger&);
@@ -1214,7 +1215,7 @@ class LoggerManager {
                                                  // default threshold levels of
                                                  // "set" categories
 
-    bslmt::ReaderWriterMutex
+    mutable bslmt::ReaderWriterMutex
                            d_defaultThresholdsLock;
                                                  // 'd_defaultThresholdsLock'
                                                  // protector
@@ -1684,7 +1685,7 @@ class LoggerManager {
         // registered observers.  Note that this method will fail if an
         // observer having 'observerName' is already registered.
 
-                             // Threshold Level Management
+                     // Threshold Level Management Manipulators
 
     void resetDefaultThresholdLevels();
         // Reset the default threshold levels of this logger manager to the
@@ -1891,6 +1892,28 @@ class LoggerManager {
         //  void operator()(const bsl::shared_ptr<Observer>& observer,
         //                  const bslstl::StringRef&         observerName);
         //..
+
+                     // Threshold Level Management Accessors
+
+    const ThresholdAggregate& defaultThresholdLevels() const;
+        // Return the default threshold levels associated with this logger
+        // manager object.
+
+    int thresholdLevelsForNewCategory(ThresholdAggregate *levels,
+                                      const char         *categoryName) const;
+        // Load into the specified '*levels' the threshold levels that would be
+        // set for a newly created category, irrespective of whether a category
+        // with the specified 'categoryName' is already in the registry.
+        // Return 0 on success and a non-zero value otherwise.  If the client
+        // has configured a default threshold levels callback (see
+        // 'ball::LoggerManager::DefaultThresholdLevelsCallback' in the
+        // component doc), the 'categoryName' will be supplied to that callback
+        // which will set '*levels'.  Otherwise, if no default threshold levels
+        // callback has been provided, the default threshold levels are used.
+        // Note that this function will report an error if the callback returns
+        // invalid levels.  Also note that if a category named 'categoryName'
+        // is already in the registry, the levels returned by this method may
+        // differ from the levels of that category.
 };
 
                         // ==============================
@@ -1901,6 +1924,7 @@ class LoggerManagerScopedGuard {
     // This class implements a scoped guard that, on construction, creates the
     // logger manager singleton, and, on destruction, destroys the singleton.
 
+  private:
     // NOT IMPLEMENTED
     LoggerManagerScopedGuard(const LoggerManagerScopedGuard&);
     LoggerManagerScopedGuard& operator=(const LoggerManagerScopedGuard&);

@@ -300,6 +300,7 @@ Logger::Logger(const bsl::shared_ptr<Observer>&            observer,
     BSLS_ASSERT(d_allocator_p);
 
     // 'snprintf' message buffer
+
     d_scratchBuffer_p = (char *)d_allocator_p->allocate(d_scratchBufferSize);
     d_bufferPool.reserveCapacity(4);
 }
@@ -479,7 +480,7 @@ void Logger::logMessage(const Category&  category,
     BSLS_ASSERT(fileName);
     BSLS_ASSERT(message);
 
-    ThresholdAggregate thresholds(0, 0, 0, 0);
+    ThresholdAggregate thresholds;
     if (!isCategoryEnabled(&thresholds, category, severity)) {
         return;                                                       // RETURN
     }
@@ -493,7 +494,7 @@ void Logger::logMessage(const Category&  category,
                         int              severity,
                         Record          *record)
 {
-    ThresholdAggregate thresholds(0, 0, 0, 0);
+    ThresholdAggregate thresholds;
     if (!isCategoryEnabled(&thresholds, category, severity)) {
         d_recordPool.deleteObject(record);
         return;                                                       // RETURN
@@ -729,6 +730,7 @@ LoggerManager& LoggerManager::initSingleton(
     BSLS_ASSERT(observer);
 
     // Make shared pointer with nil deleter.
+
     bsl::shared_ptr<Observer> observerWrapper(
                              observer,
                              bslstl::SharedPtrNilDeleter(),
@@ -739,9 +741,11 @@ LoggerManager& LoggerManager::initSingleton(
     initSingletonImpl(configuration, globalAllocator);
 
     // Note that this call can fail if we call 'initSingleton' more than once.
+
     s_singleton_p->registerObserver(observerWrapper, k_INTERNAL_OBSERVER_NAME);
 
     // But we check that there is an observer registered under internal name.
+
     BSLS_ASSERT(s_singleton_p->findObserver(k_INTERNAL_OBSERVER_NAME));
 
     return *s_singleton_p;
@@ -1173,6 +1177,7 @@ void LoggerManager::deallocateLogger(Logger *logger)
 Logger& LoggerManager::getLogger()
 {
     // TBD: optimize it using thread local storage
+
     d_defaultLoggersLock.lockRead();
     bsl::map<void *, Logger *>::iterator itr =
             d_defaultLoggers.find((void *)bslmt::ThreadUtil::selfIdAsUint64());
@@ -1251,14 +1256,12 @@ const Category *LoggerManager::setCategory(CategoryHolder *categoryHolder,
     BSLS_ASSERT(categoryName);
 
     bsl::string filteredName;
-
     const char *localCategoryName = filterName(&filteredName,
                                                categoryName,
                                                d_nameFilter);
 
     Category *category = d_categoryManager.lookupCategory(categoryHolder,
                                                           localCategoryName);
-
     if (!category
      && d_maxNumCategoriesMinusOne >=
                                    (unsigned int) d_categoryManager.length()) {
@@ -1423,7 +1426,7 @@ bool LoggerManager::isCategoryEnabled(const Category *category,
 {
     if (category->relevantRuleMask()) {
         AttributeContext *context = AttributeContext::getContext();
-        ThresholdAggregate levels(0, 0, 0, 0);
+        ThresholdAggregate levels;
         context->determineThresholdLevels(&levels, category);
         int threshold = ThresholdAggregate::maxLevel(levels);
         return threshold >= severity;                                 // RETURN
@@ -1453,6 +1456,48 @@ const Logger::UserFieldsPopulatorCallback *
 LoggerManager::userFieldsPopulatorCallback() const
 {
     return d_populator ? &d_populator : 0;
+}
+
+                        // Threshold Level Management
+
+const ThresholdAggregate& LoggerManager::defaultThresholdLevels() const
+{
+    return d_defaultThresholdLevels;
+}
+
+int LoggerManager::thresholdLevelsForNewCategory(
+                                        ThresholdAggregate *levels,
+                                        const char         *categoryName) const
+{
+    BSLS_ASSERT(levels);
+    BSLS_ASSERT(categoryName);
+
+    if (d_defaultThresholds) {
+        bsl::string filteredName;
+        const char *localCategoryName = filterName(&filteredName,
+                                                   categoryName,
+                                                   d_nameFilter);
+
+        int recordLevel, passLevel, triggerLevel, triggerAllLevel;
+        {
+            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(
+                                                     &d_defaultThresholdsLock);
+            d_defaultThresholds(&recordLevel,
+                                &passLevel,
+                                &triggerLevel,
+                                &triggerAllLevel,
+                                localCategoryName);
+        }
+
+        return levels->setLevels(recordLevel,
+                                 passLevel,
+                                 triggerLevel,
+                                 triggerAllLevel);                    // RETURN
+    }
+
+    *levels = d_defaultThresholdLevels;
+
+    return 0;
 }
 
 }  // close package namespace

@@ -155,6 +155,8 @@ using namespace bdlf::PlaceHolders;
 // [10] registerObserver(const shared_ptr<Observer>&, const StringRef&);
 // [10] void visitObservers(OBSERVER_VISITOR visitor);
 // [10] void visitObservers(OBSERVER_VISITOR visitor) const;
+// [ 9] const Aggregate& getDefaultThresholdLevels() const;
+// [ 9] Aggregate getNewCategoryThresholdLevels(const char *) const;
 // [13] int setDefaultThresholdLevels(int, int, int, int);
 // [13] int resetDefaultThresholdLevels();
 // [13] void setCategoryThresholdsToCurrentDefaults(Cat *cat);
@@ -353,7 +355,8 @@ void executeInParallel(int numThreads, bslmt::ThreadUtil::ThreadFunction func)
     ASSERT(threads);
 
     for (int i = 0; i < numThreads; ++i) {
-        bslmt::ThreadUtil::create(&threads[i], func, (void*)i);
+        const bsls::Types::IntPtr ii = i;
+        bslmt::ThreadUtil::create(&threads[i], func, (void*) ii);
     }
     for (int i = 0; i < numThreads; ++i) {
         bslmt::ThreadUtil::join(threads[i]);
@@ -561,7 +564,8 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
 //..
     // myApp2.cpp
 
-    int main() {
+    int main()
+    {
         // ...
 
         ball::LoggerManager::CategoryNameFilterCallback nameFilter(&toLower);
@@ -1239,6 +1243,7 @@ class MyObserver : public ball::Observer {
 
   public:
     // CREATORS
+    explicit
     MyObserver(bsl::ostream& stream) : d_publishCount(0), d_stream(stream)
     {
     }
@@ -1616,6 +1621,7 @@ class TestObserverVisitor {
     // This class implements a test observer visitor.  This visitor will verify
     // that all observers in the registry of the logger manager supplied at
     // construction were visited.
+
   private:
     // DATA
     const ball::LoggerManager *d_loggerManager_p;
@@ -1659,6 +1665,7 @@ class TempDirectoryGuard {
     bsl::string       d_dirName;      // path to the created directory
     bslma::Allocator *d_allocator_p;  // memory allocator (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     TempDirectoryGuard(const TempDirectoryGuard&);
     TempDirectoryGuard& operator=(const TempDirectoryGuard&);
@@ -3133,13 +3140,12 @@ int main(int argc, char *argv[])
                     X.numCategories(),
                     oldNumCategories + 1 == X.numCategories());
 
-            if(veryVerbose)
-                           cout << "\tConfirm record passed directly." << endl;
+            if (veryVerbose) cout << "\tConfirm record passed directly.\n";
 
             ASSERTV(observer.numPublishedRecords(),
                     1 == observer.numPublishedRecords());
 
-            if(veryVerbose) cout << "\tConfirm values in record." << endl;
+            if (veryVerbose) cout << "\tConfirm values in record." << endl;
 
             const ball::Record& record = observer.lastPublishedRecord();
             const ball::RecordAttributes& attributes = record.fixedFields();
@@ -3163,15 +3169,15 @@ int main(int argc, char *argv[])
                     attributes.message(),
                     0 == strcmp(message, attributes.message()));
 
-            if(veryVerbose) cout << "\t\tMessage: "
-                                 << attributes.message()
-                                 << endl;
+            if (veryVerbose) cout << "\t\tMessage: "
+                                  << attributes.message()
+                                  << endl;
 
-            if(veryVerbose) cout << "\tDestroy scoped guard." << endl;
+            if (veryVerbose) cout << "\tDestroy scoped guard." << endl;
             // Let guard fall out of this scope
         }
 
-        if(veryVerbose) cout << "\tConfirm old handler restored." << endl;
+        if (veryVerbose) cout << "\tConfirm old handler restored." << endl;
         ASSERT(bsls::Log::logMessageHandler() == oldBslsHandler);
 
       } break;
@@ -3215,6 +3221,7 @@ int main(int argc, char *argv[])
 
           public:
             // CREATORS
+            explicit
             InitializationVerifier(bool isInitializedFlag)
             : d_isInitializedFlag(isInitializedFlag)
             {
@@ -5599,6 +5606,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   CONCERN: DEFAULT THRESHOLD LEVELS CALLBACK
+        //   const Aggregate& getDefaultThresholdLevels() const;
+        //   Aggregate getNewCategoryThresholdLevels(const char *) const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -5611,58 +5620,109 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard dag(&da);
         bslma::Default::setGlobalAllocator(&ga);
 
-        ball::LoggerManagerConfiguration mXC;
-        mXC.setDefaultThresholdLevelsCallback(&testThresholdLevelsCb);
+        const ball::ThresholdAggregate cbLevels( 44, 33, 22, 11);
+        const ball::ThresholdAggregate mgrLevels(40, 50, 60, 70);
 
-        ASSERT(false == Obj::isInitialized());
-        Obj::initSingleton(mXC);
-        ASSERT(true == Obj::isInitialized());
+        ASSERT(cbLevels != mgrLevels);
 
-        Obj&       mX = Obj::singleton();
-        const Obj& X  = mX;
+        for (int ti = 0; ti < 4; ++ti) {
+            const bool DF_SET_IN_CONFIG  = !!(ti & 1);
+            const bool CB_SET_IN_CONFIG  = !!(ti & 2);
 
-        verifyLoggerManagerDefaults(X, &ga, 0);
+            ball::LoggerManagerConfiguration mXC;
+            if (DF_SET_IN_CONFIG) {
+                mXC.setDefaultThresholdLevelsIfValid(
+                                                  mgrLevels.recordLevel(),
+                                                  mgrLevels.passLevel(),
+                                                  mgrLevels.triggerLevel(),
+                                                  mgrLevels.triggerAllLevel());
+            }
+            if (CB_SET_IN_CONFIG) {
+                mXC.setDefaultThresholdLevelsCallback(&testThresholdLevelsCb);
+            }
 
-        const Cat *cat1 = mX.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
-        ASSERT(cat1);
-        ASSERT(cat1 == X.lookupCategory("Bloomberg.Bal"));
-        ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat1->categoryName()));
-        ASSERT(64  == cat1->recordLevel());
-        ASSERT(48  == cat1->passLevel());
-        ASSERT(32  == cat1->triggerLevel());
-        ASSERT(16  == cat1->triggerAllLevel());
+            ASSERT(false == Obj::isInitialized());
+            ball::LoggerManagerScopedGuard guard(mXC, &ga);
+            ASSERT(true == Obj::isInitialized());
 
-        const Cat *cat2 = mX.setCategory("setCategory(cont char *)");
-        ASSERT(cat2);
-        ASSERT(cat2 == X.lookupCategory("setCategory(cont char *)"));
-        ASSERT( 0   == bsl::strcmp("setCategory(cont char *)",
-                                   cat2->categoryName()));
-        ASSERT(44   == cat2->recordLevel());
-        ASSERT(33   == cat2->passLevel());
-        ASSERT(22   == cat2->triggerLevel());
-        ASSERT(11   == cat2->triggerAllLevel());
+            Obj&       mX = Obj::singleton();
+            const Obj& X  = mX;
 
-        // Verify that the threshold level values are inherited from the
-        // "parent" category of the added category, or default values if none
-        // exists, according to our defined callback.  Note that there is no
-        // name filter installed.
+            if (!DF_SET_IN_CONFIG) {
+                verifyLoggerManagerDefaults(X, &ga, 0);
 
-        Obj::DefaultThresholdLevelsCallback inheritCb(&inheritThresholdLevels);
-        mX.setDefaultThresholdLevelsCallback(&inheritCb);
+                mX.setDefaultThresholdLevels(mgrLevels.recordLevel(),
+                                             mgrLevels.passLevel(),
+                                             mgrLevels.triggerLevel(),
+                                             mgrLevels.triggerAllLevel());
+            }
+            if (!CB_SET_IN_CONFIG) {
+                ball::LoggerManager::DefaultThresholdLevelsCallback cb(
+                                                       &testThresholdLevelsCb);
+                mX.setDefaultThresholdLevelsCallback(&cb);
+            }
 
-        if (veryVerbose) cout << "\tTest New Category Threshold Levels"
-                              << " with Inheritance" << endl;
-        static const struct {
-            const char *d_catName;         // category name
-            int         d_recLevel;        // record level (dflt, if 0)
-            int         d_passLevel;       // pass level (dflt, if 0)
-            int         d_trigLevel;       // trigger level (dflt, if 0)
-            int         d_trigAllLevel;    // trigger-all level (dflt, if 0)
-            int         d_expRecLevel;     // expected record level
-            int         d_expPassLevel;    // expected pass level
-            int         d_expTrigLevel;    // expected trigger level
-            int         d_expTrigAllLevel; // expected trigger-all level
-        } DATA[] = {
+            {
+                const ball::ThresholdAggregate& levels =
+                                                    X.defaultThresholdLevels();
+                ASSERT(mgrLevels == levels);
+            }
+            {
+                ball::ThresholdAggregate levels;
+                X.thresholdLevelsForNewCategory(&levels, "woof");
+                ASSERT(cbLevels == levels);
+            }
+
+            const Cat *cat1 = mX.addCategory("Bloomberg.Bal", 64, 48, 32, 16);
+            ASSERT(cat1);
+            ASSERT(cat1 == X.lookupCategory("Bloomberg.Bal"));
+            ASSERT( 0  == bsl::strcmp("Bloomberg.Bal", cat1->categoryName()));
+            ASSERT(64  == cat1->recordLevel());
+            ASSERT(48  == cat1->passLevel());
+            ASSERT(32  == cat1->triggerLevel());
+            ASSERT(16  == cat1->triggerAllLevel());
+
+            ASSERT(mgrLevels.recordLevel() ==
+                                          X.defaultRecordThresholdLevel());
+            ASSERT(mgrLevels.passLevel() ==
+                                          X.defaultPassThresholdLevel());
+            ASSERT(mgrLevels.triggerLevel() ==
+                                          X.defaultTriggerThresholdLevel());
+            ASSERT(mgrLevels.triggerAllLevel() ==
+                                          X.defaultTriggerAllThresholdLevel());
+
+            const Cat *cat2 = mX.setCategory("setCategory(cont char *)");
+            ASSERT(cat2);
+            ASSERT(cat2 == X.lookupCategory("setCategory(cont char *)"));
+            ASSERT( 0   == bsl::strcmp("setCategory(cont char *)",
+                                       cat2->categoryName()));
+            ASSERT(cbLevels.recordLevel()     == cat2->recordLevel());
+            ASSERT(cbLevels.passLevel()       == cat2->passLevel());
+            ASSERT(cbLevels.triggerLevel()    == cat2->triggerLevel());
+            ASSERT(cbLevels.triggerAllLevel() == cat2->triggerAllLevel());
+
+            // Verify that the threshold level values are inherited from the
+            // "parent" category of the added category, or default values if
+            // none exists, according to our defined callback.  Note that there
+            // is no name filter installed.
+
+            Obj::DefaultThresholdLevelsCallback inheritCb(
+                                                      &inheritThresholdLevels);
+            mX.setDefaultThresholdLevelsCallback(&inheritCb);
+
+            if (veryVerbose) cout << "\tTest New Category Threshold Levels"
+                                  << " with Inheritance" << endl;
+            static const struct {
+                const char *d_catName;         // category name
+                int         d_recLevel;        // record level (dflt, if 0)
+                int         d_passLevel;       // pass level (dflt, if 0)
+                int         d_trigLevel;       // trigger level (dflt, if 0)
+                int         d_trigAllLevel;    // trigger-all level (dflt,if 0)
+                int         d_expRecLevel;     // expected record level
+                int         d_expPassLevel;    // expected pass level
+                int         d_expTrigLevel;    // expected trigger level
+                int         d_expTrigAllLevel; // expected trigger-all level
+            } DATA[] = {
 // category       input   input  input  input   exp'd  exp'd   exp'd  exp'd
 //   name         rec l   ps l   tg l   tgA l   rec l  ps l    tg l   tgA l
 // --------       -----   -----  -----  -----   -----  -----   -----  -----
@@ -5678,52 +5738,53 @@ int main(int argc, char *argv[])
 { "BB",              0,      0,     0,    0,       0,     0,      0,    0    },
 { "Aa.BB",           0,      0,     0,    0,       0,     0,      0,    0    },
 { "A.B.C.D.E.F.G",   0,      0,     0,    0,     200,   150,    100,   50    },
-        };
-        enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            };
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const char *CAT_NAME = DATA[i].d_catName;
-            const int expRecLevel     = DATA[i].d_expRecLevel == 0
-                                        ? X.defaultRecordThresholdLevel()
-                                        : DATA[i].d_expRecLevel;
-            const int expPassLevel    = DATA[i].d_expPassLevel == 0
-                                        ? X.defaultPassThresholdLevel()
-                                        : DATA[i].d_expPassLevel;
-            const int expTrigLevel    = DATA[i].d_expTrigLevel == 0
-                                        ? X.defaultTriggerThresholdLevel()
-                                        : DATA[i].d_expTrigLevel;
-            const int expTrigAllLevel = DATA[i].d_expTrigAllLevel == 0
-                                        ? X.defaultTriggerAllThresholdLevel()
-                                        : DATA[i].d_expTrigAllLevel;
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const char *CAT_NAME = DATA[i].d_catName;
+                const int expRecLevel     = DATA[i].d_expRecLevel == 0
+                                          ? X.defaultRecordThresholdLevel()
+                                          : DATA[i].d_expRecLevel;
+                const int expPassLevel    = DATA[i].d_expPassLevel == 0
+                                          ? X.defaultPassThresholdLevel()
+                                          : DATA[i].d_expPassLevel;
+                const int expTrigLevel    = DATA[i].d_expTrigLevel == 0
+                                          ? X.defaultTriggerThresholdLevel()
+                                          : DATA[i].d_expTrigLevel;
+                const int expTrigAllLevel = DATA[i].d_expTrigAllLevel == 0
+                                          ? X.defaultTriggerAllThresholdLevel()
+                                          : DATA[i].d_expTrigAllLevel;
 
-            const Cat *cat = DATA[i].d_recLevel
-                             ? mX.addCategory(CAT_NAME,
-                                              DATA[i].d_recLevel,
-                                              DATA[i].d_passLevel,
-                                              DATA[i].d_trigLevel,
-                                              DATA[i].d_trigAllLevel)
-                             : mX.setCategory(CAT_NAME);
+                const Cat *cat = DATA[i].d_recLevel
+                                 ? mX.addCategory(CAT_NAME,
+                                                  DATA[i].d_recLevel,
+                                                  DATA[i].d_passLevel,
+                                                  DATA[i].d_trigLevel,
+                                                  DATA[i].d_trigAllLevel)
+                                 : mX.setCategory(CAT_NAME);
 
-            if (veryVeryVerbose) {
-                P(CAT_NAME);
-                P_(cat->recordLevel());
-                P_(cat->passLevel());
-                P_(cat->triggerLevel());
-                P(cat->triggerAllLevel());
-                P_(expRecLevel);
-                P_(expPassLevel);
-                P_(expTrigLevel);
-                P(expTrigAllLevel);
+                if (veryVeryVerbose) {
+                    P(CAT_NAME);
+                    P_(cat->recordLevel());
+                    P_(cat->passLevel());
+                    P_(cat->triggerLevel());
+                    P(cat->triggerAllLevel());
+                    P_(expRecLevel);
+                    P_(expPassLevel);
+                    P_(expTrigLevel);
+                    P(expTrigAllLevel);
+                }
+
+                ASSERTV(i, expRecLevel     == cat->recordLevel());
+                ASSERTV(i, expPassLevel    == cat->passLevel());
+                ASSERTV(i, expTrigLevel    == cat->triggerLevel());
+                ASSERTV(i, expTrigAllLevel == cat->triggerAllLevel());
             }
 
-            ASSERTV(i, expRecLevel     == cat->recordLevel());
-            ASSERTV(i, expPassLevel    == cat->passLevel());
-            ASSERTV(i, expTrigLevel    == cat->triggerLevel());
-            ASSERTV(i, expTrigAllLevel == cat->triggerAllLevel());
+            Obj::shutDownSingleton();
+            ASSERT(false == Obj::isInitialized());
         }
-
-        Obj::shutDownSingleton();
-        ASSERT(false == Obj::isInitialized());
       } break;
       case 8: {
         // --------------------------------------------------------------------

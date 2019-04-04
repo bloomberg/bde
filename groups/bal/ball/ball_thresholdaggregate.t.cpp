@@ -32,6 +32,7 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 // [12] static int hash(const ball::ThresholdAggregate&, int size);
 // [11] static bool areValidThresholdLevels(int, int, int, int);
+// [ 2] ball::ThresholdAggregate();
 // [ 2] ball::ThresholdAggregate(int, int, int, int);
 // [ 7] ball::ThresholdAggregate(const ball::TA&, bdema::Alct * = 0);
 // [ 2] ~ball::ThresholdAggregate();
@@ -846,11 +847,18 @@ int main(int argc, char *argv[])
         //   expected value.
         //
         // Testing:
+        //   ball::ThresholdAggregate();
         //   ball::ThresholdAggregate(int, int, int, int);
         //   ~ball::ThresholdAggregate();
         // --------------------------------------------------------------------
         if (verbose) cout << "\nTesting Primary Manipulator"
                           << "\n===========================" << endl;
+
+        const Obj Z;
+        ASSERT(Z.recordLevel()     == 0);
+        ASSERT(Z.passLevel()       == 0);
+        ASSERT(Z.triggerLevel()    == 0);
+        ASSERT(Z.triggerAllLevel() == 0);
 
         for (int i = 0; i < NUM_DATA && DATA[i].d_isValidFlag; ++i) {
             const int LINE             = DATA[i].d_line;

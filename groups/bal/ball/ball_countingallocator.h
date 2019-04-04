@@ -102,12 +102,14 @@ class CountingAllocator : public bslma::Allocator {
     size_type         d_byteCount;    // byte count
     bslma::Allocator *d_allocator_p;  // holds (but does not own) allocator
 
+  private:
     // NOT IMPLEMENTED
     CountingAllocator(const CountingAllocator&);
     CountingAllocator& operator=(const CountingAllocator&);
 
   public:
     // CREATORS
+    explicit
     CountingAllocator(bslma::Allocator *basicAllocator = 0);
         // Create a counting allocator having an initial byte count of 0.
         // Optionally specify a 'basicAllocator' used to supply memory.  If
