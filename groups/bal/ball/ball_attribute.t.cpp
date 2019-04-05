@@ -272,7 +272,7 @@ bool compareText(bslstl::StringRef lhs,
     }
 
     if (lhs.length() < rhs.length()) {
-        unsigned int i = lhs.length();
+        bsl::size_t i = lhs.length();
         errorStream << "lhs: \"" << lhs << "\"\n"
                     << "rhs: \"" << rhs << "\"\n"
                     << "Strings differ at index (" << i << ") "
@@ -283,7 +283,7 @@ bool compareText(bslstl::StringRef lhs,
 
     }
     if (lhs.length() > rhs.length()) {
-        unsigned int i = rhs.length();
+        bsl::size_t i = rhs.length();
         errorStream << "lhs: \"" << lhs << "\"\n"
                     << "rhs: \"" << rhs << "\"\n"
                     << "Strings differ at index (" << i << ") "
@@ -710,8 +710,9 @@ int MyAttribute::hash(const MyAttribute& attribute, int size)
 {
     if (attribute.d_hashValue < 0 || attribute.d_hashSize != size) {
 
-        unsigned int hash = bdlb::HashUtil::hash1(attribute.d_name,
-                                                bsl::strlen(attribute.d_name));
+        unsigned int hash = bdlb::HashUtil::hash1(
+                              attribute.d_name,
+                              static_cast<int>(bsl::strlen(attribute.d_name)));
 
         switch (attribute.d_value.type()) {
           case 0:

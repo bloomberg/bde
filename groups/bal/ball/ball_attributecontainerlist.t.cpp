@@ -1520,7 +1520,8 @@ int main(int argc, char *argv[])
           bsl::vector<Obj::iterator> mXIters, mYIters;
           for (int i = 0; i < 10; ++i) {
               // Note that this is an invalid address.
-              containers[i] = (ball::AttributeContainer *)(i + 1);
+              containers[i] = (ball::AttributeContainer *)
+                                       static_cast<bsls::Types::IntPtr>(i + 1);
               mXIters.push_back(mX.pushFront(containers[i]));
               mYIters.push_back(mY.pushFront(containers[i]));
 

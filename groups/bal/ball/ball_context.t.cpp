@@ -731,7 +731,7 @@ int main(int argc, char *argv[])
                     cout << "ACTUAL FORMAT:" << endl << buf1 << endl;
                 }
 
-                const int SZ = strlen(FMT) + 1;
+                const int SZ = static_cast<int>(strlen(FMT)) + 1;
                 const int REST = SIZE - SZ;
 
                 ASSERTV(ti, SZ < SIZE);  // Check buffer is large enough.
