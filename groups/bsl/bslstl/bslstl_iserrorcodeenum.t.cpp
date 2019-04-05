@@ -117,7 +117,7 @@ struct is_error_code_enum<ErrorValues::MarkedIneligible> : bsl::false_type
 //
 // First, we define the set of error values for our system.
 //..
-    struct car_errc {
+    struct CarError {
         // TYPES
         enum Enum {
             car_wheels_came_off = 1,
@@ -129,8 +129,8 @@ struct is_error_code_enum<ErrorValues::MarkedIneligible> : bsl::false_type
 //..
     namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
     template <>
-    struct is_error_code_enum<car_errc::Enum> : public bsl::true_type {
-    };
+    struct is_error_code_enum<CarError::Enum>
+    : public bsl::true_type { };
     }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
 //..
 
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
 
 // Finally, we verify that the trait marks our type as eligible.
 //..
-    ASSERT(is_error_code_enum<car_errc::Enum>::value);
+    ASSERT(is_error_code_enum<CarError::Enum>::value);
 //..
       } break;
       case 1: {

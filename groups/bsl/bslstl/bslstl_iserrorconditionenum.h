@@ -38,7 +38,7 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the set of error values for our system.
 //..
-//  struct car_errc {
+//  struct CarError {
 //      // TYPES
 //      enum Enum {
 //          car_wheels_came_off = 1,
@@ -49,13 +49,13 @@ BSLS_IDENT("$Id: $")
 // Then, we enable the trait marking this as an error condition.
 //..
 //  namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE {
-//  template <> struct is_error_condition_enum<car_errc::car_errc>
+//  template <> struct is_error_condition_enum<CarError::Enum>
 //  : public true_type { };
 //  }  // close namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE
 //..
 // Finally, we verify that the trait marks our type as eligible.
 //..
-//  assert(is_error_condition_enum<car_errc::car_errc>::value);
+//  assert(is_error_condition_enum<CarError::Enum>::value);
 //..
 
 #include <bslscm_version.h>
