@@ -223,6 +223,13 @@ if (veryVerbose)
         if (verbose) cout << endl << "TESTING OUTPUT ('<<') OPERATOR" << endl
                                   << "==============================" << endl;
 
+// suppress outside 'enum' range warnings
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
         static const struct {
             int         d_lineNum;  // source line number
             Enum        d_value;    // enumerator value
@@ -243,6 +250,10 @@ if (veryVerbose)
             {  L_,    static_cast<Enum>(-5),                  UNKNOWN_FORMAT },
             {  L_,    static_cast<Enum>(99),                  UNKNOWN_FORMAT }
         };
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
         const int   NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -351,6 +362,13 @@ if (veryVerbose)
         if (verbose) cout << endl << "TESTING 'print'" << endl
                                   << "===============" << endl;
 
+// suppress outside 'enum' range warnings
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
         static const struct {
             int         d_lineNum;  // source line number
             int         d_level;    // level
@@ -385,6 +403,11 @@ if (veryVerbose)
             { L_,    1,   3, Obj::e_STRING,               "   STRING" NL     },
 #undef NL
         };
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
         if (verbose) cout << "\nTesting 'print'." << endl;
@@ -491,6 +514,13 @@ if (veryVerbose)
         if (verbose) cout << endl << "TESTING 'enum' AND 'toAscii'" << endl
                                   << "============================" << endl;
 
+// suppress outside 'enum' range warnings
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
         static const struct {
             int         d_lineNum;  // source line number
             Enum        d_value;    // enumerator value
@@ -511,6 +541,10 @@ if (veryVerbose)
             {  L_,    static_cast<Enum>(-5),                  UNKNOWN_FORMAT },
             {  L_,    static_cast<Enum>(99),                  UNKNOWN_FORMAT }
         };
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
