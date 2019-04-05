@@ -100,7 +100,7 @@ int Default::setDefaultAllocator(Allocator *basicAllocator)
     // concurrently to this code, but this would be out of contract and we just
     // take our best guess.
 
-    if (!bsls::AtomicOperations::getPtrRelaxed(&s_defaultAllocator)) {
+    if (!bsls::AtomicOperations::getPtr(&s_defaultAllocator)) {
         return 0;                                                     // RETURN
     }
 

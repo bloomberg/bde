@@ -702,14 +702,19 @@ struct Default {
 
     // PRIVATE CLASS METHODS
     static Allocator *determineAndReturnDefaultAllocator();
-        // Atomically exchange the address for the allocator to set with the
-        // address of the 'NewDeleteAllocator' singleton if the address is '0',
-        // atomically exchange the address for the allocator to use with the
-        // current address in the allocator to set if the address is '0', and
-        // return the final resulting address for the allocator to use.  Note
-        // that this function performs the one and only transition of the
-        // stored address for the allocator to use from '0' to a non-null value
-        // except when using raw access *during* *testing*.
+        // Return the address of the default allocator and disable all
+        // subsequent calls to the 'setDefaultAllocator' method.  If
+        // 's_defaultAllocator' is 0 (meaning the default allocator has not yet
+        // been accessed), set it to the last value supplied to
+        // 'setDefaultAllocator' (stored in 's_requestedDefaultAllocator').  If
+        // 's_requestedDefaultAllocator' is 0 (meaning 'setDefaultAllocator'
+        // has not been called) set 's_defaultAllocator' and
+        // 's_requestedDefaultAllocator' to be the new-delete allocator.  Note
+        // that this operation performs the one and only assigment to
+        // 's_defaultAllocator' (unless 'setDefaultllocatorRaw' is called).
+        // Note also that this function has the same externally visible
+        // behavior as 'defaultAllocator', but forms the (thread-safe)
+        // "slow-path" for that function's implementation.
 
   public:
     // CLASS METHODS
