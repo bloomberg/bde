@@ -808,7 +808,6 @@ BSLS_IDENT("$Id: $")
 //      // ...
 //
 //    private:
-//      // CLASS-SCOPE CATEGORY
 //      BALL_LOG_SET_CLASS_CATEGORY("PCKG.THING");
 //
 //    public:
