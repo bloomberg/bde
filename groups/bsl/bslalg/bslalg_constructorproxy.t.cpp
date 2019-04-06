@@ -7,6 +7,8 @@
 #include <bslma_default.h>                       // for testing only
 #include <bslma_testallocator.h>                 // for testing only
 
+#include <bslmf_movableref.h>                    // for testing only
+
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>      // 'printf'
@@ -41,7 +43,8 @@ using namespace std;
 // CREATORS
 // [ 1] bslalg::ConstructorProxy(b_A*);
 // [ 1] bslalg::ConstructorProxy(const b_CP<OTHER>&, b_A*);
-// [ 1] bslalg::ConstructorProxy(const OTHER&, b_A*);
+// [ 1] bslalg::ConstructorProxy(b_CP<OTHER>&&, b_A*);
+// [ 1] bslalg::ConstructorProxy(OTHER&&, b_A*);
 // [ 1] ~bslalg::ConstructorProxy();
 //
 // MANIPULATORS
@@ -783,7 +786,7 @@ int main(int argc, char *argv[])
       case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE 2
-        //   This will test the first usage example.
+        //   This will test the second usage example.
         //
         // Concerns:
         //   The usage example must compile and run successfully.
@@ -850,9 +853,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TYPE TRAITS"
                             "\n===================\n");
 
-        bslma::TestAllocator  testAllocator;
-        bslma::Allocator     *ALLOCATOR = &testAllocator;
-
         typedef bslalg::ConstructorProxy<int> Obj_Int;
 
         ASSERT(false == bslmf::IsBitwiseMoveable<Obj_YesAllocator>::value);
@@ -883,7 +883,7 @@ int main(int argc, char *argv[])
         //       1) Constructing without value.
         //          a) 'TYPE' = 'TestType_YesAllocator'.
         //          b) 'TYPE' = 'TestType_NoAllocator'.
-        //       2) Constructing with 'bslalg::ConstructorProxy<OTHER>'.
+        //       2) Constructing with 'bslalg::ConstructorProxy<OTHER>' (copy).
         //          a) 'TYPE'  = 'TestType_YesAllocator'.
         //             'OTHER' = 'TestType_YesAllocator'.
         //          b) 'TYPE'  = 'TestType_YesAllocator'.
@@ -892,7 +892,16 @@ int main(int argc, char *argv[])
         //             'OTHER' = 'TestType_NoAllocator'.
         //          d) 'TYPE'  = 'TestType_NoAllocator'.
         //             'OTHER' = 'TestType_Other'.
-        //       3) Constructing with 'OTHER'.
+        //       3) Constructing with 'bslalg::ConstructorProxy<OTHER>' (move).
+        //          a) 'TYPE'  = 'TestType_YesAllocator'.
+        //             'OTHER' = 'TestType_YesAllocator'.
+        //          b) 'TYPE'  = 'TestType_YesAllocator'.
+        //             'OTHER' = 'TestType_Other'.
+        //          c) 'TYPE'  = 'TestType_NoAllocator'.
+        //             'OTHER' = 'TestType_NoAllocator'.
+        //          d) 'TYPE'  = 'TestType_NoAllocator'.
+        //             'OTHER' = 'TestType_Other'.
+        //       4) Constructing with 'OTHER'.
         //          a) 'TYPE'  = 'TestType_YesAllocator'.
         //             'OTHER' = 'TestType_YesAllocator'.
         //          b) 'TYPE'  = 'TestType_YesAllocator'.
@@ -908,7 +917,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   bslalg::ConstructorProxy(b_A*);
         //   bslalg::ConstructorProxy(const b_CP<OTHER>&, b_A*);
-        //   bslalg::ConstructorProxy(const OTHER&, b_A*);
+        //   bslalg::ConstructorProxy(b_CP<OTHER>&&, b_A*);
+        //   bslalg::ConstructorProxy(OTHER&&, b_A*);
         //   ~bslalg::ConstructorProxy();
         //   TYPE& object();
         //   const TYPE& object() const;
@@ -964,7 +974,8 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) printf(
-                "\n2. Constructing with 'bslalg::ConstructorProxy<OTHER>'.\n");
+                "\n2. Constructing with 'bslalg::ConstructorProxy<OTHER>'"
+                " (copy).\n");
         {
             if (veryVerbose) printf("\ta) 'TYPE'  = 'TestType_YesAllocator'."
                                   "\n\t   'OTHER' = 'TestType_YesAllocator'."
@@ -976,7 +987,7 @@ int main(int argc, char *argv[])
                 typedef bslalg::ConstructorProxy<Type>      Obj;
                 typedef bslalg::ConstructorProxy<OtherType> OriginalType;
 
-                const OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
+                OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
 
                 Obj        mX(ORIGINAL, ALLOCATOR);
                 const Obj& X = mX;
@@ -1002,7 +1013,7 @@ int main(int argc, char *argv[])
                 typedef bslalg::ConstructorProxy<Type>      Obj;
                 typedef bslalg::ConstructorProxy<OtherType> OriginalType;
 
-                const OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
+                OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
 
                 Obj        mX(ORIGINAL, ALLOCATOR);
                 const Obj& X = mX;
@@ -1028,7 +1039,7 @@ int main(int argc, char *argv[])
                 typedef bslalg::ConstructorProxy<Type>      Obj;
                 typedef bslalg::ConstructorProxy<OtherType> OriginalType;
 
-                const OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
+                OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
 
                 Obj        mX(ORIGINAL, ALLOCATOR);
                 const Obj& X = mX;
@@ -1052,7 +1063,7 @@ int main(int argc, char *argv[])
                 typedef bslalg::ConstructorProxy<Type>      Obj;
                 typedef bslalg::ConstructorProxy<OtherType> OriginalType;
 
-                const OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
+                OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
 
                 Obj        mX(ORIGINAL, ALLOCATOR);
                 const Obj& X = mX;
@@ -1067,7 +1078,116 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\n3. Constructing with 'OTHER'." "\n");
+        if (verbose) printf(
+                "\n3. Constructing with 'bslalg::ConstructorProxy<OTHER>'"
+                " (move).\n");
+        {
+            if (veryVerbose) printf("\ta) 'TYPE'  = 'TestType_YesAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_YesAllocator'."
+                                  "\n");
+            {
+                typedef TestType_YesAllocator Type;
+                typedef TestType_YesAllocator OtherType;
+
+                typedef bslalg::ConstructorProxy<Type>      Obj;
+                typedef bslalg::ConstructorProxy<OtherType> OriginalType;
+
+                OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
+
+                Obj        mX(bslmf::MovableRefUtil::move(ORIGINAL),
+                              ALLOCATOR);
+                const Obj& X = mX;
+
+                ASSERT(mX.object().value() == VALUE);
+                ASSERT( X.object().value() == VALUE);
+
+                // test return-by-reference
+                mX.object().value() = DEFAULT;
+                ASSERT(mX.object().value() == DEFAULT);
+                ASSERT( X.object().value() == DEFAULT);
+
+                ASSERT(ALLOCATOR == X.object().allocator());
+            }
+
+            if (veryVerbose) printf("\tb) 'TYPE'  = 'TestType_YesAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_Other'."
+                                  "\n");
+            {
+                typedef TestType_YesAllocator Type;
+                typedef TestType_Other        OtherType;
+
+                typedef bslalg::ConstructorProxy<Type>      Obj;
+                typedef bslalg::ConstructorProxy<OtherType> OriginalType;
+
+                OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
+
+                Obj        mX(bslmf::MovableRefUtil::move(ORIGINAL),
+                              ALLOCATOR);
+                const Obj& X = mX;
+
+                ASSERT(mX.object().value() == VALUE);
+                ASSERT( X.object().value() == VALUE);
+
+                // test return-by-reference
+                mX.object().value() = DEFAULT;
+                ASSERT(mX.object().value() == DEFAULT);
+                ASSERT( X.object().value() == DEFAULT);
+
+                ASSERT(ALLOCATOR == X.object().allocator());
+            }
+
+            if (veryVerbose) printf("\tc) 'TYPE'  = 'TestType_NoAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_NoAllocator'."
+                                  "\n");
+            {
+                typedef TestType_NoAllocator Type;
+                typedef TestType_NoAllocator OtherType;
+
+                typedef bslalg::ConstructorProxy<Type>      Obj;
+                typedef bslalg::ConstructorProxy<OtherType> OriginalType;
+
+                OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
+
+                Obj        mX(bslmf::MovableRefUtil::move(ORIGINAL),
+                              ALLOCATOR);
+                const Obj& X = mX;
+
+                ASSERT(mX.object().value() == VALUE);
+                ASSERT( X.object().value() == VALUE);
+
+                // test return-by-reference
+                mX.object().value() = DEFAULT;
+                ASSERT(mX.object().value() == DEFAULT);
+                ASSERT( X.object().value() == DEFAULT);
+            }
+
+            if (veryVerbose) printf("\td) 'TYPE'  = 'TestType_NoAllocator'."
+                                  "\n\t   'OTHER' = 'TestType_Other'."
+                                  "\n");
+            {
+                typedef TestType_NoAllocator Type;
+                typedef TestType_Other       OtherType;
+
+                typedef bslalg::ConstructorProxy<Type>      Obj;
+                typedef bslalg::ConstructorProxy<OtherType> OriginalType;
+
+                OriginalType ORIGINAL(OtherType(VALUE), ALLOCATOR);
+
+                Obj        mX(bslmf::MovableRefUtil::move(ORIGINAL),
+                              ALLOCATOR);
+                const Obj& X = mX;
+
+                ASSERT(mX.object().value() == VALUE);
+                ASSERT( X.object().value() == VALUE);
+
+                // test return-by-reference
+                mX.object().value() = DEFAULT;
+                ASSERT(mX.object().value() == DEFAULT);
+                ASSERT( X.object().value() == DEFAULT);
+            }
+        }
+
+        if (verbose) printf("\n4. Constructing with 'OTHER'." "\n");
         {
             if (veryVerbose) printf("\ta) 'TYPE'  = 'TestType_YesAllocator'."
                                   "\n\t   'OTHER' = 'TestType_YesAllocator'."

@@ -278,19 +278,45 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslalg_scalarprimitives.h>
-
+#include <bslma_constructionutil.h>
 #include <bslma_destructionutil.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_enableif.h>
+#include <bslmf_decay.h>
+#include <bslmf_integralconstant.h>
+#include <bslmf_movableref.h>
+#include <bslmf_util.h>
+
+#include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
-#include <bsls_util.h>
 
 namespace BloombergLP {
 
 namespace bslma { class Allocator; }
 
 namespace bslalg {
+
+template <class> class ConstructorProxy;
+
+                        // ===============================
+                        // struct ConstructorProxy_IsProxy
+                        // ===============================
+
+template <class TYPE>
+struct ConstructorProxy_IsProxy : bsl::false_type {
+    // Provides a metafunction to determine if the specified 'TYPE' is
+    // 'ConstructorProxy'. This non-specialized class template always returns
+    // 'false'.
+};
+
+template <class TYPE>
+struct ConstructorProxy_IsProxy<ConstructorProxy<TYPE> > : bsl::true_type {
+    // Provides a metafunction to determine if the specified 'TYPE' is
+    // 'ConstructorProxy'. This specialized class template always returns
+    // 'true'.
+};
 
                         // ======================
                         // class ConstructorProxy
@@ -312,8 +338,8 @@ class ConstructorProxy {
 
   private:
     // NOT IMPLEMENTED
-    ConstructorProxy(const ConstructorProxy&);
-    ConstructorProxy& operator=(const ConstructorProxy&);
+    ConstructorProxy(const ConstructorProxy&)            BSLS_KEYWORD_DELETED;
+    ConstructorProxy& operator=(const ConstructorProxy&) BSLS_KEYWORD_DELETED;
 
   public:
     // CREATORS
@@ -324,18 +350,14 @@ class ConstructorProxy {
         // 'bslma::UsesBslmaAllocator' trait, and ignore 'basicAllocator'
         // otherwise.
 
-    ConstructorProxy(const ConstructorProxy<OBJECT_TYPE>&  original,
-                     bslma::Allocator                     *basicAllocator);
-        // Construct a proxy, and a proxied object of parameterized
-        // 'OBJECT_TYPE' having the value of the object held by the specified
-        // 'original' proxy.  Use the specified 'basicAllocator' to supply
-        // memory to the proxied object if 'OBJECT_TYPE' declares the
-        // 'bslma::UsesBslmaAllocator' trait, and ignore 'basicAllocator'
-        // otherwise.
-
     template <class SOURCE_TYPE>
-    ConstructorProxy(const ConstructorProxy<SOURCE_TYPE>&  original,
-                     bslma::Allocator                     *basicAllocator);
+    ConstructorProxy(
+            const ConstructorProxy<SOURCE_TYPE>&               original,
+            bslma::Allocator                                  *basicAllocator);
+    template <class SOURCE_TYPE>
+    ConstructorProxy(
+            bslmf::MovableRef<ConstructorProxy<SOURCE_TYPE> >  original,
+            bslma::Allocator                                  *basicAllocator);
         // Construct a proxy, and a proxied object of the parameterized
         // 'OBJECT_TYPE' having the value of the object of the parameterized
         // 'SOURCE_TYPE' held by the specified 'original' proxy.  Use the
@@ -345,109 +367,179 @@ class ConstructorProxy {
         // will result unless an instance of 'OBJECT_TYPE' can be constructed
         // from an instance of 'SOURCE_TYPE'.
 
-    template <class ARG1>
-    ConstructorProxy(const ARG1& a1, bslma::Allocator *basicAllocator);
-    template <class ARG1, class ARG2>
-    ConstructorProxy(const ARG1& a1, const ARG2& a2,
-                     bslma::Allocator *basicAllocator);
-    template <class ARG1, class ARG2, class ARG3>
-    ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                     bslma::Allocator *basicAllocator);
-    template <class ARG1, class ARG2, class ARG3, class ARG4>
-    ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                     const ARG4& a4, bslma::Allocator *basicAllocator);
-    template <class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5>
-    ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                     const ARG4& a4, const ARG5& a5,
-                     bslma::Allocator *basicAllocator);
-    template <class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5, class ARG6>
-    ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                     const ARG4& a4, const ARG5& a5, const ARG6& a6,
-                     bslma::Allocator *basicAllocator);
-    template <class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5, class ARG6, class ARG7>
-    ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                     const ARG4& a4, const ARG5& a5, const ARG6& a6,
-                     const ARG7& a7, bslma::Allocator *basicAllocator);
-    template <class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5, class ARG6, class ARG7, class ARG8>
-    ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                     const ARG4& a4, const ARG5& a5, const ARG6& a6,
-                     const ARG7& a7, const ARG8& a8,
-                     bslma::Allocator *basicAllocator);
-    template <class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5, class ARG6, class ARG7, class ARG8,
-              class ARG9>
-    ConstructorProxy(const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                     const ARG4& a4, const ARG5& a5, const ARG6& a6,
-                     const ARG7& a7, const ARG8& a8, const ARG9& a9,
-                     bslma::Allocator *basicAllocator);
-    template <class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5, class ARG6, class ARG7, class ARG8,
-              class ARG9, class ARG10>
-    ConstructorProxy(const ARG1&  a1, const ARG2& a2, const ARG3& a3,
-                     const ARG4&  a4, const ARG5& a5, const ARG6& a6,
-                     const ARG7&  a7, const ARG8& a8, const ARG9& a9,
-                     const ARG10& a10, bslma::Allocator *basicAllocator);
-    template <class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5, class ARG6, class ARG7, class ARG8,
-              class ARG9, class ARG10, class ARG11>
-    ConstructorProxy(const ARG1&  a1, const ARG2& a2,  const ARG3& a3,
-                     const ARG4&  a4, const ARG5& a5,  const ARG6& a6,
-                     const ARG7&  a7, const ARG8& a8,  const ARG9& a9,
-                     const ARG10& a10, const ARG11& a11,
-                     bslma::Allocator *basicAllocator);
-    template <class ARG1, class ARG2, class ARG3, class ARG4,
-              class ARG5, class ARG6, class ARG7, class ARG8,
-              class ARG9, class ARG10, class ARG11, class ARG12>
-    ConstructorProxy(const ARG1&  a1,  const ARG2&  a2,  const ARG3& a3,
-                     const ARG4&  a4,  const ARG5&  a5,  const ARG6& a6,
-                     const ARG7&  a7,  const ARG8&  a8,  const ARG9& a9,
-                     const ARG10& a10, const ARG11& a11,
-                     const ARG12& a12, bslma::Allocator *basicAllocator);
-    template <class ARG1, class ARG2,  class ARG3,  class ARG4,
-              class ARG5, class ARG6,  class ARG7,  class ARG8,
-              class ARG9, class ARG10, class ARG11, class ARG12,
+    template <class ARG01>
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     typename bsl::enable_if<
+                         !ConstructorProxy_IsProxy<
+                             typename bsl::decay<ARG01>::type>::value,
+                             bslma::Allocator>::type          *basicAllocator);
+    template <class ARG01, class ARG02>
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                     bslma::Allocator                         *basicAllocator);
+    template <class ARG01, class ARG02, class ARG03>
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                     bslma::Allocator                         *basicAllocator);
+    template <class ARG01, class ARG02, class ARG03, class ARG04>
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                     bslma::Allocator                         *basicAllocator);
+    template <class ARG01, class ARG02, class ARG03, class ARG04,
+              class ARG05>
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                     bslma::Allocator                         *basicAllocator);
+    template <class ARG01, class ARG02, class ARG03, class ARG04,
+              class ARG05, class ARG06>
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                     bslma::Allocator                         *basicAllocator);
+    template <class ARG01, class ARG02, class ARG03, class ARG04,
+              class ARG05, class ARG06, class ARG07>
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                     bslma::Allocator                         *basicAllocator);
+    template <class ARG01, class ARG02, class ARG03, class ARG04,
+              class ARG05, class ARG06, class ARG07, class ARG08>
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                     bslma::Allocator                         *basicAllocator);
+    template <class ARG01, class ARG02, class ARG03, class ARG04,
+              class ARG05, class ARG06, class ARG07, class ARG08,
+              class ARG09>
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
+                     bslma::Allocator                         *basicAllocator);
+    template <class ARG01, class ARG02, class ARG03, class ARG04,
+              class ARG05, class ARG06, class ARG07, class ARG08,
+              class ARG09, class ARG10>
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
+                     bslma::Allocator                         *basicAllocator);
+    template <class ARG01, class ARG02, class ARG03, class ARG04,
+              class ARG05, class ARG06, class ARG07, class ARG08,
+              class ARG09, class ARG10, class ARG11>
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
+                     bslma::Allocator                         *basicAllocator);
+    template <class ARG01, class ARG02, class ARG03, class ARG04,
+              class ARG05, class ARG06, class ARG07, class ARG08,
+              class ARG09, class ARG10, class ARG11, class ARG12>
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG12)  a12,
+                     bslma::Allocator                         *basicAllocator);
+    template <class ARG01, class ARG02, class ARG03, class ARG04,
+              class ARG05, class ARG06, class ARG07, class ARG08,
+              class ARG09, class ARG10, class ARG11, class ARG12,
               class ARG13>
-    ConstructorProxy(const ARG1&  a1,  const ARG2&  a2, const ARG3&  a3,
-                     const ARG4&  a4,  const ARG5&  a5, const ARG6&  a6,
-                     const ARG7&  a7,  const ARG8&  a8, const ARG9&  a9,
-                     const ARG10& a10, const ARG11& a11,
-                     const ARG12& a12, const ARG13& a13,
-                     bslma::Allocator *basicAllocator);
-    template <class ARG1, class ARG2,  class ARG3,  class ARG4,
-              class ARG5, class ARG6,  class ARG7,  class ARG8,
-              class ARG9, class ARG10, class ARG11, class ARG12,
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG12)  a12,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG13)  a13,
+                     bslma::Allocator                         *basicAllocator);
+    template <class ARG01, class ARG02, class ARG03, class ARG04,
+              class ARG05, class ARG06, class ARG07, class ARG08,
+              class ARG09, class ARG10, class ARG11, class ARG12,
               class ARG13, class ARG14>
-    ConstructorProxy(const ARG1&  a1,  const ARG2&  a2, const ARG3&  a3,
-                     const ARG4&  a4,  const ARG5&  a5, const ARG6&  a6,
-                     const ARG7&  a7,  const ARG8&  a8, const ARG9&  a9,
-                     const ARG10& a10, const ARG11& a11,
-                     const ARG12& a12, const ARG13& a13,
-                     const ARG14& a14,
-                     bslma::Allocator *basicAllocator);
+    ConstructorProxy(BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG12)  a12,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG13)  a13,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(ARG14)  a14,
+                     bslma::Allocator                         *basicAllocator);
         // Construct a proxy, and a proxied object of the parameterized
-        // 'OBJECT_TYPE' using the specified arguments 'a1' up to 'a14' of the
-        // respective parameterized 'ARG1' up to 'ARG14' types.  Use the
+        // 'OBJECT_TYPE' using the specified arguments 'a01' up to 'a14' of the
+        // respective parameterized 'ARG01' up to 'ARG14' types.  Use the
         // specified 'basicAllocator' to supply memory to the proxied object if
         // 'OBJECT_TYPE' declares the 'bslma::UsesBslmaAllocator' trait, and
         // ignore 'basicAllocator' otherwise.  If 'basicAllocator' is 0, the
         // currently installed default allocator is used.  Note that a
         // compilation error will result unless 'OBJECT_TYPE' has a constructor
-        // of signature compatible with
-        // 'OBJECT_TYPE(ARG1 const&, ARG2 const&, ...)'.
+        // of signature compatible with 'OBJECT_TYPE(ARG01&&, ARG2&&, ...)'.
 
     ~ConstructorProxy();
         // Destroy this proxy and the object held by this proxy.
 
     // MANIPULATORS
-    OBJECT_TYPE& object();
+    OBJECT_TYPE& object() BSLS_KEYWORD_NOEXCEPT;
         // Return a reference to the modifiable object held by this proxy.
 
     // ACCESSORS
-    const OBJECT_TYPE& object() const;
+    const OBJECT_TYPE& object() const BSLS_KEYWORD_NOEXCEPT;
         // Return a reference to the non-modifiable object held by this proxy.
 };
 
@@ -465,21 +557,8 @@ inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                                               bslma::Allocator *basicAllocator)
 {
-    ScalarPrimitives::defaultConstruct(
-                                  d_objectBuffer.address(),
-                                  basicAllocator);
-}
-
-template <class OBJECT_TYPE>
-inline
-ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-                          const ConstructorProxy<OBJECT_TYPE>&  original,
-                          bslma::Allocator                     *basicAllocator)
-{
-    ScalarPrimitives::copyConstruct(
-                                  d_objectBuffer.address(),
-                                  original.object(),
-                                  basicAllocator);
+    bslma::ConstructionUtil::construct(d_objectBuffer.address(),
+                                       basicAllocator);
 }
 
 template <class OBJECT_TYPE>
@@ -489,205 +568,411 @@ ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
                           const ConstructorProxy<SOURCE_TYPE>&  original,
                           bslma::Allocator                     *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                original.object(),
-                                basicAllocator);
+    bslma::ConstructionUtil::construct(d_objectBuffer.address(),
+                                       basicAllocator,
+                                       original.object());
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1>
+template <class SOURCE_TYPE>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-                              const ARG1& a1, bslma::Allocator *basicAllocator)
+             bslmf::MovableRef<ConstructorProxy<SOURCE_TYPE> >  original,
+             bslma::Allocator                                  *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1,
-                                basicAllocator);
+    bslma::ConstructionUtil::construct(
+                        d_objectBuffer.address(),
+                        basicAllocator,
+                        bslmf::MovableRefUtil::move(
+                            bslmf::MovableRefUtil::access(original).object()));
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1, class ARG2>
+template <class ARG01>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-              const ARG1& a1, const ARG2& a2, bslma::Allocator *basicAllocator)
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      typename bsl::enable_if<
+                          !ConstructorProxy_IsProxy<
+                              typename bsl::decay<ARG01>::type>::value,
+                              bslma::Allocator>::type          *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1, a2,
-                                basicAllocator);
+    // NOTE: 'enable_if' is here so this constructor won't overshadow the copy
+    //       and move constructors.
+
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01));
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1, class ARG2, class ARG3>
+template <class ARG01, class ARG02>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-                                const ARG1& a1, const ARG2& a2, const ARG3& a3,
-                                bslma::Allocator *basicAllocator)
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                      bslma::Allocator                         *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1, a2, a3,
-                                basicAllocator);
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG02, a02));
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1, class ARG2, class ARG3, class ARG4>
+template <class ARG01, class ARG02, class ARG03>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-                const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
-                bslma::Allocator *basicAllocator)
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                      bslma::Allocator                         *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1, a2, a3, a4,
-                                basicAllocator);
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG03, a03));
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1, class ARG2, class ARG3, class ARG4,
-          class ARG5>
+template <class ARG01, class ARG02, class ARG03, class ARG04>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-                const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
-                const ARG5& a5, bslma::Allocator *basicAllocator)
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                      bslma::Allocator                         *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1, a2, a3, a4, a5,
-                                basicAllocator);
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG04, a04));
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1, class ARG2, class ARG3, class ARG4,
-          class ARG5, class ARG6>
+template <class ARG01, class ARG02, class ARG03, class ARG04,
+          class ARG05>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-              const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
-              const ARG5& a5, const ARG6& a6, bslma::Allocator *basicAllocator)
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                      bslma::Allocator                         *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1, a2, a3, a4, a5, a6,
-                                basicAllocator);
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG04, a04),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG05, a05));
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1, class ARG2, class ARG3, class ARG4,
-          class ARG5, class ARG6, class ARG7>
+template <class ARG01, class ARG02, class ARG03, class ARG04,
+          class ARG05, class ARG06>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-                const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
-                const ARG5& a5, const ARG6& a6, const ARG7& a7,
-                bslma::Allocator *basicAllocator)
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                      bslma::Allocator                         *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1, a2, a3, a4, a5, a6, a7,
-                                basicAllocator);
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG04, a04),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG05, a05),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG06, a06));
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1, class ARG2, class ARG3, class ARG4,
-          class ARG5, class ARG6, class ARG7, class ARG8>
+template <class ARG01, class ARG02, class ARG03, class ARG04,
+          class ARG05, class ARG06, class ARG07>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-                const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
-                const ARG5& a5, const ARG6& a6, const ARG7& a7, const ARG8& a8,
-                bslma::Allocator *basicAllocator)
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                      bslma::Allocator                         *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1, a2, a3, a4, a5, a6, a7, a8,
-                                basicAllocator);
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG04, a04),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG05, a05),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG06, a06),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG07, a07));
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1, class ARG2, class ARG3, class ARG4,
-          class ARG5, class ARG6, class ARG7, class ARG8,
-          class ARG9>
+template <class ARG01, class ARG02, class ARG03, class ARG04,
+          class ARG05, class ARG06, class ARG07, class ARG08>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-                const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
-                const ARG5& a5, const ARG6& a6, const ARG7& a7, const ARG8& a8,
-                const ARG9& a9, bslma::Allocator *basicAllocator)
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                      bslma::Allocator                         *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1, a2, a3, a4, a5, a6, a7, a8, a9,
-                                basicAllocator);
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG04, a04),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG05, a05),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG06, a06),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG07, a07),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG08, a08));
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1, class ARG2, class ARG3, class ARG4,
-          class ARG5, class ARG6, class ARG7, class ARG8,
-          class ARG9, class ARG10>
+template <class ARG01, class ARG02, class ARG03, class ARG04,
+          class ARG05, class ARG06, class ARG07, class ARG08,
+          class ARG09>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-            const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
-            const ARG5& a5, const ARG6& a6, const ARG7& a7, const ARG8& a8,
-            const ARG9& a9, const ARG10& a10, bslma::Allocator *basicAllocator)
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
+                      bslma::Allocator                         *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
-                                basicAllocator);
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG04, a04),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG05, a05),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG06, a06),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG07, a07),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG08, a08),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG09, a09));
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1, class ARG2,  class ARG3, class ARG4,
-          class ARG5, class ARG6,  class ARG7, class ARG8,
-          class ARG9, class ARG10, class ARG11>
+template <class ARG01, class ARG02, class ARG03, class ARG04,
+          class ARG05, class ARG06, class ARG07, class ARG08,
+          class ARG09, class ARG10>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-                const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
-                const ARG5& a5, const ARG6& a6, const ARG7& a7, const ARG8& a8,
-                const ARG9& a9, const ARG10& a10, const ARG11& a11,
-                bslma::Allocator *basicAllocator)
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
+                      bslma::Allocator                         *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
-                                basicAllocator);
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG04, a04),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG05, a05),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG06, a06),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG07, a07),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG08, a08),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG09, a09),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG10, a10));
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1, class ARG2,  class ARG3, class ARG4,
-          class ARG5, class ARG6,  class ARG7, class ARG8,
-          class ARG9, class ARG10, class ARG11, class ARG12>
+template <class ARG01, class ARG02, class ARG03, class ARG04,
+          class ARG05, class ARG06, class ARG07, class ARG08,
+          class ARG09, class ARG10, class ARG11>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-          const ARG1& a1, const ARG2&  a2,  const ARG3&  a3,  const ARG4&  a4,
-          const ARG5& a5, const ARG6&  a6,  const ARG7&  a7,  const ARG8&  a8,
-          const ARG9& a9, const ARG10& a10, const ARG11& a11, const ARG12& a12,
-          bslma::Allocator *basicAllocator)
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
+                      bslma::Allocator                         *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
-                                a12, basicAllocator);
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG04, a04),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG05, a05),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG06, a06),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG07, a07),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG08, a08),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG09, a09),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG10, a10),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG11, a11));
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1, class  ARG2,  class ARG3, class  ARG4,
-          class ARG5, class  ARG6,  class ARG7, class  ARG8,
-          class ARG9, class  ARG10, class ARG11, class ARG12,
+template <class ARG01, class ARG02, class ARG03, class ARG04,
+          class ARG05, class ARG06, class ARG07, class ARG08,
+          class ARG09, class ARG10, class ARG11, class ARG12>
+inline
+ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG12)  a12,
+                      bslma::Allocator                         *basicAllocator)
+{
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG04, a04),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG05, a05),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG06, a06),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG07, a07),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG08, a08),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG09, a09),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG10, a10),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG11, a11),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG12, a12));
+}
+
+template <class OBJECT_TYPE>
+template <class ARG01, class ARG02, class ARG03, class ARG04,
+          class ARG05, class ARG06, class ARG07, class ARG08,
+          class ARG09, class ARG10, class ARG11, class ARG12,
           class ARG13>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-          const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
-          const ARG5& a5, const ARG6& a6, const ARG7& a7, const ARG8& a8,
-          const ARG9& a9, const ARG10& a10, const ARG11& a11, const ARG12& a12,
-          const ARG13& a13, bslma::Allocator *basicAllocator)
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG12)  a12,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG13)  a13,
+                      bslma::Allocator                         *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
-                                a12, a13, basicAllocator);
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG04, a04),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG05, a05),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG06, a06),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG07, a07),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG08, a08),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG09, a09),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG10, a10),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG11, a11),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG12, a12),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG13, a13));
 }
 
 template <class OBJECT_TYPE>
-template <class ARG1, class ARG2, class ARG3, class ARG4,
-          class ARG5, class ARG6, class ARG7, class ARG8,
-          class ARG9, class ARG10, class ARG11, class ARG12,
+template <class ARG01, class ARG02, class ARG03, class ARG04,
+          class ARG05, class ARG06, class ARG07, class ARG08,
+          class ARG09, class ARG10, class ARG11, class ARG12,
           class ARG13, class ARG14>
 inline
 ConstructorProxy<OBJECT_TYPE>::ConstructorProxy(
-          const ARG1& a1, const ARG2& a2, const ARG3& a3, const ARG4& a4,
-          const ARG5& a5, const ARG6& a6, const ARG7& a7, const ARG8& a8,
-          const ARG9& a9, const ARG10& a10, const ARG11& a11, const ARG12& a12,
-          const ARG13& a13, const ARG14& a14, bslma::Allocator *basicAllocator)
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG01)  a01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG02)  a02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG03)  a03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG04)  a04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG05)  a05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG06)  a06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG07)  a07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG08)  a08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG09)  a09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG10)  a10,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG11)  a11,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG12)  a12,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG13)  a13,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARG14)  a14,
+                      bslma::Allocator                         *basicAllocator)
 {
-    ScalarPrimitives::construct(d_objectBuffer.address(),
-                                a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11,
-                                a12, a13, a14, basicAllocator);
+    bslma::ConstructionUtil::construct(
+                                    d_objectBuffer.address(),
+                                    basicAllocator,
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG01, a01),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG02, a02),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG03, a03),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG04, a04),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG05, a05),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG06, a06),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG07, a07),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG08, a08),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG09, a09),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG10, a10),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG11, a11),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG12, a12),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG13, a13),
+                                    BSLS_COMPILERFEATURES_FORWARD(ARG14, a14));
 }
 
 template <class OBJECT_TYPE>
@@ -700,7 +985,7 @@ ConstructorProxy<OBJECT_TYPE>::~ConstructorProxy()
 // MANIPULATORS
 template <class OBJECT_TYPE>
 inline
-OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object()
+OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object() BSLS_KEYWORD_NOEXCEPT
 {
     return d_objectBuffer.object();
 }
@@ -709,6 +994,7 @@ OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object()
 template <class OBJECT_TYPE>
 inline
 const OBJECT_TYPE& ConstructorProxy<OBJECT_TYPE>::object() const
+                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return d_objectBuffer.object();
 }
