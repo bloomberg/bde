@@ -3,8 +3,9 @@
 
 #include <bslim_testutil.h>
 
-#include <bslma_testallocator.h>
 #include <bslma_constructionutil.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_movableref.h>
@@ -15,6 +16,8 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_util.h>
+
+#include <bsltf_templatetestfacility.h>
 
 // #include all of the headers defined in bsl+bslhdrs.
 
@@ -123,6 +126,7 @@
 #include <bsl_condition_variable.h>
 #include <bsl_cstdbool.h>
 #include <bsl_ctgmath.h>
+#include <bsl_forward_list.h>
 #include <bsl_future.h>
 #include <bsl_initializer_list.h>
 #include <bsl_mutex.h>
@@ -140,9 +144,6 @@
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 #include <bsl_shared_mutex.h>
 #endif
-
-
-#include <bsltf_templatetestfacility.h>
 
 #include <stdio.h>     // 'sprintf', 'snprintf' [NOT '<cstdio>', which does not
                        // include 'snprintf']
@@ -166,6 +167,7 @@ using namespace bslim;
 //
 //-----------------------------------------------------------------------------
 // [ 5] CONCERN: Range functions are not ambiguous with 'std' under ADL
+// [ 6] CONCERN: 'forward_list' is available in C++11 builds
 // [ 4] maps of smart pointers
 // [ 3] string vector resize
 // [ 2] CONCERN: REGRESSION TEST FOR C99 FEATURES
@@ -405,6 +407,62 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << "\n";
     switch (test) { case 0:  // Zero is always the leading case.
+      case 7: {
+        // --------------------------------------------------------------------
+        // TESTING 'forward_list'
+        //
+        // Concerns:
+        //: 1 'bsl::forward_list' is available in baseline C++11 builds.
+        //: 2 'bsl::forward_list' correctly uses 'bslma' allocators
+        //
+        // Plan:
+        //: 1 Create a 'bsl::forward_list<bsl::string>' using a test allocator,
+        //:   emplace a string into the container, and verify that the emplaced
+        //:   string is using the correct allocator.
+        //
+        // Testing
+        //   CONCERN: 'forward_list' is available in C++11 builds
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING 'forward_lst'"
+                            "\n=====================\n");
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+
+        if (verbose) printf("\n'bsl::forward_list' is not supported"
+                            "\n====================================\n");
+#else
+        using Obj = bsl::forward_list<bsl::string>;
+
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        bslma::TestAllocator ta("forward", veryVeryVeryVerbose);
+
+        if (verbose) printf("Testing allocators are hooked up correctly.\n");
+        {
+            Obj mX(&ta);    const Obj& X = mX;
+
+            mX.emplace_front("This string must not be a short string.");
+            mX.emplace_front("This string cannot be a short string either!");
+            mX.emplace_front("One final test string that must not be short.");
+
+#if !defined(BSLS_LIBRARYFEATURES_STDCPP_MSVC)
+            const long long EXPECTED_ALLOCATIONS = 6;
+#else
+            // Microsoft allocate an extra sentinel node.
+            const long long EXPECTED_ALLOCATIONS = 7;
+#endif
+
+            ASSERT(
+                 X.front() == "One final test string that must not be short.");
+            ASSERTV(da.numBytesInUse(), 0 == da.numBytesInUse());
+            ASSERTV(ta.numBlocksInUse(),
+                    ta.numBlocksInUse() == EXPECTED_ALLOCATIONS);
+        }
+        ASSERTV(da.numBytesInUse(),  0 == da.numBytesInUse());
+        ASSERTV(ta.numBlocksInUse(), 0 == ta.numBlocksInUse());
+#endif
+      } break;
       case 6: {
         // --------------------------------------------------------------------
         // TESTING SUPPORT FOR MOVE-ONLY TYPES
