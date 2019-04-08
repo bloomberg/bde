@@ -18,11 +18,13 @@
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_ispointer.h>
 #include <bslmf_issame.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -8084,13 +8086,13 @@ void TestDriver<TYPE,ALLOC>::testCase21_dispatch()
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const char *const SPEC1  = DATA[ti].d_spec;
-        const size_t      LENGTH1 = std::strlen(DATA[ti].d_results);
+        const size_t      LENGTH1 = strlen(DATA[ti].d_results);
 
         Obj mXX(sa);    const Obj& XX = gg(&mXX, SPEC1);
 
         for (int tj = 0; tj < NUM_DATA; ++tj) {
             const char *const SPEC2   = DATA[tj].d_spec;
-            const size_t      LENGTH2 = std::strlen(DATA[tj].d_results);
+            const size_t      LENGTH2 = strlen(DATA[tj].d_results);
 
             if (4 < LENGTH2) {
                 continue;    // time consuming, skip (it's O(LENGTH2^2))
@@ -11796,7 +11798,7 @@ int main(int argc, char *argv[])
 
             for (unsigned jj = 0; jj < NUM_DATA; ++jj) {
                 ASSERT((INDEX1 == DATA[jj].d_index) ==
-                                    !std::strcmp(RESULT1, DATA[jj].d_results));
+                                         !strcmp(RESULT1, DATA[jj].d_results));
             }
         }
     }

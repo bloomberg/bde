@@ -1,9 +1,7 @@
 // bslstl_equalto.t.cpp                                               -*-C++-*-
-
 #include <bslstl_equalto.h>
 
 #include <bslma_constructionutil.h>
-
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -43,28 +41,33 @@ using namespace bsl;
 // [ 6] QoI: Is an empty type
 
 // ============================================================================
-//                    STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -73,13 +76,12 @@ void aSsErT(bool b, const char *s, int i)
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 // ============================================================================
 //                  NEGATIVE-TEST MACRO ABBREVIATIONS
@@ -112,10 +114,10 @@ void aSsErT(bool b, const char *s, int i)
 
 template <class TYPE, class EQUALS = bsl::equal_to<TYPE> >
 class ListSet {
-    // This class implements a crude implementation of a set, that will keep
-    // a set of values and be able to determine if an element is a member of
-    // the set.  Unlike a 'bsl::set' or 'bsl::unordered_set', no hash function
-    // or transitive 'operator<' is required -- only a transitive 'EQUALS'
+    // This class implements a crude implementation of a set, that will keep a
+    // set of values and be able to determine if an element is a member of the
+    // set.  Unlike a 'bsl::set' or 'bsl::unordered_set', no hash function or
+    // transitive 'operator<' is required -- only a transitive 'EQUALS'
     // operator.
     //
     // The 'TYPE' template parameter must have a public copy constructor and
@@ -126,10 +128,10 @@ class ListSet {
     //..
     //  bool operator()(const TYPE& lhs, const TYPE& rhs) const;
     //..
-    // and which returns 'true' if 'lhs' and 'rhs' are equivalent and 'false'
+    // and that returns 'true' if 'lhs' and 'rhs' are equivalent and 'false'
     // otherwise.  This equivalence relation must be transitive and symmetric.
-    // The comparator must have a default constructor and destructor which are
-    // public.
+    // The comparator must have a publicly accessible default constructor and a
+    // publicly accessible destructor.
 
     // PRIVATE TYPES
     struct Node {
@@ -171,8 +173,9 @@ class ListSet {
 
     // MANIPULATOR
     bool insert(const TYPE& value)
-        // If 'value' isn't contained in this 'ListSet', add it and return
-        // 'true', otherwise, return 'false' with no change to the 'ListSet'.
+        // If the specified 'value' isn't contained in this 'ListSet', add it
+        // and return 'true', otherwise, return 'false' with no change to the
+        // 'ListSet'.
     {
         if (count(value)) {
             return false;                                             // RETURN

@@ -13,6 +13,7 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_testallocatorexception.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_haspointersemantics.h>
 
 #include <bsls_assert.h>
@@ -32,7 +33,10 @@
 
 #include <algorithm>
 
-#include <stdlib.h>      // atoi
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // ============================================================================
 //                          ADL SWAP TEST HELPER
