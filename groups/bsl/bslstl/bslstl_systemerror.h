@@ -61,7 +61,6 @@ BSLS_IDENT("$Id: $")
 
 #include <cstring>
 #include <functional>
-#include <ostream>
 #include <stdexcept>
 #include <string>
 
