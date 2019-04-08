@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_HASH_MAP
 #define INCLUDED_NATIVE_HASH_MAP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -23,45 +21,39 @@ BSLS_IDENT("$Id: $")
 // 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
 // places them in the 'std' namespace.
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 #ifndef BSL_OVERRIDES_STD
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATH
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <hash_map>
-#   else
-#     include BSL_NATIVE_CPP_LIB_HEADER(hash_map)
-#   endif
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <hash_map>
+# else
+#   include BSL_NATIVE_CPP_LIB_HEADER(hash_map)
+# endif
 
 #else
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_hash_map
-#   endif
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_hash_map
+# endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATH
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   ifndef BSL_INCLUDE_BSL_HASH_MAP
-#   define BSL_INCLUDE_BSL_HASH_MAP
-#   endif
+# ifndef BSL_INCLUDE_BSL_HASH_MAP
+# define BSL_INCLUDE_BSL_HASH_MAP
+# endif
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_hash_map
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_hash_map
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_hash_map
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_hash_map
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  // BSL_OVERRIDES_STD
 

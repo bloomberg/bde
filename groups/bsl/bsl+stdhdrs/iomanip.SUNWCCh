@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_IOMANIP
 #define INCLUDED_NATIVE_IOMANIP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -23,35 +21,31 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BSL_OVERRIDES_STD
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(iomanip)
+# include BSL_NATIVE_CPP_LIB_HEADER(iomanip)
 
 #else // defined(BSL_OVERRIDES_STD)
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_iomanip
-#   endif
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_iomanip
+# endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(iomanip)
+# include BSL_NATIVE_CPP_LIB_HEADER(iomanip)
 
-#   include <bsl_iomanip.h>
+# include <bsl_iomanip.h>
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_iomanip
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_iomanip
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_iomanip
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_iomanip
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  // BSL_OVERRIDES_STD
 

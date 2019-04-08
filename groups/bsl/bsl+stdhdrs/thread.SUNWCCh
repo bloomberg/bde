@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_THREAD
 #define INCLUDED_NATIVE_THREAD
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -21,35 +19,31 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BSL_OVERRIDES_STD
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(thread)
+# include BSL_NATIVE_CPP_LIB_HEADER(thread)
 
 #else // defined(BSL_OVERRIDES_STD)
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
-#   include <bsl_stdhdrs_prologue.h>
-#   endif
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# include <bsl_stdhdrs_prologue.h>
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_thread
-#   endif
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_thread
+# endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(thread)
+# include BSL_NATIVE_CPP_LIB_HEADER(thread)
 
-#   include <bsl_thread.h>
+# include <bsl_thread.h>
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_thread
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_thread
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_thread
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_thread
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  // BSL_OVERRIDES_STD
 

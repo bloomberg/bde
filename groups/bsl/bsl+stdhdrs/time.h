@@ -35,40 +35,41 @@ BSLS_IDENT("$Id: $")
         // Don't run the prologue/epilogue pair if we're being included when
         // the prologue is already in effect.  It can happen because 'time.h'
         // is designed for multiple inclusion.
-#   include <bsl_stdhdrs_incpaths.h>
+# include <bsl_stdhdrs_incpaths.h>
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <time.h>
-#   else
-#     include BSL_NATIVE_OS_RTL_HEADER(time.h)
-#   endif
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <time.h>
+# else
+#   include BSL_NATIVE_OS_RTL_HEADER(time.h)
+# endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_c_time
-#   endif
-#   include <bsl_stdhdrs_incpaths.h>
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_c_time
+# endif
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <time.h>
-#   else
-#     include BSL_NATIVE_OS_RTL_HEADER(time.h)
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <time.h>
+# else
+#   include BSL_NATIVE_OS_RTL_HEADER(time.h)
+# endif
 
 // This native header does not define any symbols in namespace 'std' to import,
 // so the following include is not necessary:
 // #include <bsl_c_time.h>
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_time
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_time
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_time
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_time
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  /* BSL_OVERRIDES_STD */
 

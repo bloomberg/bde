@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_VECTOR
 #define INCLUDED_NATIVE_VECTOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -23,37 +21,33 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BSL_OVERRIDES_STD
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(vector)
+# include BSL_NATIVE_CPP_LIB_HEADER(vector)
 
 #else // defined(BSL_OVERRIDES_STD)
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_vector
-#   endif
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_vector
+# endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(vector)
+# include BSL_NATIVE_CPP_LIB_HEADER(vector)
 
-#   ifndef BSL_INCLUDE_BSL_VECTOR
-#   define BSL_INCLUDE_BSL_VECTOR
-#   endif
+# ifndef BSL_INCLUDE_BSL_VECTOR
+# define BSL_INCLUDE_BSL_VECTOR
+# endif
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_vector
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_vector
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_vector
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_vector
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  // BSL_OVERRIDES_STD
 

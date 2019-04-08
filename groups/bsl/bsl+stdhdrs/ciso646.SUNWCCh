@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_CISO646
 #define INCLUDED_NATIVE_CISO646
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -24,40 +22,36 @@ BSLS_IDENT("$Id: $")
 #if !defined(BSL_OVERRIDES_STD) || \
     defined(BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS)
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CISO646_HEADER(ciso646)
+# include BSL_NATIVE_CISO646_HEADER(ciso646)
 
-#   if defined(BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS)
+# if defined(BSLS_LIBRARYFEATURES_DETECTION_IN_PROGRESS)
     // We want a new inclusion to re-evaluate this header.
 #   undef INCLUDED_NATIVE_CISO646
-#   endif
+# endif
 
 #else // defined(BSL_OVERRIDES_STD)
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_ciso646
-#   endif
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_ciso646
+# endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CISO646_HEADER(ciso646)
+# include BSL_NATIVE_CISO646_HEADER(ciso646)
 
-#   include <bsl_ciso646.h>
+# include <bsl_ciso646.h>
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_ciso646
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_ciso646
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_ciso646
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_ciso646
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  // BSL_OVERRIDES_STD
 
