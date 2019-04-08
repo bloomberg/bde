@@ -10,7 +10,7 @@
 // FREE OPERATORS
 void bsl::PrintTo(const bsl::string& value, bsl::ostream *stream)
 {
-    *stream << '"' << value << '"' << bsl::flush;
+    *stream << '"' << value << '"';
 }
 
 void bsl::PrintTo(const bsl::wstring& value, bsl::ostream *stream)
@@ -53,13 +53,13 @@ void bsl::PrintTo(const bsl::wstring& value, bsl::ostream *stream)
         }
     }
 
-    *stream << '"' << bsl::flush;
+    *stream << '"';
 }
 
 void bsl::PrintTo(const BloombergLP::bslstl::StringRef&  value,
                   bsl::ostream                          *stream)
 {
-    *stream << '"' << value << '"' << bsl::flush;
+    *stream << '"' << value << '"';
 }
 
 namespace BloombergLP {
