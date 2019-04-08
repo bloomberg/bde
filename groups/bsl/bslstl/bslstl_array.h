@@ -459,6 +459,16 @@ void hashAppend(HASH_ALGORITHM& hashAlgorithm, const array<TYPE, SIZE>& input);
 
 namespace std {
 
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmismatched-tags"
+    // The native STL library headers for libstdc++ are internally inconsistent
+    // so it is not possible for this header to resolve this warning by picking
+    // either 'struct' or 'class' for the class introducer.  We do not see this
+    // warning directly from the native libraries only because they are tagged
+    // as system headers, which implicitly silences all warnings.
+#endif
+
                              // ====================
                              // struct tuple_element
                              // ====================
@@ -486,6 +496,10 @@ struct tuple_size<bsl::array<TYPE, SIZE> > : integral_constant<size_t, SIZE>
     // This meta-function provides a compile-time way to obtain the number of
     // elements in an array.
 };
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma clang diagnostic pop
+#endif
 
 }  // close namespace std
 
