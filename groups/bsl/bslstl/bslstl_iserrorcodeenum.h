@@ -46,12 +46,20 @@ BSLS_IDENT("$Id: $")
 //      };
 //  };
 //..
-// Then, we enable the trait marking this as an error code.
+// Then, we enable the trait marking this as an error code.  (Note that if this
+// code is intended to be used with 'BSL_OVERRIDES_STD' and C++11, it is
+// necessary to bracket it as shown, or it will not compile.)
 //..
+//  #ifdef BSL_OVERRIDES_STD
+//  #undef std
+//  #endif
 //  namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
 //  template <> struct is_error_code_enum<CarError::Enum>
 //  : bsl::public true_type { };
 //  }  // close namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE
+//  #ifdef BSL_OVERRIDES_STD
+//  #define std bsl
+//  #endif
 //..
 // Finally, we verify that the trait marks our type as eligible.
 //..

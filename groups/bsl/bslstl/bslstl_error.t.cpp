@@ -325,8 +325,13 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
 // specializations must appear in the same namespace in which the class
 // templates are defined, and this component provides macros naming these
 // namespaces portably.  Again, for exposition, 'Errors::Enum' is marked as
-// both an error code and an error condition.
+// both an error code and an error condition.  (Note that if this code is
+// intended to be used with 'BSL_OVERRIDES_STD' and C++11, it is necessary to
+// bracket it as shown, or it will not compile.)
 //..
+    #ifdef BSL_OVERRIDES_STD
+    #undef std
+    #endif
     namespace BSL_IS_ERROR_CODE_ENUM_NAMESPACE {
     template <>
     struct is_error_code_enum<BloombergLP::carfx::Errors::Enum>
@@ -338,6 +343,9 @@ void BslTestUtil::callDebugprint(const bsl::error_condition&  object,
     struct is_error_condition_enum<BloombergLP::carfx::Errors::Enum>
     : public bsl::true_type { };
     }  // close namespace BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE
+    #ifdef BSL_OVERRIDES_STD
+    #define std bsl
+    #endif
 //..
 // Now, write a function that can potentially have errors.
 //..
