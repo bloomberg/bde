@@ -127,6 +127,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlc_packedintarray.h>
 
+#include <bdlb_algorithmworkaroundutil.h>
 #include <bslalg_swaputil.h>
 
 #include <bslh_hash.h>
@@ -1385,9 +1386,10 @@ bsl::size_t CompactedArray<TYPE>::increment(const TYPE& value,
 
     bsl::size_t index;
 
-    typename Data::iterator iter = bsl::lower_bound(d_data.begin(),
-                                                    d_data.end(),
-                                                    value);
+    typename Data::iterator iter =
+                      bdlb::AlgorithmWorkaroundUtil::lowerBound(d_data.begin(),
+                                                                d_data.end(),
+                                                                value);
 
     if (iter == d_data.end()) {
         index = d_data.size();
