@@ -117,13 +117,12 @@ const bsl::size_t  NON_EMPTY_WCHAR_STRING_LENGTH =
               sizeof(NON_EMPTY_WCHAR_STRING) / sizeof(*NON_EMPTY_WCHAR_STRING);
 const wchar_t     *NON_EMPTY_WCHAR_STRING_END =
                         NON_EMPTY_WCHAR_STRING + NON_EMPTY_WCHAR_STRING_LENGTH;
-const char        *NON_EMPTY_WCHAR_EXPECTED = "12345"
-                                              "\\x00000000"   // 0
-                                              "\\x00000099"   // 153
-                                              "\\x0000009a"   // 154
-                                              "\\x0000009b"   // 155
-                                              "\\x0000009c"   // 156
-                                              "\\x0000009d";  // 157
+
+const char        *NON_EMPTY_WCHAR_EXPECTED = (4 == sizeof(wchar_t))
+    //          0          153        154        155        156        157
+    //         --------   --------   --------   --------   --------   --------
+    ? "12345\\x00000000\\x00000099\\x0000009a\\x0000009b\\x0000009c\\x0000009d"
+    : "12345\\x0000"  "\\x0099"  "\\x009a"  "\\x009b"  "\\x009c"  "\\x009d";
 
 // ============================================================================
 //            SIMULATE COMPETING 'PrintTo' DECLARATIONS IN GTEST
@@ -430,6 +429,7 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "Testing non-empty 'bsl::wstring'." << endl;
         {
+            const int   EXTENDED_SYMBOL_SHIFT = sizeof(wchar_t) * 2;
             const char *expectedBegin = NON_EMPTY_WCHAR_EXPECTED;
             for (const wchar_t *begin = NON_EMPTY_WCHAR_STRING;
                  begin != NON_EMPTY_WCHAR_STRING_END;
@@ -455,16 +455,24 @@ int main(int argc, char *argv[])
 
 
                     if (*end > 0 && *end < 128) {
-                        expectedEnd += 1;   // '1' -> '1'
+                        // '1' -> '1'
+
+                        expectedEnd += 1;
                     } else {
-                        expectedEnd += 10;  // '0' -> "\x00000000"
+                        // '0' -> "\x00000000" || '0' -> "\x0000"
+
+                        expectedEnd += (2 + EXTENDED_SYMBOL_SHIFT);
                     }
                 }
 
                 if (*begin > 0 && *begin < 128) {
-                    expectedBegin += 1;   // '1' -> '1'
+                    // '1' -> '1'
+
+                    expectedBegin += 1;
                 } else {
-                    expectedBegin += 10;  // '0' -> "\x00000000"
+                    // '0' -> "\x00000000" || '0' -> "\x0000"
+
+                    expectedBegin += (2 + EXTENDED_SYMBOL_SHIFT);
                 }
             }
         }
