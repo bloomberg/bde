@@ -1,5 +1,5 @@
-// bslstl_algorithmworkaround.t.cpp                                   -*-C++-*-
-#include <bslstl_algorithmworkaround.h>
+// bdlb_algorithmworkaroundutil.t.cpp                                 -*-C++-*-
+#include <bdlb_algorithmworkaroundutil.h>
 
 #include <bslma_default.h>
 #include <bslma_allocator.h>
@@ -12,12 +12,15 @@
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 
-#include <functional>
+#include <bsl_functional.h>
+
 #include <limits.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>      // atoi
 #include <string.h>      // strlen
+
+using namespace BloombergLP;
 
 // ============================================================================
 //                             TEST PLAN
@@ -27,6 +30,10 @@
 //
 // ----------------------------------------------------------------------------
 //
+// [ 2] IT lower_bound(IT , IT , const TYPE& )
+// [ 2] IT lower_bound(IT , IT , const TYPE&, COMPARE )
+// [ 2] IT upper_bound(IT , IT , const TYPE& )
+// [ 2] IT upper_bound(IT , IT , const TYPE&, COMPARE )
 // ----------------------------------------------------------------------------
 // [  ] BREATHING TEST
 // [  ] USAGE EXAMPLE
@@ -95,7 +102,7 @@ void aSsErT(bool b, const char *s, int i)
 //                       GLOBAL TEST ALIASES
 // ----------------------------------------------------------------------------
 
-using namespace BloombergLP;
+typedef bdlb::AlgorithmWorkaroundUtil Util;
 
 // ============================================================================
 //                       GLOBAL TEST VALUES
@@ -105,8 +112,6 @@ static bool             verbose;
 static bool         veryVerbose;
 static bool     veryVeryVerbose;
 static bool veryVeryVeryVerbose;
-
-
 
 // ============================================================================
 //                            MAIN PROGRAM
@@ -130,7 +135,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -150,6 +155,150 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
 
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING: lower_bound, upper_bound
+        //
+        // Concerns:
+        //: 1 That lower_bound returns the *first* match from a sequence of
+        //:   values.
+        //:
+        //: 2 That upper_bound returns the *last* match from a sequence of
+        //:   values.
+        //:
+        //: 3 That both lower_bound and upper_bound both function with and
+        //:   without a supplied comparator.
+        //
+        // Plan:
+        //: 1 Create an input array of integers and and perform a table based
+        //:   test ensuring the upper_bound and lower_bound functions return
+        //:   the expected results.
+        //
+        // Testing:
+        //   IT lower_bound(IT , IT , const TYPE& )
+        //   IT lower_bound(IT , IT , const TYPE&, COMPARE )
+        //   IT upper_bound(IT , IT , const TYPE& )
+        //   IT upper_bound(IT , IT , const TYPE&, COMPARE )
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING: lower_bound, upper_bound"
+                            "\n=================================\n");
+
+        if (verbose) printf("\tTable based test\n");
+
+
+        {
+            const int INPUT[]   = {0, 0, 1, 3, 3, 3, 5, 7 };
+            const int NUM_INPUT = sizeof(INPUT) / sizeof(*INPUT);
+
+            struct TestData {
+                    int  d_searchValue;
+                    int  d_lowerBoundIndex;
+                    int  d_upperBoundIndex;
+                    bool d_exactMatch;
+            } DATA[] = {
+                { -1,  0,  0, false },
+                {  0,  0,  2,  true },
+                {  1,  2,  3,  true },
+                {  2,  3,  3, false },
+                {  3,  3,  6,  true },
+                {  4,  6,  6, false },
+                {  5,  6,  7,  true },
+                {  6,  7,  7, false },
+                {  7,  7,  8,  true },
+                {  8,  8,  8, false },
+            };
+            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int  VALUE     = DATA[i].d_searchValue;
+                const int  EXP_LOWER = DATA[i].d_lowerBoundIndex;
+                const int  EXP_UPPER = DATA[i].d_upperBoundIndex;
+                const int  EXACT     = DATA[i].d_exactMatch;
+                const int *END       = INPUT + NUM_INPUT;
+
+                // Note that the conditions for termination of 'lower_bound'
+                // on, for example, cppreference.com:
+                //
+                // "Returns an iterator pointing to the first element in the
+                // range [first, last) that is not less than (i.e. greater or
+                // equal to) value.".
+                //
+                // Similar condition exists for 'upper_bound'.
+                //
+                // Below we test returned iterator ('result') meets that
+                // condition (if it is not the end iterator).  Then, we test
+                // the preceding position ('prevValue') does *not* meet the
+                // condition (if the returned iterator does not refer to the
+                // first element).  Thereby verifying the returned iterator is
+                // the *first* element in the range meeting termination
+                // condition for the algorithm.
+
+                {
+                    const int *result = Util::lowerBound(INPUT, END, VALUE);
+                    const int offset = result - INPUT;
+
+                    ASSERTV(EXP_LOWER, offset, EXP_LOWER == offset);
+                    if (result < END) {
+                        ASSERTV(*result, VALUE, !(*result < VALUE));
+                    }
+                    if (result != INPUT) {
+                        const int prevValue = *(result - 1);
+                        ASSERTV(prevValue, VALUE, !!(prevValue < VALUE));
+                    }
+                    if (EXACT) {
+                        ASSERTV(*result, VALUE, *result == VALUE);
+                    }
+                }
+                {
+                    const int *result =
+                        Util::lowerBound(INPUT, END, VALUE, bsl::less<int>());
+
+                    const int offset = result - INPUT;
+
+                    ASSERTV(EXP_LOWER, offset, EXP_LOWER == offset);
+                    if (result < END) {
+                        ASSERTV(*result, VALUE, !(*result < VALUE));
+                    }
+                    if (result != INPUT) {
+                        const int prevValue = *(result - 1);
+                        ASSERTV(prevValue, VALUE, !!(prevValue < VALUE));
+                    }
+                    if (EXACT) {
+                        ASSERTV(*result, VALUE, *result == VALUE);
+                    }
+                }
+                {
+                    const int *result = Util::upperBound(INPUT, END, VALUE);
+                    const int offset = result - INPUT;
+
+                    ASSERTV(EXP_UPPER, offset, EXP_UPPER == offset);
+                    if (result < END) {
+                        ASSERTV(*result, VALUE, *result > VALUE);
+                    }
+                    if (result != INPUT) {
+                        const int prevValue = *(result - 1);
+                        ASSERTV(prevValue, VALUE, !(prevValue > VALUE));
+                    }
+                }
+                {
+                    const int *result =
+                        Util::upperBound(INPUT, END, VALUE, bsl::less<int>());
+
+                    const int offset = result - INPUT;
+
+                    ASSERTV(EXP_UPPER, offset, EXP_UPPER == offset);
+                    if (result < END) {
+                        ASSERTV(*result, VALUE, *result > VALUE);
+                    }
+                    if (result != INPUT) {
+                        const int prevValue = *(result - 1);
+                        ASSERTV(prevValue, VALUE, !(prevValue > VALUE));
+                    }
+                }
+            }
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -190,7 +339,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
