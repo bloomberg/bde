@@ -9306,7 +9306,7 @@ static void usageExample()
     ASSERT(2                                        == tagNumber);
 
     int age = 0;
-    rc = balber::BerUtil::getValue(&isb, &age, &accumNumBytesConsumed);
+    rc      = balber::BerUtil::getValue(&isb, &age, &accumNumBytesConsumed);
     ASSERT(0  == rc);
     ASSERT(56 == age);
 

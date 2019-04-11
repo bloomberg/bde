@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_IOSTREAM
 #define INCLUDED_NATIVE_IOSTREAM
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -21,49 +19,43 @@ BSLS_IDENT("$Id: $")
 // 'bsl_stdhdrs_epilogue.h'.  This includes the respective 'bsl' types and
 // places them in the 'std' namespace.
 
-#ifndef INCLUDED_BSLS_COMPILERFEATURES
 #include <bsls_compilerfeatures.h>
-#endif
 
 #ifndef BSL_OVERRIDES_STD
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <iostream>
-#   else
-#     include BSL_NATIVE_CPP_LIB_HEADER(iostream)
-#   endif
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <iostream>
+# else
+#   include BSL_NATIVE_CPP_LIB_HEADER(iostream)
+# endif
 
 #else // defined(BSL_OVERRIDES_STD)
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_iostream
-#   endif
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_iostream
+# endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <iostream>
-#   else
-#     include BSL_NATIVE_CPP_LIB_HEADER(iostream)
-#   endif
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <iostream>
+# else
+#   include BSL_NATIVE_CPP_LIB_HEADER(iostream)
+# endif
 
-#   include <bsl_iostream.h>
+# include <bsl_iostream.h>
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_iostream
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_iostream
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_iostream
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_iostream
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  // BSL_OVERRIDES_STD
 

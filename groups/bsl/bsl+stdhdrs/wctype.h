@@ -31,40 +31,41 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
-#   include <bsl_stdhdrs_incpaths.h>
+# include <bsl_stdhdrs_incpaths.h>
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <wctype.h>
-#   else
-#     include BSL_NATIVE_OS_RTL_HEADER(wctype.h)
-#   endif
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <wctype.h>
+# else
+#   include BSL_NATIVE_OS_RTL_HEADER(wctype.h)
+# endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_c_wctype
-#   endif
-#   include <bsl_stdhdrs_incpaths.h>
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_c_wctype
+# endif
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <wctype.h>
-#   else
-#     include BSL_NATIVE_OS_RTL_HEADER(wctype.h)
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <wctype.h>
+# else
+#   include BSL_NATIVE_OS_RTL_HEADER(wctype.h)
+# endif
 
 // This native header does not define any symbols in namespace 'std' to import,
 // so the following include is not necessary:
 // #include <bsl_c_wctype.h>
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_wctype
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_wctype
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_wctype
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_wctype
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  /* BSL_OVERRIDES_STD */
 

@@ -911,7 +911,7 @@ BSLS_IDENT("$Id: $")
 # define BSLS_LIBRARYFEATURES_STDCPP_LLVM                             1
 #elif defined(__STD_RWCOMPILER_H__) || defined(_RWSTD_VER)
 # define BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD                          1
-#elif defined(__SGI_STL_PORT) || defined(__STLPORT_VERSION)
+#elif defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)
 # define BSLS_LIBRARYFEATURES_STDCPP_STLPORT                          1
 #elif defined(__IBMCPP__)
 # define BSLS_LIBRARYFEATURES_STDCPP_IBM                              1

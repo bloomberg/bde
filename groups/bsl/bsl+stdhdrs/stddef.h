@@ -29,37 +29,39 @@ BSLS_IDENT("$Id: $")
 #endif  /* INCLUDED_NATIVE_C_STDDEF */
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
-#   include <bsl_stdhdrs_incpaths.h>
+# include <bsl_stdhdrs_incpaths.h>
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <stddef.h>
-#   else
-#     include BSL_NATIVE_OS_STDDEF_HEADER(stddef.h)
-#   endif
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <stddef.h>
+# else
+#   include BSL_NATIVE_OS_STDDEF_HEADER(stddef.h)
+# endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_c_stddef
-#   endif
-#   include <bsl_stdhdrs_incpaths.h>
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_c_stddef
+# endif
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <stddef.h>
-#   else
-#     include BSL_NATIVE_OS_STDDEF_HEADER(stddef.h)
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <stddef.h>
+# else
+#   include BSL_NATIVE_OS_STDDEF_HEADER(stddef.h)
+# endif
 
 // On SUN, 'stddef.h' (a C header) defines 'size_t'.  This odd implementation
 // forces the following 'using' directive.
-#   ifdef BSLS_PLATFORM_CMP_SUN
+# ifdef BSLS_PLATFORM_CMP_SUN
 
 // This C header file might be included within an 'extern "C"' block.  To avoid
 // defining C++ symbols in an 'extern "C"' block, wrap the C++ code with an
@@ -73,12 +75,12 @@ extern "C++" {
 
 }  // extern "C++"
 
-#   endif  // BSLS_PLATFORM_CMP_SUN
+# endif  // BSLS_PLATFORM_CMP_SUN
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_stddef
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_stddef
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_stddef
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_stddef
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  /* BSL_OVERRIDES_STD */
 

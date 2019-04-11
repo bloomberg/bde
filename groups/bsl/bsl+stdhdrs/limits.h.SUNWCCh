@@ -1,10 +1,8 @@
-/* limits.h     -*- C -*- */
+/* limits.h                                                        -*- C -*- */
 #ifndef INCLUDED_NATIVE_C_LIMITS
 #define INCLUDED_NATIVE_C_LIMITS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 /*
@@ -32,37 +30,33 @@ BSLS_IDENT("$Id: $")
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_C_LIB_HEADER(limits.h)
+# include BSL_NATIVE_C_LIB_HEADER(limits.h)
 
 #else  /* defined(BSL_OVERRIDES_STD) */
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_c_limits
-#   endif
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_c_limits
+# endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_C_LIB_HEADER(limits.h)
+# include BSL_NATIVE_C_LIB_HEADER(limits.h)
 
 // This native header does not define any symbols in namespace 'std' to import,
 // so the following include is not necessary:
 // #include <bsl_c_limits.h>
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_limits
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_limits
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_limits
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_limits
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  /* BSL_OVERRIDES_STD */
 

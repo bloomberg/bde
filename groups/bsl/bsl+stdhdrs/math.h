@@ -35,49 +35,50 @@ BSLS_IDENT("$Id: $")
 // 'std::exception'.  The RW library has a workaround for this, but STLPort
 // does not.
 #if defined(BSLS_PLATFORM_CMP_SUN) && defined(BDE_BUILD_TARGET_STLPORT)
-#   define exception math_exception
+# define exception math_exception
 #endif
 
 #if !defined(BSL_OVERRIDES_STD) || !defined(__cplusplus)
-#   include <bsl_stdhdrs_incpaths.h>
+# include <bsl_stdhdrs_incpaths.h>
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <math.h>
-#   else
-#     include BSL_NATIVE_OS_RTL_HEADER(math.h)
-#   endif
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <math.h>
+# else
+#   include BSL_NATIVE_OS_RTL_HEADER(math.h)
+# endif
 
 #else  /* defined(BSL_OVERRIDES_STD) */
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_c_math
-#   endif
-#   include <bsl_stdhdrs_incpaths.h>
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_c_math
+# endif
 
-#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#     include_next <math.h>
-#   else
-#     include BSL_NATIVE_OS_RTL_HEADER(math.h)
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#   include_next <math.h>
+# else
+#   include BSL_NATIVE_OS_RTL_HEADER(math.h)
+# endif
 
 // This native header does not define any symbols in namespace 'std' to import,
 // so the following include is not necessary:
 // #include <bsl_c_math.h>
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_math
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_math
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_c_math
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_c_math
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  /* BSL_OVERRIDES_STD */
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && defined(BDE_BUILD_TARGET_STLPORT)
-#   undef exception
+# undef exception
 #endif
 
 /*

@@ -1798,7 +1798,8 @@ int main(int argc, char *argv[])
         // Verify the number of categories added to the category manager.
         int totalAddedCategories = 0;
         for (int i = 0; i < NUM_W_THREADS; ++i) {
-            totalAddedCategories += threads[i].d_results.size();
+            totalAddedCategories +=
+                                 static_cast<int>(threads[i].d_results.size());
             if (veryVeryVerbose) {
                 T_;
                 P_(i);

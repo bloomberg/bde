@@ -363,7 +363,9 @@ int TestPublisher::indexOf(const balm::MetricId& id) const
     if (it == d_sortedRecords.end()) {
         return -1;                                                    // RETURN
     }
-    return (it->metricId() == id) ? it - d_sortedRecords.begin() : -1;
+    return (it->metricId() == id)
+          ? static_cast<int>(it - d_sortedRecords.begin())
+          : -1;
 }
 
 inline
@@ -402,13 +404,15 @@ bool TestPublisher::contains(const balm::MetricId& id) const
             // Process the specified 'request'.  Return 0 on success, and a
             // non-zero value otherwise.
         {
-           int returnCode = 0;
+            (void)request;
 
-           balm::StopwatchScopedGuard guard(&d_elapsedTime);
+            int returnCode = 0;
+
+            balm::StopwatchScopedGuard guard(&d_elapsedTime);
 
     // ...
 
-           return returnCode;
+            return returnCode;
         }
 
     // ...
@@ -1016,7 +1020,7 @@ int main(int argc, char *argv[])
 
                 sample.setTimeStamp(TIME_STAMP);
                 sample.appendGroup(records.data(),
-                                   records.size(),
+                                   static_cast<int>(records.size()),
                                    ELAPSED_TIME);
 
                 tp2.reset();

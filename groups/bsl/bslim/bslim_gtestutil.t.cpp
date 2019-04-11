@@ -26,11 +26,15 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// Test this thing.
+// The component under test consists of a series of static member functions
+// that provide facilities for debugging BDE with gtest.
 // ----------------------------------------------------------------------------
-// [ 2] INDIVIDUAL CHARACTER TESTING
+// [ 4] void PrintTo(const bslstl::StringRef& value, ostream *stream);
+// [ 3] void PrintTo(const bsl::wstring& value, ostream *stream);
+// [ 2] void PrintTo(const bsl::string& value, ostream *stream);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
+// [ 5] USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -80,6 +84,45 @@ void aSsErT(bool condition, const char *message, int line)
 // ============================================================================
 //            GLOBAL TYPES, CONSTANTS, AND VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
+
+const char        *EMPTY_STRING = "";
+const wchar_t     *EMPTY_WCHAR_STRING = L"";
+
+const bsl::string  EMPTY_EXPECTED("\"\"");
+
+const char        *LONG_STRING  = "123456789012345678901234567890"
+                                  "123456789012345678901234567890"
+                                  "123456789012345678901234567890";
+const wchar_t     *LONG_WCHAR_STRING  = L"123456789012345678901234567890"
+                                        L"123456789012345678901234567890"
+                                        L"123456789012345678901234567890";
+
+const bsl::string  LONG_EXPECTED = bsl::string("\"")
+                                 + bsl::string(LONG_STRING)
+                                 + bsl::string("\"");
+
+// Non empty string: "12345\0abcde".
+// Note the null value character in the middle.
+
+const char         NON_EMPTY_STRING[] =
+                                 {49, 50, 51, 52, 53, 0, 97, 98, 99, 100, 101};
+const bsl::size_t  NON_EMPTY_STRING_LENGTH =
+                          sizeof(NON_EMPTY_STRING) / sizeof(*NON_EMPTY_STRING);
+const char        *NON_EMPTY_STRING_END =
+                                    NON_EMPTY_STRING + NON_EMPTY_STRING_LENGTH;
+
+const wchar_t      NON_EMPTY_WCHAR_STRING[] =
+                              {49, 50, 51, 52, 53, 0, 153, 154, 155, 156, 157};
+const bsl::size_t  NON_EMPTY_WCHAR_STRING_LENGTH =
+              sizeof(NON_EMPTY_WCHAR_STRING) / sizeof(*NON_EMPTY_WCHAR_STRING);
+const wchar_t     *NON_EMPTY_WCHAR_STRING_END =
+                        NON_EMPTY_WCHAR_STRING + NON_EMPTY_WCHAR_STRING_LENGTH;
+
+const char        *NON_EMPTY_WCHAR_EXPECTED = (4 == sizeof(wchar_t))
+    //          0          153        154        155        156        157
+    //         --------   --------   --------   --------   --------   --------
+    ? "12345\\x00000000\\x00000099\\x0000009a\\x0000009b\\x0000009c\\x0000009d"
+    : "12345\\x0000"  "\\x0099"  "\\x009a"  "\\x009b"  "\\x009c"  "\\x009d";
 
 // ============================================================================
 //            SIMULATE COMPETING 'PrintTo' DECLARATIONS IN GTEST
@@ -207,7 +250,7 @@ int main(int argc, char *argv[])
     BloombergLP::bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
     switch (test) { case 0:
-      case 2: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -238,6 +281,304 @@ int main(int argc, char *argv[])
 //..
 //  "No matter where you go, There you are! -- Buckaroo Banzai"
 //..
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING 'PrintTo' FOR 'StringRef'
+        //
+        // Concerns:
+        //: 1 The 'PrintTo' correctly writes an empty 'StringRef' object's
+        //:   value to the stream.
+        //:
+        //: 2 The 'PrintTo' correctly writes 'StringRef' object's value
+        //:   containing embedded null character to the stream.
+        //:
+        //: 3 The 'PrintTo' correctly writes any non-empty 'StringRef' object's
+        //:   value to the stream.
+        //
+        // Plan:
+        //: 1 Create several 'StringRef' objects, having different values.
+        //:   Print them to the stream using 'PrintTo' function and verify the
+        //:   result.  (C-1..3)
+        //
+        // Testing:
+        //   void PrintTo(const bslstl::StringRef& value, ostream *stream);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'PrintTo' FOR 'StringRef'"
+                          << "\n=================================\n";
+
+        typedef BloombergLP::bslstl::StringRef StringRef;
+
+        if (veryVerbose) cout << "Testing default-constructed 'StringRef'."
+                              << endl;
+        {
+            StringRef        mDES;
+            const StringRef& DES = mDES;
+
+            bsl::ostringstream ossDES;
+
+            bsl::PrintTo(DES, &ossDES);
+
+            ASSERTV(ossDES.good());
+            ASSERTV(ossDES.str(), EMPTY_EXPECTED == ossDES.str());
+        }
+
+        if (veryVerbose) cout << "Testing empty 'StringRef'." << endl;
+        {
+            StringRef        mES(EMPTY_STRING);
+            const StringRef& ES = mES;
+
+            bsl::ostringstream ossES;
+
+            bsl::PrintTo(ES, &ossES);
+
+            ASSERTV(ossES.good());
+            ASSERTV(ossES.str(), EMPTY_EXPECTED == ossES.str());
+        }
+
+        if (veryVerbose) cout << "Testing non-empty 'StringRef'." << endl;
+        {
+            for (const char *begin = NON_EMPTY_STRING;
+                 begin != NON_EMPTY_STRING_END;
+                 ++begin) {
+                for (const char *end = begin;
+                     end != NON_EMPTY_STRING_END + 1;
+                     ++end) {
+                    StringRef        mNES(begin, end);
+                    const StringRef& NES = mNES;
+
+                    bsl::ostringstream ossNES;
+                    const bsl::string  EXPECTED_NES = bsl::string("\"")
+                                                    + bsl::string(begin, end)
+                                                    + bsl::string("\"");
+                    bsl::PrintTo(NES, &ossNES);
+
+                    ASSERTV(ossNES.good());
+                    ASSERTV(EXPECTED_NES, ossNES.str(),
+                            EXPECTED_NES == ossNES.str());
+                }
+            }
+        }
+
+        if (veryVerbose) cout << "Testing long 'StringRef'." << endl;
+        {
+            StringRef        mLS(LONG_STRING);
+            const StringRef& LS = mLS;
+
+            bsl::ostringstream ossLS;
+
+            bsl::PrintTo(LS, &ossLS);
+
+            ASSERTV(ossLS.good());
+            ASSERTV(ossLS.str(), LONG_EXPECTED == ossLS.str());
+        }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING 'PrintTo' FOR 'wstring'
+        //
+        // Concerns:
+        //: 1 The 'PrintTo' correctly writes an empty 'wstring' object's value
+        //:   to the stream.
+        //:
+        //: 2 The 'PrintTo' correctly writes 'wstring' object's value
+        //:   containing embedded null character to the stream.
+        //:
+        //: 3 The 'PrintTo' correctly writes any non-empty 'wstring' object's
+        //:   value to the stream.
+        //
+        // Plan:
+        //: 1 Create several 'wstring' objects, having different values.  Print
+        //:   them to the stream using 'PrintTo' function and verify the
+        //:   result.  (C-1..3)
+        //
+        // Testing:
+        //   void PrintTo(const bsl::wstring& value, ostream *stream);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'PrintTo' FOR 'wstring'"
+                          << "\n===============================\n";
+
+        if (veryVerbose) cout << "Testing default-constructed 'bsl::wstring'."
+                              << endl;
+        {
+            bsl::wstring        mDES;
+            const bsl::wstring& DES = mDES;
+
+            bsl::ostringstream ossDES;
+
+            bsl::PrintTo(DES, &ossDES);
+
+            ASSERTV(ossDES.good());
+            ASSERTV(ossDES.str(), EMPTY_EXPECTED == ossDES.str());
+        }
+
+        if (veryVerbose) cout << "Testing empty 'bsl::wstring'." << endl;
+        {
+            bsl::wstring        mES(EMPTY_WCHAR_STRING);
+            const bsl::wstring& ES = mES;
+
+            bsl::ostringstream ossES;
+
+            bsl::PrintTo(ES, &ossES);
+
+            ASSERTV(ossES.good());
+            ASSERTV(ossES.str(), EMPTY_EXPECTED == ossES.str());
+        }
+
+        if (veryVerbose) cout << "Testing non-empty 'bsl::wstring'." << endl;
+        {
+            const int   EXTENDED_SYMBOL_SHIFT = sizeof(wchar_t) * 2;
+            const char *expectedBegin = NON_EMPTY_WCHAR_EXPECTED;
+            for (const wchar_t *begin = NON_EMPTY_WCHAR_STRING;
+                 begin != NON_EMPTY_WCHAR_STRING_END;
+                 ++begin) {
+                const char *expectedEnd = expectedBegin;
+                for (const wchar_t *end = begin;
+                     end != NON_EMPTY_WCHAR_STRING_END + 1;
+                     ++end) {
+                    bsl::wstring        mNES(begin, end);
+                    const bsl::wstring& NES = mNES;
+
+                    bsl::ostringstream ossNES;
+                    const bsl::string  EXPECTED_NES =
+                                        bsl::string("\"")
+                                      + bsl::string(expectedBegin, expectedEnd)
+                                      + bsl::string("\"");
+
+                    bsl::PrintTo(NES, &ossNES);
+
+                    ASSERTV(ossNES.good());
+                    ASSERTV(EXPECTED_NES, ossNES.str(),
+                            EXPECTED_NES == ossNES.str());
+
+
+                    if (*end > 0 && *end < 128) {
+                        // '1' -> '1'
+
+                        expectedEnd += 1;
+                    } else {
+                        // '0' -> "\x00000000" || '0' -> "\x0000"
+
+                        expectedEnd += (2 + EXTENDED_SYMBOL_SHIFT);
+                    }
+                }
+
+                if (*begin > 0 && *begin < 128) {
+                    // '1' -> '1'
+
+                    expectedBegin += 1;
+                } else {
+                    // '0' -> "\x00000000" || '0' -> "\x0000"
+
+                    expectedBegin += (2 + EXTENDED_SYMBOL_SHIFT);
+                }
+            }
+        }
+
+        if (veryVerbose) cout << "Testing long 'bsl::wstring'." << endl;
+        {
+            bsl::wstring        mLS(LONG_WCHAR_STRING);
+            const bsl::wstring& LS = mLS;
+
+            bsl::ostringstream ossLS;
+
+            bsl::PrintTo(LS, &ossLS);
+
+            ASSERTV(ossLS.good());
+            ASSERTV(ossLS.str(), LONG_EXPECTED == ossLS.str());
+        }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING 'PrintTo' FOR 'string'
+        //
+        // Concerns:
+        //: 1 The 'PrintTo' correctly writes an empty 'string' object's value
+        //:   to the stream.
+        //:
+        //: 2 The 'PrintTo' correctly writes 'string' object's value containing
+        //:   embedded null character to the stream.
+        //:
+        //: 3 The 'PrintTo' correctly writes any non-empty 'string' object's
+        //:   value to the stream.
+        //
+        // Plan:
+        //: 1 Create several 'string' objects, having different values.  Print
+        //:   them to the stream using 'PrintTo' function and verify the
+        //:   result.  (C-1..3)
+        //
+        // Testing:
+        //   void PrintTo(const bsl::string& value, ostream *stream);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING 'PrintTo' FOR 'string'"
+                          << "\n==============================\n";
+
+        if (veryVerbose) cout << "Testing default-constructed 'bsl::string'."
+                              << endl;
+        {
+            bsl::string        mDES;
+            const bsl::string& DES = mDES;
+
+            bsl::ostringstream ossDES;
+
+            bsl::PrintTo(DES, &ossDES);
+
+            ASSERTV(ossDES.good());
+            ASSERTV(ossDES.str(), EMPTY_EXPECTED == ossDES.str());
+        }
+
+        if (veryVerbose) cout << "Testing empty 'bsl::string'." << endl;
+        {
+            bsl::string        mES(EMPTY_STRING);
+            const bsl::string& ES = mES;
+
+            bsl::ostringstream ossES;
+
+            bsl::PrintTo(ES, &ossES);
+
+            ASSERTV(ossES.good());
+            ASSERTV(ossES.str(), EMPTY_EXPECTED == ossES.str());
+        }
+
+        if (veryVerbose) cout << "Testing non-empty 'bsl::string'." << endl;
+        {
+            for (const char *begin = NON_EMPTY_STRING;
+                 begin != NON_EMPTY_STRING_END;
+                 ++begin) {
+                for (const char *end = begin;
+                     end != NON_EMPTY_STRING_END + 1;
+                     ++end) {
+                    bsl::string        mNES(begin, end);
+                    const bsl::string& NES = mNES;
+
+                    bsl::ostringstream ossNES;
+                    const bsl::string  EXPECTED_NES = bsl::string("\"")
+                                                    + bsl::string(begin, end)
+                                                    + bsl::string("\"");
+                    bsl::PrintTo(NES, &ossNES);
+
+                    ASSERTV(ossNES.good());
+                    ASSERTV(EXPECTED_NES, ossNES.str(),
+                            EXPECTED_NES == ossNES.str());
+                }
+            }
+        }
+
+        if (veryVerbose) cout << "Testing long 'bsl::string'." << endl;
+        {
+            bsl::string        mLS(LONG_STRING);
+            const bsl::string& LS = mLS;
+
+            bsl::ostringstream ossLS;
+
+            bsl::PrintTo(LS, &ossLS);
+
+            ASSERTV(ossLS.good());
+            ASSERTV(ossLS.str(), LONG_EXPECTED == ossLS.str());
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------

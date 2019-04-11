@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_UNORDERED_MAP
 #define INCLUDED_NATIVE_UNORDERED_MAP
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -23,53 +21,48 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_platform.h>
 
 #ifndef BSL_OVERRIDES_STD
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#       if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#         include_next <unordered_map>
-#       else
-#         include BSL_NATIVE_CPP_LIB_HEADER(unordered_map)
-#       endif
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#     include_next <unordered_map>
+#   else
+#     include BSL_NATIVE_CPP_LIB_HEADER(unordered_map)
 #   endif
+# endif
 
 #else // defined(BSL_OVERRIDES_STD)
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
-#   include <bsl_stdhdrs_prologue.h>
-#   endif
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# include <bsl_stdhdrs_prologue.h>
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_unordered_map
-#   endif
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_unordered_map
+# endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-#       if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
-#         include_next <unordered_map>
-#       else
-#         include BSL_NATIVE_CPP_LIB_HEADER(unordered_map)
-#       endif
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#   if defined(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT)
+#     include_next <unordered_map>
+#   else
+#     include BSL_NATIVE_CPP_LIB_HEADER(unordered_map)
 #   endif
+# endif
 
-#   ifndef BSL_INCLUDE_BSL_UNORDERED_MAP
-#   define BSL_INCLUDE_BSL_UNORDERED_MAP
-#   endif
+# ifndef BSL_INCLUDE_BSL_UNORDERED_MAP
+# define BSL_INCLUDE_BSL_UNORDERED_MAP
+# endif
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_unordered_map
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_unordered_map
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_unordered_map
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_unordered_map
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  // BSL_OVERRIDES_STD
 

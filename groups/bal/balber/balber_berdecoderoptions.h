@@ -52,11 +52,13 @@ class BerDecoderOptions {
     int   d_traceLevel;          // trace (verbosity) level
     int   d_maxSequenceSize;     // maximum sequence size
     bool  d_skipUnknownElements; // if 'true', skip unknown elements
+    bool  d_defaultEmptyStrings; // if 'true', decode empty strings as their
+                                 // default values, if any
 
   public:
     // TYPES
     enum {
-        k_NUM_ATTRIBUTES = 4  // the number of attributes in this class
+        k_NUM_ATTRIBUTES = 5  // the number of attributes in this class
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
@@ -72,6 +74,8 @@ class BerDecoderOptions {
             // index for "TraceLevel" attribute
       , e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE     = 3
             // index for "MaxSequenceSize" attribute
+      , e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS = 4
+            // index for "DefaultEmptyStrings" attribute
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_INDEX_MAX_DEPTH             =
@@ -82,6 +86,8 @@ class BerDecoderOptions {
                                         e_ATTRIBUTE_INDEX_TRACE_LEVEL
       , ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE     =
                                         e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE
+      , ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS =
+                                        e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -94,6 +100,8 @@ class BerDecoderOptions {
             // id for 'TraceLevel' attribute
       , e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE     = 3
             // id for 'MaxSequenceSize' attribute
+      , e_ATTRIBUTE_ID_DEFAULT_EMPTY_STRINGS = 4
+            // id for 'DefaultEmptyStrnigs" attribute
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_ID_MAX_DEPTH             = e_ATTRIBUTE_ID_MAX_DEPTH
@@ -101,6 +109,8 @@ class BerDecoderOptions {
                                            e_ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS
       , ATTRIBUTE_ID_TRACE_LEVEL           = e_ATTRIBUTE_ID_TRACE_LEVEL
       , ATTRIBUTE_ID_MAX_SEQUENCE_SIZE     = e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE
+      , ATTRIBUTE_ID_DEFAULT_EMPTY_STRINGS =
+                                           e_ATTRIBUTE_ID_DEFAULT_EMPTY_STRINGS
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -120,6 +130,9 @@ class BerDecoderOptions {
 
     static const int DEFAULT_MAX_SEQUENCE_SIZE;
         // default value of 'MaxSequenceSize' attribute
+
+    static const bool DEFAULT_DEFAULT_EMPTY_STRINGS;
+        // default value of 'DefaultEmptyStrings' attribute
 
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
         // attribute information for each attribute
@@ -236,6 +249,10 @@ class BerDecoderOptions {
         // Set the 'MaxSequenceSize' attribute of this object to the specified
         // 'value'.
 
+    void setDefaultEmptyStrings(bool value);
+        // Set the 'DefaultEmptyStrings' attribute of this object to the
+        // specified 'value'.
+
     // ACCESSORS
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
@@ -306,6 +323,10 @@ class BerDecoderOptions {
     const int& maxSequenceSize() const;
         // Return a reference to the non-modifiable "MaxSequenceSize" attribute
         // of this object.
+
+    const bool& defaultEmptyStrings() const;
+        // Return a reference to the non-modifiable "DefaultEmptyStrings"
+        // attribute of this object.
 };
 
 // FREE OPERATORS
@@ -370,6 +391,7 @@ BerDecoderOptions::BerDecoderOptions()
 , d_traceLevel(DEFAULT_TRACE_LEVEL)
 , d_maxSequenceSize(DEFAULT_MAX_SEQUENCE_SIZE)
 , d_skipUnknownElements(DEFAULT_SKIP_UNKNOWN_ELEMENTS)
+, d_defaultEmptyStrings(DEFAULT_DEFAULT_EMPTY_STRINGS)
 {
 }
 
@@ -387,6 +409,8 @@ STREAM& BerDecoderOptions::bdexStreamIn(STREAM& stream, int version)
             bslx::InStreamFunctions::bdexStreamIn(stream, d_traceLevel, 1);
             bslx::InStreamFunctions::bdexStreamIn(stream,
                                                   d_maxSequenceSize, 1);
+            bslx::InStreamFunctions::bdexStreamIn(stream,
+                                                  d_defaultEmptyStrings, 1);
           } break;
           default: {
             stream.invalidate();
@@ -403,6 +427,7 @@ void BerDecoderOptions::reset()
     d_traceLevel          = DEFAULT_TRACE_LEVEL;
     d_maxSequenceSize     = DEFAULT_MAX_SEQUENCE_SIZE;
     d_skipUnknownElements = DEFAULT_SKIP_UNKNOWN_ELEMENTS;
+    d_defaultEmptyStrings = DEFAULT_DEFAULT_EMPTY_STRINGS;
 }
 
 template <class MANIPULATOR>
@@ -433,6 +458,13 @@ int BerDecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
     ret = manipulator(
                     &d_maxSequenceSize,
                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
+    ret = manipulator(
+                &d_defaultEmptyStrings,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS]);
     if (ret) {
         return ret;                                                   // RETURN
     }
@@ -468,6 +500,12 @@ int BerDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
         return manipulator(
                     &d_maxSequenceSize,
                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_DEFAULT_EMPTY_STRINGS: {
+        return manipulator(
+               &d_defaultEmptyStrings,
+               ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS]);
                                                                       // RETURN
       } break;
       default:
@@ -516,6 +554,12 @@ void BerDecoderOptions::setMaxSequenceSize(int value)
     d_maxSequenceSize = value;
 }
 
+inline
+void BerDecoderOptions::setDefaultEmptyStrings(bool value)
+{
+    d_defaultEmptyStrings = value;
+}
+
 // ACCESSORS
 template <class STREAM>
 inline
@@ -525,10 +569,12 @@ STREAM& BerDecoderOptions::bdexStreamOut(STREAM& stream,
     switch (version) {
       case 1: {
         bslx::OutStreamFunctions::bdexStreamOut(stream, d_maxDepth, 1);
-        bslx::OutStreamFunctions::bdexStreamOut(stream,
-                                               d_skipUnknownElements, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(
+            stream, d_skipUnknownElements, 1);
         bslx::OutStreamFunctions::bdexStreamOut(stream, d_traceLevel, 1);
         bslx::OutStreamFunctions::bdexStreamOut(stream, d_maxSequenceSize, 1);
+        bslx::OutStreamFunctions::bdexStreamOut(
+            stream, d_defaultEmptyStrings, 1);
       } break;
       default: {
         stream.invalidate();
@@ -568,6 +614,13 @@ int BerDecoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
+    ret = accessor(
+                d_defaultEmptyStrings,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
     return ret;
 }
 
@@ -598,6 +651,12 @@ int BerDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(
                     d_maxSequenceSize,
                     ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_DEFAULT_EMPTY_STRINGS: {
+        return accessor(
+                d_defaultEmptyStrings,
+                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS]);
                                                                       // RETURN
       } break;
       default:
@@ -646,6 +705,12 @@ const int& BerDecoderOptions::maxSequenceSize() const
     return d_maxSequenceSize;
 }
 
+inline
+const bool& BerDecoderOptions::defaultEmptyStrings() const
+{
+    return d_defaultEmptyStrings;
+}
+
 }  // close package namespace
 
 // FREE FUNCTIONS
@@ -656,7 +721,8 @@ bool balber::operator==(const BerDecoderOptions& lhs,
     return  lhs.maxDepth()            == rhs.maxDepth()
          && lhs.skipUnknownElements() == rhs.skipUnknownElements()
          && lhs.traceLevel()          == rhs.traceLevel()
-         && lhs.maxSequenceSize()     == rhs.maxSequenceSize();
+         && lhs.maxSequenceSize()     == rhs.maxSequenceSize()
+         && lhs.defaultEmptyStrings() == rhs.defaultEmptyStrings();
 }
 
 inline
@@ -666,7 +732,8 @@ bool balber::operator!=(const BerDecoderOptions& lhs,
     return  lhs.maxDepth()            != rhs.maxDepth()
          || lhs.skipUnknownElements() != rhs.skipUnknownElements()
          || lhs.traceLevel()          != rhs.traceLevel()
-         || lhs.maxSequenceSize()     != rhs.maxSequenceSize();
+         || lhs.maxSequenceSize()     != rhs.maxSequenceSize()
+         || lhs.defaultEmptyStrings() != rhs.defaultEmptyStrings();
 }
 
 inline

@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_ITERATOR
 #define INCLUDED_NATIVE_ITERATOR
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -23,37 +21,33 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BSL_OVERRIDES_STD
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(iterator)
+# include BSL_NATIVE_CPP_LIB_HEADER(iterator)
 
 #else // defined(BSL_OVERRIDES_STD)
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_iterator
-#   endif
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_iterator
+# endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(iterator)
+# include BSL_NATIVE_CPP_LIB_HEADER(iterator)
 
-#   ifndef BSL_INCLUDE_BSL_ITERATOR
-#   define BSL_INCLUDE_BSL_ITERATOR
-#   endif
+# ifndef BSL_INCLUDE_BSL_ITERATOR
+# define BSL_INCLUDE_BSL_ITERATOR
+# endif
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_iterator
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_iterator
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_iterator
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_iterator
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  // BSL_OVERRIDES_STD
 

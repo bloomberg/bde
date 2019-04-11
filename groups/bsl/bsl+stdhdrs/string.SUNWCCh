@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_STRING
 #define INCLUDED_NATIVE_STRING
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -23,56 +21,52 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BSL_OVERRIDES_STD
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(string)
+# include BSL_NATIVE_CPP_LIB_HEADER(string)
 
 #else // defined(BSL_OVERRIDES_STD)
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_string
-#   endif
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_string
+# endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(string)
+# include BSL_NATIVE_CPP_LIB_HEADER(string)
 
-#   ifndef BDE_OMIT_INTERNAL_DEPRECATED
+# ifndef BDE_OMIT_INTERNAL_DEPRECATED
 #   ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
         // Permit reliance on transitive includes within robo.
 
     // This include causes cycles in C++11 mode with gcc.
-#   if !defined(BDE_BUILD_TARGET_CPP11) && (__cplusplus < 201103L)
-#   include <cctype>
-#   endif
+#     if !defined(BDE_BUILD_TARGET_CPP11) && (__cplusplus < 201103L)
+#       include <cctype>
+#     endif
 
-#   include <limits>
+#     include <limits>
 
     // This include causes cycles in C++11 mode with gcc.
-#   if !defined(BDE_BUILD_TARGET_CPP11) && (__cplusplus < 201103L)
-#   include <functional>
-#   endif
+#     if !defined(BDE_BUILD_TARGET_CPP11) && (__cplusplus < 201103L)
+#       include <functional>
+#     endif
 
 #   endif
-#   endif // BDE_OMIT_INTERNAL_DEPRECATED
+# endif // BDE_OMIT_INTERNAL_DEPRECATED
 
-#   ifndef BSL_INCLUDE_BSL_STRING
-#   define BSL_INCLUDE_BSL_STRING
-#   endif
+# ifndef BSL_INCLUDE_BSL_STRING
+# define BSL_INCLUDE_BSL_STRING
+# endif
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_string
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_string
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_string
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_string
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  // BSL_OVERRIDES_STD
 

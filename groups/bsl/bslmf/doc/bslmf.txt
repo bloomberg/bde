@@ -117,7 +117,7 @@
    4. bslmf_addpointer
       bslmf_addreference
       bslmf_functionpointertraits
-      bslmf_if
+      bslmf_if                                           !DEPRECATED!
       bslmf_istransparentpredicate
       bslmf_makeintegersequence
       bslmf_matchanytype
@@ -209,7 +209,7 @@
 : 'bslmf_haspointersemantics':
 :      Provide a type trait for pointer semantics.
 :
-: 'bslmf_if':
+: 'bslmf_if':                                            !DEPRECATED!
 :      Provide a compile-time 'if/else' (conditional) meta-function.
 :
 : 'bslmf_integersequence':

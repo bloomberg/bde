@@ -91,21 +91,22 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 //          // 'eventMessage' .  Return 0 on success, and a non-zero value
 //          // if there was an error handling the event.
 //      {
-//         int returnCode = 0;
+//          (void)eventId;
 //
-//         d_messageSize.update(eventMessage.size());
+//          int returnCode = 0;
 //
-//         bsls::TimeInterval start = bdlt::CurrentTime::now();
+//          d_messageSize.update(static_cast<double>(eventMessage.size()));
+//          bsls::Stopwatch stopwatch;
+//          stopwatch.start();
 //
-//         // Process 'data' ('returnCode' may change).
+//          // Process 'data' ('returnCode' may change).
 //
-//         if (0 != returnCode) {
-//             d_failedRequests.increment();
-//         }
+//          if (0 != returnCode) {
+//              d_failedRequests.increment();
+//          }
 //
-//         bsls::TimeInterval end = bdlt::CurrentTime::now();
-//         d_elapsedTime.update((end - start).totalMicroseconds());
-//         return returnCode;
+//          d_elapsedTime.update(stopwatch.elapsedTime());
+//          return returnCode;
 //      }
 //
 //  // ...

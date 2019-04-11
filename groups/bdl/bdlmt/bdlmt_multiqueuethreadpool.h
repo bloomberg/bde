@@ -328,11 +328,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bslmt_condition.h>
 #include <bslmt_mutex.h>
 #include <bslmt_mutexassert.h>
 #include <bslmt_readerwritermutex.h>
 #include <bslmt_readlockguard.h>
-#include <bslmt_semaphore.h>
 #include <bslmt_writelockguard.h>
 
 #include <bsls_assert.h>
@@ -390,7 +390,7 @@ class MultiQueueThreadPool_Queue {
     mutable bslmt::Mutex       d_lock;           // protect queue and
                                                  // informational members
 
-    bslmt::Semaphore           d_pauseBlock;     // use to notify thread
+    bslmt::Condition           d_pauseCondition; // use to notify thread
                                                  // awaiting pause state
 
     int                        d_pauseCount;     // number of threads waiting
@@ -410,9 +410,9 @@ class MultiQueueThreadPool_Queue {
     // PRIVATE MANIPULATORS
     void setPaused();
         // Mark this queue as paused, notify any threads blocked on
-        // 'd_pauseBlock', and schedule the deletion job if this queue is to be
-        // deleted.  The behavior is undefined unless this queue's lock is in a
-        // locked state and 'e_PAUSING == d_runState'.
+        // 'd_pauseCondition', and schedule the deletion job if this queue is
+        // to be deleted.  The behavior is undefined unless this queue's lock
+        // is in a locked state and 'e_PAUSING == d_runState'.
 
   public:
     // TRAITS
@@ -443,15 +443,9 @@ class MultiQueueThreadPool_Queue {
         // non-zero value otherwise.  This method will fail (with an error) if
         // 'prepareForDeletion' has already been called on this object.
 
-    int pause();
-        // Wait until any currently-executing job on the queue completes, then
-        // prevent any more jobs from being executed on that queue.  Return 0
-        // on success, and a non-zero value if the queue is already paused or
-        // is being paused or deleted by another thread.  Note that this method
-        // may be invoked from a job executing on the given queue, in which
-        // case this method does not wait.  Note also that this method differs
-        // from 'disable' in that (1) 'pause' stops processing for a queue, and
-        // (2) does *not* prevent additional jobs from being enqueued.
+    void drainWaitWhilePausing();
+        // Block until all threads waiting for this queue to pause are
+        // released.
 
     void executeFront();
         // Execute the 'Job' at the front of this queue, dequeue the 'Job', and
@@ -475,6 +469,16 @@ class MultiQueueThreadPool_Queue {
         // queue (so waiting on the queue's deletion would result in a
         // dead-lock).
 
+    int initiatePause();
+        // Initiate the pausing of this queue, prevent jobs from being executed
+        // on this queue (excluding the currently-executing job if there is
+        // one), and prevent the queue from being deleted.  Return 0 on
+        // success, and a non-zero value if the queue is already paused or is
+        // being paused or deleted by another thread.  The behavior is
+        // undefined unless, after a successful invocation of 'initiatePause',
+        // 'waitWhilePausing' is invoked (to complete the pause operation
+        // and allow the queue to, potentially, be deleted).
+
     int pushBack(const Job& functor);
         // Enqueue the specified 'functor' at the end of this queue.  Return 0
         // on success, and a non-zero value if enqueuing is disabled.
@@ -494,6 +498,14 @@ class MultiQueueThreadPool_Queue {
         // Allow jobs on the queue to begin executing.  Return 0 on success,
         // and a non-zero value if the queue is not paused or '!d_list.empty()'
         // and the associated thread pool fails to enqueue a job.
+
+    void waitWhilePausing();
+        // Wait until any currently-executing job on the queue completes and
+        // the queue is paused.  Note that pausing differs from 'disable' in
+        // that (1) 'pause' stops processing for a queue, and (2) does *not*
+        // prevent additional jobs from being enqueued.  The behavior of this
+        // method is undefined unless it is invoked after a successful
+        // 'initiatePause' invocation.
 
     // ACCESSORS
     bool isDrained() const;
@@ -805,36 +817,6 @@ class MultiQueueThreadPool {
                      // class MultiQueueThreadPool_Queue
                      // --------------------------------
 
-// PRIVATE MANIPULATORS
-inline
-void MultiQueueThreadPool_Queue::setPaused()
-{
-    BSLS_ASSERT(e_PAUSING == d_runState);
-
-    BSLMT_MUTEXASSERT_IS_LOCKED(&d_lock);
-
-    d_runState = e_PAUSED;
-
-    if (d_pauseCount) {
-        d_pauseBlock.post(d_pauseCount);
-        d_pauseCount = 0;
-    }
-
-    if (e_DELETING == d_enqueueState) {
-        int status = d_multiQueueThreadPool_p->d_threadPool_p->
-                                                    enqueueJob(d_list.front());
-
-        BSLS_ASSERT(0 == status);  (void)status;
-
-        // Note that 'd_numActiveQueues' is decremented at the completion of
-        // 'deleteQueueCb', and hence should not be modified on this execution
-        // path.
-    }
-    else {
-        --d_multiQueueThreadPool_p->d_numActiveQueues;
-    }
-}
-
 // ACCESSORS
 inline
 bool MultiQueueThreadPool_Queue::isDrained() const
@@ -941,7 +923,7 @@ void MultiQueueThreadPool::numProcessedReset(int *numExecuted,
     bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
     // To maintain consistency, all three must be zeroed atomically.
-    
+
     *numExecuted = d_numExecuted.swap(0);
     if (numDeleted) {
         *numDeleted = d_numDeleted.swap(0);

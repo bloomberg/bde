@@ -13,6 +13,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_types.h>
 
 #include <bsl_c_stdlib.h>     // atoi()
 
@@ -97,11 +98,13 @@ void aSsErT(int c, const char *s, int i)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
+typedef bsls::Types::IntPtr    IntPtr;
+
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
 
-int effectiveSize(int size)
+bsl::size_t effectiveSize(int size)
 {
     return bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
            + bsls::AlignmentUtil::roundUpToMaximalAlignment(size);
@@ -193,13 +196,16 @@ int main(int argc, char *argv[])
                                   << "==============" << endl;
         int SZ1 = 3;
         int SZ2 = 8;
-        bsl::size_t EFF_SZ1 = effectiveSize(SZ1);
-        bsl::size_t EFF_SZ2 = effectiveSize(SZ2);
+        IntPtr EFF_ISZ1 = effectiveSize(SZ1);
+        IntPtr EFF_ISZ2 = effectiveSize(SZ2);
+        bsl::size_t EFF_USZ1 = EFF_ISZ1;
+        bsl::size_t EFF_USZ2 = EFF_ISZ2;
+
         if (verbose) {
             P(SZ1);
             P(SZ2);
-            P(EFF_SZ1);
-            P(EFF_SZ2);
+            P(EFF_ISZ1);
+            P(EFF_ISZ2);
         }
 
         bslma::TestAllocator ta(veryVeryVerbose);
@@ -210,8 +216,8 @@ int main(int argc, char *argv[])
         // --------------------------------
         p1 = ca.allocate(SZ1);
         ASSERT(0 != p1);
-        LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == EFF_SZ1);
-        LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() == EFF_SZ1);
+        LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == EFF_USZ1);
+        LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() == EFF_ISZ1);
 
         ca.deallocate(p1);
         LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == 0);
@@ -221,19 +227,19 @@ int main(int argc, char *argv[])
         // ----------------------------------------------------
         p1 = ca.allocate(SZ1);
         ASSERT(0 != p1);
-        LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == EFF_SZ1);
-        LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() == EFF_SZ1);
+        LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == EFF_USZ1);
+        LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() == EFF_ISZ1);
 
         p2 = ca.allocate(SZ2);
         ASSERT(0 != p2);
         LOOP_ASSERT(ca.numBytesTotal(),
-                    ca.numBytesTotal() == EFF_SZ1 + EFF_SZ2);
+                    ca.numBytesTotal() == EFF_USZ1 + EFF_USZ2);
         LOOP_ASSERT(ta.numBytesInUse(),
-                    ta.numBytesInUse() == EFF_SZ1 + EFF_SZ2);
+                    ta.numBytesInUse() == EFF_ISZ1 + EFF_ISZ2);
 
         ca.deallocate(p1);
-        LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == EFF_SZ2);
-        LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() == EFF_SZ2);
+        LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == EFF_USZ2);
+        LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() == EFF_ISZ2);
 
         ca.deallocate(p2);
         LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == 0);
@@ -243,19 +249,19 @@ int main(int argc, char *argv[])
         // -------------------------------------------------------
         p1 = ca.allocate(SZ1);
         ASSERT(0 != p1);
-        LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == EFF_SZ1);
-        LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() == EFF_SZ1);
+        LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == EFF_USZ1);
+        LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() == EFF_ISZ1);
 
         p2 = ca.allocate(SZ2);
         ASSERT(0 != p2);
         LOOP_ASSERT(ca.numBytesTotal(),
-                    ca.numBytesTotal() == EFF_SZ1 + EFF_SZ2);
+                    ca.numBytesTotal() == EFF_USZ1 + EFF_USZ2);
         LOOP_ASSERT(ta.numBytesInUse(),
-                    ta.numBytesInUse() == EFF_SZ1 + EFF_SZ2);
+                    ta.numBytesInUse() == EFF_ISZ1 + EFF_ISZ2);
 
         ca.deallocate(p2);
-        LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == EFF_SZ1);
-        LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() == EFF_SZ1);
+        LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == EFF_USZ1);
+        LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() == EFF_ISZ1);
 
         ca.deallocate(p1);
         LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == 0);
@@ -265,15 +271,15 @@ int main(int argc, char *argv[])
         // -----------------------------------------------
         p1 = ca.allocate(SZ1);
         ASSERT(0 != p1);
-        LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == EFF_SZ1);
-        LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() == EFF_SZ1);
+        LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == EFF_USZ1);
+        LOOP_ASSERT(ta.numBytesInUse(), ta.numBytesInUse() == EFF_ISZ1);
 
         p2 = ca.allocate(SZ2);
         ASSERT(0 != p2);
         LOOP_ASSERT(ca.numBytesTotal(),
-                    ca.numBytesTotal() == EFF_SZ1 + EFF_SZ2);
+                    ca.numBytesTotal() == EFF_USZ1 + EFF_USZ2);
         LOOP_ASSERT(ta.numBytesInUse(),
-                    ta.numBytesInUse() == EFF_SZ1 + EFF_SZ2);
+                    ta.numBytesInUse() == EFF_ISZ1 + EFF_ISZ2);
 
         ca.resetNumBytesTotal();
         LOOP_ASSERT(ca.numBytesTotal(), ca.numBytesTotal() == 0);

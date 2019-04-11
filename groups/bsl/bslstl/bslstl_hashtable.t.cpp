@@ -29,10 +29,12 @@
 #include <bsls_exceptionutil.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsltf_convertiblevaluewrapper.h>
 #include <bsltf_degeneratefunctor.h>
 #include <bsltf_evilbooleantype.h>
+#include <bsltf_nonequalcomparabletesttype.h>
 #include <bsltf_stdstatefulallocator.h>
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
@@ -133,7 +135,7 @@ using bslstl::CallableVariable;
 // types it is instantiated with, and address those concerns.  This combination
 // of testing will ensure thorough testing covering all combinations of concern
 // for the component.
-//
+//-----------------------------------------------------------------------------
 // TYPES
 //*[20] typedef ALLOCATOR                              AllocatorType;
 //*[20] typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
@@ -233,8 +235,6 @@ using bslstl::CallableVariable;
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
 
@@ -4477,26 +4477,15 @@ struct TestDriver_ForwardTestCasesByConfiguation {
     static void testCase2() { CONFIGURED_DRIVER::testCase2(); }
     static void testCase3() { CONFIGURED_DRIVER::testCase3(); }
     static void testCase4() { CONFIGURED_DRIVER::testCase4(); }
-        // There is no testCase5.
+    //     There is no testCase5.
     static void testCase6() { CONFIGURED_DRIVER::testCase6(); }
     static void testCase7() { CONFIGURED_DRIVER::testCase7(); }
     static void testCase8() { CONFIGURED_DRIVER::testCase8(); }
-    static void testCaseCopyAssign() {
-                              CONFIGURED_DRIVER::testCaseCopyAssign(); }
-
-    static void testCase17() { CONFIGURED_DRIVER::testCase17(); }
-    static void testCase18() { CONFIGURED_DRIVER::testCase18(); }
-    static void testCase19() { CONFIGURED_DRIVER::testCase19(); }
-    static void testCase20() { CONFIGURED_DRIVER::testCase20(); }
-    static void testCase21() { CONFIGURED_DRIVER::testCase21(); }
-    static void testCase22() { CONFIGURED_DRIVER::testCase22(); }
-    static void testCase23() { CONFIGURED_DRIVER::testCase23(); }
-    static void testCase24() { CONFIGURED_DRIVER::testCase24(); }
-    static void testCase25() { CONFIGURED_DRIVER::testCase25(); }
-    static void testCase26() { CONFIGURED_DRIVER::testCase26(); }
-    static void testCase27() { CONFIGURED_DRIVER::testCase27(); }
+    static void testCaseCopyAssign()
+                            { CONFIGURED_DRIVER::testCaseCopyAssign(); }
         // Run the test case with the matching number from the supplied
-        // (template parameter) type 'CONFIGURED_DRIVER'.
+        // (template parameter) type 'CONFIGURED_DRIVER'.  Note that test cases
+        // 11 and higher have migrated to 'bslstl_hashtable_test.t.cpp'.
 };
 
 //- - - - - - - - - - - - Classes to implement test cases - - - - - - - - - - -
@@ -9675,10 +9664,10 @@ BSLMF_ASSERT(!bslma::UsesBslmaAllocator<TestAsFalse2>::value);
 
 int main(int argc, char *argv[])
 {
-    int test            = argc > 1 ? atoi(argv[1]) : 0;
-    verbose             = argc > 2;
-    veryVerbose         = argc > 3;
-    veryVeryVerbose     = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);

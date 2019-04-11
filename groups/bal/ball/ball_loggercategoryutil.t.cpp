@@ -11,7 +11,12 @@
 #include <ball_loggercategoryutil.h>
 
 #include <ball_loggermanager.h>
+#include <ball_loggermanagerconfiguration.h>
+#include <ball_severity.h>
 #include <ball_testobserver.h>                  // for testing only
+#include <ball_thresholdaggregate.h>
+
+#include <bslim_testutil.h>
 
 #include <bslma_testallocator.h>                // for testing only
 #include <bslma_testallocatorexception.h>       // for testing only
@@ -48,40 +53,50 @@ using namespace bsl;
 // [ 3] static int setThresholdLevels(*lm, *pat, int, int, int, int);
 //-----------------------------------------------------------------------------
 // [ 4] USAGE EXAMPLE
-//=============================================================================
-//                      STANDARD BDE ASSERT TEST MACRO
-//-----------------------------------------------------------------------------
-static int testStatus = 0;
 
-void aSsErT(int c, const char *s, int i)
+// ============================================================================
+//                     STANDARD BDE ASSERT TEST FUNCTION
+// ----------------------------------------------------------------------------
+
+namespace {
+
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (0 <= testStatus && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
-#define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+}  // close unnamed namespace
 
-//=============================================================================
-//                  STANDARD BDE LOOP-ASSERT TEST MACROS
-//-----------------------------------------------------------------------------
-#define LOOP_ASSERT(I,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__); }}
+// ============================================================================
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
-#define LOOP2_ASSERT(I,J,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-//=============================================================================
-//                  SEMI-STANDARD TEST OUTPUT MACROS
-//-----------------------------------------------------------------------------
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", "<< flush; // P(X) without '\n'
-#define L_ __LINE__                           // current Line number
-#define T_()  cout << "\t" << flush;          // Print tab w/o newline
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -89,6 +104,8 @@ void aSsErT(int c, const char *s, int i)
 
 typedef ball::LoggerCategoryUtil Obj;
 typedef ball::Category           Cat;
+typedef ball::Severity           Sev;
+typedef Sev::Level               Level;
 
 const char *DEFAULT_CATEGORY_NAME = "";
 
@@ -112,6 +129,38 @@ void printAllCategories()
     using namespace bdlf::PlaceHolders;
     lm.visitCategories(bdlf::BindUtil::bind(printCategory,  _1));
 }
+
+// The function 'dtlCallbackRaw' below sets the values returned through the
+// first four arguments of its parameter list to the values of the four fields
+// of this 'struct', respectively.
+
+ball::ThresholdAggregate callbackLevels;
+
+void dtlCallbackRaw(int        *recordLevel,
+                    int        *passLevel,
+                    int        *triggerLevel,
+                    int        *triggerAllLevel,
+                    const char *categoryName)
+    // Callback to be used by the logger manager to obtain new logging
+    // threshold levels for a new category that is about to be created.  For
+    // the purposes of this test, return values through the specified
+    // 'recordLevel', 'passLevel', 'triggerLevel', and 'triggerAllLevel'.
+    // Verify that no category with the specified 'categoryName' exists.  The
+    // behavior is undefined if this method is called when the logger manager
+    // singleton is not initialized.
+{
+    ASSERT(0 == ball::LoggerManager::singleton().lookupCategory(categoryName));
+
+    *recordLevel     = callbackLevels.recordLevel();
+    *passLevel       = callbackLevels.passLevel();
+    *triggerLevel    = callbackLevels.triggerLevel();
+    *triggerAllLevel = callbackLevels.triggerAllLevel();
+}
+
+ball::LoggerManager::DefaultThresholdLevelsCallback dtlCallback(
+                                                              &dtlCallbackRaw);
+    // The method 'setDefaultThresholdLevelsCallback' won't take just a
+    // function ptr, it needs a pointer to this 'bsl::function' type.
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -280,7 +329,7 @@ int main(int argc, char *argv[])
                 const int TRIGGERALL_LEVEL = DATA[ti].d_triggerAllLevel;
 
                 if (veryVeryVerbose) {
-                    T_(); T_();
+                    T_; T_;
                     P_(LINE); P_(RECORD_LEVEL); P_(PASS_LEVEL);
                     P_(TRIGGER_LEVEL); P(TRIGGERALL_LEVEL);
                 }
@@ -367,7 +416,7 @@ int main(int argc, char *argv[])
                 const int TRIGGERALL_LEVEL = DATA[ti].d_triggerAllLevel;
 
                 if (veryVeryVerbose) {
-                    T_(); T_();
+                    T_; T_;
                     P_(LINE); P_(RECORD_LEVEL); P_(PASS_LEVEL);
                     P_(TRIGGER_LEVEL); P(TRIGGERALL_LEVEL);
                 }
@@ -379,7 +428,7 @@ int main(int argc, char *argv[])
                     const int  *MASK    = PATDATA[pat].d_matchMask;
 
                     if (veryVeryVerbose) {
-                        T_(); T_(); P_(PATLINE); P_(PAT); P(MATCHES);
+                        T_; T_; P_(PATLINE); P_(PAT); P(MATCHES);
                     }
 
                     for (int n = 0; n < NUM_NAME; ++n) {
@@ -538,7 +587,7 @@ int main(int argc, char *argv[])
                 const int TRIGGERALL_LEVEL = DATA[ti].d_triggerAllLevel;
 
                 if (veryVeryVerbose) {
-                    T_(); T_();
+                    T_; T_;
                     P_(LINE); P_(RECORD_LEVEL); P_(PASS_LEVEL);
                     P_(TRIGGER_LEVEL); P(TRIGGERALL_LEVEL);
                 }
@@ -628,7 +677,7 @@ int main(int argc, char *argv[])
                 const int TRIGGERALL_LEVEL = DATA[ti].d_triggerAllLevel;
 
                 if (veryVeryVerbose) {
-                    T_(); T_();
+                    T_; T_;
                     P_(LINE); P_(RECORD_LEVEL); P_(PASS_LEVEL);
                     P_(TRIGGER_LEVEL); P(TRIGGERALL_LEVEL);
                 }
@@ -638,7 +687,7 @@ int main(int argc, char *argv[])
                     const char *CN      = CNDATA[cn].d_cn;
                     const int  *MASK    = CNDATA[cn].d_matchMask;
 
-                    if (veryVeryVerbose) { T_(); T_(); P_(CNLINE); P_(CN); }
+                    if (veryVeryVerbose) { T_; T_; P_(CNLINE); P_(CN); }
 
                     for (int n = 0; n < NUM_NAME; ++n) {
                          Cat *p = LM->lookupCategory(NAME[n]);
@@ -715,103 +764,147 @@ int main(int argc, char *argv[])
                           << "==================================="
                           << endl;
 
-        // initialize the logger manager
-        ball::LoggerManager::initSingleton(TO);
-        ball::LoggerManager *LM = &ball::LoggerManager::singleton();
+        for (int ti = 0; ti < 2; ++ti) {
+            const bool USE_CALLBACK = 0 == ti;
 
-        const Cat& defaultCat = LM->defaultCategory();
-        ASSERT(0 == strcmp(DEFAULT_CATEGORY_NAME, defaultCat.categoryName()));
-        const int DRL  = defaultCat.recordLevel();
-        const int DPL  = defaultCat.passLevel();
-        const int DTL  = defaultCat.triggerLevel();
-        const int DTAL = defaultCat.triggerAllLevel();
+            int DRL  = 10, CBDRL  = DRL;
+            int DPL  = 11, CBDPL  = DPL;
+            int DTL  = 12, CBDTL  = DTL;
+            int DTAL = 13, CBDTAL = DTAL;
 
-        static const struct {
-            int         d_line;             // line number
-            const char *d_name;             // category name
-            int         d_recordLevel;      // record level
-            int         d_passLevel;        // pass level
-            int         d_triggerLevel;     // trigger level
-            int         d_triggerAllLevel;  // trigger all level
-            int         d_populated;        // used to populate the registry
-        } DATA[] = {                                                 // ADJUST
-                // line  cat      record pass  trigger tAll
-                // no.   name     level  level  level  level populated
-                // ----  -----    ------ ------ ------ ----- ---------
-                {  L_,      "",   DRL,   DPL,   DTL,   DTAL,       1 },
-                {  L_,     "x",     5,     6,     7,     8,        1 },
-                {  L_,    "x*",     9,    10,    11,    12,        1 },
-                {  L_,    "xy",    13,    14,    15,    16,        1 },
-                {  L_,     "y",    17,    18,    19,    20,        1 },
-                {  L_,    "yx",    21,    22,    23,    24,        1 },
-                {  L_,   "yyy",    25,    26,    27,    28,        1 },
+            // initialize the logger manager
+            ball::LoggerManagerConfiguration mLMC;
+            ASSERT(0 == mLMC.setDefaultThresholdLevelsIfValid(DRL,
+                                                              DPL,
+                                                              DTL,
+                                                              DTAL));
+            ball::LoggerManagerScopedGuard lmGuard(mLMC);
+            ball::LoggerManager *LM = &ball::LoggerManager::singleton();
+
+            if (USE_CALLBACK) {
+                CBDRL  += 10;
+                CBDPL  += 10;
+                CBDTL  += 10;
+                CBDTAL += 10;
+
+                callbackLevels.setLevels(CBDRL, CBDPL, CBDTL, CBDTAL);
+
+                LM->setDefaultThresholdLevelsCallback(&dtlCallback);
+            }
+
+            if (veryVerbose) {
+                cout << endl;    P_(USE_CALLBACK);    P_(DPL);    P(CBDPL);
+            }
+
+            const Cat& defaultCat = LM->defaultCategory();
+            ASSERT(0 == strcmp(DEFAULT_CATEGORY_NAME,
+                               defaultCat.categoryName()));
+
+            const struct Data {  // Not static
+                int         d_line;             // line number
+                const char *d_name_p;           // category name
+                int         d_recordLevel;      // record level
+                int         d_passLevel;        // pass level
+                int         d_triggerLevel;     // trigger level
+                int         d_triggerAllLevel;  // trigger all level
+                int         d_populated;        // used to populate the
+                                                // registry
+                int         d_baseIdx;          // index of base category (-1
+                                                // for none)
+            } DATA[] = {                                             // ADJUST
+                //..
+                // line  cat      record pass  trigger    tAll
+                // no.   name     level  level  level    level pop base
+                // ----  -----    ------ ------ ------   ----- --- ----
+                //..
+                {  L_,      "",    DRL,    DPL,    DTL,   DTAL,  1,  -1 },// 0
+                {  L_,     "x",      5,      6,      7,      8,  1,  -1 },// 1
+                {  L_,    "x*",      9,     10,     11,     12,  1,  -1 },// 2
+                {  L_,    "xy",     13,     14,     15,     16,  1,  -1 },// 3
+
+                {  L_,     "y",     17,     18,     19,     20,  1,  -1 },// 4
+                {  L_,  "meow",  CBDRL,  CBDPL,  CBDTL, CBDTAL,  1,  -1 },// 5
+                {  L_,    "yx",     21,     22,     23,     24,  1,  -1 },// 6
+                {  L_,   "yyy",     25,     26,     27,     28,  1,  -1 },// 7
                 // Entries above will be used to populate the registry.
-                // entries below will be added using addCategoryHierarchically.
-                {  L_,   "xyz",    13,    14,    15,    16,        0 },
-                {  L_,    "yy",    17,    18,    19,    20,        0 },
-                {  L_,     "z",   DRL,   DPL,   DTL,   DTAL,       0 },
-                {  L_,  "xyz*",    13,    14,    15,    16,        0 },
+
+                // Entries below will be added using
+                // 'addCategoryHierarchically'.
+                {  L_,   "xyz",     -1,     -1,     -1,     -1,  0,   3 },// 8
+                {  L_,    "yy",     -1,     -1,     -1,     -1,  0,   4 },// 9
+                {  L_,     "z",  CBDRL,  CBDPL,  CBDTL, CBDTAL,  0,  -1 },//10
+                {  L_,  "woof",  CBDRL,  CBDPL,  CBDTL, CBDTAL,  0,  -1 },//11
+                {  L_,  "yxaa",     -1,     -1,     -1,     -1,  0,   6 },//12
+                {  L_,  "x*__",     -1,     -1,     -1,     -1,  0,   2 },//13
+                {  L_,"meower",     -1,     -1,     -1,     -1,  0,   5 },//14
+                {  L_,  "xyz*",     -1,     -1,     -1,     -1,  0,   8 },//15
             };
 
-        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        // populate the category registry in the logger manager
-        for (int n = 1; n < NUM_DATA && DATA[n].d_populated; ++n) {
-            const Cat *p = LM->addCategory(DATA[n].d_name,
-                                           DATA[n].d_recordLevel,
-                                           DATA[n].d_passLevel,
-                                           DATA[n].d_triggerLevel,
-                                           DATA[n].d_triggerAllLevel);
-            LOOP_ASSERT(DATA[n].d_line, p);
-
-            LM->lookupCategory("xy");
-        }
-
-        if (verbose)
-            cout << "Testing with existing category names." << endl;
-        {
+            // populate the category registry in the logger manager
             for (int n = 0; n < NUM_DATA && DATA[n].d_populated; ++n) {
-                const Cat *p = Obj::addCategoryHierarchically(LM,
-                                                              DATA[n].d_name);
-                LOOP_ASSERT(DATA[n].d_line, 0 == p);
-            }
-        }
+                bool isDefault = !strcmp("", DATA[n].d_name_p);
 
-        if (verbose)
-            cout << "Testing with new category names." << endl;
-        {
-            int n;
-
-            // find the first entry whose 'd_populated' flag isn't set
-            for (n = 0; n < NUM_DATA && DATA[n].d_populated; ++n) {
+                const Cat *p = LM->addCategory(DATA[n].d_name_p,
+                                               DATA[n].d_recordLevel,
+                                               DATA[n].d_passLevel,
+                                               DATA[n].d_triggerLevel,
+                                               DATA[n].d_triggerAllLevel);
+                LOOP_ASSERT(DATA[n].d_line, isDefault ? !p : !!p);
             }
 
-            for (; n < NUM_DATA; ++n) {
-                const Cat *p = Obj::addCategoryHierarchically(LM,
-                                                              DATA[n].d_name);
-                LOOP_ASSERT(DATA[n].d_line, p);
+            if (verbose) cout << "Testing with mixed category names.\n";
+            {
+                for (int nn = 0; nn < NUM_DATA; ++nn) {
+                    const Data& ndata = DATA[nn];
+                    const bool  npop  = ndata.d_populated;
+                    const char *nname = ndata.d_name_p;
 
-                for (int i = 0; i <= n; ++i) {
-                    const Cat *cat = LM->lookupCategory(DATA[i].d_name);
-                    LOOP2_ASSERT(DATA[n].d_line, DATA[i].d_line, cat);
-                    LOOP2_ASSERT(DATA[n].d_line,
-                                 DATA[i].d_line,
-                                 DATA[i].d_recordLevel == cat->recordLevel());
-                    LOOP2_ASSERT(DATA[n].d_line,
-                                 DATA[i].d_line,
-                                 DATA[i].d_passLevel == cat->passLevel());
-                    LOOP2_ASSERT(DATA[n].d_line,
-                                 DATA[i].d_line,
-                                 DATA[i].d_triggerLevel ==
-                                     cat->triggerLevel());
-                    LOOP2_ASSERT(DATA[n].d_line,
-                                 DATA[i].d_line,
-                                 DATA[i].d_triggerAllLevel ==
-                                     cat->triggerAllLevel());
+                    if (veryVerbose) P(nname);
+
+                    const Cat *np = Obj::addCategoryHierarchically(LM, nname);
+
+                    ASSERTV(nname, npop, !np, npop == !np);
+
+                    if (npop) {
+                        continue;
+                    }
+
+                    for (int ii = 0; ii <= nn; ++ii) {
+                        const Data&  idata    = DATA[ii];
+                        const char  *iname    = idata.d_name_p;
+                        const int    ibaseIdx = idata.d_baseIdx;
+                        const char  *bname    = (0 <= ibaseIdx)
+                                              ? DATA[ibaseIdx].d_name_p
+                                              : "(null)";
+                        int ebaseIdx = ii, next;
+                        while (0 <= (next = DATA[ebaseIdx].d_baseIdx)) {
+                             ebaseIdx = next;
+                        }
+                        const Data&  edata    = DATA[ebaseIdx];
+                        const char  *ename    = edata.d_name_p;
+
+                        if (veryVeryVerbose) { P_(iname); P_(bname); P(ename);}
+
+                        const Cat *icat = LM->lookupCategory(iname);
+
+                        ASSERTV(ii, (0 == ii) == (&defaultCat == icat));
+                        ASSERTV(ii, np, (ii == nn) == (np == icat));
+
+                        ASSERTV(iname, bname, ename, icat);
+                        ASSERTV(iname, bname, ename, edata.d_recordLevel ==
+                                                      icat->recordLevel());
+                        ASSERTV(iname, bname, ename, edata.d_passLevel ==
+                                                      icat->passLevel());
+                        ASSERTV(iname, bname, ename, edata.d_triggerLevel ==
+                                                      icat->triggerLevel());
+                        ASSERTV(iname, bname, ename, edata.d_triggerAllLevel ==
+                                                      icat->triggerAllLevel());
+                    }
                 }
             }
         }
-
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

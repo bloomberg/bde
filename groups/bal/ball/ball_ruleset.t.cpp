@@ -214,7 +214,7 @@ bool compareText(bslstl::StringRef lhs,
     }
 
     if (lhs.length() < rhs.length()) {
-        unsigned int i = lhs.length();
+        bsl::size_t i = lhs.length();
         errorStream << "lhs: \"" << lhs << "\"\n"
                     << "rhs: \"" << rhs << "\"\n"
                     << "Strings differ at index (" << i << ") "
@@ -225,7 +225,7 @@ bool compareText(bslstl::StringRef lhs,
 
     }
     if (lhs.length() > rhs.length()) {
-        unsigned int i = rhs.length();
+        bsl::size_t i = rhs.length();
         errorStream << "lhs: \"" << lhs << "\"\n"
                     << "rhs: \"" << rhs << "\"\n"
                     << "Strings differ at index (" << i << ") "

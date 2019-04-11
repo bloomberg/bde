@@ -53,6 +53,7 @@ namespace bsl {
     using native_std::iter_swap;
     using native_std::lexicographical_compare;
     using native_std::lower_bound;
+
     using native_std::make_heap;
     using native_std::max;
     using native_std::max_element;

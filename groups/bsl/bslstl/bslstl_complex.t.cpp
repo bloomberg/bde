@@ -1,4 +1,4 @@
-// bslstl_complex.t.cpp                                                -*-C++-*-
+// bslstl_complex.t.cpp                                               -*-C++-*-
 #include <bslstl_complex.h>
 
 #include <bsls_assert.h>

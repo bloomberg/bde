@@ -7315,7 +7315,7 @@ if (veryVerbose)
         //:
         //: 2 Define a sequence of 'int' values for 'year', 'month', ...
         //:   'second', 'millisecond', each valid for its corresponding field
-        //:   in in the "date" or "time" part.
+        //:   in the "date" or "time" part.
         //:
         //:   1 Create a default object and use the primary manipulators to set
         //:     its value.

@@ -200,9 +200,11 @@ struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
             // there was an error processing the event.
         {
             // Update the metrics with the size of the 'eventMessage'.
-            d_eventMessageSize.update(eventMessage.size());
+            d_eventMessageSize.update(
+                                     static_cast<double>(eventMessage.size()));
 
             // ...   process the event
+            (void)eventId;
 
             return 0;
         }

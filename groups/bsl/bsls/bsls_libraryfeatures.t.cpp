@@ -534,7 +534,7 @@ static const bool
     class SimpleUniformRandomNumberGenerator {
         // This class defines a simple, easily tested uniform random number
         // generator that can be validly used as the third argument to the
-        // 'native_std::shuffle' function in in the 'useCpp11Algorithms()' test
+        // 'native_std::shuffle' function in the 'useCpp11Algorithms()' test
         // function.
 
       public:

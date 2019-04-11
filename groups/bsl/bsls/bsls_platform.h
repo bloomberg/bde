@@ -754,8 +754,10 @@ struct bsls_Platform_Assert;
 
 // Determine endianness.
 
-// Glibc or Linux
-#if defined(__GLIBC__) || defined(BSLS_PLATFORM_OS_LINUX)
+// Glibc or Linux or Cygwin
+#if defined(__GLIBC__) ||                                                     \
+    defined(BSLS_PLATFORM_OS_LINUX) ||                                        \
+    defined(BSLS_PLATFORM_OS_CYGWIN)
 #include <endian.h>
 #if (__BYTE_ORDER == __LITTLE_ENDIAN)
 #   define BSLS_PLATFORM_IS_LITTLE_ENDIAN 1

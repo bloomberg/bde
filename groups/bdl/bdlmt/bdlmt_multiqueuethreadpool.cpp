@@ -16,6 +16,10 @@ BSLS_IDENT_RCSID(bdlmt_multiqueuethreadpool_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
+#include <bsls_log.h>
+#include <bsls_stackaddressutil.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_memory.h>
 #include <bsl_vector.h>
@@ -45,6 +49,34 @@ namespace bdlmt {
                      // class MultiQueueThreadPool_Queue
                      // --------------------------------
 
+// PRIVATE MANIPULATORS
+void MultiQueueThreadPool_Queue::setPaused()
+{
+    BSLS_ASSERT(e_PAUSING == d_runState);
+
+    BSLMT_MUTEXASSERT_IS_LOCKED(&d_lock);
+
+    d_runState = e_PAUSED;
+
+    if (d_pauseCount) {
+        d_pauseCondition.broadcast();
+    }
+
+    if (e_DELETING == d_enqueueState) {
+        int status = d_multiQueueThreadPool_p->d_threadPool_p->
+                                                    enqueueJob(d_list.front());
+
+        BSLS_ASSERT(0 == status);  (void)status;
+
+        // Note that 'd_numActiveQueues' is decremented at the completion of
+        // 'deleteQueueCb', and hence should not be modified on this execution
+        // path.
+    }
+    else {
+        --d_multiQueueThreadPool_p->d_numActiveQueues;
+    }
+}
+
 // CREATORS
 MultiQueueThreadPool_Queue::MultiQueueThreadPool_Queue(
                                     MultiQueueThreadPool *multiQueueThreadPool,
@@ -54,7 +86,7 @@ MultiQueueThreadPool_Queue::MultiQueueThreadPool_Queue(
 , d_enqueueState(e_ENQUEUING_ENABLED)
 , d_runState(e_NOT_SCHEDULED)
 , d_lock()
-, d_pauseBlock()
+, d_pauseCondition()
 , d_pauseCount(0)
 , d_processingCb(bdlf::BindUtil::bind(
                                      &MultiQueueThreadPool_Queue::executeFront,
@@ -92,36 +124,36 @@ int MultiQueueThreadPool_Queue::disable()
     return 0;
 }
 
-int MultiQueueThreadPool_Queue::pause()
+void MultiQueueThreadPool_Queue::drainWaitWhilePausing()
 {
-    {
+    // since the expected usage of this method requires waiting from when
+    // signalled threads are awoken in 'waitWhilePausing' until they can exit
+    // that method, the expected duration of waiting is short and spin-yielding
+    // is appropriate
+
+    bsls::TimeInterval start = bsls::SystemTime::nowRealtimeClock();
+    bsls::TimeInterval logInterval(0, 100000000);  // 0.1s
+
+    while (start.totalNanoseconds()) {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+        if (d_pauseCount) {
+            bslmt::ThreadUtil::yield();
 
-        if (   e_DELETING == d_enqueueState
-            || e_PAUSING  == d_runState
-            || e_PAUSED   == d_runState) {
-            return 1;                                                 // RETURN
+            bsls::TimeInterval now = bsls::SystemTime::nowRealtimeClock();
+            if ((now - start) >= logInterval) {
+                start       =  now;
+                logInterval += logInterval;
+
+                char stackBuffer[1024];
+                bsls::StackAddressUtil::formatCheapStack(stackBuffer, 1024);
+                BSLS_LOG_WARN("Unexpected spins waiting for pause: %s",
+                              stackBuffer);
+            }
         }
-
-        if (e_NOT_SCHEDULED == d_runState) {
-            d_runState = e_PAUSED;
-
-            return 0;                                                 // RETURN
+        else {
+            start.setTotalNanoseconds(0);
         }
-
-        d_runState = e_PAUSING;
-
-        if (   bslmt::ThreadUtil::self()          == d_processor
-            || bslmt::ThreadUtil::invalidHandle() == d_processor) {
-            return 0;                                                 // RETURN
-        }
-
-        ++d_pauseCount;
     }
-
-    d_pauseBlock.wait();
-
-    return 0;
 }
 
 void MultiQueueThreadPool_Queue::executeFront()
@@ -228,6 +260,28 @@ bool MultiQueueThreadPool_Queue::enqueueDeletion(
     return isProcessingThread;
 }
 
+int MultiQueueThreadPool_Queue::initiatePause()
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    if (   e_DELETING == d_enqueueState
+        || e_PAUSING  == d_runState
+        || e_PAUSED   == d_runState) {
+        return 1;                                                     // RETURN
+    }
+
+    if (e_NOT_SCHEDULED == d_runState) {
+        d_runState = e_PAUSED;
+    }
+    else {
+        d_runState = e_PAUSING;
+    }
+
+    ++d_pauseCount;
+
+    return 0;
+}
+
 int MultiQueueThreadPool_Queue::pushBack(const Job& functor)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
@@ -295,6 +349,22 @@ int MultiQueueThreadPool_Queue::resume()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
+    // If the queue is in the 'e_PAUSING' state, implying the pause will become
+    // effective when the "currently running job" completes, instead of failing
+    // to 'resume' (returning a non-zero value), the queue can be immediately
+    // returned to the 'e_SCHEDULED' state.  There are two caveats.  The
+    // 'e_PAUSING' state is used during deletion and there may be threads
+    // waiting for the "currently running job" to complete.
+
+    if (e_DELETING != d_enqueueState && e_PAUSING == d_runState) {
+        d_runState = e_SCHEDULED;
+
+        if (d_pauseCount) {
+            d_pauseCondition.broadcast();
+        }
+        return 0;
+    }
+
     if (e_PAUSED != d_runState) {
         return 1;                                                     // RETURN
     }
@@ -318,6 +388,27 @@ int MultiQueueThreadPool_Queue::resume()
     return 0;
 }
 
+void MultiQueueThreadPool_Queue::waitWhilePausing()
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
+
+    BSLS_ASSERT(0 < d_pauseCount);
+
+    // do not block if the invoking thread is processing the "currently
+    // executing job" or of there is nothing running on this queue (e.g., to
+    // avoid deadlock when the threadpool has only one thread and that thread
+    // is the one invoking this method)
+
+    if (   bslmt::ThreadUtil::self()          != d_processor
+        && bslmt::ThreadUtil::invalidHandle() != d_processor) {
+        while (e_PAUSING == d_runState) {
+            d_pauseCondition.wait(&d_lock);
+        }
+    }
+
+    --d_pauseCount;
+}
+
                     // ---------------------------------
                     // class bdlmt::MultiQueueThreadPool
                     // ---------------------------------
@@ -333,6 +424,8 @@ void MultiQueueThreadPool::deleteQueueCb(
     if (cleanup) {
         cleanup();
     }
+
+    queue->drainWaitWhilePausing();
 
     // Note that 'd_queuePool' does its own synchronization.
 
@@ -582,15 +675,25 @@ void MultiQueueThreadPool::drain()
 
 int MultiQueueThreadPool::pauseQueue(int id)
 {
-    bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
-
     MultiQueueThreadPool_Queue *queue;
+    int rv;
+    {
+        bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(&d_lock);
 
-    if (findIfUsable(id, &queue)) {
-        return 1;                                                     // RETURN
+        if (findIfUsable(id, &queue)) {
+            return 1;                                                 // RETURN
+        }
+
+        rv = queue->initiatePause();
     }
 
-    return queue->pause();
+    if (0 == rv) {
+        // note that 'd_pauseCount' prevents 'queue' from becoming invalid
+
+        queue->waitWhilePausing();
+    }
+
+    return rv;
 }
 
 int MultiQueueThreadPool::resumeQueue(int id)

@@ -1397,14 +1397,11 @@ int main(int argc, char *argv[])
         ball::CategoryManager manager;
         ball::AttributeContext::initialize(&manager);
 
-        ThreadArgs args = { &manager };
-
         bslmt::ThreadUtil::Handle threads[2];
         bslmt::ThreadUtil::create(&threads[0], workerThread1, (void *)0);
         bslmt::ThreadUtil::create(&threads[1], workerThread2, (void *)0);
         bslmt::ThreadUtil::join(threads[0]);
         bslmt::ThreadUtil::join(threads[1]);
-
       } break;
       case 7: {
         // --------------------------------------------------------------------

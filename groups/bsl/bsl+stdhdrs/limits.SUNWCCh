@@ -2,9 +2,7 @@
 #ifndef INCLUDED_NATIVE_LIMITS
 #define INCLUDED_NATIVE_LIMITS
 
-#ifndef INCLUDED_BSLS_IDENT
 #include <bsls_ident.h>
-#endif
 BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
@@ -23,35 +21,31 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BSL_OVERRIDES_STD
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(limits)
+# include BSL_NATIVE_CPP_LIB_HEADER(limits)
 
 #else // defined(BSL_OVERRIDES_STD)
 
-#   ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
+# ifndef BSL_STDHDRS_PROLOGUE_IN_EFFECT
 #   include <bsl_stdhdrs_prologue.h>
-#   endif
+# endif
 
-#   ifndef BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_RUN_EPILOGUE
-#   define BSL_STDHDRS_EPILOGUE_RUN_BY_limits
-#   endif
+# ifndef BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_RUN_EPILOGUE
+# define BSL_STDHDRS_EPILOGUE_RUN_BY_limits
+# endif
 
-#   ifndef INCLUDED_BSL_STDHDRS_INCPATHS
-#   include <bsl_stdhdrs_incpaths.h>
-#   endif
+# include <bsl_stdhdrs_incpaths.h>
 
-#   include BSL_NATIVE_CPP_LIB_HEADER(limits)
+# include BSL_NATIVE_CPP_LIB_HEADER(limits)
 
-#   include <bsl_limits.h>
+# include <bsl_limits.h>
 
-#   ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_limits
-#   undef BSL_STDHDRS_EPILOGUE_RUN_BY_limits
-#   include <bsl_stdhdrs_epilogue.h>
-#   endif
+# ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_limits
+# undef BSL_STDHDRS_EPILOGUE_RUN_BY_limits
+# include <bsl_stdhdrs_epilogue.h>
+# endif
 
 #endif  // BSL_OVERRIDES_STD
 

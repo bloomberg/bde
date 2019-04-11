@@ -123,7 +123,8 @@ int main(int argc, char *argv[])
     balm::MetricSample sample(allocator);
 //
     sample.setTimeStamp(bdlt::DatetimeTz(bdlt::CurrentTime::utc(), 0));
-    sample.appendGroup(records.data(), records.size(),
+    sample.appendGroup(records.data(),
+                       static_cast<int>(records.size()),
                        bsls::TimeInterval(5, 0));
 
     myPublisher.publish(sample);

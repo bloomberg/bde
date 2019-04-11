@@ -19,20 +19,24 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_assert.h>
 #include <bslmf_conditional.h>
 #include <bslmf_isfunction.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_removeconst.h>
 
+#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 
 #include <bsltf_convertiblevaluewrapper.h>
 #include <bsltf_degeneratefunctor.h>
 #include <bsltf_evilbooleantype.h>
+#include <bsltf_nonequalcomparabletesttype.h>
 #include <bsltf_stdstatefulallocator.h>
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
@@ -42,6 +46,7 @@
 
 #include <limits.h>
 #include <math.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> // for 'strcmp'
@@ -129,7 +134,7 @@ using bslstl::CallableVariable;
 // types it is instantiated with, and address those concerns.  This combination
 // of testing will ensure thorough testing covering all combinations of concern
 // for the component.
-//
+// ----------------------------------------------------------------------------
 // TYPES
 //*[20] typedef ALLOCATOR                              AllocatorType;
 //*[20] typedef ::bsl::allocator_traits<AllocatorType> AllocatorTraits;
@@ -229,8 +234,6 @@ using bslstl::CallableVariable;
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
 
@@ -5844,6 +5847,7 @@ void mainTestCase24()
 //=============================================================================
 //                            STATIC ASSERTIONS
 //-----------------------------------------------------------------------------
+
 namespace static_assertions {
 
 typedef bslstl::HashTable_ImplParameters<BasicKeyConfig<int>,
@@ -5872,16 +5876,17 @@ BSLMF_ASSERT(!bslma::UsesBslmaAllocator<TaseAsFalse>::value);
 BSLMF_ASSERT(!bslma::UsesBslmaAllocator<TestAsFalse2>::value);
 
 }  // close namespace static_assertions
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
-    int test            = argc > 1 ? atoi(argv[1]) : 0;
-    verbose             = argc > 2;
-    veryVerbose         = argc > 3;
-    veryVeryVerbose     = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);

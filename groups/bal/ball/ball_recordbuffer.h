@@ -183,7 +183,7 @@ BSLS_IDENT("$Id: $")
 //  int my_RecordBuffer::length() const
 //  {
 //      bslmt::LockGuard<bslmt::RecursiveMutex> guard(&d_mutex);
-//      return d_buffer.size();
+//      return static_cast<int>(d_buffer.size());
 //  }
 //..
 // Note that we always implement a virtual destructor (non-inline) in the .cpp

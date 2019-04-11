@@ -1,4 +1,4 @@
-/* istream.h        -*- C -*- */
+/* istream.h                                                       -*- C -*- */
 #include <bsl_istream.h>
 
 using std::basic_istream;

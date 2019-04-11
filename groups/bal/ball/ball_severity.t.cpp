@@ -12,7 +12,9 @@
 
 #include <bdlb_string.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
+
 #include <bslim_testutil.h>
+#include <bsls_types.h>
 
 #include <bsl_cstdlib.h>                      // atoi()
 #include <bsl_cstring.h>                      // strcmp(), memcmp(), memcpy()
@@ -103,9 +105,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef ball::Severity      Class;
-typedef Class::Level       Enum;
-
+typedef ball::Severity       Class;
+typedef Class::Level         Enum;
+typedef bsls::Types::IntPtr  IntPtr;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 const int NUM_ENUMS = Class::BAEL_LENGTH;
@@ -254,7 +256,8 @@ int main(int argc, char *argv[])
 
         for (i = 0; i < DATA_LENGTH; ++i) {  // also check UNKNOWN_FMT
             const char *const STRING    = DATA[i].d_ascii;
-            const int         STRINGLEN = bsl::strlen(DATA[i].d_ascii);
+            const int         STRINGLEN = static_cast<int>(
+                                                 bsl::strlen(DATA[i].d_ascii));
             const int         VALUE     = DATA[i].d_value;
 
             if (veryVerbose) cout << "EXPECTED VALUE: " << VALUE << endl;
@@ -305,7 +308,7 @@ int main(int argc, char *argv[])
             out << Enum(VALUE) << ends;
             if (veryVerbose) cout << "  ACTUAL FORMAT: " << buf << endl <<endl;
 
-            const int SZ = strlen(FMT) + 1;
+            const IntPtr SZ = strlen(FMT) + 1;
             LOOP_ASSERT(i, SZ < SIZE);  // Check buffer is large enough.
             LOOP_ASSERT(i, XX == buf[SIZE - 1]);  // Check for overrun.
             LOOP_ASSERT(i, 0 == memcmp(buf, FMT, SZ));

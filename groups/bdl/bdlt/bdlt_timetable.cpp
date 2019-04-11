@@ -6,6 +6,8 @@ BSLS_IDENT_RCSID(bdlt_timetable_cpp,"$Id$ $CSID$")
 
 #include <bdlt_dateutil.h>
 
+#include <bdlb_algorithmworkaroundutil.h>
+
 #include <bslim_printer.h>
 
 #include <bsl_ostream.h>
@@ -97,7 +99,7 @@ bool Timetable_Day::addTransition(const Time& time, int code)
     int previousFinalCode = finalTransitionCode();
 
     bsl::vector<Timetable_CompactableTransition>::iterator iter =
-                                        bsl::lower_bound(d_transitions.begin(),
+               bdlb::AlgorithmWorkaroundUtil::lowerBound(d_transitions.begin(),
                                                          d_transitions.end(),
                                                          time);
     if (iter == d_transitions.end()) {
@@ -117,7 +119,7 @@ bool Timetable_Day::addTransition(const Time& time, int code)
 bool Timetable_Day::removeTransition(const Time& time)
 {
     bsl::vector<Timetable_CompactableTransition>::iterator iter =
-                                        bsl::lower_bound(d_transitions.begin(),
+               bdlb::AlgorithmWorkaroundUtil::lowerBound(d_transitions.begin(),
                                                          d_transitions.end(),
                                                          time);
 
@@ -138,7 +140,7 @@ int Timetable_Day::transitionCodeInEffect(const Time& time) const
     BSLS_ASSERT(24 > time.hour());
 
     bsl::vector<Timetable_CompactableTransition>::const_iterator iter =
-                                        bsl::upper_bound(d_transitions.begin(),
+               bdlb::AlgorithmWorkaroundUtil::upperBound(d_transitions.begin(),
                                                          d_transitions.end(),
                                                          time);
     if (iter == d_transitions.end()) {

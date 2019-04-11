@@ -1668,7 +1668,7 @@ int main(int argc, char *argv[])
 
             if (verbose) Q("Object Constructed");
 
-            Obj&                   mX = *objPtr;  const Obj& X = mX;
+            Obj&                   mX = *objPtr;
             bslma::TestAllocator&  oa = *objAllocatorPtr;
             bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
@@ -1798,9 +1798,7 @@ int main(int argc, char *argv[])
         london.addTransition(LONDON_INT64, londonType);
         tokyo.addTransition (TOKYO_INT64, tokyoType);
 
-        Obj x(Z); const Obj& X = x;
-
-        baltzo::Loader& loader = x;
+        Obj x(Z);
 
         baltzo::Zoneinfo value(Z);
         ASSERT(Err::k_UNSUPPORTED_ID == x.loadTimeZone(&value, badId));

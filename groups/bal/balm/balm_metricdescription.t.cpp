@@ -315,7 +315,7 @@ int main(int argc, char *argv[])
         bslma::TestAllocator testAllocator;
 
         balm::Category c("category");
-        Obj mX(&c, "metric", Z); const Obj& MX = mX;
+        Obj mX(&c, "metric", Z);
 
         {
             ConcurrencyTest tester(10, &mX, &defaultAllocator);
@@ -587,7 +587,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             for (int j = 0; j < NUM_DATA; ++j) {
                 Obj u(DATA[i].d_category, DATA[i].d_name, Z); const Obj& U = u;
-                Obj w(DATA[j].d_category, DATA[j].d_name, Z); const Obj& W = w;
+                Obj w(DATA[j].d_category, DATA[j].d_name, Z);
 
                 ASSERT(DATA[i].d_name     == U.name());
                 ASSERT(DATA[i].d_category == U.category());

@@ -16,8 +16,9 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_issame.h>
+#include <bslmf_assert.h>
 #include <bslmf_haspointersemantics.h>
+#include <bslmf_issame.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 
@@ -29,6 +30,7 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
 #include <bsls_util.h>
 
 #include <bsltf_stdallocatoradaptor.h>
@@ -37,8 +39,10 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -3528,9 +3532,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase31()
                 const bsls::Types::Int64 B  = oa.numBlocksInUse();
 
                 Iter hint;        // Give it a garbage value.
-                native_std::memset((void *)&hint,
-                                   0xaf ^ (tj * 97),
-                                   sizeof(hint));
+                memset((void *)&hint, 0xaf ^ (tj * 97), sizeof(hint));
                 Iter RESULT = mX.emplace_hint(hint, VALUES[tj]);
 
                 ASSERTV(LINE, tj, SIZE, VALUES[tj] == *RESULT);
@@ -3607,9 +3609,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase31()
                     ExceptionProctor<Obj, ALLOC> proctor(&X, L_, xscratch);
 
                     Iter hint;                  // Give it a garbage value.
-                    native_std::memset((void *)&hint,
-                                       0xaf ^ (tj * 97),
-                                       sizeof(hint));
+                    memset((void *)&hint, 0xaf ^ (tj * 97), sizeof(hint));
                     if (tj & 1) {
                         RESULT.first  = mX.emplace_hint(hint, VALUES[tj]);
                         RESULT.second = IS_UNIQ;
@@ -3885,9 +3885,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase30()
                     const bsls::Types::Int64 B  = oa.numBlocksInUse();
 
                     Iter hint;        // Give it a garbage value.
-                    native_std::memset((void *)&hint,
-                                       0xaf ^ (tj * 97),
-                                       sizeof(hint));
+                    memset((void *)&hint, 0xaf ^ (tj * 97), sizeof(hint));
 
                     bsls::ObjectBuffer<ValueType>  buffer;
                     ValueType                     *valptr = buffer.address();
@@ -4027,9 +4025,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase30()
                                                            MoveUtil::move(mZ));
 
                         Iter hint;                  // Give it a garbage value.
-                        native_std::memset((void *)&hint,
-                                           0xaf ^ (tj * 97),
-                                           sizeof(hint));
+                        memset((void *)&hint, 0xaf ^ (tj * 97), sizeof(hint));
                         if (tj & 1) {
                             RESULT.first =  mX.insert(hint,
                                                       MoveUtil::move(*valptr));
@@ -7095,9 +7091,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase15()
                 const bsls::Types::Int64 B  = oa.numBlocksInUse();
 
                 Iter hint;        // Give it a garbage value.
-                native_std::memset((void *)&hint,
-                                   0xaf ^ (tj * 97),
-                                   sizeof(hint));
+                memset((void *)&hint, 0xaf ^ (tj * 97), sizeof(hint));
                 Iter RESULT = mX.insert(hint, VALUES[tj]);
 
                 ASSERTV(LINE, tj, SIZE, VALUES[tj] == *RESULT);
@@ -7168,9 +7162,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase15()
                     ExceptionProctor<Obj, ALLOC> proctor(&X, L_, xscratch);
 
                     Iter hint;                  // Give it a garbage value.
-                    native_std::memset((void *)&hint,
-                                       0xaf ^ (tj * 97),
-                                       sizeof(hint));
+                    memset((void *)&hint, 0xaf ^ (tj * 97), sizeof(hint));
                     if (tj & 1) {
                         RESULT.first  = mX.insert(hint, VALUES[tj]);
                         RESULT.second = IS_UNIQ;

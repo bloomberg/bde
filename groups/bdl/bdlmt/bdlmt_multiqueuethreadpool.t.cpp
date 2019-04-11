@@ -114,7 +114,9 @@ using namespace BloombergLP;
 // [27] DRQS 118269630: 'drain' may not drain underlying threadpool
 // [28] DRQS 139148629: deadlock when job pauses another queue
 // [29] DRQS 138890062: 'deleteQueueCb' running after destructor
-// [30] USAGE EXAMPLE 1
+// [30] DRQS 140150365: resume fails immediately after pause
+// [31] DRQS 140403279: pause can deadlock with delete and create
+// [32] USAGE EXAMPLE 1
 // [-2] PERFORMANCE TEST
 // ----------------------------------------------------------------------------
 
@@ -273,6 +275,7 @@ static void waitPauseAndIncrement(bslmt::Barrier  *barrier,
     // Wait on the specified 'barrier', pause the queue with the specified
     // 'queueId' in the specified 'pool' and then increment the specified
     // 'counter'.  Finally, wait on the barrier again.
+
     barrier->wait();
     int rc = pool->pauseQueue(queueId);
     ASSERT(0 == rc);
@@ -288,6 +291,38 @@ static void waitThenAppend(bslmt::Semaphore *semaphore,
     // the specified 'value'.
     semaphore->wait();
     value->push_back(letter);
+}
+
+static void waitPauseWait(bslmt::Barrier *barrier, Obj *pool, int queueId)
+{
+    // Wait on the specified 'barrier', resume the queue with the specified
+    // 'queueId' in the specified 'pool', and then wait on the 'barrier'.
+
+    barrier->wait();
+    int rc = pool->pauseQueue(queueId);
+    ASSERT(0 == rc);
+    barrier->wait();
+}
+
+static void waitWaitCreate(bslmt::Barrier *barrier, Obj *pool)
+{
+    // Wait on the specified 'barrier' twice, then create a queue in the
+    // specified 'pool'.
+
+    barrier->wait();
+    barrier->wait();
+    pool->createQueue();
+}
+
+static void waitWaitDelete(bslmt::Barrier *barrier, Obj *pool, int queueId)
+{
+    // Wait on the specified 'barrier' twice, then delete the queue with the
+    // specified 'queueId' in the specified 'pool'.
+
+    barrier->wait();
+    barrier->wait();
+    int rc = pool->deleteQueue(queueId);
+    ASSERT(0 == rc);
 }
 
 static void addAppendJobAtFront(Obj         *pool,
@@ -1415,7 +1450,7 @@ int main(int argc, char *argv[]) {
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 30: {
+      case 32: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE 1
         //
@@ -1495,6 +1530,288 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+      }  break;
+      case 31: {
+        // --------------------------------------------------------------------
+        // DRQS 140403279: pause can deadlock with delete and create
+        //
+        // Concerns:
+        //: 1 If the 'pauseQueue' method blocks, there will not be a deadlock
+        //:   with other threads executing 'deleteQueue' and 'createQueue'.
+        //
+        // Plan:
+        //: 1 Recreate the scenario and verify there is no deadlock.
+        //
+        // Testing:
+        //   DRQS 140403279: pause can deadlock with delete and create
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout
+              << "DRQS 140403279: pause can deadlock with delete and create\n"
+              << "=========================================================\n";
+        }
+        {
+            // verifying with 'deleteQueue'
+
+            Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
+
+            mX.start();
+            int queueId = mX.createQueue();
+
+            bslmt::ThreadUtil::Handle pauseHandle;
+            bslmt::Barrier            pauseBarrier(2);
+
+            bslmt::ThreadUtil::create(&pauseHandle,
+                                      bdlf::BindUtil::bind(&waitPauseWait,
+                                                           &pauseBarrier,
+                                                           &mX,
+                                                           queueId));
+
+            bslmt::Barrier deleteBarrier(2);
+
+            Func job = bdlf::BindUtil::bind(&waitWaitDelete,
+                                            &deleteBarrier,
+                                            &mX,
+                                            queueId);
+
+            ASSERT(0 == mX.enqueueJob(queueId, job));
+
+            int rv;
+
+            rv = deleteBarrier.timedWait(
+                    bsls::SystemTime::nowRealtimeClock().addMilliseconds(200));
+
+            ASSERT(0 == rv && "delete 1");
+            if (0 != rv) {
+                exit(0);
+            }
+
+            rv = pauseBarrier.timedWait(
+                    bsls::SystemTime::nowRealtimeClock().addMilliseconds(200));
+
+            ASSERT(0 == rv && "pause 1");
+            if (0 != rv) {
+                exit(0);
+            }
+
+            // Wait for the pausing thread to release the mutex protecting the
+            // queue and start waiting for a signal.  There is no good way to
+            // do this so a "sleep" is used.
+
+            bslmt::ThreadUtil::microSleep(20000);
+
+            rv = deleteBarrier.timedWait(
+                    bsls::SystemTime::nowRealtimeClock().addMilliseconds(200));
+
+            ASSERT(0 == rv && "delete 2");
+            if (0 != rv) {
+                exit(0);
+            }
+
+            // If the pausing thread is still blocked, the following will
+            // time-out.
+
+            rv = pauseBarrier.timedWait(
+                    bsls::SystemTime::nowRealtimeClock().addMilliseconds(200));
+
+            ASSERT(0 == rv && "pause 2");
+            if (0 != rv) {
+                exit(0);
+            }
+
+            ASSERT(0 == bslmt::ThreadUtil::join(pauseHandle));
+
+            mX.drain();
+            mX.stop();
+        }
+        {
+            // verifying with 'createQueue'
+
+            Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
+
+            mX.start();
+            int queueId = mX.createQueue();
+
+            bslmt::ThreadUtil::Handle pauseHandle;
+            bslmt::Barrier            pauseBarrier(2);
+
+            bslmt::ThreadUtil::create(&pauseHandle,
+                                      bdlf::BindUtil::bind(&waitPauseWait,
+                                                           &pauseBarrier,
+                                                           &mX,
+                                                           queueId));
+
+            bslmt::Barrier createBarrier(2);
+
+            Func job = bdlf::BindUtil::bind(&waitWaitCreate,
+                                            &createBarrier,
+                                            &mX);
+
+            ASSERT(0 == mX.enqueueJob(queueId, job));
+
+            int rv;
+
+            rv = createBarrier.timedWait(
+                    bsls::SystemTime::nowRealtimeClock().addMilliseconds(200));
+
+            ASSERT(0 == rv && "create 1");
+            if (0 != rv) {
+                exit(0);
+            }
+
+            rv = pauseBarrier.timedWait(
+                    bsls::SystemTime::nowRealtimeClock().addMilliseconds(200));
+
+            ASSERT(0 == rv && "pause 1");
+            if (0 != rv) {
+                exit(0);
+            }
+
+            // Wait for the pausing thread to release the mutex protecting the
+            // queue and start waiting for a signal.  There is no good way to
+            // do this so a "sleep" is used.
+
+            bslmt::ThreadUtil::microSleep(20000);
+
+            rv = createBarrier.timedWait(
+                    bsls::SystemTime::nowRealtimeClock().addMilliseconds(200));
+
+            ASSERT(0 == rv && "create 2");
+            if (0 != rv) {
+                exit(0);
+            }
+
+            // If the pausing thread is still blocked, the following will
+            // time-out.
+
+            rv = pauseBarrier.timedWait(
+                    bsls::SystemTime::nowRealtimeClock().addMilliseconds(200));
+
+            ASSERT(0 == rv && "pause 2");
+            if (0 != rv) {
+                exit(0);
+            }
+
+            ASSERT(0 == bslmt::ThreadUtil::join(pauseHandle));
+
+            mX.drain();
+            mX.stop();
+        }
+      } break;
+      case 30: {
+        // --------------------------------------------------------------------
+        // DRQS 140150365: resume fails immediately after pause
+        //
+        // Concerns:
+        //: 1 The method 'resumeQueue' does not return an error when called
+        //:   quickly after 'pauseQueue'.
+        //:
+        //: 2 If 'pauseQueue' blocks, another thread that quickly runs
+        //:   'resumeQueue' unblocks the blocked thread (while the "currently
+        //:   executing job is completing").
+        //
+        // Plan:
+        //: 1 Recreate the scenario and verify that 'resumeQueue' succeeds.
+        //
+        // Testing:
+        //   DRQS 140150365: resume fails immediately after pause
+        // --------------------------------------------------------------------
+
+        if (verbose) {
+            cout
+               << "DRQS 140150365: 'resume' fails immediately after 'pause'\n"
+               << "========================================================\n";
+        }
+
+        {
+            // verify when 'pauseQueue' does not block
+
+            bslmt::Barrier controlBarrier(2);
+
+            Func job = bdlf::BindUtil::bind(&waitOnBarrier,
+                                            &controlBarrier,
+                                            1);
+
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
+
+            mX.start();
+            int queueId = mX.createQueue();
+
+            ASSERT(0 == mX.enqueueJob(queueId, job));
+
+            ASSERT(0 == mX.pauseQueue(queueId));
+
+            int rv = mX.resumeQueue(queueId);
+            ASSERT(0 == rv);
+
+            if (rv) {
+                exit(0);
+            }
+
+            controlBarrier.wait();
+
+            mX.drain();
+            mX.stop();
+        }
+        {
+            // verify when 'pauseQueue' does block
+
+            bslmt::Barrier controlBarrier(2);
+
+            Func job = bdlf::BindUtil::bind(&waitOnBarrier,
+                                            &controlBarrier,
+                                            1);
+
+            Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
+
+            mX.start();
+            int queueId = mX.createQueue();
+
+            bslmt::ThreadUtil::Handle pauseHandle;
+            bslmt::Barrier            pauseBarrier(2);
+
+            bslmt::ThreadUtil::create(
+                                   &pauseHandle,
+                                   bdlf::BindUtil::bind(&waitPauseWait,
+                                                        &pauseBarrier,
+                                                        &mX,
+                                                        queueId));
+
+            ASSERT(0 == mX.enqueueJob(queueId, job));
+
+            pauseBarrier.wait();
+
+            // Wait for the pausing thread to release the mutex protecting the
+            // queue and start waiting for a signal.  There is no good way to
+            // do this so a "sleep" is used.
+
+            bslmt::ThreadUtil::microSleep(20000);
+
+            // Failing on the following 'ASSERT' implies the sleep was not
+            // effective.
+
+            ASSERT(0 == mX.resumeQueue(queueId));
+
+            controlBarrier.wait();
+
+            // If the pausing thread is still blocked, the following will
+            // time-out.
+
+            int rv = pauseBarrier.timedWait(
+                    bsls::SystemTime::nowRealtimeClock().addMilliseconds(200));
+
+            ASSERT(0 == rv);
+
+            if (0 != rv) {
+                exit(0);
+            }
+
+            ASSERT(0 == bslmt::ThreadUtil::join(pauseHandle));
+
+            mX.drain();
+            mX.stop();
+        }
       }  break;
       case 29: {
         // --------------------------------------------------------------------

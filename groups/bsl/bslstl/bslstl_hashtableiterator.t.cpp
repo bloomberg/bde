@@ -100,30 +100,33 @@ using namespace BloombergLP;
 // [13] TYPE TRAITS
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
-// NOTE: THIS IS A LOW-LEVEL COMPONENT AND MAY NOT USE ANY C++ LIBRARY
-// FUNCTIONS, INCLUDING IOSTREAMS.
 
 namespace {
 
 int testStatus = 0;
 
-void aSsErT(bool b, const char *s, int i)
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (b) {
-        printf("Error " __FILE__ "(%d): %s    (failed)\n", i, s);
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+    if (condition) {
+        printf("Error " __FILE__ "(%d): %s    (failed)\n", line, message);
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
 
 }  // close unnamed namespace
 
-//=============================================================================
-//                       STANDARD BDE TEST DRIVER MACROS
-//-----------------------------------------------------------------------------
+// ============================================================================
+//               STANDARD BSL TEST DRIVER MACRO ABBREVIATIONS
+// ----------------------------------------------------------------------------
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
+#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
+
 #define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
 #define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
 #define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
@@ -132,13 +135,12 @@ void aSsErT(bool b, const char *s, int i)
 #define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
 #define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
 #define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
-#define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
 
-#define Q   BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
-#define P   BSLS_BSLTESTUTIL_P   // Print identifier and value.
-#define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
-#define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
-#define L_  BSLS_BSLTESTUTIL_L_  // current Line number
+#define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
+#define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
+#define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 
@@ -176,6 +178,10 @@ class NodePool {
   private:
     // DATA
     bslstl::BidirectionalNodePool<VALUE, bsl::allocator<VALUE> > d_pool;
+
+    // NOT IMPLEMENTED
+    NodePool(const NodePool&);
+    NodePool& operator=(const NodePool&);
 
   public:
     // TYPES
@@ -330,10 +336,9 @@ void TestDriver<VALUE>::testCase12()
     // Create a linked list with N nodes.
     const int N = 10;
 
-    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    Pool pool(&scratch);
-
-    Node *nodes[N];
+    bslma::TestAllocator  scratch("scratch", veryVeryVeryVerbose);
+    Pool                  pool(&scratch);
+    Node                 *nodes[N];
 
     nodes[0] = pool.createNode(0);
     nodes[0]->setNextLink(0);
@@ -435,10 +440,9 @@ void TestDriver<VALUE>::testCase11()
     // Create a linked list with N nodes.
     const int N = 10;
 
-    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    Pool pool(&scratch);
-
-    Node *nodes[N];
+    bslma::TestAllocator  scratch("scratch", veryVeryVeryVerbose);
+    Pool                  pool(&scratch);
+    Node                 *nodes[N];
 
     nodes[0] = pool.createNode(0);
     nodes[0]->setNextLink(0);
@@ -451,8 +455,9 @@ void TestDriver<VALUE>::testCase11()
     //Test the pre-increment operator.
     for (int ti = 0; ti < N; ++ti) {
 
-        Obj mX(nodes[ti]);
+        Obj   mX(nodes[ti]);
         Link *address;
+
         if (ti == N - 1) {
             address = 0;
         }
@@ -463,11 +468,9 @@ void TestDriver<VALUE>::testCase11()
 
         Obj *mR = &(++mX);
 
-        if (veryVerbose) {
-            T_ T_ P_(ti) P_(mR) }
+        if (veryVerbose) { T_ T_ P_(ti) P_(mR) }
 
         ASSERTV(ti, mR, &mX, mR == &mX);
-
         ASSERTV(ti, Z == mX);
     }
 
@@ -563,10 +566,9 @@ void TestDriver<VALUE>::testCase9()
     // Create a linked list with N nodes.
     const int N = 10;
 
-    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    Pool pool(&scratch);
-
-    Node *nodes[N];
+    bslma::TestAllocator  scratch("scratch", veryVeryVeryVerbose);
+    Pool                  pool(&scratch);
+    Node                 *nodes[N];
 
     nodes[0] = pool.createNode(0);
     nodes[0]->setNextLink(0);
@@ -670,10 +672,9 @@ void TestDriver<VALUE>::testCase7()
     // Create a linked list with N nodes.
     const int N = 10;
 
-    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    Pool pool(&scratch);
-
-    Node *nodes[N];
+    bslma::TestAllocator  scratch("scratch", veryVeryVeryVerbose);
+    Pool                  pool(&scratch);
+    Node                 *nodes[N];
 
     nodes[0] = pool.createNode(0);
     nodes[0]->setNextLink(0);
@@ -815,10 +816,9 @@ void TestDriver<VALUE>::testCase6()
     // Create a linked list with N nodes.
     const int N = 10;
 
-    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    Pool pool(&scratch);
-
-    Node *nodes[N];
+    bslma::TestAllocator  scratch("scratch", veryVeryVeryVerbose);
+    Pool                  pool(&scratch);
+    Node                 *nodes[N];
 
     nodes[0] = pool.createNode(0);
     nodes[0]->setNextLink(0);
@@ -959,10 +959,9 @@ void TestDriver<VALUE>::testCase4()
     // Create a linked list with N nodes.
     const int N = 10;
 
-    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    Pool pool(&scratch);
-
-    Node *nodes[N];
+    bslma::TestAllocator  scratch("scratch", veryVeryVeryVerbose);
+    Pool                  pool(&scratch);
+    Node                 *nodes[N];
 
     nodes[0] = pool.createNode(0);
     nodes[0]->setNextLink(0);
@@ -1049,10 +1048,9 @@ void TestDriver<VALUE>::testCase2()
     // Create a linked list with N nodes.
     const int N = 10;
 
-    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-    Pool pool(&scratch);
-
-    Node *nodes[N];
+    bslma::TestAllocator  scratch("scratch", veryVeryVeryVerbose);
+    Pool                  pool(&scratch);
+    Node                 *nodes[N];
 
     nodes[0] = pool.createNode(0);
     nodes[0]->setNextLink(0);
@@ -1182,10 +1180,10 @@ void usageExample()
 
 int main(int argc, char *argv[])
 {
-    int  test                = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
@@ -1193,6 +1191,10 @@ int main(int argc, char *argv[])
     // CONCERN: No memory is ever allocated from the global allocator.
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // CONCERN: No memory leaks from the default allocator.
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 14: {
@@ -1338,7 +1340,7 @@ int main(int argc, char *argv[])
             const int N = 10;
 
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
-            NodePool<int> pool(&scratch);
+            NodePool<int>        pool(&scratch);
 
             bslalg::BidirectionalNode<int> *nodes[N];
 
