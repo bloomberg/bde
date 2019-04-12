@@ -969,8 +969,8 @@ class list {
 
   public:
     // PUBLIC TYPES
-    typedef VALUE&                                             reference;
-    typedef const VALUE&                                       const_reference;
+    typedef typename ALLOCATOR::reference                      reference;
+    typedef typename ALLOCATOR::const_reference                const_reference;
     typedef List_Iterator<VALUE>                               iterator;
     typedef List_Iterator<const VALUE>                         const_iterator;
     typedef typename allocator_traits<ALLOCATOR>::pointer      pointer;
@@ -3216,7 +3216,8 @@ void list<VALUE, ALLOCATOR>::resize(size_type newSize, const VALUE& value)
 
 template <class VALUE, class ALLOCATOR>
 inline
-VALUE& list<VALUE, ALLOCATOR>::back()
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::back()
 {
     BSLS_ASSERT_SAFE(sizeRef() > 0);
 
@@ -3225,7 +3226,8 @@ VALUE& list<VALUE, ALLOCATOR>::back()
 
 template <class VALUE, class ALLOCATOR>
 inline
-VALUE& list<VALUE, ALLOCATOR>::front()
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::front()
 {
     BSLS_ASSERT_SAFE(sizeRef() > 0);
 
@@ -4780,7 +4782,8 @@ typename list<VALUE, ALLOCATOR>::size_type list<VALUE, ALLOCATOR>::size() const
 
 template <class VALUE, class ALLOCATOR>
 inline
-const VALUE& list<VALUE, ALLOCATOR>::back() const
+typename list<VALUE, ALLOCATOR>::const_reference
+list<VALUE, ALLOCATOR>::back() const
 {
     BSLS_ASSERT_SAFE(sizeRef() > 0);
 
@@ -4789,7 +4792,8 @@ const VALUE& list<VALUE, ALLOCATOR>::back() const
 
 template <class VALUE, class ALLOCATOR>
 inline
-const VALUE& list<VALUE, ALLOCATOR>::front() const
+typename list<VALUE, ALLOCATOR>::const_reference
+list<VALUE, ALLOCATOR>::front() const
 {
     BSLS_ASSERT_SAFE(sizeRef() > 0);
 

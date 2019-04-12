@@ -744,8 +744,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
   public:
     // PUBLIC TYPES
-    typedef VALUE_TYPE&                             reference;
-    typedef const VALUE_TYPE&                       const_reference;
+    typedef typename ALLOCATOR::reference           reference;
+    typedef typename ALLOCATOR::const_reference     const_reference;
     typedef Iterator                                iterator;
     typedef ConstIterator                           const_iterator;
     typedef std::size_t                             size_type;
