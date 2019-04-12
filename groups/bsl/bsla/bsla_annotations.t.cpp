@@ -659,6 +659,13 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\nBSLA_UNREACHABLE: ");
+#ifdef BSLA_UNREACHABLE
+    printf("%s\n", STRINGIFY(BSLA_UNREACHABLE) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\nBSLA_UNUSED: ");
 #ifdef BSLA_UNUSED
     printf("%s\n", STRINGIFY(BSLA_UNUSED) );
@@ -695,6 +702,7 @@ static void printFlags()
     P(BSLA_NULLTERMINATED_IS_ACTIVE);
     P(BSLA_PRINTF_IS_ACTIVE);
     P(BSLA_SCANF_IS_ACTIVE);
+    P(BSLA_UNREACHABLE_IS_ACTIVE);
     P(BSLA_UNUSED_IS_ACTIVE);
     P(BSLA_USED_IS_ACTIVE);
     P(BSLA_WARNING_IS_ACTIVE);
