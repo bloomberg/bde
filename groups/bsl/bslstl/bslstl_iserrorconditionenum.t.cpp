@@ -127,8 +127,8 @@ struct is_error_condition_enum<ErrorValues::MarkedIneligible> : bsl::false_type
     struct CarError {
         // TYPES
         enum Enum {
-            car_wheels_came_off = 1,
-            car_engine_fell_out = 2
+            k_CAR_WHEELS_CAME_OFF = 1,
+            k_CAR_ENGINE_FELL_OUT = 2
         };
     };
 //..
