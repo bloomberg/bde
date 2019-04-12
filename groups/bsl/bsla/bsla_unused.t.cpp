@@ -9,27 +9,27 @@
 #include <stdlib.h>  // 'atoi'
 #include <string.h>  // 'strcmp'
 
-// Set this preprocessor variable to 1 to enable compile warnings being
-// generated, 0 to disable them.
+// Set this preprocessor macro to 1 to enable compile warnings being generated,
+// 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
 
 // ============================================================================
-//                             TEST PLAN
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-//                             Overview
-//                             --------
+//                                 Overview
+//                                 --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of the
-// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// test driver using a compliant compiler, each time defining different values
+// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
 // concerns are:
 //
 //: o Did the build succeed or not?
 //:
-//: o Was the expected warning observed, or not?
+//: o Was the expected warning observed or not?
 //:
-//: o Was the expected suppression of some warning, suppressed or not?
+//: o Was the expected suppression of some warning suppressed or not?
 //:
 //: o For annotations taking arguments, do the results show if the arguments
 //:   were properly passed to the underlying compiler directives?
@@ -37,9 +37,9 @@
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
-// to 1, provoke all the compiler warnings caused by the macros under test.  If
-// set to 0, prevent any warnings from happening.
+// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// 1, provokes all the compiler warnings caused by the macros under test.  If
+// set to 0, prevents any warnings from happening.
 //
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
@@ -114,10 +114,10 @@ void aSsErT(bool condition, const char *message, int line)
 ///Usage
 ///-----
 //
-///Example 1: Unused Warnings:
-/// - - - - - - - - - - - - -
-// First, we define a namespace 'warn' within the unnamed namespace with a
-// type, a function, and a function in it.  They are unused:
+///Example 1: "Unused" Warnings
+/// - - - - - - - - - - - - - -
+// First, we define a namespace, 'warn', within the unnamed namespace with a
+// type, a function, and a variable in it.  They are unused:
 //..
     namespace {
     namespace warn {
@@ -157,20 +157,20 @@ void aSsErT(bool condition, const char *message, int line)
 //..
 // Then, we observe the warnings:
 //..
-//  .../bsla_unused.t.cpp:130:12: warning: '{anonymous}::warn::x' defined but n
-//  ot used [-Wunused-variable]
+//  .../bsla_unused.t.cpp:130:12: warning: '{anonymous}::warn::x' defined but
+//  not used [-Wunused-variable]
 //       double x;
 //              ^
-//  .../bsla_unused.t.cpp:132:9: warning: 'int {anonymous}::warn::quadratic(dou
-//  ble*, double*, double, double, double)' defined but not used [-Wunused-func
-//  tion]
+//  .../bsla_unused.t.cpp:132:9: warning: 'int {anonymous}::warn::quadratic(
+//  double*, double*, double, double, double)' defined but not used
+//  [-Wunused-function]
 //       int quadratic(double *zeroA,
 //           ^
 //..
-// Note that none of the compilers we are currently using issue a warning on
-// the unused 'warn::ResultRec', but some in the future might.
+// Note that none of the compilers currently in use at Bloomberg issue a
+// warning on the unused 'warn::ResultRec', but some in the future might.
 //
-// Next, we define a namespace 'nowarn' within the unused namespace with
+// Next, we define a namespace, 'nowarn', within the unused namespace with
 // exactly the same unused entities, using the 'BSLA_UNUSED' annotation to
 // silence the warnings:
 //..

@@ -5,15 +5,13 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a macro to flag an error when a function is called.
-//
-//@CLASSES:
+//@PURPOSE: Provide a macro to emit an error when a function is called.
 //
 //@MACROS:
 //  BSLA_ERROR(QUOTED_MESSAGE): emit error message and fail compilation
-//  BSLA_ERROR_IS_ACTIVE: 1 if 'BSLA_ERROR' is active and 0 otherwise.
+//  BSLA_ERROR_IS_ACTIVE: 1 if 'BSLA_ERROR' is active and 0 otherwise
 //
-//@SEE ALSO: bsla_annotations
+//@SEE_ALSO: bsla_annotations
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
 //
@@ -24,26 +22,24 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: o BSLA_ERROR(QUOTED_MESSAGE)
-//:
-//: o This annotation, when used, will cause a compile-time error when a call
-//:   to the so-annotated function is not removed through dead-code elimination
-//:   or other optimizations.  While it is possible to leave the function
-//:   undefined, thus incurring a link-time failure, with the use of this macro
-//:   the invalid call will be diagnosed earlier (i.e., at compile time), and
-//:   the diagnostic will include the exact location of the function call.  The
-//:   message 'QUOTED_MESSAGE', which should be a double-quoted string, will
-//:   appear in the error message.
+//: 'BSLA_ERROR(QUOTED_MESSAGE)'
+//:     This annotation, when used, will cause a compile-time error when a call
+//:     to the so-annotated function is not removed through dead-code
+//:     elimination or other optimizations.  While it is possible to leave the
+//:     function undefined, thus incurring a link-time failure, with the use of
+//:     this macro the invalid call will be diagnosed earlier (i.e., at compile
+//:     time), and the diagnostic will include the location of the function
+//:     call.  The message 'QUOTED_MESSAGE', which should be a double-quoted
+//:     string, will appear in the error message.
 //
-//: o BSLA_ERROR_IS_ACTIVE
-//:
-//: o The macro 'BSLA_ERROR_IS_ACTIVE' is defined to 0 if 'BSLA_ERROR' expands
-//:   to nothing and 1 otherwise.
+//: 'BSLA_ERROR_IS_ACTIVE'
+//:     The macro 'BSLA_ERROR_IS_ACTIVE' is defined to 0 if 'BSLA_ERROR'
+//:     expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
 //
-///Example 1: Flagging a Function for a Compiler Error if Used:
+///Example 1: Flagging a Function for a Compiler Error if Used
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we declare and define a function annotated with 'BSLA_ERROR'.  Note
 // that the argument to 'BSLA_ERROR' must be a quoted string:
@@ -61,8 +57,8 @@ BSLS_IDENT("$Id: $")
 //..
 // Finally, observe the following compile error:
 //..
-//  .../bsla_error.t.cpp:226:16: error: call to 'usageFunc' declared with attri
-//  bute error: Don't call 'usageFunc'
+//  .../bsla_error.t.cpp:226:16: error: call to 'usageFunc' declared with
+//  attribute error: Don't call 'usageFunc'
 //       usageFunc();
 //                  ^
 //..

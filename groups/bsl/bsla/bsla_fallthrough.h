@@ -7,13 +7,11 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a macro to suppress warnings on 'switch' fall-throughs.
 //
-//@CLASSES:
-//
 //@MACROS:
 //  BSLA_FALLTHROUGH: do not warn if 'switch' 'case' falls through
 //  BSLA_FALLTHROUGH_IS_ACTIVE: 1 if 'BSLA_FALLTHROUGH' is active, else 0
 //
-//@SEE ALSO: bsla_annotations
+//@SEE_ALSO: bsla_annotations
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
 //
@@ -24,24 +22,22 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: o BSLA_FALLTHROUGH
-//:
-//: o This annotation should be placed in a 'case' clause, as the last
-//:   statement within a flow of control that is expected to allow control to
-//:   fall through instead of ending with a 'break', 'continue', or 'return'.
-//:   This will prevent compilers from warning about fall-through.  The
-//:   'BSLA_FALLTHROUGH' must be followed by a semicolon and may be nested
-//:   within blocks, 'if's, or 'else's.
+//: 'BSLA_FALLTHROUGH'
+//:     This annotation should be placed in a 'case' clause as the last
+//:     statement within a flow of control that is expected to allow control to
+//:     fall through instead of ending with a 'break', 'continue', or 'return'.
+//:     This will prevent compilers from warning about fall-through.  The
+//:     'BSLA_FALLTHROUGH' must be followed by a semicolon and may be nested
+//:     within blocks, 'if's, or 'else's.
 //
-//: o BSLA_FALLTHROUGH_IS_ACTIVE
-//:
-//: o The macro 'BSLA_FALLTHROUGH_IS_ACTIVE' is defined to 0 if
-//:   'BSLA_FALLTHROUGH' expands to nothing and 1 otherwise.
+//: 'BSLA_FALLTHROUGH_IS_ACTIVE'
+//:     The macro 'BSLA_FALLTHROUGH_IS_ACTIVE' is defined to 0 if
+//:     'BSLA_FALLTHROUGH' expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
 //
-///Example 1: Suppressing Fall-Through Warnings in a 'switch' Statement:
+///Example 1: Suppressing Fall-Through Warnings in a 'switch' Statement
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we define a function:
 //..
@@ -51,13 +47,13 @@ BSLS_IDENT("$Id: $")
 //  {
 //      for (int ii = 0; ii < 5; ++ii) {
 //..
-// Then, we have 'switch' in the function:
+// Then, we have a 'switch' in the function:
 //..
 //          switch (ii) {
 //            case 0: {
 //              printf("%d\n", jj - 3);
 //..
-// Next, we see that 'BSLA_FALLTHROUGH;', as the last statement in a 'case'
+// Next, we see that 'BSLA_FALLTHROUGH;' as the last statement in a 'case'
 // block before falling through silences the fall-through warning from the
 // compiler:
 //..
@@ -74,7 +70,7 @@ BSLS_IDENT("$Id: $")
 //              if (jj > 4) {
 //                  printf("%d\n", jj + 10);
 //..
-// Next, we see that a 'BSLA_FALLTHROUGH;' works within a 'if' block, provided
+// Next, we see that a 'BSLA_FALLTHROUGH;' works within an 'if' block, provided
 // that it's in the last statement in the flow of control before falling
 // through:
 //..
@@ -92,7 +88,7 @@ BSLS_IDENT("$Id: $")
 //                  printf("%d\n", ++jj);
 //..
 // Now, we see that a 'BSLA_FALLTHROUGH;' can also occur as the last statement
-// in an 'else' block.
+// in an 'else' block:
 //..
 //                  BSLA_FALLTHROUGH;
 //              }
@@ -109,8 +105,8 @@ BSLS_IDENT("$Id: $")
 // Finally, we see that if we compile when 'BSLA_FALLTHROUGH_IS_ACTIVE' is set,
 // the above compiles with no warnings.
 
-#include <bsls_platform.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #ifdef BSLA_FALLTHROUGH
 #error BSLA_FALLTHROUGH previously #defined

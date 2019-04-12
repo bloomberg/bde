@@ -99,7 +99,7 @@ void aSsErT(bool condition, const char *message, int line)
 ///Usage
 ///-----
 //
-///Example 1: Flagging a Function for a Compiler Error if Used:
+///Example 1: Flagging a Function for a Compiler Error if Used
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we declare and define a function annotated with 'BSLA_ERROR'.  Note
 // that the argument to 'BSLA_ERROR' must be a quoted string:
@@ -227,8 +227,8 @@ int main(int argc, char **argv)
 //..
 // Finally, observe the following compile error:
 //..
-//  .../bsla_error.t.cpp:226:16: error: call to 'usageFunc' declared with attri
-//  bute error: Don't call 'usageFunc'
+//  .../bsla_error.t.cpp:226:16: error: call to 'usageFunc' declared with
+//  attribute error: Don't call 'usageFunc'
 //       usageFunc();
 //                  ^
 //..

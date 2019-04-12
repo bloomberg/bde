@@ -1,4 +1,3 @@
-bsla_allocsize
 bsla_annotations
 bsla_deprecated
 bsla_error
@@ -10,6 +9,7 @@ bsla_noreturn
 bsla_nullterminated
 bsla_printf
 bsla_scanf
+bsla_unreachable
 bsla_unused
 bsla_used
 bsla_warning

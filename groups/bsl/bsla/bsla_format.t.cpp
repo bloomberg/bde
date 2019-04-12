@@ -7,27 +7,27 @@
 #include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
 #include <string.h>  // 'strcmp'
 
-// Set this preprocessor variable to 1 to enable compile warnings being
-// generated, 0 to disable them.
+// Set this preprocessor macro to 1 to enable compile warnings being generated,
+// 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
 
 // ============================================================================
-//                             TEST PLAN
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-//                             Overview
-//                             --------
+//                                 Overview
+//                                 --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of the
-// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// test driver using a compliant compiler, each time defining different values
+// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
 // concerns are:
 //
 //: o Did the build succeed or not?
 //:
-//: o Was the expected warning observed, or not?
+//: o Was the expected warning observed or not?
 //:
-//: o Was the expected suppression of some warning, suppressed or not?
+//: o Was the expected suppression of some warning suppressed or not?
 //:
 //: o For annotations taking arguments, do the results show if the arguments
 //:   were properly passed to the underlying compiler directives?
@@ -35,9 +35,9 @@
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
-// to 1, provoke all the compiler warnings caused by the macros under test.  If
-// set to 0, prevent any warnings from happening.
+// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// 1, provokes all the compiler warnings caused by the macros under test.  If
+// set to 0, prevents any warnings from happening.
 //
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
@@ -111,9 +111,9 @@ void aSsErT(bool condition, const char *message, int line)
 ///Usage
 ///-----
 //
-///Example 1: A Language Translator Function:
+///Example 1: A Language Translator Function
 ///- - - - - - - - - - - - - - - - - - - - -
-// First, we define an 'enum', 'Language' to indicate choice of languages:
+// First, we define an 'enum', 'Language' to indicate the choice of languages:
 //..
     enum Language {
         e_ENGLISH,
@@ -121,10 +121,11 @@ void aSsErT(bool condition, const char *message, int line)
         e_DUTCH,
         e_FRENCH };
 //..
-// Then, we define a function 'prefixName' which will take a format string and
-// prefix it with the word 'name' in the selected language.  The 'BSLA_FORMAT'
-// argument indicates that the result will be a pointer to a 'printf'-style
-// format string equivalent to the format string passed to the third argument:
+// Then, we define a function, 'prefixName', which will take a format string
+// and prefix it with the word 'name' in the selected language.  The
+// 'BSLA_FORMAT' annotation indicates that the result will be a pointer to a
+// 'printf'-style format string equivalent to the format string passed to the
+// third argument:
 //..
     const char *prefixName(char *buf, Language lang, const char *format)
                                                                 BSLA_FORMAT(3);
@@ -290,7 +291,7 @@ int main(int argc, char **argv)
                             "=============\n");
 
 // Next, in 'main', we call 'printf' and 'scanf' using the return value of
-// 'prefixName' and passing correct arguments, and no warnings occur:
+// 'prefixName'.  No warnings occur when correct arguments are passed:
 //..
     char buffer[1000];
     ::printf(prefixName(buffer, e_SPANISH, "%s\n"), "Michael Bloomberg");
@@ -307,15 +308,15 @@ int main(int argc, char **argv)
     ::scanf(prefixName(buffer, e_DUTCH, "%s"), &x);
 #endif
 //..
-// Finally, we observe the following warning messages on clang:
+// Finally, we observe the following warning messages with clang:
 //..
-//  .../bsla_format.t.cpp:300:53: warning: format specifies type 'char *' but t
-//  he argument has type 'double' [-Wformat]
+//  .../bsla_format.t.cpp:300:53: warning: format specifies type 'char *' but
+//  the argument has type 'double' [-Wformat]
 //      ::printf(prefixName(buffer, e_ENGLISH, "%s\n"), 2.7);
 //                                              ~~      ^~~
 //                                              %f
-//  .../bsla_format.t.cpp:302:48: warning: format specifies type 'char *' but t
-//  he argument has type 'int *' [-Wformat]
+//  .../bsla_format.t.cpp:302:48: warning: format specifies type 'char *' but
+//  the argument has type 'int *' [-Wformat]
 //      ::scanf(prefixName(buffer, e_DUTCH, "%s"), &x);
 //                                           ~~    ^~
 //                                           %d

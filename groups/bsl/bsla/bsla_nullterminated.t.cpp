@@ -8,27 +8,27 @@
 #include <stdlib.h>  // 'atoi'
 #include <string.h>  // 'strcmp'
 
-// Set this preprocessor variable to 1 to enable compile warnings being
-// generated, 0 to disable them.
+// Set this preprocessor macro to 1 to enable compile warnings being generated,
+// 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
 
 // ============================================================================
-//                             TEST PLAN
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-//                             Overview
-//                             --------
+//                                 Overview
+//                                 --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of the
-// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// test driver using a compliant compiler, each time defining different values
+// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
 // concerns are:
 //
 //: o Did the build succeed or not?
 //:
-//: o Was the expected warning observed, or not?
+//: o Was the expected warning observed or not?
 //:
-//: o Was the expected suppression of some warning, suppressed or not?
+//: o Was the expected suppression of some warning suppressed or not?
 //:
 //: o For annotations taking arguments, do the results show if the arguments
 //:   were properly passed to the underlying compiler directives?
@@ -36,9 +36,9 @@
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
-// to 1, provoke all the compiler warnings caused by the macros under test.  If
-// set to 0, prevent any warnings from happening.
+// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// 1, provokes all the compiler warnings caused by the macros under test.  If
+// set to 0, prevents any warnings from happening.
 //
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
@@ -124,11 +124,11 @@ bool veryVeryVeryVerbose;
 ///Usage
 ///-----
 //
-///Example 1: 'catStrings' function:
+///Example 1: 'catStrings' function
 /// - - - - - - - - - - - - - - - -
 // Suppose we want to have a function that, passed a variable length argument
-// list of 'const char *' strings terminated by a 'NULL' pointer, concatenates
-// the strings, separated by spaces, into a buffer.
+// list of 'const char *' strings terminated by 'NULL', concatenates the
+// strings, separated by spaces, into a buffer.
 //
 // First, we declare and define the function, annotated with
 // 'BSLA_NULL_TERMINATED':
@@ -156,11 +156,11 @@ bool veryVeryVeryVerbose;
 //..
 
 //
-///Example 2: 'catVerdict' function:
+///Example 2: 'catVerdict' function
 /// - - - - - - - - - - - - - - - -
 // Suppose we want to have a function that, passed a variable length argument
-// list of 'const char *' strings terminated by a 'NULL' pointer, concatenates
-// the strings, separated by spaces, into a buffer, and then there's one
+// list of 'const char *' strings terminated by 'NULL', concatenates the
+// strings, separated by spaces, into a buffer, and then there's an additional
 // integer argument, interpreted as a boolean, that determines what is to be
 // appended to the end of the buffer.
 //
@@ -175,7 +175,7 @@ bool veryVeryVeryVerbose;
         // 'outputBuffer', separated by spaces.  The second-to-last argument is
         // to be 'NULL', and the last argument is an 'int' interpreted as a
         // boolean to determine whether the buffer is to end with a verdict of
-        // 'guilty' or 'not guilty'.  The behavior is undefined unless the
+        // "guilty" or "not guilty".  The behavior is undefined unless the
         // types of all the arguments are correct and the second to last
         // argument is 'NULL'.
     {
@@ -397,11 +397,11 @@ int main(int argc, char **argv)
 {
 // Then, in 'main', we call 'catStrings' correctly:
 //..
-    char buf[1000];
-    catStrings(buf, "Now", "you", "see", "it.", NULL);
-    printf("%s\n", buf);
+        char buf[1000];
+        catStrings(buf, "Now", "you", "see", "it.", NULL);
+        printf("%s\n", buf);
 //..
-// Which compiles without a warning and produces the output:
+// which compiles without a warning and produces the output:
 //..
 //  Now you see it.
 //..
@@ -409,47 +409,80 @@ int main(int argc, char **argv)
 //..
 #if U_TRIGGER_WARNINGS
 if (veryVeryVeryVerbose) {
-    catStrings(buf, "Now", "you", "don't.");
-    printf("%s\n", buf);
+        catStrings(buf, "Now", "you", "don't.");
+        printf("%s\n", buf);
 }
 #endif
 //..
 // Finally, we get the compiler warning:
 //..
-//  .../bsla_nullterminated.t.cpp:404:43: warning: missing sentinel in function
-//   call [-Wformat=]
-//       catStrings(buf, "Now", "you", "don't.");
-//                                         ^
+//  .../bsla_nullterminated.t.cpp:412:47: warning: missing sentinel in function
+//  call [-Wsentinel]
+//      catStrings(buf, "Now", "you", "don't.");
+//                                            ^
+//                                            , nullptr
+//  .../bsla_nullterminated.t.cpp:137:10: note: function has been explicitly
+//  marked sentinel here
+//  void catStrings(char *outputBuffer, ...)
+//       ^
 //..
 }
 
 {
 // Then, in 'main', we call 'catVerdict' correctly:
 //..
-    char buf[1000];
-    catVerdict(buf, "We find the", "defendant,", "Wile E. Coyote", NULL, 1);
-    printf("%s\n", buf);
+        char buf[1000];
+        catVerdict(buf, "We find the", "defendant,", "Bugs Bunny", NULL, 0);
+        printf("%s\n", buf);
 //..
-// Which compiles without a warning and produces the output:
+// which compiles without a warning and produces the output:
 //..
-//  We find the defendant, Wile E. Coyote: guilty
+//  We find the defendant, Bugs Bunny: not guilty
 //..
-// Now we call 'catVerdict' and forget to put the integer that indicates guilt
-// or innocence after the 'NULL'.
+// Next, we call 'catVerdict' with no 'NULL' passed, and get a warning (and
+// probably a segfault if we ran it):
 //..
 #if U_TRIGGER_WARNINGS
 if (veryVeryVeryVerbose) {
-    catVerdict(buf, "We find the", "defendant,", "Road Runner", NULL);
-    printf("%s\n", buf);
+        catVerdict(buf, "We find the", "defendant,", "Wile E. Coyote", 1);
+        printf("%s\n", buf);
+}
+#endif
+//..
+// And we get the following compiler warning:
+//..
+//  .../bsla_nullterminated.t.cpp:447:70: warning: missing sentinel in function
+//  call [-Wsentinel]
+//      catVerdict(buf, "We find the", "defendant,", "Wile E. Coyote", 1);
+//                                                                   ^
+//                                                                   , nullptr
+//  .../bsla_nullterminated.t.cpp:171:10: note: function has been explicitly
+//  marked sentinel here
+//  void catVerdict(char *outputBuffer, ...)
+//       ^
+//..
+// Now, we call 'catVerdict' and forget to put the integer that indicates guilt
+// or innocence after the 'NULL'.  This means that 'NULL' is happening at index
+// 0, not index 1, which violates the requirement imposed by the annotation:
+//..
+#if U_TRIGGER_WARNINGS
+if (veryVeryVeryVerbose) {
+        catVerdict(buf, "We find the", "defendant,", "Road Runner", NULL);
+        printf("%s\n", buf);
 }
 #endif
 //..
 // Finally, we get the compiler warning:
 //..
-//  .../bsla_nullterminated.t.cpp:420:69: warning: missing sentinel in function
-//   call [-Wformat=]
-//       catVerdict(buf, "We find the", "defendant,", "Road Runner", NULL);
-//                                                                       ^
+//  .../bsla_nullterminated.t.cpp:471:67: warning: missing sentinel in function
+//  call [-Wsentinel]
+//      catVerdict(buf, "We find the", "defendant,", "Road Runner", NULL);
+//                                                                ^
+//                                                                , nullptr
+//  .../bsla_nullterminated.t.cpp:171:10: note: function has been explicitly
+//   marked sentinel here
+//  void catVerdict(char *outputBuffer, ...)
+//       ^
 //..
 }
       } break;

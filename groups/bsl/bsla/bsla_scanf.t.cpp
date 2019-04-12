@@ -10,27 +10,27 @@
 #include <stdlib.h>  // 'atoi'
 #include <string.h>  // 'strcmp'
 
-// Set this preprocessor variable to 1 to enable compile warnings being
-// generated, 0 to disable them.
+// Set this preprocessor macro to 1 to enable compile warnings being generated,
+// 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
 
 // ============================================================================
-//                             TEST PLAN
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-//                             Overview
-//                             --------
+//                                 Overview
+//                                 --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of the
-// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// test driver using a compliant compiler, each time defining different values
+// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
 // concerns are:
 //
 //: o Did the build succeed or not?
 //:
-//: o Was the expected warning observed, or not?
+//: o Was the expected warning observed or not?
 //:
-//: o Was the expected suppression of some warning, suppressed or not?
+//: o Was the expected suppression of some warning suppressed or not?
 //:
 //: o For annotations taking arguments, do the results show if the arguments
 //:   were properly passed to the underlying compiler directives?
@@ -38,9 +38,9 @@
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
-// to 1, provoke all the compiler warnings caused by the macros under test.  If
-// set to 0, prevent any warnings from happening.
+// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// 1, provokes all the compiler warnings caused by the macros under test.  If
+// set to 0, prevents any warnings from happening.
 //
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
@@ -115,18 +115,18 @@ void aSsErT(bool condition, const char *message, int line)
 ///Usage
 ///-----
 //
-///Example 1: Rand Populator:
-///- - - - - - - - - - - - -
+///Example 1: Populate a Sequence of 'int's and 'float's with Random Numbers
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to have a function that will populate a list of 'int's and
-// 'float' will random numbers in the range '[ 0 .. 100 )'.
+// 'float' with random numbers in the range '[ 0 .. 100 )'.
 //
 // First, we define our function:
 //..
     int populateValues(const char *format, ...) BSLA_SCANF(1, 2);
-        // Use the specified 'randGen' to populate 'int's and 'float's, passed
-        // by pointer after the specified 'format', which will specify the
-        // types of the variables passed.  Return the number of variables
-        // populated, or -1 if the format string is invalid.
+        // Use 'rand' to populate 'int's and 'float's, passed by pointer after
+        // the specified 'format', which will specify the types of the
+        // variables passed.  Return the number of variables populated, or -1
+        // if the format string is invalid.
 //
     int populateValues(const char *format, ...)
     {
@@ -321,22 +321,23 @@ int main(int argc, char **argv)
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Tnen, in 'main', we call 'populateValues' properly:
+// Then, in 'main', we call 'populateValues' properly:
 //..
-    float ff[3] = { 0, 0, 0 };
-    int   ii[3] = { 0, 0, 0 };
+        float ff[3] = { 0, 0, 0 };
+        int   ii[3] = { 0, 0, 0 };
 //
-    int numVars = populateValues("%d %g %g %d %d %g",
+        int numVars = populateValues("%d %g %g %d %d %g",
                                &ii[0], &ff[0], &ff[1], &ii[1], &ii[2], &ff[2]);
-    ASSERT(6 == numVars);
-    for (int jj = 0; jj < 3; ++jj) {
-        ASSERT(0 <= ii[jj]);
-        ASSERT(0 <= ff[jj]);
-        ASSERT(     ii[jj] < 100);
-        ASSERT(     ff[jj] < 100);
-    }
+        ASSERT(6 == numVars);
+        for (int jj = 0; jj < 3; ++jj) {
+            ASSERT(0 <= ii[jj]);
+            ASSERT(0 <= ff[jj]);
+            ASSERT(     ii[jj] < 100);
+            ASSERT(     ff[jj] < 100);
+        }
 if (verbose) {
-    printf("%d %g %g %d %d %g\n", ii[0], ff[0], ff[1], ii[1], ii[2], ff[2]);
+        printf("%d %g %g %d %d %g\n",
+                                     ii[0], ff[0], ff[1], ii[1], ii[2], ff[2]);
 }
 //..
 // Next, we observe that there are no compiler warnings and a reasonable set of
@@ -347,23 +348,22 @@ if (verbose) {
 // Now, we make a call where the arguments don't match the format string:
 //..
 #if U_TRIGGER_WARNINGS
-    numVars = populateValues("%d %g", &ff[0], &ii[0]);
+        numVars = populateValues("%d %g", &ff[0], &ii[0]);
 #endif
 //..
-// Finally, we observe the following compiler warnings on clang:
+// Finally, we observe the following compiler warnings with clang:
 //..
-//  .../bsla_scanf.t.cpp:351:39: warning: format specifies type 'int *' but the
-//   argument has type 'float *' [-Wformat]
+//  .../bsla_scanf.t.cpp:351:43: warning: format specifies type 'int *' but the
+//  argument has type 'float *' [-Wformat]
 //      numVars = populateValues("%d %g", &ff[0], &ii[0]);
 //                                ~~      ^~~~~~
 //                                %f
-//  .../bsla_scanf.t.cpp:351:47: warning: format specifies type 'float *' but t
-//  he argument has type 'int *' [-Wformat]
+//  .../bsla_scanf.t.cpp:351:51: warning: format specifies type 'float *' but
+//  the argument has type 'int *' [-Wformat]
 //      numVars = populateValues("%d %g", &ff[0], &ii[0]);
 //                                   ~~           ^~~~~~
 //                                   %d
 //..
-
     (void) numVars;
       } break;
       case 1: {

@@ -7,8 +7,8 @@
 #include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
 #include <string.h>  // 'strcmp'
 
-// Set this preprocessor variable to 1 to enable compile warnings being
-// generated, 0 to disable them.
+// Set this preprocessor macro to 1 to enable compile warnings being generated,
+// 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
 
@@ -19,15 +19,15 @@
 //                                 --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of the
-// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// test driver using a compliant compiler, each time defining different values
+// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
 // concerns are:
 //
 //: o Did the build succeed or not?
 //:
-//: o Was the expected warning observed, or not?
+//: o Was the expected warning observed or not?
 //:
-//: o Was the expected suppression of some warning, suppressed or not?
+//: o Was the expected suppression of some warning suppressed or not?
 //:
 //: o For annotations taking arguments, do the results show if the arguments
 //:   were properly passed to the underlying compiler directives?
@@ -35,9 +35,9 @@
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
-// to 1, provoke all the compiler warnings caused by the macros under test.  If
-// set to 0, prevent any warnings from happening.
+// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// 1, provokes all the compiler warnings caused by the macros under test.  If
+// set to 0, prevents any warnings from happening.
 //
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
@@ -111,8 +111,8 @@ void aSsErT(bool condition, const char *message, int line)
 ///Usage
 ///-----
 //
-///Example 1: Flagged Function:
-///- - - - - - - - - - - - - -
+///Example 1: Function Annotated 'BSLA_WARNING'
+/// - - - - - - - - - - - - - - - - - - - - - -
 // First, we declare and define a function annotated with 'BSLA_WARNING'.  Note
 // that the argument to 'BSLA_WARNING' must be a quoted string:
 //..
@@ -243,13 +243,13 @@ int main(int argc, char **argv)
 #if U_TRIGGER_WARNINGS
 // Now, in 'main', we call 'usageFunc':
 //..
-    usageFunc();
+        usageFunc();
 //..
-// Finally, observe the following compile error:
+// Finally, observe the following compile warning:
 //..
 //  .../bsla_warning.t.cpp: In function 'int main(int, char**)':
-//  .../bsla_warning.t.cpp:246:16: warning: call to 'usageFunc' declared with a
-//  ttribute warning: Don't call 'usageFunc'
+//  .../bsla_warning.t.cpp:246:16: warning: call to 'usageFunc' declared with
+//  attribute warning: Don't call 'usageFunc'
 //       usageFunc();
 //                  ^
 //..

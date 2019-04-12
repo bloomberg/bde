@@ -7,27 +7,27 @@
 #include <stdlib.h>  // 'atoi'
 #include <string.h>  // 'strcmp'
 
-// Set this preprocessor variable to 1 to enable compile warnings being
-// generated, 0 to disable them.
+// Set this preprocessor macro to 1 to enable compile warnings being generated,
+// 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
 
 // ============================================================================
-//                             TEST PLAN
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-//                             Overview
-//                             --------
+//                                 Overview
+//                                 --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of the
-// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// test driver using a compliant compiler, each time defining different values
+// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
 // concerns are:
 //
 //: o Did the build succeed or not?
 //:
-//: o Was the expected warning observed, or not?
+//: o Was the expected warning observed or not?
 //:
-//: o Was the expected suppression of some warning, suppressed or not?
+//: o Was the expected suppression of some warning suppressed or not?
 //:
 //: o For annotations taking arguments, do the results show if the arguments
 //:   were properly passed to the underlying compiler directives?
@@ -35,9 +35,9 @@
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
-// to 1, provoke all the compiler warnings caused by the macros under test.  If
-// set to 0, prevent any warnings from happening.
+// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// 1, provokes all the compiler warnings caused by the macros under test.  If
+// set to 0, prevents any warnings from happening.
 //
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
@@ -112,34 +112,40 @@ void aSsErT(bool condition, const char *message, int line)
 ///Usage
 ///-----
 //
-///Example 1: Passing Null to Arguments Annotated as Non-Null:
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Passing 'NULL' to Arguments Annotated as Non-'NULL'
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we define a function 'usagePrint1' annotated such that a compiler
-// warning will occur if the first argument is null:
+// warning will occur if the first argument of the annotated function is passed
+// 0, 'NULL', 'nullptr', or (on clang) a null pointer constant expression:
 //..
-    void usagePrint1(const char *string, int repitition) BSLA_NONNULLARG(1);
-        // Print the specified 'string' the specified 'repitition' times.
-///
-    void usagePrint1(const char *string, int repitition)
-    {
-        for (int ii = 0; ii < repitition; ++ii) {
-            printf("%s\n", string);
-        }
-    }
-//..
-// Then, we define a similar function annotaged with 'BSLA_NONNULLARGS'.  Note
-// that only the pointer argument is affected by the annotation.
-//..
-    void usagePrint2(const char *string, int repitition) BSLA_NONNULLARGS;
-        // Print the specified 'string' the specified 'repitition' times.
+    void usagePrint1(const char *string, int repetition) BSLA_NONNULLARG(1);
+        // Print the specified 'string' the specified 'repetition' times.
 //
-    void usagePrint2(const char *string, int repitition)
+    void usagePrint1(const char *string, int repetition)
     {
-        for (int ii = 0; ii < repitition; ++ii) {
+        for (int ii = 0; ii < repetition; ++ii) {
             printf("%s\n", string);
         }
     }
 //..
+// Then, we define a nearly identical function annotated with
+// 'BSLA_NONNULLARGS' instead.  Note that only pointer arguments are affected
+// by this annotation -- 'repetition' is not affected and may be passed 0
+// without a warning being emitted:
+//..
+    void usagePrint2(const char *string, int repetition) BSLA_NONNULLARGS;
+        // Print the specified 'string' the specified 'repetition' times.
+//
+    void usagePrint2(const char *string, int repetition)
+    {
+        for (int ii = 0; ii < repetition; ++ii) {
+            printf("%s\n", string);
+        }
+    }
+//..
+// So the two different annotations on these functions have an identical
+// effect -- affecting the 'string' argument but not the 'repetition' argument.
+//
 
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
@@ -147,7 +153,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 char test_NONNULLARG_1(const void *p, const void *q, const void *r)
                                                             BSLA_NONNULLARG(1);
-    // Derefence the specified 'p' and return the result, ignoring the
+    // Dereference the specified 'p' and return the result, ignoring the
     // specified 'q' and 'r'.
 char test_NONNULLARG_1(const void *p, const void *q, const void *r)
 {
@@ -222,6 +228,7 @@ void use_without_diagnostic_message_NONNULLARGS()
 void use_with_warning_message_NONNULLARG_1()
     // Call 'test_NONNULLARG_1' several times, each time provoking a warning.
 {
+    test_NONNULLARG_1(0   , NULL, NULL);
     test_NONNULLARG_1(NULL, NULL, NULL);
     test_NONNULLARG_1(NULL, "", "");
     test_NONNULLARG_1(NULL, "", NULL);
@@ -346,33 +353,88 @@ int main(int argc, char **argv)
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Next, in 'main', we call both functions with a non-null first argument, and
-// observe that no warning occurs.  Note that even though 0 is passed to the
-// integer argument to 'usagePrint2' and the 'BSLA_NONNULLARGS' annotation was
-// used, non-pointer arguments are not affected by that annotation.
+// Next, in 'main', we call both functions with a non-'NULL' first argument,
+// and observe that no warning occurs.  Note that even though 0 is passed to
+// the integer argument to 'usagePrint2' and the 'BSLA_NONNULLARGS' annotation
+// was used, non-pointer arguments are not affected by that annotation:
 //..
-    usagePrint1("woof", 0);
-    usagePrint2("meow", 0);
+        usagePrint1("woof", 0);
+        usagePrint2("meow", 0);
 //..
-// Now, we call both functions passing a null pointer to the first argument,
-// and observe that we get compiler warnings on both calls.
+// Then, we call both functions passing the first argument a variable whose
+// value is known by the compiler to be 'NULL', but since 'np1' is a
+// non-'const' variable, no warning is issued:
+//..
+        char *np1 = NULL;
+        usagePrint1(np1,    0);
+        usagePrint2(np1,    0);
+//..
+// Now, we call both functions passing various forms of constant null pointer
+// expressions to the first argument:
 //..
 #if U_TRIGGER_WARNINGS
-    usagePrint1(NULL, -10);
-    usagePrint2(NULL, -10);
+        usagePrint1(   0, -10);
+        usagePrint2(   0, -10);
+
+        usagePrint1(NULL, -20);
+        usagePrint2(NULL, -20);
+
+        usagePrint1(static_cast<char *>(0), -30);
+        usagePrint2(static_cast<char *>(0), -30);
+
+        #if __cplusplus >= 201103L
+            usagePrint1(nullptr, -40);
+            usagePrint2(nullptr, -40);
+        #endif
+
+        char * const np2 = 0;   // 'np2', unlike 'np1' above, is 'const'.
+        usagePrint1(np2, -50);    // Warning with clang, not g++
+        usagePrint2(np2, -50);    // Warning with clang, not g++
 #endif
 //..
-// Finally, we observe that the above two calls result in the following
-// warnings on clang:
+// Finally, we observe that the above ten calls result in the following
+// warnings with clang C++11:
 //..
-//  .../bsla_nonnullarg.t.cpp:359:25: warning: null passed to a callee that req
-//  uires a non-null argument [-Wnonnull]
-//      usagePrint1(NULL, -10);
+//  .../bsla_nonnullarg.t.cpp:376:30: warning: null passed to a callee that
+//  requires a non-null argument [-Wnonnull]
+//      usagePrint1(   0, -10);
+//                     ~     ^
+//  .../bsla_nonnullarg.t.cpp:377:30: warning: null passed to a callee that
+//  requires a non-null argument [-Wnonnull]
+//      usagePrint2(   0, -10);
+//                     ~     ^
+//  .../bsla_nonnullarg.t.cpp:379:30: warning: null passed to a callee that
+//  requires a non-null argument [-Wnonnull]
+//      usagePrint1(NULL, -20);
 //                  ~~~~     ^
-//  .../bsla_nonnullarg.t.cpp:360:25: warning: null passed to a callee that req
-//  uires a non-null argument [-Wnonnull]
-//      usagePrint2(NULL, -10);
+//  .../bsla_nonnullarg.t.cpp:380:30: warning: null passed to a callee that
+//  requires a non-null argument [-Wnonnull]
+//      usagePrint2(NULL, -20);
 //                  ~~~~     ^
+//  .../bsla_nonnullarg.t.cpp:382:48: warning: null passed to a callee that
+//  requires a non-null argument [-Wnonnull]
+//      usagePrint1(static_cast<char *>(0), -30);
+//                  ~~~~~~~~~~~~~~~~~~~~~~     ^
+//  .../bsla_nonnullarg.t.cpp:383:48: warning: null passed to a callee that
+//  requires a non-null argument [-Wnonnull]
+//      usagePrint2(static_cast<char *>(0), -30);
+//                  ~~~~~~~~~~~~~~~~~~~~~~     ^
+//  .../bsla_nonnullarg.t.cpp:386:37: warning: null passed to a callee that
+//  requires a non-null argument [-Wnonnull]
+//          usagePrint1(nullptr, -40);
+//                      ~~~~~~~     ^
+//  .../bsla_nonnullarg.t.cpp:387:37: warning: null passed to a callee that
+//  requires a non-null argument [-Wnonnull]
+//          usagePrint2(nullptr, -40);
+//                      ~~~~~~~     ^
+//  .../bsla_nonnullarg.t.cpp:391:29: warning: null passed to a callee that
+//  requires a non-null argument [-Wnonnull]
+//      usagePrint1(np2, -50);    // Warning with clang, not g++
+//                  ~~~     ^
+//  .../bsla_nonnullarg.t.cpp:392:29: warning: null passed to a callee that
+//  requires a non-null argument [-Wnonnull]
+//      usagePrint2(np2, -50);    // Warning with clang, not g++
+//                  ~~~     ^
 //..
       } break;
       case 1: {

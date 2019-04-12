@@ -7,40 +7,36 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a macro to prevent elision of unused entities.
 //
-//@CLASSES:
-//
 //@MACROS:
 //  BSLA_USED: emit annotated entity even if not referenced
 //  BSLA_USED_IS_ACTIVE: 0 of 'BSLA_USED' expands to nothing and 1 otherwise
 //
-//@SEE ALSO: bsla_annotations
+//@SEE_ALSO: bsla_annotations
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a preprocessor macro that will
-// guarantee the emisssion of a local function, type, or variable whether it is
+// guarantee the emission of a local function, type, or variable whether it is
 // used or not.
 //
 ///Macro Reference
 ///---------------
-//: o BSLA_USED
-//:
-//: o This annotation indicates that the so-annotated function, variable, or
-//:   type must be emitted even if it appears that the variable is not
-//:   referenced.
+//: 'BSLA_USED'
+//:     This annotation indicates that the so-annotated function, variable, or
+//:     type must be emitted even if it appears that the variable is not
+//:     referenced.
 //
-//: o BSLA_USED_IS_ACTIVE
-//:
-//: o The macro 'BSLA_USED_IS_ACTIVE' is defined to 0 if 'BSLA_UNUSED' expands
-//:   to nothing and 1 otherwise.
+//: 'BSLA_USED_IS_ACTIVE'
+//:     The macro 'BSLA_USED_IS_ACTIVE' is defined to 0 if 'BSLA_USED' expands
+//:     to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
 //
-///Example 1: Unused variables:
+///Example 1: Unused Variables
 ///- - - - - - - - - - - - - -
 // First, we declare two unused static variables, one marked 'BSLA_UNUSED'
-// and the other marked 'BSLA_USED'.
+// and the other marked 'BSLA_USED':
 //..
 //  static
 //  int usage_UNUSED_variable_no_warning BSLA_UNUSED;
@@ -49,14 +45,14 @@ BSLS_IDENT("$Id: $")
 //  int usage_USED_variable_no_warning BSLA_USED;
 //..
 // Finally, if we compile with clang and go into the debugger and stop in
-// 'main' which is in the same file and from which both variables are visible,
+// 'main', which is in the same file and from which both variables are visible,
 // we observe that the variable marked 'BSLA_UNUSED' cannot be accessed, but
-// the the variable marked 'BSLA_USED' can.
+// the variable marked 'BSLA_USED' can.
 //..
 //
-///Example 2: Unused functions:
+///Example 2: Unused functions
 ///- - - - - - - - - - - - - -
-// First declare two unused static functions, one marked 'BSLA_UNUSED' and one
+// First, declare two unused static functions, one marked 'BSLA_UNUSED' and one
 // marked 'BSLA_USED':
 //..
 //  static

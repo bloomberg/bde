@@ -5,42 +5,38 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a macro to suppress 'unused' warnings.
-//
-//@CLASSES:
+//@PURPOSE: Provide a macro to suppress "unused" warnings.
 //
 //@MACROS:
 //  BSLA_UNUSED: do not warn if annotated entity is unused
 //  BSLA_UNUSED_IS_ACTIVE: 0 if 'BSLA_UNUSED' expands to nothing, else 1
 //
-//@SEE ALSO: bsla_annotations
+//@SEE_ALSO: bsla_annotations
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component provides a preprocessor macro that
-// will suppress 'unused' warnings on a locally defined function, type, or
-// variable that is unused.
+//@DESCRIPTION: This component provides a preprocessor macro that will suppress
+// "unused" warnings on a locally defined function, type, or variable that is
+// not used.
 //
 ///Macro Reference
 ///---------------
-//: o BSLA_UNUSED
-//:
-//: o This annotation indicates that the so-annotated function, variable, or
-//:   type is possibly unused and the compiler should not generate a warning
-//:   for the unused identifier.
+//: 'BSLA_UNUSED'
+//:     This annotation indicates that the so-annotated function, variable, or
+//:     type is possibly unused and the compiler should not generate a warning
+//:     for the unused identifier.
 //
-//: o BSLA_UNUSED_IS_ACTIVE
-//:
-//: o The macro 'BSLA_UNUSED_IS_ACTIVE' is defined to 0 if 'BSLA_UNUSED'
-//:   expands to nothing and 1 otherwise.
+//: 'BSLA_UNUSED_IS_ACTIVE'
+//:     The macro 'BSLA_UNUSED_IS_ACTIVE' is defined to 0 if 'BSLA_UNUSED'
+//:     expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
 //
-///Example 1: Unused Warnings:
-/// - - - - - - - - - - - - -
-// First, we define a namespace 'warn' within the unnamed namespace with a
-// type, a function, and a function in it.  They are unused:
+///Example 1: "Unused" Warnings
+/// - - - - - - - - - - - - - -
+// First, we define a namespace, 'warn', within the unnamed namespace with a
+// type, a function, and a variable in it.  They are unused:
 //..
 //  namespace {
 //  namespace warn {
@@ -80,20 +76,20 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, we observe the warnings:
 //..
-//  .../bsla_unused.t.cpp:130:12: warning: '{anonymous}::warn::x' defined but n
-//  ot used [-Wunused-variable]
+//  .../bsla_unused.t.cpp:130:12: warning: '{anonymous}::warn::x' defined but
+//  not used [-Wunused-variable]
 //       double x;
 //              ^
-//  .../bsla_unused.t.cpp:132:9: warning: 'int {anonymous}::warn::quadratic(dou
-//  ble*, double*, double, double, double)' defined but not used [-Wunused-func
-//  tion]
+//  .../bsla_unused.t.cpp:132:9: warning: 'int {anonymous}::warn::quadratic(
+//  double*, double*, double, double, double)' defined but not used
+//  [-Wunused-function]
 //       int quadratic(double *zeroA,
 //           ^
 //..
-// Note that none of the compilers we are currently using issue a warning on
-// the unused 'warn::ResultRec', but some in the future might.
+// Note that none of the compilers currently in use at Bloomberg issue a
+// warning on the unused 'warn::ResultRec', but some in the future might.
 //
-// Next, we define a namespace 'nowarn' within the unused namespace with
+// Next, we define a namespace, 'nowarn', within the unused namespace with
 // exactly the same unused entities, using the 'BSLA_UNUSED' annotation to
 // silence the warnings:
 //..

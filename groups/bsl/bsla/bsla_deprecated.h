@@ -7,13 +7,11 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a compiler-hint macro to indicate deprecated entities.
 //
-//@CLASSES:
-//
 //@MACROS:
 //  BSLA_DEPRECATED: warn if annotated (deprecated) entity is used
-//  BSLA_DEPRECATED_IS_ACTIVE: 1 if 'BSLA_DEPRECATED is active, 0 otherwise
+//  BSLA_DEPRECATED_IS_ACTIVE: 1 if 'BSLA_DEPRECATED' is active, 0 otherwise
 //
-//@SEE ALSO: bsla_annotations
+//@SEE_ALSO: bsla_annotations
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
 //
@@ -22,25 +20,23 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: o BSLA_DEPRECATED
-//:
-//: o This annotation will, when used, cause a compile-time warning if the
-//:   so-annotated function, variable, or type is used anywhere within the
-//:   source file.  This is useful, for example, when identifying functions
-//:   that are expected to be removed in a future version of a library.  The
-//:   warning includes the location of the declaration of the deprecated entity
-//:   to enable users to find further information about the deprecation, or
-//:   what they should use instead.
+//: 'BSLA_DEPRECATED'
+//:     This annotation will, when used, cause a compile-time warning if the
+//:     so-annotated function, variable, or type is used anywhere within the
+//:     source file.  This is useful, for example, when identifying functions
+//:     that are expected to be removed in a future version of a library.  The
+//:     warning includes the location of the declaration of the deprecated
+//:     entity to enable users to find further information about the
+//:     deprecation, or what they should use instead.
 //
-//: o BSLA_DEPRECATED_IS_ACTIVE
-//:
-//: o The macro 'BSLA_DEPRECATED_IS_ACTIVE' is defined to 0 if
-//:   'BSLA_DEPRECATED' expands to nothing and 1 otherwise.
+//: 'BSLA_DEPRECATED_IS_ACTIVE'
+//:     The macro 'BSLA_DEPRECATED_IS_ACTIVE' is defined to 0 if
+//:     'BSLA_DEPRECATED' expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
 //
-///Example 1: Deprecating a type, a function, and a variable:
+///Example 1: Deprecating a type, a function, and a variable
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we define a deprecated type 'UsageType':
 //..
@@ -48,7 +44,7 @@ BSLS_IDENT("$Id: $")
 //      int d_int;
 //  } BSLA_DEPRECATED;
 //..
-// Then, we define a deprecated function 'usageFunc'.
+// Then, we define a deprecated function 'usageFunc':
 //..
 //  void usageFunc() BSLA_DEPRECATED;
 //  void usageFunc()
@@ -56,14 +52,14 @@ BSLS_IDENT("$Id: $")
 //      printf("Don't call me.\n");
 //  }
 //..
-// Next, we define a deprecated variable 'usageVar'.
+// Next, we define a deprecated variable 'usageVar':
 //..
 //  extern int usageVar BSLA_DEPRECATED;
 //  int usageVar = 5;
 //..
 // Then, as long as we don't use them, no warnings will be issued.
 //
-// Next, we conditionally to decide whether to use those 3 entities:
+// Next, we conditionally decide whether to use those 3 entities:
 //..
 //  #if U_TRIGGER_WARNINGS
 //..
@@ -73,11 +69,11 @@ BSLS_IDENT("$Id: $")
 //  ut.d_int = 5;
 //  (void) ut.d_int;
 //..
-// Which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
+// which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
 // the following warnings:
 //..
-//  .../bsla_deprecated.t.cpp:287:5: warning: 'UsageType' is deprecated [-Wdepr
-//  ecated-declarations]
+//  .../bsla_deprecated.t.cpp:287:5: warning: 'UsageType' is deprecated 
+//  [-Wdeprecated-declarations]
 //      UsageType ut;
 //      ^
 //  .../bsla/bsla_deprecated.t.cpp:113:7: note: 'UsageType' has been explicitly
@@ -89,15 +85,15 @@ BSLS_IDENT("$Id: $")
 //..
 //  usageFunc();
 //..
-// Which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
+// which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
 // the following warnings:
 //..
-//  .../bsla_deprecated.t.cpp:309:5: warning: 'usageFunc' is deprecated [-Wdepr
-//  ecated-declarations]
+//  .../bsla_deprecated.t.cpp:309:5: warning: 'usageFunc' is deprecated
+//  [-Wdeprecated-declarations]
 //      usageFunc();
 //      ^
-//  .../bsla_deprecated.t.cpp:117:22: note: 'usageFunc' has been explicitly mar
-//  ked deprecated here
+//  .../bsla_deprecated.t.cpp:117:22: note: 'usageFunc' has been explicitly
+//  marked deprecated here
 //      void usageFunc() BSLA_DEPRECATED;
 //                       ^
 //..
@@ -105,18 +101,17 @@ BSLS_IDENT("$Id: $")
 //..
 //  printf("%d\n", usageVar);
 //..
-// Which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
+// which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
 // the following warnings:
 //..
-//  .../bsla_deprecated.t.cpp:329:20: warning: 'usageVar' is deprecated [-Wdepr
-//  ecated-declarations]
+//  .../bsla_deprecated.t.cpp:329:20: warning: 'usageVar' is deprecated
+//  [-Wdeprecated-declarations]
 //      printf("%d\n", usageVar);
 //                     ^
-//  .../bsla_deprecated.t.cpp:125:25: note: 'usageVar' has been explicitly mark
-//  ed deprecated here
+//  .../bsla_deprecated.t.cpp:125:25: note: 'usageVar' has been explicitly
+//  marked deprecated here
 //      extern int usageVar BSLA_DEPRECATED;
 //                          ^
-//..
 //  #endif
 //..
 

@@ -5,47 +5,43 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide macro to indicate that return value is a format string.
-//
-//@CLASSES:
+//@PURPOSE: Provide a macro to indicate that a return value is a format string.
 //
 //@MACROS:
 //  BSLA_FORMAT(FMT_IDX): validate 'printf'-style format spec in 'n'th argument
-//  BSLA_FORMAT_IS_ACTIVE: 1 if 'BSLA_FORMAT' is active and 0 otherwise.
+//  BSLA_FORMAT_IS_ACTIVE: 1 if 'BSLA_FORMAT' is active and 0 otherwise
 //
-//@SEE ALSO: bsla_annotations
+//@SEE_ALSO: bsla_annotations
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
 //
 //@DESCRIPTION: This component provides a preprocessor macro to indicate that
 // an indexed argument of a function is a 'printf'-style format specification,
-// and that the function will return a 'printf'-style format string with
+// and that the function will return a 'printf'-style format string with an
 // equivalent specification.
 //
 ///Macro Reference
 ///---------------
-//: o BSLA_FORMAT(FMT_IDX)
-//:
-//: o This annotation specifies that the so-annotated function takes an
-//:   argument that is a valid format string for a 'printf'-style function and
-//:   returns a format string that is consistent with that format.  This allows
-//:   format strings manipulated by translation functions to be checked against
-//:   arguments.  Without this annotation, attempting to manipulate the format
-//:   string via this kind of function might generate warnings about
-//:   non-literal formats, or fail to generate warnings about mismatched
-//:   arguments.
+//: 'BSLA_FORMAT(FMT_IDX)'
+//:     This annotation specifies that the so-annotated function takes an
+//:     argument that is a valid format string for a 'printf'-style function
+//:     and returns a format string that is consistent with that format.  This
+//:     allows format strings manipulated by translation functions to be
+//:     checked against arguments.  Without this annotation, attempting to
+//:     manipulate the format string via this kind of function might generate
+//:     warnings about non-literal formats, or fail to generate warnings about
+//:     mismatched arguments.
 //
-//: o BSLA_FORMAT_IS_ACTIVE
-//:
-//: o The macro 'BSLA_FORMAT_IS_ACTIVE' is defined to 0 when 'BSLA_FORMAT'
-//:   expands to nothing and 1 otherwise.
+//: 'BSLA_FORMAT_IS_ACTIVE'
+//:     The macro 'BSLA_FORMAT_IS_ACTIVE' is defined to 0 when 'BSLA_FORMAT'
+//:     expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
 //
-///Example 1: A Language Translator Function:
+///Example 1: A Language Translator Function
 ///- - - - - - - - - - - - - - - - - - - - -
-// First, we define an 'enum', 'Language' to indicate choice of languages:
+// First, we define an 'enum', 'Language' to indicate the choice of languages:
 //..
 //  enum Language {
 //      e_ENGLISH,
@@ -53,14 +49,18 @@ BSLS_IDENT("$Id: $")
 //      e_DUTCH,
 //      e_FRENCH };
 //..
-// Then, we define a function 'prefixName' which will take a format string and
-// prefix it with the word 'name' in the selected language.  The 'BSLA_FORMAT'
-// argument indicates that the result will be a pointer to a 'printf'-style
-// format string equivalent to the format string passed to the third argument:
+// Then, we define a function, 'prefixName', which will take a format string
+// and prefix it with the word 'name' in the selected language.  The
+// 'BSLA_FORMAT' annotation indicates that the result will be a pointer to a
+// 'printf'-style format string equivalent to the format string passed to the
+// third argument:
 //..
 //  const char *prefixName(char *buf, Language lang, const char *format)
 //                                                              BSLA_FORMAT(3);
 //  const char *prefixName(char *buf, Language lang, const char *format)
+//      // Create a buffer beginning with the word 'name' translated to the
+//      // specified 'lang', followed by the specified format string 'format',
+//      // using the specified 'buf' for memory.
 //  {
 //      const char *name = "";
 //      switch (lang) {
@@ -77,7 +77,7 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Next, in 'main', we call 'printf' and 'scanf' using the return value of
-// 'prefixName' and passing correct arguments, and no warnings occur:
+// 'prefixName'.  No warnings occur when correct arguments are passed:
 //..
 //  char buffer[1000];
 //  ::printf(prefixName(buffer, e_SPANISH, "%s\n"), "Michael Bloomberg");
@@ -88,19 +88,21 @@ BSLS_IDENT("$Id: $")
 // Now, we call 'printf' and 'scanf' passing arguments that won't match the
 // resulting format string:
 //..
+#if U_TRIGGER_WARNINGS
 //  ::printf(prefixName(buffer, e_ENGLISH, "%s\n"), 2.7);
 //  int x;
 //  ::scanf(prefixName(buffer, e_DUTCH, "%s"), &x);
+#endif
 //..
-// Finally, we observe the following warning messages on clang:
+// Finally, we observe the following warning messages with clang:
 //..
-//  .../bsla_format.t.cpp:300:53: warning: format specifies type 'char *' but t
-//  he argument has type 'double' [-Wformat]
+//  .../bsla_format.t.cpp:300:53: warning: format specifies type 'char *' but
+//  the argument has type 'double' [-Wformat]
 //      ::printf(prefixName(buffer, e_ENGLISH, "%s\n"), 2.7);
 //                                              ~~      ^~~
 //                                              %f
-//  .../bsla_format.t.cpp:302:48: warning: format specifies type 'char *' but t
-//  he argument has type 'int *' [-Wformat]
+//  .../bsla_format.t.cpp:302:48: warning: format specifies type 'char *' but
+//  the argument has type 'int *' [-Wformat]
 //      ::scanf(prefixName(buffer, e_DUTCH, "%s"), &x);
 //                                           ~~    ^~
 //                                           %d

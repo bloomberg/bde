@@ -11,27 +11,27 @@
 #include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
 #include <string.h>  // 'strcmp'
 
-// Set this preprocessor variable to 1 to enable compile warnings being
-// generated, 0 to disable them.
+// Set this preprocessor macro to 1 to enable compile warnings being generated,
+// 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
 
 // ============================================================================
-//                             TEST PLAN
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-//                             Overview
-//                             --------
+//                                 Overview
+//                                 --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of the
-// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// test driver using a compliant compiler, each time defining different values
+// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
 // concerns are:
 //
 //: o Did the build succeed or not?
 //:
-//: o Was the expected warning observed, or not?
+//: o Was the expected warning observed or not?
 //:
-//: o Was the expected suppression of some warning, suppressed or not?
+//: o Was the expected suppression of some warning suppressed or not?
 //:
 //: o For annotations taking arguments, do the results show if the arguments
 //:   were properly passed to the underlying compiler directives?
@@ -39,9 +39,9 @@
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
-// to 1, provoke all the compiler warnings caused by the macros under test.  If
-// set to 0, prevent any warnings from happening.
+// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// 1, provokes all the compiler warnings caused by the macros under test.  If
+// set to 0, prevents any warnings from happening.
 //
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
@@ -116,11 +116,11 @@ void aSsErT(bool condition, const char *message, int line)
 ///Usage
 ///-----
 //
-///Example 1: String Printf:
-/// - - - - - - - - - - - -
-// First, we define a function 'strPrintf' which takes a variable number of
-// arguments.  The second argument is the format string, and we annnotate it
-// with 'BSLA_PRINTF'
+///Example 1: 'printf'-line Function That Returns a 'bsl::string' by Value
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we define a function 'strPrintf' that takes a variable number of
+// arguments.  The second argument is the format string, and we annotate it
+// with 'BSLA_PRINTF':
 //..
     std::string strPrintf(size_t *numChars, const char *format, ...)
                                                              BSLA_PRINTF(2, 3);
@@ -137,9 +137,9 @@ void aSsErT(bool condition, const char *message, int line)
         va_list ap;
         va_start(ap, format);
 
-        // 'vnsprintf' returns the number of chars that WOULD have been written
-        // (not including the terminating '\0') had the buffer been long
-        // enough.
+        // 'vnsprintf' returns the number of characters that WOULD have been
+        // written (not including the terminating '\0') had the buffer been
+        // long enough.
 
         *numChars = ::vsnprintf(&ret[0], 1, format, ap);
         va_end(ap);
@@ -307,40 +307,49 @@ int main(int argc, char **argv)
 
 // Then, in 'main', we call the function correctly a couple of times:
 //..
-    size_t len;
-    std::string s;
+        size_t len;
+        std::string s;
 //
-    s = strPrintf(&len, "%s %s %s %g\n", "woof", "meow", "arf", 23.5);
-    ASSERT("woof meow arf 23.5\n" == s);
-    ASSERT(19 == len);
-    ASSERT(len == s.length());
+        s = strPrintf(&len, "%s %s %s %g\n", "woof", "meow", "arf", 23.5);
+        ASSERT("woof meow arf 23.5\n" == s);
+        ASSERT(19 == len);
+        ASSERT(len == s.length());
 //
-    s = strPrintf(&len, "%s %s %s %s %s %s %s %s %s\n",
-        "The", "rain", "in", "Spain", "falls", "mainly", "in", "the", "plain");
-    ASSERT("The rain in Spain falls mainly in the plain\n" == s);
-    ASSERT(44 == len);
-    ASSERT(len == s.length());
+        s = strPrintf(&len, "%s %s %s %s %s %s %s %s %s\n",
+                               "The", "rain", "in", "Spain", "falls", "mainly",
+                                                         "in", "the", "plain");
+        ASSERT("The rain in Spain falls mainly in the plain\n" == s);
+        ASSERT(44 == len);
+        ASSERT(len == s.length());
 //..
 // Now, we call it with too many arguments and of the wrong type:
 //..
 #if U_TRIGGER_WARNINGS
-    s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
+        s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
 #endif
 //..
-// Finally, we observe the compiler warnings on g++.
+// Finally, we observe the compiler warnings with clang:
 //..
-//  .../bsla/bsla_printf.t.cpp:324:58: warning: format '%c' expects argument of
-//   type 'int', but argument 3 has type 'const char*' [-Wformat=]
-//       s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
-//                                                            ^
-//  .../bsla/bsla_printf.t.cpp:324:58: warning: format '%f' expects argument of
-//   type 'double', but argument 4 has type 'int' [-Wformat=]
-//  .../bsla/bsla_printf.t.cpp:324:58: warning: format '%g' expects argument of
-//   type 'double', but argument 5 has type 'int' [-Wformat=]
-//  .../bsla/bsla_printf.t.cpp:324:58: warning: too many arguments for format [
-//  -Wformat-extra-args]
+//  .../bsla_printf.t.cpp:328:41: warning: format specifies type 'int' but the
+//  argument has type 'const char *' [-Wformat]
+//      s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
+//                           ~~         ^~~~~
+//                           %s
+//  .../bsla_printf.t.cpp:328:48: warning: format specifies type 'double' but
+//  the argument has type 'int' [-Wformat]
+//      s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
+//                              ~~             ^~
+//                              %d
+//  .../bsla_printf.t.cpp:328:52: warning: format specifies type 'double' but
+//  the argument has type 'int' [-Wformat]
+//      s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
+//                                 ~~              ^~
+//                                 %d
+//  .../bsla_printf.t.cpp:328:56: warning: data argument not used by format
+//  string [-Wformat-extra-args]
+//      s = strPrintf(&len, "%c %f %g", "arf", 27, 32, 65, 27);
+//                          ~~~~~~~~~~                 ^
 //..
-
         (void) s;
       } break;
       case 1: {

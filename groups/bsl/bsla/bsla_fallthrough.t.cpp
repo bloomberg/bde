@@ -7,27 +7,27 @@
 #include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
 #include <string.h>  // 'strcmp'
 
-// Set this preprocessor variable to 1 to enable compile warnings being
-// generated, 0 to disable them.
+// Set this preprocessor macro to 1 to enable compile warnings being generated,
+// 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
 
 // ============================================================================
-//                             TEST PLAN
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-//                             Overview
-//                             --------
+//                                 Overview
+//                                 --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of the
-// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// test driver using a compliant compiler, each time defining different values
+// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
 // concerns are:
 //
 //: o Did the build succeed or not?
 //:
-//: o Was the expected warning observed, or not?
+//: o Was the expected warning observed or not?
 //:
-//: o Was the expected suppression of some warning, suppressed or not?
+//: o Was the expected suppression of some warning suppressed or not?
 //:
 //: o For annotations taking arguments, do the results show if the arguments
 //:   were properly passed to the underlying compiler directives?
@@ -35,9 +35,9 @@
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
-// to 1, provoke all the compiler warnings caused by the macros under test.  If
-// set to 0, prevent any warnings from happening.
+// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// 1, provokes all the compiler warnings caused by the macros under test.  If
+// set to 0, prevents any warnings from happening.
 //
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
@@ -122,7 +122,7 @@ bool veryVeryVerbose;
 ///Usage
 ///-----
 //
-///Example 1: Suppressing Fall-Through Warnings in a 'switch' Statement:
+///Example 1: Suppressing Fall-Through Warnings in a 'switch' Statement
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we define a function:
 //..
@@ -132,13 +132,13 @@ bool veryVeryVerbose;
     {
         for (int ii = 0; ii < 5; ++ii) {
 //..
-// Then, we have 'switch' in the function:
+// Then, we have a 'switch' in the function:
 //..
             switch (ii) {
               case 0: {
                 printf("%d\n", jj - 3);
 //..
-// Next, we see that 'BSLA_FALLTHROUGH;', as the last statement in a 'case'
+// Next, we see that 'BSLA_FALLTHROUGH;' as the last statement in a 'case'
 // block before falling through silences the fall-through warning from the
 // compiler:
 //..
@@ -155,7 +155,7 @@ bool veryVeryVerbose;
                 if (jj > 4) {
                     printf("%d\n", jj + 10);
 //..
-// Next, we see that a 'BSLA_FALLTHROUGH;' works within a 'if' block, provided
+// Next, we see that a 'BSLA_FALLTHROUGH;' works within an 'if' block, provided
 // that it's in the last statement in the flow of control before falling
 // through:
 //..
@@ -173,7 +173,7 @@ bool veryVeryVerbose;
                     printf("%d\n", ++jj);
 //..
 // Now, we see that a 'BSLA_FALLTHROUGH;' can also occur as the last statement
-// in an 'else' block.
+// in an 'else' block:
 //..
                     BSLA_FALLTHROUGH;
                 }

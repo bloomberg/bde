@@ -8,27 +8,27 @@
 #include <stdlib.h>  // 'calloc', 'realloc', 'atoi'
 #include <string.h>  // 'strcmp'
 
-// Set this preprocessor variable to 1 to enable compile warnings being
-// generated, 0 to disable them.
+// Set this preprocessor macro to 1 to enable compile warnings being generated,
+// 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
 
 // ============================================================================
-//                             TEST PLAN
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-//                             Overview
-//                             --------
+//                                 Overview
+//                                 --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of the
-// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// test driver using a compliant compiler, each time defining different values
+// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
 // concerns are:
 //
 //: o Did the build succeed or not?
 //:
-//: o Was the expected warning observed, or not?
+//: o Was the expected warning observed or not?
 //:
-//: o Was the expected suppression of some warning, suppressed or not?
+//: o Was the expected suppression of some warning suppressed or not?
 //:
 //: o For annotations taking arguments, do the results show if the arguments
 //:   were properly passed to the underlying compiler directives?
@@ -36,9 +36,9 @@
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
-// to 1, provoke all the compiler warnings caused by the macros under test.  If
-// set to 0, prevent any warnings from happening.
+// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// 1, provokes all the compiler warnings caused by the macros under test.  If
+// set to 0, prevents any warnings from happening.
 //
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
@@ -114,7 +114,7 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Example 1: Square Root Function
 ///- - - - - - - - - - - - - - - -
-// First, we define a function 'newtonsSqrt' which uses Newton's method for
+// First, we define a function, 'newtonsSqrt', which uses Newton's method for
 // calculating a square root.  Since the function has no side effects, it
 // doesn't make sense to call it and ignore its result, so we annotate it with
 // 'BSLA_NODISCARD':
@@ -285,26 +285,26 @@ if (verbose) {
     printf("Square root of 0.917 * 0.917 = %g\n", newtonsSqrt(0.917 * 0.917));
 }
 //..
-// Next we call it and do nothing with the result, which will generate a
+// Next, we call it and do nothing with the result, which will generate a
 // warning:
 //..
     newtonsSqrt(36.0);
 //..
-// Now, we call it and explicitly void the result, which, on gcc, still won't
-// suppress the 'unused result' warning:
+// Now, we call it and explicitly void the result, which, with gcc, still won't
+// suppress the "unused result" warning:
 //..
     (void) newtonsSqrt(25.0);
 //..
 // Finally, we observe the compiler warnings from the last 2 calls:
 //..
 //  .../bsla_nodiscard.t.cpp:289:22: warning: ignoring return value of 'double
-//  newtonsSqrt(double)', declared with attribute warn_unused_result [-Wunused-
-//  result]
+//  newtonsSqrt(double)', declared with attribute warn_unused_result
+//  [-Wunused-result]
 //       newtonsSqrt(36.0);
 //                        ^
 //  .../bsla_nodiscard.t.cpp:294:29: warning: ignoring return value of 'double
-//  newtonsSqrt(double)', declared with attribute warn_unused_result [-Wunused-
-//  result]
+//  newtonsSqrt(double)', declared with attribute warn_unused_result
+//  [-Wunused-result]
 //       (void) newtonsSqrt(25.0);
 //                               ^
 //..

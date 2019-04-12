@@ -5,15 +5,13 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide macro to issue a compiler warning if a function returns.
-//
-//@CLASSES:
+//@PURPOSE: Provide a macro to issue a compiler warning if a function returns.
 //
 //@MACROS:
 //  BSLA_NORETURN: issue a compiler warning if function returns normally
 //  BSLA_NORETURN_IS_ACTIVE: 1 if 'BSLA_NORETURN' is active and 0 otherwise
 //
-//@SEE ALSO: bsla_annotations
+//@SEE_ALSO: bsla_annotations
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
 //
@@ -23,16 +21,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Macro Reference
 ///---------------
-//: o BSLA_NORETURN
-//:
-//: o This annotation is used to tell the compiler that a specified function
-//:   will not return in a normal fashion.  The function can still exit via
-//:   other means such as throwing an exception or aborting the process.
+//: 'BSLA_NORETURN'
+//:     This annotation is used to tell the compiler that a specified function
+//:     will not return in a normal fashion.  The function can still exit via
+//:     other means such as throwing an exception or aborting the process.
 //
-//: o BSLA_NORETURN_IS_ACTIVE
-//:
-//: o The macro 'BSLA_NORETURN_IS_ACTIVE' is defined to 0 if 'BSLA_NORETURN'
-//:   expands to nothing and 1 otherwise.
+//: 'BSLA_NORETURN_IS_ACTIVE'
+//:     The macro 'BSLA_NORETURN_IS_ACTIVE' is defined to 0 if 'BSLA_NORETURN'
+//:     expands to nothing and 1 otherwise.
 //
 ///Usage
 ///-----
@@ -40,10 +36,10 @@ BSLS_IDENT("$Id: $")
 ///Example 1: Assertion Handler
 /// - - - - - - - - - - - - - -
 // First, we create an assertion handler, 'myHandlerA', which never returns,
-// and annotate it 'BSLA_NORETURN' so that the compiler will warn if it does
-// return.
+// and annotate it with 'BSLA_NORETURN' so that the compiler will warn if it
+// does return:
 //..
-//  BSLA_NORETURN void myHanderA(const bsls::AssertViolation& assertViolation)
+//  BSLA_NORETURN void myHandlerA(const bsls::AssertViolation& assertViolation)
 //  {
 //      printf("%s:%d %s", assertViolation.fileName(),
 //                         assertViolation.lineNumber(),
@@ -59,12 +55,11 @@ BSLS_IDENT("$Id: $")
 //      ::abort();
 //  }
 //..
-// Now, a new hire copies 'myHandlerA' and creates a new handler,
-// 'myHandlerB', which doesn't abort unless instructed to via an environment
-// variable, which he doesn't realize opens up the possibility of the handler
-// returning:
+// Now, a new hire copies 'myHandlerA' and creates a new handler, 'myHandlerB',
+// that doesn't abort unless instructed to via an environment variable, not
+// realizing that this opens up the possibility of the handler returning:
 //..
-//  BSLA_NORETURN void myHanderB(const bsls::AssertViolation& assertViolation)
+//  BSLA_NORETURN void myHandlerB(const bsls::AssertViolation& assertViolation)
 //  {
 //      printf("%s:%d %s", assertViolation.fileName(),
 //                         assertViolation.lineNumber(),
@@ -82,17 +77,16 @@ BSLS_IDENT("$Id: $")
 //  }
 //..
 // Finally, we observe the compiler warning that occurs to point out the
-// possiblity of 'myHandlerB' returning:
+// possibility of 'myHandlerB' returning:
 //..
-//  .../bsla_noreturn.t.cpp: In function 'void myHanderB(const BloombergLP::bsl
-//  s::AssertViolation&)':
-//  .../bsla_noreturn.t.cpp:158:5: warning: 'noreturn' function does return
-//       }
-//       ^
+//  .../bsla_noreturn.t.cpp:157:5: warning: function declared 'noreturn' should
+//  not return [-Winvalid-noreturn]
+//  }
+//  ^
 //..
 
-#include <bsls_platform.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
     #define BSLA_NORETURN [[ noreturn ]]

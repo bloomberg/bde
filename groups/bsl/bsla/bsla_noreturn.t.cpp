@@ -8,27 +8,27 @@
 #include <stdlib.h>  // 'abort', 'atoi', 'getenv'
 #include <string.h>  // 'strcmp'
 
-// Set this preprocessor variable to 1 to enable compile warnings being
-// generated, 0 to disable them.
+// Set this preprocessor macro to 1 to enable compile warnings being generated,
+// 0 to disable them.
 
 #define U_TRIGGER_WARNINGS 0
 
 // ============================================================================
-//                             TEST PLAN
+//                                 TEST PLAN
 // ----------------------------------------------------------------------------
-//                             Overview
-//                             --------
+//                                 Overview
+//                                 --------
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
-// task using a compliant compiler, each time defining different values of the
-// boolean 'U_TRIGGER_WARNINGS' preprocessor variable.  In each case, the
+// test driver using a compliant compiler, each time defining different values
+// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
 // concerns are:
 //
 //: o Did the build succeed or not?
 //:
-//: o Was the expected warning observed, or not?
+//: o Was the expected warning observed or not?
 //:
-//: o Was the expected suppression of some warning, suppressed or not?
+//: o Was the expected suppression of some warning suppressed or not?
 //:
 //: o For annotations taking arguments, do the results show if the arguments
 //:   were properly passed to the underlying compiler directives?
@@ -36,9 +36,9 @@
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor variable is 'U_TRIGGER_WARNINGS' which, if set
-// to 1, provoke all the compiler warnings caused by the macros under test.  If
-// set to 0, prevent any warnings from happening.
+// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// 1, provokes all the compiler warnings caused by the macros under test.  If
+// set to 0, prevents any warnings from happening.
 //
 // The table below classifies each of the annotations provided by this
 // component by the entities to which it can be applied (i.e., function,
@@ -115,10 +115,10 @@ void aSsErT(bool condition, const char *message, int line)
 ///Example 1: Assertion Handler
 /// - - - - - - - - - - - - - -
 // First, we create an assertion handler, 'myHandlerA', which never returns,
-// and annotate it 'BSLA_NORETURN' so that the compiler will warn if it does
-// return.
+// and annotate it with 'BSLA_NORETURN' so that the compiler will warn if it
+// does return:
 //..
-    BSLA_NORETURN void myHanderA(const bsls::AssertViolation& assertViolation)
+    BSLA_NORETURN void myHandlerA(const bsls::AssertViolation& assertViolation)
     {
         printf("%s:%d %s", assertViolation.fileName(),
                            assertViolation.lineNumber(),
@@ -134,13 +134,12 @@ void aSsErT(bool condition, const char *message, int line)
         ::abort();
     }
 //..
-// Now, a new hire copies 'myHandlerA' and creates a new handler,
-// 'myHandlerB', which doesn't abort unless instructed to via an environment
-// variable, which he doesn't realize opens up the possibility of the handler
-// returning:
+// Now, a new hire copies 'myHandlerA' and creates a new handler, 'myHandlerB',
+// that doesn't abort unless instructed to via an environment variable, not
+// realizing that this opens up the possibility of the handler returning:
 //..
 #if U_TRIGGER_WARNINGS
-    BSLA_NORETURN void myHanderB(const bsls::AssertViolation& assertViolation)
+    BSLA_NORETURN void myHandlerB(const bsls::AssertViolation& assertViolation)
     {
         printf("%s:%d %s", assertViolation.fileName(),
                            assertViolation.lineNumber(),
@@ -159,13 +158,12 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 //..
 // Finally, we observe the compiler warning that occurs to point out the
-// possiblity of 'myHandlerB' returning:
+// possibility of 'myHandlerB' returning:
 //..
-//  .../bsla_noreturn.t.cpp: In function 'void myHanderB(const BloombergLP::bsl
-//  s::AssertViolation&)':
-//  .../bsla_noreturn.t.cpp:158:5: warning: 'noreturn' function does return
-//       }
-//       ^
+//  .../bsla_noreturn.t.cpp:157:5: warning: function declared 'noreturn' should
+//  not return [-Winvalid-noreturn]
+//  }
+//  ^
 //..
 
 // ============================================================================

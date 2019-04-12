@@ -62,8 +62,7 @@
 // several ways:
 //
 //: o Some are just declared and, if appropriate, defined, with no other usage.
-//:   For example, the 'BSLA_ALLOCSIZE(x)' is a hint for compiler optimization;
-//:   no compiler message expected.  Another example is 'BSLA_UNUSED'.  For
+//:   For example, the 'BSLA_UNUSED' macro silences compiler warnings.  For
 //:   that annotation there must be no other usage to check if the usual
 //:   compiler warning message is suppressed.
 //:
@@ -132,55 +131,6 @@ void aSsErT(bool condition, const char *message, int line)
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
-void *test_ALLOCSIZE(void *ptr, size_t size) BSLA_ALLOCSIZE(2);
-    // Test the 'BSLA_ALLOCSIZE' macro.  Allocate a new block of memory of the
-    // specified 'size' and copy the minimum of 'size' and the size of the
-    // preexisting block at the specfied 'ptr' from 'ptr' to the new block,
-    // free the block at 'ptr', and return a pointer to the new block.  The
-    // 'BSLA_ALLOCSIZE' macro provides a hint to some compilers as to the size
-    // of the returned block.
-
-void *test_ALLOCSIZE(void *ptr, size_t size)
-{
-    return realloc(ptr, size);
-}
-
-void *test_ALLOCSIZEMUL(size_t count, size_t size) BSLA_ALLOCSIZEMUL(1, 2);
-    // Test the 'BSLA_ALLOCSIZE' macro.  Allocate and return a new block of
-    // memory whose size is the product of the specified 'size' and 'count'.
-    // The 'BSLA_ALLOCSIZEMUL' macro provides a hint to some compilers as to
-    // the size of the returned block.
-
-void *test_ALLOCSIZEMUL(size_t count, size_t size)
-{
-    return calloc(count, size);
-}
-
-char test_ARG1_NON_NULL(void *p, void *q, void *r) BSLA_NONNULLARG(1);
-char test_ARG1_NON_NULL(void *p, void *q, void *r)
-{
-    char c = *reinterpret_cast<char *>(p);
-    (void) q;
-    (void) r;
-
-    return c;
-}
-
-char test_ARG2_NON_NULL(void *p, void *q, void *r) BSLA_NONNULLARG(2, 3);
-char test_ARG2_NON_NULL(void *p, void *q, void *r)
-{
-    (void) p;
-    (void) q;
-    (void) r;
-
-    return 'a';
-}
-
-void test_ARGS_NON_NULL(void *, void *) BSLA_NONNULLARGS;
-void test_ARGS_NON_NULL(void *, void *)
-{
-}
-
 void test_DEPRECATED_function() BSLA_DEPRECATED;
 void test_DEPRECATED_function()
 {
@@ -234,6 +184,31 @@ int test_NODISCARD() BSLA_NODISCARD;
 int test_NODISCARD()
 {
     return 1;
+}
+
+char test_NONNULLARG1(void *p, void *q, void *r) BSLA_NONNULLARG(1);
+char test_NONNULLARG1(void *p, void *q, void *r)
+{
+    char c = *reinterpret_cast<char *>(p);
+    (void) q;
+    (void) r;
+
+    return c;
+}
+
+char test_NONNULLARG23(void *p, void *q, void *r) BSLA_NONNULLARG(2, 3);
+char test_NONNULLARG23(void *p, void *q, void *r)
+{
+    (void) p;
+    (void) q;
+    (void) r;
+
+    return 'a';
+}
+
+void test_NONNULLARGS(void *, void *) BSLA_NONNULLARGS;
+void test_NONNULLARGS(void *, void *)
+{
 }
 
 void test_NULLTERMINATED(void *, ...) BSLA_NULLTERMINATED;
@@ -325,27 +300,6 @@ struct Test_UNUSED_type_warning {
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
 
-void use_without_diagnostic_message_ARG1_NON_NULL()
-{
-    char buffer1[2];
-    test_ARG1_NON_NULL(buffer1, NULL, NULL);
-}
-
-void use_without_diagnostic_message_ARG2_NON_NULL()
-{
-    char buffer2[2] = { 'a', 0 };
-    char ret = test_ARG2_NON_NULL(NULL, buffer2, buffer2 + 1);
-    ASSERT('a' == ret);
-}
-
-void use_without_diagnostic_message_ARGS_NON_NULL()
-{
-    char buffer1[2];
-    char buffer2[2];
-
-    test_ARGS_NON_NULL(buffer1, buffer2);
-}
-
 int use_without_diagnostic_message_FALLTHROUGH()
 {
     return test_FALLTHROUGH_function(17);
@@ -359,6 +313,27 @@ void use_without_diagnostic_message_FORMAT()
 int use_without_diagnostic_message_NODISCARD()
 {
     return test_NODISCARD();
+}
+
+void use_without_diagnostic_message_NONNULLARG1()
+{
+    char buffer1[2];
+    test_NONNULLARG1(buffer1, NULL, NULL);
+}
+
+void use_without_diagnostic_message_NONNULLARG23()
+{
+    char buffer2[2] = { 'a', 0 };
+    char ret = test_NONNULLARG23(NULL, buffer2, buffer2 + 1);
+    ASSERT('a' == ret);
+}
+
+void use_without_diagnostic_message_NONNULLARGS()
+{
+    char buffer1[2];
+    char buffer2[2];
+
+    test_NONNULLARGS(buffer1, buffer2);
 }
 
 void use_without_diagnostic_message_NULLTERMINATED()
@@ -438,26 +413,6 @@ void use_without_diagnostic_message_UNUSED()
 
 #if U_TRIGGER_WARNINGS
 
-void use_with_warning_message_ARG1_NON_NULL()
-{
-    test_ARG1_NON_NULL(NULL, NULL, NULL);
-}
-
-void use_with_warning_message_ARG2_NON_NULL()
-{
-    test_ARG2_NON_NULL(NULL, NULL, NULL);
-}
-
-void use_with_warning_message_ARGS_NON_NULL()
-{
-    char buffer1[2];
-    char buffer2[2];
-
-    test_ARGS_NON_NULL(NULL, buffer2);
-    test_ARGS_NON_NULL(buffer1, NULL);
-    test_ARGS_NON_NULL(NULL, NULL);
-}
-
 void use_with_warning_message_DEPRECATED_function()
 {
     test_DEPRECATED_function();
@@ -506,6 +461,26 @@ void use_with_warning_message_FORMAT()
 void use_with_warning_message_NODISCARD()
 {
     test_NODISCARD();
+}
+
+void use_with_warning_message_NONNULLARG1()
+{
+    test_NONNULLARG1(NULL, NULL, NULL);
+}
+
+void use_with_warning_message_NONNULLARG2()
+{
+    test_NONNULLARG2(NULL, NULL, NULL);
+}
+
+void use_with_warning_message_NONNULLARGS()
+{
+    char buffer1[2];
+    char buffer2[2];
+
+    test_NONNULLARGS(NULL, buffer2);
+    test_NONNULLARGS(buffer1, NULL);
+    test_NONNULLARGS(NULL, NULL);
 }
 
 void use_with_warning_message_NORETURN()
@@ -599,20 +574,6 @@ static void printFlags()
     printf("printFlags: Enter\n");
 
     printf("\nprintFlags: bsls_annotation Macros\n");
-
-    printf("\nBSLA_ALLOCSIZE(x): ");
-#ifdef BSLA_ALLOCSIZE
-    printf("%s\n", STRINGIFY(BSLA_ALLOCSIZE(x)) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\nBSLA_ALLOCSIZEMUL(x, y): ");
-#ifdef BSLA_ALLOCSIZEMUL
-    printf("%s\n", STRINGIFY(BSLA_ALLOCSIZEMUL(x, y)) );
-#else
-    printf("UNDEFINED\n");
-#endif
 
     printf("\nBSLA_ARGS_NON_NULL: ");
 #ifdef BSLA_ARGS_NON_NULL
@@ -722,8 +683,6 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
-    P(BSLA_ALLOCSIZE_IS_ACTIVE);
-    P(BSLA_ALLOCSIZEMUL_IS_ACTIVE);
     P(BSLA_DEPRECATED_IS_ACTIVE);
     P(BSLA_ERROR_IS_ACTIVE);
     P(BSLA_FALLTHROUGH_IS_ACTIVE);

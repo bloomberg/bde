@@ -1,6 +1,9 @@
-// bsla_deprecated.t.cpp                                              -*-C++-*-
-#include <bsla_deprecated.h>
+// bsla_unreachable.t.cpp                                             -*-C++-*-
+#include <bsla_unreachable.h>
 
+#include <bsla_noreturn.h>
+
+#include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 
 #include <stdio.h>
@@ -111,60 +114,57 @@ void aSsErT(bool condition, const char *message, int line)
 ///Usage
 ///-----
 //
-///Example 1: Deprecating a type, a function, and a variable
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a deprecated type 'UsageType':
+///Example 1: Indicating a Statement Intended to be Unreachable
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we define a function 'killSelf' that dumps core.  The function is
+// intended never to return, and we indicate that by annotating the function
+// with 'BSLA_NORETURN'.  The function dumps core by calling 'BSLS_ASSERT_OPT'
+// on a 'false' value, which the compiler doesn't understand will never return:
 //..
-    struct UsageType {
-        int d_int;
-    } BSLA_DEPRECATED;
-//..
-// Then, we define a deprecated function 'usageFunc':
-//..
-    void usageFunc() BSLA_DEPRECATED;
-    void usageFunc()
+#if U_TRIGGER_WARNINGS
+namespace triggerWarnings {
+    BSLA_NORETURN void killSelf()
     {
-        printf("Don't call me.\n");
+        BSLS_ASSERT_OPT(false && "dump core");
     }
+}  // close namespace triggerWarnings
+#endif
 //..
-// Next, we define a deprecated variable 'usageVar':
+// Then, we observe the compiler warning because the compiler expects the
+// 'BSLA_ASSERT_OPT' to return and the function, marked 'BSLA_NORETURN', to
+// return:
 //..
-    extern int usageVar BSLA_DEPRECATED;
-    int usageVar = 5;
+//  .../bsla_unreachable.t.cpp:128:5: warning: function declared 'noreturn'
+//  should not return [-Winvalid-noreturn]
+//  }
+//  ^
 //..
-// Then, as long as we don't use them, no warnings will be issued.
-//
+// Now, we put a 'BSLA_UNREACHABLE' statement after the 'BSLS_ASSERT_OPT',
+// which tells the compiler that that point in the code is unreachable.
+//..
+#if BSLA_UNREACHABLE_IS_ACTIVE
+    BSLA_NORETURN void killSelf()
+    {
+        BSLS_ASSERT_OPT(false && "dump core");
+
+        BSLA_UNREACHABLE;
+    }
+#endif
+//..
+// Finally, we observe that the compiler warning is silenced.
+
 
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
-void test_DEPRECATED_function() BSLA_DEPRECATED;
-    // Provide a test function which, if called, will result in a deprecated
-    // compiler warning.
-
-void test_DEPRECATED_function()
-{
-}
-
 // ============================================================================
 //                  DEFINITION OF ANNOTATED VARIABLES
 // ----------------------------------------------------------------------------
 
-int test_DEPRECATED_variable BSLA_DEPRECATED;
-    // Provide a test variable which, if used, will result in a deprecated
-    // compiler warning.
-
 // ============================================================================
 //                  DEFINITION OF ANNOTATED TYPES
 // ----------------------------------------------------------------------------
-
-struct Test_DEPRECATED_type {
-    // This 'struct' is a test type which, if used, will result in a deprecated
-    // compiler warning.
-
-    int d_d;
-} BSLA_DEPRECATED;
 
 // ============================================================================
 //                  USAGE WITH NO EXPECTED COMPILER WARNINGS
@@ -173,30 +173,6 @@ struct Test_DEPRECATED_type {
 // ============================================================================
 //                  USAGE WITH EXPECTED COMPILER WARNINGS
 // ----------------------------------------------------------------------------
-
-#if U_TRIGGER_WARNINGS
-
-void use_with_warning_message_DEPRECATED_function()
-    // Call 'test_DEPRECATED_function', provoking a compiler warning.
-{
-    test_DEPRECATED_function();
-}
-
-int use_with_warning_message_DEPRECATED_type()
-    // Use 'Test_DEPRECATED_type', provoking a compiler warning.
-{
-    Test_DEPRECATED_type instance_of_DEPRECATED_TYPE;
-    instance_of_DEPRECATED_TYPE.d_d = 0;
-    return instance_of_DEPRECATED_TYPE.d_d;
-}
-
-void use_with_warning_message_DEPRECATED_variable()
-    // Use 'test_DEPRECATED_variable', provoking a compiler warning.
-{
-    (void) test_DEPRECATED_variable;
-}
-
-#endif
 
 // ============================================================================
 //                  USAGE WITH EXPECTED COMPILER ERRORS
@@ -216,9 +192,9 @@ static void printFlags()
 
     printf("\nprintFlags: bsls_annotation Macros\n");
 
-    printf("\nBSLA_DEPRECATED: ");
-#ifdef BSLA_DEPRECATED
-    printf("%s\n", STRINGIFY(BSLA_DEPRECATED) );
+    printf("\nBSLA_UNREACHABLE: ");
+#ifdef BSLA_UNREACHABLE
+    printf("%s\n", STRINGIFY(BSLA_UNREACHABLE) );
 #else
     printf("UNDEFINED\n");
 #endif
@@ -226,7 +202,7 @@ static void printFlags()
     printf("\n\n------------------------------\n");
     printf(    "printFlags: *_IS_ACTIVE Macros\n\n");
 
-    P(BSLA_DEPRECATED_IS_ACTIVE);
+    P(BSLA_UNREACHABLE_IS_ACTIVE);
 
     printf("\n\n---------------------------------------------\n");
     printf(    "printFlags: bsls_annotation Referenced Macros\n");
@@ -269,80 +245,6 @@ int main(int argc, char **argv)
     }
 
     switch (test) { case 0:
-      case 2: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE
-        //
-        // Concern:
-        //: 1 That the usage example builds and performs as expected.
-        //
-        // Plan:
-        //: 1 Build and test the usage example.
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("USAGE EXAMPLE\n"
-                            "=============\n");
-
-// Next, we conditionally decide whether to use those 3 entities:
-//..
-    #if U_TRIGGER_WARNINGS
-//..
-// Then, we use 'UsageType':
-//..
-    UsageType ut;
-    ut.d_int = 5;
-    (void) ut.d_int;
-//..
-// which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
-// the following warnings:
-//..
-//  .../bsla_deprecated.t.cpp:287:5: warning: 'UsageType' is deprecated 
-//  [-Wdeprecated-declarations]
-//      UsageType ut;
-//      ^
-//  .../bsla/bsla_deprecated.t.cpp:113:7: note: 'UsageType' has been explicitly
-//   marked deprecated here
-//      } BSLA_DEPRECATED;
-//        ^
-//..
-// Now, we call 'usageFunc':
-//..
-    usageFunc();
-//..
-// which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
-// the following warnings:
-//..
-//  .../bsla_deprecated.t.cpp:309:5: warning: 'usageFunc' is deprecated
-//  [-Wdeprecated-declarations]
-//      usageFunc();
-//      ^
-//  .../bsla_deprecated.t.cpp:117:22: note: 'usageFunc' has been explicitly
-//  marked deprecated here
-//      void usageFunc() BSLA_DEPRECATED;
-//                       ^
-//..
-// Finally, we access 'usageVar':
-//..
-    printf("%d\n", usageVar);
-//..
-// which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
-// the following warnings:
-//..
-//  .../bsla_deprecated.t.cpp:329:20: warning: 'usageVar' is deprecated
-//  [-Wdeprecated-declarations]
-//      printf("%d\n", usageVar);
-//                     ^
-//  .../bsla_deprecated.t.cpp:125:25: note: 'usageVar' has been explicitly
-//  marked deprecated here
-//      extern int usageVar BSLA_DEPRECATED;
-//                          ^
-    #endif
-//..
-
-      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST

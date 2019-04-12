@@ -102,10 +102,10 @@ void aSsErT(bool condition, const char *message, int line)
 ///Usage
 ///-----
 //
-///Example 1: Unused variables:
+///Example 1: Unused Variables
 ///- - - - - - - - - - - - - -
 // First, we declare two unused static variables, one marked 'BSLA_UNUSED'
-// and the other marked 'BSLA_USED'.
+// and the other marked 'BSLA_USED':
 //..
     static
     int usage_UNUSED_variable_no_warning BSLA_UNUSED;
@@ -114,14 +114,14 @@ void aSsErT(bool condition, const char *message, int line)
     int usage_USED_variable_no_warning BSLA_USED;
 //..
 // Finally, if we compile with clang and go into the debugger and stop in
-// 'main' which is in the same file and from which both variables are visible,
+// 'main', which is in the same file and from which both variables are visible,
 // we observe that the variable marked 'BSLA_UNUSED' cannot be accessed, but
-// the the variable marked 'BSLA_USED' can.
+// the variable marked 'BSLA_USED' can.
 //..
 //
-///Example 2: Unused functions:
+///Example 2: Unused functions
 ///- - - - - - - - - - - - - -
-// First declare two unused static functions, one marked 'BSLA_UNUSED' and one
+// First, declare two unused static functions, one marked 'BSLA_UNUSED' and one
 // marked 'BSLA_USED':
 //..
     static
