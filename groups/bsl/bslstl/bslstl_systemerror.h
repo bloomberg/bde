@@ -7,10 +7,10 @@ BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: -TP25  // CLASSES are not defined in C++11
 
-//@PURPOSE: Provide C++11-defined error classes and functions for C++03.
+//@PURPOSE: Provide a standard compliant 'system_error' class.
 //
 //@CLASSES:
-//  bsl::system_error: C++03 version of std::system_error
+//  bsl::system_error: a standard compliant 'system_error' class
 //
 //@DESCRIPTION: This component defines class 'bsl::system_error', a class used
 // for annotated exception objects about 'errno'-style errors.  In C++11 mode,

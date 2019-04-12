@@ -7,12 +7,12 @@ BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: -TP25  // CLASSES are not defined in C++11
 
-//@PURPOSE: Provide C++11-defined error classes and functions for C++03.
+//@PURPOSE: Provide standard compliant versions of <system_error> classes.
 //
 //@CLASSES:
-//  bsl::error_category: C++03 version of std::error_category
-//  bsl::error_code: C++03 version of std::error_code
-//  bsl::error_condition: C++03 version of std::error_condition
+//  bsl::error_category: a standard compliant version of 'error_category'
+//  bsl::error_code: a standard complaint version of 'error_code'
+//  bsl::error_condition: a standard complaint version of 'error_condition'
 //
 //@DESCRIPTION: This component defines classes 'bsl::error_category',
 // 'bsl::error_code', and 'bsl::error_condition', global functions

@@ -7,7 +7,7 @@ BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: -TP25  // CLASSES are not defined in C++11
 
-//@PURPOSE: Provide C++11-defined error classes and functions for C++03.
+//@PURPOSE: Provide a standard compliant version of 'errc'.
 //
 //@CLASSES:
 //  bsl::errc: namespace for 'errc' enumeration type
