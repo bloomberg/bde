@@ -252,6 +252,33 @@
 # endif
 #endif
 
+#ifdef BSL_INCLUDE_BSL_SYSTEM_ERROR
+# ifndef INCLUDED_BSLSTL_ERRC
+#   include <bslstl_errc.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+
+# ifndef INCLUDED_BSLSTL_ERROR
+#   include <bslstl_error.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+
+# ifndef INCLUDED_BSLSTL_ISERRORCODEENUM
+#   include <bslstl_iserrorcodeenum.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+
+# ifndef INCLUDED_BSLSTL_ISERRORCONDITIONENUM
+#   include <bslstl_iserrorconditionenum.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+
+# ifndef INCLUDED_BSLSTL_SYSTEMERROR
+#   include <bslstl_systemerror.h>
+#   define INCLUDE_BSL_STDHDRS_EPILOGUE_RECURSIVE
+# endif
+#endif
+
 #ifdef BSL_INCLUDE_BSL_STRING
 # ifndef INCLUDED_BSLSTL_STRING
 #   include <bslstl_string.h>
