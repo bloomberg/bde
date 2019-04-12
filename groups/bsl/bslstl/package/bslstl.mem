@@ -11,6 +11,8 @@ bslstl_complex
 bslstl_deque
 bslstl_deque_test
 bslstl_equalto
+bslstl_errc
+bslstl_error
 bslstl_forwarditerator
 bslstl_function
 bslstl_hash
@@ -19,6 +21,8 @@ bslstl_hashtable_test
 bslstl_hashtablebucketiterator
 bslstl_hashtableiterator
 bslstl_iosfwd
+bslstl_iserrorcodeenum
+bslstl_iserrorconditionenum
 bslstl_istringstream
 bslstl_iterator
 bslstl_iteratorutil
@@ -54,6 +58,7 @@ bslstl_stringbuf
 bslstl_stringref
 bslstl_stringrefdata
 bslstl_stringstream
+bslstl_systemerror
 bslstl_treeiterator
 bslstl_treenode
 bslstl_treenodepool

@@ -1,28 +1,11 @@
-// bsl_system_error.h                                                 -*-C++-*-
-#ifndef INCLUDED_BSL_SYSTEM_ERROR
-#define INCLUDED_BSL_SYSTEM_ERROR
-
-#include <bsls_ident.h>
-BSLS_IDENT("$Id: $")
-
-//@PURPOSE: Provide functionality of the corresponding C++ Standard header.
-//
-//@SEE_ALSO: package bsl+stdhdrs
-//
-//@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
-// defined in the corresponding C++ standard header.  In C++03 mode we provide
-// our own implementation, and in C++11 or later we import the 'std' names.
-
-#include <bslstl_errc.h>
-#include <bslstl_error.h>
-#include <bslstl_iserrorcodeenum.h>
-#include <bslstl_iserrorconditionenum.h>
+// bslstl_systemerror.cpp                                             -*-C++-*-
 #include <bslstl_systemerror.h>
 
-#endif
+#include <bsls_ident.h>
+BSLS_IDENT("$Id$ $CSID$")
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

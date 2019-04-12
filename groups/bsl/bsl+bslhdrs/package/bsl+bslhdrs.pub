@@ -38,6 +38,10 @@ bsl_ostream.h
 bsl_stdexcept.h
 bsl_streambuf.h
 bsl_strstream.h
+bsl_thread.h
+bsl_tuple.h
+bsl_type_traits.h
+bsl_typeindex.h
 bsl_typeinfo.h
 bsl_utility.h
 bsl_valarray.h
