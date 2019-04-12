@@ -7,13 +7,13 @@ BSLS_IDENT("$Id: $")
 
 // BDE_VERIFY pragma: -TP25  // CLASSES are not defined in C++11
 
-//@PURPOSE: Provide C++11-defined error condition trait for C++03.
+//@PURPOSE: Provide a compliant standard 'is_error_condition_enum' trait.
 //
 //@CLASSES:
-//  bsl::is_error_condition_enum: C++03 version of std::is_error_condition_enum
+//  bsl::is_error_condition_enum: standard complaint 'is_error_condition_enum'
 //
 //@MACROS:
-//  BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE:  namespace in which to specialize
+//  BSL_IS_ERROR_CONDITION_ENUM_NAMESPACE:  namespace to specialize the triat
 //
 //@DESCRIPTION: This component defines a class template,
 // 'bsl::is_error_condition_enum', intended to be specialized for enumeration
