@@ -73,10 +73,6 @@ BSLS_IDENT("$Id: $")
     #define BSLA_UNREACHABLE __builtin_unreachable()
 
     #define BSLA_UNREACHABLE_IS_ACTIVE 1
-#elif defined(BSLS_PLATFORM_CMP_MSVC)
-    #define BSLA_UNREACHABLE __assume(false)
-
-    #define BSLA_UNREACHABLE_IS_ACTIVE 1
 #else
     #define BSLA_UNREACHABLE
 
