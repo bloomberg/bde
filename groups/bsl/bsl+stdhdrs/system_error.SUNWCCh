@@ -38,7 +38,9 @@ BSLS_IDENT("$Id: $")
 
 # include BSL_NATIVE_CPP_RUNTIME_HEADER(system_error)
 
-# include <bsl_system_error.h>
+# ifndef BSL_INCLUDE_BSL_SYSTEM_ERROR
+# define BSL_INCLUDE_BSL_SYSTEM_ERROR
+# endif
 
 # ifdef BSL_STDHDRS_EPILOGUE_RUN_BY_system_error
 # undef BSL_STDHDRS_EPILOGUE_RUN_BY_system_error
@@ -47,10 +49,10 @@ BSLS_IDENT("$Id: $")
 
 #endif  // BSL_OVERRIDES_STD
 
-#endif  // INCLUDED_NATIVE_CCTYPE
+#endif  // INCLUDED_NATIVE_SYSTEM_ERROR
 
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

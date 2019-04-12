@@ -13,6 +13,13 @@ BSLS_IDENT("$Id: $")
 // defined in the corresponding C++ standard header.  In C++03 mode we provide
 // our own implementation, and in C++11 or later we import the 'std' names.
 
+// Include Bloomberg's implementation, unless compilation is configured to
+// override native types in the 'std' namespace with Bloomberg's
+// implementation, in which case the implementation file will be included by
+// the Bloomberg supplied standard header file.
+
+#ifndef BSL_OVERRIDES_STD
+
 #include <bslstl_errc.h>
 #include <bslstl_error.h>
 #include <bslstl_iserrorcodeenum.h>
@@ -21,8 +28,10 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
+#endif
+
 // ----------------------------------------------------------------------------
-// Copyright 2015 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

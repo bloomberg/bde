@@ -102,6 +102,7 @@
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
 #include <bsl_strstream.h>
+#include <bsl_system_error.h>
 #include <bsl_typeinfo.h>
 #include <bsl_unordered_map.h>
 #include <bsl_unordered_set.h>
