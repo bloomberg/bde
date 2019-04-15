@@ -55,7 +55,8 @@
    3. bsldoc
       bslmf
 
-   2. bslscm
+   2. bsla
+      bslscm
 
    1. bslfwd                                             !DEPRECATED!
       bsls
@@ -78,6 +79,9 @@
 :
 : 'bsl+stdhdrs':
 :      Provide a compatibility layer to enable BDE-STL mode in Bloomberg.
+:
+: 'bsla':
+:      Provide macros for portable use of compiler annotations.
 :
 : 'bslalg':
 :      Provide algorithms and traits used by the BDE STL implementation.
