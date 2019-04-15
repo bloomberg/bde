@@ -41,7 +41,8 @@ BSLS_IDENT("$Id: $")
 // doesn't make sense to call it and ignore its result, so we annotate it with
 // 'BSLA_NODISCARD':
 //..
-//  double newtonsSqrt(double x) BSLA_NODISCARD;
+//  BSLA_NODISCARD
+//  double newtonsSqrt(double x);
 //  double newtonsSqrt(double x)
 //      // Take the square root of the specified 'x'.  The behavior is
 //      // undefined unless 'x' is positive.

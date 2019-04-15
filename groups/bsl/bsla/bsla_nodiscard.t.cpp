@@ -119,7 +119,8 @@ void aSsErT(bool condition, const char *message, int line)
 // doesn't make sense to call it and ignore its result, so we annotate it with
 // 'BSLA_NODISCARD':
 //..
-    double newtonsSqrt(double x) BSLA_NODISCARD;
+    BSLA_NODISCARD
+    double newtonsSqrt(double x);
     double newtonsSqrt(double x)
         // Take the square root of the specified 'x'.  The behavior is
         // undefined unless 'x' is positive.
@@ -139,7 +140,8 @@ void aSsErT(bool condition, const char *message, int line)
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
 // ----------------------------------------------------------------------------
 
-int test_NODISCARD() BSLA_NODISCARD;
+BSLA_NODISCARD
+int test_NODISCARD();
 int test_NODISCARD()
     // Return 1.
 {
