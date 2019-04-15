@@ -78,9 +78,9 @@ BSLS_IDENT("$Id$ $CSID$")
 #endif
 
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
-#include <rw/numbrw>
-#ifndef __STD_RW_LOCNUMRW__
-#error <rw/numbrw> does not seem to #define __STD_RW_LOCNUMRW__.
+#include <rw/rwstderr_macros.h>
+#ifndef _RWSTD_ERROR_MSG_FILE
+#error <rw/rwstderr_macros.h> does not seem to #define _RWSTD_ERROR_MSG_FILE.
 #endif
 
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_STLPORT)
