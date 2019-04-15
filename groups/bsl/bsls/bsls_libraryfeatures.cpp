@@ -78,12 +78,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #endif
 
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
-#if BSLS_PLATFORM_CMP_VERSION <= 0x5120  // for SS12.3 and earlier
-#include <rw7/rw/compiler.h>
-#ifndef __RWCOMPILER_H__
-#error <rw/compiler.h> does not seem to #define __RWCOMPILER_H__.
+#include <rw/numbrw>
+#ifndef __STD_RW_LOCNUMRW__
+#error <rw/numbrw> does not seem to #define __STD_RW_LOCNUMRW__.
 #endif
-#endif // BSLS_PLATFORM_CMP_VERSION
 
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_STLPORT)
 #include <config/stlcomp.h>
