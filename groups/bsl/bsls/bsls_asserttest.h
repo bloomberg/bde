@@ -137,7 +137,7 @@ BSLS_IDENT("$Id: $")
 // Another external macro, 'BSLS_ASSERTTEST_CHECK_LEVEL', can be used to add an
 // additional check that the assertion that fails is of the same level or
 // narrower than the macro testing the assertion.  This will ensure that in all
-// build modes where the asesrtion is enabled the test for that assertion will
+// build modes where the assertion is enabled the test for that assertion will
 // also be enabled.
 //
 ///Addtional Test Pass Macros

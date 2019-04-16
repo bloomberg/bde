@@ -89,16 +89,16 @@ bool extractTestedComponentName(const char **testedComponentName,
     // component.  Note that this sub-string will *not* be null-terminated.
 {
     // A component filename is a filename ending in one of the following set of
-    // file extensions: '.h', '.cpp', '.t.cpp'.  The component name is the
-    // component filename minus the extension and any leading pathname.
+    // file extensions: '.h', '.cpp', '.t.cpp', '.g.cpp'.  The component name
+    // is the component filename minus the extension and any leading pathname.
 
     // The basic algorithm searches for the end of the 'filename' and then
     // iterates backwards.  First we verify that the filename has a valid
-    // extension for a component: '.cpp', '.t.cpp', or '.h'.  Then we keep
-    // searching backwards for the first path separator, which will depend on
-    // the filesystem the compiler is running on.  The string between the last
-    // path separator (if any) and the period starting the file extension mark
-    // out the component name to be returned.
+    // extension for a component: '.cpp', '.t.cpp', '.g.cpp' or '.h'.  Then we
+    // keep searching backwards for the first path separator, which will depend
+    // on the filesystem the compiler is running on.  The string between the
+    // last path separator (if any) and the period starting the file extension
+    // mark out the component name to be returned.
 
     // After the full component name is found check to see if it is a
     // subordinate test component and remove the '_test.*' part if it is.
@@ -146,8 +146,9 @@ bool extractTestedComponentName(const char **testedComponentName,
         }
 
         if (2 < (end - filename)) {
-            const char *cursor = end;
-            if ('t' == *--cursor) {
+            const char *cursor     = end;
+            char        testsuffix = *--cursor;
+            if ('t' == testsuffix || 'g' == testsuffix) {
                 if ('.' == *--cursor) {
                      end = cursor;
                 }
