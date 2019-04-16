@@ -125,7 +125,7 @@ const char *Version::version()
 
 BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(const char *,
                                           bslscm_version_assertion,
-                                          bslscm::Version::BSLSCM_S_VERSION);
+                                          bslscm::Version::BSLSCM_S_VERSION)
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
 // ============================================================================
