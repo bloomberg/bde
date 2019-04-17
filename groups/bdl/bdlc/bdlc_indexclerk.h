@@ -445,7 +445,7 @@ IndexClerkIter::operator=(const IndexClerkIter& rhs)
 inline
 IndexClerkIter& IndexClerkIter::operator++()
 {
-    BSLS_REVIEW(0 != d_index_p.base());
+    BSLS_ASSERT(0 != d_index_p.base());
 
     ++d_index_p;
     return *this;
@@ -454,7 +454,7 @@ IndexClerkIter& IndexClerkIter::operator++()
 inline
 IndexClerkIter& IndexClerkIter::operator--()
 {
-    BSLS_REVIEW(0 != d_index_p.base());
+    BSLS_ASSERT(0 != d_index_p.base());
 
     --d_index_p;
     return *this;
@@ -464,7 +464,7 @@ IndexClerkIter& IndexClerkIter::operator--()
 inline
 int IndexClerkIter::operator*() const
 {
-    BSLS_REVIEW(0 != d_index_p.base());
+    BSLS_ASSERT(0 != d_index_p.base());
 
     return *d_index_p;
 }
@@ -529,8 +529,8 @@ int IndexClerk::getIndex()
 inline
 void IndexClerk::putIndex(int index)
 {
-    BSLS_REVIEW(0 <= index);
-    BSLS_REVIEW(     index < d_nextNewIndex);
+    BSLS_ASSERT(0 <= index);
+    BSLS_ASSERT(     index < d_nextNewIndex);
     BSLS_ASSERT_SAFE(isInUse(index));
 
     d_unusedStack.push_back(index);

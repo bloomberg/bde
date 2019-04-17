@@ -228,7 +228,7 @@ PeriodDateRangeDayCountAdapter<CONVENTION>::PeriodDateRangeDayCountAdapter(
 : d_periodDate(periodDate, basicAllocator)
 , d_periodYearDiff(periodYearDiff)
 {
-    BSLS_REVIEW(d_periodDate.size() >= 2);
+    BSLS_ASSERT(d_periodDate.size() >= 2);
 
     BSLS_ASSERT_SAFE(isSortedAndUnique(d_periodDate));
 }
@@ -269,10 +269,10 @@ double PeriodDateRangeDayCountAdapter<CONVENTION>::yearsDiff(
                                                const bdlt::Date& beginDate,
                                                const bdlt::Date& endDate) const
 {
-    BSLS_REVIEW(d_periodDate.front() <= beginDate);
-    BSLS_REVIEW(                        beginDate <= d_periodDate.back());
-    BSLS_REVIEW(d_periodDate.front() <= endDate);
-    BSLS_REVIEW(                        endDate   <= d_periodDate.back());
+    BSLS_ASSERT(d_periodDate.front() <= beginDate);
+    BSLS_ASSERT(                        beginDate <= d_periodDate.back());
+    BSLS_ASSERT(d_periodDate.front() <= endDate);
+    BSLS_ASSERT(                        endDate   <= d_periodDate.back());
 
     return CONVENTION::yearsDiff(beginDate,
                                  endDate,

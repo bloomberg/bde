@@ -910,7 +910,7 @@ bsl::shared_ptr<char>& BlobBuffer::buffer()
 inline
 void BlobBuffer::setSize(int size)
 {
-    BSLS_REVIEW(0 <= size);
+    BSLS_ASSERT(0 <= size);
 
     d_size = size;
 }
@@ -960,7 +960,7 @@ namespace bdlbb {
 inline
 void Blob::reserveBufferCapacity(int numBuffers)
 {
-    BSLS_REVIEW(0 <= numBuffers);
+    BSLS_ASSERT(0 <= numBuffers);
 
     d_buffers.reserve(numBuffers);
 }

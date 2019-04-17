@@ -201,7 +201,7 @@ FilteringObserver::FilteringObserver(
                  bsl::allocator<RecordFilterCallback>(basicAllocator),
                  recordFilterCallback)
 {
-    BSLS_REVIEW(observer);
+    BSLS_ASSERT(observer);
 }
 
 // MANIPULATORS

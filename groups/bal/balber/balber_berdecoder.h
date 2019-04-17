@@ -664,7 +664,7 @@ int BerDecoder::decode(bsl::streambuf *streamBuf, TYPE *variable)
 inline
 void BerDecoder::setNumUnknownElementsSkipped(int value)
 {
-    BSLS_REVIEW(0 <= value);
+    BSLS_ASSERT(0 <= value);
 
     d_numUnknownElementsSkipped = value;
 }
@@ -748,7 +748,7 @@ inline
 bool
 BerDecoder_Node::hasMore()
 {
-    BSLS_REVIEW(d_tagType == BerConstants::e_CONSTRUCTED);
+    BSLS_ASSERT(d_tagType == BerConstants::e_CONSTRUCTED);
 
     if (BerUtil::e_INDEFINITE_LENGTH == d_expectedLength) {
         return 0 != d_decoder->d_streamBuf->sgetc();

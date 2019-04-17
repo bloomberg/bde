@@ -934,7 +934,7 @@ int FilesystemUtil::visitTree(
                        const bsl::function<void (const char *path)>&  visitor,
                        bool                                           sortFlag)
 {
-    BSLS_REVIEW(0 != root);
+    BSLS_ASSERT(0 != root);
 
     return visitTree(bsl::string(root), pattern, visitor, sortFlag);
 }
@@ -980,7 +980,7 @@ inline
 int FilesystemUtil::getLastModificationTime(bdlt::Datetime     *time,
                                             const bsl::string&  path)
 {
-    BSLS_REVIEW(time);
+    BSLS_ASSERT(time);
 
     return getLastModificationTime(time, path.c_str());
 }

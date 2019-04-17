@@ -267,7 +267,7 @@ void invokeFindClose(void *handle, void *)
     // which will be ignored, and the first parameter must be 'void *' which is
     // cast to correct type inside the function).
 {
-    BSLS_REVIEW(handle);
+    BSLS_ASSERT(handle);
 
     FindClose(*static_cast<HANDLE *>(handle));
 }
@@ -279,7 +279,7 @@ bool narrowToWide(bsl::wstring *result, const bsl::string& path)
     // otherwise.  If conversion is unsuccessful, the contents of 'result' are
     // undefined.
 {
-    BSLS_REVIEW(result);
+    BSLS_ASSERT(result);
 
     return 0 == bdlde::CharConvertUtf16::utf8ToUtf16(result, path.data());
 }
@@ -290,7 +290,7 @@ bool wideToNarrow(bsl::string *result, const bsl::wstring& path)
     // narrow string and return 'true' if successful, or 'false' otherwise.  If
     // conversion is unsuccessful, the contents of 'result' are undefined.
 {
-    BSLS_REVIEW(result);
+    BSLS_ASSERT(result);
 
     return 0 == bdlde::CharConvertUtf16::utf16ToUtf8(result, path.c_str());
 }
@@ -303,7 +303,7 @@ int makeDirectory(const char *path, bool)
     // entry (not necessarily a directory) with the name 'path' already exists,
     // and a negative value for any other kind of error.
 {
-    BSLS_REVIEW(path);
+    BSLS_ASSERT(path);
 
     bsl::wstring wide;
 
@@ -328,7 +328,7 @@ int removeDirectory(const char *path)
     // Remove directory 'path'.  Return 0 on success and a non-zero value
     // otherwise.
 {
-    BSLS_REVIEW(path);
+    BSLS_ASSERT(path);
 
     bsl::wstring wide;
     BOOL         succeeded = 0;
@@ -362,7 +362,7 @@ int removeFile(const char *path)
     // Remove plain file 'path'.  Return 0 on success and a non-zero value
     // otherwise.
 {
-    BSLS_REVIEW(path);
+    BSLS_ASSERT(path);
 
     bsl::wstring wide;
     BOOL         succeeded = 0;
@@ -394,7 +394,7 @@ void invokeGlobFree(void *pglob, void *)
     // function has a signature appropriate for use as a managed pointer
     // deleter, hence the parameters are both passed as 'void *'.
 {
-    BSLS_REVIEW(pglob);
+    BSLS_ASSERT(pglob);
 
     globfree(static_cast<glob_t *>(pglob));
 }
@@ -405,7 +405,7 @@ void invokeCloseDir(void *dir, void *)
     // signature appropriate for use as a managed pointer deleter, hence the
     // parameters are both passed as 'void *'.
 {
-    BSLS_REVIEW(dir);
+    BSLS_ASSERT(dir);
 
     // Note also that 'closedir' was observed sometimes returning a non-zero
     // value for no particular reason.  Hopefully we'll capture 'errno' in the
@@ -417,7 +417,7 @@ void invokeCloseDir(void *dir, void *)
                                 // assert fails and we debug the core file.
     (void) rc;    (void) myErrno;
 
-    BSLS_REVIEW(0 == rc);
+    BSLS_ASSERT(0 == rc);
 }
 
 static inline
@@ -436,7 +436,7 @@ bool isDotOrDots(const char *path)
     if (0 == length) {
         return false;                                                 // RETURN
     }
-    BSLS_REVIEW(length >= 1);
+    BSLS_ASSERT(length >= 1);
 
     if ('.' != end[-1]) {
         return false;                                                 // RETURN
@@ -445,7 +445,7 @@ bool isDotOrDots(const char *path)
     if (1 == length) {
         return true;                                                  // RETURN
     }
-    BSLS_REVIEW(length >= 2);
+    BSLS_ASSERT(length >= 2);
 
     if ('/' == end[-2]) {
         return true;                                                  // RETURN
@@ -457,7 +457,7 @@ bool isDotOrDots(const char *path)
     if (2 == length) {
         return true;                                                  // RETURN
     }
-    BSLS_REVIEW(length >= 3);
+    BSLS_ASSERT(length >= 3);
 
     return '/' == end[-3];
 }
@@ -470,7 +470,7 @@ int makeDirectory(const char *path, bool isPrivate)
     // entry (not necessarily a directory) with the name 'path' already exists,
     // and a negative value for any other kind of error.
 {
-    BSLS_REVIEW(path);
+    BSLS_ASSERT(path);
 
     // Permissions of created dir will be ANDed with process '~umask()'.
     static const int PERMS[2] = {
@@ -501,7 +501,7 @@ int removeDirectory(const char *path)
     // Remove the specified directory 'path'.  Return 0 on success and a
     // non-zero value otherwise.
 {
-    BSLS_REVIEW(path);
+    BSLS_ASSERT(path);
 
     return rmdir(path);
 }
@@ -509,7 +509,7 @@ int removeDirectory(const char *path)
 static inline
 int removeFile(const char *path)
 {
-    BSLS_REVIEW(path);
+    BSLS_ASSERT(path);
 
     return unlink(path);
 }
@@ -1054,7 +1054,7 @@ int FilesystemUtil::visitTree(
     if (!isDirectory(rootDir)) {
         return -1;                                                    // RETURN
     }
-    BSLS_REVIEW(!rootDir.empty());    // 'isDirectory' would have been
+    BSLS_ASSERT(!rootDir.empty());    // 'isDirectory' would have been
                                            // 'false' otherwise.
     if (bsl::string::npos != pattern.find('\\')) {
         return -1;                                                    // RETURN
@@ -1176,7 +1176,7 @@ int FilesystemUtil::visitTree(
             // Note that if '0 != rc', it means there's a logic error in this
             // function.
 
-            BSLS_REVIEW(0 == rc);
+            BSLS_ASSERT(0 == rc);
         }
     }
 
@@ -1798,7 +1798,7 @@ int FilesystemUtil::visitTree(
     if (!isDirectory(rootDir)) {
         return -1;                                                    // RETURN
     }
-    BSLS_REVIEW(!rootDir.empty());    // 'isDirectory' would have been
+    BSLS_ASSERT(!rootDir.empty());    // 'isDirectory' would have been
                                            // 'false' otherwise.
     if (bsl::string::npos != pattern.find('/')) {
         return -2;                                                    // RETURN
@@ -1859,9 +1859,9 @@ int FilesystemUtil::visitTree(
 
         for (unsigned ii = 0; ii < numFound; ++ii) {
             const char *fullPath = pglob.gl_pathv[ii];
-            BSLS_REVIEW(fullPath);
+            BSLS_ASSERT(fullPath);
             const char *basename = fullPath + truncTo;
-            BSLS_REVIEW('/' == basename[-1]);
+            BSLS_ASSERT('/' == basename[-1]);
 
             // Ignore '.', '..', symlinks and any other weird files that aren't
             // directories or plain files.

@@ -201,7 +201,7 @@ BitPtrDiff::BitPtrDiff(size_t value)
 : d_hi(value >> k_NUM_LO_BITS)
 , d_lo(value & k_USED_LO_MASK)
 {
-    BSLS_REVIEW((static_cast<size_t>(d_hi) * k_BITS_PER_UINT64 | d_lo)
+    BSLS_ASSERT((static_cast<size_t>(d_hi) * k_BITS_PER_UINT64 | d_lo)
                                                                  == value);
 }
 
@@ -210,7 +210,7 @@ BitPtrDiff::BitPtrDiff(IntPtr hi, unsigned lo)
 : d_hi(hi)
 , d_lo(lo)
 {
-    BSLS_REVIEW(lo < k_BITS_PER_UINT64);
+    BSLS_ASSERT(lo < k_BITS_PER_UINT64);
 }
 
 // ACCESSOR
@@ -227,13 +227,13 @@ BitPtrDiff BitPtrDiff::operator-() const
     if (ret.d_lo & k_UNUSED_LO_MASK) {
         // overflow of 'd_lo'
 
-        BSLS_REVIEW(k_BITS_PER_UINT64 == ret.d_lo);
+        BSLS_ASSERT(k_BITS_PER_UINT64 == ret.d_lo);
 
         ++ret.d_hi;
         ret.d_lo -= k_BITS_PER_UINT64;
     }
 
-    BSLS_REVIEW(0 == (ret.d_lo & k_UNUSED_LO_MASK));
+    BSLS_ASSERT(0 == (ret.d_lo & k_UNUSED_LO_MASK));
 
     return ret;
 }
@@ -375,18 +375,18 @@ BitPtr::BitPtr(const uint64_t *ptr, size_t index)
         if (d_lo & k_UNUSED_LO_MASK) {
             // overflow in 'd_lo'
 
-            BSLS_REVIEW(k_BITS_PER_UINT64 == (d_lo & k_UNUSED_LO_MASK));
+            BSLS_ASSERT(k_BITS_PER_UINT64 == (d_lo & k_UNUSED_LO_MASK));
 
             ++d_hi;
             d_lo -= k_BITS_PER_UINT64;
         }
     }
     else {
-        BSLS_REVIEW(0 == (ptrPart & k_PTR_MASK));
+        BSLS_ASSERT(0 == (ptrPart & k_PTR_MASK));
     }
 
-    BSLS_REVIEW(0 == (d_hi & k_HI_MASK));
-    BSLS_REVIEW(0 == (d_lo & k_UNUSED_LO_MASK));
+    BSLS_ASSERT(0 == (d_hi & k_HI_MASK));
+    BSLS_ASSERT(0 == (d_lo & k_UNUSED_LO_MASK));
 }
 
 // FREE OPERATORS
@@ -403,13 +403,13 @@ BitPtrDiff operator-(const BitPtr& lhs, const BitPtr& rhs)
     if (retLo & k_UNUSED_LO_MASK) {
         // 'retLo' underflowed.
 
-        BSLS_REVIEW((retLo & k_UNUSED_LO_MASK) == k_UNUSED_LO_MASK);
+        BSLS_ASSERT((retLo & k_UNUSED_LO_MASK) == k_UNUSED_LO_MASK);
 
         --retHi;
         retLo += k_BITS_PER_UINT64;
     }
 
-    BSLS_REVIEW(0 == (retLo & k_UNUSED_LO_MASK));
+    BSLS_ASSERT(0 == (retLo & k_UNUSED_LO_MASK));
 
     return BitPtrDiff(retHi, retLo);
 }
@@ -548,11 +548,11 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::doPartialWord(
                                                         uint64_t  srcValue,
                                                         int       numBits)
 {
-    BSLS_REVIEW(dstBitString);
-    BSLS_REVIEW(0 <= dstIndex);
-    BSLS_REVIEW(     dstIndex < k_BITS_PER_UINT64);
-    BSLS_REVIEW(0 <= numBits);
-    BSLS_REVIEW(     numBits  < k_BITS_PER_UINT64);
+    BSLS_ASSERT(dstBitString);
+    BSLS_ASSERT(0 <= dstIndex);
+    BSLS_ASSERT(     dstIndex < k_BITS_PER_UINT64);
+    BSLS_ASSERT(0 <= numBits);
+    BSLS_ASSERT(     numBits  < k_BITS_PER_UINT64);
 
     if (0 == numBits) {
         return;                                                       // RETURN
@@ -581,9 +581,9 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::doFullNonAlignedWord(
                                                         int       dstIndex,
                                                         uint64_t  srcValue)
 {
-    BSLS_REVIEW(dstBitString);
-    BSLS_REVIEW(0 < dstIndex);
-    BSLS_REVIEW(    dstIndex < k_BITS_PER_UINT64);
+    BSLS_ASSERT(dstBitString);
+    BSLS_ASSERT(0 < dstIndex);
+    BSLS_ASSERT(    dstIndex < k_BITS_PER_UINT64);
 
     // Since 'dstIndex > 0', destination bits always span two 'uint64_t' array
     // elements.
@@ -605,8 +605,8 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::left(
     // Preconditions can be checked with safe asserts since they are always
     // checked prior to this function being called.
 
-    BSLS_REVIEW(dstBitString);
-    BSLS_REVIEW(srcBitString);
+    BSLS_ASSERT(dstBitString);
+    BSLS_ASSERT(srcBitString);
 
     if (0 == numBits) {
         return;                                                       // RETURN
@@ -658,7 +658,7 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::left(
         ++srcIndex;
     }
 
-    BSLS_REVIEW(0 == srcPos);
+    BSLS_ASSERT(0 == srcPos);
 
     // Copy full source 'uint64_t' elements.
 
@@ -679,7 +679,7 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::left(
                                  srcBitString[ srcIndex++]);
         }
     }
-    BSLS_REVIEW(numBits < k_BITS_PER_UINT64);
+    BSLS_ASSERT(numBits < k_BITS_PER_UINT64);
 
     // Move residual bits, if any.
 
@@ -705,8 +705,8 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::right(
     // Preconditions can be checked with safe asserts since they are always
     // checked prior to this function being called.
 
-    BSLS_REVIEW(dstBitString);
-    BSLS_REVIEW(srcBitString);
+    BSLS_ASSERT(dstBitString);
+    BSLS_ASSERT(srcBitString);
 
     if (0 == numBits) {
         return;                                                       // RETURN
@@ -745,7 +745,7 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::right(
 
     if (srcPos) {
         if (srcPos >= numBits) {
-            BSLS_REVIEW(numBits < k_BITS_PER_UINT64);
+            BSLS_ASSERT(numBits < k_BITS_PER_UINT64);
             const unsigned nb = u32(numBits);
 
             if (dstPos < nb) {
@@ -778,7 +778,7 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::right(
 
     // Source is now aligned.  Copy words at a time.
 
-    BSLS_REVIEW(0 == srcPos);
+    BSLS_ASSERT(0 == srcPos);
 
     if (dstPos) {
         // Normal case of the destination location being unaligned.
@@ -797,7 +797,7 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::right(
                                  srcBitString[ --srcIndex]);
         }
     }
-    BSLS_REVIEW(numBits < k_BITS_PER_UINT64);
+    BSLS_ASSERT(numBits < k_BITS_PER_UINT64);
     const unsigned nb = u32(numBits);
 
     if (0 == nb) {
@@ -832,8 +832,8 @@ void Mover<OPER_DO_BITS, OPER_DO_ALIGNED_WORD>::move(
     // Preconditions can be checked with safe asserts since they are always
     // checked prior to this function being called.
 
-    BSLS_REVIEW(dstBitString);
-    BSLS_REVIEW(srcBitString);
+    BSLS_ASSERT(dstBitString);
+    BSLS_ASSERT(srcBitString);
 
     const BitPtr     dst(dstBitString, dstIndex);
     const BitPtr     src(srcBitString, srcIndex);
@@ -868,8 +868,8 @@ uint64_t lt64Raw(int numBits)
     // the same calculation as 'BitMaskUtil::lt64', except that it doesn't
     // waste time handling the case of 'k_BITS_PER_UINT64 == numBits'.
 {
-    BSLS_REVIEW(0 <= numBits);
-    BSLS_REVIEW(     numBits < k_BITS_PER_UINT64);
+    BSLS_ASSERT(0 <= numBits);
+    BSLS_ASSERT(     numBits < k_BITS_PER_UINT64);
 
     return (1ULL << numBits) - 1;
 }
@@ -882,8 +882,8 @@ uint64_t ge64Raw(int numBits)
     // the same calculation as 'BitMaskUtil::ge64', except that it doesn't
     // waste time handling the case of 'k_BITS_PER_UINT64 == numBits'.
 {
-    BSLS_REVIEW(0 <= numBits);
-    BSLS_REVIEW(     numBits < k_BITS_PER_UINT64);
+    BSLS_ASSERT(0 <= numBits);
+    BSLS_ASSERT(     numBits < k_BITS_PER_UINT64);
 
     return ~0ULL << numBits;
 }
@@ -894,7 +894,7 @@ TYPE absRaw(TYPE x)
     // Return the absolute value of the specified 'x'.  The behavior is
     // undefined unless '-x != x' or '0 == x'.
 {
-    BSLS_REVIEW(-x != x || 0 == x);
+    BSLS_ASSERT(-x != x || 0 == x);
 
     return x < 0 ? -x : x;
 }
@@ -916,8 +916,8 @@ bool bitsInWordsDiffer(uint64_t word1,
     // 'pos2 + numBits <= k_BITS_PER_UINT64'.  Note that this function does not
     // handle the case of '0 == numBits'.
 {
-    BSLS_REVIEW(numBits + pos1 <= k_BITS_PER_UINT64);
-    BSLS_REVIEW(numBits + pos2 <= k_BITS_PER_UINT64);
+    BSLS_ASSERT(numBits + pos1 <= k_BITS_PER_UINT64);
+    BSLS_ASSERT(numBits + pos2 <= k_BITS_PER_UINT64);
 
     // If two down-shifted bits don't match, the XOR of them will be 1.  We
     // mask out the low-order 'numBits' (the bits we are interested in), and
@@ -948,11 +948,11 @@ void swapBitsInWords(uint64_t *word1,
     // the bits being swapped don't overlap.  Also note this function doesn't
     // handle the case of '0 == numBits'.
 {
-    BSLS_REVIEW(word1);
-    BSLS_REVIEW(word2);
-    BSLS_REVIEW(0 < numBits);
-    BSLS_REVIEW(index1 + numBits <= k_BITS_PER_UINT64);
-    BSLS_REVIEW(index2 + numBits <= k_BITS_PER_UINT64);
+    BSLS_ASSERT(word1);
+    BSLS_ASSERT(word2);
+    BSLS_ASSERT(0 < numBits);
+    BSLS_ASSERT(index1 + numBits <= k_BITS_PER_UINT64);
+    BSLS_ASSERT(index2 + numBits <= k_BITS_PER_UINT64);
 
     const uint64_t mask  = BitMaskUtil::lt64(numBits);
     const uint64_t bits1 = (*word1 >> index1) & mask;
@@ -1197,7 +1197,7 @@ void BitStringUtil::assignBits(uint64_t *bitString,
         *bitString |= srcValue << pos;
     }
     else {
-        BSLS_REVIEW(0 < pos);
+        BSLS_ASSERT(0 < pos);
 
         uint64_t mask = lt64Raw(dstLen);
         uint64_t bits = srcValue & mask;
@@ -1421,7 +1421,7 @@ void BitStringUtil::swapRaw(uint64_t *bitString1,
 
     if (pos1 == pos2) {
         int nb = static_cast<int>(bsl::min<size_t>(rem1, numBits));
-        BSLS_REVIEW(nb > 0);
+        BSLS_ASSERT(nb > 0);
 
         swapBitsInWords(bitString1, pos1, bitString2, pos2, nb);
 
@@ -1455,7 +1455,7 @@ void BitStringUtil::swapRaw(uint64_t *bitString1,
             {
                 const int numBitsA = static_cast<int>(bsl::min<size_t>(
                                                                rem1, numBits));
-                BSLS_REVIEW(numBitsA > 0);
+                BSLS_ASSERT(numBitsA > 0);
 
                 swapBitsInWords(bitString1, pos1, bitString2, pos2, numBitsA);
 
@@ -1480,7 +1480,7 @@ void BitStringUtil::swapRaw(uint64_t *bitString1,
             {
                 const int numBitsB = static_cast<int>(bsl::min<size_t>(
                                                                rem2, numBits));
-                BSLS_REVIEW(numBitsB > 0);
+                BSLS_ASSERT(numBitsB > 0);
 
                 swapBitsInWords(bitString1, pos1, bitString2, pos2, numBitsB);
 
@@ -1539,7 +1539,7 @@ void BitStringUtil::toggle(uint64_t *bitString, size_t index, size_t numBits)
     for (; numBits >= k_BITS_PER_UINT64; numBits -= k_BITS_PER_UINT64) {
         bitString[idx++] ^= minusOne;
     }
-    BSLS_REVIEW(numBits < k_BITS_PER_UINT64);
+    BSLS_ASSERT(numBits < k_BITS_PER_UINT64);
 
     // Toggle trailing bits.
 
@@ -1598,7 +1598,7 @@ bool BitStringUtil::areEqual(const uint64_t *bitString1,
     int pos2   =  u32(index2) % k_BITS_PER_UINT64;
     int rem2   =  k_BITS_PER_UINT64 - pos2;
 
-    BSLS_REVIEW(rem1 > 0 && rem2 > 0);
+    BSLS_ASSERT(rem1 > 0 && rem2 > 0);
 
     if (pos1 == pos2) {
         int nb = static_cast<int>(bsl::min<size_t>(rem1, numBits));
@@ -1650,14 +1650,14 @@ bool BitStringUtil::areEqual(const uint64_t *bitString1,
         // 'bitString1'.
 
         {
-            BSLS_REVIEW(rem1 < rem2);
-            BSLS_REVIEW(rem1 > 0 && rem2 > 0);
-            BSLS_REVIEW(rem1 <  k_BITS_PER_UINT64);
-            BSLS_REVIEW(rem2 <= k_BITS_PER_UINT64);
+            BSLS_ASSERT(rem1 < rem2);
+            BSLS_ASSERT(rem1 > 0 && rem2 > 0);
+            BSLS_ASSERT(rem1 <  k_BITS_PER_UINT64);
+            BSLS_ASSERT(rem2 <= k_BITS_PER_UINT64);
 
             const int numBitsA = static_cast<int>(
                                               bsl::min<size_t>(rem1, numBits));
-            BSLS_REVIEW(numBitsA > 0);
+            BSLS_ASSERT(numBitsA > 0);
 
             if (bitsInWordsDiffer(*bitString1,
                                   pos1,
@@ -1672,7 +1672,7 @@ bool BitStringUtil::areEqual(const uint64_t *bitString1,
                 return true;                                          // RETURN
             }
 
-            BSLS_REVIEW(numBitsA == rem1);
+            BSLS_ASSERT(numBitsA == rem1);
 
             // Advance 'pos1' and 'pos2' by 'numBitsA == rem1'.  Bear in mind
             // that 'numBitsA == k_BITS_PER_UINT64 - pos1'.  When 'pos1'
@@ -1684,7 +1684,7 @@ bool BitStringUtil::areEqual(const uint64_t *bitString1,
             pos1 = 0;
 
             pos2 += numBitsA;
-            BSLS_REVIEW(pos2 < k_BITS_PER_UINT64);
+            BSLS_ASSERT(pos2 < k_BITS_PER_UINT64);
             rem2 -= numBitsA;
         }
 
@@ -1695,7 +1695,7 @@ bool BitStringUtil::areEqual(const uint64_t *bitString1,
         {
             const int numBitsB = static_cast<int>(
                                               bsl::min<size_t>(rem2, numBits));
-            BSLS_REVIEW(numBitsB > 0);
+            BSLS_ASSERT(numBitsB > 0);
 
             if (bitsInWordsDiffer(*bitString1,
                                   pos1,
@@ -2015,7 +2015,7 @@ bool BitStringUtil::isAny0(const uint64_t *bitString,
             return true;                                              // RETURN
         }
     }
-    BSLS_REVIEW(numBits < k_BITS_PER_UINT64);
+    BSLS_ASSERT(numBits < k_BITS_PER_UINT64);
 
     if (0 == numBits) {
         return false;                                                 // RETURN
@@ -2050,7 +2050,7 @@ bool BitStringUtil::isAny1(const uint64_t *bitString,
         }
         numBits -= k_BITS_PER_UINT64;
     }
-    BSLS_REVIEW(numBits < k_BITS_PER_UINT64);
+    BSLS_ASSERT(numBits < k_BITS_PER_UINT64);
 
     if (0 == numBits) {
         return false;                                                 // RETURN
@@ -2102,7 +2102,7 @@ size_t BitStringUtil::num1(const uint64_t *bitString,
     // 'ii' below will be the number of words between the first and last words
     // that must be traversed, not including the first word or the last word.
 
-    BSLS_REVIEW(lastWord >= 1);    // therefore 'ii' below is >= 0 and can
+    BSLS_ASSERT(lastWord >= 1);    // therefore 'ii' below is >= 0 and can
                                         // be represented as a 'size_t'
 
     const uint64_t *array = bitString + 1;
@@ -2123,7 +2123,7 @@ size_t BitStringUtil::num1(const uint64_t *bitString,
         ret +=       BitUtil::numBitsSet(array[--ii]);
     }
 
-    BSLS_REVIEW(ii < 8);
+    BSLS_ASSERT(ii < 8);
 
     switch (ii) {
       case 7: ret += BitUtil::numBitsSet(array[--ii]);             FALLTHROUGH;
@@ -2136,7 +2136,7 @@ size_t BitStringUtil::num1(const uint64_t *bitString,
       default:                                                     break;
     }
 
-    BSLS_REVIEW(0 == ii);
+    BSLS_ASSERT(0 == ii);
 
     // And we are now ready to look at the lowest-order word.
 
@@ -2181,8 +2181,8 @@ bsl::ostream& BitStringUtil::print(bsl::ostream&   stream,
 
         if (spacesPerLevel >= 0 && endPos > 4) {
             const size_t startIdx = ((endPos - 1) / 4 + 1) * 4 - 1;
-            BSLS_REVIEW(startIdx >= endPos - 1);
-            BSLS_REVIEW(startIdx % 4 == 3);
+            BSLS_ASSERT(startIdx >= endPos - 1);
+            BSLS_ASSERT(startIdx % 4 == 3);
 
             for (size_t idx = startIdx; true; --idx) {
                 if (3 == idx % 4) {

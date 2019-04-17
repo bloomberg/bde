@@ -141,12 +141,12 @@ DatetimeInterval IntervalConversionUtil::convertToDatetimeInterval(
     // Check that the value of 'interval' is within the valid range supported
     // by 'Dateinterval'.
 
-    BSLS_REVIEW(   k_DATETIME_INTERVAL_SECONDS_MIN  < interval.seconds()
+    BSLS_ASSERT(   k_DATETIME_INTERVAL_SECONDS_MIN  < interval.seconds()
                     || (k_DATETIME_INTERVAL_SECONDS_MIN == interval.seconds()
                        && k_DATETIME_INTERVAL_NSEC_REMAINDER_MIN <=
                                                       interval.nanoseconds()));
 
-    BSLS_REVIEW(   interval.seconds() <  k_DATETIME_INTERVAL_SECONDS_MAX
+    BSLS_ASSERT(   interval.seconds() <  k_DATETIME_INTERVAL_SECONDS_MAX
                     || (interval.seconds() == k_DATETIME_INTERVAL_SECONDS_MAX
                        && interval.nanoseconds() <=
                                       k_DATETIME_INTERVAL_NSEC_REMAINDER_MAX));

@@ -400,7 +400,7 @@ bool Utf8PtrBasedEnd::isFinished(const OctetType *position) const
         return false;                                                 // RETURN
     }
     else {
-        BSLS_REVIEW(d_end == position);
+        BSLS_ASSERT(d_end == position);
         return true;                                                  // RETURN
     }
 }
@@ -414,7 +414,7 @@ const OctetType *Utf8PtrBasedEnd::skipContinuations(
     // is known that there are fewer continuation octets after 'octets' than
     // were expected, at least before 'd_end'.
 
-    BSLS_REVIEW(d_end >= octets);
+    BSLS_ASSERT(d_end >= octets);
     const OctetType *end = bsl::min(d_end, octets + skipBy);
 
     while (octets < end && (*octets & k_CONTINUE_MASK) == k_CONTINUE_TAG) {
@@ -428,8 +428,8 @@ inline
 bool Utf8PtrBasedEnd::verifyContinuations(const OctetType *octets,
                                           int              n) const
 {
-    BSLS_REVIEW(n >= 1);
-    BSLS_REVIEW(d_end >= octets);
+    BSLS_ASSERT(n >= 1);
+    BSLS_ASSERT(d_end >= octets);
 
     const OctetType *end = octets + n;
     if (end > d_end) {
@@ -514,7 +514,7 @@ inline
 bool Utf8ZeroBasedEnd::verifyContinuations(const OctetType *octets,
                                            int              n) const
 {
-    BSLS_REVIEW(n >= 1);
+    BSLS_ASSERT(n >= 1);
 
     const OctetType *end = octets + n;
     do {
@@ -980,7 +980,7 @@ void Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::advanceOutput()
 template <class CAPACITY, class END_FUNCTOR, class SWAPPER>
 int Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::decodeCodePoint()
 {
-    BSLS_REVIEW(d_capacity >= 1);
+    BSLS_ASSERT(d_capacity >= 1);
 
     OctetType    firstOctet = *d_input;
     unsigned int decodedCodePoint;
@@ -1038,7 +1038,7 @@ inline
 void
 Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::handleInvalidSequence()
 {
-    BSLS_REVIEW(d_capacity >= 2);
+    BSLS_ASSERT(d_capacity >= 2);
 
     d_invalidSequences = true;
 
@@ -1075,7 +1075,7 @@ int Utf8ToUtf32Translator<CAPACITY, END_FUNCTOR, SWAPPER>::translate(
         }
     }
     ++translator.d_input;
-    BSLS_REVIEW(translator.d_capacity >= 1);
+    BSLS_ASSERT(translator.d_capacity >= 1);
 
     *translator.d_output = 0;
     translator.advanceOutput();
@@ -1252,8 +1252,8 @@ template <class CAPACITY, class SWAPPER>
 int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::decodeCodePoint(
                                                          const unsigned int uc)
 {
-    BSLS_REVIEW(d_capacity >= 1);
-    BSLS_REVIEW(uc);
+    BSLS_ASSERT(d_capacity >= 1);
+    BSLS_ASSERT(uc);
 
     if      (fitsInSingleOctet(uc)) {
         if (d_capacity >= 2) {
@@ -1322,7 +1322,7 @@ int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::translate(
                                                         capacity,
                                                         input,
                                                         errorByte);
-    BSLS_REVIEW(translator.d_capacity >= 1);
+    BSLS_ASSERT(translator.d_capacity >= 1);
 
     int          ret = 0;
     unsigned int uc;
@@ -1343,11 +1343,11 @@ int Utf32ToUtf8Translator<CAPACITY, SWAPPER>::translate(
     *numBytesWritten = translator.d_output - octetCast(output);
     BSLS_ASSERT((bsl::is_same<CAPACITY, NoopCapacity>::value) ||
                                                  *numBytesWritten <= capacity);
-    BSLS_REVIEW((*numCodePointsWritten) * 4 - 3 >= *numBytesWritten);
+    BSLS_ASSERT((*numCodePointsWritten) * 4 - 3 >= *numBytesWritten);
 
     // Check for 0's in the middle of the output.
 
-    BSLS_REVIEW(bsl::strlen(output) == *numBytesWritten - 1);
+    BSLS_ASSERT(bsl::strlen(output) == *numBytesWritten - 1);
 
     if (translator.d_invalidSequences) {
         ret |= k_INVALID_INPUT_BIT;
@@ -1387,7 +1387,7 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
 
     bsl::size_t bufferLen = utf32BufferLengthNeeded(srcString,
                                                     endFunctor);
-    BSLS_REVIEW(bufferLen > 0);
+    BSLS_ASSERT(bufferLen > 0);
     dstVector->resize(bufferLen);
 
     bsl::size_t numWordsWritten;
@@ -1409,28 +1409,28 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
     // All asserts after this point are internal consistency checks that should
     // never fail in production, so they are for testing purposes only.
 
-    BSLS_REVIEW(!(ret & k_OUT_OF_SPACE_BIT));
-    BSLS_REVIEW(numWordsWritten >= 1);
+    BSLS_ASSERT(!(ret & k_OUT_OF_SPACE_BIT));
+    BSLS_ASSERT(numWordsWritten >= 1);
     if (bufferLen > numWordsWritten) {
         // 'bufferLen' should have been an exactly accurate estimate unless
         // '0 == errorWord' and invalid code points occurred.
 
-        BSLS_REVIEW(0 == errorWord);
-        BSLS_REVIEW(ret & k_INVALID_INPUT_BIT);
+        BSLS_ASSERT(0 == errorWord);
+        BSLS_ASSERT(ret & k_INVALID_INPUT_BIT);
         dstVector->resize(numWordsWritten);
     }
     else {
         // 'bufferLen' should never be an underestimate.
 
-        BSLS_REVIEW(bufferLen == numWordsWritten);
+        BSLS_ASSERT(bufferLen == numWordsWritten);
 
         // If the estimate was spot on, either 'errorWord' was non-zero,
         // or no invalid code points occurred.
 
-        BSLS_REVIEW(0 != errorWord || 0 == (ret & k_INVALID_INPUT_BIT));
+        BSLS_ASSERT(0 != errorWord || 0 == (ret & k_INVALID_INPUT_BIT));
     }
 
-    BSLS_REVIEW(0 == dstVector->back());
+    BSLS_ASSERT(0 == dstVector->back());
 
     // Verify that the translator embedded no null words in the output before
     // the end.
@@ -1461,7 +1461,7 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
 
     bsl::size_t bufferLen = utf32BufferLengthNeeded(srcString.begin(),
                                                     endFunctor);
-    BSLS_REVIEW(bufferLen > 0);
+    BSLS_ASSERT(bufferLen > 0);
     dstVector->resize(bufferLen);
 
     bsl::size_t numWordsWritten;
@@ -1483,29 +1483,29 @@ int CharConvertUtf32::utf8ToUtf32(bsl::vector<unsigned int> *dstVector,
     // All asserts after this point are internal consistency checks that should
     // never fail in production, so they are for testing purposes only.
 
-    BSLS_REVIEW(!(ret & k_OUT_OF_SPACE_BIT));
-    BSLS_REVIEW(numWordsWritten >= 1);
+    BSLS_ASSERT(!(ret & k_OUT_OF_SPACE_BIT));
+    BSLS_ASSERT(numWordsWritten >= 1);
     if (bufferLen > numWordsWritten) {
         // 'bufferLen' should have been an exactly accurate estimate unless
         // '0 == errorWord' and invalid code points occurred.
 
-        BSLS_REVIEW(0 == errorWord);
-        BSLS_REVIEW(ret & k_INVALID_INPUT_BIT);
+        BSLS_ASSERT(0 == errorWord);
+        BSLS_ASSERT(ret & k_INVALID_INPUT_BIT);
         dstVector->resize(numWordsWritten);
     }
     else {
         // 'bufferLen' should never be an underestimate.
 
-        BSLS_REVIEW(bufferLen == numWordsWritten);
+        BSLS_ASSERT(bufferLen == numWordsWritten);
 
         // If the estimate was spot on, either 'errorWord' was non-zero,
         // or no invalid code points occurred.
 
-        BSLS_REVIEW(0 != errorWord ||
+        BSLS_ASSERT(0 != errorWord ||
                                              0 == (ret & k_INVALID_INPUT_BIT));
     }
 
-    BSLS_REVIEW(0 == dstVector->back());
+    BSLS_ASSERT(0 == dstVector->back());
 
     return ret;
 }
@@ -1616,9 +1616,9 @@ int CharConvertUtf32::utf32ToUtf8(bsl::string           *dstString,
                                                                      errorByte)
                                : utf8BufferLengthNeeded<Swapper>(srcString,
                                                                  errorByte);
-    BSLS_REVIEW(bufferLen > 0);
+    BSLS_ASSERT(bufferLen > 0);
     dstString->resize(bufferLen);
-    BSLS_REVIEW(dstString->length() == bufferLen);
+    BSLS_ASSERT(dstString->length() == bufferLen);
 
     bsl::size_t numBytesWritten, localNumCodePointsWritten;
     if (!numCodePointsWritten) {
@@ -1642,10 +1642,10 @@ int CharConvertUtf32::utf32ToUtf8(bsl::string           *dstString,
     // The following are internal consistency checks that should never fail in
     // production, so they are for testing purposes only.
 
-    BSLS_REVIEW(*numCodePointsWritten > 0);
-    BSLS_REVIEW( numBytesWritten == bufferLen);
-    BSLS_REVIEW(!(ret & k_OUT_OF_SPACE_BIT));
-    BSLS_REVIEW(0 == (*dstString)[numBytesWritten - 1]);
+    BSLS_ASSERT(*numCodePointsWritten > 0);
+    BSLS_ASSERT( numBytesWritten == bufferLen);
+    BSLS_ASSERT(!(ret & k_OUT_OF_SPACE_BIT));
+    BSLS_ASSERT(0 == (*dstString)[numBytesWritten - 1]);
 
     // There are two '\0's in 'dstString->c_str()' beginning at char
     // 'dstString->length() - 1' -- adjust 'length' to reflect the earlier
@@ -1674,7 +1674,7 @@ int CharConvertUtf32::utf32ToUtf8(bsl::vector<char>  *dstVector,
                                                                      errorByte)
                                : utf8BufferLengthNeeded<Swapper>(srcString,
                                                                  errorByte);
-    BSLS_REVIEW(bufferLen > 0);
+    BSLS_ASSERT(bufferLen > 0);
     dstVector->resize(bufferLen);
 
     bsl::size_t numBytesWritten, localNumCodePointsWritten;
@@ -1699,12 +1699,12 @@ int CharConvertUtf32::utf32ToUtf8(bsl::vector<char>  *dstVector,
     // The following are internal consistency checks that should never fail in
     // production, so they are for testing purposes only.
 
-    BSLS_REVIEW(*numCodePointsWritten > 0);
-    BSLS_REVIEW( numBytesWritten > 0);
-    BSLS_REVIEW(*numCodePointsWritten <= numBytesWritten);
-    BSLS_REVIEW(0 == (ret & k_OUT_OF_SPACE_BIT));
-    BSLS_REVIEW(numBytesWritten == bufferLen);
-    BSLS_REVIEW(0 == dstVector->back());
+    BSLS_ASSERT(*numCodePointsWritten > 0);
+    BSLS_ASSERT( numBytesWritten > 0);
+    BSLS_ASSERT(*numCodePointsWritten <= numBytesWritten);
+    BSLS_ASSERT(0 == (ret & k_OUT_OF_SPACE_BIT));
+    BSLS_ASSERT(numBytesWritten == bufferLen);
+    BSLS_ASSERT(0 == dstVector->back());
 
     return ret;
 }
@@ -1755,11 +1755,11 @@ int CharConvertUtf32::utf32ToUtf8(char               *dstBuffer,
     // The following are internal consistency checks that should never fail in
     // production, so they are for testing purposes only.
 
-    BSLS_REVIEW(*numCodePointsWritten > 0);
-    BSLS_REVIEW(*numBytesWritten > 0);
-    BSLS_REVIEW(*numCodePointsWritten <= *numBytesWritten);
-    BSLS_REVIEW(*numBytesWritten <= dstCapacity);
-    BSLS_REVIEW(0 == dstBuffer[*numBytesWritten - 1]);
+    BSLS_ASSERT(*numCodePointsWritten > 0);
+    BSLS_ASSERT(*numBytesWritten > 0);
+    BSLS_ASSERT(*numCodePointsWritten <= *numBytesWritten);
+    BSLS_ASSERT(*numBytesWritten <= dstCapacity);
+    BSLS_ASSERT(0 == dstBuffer[*numBytesWritten - 1]);
 
     return ret;
 }

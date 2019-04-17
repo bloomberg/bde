@@ -1005,7 +1005,7 @@ bool HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insertElement(
         loadElementAt(handle, removedIndex, element, chainLength);
     }
     else {
-        BSLS_REVIEW(-1 != nullIndex);
+        BSLS_ASSERT(-1 != nullIndex);
 
         loadElementAt(handle, nullIndex, element, chainLength);
     }
@@ -1145,7 +1145,7 @@ inline
 bool HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(Handle     *handle,
                                                          const KEY&  key)
 {
-    BSLS_REVIEW(handle);
+    BSLS_ASSERT(handle);
 
     BSLMF_ASSERT((bslmf::IsSame<bslmf::Nil, VALUE>::VALUE));
 
@@ -1158,7 +1158,7 @@ bool HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::insert(Handle       *handle,
                                                          const KEY&    key,
                                                          const VALUE&  value)
 {
-    BSLS_REVIEW(handle);
+    BSLS_ASSERT(handle);
 
     BSLMF_ASSERT((!bslmf::IsSame<bslmf::Nil, VALUE>::VALUE));
 
@@ -1171,8 +1171,8 @@ void HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::remove(const Handle& handle)
 {
     typedef typename bsl::vector<Bucket>::size_type size_type;
 
-    BSLS_REVIEW(!TRAITS::isNull   (d_buckets[(size_type)handle]));
-    BSLS_REVIEW(!TRAITS::isRemoved(d_buckets[(size_type)handle]));
+    BSLS_ASSERT(!TRAITS::isNull   (d_buckets[(size_type)handle]));
+    BSLS_ASSERT(!TRAITS::isRemoved(d_buckets[(size_type)handle]));
 
     TRAITS::setToRemoved(&d_buckets[(size_type)handle]);
     --d_numElements;
@@ -1185,8 +1185,8 @@ VALUE& HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::value(const Handle& handle)
     typedef typename bsl::vector<Bucket>::size_type size_type;
     BSLMF_ASSERT((!bslmf::IsSame<bslmf::Nil, VALUE>::VALUE));
 
-    BSLS_REVIEW(!TRAITS::isNull   (d_buckets[(size_type)handle]));
-    BSLS_REVIEW(!TRAITS::isRemoved(d_buckets[(size_type)handle]));
+    BSLS_ASSERT(!TRAITS::isNull   (d_buckets[(size_type)handle]));
+    BSLS_ASSERT(!TRAITS::isRemoved(d_buckets[(size_type)handle]));
 
     return d_buckets[(size_type)handle].second;
 }
@@ -1213,7 +1213,7 @@ inline
 bool HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::find(Handle     *handle,
                                                        const KEY&  key) const
 {
-    BSLS_REVIEW(handle);
+    BSLS_ASSERT(handle);
 
     bool               isKeyFound;
     bsls::Types::Int64 chainLength, removedIndex;
@@ -1229,8 +1229,8 @@ const KEY& HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::key(
                                                     const Handle& handle) const
 {
     typedef typename bsl::vector<Bucket>::size_type size_type;
-    BSLS_REVIEW(!TRAITS::isNull   (d_buckets[(size_type)handle]));
-    BSLS_REVIEW(!TRAITS::isRemoved(d_buckets[(size_type)handle]));
+    BSLS_ASSERT(!TRAITS::isNull   (d_buckets[(size_type)handle]));
+    BSLS_ASSERT(!TRAITS::isRemoved(d_buckets[(size_type)handle]));
 
     return keyFromBucket(d_buckets[(size_type)handle]);
 }
@@ -1275,8 +1275,8 @@ const VALUE& HashTable<KEY, VALUE, TRAITS, HASH1, HASH2>::value(
     typedef typename bsl::vector<Bucket>::size_type size_type;
     BSLMF_ASSERT((!bslmf::IsSame<bslmf::Nil, VALUE>::VALUE));
 
-    BSLS_REVIEW(!TRAITS::isNull   (d_buckets[(size_type)handle]));
-    BSLS_REVIEW(!TRAITS::isRemoved(d_buckets[(size_type)handle]));
+    BSLS_ASSERT(!TRAITS::isNull   (d_buckets[(size_type)handle]));
+    BSLS_ASSERT(!TRAITS::isRemoved(d_buckets[(size_type)handle]));
 
     return d_buckets[(size_type)handle].second;
 }
@@ -1289,7 +1289,7 @@ template <class BUCKET>
 inline
 void HashTableDefaultTraits::load(BUCKET *dstBucket, const BUCKET& srcBucket)
 {
-    BSLS_REVIEW(dstBucket);
+    BSLS_ASSERT(dstBucket);
 
     *dstBucket = srcBucket;
 }
@@ -1305,8 +1305,8 @@ inline
 bool HashTableDefaultTraits::areEqual(const ConstCharPtr& key1,
                                       const ConstCharPtr& key2)
 {
-    BSLS_REVIEW(key1);
-    BSLS_REVIEW(key2);
+    BSLS_ASSERT(key1);
+    BSLS_ASSERT(key2);
 
     return 0 == bsl::strcmp(key1, key2);
 }
@@ -1360,7 +1360,7 @@ template <class BUCKET>
 inline
 void HashTableDefaultTraits::setToNull(BUCKET *bucket)
 {
-    BSLS_REVIEW(bucket);
+    BSLS_ASSERT(bucket);
 
     enum {
         k_IS_POD = bsl::is_trivially_default_constructible<BUCKET>::value
@@ -1377,7 +1377,7 @@ void HashTableDefaultTraits::setToNull(BUCKET *bucket)
 inline
 void HashTableDefaultTraits::setToNull(bsl::string *bucket)
 {
-    BSLS_REVIEW(bucket);
+    BSLS_ASSERT(bucket);
 
     bucket->clear();
 }
@@ -1385,7 +1385,7 @@ void HashTableDefaultTraits::setToNull(bsl::string *bucket)
 inline
 void HashTableDefaultTraits::setToNull(ConstCharPtr *bucket)
 {
-    BSLS_REVIEW(bucket);
+    BSLS_ASSERT(bucket);
 
     *bucket = 0;
 }
@@ -1394,7 +1394,7 @@ template <class KEY, class VALUE>
 inline
 void HashTableDefaultTraits::setToNull(bsl::pair<KEY, VALUE> *bucket)
 {
-    BSLS_REVIEW(bucket);
+    BSLS_ASSERT(bucket);
 
     setToNull(&bucket->first);
     setToNull(&bucket->second);
@@ -1455,7 +1455,7 @@ template <class BUCKET>
 inline
 void HashTableDefaultTraits::setToRemoved(BUCKET *bucket)
 {
-    BSLS_REVIEW(bucket);
+    BSLS_ASSERT(bucket);
 
     enum {
         k_IS_POD = bsl::is_trivially_default_constructible<BUCKET>::value
@@ -1472,7 +1472,7 @@ void HashTableDefaultTraits::setToRemoved(BUCKET *bucket)
 inline
 void HashTableDefaultTraits::setToRemoved(bsl::string *bucket)
 {
-    BSLS_REVIEW(bucket);
+    BSLS_ASSERT(bucket);
 
     *bucket = REMOVED_KEYWORD;
 }
@@ -1480,7 +1480,7 @@ void HashTableDefaultTraits::setToRemoved(bsl::string *bucket)
 inline
 void HashTableDefaultTraits::setToRemoved(ConstCharPtr *bucket)
 {
-    BSLS_REVIEW(bucket);
+    BSLS_ASSERT(bucket);
 
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
     const char *removed = reinterpret_cast<const char *>(0xFFFFFFFF);
@@ -1495,7 +1495,7 @@ template <class KEY, class VALUE>
 inline
 void HashTableDefaultTraits::setToRemoved(bsl::pair<KEY, VALUE> *bucket)
 {
-    BSLS_REVIEW(bucket);
+    BSLS_ASSERT(bucket);
 
     setToRemoved(&bucket->first);
     setToRemoved(&bucket->second);

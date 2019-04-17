@@ -180,7 +180,7 @@ void Multipool::initialize(
 // PRIVATE ACCESSORS
 int Multipool::findPool(bsls::Types::size_type size) const
 {
-    BSLS_REVIEW(size <= d_maxBlockSize);
+    BSLS_ASSERT(size <= d_maxBlockSize);
 
     return 31 - bdlb::BitUtil::numLeadingUnsetBits(static_cast<bsl::uint32_t>(
                                 ((size + k_MIN_BLOCK_SIZE - 1) >> 3) * 2 - 1));

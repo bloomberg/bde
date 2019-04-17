@@ -1014,7 +1014,7 @@ int BerUtil_Imp::numBytesToStream(TYPE value)
         }
     }
 
-    BSLS_REVIEW(numBytes > 0);
+    BSLS_ASSERT(numBytes > 0);
     return numBytes;
 }
 

@@ -611,14 +611,14 @@ ZoneinfoTransition::ZoneinfoTransition(bdlt::EpochUtil::TimeT64   utcTime,
 : d_utcTime(utcTime)
 , d_descriptor_p(descriptor)
 {
-    BSLS_REVIEW(descriptor);
+    BSLS_ASSERT(descriptor);
 }
 
 // CREATORS
 inline
 ZoneinfoTransition::~ZoneinfoTransition()
 {
-    BSLS_REVIEW(d_descriptor_p);
+    BSLS_ASSERT(d_descriptor_p);
 }
 
 // ACCESSORS
@@ -687,7 +687,7 @@ Zoneinfo& Zoneinfo::operator=(const Zoneinfo& rhs)
 inline
 void Zoneinfo::setIdentifier(const bslstl::StringRef& value)
 {
-    BSLS_REVIEW(0 != value.data());
+    BSLS_ASSERT(0 != value.data());
 
     d_identifier.assign(value.begin(), value.end());
 }
@@ -695,7 +695,7 @@ void Zoneinfo::setIdentifier(const bslstl::StringRef& value)
 inline
 void Zoneinfo::setIdentifier(const char *value)
 {
-    BSLS_REVIEW(value);
+    BSLS_ASSERT(value);
 
     bsl::string(value, d_identifier.allocator()).swap(d_identifier);
 }
@@ -703,7 +703,7 @@ void Zoneinfo::setIdentifier(const char *value)
 inline
 void Zoneinfo::setPosixExtendedRangeDescription(const bslstl::StringRef& value)
 {
-    BSLS_REVIEW(0 != value.data());
+    BSLS_ASSERT(0 != value.data());
 
     d_posixExtendedRangeDescription.assign(value.begin(), value.end());
 }
@@ -711,7 +711,7 @@ void Zoneinfo::setPosixExtendedRangeDescription(const bslstl::StringRef& value)
 inline
 void Zoneinfo::setPosixExtendedRangeDescription(const char *value)
 {
-    BSLS_REVIEW(value);
+    BSLS_ASSERT(value);
 
     d_posixExtendedRangeDescription.assign(value, value + bsl::strlen(value));
 }
@@ -719,7 +719,7 @@ void Zoneinfo::setPosixExtendedRangeDescription(const char *value)
 inline
 void Zoneinfo::swap(Zoneinfo& other)
 {
-    BSLS_REVIEW(allocator() == other.allocator());
+    BSLS_ASSERT(allocator() == other.allocator());
 
     bslalg::SwapUtil::swap(&d_identifier,  &other.d_identifier);
     bslalg::SwapUtil::swap(&d_descriptors, &other.d_descriptors);
@@ -738,7 +738,7 @@ bslma::Allocator *Zoneinfo::allocator() const
 inline
 const ZoneinfoTransition& Zoneinfo::firstTransition() const
 {
-    BSLS_REVIEW(numTransitions() > 0);
+    BSLS_ASSERT(numTransitions() > 0);
 
     return d_transitions.front();
 }

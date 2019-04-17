@@ -1203,7 +1203,7 @@ inline
 Encoder_EncodeObject::Encoder_EncodeObject(Encoder_Context *context)
 : d_context_p(context)
 {
-    BSLS_REVIEW(d_context_p);
+    BSLS_ASSERT(d_context_p);
 }
 
 // MANIPULATORS
@@ -1334,7 +1334,7 @@ inline
 Encoder_EncodeValue::Encoder_EncodeValue(Encoder_Context *context)
 : d_context_p(context)
 {
-    BSLS_REVIEW(d_context_p);
+    BSLS_ASSERT(d_context_p);
 }
 
 // MANIPULATORS
@@ -1441,8 +1441,8 @@ Encoder_SequenceFirstPass::Encoder_SequenceFirstPass(Encoder_Context *context)
 : d_context_p(context)
 , d_hasSubElements(false)
 {
-    BSLS_REVIEW(d_context_p);
-    BSLS_REVIEW(d_simpleContentId.isNull());
+    BSLS_ASSERT(d_context_p);
+    BSLS_ASSERT(d_simpleContentId.isNull());
 }
 
 // MANIPULATORS
@@ -1458,9 +1458,9 @@ int Encoder_SequenceFirstPass::operator()(const TYPE&      object,
     bool isAttribute     = formattingMode & bdlat_FormattingMode::e_ATTRIBUTE;
 
     if (isSimpleContent) {
-        BSLS_REVIEW(!isAttribute);
-        BSLS_REVIEW(!d_hasSubElements);
-        BSLS_REVIEW(d_simpleContentId.isNull());
+        BSLS_ASSERT(!isAttribute);
+        BSLS_ASSERT(!d_hasSubElements);
+        BSLS_ASSERT(d_simpleContentId.isNull());
 
         d_simpleContentId.makeValue(info.id());
     }
@@ -1470,7 +1470,7 @@ int Encoder_SequenceFirstPass::operator()(const TYPE&      object,
         return addAttribute(object, name, formattingMode);            // RETURN
     }
     else {
-        BSLS_REVIEW(d_simpleContentId.isNull());
+        BSLS_ASSERT(d_simpleContentId.isNull());
 
         d_hasSubElements = true;
     }
@@ -1513,7 +1513,7 @@ int Encoder_SequenceSecondPass::operator()(const TYPE&      object,
 
     int formattingMode = info.formattingMode();
 
-    BSLS_REVIEW(
+    BSLS_ASSERT(
                !(formattingMode & bdlat_FormattingMode::e_SIMPLE_CONTENT));
 
     if (!(formattingMode & bdlat_FormattingMode::e_ATTRIBUTE)) {

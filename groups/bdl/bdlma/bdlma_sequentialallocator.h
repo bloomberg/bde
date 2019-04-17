@@ -444,7 +444,7 @@ SequentialAllocator::
 SequentialAllocator(int initialSize)
 : d_sequentialPool(initialSize)
 {
-    BSLS_REVIEW(0 < initialSize);
+    BSLS_ASSERT(0 < initialSize);
 }
 
 inline
@@ -453,7 +453,7 @@ SequentialAllocator(bsls::Types::size_type  initialSize,
                     bslma::Allocator       *basicAllocator)
 : d_sequentialPool(initialSize, basicAllocator)
 {
-    BSLS_REVIEW(0 < initialSize);
+    BSLS_ASSERT(0 < initialSize);
 }
 
 inline
@@ -463,7 +463,7 @@ SequentialAllocator(bsls::Types::size_type       initialSize,
                     bslma::Allocator            *basicAllocator)
 : d_sequentialPool(initialSize, growthStrategy, basicAllocator)
 {
-    BSLS_REVIEW(0 < initialSize);
+    BSLS_ASSERT(0 < initialSize);
 }
 
 inline
@@ -473,7 +473,7 @@ SequentialAllocator(bsls::Types::size_type     initialSize,
                     bslma::Allocator          *basicAllocator)
 : d_sequentialPool(initialSize, alignmentStrategy, basicAllocator)
 {
-    BSLS_REVIEW(0 < initialSize);
+    BSLS_ASSERT(0 < initialSize);
 }
 
 inline
@@ -487,7 +487,7 @@ SequentialAllocator(bsls::Types::size_type       initialSize,
                    alignmentStrategy,
                    basicAllocator)
 {
-    BSLS_REVIEW(0 < initialSize);
+    BSLS_ASSERT(0 < initialSize);
 }
 
 inline
@@ -497,8 +497,8 @@ SequentialAllocator(bsls::Types::size_type  initialSize,
                     bslma::Allocator       *basicAllocator)
 : d_sequentialPool(initialSize, maxBufferSize, basicAllocator)
 {
-    BSLS_REVIEW(0 < initialSize);
-    BSLS_REVIEW(initialSize <= maxBufferSize);
+    BSLS_ASSERT(0 < initialSize);
+    BSLS_ASSERT(initialSize <= maxBufferSize);
 }
 
 inline
@@ -509,8 +509,8 @@ SequentialAllocator(bsls::Types::size_type       initialSize,
                     bslma::Allocator            *basicAllocator)
 : d_sequentialPool(initialSize, maxBufferSize, growthStrategy, basicAllocator)
 {
-    BSLS_REVIEW(0 < initialSize);
-    BSLS_REVIEW(initialSize <= maxBufferSize);
+    BSLS_ASSERT(0 < initialSize);
+    BSLS_ASSERT(initialSize <= maxBufferSize);
 }
 
 inline
@@ -524,8 +524,8 @@ SequentialAllocator(bsls::Types::size_type     initialSize,
                    alignmentStrategy,
                    basicAllocator)
 {
-    BSLS_REVIEW(0 < initialSize);
-    BSLS_REVIEW(initialSize <= maxBufferSize);
+    BSLS_ASSERT(0 < initialSize);
+    BSLS_ASSERT(initialSize <= maxBufferSize);
 }
 
 inline
@@ -541,8 +541,8 @@ SequentialAllocator(bsls::Types::size_type       initialSize,
                    alignmentStrategy,
                    basicAllocator)
 {
-    BSLS_REVIEW(0 < initialSize);
-    BSLS_REVIEW(initialSize <= maxBufferSize);
+    BSLS_ASSERT(0 < initialSize);
+    BSLS_ASSERT(initialSize <= maxBufferSize);
 }
 
 // MANIPULATORS

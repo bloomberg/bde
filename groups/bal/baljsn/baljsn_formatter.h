@@ -353,7 +353,7 @@ void Formatter::indent()
 inline
 bool Formatter::isArrayElement() const
 {
-    BSLS_REVIEW(d_callSequence.length() >= 1);
+    BSLS_ASSERT(d_callSequence.length() >= 1);
 
     return d_callSequence[d_callSequence.length() - 1];
 }

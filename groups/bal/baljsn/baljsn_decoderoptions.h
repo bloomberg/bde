@@ -334,7 +334,7 @@ int DecoderOptions::manipulateAttribute(
 inline
 void DecoderOptions::setMaxDepth(int value)
 {
-    BSLS_REVIEW(0 <= value);
+    BSLS_ASSERT(0 <= value);
 
     d_maxDepth = value;
 }

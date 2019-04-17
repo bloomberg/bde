@@ -569,7 +569,7 @@ int StackTraceResolver_DwarfReader::needBytes(bsl::size_t numBytes)
     IntPtr diff = d_endPtr - d_readPtr;
 
     if (diff < static_cast<IntPtr>(numBytes)) {
-        BSLS_REVIEW(0 <= diff);
+        BSLS_ASSERT(0 <= diff);
 
         return reload(numBytes);                                      // RETURN
     }
@@ -678,7 +678,7 @@ int StackTraceResolver_DwarfReader::readValue(TYPE *dst)
 inline
 int StackTraceResolver_DwarfReader::skipBytes(Offset bytes)
 {
-    BSLS_REVIEW(bytes >= 0);
+    BSLS_ASSERT(bytes >= 0);
 
     if (bytes > d_endPtr - d_readPtr) {
         Offset off = offset();

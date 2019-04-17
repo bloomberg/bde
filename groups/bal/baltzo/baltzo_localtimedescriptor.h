@@ -374,7 +374,7 @@ LocalTimeDescriptor::LocalTimeDescriptor(
 , d_dstInEffectFlag(dstInEffectFlag)
 , d_description(description.begin(), description.end(), basicAllocator)
 {
-    BSLS_REVIEW(isValidUtcOffsetInSeconds(utcOffsetInSeconds));
+    BSLS_ASSERT(isValidUtcOffsetInSeconds(utcOffsetInSeconds));
 }
 
 inline
@@ -416,7 +416,7 @@ LocalTimeDescriptor::LocalTimeDescriptor(
 inline
 LocalTimeDescriptor::~LocalTimeDescriptor()
 {
-    BSLS_REVIEW(isValidUtcOffsetInSeconds(d_utcOffsetInSeconds));
+    BSLS_ASSERT(isValidUtcOffsetInSeconds(d_utcOffsetInSeconds));
 }
 
 // MANIPULATORS
@@ -465,7 +465,7 @@ void LocalTimeDescriptor::setDstInEffectFlag(bool value)
 inline
 void LocalTimeDescriptor::setUtcOffsetInSeconds(int value)
 {
-    BSLS_REVIEW(isValidUtcOffsetInSeconds(value));
+    BSLS_ASSERT(isValidUtcOffsetInSeconds(value));
 
     d_utcOffsetInSeconds = value;
 }
@@ -475,7 +475,7 @@ void LocalTimeDescriptor::setUtcOffsetInSeconds(int value)
 inline
 void LocalTimeDescriptor::swap(LocalTimeDescriptor& other)
 {
-    BSLS_REVIEW(allocator() == other.allocator());
+    BSLS_ASSERT(allocator() == other.allocator());
 
     bslalg::SwapUtil::swap(&d_description,        &other.d_description);
     bslalg::SwapUtil::swap(&d_dstInEffectFlag,    &other.d_dstInEffectFlag);

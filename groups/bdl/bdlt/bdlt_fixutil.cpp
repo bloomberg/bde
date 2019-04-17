@@ -409,9 +409,9 @@ int generateInt(char *buffer, int value, int paddedLen, char separator)
     // decimal string representation of 'value' is more than 'paddedLen'
     // digits, only the low-order 'paddedLen' digits of 'value' are output.
 {
-    BSLS_REVIEW(buffer);
-    BSLS_REVIEW(0 <= value);
-    BSLS_REVIEW(0 <= paddedLen);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 <= value);
+    BSLS_ASSERT(0 <= paddedLen);
 
     buffer += generateInt(buffer, value, paddedLen);
     *buffer = separator;

@@ -273,14 +273,14 @@ ZoneinfoCache::ZoneinfoCache(Loader *loader, bslma::Allocator *basicAllocator)
 , d_loader_p(loader)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
-    BSLS_REVIEW(0 != loader);
+    BSLS_ASSERT(0 != loader);
 }
 
 // MANIPULATORS
 inline
 const Zoneinfo *ZoneinfoCache::getZoneinfo(const char *timeZoneId)
 {
-    BSLS_REVIEW(0 != timeZoneId);
+    BSLS_ASSERT(0 != timeZoneId);
 
     int rc;
     return getZoneinfo(&rc, timeZoneId);

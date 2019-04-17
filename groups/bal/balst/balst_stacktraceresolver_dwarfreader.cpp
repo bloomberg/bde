@@ -209,7 +209,7 @@ int StackTraceResolver_DwarfReader::reload(bsl::size_t numBytes)
 
     u_ASSERT_BAIL(static_cast<Offset>(numBytes) <= d_endOffset - offset());
 
-    BSLS_REVIEW(d_buffer_p);
+    BSLS_ASSERT(d_buffer_p);
     u_ASSERT_BAIL_SAFE(numBytes <= k_SCRATCH_BUF_LEN);
     u_ASSERT_BAIL_SAFE(d_readPtr <= d_endPtr);
 

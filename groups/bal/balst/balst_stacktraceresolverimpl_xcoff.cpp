@@ -1097,7 +1097,7 @@ int StackTraceResolverImpl<ObjectFileFormat::Xcoff>::findLineNumber(
             const unsigned readSize = static_cast<unsigned>(bsl::min<Offset>(
                                                   k_SHORT_BUF_LEN,
                                                   maxLineOffset - lineOffset));
-            BSLS_REVIEW(0 == readSize % LINESZ);
+            BSLS_ASSERT(0 == readSize % LINESZ);
             int rc = d_helper->readExact(d_scratchBuf_p,
                                          readSize,
                                          d_archiveMemberOffset + lineOffset);

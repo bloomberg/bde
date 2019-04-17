@@ -225,8 +225,8 @@ class ListParser {
 template <class TYPE>
 int ListParser<TYPE>::appendElement(const char *data, int dataLength)
 {
-    BSLS_REVIEW(data);
-    BSLS_REVIEW(0 < dataLength);
+    BSLS_ASSERT(data);
+    BSLS_ASSERT(0 < dataLength);
 
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -273,7 +273,7 @@ ListParser<TYPE>::ListParser(ParseElementCallback  parseElementCallback,
 template <class TYPE>
 int ListParser<TYPE>::beginParse(TYPE *object)
 {
-    BSLS_REVIEW(object);
+    BSLS_ASSERT(object);
 
     enum { k_SUCCESS = 0 };
 
@@ -288,7 +288,7 @@ int ListParser<TYPE>::beginParse(TYPE *object)
 template <class TYPE>
 int ListParser<TYPE>::endParse()
 {
-    BSLS_REVIEW(d_object_p);
+    BSLS_ASSERT(d_object_p);
 
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
@@ -308,7 +308,7 @@ template <class TYPE>
 template <class INPUT_ITERATOR>
 int ListParser<TYPE>::pushCharacters(INPUT_ITERATOR begin, INPUT_ITERATOR end)
 {
-    BSLS_REVIEW(d_object_p);
+    BSLS_ASSERT(d_object_p);
 
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 

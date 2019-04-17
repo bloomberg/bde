@@ -597,9 +597,9 @@ DayOfWeekSet_Iter::DayOfWeekSet_Iter(const DayOfWeekSet_Iter& original)
 inline
 DayOfWeekSet_Iter::~DayOfWeekSet_Iter()
 {
-    BSLS_REVIEW(0 == (d_data & 1));  // lsb is unused and always 0
-    BSLS_REVIEW(d_index >= 0);
-    BSLS_REVIEW(d_index <= 8);
+    BSLS_ASSERT(0 == (d_data & 1));  // lsb is unused and always 0
+    BSLS_ASSERT(d_index >= 0);
+    BSLS_ASSERT(d_index <= 8);
 }
 
 // MANIPULATORS
@@ -692,7 +692,7 @@ DayOfWeekSet::DayOfWeekSet(const DayOfWeekSet& original)
 inline
 DayOfWeekSet::~DayOfWeekSet()
 {
-    BSLS_REVIEW(!(d_days & 1));
+    BSLS_ASSERT(!(d_days & 1));
 }
 
 // MANIPULATORS

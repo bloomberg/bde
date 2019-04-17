@@ -309,10 +309,10 @@ void BitStringImpUtil::andEqBits(bsl::uint64_t *dstValue,
                                  bsl::uint64_t  srcValue,
                                  int            numBits)
 {
-    BSLS_REVIEW(dstValue);
-    BSLS_REVIEW(                 0 <= dstIndex);
-    BSLS_REVIEW(                 0 <= numBits);
-    BSLS_REVIEW(dstIndex + numBits <= k_BITS_PER_UINT64);
+    BSLS_ASSERT(dstValue);
+    BSLS_ASSERT(                 0 <= dstIndex);
+    BSLS_ASSERT(                 0 <= numBits);
+    BSLS_ASSERT(dstIndex + numBits <= k_BITS_PER_UINT64);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(dstIndex < k_BITS_PER_UINT64)) {
         *dstValue &= BitMaskUtil::zero64(dstIndex, numBits) |
@@ -324,7 +324,7 @@ inline
 void BitStringImpUtil::andEqWord(bsl::uint64_t *dstValue,
                                  bsl::uint64_t  srcValue)
 {
-    BSLS_REVIEW(dstValue);
+    BSLS_ASSERT(dstValue);
 
     *dstValue &= srcValue;
 }
@@ -335,10 +335,10 @@ void BitStringImpUtil::minusEqBits(bsl::uint64_t *dstValue,
                                    bsl::uint64_t  srcValue,
                                    int            numBits)
 {
-    BSLS_REVIEW(dstValue);
-    BSLS_REVIEW(                 0 <= dstIndex);
-    BSLS_REVIEW(                 0 <= numBits);
-    BSLS_REVIEW(dstIndex + numBits <= k_BITS_PER_UINT64);
+    BSLS_ASSERT(dstValue);
+    BSLS_ASSERT(                 0 <= dstIndex);
+    BSLS_ASSERT(                 0 <= numBits);
+    BSLS_ASSERT(dstIndex + numBits <= k_BITS_PER_UINT64);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(dstIndex < k_BITS_PER_UINT64)) {
         *dstValue &= BitMaskUtil::zero64(dstIndex, numBits) |
@@ -350,7 +350,7 @@ inline
 void BitStringImpUtil::minusEqWord(bsl::uint64_t *dstValue,
                                    bsl::uint64_t  srcValue)
 {
-    BSLS_REVIEW(dstValue);
+    BSLS_ASSERT(dstValue);
 
     *dstValue &= ~srcValue;
 }
@@ -361,10 +361,10 @@ void BitStringImpUtil::orEqBits(bsl::uint64_t *dstValue,
                                 bsl::uint64_t  srcValue,
                                 int            numBits)
 {
-    BSLS_REVIEW(dstValue);
-    BSLS_REVIEW(                 0 <= dstIndex);
-    BSLS_REVIEW(                 0 <= numBits);
-    BSLS_REVIEW(dstIndex + numBits <= k_BITS_PER_UINT64);
+    BSLS_ASSERT(dstValue);
+    BSLS_ASSERT(                 0 <= dstIndex);
+    BSLS_ASSERT(                 0 <= numBits);
+    BSLS_ASSERT(dstIndex + numBits <= k_BITS_PER_UINT64);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(dstIndex < k_BITS_PER_UINT64)) {
         *dstValue |= (srcValue & BitMaskUtil::lt64(numBits)) << dstIndex;
@@ -375,7 +375,7 @@ inline
 void BitStringImpUtil::orEqWord(bsl::uint64_t *dstValue,
                                 bsl::uint64_t  srcValue)
 {
-    BSLS_REVIEW(dstValue);
+    BSLS_ASSERT(dstValue);
 
     *dstValue |= srcValue;
 }
@@ -386,10 +386,10 @@ void BitStringImpUtil::setEqBits(bsl::uint64_t *dstValue,
                                  bsl::uint64_t  srcValue,
                                  int            numBits)
 {
-    BSLS_REVIEW(dstValue);
-    BSLS_REVIEW(0                  <= dstIndex);
-    BSLS_REVIEW(0                  <= numBits);
-    BSLS_REVIEW(dstIndex + numBits <= k_BITS_PER_UINT64);
+    BSLS_ASSERT(dstValue);
+    BSLS_ASSERT(0                  <= dstIndex);
+    BSLS_ASSERT(0                  <= numBits);
+    BSLS_ASSERT(dstIndex + numBits <= k_BITS_PER_UINT64);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(dstIndex < k_BITS_PER_UINT64)) {
         const bsl::uint64_t mask = BitMaskUtil::lt64(numBits);
@@ -403,7 +403,7 @@ inline
 void BitStringImpUtil::setEqWord(bsl::uint64_t *dstValue,
                                  bsl::uint64_t  srcValue)
 {
-    BSLS_REVIEW(dstValue);
+    BSLS_ASSERT(dstValue);
 
     *dstValue = srcValue;
 }
@@ -414,10 +414,10 @@ void BitStringImpUtil::xorEqBits(bsl::uint64_t *dstValue,
                                  bsl::uint64_t  srcValue,
                                  int            numBits)
 {
-    BSLS_REVIEW(dstValue);
-    BSLS_REVIEW(                 0 <= dstIndex);
-    BSLS_REVIEW(                 0 <= numBits);
-    BSLS_REVIEW(dstIndex + numBits <= k_BITS_PER_UINT64);
+    BSLS_ASSERT(dstValue);
+    BSLS_ASSERT(                 0 <= dstIndex);
+    BSLS_ASSERT(                 0 <= numBits);
+    BSLS_ASSERT(dstIndex + numBits <= k_BITS_PER_UINT64);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(dstIndex < k_BITS_PER_UINT64)) {
         *dstValue ^= (srcValue & BitMaskUtil::lt64(numBits)) << dstIndex;
@@ -428,7 +428,7 @@ inline
 void BitStringImpUtil::xorEqWord(bsl::uint64_t *dstValue,
                                  bsl::uint64_t  srcValue)
 {
-    BSLS_REVIEW(dstValue);
+    BSLS_ASSERT(dstValue);
 
     *dstValue ^= srcValue;
 }
@@ -438,7 +438,7 @@ void BitStringImpUtil::xorEqWord(bsl::uint64_t *dstValue,
 inline
 int BitStringImpUtil::find1AtMaxIndexRaw(bsl::uint64_t value)
 {
-    BSLS_REVIEW(0 != value);
+    BSLS_ASSERT(0 != value);
 
     return k_BITS_PER_UINT64 - 1 - BitUtil::numLeadingUnsetBits(value);
 }
@@ -446,7 +446,7 @@ int BitStringImpUtil::find1AtMaxIndexRaw(bsl::uint64_t value)
 inline
 int BitStringImpUtil::find1AtMinIndexRaw(bsl::uint64_t value)
 {
-    BSLS_REVIEW(0 != value);
+    BSLS_ASSERT(0 != value);
 
     return BitUtil::numTrailingUnsetBits(value);
 }

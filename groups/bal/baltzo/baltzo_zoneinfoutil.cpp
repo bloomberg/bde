@@ -175,7 +175,7 @@ void ZoneinfoUtil::loadRelevantTransitions(
             // 'currentOffset' cannot equal 'nextOffset', otherwise the
             // previous condition 'localTimeT < T1' would have been true.
 
-            BSLS_REVIEW(prevOffset != currentOffset);
+            BSLS_ASSERT(prevOffset != currentOffset);
 
             *resultValidity         = prevOffset < currentOffset
                                     ? Validity::e_INVALID
@@ -215,7 +215,7 @@ void ZoneinfoUtil::loadRelevantTransitions(
             // 'currentOffset' cannot equal 'nextOffset', otherwise the
             // previous condition 'localTimeT >= T2Prime' would have been true.
 
-            BSLS_REVIEW(currentOffset != nextOffset);
+            BSLS_ASSERT(currentOffset != nextOffset);
             *resultValidity         = currentOffset < nextOffset
                                     ? Validity::e_INVALID
                                     : Validity::e_VALID_AMBIGUOUS;

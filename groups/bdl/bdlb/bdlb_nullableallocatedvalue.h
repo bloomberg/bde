@@ -476,7 +476,7 @@ template <class TYPE>
 inline
 TYPE& NullableAllocatedValue<TYPE>::value()
 {
-    BSLS_REVIEW(!isNull());
+    BSLS_ASSERT(!isNull());
 
     return *d_value_p;
 }
@@ -558,7 +558,7 @@ const TYPE& NullableAllocatedValue<TYPE>::value() const
 
     // BSLS_REVIEW(!isNull());
 #else
-    BSLS_REVIEW(!isNull());
+    BSLS_ASSERT(!isNull());
 #endif
 
     return *d_value_p;

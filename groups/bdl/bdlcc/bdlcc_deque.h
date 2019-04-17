@@ -1107,7 +1107,7 @@ template <class TYPE>
 inline
 bsl::deque<TYPE> *Deque<TYPE>::Proctor::operator->() const
 {
-    BSLS_REVIEW(d_container_p);
+    BSLS_ASSERT(d_container_p);
 
     return &d_container_p->d_monoDeque;
 }
@@ -1116,7 +1116,7 @@ template <class TYPE>
 inline
 bsl::deque<TYPE>& Deque<TYPE>::Proctor::operator*() const
 {
-    BSLS_REVIEW(d_container_p);
+    BSLS_ASSERT(d_container_p);
 
     return d_container_p->d_monoDeque;
 }
@@ -1125,7 +1125,7 @@ template <class TYPE>
 inline
 TYPE& Deque<TYPE>::Proctor::operator[](size_type position) const
 {
-    BSLS_REVIEW(position < d_container_p->d_monoDeque.size());
+    BSLS_ASSERT(position < d_container_p->d_monoDeque.size());
 
     return d_container_p->d_monoDeque[position];
 }
@@ -1203,7 +1203,7 @@ template <class TYPE>
 inline
 const bsl::deque<TYPE> *Deque<TYPE>::ConstProctor::operator->() const
 {
-    BSLS_REVIEW(d_container_p);
+    BSLS_ASSERT(d_container_p);
 
     return &d_container_p->d_monoDeque;
 }
@@ -1212,7 +1212,7 @@ template <class TYPE>
 inline
 const bsl::deque<TYPE>& Deque<TYPE>::ConstProctor::operator*() const
 {
-    BSLS_REVIEW(d_container_p);
+    BSLS_ASSERT(d_container_p);
 
     return d_container_p->d_monoDeque;
 }
@@ -1221,7 +1221,7 @@ template <class TYPE>
 inline
 const TYPE& Deque<TYPE>::ConstProctor::operator[](size_type position) const
 {
-    BSLS_REVIEW(position < d_container_p->d_monoDeque.size());
+    BSLS_ASSERT(position < d_container_p->d_monoDeque.size());
 
     return d_container_p->d_monoDeque[position];
 }

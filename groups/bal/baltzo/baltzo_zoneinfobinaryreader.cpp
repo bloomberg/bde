@@ -214,7 +214,7 @@ int decode32(const char *address)
     // specified 'address' and return that value.  The behavior is undefined
     // unless 'address' points to an accessible memory location.
 {
-    BSLS_REVIEW(address);
+    BSLS_ASSERT(address);
 
     int temp;
     bsl::memcpy(&temp, address, sizeof(temp));

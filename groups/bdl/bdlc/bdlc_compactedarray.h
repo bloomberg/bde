@@ -975,7 +975,7 @@ CompactedArray_CountedValue<TYPE>::CompactedArray_CountedValue(
                                               bslma::Allocator *basicAllocator)
 : d_count(count)
 {
-    BSLS_REVIEW(basicAllocator);
+    BSLS_ASSERT(basicAllocator);
 
     bslma::ConstructionUtil::construct(d_value.address(),
                                        basicAllocator,
@@ -989,7 +989,7 @@ CompactedArray_CountedValue<TYPE>::CompactedArray_CountedValue(
                       bslma::Allocator                         *basicAllocator)
 : d_count(original.d_count)
 {
-    BSLS_REVIEW(basicAllocator);
+    BSLS_ASSERT(basicAllocator);
 
     bslma::ConstructionUtil::construct(d_value.address(),
                                        basicAllocator,
@@ -1066,8 +1066,8 @@ CompactedArray_ConstIterator<TYPE>::CompactedArray_ConstIterator(
 : d_array_p(array)
 , d_index(index)
 {
-    BSLS_REVIEW(d_array_p);
-    BSLS_REVIEW(d_index <= d_array_p->length());
+    BSLS_ASSERT(d_array_p);
+    BSLS_ASSERT(d_index <= d_array_p->length());
 }
 
 // CREATORS
@@ -1104,12 +1104,12 @@ inline
 CompactedArray_ConstIterator<TYPE>&
           CompactedArray_ConstIterator<TYPE>::operator+=(bsl::ptrdiff_t offset)
 {
-    BSLS_REVIEW(d_array_p);
+    BSLS_ASSERT(d_array_p);
 
     // Assert '0 <= d_index + offset <= d_array_p->length()' without risk of
     // overflow.
-    BSLS_REVIEW(   0 <= offset || d_index >= bsl::size_t(-offset));
-    BSLS_REVIEW(   0 >= offset
+    BSLS_ASSERT(   0 <= offset || d_index >= bsl::size_t(-offset));
+    BSLS_ASSERT(   0 >= offset
                      || d_array_p->length() - d_index >= bsl::size_t(offset));
 
     d_index += offset;
@@ -1121,12 +1121,12 @@ inline
 CompactedArray_ConstIterator<TYPE>&
           CompactedArray_ConstIterator<TYPE>::operator-=(bsl::ptrdiff_t offset)
 {
-    BSLS_REVIEW(d_array_p);
+    BSLS_ASSERT(d_array_p);
 
     // Assert '0 <= d_index - offset <= d_array_p->length()' without risk of
     // overflow.
-    BSLS_REVIEW(   0 >= offset || d_index >= bsl::size_t(offset));
-    BSLS_REVIEW(   0 <= offset
+    BSLS_ASSERT(   0 >= offset || d_index >= bsl::size_t(offset));
+    BSLS_ASSERT(   0 <= offset
                      || d_array_p->length() - d_index >= bsl::size_t(-offset));
 
     d_index -= offset;
@@ -1138,8 +1138,8 @@ inline
 CompactedArray_ConstIterator<TYPE>&
                                CompactedArray_ConstIterator<TYPE>::operator++()
 {
-    BSLS_REVIEW(d_array_p);
-    BSLS_REVIEW(d_index < d_array_p->length());
+    BSLS_ASSERT(d_array_p);
+    BSLS_ASSERT(d_index < d_array_p->length());
 
     ++d_index;
     return *this;
@@ -1150,8 +1150,8 @@ inline
 CompactedArray_ConstIterator<TYPE>&
                                CompactedArray_ConstIterator<TYPE>::operator--()
 {
-    BSLS_REVIEW(d_array_p);
-    BSLS_REVIEW(0 < d_index);
+    BSLS_ASSERT(d_array_p);
+    BSLS_ASSERT(0 < d_index);
 
     --d_index;
     return *this;
@@ -1162,8 +1162,8 @@ template <class TYPE>
 inline
 const TYPE& CompactedArray_ConstIterator<TYPE>::operator*() const
 {
-    BSLS_REVIEW(d_array_p);
-    BSLS_REVIEW(d_index < d_array_p->length());
+    BSLS_ASSERT(d_array_p);
+    BSLS_ASSERT(d_index < d_array_p->length());
 
     return (*d_array_p)[d_index];
 }
@@ -1172,8 +1172,8 @@ template <class TYPE>
 inline
 const TYPE& CompactedArray_ConstIterator<TYPE>::operator->() const
 {
-    BSLS_REVIEW(d_array_p);
-    BSLS_REVIEW(d_index < d_array_p->length());
+    BSLS_ASSERT(d_array_p);
+    BSLS_ASSERT(d_index < d_array_p->length());
 
     return (*d_array_p)[d_index];
 }
@@ -1183,12 +1183,12 @@ inline
 const TYPE& CompactedArray_ConstIterator<TYPE>::
                                         operator[](bsl::ptrdiff_t offset) const
 {
-    BSLS_REVIEW(d_array_p);
+    BSLS_ASSERT(d_array_p);
 
     // Assert '0 <= d_index + offset < d_array_p->length()' without risk of
     // overflow.
-    BSLS_REVIEW(   0 <= offset || d_index >= bsl::size_t(-offset));
-    BSLS_REVIEW(   0 >= offset
+    BSLS_ASSERT(   0 <= offset || d_index >= bsl::size_t(-offset));
+    BSLS_ASSERT(   0 >= offset
                      || d_array_p->length() - d_index > bsl::size_t(offset));
 
     return (*d_array_p)[d_index + offset];
@@ -1203,8 +1203,8 @@ bdlc::CompactedArray_ConstIterator<TYPE> bdlc::operator++(
                                   CompactedArray_ConstIterator<TYPE>& iterator,
                                   int)
 {
-    BSLS_REVIEW(iterator.d_array_p);
-    BSLS_REVIEW(iterator.d_index < iterator.d_array_p->length());
+    BSLS_ASSERT(iterator.d_array_p);
+    BSLS_ASSERT(iterator.d_index < iterator.d_array_p->length());
 
     const CompactedArray_ConstIterator<TYPE> curr = iterator;
     ++iterator;
@@ -1217,8 +1217,8 @@ bdlc::CompactedArray_ConstIterator<TYPE> bdlc::operator--(
                                   CompactedArray_ConstIterator<TYPE>& iterator,
                                   int)
 {
-    BSLS_REVIEW(iterator.d_array_p);
-    BSLS_REVIEW(iterator.d_index > 0);
+    BSLS_ASSERT(iterator.d_array_p);
+    BSLS_ASSERT(iterator.d_index > 0);
 
     const CompactedArray_ConstIterator<TYPE> curr = iterator;
     --iterator;
@@ -1231,13 +1231,13 @@ bdlc::CompactedArray_ConstIterator<TYPE> bdlc::operator+(
                             const CompactedArray_ConstIterator<TYPE>& iterator,
                             bsl::ptrdiff_t                            offset)
 {
-    BSLS_REVIEW(iterator.d_array_p);
+    BSLS_ASSERT(iterator.d_array_p);
 
     // Assert '0 <= iterator.d_index + offset <= iterator.d_array_p->length()'
     // without risk of overflow.
-    BSLS_REVIEW(   0 <= offset
+    BSLS_ASSERT(   0 <= offset
                      || iterator.d_index              >= bsl::size_t(-offset));
-    BSLS_REVIEW(   0 >= offset
+    BSLS_ASSERT(   0 >= offset
                      || iterator.d_array_p->length() - iterator.d_index
                                                       >= bsl::size_t( offset));
 
@@ -1260,13 +1260,13 @@ bdlc::CompactedArray_ConstIterator<TYPE> bdlc::operator-(
                             const CompactedArray_ConstIterator<TYPE>& iterator,
                             bsl::ptrdiff_t                            offset)
 {
-    BSLS_REVIEW(iterator.d_array_p);
+    BSLS_ASSERT(iterator.d_array_p);
 
     // Assert '0 <= iterator.d_index - offset <= iterator.d_array_p->length()'
     // without risk of overflow.
-    BSLS_REVIEW(   0 >= offset
+    BSLS_ASSERT(   0 >= offset
                      || iterator.d_index              >= bsl::size_t( offset));
-    BSLS_REVIEW(   0 <= offset
+    BSLS_ASSERT(   0 <= offset
                      || iterator.d_array_p->length() - iterator.d_index
                                                       >= bsl::size_t(-offset));
 
@@ -1279,11 +1279,11 @@ inline
 bsl::ptrdiff_t bdlc::operator-(const CompactedArray_ConstIterator<TYPE>& lhs,
                                const CompactedArray_ConstIterator<TYPE>& rhs)
 {
-    BSLS_REVIEW(lhs.d_array_p);
-    BSLS_REVIEW(rhs.d_array_p);
-    BSLS_REVIEW(lhs.d_array_p == rhs.d_array_p);
+    BSLS_ASSERT(lhs.d_array_p);
+    BSLS_ASSERT(rhs.d_array_p);
+    BSLS_ASSERT(lhs.d_array_p == rhs.d_array_p);
 
-    BSLS_REVIEW(
+    BSLS_ASSERT(
           lhs.d_index >= rhs.d_index
         ? lhs.d_index - rhs.d_index <=
                         bsl::size_t(bsl::numeric_limits<bsl::ptrdiff_t>::max())
@@ -1314,9 +1314,9 @@ inline
 bool bdlc::operator<(const CompactedArray_ConstIterator<TYPE>& lhs,
                      const CompactedArray_ConstIterator<TYPE>& rhs)
 {
-    BSLS_REVIEW(lhs.d_array_p);
-    BSLS_REVIEW(rhs.d_array_p);
-    BSLS_REVIEW(lhs.d_array_p == rhs.d_array_p);
+    BSLS_ASSERT(lhs.d_array_p);
+    BSLS_ASSERT(rhs.d_array_p);
+    BSLS_ASSERT(lhs.d_array_p == rhs.d_array_p);
 
     return lhs.d_index < rhs.d_index;
 }
@@ -1326,9 +1326,9 @@ inline
 bool bdlc::operator<=(const CompactedArray_ConstIterator<TYPE>& lhs,
                       const CompactedArray_ConstIterator<TYPE>& rhs)
 {
-    BSLS_REVIEW(lhs.d_array_p);
-    BSLS_REVIEW(rhs.d_array_p);
-    BSLS_REVIEW(lhs.d_array_p == rhs.d_array_p);
+    BSLS_ASSERT(lhs.d_array_p);
+    BSLS_ASSERT(rhs.d_array_p);
+    BSLS_ASSERT(lhs.d_array_p == rhs.d_array_p);
 
     return lhs.d_index <= rhs.d_index;
 }
@@ -1338,9 +1338,9 @@ inline
 bool bdlc::operator>(const CompactedArray_ConstIterator<TYPE>& lhs,
                      const CompactedArray_ConstIterator<TYPE>& rhs)
 {
-    BSLS_REVIEW(lhs.d_array_p);
-    BSLS_REVIEW(rhs.d_array_p);
-    BSLS_REVIEW(lhs.d_array_p == rhs.d_array_p);
+    BSLS_ASSERT(lhs.d_array_p);
+    BSLS_ASSERT(rhs.d_array_p);
+    BSLS_ASSERT(lhs.d_array_p == rhs.d_array_p);
 
     return lhs.d_index > rhs.d_index;
 }
@@ -1350,9 +1350,9 @@ inline
 bool bdlc::operator>=(const CompactedArray_ConstIterator<TYPE>& lhs,
                       const CompactedArray_ConstIterator<TYPE>& rhs)
 {
-    BSLS_REVIEW(lhs.d_array_p);
-    BSLS_REVIEW(rhs.d_array_p);
-    BSLS_REVIEW(lhs.d_array_p == rhs.d_array_p);
+    BSLS_ASSERT(lhs.d_array_p);
+    BSLS_ASSERT(rhs.d_array_p);
+    BSLS_ASSERT(lhs.d_array_p == rhs.d_array_p);
 
     return lhs.d_index >= rhs.d_index;
 }
@@ -1564,7 +1564,7 @@ inline
 typename CompactedArray<TYPE>::const_iterator
             CompactedArray<TYPE>::insert(const_iterator dst, const TYPE& value)
 {
-    BSLS_REVIEW(this == dst.d_array_p);
+    BSLS_ASSERT(this == dst.d_array_p);
 
     insert(dst.d_index, value);
     return dst;
@@ -1665,7 +1665,7 @@ template <class TYPE>
 inline
 void CompactedArray<TYPE>::remove(bsl::size_t dstIndex)
 {
-    BSLS_REVIEW(dstIndex < d_index.length());
+    BSLS_ASSERT(dstIndex < d_index.length());
 
     remove(dstIndex, 1);
 }
@@ -1702,9 +1702,9 @@ typename CompactedArray<TYPE>::const_iterator
                           CompactedArray<TYPE>::remove(const_iterator dstFirst,
                                                        const_iterator dstLast)
 {
-    BSLS_REVIEW(this     == dstFirst.d_array_p);
-    BSLS_REVIEW(this     == dstLast.d_array_p);
-    BSLS_REVIEW(dstFirst <= dstLast);
+    BSLS_ASSERT(this     == dstFirst.d_array_p);
+    BSLS_ASSERT(this     == dstLast.d_array_p);
+    BSLS_ASSERT(dstFirst <= dstLast);
 
     remove(dstFirst.d_index, dstLast.d_index - dstFirst.d_index);
     return dstFirst;
@@ -1868,7 +1868,7 @@ template <class TYPE>
 inline
 const TYPE& CompactedArray<TYPE>::operator[](bsl::size_t index) const
 {
-    BSLS_REVIEW(index < length());
+    BSLS_ASSERT(index < length());
 
     return d_data[d_index[index]].d_value.object();
 }
@@ -1884,7 +1884,7 @@ template <class TYPE>
 inline
 const TYPE& CompactedArray<TYPE>::back() const
 {
-    BSLS_REVIEW(0 < length());
+    BSLS_ASSERT(0 < length());
 
     return operator[](length() - 1);
 }
@@ -1915,7 +1915,7 @@ template <class TYPE>
 inline
 const TYPE& CompactedArray<TYPE>::front() const
 {
-    BSLS_REVIEW(0 < length());
+    BSLS_ASSERT(0 < length());
 
     return operator[](0);
 }
@@ -1964,7 +1964,7 @@ template <class TYPE>
 inline
 const TYPE& CompactedArray<TYPE>::uniqueElement(bsl::size_t index) const
 {
-    BSLS_REVIEW(index < uniqueLength());
+    BSLS_ASSERT(index < uniqueLength());
 
     return d_data[index].d_value.object();
 }
