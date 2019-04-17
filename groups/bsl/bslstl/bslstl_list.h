@@ -969,8 +969,8 @@ class list {
 
   public:
     // PUBLIC TYPES
-    typedef VALUE&                                             reference;
-    typedef const VALUE&                                       const_reference;
+    typedef typename ALLOCATOR::reference                      reference;
+    typedef typename ALLOCATOR::const_reference                const_reference;
     typedef List_Iterator<VALUE>                               iterator;
     typedef List_Iterator<const VALUE>                         const_iterator;
     typedef typename allocator_traits<ALLOCATOR>::pointer      pointer;
@@ -1427,70 +1427,99 @@ class list {
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... ARGS>
-    void emplace_back(ARGS&&... arguments);
+    reference emplace_back(ARGS&&... arguments);
         // Append to the back of this list a newly created 'value_type' object,
         // constructed by forwarding 'get_allocator()' (if required) and the
         // specified (variable number of) 'arguments' to the corresponding
-        // constructor of 'value_type'.  If an exception is thrown (other than
-        // by the move constructor of a non-copy-insertable 'value_type'), this
-        // method has no effect.  This method requires that the (template
-        // parameter) 'VALUE' be 'move-insertable' into this list and
-        // 'emplace-constructible' from 'arguments' (see {Requirements on
+        // constructor of 'value_type'.  Return a reference providing
+        // modifiable access to the inserted element.  If an exception is
+        // thrown (other than by the move constructor of a non-copy-insertable
+        // 'value_type'), this method has no effect.  This method requires that
+        // the (template parameter) 'VALUE' be 'move-insertable' into this list
+        // and 'emplace-constructible' from 'arguments' (see {Requirements on
         // 'VALUE'}).
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_list.h
-    void emplace_back();
+#ifndef BSLSTL_LIST_VARIADIC_LIMIT
+#define BSLSTL_LIST_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_LIST_VARIADIC_LIMIT_A
+#define BSLSTL_LIST_VARIADIC_LIMIT_A BSLSTL_LIST_VARIADIC_LIMIT
+#endif
+#if BSLSTL_LIST_VARIADIC_LIMIT_A >= 0
+    reference emplace_back(
+                         );
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_A >= 0
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_A >= 1
     template <class ARGS_01>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_A >= 1
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_A >= 2
     template <class ARGS_01,
               class ARGS_02>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_A >= 2
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_A >= 3
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_A >= 3
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_A >= 4
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
               class ARGS_04>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_A >= 4
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_A >= 5
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
               class ARGS_04,
               class ARGS_05>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_A >= 5
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_A >= 6
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
               class ARGS_04,
               class ARGS_05,
               class ARGS_06>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_A >= 6
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_A >= 7
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1498,14 +1527,17 @@ class list {
               class ARGS_05,
               class ARGS_06,
               class ARGS_07>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_A >= 7
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_A >= 8
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1514,15 +1546,18 @@ class list {
               class ARGS_06,
               class ARGS_07,
               class ARGS_08>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_A >= 8
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_A >= 9
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1532,16 +1567,19 @@ class list {
               class ARGS_07,
               class ARGS_08,
               class ARGS_09>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_A >= 9
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_A >= 10
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1552,91 +1590,123 @@ class list {
               class ARGS_08,
               class ARGS_09,
               class ARGS_10>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
-                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_A >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
     template <class... ARGS>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+    reference emplace_back(
+                         BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments);
 // }}} END GENERATED CODE
 #endif
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... ARGS>
-    void emplace_front(ARGS&&... arguments);
+    reference emplace_front(ARGS&&... arguments);
         // Prepend to the front of this list a newly created 'value_type'
         // object, constructed by forwarding 'get_allocator()' (if required)
         // and the specified (variable number of) 'arguments' to the
-        // corresponding constructor of 'value_type'.  If an exception is
-        // thrown (other than by the move constructor of a non-copy-insertable
-        // 'value_type'), this method has no effect.  This method requires that
-        // the (template parameter) 'VALUE' be 'move-insertable' into this
-        // list and 'emplace-constructible' from 'arguments' (see {Requirements
-        // on 'VALUE'}).
+        // corresponding constructor of 'value_type'.  Return a reference
+        // providing modifiable access to the inserted element.  If an
+        // exception is thrown (other than by the move constructor of a
+        // non-copy-insertable 'value_type'), this method has no effect.  This
+        // method requires that the (template parameter) 'VALUE' be
+        // 'move-insertable' into this list and 'emplace-constructible' from
+        // 'arguments' (see {Requirements on 'VALUE'}).
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_list.h
-    void emplace_front();
+#ifndef BSLSTL_LIST_VARIADIC_LIMIT
+#define BSLSTL_LIST_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_LIST_VARIADIC_LIMIT_B
+#define BSLSTL_LIST_VARIADIC_LIMIT_B BSLSTL_LIST_VARIADIC_LIMIT
+#endif
+#if BSLSTL_LIST_VARIADIC_LIMIT_B >= 0
+    reference emplace_front(
+                         );
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_B >= 0
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_B >= 1
     template <class ARGS_01>
-    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
+    reference emplace_front(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_B >= 1
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_B >= 2
     template <class ARGS_01,
               class ARGS_02>
-    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
+    reference emplace_front(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_B >= 2
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_B >= 3
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03>
-    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
+    reference emplace_front(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_B >= 3
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_B >= 4
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
               class ARGS_04>
-    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
+    reference emplace_front(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_B >= 4
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_B >= 5
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
               class ARGS_04,
               class ARGS_05>
-    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
+    reference emplace_front(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_B >= 5
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_B >= 6
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
               class ARGS_04,
               class ARGS_05,
               class ARGS_06>
-    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
+    reference emplace_front(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_B >= 6
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_B >= 7
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1644,14 +1714,17 @@ class list {
               class ARGS_05,
               class ARGS_06,
               class ARGS_07>
-    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
+    reference emplace_front(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_B >= 7
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_B >= 8
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1660,15 +1733,18 @@ class list {
               class ARGS_06,
               class ARGS_07,
               class ARGS_08>
-    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
+    reference emplace_front(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_B >= 8
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_B >= 9
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1678,16 +1754,19 @@ class list {
               class ARGS_07,
               class ARGS_08,
               class ARGS_09>
-    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
+    reference emplace_front(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_B >= 9
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_B >= 10
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1698,22 +1777,25 @@ class list {
               class ARGS_08,
               class ARGS_09,
               class ARGS_10>
-    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+    reference emplace_front(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_B >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
     template <class... ARGS>
-    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+    reference emplace_front(
+                         BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments);
 // }}} END GENERATED CODE
 #endif
 
@@ -1767,48 +1849,67 @@ class list {
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_list.h
+#ifndef BSLSTL_LIST_VARIADIC_LIMIT
+#define BSLSTL_LIST_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_LIST_VARIADIC_LIMIT_C
+#define BSLSTL_LIST_VARIADIC_LIMIT_C BSLSTL_LIST_VARIADIC_LIMIT
+#endif
+#if BSLSTL_LIST_VARIADIC_LIMIT_C >= 0
     iterator emplace(const_iterator position);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_C >= 1
     template <class ARGS_01>
     iterator emplace(const_iterator position,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_C >= 2
     template <class ARGS_01,
               class ARGS_02>
     iterator emplace(const_iterator position,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_C >= 3
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03>
     iterator emplace(const_iterator position,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_C >= 4
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
               class ARGS_04>
     iterator emplace(const_iterator position,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_C >= 5
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
               class ARGS_04,
               class ARGS_05>
     iterator emplace(const_iterator position,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_C >= 6
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1816,13 +1917,15 @@ class list {
               class ARGS_05,
               class ARGS_06>
     iterator emplace(const_iterator position,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_C >= 7
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1831,14 +1934,16 @@ class list {
               class ARGS_06,
               class ARGS_07>
     iterator emplace(const_iterator position,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_C >= 8
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1848,15 +1953,17 @@ class list {
               class ARGS_07,
               class ARGS_08>
     iterator emplace(const_iterator position,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_C >= 9
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1867,16 +1974,18 @@ class list {
               class ARGS_08,
               class ARGS_09>
     iterator emplace(const_iterator position,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_C >= 10
     template <class ARGS_01,
               class ARGS_02,
               class ARGS_03,
@@ -1888,23 +1997,24 @@ class list {
               class ARGS_09,
               class ARGS_10>
     iterator emplace(const_iterator position,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                      BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10);
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_C >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
     template <class... ARGS>
     iterator emplace(const_iterator position,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
+                         BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments);
 // }}} END GENERATED CODE
 #endif
 
@@ -3106,7 +3216,8 @@ void list<VALUE, ALLOCATOR>::resize(size_type newSize, const VALUE& value)
 
 template <class VALUE, class ALLOCATOR>
 inline
-VALUE& list<VALUE, ALLOCATOR>::back()
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::back()
 {
     BSLS_ASSERT_SAFE(sizeRef() > 0);
 
@@ -3115,7 +3226,8 @@ VALUE& list<VALUE, ALLOCATOR>::back()
 
 template <class VALUE, class ALLOCATOR>
 inline
-VALUE& list<VALUE, ALLOCATOR>::front()
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::front()
 {
     BSLS_ASSERT_SAFE(sizeRef() > 0);
 
@@ -3186,76 +3298,105 @@ list<VALUE, ALLOCATOR>::erase(const_iterator dstBegin, const_iterator dstEnd)
 template <class VALUE, class ALLOCATOR>
 template <class... ARGS>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(ARGS&&... arguments)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_back(ARGS&&... arguments)
 {
-    emplace(end(), BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
+    return back();
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_list.h
+#ifndef BSLSTL_LIST_VARIADIC_LIMIT
+#define BSLSTL_LIST_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_LIST_VARIADIC_LIMIT_D
+#define BSLSTL_LIST_VARIADIC_LIMIT_D BSLSTL_LIST_VARIADIC_LIMIT
+#endif
+#if BSLSTL_LIST_VARIADIC_LIMIT_D >= 0
 template <class VALUE, class ALLOCATOR>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(
-                               )
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_back(
+                          )
 {
     emplace(cend());
+    return back();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 0
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_D >= 1
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_back(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
-    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01));
+    return back();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 1
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_D >= 2
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_back(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
-    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
+    return back();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 2
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_D >= 3
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_back(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
-    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03));
+    return back();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 3
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_D >= 4
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03,
           class ARGS_04>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_back(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
-    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04));
+    return back();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 4
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_D >= 5
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3263,20 +3404,24 @@ template <class ARGS_01,
           class ARGS_04,
           class ARGS_05>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_back(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
-    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05));
+    return back();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 5
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_D >= 6
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3285,22 +3430,26 @@ template <class ARGS_01,
           class ARGS_05,
           class ARGS_06>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_back(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
-    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06));
+    return back();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 6
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_D >= 7
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3310,24 +3459,28 @@ template <class ARGS_01,
           class ARGS_06,
           class ARGS_07>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_back(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
-    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07));
+    return back();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 7
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_D >= 8
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3338,26 +3491,30 @@ template <class ARGS_01,
           class ARGS_07,
           class ARGS_08>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_back(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
-    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08));
+    return back();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 8
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_D >= 9
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3369,28 +3526,32 @@ template <class ARGS_01,
           class ARGS_08,
           class ARGS_09>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_back(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
-    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09));
+    return back();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 9
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_D >= 10
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3403,39 +3564,45 @@ template <class ARGS_01,
           class ARGS_09,
           class ARGS_10>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_back(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
-    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
-                    BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10));
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
+                    BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10));
+    return back();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_D >= 10
+
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 template <class VALUE, class ALLOCATOR>
 template <class... ARGS>
 inline
-void list<VALUE, ALLOCATOR>::emplace_back(
-                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_back(
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
-    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
+    emplace(cend(), BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
+    return back();
 }
 // }}} END GENERATED CODE
 #endif
@@ -3444,76 +3611,105 @@ void list<VALUE, ALLOCATOR>::emplace_back(
 template <class VALUE, class ALLOCATOR>
 template <class... ARGS>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(ARGS&&... arguments)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_front(ARGS&&... arguments)
 {
     emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
+    return front();
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_list.h
+#ifndef BSLSTL_LIST_VARIADIC_LIMIT
+#define BSLSTL_LIST_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_LIST_VARIADIC_LIMIT_E
+#define BSLSTL_LIST_VARIADIC_LIMIT_E BSLSTL_LIST_VARIADIC_LIMIT
+#endif
+#if BSLSTL_LIST_VARIADIC_LIMIT_E >= 0
 template <class VALUE, class ALLOCATOR>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(
-                               )
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_front(
+                          )
 {
     emplace(cbegin());
+    return front();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_E >= 0
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_E >= 1
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_front(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
-    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01));
+    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01));
+    return front();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_E >= 1
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_E >= 2
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_front(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
-    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02));
+    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
+    return front();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_E >= 2
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_E >= 3
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_front(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
-    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03));
+    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03));
+    return front();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_E >= 3
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_E >= 4
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03,
           class ARGS_04>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_front(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
-    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04));
+    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04));
+    return front();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_E >= 4
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_E >= 5
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3521,20 +3717,24 @@ template <class ARGS_01,
           class ARGS_04,
           class ARGS_05>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_front(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
-    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05));
+    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05));
+    return front();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_E >= 5
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_E >= 6
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3543,22 +3743,26 @@ template <class ARGS_01,
           class ARGS_05,
           class ARGS_06>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_front(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
-    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06));
+    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06));
+    return front();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_E >= 6
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_E >= 7
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3568,24 +3772,28 @@ template <class ARGS_01,
           class ARGS_06,
           class ARGS_07>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_front(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
-    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07));
+    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07));
+    return front();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_E >= 7
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_E >= 8
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3596,26 +3804,30 @@ template <class ARGS_01,
           class ARGS_07,
           class ARGS_08>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_front(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
-    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08));
+    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08));
+    return front();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_E >= 8
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_E >= 9
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3627,28 +3839,32 @@ template <class ARGS_01,
           class ARGS_08,
           class ARGS_09>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_front(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
-    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09));
+    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09));
+    return front();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_E >= 9
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_E >= 10
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3661,29 +3877,32 @@ template <class ARGS_01,
           class ARGS_09,
           class ARGS_10>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_front(
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
-    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
-                      BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10));
+    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
+                      BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10));
+    return front();
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_E >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -3691,10 +3910,12 @@ void list<VALUE, ALLOCATOR>::emplace_front(
 template <class VALUE, class ALLOCATOR>
 template <class... ARGS>
 inline
-void list<VALUE, ALLOCATOR>::emplace_front(
-                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+typename list<VALUE, ALLOCATOR>::reference
+list<VALUE, ALLOCATOR>::emplace_front(
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
-    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
+    emplace(cbegin(), BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
+    return front();
 }
 // }}} END GENERATED CODE
 #endif
@@ -3749,6 +3970,13 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position, ARGS&&... arguments)
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_list.h
+#ifndef BSLSTL_LIST_VARIADIC_LIMIT
+#define BSLSTL_LIST_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_LIST_VARIADIC_LIMIT_F
+#define BSLSTL_LIST_VARIADIC_LIMIT_F BSLSTL_LIST_VARIADIC_LIMIT
+#endif
+#if BSLSTL_LIST_VARIADIC_LIMIT_F >= 0
 template <class VALUE, class ALLOCATOR>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position)
@@ -3760,61 +3988,69 @@ list<VALUE, ALLOCATOR>::emplace(const_iterator position)
     proctor.release();
     return insertNode(position, p);
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_F >= 0
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_F >= 1
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
     NodePtr p = allocateNode();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocatorImp(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01));
     proctor.release();
     return insertNode(position, p);
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_F >= 1
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_F >= 2
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
     NodePtr p = allocateNode();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocatorImp(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
     proctor.release();
     return insertNode(position, p);
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_F >= 2
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_F >= 3
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
           class ARGS_03>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
     NodePtr p = allocateNode();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocatorImp(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03));
     proctor.release();
     return insertNode(position, p);
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_F >= 3
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_F >= 4
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3822,23 +4058,25 @@ template <class ARGS_01,
           class ARGS_04>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
     NodePtr p = allocateNode();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocatorImp(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04));
     proctor.release();
     return insertNode(position, p);
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_F >= 4
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_F >= 5
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3847,25 +4085,27 @@ template <class ARGS_01,
           class ARGS_05>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
     NodePtr p = allocateNode();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocatorImp(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05));
     proctor.release();
     return insertNode(position, p);
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_F >= 5
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_F >= 6
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3875,27 +4115,29 @@ template <class ARGS_01,
           class ARGS_06>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
     NodePtr p = allocateNode();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocatorImp(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06));
     proctor.release();
     return insertNode(position, p);
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_F >= 6
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_F >= 7
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3906,29 +4148,31 @@ template <class ARGS_01,
           class ARGS_07>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
     NodePtr p = allocateNode();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocatorImp(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07));
     proctor.release();
     return insertNode(position, p);
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_F >= 7
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_F >= 8
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3940,31 +4184,33 @@ template <class ARGS_01,
           class ARGS_08>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
     NodePtr p = allocateNode();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocatorImp(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08));
     proctor.release();
     return insertNode(position, p);
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_F >= 8
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_F >= 9
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -3977,33 +4223,35 @@ template <class ARGS_01,
           class ARGS_09>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
     NodePtr p = allocateNode();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocatorImp(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09));
     proctor.release();
     return insertNode(position, p);
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_F >= 9
 
+#if BSLSTL_LIST_VARIADIC_LIMIT_F >= 10
 template <class VALUE, class ALLOCATOR>
 template <class ARGS_01,
           class ARGS_02,
@@ -4017,34 +4265,35 @@ template <class ARGS_01,
           class ARGS_10>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
-                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
     NodePtr p = allocateNode();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocatorImp(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_01,args_01),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_02,args_02),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_03,args_03),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_04,args_04),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_05,args_05),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_06,args_06),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_07,args_07),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_08,args_08),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_09,args_09),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS_10,args_10));
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10));
     proctor.release();
     return insertNode(position, p);
 }
+#endif  // BSLSTL_LIST_VARIADIC_LIMIT_F >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -4053,13 +4302,13 @@ template <class VALUE, class ALLOCATOR>
 template <class... ARGS>
 typename list<VALUE, ALLOCATOR>::iterator
 list<VALUE, ALLOCATOR>::emplace(const_iterator position,
-                               BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
+                          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
     NodePtr p = allocateNode();
     NodeProctor proctor(this, p);
     AllocTraits::construct(allocatorImp(),
                            BloombergLP::bsls::Util::addressOf(p->d_value),
-                           BSLS_COMPILERFEATURES_FORWARD(ARGS,args)...);
+                           BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
     proctor.release();
     return insertNode(position, p);
 }
@@ -4533,7 +4782,8 @@ typename list<VALUE, ALLOCATOR>::size_type list<VALUE, ALLOCATOR>::size() const
 
 template <class VALUE, class ALLOCATOR>
 inline
-const VALUE& list<VALUE, ALLOCATOR>::back() const
+typename list<VALUE, ALLOCATOR>::const_reference
+list<VALUE, ALLOCATOR>::back() const
 {
     BSLS_ASSERT_SAFE(sizeRef() > 0);
 
@@ -4542,7 +4792,8 @@ const VALUE& list<VALUE, ALLOCATOR>::back() const
 
 template <class VALUE, class ALLOCATOR>
 inline
-const VALUE& list<VALUE, ALLOCATOR>::front() const
+typename list<VALUE, ALLOCATOR>::const_reference
+list<VALUE, ALLOCATOR>::front() const
 {
     BSLS_ASSERT_SAFE(sizeRef() > 0);
 

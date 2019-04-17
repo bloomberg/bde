@@ -821,6 +821,34 @@ class NonMovableVector {
     {
         return d_vector.insert(position, first, last);
     }
+
+    iterator begin()
+        // Return an iterator pointing the first element in this modifiable
+        // vector (or the past-the-end iterator if this vector is empty).
+    {
+        return d_vector.begin();
+    }
+
+    iterator end()
+        // Return the past-the-end iterator for this modifiable vector.
+    {
+        return d_vector.end();
+    }
+
+    reference front()
+        // Return a reference to the modifiable element at the first position
+        // in this vector.  The behavior is undefined if this vector is empty.
+    {
+        return d_vector.front();
+    }
+
+    reference back()
+        // Return a reference to the modifiable element at the last position in
+        // this vector.  The behavior is undefined if this vector is empty.
+    {
+        return d_vector.back();
+    }
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args> void emplace_back(Args&&... arguments)
         // Append to the end of this vector a newly created 'value_type'
@@ -1193,24 +1221,33 @@ class NonMovableVector {
 #endif
 
     // ACCESSORS
-    iterator begin()
-        // Return an iterator pointing the first element in this modifiable
+    const_iterator begin() const
+        // Return an iterator pointing the first element in this non-modifiable
         // vector (or the past-the-end iterator if this vector is empty).
     {
         return d_vector.begin();
     }
 
-    iterator end()
-        // Return the past-the-end iterator for this modifiable vector.
+    const_iterator end() const
+        // Return the past-the-end iterator for this non-modifiable vector.
     {
         return d_vector.end();
     }
 
     const_reference front() const
-        // Return a reference to the modifiable element at the first position
-        // in this vector.  The behavior is undefined if this vector is empty.
+        // Return a reference to the non-modifiable element at the first
+        // position in this vector.  The behavior is undefined if this vector
+        // is empty.
     {
         return d_vector.front();
+    }
+
+    const_reference back() const
+        // Return a reference to the non-modifiable element at the last
+        // position in this vector.  The behavior is undefined if this vector
+        // is empty.
+    {
+        return d_vector.back();
     }
 
     size_type size() const
@@ -1224,8 +1261,6 @@ class NonMovableVector {
     {
         return d_vector.empty();
     }
-
-    const_reference back() const { return d_vector.back(); }
 };
 
                             // ----------------------
@@ -1440,6 +1475,33 @@ class MovableVector {
         return d_vector.insert(position, first, last);
     }
 
+    iterator begin()
+        // Return an iterator pointing the first element in this modifiable
+        // vector (or the past-the-end iterator if this vector is empty).
+    {
+        return d_vector.begin();
+    }
+
+    iterator end()
+        // Return the past-the-end iterator for this modifiable vector.
+    {
+        return d_vector.end();
+    }
+
+    reference front()
+        // Return a reference to the modifiable element at the first position
+        // in this vector.  The behavior is undefined if this vector is empty.
+    {
+        return d_vector.front();
+    }
+
+    reference back()
+        // Return a reference to the modifiable element at the last position in
+        // this vector.  The behavior is undefined if this vector is empty.
+    {
+        return d_vector.back();
+    }
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args> void emplace_back(Args&&... arguments)
         // Append to the end of this vector a newly created 'value_type'
@@ -1812,24 +1874,33 @@ class MovableVector {
 #endif
 
     // ACCESSORS
-
-    iterator begin()
-        // Return an iterator pointing the first element in this modifiable
+    const_iterator begin() const
+        // Return an iterator pointing the first element in this non-modifiable
         // vector (or the past-the-end iterator if this vector is empty).
     {
-        return d_vector.begin(); }
+        return d_vector.begin();
+    }
 
-    iterator end()
-        // Return the past-the-end iterator for this modifiable vector.
+    const_iterator end() const
+        // Return the past-the-end iterator for this non-modifiable vector.
     {
         return d_vector.end();
     }
 
     const_reference front() const
-        // Return a reference to the modifiable element at the first position
-        // in this vector.  The behavior is undefined if this vector is empty.
+        // Return a reference to the non-modifiable element at the first
+        // position in this vector.  The behavior is undefined if this vector
+        // is empty.
     {
         return d_vector.front();
+    }
+
+    const_reference back() const
+        // Return a reference to the non-modifiable element at the last
+        // position in this vector.  The behavior is undefined if this vector
+        // is empty.
+    {
+        return d_vector.back();
     }
 
     size_type size() const
@@ -1843,8 +1914,6 @@ class MovableVector {
     {
         return d_vector.empty();
     }
-
-    const_reference back() const { return d_vector.back(); }
 };
 
                             // -------------------
@@ -2365,7 +2434,7 @@ void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
 
             if (veryVerbose) { P(i) }
 
-            Obj mX; const Obj& X = mX;
+            Obj mX;
             Obj mY; const Obj& Y = mY;
 
             for (int j = 0; j < i; ++j) {
@@ -2393,9 +2462,14 @@ void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
         Obj mA; const Obj& A = mA;  // test   object  for 'emplace'
         Obj mB; const Obj& B = mB;  // control object for 'emplace'
 
+        (void) A;  // Compiler warnings suppression.
+        (void) B;  // Compiler warnings suppression.
+
         for (int numArgs = 0; numArgs < k_MAX_NUM_PARAMS; ++numArgs) {
 
             if (veryVerbose) { P(numArgs) }
+
+            VALUE *addressOfResult = 0;
 
             CalledMethod expectedEmplacePush =
                     static_cast<CalledMethod>(static_cast<int>(e_EMPLACE_0)
@@ -2403,17 +2477,50 @@ void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
             setupCalledMethodCheck();
 
             switch (numArgs) {
-              case  0: mA.emplace();                             break;
-              case  1: mA.emplace(0);                            break;
-              case  2: mA.emplace(0, 0);                         break;
-              case  3: mA.emplace(0, 0, 0);                      break;
-              case  4: mA.emplace(0, 0, 0, 0);                   break;
-              case  5: mA.emplace(0, 0, 0, 0, 0);                break;
-              case  6: mA.emplace(0, 0, 0, 0, 0, 0);             break;
-              case  7: mA.emplace(0, 0, 0, 0, 0, 0, 0);          break;
-              case  8: mA.emplace(0, 0, 0, 0, 0, 0, 0, 0);       break;
-              case  9: mA.emplace(0, 0, 0, 0, 0, 0, 0, 0, 0);    break;
-              case 10: mA.emplace(0, 0, 0, 0, 0, 0, 0, 0, 0, 0); break;
+              case  0: {
+                VALUE& result = mA.emplace();
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  1: {
+                VALUE& result = mA.emplace(0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  2: {
+                VALUE& result = mA.emplace(0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  3: {
+                VALUE& result = mA.emplace(0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  4: {
+                VALUE& result = mA.emplace(0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  5: {
+                VALUE& result = mA.emplace(0, 0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  6: {
+                VALUE& result = mA.emplace(0, 0, 0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  7: {
+                VALUE& result = mA.emplace(0, 0, 0, 0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  8: {
+                VALUE& result = mA.emplace(0, 0, 0, 0, 0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  9: {
+                VALUE& result = mA.emplace(0, 0, 0, 0, 0, 0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case 10: {
+                VALUE& result = mA.emplace(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
               default:
                   ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'")
             }
@@ -2423,6 +2530,11 @@ void TestDriver<VALUE, CONTAINER>::testCase19MoveOnlyType()
                    expectedEmplacePush,
                    getCalledMethod(),
                    isCalledMethodCheckPassed<CONTAINER>(expectedEmplacePush));
+
+            const VALUE *ADDRESS_OF_LAST_VALUE =
+                                               bsls::Util::addressOf(A.back());
+            ASSERTV(numArgs, bsls::NameOf<CONTAINER>(),
+                    ADDRESS_OF_LAST_VALUE == addressOfResult);
 
             // Track expected value of 'A'.  Note that the 'emplace' methods of
             // '(Non)?MovableVector' append 'VALUE(1)' regardless the number
@@ -2502,13 +2614,13 @@ void TestDriver<VALUE, CONTAINER>::testCase18MoveOnlyType()
 
                 // Create source object
                 Obj       *pX  = new Obj(&sa);
-                Obj&       mX  = *pX; const Obj&       X = mX;
+                Obj&       mX  = *pX;
 
                 // Create control object
-                Obj        mZ;        const Obj&       Z = mZ;
+                Obj        mZ;
 
                 // Create value ('CONTAINER') object
-                CONTAINER  mC(&sa);   const CONTAINER& C = mC;
+                CONTAINER  mC(&sa);
 
                 // Install default allocator.
                 bslma::DefaultAllocatorGuard dag(&da);
@@ -2561,8 +2673,6 @@ void TestDriver<VALUE, CONTAINER>::testCase18MoveOnlyType()
                       return;                                         // RETURN
                   } break;
                 }
-
-                Obj& mY = *objPtr;  const Obj& Y = mY;  // test object
 
                 ASSERTV(
                   bsls::NameOf<CONTAINER>(),
@@ -2786,6 +2896,12 @@ void TestDriver<VALUE, CONTAINER>::testCase19(bool isMovableContainer)
     //:   the corresponding method of the underlying 'CONTAINER' when that
     //:   container provides those "move" methods, and to the expected
     //:   alternate methods otherwise.
+    //:
+    //: 2 The reference returned from the assignment operator is to the target
+    //:   object (i.e., '*this').
+    //
+    //:
+    //: 3 'emplace_back' returns a reference to the inserted element.
     //
     // Plan:
     //: 1 Instantiate this test method for the two instrumented helper
@@ -2803,7 +2919,8 @@ void TestDriver<VALUE, CONTAINER>::testCase19(bool isMovableContainer)
     //:
     //: 4 Invoke the method under test on the object under test.  Confirm that
     //:   the expected enumerated value was set in the global variable.
-    //:   Confirm that the test object has the expected value.
+    //:   Confirm that the test object has the expected value.  Confirm that
+    //:   the expected value is returned (if any).
     //
     // Testing:
     //   operator=(MovableRef queue)
@@ -2878,10 +2995,15 @@ void TestDriver<VALUE, CONTAINER>::testCase19(bool isMovableContainer)
             Obj mV;     const Obj& V = mV;   // control   object
 
             mX.push(value);
-            Obj mT(X);  const Obj& T = mT;   // sacrifice object
+            Obj mT(X);                       // sacrifice object
+
+            Obj *mR = 0;
 
             setupCalledMethodCheck();
-            mU = MoveUtil::move(mT);
+            mR = &(mU = MoveUtil::move(mT));
+
+            ASSERTV(bsls::Util::addressOf(U) == mR);
+
             ASSERTV(
                    i,
                    bsls::NameOf<CONTAINER>(),
@@ -2909,9 +3031,14 @@ void TestDriver<VALUE, CONTAINER>::testCase19(bool isMovableContainer)
         Obj mA; const Obj& A = mA;  // test   object  for 'emplace'
         Obj mB; const Obj& B = mB;  // control object for 'emplace'
 
+        (void) A;  // Compiler warnings suppression.
+        (void) B;  // Compiler warnings suppression.
+
         for (int numArgs = 0; numArgs < k_MAX_NUM_PARAMS; ++numArgs) {
 
             if (veryVerbose) { P(numArgs) }
+
+            VALUE *addressOfResult = 0;
 
             CalledMethod expectedEmplacePush =
                     static_cast<CalledMethod>(static_cast<int>(e_EMPLACE_0)
@@ -2919,17 +3046,50 @@ void TestDriver<VALUE, CONTAINER>::testCase19(bool isMovableContainer)
             setupCalledMethodCheck();
 
             switch (numArgs) {
-              case  0: mA.emplace();                             break;
-              case  1: mA.emplace(0);                            break;
-              case  2: mA.emplace(0, 0);                         break;
-              case  3: mA.emplace(0, 0, 0);                      break;
-              case  4: mA.emplace(0, 0, 0, 0);                   break;
-              case  5: mA.emplace(0, 0, 0, 0, 0);                break;
-              case  6: mA.emplace(0, 0, 0, 0, 0, 0);             break;
-              case  7: mA.emplace(0, 0, 0, 0, 0, 0, 0);          break;
-              case  8: mA.emplace(0, 0, 0, 0, 0, 0, 0, 0);       break;
-              case  9: mA.emplace(0, 0, 0, 0, 0, 0, 0, 0, 0);    break;
-              case 10: mA.emplace(0, 0, 0, 0, 0, 0, 0, 0, 0, 0); break;
+             case  0: {
+                VALUE& result = mA.emplace();
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  1: {
+                VALUE& result = mA.emplace(0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  2: {
+                VALUE& result = mA.emplace(0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  3: {
+                VALUE& result = mA.emplace(0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  4: {
+                VALUE& result = mA.emplace(0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  5: {
+                VALUE& result = mA.emplace(0, 0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  6: {
+                VALUE& result = mA.emplace(0, 0, 0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  7: {
+                VALUE& result = mA.emplace(0, 0, 0, 0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  8: {
+                VALUE& result = mA.emplace(0, 0, 0, 0, 0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case  9: {
+                VALUE& result = mA.emplace(0, 0, 0, 0, 0, 0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
+              case 10: {
+                VALUE& result = mA.emplace(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                addressOfResult = bsls::Util::addressOf(result);
+              } break;
               default:
                   ASSERT(!"'value' not in range '[0, k_MAX_NUM_PARAMS]'")
             }
@@ -2940,13 +3100,18 @@ void TestDriver<VALUE, CONTAINER>::testCase19(bool isMovableContainer)
                    getCalledMethod(),
                    isCalledMethodCheckPassed<CONTAINER>(expectedEmplacePush));
 
+            const VALUE *ADDRESS_OF_LAST_VALUE =
+                                               bsls::Util::addressOf(A.back());
+            ASSERTV(numArgs, bsls::NameOf<CONTAINER>(),
+                    ADDRESS_OF_LAST_VALUE == addressOfResult);
+
             // Track expected value of 'A'.  Note that the 'emplace' methods of
             // '(Non)?MovableVector' append 'VALUE(1)' regardless the number
             // and value of their arguments.
 
             mB.push(VALUE(1));
 
-            //V ASSERTV(A.size(), B.size(), B == A);
+            ASSERTV(A.size(), B.size(), B == A);
         }
     }
 }

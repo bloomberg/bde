@@ -169,8 +169,8 @@ using bsls::NameOf;
 // [17] iterator insert(const_iterator pos, size_type n, const T& value);
 // [17] template <class Iter> void insert(CIter pos, Iter f, Iter l);
 // [17] iterator emplace(const_iterator pos, Args&&... args);
-// [17] void emplace_back(Args&&... args);
-// [17] void emplace_front(Args&&... args);
+// [17] reference emplace_back(Args&&... args);
+// [17] reference emplace_front(Args&&... args);
 // [29] iterator insert(const_iterator pos, T&& value);
 // [29] void push_back(T&& value);
 // [29] void push_front(T&& value);
@@ -7312,13 +7312,16 @@ void TestDriver<TYPE,ALLOC>::test17_emplace()
     //: 7 That no iterators are invalidated by the insertion.
     //:
     //: 8 That 'emplace' passes 0 to 5 arguments to the 'T' constructor.
+    //:
+    //: 9 'emplace_back' and 'emplace_front' return a reference to the inserted
+    //:   element.
     //
     // Plan:
     //: 1 Create objects of various sizes and insert a distinct value into each
     //:   possible position.
     //:
-    //: 2 For concerns 1, 2 & 5, verify that the return value and modified list
-    //:   are as expected.
+    //: 2 For concerns 1, 2, 5 and 9 verify that the return value and modified
+    //:   list are as expected.
     //:
     //: 3 For concerns 3 & 4 perform the test using the exception-testing
     //:   infrastructure and verify the value and memory changes.
@@ -7343,8 +7346,8 @@ void TestDriver<TYPE,ALLOC>::test17_emplace()
     //   void push_back(const T& value);
     //   void push_front(const T& value);
     //   iterator emplace(const_iterator pos, Args&&... args);
-    //   void emplace_back(Args&&... args);
-    //   void emplace_front(Args&&... args);
+    //   reference emplace_back(Args&&... args);
+    //   reference emplace_front(Args&&... args);
     //   template <class Iter> void insert(CIter pos, Iter f, Iter l);
     // -------------------------------------------------------------------
 
@@ -7458,9 +7461,10 @@ void TestDriver<TYPE,ALLOC>::test17_emplace()
                     oa.setAllocationLimit(AL);
 
                     // C++0x allows insertion using const_iterator
-                    const_iterator   pos = orig_iters[posidx];
-                    iterator         ret;
-                    ExceptionProctor proctor(&mX, LINE);
+                    const_iterator    pos = orig_iters[posidx];
+                    iterator          ret;
+                    ExceptionProctor  proctor(&mX, LINE);
+                    TYPE             *addressOfResult = 0;
 
                     const Int64 BB = oa.numBlocksTotal();
                     const Int64 B  = oa.numBlocksInUse();
@@ -7485,51 +7489,83 @@ void TestDriver<TYPE,ALLOC>::test17_emplace()
                             ret = mX.emplace(pos, 1, 2, 3, 4, NEW_ELEM_REF);
                         } break;
                         case TEST_EMPLACE_FRONT_A0: {
-                            mX.emplace_front();
+                            TYPE& result = mX.emplace_front();
+                            addressOfResult = bsls::Util::addressOf(result);
                             ret = mX.begin();
                         } break;
                         case TEST_EMPLACE_FRONT_A1: {
-                            mX.emplace_front(NEW_ELEM_REF);
+                            TYPE& result = mX.emplace_front(NEW_ELEM_REF);
+                            addressOfResult = bsls::Util::addressOf(result);
                             ret = mX.begin();
                         } break;
                         case TEST_EMPLACE_FRONT_A2: {
-                            mX.emplace_front(1, NEW_ELEM_REF);
+                            TYPE& result = mX.emplace_front(1,
+                                                            NEW_ELEM_REF);
+                            addressOfResult = bsls::Util::addressOf(result);
                             ret = mX.begin();
                         } break;
                         case TEST_EMPLACE_FRONT_A3: {
-                            mX.emplace_front(1, 2, NEW_ELEM_REF);
+                            TYPE& result = mX.emplace_front(1,
+                                                            2,
+                                                            NEW_ELEM_REF);
+                            addressOfResult = bsls::Util::addressOf(result);
                             ret = mX.begin();
                         } break;
                         case TEST_EMPLACE_FRONT_A4: {
-                            mX.emplace_front(1, 2, 3, NEW_ELEM_REF);
+                            TYPE& result = mX.emplace_front(1,
+                                                            2,
+                                                            3,
+                                                            NEW_ELEM_REF);
+                            addressOfResult = bsls::Util::addressOf(result);
                             ret = mX.begin();
                         } break;
                         case TEST_EMPLACE_FRONT_A5: {
-                            mX.emplace_front(1, 2, 3, 4, NEW_ELEM_REF);
+                            TYPE& result = mX.emplace_front(1,
+                                                            2,
+                                                            3,
+                                                            4,
+                                                            NEW_ELEM_REF);
+                            addressOfResult = bsls::Util::addressOf(result);
                             ret = mX.begin();
                         } break;
                         case TEST_EMPLACE_BACK_A0: {
-                            mX.emplace_back();
+                            TYPE& result = mX.emplace_back();
+                            addressOfResult = bsls::Util::addressOf(result);
                             ret = --mX.end();
                         } break;
                         case TEST_EMPLACE_BACK_A1: {
-                            mX.emplace_back(NEW_ELEM_REF);
+                            TYPE& result = mX.emplace_back(NEW_ELEM_REF);
+                            addressOfResult = bsls::Util::addressOf(result);
                             ret = --mX.end();
                         } break;
                         case TEST_EMPLACE_BACK_A2: {
-                            mX.emplace_back(1, NEW_ELEM_REF);
+                            TYPE& result = mX.emplace_back(1,
+                                                           NEW_ELEM_REF);
+                            addressOfResult = bsls::Util::addressOf(result);
                             ret = --mX.end();
                         } break;
                         case TEST_EMPLACE_BACK_A3: {
-                            mX.emplace_back(1, 2, NEW_ELEM_REF);
+                            TYPE& result = mX.emplace_back(1,
+                                                           2,
+                                                           NEW_ELEM_REF);
+                            addressOfResult = bsls::Util::addressOf(result);
                             ret = --mX.end();
                         } break;
                         case TEST_EMPLACE_BACK_A4: {
-                            mX.emplace_back(1, 2, 3, NEW_ELEM_REF);
+                            TYPE& result = mX.emplace_back(1,
+                                                           2,
+                                                           3,
+                                                           NEW_ELEM_REF);
+                            addressOfResult = bsls::Util::addressOf(result);
                             ret = --mX.end();
                         } break;
                         case TEST_EMPLACE_BACK_A5: {
-                            mX.emplace_back(1, 2, 3, 4, NEW_ELEM_REF);
+                            TYPE& result = mX.emplace_back(1,
+                                                           2,
+                                                           3,
+                                                           4,
+                                                           NEW_ELEM_REF);
+                            addressOfResult = bsls::Util::addressOf(result);
                             ret = --mX.end();
                         } break;
                         default: {
@@ -7553,6 +7589,23 @@ void TestDriver<TYPE,ALLOC>::test17_emplace()
                         // Test return value from emplace
                         ASSERTV(LINE, op, posidx,
                                      posDistance(mX.begin(), ret) == posidx);
+                    }
+                    if (TEST_EMPLACE_FRONT_A0 <= op
+                     && op <= TEST_EMPLACE_FRONT_A5) {
+                        // Test return value from emplace
+                        const TYPE *ADDRESS_OF_FIRST_VALUE =
+                                             bsls::Util::addressOf(X.front());
+                        ASSERTV(LINE, op, posidx,
+                                ADDRESS_OF_FIRST_VALUE == addressOfResult);
+                    }
+
+                    if (TEST_EMPLACE_BACK_A0 <= op
+                     && op <= TEST_EMPLACE_BACK_A5) {
+                        // Test return value from emplace
+                        const TYPE *ADDRESS_OF_LAST_VALUE =
+                                               bsls::Util::addressOf(X.back());
+                        ASSERTV(LINE, op, posidx,
+                                ADDRESS_OF_LAST_VALUE == addressOfResult);
                     }
 
                     const_iterator cit = X.begin();

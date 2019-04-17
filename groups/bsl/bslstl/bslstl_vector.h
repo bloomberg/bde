@@ -1328,15 +1328,17 @@ class vector : public  vectorBase<VALUE_TYPE>
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args>
-    void emplace_back(Args&&... arguments);
+    reference emplace_back(Args&&... arguments);
         // Append to the end of this vector a newly created 'value_type'
         // object, constructed by forwarding 'get_allocator()' (if required)
         // and the specified (variable number of) 'arguments' to the
-        // corresponding constructor of 'value_type'.  If an exception is
-        // thrown (other than by the move constructor of a non-copy-insertable
-        // 'value_type'), '*this' is unaffected.  This method requires that the
-        // (template parameter) type 'VALUE_TYPE' be 'move-insertable' into
-        // this vector and 'emplace-constructible' from 'arguments' (see
+        // corresponding constructor of 'value_type'.  Return a reference
+        // providing modifiable access to the inserted element.  If an
+        // exception is thrown (other than by the move constructor of a
+        // non-copy-insertable 'value_type'), '*this' is unaffected.  This
+        // method requires that the (template parameter) type 'VALUE_TYPE' be
+        // 'move-insertable' into this vector and 'emplace-constructible' from
+        // 'arguments' (see
         // {Requirements on 'VALUE_TYPE'}).
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -1349,18 +1351,21 @@ class vector : public  vectorBase<VALUE_TYPE>
 #define BSLSTL_VECTOR_VARIADIC_LIMIT_A BSLSTL_VECTOR_VARIADIC_LIMIT
 #endif
 #if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 0
-    void emplace_back();
+    reference emplace_back(
+                         );
 #endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 0
 
 #if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 1
     template <class Args_01>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
 #endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 1
 
 #if BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 2
     template <class Args_01,
               class Args_02>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
 #endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 2
 
@@ -1368,7 +1373,8 @@ class vector : public  vectorBase<VALUE_TYPE>
     template <class Args_01,
               class Args_02,
               class Args_03>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
 #endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_A >= 3
@@ -1378,7 +1384,8 @@ class vector : public  vectorBase<VALUE_TYPE>
               class Args_02,
               class Args_03,
               class Args_04>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
@@ -1390,7 +1397,8 @@ class vector : public  vectorBase<VALUE_TYPE>
               class Args_03,
               class Args_04,
               class Args_05>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
@@ -1404,7 +1412,8 @@ class vector : public  vectorBase<VALUE_TYPE>
               class Args_04,
               class Args_05,
               class Args_06>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
@@ -1420,7 +1429,8 @@ class vector : public  vectorBase<VALUE_TYPE>
               class Args_05,
               class Args_06,
               class Args_07>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
@@ -1438,7 +1448,8 @@ class vector : public  vectorBase<VALUE_TYPE>
               class Args_06,
               class Args_07,
               class Args_08>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
@@ -1458,7 +1469,8 @@ class vector : public  vectorBase<VALUE_TYPE>
               class Args_07,
               class Args_08,
               class Args_09>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
@@ -1480,7 +1492,8 @@ class vector : public  vectorBase<VALUE_TYPE>
               class Args_08,
               class Args_09,
               class Args_10>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
@@ -1496,7 +1509,8 @@ class vector : public  vectorBase<VALUE_TYPE>
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
     template <class... Args>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+    reference emplace_back(
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
 // }}} END GENERATED CODE
 #endif
 
@@ -2788,13 +2802,13 @@ class vector<VALUE_TYPE *, ALLOCATOR>
 
                             // *** modifiers ***
 
-    void emplace_back();
+    reference emplace_back();
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     template <class ARG>
-    void emplace_back(ARG&& arg);
+    reference emplace_back(ARG&& arg);
 # else
-    void emplace_back(VALUE_TYPE *ptr);
+    reference emplace_back(VALUE_TYPE *ptr);
 # endif
 
     void push_back(VALUE_TYPE *value);
@@ -4293,7 +4307,8 @@ void vector<VALUE_TYPE, ALLOCATOR>::shrink_to_fit()
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class... Args>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
+typename vector<VALUE_TYPE, ALLOCATOR>::reference
+vector<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
         AllocatorTraits::construct(
@@ -4339,6 +4354,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
+    return *(this->d_dataEnd_p - 1);
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -4347,13 +4363,14 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
 #ifndef BSLSTL_VECTOR_VARIADIC_LIMIT
 #define BSLSTL_VECTOR_VARIADIC_LIMIT 10
 #endif
-#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT_E
-#define BSLSTL_VECTOR_VARIADIC_LIMIT_E BSLSTL_VECTOR_VARIADIC_LIMIT
+#ifndef BSLSTL_VECTOR_VARIADIC_LIMIT_C
+#define BSLSTL_VECTOR_VARIADIC_LIMIT_C BSLSTL_VECTOR_VARIADIC_LIMIT
 #endif
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 0
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 0
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename vector<VALUE_TYPE, ALLOCATOR>::reference
+vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                            )
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
@@ -4394,14 +4411,16 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
+    return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 0
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 0
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 1
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 1
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename vector<VALUE_TYPE, ALLOCATOR>::reference
+vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
@@ -4444,15 +4463,17 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
+    return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 1
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 1
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 2
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 2
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename vector<VALUE_TYPE, ALLOCATOR>::reference
+vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
@@ -4498,16 +4519,18 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
+    return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 2
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 2
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 3
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 3
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
           class Args_03>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename vector<VALUE_TYPE, ALLOCATOR>::reference
+vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
@@ -4556,17 +4579,19 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
+    return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 3
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 3
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 4
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 4
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
           class Args_03,
           class Args_04>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename vector<VALUE_TYPE, ALLOCATOR>::reference
+vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4618,10 +4643,11 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
+    return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 4
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 4
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 5
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 5
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4629,7 +4655,8 @@ template <class Args_01,
           class Args_04,
           class Args_05>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename vector<VALUE_TYPE, ALLOCATOR>::reference
+vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4684,10 +4711,11 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
+    return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 5
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 5
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 6
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 6
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4696,7 +4724,8 @@ template <class Args_01,
           class Args_05,
           class Args_06>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename vector<VALUE_TYPE, ALLOCATOR>::reference
+vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4754,10 +4783,11 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
+    return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 6
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 6
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 7
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 7
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4767,7 +4797,8 @@ template <class Args_01,
           class Args_06,
           class Args_07>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename vector<VALUE_TYPE, ALLOCATOR>::reference
+vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4828,10 +4859,11 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
+    return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 7
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 7
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 8
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 8
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4842,7 +4874,8 @@ template <class Args_01,
           class Args_07,
           class Args_08>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename vector<VALUE_TYPE, ALLOCATOR>::reference
+vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4906,10 +4939,11 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
+    return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 8
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 8
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 9
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 9
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4921,7 +4955,8 @@ template <class Args_01,
           class Args_08,
           class Args_09>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename vector<VALUE_TYPE, ALLOCATOR>::reference
+vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4988,10 +5023,11 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
+    return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 9
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 9
 
-#if BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 10
+#if BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 10
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5004,7 +5040,8 @@ template <class Args_01,
           class Args_09,
           class Args_10>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename vector<VALUE_TYPE, ALLOCATOR>::reference
+vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -5074,8 +5111,9 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
+    return *(this->d_dataEnd_p - 1);
 }
-#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_E >= 10
+#endif  // BSLSTL_VECTOR_VARIADIC_LIMIT_C >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -5083,7 +5121,8 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class... Args>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename vector<VALUE_TYPE, ALLOCATOR>::reference
+vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args)...arguments)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(this->d_capacity > this->size())) {
@@ -5126,6 +5165,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::emplace_back(
         temp.d_dataEnd_p = ++pos;
         Vector_Util::swap(&this->d_dataBegin_p, &temp.d_dataBegin_p);
     }
+    return *(this->d_dataEnd_p - 1);
 }
 // }}} END GENERATED CODE
 #endif
@@ -5823,26 +5863,32 @@ void vector<VALUE_TYPE *, ALLOCATOR>::resize(size_type   newLength,
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-void vector<VALUE_TYPE *, ALLOCATOR>::emplace_back()
+typename vector<VALUE_TYPE *, ALLOCATOR>::reference
+vector<VALUE_TYPE *, ALLOCATOR>::emplace_back()
 {
     Base::emplace_back();
+    return back();
 }
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class ARG>
 inline
-void vector<VALUE_TYPE *, ALLOCATOR>::emplace_back(ARG&& arg)
+typename vector<VALUE_TYPE *, ALLOCATOR>::reference
+vector<VALUE_TYPE *, ALLOCATOR>::emplace_back(ARG&& arg)
 {
     VALUE_TYPE *ptr(arg);  // Support explicit conversion operators
     Base::emplace_back(reinterpret_cast<UintPtr>(ptr));
+    return back();
 }
 # else
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
-void vector<VALUE_TYPE *, ALLOCATOR>::emplace_back(VALUE_TYPE *ptr)
+typename vector<VALUE_TYPE *, ALLOCATOR>::reference
+vector<VALUE_TYPE *, ALLOCATOR>::emplace_back(VALUE_TYPE *ptr)
 {
     Base::emplace_back(reinterpret_cast<UintPtr>(ptr));
+    return back();
 }
 # endif
 

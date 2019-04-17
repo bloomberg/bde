@@ -150,7 +150,7 @@
 // [15] reference front();
 // [15] reference back();
 // [15] VALUE_TYPE *data();
-// [27] void emplace_back(Args...);
+// [27] reference emplace_back(Args...);
 // [17] void push_back(const T&);
 // [25] void push_back(T&&);
 // [19] void pop_back();
@@ -4637,10 +4637,14 @@ void TestDriver<TYPE, ALLOC>::testCase27_EmplaceDefault(Obj* objPtr,
     const Obj& OBJ = *objPtr;
 
     const typename Obj::size_type ORIGINAL_SIZE = OBJ.size();
-    objPtr->emplace_back();
+    const TYPE&                   RESULT        = objPtr->emplace_back();
 
-    ASSERTV(ORIGINAL_SIZE + 1 == OBJ.size());
-    ASSERTV(OBJ.back() == TYPE());
+    const TYPE *ADDRESS_OF_RESULT       = bsls::Util::addressOf(RESULT);
+    const TYPE *ADDRESS_OF_LAST_ELEMENT = bsls::Util::addressOf(OBJ.back());
+
+    ASSERTV(ORIGINAL_SIZE + 1       == OBJ.size());
+    ASSERTV(ADDRESS_OF_LAST_ELEMENT == ADDRESS_OF_RESULT);
+    ASSERTV(OBJ.back()              == TYPE());
 
     objPtr->pop_back();
     ASSERTV(ORIGINAL_SIZE == OBJ.size());
@@ -4661,11 +4665,13 @@ void TestDriver<TYPE, ALLOC>::testCase27()
     //:
     //: 2 The capacity is increased as expected.
     //:
-    //: 3 The internal memory management system is hooked up properly so that
+    //: 3 The returned reference provides access to the inserted element.
+    //:
+    //: 4 The internal memory management system is hooked up properly so that
     //:   *all* internally allocated memory draws from a user-supplied
     //:   allocator whenever one is specified.
     //:
-    //: 4 Insertion is exception neutral w.r.t. memory allocation.
+    //: 5 Insertion is exception neutral w.r.t. memory allocation.
     //
     // Plan:
     //: 1 We will use 'value' as the single argument to the 'emplace_back'
@@ -4679,17 +4685,19 @@ void TestDriver<TYPE, ALLOC>::testCase27()
     //:   1 Verify that the element was added to the end of the container.
     //:
     //:   2 Ensure that the order is preserved for elements before and after
-    //:     the insertion point.
+    //:     the insertion point.                                       (C-1..2)
     //:
-    //:   3 Compute the number of allocations and verify it is as expected.
-    //:                                                                   (C-2)
+    //:   3 Verify that the returned reference provides access to the
+    //:     inserted value.  (C-3)
     //:
-    //:   4 Verify all allocations are from the object's allocator.       (C-3)
+    //:   4 Compute the number of allocations and verify it is as expected.
     //:
-    //: 3 Repeat P-1 under the presence of exceptions.                    (C-4)
+    //:   5 Verify all allocations are from the object's allocator.       (C-4)
+    //:
+    //: 3 Repeat P-1 under the presence of exceptions.                    (C-5)
     //
     // Testing:
-    //   void emplace_back(Args&&... args);
+    //   reference emplace_back(Args&&... args);
     // ------------------------------------------------------------------------
 
     const TestValues VALUES;
@@ -4774,14 +4782,20 @@ void TestDriver<TYPE, ALLOC>::testCase27()
             const bsls::Types::Int64 BB = oa.numBlocksTotal();
             const bsls::Types::Int64 B  = oa.numBlocksInUse();
 
-            mX.emplace_back(MRU::move(sourceValues[ELEMENT - 'A']));
+            const TYPE& RESULT =
+                       mX.emplace_back(MRU::move(sourceValues[ELEMENT - 'A']));
 
             if (veryVerbose) { T_ P_(LINE) P_(ELEMENT) P(X) }
 
             const bsls::Types::Int64 AA = oa.numBlocksTotal();
             const bsls::Types::Int64 A  = oa.numBlocksInUse();
 
-            ASSERTV(LINE, SIZE, X.size(), SIZE + 1 == X.size());
+            const TYPE *ADDRESS_OF_RESULT = bsls::Util::addressOf(RESULT);
+            const TYPE *ADDRESS_OF_LAST_ELEMENT =
+                                               bsls::Util::addressOf(X.back());
+
+            ASSERTV(LINE, SIZE, X.size(), SIZE + 1      == X.size());
+            ASSERTV(LINE, SIZE, ADDRESS_OF_LAST_ELEMENT == ADDRESS_OF_RESULT);
 
             TestValues exp(EXPECTED);
             ASSERTV(LINE, 0 == verifyContainer(X, exp, SIZE + 1));
@@ -4845,9 +4859,17 @@ void TestDriver<TYPE, ALLOC>::testCase27()
                     // This method provides the strong exception guarantee.
                     ExceptionProctor<Obj, ALLOC> proctor(&X, L_, xscratch);
 
-                    mX.emplace_back(VALUES[ELEMENT - 'A']);
+                    const TYPE& RESULT =
+                                        mX.emplace_back(VALUES[ELEMENT - 'A']);
+
+                    const TYPE *ADDRESS_OF_RESULT =
+                                                 bsls::Util::addressOf(RESULT);
+                    const TYPE *ADDRESS_OF_LAST_ELEMENT =
+                                               bsls::Util::addressOf(X.back());
 
                     ASSERTV(LINE, SIZE, X.size(), SIZE + 1 == X.size());
+                    ASSERTV(LINE, SIZE,
+                            ADDRESS_OF_LAST_ELEMENT == ADDRESS_OF_RESULT);
 
                     TestValues exp(EXPECTED);
                     ASSERTV(LINE, 0 == verifyContainer(X, exp, SIZE + 1));

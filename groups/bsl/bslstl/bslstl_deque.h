@@ -744,8 +744,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
   public:
     // PUBLIC TYPES
-    typedef VALUE_TYPE&                             reference;
-    typedef const VALUE_TYPE&                       const_reference;
+    typedef typename ALLOCATOR::reference           reference;
+    typedef typename ALLOCATOR::const_reference     const_reference;
     typedef Iterator                                iterator;
     typedef ConstIterator                           const_iterator;
     typedef std::size_t                             size_type;
@@ -1177,88 +1177,114 @@ class deque : public  Deque_Base<VALUE_TYPE>
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     template <class... Args>
-    void emplace_front(Args&&... arguments);
+    reference emplace_front(Args&&... arguments);
         // Prepend to the front of this deque a newly created 'value_type'
         // object, constructed by forwarding 'get_allocator()' (if required)
         // and the specified (variable number of) 'arguments' to the
-        // corresponding constructor of 'value_type'.  If an exception is
-        // thrown (other than by the move constructor of a non-copy-insertable
-        // 'value_type'), this method has no effect.  This method requires that
-        // the (template parameter) 'VALUE_TYPE' be 'move-insertable' into this
-        // deque and 'emplace-constructible' from 'arguments' (see
+        // corresponding constructor of 'value_type'.  Return a reference
+        // providing modifiable access to the inserted element.  If an
+        // exception is thrown (other than by the move constructor of a
+        // non-copy-insertable 'value_type'), this method has no effect.  This
+        // method requires that the (template parameter) 'VALUE_TYPE' be
+        // 'move-insertable' into this deque and 'emplace-constructible' from
+        // 'arguments' (see
         // {Requirements on 'VALUE_TYPE'}).
 
     template <class... Args>
-    void emplace_back(Args&&... arguments);
+    reference emplace_back(Args&&... arguments);
         // Append to the back of this deque a newly created 'value_type'
         // object, constructed by forwarding 'get_allocator()' (if required)
         // and the specified (variable number of) 'arguments' to the
-        // corresponding constructor of 'value_type'.  If an exception is
-        // thrown (other than by the move constructor of a non-copy-insertable
-        // 'value_type'), this method has no effect.  This method requires that
-        // the (template parameter) 'VALUE_TYPE' be 'move-insertable' into this
-        // deque and 'emplace-constructible' from 'arguments' (see
+        // corresponding constructor of 'value_type'.  Return a reference
+        // providing modifiable access to the inserted element.  If an
+        // exception is thrown (other than by the move constructor of a
+        // non-copy-insertable 'value_type'), this method has no effect.  This
+        // method requires that the (template parameter) 'VALUE_TYPE' be
+        // 'move-insertable' into this deque and 'emplace-constructible' from
+        // 'arguments' (see
         // {Requirements on 'VALUE_TYPE'}).
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_deque.h
-    void emplace_front();
+#ifndef BSLSTL_DEQUE_VARIADIC_LIMIT
+#define BSLSTL_DEQUE_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_DEQUE_VARIADIC_LIMIT_A
+#define BSLSTL_DEQUE_VARIADIC_LIMIT_A BSLSTL_DEQUE_VARIADIC_LIMIT
+#endif
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 0
+    reference emplace_front(
+                         );
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 0
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 1
     template <class Args_01>
-    void emplace_front(
+    reference emplace_front(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 1
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 2
     template <class Args_01,
               class Args_02>
-    void emplace_front(
+    reference emplace_front(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 2
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
-    void emplace_front(
+    reference emplace_front(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 3
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04>
-    void emplace_front(
+    reference emplace_front(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 4
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04,
               class Args_05>
-    void emplace_front(
+    reference emplace_front(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 5
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04,
               class Args_05,
               class Args_06>
-    void emplace_front(
+    reference emplace_front(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 6
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1266,7 +1292,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
               class Args_05,
               class Args_06,
               class Args_07>
-    void emplace_front(
+    reference emplace_front(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -1274,7 +1300,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 7
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1283,7 +1311,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
               class Args_06,
               class Args_07,
               class Args_08>
-    void emplace_front(
+    reference emplace_front(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -1292,7 +1320,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 8
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1302,7 +1332,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
               class Args_07,
               class Args_08,
               class Args_09>
-    void emplace_front(
+    reference emplace_front(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -1312,7 +1342,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 9
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1323,7 +1355,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
               class Args_08,
               class Args_09,
               class Args_10>
-    void emplace_front(
+    reference emplace_front(
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -1334,58 +1366,81 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 10
 
 
-    void emplace_back();
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 0
+    reference emplace_back(
+                         );
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 0
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 1
     template <class Args_01>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 1
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 2
     template <class Args_01,
               class Args_02>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 2
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 3
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 4
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04,
               class Args_05>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 5
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
               class Args_04,
               class Args_05,
               class Args_06>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 6
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1393,14 +1448,17 @@ class deque : public  Deque_Base<VALUE_TYPE>
               class Args_05,
               class Args_06,
               class Args_07>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 7
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1409,7 +1467,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
               class Args_06,
               class Args_07,
               class Args_08>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
@@ -1417,7 +1476,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 8
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1427,7 +1488,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
               class Args_07,
               class Args_08,
               class Args_09>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
@@ -1436,7 +1498,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 9
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1447,7 +1511,8 @@ class deque : public  Deque_Base<VALUE_TYPE>
               class Args_08,
               class Args_09,
               class Args_10>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    reference emplace_back(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
@@ -1457,15 +1522,18 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_A >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
     template <class... Args>
-    void emplace_front(BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+    reference emplace_front(
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
 
     template <class... Args>
-    void emplace_back(BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+    reference emplace_back(
+                         BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
 // }}} END GENERATED CODE
 #endif
 
@@ -1489,18 +1557,31 @@ class deque : public  Deque_Base<VALUE_TYPE>
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_deque.h
+#ifndef BSLSTL_DEQUE_VARIADIC_LIMIT
+#define BSLSTL_DEQUE_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_DEQUE_VARIADIC_LIMIT_B
+#define BSLSTL_DEQUE_VARIADIC_LIMIT_B BSLSTL_DEQUE_VARIADIC_LIMIT
+#endif
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 0
     iterator emplace(const_iterator position);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 0
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 1
     template <class Args_01>
     iterator emplace(const_iterator position,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 1
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 2
     template <class Args_01,
               class Args_02>
     iterator emplace(const_iterator position,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 2
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 3
     template <class Args_01,
               class Args_02,
               class Args_03>
@@ -1508,7 +1589,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 3
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 4
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1518,7 +1601,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 4
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 5
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1530,7 +1615,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 5
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 6
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1544,7 +1631,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 6
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 7
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1560,7 +1649,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 7
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 8
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1578,7 +1669,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 8
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 9
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1598,7 +1691,9 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 9
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 10
     template <class Args_01,
               class Args_02,
               class Args_03,
@@ -1620,6 +1715,7 @@ class deque : public  Deque_Base<VALUE_TYPE>
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_B >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -3602,7 +3698,8 @@ void deque<VALUE_TYPE, ALLOCATOR>::push_back(
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class... Args>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(Args&&...arguments)
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_front(Args&&...arguments)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this->size() >= max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3634,11 +3731,13 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(Args&&...arguments)
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
         this->d_start.valuePtrDecrement();
     }
+    return *(this->d_start);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class... Args>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this->size() >= max_size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3667,13 +3766,22 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(Args&&...arguments)
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
         this->d_finish.nextBlock();
     }
+    return *(this->d_finish - 1);
 }
 #elif BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_deque.h
+#ifndef BSLSTL_DEQUE_VARIADIC_LIMIT
+#define BSLSTL_DEQUE_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_DEQUE_VARIADIC_LIMIT_C
+#define BSLSTL_DEQUE_VARIADIC_LIMIT_C BSLSTL_DEQUE_VARIADIC_LIMIT
+#endif
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 0
 template <class VALUE_TYPE, class ALLOCATOR>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                            )
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this->size() >= max_size())) {
@@ -3702,11 +3810,15 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                             this->d_start.valuePtr() - 1);
         this->d_start.valuePtrDecrement();
     }
+    return *(this->d_start);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 1
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this->size() >= max_size())) {
@@ -3737,12 +3849,16 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
         this->d_start.valuePtrDecrement();
     }
+    return *(this->d_start);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 2
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
@@ -3776,13 +3892,17 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
         this->d_start.valuePtrDecrement();
     }
+    return *(this->d_start);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 3
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
           class Args_03>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
@@ -3819,14 +3939,18 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
         this->d_start.valuePtrDecrement();
     }
+    return *(this->d_start);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 4
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
           class Args_03,
           class Args_04>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -3866,15 +3990,19 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                          BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
         this->d_start.valuePtrDecrement();
     }
+    return *(this->d_start);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 5
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
           class Args_03,
           class Args_04,
           class Args_05>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -3917,8 +4045,11 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                          BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
         this->d_start.valuePtrDecrement();
     }
+    return *(this->d_start);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 6
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3926,7 +4057,8 @@ template <class Args_01,
           class Args_04,
           class Args_05,
           class Args_06>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -3972,8 +4104,11 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                          BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
         this->d_start.valuePtrDecrement();
     }
+    return *(this->d_start);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 7
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -3982,7 +4117,8 @@ template <class Args_01,
           class Args_05,
           class Args_06,
           class Args_07>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4031,8 +4167,11 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                          BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
         this->d_start.valuePtrDecrement();
     }
+    return *(this->d_start);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 8
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4042,7 +4181,8 @@ template <class Args_01,
           class Args_06,
           class Args_07,
           class Args_08>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4094,8 +4234,11 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                          BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
         this->d_start.valuePtrDecrement();
     }
+    return *(this->d_start);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 9
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4106,7 +4249,8 @@ template <class Args_01,
           class Args_07,
           class Args_08,
           class Args_09>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4161,8 +4305,11 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                          BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
         this->d_start.valuePtrDecrement();
     }
+    return *(this->d_start);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 10
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4174,7 +4321,8 @@ template <class Args_01,
           class Args_08,
           class Args_09,
           class Args_10>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4232,11 +4380,15 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                          BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
         this->d_start.valuePtrDecrement();
     }
+    return *(this->d_start);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 10
 
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 0
 template <class VALUE_TYPE, class ALLOCATOR>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                            )
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this->size() >= max_size())) {
@@ -4264,11 +4416,15 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                             this->d_finish.valuePtr());
         this->d_finish.nextBlock();
     }
+    return *(this->d_finish - 1);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 0
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 1
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this->size() >= max_size())) {
@@ -4298,12 +4454,16 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_01, arguments_01));
         this->d_finish.nextBlock();
     }
+    return *(this->d_finish - 1);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 1
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 2
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
@@ -4336,13 +4496,17 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_02, arguments_02));
         this->d_finish.nextBlock();
     }
+    return *(this->d_finish - 1);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 2
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 3
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
           class Args_03>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
@@ -4378,14 +4542,18 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_03, arguments_03));
         this->d_finish.nextBlock();
     }
+    return *(this->d_finish - 1);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 3
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 4
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
           class Args_03,
           class Args_04>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4424,15 +4592,19 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_04, arguments_04));
         this->d_finish.nextBlock();
     }
+    return *(this->d_finish - 1);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 4
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 5
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
           class Args_03,
           class Args_04,
           class Args_05>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4474,8 +4646,11 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_05, arguments_05));
         this->d_finish.nextBlock();
     }
+    return *(this->d_finish - 1);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 5
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 6
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4483,7 +4658,8 @@ template <class Args_01,
           class Args_04,
           class Args_05,
           class Args_06>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4528,8 +4704,11 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_06, arguments_06));
         this->d_finish.nextBlock();
     }
+    return *(this->d_finish - 1);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 6
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 7
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4538,7 +4717,8 @@ template <class Args_01,
           class Args_05,
           class Args_06,
           class Args_07>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4586,8 +4766,11 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_07, arguments_07));
         this->d_finish.nextBlock();
     }
+    return *(this->d_finish - 1);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 7
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 8
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4597,7 +4780,8 @@ template <class Args_01,
           class Args_06,
           class Args_07,
           class Args_08>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4648,8 +4832,11 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_08, arguments_08));
         this->d_finish.nextBlock();
     }
+    return *(this->d_finish - 1);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 8
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 9
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4660,7 +4847,8 @@ template <class Args_01,
           class Args_07,
           class Args_08,
           class Args_09>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4714,8 +4902,11 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_09, arguments_09));
         this->d_finish.nextBlock();
     }
+    return *(this->d_finish - 1);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 9
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 10
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -4727,7 +4918,8 @@ template <class Args_01,
           class Args_08,
           class Args_09,
           class Args_10>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
                        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
@@ -4784,14 +4976,17 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                          BSLS_COMPILERFEATURES_FORWARD(Args_10, arguments_10));
         this->d_finish.nextBlock();
     }
+    return *(this->d_finish - 1);
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_C >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class... Args>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args)...arguments)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this->size() >= max_size())) {
@@ -4822,11 +5017,13 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_front(
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
         this->d_start.valuePtrDecrement();
     }
+    return *(this->d_start);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class... Args>
-void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
+typename deque<VALUE_TYPE, ALLOCATOR>::reference
+deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                            BSLS_COMPILERFEATURES_FORWARD_REF(Args)...arguments)
 {
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(this->size() >= max_size())) {
@@ -4856,6 +5053,7 @@ void deque<VALUE_TYPE, ALLOCATOR>::emplace_back(
                             BSLS_COMPILERFEATURES_FORWARD(Args, arguments)...);
         this->d_finish.nextBlock();
     }
+    return *(this->d_finish - 1);
 }
 // }}} END GENERATED CODE
 #endif
@@ -4929,6 +5127,13 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
 // {{{ BEGIN GENERATED CODE
 // The following section is automatically generated.  **DO NOT EDIT**
 // Generator command line: sim_cpp11_features.pl bslstl_deque.h
+#ifndef BSLSTL_DEQUE_VARIADIC_LIMIT
+#define BSLSTL_DEQUE_VARIADIC_LIMIT 10
+#endif
+#ifndef BSLSTL_DEQUE_VARIADIC_LIMIT_D
+#define BSLSTL_DEQUE_VARIADIC_LIMIT_D BSLSTL_DEQUE_VARIADIC_LIMIT
+#endif
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 0
 template <class VALUE_TYPE, class ALLOCATOR>
 typename deque<VALUE_TYPE, ALLOCATOR>::iterator
 deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position)
@@ -4987,7 +5192,9 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position)
     }
     return this->begin() + posIdx;
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 0
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 1
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01>
 typename deque<VALUE_TYPE, ALLOCATOR>::iterator
@@ -5050,7 +5257,9 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
     }
     return this->begin() + posIdx;
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 1
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 2
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02>
@@ -5119,7 +5328,9 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
     }
     return this->begin() + posIdx;
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 2
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 3
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5194,7 +5405,9 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
     }
     return this->begin() + posIdx;
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 3
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 4
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5275,7 +5488,9 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
     }
     return this->begin() + posIdx;
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 4
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 5
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5362,7 +5577,9 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
     }
     return this->begin() + posIdx;
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 5
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 6
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5455,7 +5672,9 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
     }
     return this->begin() + posIdx;
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 6
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 7
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5554,7 +5773,9 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
     }
     return this->begin() + posIdx;
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 7
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 8
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5659,7 +5880,9 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
     }
     return this->begin() + posIdx;
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 8
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 9
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5770,7 +5993,9 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
     }
     return this->begin() + posIdx;
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 9
 
+#if BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 10
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class Args_01,
           class Args_02,
@@ -5887,6 +6112,7 @@ deque<VALUE_TYPE, ALLOCATOR>::emplace(const_iterator position,
     }
     return this->begin() + posIdx;
 }
+#endif  // BSLSTL_DEQUE_VARIADIC_LIMIT_D >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
