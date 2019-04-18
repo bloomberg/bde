@@ -420,6 +420,8 @@ BSLS_IDENT("$Id: $")
 #define INCLUDED_CSTDDEF
 #endif
 
+#include <memory_resource>
+
 namespace BloombergLP {
 
 namespace bslma {
@@ -428,7 +430,7 @@ namespace bslma {
                         // class Allocator
                         // ===============
 
-class Allocator {
+class Allocator : public std::pmr::memory_resource {
     // This protocol class provides a pure abstract interface and contract for
     // clients and suppliers of raw memory.  If the requested memory cannot be
     // returned, the contract requires that an 'std::bad_alloc' exception be
@@ -450,6 +452,10 @@ class Allocator {
         // allocator while memory is allocated from it is not specified.
         // (Unless you *know* that it is valid to do so, don't!)
 
+    void* do_allocate(std::size_t size, std::size_t /*alignment*/) override
+    {
+      return allocate(size);
+    }
     // MANIPULATORS
     virtual void *allocate(size_type size) = 0;
         // Return a newly allocated block of memory of (at least) the specified
@@ -462,6 +468,14 @@ class Allocator {
         // conforms to the platform requirement for any object of the specified
         // 'size'.
 
+    void do_deallocate(void* address, std::size_t /*size*/, std::size_t /*alignment */) override
+    {
+      return deallocate(address);
+    }
+    bool do_is_equal(const std::pmr::memory_resource& other) const noexcept override
+    {
+      return this == &other;
+    }
     virtual void deallocate(void *address) = 0;
         // Return the memory block at the specified 'address' back to this
         // allocator.  If 'address' is 0, this function has no effect.  The

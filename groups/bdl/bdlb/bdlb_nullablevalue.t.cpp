@@ -46,6 +46,20 @@
 using namespace BloombergLP;
 using namespace bsl;
 
+namespace std
+{
+  template <typename _Alloc>
+  struct uses_allocator<bsl::string, _Alloc> : true_type {};
+  template <typename TYPE, typename _Alloc>
+  struct uses_allocator<bslalg::ConstructorProxy<bdlb::NullableValue<TYPE>>, _Alloc> : true_type {};
+  template <typename _Alloc>
+struct uses_allocator<bsltf::AllocTestType, _Alloc> : true_type {};
+  template <typename _Alloc>
+struct uses_allocator<bsltf::MovableAllocTestType, _Alloc> : true_type {};
+  template <typename _Alloc>
+struct uses_allocator<bsltf::AllocBitwiseMoveableTestType, _Alloc> : true_type {};
+}
+  
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------
@@ -1312,6 +1326,15 @@ struct UsesBslmaAllocator<NonAssignableAllocTestType> : bsl::true_type {
 }  // close namespace bslma
 }  // close enterprise namespace
 
+namespace std
+{
+  template <typename _Alloc>
+  struct uses_allocator<NonAssignableAllocTestType, _Alloc> : true_type {};
+;
+  template <class TYPE, class _Alloc>
+  struct uses_allocator<TmvipAa<TYPE>, _Alloc> : true_type {};
+}
+
 
                    // ======================================
                    // class ConvertibleFromAllocatorTestType
@@ -1498,6 +1521,13 @@ struct UsesBslmaAllocator<ConvertibleFromAllocatorTestType> : bsl::true_type {
 }  // close namespace bslma
 }  // close enterprise namespace
 
+namespace std
+{
+  template <typename _Alloc>
+  struct uses_allocator<ConvertibleFromAllocatorTestType, _Alloc> : true_type {};
+;
+}
+  
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -1889,8 +1919,8 @@ void TestDriver<TEST_TYPE>::testCase24_withoutAllocator()
     };
     const int NUM_SPECS = sizeof SPECS / sizeof *SPECS;
 
-    Obj& (Obj::*operatorMAg) (bslmf::MovableRef<TEST_TYPE>) = &Obj::operator=;
-    (void) operatorMAg;  // quash potential compiler warning
+    //Obj& (Obj::*operatorMAg) (bslmf::MovableRef<TEST_TYPE>) = &Obj::operator=;
+    //(void) operatorMAg;  // quash potential compiler warning
 
     if (verbose) printf("\nTesting move assignment (no allocator).\n");
     {
@@ -3365,7 +3395,7 @@ void TestDriver<TEST_TYPE>::testCase21_withAllocator()
                 ASSERTV(SPEC, CONFIG, X == W);
 
                 // Verify subsequent manipulation of new object 'X'.
-                primaryManipulator(&mX, 'Z');
+                 primaryManipulator(&mX, 'Z');
                 ASSERTV(SPEC, X != W);
                 ASSERTV(SPEC, X == Z);
 
@@ -7203,7 +7233,7 @@ int main(int argc, char *argv[])
             {
                 Obj mX(&oa);  const Obj& X = mX;
                 if (veryVeryVerbose) { T_ T_ P(X) }
-                ASSERT(X.isNull());
+                ASSERT(!mX.has_value());
                 ASSERT(0 == da.numBlocksTotal());
                 ASSERT(0 == oa.numBlocksTotal());
             }
