@@ -57,6 +57,10 @@ struct uses_allocator<bsltf::AllocTestType, _Alloc> : true_type {};
   template <typename _Alloc>
 struct uses_allocator<bsltf::MovableAllocTestType, _Alloc> : true_type {};
   template <typename _Alloc>
+struct uses_allocator<bsltf::MoveOnlyAllocTestType, _Alloc> : true_type {};
+  template <typename _Alloc>
+struct uses_allocator<bsltf::NonAssignableTestType, _Alloc> : true_type {};
+  template <typename _Alloc>
 struct uses_allocator<bsltf::AllocBitwiseMoveableTestType, _Alloc> : true_type {};
 }
   

@@ -374,7 +374,7 @@ namespace pmr {
 			  _Optional_payload(__ctor_tag<bool>{},
 					    __other._M_payload) :
 			  _Optional_payload(__ctor_tag<void>{}))
-      { }
+      { _M_pmr = __other._M_pmr; }
 
       constexpr
       _Optional_payload(bool __engaged, _Optional_payload&& __other)
@@ -382,7 +382,7 @@ namespace pmr {
 			  ? _Optional_payload(__ctor_tag<bool>{},
 					      std::move(__other._M_payload))
 			  : _Optional_payload(__ctor_tag<void>{}))
-      { }
+      { _M_pmr = __other._M_pmr; }
 
       _Optional_payload(const _Optional_payload&) = default;
       _Optional_payload(_Optional_payload&&) = default;
@@ -528,7 +528,7 @@ namespace pmr {
 			  _Optional_payload(__ctor_tag<bool>{},
 					    __other._M_payload) :
 			  _Optional_payload(__ctor_tag<void>{}))
-      { }
+      { _M_pmr = __other._M_pmr; }
 
       constexpr
       _Optional_payload(bool __engaged, _Optional_payload&& __other)
@@ -536,7 +536,7 @@ namespace pmr {
 			  ? _Optional_payload(__ctor_tag<bool>{},
 					      std::move(__other._M_payload))
 			  : _Optional_payload(__ctor_tag<void>{}))
-      { }
+      { _M_pmr = __other._M_pmr; }
 
       _Optional_payload(const _Optional_payload&) = default;
       _Optional_payload(_Optional_payload&&) = default;
@@ -683,7 +683,7 @@ namespace pmr {
 			  _Optional_payload(__ctor_tag<bool>{},
 					    __other._M_payload) :
 			  _Optional_payload(__ctor_tag<void>{}))
-      { }
+      { _M_pmr = __other._M_pmr; }
 
       constexpr
       _Optional_payload(bool __engaged, _Optional_payload&& __other)
@@ -691,7 +691,7 @@ namespace pmr {
 			  ? _Optional_payload(__ctor_tag<bool>{},
 					      std::move(__other._M_payload))
 			  : _Optional_payload(__ctor_tag<void>{}))
-      { }
+      { _M_pmr = __other._M_pmr; }
 
       _Optional_payload(const _Optional_payload&) = default;
       _Optional_payload(_Optional_payload&&) = default;
@@ -1226,7 +1226,10 @@ namespace pmr {
       */
       using value_type = _Tp;
 
-      constexpr optional() = default;
+      constexpr optional()
+      {
+	this->_M_set_allocator(std::pmr::get_default_resource());
+      }
 
       constexpr optional(nullopt_t) noexcept { }
 
