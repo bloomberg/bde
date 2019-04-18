@@ -4,10 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_datetimeinterval_cpp,"$Id$ $CSID$")
 
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-#   define copysign _copysign
-#endif
-
 #include <bdlb_bitutil.h>
 
 #include <bslim_printer.h>
