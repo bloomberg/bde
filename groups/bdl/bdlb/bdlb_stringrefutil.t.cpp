@@ -340,7 +340,7 @@ static void testLocalFunctions()
     }
 }
 
-static void split(std::vector< bslstl::StringRef> *result,
+static void split(bsl::vector< bslstl::StringRef> *result,
                   const bslstl::StringRef&         string,
                   char                             delimiter)
     // Load into the specified 'result' vector the parts of the specified
@@ -835,7 +835,7 @@ int main(int argc, char *argv[])
             const size_type  k_POS      = k_TEST.d_pos;
             const size_type  k_EXPECTED = k_TEST.d_expected;
 
-            std::vector<StringRef> calls;
+            bsl::vector<StringRef> calls;
             split(&calls, k_CALLS, ',');
 
             for (bsl::size_t j = 0; j < calls.size(); ++j) {
