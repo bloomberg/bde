@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 //  BSLA_PRINTF_IS_ACTIVE: 1 if 'BSLA_PRINTF' is active and 0 otherwise
 //  BSLA_SCANF_IS_ACTIVE: 0 if 'BSLA_SCANF' expands to nothing and 1 otherwise
 //  BSLA_UNUSED_IS_ACTIVE: 0 if 'BSLA_UNUSED' expands to nothing, else 1
-//  BSLA_USED_IS_ACTIVE: 0 of 'BSLA_USED' expands to nothing and 1 otherwise
+//  BSLA_USED_IS_ACTIVE: 0 if 'BSLA_USED' expands to nothing and 1 otherwise
 //  BSLA_WARNING_IS_ACTIVE: 0 if 'BSLA_WARNING' expands to nothing else 1
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
@@ -155,7 +155,7 @@ BSLS_IDENT("$Id: $")
 //:     code path is intended to be unreachable, causing compilers, where
 //:     supported, to issue warnings if there is actually a way that the code
 //:     can be reached.  Note that the behavior is undefined if control
-//:     actually reaches a 'BSLA_UNREACHED' statement.
+//:     actually reaches a 'BSLA_UNREACHABLE' statement.
 //
 //: 'BSLA_UNUSED'
 //:     This annotation indicates that the so-annotated function, variable, or
@@ -195,12 +195,12 @@ BSLS_IDENT("$Id: $")
 //: 'BSLA_WARNING_IS_ACTIVE'
 //:     In all cases where there is a 'BSLA_{X}' macro, there is a macro
 //:     'BSLA_{X}_IS_ACTIVE' that is defined to 0 if 'BSLA_{X}' expands to
-//:     nothing and defined to 1 if 'BSLA_{X}' explands to something and works.
+//:     nothing and defined to 1 if 'BSLA_{X}' expands to something and works.
 //
 ///Usage
 ///-----
-// See the other 'bsla' components for the usage examples for the macros
-// offered (transitively) by this component.
+// See the other 'bsla' components for usage examples for the macros offered
+// (transitively) by this component.
 
 #include <bsla_deprecated.h>
 #include <bsla_error.h>

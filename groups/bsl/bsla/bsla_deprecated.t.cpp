@@ -110,6 +110,7 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
 ///Example 1: Deprecating a type, a function, and a variable
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -299,7 +300,7 @@ int main(int argc, char **argv)
 // which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
 // the following warnings:
 //..
-//  .../bsla_deprecated.t.cpp:287:5: warning: 'UsageType' is deprecated 
+//  .../bsla_deprecated.t.cpp:287:5: warning: 'UsageType' is deprecated
 //  [-Wdeprecated-declarations]
 //      UsageType ut;
 //      ^

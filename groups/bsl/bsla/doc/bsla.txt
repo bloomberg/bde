@@ -1,6 +1,6 @@
  bsla.txt
 
-@PURPOSE: Provide annotation macros for BDE Users.
+@PURPOSE: Provide macros for portable use of compiler annotations.
 
 @MNEMONIC: Basic Standard Library Annotations (bsla)
 
@@ -16,17 +16,17 @@
  annotation for the current compiler, or, if the compiler does not support any
  form of the given annotation, the macros expand to nothing.
 
- For every macro 'BSLA_{X}', there is a corresponding macro
- 'BSLA_{X}_IS_ACTIVE' which is always defined to an integer, and expands to 0
- if the 'BSLA_{X}' expands to nothing and 1 if 'BSLA_{X}' expands to an
- annotation and the annotation works.  There are situations where compilers
- will "tolerate" an annotation -- the annotation won't be reported as a syntax
- error, but it will have no effect: in those cases, 'BSLA_{X}' will expand to
+ For every macro, 'BSLA_{X}', there is a corresponding macro,
+ 'BSLA_{X}_IS_ACTIVE', which is always defined to an integer, and expands to 0
+ if 'BSLA_{X}' expands to nothing and 1 if 'BSLA_{X}' expands to an annotation
+ and the annotation works.  There are situations where compilers will
+ "tolerate" an annotation -- the annotation won't be reported as a syntax
+ error, but it will have no effect.  In those cases, 'BSLA_{X}' will expand to
  nothing and 'BSLA_{X}_IS_ACTIVE' will be 0.
 
 /Hierarchical Synopsis
 /---------------------
- The 'bsls' package currently has 15 components having 2 levels of physical
+ The 'bsla' package currently has 15 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -70,13 +70,13 @@
 :      Provide a macro for warning about ignored function results.
 :
 : 'bsla_nonnullarg':
-:      Provide macros to hint at 'NULL' arguments to functions.
+:      Provide macros to hint at null arguments to functions.
 :
 : 'bsla_noreturn':
 :      Provide a macro to issue a compiler warning if a function returns.
 :
 : 'bsla_nullterminated':
-:      Provide macros for use with null-terminated variadic functions.
+:      Provide macros for use with 'NULL'-terminated variadic functions.
 :
 : 'bsla_printf':
 :      Provide a macro to indicate 'printf'-style arguments.
@@ -99,7 +99,7 @@
 /Component Overview
 /------------------
  This section provides a brief introduction to some of the components in the
- 'bsls' package.  See the documentation in each component for full details.
+ 'bsla' package.  See the documentation in each component for full details.
 
 /'bsla_annotations'
 / - - - - - - - - -
@@ -143,9 +143,9 @@
 /'bsla_nonnullarg'
 / - - - - - - - -
  This component provides preprocessor macros that define compiler-specific
- compile-time annotations.  These macros instruct the compiler to warn if
- 'NULL' is passed to certain arguments to a function, or, on platforms where
- the feature is not supported, expand to nothing.
+ compile-time annotations.  These macros instruct the compiler to warn if null
+ is passed to certain arguments to a function, or, on platforms where the
+ feature is not supported, expand to nothing.
 
 /'bsla_noreturn'
 / - - - - - - -

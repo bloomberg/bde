@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a macro to indicate that a return value is a format string.
 //
 //@MACROS:
-//  BSLA_FORMAT(FMT_IDX): validate 'printf'-style format spec in 'n'th argument
+//  BSLA_FORMAT(FMT_IDX): validate 'printf'-style format spec. in 'n'th arg.
 //  BSLA_FORMAT_IS_ACTIVE: 1 if 'BSLA_FORMAT' is active and 0 otherwise
 //
 //@SEE_ALSO: bsla_annotations
@@ -38,10 +38,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
 ///Example 1: A Language Translator Function
 ///- - - - - - - - - - - - - - - - - - - - -
-// First, we define an 'enum', 'Language' to indicate the choice of languages:
+// First, we define an 'enum', 'Language', to indicate the choice of languages:
 //..
 //  enum Language {
 //      e_ENGLISH,

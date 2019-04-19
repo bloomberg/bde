@@ -98,9 +98,10 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
-///Example 1: Flagging a Function for a Compiler Error if Used
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Flagging a Function for a Compile Failure and Message if Used
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we declare and define a function annotated with 'BSLA_ERROR'.  Note
 // that the argument to 'BSLA_ERROR' must be a quoted string:
 //..
@@ -225,7 +226,8 @@ int main(int argc, char **argv)
 //..
     usageFunc();
 //..
-// Finally, observe the following compile error:
+// Finally, observe the following compile fails with the following error
+// message:
 //..
 //  .../bsla_error.t.cpp:226:16: error: call to 'usageFunc' declared with
 //  attribute error: Don't call 'usageFunc'

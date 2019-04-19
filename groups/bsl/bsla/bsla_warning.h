@@ -36,9 +36,10 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
-///Example 1: Function Annotated 'BSLA_WARNING'
-/// - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Function Annotated with 'BSLA_WARNING'
+/// - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we declare and define a function annotated with 'BSLA_WARNING'.  Note
 // that the argument to 'BSLA_WARNING' must be a quoted string:
 //..
@@ -53,7 +54,7 @@ BSLS_IDENT("$Id: $")
 //..
 //      usageFunc();
 //..
-// Finally, observe the following compile warning:
+// Finally, observe the following warning issued by the compiler:
 //..
 //  .../bsla_warning.t.cpp: In function 'int main(int, char**)':
 //  .../bsla_warning.t.cpp:246:16: warning: call to 'usageFunc' declared with

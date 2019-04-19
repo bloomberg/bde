@@ -110,10 +110,11 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
 ///Example 1: A Language Translator Function
 ///- - - - - - - - - - - - - - - - - - - - -
-// First, we define an 'enum', 'Language' to indicate the choice of languages:
+// First, we define an 'enum', 'Language', to indicate the choice of languages:
 //..
     enum Language {
         e_ENGLISH,

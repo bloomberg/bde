@@ -5,11 +5,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide macros for use with null-terminated variadic functions.
+//@PURPOSE: Provide macros for use with 'NULL'-terminated variadic functions.
 //
 //@MACROS:
-//  BSLA_NULLTERMINATED:            warn if last argument is non-'NULL'
-//  BSLA_NULLTERMINATEDAT(ARG_IDX): warn if argument at 'ARG_IDX' is non-'NULL'
+//  BSLA_NULLTERMINATED:            warn if last argument is not 'NULL'
+//  BSLA_NULLTERMINATEDAT(ARG_IDX): warn if argument at 'ARG_IDX' is not 'NULL'
 //  BSLA_NULLTERMINATED_IS_ACTIVE:   1 if 'BSLA_NULLTERMINATED' is active
 //  BSLA_NULLTERMINATEDAT_IS_ACTIVE: 1 if 'BSLA_NULLTERMINATEDAT' is active
 //
@@ -17,11 +17,11 @@ BSLS_IDENT("$Id: $")
 //
 //@AUTHOR: Andrew Paprocki (apaprock), Bill Chapman (bchapman2)
 //
-//@DESCRIPTION: This component provides preprocessor macros to
-// indicate that a variadic function's arguments are terminated by a 'NULL'
-// value, or, in the case of 'BSLA_NULLTERMINATEDAT', by a 'NULL' value at a
-// certain index.  Note that the terminating 'NULL' must actually be 'NULL';
-// passing 0 in it's place will result in a warning.
+//@DESCRIPTION: This component provides preprocessor macros to indicate that a
+// variadic function's arguments are terminated by 'NULL', or, in the case of
+// 'BSLA_NULLTERMINATEDAT', by 'NULL' at a certain index.  Note that the
+// terminating 'NULL' must actually be 'NULL' or, on C++11, 'nullptr'; passing
+// 0 in it's place will result in a warning.
 //
 ///Macro Reference
 ///---------------
@@ -43,8 +43,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
-///Example 1: 'catStrings' function
+///Example 1: 'catStrings' Function
 /// - - - - - - - - - - - - - - - -
 // Suppose we want to have a function that, passed a variable length argument
 // list of 'const char *' strings terminated by 'NULL', concatenates the
@@ -102,7 +103,7 @@ BSLS_IDENT("$Id: $")
 //       ^
 //..
 //
-///Example 2: 'catVerdict' function
+///Example 2: 'catVerdict' Function
 /// - - - - - - - - - - - - - - - -
 // Suppose we want to have a function that, passed a variable length argument
 // list of 'const char *' strings terminated by 'NULL', concatenates the
@@ -151,7 +152,7 @@ BSLS_IDENT("$Id: $")
 //  We find the defendant, Bugs Bunny: not guilty
 //..
 // Next, we call 'catVerdict' with no 'NULL' passed, and get a warning (and
-// probably a segfault if we ran it):
+// probably a core dump if we ran it):
 //..
 //      catVerdict(buf, "We find the", "defendant,", "Wile E. Coyote", 1);
 //      printf("%s\n", buf);

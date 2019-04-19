@@ -41,11 +41,12 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
 ///Example 1: Populate a Sequence of 'int's and 'float's with Random Numbers
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to have a function that will populate a list of 'int's and
-// 'float' with random numbers in the range '[ 0 .. 100 )'.
+// 'float's with random numbers in the range '[ 0 .. 100 )'.
 //
 // First, we define our function:
 //..

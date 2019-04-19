@@ -111,10 +111,11 @@ void aSsErT(bool condition, const char *message, int line)
 
 ///Usage
 ///-----
+// This section illustrates indended use of this component.
 //
-///Example 1: Passing 'NULL' to Arguments Annotated as Non-'NULL'
-///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a function 'usagePrint1' annotated such that a compiler
+///Example 1: Passing Null to Arguments Annotated as Non-Null
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we define a function, 'usagePrint1', annotated such that a compiler
 // warning will occur if the first argument of the annotated function is passed
 // 0, 'NULL', 'nullptr', or (on clang) a null pointer constant expression:
 //..
@@ -235,7 +236,7 @@ void use_with_warning_message_NONNULLARG_1()
     test_NONNULLARG_1(NULL, NULL, "");
 }
 
-void use_with_warning_message_NONNULARG_2_3_NONNULL()
+void use_with_warning_message_NONNULLARG_2_3_NONNULL()
     // Call 'test_NONNULLARG_2_3' several times, each time provoking a warning.
 {
     test_NONNULLARG_2_3("", "", NULL);
@@ -353,17 +354,17 @@ int main(int argc, char **argv)
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
 
-// Next, in 'main', we call both functions with a non-'NULL' first argument,
-// and observe that no warning occurs.  Note that even though 0 is passed to
-// the integer argument to 'usagePrint2' and the 'BSLA_NONNULLARGS' annotation
-// was used, non-pointer arguments are not affected by that annotation:
+// Next, in 'main', we call both functions with a non-null first argument, and
+// observe that no warning occurs.  Note that even though 0 is passed to the
+// integer argument to 'usagePrint2' and the 'BSLA_NONNULLARGS' annotation was
+// used, non-pointer arguments are not affected by that annotation:
 //..
         usagePrint1("woof", 0);
         usagePrint2("meow", 0);
 //..
 // Then, we call both functions passing the first argument a variable whose
-// value is known by the compiler to be 'NULL', but since 'np1' is a
-// non-'const' variable, no warning is issued:
+// value is known by the compiler to be null, but since 'np1' is a non-'const'
+// variable, no warning is issued:
 //..
         char *np1 = NULL;
         usagePrint1(np1,    0);
@@ -392,8 +393,8 @@ int main(int argc, char **argv)
         usagePrint2(np2, -50);    // Warning with clang, not g++
 #endif
 //..
-// Finally, we observe that the above ten calls result in the following
-// warnings with clang C++11:
+// Finally, we observe that the above calls result in the following warnings
+// with clang w/C++11 support:
 //..
 //  .../bsla_nonnullarg.t.cpp:376:30: warning: null passed to a callee that
 //  requires a non-null argument [-Wnonnull]

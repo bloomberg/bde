@@ -101,6 +101,7 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
 ///Example 1: Unused Variables
 ///- - - - - - - - - - - - - -
@@ -119,7 +120,7 @@ void aSsErT(bool condition, const char *message, int line)
 // the variable marked 'BSLA_USED' can.
 //..
 //
-///Example 2: Unused functions
+///Example 2: Unused Functions
 ///- - - - - - - - - - - - - -
 // First, declare two unused static functions, one marked 'BSLA_UNUSED' and one
 // marked 'BSLA_USED':

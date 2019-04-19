@@ -9,7 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BSLA_USED: emit annotated entity even if not referenced
-//  BSLA_USED_IS_ACTIVE: 0 of 'BSLA_USED' expands to nothing and 1 otherwise
+//  BSLA_USED_IS_ACTIVE: 0 if 'BSLA_USED' expands to nothing and 1 otherwise
 //
 //@SEE_ALSO: bsla_annotations
 //
@@ -23,8 +23,7 @@ BSLS_IDENT("$Id: $")
 ///---------------
 //: 'BSLA_USED'
 //:     This annotation indicates that the so-annotated function, variable, or
-//:     type must be emitted even if it appears that the variable is not
-//:     referenced.
+//:     type must be emitted even if it appears that it is not referenced.
 //
 //: 'BSLA_USED_IS_ACTIVE'
 //:     The macro 'BSLA_USED_IS_ACTIVE' is defined to 0 if 'BSLA_USED' expands
@@ -32,6 +31,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
 ///Example 1: Unused Variables
 ///- - - - - - - - - - - - - -
@@ -50,7 +50,7 @@ BSLS_IDENT("$Id: $")
 // the variable marked 'BSLA_USED' can.
 //..
 //
-///Example 2: Unused functions
+///Example 2: Unused Functions
 ///- - - - - - - - - - - - - -
 // First, declare two unused static functions, one marked 'BSLA_UNUSED' and one
 // marked 'BSLA_USED':

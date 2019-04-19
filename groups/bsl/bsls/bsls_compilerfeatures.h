@@ -292,7 +292,6 @@ BSLS_IDENT("$Id: $")
 //:   o GCC 4.8
 //:   o Clang 3.3
 //:   o Oracle CC 12.4
-//:   o MSVC 19.10
 //
 ///'BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD'
 /// - - - - - - - - - - - - - - - - - - - - - - - - -

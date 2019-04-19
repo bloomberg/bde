@@ -113,10 +113,11 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
-///Example 1: Indicating a Statement Intended to be Unreachable
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a function 'killSelf' that dumps core.  The function is
+///Example 1: Indicating That a Statement is Intended to be Unreachable
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// First, we define a function' 'killSelf', that dumps core.  The function is
 // intended never to return, and we indicate that by annotating the function
 // with 'BSLA_NORETURN'.  The function dumps core by calling 'BSLS_ASSERT_OPT'
 // on a 'false' value, which the compiler doesn't understand will never return:
@@ -140,7 +141,7 @@ namespace triggerWarnings {
 //  ^
 //..
 // Now, we put a 'BSLA_UNREACHABLE' statement after the 'BSLS_ASSERT_OPT',
-// which tells the compiler that that point in the code is unreachable.
+// which tells the compiler that that point in the code is unreachable:
 //..
 #if BSLA_UNREACHABLE_IS_ACTIVE
     BSLA_NORETURN void killSelf()

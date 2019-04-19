@@ -111,6 +111,7 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
 ///Example 1: Assertion Handler
 /// - - - - - - - - - - - - - -

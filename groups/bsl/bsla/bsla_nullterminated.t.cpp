@@ -123,8 +123,9 @@ bool veryVeryVeryVerbose;
 //
 ///Usage
 ///-----
+// This section illustrates intended use of this component.
 //
-///Example 1: 'catStrings' function
+///Example 1: 'catStrings' Function
 /// - - - - - - - - - - - - - - - -
 // Suppose we want to have a function that, passed a variable length argument
 // list of 'const char *' strings terminated by 'NULL', concatenates the
@@ -156,7 +157,7 @@ bool veryVeryVeryVerbose;
 //..
 
 //
-///Example 2: 'catVerdict' function
+///Example 2: 'catVerdict' Function
 /// - - - - - - - - - - - - - - - -
 // Suppose we want to have a function that, passed a variable length argument
 // list of 'const char *' strings terminated by 'NULL', concatenates the
@@ -440,7 +441,7 @@ if (veryVeryVeryVerbose) {
 //  We find the defendant, Bugs Bunny: not guilty
 //..
 // Next, we call 'catVerdict' with no 'NULL' passed, and get a warning (and
-// probably a segfault if we ran it):
+// probably a core dump if we ran it):
 //..
 #if U_TRIGGER_WARNINGS
 if (veryVeryVeryVerbose) {

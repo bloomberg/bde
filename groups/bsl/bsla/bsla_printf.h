@@ -38,17 +38,21 @@ BSLS_IDENT("$Id: $")
 //:     The macro 'BSLA_PRINTF_IS_ACTIVE' is defined to 0 for compilers where
 //:     'BSLA_PRINTF' expands to nothing, and 1 otherwise.
 //
-///Example 1: 'printf'-line Function That Returns a 'bsl::string' by Value
+///Usage
+///-----
+// This section illustrates intended use of this component.
+//
+///Example 1: 'printf'-Like Function That Returns a 'bsl::string' by Value
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a function 'strPrintf' that takes a variable number of
+// First, we define a function, 'strPrintf', that takes a variable number of
 // arguments.  The second argument is the format string, and we annotate it
 // with 'BSLA_PRINTF':
 //..
 //  std::string strPrintf(size_t *numChars, const char *format, ...)
 //                                                           BSLA_PRINTF(2, 3);
 //  std::string strPrintf(size_t *numChars, const char *format, ...)
-//      // Do an 'sprintf' write to a 'std::string' and return the string by
-//      // value.  Ensure that the write can't overflow unless memory or
+//      // Do a 'sprintf'-style write to a 'std::string' and return the string
+//      // by value.  Ensure that the write can't overflow unless memory or
 //      // address space is exhausted.  The specified '*numChars' is the number
 //      // of characters written, the specified 'format' is the 'printf'-style
 //      // format string, and the specified '...' is the variable-length list
@@ -59,7 +63,7 @@ BSLS_IDENT("$Id: $")
 //      va_list ap;
 //      va_start(ap, format);
 //
-//      // 'vnsprintf' returns the number of characters that WOULD have been
+//      // 'vsnprintf' returns the number of characters that WOULD have been
 //      // written (not including the terminating '\0') had the buffer been
 //      // long enough.
 //
