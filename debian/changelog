@@ -1,9 +1,16 @@
-bsl-internal (3.26.0.0) unstable; urgency=low
+bsl-internal (3.27.0.0) unstable; urgency=low
 
+  * 973e2853b Merge pull request #2347 from glogothe/releases/3.26.x-ss12.4+
+
+ -- Attila Feher <afeher@bloomberg.net>  Thu, 18 Apr 2019 17:32:25 -0400
+
+bsl-internal (3.26.0.0) git; urgency=low
+
+  * 0e0489f77 Changelog for version 3.26.0.0
   * 32cbdc54f Bump version to 3.26.0.0
   * b886bc08e Fix version-detect for CC with STLport library
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 8 Apr 2019 09:46:21 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 8 Apr 2019 09:56:39 -0400
 
 bsl-internal (3.25.0.0) git; urgency=low
 
