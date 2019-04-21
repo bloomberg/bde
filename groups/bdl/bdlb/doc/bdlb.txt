@@ -11,7 +11,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 36 components having 4 levels of physical
+ The 'bdlb' package currently has 37 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -33,7 +33,8 @@
      bdlb_printmethods
      bdlb_string
 
-  1. bdlb_arrayutil
+  1. bdlb_algorithmworkaroundutil
+     bdlb_arrayutil
      bdlb_bitutil
      bdlb_chartype
      bdlb_cstringequalto
@@ -59,6 +60,9 @@
 
 /Component Synopsis
 /------------------
+: 'bdlb_algorithmworkaroundutil':
+:      Provide a namespace for workarounds for faulty standard algorithms
+:
 : 'bdlb_arrayutil':
 :      Provide utilities to determine properties of fixed-sized arrays.
 :

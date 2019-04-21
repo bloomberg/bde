@@ -19,7 +19,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 71 components having 8 levels of physical
+ The 'bslstl' package currently has 76 components having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -63,9 +63,11 @@
      bslstl_string_test                                               !PRIVATE!
      bslstl_stringbuf
      bslstl_stringref
+     bslstl_systemerror
      bslstl_treenode
 
   3. bslstl_bidirectionaliterator
+     bslstl_error
      bslstl_function
      bslstl_hashtablebucketiterator
      bslstl_hashtableiterator
@@ -78,6 +80,7 @@
      bslstl_array
      bslstl_bidirectionalnodepool
      bslstl_chrono
+     bslstl_errc
      bslstl_forwarditerator
      bslstl_iteratorutil
      bslstl_list
@@ -92,6 +95,8 @@
      bslstl_equalto
      bslstl_hash
      bslstl_iosfwd
+     bslstl_iserrorcodeenum
+     bslstl_iserrorconditionenum
      bslstl_iterator
      bslstl_ratio
      bslstl_referencewrapper
@@ -145,6 +150,12 @@
 : 'bslstl_equalto':
 :      Provide a binary functor conforming to the C++11 'equal_to' spec.
 :
+: 'bslstl_errc':
+:      Provide a standard compliant version of 'errc'.
+:
+: 'bslstl_error':
+:      Provide standard compliant versions of <system_error> classes.
+:
 : 'bslstl_forwarditerator':
 :      Provide a template to create STL-compliant forward iterators.
 :
@@ -168,6 +179,12 @@
 :
 : 'bslstl_iosfwd':
 :      Provide forward declarations for Standard stream classes.
+:
+: 'bslstl_iserrorcodeenum':
+:      Provide a compliant standard 'is_error_code_enum' trait.
+:
+: 'bslstl_iserrorconditionenum':
+:      Provide a compliant standard 'is_error_condition_enum' trait.
 :
 : 'bslstl_istringstream':
 :      Provide a C++03-compatible 'istringstream' class.
@@ -273,6 +290,9 @@
 :
 : 'bslstl_stringstream':
 :      Provide a C++03-compatible 'stringstream' class.
+:
+: 'bslstl_systemerror':
+:      Provide a standard compliant 'system_error' class.
 :
 : 'bslstl_treeiterator':
 :      Provide an STL compliant iterator for a tree of 'TreeNode' objects.
