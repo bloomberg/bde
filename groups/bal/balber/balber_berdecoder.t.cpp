@@ -12277,15 +12277,22 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
+        //   Extracted from component header file.
         //
         // Concerns:
+        //: 1 The usage example provided in the component header file compiles,
+        //:   links, and runs as shown.
         //
         // Plan:
+        //: 1 Incorporate usage example from header into test driver, remove
+        //:   leading comment characters, and replace 'assert' with 'ASSERT'.
+        //:   (C-1)
         //
         // Testing:
+        //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTesting Usage Example"
@@ -12293,6 +12300,137 @@ int main(int argc, char *argv[])
 
         usageExample();
 
+        if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING decoding sequences of maximum size
+        //   Ensure that decoding sequences smaller than the configured maximum
+        //   sequence size succeeds and decodeing sequences larger than the
+        //   configured maximum sequence size fails.
+        //
+        // Concerns:
+        //: 1 Decoding an empty 'vector<char>' with a degerate maximum decoded
+        //:   sequence size of 0 successfully decodes the empty vector.
+        //:
+        //: 2 Decoding a single-element 'vector<char>' with a degenerate
+        //:   maximum decoded sequence size of 0 fails.
+        //;
+        //: 3 Docoding en empty 'vector<char>' with a maximum decoded sequence
+        //:   size of 1 successfully decodes the empty vector.
+        //:
+        //: 4 Decoding an single-element 'vector<char>' with a maximum decoded
+        //:   sequence size of 1 successfully decodes the vector.
+        //:
+        //: 5 For various maximum decoded sequence sizes, decoding a
+        //:   'vector<char>' less than or exactly equal to that size succeeds.
+        //:
+        //: 6 For various maximum decoded sequence sizes, decoding a
+        //:   'vector<char>' of a greater size fails.
+        //
+        // Plan:
+        //: 1 For maximum sequence sizes of 0, 1, 1 Megabyte, and 1 Gigabyte,
+        //:   attmpt to decode a 'vector<char>' of 1 less than, exactly equal
+        //:   to, and 1 greater than the maximum sequence size.
+        //:
+        //: 2 Verify that decoding vectors of sizes less than or equal to the
+        //:   configured maximum sequence size succeeds.
+        //:
+        //: 3 Verify that decoding vectors of sizes greater than the configured
+        //:   maximum sequence size fails.
+        //
+        // Testing:
+        //   int decode(bsl::streambuf *streamBuf, TYPE *variable);
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            bsl::cout << "\nTesting decoding sequences of maximum size"
+                      << "\n=========================================="
+                      << bsl::endl;
+
+        // First, ensure that the default maximum sequence size is 1GB.  This
+        // assertion will need to be changed as the default value for the
+        // maximum sequence size in 'balber::BerDecoderOptions' changes.
+
+        balber::BerDecoderOptions options;
+        ASSERT(1 * 1024 * 1024 * 1024 == options.maxSequenceSize());
+
+        static const int DEFAULT_MAX_SIZE = -1;
+
+        static const struct {
+            int  d_lineNum;   // source line number
+            int  d_maxSize;   // maximum sequence size to allow for decoding
+            int  d_size;      // size of data to encode and decode
+            bool d_canDecode; // flag indicating if decoding should succeed
+        } DATA[] = {
+            // Line Max Sequence Size        Sequence Size        Can Decode
+            // ---- ----------------- --------------------------- ----------
+            {    L_,                0,                          0, true     },
+            {    L_,                0,                          1, false    },
+            {    L_,                0,        1 * 1024 * 1024 - 1, false    },
+            {    L_,                0,        1 * 1024 * 1024    , false    },
+            {    L_,                0,        1 * 1024 * 1024 + 1, false    },
+            {    L_,                1,                          0, true     },
+            {    L_,                1,                          1, true     },
+            {    L_,                1,        1 * 1024 * 1024 - 1, false    },
+            {    L_,                1,        1 * 1024 * 1024    , false    },
+            {    L_,                1,        1 * 1024 * 1024 + 1, false    },
+            {    L_,  1 * 1024 * 1024,                          0, true     },
+            {    L_,  1 * 1024 * 1024,                          1, true     },
+            {    L_,  1 * 1024 * 1024,        1 * 1024 * 1024 - 1, true     },
+            {    L_,  1 * 1024 * 1024,        1 * 1024 * 1024    , true     },
+            {    L_,  1 * 1024 * 1024,        1 * 1024 * 1024 + 1, false    },
+            {    L_,  1 * 1024 * 1024,       32 * 1024 * 1024 - 1, false    },
+            {    L_,  1 * 1024 * 1024,       32 * 1024 * 1024    , false    },
+            {    L_,  1 * 1024 * 1024,       32 * 1024 * 1024 + 1, false    },
+            {    L_, DEFAULT_MAX_SIZE,                          0, true     },
+            {    L_, DEFAULT_MAX_SIZE,                          1, true     },
+            {    L_, DEFAULT_MAX_SIZE,       32 * 1024 * 1024 - 1, true     },
+            {    L_, DEFAULT_MAX_SIZE,       32 * 1024 * 1024    , true     },
+            {    L_, DEFAULT_MAX_SIZE,       32 * 1024 * 1024 + 1, true     },
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int i = 0; i != NUM_DATA; ++i) {
+            const int  LINE       = DATA[i].d_lineNum;
+            const int  MAX_SIZE   = DATA[i].d_maxSize;
+            const int  SIZE       = DATA[i].d_size;
+            const bool CAN_DECODE = DATA[i].d_canDecode;
+
+            if (veryVeryVerbose) {
+                P_(LINE) P_(MAX_SIZE) P_(SIZE) P(CAN_DECODE)
+            }
+
+            const bsl::vector<char> DATA(SIZE, '\xAB');
+
+            bdlsb::MemOutStreamBuf osb;
+            balber::BerEncoder encoder;
+
+            int rc = encoder.encode(&osb, DATA);
+            ASSERT(0 == rc);
+
+            balber::BerDecoderOptions decoderOptions;
+            if (MAX_SIZE != DEFAULT_MAX_SIZE) {
+                decoderOptions.setMaxSequenceSize(MAX_SIZE);
+            }
+
+            balber::BerDecoder decoder(&decoderOptions);
+
+            bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+
+            if (CAN_DECODE) {
+                bsl::vector<char> decodedData;
+                rc = decoder.decode(&isb, &decodedData);
+                ASSERT(0 == rc);
+                ASSERT(DATA == decodedData);
+            }
+            else {
+                bsl::vector<char> decodedData;
+                rc = decoder.decode(&isb, &decodedData);
+                ASSERT(0 != rc);
+            }
+        }
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
       case 19: {
@@ -12783,7 +12921,6 @@ int main(int argc, char *argv[])
                 }
             }
         }
-
         if (verbose) bsl::cout << "\nEnd of test." << bsl::endl;
       } break;
       case 18: {

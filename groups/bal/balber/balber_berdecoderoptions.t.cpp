@@ -203,7 +203,7 @@ typedef balber::BerDecoderOptions Obj;
 //                 type='xs:int'
 //                 minOccurs='0'
 //                 maxOccurs='1'
-//                 default='8388608'
+//                 default='1073741824'
 //                 bdem:allowsDirectManipulation='0'>
 //             </xs:element>
 //         </xs:sequence>
@@ -254,7 +254,7 @@ typedef balber::BerDecoderOptions Obj;
 //                 type='xs:int'
 //                 minOccurs='0'
 //                 maxOccurs='1'
-//                 default='8388608'
+//                 default='1073741824'
 //                 bdem:allowsDirectManipulation='0'>
 //             </xs:element>
 //
@@ -754,7 +754,8 @@ const bool BerDecoderOptionsV1::DEFAULT_INITIALIZER_SKIP_UNKNOWN_ELEMENTS = true
 
 const int BerDecoderOptionsV1::DEFAULT_INITIALIZER_TRACE_LEVEL = 0;
 
-const int BerDecoderOptionsV1::DEFAULT_INITIALIZER_MAX_SEQUENCE_SIZE = 8388608;
+const int BerDecoderOptionsV1::DEFAULT_INITIALIZER_MAX_SEQUENCE_SIZE =
+        1073741824;
 
 const bdlat_AttributeInfo BerDecoderOptionsV1::ATTRIBUTE_INFO_ARRAY[] = {
     {
@@ -1058,7 +1059,7 @@ int main(int argc, char *argv[])
     // Attribute 3 Values: 'maxSequenceSize'
     // In Versions: 1, 2
 
-    static const T3 D3 = 8388608;  // default value
+    static const T3 D3 = 1 * 1024 * 1024 * 1024;  // default value
     static const T3 A3 = 12345;
 
     // Attribute 4 Values: 'skipUnknownElements'

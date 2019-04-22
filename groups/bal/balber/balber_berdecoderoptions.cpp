@@ -33,10 +33,10 @@ namespace BloombergLP {
 
 const char balber::BerDecoderOptions::CLASS_NAME[]                  =
                                                    "balber::BerDecoderOptions";
-const int  balber::BerDecoderOptions::DEFAULT_MAX_DEPTH             =      32;
+const int  balber::BerDecoderOptions::DEFAULT_MAX_DEPTH             = 32;
 const bool balber::BerDecoderOptions::DEFAULT_SKIP_UNKNOWN_ELEMENTS = true;
-const int  balber::BerDecoderOptions::DEFAULT_TRACE_LEVEL           =       0;
-const int  balber::BerDecoderOptions::DEFAULT_MAX_SEQUENCE_SIZE     = 8388608;
+const int  balber::BerDecoderOptions::DEFAULT_TRACE_LEVEL           = 0;
+const int  balber::BerDecoderOptions::DEFAULT_MAX_SEQUENCE_SIZE = 1073741824;
 const bool balber::BerDecoderOptions::DEFAULT_DEFAULT_EMPTY_STRINGS = true;
 
 const bdlat_AttributeInfo balber::BerDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {

@@ -47,7 +47,7 @@
       </xs:element>
       <xs:element name='MaxSequenceSize' type='xs:int'
                   minOccurs='0' maxOccurs='1'
-                  default='8388608'
+                  default='1073741824'
                   bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>maximum sequence size</xs:documentation>
