@@ -565,18 +565,23 @@ int main(int argc, char *argv[])
             "abc_a.h",
             "abc_a.cpp",
             "abc_a.t.cpp",
+            "abc_a.g.cpp",
             "/abc_a.h",
             "/abc_a.cpp",
             "/abc_a.t.cpp",
+            "/abc_a.g.cpp",
             "//abc_a.h",
             "/a.h/abc_a.cpp",
             "/*/abc_a.t.cpp",
+            "/*/abc_a.g.cpp",
             "/a_b/abc_a_test.h",
             "/a_b/abc_a_test.cpp",
             "/a_b/abc_a_test.t.cpp",
+            "/a_b/abc_a_test.g.cpp",
             "/a_b/abc_a_test123.h",
             "/a_b/abc_a_test123.cpp",
             "/a_b/abc_a_test123.t.cpp",
+            "/a_b/abc_a_test123.g.cpp",
         };
         const int NUM_COMPATIBLE_NAMES_A = sizeof COMPATIBLE_NAMES_A /
                                                     sizeof *COMPATIBLE_NAMES_A;
@@ -585,18 +590,23 @@ int main(int argc, char *argv[])
             "abc_z.z.h",
             "abc_z.z.cpp",
             "abc_z.z.t.cpp",
+            "abc_z.z.g.cpp",
             "/abc_z.z.h",
             "/abc_z.z.cpp",
             "/abc_z.z.t.cpp",
+            "/abc_z.z.g.cpp",
             "//abc_z.z.h",
             "/a.h/abc_z.z.cpp", // deliberately use "a.h" and not "z.h"
             "/*/abc_z.z.t.cpp",
+            "/*/abc_z.z.g.cpp",
             "/a_b/abc_z.z_test.h",
             "/a_b/abc_z.z_test.cpp",
             "/a_b/abc_z.z_test.t.cpp",
+            "/a_b/abc_z.z_test.g.cpp",
             "/a_b/abc_z.z_test123.h",
             "/a_b/abc_z.z_test123.cpp",
             "/a_b/abc_z.z_test123.t.cpp",
+            "/a_b/abc_z.z_test123.g.cpp",
         };
         const int NUM_COMPATIBLE_NAMES_ZZ = sizeof COMPATIBLE_NAMES_ZZ /
                                                    sizeof *COMPATIBLE_NAMES_ZZ;
@@ -619,10 +629,12 @@ int main(int argc, char *argv[])
             "t.cpp",
             "a.cpp.cpp.cpp",
             "a.t.t.cpp",
+            "a.g.g.cpp",
             "a.h.t.cpp",
             "a.cpp.h",
             "a.t.cpp.h",
             "a.T.cpp",
+            "a.G.cpp",
             "zz.h.cpp",
          };
         const int NUM_INCOMPATIBLE_NAMES = sizeof INCOMPATIBLE_NAMES /
@@ -636,7 +648,9 @@ int main(int argc, char *argv[])
             "a.hh",
             "a.cppp",
             "a.t.cppp",
+            "a.g.cppp",
             "a.tcpp",
+            "a.gcpp",
             "acpp",
             "*",
             "a*",
@@ -650,6 +664,10 @@ int main(int argc, char *argv[])
             "a.t.cPp",
             "a.t.cpP",
             "A.T.CPP",
+            "a.g.Cpp",
+            "a.g.cPp",
+            "a.g.cpP",
+            "A.G.CPP",
         };
         const size_t NUM_INVALID_NAMES = sizeof INVALID_NAMES /
                                                          sizeof *INVALID_NAMES;
@@ -1233,9 +1251,9 @@ int main(int argc, char *argv[])
         //:   null, or 'componentFileName' points to a filename that
         //:   corresponds to the same component as referenced by the 'filename'
         //:   attribute of 'caughtException'.  Two filenames correspond to the
-        //:   same component if the file extension is either ".h", ".cpp" or
-        //:   ".t.cpp", and the filenames have the same value when stripped of
-        //:   both the extension and any leading pathname.
+        //:   same component if the file extension is either ".h", ".cpp",
+        //:   ".t.cpp", or ".g.cpp", and the filenames have the same value when
+        //:   stripped of both the extension and any leading pathname.
         //
         // Plan:
         //: 1 We will take a table driven approach, verifying that each catch-
@@ -1270,12 +1288,15 @@ int main(int argc, char *argv[])
             "a.h",
             "a.cpp",
             "a.t.cpp",
+            "a.g.cpp",
             "/a.h",
             "/a.cpp",
             "/a.t.cpp",
+            "/a.g.cpp",
             "//a.h",
             "/a.h/a.cpp",
             "/*/a.t.cpp",
+            "/*/a.g.cpp",
         };
         const int NUM_COMPATIBLE_NAMES_A = sizeof COMPATIBLE_NAMES_A /
                                                     sizeof *COMPATIBLE_NAMES_A;
@@ -1284,12 +1305,15 @@ int main(int argc, char *argv[])
             "z.z.h",
             "z.z.cpp",
             "z.z.t.cpp",
+            "z.z.g.cpp",
             "/z.z.h",
             "/z.z.cpp",
             "/z.z.t.cpp",
+            "/z.z.g.cpp",
             "//z.z.h",
             "/a.h/z.z.cpp", // deliberately use "a.h" and not "z.h" in the path
             "/*/z.z.t.cpp",
+            "/*/z.z.g.cpp",
         };
         const int NUM_COMPATIBLE_NAMES_ZZ = sizeof COMPATIBLE_NAMES_ZZ /
                                                    sizeof *COMPATIBLE_NAMES_ZZ;
@@ -1312,6 +1336,7 @@ int main(int argc, char *argv[])
             "t.cpp",
             "a.cpp.cpp.cpp",
             "a.t.t.cpp",
+            "a.g.g.cpp",
             "a.h.t.cpp",
             "a.cpp.h",
             "a.t.cpp.h",
