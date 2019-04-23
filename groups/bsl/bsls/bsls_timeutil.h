@@ -39,6 +39,8 @@ BSLS_IDENT("$Id: $")
 // function 'QueryPerformanceCounter', upon which the Windows implementation of
 // 'bsls::TimeUtil' relies.
 //
+// Reference: https://msdn.microsoft.com/library/windows/desktop/dn553408
+//
 ///CPU Scaling
 /// -  -  -  -
 // The behavior of the timer on windows platforms depends on the interaction of
