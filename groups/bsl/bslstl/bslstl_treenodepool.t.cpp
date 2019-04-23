@@ -560,7 +560,7 @@ void TestDriver<VALUE>::testCase15()
 
             ASSERTV(CONFIG, true == X.hasFreeNodes());
 
-            RbNode *ptr = mX.createNode(VALUE());
+            RbNode *ptr = mX.emplaceIntoNewNode();
             ASSERT(ptr);
 
             createdNodes[createdNodeIdx] = ptr;  ++createdNodeIdx;
@@ -571,7 +571,7 @@ void TestDriver<VALUE>::testCase15()
 
         oam.reset();
 
-        RbNode *ptr = mX.createNode(VALUE());
+        RbNode *ptr = mX.emplaceIntoNewNode();
         ASSERT(ptr);
         ASSERT(oam.isTotalUp());
 
