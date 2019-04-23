@@ -619,9 +619,9 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
-                    // =================================
-                    // (BSLS) "REVIEW" Macro Definitions
-                    // =================================
+                     // =================================
+                     // (BSLS) "REVIEW" Macro Definitions
+                     // =================================
 
 // Implementation Note: We wrap the 'if' statement below in a (seemingly
 // redundant) do-while-false loop to require, syntactically, a trailing
@@ -629,23 +629,13 @@ BSLS_IDENT("$Id: $")
 // context -- even if one forgets to wrap, with curly braces, the body of an
 // 'if' having just a single 'BSLS_REVIEW*' statement.
 
-              // =============================================
-              // Factored Implementation for Internal Use Only
-              // =============================================
+               // =============================================
+               // Factored Implementation for Internal Use Only
+               // =============================================
 
-#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
-// As a workaroudn when we need to minimize string constants in 'bsls_review'
-// macros we just skip passing the filename entirely.
-#define BSLS_REVIEW_FILE static_cast<const char *>(0)
-#else
-#define BSLS_REVIEW_FILE __FILE__
-#endif
-
-#define BSLS_REVIEW_LINE __LINE__
-
-#if !(defined(BSLS_REVIEW_LEVEL_REVIEW_SAFE) ||                              \
-      defined(BSLS_REVIEW_LEVEL_REVIEW) ||                                   \
-      defined(BSLS_REVIEW_LEVEL_REVIEW_OPT) ||                               \
+#if !(defined(BSLS_REVIEW_LEVEL_REVIEW_SAFE) ||                               \
+      defined(BSLS_REVIEW_LEVEL_REVIEW) ||                                    \
+      defined(BSLS_REVIEW_LEVEL_REVIEW_OPT) ||                                \
       defined(BSLS_REVIEW_LEVEL_NONE))
 // In order to replicate the control logic of 'BSLS_ASSERT', if there has been
 // no explicit review level set we check to see if there has been an explicit
@@ -673,30 +663,31 @@ BSLS_IDENT("$Id: $")
     #define BSLS_REVIEW_NO_REVIEW_MACROS_DEFINED 0
 #endif
 
-#define BSLS_REVIEW_INVOKE(X) do {                                           \
-        static BloombergLP::bsls::Review::Count count = {0};                 \
-        int lastCount = BloombergLP::bsls::Review::updateCount(&count);      \
-        BloombergLP::bsls::ReviewViolation violation(                        \
-                                  X,                                         \
-                                  BSLS_REVIEW_FILE,                          \
-                                  BSLS_REVIEW_LINE,                          \
-                                  BloombergLP::bsls::Review::k_LEVEL_INVOKE, \
-                                  lastCount);                                \
-        BloombergLP::bsls::Review::invokeHandler(violation);                 \
+#define BSLS_REVIEW_INVOKE(X) do {                                            \
+        static BloombergLP::bsls::Review::Count count = {0};                  \
+        int lastCount = BloombergLP::bsls::Review::updateCount(&count);       \
+        BloombergLP::bsls::ReviewViolation violation(                         \
+                                  X,                                          \
+                                  BSLS_ASSERTIMPUTIL_FILE,                    \
+                                  BSLS_ASSERTIMPUTIL_LINE,                    \
+                                  BloombergLP::bsls::Review::k_LEVEL_INVOKE,  \
+                                  lastCount);                                 \
+        BloombergLP::bsls::Review::invokeHandler(violation);                  \
     } while (false)
 
-#define BSLS_REVIEW_REVIEW_IMP(X,LVL) do {                                   \
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                   \
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                              \
-            static BloombergLP::bsls::Review::Count count = {0};             \
-            int lastCount = BloombergLP::bsls::Review::updateCount(&count);  \
-            BloombergLP::bsls::ReviewViolation violation(#X,                 \
-                                                         BSLS_REVIEW_FILE,   \
-                                                         BSLS_REVIEW_LINE,   \
-                                                         LVL,                \
-                                                         lastCount);         \
-            BloombergLP::bsls::Review::invokeHandler(violation);             \
-        }                                                                    \
+#define BSLS_REVIEW_REVIEW_IMP(X,LVL) do {                                    \
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                    \
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                               \
+            static BloombergLP::bsls::Review::Count count = {0};              \
+            int lastCount = BloombergLP::bsls::Review::updateCount(&count);   \
+            BloombergLP::bsls::ReviewViolation violation(                     \
+                                                     #X,                      \
+                                                     BSLS_ASSERTIMPUTIL_FILE, \
+                                                     BSLS_ASSERTIMPUTIL_LINE, \
+                                                     LVL,                     \
+                                                     lastCount);              \
+            BloombergLP::bsls::Review::invokeHandler(violation);              \
+        }                                                                     \
     } while (false)
 
 #ifdef BSLS_REVIEW_VALIDATE_DISABLED_ASSERTIONS
@@ -705,15 +696,15 @@ BSLS_IDENT("$Id: $")
 #define BSLS_REVIEW_DISABLED_IMP(X,LVL)
 #endif
 
-                            // ================
-                            // BSLS_REVIEW_SAFE
-                            // ================
+                              // ================
+                              // BSLS_REVIEW_SAFE
+                              // ================
 
 // Determine if 'BSLS_REVIEW_SAFE' should be active.
 
-#if defined(BSLS_REVIEW_LEVEL_REVIEW_SAFE)                                   \
-    || BSLS_REVIEW_NO_REVIEW_MACROS_DEFINED && (                             \
-           defined(BDE_BUILD_TARGET_SAFE_2) ||                               \
+#if defined(BSLS_REVIEW_LEVEL_REVIEW_SAFE)                                    \
+    || BSLS_REVIEW_NO_REVIEW_MACROS_DEFINED && (                              \
+           defined(BDE_BUILD_TARGET_SAFE_2) ||                                \
            defined(BDE_BUILD_TARGET_SAFE)         )
 
     #define BSLS_REVIEW_SAFE_IS_ACTIVE  // also usable directly in client code
@@ -722,26 +713,26 @@ BSLS_IDENT("$Id: $")
 // Define 'BSLS_REVIEW_SAFE' accordingly.
 
 #if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
-    #define BSLS_REVIEW_SAFE(X) BSLS_REVIEW_REVIEW_IMP(                      \
-                                     X,                                      \
+    #define BSLS_REVIEW_SAFE(X) BSLS_REVIEW_REVIEW_IMP(                       \
+                                     X,                                       \
                                      BloombergLP::bsls::Review::k_LEVEL_SAFE)
 #else
-    #define BSLS_REVIEW_SAFE(X) BSLS_REVIEW_DISABLED_IMP(                    \
-                                     X,                                      \
+    #define BSLS_REVIEW_SAFE(X) BSLS_REVIEW_DISABLED_IMP(                     \
+                                     X,                                       \
                                      BloombergLP::bsls::Review::k_LEVEL_SAFE)
 #endif
 
-                               // ===========
-                               // BSLS_REVIEW
-                               // ===========
+                                // ===========
+                                // BSLS_REVIEW
+                                // ===========
 
 // Determine if 'BSLS_REVIEW' should be active.
 
-#if defined(BSLS_REVIEW_LEVEL_REVIEW_SAFE) ||                                \
-    defined(BSLS_REVIEW_LEVEL_REVIEW)                                        \
-    || BSLS_REVIEW_NO_REVIEW_MACROS_DEFINED && (                             \
-           defined(BDE_BUILD_TARGET_SAFE_2) ||                               \
-           defined(BDE_BUILD_TARGET_SAFE)   ||                               \
+#if defined(BSLS_REVIEW_LEVEL_REVIEW_SAFE) ||                                 \
+    defined(BSLS_REVIEW_LEVEL_REVIEW)                                         \
+    || BSLS_REVIEW_NO_REVIEW_MACROS_DEFINED && (                              \
+           defined(BDE_BUILD_TARGET_SAFE_2) ||                                \
+           defined(BDE_BUILD_TARGET_SAFE)   ||                                \
            !defined(BDE_BUILD_TARGET_OPT)         )
 
     #define BSLS_REVIEW_IS_ACTIVE       // also usable directly in client code
@@ -750,18 +741,18 @@ BSLS_IDENT("$Id: $")
 // Define 'BSLS_REVIEW' accordingly.
 
 #if defined(BSLS_REVIEW_IS_ACTIVE)
-    #define BSLS_REVIEW(X) BSLS_REVIEW_REVIEW_IMP(                           \
-                                   X,                                        \
+    #define BSLS_REVIEW(X) BSLS_REVIEW_REVIEW_IMP(                            \
+                                   X,                                         \
                                    BloombergLP::bsls::Review::k_LEVEL_REVIEW)
 #else
-    #define BSLS_REVIEW(X) BSLS_REVIEW_DISABLED_IMP(                         \
-                                   X,                                        \
+    #define BSLS_REVIEW(X) BSLS_REVIEW_DISABLED_IMP(                          \
+                                   X,                                         \
                                    BloombergLP::bsls::Review::k_LEVEL_REVIEW)
 #endif
 
-                             // ===============
-                             // BSLS_REVIEW_OPT
-                             // ===============
+                              // ===============
+                              // BSLS_REVIEW_OPT
+                              // ===============
 
 // Determine if 'BSLS_REVIEW_OPT' should be active.
 
@@ -772,12 +763,12 @@ BSLS_IDENT("$Id: $")
 // Define 'BSLS_REVIEW_OPT' accordingly.
 
 #if defined(BSLS_REVIEW_OPT_IS_ACTIVE)
-    #define BSLS_REVIEW_OPT(X) BSLS_REVIEW_REVIEW_IMP(                       \
-                                      X,                                     \
+    #define BSLS_REVIEW_OPT(X) BSLS_REVIEW_REVIEW_IMP(                        \
+                                      X,                                      \
                                       BloombergLP::bsls::Review::k_LEVEL_OPT)
 #else
-    #define BSLS_REVIEW_OPT(X) BSLS_REVIEW_DISABLED_IMP(                     \
-                                      X,                                     \
+    #define BSLS_REVIEW_OPT(X) BSLS_REVIEW_DISABLED_IMP(                      \
+                                      X,                                      \
                                       BloombergLP::bsls::Review::k_LEVEL_OPT)
 #endif
 
@@ -788,9 +779,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bsls {
 
-                          // =====================
-                          // class ReviewViolation
-                          // =====================
+                           // =====================
+                           // class ReviewViolation
+                           // =====================
 
 class ReviewViolation {
     // This class is an unconstrained *in-core* value-semantic class that
@@ -846,9 +837,9 @@ class ReviewViolation {
         // Return the 'reviewLevel' attribute of this object.
 };
 
-                              // ============
-                              // class Review
-                              // ============
+                                // ============
+                                // class Review
+                                // ============
 
 class Review {
     // This "utility" class maintains a pointer containing the address of the
@@ -974,9 +965,9 @@ class Review {
         // 'failByAbort').
 };
 
-                     // ===============================
-                     // class ReviewFailureHandlerGuard
-                     // ===============================
+                      // ===============================
+                      // class ReviewFailureHandlerGuard
+                      // ===============================
 
 class ReviewFailureHandlerGuard {
     // An object of this class saves the current review handler and installs
@@ -1013,9 +1004,9 @@ class ReviewFailureHandlerGuard {
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                          // ---------------------
-                          // class ReviewViolation
-                          // ---------------------
+                           // ---------------------
+                           // class ReviewViolation
+                           // ---------------------
 
 // ACCESSORS
 inline
@@ -1053,15 +1044,15 @@ const char *ReviewViolation::reviewLevel() const
 
 #endif // deeper include guard
 
-        // ========================================================
-        // UNDEFINE THE LOCALLY-SCOPED IMPLEMENTATION DETAIL MACROS
-        // ========================================================
+          // ========================================================
+          // UNDEFINE THE LOCALLY-SCOPED IMPLEMENTATION DETAIL MACROS
+          // ========================================================
 
 #undef BSLS_REVIEW_NO_REVIEW_MACROS_DEFINED
 
-                // =========================================
-                // IMPLEMENTATION USING THE C++ PREPROCESSOR
-                // =========================================
+                 // =========================================
+                 // IMPLEMENTATION USING THE C++ PREPROCESSOR
+                 // =========================================
 //
 // At most one of the following review levels may be set during the compilation
 // of any component that includes 'bsls_review.h':

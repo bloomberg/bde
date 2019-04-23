@@ -63,9 +63,9 @@ void printError(const bsls::ReviewViolation& violation)
 
 namespace bsls {
 
-                          // ---------------------
-                          // class ReviewViolation
-                          // ---------------------
+                           // ---------------------
+                           // class ReviewViolation
+                           // ---------------------
 
 // CREATORS
 ReviewViolation::ReviewViolation(const char *comment,
@@ -81,9 +81,9 @@ ReviewViolation::ReviewViolation(const char *comment,
 {
 }
 
-                              // ------------
-                              // class Review
-                              // ------------
+                                // ------------
+                                // class Review
+                                // ------------
 
 // CLASS DATA
 bsls::AtomicOperations::AtomicTypes::Pointer
@@ -244,9 +244,9 @@ void Review::failByThrow(const ReviewViolation& violation)
     failByAbort(violation);
 }
 
-                     // -------------------------------
-                     // class ReviewFailureHandlerGuard
-                     // -------------------------------
+                      // -------------------------------
+                      // class ReviewFailureHandlerGuard
+                      // -------------------------------
 
 // CREATORS
 ReviewFailureHandlerGuard::ReviewFailureHandlerGuard(

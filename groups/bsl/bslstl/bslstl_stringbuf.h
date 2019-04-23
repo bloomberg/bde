@@ -171,6 +171,15 @@ BSL_OVERRIDES_STD mode"
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 
+namespace BloombergLP {
+// 'BSLS_ASSERT' filename fix -- See {'bsls_assertimputil'}
+#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+extern const char s_bslstl_stringbuf_h[];
+#undef BSLS_ASSERTIMPUTIL_FILE
+#define BSLS_ASSERTIMPUTIL_FILE BloombergLP::s_bslstl_stringbuf_h
+#endif
+}
+
 namespace bsl {
 
 using native_std::ios_base;
@@ -1179,6 +1188,12 @@ struct UsesBslmaAllocator<
 
 }  // close namespace bslma
 }  // close enterprise namespace
+
+// Undo 'BSLS_ASSERT' filename fix -- See {'bsls_assertimputil'}
+#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+#undef BSlS_ASSERTIMPUTIL_FILE
+#define BSLS_ASSERTIMPUTIL_FILE BSLS_ASSERTIMPUTIL_DEFAULTFILE
+#endif
 
 #endif
 

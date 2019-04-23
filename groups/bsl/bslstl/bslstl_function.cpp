@@ -6,6 +6,13 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_platform.h>
 
+namespace BloombergLP {
+// 'BSLS_ASSERT' filename fix -- See {'bsls_assertimputil'}
+#ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
+extern const char s_bslstl_function_h[] = "bslstl_function.h";
+#endif
+}
+
 #ifdef BDE_BUILD_TARGET_EXC
 
 const char *bsl::bad_function_call::what() const BSLS_EXCEPTION_WHAT_NOTHROW
