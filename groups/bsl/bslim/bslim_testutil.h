@@ -134,8 +134,6 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bsltf_templatetestfacility.h>
-
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 
