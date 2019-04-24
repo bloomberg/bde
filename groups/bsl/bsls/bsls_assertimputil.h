@@ -43,7 +43,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  // Undo 'BSLS_ASSERT' filename fix -- See {bsls_assertimputil}
 //  #ifdef BSLS_ASSERTIMPUTIL_AVOID_STRING_CONSTANTS
-//  #undef BSlS_ASSERTIMPUTIL_FILE
+//  #undef BSLS_ASSERTIMPUTIL_FILE
 //  #define BSLS_ASSERTIMPUTIL_FILE BSLS_ASSERTIMPUTIL_DEFAULTFILE
 //  #endif
 //..
