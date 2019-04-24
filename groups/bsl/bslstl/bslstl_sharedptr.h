@@ -601,7 +601,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // language, e,g., there are no exception specifications, nor 'constexpr'
 // constructors, and move operations are emulated with 'bslmf::MovableRef'.
 //
-// In addition to the standar interface, this component supports allocators
+// In addition to the standard interface, this component supports allocators
 // following the 'bslma::Allocator' protocol in addition to the C++ Standard
 // Allocators (section 17.6.3.5, [allocator.requirements]), supports "factory"
 // style deleters in addition to function-like deleters, and interoperation

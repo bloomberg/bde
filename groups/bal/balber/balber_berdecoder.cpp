@@ -364,7 +364,7 @@ int BerDecoder_Node::readVectorChar(bsl::vector<char> *variable)
 
     int maxSize = d_decoder->decoderOptions()->maxSequenceSize();
     if (d_expectedLength > maxSize) {
-        return logError("'vector<char>' length more then limit");
+        return logError("'vector<char>' length more than limit");
                                                                       // RETURN
     }
 
