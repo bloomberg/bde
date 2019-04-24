@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_semaphore
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides an implementation of 'bslmt::Semaphore'
 // for POSIX threads ("pthreads"), 'bslmt::SemaphoreImpl<PosixSemaphore>', via
 // the template specialization:

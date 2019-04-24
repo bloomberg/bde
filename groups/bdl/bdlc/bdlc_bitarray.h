@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlc::BitArray: vector-like, sequential container of boolean values
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component implements 'bdlc::BitArray', an efficient
 // value-semantic, sequential container of boolean values (i.e., 0 or 1) of
 // type 'bool'.  A 'BitArray' may be thought of as an arbitrary-precision

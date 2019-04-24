@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlma_deleter
 //
-//@AUTHOR: Andrei Basov (abasov)
-//
 //@DESCRIPTION: This component defines the base-level protocol for a
 // thread-safe and type-safe creator and deleter of objects of parameterized
 // type.  In particular, 'bdlma::Factory' extends the 'bdlma::Deleter' protocol

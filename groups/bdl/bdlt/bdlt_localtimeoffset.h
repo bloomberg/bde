@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_timeinterval, bsls_systemtime, bsls_currenttime
 //
-//@AUTHOR: Khalid Shafiq (kshafiq), Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component provides a 'struct', 'bdlt::LocalTimeOffset', in
 // which are defined a series of static methods for using a callback function
 // to retrieve the local time offset (the difference between the currently

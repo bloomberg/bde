@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bdlmt::MultiQueueThreadPool: multi-threaded, serial processing of queues
 //
-//@AUTHOR: David Rubin (drubin6)
-//
 //@SEE_ALSO: bdlmt_threadpool
 //
 //@DESCRIPTION: This component defines a dynamic, configurable pool of queues,

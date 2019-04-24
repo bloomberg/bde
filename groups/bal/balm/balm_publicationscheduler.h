@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balm_metricsmanager
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION:  This component defines a 'balm::PublicationScheduler' class
 // that provides a scheduling mechanism for the publication of metrics. At
 // construction, a 'balm::PublicationScheduler' is provided the addresses of a

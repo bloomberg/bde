@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsitzo_tzdftimezoneutil
 //
-//@AUTHOR: Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component provides a namespace,
 // 'baltzo::WindowsTimeZoneUtil', containing utility functions supporting the
 // use of Windows time-zone facilities with 'baltzo' facilities.  Currently,

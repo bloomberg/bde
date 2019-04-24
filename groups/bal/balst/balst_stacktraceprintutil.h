@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balst::StackTracePrintUtil: namespace for functions to print a stack trace
 //
-//@AUTHOR: Oleg Semenov, Bill Chapman
-//
 //@SEE_ALSO: balst_stacktraceutil
 //
 //@DESCRIPTION: This component defines a namespace 'struct',

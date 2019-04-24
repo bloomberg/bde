@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_condition
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides an implementation of 'bslmt::Condition'
 // for POSIX threads ("pthreads"), 'bslmt::ConditionImpl<PosixThreads>', via
 // the template specialization:

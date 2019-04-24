@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Clay Wilson (cwilson9), Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 // TBD: update this documentation to reflect the new overloaded functions
 //
 //@DESCRIPTION: This component provides a 'namespace',

@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Standard Library Multi-Threading (bslmt)
 
-@AUTHOR: David Laurance (dlauranc), Herve Bronnimann (hbronnimann)
-
 @DESCRIPTION: The 'bslmt' package supports primitives that allow creation and
  management of operating system threads.  Using the components in 'bslmt',
  clients can write efficient, thread-safe code.

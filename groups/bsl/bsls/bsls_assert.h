@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_review
 //
-//@AUTHOR: Tom Marshall (tmarshal), John Lakos (jlakos)
-//
 //@DESCRIPTION: This component provides three "assert-like" macros,
 // 'BSLS_ASSERT', 'BSLS_ASSERT_SAFE', and 'BSLS_ASSERT_OPT', that can be used
 // to enable optional *redundant* runtime checks in corresponding build modes.

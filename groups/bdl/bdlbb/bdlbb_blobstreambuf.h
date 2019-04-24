@@ -19,8 +19,6 @@ BSLS_IDENT("$Id: $")
 //  bdlbb::InBlobStreamBuf: 'bdlbb::Blob' input 'streambuf'
 //  bdlbb::OutBlobStreamBuf: 'bdlbb::Blob' output 'streambuf'
 //
-//@AUTHOR: Guillaume Morin (gmorin1)
-//
 //@SEE_ALSO: bdlbb_blob
 //
 //@DESCRIPTION: This component implements the input and output

@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balber_berencoder, bdem_bdemdecoder, balxml_decoder
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwa),
-//         Shezan Baig (sbaig),
-//         Alexander Libman (alibman1@bloomberg.net)
-//
 //@DESCRIPTION: This component defines a single class, 'balber::BerDecoder',
 // that contains a parameterized 'decode' function.  The 'decode' function
 // decodes data read from a specified stream and loads the corresponding object

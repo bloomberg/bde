@@ -19,8 +19,6 @@ BSLS_IDENT("$Id: $")
 //  bdlc::IndexClerkIter: sequential accessor to decommissioned indices
 //  bdlc::IndexClerk: manager of reusable, non-negative integer indices
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@DESCRIPTION: This component implements an efficient, value-semantic manager
 // class for reusable, non-negative integer indices.  Each new instance of a
 // 'bdlc::IndexClerk' will issue consecutive integers on request, beginning

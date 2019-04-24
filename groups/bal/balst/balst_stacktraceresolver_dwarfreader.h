@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: balst_stacktraceresolverimpl_elf
 //           balst_stacktraceresolver_filehelper
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a class,
 // 'balst::StackTraceResolver_DwarfReader', that is optimized for reading
 // information from object files that are in the DWARF format.  The Elf object

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl_algorithm
 //
-//@AUTHOR: Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This component provides a namespace for a utility function that
 // swaps the value of two objects of the same type.  Using this utility is
 // intended to be a simpler alternative to using the standard 'swap' algorithm

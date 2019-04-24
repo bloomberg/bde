@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslstl_forwarditerator, bslstl_bidirectionaliterator,
 //           bslstl_randomaccessiterator, C++ Standard
 //
-//@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_iterator.h>' directly.  This component provides the facilities of the
 // iterators library from the C++ Standard, including iterator primitives

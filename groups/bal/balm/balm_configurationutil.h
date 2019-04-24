@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balm_metricsmanager, balm_defaultmetricsmanager
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a set of utility functions for
 // configuring metrics.  The 'balm::ConfigurationUtil' 'struct' provides
 // short-cuts for common configuration operations that are performed on other

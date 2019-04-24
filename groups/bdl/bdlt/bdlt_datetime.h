@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlt_date, bdlt_time, bdlt_datetimetz
 //
-//@AUTHOR: John Lakos (jlakos), Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component implements a value-semantic type,
 // 'bdlt::Datetime', that represents the composition of a date and a time
 // value.  The combined "date+time" value of a 'bdlt::Datetime' object is

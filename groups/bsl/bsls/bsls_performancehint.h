@@ -17,8 +17,6 @@ BSLS_IDENT("$Id: $")
 //  BSLS_PERFORMANCEHINT_UNLIKELY_HINT: annotate block unlikely to be taken
 //  BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE: prevent compiler optimizations
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component provides performance hints for the compiler or
 // hardware.  There are currently two types of hints that are supported:
 //: o branch prediction

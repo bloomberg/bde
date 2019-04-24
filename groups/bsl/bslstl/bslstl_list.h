@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_deque
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component defines a single class template, 'bsl::list',
 // implementing the standard container holding a sequence of elements (of a
 // template parameter type, 'VALUE').  All list operations involving a single

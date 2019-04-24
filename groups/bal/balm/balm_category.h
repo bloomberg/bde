@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 //
 //@SEE_ALSO: balm_metricregistry, balm_metricid, balm_metricdescription
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a class, 'balm::Category', whose values
 // are used to categorize collected metrics.  A metric "category" is an
 // identifier (chosen by the application) that groups together one or more

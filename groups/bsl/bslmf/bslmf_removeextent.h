@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_decay
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides a metafunction 'bsl::remove_extent'
 // that returns the element type of an array.  The functionality is intended to
 // be identical to the C++11 metafunction 'std::remove_extent'.  From the C++14

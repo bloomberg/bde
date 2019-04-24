@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdls::FdStreamBuf: stream buffer constructed with file descriptor
 //
-//@AUTHOR: ported by Bill Chapman (bchapman2)
-//
 //@SEE_ALSO: <bsl::streambuf>
 //
 //@DESCRIPTION: This component implements a class, 'bdls::FdStreamBuf', derived

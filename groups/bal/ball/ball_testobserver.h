@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_record, ball_context, ball_observer
 //
-//@AUTHOR: Tom Marshall (tmarshal)
-//
 //@DESCRIPTION: This component provides a concrete implementation of the
 // 'ball::Observer' protocol, 'ball::TestObserver', that is instrumented for
 // testing systems that use 'ball::Observer' objects.

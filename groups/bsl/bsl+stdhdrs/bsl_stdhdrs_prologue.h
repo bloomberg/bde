@@ -4,8 +4,6 @@
 //
 //@SEE_ALSO: bsl_stdhdrs_epilogue
 //
-//@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This prologue header is intended to be included at the start of
 // each bsl-supplied C++ standard library header file.  The header ensures that
 // 'std' is not defined as a macro while the header is being processed,

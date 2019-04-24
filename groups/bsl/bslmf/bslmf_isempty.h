@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_isclass.h
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component defines a meta-function, 'bsl::is_empty' and a
 // template variable 'bsl::is_empty_v', that represents the result value of the
 // 'bsl::is_empty' meta-function, which may be used to determine whether a type

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //  bsl::is_same_v: the result value of the standard meta-function
 //  bslmf::IsSame: meta-function for testing if two types are the same
 //
-//@AUTHOR: Shawn Edwards (sedwards)
-//
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_same' and
 // 'BloombergLP::bslmf::IsSame' and a template variable 'bsl::is_same_v',
 // that represents the result value of the 'bsl::is_same' meta-function.  All

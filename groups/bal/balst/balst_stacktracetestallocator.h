@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balst::StackTraceTestAllocator: allocator that reports call stack for leaks
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides an instrumented allocator,
 // 'balst::StackTraceTestAllocator', that implements the
 // 'bdlma::ManagedAllocator' protocol.  An object of this type records the call

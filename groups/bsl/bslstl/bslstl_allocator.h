@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_stdallocator
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_memory.h>' instead and use 'bsl::allocator' directly.  This component
 // provides an STL-compatible proxy for any allocator class derived from

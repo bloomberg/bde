@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //  bdlf::BindWrapper: reference counted function binder
 //  bdlf::BindUtil: factory methods for creating the binder
 //
-//@AUTHOR: Ilougino Rocha (irocha), Herve Bronnimann (hbronnimann)
-//
 //@SEE_ALSO: bdlf_memfn, bdlf_placeholder
 //
 //@DESCRIPTION: This component provides a parameterized binder mechanism,

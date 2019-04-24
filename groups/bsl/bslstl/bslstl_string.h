@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ISO C++ Standard, Section 21 [strings]
 //
-//@AUTHOR: Herve Bronnimann (hbronnim), Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This component defines a single class template 'basic_string',
 // implementing standard containers, 'std::string' and 'std::wstring', that
 // hold a sequence of characters.

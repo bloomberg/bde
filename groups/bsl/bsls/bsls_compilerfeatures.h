@@ -49,8 +49,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_platform
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
-//
 //@DESCRIPTION: This component provides a suite of preprocessor macros to
 // identify compiler-specific support of language features that may not be
 // available on all compilers in use across an organization.  For example, as

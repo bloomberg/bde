@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslx::VersionFunctions: namespace for functions returning version numbers
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwa), Jeffrey Mendelsohn (jmendelsohn4)
-//
 //@DESCRIPTION: This component provides a namespace, 'bslx::VersionFunctions',
 // that contains functions for determining the BDEX version number for types.
 //

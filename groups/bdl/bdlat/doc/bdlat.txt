@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Development Environment ATtribute types (bdlat)
 
-@AUTHOR: Shezan Baig (sbaig)
-
 @DESCRIPTION: The 'bdlat' package provides generic functions to work with the
  different concepts of attribute types.  These concepts group common behaviors
  ("array", "choice", "enumeration", "nullable", "selection", "sequence", or

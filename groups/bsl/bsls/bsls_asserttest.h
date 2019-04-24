@@ -27,8 +27,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_assert, bsls_asserttestexception
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
-//
 //@DESCRIPTION: This component provides a facility to test that 'BSLS_ASSERT_*'
 // macros are used as intended, in the appropriate build modes, and have the
 // expected effects.  The class 'bsls::AssertTest' provides a small set of

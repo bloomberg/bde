@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_constructionutil, bslalg_arrayprimitives
 //
-//@AUTHOR: Herve Bronnimann (hbronnim), Arthur Chiu (achiu)
-//
 //@DESCRIPTION: This component provides utilities to initialize, destroy, move,
 // and otherwise perform various primitive manipulations on deques with a
 // uniform interface, but selecting a different implementation according to the

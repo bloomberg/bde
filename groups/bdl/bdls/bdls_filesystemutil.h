@@ -20,9 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdls_pathutil
 //
-//@AUTHOR: Andrei Basov (abasov), Oleg Semenov (osemenov),
-// Hyman Rosen (hrosen4), Alexander Beels (abeels)
-//
 //@DESCRIPTION: This component provides a platform-independent interface to
 // filesystem utility methods, supporting multi-language file and path names.
 // Each method in the 'bdls::FilesystemUtil' namespace is a thin wrapper on top

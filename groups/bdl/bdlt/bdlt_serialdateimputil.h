@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlt_posixdateimputil, bdlt_prolepticdateimputil
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@DESCRIPTION: This component defines a 'typedef' to a class that implements
 // the (documentation-only) protocol for serial date implementation utilities
 // -- each class implements a common set of methods, each having the same

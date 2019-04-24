@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_latch
 //
-//@AUTHOR: Ilougino Rocha(irocha)
-//
 //@DESCRIPTION: This component defines a thread barrier named 'bslmt::Barrier'.
 // Barriers provide a simple mechanism for synchronizing a series of threads at
 // a given point in a program.  A barrier is constructed with a number

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Rahul Kumar (rkumar85@bloomberg.net)
-//
 //@DESCRIPTION: This component provides a 'struct',
 // 'bblb::ScheduleGenerationUtil', that serves as a namespace for functions
 // that generate a schedule; a set of dates limited to within a closed-interval

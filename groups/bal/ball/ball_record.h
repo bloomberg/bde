@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_recordattributes, ball_logger
 //
-//@AUTHOR: Hong Shi (hshi2)
-//
 //@DESCRIPTION: This component defines a container, 'ball::Record', that
 // aggregates a set of fixed fields and a set of user-defined fields into one
 // record type, useful for transmitting a customized log record as a single

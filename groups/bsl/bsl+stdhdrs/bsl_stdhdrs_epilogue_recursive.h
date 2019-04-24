@@ -4,9 +4,6 @@
 //
 //@SEE_ALSO: bsl_stdhdrs_epilogue, bsl+stdhdrs.txt
 //
-//@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21),
-//         Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This header is the recursive part of the implementation of
 // 'bsl_stdhdrs_epilogue.h'.  Its purpose is to include appropriate 'bslstp'
 // and 'bslstl' definitions for each of the native STL headers found in the

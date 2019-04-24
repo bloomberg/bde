@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmt::Configuration: namespace for utilities managing default BCE values
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@SEE_ALSO: bslmt_threadattributes, bslmt_threadutil
 //
 //@DESCRIPTION: This component defines a utility 'struct',

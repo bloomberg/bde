@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_resulttype
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION:  This component provides a trivial metafunction,
 // 'bslmf::VoidType', that takes up to 14 type parameters.  The template always
 // yields a member type, 'type', that is always 'void'.  The usefulness of this

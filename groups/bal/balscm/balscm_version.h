@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balscm::Version: namespace for versioning information for 'bal'
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendels)
-//
 //@DESCRIPTION: This component provides source control management (versioning)
 // information for the 'bal' package group.  In particular, this component
 // embeds RCS-style and SCCS-style version strings in binary executable files

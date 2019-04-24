@@ -4,8 +4,6 @@
 //
 //@SEE_ALSO: bsl_stdhdrs_prologue, bsl_stdhdrs_epilogue_recursive
 //
-//@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This epilogue file is intended to be included at the end of
 // each bsl-supplied C++ standard library header file in "BDE-STL" mode.  This
 // header '#include's bsl versions of some standard components, overriding

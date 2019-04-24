@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::DayOfWeek: namespace for day-of-week enumeration (and its operations)
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
 // 'bdlt::DayOfWeek::Enum', which enumerates the set of days of the week.
 //

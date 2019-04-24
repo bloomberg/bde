@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_testallocator
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwale), Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component provides a single mechanism class,
 // 'bslma::TestAllocatorMonitor', which is used, in concert with
 // 'bslma::TestAllocator', in the implementation of test drivers.  The

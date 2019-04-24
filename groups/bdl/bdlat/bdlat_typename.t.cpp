@@ -289,8 +289,6 @@ bool streq(const char* s1, const char* s2)
 //@CLASSES:
 //  MyChoice: a choice class
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  TBD: provide annotation for 'MyChoice'
 
@@ -1028,8 +1026,6 @@ bsl::ostream& MyChoice::print(bsl::ostream& stream,
 //@CLASSES:
 //  MyEnumeration: an enumeration class
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  TBD: provide annotation for 'MyEnumeration'
 
@@ -1346,8 +1342,6 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
 //
 //@CLASSES:
 //  MySequence: a sequence class
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  TBD: provide annotation for 'MySequence'
@@ -1995,8 +1989,6 @@ bsl::ostream& MySequence::print(bsl::ostream& stream,
 //
 //@CLASSES:
 //  MyCustomizedType: a customized class
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  TBD: provide annotation for 'MyCustomizedType'

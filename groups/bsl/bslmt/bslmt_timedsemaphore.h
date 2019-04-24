@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_semaphore
 //
-//@AUTHOR: Guillaume Morin (gmorin1)
-//
 //@DESCRIPTION: This component defines a portable and efficient thread
 // synchronization primitive.  In particular, 'bslmt::TimedSemaphore' is an
 // efficient synchronization primitive that enables sharing of a counted number

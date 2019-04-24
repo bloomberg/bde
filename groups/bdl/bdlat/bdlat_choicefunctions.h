@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlat_selectioninfo
 //
-//@AUTHOR: Clay Wilson (cwilson9), Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 // TBD: update this documentation to reflect the new overloaded functions
 //
 //@DESCRIPTION: The 'bdlat_ChoiceFunctions' 'namespace' provided in this

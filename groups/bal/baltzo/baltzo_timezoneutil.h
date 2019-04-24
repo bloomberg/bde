@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baltzo_localdatetime, baltzo_zoneinfo, baltzo_defaultzoneinfocache
 //
-//@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a namespace, 'baltzo::TimeZoneUtil',
 // containing utility functions for converting time values to and from their
 // corresponding local time representations in (possibly) different time zones.

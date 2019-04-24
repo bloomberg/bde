@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_dequeprimitives, bslalg_arrayprimitives
 //
-//@AUTHOR: Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides primitive data structures for
 // implementing a deque knowing only its value type and the number of objects
 // in a block.  Conceptually, a deque is an array of blocks pointers, each

@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_categorymanager
 //
-//@AUTHOR: Henry Verschell (hversche)
-//
 //@DESCRIPTION: This component primarily provides a class, 'ball::Category',
 // used to describe the properties of a logging category.  A 'ball::Category'
 // provides access to the category name and the 4 logging threshold levels

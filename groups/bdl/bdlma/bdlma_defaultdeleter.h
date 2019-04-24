@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_allocator, bdlma_deleter
 //
-//@AUTHOR: Andrei Basov (abasov)
-//
 //@DESCRIPTION: This component provides a default concrete implementation of
 // the 'bdlma::Deleter' protocol:
 //..

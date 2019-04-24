@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_record, ball_context, ball_observer, ball_fileobserver
 //
-//@AUTHOR: Shijin Kong (skong25)
-//
 //@DESCRIPTION: This component provides a concrete implementation of the
 // 'ball::Observer' protocol, 'ball::AsyncFileObserver', for *asynchronously*
 // publishing log records to 'stdout' and, optionally, to a user-specified

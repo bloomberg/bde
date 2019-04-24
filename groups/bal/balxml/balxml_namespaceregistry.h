@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baexml::PrefixTable
 //
-//@AUTHOR: Pablo Halpern (phalpern), Alexander Libman(alibman1)
-//
 //@DESCRIPTION: This component provides an in-core value-semantic type,
 // 'balxml::NamespaceRegistry', that associates an integer ID with each
 // registered namespace URI.  In typical usage, client code would call the

@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //  bslmf::MatchAnyType: generic type to which any type can be converted
 //  bslmf::TypeRep: meta-function for providing a reference to 'TYPE'
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: 'bslmf::MatchAnyType' is a type to which any type can be
 // implicitly converted.  This is useful for creating an overloaded function
 // that is a catch-all for all types not explicitly provided for in other

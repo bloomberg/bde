@@ -22,8 +22,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlmt_timereventscheduler
 //
-//@AUTHOR: Vlad Kliatchko (vkliatch), David Schumann (dschumann1)
-//
 //@DESCRIPTION: This component provides a thread-safe event scheduler.
 // 'bdlmt::EventScheduler', that implements methods to schedule and cancel
 // recurring and one-time events.  All of the callbacks for these events are

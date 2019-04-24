@@ -6,8 +6,6 @@
 
 @MNEMONIC: Basic Standard Library System ForWarding Declarations (bslfwd)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
-
 @DESCRIPTION: Each component of this package provides a code snippet defining a
  forward reference to a corresponding type within 'bsl' (e.g.,
  'bslfwd_bslma_allocator' defines a forward reference to the type defined in

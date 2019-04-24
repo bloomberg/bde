@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::AddReference: meta-function to form a reference to a type
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
-//
 //@DESCRIPTION: This component defines a simple template 'struct',
 // 'bslmf::AddReference', that is used to define a reference type from the type
 // supplied as its single template type parameter.  Types that are 'void' or

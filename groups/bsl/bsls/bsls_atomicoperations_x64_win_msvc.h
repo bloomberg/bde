@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //  bsls::AtomicOperations_X64_WIN_MSVC: implementation of atomics for
 //                                       X86_64/MSVC/Windows
 //
-//@AUTHOR: Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Windows X86_64 platform with MSVC compiler.  The classes are for
 // private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the

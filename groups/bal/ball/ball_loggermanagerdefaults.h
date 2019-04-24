@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide constrained default attributes for the logger manager.
 //
-//@AUTHOR: Tom Marshall (tmarshal)
-//
 //@CLASSES:
 //  ball::LoggerManagerDefaults: default parameters for logger manager
 //

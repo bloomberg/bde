@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_simplepool
 //
-//@AUTHOR: Raymond Chiu (schiu49)
-//
 //@DESCRIPTION: This component implements a mechanism that creates and deletes
 // 'bslstl::TreeNode' objects for the (template parameter) type 'VALUE' for use
 // in a tree-based container.

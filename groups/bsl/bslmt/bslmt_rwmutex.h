@@ -17,8 +17,6 @@ BSLS_IDENT("$Id: $")
 //
 //@DEPRECATED: Use 'bslmt_readerwritermutex' instead.
 //
-//@AUTHOR: David Schumann (dschumann1)
-//
 //@CLASSES:
 //   bslmt::RWMutex: platform-independent wrapper of an RW mutex
 //

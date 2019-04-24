@@ -24,8 +24,6 @@ BSLS_IDENT("$Id: $")
 //           balxml_prefixstack,
 //           balxml_namespaceregistry
 //
-//@AUTHOR: Alexander Libman (alibman1)
-//
 //@DESCRIPTION: This component supplies an abstract class, 'balxml::Reader'
 // that defines an interface for accessing a forward-only, read-only stream of
 // XML data.  The 'balxml::Reader' interface is somewhat similar to Microsoft

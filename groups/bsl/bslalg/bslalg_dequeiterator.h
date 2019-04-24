@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_dequeimputil, bslalg_dequeprimitives
 //
-//@AUTHOR: Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides an in-core value semantic class,
 // 'bslalg::DequeIterator', that is a primitive iterator type for enumerating
 // elements in a deque (implemented in the form of a dynamic array) knowing

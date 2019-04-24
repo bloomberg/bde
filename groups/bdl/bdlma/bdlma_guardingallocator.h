@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlma::GuardingAllocator: memory allocator that detects buffer overruns
 //
-//@AUTHOR: Jorge Ornelas (jornelas)
-//
 //@SEE_ALSO: bslma_allocator, bslma_testallocator
 //
 //@DESCRIPTION: This component provides a concrete allocation mechanism,

@@ -19,8 +19,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balm_collector, balm_integercollector, balm_defaultmetricsmanager
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a suite of macros to simplify the
 // process of collecting metrics.  A metric records the number of times an
 // event occurs, as well as an associated measurement value.  A metric

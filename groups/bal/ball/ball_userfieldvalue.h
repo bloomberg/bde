@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::UserFieldValue: the value of a user supplied field
 //
-//@AUTHOR: Henry Verschell (hversche)
-//
 //@SEE_ALSO: ball_userfields, ball_userfieldtype
 //
 //@DESCRIPTION: This component provides a value-semantic class,

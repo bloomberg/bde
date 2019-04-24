@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bdlb::Float: namespace for floating-point classification types and functions
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component defines a utility 'struct', 'bdlb::Float', that
 // provides functions analogous to C99 '<math.h>' library macros such as
 // 'isinf' and 'isnan' that return whether a 'float' or 'double' value is

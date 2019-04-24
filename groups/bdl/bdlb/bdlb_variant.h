@@ -39,8 +39,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Ilougino Rocha (irocha), Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component provides: (1) a variant class template,
 // 'bdlb::Variant', that can store an instance of one of up to some
 // (implementation-defined) number of parameter types (currently 20), (2)

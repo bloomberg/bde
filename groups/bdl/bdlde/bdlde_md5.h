@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::Md5: value-semantic type representing an MD5 digest
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendelsohn), Arthur Chiu (achiu21)
-//
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component implements a mechanism for computing, updating,

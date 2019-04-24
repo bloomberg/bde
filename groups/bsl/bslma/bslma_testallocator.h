@@ -16,8 +16,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_newdeleteallocator, bslma_mallocfreeallocator
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@DESCRIPTION: This component provides an instrumented allocator,
 // 'bslma::TestAllocator', that implements the 'bslma::Allocator' protocol and
 // can be used to track various aspects of memory allocated from it.  Available

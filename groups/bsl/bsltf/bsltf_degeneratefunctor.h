@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
-//
 //@DESCRIPTION: This component provides a functor adaptor, primarily for use
 // when testing templates that make use of Callable template parameters.  The
 // adaptor defined in this component provides an interface that is purposefully

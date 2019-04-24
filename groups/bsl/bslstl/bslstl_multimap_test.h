@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_multimap
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a second translation unit for
 // 'multimap' test cases to reduce the test-driver's build time.  Test cases
 // 1-11, plus the usage example test, are in the original component test

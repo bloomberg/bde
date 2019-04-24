@@ -14,14 +14,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //  bslstl::SharedPtrUtil: shared pointer utility functions
 //  bslstl::SharedPtrNilDeleter: no-op deleter
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//         Herve Bronnimann (hbronnim)
-//         Vlad Kliatchko (vkliatch)
-//         Raymond Chiu (schiu49)
-//         Henry Verschell (hversche)
-//         Rohan Bhindwale (rbhindwa)
-//         Alisdair Meredith (ameredit)
-//
 //@SEE_ALSO: bslma_managedptr, bslma_sharedptrrep
 //
 //@DESCRIPTION: This component implements a thread-safe, generic,

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_destructionutil, bslma_constructionutil
 //
-//@AUTHOR: Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides utilities to destroy arrays with a
 // uniform interface, but selecting a different implementation according to the
 // traits possessed by the underlying type.

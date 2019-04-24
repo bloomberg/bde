@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::ManagedPtr_PairProxy: internal state of a 'bslma::ManagedPtr' object
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
-//
 //@SEE_ALSO: bslma_managedptr
 //
 //@DESCRIPTION: This component provides a class, 'bslma::ManagedPtr_PairProxy',

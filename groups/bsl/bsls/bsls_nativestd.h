@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl_stdhdrs_prologue
 //
-//@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component defines a namespace alias, 'native_std', that
 // serves as an alias for the 'std' namespace.  The 'bsl' package group
 // contains a Bloomberg implementation of the C++ standard library, which, when

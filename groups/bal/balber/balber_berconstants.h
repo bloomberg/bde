@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: BER Specification (ITU-T X.690)
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwa), Shezan Baig (sbaig)
-//
 //@DESCRIPTION: The 'balber::BerConstants' 'struct' defined in this component
 // defines two enumerations, 'balber::TagClass' and 'balber::TagType', that
 // contain symbolic constants for the corresponding tag classes and tag types,

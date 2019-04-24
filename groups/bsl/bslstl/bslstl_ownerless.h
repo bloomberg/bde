@@ -10,8 +10,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bsl::owner_less: ordering comparator for 'shared_ptr' and 'weak_ptr'
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
-//
 //@SEE_ALSO: bslstl_sharedptr
 //
 //@DESCRIPTION: This component provides the C+11 standard binary comparison

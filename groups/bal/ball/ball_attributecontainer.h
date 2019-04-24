@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_attribute, ball_defaultattributecontainer
 //
-//@AUTHOR: Henry Verschell (hversche)
-//
 //@DESCRIPTION: This component defines a protocol class,
 // 'ball::AttributeContainer', for containers of 'ball::Attribute' values.  The
 // 'ball::AttributeContainer' protocol primarily provides a 'hasValue()'

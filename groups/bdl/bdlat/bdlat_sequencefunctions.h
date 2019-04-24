@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlat_attributeinfo
 //
-//@AUTHOR: Clay Wilson (cwilson9), Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: The 'bdlat_SequenceFunctions' 'namespace' provided in this
 // component defines parameterized functions that expose "sequence" behavior
 // for "sequence" types.  See the package-level documentation for a full

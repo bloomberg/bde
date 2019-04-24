@@ -10,11 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  baltzo::ZoneinfoBinaryReader: utilities for reading Zoneinfo binary data
 //
-//@AUTHOR: Stefano Pacifico (spacifico1),
-//         Henry Verschell (hverschell),
-//         Raymond Chiu (schiu49),
-//         Andrew Paprocki (apaprock)
-//
 //@SEE_ALSO: baltzo_zoneinfo
 //
 //@DESCRIPTION: This component provides a 'struct',

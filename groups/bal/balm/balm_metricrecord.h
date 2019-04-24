@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: balm_metricrecord.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //
 //@SEE_ALSO: balm_metricregistry, balm_metric, balm_metricsmanager
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component implements an unconstrained pure-attribute class
 // used to represent the aggregated value of a metric.  A 'balm::MetricRecord'
 // contains a 'balm::MetricId' object, and a set of aggregate values

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_allocator, bslma_default
 //
-//@AUTHOR: Tom Marshall (tmarshal)
-//
 //@DESCRIPTION: This component provides an object,
 // 'bslma::DefaultAllocatorGuard', that serves as a "scoped guard" to enable
 // the temporary replacement of the process-wide default allocator.  This

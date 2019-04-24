@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bslscm::Version: namespace for RCS and SCCS versioning information for 'bsl'
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendels)
-//
 //@DESCRIPTION: This component provides source control management (versioning)
 // information for the 'bsl' package group.  In particular, this component
 // embeds RCS-style and SCCS-style version strings in binary executable files

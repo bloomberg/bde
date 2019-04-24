@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balm_metricregistry, balm_metricid, balm_category
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a class, 'balm::MetricDescription',
 // used to describe a metric.  A 'balm::MetricDescription' object contains the
 // address of the category to which the metric belongs and also the address of

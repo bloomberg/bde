@@ -11,8 +11,6 @@
 //: BSLS_IDENT_RCSID(tag, identifier): alternatively, use add 'tag' as static
 //: BSLS_IDENT_PRAGMA_ONCE: encapsulate '_Pragma("once")'
 //
-//@AUTHOR: Anthony Comerico (acomeric), Glenn Strauss (gstrauss)
-//
 //@DESCRIPTION: The purpose of this component is to provide macros for
 // inserting SCM (Source Control Management) Ids into source files.  SCM Ids
 // are useful for identifying source revisions in binaries.  Additional

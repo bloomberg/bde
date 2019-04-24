@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
-//@AUTHOR: Chen He (che2)
-//
 //@DESCRIPTION: This component provides a union type, 'UnionTestType', that
 // supports the set of operations for a single unconstrained (value-semantic)
 // attribute type.  'UnionTestType' can be used during testing as the

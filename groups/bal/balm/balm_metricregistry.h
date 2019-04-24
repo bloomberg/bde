@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balm_metricsmanager, balm_metricrecord
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component defines a class, 'balm::MetricRegistry', that
 // provides operations to register both metric categories and individual
 // metrics.  A metric is uniquely identified by its name and category, and the

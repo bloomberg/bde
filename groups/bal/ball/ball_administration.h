@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_loggermanager
 //
-//@AUTHOR: Hong Shi (hshi2)
-//
 //@DESCRIPTION: This component provides a namespace, 'ball::Administration',
 // containing a suite of utility functions to facilitate administration of the
 // 'ball' logging subsystem from a console operator's perspective.  Utilities

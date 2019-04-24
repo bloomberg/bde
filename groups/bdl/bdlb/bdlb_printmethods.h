@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //  bdlb::HasPrintMethod: trait indicating existence of 'print' method
 //  bdlb::TypeTraitHasPrintMethod: old-style version of 'bdlb::HasPrintMethod'
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@SEE_ALSO: bslalg_nestedtraitdeclaration
 //
 //@DESCRIPTION: This component provides a namespace for print utilities that

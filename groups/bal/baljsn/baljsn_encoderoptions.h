@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baljsn_encoder, baljsn_decoderoptions
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, 'baljsn::EncoderOptions', that is used to
 // specify options for encoding objects in the JSON format.

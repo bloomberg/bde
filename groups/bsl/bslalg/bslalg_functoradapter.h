@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_setcomparator, bslstl_mapcomparator
 //
-//@AUTHOR: Chen He (che2)
-//
 //@DESCRIPTION: This component provides a single utility template,
 // 'FunctorAdapter', that adapts a parameterized adaptee type, which can be any
 // callable object type, to a target functor type.  This adaptation enables a

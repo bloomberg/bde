@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 // BDLB_ARRAYUTIL_SIZE: get a constant expression with an array's length.
 // BDLB_ARRAYUTIL_LENGTH: get a constant expression with an array's length.
 //
-//@AUTHOR: Dietmar Kuhl (dkuhl)
-//
 //@DESCRIPTION: This component provides a utility 'struct', 'bdlb::ArrayUtil',
 // that serves as a namespace for a collection of function templates providing
 // access to the length and iterators of statically sized built-in arrays.

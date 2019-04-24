@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_rawdeleterproctor, bslma_rawdeleterguard
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component provides a range proctor class template,
 // 'bslma::AutoRawDeleter', to manage a sequence of (otherwise-unmanaged)
 // objects of parameterized 'TYPE' supplied at construction.  If not explicitly

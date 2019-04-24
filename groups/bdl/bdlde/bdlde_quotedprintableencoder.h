@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::QuotedPrintableEncoder: automaton for Quoted-Printable encoding
 //
-//@AUTHOR: Alex Fung (afung8)
-//
 //@SEE_ALSO: 'bdlde::QuotedPrintableDecoder'
 //
 //@DESCRIPTION: This component provides a class that can be used to encode byte

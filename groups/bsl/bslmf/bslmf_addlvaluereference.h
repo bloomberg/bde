@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_addrvaluereference, bslmf_removereference
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a meta-function,
 // 'bsl::add_lvalue_reference', that may be used to transform a type to its
 // lvalue reference type.  An lvalue, as defined in C++11 standard

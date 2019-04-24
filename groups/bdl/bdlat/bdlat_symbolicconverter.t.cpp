@@ -116,8 +116,6 @@ struct ConvertibleType {
 //@CLASSES:
 //  ChoiceA: A choice class
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  TBD: provide annotation for 'ChoiceA'
 
@@ -858,8 +856,6 @@ bsl::ostream& ChoiceA::print(
 //@CLASSES:
 //  ChoiceB: A choice class
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  TBD: provide annotation for 'ChoiceB'
 
@@ -1598,8 +1594,6 @@ bsl::ostream& ChoiceB::print(bsl::ostream& stream,
 //@CLASSES:
 //  CustomizedA: a customized class
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  TBD: provide annotation for 'CustomizedA'
 
@@ -1914,8 +1908,6 @@ const char CustomizedA::CLASS_NAME[] = "CustomizedA";
 //@CLASSES:
 //  CustomizedB: a customized class
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  TBD: provide annotation for 'CustomizedB'
 
@@ -2229,8 +2221,6 @@ const char CustomizedB::CLASS_NAME[] = "CustomizedB";
 //
 //@CLASSES:
 //  EnumerationA: an enumeration class
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  TBD: provide annotation for 'EnumerationA'
@@ -2551,8 +2541,6 @@ int EnumerationA::fromString(EnumerationA::Value *result,
 //@CLASSES:
 //  EnumerationB: an enumeration class
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  TBD: provide annotation for 'EnumerationB'
 
@@ -2871,8 +2859,6 @@ int EnumerationB::fromString(EnumerationB::Value *result,
 //
 //@CLASSES:
 //  SequenceA: a sequence class
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  TBD: provide annotation for 'SequenceA'
@@ -3515,8 +3501,6 @@ bsl::ostream& SequenceA::print(bsl::ostream& stream,
 //@CLASSES:
 //  SequenceB: a sequence class
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  TBD: provide annotation for 'SequenceB'
 
@@ -4157,8 +4141,6 @@ bsl::ostream& SequenceB::print(bsl::ostream& stream,
 //
 //@CLASSES:
 //  Employee: an employee class
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  TBD: provide annotation for 'Employee'
@@ -4949,8 +4931,6 @@ bsl::ostream& Employee::print(bsl::ostream& stream,
 //@CLASSES:
 //  Trainee: a trainee class
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  TBD: provide annotation for 'Trainee'
 
@@ -5654,8 +5634,6 @@ bsl::ostream& Trainee::print(bsl::ostream& stream,
 //
 //@CLASSES:
 //  MixedSequence: a mixed sequence
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  TBD: provide annotation for 'MixedSequence'

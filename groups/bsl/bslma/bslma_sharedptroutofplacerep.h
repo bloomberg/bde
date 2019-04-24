@@ -10,11 +10,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bslma::SharedPtrOutofplaceRep: out-of-place shared pointer implementation
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//         Herve Bronnimann (hbronnim)
-//         Vlad Kliatchko (vkliatch)
-//         Raymond Chiu (schiu49)
-//
 //@SEE_ALSO: bslma_sharedptr, bslma_sharedptrrep, bslma_sharedptrinplacerep
 //
 //@DESCRIPTION: This component provides a concrete implementation of

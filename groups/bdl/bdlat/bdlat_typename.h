@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlat_TypeName: namespace for type-name functions
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@SEE_ALSO: http://www.w3.org/TR/xmlschema-2/#built-in-datatypes
 //
 //@DESCRIPTION: This component defines a structure 'bdlat_TypeName' which

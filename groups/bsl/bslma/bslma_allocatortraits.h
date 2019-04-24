@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_allocator, bslma_stdallocator
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 // TBD: update component-level doc
 //@DESCRIPTION: The standard 'allocator_traits' class template is defined in
 // the C++11 standard ([allocator.traits]) as a uniform mechanism for accessing

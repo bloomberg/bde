@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Development Library Concurrency Containers (bdlcc)
 
-@AUTHOR David Laurance (dlauranc)
-
 @SEE_ALSO: bdec, bcemt
 
 @DESCRIPTION: The 'bdlcc' package provides a set of containers that allow

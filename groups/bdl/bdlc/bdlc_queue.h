@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlc::Queue: memory manager for in-place queue of 'T' values
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendelsohn)
-//
 //@DESCRIPTION: This component implements an efficient, in-place, indexable,
 // double-ended queue of 'T' values, where 'T' is a templatized, user-defined
 // type.  The functionality of a 'bdlc::Queue' is relatively rich; it is almost

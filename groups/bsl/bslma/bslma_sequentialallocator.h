@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlma_sequentialallocator, bdlma_bufferedsequentialallocator
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendels)
-//
 //@DESCRIPTION: This component provides an allocator,
 // 'bslma::SequentialAllocator', that implements the 'bslma::ManagedAllocator'
 // protocol and allocates memory blocks of any requested size, from an internal

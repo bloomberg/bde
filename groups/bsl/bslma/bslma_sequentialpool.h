@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlma_sequentialpool
 //
-//@AUTHOR: Shao-wei Hung (shung1)
-//
 //@DESCRIPTION: This component implements a memory pool,
 // 'bslma::SequentialPool', that dispenses memory blocks of any requested size
 // from an internal buffer or an optional user-supplied buffer.  If an

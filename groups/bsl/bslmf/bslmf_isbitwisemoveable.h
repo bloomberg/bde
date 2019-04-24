@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides a single trait metafunction,
 // 'bslmf::IsBitwiseMoveable', which allows generic code to determine whether
 // 'TYPE' can be destructively moved using 'memcpy'.  Given a pointer, 'p1', to

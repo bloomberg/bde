@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Standard Library Memory Allocators (bslma)
 
-@AUTHOR: Tom Marshall (tmarshal), Herve Bronnimann (hbronnim)
-
 @DESCRIPTION: The 'bslma' package provides an allocator protocol (i.e., a pure
  abstract interface) and a variety of concrete allocators derived from this
  protocol, as well as other memory-dispensing mechanisms and various guard

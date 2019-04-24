@@ -10,8 +10,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bslstl::SharedPtrAllocateOutofplaceRep: out-of-place 'shared_ptr' imp.
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
-//
 //@SEE_ALSO: bslma_sharedptrrep, bslma_sharedptroutofplacerep, bslstl_sharedptr
 //
 //@DESCRIPTION: This component provides a class template,

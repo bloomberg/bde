@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //      bdls::MemoryUtil: struct which scopes memory system utilities.
 //
-//@AUTHOR: Andrei Basov (abasov), Oleg Semenov (osemenov)
-//
 //@DESCRIPTION: This component, 'bdls::MemoryUtil', defines a
 // platform-independent interface for memory manipulation, providing utilities
 // for querying page size, allocating/deallocating page-aligned memory, and

@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::Stopwatch: accumulates user, system, wall times of current process
 //
-//@AUTHOR: Thomas Marshall (tmarshall), Alexander Evdokimov (aevdokimov1)
-//
 //@DESCRIPTION: This component provides a class, 'bsls::Stopwatch', that
 // implements real-time (system clock) interval timers for the system, user,
 // and wall times of the current process.  A 'bsls::Stopwatch' object can

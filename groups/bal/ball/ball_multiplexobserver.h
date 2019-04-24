@@ -22,8 +22,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_record, ball_context, ball_streamobserver, ball_loggermanager
 //
-//@AUTHOR: Steve Downey (sdowney)
-//
 //@DESCRIPTION: This component provides a concrete implementation of the
 // 'ball::Observer' protocol for receiving and processing log records:
 //..

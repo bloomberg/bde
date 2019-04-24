@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balm_publisher, balm_metricrecord
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a container used to store a sample of
 // recorded metric information.  A 'balm::MetricSample' contains a collection
 // of addresses to (external) 'balm::MetricRecord' objects containing the

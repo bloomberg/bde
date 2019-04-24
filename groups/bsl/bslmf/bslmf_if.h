@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_assert, bslmf_nil
 //
-//@AUTHOR: Oleg Grunin (ogrunin)
-//
 //@DESCRIPTION: This component contains the template class meta-function
 // 'bslmf::If' that is parameterized on three arguments.  The first argument is
 // a (compile-time constant) integral expression that is interpreted by the

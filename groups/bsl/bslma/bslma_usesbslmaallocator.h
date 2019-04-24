@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_typetraitusesblsmaallocator
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component defines a metafunction,
 // 'bslma::UsesBslmaAllocator', that may be used to associate a type with the
 // uses-'bslma'-allocator trait (i.e., declare that a type uses a 'bslma'

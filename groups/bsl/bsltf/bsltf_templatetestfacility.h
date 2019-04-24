@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_simpletesttype, bslstl_map
 //
-//@AUTHOR: Chen He (che2)
-//
 //@DESCRIPTION: When testing a container template having a type parameter, we
 // need to ensure that the template supports its contractually specified
 // categories of parameter types.  The 'bsltf' package provides a

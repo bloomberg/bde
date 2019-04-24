@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_severity
 //
-//@AUTHOR: Gang Chen (gchen20)
-//
 //@DESCRIPTION: This component implements a class, 'ball::ThresholdAggregate',
 // that aggregates four threshold levels: record level, pass-through level,
 // trigger level, and trigger-all level.  Each of these levels must in the

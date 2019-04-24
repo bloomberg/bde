@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_newdeleteallocator, bslma_testallocator
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@DESCRIPTION: This component provides the base-level protocol (pure abstract
 // interface) class, 'bslma_allocator', that serves as a ubiquitous vocabulary
 // type for various memory allocation mechanisms.  The functional capabilities

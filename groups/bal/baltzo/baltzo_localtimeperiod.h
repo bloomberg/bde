@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  baltzo::LocalTimePeriod: time descriptor and period of applicability
 //
-//@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
-//
 //@SEE_ALSO:  baltzo_localtimedescriptor, baltzo_zoneinfoutil
 //
 //@DESCRIPTION: This component provides a single, complex-constrained

@@ -40,8 +40,6 @@ BSLS_IDENT("$Id: $")
 //  BSLS_BYTEORDER_HOST_U32_TO_BE(x): 32-bit host-endian to    big-endian
 //  BSLS_BYTEORDER_HOST_U64_TO_BE(x): 64-bit host-endian to    big-endian
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component provides a set of byte-order manipulation macros
 // that replace the standard 'htonl', 'htons', 'ntohl', and 'ntohs' functions,
 // and which do not require including any system header files:

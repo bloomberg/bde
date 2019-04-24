@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlmt_eventscheduler, bdlcc_timequeue
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides a thread-safe event scheduler,
 // 'bdlmt::TimerEventScheduler'.  It provides methods to schedule and cancel
 // recurring and non-recurring events.  (A recurring event is also referred to

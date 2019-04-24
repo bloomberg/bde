@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_log
 //
-//@AUTHOR: Henry Verschell (hversche)
-//
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
 // 'bsls::LogSeverity::Enum', which enumerates a set of severity levels used
 // for logging with 'bsls_log'.

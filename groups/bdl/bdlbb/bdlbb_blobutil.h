@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlbb_blob
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This 'struct' provides a variety of utilities for 'bdlbb::Blob'
 // objects, 'bdlbb::BlobUtil', such as I/O functions, comparison functions, and
 // streaming functions.

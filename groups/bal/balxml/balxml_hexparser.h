@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: The 'balxml::HexParser' class template provided by this
 // component can be used to parse Hex characters into one of the supported Hex
 // types, which are 'bsl::vector<char>' and 'bsl::string'.  The 'TYPE'

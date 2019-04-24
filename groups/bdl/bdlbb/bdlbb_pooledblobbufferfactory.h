@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlbb_blob, bdlma_concurrentpool
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides a mechanism for allocating
 // 'bdlbb::BlobBuffer' objects of a fixed specified size.  The size is passed
 // at construction of the 'bdlbb::PooledBlobBufferFactory' instance.  A

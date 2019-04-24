@@ -12,8 +12,6 @@
 //
 //@SEE_ALSO: bsl_unordered_map
 //
-//@AUTHOR: Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_hash_map.h>' instead.
 //

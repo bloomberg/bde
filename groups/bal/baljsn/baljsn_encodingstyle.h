@@ -7,8 +7,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide value-semantic attribute classes.
 //
-//@AUTHOR: Rohan BHINDWALE (rbhindwale@bloomberg.net)
-
 ///Implementation Note
 ///- - - - - - - - - -
 // This file was generated from a script and was subsequently modified to add

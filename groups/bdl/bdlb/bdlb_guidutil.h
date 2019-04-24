@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb::Guid
 //
-//@AUTHOR: Mickey Sweatt (msweatt1)
-//
 //@DESCRIPTION: This component provides a struct, 'bdlb::GuidUtil', that
 // serves as a namespace for utility functions that create and work with
 // Globally Unique Identifiers (GUIDs).

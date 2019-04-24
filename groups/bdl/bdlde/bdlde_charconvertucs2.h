@@ -19,8 +19,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::CharConvertUcs2: namespace for conversions between UTF-8 and UCS-2
 //
-//@AUTHOR: Mike Giroux (mgiroux)
-//
 //@DESCRIPTION: This component provides a suite of pure procedures supporting
 // the *fast* conversion of *valid* UTF-8 encoded "C" strings to *valid* UCS-2
 // 16-bit character arrays and vice versa.  In order to provide the fastest

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb_bitstringutil
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a utility 'struct',
 // 'bdlb::BitStringImpUtil', that serves as a namespace for a collection of
 // functions that provide bit-level operations on 'uint64_t' values.  Some of

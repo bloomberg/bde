@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component contains a metafunction that treats a
 // parameter pack of types as compile-time array of types, returning the Nth
 // type (counting from zero).  It is useful for implementing types like

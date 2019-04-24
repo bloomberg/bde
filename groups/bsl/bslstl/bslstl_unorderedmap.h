@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
-//@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
-//
 //@DESCRIPTION: This component defines a single class template,
 // 'bsl::unordered_map', implementing the standard container holding a
 // collection of unique keys, each mapped to an associated value with no

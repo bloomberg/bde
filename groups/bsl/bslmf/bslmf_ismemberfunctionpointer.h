@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_memberfunctionpointertraits, bslmf_ismemberobjectpointer
 //
-//@AUTHOR: Clay Wilson (cwilson9)
-//
 //@DESCRIPTION: This component defines a meta-function,
 // 'bsl::is_member_function_pointer' and a template variable
 // 'bsl::is_member_function_pointer_v', that represents the result value of the

@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Standard Library STL (bslstl)
 
-@AUTHOR: Herve Bronnimann (hbronnim), Arthur Chiu (achiu21)
-
 @DESCRIPTION: This package mainly provides replacement classes for STL
  constructs that required substantial modification to (inter)operate with BDE
  libraries.  In addition to STL replacement classes, this package also provides

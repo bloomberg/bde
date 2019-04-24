@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlcc::Queue: thread-enabled 'bdlc::Queue' wrapper
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@SEE_ALSO: bdlc_queue
 //
 //@DEPRECATED: use 'bdlcc::Deque' instead.

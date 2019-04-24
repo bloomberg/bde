@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bdlt::PosixDateImpUtil: suite of low-level date-related stateless functions
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@DESCRIPTION: This component implements a utility class,
 // 'bdlt::PosixDateImpUtil', that provides a suite of low-level, date-related
 // functions that can be used to validate, manipulate, and convert among values

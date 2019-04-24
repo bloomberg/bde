@@ -17,8 +17,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl_functional
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_functional.h>' directly.  This component provides a namespace for
 // functional extensions that are not specified in the C++ standard.  This

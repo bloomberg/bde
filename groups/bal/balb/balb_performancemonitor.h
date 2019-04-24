@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //   balb::PerformanceMonitor::Statistics: performance stats
 //   balb::PerformanceMonitor::ConstIterator: stats iteration
 //
-//@AUTHOR: Matthew Millett (mmillett2)
-//
 //@DESCRIPTION: This component provides an application developer the means to
 // collect and report performance statistics for an arbitrary number of
 // processes running on the local machine.  The 'balb::PerformanceMonitor'

@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Development Library Blobs (bdlbb)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
-
 @SEE_ALSO: bslma
 
 @DESCRIPTION: This package defines, 'bdlbb::Blob', a vocabulary type for

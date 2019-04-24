@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_alignmentutil
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This component provides a namespace, 'bsls::Alignment', for
 // enumerating alignment strategies, and provides a function, 'toAscii', that
 // converts each of the enumerators to its corresponding string representation.

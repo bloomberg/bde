@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstl::StringRefData: attribute class referencing a sub-string.
 //
-//@AUTHOR: Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This component provides a complex-constrained, in-core
 // (value-semantic) attribute class (except for the equality comparison, see
 // below), 'bslstl::StringRefData', that represents a reference to character

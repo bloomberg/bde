@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_deallocatorguard, bslma_deallocatorproctor
 //
-//@AUTHOR: Arthur Chiu (achiu1)
-//
 //@DESCRIPTION: This component provides a range proctor class template,
 // 'bslma::AutoDeallocator', to manage a sequence of blocks of
 // (otherwise-unmanaged) memory of parameterized 'TYPE' supplied at

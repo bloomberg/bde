@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdls::PipeUtil: Portable utility methods for naming and accessing pipes
 //
-//@AUTHOR: David Schumann (dschumann1)
-//
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component, 'bdls::PipeUtil', provides portable utility

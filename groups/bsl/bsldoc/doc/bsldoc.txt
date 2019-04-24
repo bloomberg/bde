@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Standard Library DOCumentation (bsldoc)
 
-@AUTHOR: Alisdair Meredith (ameredith1)
-
 @DESCRIPTION: The 'bsldoc' package provides documentation of terms and concepts
  used ubiquitously throughout BDE.
 

@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlcc::FixedQueue: thread-enabled fixed-size queue of 'TYPE' values
 //
-//@AUTHOR: Eric Winseman (ewinseman), Dave Schumann (dschuman)
-//
 //@DESCRIPTION: This component defines a type, 'bdlcc::FixedQueue', that
 // provides an efficient, thread-enabled fixed-size queue of values.  This
 // class is ideal for synchronization and communication between threads in a

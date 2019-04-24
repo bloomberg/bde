@@ -18,9 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::NullableValue: template for nullable (in-place) objects
 //
-//@AUTHOR: Ilougino Rocha (irocha), John Lakos (jlakos),
-//         Steven Breitstein (sbreitstein)
-//
 //@SEE_ALSO: bdlb_nullableallocatedvalue
 //
 //@DESCRIPTION: This component provides a template class,

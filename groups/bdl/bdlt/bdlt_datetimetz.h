@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlt_datetime
 //
-//@AUTHOR: Clay Wilson (cwilson9)
-//
 //@DESCRIPTION: This component provides a single value-semantic class,
 // 'bdlt::DatetimeTz', that represents a datetime value in a particular time
 // zone.  Each 'bdlt::DatetimeTz' object contains a time zone offset from UTC

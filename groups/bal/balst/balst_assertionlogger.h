@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_assert
 //
-//@AUTHOR: Hyman Rosen (hrosen4)
-//
 //@DESCRIPTION: This component defines an assert handling mechanism that logs
 // the function call stack at the point of the assertion (using the BAEL
 // logging framework), and then returns to the caller allowing program

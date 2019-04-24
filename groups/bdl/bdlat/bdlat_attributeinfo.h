@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlat_sequencefunctions
 //
-//@AUTHOR: Clay Wilson (cwilson9)
-//
 //@DESCRIPTION: This component provides the 'bdlat_AttributeInfo' 'struct',
 // which is a container for holding information (properties) about a sequence
 // attribute.  The properties of an attribute include its name and the length

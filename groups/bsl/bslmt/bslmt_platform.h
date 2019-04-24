@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Shawn Edwards (sedwards)
-//
 //@DESCRIPTION: This component defines a set of traits that identify and
 // describe a platform's concurrency properties.  For example, the
 // 'ThreadPolicy' trait is ascribed a "value" (i.e., POSIX or Win32)

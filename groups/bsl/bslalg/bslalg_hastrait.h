@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_typetraits
 //
-//@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides a meta-function, 'bslalg::HasTrait',
 // that is a legacy mechanism for detecting traits.  'bslalg::HasTrait' takes
 // two template parameters, 'TYPE' and 'TRAIT', and provides a 'Type' member.

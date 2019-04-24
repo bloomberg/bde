@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balm_metricsmanager, balm_metric
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a namespace for a default instance of
 // the 'balm::MetricsManager'.  This 'balm::DefaultMetricsManager' provides
 // static operations to create, access, and destroy the default instance of the

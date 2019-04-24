@@ -9,8 +9,6 @@
 //
 //@SEE_ALSO: bsls_deprecate
 //
-//@AUTHOR: Alexander Beels (abeels)
-//
 //@DESCRIPTION: This component provides a macro,
 // 'BSL_VERSION_DEPRECATION_THRESHOLD', that is used to control whether or not
 // deprecations introduced in any given version of 'bsl' are active.

@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdls::PathUtil: Portable utility methods for manipulating paths
 //
-//@AUTHOR: David Schumann (dschumann1)
-//
 //@SEE_ALSO: bdls_filesystemutil
 //
 //@DESCRIPTION: This component provides utility methods for manipulating

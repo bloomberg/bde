@@ -17,8 +17,6 @@
 //
 //@SEE_ALSO: ball_attribute
 //
-//@AUTHOR: Henry Verschell (hversche)
-//
 //@DESCRIPTION: This component defines a type, 'ball::ScopedAttribute', that
 // serves as a scoped guard for 'ball::Attribute' objects.  It defines a single
 // attribute for the current thread while it is in scope.

@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a container for managing a group of threads.
 //
-//@AUTHOR: David Schumann (dschumann1)
-//
 //@CLASSES:
 // bslmt::ThreadGroup: A container that manages a group of threads.
 //

@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Clay Wilson (cwilson9)
-//
 //@DESCRIPTION:
 // This component provides the 'bdlat_EnumeratorInfo' 'class' which is a
 // container for holding information (properties) about an enumerator.  The

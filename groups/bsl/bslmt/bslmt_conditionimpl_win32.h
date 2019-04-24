@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_condition
 //
-//@AUTHOR: Vlad Kliatchko (vkliatch), David Schumann (dschumann1)
-//
 //@DESCRIPTION: This component provides an implementation of 'bslmt::Condition'
 // for Windows (win32), 'bslmt::ConditionImpl<Win32Threads>', via the template
 // specialization:

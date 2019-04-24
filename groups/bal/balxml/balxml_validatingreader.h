@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balxml_reader
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component represents an abstract class
 // 'balxml::ValidatingReader' - an XML reader that provides data validation
 // against DTD or/and XML Schemas(XSD).  The 'balxml::ValidatingReader'

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_constructorproxy
 //
-//@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides primitive algorithms that operate on
 // single elements with a uniform interface but select a different
 // implementation according to the various type traits possessed by the

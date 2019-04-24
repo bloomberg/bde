@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::BitMaskUtil: namespace for bit-level mask operations
 //
-//@AUTHOR: Bill Chapman
-//
 //@DESCRIPTION: This component provides a utility 'struct',
 // 'bdlb::BitMaskUtil', that serves as a namespace for a collection of
 // functions that provide simple binary masks.

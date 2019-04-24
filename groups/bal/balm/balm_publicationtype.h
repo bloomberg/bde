@@ -21,8 +21,6 @@ BSLS_IDENT_PRAGMA_ONCE
 //
 //@SEE_ALSO: balm_publisher
 //
-//@AUTHOR: Henry Verschell (hverschell@bloomberg.net)
-//
 //@DESCRIPTION: This component defines an enumeration
 // 'balm::PublicationType::Value' of aggregation types to use to publish
 // metrics.  Concrete 'balm::Publisher' implementations may use this these

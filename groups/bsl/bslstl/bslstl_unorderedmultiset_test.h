@@ -11,9 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_unorderedmultiset
 //
-//@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim),
-//         Alisdair Meredith (ameredit)
-//
 //@DESCRIPTION: This component provides a second translation unit for
 // 'unordered_multiset' test cases to reduce the test-driver's build time.
 // Test cases 1-11, plus the usage example test, are in the original component

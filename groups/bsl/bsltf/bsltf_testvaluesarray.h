@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_testfacility
 //
-//@AUTHOR: Raymond Chiu (schiu49)
-//
 //@DESCRIPTION: This component defines a class 'bsltf::TestValuesArray'
 // providing a uniform interface for creating and accessing a sequence of test
 // values of a type that has a copy constructor, and may or may not have a

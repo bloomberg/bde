@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_attributecontainer
 //
-//@AUTHOR: Gang Chen (gchen20), Mike Verschell (hversche)
-//
 //@DESCRIPTION: This component provides a mechanism, 'ball::AttributeContext',
 // used for storing attributes in thread-local storage and evaluating rules
 // associated with a given category using those stored attributes, and a scoped

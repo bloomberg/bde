@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlma::MemoryBlockDescriptor: describes a block of memory
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@SEE_ALSO: bdema_protectablememoryblockdispenser
 //
 //@DESCRIPTION: This component defines an in-core value-semantic class for

@@ -391,8 +391,6 @@ void printDiagnostic(balber::BerEncoder & encoder)
 // test::MySequenceWithAnonymousChoice: TODO: Provide purpose
 // test::TimingRequest: TODO: Provide purpose
 //
-//@AUTHOR: Pablo Halpern (phalpern@bloomberg.net)
-//
 //@DESCRIPTION:
 // This component provides classes for testing codecs.
 

@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_loggermanager, ball_categorymanager
 //
-//@AUTHOR: Hong Shi (hshi2), Gang Chen (gchen20)
-//
 //@DESCRIPTION: This component defines a 'struct', 'ball::LoggerCategoryUtil',
 // that provides a set of utility functions for managing the categories
 // contained in a 'ball::LoggerManager' based on the notion of hierarchy.  In

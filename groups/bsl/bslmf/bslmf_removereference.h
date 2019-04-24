@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_addreference
 //
-//@AUTHOR: Oleg Grunin (ogrunin)
-//
 //@DESCRIPTION: This component defines two meta-functions,
 // 'bsl::remove_reference' and 'BloombergLP::bslmf::RemoveReference', both of
 // which may be used to strip reference-ness (including both lvalue and rvalue

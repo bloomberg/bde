@@ -8,8 +8,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a multi-reader/single-writer lock.
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendelsohn4)
-//
 //@CLASSES:
 //   bslmt::ReaderWriterMutex: multi-reader/single-writer lock class
 //

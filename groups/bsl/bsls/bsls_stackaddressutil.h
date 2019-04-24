@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balst_stacktraceutil
 //
-//@AUTHOR: Oleg Semenov, Bill Chapman
-//
 //@DESCRIPTION: This component defines a 'struct', 'bsls::StackAddressUtil',
 // that provides a namespace for a function, 'getStackAddresses', that
 // populates an array with an ordered sequence of return addresses from the

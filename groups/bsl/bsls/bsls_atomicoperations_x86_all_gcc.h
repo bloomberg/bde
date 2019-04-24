@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::AtomicOperations_X86_ALL_GCC: implementation of atomics for X86/GCC.
 //
-//@AUTHOR: Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Linux X86 platform with GCC.  The classes are for private use only.
 // See 'bsls_atomicoperations' and 'bsls_atomic' for the public interface to

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_stdtestallocator
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
-//
 //@DESCRIPTION: This component provides an allocator,
 // 'bsltf::StdStatefulAllocator', that defines the minimal interface to comply
 // with section 17.6.3.5 ([allocator.requirements]) of the C++11 standard,

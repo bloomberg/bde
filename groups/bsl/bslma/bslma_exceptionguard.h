@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_testallocator
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
-//
 //@DESCRIPTION: This component provides a class, 'bslma::ExceptionGuard', that
 // can be used to ASSERT if an object changes state when a method fails by
 // throwing an exception.  This is often used to validate the strong exception

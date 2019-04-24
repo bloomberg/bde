@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Development Environment Functors (bdlf)
 
-@AUTHOR: Herve Bronnimann (hbronnim)
-
 @SEE_ALSO: bcef
 
 @DESCRIPTION: The 'bdlf' package provides components to implement function

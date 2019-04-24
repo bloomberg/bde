@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component documents common terminology that is used
 // throughout the rest of BDE component documentation.  The terminology is
 // broken into the following sections:

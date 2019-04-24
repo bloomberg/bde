@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //  bsls::AtomicOperations_SPARC_SUN_CC_Default32: default base for 32bit mode.
 //  bsls::AtomicOperations_SPARC_SUN_CC_Default64: default base for 64bit mode.
 //
-//@AUTHOR: Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This component provides default base classes necessary to
 // implement atomics on the Sun Sparc platform with SunCC compiler.  The
 // classes are for private use only.  See 'bsls_atomicoperations' and

@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlmt_threadpool
 //
-//@AUTHOR: Ilougino Rocha (irocha), Vlad Kliatchko (vkliatch)
-//
 //@DESCRIPTION: This component defines a portable and efficient implementation
 // of a thread pool, 'bdlmt::FixedThreadPool', that can be used to distribute
 // various user-defined functions ("jobs") to a separate threads to execute

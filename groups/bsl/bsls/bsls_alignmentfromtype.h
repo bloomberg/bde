@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_alignmenttotype
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This component contains a template meta-function,
 // 'bsls::AlignmentFromType', parameterized on 'TYPE', that defines an integral
 // constant 'VALUE' initialized (at compile-time) to the required alignment for

@@ -16,8 +16,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides a set of macros that expand to multiple
 // repetitions of a user-specified "repetition phrase".  The repetition phrase
 // is specified as macro that is invoked multiple times in each invocation of a

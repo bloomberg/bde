@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 //  bsls::AtomicOperations_Default32: all atomics for a generic 32-bit platform
 //  bsls::AtomicOperations_Default64: all atomics for a generic 64-bit platform
 //
-//@AUTHOR: Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: [!PRIVATE!] This component provides classes having default
 // implementations of atomic operations independent of a any specific platform.
 // The purpose of these classes is for them to be combined with

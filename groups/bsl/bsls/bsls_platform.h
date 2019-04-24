@@ -16,8 +16,6 @@ BSLS_IDENT("$Id: $")
 //  BSLS_PLATFORM_CMP_*: compiler vendor, and version
 //  BSLS_PLATFORM_AGGRESSIVE_INLINE: inline code for speed over text size
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@DESCRIPTION: This component implements a suite of preprocessor macros and
 // traits that identify and define platform-specific compile-time attributes.
 // These attributes consist of the types and versions of (1) the operating

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb_String, bslstl_stringref
 //
-//@AUTHOR: Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component defines a utility 'struct',
 // 'bdlb::StringRefUtil', that provides a suite of functions that operate on
 // 'bslstl::StringRef' references to string data.

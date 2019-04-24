@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_removeextent
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provies a metafunction, 'bsl::decay', that
 // applies array-to-pointer and function-to-pointer conversion and
 // cv-qualification removal to a type, thus modeling the decay of an argument

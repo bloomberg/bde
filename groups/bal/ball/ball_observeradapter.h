@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_observer, ball_record, ball_context
 //
-//@AUTHOR: Shijin Kong (skong25)
-//
 //@DESCRIPTION: This component provides a single class 'ball::ObserverAdapter'
 // that aids in the implementation of the 'ball::Observer' protocol by allowing
 // clients to implement that protocol by implementing a single method

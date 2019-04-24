@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  baltzo::ZoneinfoCache: a cache for time-zone information
 //
-//@AUTHOR: Henry Verschell (hverschell), Stefano Pacifico (spacifico1)
-//
 //@SEE_ALSO: baltzo_zoneinfo, baltzo_defaultzoneinfocache
 //
 //@DESCRIPTION: This component defines a class, 'baltzo::ZoneinfoCache', that

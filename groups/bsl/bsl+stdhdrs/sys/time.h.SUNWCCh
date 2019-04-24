@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: package bsl+stdhdrs
 //
-//@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: Provide functionality of the corresponding C++ standard
 // header.  This file includes the compiler provided native standard header.
 // In addition, in 'bde-stl' mode (used by Bloomberg managed code, see

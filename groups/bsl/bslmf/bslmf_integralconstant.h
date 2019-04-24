@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component describes a simple class template,
 // 'bsl::integral_constant', that is used to map an integer constant to a C++
 // type.  'integral_constant<TYPE, VAL>' generates a unique type for each

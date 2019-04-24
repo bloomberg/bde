@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_algorithm>' instead.  This component provides a namespace for
 // work-arounds for the platform supplied algorithm header (particularly for

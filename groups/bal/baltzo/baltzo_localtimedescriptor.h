@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  baltzo::LocalTimeDescriptor: attributes characterizing a local time
 //
-//@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
-//
 //@SEE_ALSO: baltzo_zoneinfo
 //
 //@DESCRIPTION: This component provides a single, simply constrained

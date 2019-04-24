@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_integralconstant
 //
-//@AUTHOR: Paul Staniforth (pstaniforth)
-//
 //@DESCRIPTION: This component defines two meta-functions,
 // 'bsl::is_convertible' and 'BloombergLP::bslmf::IsConvertible' and a template
 // variable 'bsl::is_convertible_v', that represents the result value of the

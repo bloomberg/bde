@@ -103,8 +103,6 @@ static int globalFlag = 0;
 //@CLASSES:
 //  Cusip: cusip class
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  Identification number for the US and Canada.  'Cusip' is a 9-digit number
 //  consisting of 8 digits and a check digit.  The Bloomberg ID will be

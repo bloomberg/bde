@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_treenode, bslalg_rbtreeutil, bslstl_map
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides an STL-compliant bidirectional iterator
 // over a binary tree of 'bslstl::TreeNode' objects.  The requirements of a
 // bidirectional STL iterator are outlined in the C++11 standard in section

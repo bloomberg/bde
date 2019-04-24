@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Development Library Multi Thread (bdlmt)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
-
 @SEE_ALSO: bdlcc
 
 @DESCRIPTION: The 'bdlmt' ("Basic Development Library Multi Thread") package

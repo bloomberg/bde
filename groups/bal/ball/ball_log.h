@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_loggermanager, ball_category, ball_severity, ball_record
 //
-//@AUTHOR: Hong Shi (hshi2)
-//
 //@DESCRIPTION: This component provides preprocessor macros and utility
 // functions to facilitate use of the 'ball_loggermanager' component.  In
 // particular, the macros defined herein greatly simplify the mechanics of

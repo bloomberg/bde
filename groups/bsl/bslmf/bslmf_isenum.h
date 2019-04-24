@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_isfundamental
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_enum' and
 // 'BloombergLP::bslmf::IsEnum' and a template variable 'bsl::is_enum_v', that
 // represents the result value of the 'bsl::is_enum' meta-function.  All these

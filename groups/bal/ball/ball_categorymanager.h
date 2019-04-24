@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_category, ball_loggermanager, ball_loggercategoryutil
 //
-//@AUTHOR: Hong Shi (hshi2), Mike Verschell (hversche)
-//
 //@DESCRIPTION: This component provides a registry for category information and
 // functions to manage the registry and its members.  By "category" we mean a
 // named entity that identifies a region or functional area of a program.  A

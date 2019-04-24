@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides a thread-safe and efficient templatized
 // catalog of objects.  A 'bdlcc::ObjectCatalog' supports efficient insertion
 // of objects through the 'add' method, which returns a handle that can be used

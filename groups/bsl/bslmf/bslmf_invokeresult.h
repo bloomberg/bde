@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_invoke
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides a metafunction 'bsl::invoke_result'
 // that determines, at compile time, the type returned by invoking a callable
 // type, including pointer-to-function, pointer-to-member function,

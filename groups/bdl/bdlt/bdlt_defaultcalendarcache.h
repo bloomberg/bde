@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::DefaultCalendarCache: namespace for managing a default calendar cache
 //
-//@AUTHOR:
-//
 //@SEE_ALSO: bdlt_calendarcache, bdlt_calendarloader
 //
 //@DESCRIPTION: This component provides a namespace,

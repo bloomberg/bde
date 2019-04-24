@@ -198,8 +198,6 @@ namespace bdlat_EnumFunctions {
 //@CLASSES:
 //  MyEnumeration: an enumeration
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  todo: provide annotation for 'MyEnumeration'
 
@@ -413,8 +411,6 @@ int MyEnumeration::fromString(Value      *result,
 //
 //@CLASSES:
 //  CustomizedInt: a customized int
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  todo: provide annotation for 'CustomizedInt'
@@ -653,8 +649,6 @@ const char CustomizedInt::CLASS_NAME[] = "CustomizedInt";
 //
 //@CLASSES:
 //  CustomizedString: a customized string
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  todo: provide annotation for 'CustomizedString'

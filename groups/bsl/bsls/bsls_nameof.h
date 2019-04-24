@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //@FREE FUNCTIONS
 //  bsls::nameOfType(const TYPE&): template function to return name of 'TYPE'
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a template class,
 // 'bsls::NameOf<TYPE>', which can implicitly cast to a 'const char *' which
 // will point to a description of 'TYPE'.

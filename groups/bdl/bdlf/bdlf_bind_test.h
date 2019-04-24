@@ -17,8 +17,6 @@ BSLS_IDENT("$Id: $")
 //        bdlf::Bind_TestTypeAlloc: invocable supporting up to 14 arguments
 //   bdlf::Bind_TestFunctionsAlloc: global versions of test type methods
 //
-//@AUTHOR: Herve Bronnimann (hbronnimann)
-//
 //@SEE_ALSO: bdlf_bind bdlf_bind_test[0--14]
 //
 //@DESCRIPTION: This component provides a test apparatus for testing the

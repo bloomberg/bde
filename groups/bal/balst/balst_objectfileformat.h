@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Bill Chapman
-//
 //@DESCRIPTION: This component defines a set of traits that identify and
 // describe a platform's object file format properties.  For example, the
 // 'balst::ObjectFileFormat::ResolverPolicy' trait is ascribed a "value" (i.e.,

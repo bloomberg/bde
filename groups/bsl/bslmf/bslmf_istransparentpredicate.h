@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_map, bslstl_set
 //
-//@AUTHOR: David Stone (dstone50)
-//
 //@DESCRIPTION:  This component provides a metafunction,
 // 'bslmf::IsTransparentPredicate', that can be used to detect whether a
 // comparator is transparent (supports heterogeneous comparisons).  If the

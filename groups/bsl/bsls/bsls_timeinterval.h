@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlt_time, bdlt_datetimeinterval
 //
-//@AUTHOR: Xinyu Xiang (xxiang)
-//
 //@DESCRIPTION: This component provides a value-semantic type,
 // 'bsls::TimeInterval', that is capable of representing a signed time
 // interval with nanosecond resolution.

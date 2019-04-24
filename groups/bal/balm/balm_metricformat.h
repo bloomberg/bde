@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: balm_metricformat.h,v 1.8 2008/04/16 20:00:49 hversche Exp $")
 //
 //@SEE_ALSO: balm_metricdescription
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides classes for describing the formatting
 // for a metric.  For each published aggregate type (e.g., count, total, min,
 // max, etc.), a 'balm::MetricFormat' object holds a 'balm::MetricFormatSpec'

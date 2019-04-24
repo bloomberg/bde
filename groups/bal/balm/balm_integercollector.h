@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a class for collecting and aggregating
 // the values of an integral metric.  The 'balm::IntegerCollector' records the
 // number of times an event occurs as well as an associated integral

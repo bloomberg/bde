@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Application Library TimeZone (Olson) (baltzo)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
-
 @DESCRIPTION: The 'baltzo' package provides facilities to convert a local time
  representation for one time zone into a local time representation for another
  time zone.  Local time zone representations can be any of several time

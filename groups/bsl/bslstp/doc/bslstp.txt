@@ -6,8 +6,6 @@
 
 @MNEMONIC: Basic Standard Library STlPort types (bslstp)
 
-@AUTHOR: Arthur Chiu (achiu21)
-
 @DESCRIPTION: This package mainly provides replacement classes, adopted from
  STLport, for STL constructs that required modification to (inter)operate with
  BDE libraries.  In addition to STL replacement classes, this package also

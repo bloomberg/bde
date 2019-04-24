@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: ball_record, ball_context, ball_observer,
 //           ball_loggermanager
 //
-//@AUTHOR: Oleg Subbotin (osubbotin)
-//
 //@DESCRIPTION: This component provides a concrete implementation of the
 // 'ball::Observer' protocol for receiving and processing log records:
 //..

@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides a polymorphic function object
 // (functor) that can be invoked like a function and that wraps a run-time
 // invocable object such as a function pointer, member function pointer, or

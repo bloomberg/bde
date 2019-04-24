@@ -22,8 +22,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bcema_sharedptr, bdlbb_pooledblobbufferfactory
 //
-//@AUTHOR: Guillaume Morin (gmorin1), Herve Bronnimann (hbronnimann)
-//
 //@DESCRIPTION: This component provides an indexed sequence ('bdlbb::Blob') of
 // 'bdlbb::BlobBuffer' objects allocated from potentially multiple
 // 'bdlbb::BlobBufferFactory' objects.  A 'bdlbb::BlobBuffer' is a simple

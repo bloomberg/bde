@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_constructionutil
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component provides utilities to destroy scalars with a
 // uniform interface, but select a different implementation according to the
 // traits possessed by the underlying type.

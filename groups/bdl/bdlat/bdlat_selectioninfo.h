@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlat_choicefunctions
 //
-//@AUTHOR: Clay Wilson (cwilson9)
-//
 //@DESCRIPTION: This component provides the 'bdlat_SelectionInfo' 'struct',
 // which is a container for holding information (properties) about a choice
 // selection.  The properties of a selection include its name and the length of

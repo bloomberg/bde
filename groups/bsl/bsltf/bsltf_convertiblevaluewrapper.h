@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
-//
 //@DESCRIPTION: This component provides a 'struct' that holds an object of a
 // template parameter type, and provides implicit conversions to, and from,
 // that type.  A 'bsltf::ConvertibleValueWrapper' facilitates testing of

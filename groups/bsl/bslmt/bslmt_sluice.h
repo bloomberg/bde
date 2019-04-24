@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_conditionimpl_win32
 //
-//@AUTHOR: Vlad Kliatchko (vkliatch)
-//
 //@DESCRIPTION: This component provides a "sluice" class, 'bslmt::Sluice'.  A
 // sluice is useful for controlling the release of threads from a common
 // synchronization point.  One or more threads may "enter" a 'bslmt::Sluice'

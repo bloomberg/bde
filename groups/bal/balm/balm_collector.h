@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: balm_collector.h,v 1.7 2008/04/16 20:00:49 hversche Exp $")
 //
 //@SEE_ALSO: balm_collectorrepository, balm_metric
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a class for collecting and aggregating
 // the values of a metric.  The collector records the number of times an event
 // occurs as well as an associated measurement value.  This component does

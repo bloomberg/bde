@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Alexander Libman (alibman1), Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This component provides a namespace, 'balxml::Util', for
 // various XML utilities.  Included is a method for extracting the
 // 'targetNamespace' from an XSD schema.  Any top-level XSD schema must have a

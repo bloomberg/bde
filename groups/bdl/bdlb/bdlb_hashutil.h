@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::HashUtil: utility for hash functions
 //
-//@AUTHOR: Vladimir Kliatchko (vkliatch), Herve Bronnimann (hbronnimann)
-//
 //@SEE_ALSO: bdlc_hashtable2, bdeimp_inthash, bdeimp_strhash, bdlde_crc32
 //
 //@DESCRIPTION: This component defines a utility 'struct', 'bdlb::HashUtil',

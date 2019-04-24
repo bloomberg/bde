@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 // bsltf::StdTestAllocatorConfigurationGuard: configuration scoped guard
 //                   bsltf::StdTestAllocator: standard compliant allocator
 //
-//@AUTHOR: Chen He (che2)
-//
 //@DESCRIPTION: This component provides an allocator, 'StdTestAllocator', that
 // defines the minimal interface to comply with section 20.1.5
 // ([lib.allocator.requirements]) of the C++03 standard.  This type can be used

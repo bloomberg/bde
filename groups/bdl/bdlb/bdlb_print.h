@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //  bdlb::PrintStringHexDumper: create/print hex buffers, multi-line
 //  bdlb::PrintStringSingleLineHexDumper: create/print hex buffers, single line
 //
-//@AUTHOR: Paul Staniforth (pstaniforth), John Lakos (jlakos)
-//
 //@DESCRIPTION: This component provides a namespace, 'bdlb::Print', containing
 // utility functions for formatting data to 'bsl::ostream' objects.  These
 // functions provide several variations of hexadecimal format, allow

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_alignmentfromtype
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides a templated buffer type,
 // 'bsls::ObjectBuffer', that is compile-time sized and aligned to hold a
 // specified object type.  Defining a 'bsls::ObjectBuffer<TYPE>' object does

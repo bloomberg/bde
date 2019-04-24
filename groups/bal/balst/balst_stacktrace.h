@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balst::StackTrace: a description of a function-call stack
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@SEE_ALSO: balst_stacktraceframe, balst_stacktraceutil,
 //           balst_stacktraceprintutil, bdlma_heapbypassallocator
 //

@@ -18,10 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   balxml::Decoder: an XML decoder
 //
-//@AUTHOR: Shezan Baig (sbaig), Alexander Libman (alibman1@bloomberg.net)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@SEE_ALSO: balxml_decoderoptions, balxml_encoder, balber_berdecoder
 //
 //@DESCRIPTION: This component provides a class 'balxml::Decoder' for decoding

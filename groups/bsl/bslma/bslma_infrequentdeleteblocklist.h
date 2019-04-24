@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlma_infrequentdeleteblocklist
 //
-//@AUTHOR: Shao-wei Hung (shung1)
-//
 //@DESCRIPTION: This component implements a memory manager that allocates and
 // manages a sequence of memory blocks, each potentially of a different size as
 // specified in the 'allocate' method's invocation.  The

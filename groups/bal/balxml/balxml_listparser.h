@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlat_arrayfunctions
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: The 'balxml::ListParser' class template provided by this
 // component can be used to parse lists into an object that supports
 // 'bdlat_ArrayFunctions'.

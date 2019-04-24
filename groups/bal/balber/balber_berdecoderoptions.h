@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balber::BerDecoderOptions: options for decoding objects in BDE format
 //
-//@AUTHOR: Alexander Libman (alibman1@bloomberg.net)
-//
 //@DESCRIPTION: Schema of options records for 'balber' codecs
 
 #include <balscm_version.h>

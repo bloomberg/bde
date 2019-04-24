@@ -10,11 +10,6 @@ BSLS_IDENT("$Id: $ $CSID: $")
 //@CLASSES:
 //  baltzo::LocalDatetime: time-zone-aware datetime type
 //
-//@AUTHOR: Stefano Pacifico (spacifico1),
-//         Mike Giroux (mgiroux),
-//         Henry Verschell (hverschell),
-//         Steven Breitstein (sbreitstein)
-//
 //@SEE_ALSO: bdet_datetimetz
 //
 //@DESCRIPTION: This component provides a single, unconstrained

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_default, bslma_testallocator
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@DESCRIPTION: This component provides a concrete allocation mechanism,
 // 'bslma::NewDeleteAllocator', that implements the 'bslma::Allocator' protocol
 // to provide direct access to the system-supplied (native) global

@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bdlb_bitutil, bdlb_bitmaskutil, bdlb_bitstringimputil,
 //           bdlc_bitarray
 //
-//@AUTHOR: Bill Chapman (bchapman)
-//
 //@DESCRIPTION: This component provides a utility 'struct',
 // 'bdlb::BitStringUtil', that serves as a namespace for a collection of
 // efficient, bit-level procedures on "bit strings", sequences of bits stored

@@ -4,9 +4,6 @@
 
 @MNEMONIC: Basic Standard Library (bsl)
 
-@AUTHOR: Herve Bronnimann (hbronnim), Arthur Chiu (achiu21),
-         Steven Breitstein (sbreitstein)
-
 @DESCRIPTION: The 'bsl' ("Basic Standard Library") package group contains
  various packages that provide platform-specific classes, meta-functions,
  defensive programming mechanisms, a framework for component testing, memory

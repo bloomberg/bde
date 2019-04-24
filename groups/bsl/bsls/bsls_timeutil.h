@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_stopwatch
 //
-//@AUTHOR: Tom Marshall (tmarshal)
-//
 //@DESCRIPTION: This component provides a set of platform-neutral pure
 // procedures to access real-time system clock functionality.  High-resolution
 // time functions intended for interval-timing return a time interval in

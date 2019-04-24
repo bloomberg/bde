@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_unorderedmultimap, bslstl_unorderedmultiset
 //
-//@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
-//
 //@DESCRIPTION: This component provides a standard-conforming forward iterator,
 // 'bslstl::HashTableBucketIterator', over a list of elements (of
 // 'bslalg::BidirectionalLinkList' type) in a single bucket (of

@@ -13,8 +13,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //  bdlde::Sha384: value-semantic type representing a SHA-384 digest
 //  bdlde::Sha512: value-semantic type representing a SHA-512 digest
 //
-//@AUTHOR: David Stone (dstone50)
-//
 //@SEE_ALSO: bdlde_md5
 //
 //@DESCRIPTION: This component provides a set of classes ('Sha224', 'Sha256',

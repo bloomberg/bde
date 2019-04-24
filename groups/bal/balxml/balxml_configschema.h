@@ -19,8 +19,6 @@ BSLS_IDENT_PRAGMA_ONCE
 //@CLASSES:
 // balxml::ConfigSchema: the  configuration schema
 //
-//@AUTHOR: Rohan BHINDWALE (rbhindwale@bloomberg.net)
-//
 //@DESCRIPTION: This component provides a namespace for the
 // 'baexml' schema.  This in-core representation of the schema
 // is used to validate XML configuration data used to initialize the service.

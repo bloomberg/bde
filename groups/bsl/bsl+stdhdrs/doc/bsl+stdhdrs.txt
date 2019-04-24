@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Standard Library STD HeaDeRS (bsl+stdhdrs)
 
-@AUTHOR: Arthur Chiu (achiu21)
-
 @DESCRIPTION: The 'bsl+stdhdrs' package provides a compatibility layer for
  BDE-STL mode used by Bloomberg-managed code.  This document describes the
  contents of the 'bsl+stdhdrs' package, and also the design decisions and basic

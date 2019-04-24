@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_destructorproctor, bslma_autodestructor
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a guard class template,
 // 'bslma::DestructorGuard', to unconditionally manage an (otherwise-unmanaged)
 // object of parameterized 'TYPE' supplied at construction.  The managed object

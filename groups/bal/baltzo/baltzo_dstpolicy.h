@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baltzo_localtimevalidity, baltzo_timezoneutil
 //
-//@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
 // 'baltzo::DstPolicy::Enum', which enumerates the set of policies for
 // interpreting whether an associated local time is a daylight-saving time

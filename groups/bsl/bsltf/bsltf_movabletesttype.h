@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component provides a single, unconstrained, non-allocating
 // (value-semantic) attribute class, 'MovableTestType', that records when
 // the move constructor or assignment operator is called with the instance as

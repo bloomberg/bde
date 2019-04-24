@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::AtomicOperations_POWERPC32_AIX_XLC: atomics for PPC32/AIX.
 //
-//@AUTHOR: Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the AIX PowerPC platform in 32bit mode with the xlC compiler.  The
 // classes are for private use only.  See 'bsls_atomicoperations' and

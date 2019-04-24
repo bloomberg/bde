@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //  bslmf::IsPointerToMemberData: check for pointer-to-member data types
 //  bslmf::IsPointerToMemberFunction: check for pointer-to-member function types
 //
-//@AUTHOR: Clay Wilson (cwilson9)
-//
 //@DESCRIPTION: This component defines a simple template structure used to
 // evaluate whether it's parameter is a pointer to member, optionally qualified
 // with 'const' or 'volatile'.  'bslmf::IsPointerToMember' defines a 'value'

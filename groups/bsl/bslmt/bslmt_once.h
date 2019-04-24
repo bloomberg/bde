@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_qlock
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides a pair of classes, 'bslmt::Once' and
 // 'bslmt::OnceGuard', which give the caller a way to run a body of code
 // exactly once within the current process, particularly in the presence of

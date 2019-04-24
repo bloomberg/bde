@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_integralconstant
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a meta-function,
 // 'bsl::is_floating_point' and a template variable 'bsl::is_floating_point_v',
 // that represents the result value of the 'bsl::is_floating_point'

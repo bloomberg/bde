@@ -13341,8 +13341,6 @@ namespace bdlat_CustomizedTypeFunctions {
 //  test::MySequenceWithAnonymousChoice: TBD: Provide purpose
 //  test::MySequenceWithNillables: TBD: Provide purpose
 //
-//@AUTHOR: Author Unknown (Unix login: phalpern)
-//
 //@DESCRIPTION:
 //  'test::MySequenceWithAttributes'
 //  'test::Address'

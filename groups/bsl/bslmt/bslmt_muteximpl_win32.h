@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_mutex
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides an implementation of 'bslmt::Mutex' for
 // Windows (win32), 'bslmt::MutexImpl<Platform::Win32Threads>', via the
 // template specialization:

@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //@MACROS:
 //  BSLS_PROTOCOLTEST_ASSERT: macro for testing protocol methods
 //
-//@AUTHOR: Alexei Zakharov (azakharov7)
-//
 //@DESCRIPTION: This component provides classes and macros that simplify the
 // creation of test drivers for protocol (i.e., pure abstract interface)
 // classes.

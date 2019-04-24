@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //@MACROS:
 //  BSLS_UTIL_ADDRESSOF(OBJ): address of 'OBJ', even if 'operator&' overloaded
 //
-//@AUTHOR: Pablo Halpern (phalpern), Alisdair Meredith (ameredit)
-//
 //@DESCRIPTION: This component defines a utility 'struct', 'bsls::Util', that
 // serves as a namespace for a suite of pure functions that supply essential
 // low-level support for implementing portable generic facilities such as might

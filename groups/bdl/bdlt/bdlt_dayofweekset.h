@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::DayOfWeekSet: ordered set of (unique) 'bdlt::DayOfWeek::Enum' values
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendelsohn)
-//
 //@SEE_ALSO: bdlt_dayofweek
 //
 //@DESCRIPTION: This component implements an efficient value-semantic, ordered

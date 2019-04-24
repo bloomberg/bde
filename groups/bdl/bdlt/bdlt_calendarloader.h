@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::CalendarLoader: pure interface for loading calendars
 //
-//@AUTHOR: Guillaume Morin (gmorin1)
-//
 //@SEE_ALSO: bdlt_calendarcache, bdlt_packedcalendar
 //
 //@DESCRIPTION: This component provides a protocol, 'bdlt::CalendarLoader', for

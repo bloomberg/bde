@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_bidirectionallink, bslalg_hashtableimputil
 //
-//@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
-//
 //@DESCRIPTION: This component provides a namespace,
 // 'bslalg::BidirectionalLinkListUtil', containing utility functions for
 // operating on doubly linked lists with nodes of type

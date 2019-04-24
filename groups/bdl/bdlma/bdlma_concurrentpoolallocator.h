@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlma::ConcurrentPoolAllocator: thread-safe allocator of pooled blocks
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component defines a class,
 // 'bdlma::ConcurrentPoolAllocator', that implements the 'bslma::Allocator'
 // protocol and provides a thread-safe allocator of pooled memory blocks of

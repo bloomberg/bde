@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides a single traits class,
 // 'bslalg::TypeTraitBitwiseEqualityComparable', which allows the trait
 // 'bslmf::IsBitwiseEqualityComparable' to be declared using the (deprecated)

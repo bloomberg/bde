@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_integralconstant, bslmf_nestedtraitdeclaration
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component defines a meta-function,
 // 'bsl::is_trivially_copyable' and a template variable
 // 'bsl::is_trivially_copyable_v', that represents the result value of the

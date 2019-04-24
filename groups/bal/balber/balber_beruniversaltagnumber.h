@@ -21,10 +21,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: balber_berencoder, balber_berdecoder
 //          http://www.itu.int/ITU-T/studygroups/com17/languages/X.680-0207.pdf
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
 // 'balber::BerUniversalTagNumber::Value'.  'Value' enumerates the set of BER
 // universal tag numbers used by the BER encoder and decoder.  The universal

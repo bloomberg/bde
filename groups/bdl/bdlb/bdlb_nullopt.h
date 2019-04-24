@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb_nullablevalue
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
-//
 //@DESCRIPTION: This component provides a class, 'bdlb::NullOptType', that
 // defines a vocabulary to be used in functions that want to indicate an empty
 // nullable value.

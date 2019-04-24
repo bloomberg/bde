@@ -18,10 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  balxml::Encoder: XML encoder utility class
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@SEE_ALSO: balxml_decoder, balber_berencoder
 //
 //@DESCRIPTION: This component provides a class for encoding value-semantic

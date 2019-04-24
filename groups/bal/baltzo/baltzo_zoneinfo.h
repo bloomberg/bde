@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //  baltzo::Zoneinfo: information about a time zone
 //  baltzo::ZoneinfoTransition: attributes representing a time transition
 //
-//@AUTHOR: Stefano Pacifico (spacifico1)
-//
 //@SEE_ALSO: baltzo_localtimedescriptor, baltzo_zoneinfoutil
 //
 //@DESCRIPTION: This component provides a *value* *semantic* type,

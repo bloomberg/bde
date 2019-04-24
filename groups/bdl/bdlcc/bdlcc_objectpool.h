@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlcc_sharedobjectpool
 //
-//@AUTHOR: Ujjwal Bhoota (ubhoota), David Schumann (dschumann1)
-//
 //@DESCRIPTION: This component provides a generic thread-safe pool of objects,
 // 'bdlcc::ObjectPool', using the acquire-release idiom and a 'struct' with
 // useful functors for a pool of objects, 'bdlcc::ObjectPoolFunctors'.  An

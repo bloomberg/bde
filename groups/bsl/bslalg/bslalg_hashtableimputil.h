@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslalg_bidirectionallinklistutil, bslalg_hashtableanchor,
 //           bslstl_hashtable
 //
-//@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
-//
 //@DESCRIPTION: This component provides a namespace for utility functions used
 // to implement a hash table container.  Almost all the functions provided by
 // this component operate on a 'HashTableAnchor', a type encapsulating the key

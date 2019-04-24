@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlcc::SingleConsumerQueue: thread-aware single consumer queue of 'TYPE'
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendelsohn4)
-//
 //@DESCRIPTION: This component defines a type, 'bdlcc::SingleConsumerQueue',
 // that provides an efficient, thread-aware queue of values assuming a single
 // consumer (the use of 'popFront', 'tryPopFront', and 'removeAll' is done by

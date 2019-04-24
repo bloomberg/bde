@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bdlt::CalendarCache: cache for read-only calendars that are loaded on demand
 //
-//@AUTHOR: Guillaume Morin (gmorin1), Yu Zhao (yzhao3)
-//
 //@SEE_ALSO: bdlt_calendar, bdlt_calendarloader
 //
 //@DESCRIPTION: This component defines the 'bdlt::CalendarCache' class, a cache

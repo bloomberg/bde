@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_isenum, bslmf_ispointer
 //
-//@AUTHOR: Shawn Edwards (sedwards)
-//
 //@DESCRIPTION: This component defines two meta-functions,
 // 'bsl::is_fundamental' and 'BloombergLP::bslmf::IsFundamental' and a template
 // variable 'bsl::is_fundamental_v', that represents the result value of the

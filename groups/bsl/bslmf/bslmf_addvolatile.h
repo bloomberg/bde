@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_removevolatile
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a meta-function, 'bsl::add_volatile'
 // and declares an 'bsl::add_volatile_t' alias to the return type of the
 // 'bsl::add_volatile', that may be used to add a top-level

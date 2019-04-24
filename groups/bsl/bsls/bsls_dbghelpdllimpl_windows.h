@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsls::DbghelpDllImpl_Windows: interface to 'dbghelp.dll' shared library
 //
-//@AUTHOR: Bill Chapman (bchapman2), Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component provides a single class,
 // 'bsls::DbghelpDllImpl_Windows', that provides Windows platform-specific
 // facilities in support of the 'bsls' stack trace facility.  This component

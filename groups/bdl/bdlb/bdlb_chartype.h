@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlb::CharType: namespace for pure (read-only) procedures on characters
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@SEE_ALSO: bdlb_string
 //
 //@DESCRIPTION: This component defines a utility class 'bdlb::CharType' that

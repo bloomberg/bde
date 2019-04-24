@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Development Environment Data Encoder (bdlde)
 
-@AUTHOR: Tom Marshall (tmarshal)
-
 @SEE_ALSO:
 
 @DESCRIPTION: The 'bdlde' package provides mechanisms (typically in the form of

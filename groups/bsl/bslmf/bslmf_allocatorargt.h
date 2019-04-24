@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_scalarprimitives
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: The C++11 standard defines the empty class
 // 'bsl::allocator_arg_t' as a tag that precedes an argument of allocator type
 // in circumstances where context alone cannot be used to determine which

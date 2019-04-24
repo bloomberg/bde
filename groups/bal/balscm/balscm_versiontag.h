@@ -17,8 +17,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balscm_version
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides versioning information for the 'bal'
 // package group.  The 'BAL_VERSION' macro that is supplied can be used for
 // conditional-compilation based on 'bal' version information.  The following
