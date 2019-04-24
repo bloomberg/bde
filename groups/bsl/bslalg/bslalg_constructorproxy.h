@@ -292,6 +292,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslalg_scalarprimitives.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
 namespace BloombergLP {
 
 namespace bslma { class Allocator; }

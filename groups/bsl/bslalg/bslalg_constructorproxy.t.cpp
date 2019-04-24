@@ -2,12 +2,12 @@
 
 #include <bslalg_constructorproxy.h>
 
-#include <bslma_usesbslmaallocator.h>            // for testing only
-#include <bslma_allocator.h>                     // for testing only
-#include <bslma_default.h>                       // for testing only
-#include <bslma_testallocator.h>                 // for testing only
+#include <bslma_usesbslmaallocator.h>
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
 
-#include <bslmf_movableref.h>                    // for testing only
+#include <bslmf_movableref.h>
 
 #include <bsls_bsltestutil.h>
 
