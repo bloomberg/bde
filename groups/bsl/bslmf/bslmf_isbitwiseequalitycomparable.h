@@ -23,11 +23,6 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isreference.h>
 #include <bslmf_removecv.h>
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bslmf_ispointertomember.h>
-#endif
-
-
 namespace BloombergLP {
 
 namespace bslmf {
