@@ -8,11 +8,8 @@ BSLS_IDENT("$Id$ $CSID$")
 //@PURPOSE: Provide a managed pointer class.
 //
 //@CLASSES:
-//     bslma::ManagedPtr: proctor for automatic memory management
-// bslma::ManagedPtrUtil: namespace for deleter for stack-allocated objects
-//
-//@AUTHOR: Ilougino Rocha (irocha), Pablo Halpern (phalpern),
-//         Alisdair Meredith (ameredith1)
+//  bslma::ManagedPtr: proctor for automatic memory management
+//  bslma::ManagedPtrUtil: namespace for deleter for stack-allocated objects
 //
 //@SEE_ALSO: bslmf_ispolymporphic
 //

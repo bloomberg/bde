@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_attribute, ball_attributecontainer
 //
-//@AUTHOR: Henry Verschell (hversche)
-//
 //@DESCRIPTION: This component defines a class 'ball::AttributeContainerList'
 // that provides a linked list of 'ball::AttributeContainer' object
 // *addresses*.  Addresses can be prepended (to the front of the list) using

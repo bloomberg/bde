@@ -21,9 +21,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_mutex, bslmt_atomictypes, bslmt_lockguard, bslmt_once
 //
-//@AUTHOR: Vlad Kliatchko (vkliatchko@bloomberg.net) (design)
-//         Alex Libman (alibman1@bloomberg.net) (integration with BCE)
-//
 //@DESCRIPTION: This component defines a portable and efficient lock for
 // ensuring that only one thread at a time enters a specific "critical region"
 // -- a section of code that accesses a shared resource -- 'bslmt::Qlock' and

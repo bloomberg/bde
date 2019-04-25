@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_alignment
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component provides a namespace for enumerating memory
 // block growth strategies, and provides a function that converts each of these
 // enumerators to its corresponding string representation.

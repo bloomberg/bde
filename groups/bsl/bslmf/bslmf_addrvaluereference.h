@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_integralconstant, bslmf_addlvaluereference
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a meta-function,
 // 'bsl::add_rvalue_reference', that may be used to transform a type to its
 // rvalue reference type.

@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::AtomicOperations_IA64_HP_ACC: atomics implementation for HPUX/IA64.
 //
-//@AUTHOR: Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the HPUX/IA64 platform in 32 and 64bit modes.  The classes are for
 // private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for the

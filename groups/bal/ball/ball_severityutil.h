@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::SeverityUtil: namespace for functions on 'ball::Severity::Level'
 //
-//@AUTHOR: Steven Breitstein (sbreitst), Henry Verschell (hversche)
-//
 //@SEE_ALSO: ball_severity
 //
 //@DESCRIPTION: This component provides a suite of pure procedures that apply

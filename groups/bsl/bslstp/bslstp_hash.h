@@ -16,8 +16,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_hashutil
 //
-//@AUTHOR: Arthur Chiu (achiu21), Alisdair Meredith (ameredit)
-//
 //@DESCRIPTION: This component provides a namespace for hash functions used by
 // 'hash_map' and 'hash_set'.
 //

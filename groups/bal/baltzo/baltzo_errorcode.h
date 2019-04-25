@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baltzo_localtimedescriptor, baltzo_timezoneutil
 //
-//@AUTHOR: Stefano Pacifico (spacifico1)
-//
 //@DESCRIPTION: This component provides a namespace, 'baltzo::ErrorCode', for
 // the 'enum' type 'baltzo::ErrorCode::Enum', which enumerates the set of named
 // error codes returned by functions across the 'baltzo' package.

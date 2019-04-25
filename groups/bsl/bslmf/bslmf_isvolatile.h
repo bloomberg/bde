@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_integralconstant
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a meta-function, 'bsl::is_volatile' and
 // a template variable 'bsl::is_volatile_v', that represents the result value
 // of the meta-function, that may be used to query whether a type is

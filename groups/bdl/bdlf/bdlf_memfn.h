@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //  bdlf::MemFnInstance: member function wrapper with embedded instance pointer
 //      bdlf::MemFnUtil: utility for constructing wrapper objects
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@SEE_ALSO: bdlf_bind
 //
 //@DESCRIPTION: This component provides a member function pointer wrapper

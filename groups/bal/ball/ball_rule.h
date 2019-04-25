@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_ruleset
 //
-//@AUTHOR: Gang Chen (gchen20)
-//
 //@DESCRIPTION: This component implements a type, 'ball::Rule', that consists
 // of a pattern, four threshold levels, and a set of predicates.  The pattern
 // indicates the names of the categories for which the rule will become

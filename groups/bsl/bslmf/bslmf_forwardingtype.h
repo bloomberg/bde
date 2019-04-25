@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_removecvq
 //
-//@AUTHORS: Ilougino Rocha (irocha), Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides a meta function,
 // 'bslmf::ForwardingType', determining the most efficient forwarding type for
 // a given template type 'TYPE'.  The forwarding type is used to pass an

@@ -21,9 +21,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: ball_record, ball_context, ball_observer,
 //           ball_recordstringformatter
 //
-//@AUTHOR: Guillaume Morin (gmorin1), Gang Chen (gchen20),
-//         Dino Oliva (doliva1), Raymond Chiu (schiu49)
-//
 //@DESCRIPTION: This component provides a concrete implementation of the
 // 'ball::Observer' protocol, 'ball::FileObserver2', for publishing log records
 // to a user-specified file.  The following inheritance hierarchy diagram shows

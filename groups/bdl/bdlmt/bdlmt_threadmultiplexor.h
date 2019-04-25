@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bdlmt::ThreadMultiplexor: mechanism to partition multi-threaded processing
 //
-//@AUTHOR: David Rubin (drubin6)
-//
 //@SEE_ALSO: bdlmt_threadpool, bdlmt_fixedthreadpool
 //
 //@DESCRIPTION: This component provides a mechanism for partitioning a

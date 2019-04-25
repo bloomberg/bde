@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::Crc64: stores and updates a CRC-64 checksum
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendelsohn), Nathan Myers (nmyers12)
-//
 //@SEE_ALSO:
 //
 //@DESCRIPTION: 'bdlde::Crc64' implements a mechanism for computing, updating,

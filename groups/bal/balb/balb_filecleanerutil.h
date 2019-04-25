@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balb_filecleanerconfiguration
 //
-//@AUTHOR: Oleg Subbotin
-//
 //@DESCRIPTION: This component defines a 'struct', 'balb::FileCleanerUtil',
 // that provides a utility function for removing files based on a
 // configuration.

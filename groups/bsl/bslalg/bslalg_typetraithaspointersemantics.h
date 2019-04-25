@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides a single traits class,
 // 'bslalg::TypeTraitHasPointerSemantics', which allows the trait
 // 'bslmf::HasPointerSemantics' to be declared using the (deprecated)

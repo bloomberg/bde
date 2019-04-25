@@ -17,8 +17,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_atomicoperations
 //
-//@AUTHOR: Alexei Zakharov (azakhar1), Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides classes with atomic operations for
 // 'int', 'Int64', 'unsigned int', 'Uint64', 'pointer', and 'bool' types.
 // These classes are based on atomic operations supplied by the

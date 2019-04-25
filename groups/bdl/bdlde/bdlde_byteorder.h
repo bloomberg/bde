@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlde_charconvertutf16
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
 // 'bdlde::ByteOrder::Enum', which enumerates the set of possible byte orders.
 //

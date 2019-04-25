@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb_guidutil
 //
-//@AUTHOR: Mickey Sweatt (msweatt1)
-//
 //@DESCRIPTION: This component provides a value-semantic type for Globally
 // Unique Identifiers (GUIDs), 'bdlb::Guid', with format as described by RFC
 // 4122 ('http://www.ietf.org/rfc/rfc4122.txt').  All equality and comparison

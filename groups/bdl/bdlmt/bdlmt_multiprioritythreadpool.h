@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_threadutil
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component defines an implementation of a thread pool in
 // which work items ("jobs") are associated with a limited number of integer
 // priorities that determine the sequence in which enqueued jobs are executed.

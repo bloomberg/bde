@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_deallocatorproctor, bslma_autodeallocator
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a guard class template,
 // 'bslma::DeallocatorGuard', to unconditionally manage a block of
 // (otherwise-unmanaged) memory.  The managed memory is deallocated

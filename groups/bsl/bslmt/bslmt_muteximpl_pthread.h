@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_mutex
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides an implementation of 'bslmt::Mutex' for
 // POSIX threads ("pthreads"), 'bslmt::MutexImpl<Platform::PosixThreads>', via
 // the template specialization:

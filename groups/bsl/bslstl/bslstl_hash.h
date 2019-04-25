@@ -12,9 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
-//@AUTHOR: Arthur Chiu (achiu21), Alisdair Meredith (ameredith1)
-//         Stefano Pacifico (spacifico1), Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a template unary functor, 'bsl::hash',
 // implementing the 'std::hash' functor.  'bsl::hash' applies a C++ standard
 // compliant, implementation defined, hash function to fundamental types

@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlde_base64decoder
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@DESCRIPTION: This component provides a 'class', 'bdlde::Base64Encoder',
 // which provides a pair of template functions (each parameterized separately
 // on both input and output iterators) that can be used respectively to encode

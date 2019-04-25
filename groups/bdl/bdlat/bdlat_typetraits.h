@@ -39,10 +39,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Clay Wilson (cwilson9), Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This component provides compile-time traits that pertain to
 // generated types.  The four traits provided, 'bdlat_IsBasicChoice',
 // 'bdlat_IsBasicSequence', 'bdlat_IsBasicEnumeration',

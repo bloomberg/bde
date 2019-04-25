@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //  bsl::enable_if_t: alias to the return type of the meta-function
 //  bslmf::EnableIf: meta-function to drop templates from overload sets
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
-//
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::enable_if' and
 // 'bslmf::EnableIf', both of which may be used to conditionally remove
 // (potential) template instantiations as candidates for overload resolution by

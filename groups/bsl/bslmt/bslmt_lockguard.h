@@ -24,8 +24,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_readlockguard, bslmt_writelockguard
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides generic proctors, 'bslmt::LockGuard',
 // 'bslmt::LockGuardUnlock', 'bslmt::LockGuardTryLock', 'bslmt::UnLockGuard',
 // and 'bslmt::TryLockGuard', to automatically lock and unlock an external

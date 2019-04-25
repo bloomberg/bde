@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Standard Library System utilities (bsls)
 
-@AUTHOR: Herve Bronnimann (hbronnim)
-
 @DESCRIPTION: The 'bsls' package provides a variety of system utilities for use
  by the 'bsl' library.  These utilities include:
 

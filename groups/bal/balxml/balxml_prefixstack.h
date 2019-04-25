@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balxml_namespaceregistry
 //
-//@AUTHOR: Pablo Halpern (phalpern), Alexander Libman(alibman1)
-//
 //@DESCRIPTION: 'balxml::PrefixStack' keeps a collection of pairs - the prefix
 // string and the integer associated with each namespace uri.  Registration of
 // prefix with namespace works similar to "pushing in stack", i.e., it hides

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //@SEE_ALSO: bslalg_rbtreeutil
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a single POD-like class, 'RbTreeNode',
 // used to represent a node in a red-black binary search tree.  An 'RbTreeNode'
 // provides the address to its parent, left-child, and right-child nodes, as

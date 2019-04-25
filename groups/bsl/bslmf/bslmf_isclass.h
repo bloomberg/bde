@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //  bsl::is_class_v: the result value of the 'bsl::is_class' meta-function
 //  bslmf::IsClass: meta-function for determining class types
 //
-//@AUTHOR: Clay Wilson (cwilson9)
-//
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_class' and
 // 'BloombergLP::bslmf::IsClass' and a template variable 'bsl::is_class_v',
 // that represents the result value of the 'bsl::is_class' meta-function.  All

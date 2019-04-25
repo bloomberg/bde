@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_loggermanagerconfiguration, ball_loggermanager
 //
-//@AUTHOR: Tom Marshall (tmarshal)
-//
 //@DESCRIPTION: This component provides a namespace,
 // 'ball::LoggerFunctorPayloads', containing a suite of functions, each of
 // which may be used as the function body "payload" of one of the various

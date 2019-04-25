@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_fixedsizerecordbuffer
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendelsohn)
-//
 //@DESCRIPTION: This component provides a special-purpose instrumented
 // allocator, 'ball::CountingAllocator', that implements the 'bslma::Allocator'
 // protocol and guarantees maximal alignment of allocated blocks, even when

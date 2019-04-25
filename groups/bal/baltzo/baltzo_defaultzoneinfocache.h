@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //  baltzo::DefaultZoneinfoCache: default Zoneinfo cache utilities
 //  baltzo::DefaultZoneinfoCacheScopedGuard: guard for default Zoneinfo cache
 //
-//@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
-//
 //@SEE_ALSO: baltzo_zoneinfocache, baltzo_timezoneutil
 //
 //@DESCRIPTION: This component provides a namespace,

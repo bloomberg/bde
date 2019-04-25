@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_isbitwisemoveable
 //
-//@AUTHOR: Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides a single traits class,
 // 'bslalg::TypeTraitBitwiseMoveable', which allows the trait
 // 'bslma::bslmf::IsBitwiseMoveable' to be declared using the (deprecated)

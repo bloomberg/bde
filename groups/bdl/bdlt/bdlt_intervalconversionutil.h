@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::IntervalConversionUtil: functions to convert time intervals
 //
-//@AUTHOR: Alexander Beels (abeels)
-//
 //@SEE_ALSO: bdlt_datetimeinterval, bsls_timeinterval
 //
 //@DESCRIPTION: This component provides a utility 'struct',

@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balm_collector, balm_integercollector, balm_metricsmanager
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component defines a class, 'balm::CollectorRepository',
 // that serves as a repository for 'balm::Collector' and
 // 'balm::IntegerCollector' objects.  The collector repository supports

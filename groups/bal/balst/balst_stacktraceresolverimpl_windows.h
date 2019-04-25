@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Oleg Semenov, Bill Chapman
-//
 //@DESCRIPTION: This class provides a class this able to take a vector of
 // 'balst::StackTraceFrame's that have only their 'address' fields set, and
 // sets as many of the other fields in the stack trace frames as possible.  Elf

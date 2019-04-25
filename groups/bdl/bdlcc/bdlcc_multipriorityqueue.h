@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlcc::MultipriorityQueue: thread-enabled, multi-priority queue
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component provides a thread-enabled mechanism,

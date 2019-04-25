@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlma_concurrentpool, bdlma_concurrentmultipool
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides an allocator,
 // 'bdlma::ConcurrentMultipoolAllocator', that implements the
 // 'bdlma::ManagedAllocator' protocol and provides an allocator that maintains

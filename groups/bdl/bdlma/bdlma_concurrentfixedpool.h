@@ -17,8 +17,6 @@
 //
 //@SEE_ALSO: bdlma_concurrentpool
 //
-//@AUTHOR: Ilougino Rocha (irocha), Vladimir Kliatchko (vkliatch)
-//
 //@DESCRIPTION: This component implements a *fully thread-safe* memory pool
 // that allocates and manages a limited number (specified at construction) of
 // memory blocks of some uniform size (also specified at construction).  A

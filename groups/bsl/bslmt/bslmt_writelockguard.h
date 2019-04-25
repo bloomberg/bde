@@ -23,8 +23,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_lockguard, bslmt_readlockguard, bslmt_rwmutex
 //
-//@AUTHOR: Herve Bronnimann (hbronnimann)
-//
 //@DESCRIPTION: This component provides generic proctors,
 // 'bslmt::WriteLockGuard', 'bslmt::WriteLockGuardUnlock',
 // 'bslmt::WriteLockGuardTryLock', and 'bslmt::LockWriteGuard', to

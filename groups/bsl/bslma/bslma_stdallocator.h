@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_allocator
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 // TBD: update component-level doc
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_memory.h>' instead and use 'bsl::allocator' directly.  This component

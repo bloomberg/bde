@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::UserFields: a container of user supplied field values
 //
-//@AUTHOR: Henry Verschell (hversche)
-//
 //@SEE_ALSO: ball_userfieldvalue
 //
 //@DESCRIPTION: This component provides a value-semantic container-type,

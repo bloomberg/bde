@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_vector
 //
-//@AUTHOR: Jordan Levin (jlevin)
-//
 //@DESCRIPTION: This component defines a single class template, 'bsl::array',
 // implementing the standard container 'std::array', holding a non-resizable
 // array of values of a template parameter type where the size is specified as

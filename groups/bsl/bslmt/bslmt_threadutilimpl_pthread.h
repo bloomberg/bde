@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_threadutil
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides an implementation of
 // 'bslmt::ThreadUtil' for POSIX threads ("pthreads"),
 // 'bslmt::ThreadUtilImpl<PosixThreads>', via the template specialization:

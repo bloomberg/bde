@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_turnstile, btls_leakybucket
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a mechanism, 'bdlmt::Throttle', that
 // can be used by clients to regulate the frequency at which actions can be
 // taken.  Clients initialize a 'Throttle' with configuration values for

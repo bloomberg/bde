@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_matchanytype, bslstl_deque, bslstl_string, bslstl_vector
 //
-//@AUTHOR: Pablo Halpern (phalpern), Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component defines a class, 'bslmf::MatchArithmeticType',
 // to which any arithmetic type can be implicitly converted.  A class with that
 // conversion property is useful for meeting the certain requirements of the

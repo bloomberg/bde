@@ -20,8 +20,6 @@ BSLS_IDENT("$Id$")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Andrew Paprocki (apaprock), Stefano Pacifico (spacifico1)
-//
 //@DESCRIPTION: This component provides an implementation,
 // 'bdlma::AlignedAllocator', of the base-level protocol (pure abstract
 // interface) class, 'bslma::Allocator', providing the ability to allocate raw

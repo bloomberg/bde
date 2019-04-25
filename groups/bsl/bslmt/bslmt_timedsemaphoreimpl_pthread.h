@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_timedsemaphore
 //
-//@AUTHOR: Guillaume Morin (gmorin1)
-//
 //@DESCRIPTION: This component provides an implementation of
 // 'bslmt::TimedSemaphore', 'bslmt::TimedSemaphoreImpl<PthreadTimedSemaphore>',
 // for POSIX threads ("pthreads") via the template specialization:

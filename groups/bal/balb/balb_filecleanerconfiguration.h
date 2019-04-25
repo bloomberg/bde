@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balb_filecleanerutil
 //
-//@AUTHOR: Oleg Subbotin (osubbotin)
-//
 //@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, 'balb::FileCleanerConfiguration', that
 // contains a set of attributes (objects and parameters) of a file cleaner.

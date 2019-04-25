@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlsta::Moment: online calculation of mean, variance, skew, and kurtosis
 //
-//@AUTHOR: Ofer Imanuel (oimanuel@bloomberg.net)
-//
 //@DESCRIPTION: This component provides a mechanism, 'bdlsta::Moment', that
 // provides online calculation of basic statistics: mean, variance, skew, and
 // kurtosis while maintaining accuracy.  Online algorithms process the data in

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_allocatorargt
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: C++11 introduced an idiom for passing allocators to the
 // constructors of classes in situations where putting the allocator as the
 // last argument would have been ambiguous.  For example, in cases where the

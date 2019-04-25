@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: TBD
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: TBD
 
 #include <bslscm_version.h>

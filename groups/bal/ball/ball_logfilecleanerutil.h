@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_fileobserver2, balb_filecleanerconfiguration
 //
-//@AUTHOR: Oleg Subbotin
-//
 //@DESCRIPTION: This component defines a 'struct', 'ball::LogFileCleanerUtil',
 // that provides utility functions for converting log file patterns used by
 // 'ball' file observers into filesystem patterns and installing a custom

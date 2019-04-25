@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bslalg::HashTableAnchor: (in-core) bucket-array and node list
 //
-//@AUTHOR: Alisdair Meredith (ameredit1) Stefano Pacifico (spacifico1)
-//
 //@SEE_ALSO: bslstl_hashtable, bslalg_hashtableimputil
 //
 //@DESCRIPTION: This component provides a single, complex-constrained

@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb_stringrefutil
 //
-//@AUTHOR: Vladimir Kliatchko (vkliatch), Anthony Comerico (acomeric)
-//
 //@DESCRIPTION: This component defines two classes, 'bslstl::StringRef' and
 // 'bslstl::StringRefWide', each providing a reference to a non-modifiable
 // string value having an external representation.  The type of characters in

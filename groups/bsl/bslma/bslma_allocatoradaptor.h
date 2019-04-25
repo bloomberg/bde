@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: Within the BDE libraries, the prefered way to handle memory
 // allocation is through a pointer to the polymorphic base class,
 // 'bslma::Allocator'.  The use of a run-time polymorphism for the allocator

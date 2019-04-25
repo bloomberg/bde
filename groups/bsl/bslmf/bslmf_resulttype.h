@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: A number of functor classes provide a 'typedef' alias for the
 // returned type when invoking the functor.  Unfortunately, standard types name
 // this 'typedef' 'result_type' whereas BDE types name this 'typedef'

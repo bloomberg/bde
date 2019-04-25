@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_allocator
 //
-//@AUTHOR: Shao-wei Hung (shung)
-//
 //@DESCRIPTION: This component provides a protocol (pure abstract interface)
 //  class, 'bslma::ManagedAllocator', which extends the base-level protocol
 //  class, 'bslma::Allocator', providing the ability to 'release' all memory

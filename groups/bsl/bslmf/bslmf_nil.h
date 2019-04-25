@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //  bslmf::Nil: class representing a nil (non-existent) type.
 //  bslmf::IsNil: meta-function to test for nil.
 //
-//@AUTHOR: Oleg Grunin (ogrunin)
-//
 //@DESCRIPTION: 'bslmf::Nil' is mainly used for template meta-programming.  It
 // is useful for providing defaults for template parameters and terminating
 // template recursions.  'bslmf::Nil' can also be used to represent an unset

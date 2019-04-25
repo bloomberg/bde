@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_predicateset, ball_rule
 //
-//@AUTHOR: Gang Chen (gchen20)
-//
 //@DESCRIPTION: This component implements a value-semantic predicate object,
 // 'ball::Predicate', that consists of a name and a value.  The value can be an
 // 'int', a 64-bit integer, or a 'bsl::string'.  Both the name and value are

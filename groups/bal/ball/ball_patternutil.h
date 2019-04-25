@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::PatternUtil: utility class for string pattern matching
 //
-//@AUTHOR: Gang Chen (gchen20)
-//
 //@DESCRIPTION: This component defines a namespace, 'ball::PatternUtil', that
 // provides utility functions for matching input strings to a given pattern
 // based on wild-card and simple escape sequences.

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //@SEE_ALSO: bslalg_rbtreenode, bslalg_rbtreeutil
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component defines a single class, 'RbTreeAnchor',
 // providing access to the addresses of the root, first, and sentinel nodes of
 // a tree, as well as the count of the number of nodes.  A sentinel node is a

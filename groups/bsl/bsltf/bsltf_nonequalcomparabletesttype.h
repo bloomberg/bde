@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
-//@AUTHOR: Chen He (che2)
-//
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'NonEqualComparableTestType', that does
 // not provide equality-comparison operators.  This is particularly valuable

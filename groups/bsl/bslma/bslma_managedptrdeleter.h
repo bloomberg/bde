@@ -10,8 +10,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bslma::ManagedPtrDeleter: in-core value-semantic class storing a deleter
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
-//
 //@SEE_ALSO: bslma_managedptr
 //
 //@DESCRIPTION: This component provides a single, complex-constrained in-core

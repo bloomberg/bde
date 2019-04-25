@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_attributecontainer
 //
-//@AUTHOR: Gang Chen (gchen20), Mike Verschell (hversche)
-//
 //@DESCRIPTION: This component provides a default implementation of the
 // 'ball::AttributeContainer' protocol, 'ball::DefaultAttributeContainer'
 // providing an 'unordered_set'-based container of 'ball::Attribute' values.

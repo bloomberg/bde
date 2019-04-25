@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::Util: utility class providing low-level functionality
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a utility 'struct', 'bslmf::Util', that
 // serves as a namespace for a suite of functions that supply low-level
 // functionality for implementing portable generic facilities such as might be

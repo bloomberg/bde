@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_addconst
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a meta-function, 'bsl::remove_const' and
 // declares an 'bsl::remove_const_t' alias to the return type of the
 // 'bsl::remove_const', that may be used to remove any top-level

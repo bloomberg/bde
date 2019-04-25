@@ -9,8 +9,6 @@
 //  BSLS_DEPRECATE_IS_ACTIVE: conditionally activate deprecation by UOR version
 //  BSLS_DEPRECATE_MAKE_VER:  render UOR version for deprecation threshold
 //
-//@AUTHOR: Alexander Beels (abeels)
-//
 //@DESCRIPTION: This component defines a suite of macros to control (on a
 // per-version, per-UOR basis) the deprecation of functions, user-defined
 // types, and 'typedef's, and the conditional compilation of enumerators and

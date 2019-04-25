@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb_nullablevalue
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 // TBD: update this documentation to reflect the new overloaded functions
 //
 //@DESCRIPTION: The 'bdlat_NullableValueFunctions' 'namespace' provided in this

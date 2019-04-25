@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlsta::LineFit: online calculation of least squares regression line
 //
-//@AUTHOR: Ofer Imanuel (oimanuel@bloomberg.net)
-//
 //@DESCRIPTION: This component provides a mechanism, 'bdlsta::LineFit', that
 // provides online calculation of the least squares line fit.  Online
 // algorithms process the data in one pass, while maintaining accuracy.  The

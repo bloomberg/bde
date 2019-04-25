@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balber_berencoder, balber_berdecoder
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwa), Shezan Baig (sbaig)
-//
 //@DESCRIPTION: This component provides utility functions for encoding and
 // decoding of primitive BER constructs, such as tag identifier octets, length
 // octets, fundamental C++ types.  The encoding and decoding of 'bsl::string'

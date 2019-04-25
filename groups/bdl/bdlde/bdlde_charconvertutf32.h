@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::CharConvertUtf32: namespace for conversion between UTF-8 and UTF-32
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a 'struct', 'bdlde::CharConvertUtf32',
 // that provides a suite of static functions supporting the *fast* conversion
 // of UTF-8 data to UTF-32, and vice versa.  UTF-8 input can take the form of

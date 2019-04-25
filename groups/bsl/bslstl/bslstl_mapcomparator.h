@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_map, bslstl_treenode, bslalg_rbtreeutil
 //
-//@AUTHOR: Henry Verschell (hverschell), Chen He (che2)
-//
 //@DESCRIPTION: This component provides a functor adapter, 'MapComparator',
 // that adapts a parameterized 'COMPARATOR' comparing objects of a
 // parameterized 'KEY' type into a functor comparing a object of 'KEY' type

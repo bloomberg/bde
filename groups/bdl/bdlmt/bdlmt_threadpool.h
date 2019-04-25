@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component defines a portable and efficient implementation
 // of a thread pool that can be used to distribute various user-defined
 // functions ("jobs") to separate threads and execute the jobs concurrently.

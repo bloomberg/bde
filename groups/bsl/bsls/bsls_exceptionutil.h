@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //  BSLS_NOTHROW_SPEC: declare that a function throws no exceptions
 //  BSLS_EXCEPTION_WHAT_NOTHROW: 'exception::what()' except. spec.
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@SEE_ALSO: bsls_compilerfeatures, bsls_cpp11
 //
 //@DESCRIPTION: Code that uses 'try', 'throw' and 'catch' constructs will

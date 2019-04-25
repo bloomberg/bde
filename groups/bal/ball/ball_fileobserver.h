@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_record, ball_context, ball_observer, ball_fileobserver2
 //
-//@AUTHOR: Guillaume Morin (gmorin1), Gang Chen (gchen20)
-//
 //@DESCRIPTION: This component provides a concrete implementation of the
 // 'ball::Observer' protocol, 'ball::FileObserver', for publishing log records
 // to 'stdout' and, optionally, to a user-specified file.  The following

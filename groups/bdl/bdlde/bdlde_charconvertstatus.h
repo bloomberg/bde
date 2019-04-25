@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlde_charconvertutf16, bdlde_charconvertucs2
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
 // 'bdlde::CharConvertStatus::Enum', which enumerates the set of bit-wise masks
 // that can be used to interpret return values from translation functions in

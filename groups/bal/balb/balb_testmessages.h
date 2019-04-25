@@ -8,8 +8,6 @@ BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes.
 //
-//@AUTHOR: David SCHUMANN (dschumann1@bloomberg.net)
-//
 //@DESCRIPTION: This is a generated file used for testing purposes only and
 // should *not* be used in any production code.
 //

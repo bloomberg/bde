@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bslstl::BidirectionalNodePool: memory manager to allocate hash table nodes
 //
-//@AUTHOR: Stefano Pacifico (spacifico1)
-//
 //@SEE_ALSO: bslstl_simplepool
 //
 //@DESCRIPTION: This component implements a mechanism, 'BidirectionalNodePool',

@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_isarray, bslmf_forwardingtype
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides a meta function for converting array
 // types to pointer types.  The utility is generally used for in templates that
 // require forwarding or storage of arguments that are passed a arrays(e.g.,

@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsltf::NonTypicalOverloadsTestType: test class that non-typical operators
 //
-//@AUTHOR: Chen He (che2)
-//
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'NonTypicalOverloadsTestType', that
 // defines overloads to some non-typically-overloaded operators ('operator

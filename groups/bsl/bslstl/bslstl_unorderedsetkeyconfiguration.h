@@ -12,9 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_unorderedmapkeyconfiguration, bslalg_hashtableimputil
 //
-//@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1),
-//         Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides an identity transformation.
 // 'bslalg::HashTableImpUtil' has a static 'extractKey' function template
 // that, given a 'value type', will represent objects stored in a data

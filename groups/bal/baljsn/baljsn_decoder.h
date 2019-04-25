@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baljsn_encoder, baljsn_parserutil, baljsn_parser
 //
-//@AUTHOR: Raymond Chiu (schiu49), Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This component provides a class, 'baljsn::Decoder', for
 // decoding value-semantic objects in the JSON format.  In particular, the
 // 'class' contains a parameterized 'decode' function that decodes an object

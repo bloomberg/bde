@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_record, ball_recordattributes
 //
-//@AUTHOR: Gang Chen (gchen20)
-//
 //@DESCRIPTION: This component provides a value-semantic function-object class,
 // 'ball::RecordStringFormatter', that is used to format log records according
 // to a 'printf'-style format specification (see "Record Format Specification"

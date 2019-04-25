@@ -19,8 +19,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdls::ProcessUtil: portable utility methods related to processes
 //
-//@AUTHOR: Bruce Szablak (bszablak), Bill Chapman (bchapman2)
-//
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component, 'bdls::ProcessUtil', defines a

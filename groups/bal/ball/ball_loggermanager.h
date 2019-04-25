@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //  ball::LoggerManager: logger factory and category administrator
 //  ball::LoggerManagerScopedGuard: scoped guard for 'LoggerManager' singleton
 //
-//@AUTHOR: Hong Shi (hshi2)
-//
 //@SEE_ALSO: ball_record, ball_recordattributes, ball_observer, ball_context,
 //           ball_loggermanagerdefaults, ball_loggermanagerconfiguration,
 //           ball_severity, ball_transmission, ball_log

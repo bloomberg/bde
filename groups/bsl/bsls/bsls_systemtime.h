@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_timeinterval
 //
-//@AUTHOR: Khalid Shafiq (kshafiq), Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a 'struct', 'bsls::SystemTime', in
 // which are defined a series of static methods for retrieving the current
 // system time.  This component provides access to a monotonic clock and a

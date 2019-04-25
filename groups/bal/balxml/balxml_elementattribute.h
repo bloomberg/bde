@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balxml_reader, balxml_prefixstack
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides a class, 'balxml::ElementAttribute',
 // that encapsulates the name, namespace, and value of an attribute within an
 // element in an XML document, along with a flag indicating whether the value

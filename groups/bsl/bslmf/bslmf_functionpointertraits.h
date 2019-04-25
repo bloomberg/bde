@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_memberfunctionpointertraits
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides meta-functions for determining whether
 // a type is a pointer to either a free function or a class method (but not to
 // a member function, see the component 'bslmf_memberfunctionpointertraits'

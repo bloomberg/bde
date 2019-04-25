@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides a thread-safe and efficient templatized
 // time queue.  The queue stores an ordered list of time values and associated
 // 'DATA'.  Each item added to the queue is assigned a unique identifier that

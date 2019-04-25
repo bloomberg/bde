@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION:
 //
 ///Usage

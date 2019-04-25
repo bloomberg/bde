@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::String: namespace for functions on C-style and 'STL' strings
 //
-//@AUTHOR: Jeff Mendelsohn (jmendels)
-//
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component defines a utility 'struct', 'bdlb::String', that

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@MACROS:
 //  BSLS_MACROINCREMENT(NUMBER): expand to evaluated 'NUMBER + 1'
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
-//
 //@DESCRIPTION: This component provides a macro, 'BSLS_MACROINCREMENT(NUMBER)',
 // that produces the preprocessor number equal to the number succeeding the
 // supplied argument.  This is necessary as the preprocessor performs

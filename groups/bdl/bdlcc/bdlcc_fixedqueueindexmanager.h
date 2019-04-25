@@ -18,10 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlcc::FixedQueueIndexManager: state management for a queue
 //
-//@AUTHOR: Eric Winseman (ewinseman),
-//         Dave Schumann (dschuman),
-//         Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component implements a lock-free mechanism for managing
 // the indices of a circular buffer of elements to facilitate the
 // implementation of a fixed-size thread-enabled single-ended queue.  A

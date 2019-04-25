@@ -12,9 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_hashtableimputil
 //
-//@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1),
-//         Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component will, given an object of a value type consisting
 // of a key type and some other information, return a const reference to only
 // the key type within that object.  The object passed will be of parameterized

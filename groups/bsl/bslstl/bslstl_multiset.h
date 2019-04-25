@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_set, bslstl_multimap
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component defines a single class template 'bsl::multiset',
 // implementing the standard container holding an ordered sequence of possibly
 // duplicate keys.

@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   balst::StackTraceFrame: a description of one frame of an execution stack
 //
-//@AUTHOR: Bill Chapman (bchapman2), Steven Breitstein (sbreitstein)
-//
 //@SEE_ALSO: balst_stacktrace
 //
 //@DESCRIPTION: This component provides a single, simply-constrained

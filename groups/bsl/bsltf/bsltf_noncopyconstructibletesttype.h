@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
-//@AUTHOR: Chen He (che2)
-//
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'NonCopyConstructibleTestType', that does
 // not provide a copy constructor.  This is particularly valuable when testing

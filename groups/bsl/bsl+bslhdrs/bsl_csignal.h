@@ -9,8 +9,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: package bsl+stdhdrs
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
 // defined in the corresponding C++ standard header.  Include the native
 // compiler-provided standard header, and also directly include Bloomberg's

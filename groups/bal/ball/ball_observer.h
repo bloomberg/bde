@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_record, ball_loggermanager
 //
-//@AUTHOR: Hong Shi (hshi2)
-//
 //@DESCRIPTION: This component defines the base-level protocol,
 // 'ball::Observer', for receiving and processing log records.  Concrete types
 // derived from this protocol, receive log records, and process them in a

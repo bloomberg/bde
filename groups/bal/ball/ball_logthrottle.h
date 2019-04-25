@@ -24,8 +24,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_log, bdlmt_throttle
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides numerous macros for performing logging
 // where the number of messages logged is "throttled", meaning that the number
 // of messages that will be logged within a given time interval is limited.

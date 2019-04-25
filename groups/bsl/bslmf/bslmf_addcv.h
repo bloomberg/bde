@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_removecv
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a meta-function, 'bsl::add_cv' and
 // declares an 'bsl::add_cv_t' alias to the return type of the 'bsl::add_cv',
 // that may be used to add a top-level 'const'-qualifier and a top-level

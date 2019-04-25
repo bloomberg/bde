@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO:
 //  bslmf_nestedtraitdeclaration
 //
-//@AUTHOR: Alexei Zakharov <azakharov7)
-//
 //@DESCRIPTION: This component defines a tag type 'HasPointerSemantics' derived
 // from 'bsl::true_type' to indicate that a type has pointer semantics, and
 // from 'bsl::false_type' otherwise.  A type has pointer-like semantics must

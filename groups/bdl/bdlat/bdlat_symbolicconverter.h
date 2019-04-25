@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: The 'bdlat_SymbolicConverter' utility provided by this
 // component defines a single parameterized function 'convert'.  The 'convert'
 // function takes two arguments: a destination and a source object.  The

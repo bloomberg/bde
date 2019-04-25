@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_assert, bsls_asserttest
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
-//
 //@DESCRIPTION: This component implements an exception class,
 // 'bsls::AssertTestException', that provides a mechanism to convey context
 // information from a failing assertion to a test handler.  The context that is

@@ -4,8 +4,6 @@
 //
 //@SEE_ALSO: package bsl+stdhdrs
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component provides backwards compatibility for Bloomberg
 // libraries that depend on non-standard STLPort header files.  This header
 // includes the corresponding C++ header and provides any additional symbols

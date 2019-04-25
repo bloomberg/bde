@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlcc::Deque: thread-safe 'bsl::deque' wrapper
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@SEE_ALSO: bsl::deque
 //
 //@DESCRIPTION: This component provides 'bdlcc::Deque<TYPE>', a fully

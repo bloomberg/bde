@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_barrier
 //
-//@AUTHOR: Gaetano Mendola (gmendola)
-//
 //@DESCRIPTION: This component defines a mechanism, 'bslmt::Latch', that allows
 // one or more threads to wait until a certain number of operations have been
 // performed by other threads.

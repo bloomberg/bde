@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_removepointer
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a meta-function, 'bsl::add_pointer',
 // that may be used to transform a type to a pointer to that type.
 //

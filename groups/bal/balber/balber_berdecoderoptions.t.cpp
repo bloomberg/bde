@@ -278,8 +278,6 @@ typedef balber::BerDecoderOptions Obj;
 #define INCLUDED_TEST_SCHEMA
 
 //@PURPOSE: Provide value-semantic attribute classes
-//
-//@AUTHOR: @Generated
 
 #include <bslalg_typetraits.h>
 

@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslma::TestAllocatorException: exception containing allocation information
 //
-//@AUTHOR: Shao-wei Hung (shung1)
-//
 //@DESCRIPTION: This component defines a simple exception object for testing
 // exceptions during memory allocation operations.  The exception object
 // 'bslma::TestAllocatorException' contains information about the allocation

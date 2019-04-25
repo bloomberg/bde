@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
-//@AUTHOR: Chen He (che2)
-//
 //@DESCRIPTION: This component provides a single, unconstrained
 // (value-semantic) attribute class, 'BitwiseCopyableTestType', that is
 // bitwise-copyable and defines the 'bsl::is_trivially_copyable' type

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_newdeleteallocator, bslma_allocator
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component provides an allocator,
 // 'bslma::MallocFreeAllocator', that implements the 'bslma::Allocator'
 // protocol and supplies memory using the system-supplied (native)

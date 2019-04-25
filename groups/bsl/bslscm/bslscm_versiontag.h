@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslscm_version
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides versioning information for the 'bsl'
 // package group.  The 'BSL_VERSION' and 'BSL_MAKE_VERSION' macros that are
 // supplied can be used for conditional-compilation based on 'bsl' version

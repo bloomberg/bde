@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides a meta-function, 'bslalg::SelectTrait',
 // for selecting the most appropriate trait from a list of candidate traits for
 // parameterized 'TYPE'.

@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Application Library Metrics (balm)
 
-@AUTHOR: Henry Verschell (hverschell)
-
 @DESCRIPTION: The 'balm' package provides facilities for recording and
  publishing metric data.
 

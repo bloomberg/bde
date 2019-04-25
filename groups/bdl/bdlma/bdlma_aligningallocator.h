@@ -13,8 +13,6 @@ BSLS_IDENT("$Id$")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component defines a concrete allocator implementation,
 // 'bdlma::AligningAllocator', providing the ability to allocate memory with a
 // minimum alignment specified at the construction of the allocator.  The

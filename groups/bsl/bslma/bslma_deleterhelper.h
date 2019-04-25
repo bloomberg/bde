@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_rawdeleterguard, bslmf_ispolymporphic
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component provides non-primitive procedures used to delete
 // objects of parameterized 'TYPE' by first calling the destructor of the
 // object, and then freeing the memory footprint of the object using a

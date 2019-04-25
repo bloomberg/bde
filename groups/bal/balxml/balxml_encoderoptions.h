@@ -16,8 +16,6 @@ BSLS_IDENT_PRAGMA_ONCE
 
 //@PURPOSE: Provide value-semantic attribute classes.
 //
-//@AUTHOR: Rohan BHINDWALE (rbhindwale@bloomberg.net)
-//
 //@DESCRIPTION:  Options for performing XML encodings.  Encoding style is
 // either COMPACT or PRETTY.  If encoding style is COMPACT, no whitespace will
 // be added between elements.  If encoding style is 'PRETTY', then the

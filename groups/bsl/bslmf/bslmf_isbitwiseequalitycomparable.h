@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmf::IsBitwiseEqualityComparable: trait metafunction
 //
-//@AUTHOR: Alexei Zakharov (azakharov7)
-//
 //@DESCRIPTION:
 
 #include <bslscm_version.h>

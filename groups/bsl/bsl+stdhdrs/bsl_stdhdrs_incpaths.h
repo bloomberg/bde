@@ -17,8 +17,6 @@ BSLS_IDENT("$Id: $")
 // BSL_NATIVE_OS_RTL_HEADER(header): path to a subset of C standard headers
 // BSL_NATIVE_OS_STDDEF_HEADER(header): path to standard C stddef.h header
 //
-//@AUTHOR: Pablo Halpern (phalpern), Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: [!PRIVATE!] This component is intended for use only by other
 // components in the bsl package group.  The stability of this interface is not
 // guaranteed.

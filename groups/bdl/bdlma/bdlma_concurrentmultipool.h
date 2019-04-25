@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlma_concurrentpool, bdlmca_multipoolallocator
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component implements a memory manager,
 // 'bdlma::ConcurrentMultipool', that maintains a configurable number of
 // 'bdlma::ConcurrentPool' objects, each dispensing memory blocks of a unique

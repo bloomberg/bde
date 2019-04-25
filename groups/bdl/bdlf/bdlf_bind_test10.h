@@ -6,8 +6,6 @@
 //
 //@CLASSES:
 //
-//@AUTHOR: Herve Bronnimann (hbronnimann)
-//
 //@SEE_ALSO: bdlf_bind bdlf_bind_test bdlf_bind_test[0--14]
 //
 //@DESCRIPTION: This component provides a test sequence for 'bdlf_bind' with 10

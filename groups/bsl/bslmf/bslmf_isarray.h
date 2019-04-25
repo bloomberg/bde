@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //  bsl::is_array_v: the result value of the 'bsl::is_array' meta-function
 //  bslmf::IsArray: meta-function for detecting array types
 //
-//@AUTHOR: Clay Wilson (cwilson9)
-//
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_array' and
 // 'BloombergLP::bslmf::IsArray' and a template variable 'bsl::is_array_v',
 // that represents the result value of the 'bsl::is_array' meta-function.  All

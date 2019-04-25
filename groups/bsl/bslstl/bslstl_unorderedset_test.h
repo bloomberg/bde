@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_unorderedset
 //
-//@AUTHOR: Alisdair Meredith (ameredith1) Stefano Pacifico (spacifico1)
-//
 //@DESCRIPTION: This component provides a second translation unit for
 // 'unordered_set' test cases to reduce the test-driver's build time.  Test
 // cases 1-11, plus the usage example test, are in the original component test

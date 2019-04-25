@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balxml_typesprintutil balxml_typesparserutil
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: The 'bdlat_FormattingMode' struct provided in this component
 // defines the symbolic constants for all the formatting modes supported by the
 // 'bdlat' framework.  The formatting modes are separated into two categories:

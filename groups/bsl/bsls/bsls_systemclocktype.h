@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::SystemClockType: namespace for a clock type 'enum'
 //
-//@AUTHOR: Alexei Zakharov, Jeffrey Mendelsohn (jmendelsohn4)
-//
 //@DESCRIPTION: This component provides a namespace for the 'enum' type
 // 'bsls::SystemClockType::Enum', which enumerates the set of system clock
 // types.  A 'bsls::SystemClockType' is particularly important when providing

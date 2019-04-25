@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: stdexcept
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
-//
 //@DESCRIPTION: This component provides a means to throw standard exceptions
 // without introducing a compile-time dependency on the standard exception
 // classes.  This valuable where header files define function templates or

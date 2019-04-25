@@ -11,8 +11,6 @@ BSLS_IDENT("$: $")
 //       SpinLock: A mutex using "busy waiting" atomic operations.
 //  SpinLockGuard: Automatic locking-unlocking of SpinLock
 //
-//@AUTHOR: David Schumann (dschumann1)
-//
 //@DESCRIPTION: This component provides a "busy wait" mutual exclusion lock
 // primitive ("mutex"). A 'SpinLock' is small and statically-initializable, but
 // because it "spins" in a tight loop rather than using system operations to

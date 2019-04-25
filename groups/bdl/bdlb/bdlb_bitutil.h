@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::BitUtil: namespace for 'uint32_t' and 'uint64_t' bit-level operations
 //
-//@AUTHOR: John Lakos (jlakos), Jeffrey Mendelsohn (jmendelsohn4)
-//
 //@DESCRIPTION: This component provides a utility 'struct', 'bdlb::BitUtil',
 // that serves as a namespace for a collection of efficient, bit-level
 // procedures on 'uint32_t' and 'uint64_t'.  In particular, 'BitUtil' supplies

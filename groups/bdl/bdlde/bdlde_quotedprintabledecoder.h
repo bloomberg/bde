@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::QuotedPrintableDecoder: automata for Quoted-Printable decoding
 //
-//@AUTHOR: Alex Fung (afung8)
-//
 //@SEE_ALSO: 'bdlde::QuotedPrintableEncoder'
 //
 //@DESCRIPTION: This component provides a template class (parameterized

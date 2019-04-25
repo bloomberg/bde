@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_allocator
 //
-//@AUTHOR: Andrei Basov (abasov)
-//
 //@DESCRIPTION: This component defines the base-level protocol,
 // 'bdlma::Deleter', for a thread-safe and type-safe deleter of objects of
 // arbitrary type.  This class is extremely useful for transferring the

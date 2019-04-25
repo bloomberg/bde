@@ -22,8 +22,6 @@ BSLS_IDENT("$Id: $")
 //           balst_stacktraceresolverimpl_windows,
 //           balst_stacktraceresolverimpl_xcoff
 //
-//@AUTHOR: Oleg Semenov (osemenov), Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a class,
 // 'balst::StackTraceResolver<Elf>', that, given a vector of
 // 'balst::StackTraceFrame's that have only their 'address' fields set,

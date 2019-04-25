@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_predicate, ball_rule
 //
-//@AUTHOR: Gang Chen (gchen20)
-//
 //@DESCRIPTION: This component implements a value-semantic container class,
 // 'ball::PredicateSet', that manages a set of 'ball::Predicate' objects.
 //

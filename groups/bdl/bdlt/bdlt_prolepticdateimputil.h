@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlt_date
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@DESCRIPTION: This component provides a utility 'struct',
 // 'bdlt::ProlepticDateImpUtil', that defines a suite of low-level,
 // date-related functions, which can be used to validate, manipulate, and

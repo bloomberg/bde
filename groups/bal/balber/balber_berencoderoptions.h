@@ -19,8 +19,6 @@ BSLS_IDENT_PRAGMA_ONCE
 //@CLASSES:
 //  balber::BerEncoderOptions: BER encoding options
 //
-//@AUTHOR: Rohan BHINDWALE (rbhindwale@bloomberg.net)
-//
 //@DESCRIPTION: TBD
 
 #include <bdlat_attributeinfo.h>

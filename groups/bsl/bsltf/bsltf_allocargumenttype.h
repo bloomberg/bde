@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_argumenttype, bsltf_templatetestfacility
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component provides a representation of an allocating
 // argument type template class, 'bsltf::AllocArgumentType<N>', used for
 // testing functions that take a variable number of template arguments.  The

@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_allocator, bdlma_concurrentmultipool
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides an adapter,
 // 'bdlma::ConcurrentAllocatorAdapter', that implements the 'bslma::Allocator'
 // protocol and provides synchronization for operations on an allocator

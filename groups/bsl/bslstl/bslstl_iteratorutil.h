@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstl::IteratorUtil:
 //
-//@AUTHOR: Alisdair Meredith (ameredit) Stefano Pacifico (spacifico1)
-//
 //@SEE_ALSO: bslstl_hashtable
 //
 //@DESCRIPTION: This component provides a namespace, 'bslstl::IteratorUtil',

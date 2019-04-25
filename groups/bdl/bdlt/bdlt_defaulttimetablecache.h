@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::DefaultTimetableCache: namespace managing a default timetable cache
 //
-//@AUTHOR:
-//
 //@SEE_ALSO: bdlt_timetablecache, bdlt_timetableloader
 //
 //@DESCRIPTION: This component provides a namespace,

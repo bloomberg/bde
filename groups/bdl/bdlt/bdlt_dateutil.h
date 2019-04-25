@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlt_date
 //
-//@AUTHOR: Chen He (che2)
-//
 //@DESCRIPTION: This component provides a 'struct', 'bdlt::DateUtil', that
 // serves as a namespace for utility functions that operate on 'bdlt::Date'
 // objects.

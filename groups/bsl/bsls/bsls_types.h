@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::Types: namespace for platform-neutral type names
 //
-//@AUTHOR: Stefano Pacifico (spacifico1)
-//
 //@DESCRIPTION: This component provides a namespace for a set of 'typedef's
 // that provide a stable, portable interface to platform-dependent types.  In
 // particular, this component supplies portable typenames for signed and

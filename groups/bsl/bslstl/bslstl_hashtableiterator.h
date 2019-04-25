@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_bidirectionallink, bslstl_unorderedmap, bslstl_unorderedset
 //
-//@AUTHOR: Alisdair Meredith (ameredith1), Stefano Pacifico (spacifico1)
-//
 //@DESCRIPTION: This component provides a standard-conforming forward iterator,
 // 'bslstl::HashTableIterator', over a list of elements (of type
 // 'bslalg::BidirectionalLink') in a hashtable.  The requirements of a forward

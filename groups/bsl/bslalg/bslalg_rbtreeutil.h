@@ -13,8 +13,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 //@SEE_ALSO: bslalg_rbtreenode
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a variety of algorithms that operate
 // on nodes forming a red-black binary search tree.
 //

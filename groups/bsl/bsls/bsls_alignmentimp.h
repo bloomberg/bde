@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_alignmentfromtype, bsls_alignmenttotype, bsls_alignmentutil
 //
-//@AUTHOR: Pablo Halpern (phalpern), Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This component provides a suite of template meta-functions that
 // can be used to compute (at compile-time) various platform-dependent
 // alignment information.  The clients of this component are expected to be

@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a meta-function, 'bsl::is_reference' and
 // a template variable 'bsl::is_reference_v', that represents the result value
 // of the 'bsl::is_class' meta-function, that may be used to query whether a

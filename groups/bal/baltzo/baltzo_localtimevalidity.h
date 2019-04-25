@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baltzo_localtimedescriptor, baltzo_timezoneutil
 //
-//@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a namespace,
 // 'baltzo::LocalTimeValidity', for the 'enum' type
 // 'baltzo::LocalTimeValidity::Enum', which enumerates the set of validity

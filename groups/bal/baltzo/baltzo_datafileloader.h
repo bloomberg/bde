@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baltzo_zoneinfobinaryreader, baltzo_zoneinfoutil
 //
-//@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hvershell)
-//
 //@DESCRIPTION: This component provides a mechanism, 'baltzo::DataFileLoader',
 // that is a concrete implementation of the 'baltzo::Loader' protocol for
 // loading, into a 'baltzo::Zoneinfo' object, the properties of a time zone

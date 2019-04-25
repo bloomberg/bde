@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslstp::Util: namespace for utility functions
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component defines a class, 'bslstp::Util', that provides a
 // namespace for utility functions used to implement STL functionality in the
 // 'bslstp' package.

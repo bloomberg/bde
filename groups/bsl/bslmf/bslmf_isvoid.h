@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_integralconstant
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
-//
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_void' and
 // 'BloombergLP::bslmf::IsVoid' and a template variable 'bsl::is_void_v', that
 // represents the result value of 'bsl::is_void' meta-function.  All these

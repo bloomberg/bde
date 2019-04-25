@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::UnspecifiedBool: class template for the 'unspecified bool' idiom.
 //
-//@AUTHOR: Alisdair Meredith (ameredith1@bloomberg.net)
-//
 //@DESCRIPTION: This component provides a class template that can be used to
 // manufacture an "unspecified boolean type" that is distinct for each class
 // that instantiates it.  Note that classes supplying an implicit conversion to

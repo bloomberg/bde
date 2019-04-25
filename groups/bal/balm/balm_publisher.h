@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component defines a protocol class 'balm::Publisher' used
 // for publishing metric values.  The protocol's primary method is 'publish',
 // which takes a 'balm::MetricSample'.  The precise meaning of 'publish' is

@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Ujjwal Bhoota (ubhoota)
-//
 //@DESCRIPTION: This component provides a class, 'bslmt::MeteredMutex', that
 // functions as a mutex and has additional capability to keep track of wait
 // time and hold time.  This class can be used, for example, in evaluating the

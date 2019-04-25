@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balxml_reader, balxml_errorinfo
 //
-//@AUTHOR: Alexander Libman (alibman1)
-//
 //@DESCRIPTION: The 'balxml::MiniReader' class is a light-weight
 // implementation of 'balxml::Reader' interface.  The API acts as a currentNode
 // going forward on the document stream and stopping at each node in the way.

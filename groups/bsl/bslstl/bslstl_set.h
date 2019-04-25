@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_multiset, bslstl_map
 //
-//@AUTHOR:  Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component defines a single class template 'bsl::set',
 // implementing the standard container holding an ordered sequence of unique
 // keys.

@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslstl_deque, bslstl_vector, bslstl_list, bslstl_queue,
 //           bslstl_priorityqueue
 //
-//@AUTHOR: Bill Chapman (bchapman), Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component defines a single class template, 'bsl::stack',
 // a container adapter that takes an underlying container and provides a stack
 // interface which the user accesses primarily through 'push', 'pop', and 'top'

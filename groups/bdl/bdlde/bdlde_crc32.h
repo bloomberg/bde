@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::Crc32: stores and updates a CRC-32 checksum
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendelsohn)
-//
 //@SEE_ALSO:
 //
 //@DESCRIPTION: This component implements a mechanism for computing, updating,

@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslim::Printer: mechanism to implement standard 'print' methods
 //
-//@AUTHOR: Ramya Iyer (riyer)
-//
 //@DESCRIPTION: This component provides a mechanism class, 'bslim::Printer',
 // that, in many cases, simplifies the implementation of types providing a
 // 'print' method with the signature:

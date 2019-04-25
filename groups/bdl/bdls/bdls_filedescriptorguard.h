@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdls_filesystemutil
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component defines a class, 'bdls::FileDescriptorGuard', an
 // object of which manages an open file descriptor, and closes it when the
 // guard goes out of scope and is destroyed.  A 'release' method is provided,

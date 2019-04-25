@@ -29,8 +29,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_constructorproxy, bslalg_scalarprimitives
 //
-//@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides a set of type traits, and a set of
 // macros used to assign traits to user-defined classes.  Traits are used to
 // enable certain optimizations or discriminations at compile-time.  For

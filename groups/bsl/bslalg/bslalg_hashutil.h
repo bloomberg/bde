@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslalg::HashUtil: utility for hash functions
 //
-//@AUTHOR: Vladimir Kliatchko (vkliatch), Herve Bronnimann (hbronnimann)
-//
 //@DESCRIPTION: This component provides a namespace class, 'HashUtil', for
 // hash functions.  At the current time it has one hash function,
 // 'HashUtil::computeHash', which will hash most fundamental types, and

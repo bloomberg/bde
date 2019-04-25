@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::TimeUnitRatio: namespace for common time-unit-ratio constants
 //
-//@AUTHOR: Alexander Beels (abeels)
-//
 //@DESCRIPTION: This component provides a utility 'struct',
 // 'bdlt::TimeUnitRatio', that defines a namespace for constants that
 // characterize the ratios between commonly used time units.  Ratios are

@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_rule
 //
-//@AUTHOR: Gang Chen (gchen20)
-//
 //@DESCRIPTION: This component provides a value-semantic container,
 // 'ball::RuleSet', for storage and efficient retrieval of 'ball::Rule'
 // objects.

@@ -10,8 +10,6 @@
 //
 //@SEE_ALSO: bslstp_slist
 //
-//@AUTHOR: Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component is for internal use only.
 //
 // Note that the functions in this component are based on STLPort's

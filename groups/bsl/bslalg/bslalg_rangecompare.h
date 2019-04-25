@@ -12,9 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_isbitwiseequalitycomparable
 //
-//@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnimann),
-//         Alexander Beels (abeels)
-//
 //@DESCRIPTION: This component provides a utility 'struct',
 // 'bslalg::RangeCompare', that defines two overloaded class methods, 'equal'
 // and 'lexicographical', for comparing two ranges, each specified by a pair of

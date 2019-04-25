@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl_algorithm
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_algorithm>' instead.  This component provides a namespace for
 // algorithm extensions that are not specified in the C++ standard.  This

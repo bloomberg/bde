@@ -18,10 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::Severity: namespace for enumerating logging severity levels
 //
-//@AUTHOR: Hong Shi (hshi2)
-//
-//@CONTACT: Ralph Gibbons (rgibbons1)
-//
 //@DESCRIPTION: This component provides a namespace, 'ball::Severity', for the
 // 'enum' type 'ball::Severity::Level'.  'Level' enumerates a list of severity
 // levels that can be attached to a logging event.  In addition, this component

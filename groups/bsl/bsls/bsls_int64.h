@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls_Int64: namespace for platform-dependent 64-bit integer types
 //
-//@AUTHOR: Tom Marshall (tmarshal)
-//
 //@DESCRIPTION: This component provides platform-independent type names for
 // both signed and unsigned 64 bit integers.  For healthy platforms, the
 // component simply provides a BDE-standard 'typedef' for the non-standard

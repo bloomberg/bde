@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: balm_metric.h,v 1.7 2008/04/17 21:22:34 hversche Exp $")
 //@SEE_ALSO: balm_metricsmanager, balm_defaultmetricsmanager,
 //           balm_integermetric, balm_metrics
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a class, 'balm::Metric', to simplify
 // the process of collecting metrics.  A metric records the number of times an
 // event occurs, as well as an associated measurement value.  This component

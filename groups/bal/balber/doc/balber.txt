@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Application Library BER (balber)
 
-@AUTHOR: Steven Breitstein (sbreitstein)
-
 @DESCRIPTION: The 'balber' ("Basic Application BER") package defines classes
  that can encode and decode data per the X.690 BER (Basic Encoding Rules)
  specification.  These classes can be used only for types supported by the

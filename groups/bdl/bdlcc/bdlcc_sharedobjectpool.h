@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bcema_sharedptr
 //
-//@AUTHOR: Vlad Kliatchko (vkliatch), David Schumann (dschumann1)
-//
 //@DESCRIPTION: This component provides a generic thread-safe pool of shared
 // objects, 'bdlcc::SharedObjectPool', using the acquire-release idiom.  The
 // functionality provided is identical to 'bdlcc::ObjectPool', except that

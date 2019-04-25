@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::Random: namespace for a suite of random-number generation procedures
 //
-//@AUTHOR: Vlad Kliatchko (vkliatch)
-//
 //@DESCRIPTION: This component provides a utility 'struct', 'bdlb::Random',
 // that is a namespace for a suite of function used to efficiently generate
 // random numbers over a specific range of values.  The seed (or current state)

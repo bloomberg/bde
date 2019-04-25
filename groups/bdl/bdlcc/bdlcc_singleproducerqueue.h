@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlcc::SingleProducerQueue: thread-aware single producer queue of 'TYPE'
 //
-//@AUTHOR: Jeffrey Mendelsohn (jmendelsohn4)
-//
 //@DESCRIPTION: This component defines a type, 'bdlcc::SingleProducerQueue',
 // that provides an efficient, thread-aware queue of values assuming a single
 // producer (the use of 'pushBack' and 'tryPushBack' is done by one thread or a

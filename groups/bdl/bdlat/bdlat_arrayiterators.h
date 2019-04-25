@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlat_arrayfunctions
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides a namespace 'bdlat_ArrayIterators' that
 // contains definitions for the 'bdlat_ArrayIterators::BackInsertIterator'
 // class template and the 'backInserter' convenience function.  Additional

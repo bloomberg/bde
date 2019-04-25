@@ -12,9 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_vector
 //
-//@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim),
-//         Arthur Chiu (achiu)
-//
 //@DESCRIPTION: This component defines a single class template, 'bsl::deque',
 // implementing the standard sequential container, 'std::deque', holding a
 // dynamic sequence of values of a template parameter type.

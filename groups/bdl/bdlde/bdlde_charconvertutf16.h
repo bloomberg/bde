@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::CharConvertUtf16: namespace for conversions between UTF-8 and UTF-16
 //
-//@AUTHOR: Mark Terribile (mterribile), Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides a suite of static functions supporting
 // the *fast* conversion of *valid* UTF-8 encoded strings to *valid* UTF-16
 // 16-bit word arrays, wstrings, and vectors, and conversion of *valid* UTF-16

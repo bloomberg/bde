@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_allocatortraits, bslma_destructionutil
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component provides a 'struct', 'bslma::ConstructionUtil',
 // that serves as a namespace for utility functions to construct objects of an
 // arbitrary (template parameter) type, given an arbitrary number of arguments.

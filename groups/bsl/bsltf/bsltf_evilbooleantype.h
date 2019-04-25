@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
-//
 //@DESCRIPTION: This component provides a type that is convertible-to-'bool',
 // and so may be used to satisfy many C++ standard library requirements, but is
 // perversely implemented to provide the most awkward interface that meets the

@@ -15,8 +15,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a mechanism for reading control messages from a named pipe.
 //
-//@AUTHOR: David Schumann (dschumann1)
-//
 //@CLASSES:
 // balb::PipeControlChannel: Mechanism for reading messages from a named pipe
 //

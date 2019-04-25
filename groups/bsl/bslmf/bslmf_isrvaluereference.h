@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_integralconstant
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a meta-function,
 // 'bsl::is_rvalue_reference' and a template variable
 // 'bsl::is_rvalue_reference_v', that represents the result value of the

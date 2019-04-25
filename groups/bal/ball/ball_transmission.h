@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_context, ball_observer
 //
-//@AUTHOR: Hong Shi (hshi2)
-//
 //@DESCRIPTION: This component provides a namespace, 'ball::Transmission', for
 // the 'enum' type 'ball::Transmission::Cause'.  'Cause' enumerates the list of
 // conditions (or states) that can cause a log record to be transmitted.  In

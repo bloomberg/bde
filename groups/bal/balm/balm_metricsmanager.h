@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: balm_publisher, balm_collectorrepository, balm_metricregistry,
 //           balm_metric, balm_defaultmetricsmanager, balm_publicationscheduler
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a 'balm::MetricsManager' class for
 // managing the recording and publishing of metric data.  The metrics manager
 // retrieves 'balm::MetricRecords' from both the collector repository it owns

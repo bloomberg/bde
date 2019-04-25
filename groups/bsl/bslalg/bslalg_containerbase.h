@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_stdallocator
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides a single, mechanism class,
 // 'bslalg::ContainerBase', that can used as a common base class for all
 // STL-style containers.  A container should derive from this class to take

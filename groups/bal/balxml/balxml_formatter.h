@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Pablo Halpern (phalpern), Xiheng Xu (xxu)
-//
 //@DESCRIPTION: The 'balxml::Formatter' class provides methods to write a
 // formatted XML to an underlining output stream.  These methods generate
 // header, tags, data, attributes, comments in a human-readable, indented

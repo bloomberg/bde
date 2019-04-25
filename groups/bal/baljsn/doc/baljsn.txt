@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Application Library JSoN (baljsn)
 
-@AUTHOR: Rohan Bhindwale (rbhindwa)
-
 @DESCRIPTION: The 'baljsn' package provides facilities for encoding and
  decoding value-semantic objects in the JSON encoding format.  Currently, the
  encoder and decoder provided in this package work with types that support the

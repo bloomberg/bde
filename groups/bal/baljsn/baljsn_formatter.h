@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baljsn_encoder, baljsn_printutil
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This component provides a class, 'baljsn::Formatter', for
 // formatting JSON objects, arrays, and name-value pairs in the JSON encoding
 // format to a specified output stream.

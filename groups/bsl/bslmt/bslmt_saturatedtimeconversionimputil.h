@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component defines a namespace containing static functions
 // that perform narrowing conversions on time-related types,
 // 'bslmt::SaturatedTimeConversionImpUtil'.  The provided conversions

@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   balst::StackTraceUtil: utilities for 'balst::StackTrace' objects
 //
-//@AUTHOR: Bill Chapman
-//
 //@SEE_ALSO: balst_stacktraceprintutil
 //
 //@DESCRIPTION: This component provides a namespace for functions used in

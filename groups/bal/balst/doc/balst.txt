@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Application Library Stack Trace utilities (balst)
 
-@AUTHOR: Bill Chapman (bchapman2)
-
 @DESCRIPTION: The 'balst' package provides a facility for obtaining and
  printing a stack trace at run time.
 

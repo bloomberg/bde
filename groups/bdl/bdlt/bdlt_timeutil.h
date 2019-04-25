@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlt_time
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides non-primitive operations on
 // 'bdlt::Time' objects.  In particular, the 'bdlt::TimeUtil' namespace defined
 // in this component provides conversions among 'bdlt::Time' values and their

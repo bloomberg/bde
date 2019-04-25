@@ -12,10 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_allocator
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This component provides a proxy for constructing and
 // automatically destroying objects.  The proxy class
 // 'bslalg::ConstructorProxy' is parameterized on a 'OBJECT_TYPE', where

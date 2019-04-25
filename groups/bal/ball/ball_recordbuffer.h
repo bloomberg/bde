@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_record, ball_fixedsizerecordbuffer
 //
-//@AUTHOR: Hong Shi (hshi2)
-//
 //@DESCRIPTION: This component defines the base-level protocol,
 // 'ball::RecordBuffer', for managing record handles (specifically instances of
 // 'bsl::shared_ptr<ball::Record>') in a double-ended buffer.  In particular,

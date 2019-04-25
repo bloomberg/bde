@@ -12,9 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_treenodefactory, bslstl_set, bslstl_map
 //
-//@AUTHOR: Henry Verschell (hverschell),
-//         Raymond Chiu (schiu49)
-//
 //@DESCRIPTION: This component provides a single POD-like class, 'TreeNode',
 // used to represent a node in a red-black binary search tree holding a value
 // of a parameterized type.  A 'TreeNode' inherits from 'bslalg::RbTreeNode',

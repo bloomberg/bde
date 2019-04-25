@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  ball::UserFieldType: namespace for an enum of user supplied attribute types
 //
-//@AUTHOR: Henry Verschell (hversche)
-//
 //@DESCRIPTION: This component provides a namespace for the 'enum' type,
 // 'ball::UserFieldType', that enumerates the set of types a user defined log
 // attribute may have.

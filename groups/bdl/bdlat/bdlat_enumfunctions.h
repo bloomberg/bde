@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Clay Wilson (cwilson9), Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: The 'bdlat_EnumFunctions' 'namespace' provided in this
 // component defines parameterized functions that expose "enumeration" behavior
 // for "enumeration" types.  See the package-level documentation for a full

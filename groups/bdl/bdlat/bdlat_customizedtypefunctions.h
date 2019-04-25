@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: The 'bdlat_CustomizedTypeFunctions' 'namespace' provided in
 // this component defines parameterized functions that expose
 // "customized type" behavior for "customized type" types.  See the

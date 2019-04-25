@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_timedsemaphore
 //
-//@AUTHOR: David Schumann (dschumann1)
-//
 //@DESCRIPTION: This component provides an implementation of
 // 'bslmt::TimedSemaphore',
 // 'bslmt::TimedSemaphoreImpl<PosixAdvTimedSemaphore>', for conforming POSIX

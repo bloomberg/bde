@@ -6,8 +6,6 @@
 
 @SEE_ALSO: bdescm
 
-@AUTHOR: Tom Marshall (tmarshal)
-
 @DESCRIPTION: This package provides versioning information that is incorporated
  into every release of the 'bsl' Package Group Library.  This versioning
  information is in turn available to all clients of 'bsl' both at run-time and

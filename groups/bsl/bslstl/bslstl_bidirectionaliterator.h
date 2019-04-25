@@ -13,9 +13,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslstl_iterator, bslstl_forwarditerator,
 //           bslstl_randomaccessiterator
 //
-//@AUTHOR: Pablo Halpern (phalpern), Herve Bronnimann (hbronnim),
-//         Alisdair Meredith (ameredit)
-//
 //@DESCRIPTION: This component provides an iterator adaptor that, given an
 // implementation class defining a core set of iterator functionality specified
 // in the class level documentation, adapts it to provide an STL-compliant

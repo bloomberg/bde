@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_attributecontext, ball_attribute
 //
-//@AUTHOR: Gang Chen (gchen20)
-//
 //@DESCRIPTION: This component provides a type, 'ball::ScopedAttributes',
 // that serves as a "scoped helper" to safely manage 'ball::AttributeContainer'
 // objects for the current attribute context.  A 'ball::ScopedAttributes'

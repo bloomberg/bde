@@ -10,11 +10,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bslma::SharedPtrRep : shared pointer representation abstract class
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//         Herve Bronnimann (hbronnim)
-//         Vlad Kliatchko (vkliatch)
-//         Raymond Chiu (schiu49)
-//
 //@SEE_ALSO: bslstl_sharedptr, bslma_sharedptrrep_inplace,
 //           bslma_sharedptrrep_outofplace
 //

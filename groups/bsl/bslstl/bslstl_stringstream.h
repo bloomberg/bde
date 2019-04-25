@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_sstream.h>' instead.
 //

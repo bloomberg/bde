@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_constructorproxy
 //
-//@AUTHOR: Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides a single traits class,
 // 'bslalg::TypeTraitUsesBslmaAllocator', which allows the trait
 // 'bslma::UsesBslmaAllocator' to be declared using the (deprecated)

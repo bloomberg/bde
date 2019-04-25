@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //@MACROS:
 //  BSLMF_ASSERT: compile-time assert macro
 //
-//@AUTHOR: Shawn Edwards (sedwards)
-//
 //@DESCRIPTION: This component defines a macro that will generate a
 // compile-time error if its constant integral expression argument evaluates to
 // false (i.e., a value of '0').  The 'BSLMF_ASSERT' macro is similar to the

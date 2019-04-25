@@ -11,8 +11,6 @@ BSLS_IDENT("$: $")
 //      EntryPointFunctorAdapter: Encapsulate invokable object with allocator.
 //  EntryPointFunctorAdapterUtil: Dynamic allocation of adapter objects.
 //
-//@AUTHOR: David Schumann (dschumann1)
-//
 //@DESCRIPTION: This component defines a type, 'EntryPointFunctorAdapter', that
 // contains a single instance of a parameterized invokable type along with an
 // allocator to manage it.  The parameterized type must provide a copy

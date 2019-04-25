@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslalg_scalarprimitives, bslalg_typetraits
 //
-//@AUTHOR: Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides utilities to destroy scalars with a
 // uniform interface, but select a different implementation according to the
 // traits possessed by the underlying type.

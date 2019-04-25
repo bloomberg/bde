@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl+stdhdrs
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_bitset.h>' instead and use 'bsl::bitset' directly.  This component
 // implements a static bitset class that is suitable for use as an

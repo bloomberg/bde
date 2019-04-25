@@ -32,10 +32,6 @@ BSLS_IDENT("$Id: $")
 //           bdlat_customizedtypefunctions, bdlat_enumfunctions,
 //           bdlat_nullablevaluefunctions, bdlat_sequencefunctions
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 // TBD: update this documentation to reflect the new overloaded functions
 //
 //@DESCRIPTION: The tag selection meta-function ('bdlat_TypeCategory::Select')

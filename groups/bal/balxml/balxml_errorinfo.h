@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baexml_xmlreader
 //
-//@AUTHOR: Alexander Libman (alibman1)
-//
 //@DESCRIPTION: This component provides an in-core value-semantic class,
 // 'balxml::ErrorInfo', that contains the following diagnostic information:
 //..

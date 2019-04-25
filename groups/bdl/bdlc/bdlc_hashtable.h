@@ -23,10 +23,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlb_hashutil
 //
-//@AUTHOR: Vladimir Kliatchko (vkliatch)
-//         Shezan Baig        (sbaig)
-//         Olga Zykova        (ozykova)
-//
 //@DESCRIPTION: This component provides a mechanism, 'bdlc::HashTable', for
 // efficiently finding elements identified by a parameterized 'KEY'.  Elements
 // can also have an associated value by specifying an optional 'VALUE' template

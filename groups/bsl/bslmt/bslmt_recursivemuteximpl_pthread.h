@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmt_recursivemutex
 //
-//@AUTHOR: Ilougino Rocha (irocha)
-//
 //@DESCRIPTION: This component provides an implementation of
 // 'bslmt::RecursiveMutex' for POSIX threads ("pthreads"),
 // 'bslmt::RecursiveMutexImpl<PosixThreads>', via the template specialization:

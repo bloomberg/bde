@@ -10,8 +10,6 @@ BSLS_IDENT("$Id$ $CSID$")
 //@CLASSES:
 //  bslma::ManagedPtr_FactoryDeleter: deduced deleter used by bslma::ManagedPtr
 //
-//@AUTHOR: Alisdair Meredith (ameredith1)
-//
 //@SEE_ALSO: bslma_managedptr
 //
 //@DESCRIPTION: This component provides a utility 'struct',

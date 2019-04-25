@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //  bsl::is_polymorphic_v: the result value of the meta-function
 //  bslmf::IsPolymorphic: meta-function for detecting polymorphic types
 //
-//@AUTHOR: Clay Wilson (cwilson9)
-//
 //@DESCRIPTION: This component defines two meta-functions,
 // 'bsl::is_polymorphic' and 'BloombergLP::bslmf::IsPolymorphic' and a template
 // variable 'bsl::is_polymorphic_v', that represents the result value of the

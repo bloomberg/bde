@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baltzo_zoneinfo, baltzo_datafileloader, baltzo_testloader
 //
-//@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a protocol, 'baltzo::Loader', for
 // obtaining information about a time zone from some data-source.  The
 // protocol's primary method, 'loadTimeZone', loads a 'baltzo::Zoneinfo' object

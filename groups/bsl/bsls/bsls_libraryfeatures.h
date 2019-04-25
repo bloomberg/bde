@@ -41,8 +41,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_platform, bsls_compilerfeatures, bsls_nativestd
 //
-//@AUTHOR: Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component provides a suite of preprocessor macros that
 // indicate the availability of library-specific support of features that may
 // not be available in all standard library versions in use across an

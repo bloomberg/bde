@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlma_bufferedsequentialallocator
 //
-//@AUTHOR: John Lakos (jlakos)
-//
 //@DESCRIPTION: This component provides an allocator, 'bslma::BufferAllocator',
 // that implements the 'bslma::Allocator' protocol and sequentially allocates
 // memory blocks from a fixed-size buffer that is supplied by the user at

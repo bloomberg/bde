@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baljsn_decoder, baljsn_printutil
 //
-//@AUTHOR: Raymond Chiu (schiu49), Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This component provides a 'struct' of utility functions,
 // 'baljsn::ParserUtil', for decoding data in the JSON format into a 'bdeat'
 // Simple type.  The primary method is 'getValue', which decodes into a

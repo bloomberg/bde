@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsltf::MoveState: namespace for move-state enumeration
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component provides a 'struct', 'bsltf_MoveState', which
 // serves as a namespace for enumerating the move-state of an object, including
 // an unknown value indicating that the test type does not support tracking

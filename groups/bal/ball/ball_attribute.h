@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_predicate
 //
-//@AUTHOR: Gang Chen (gchen20)
-//
 //@DESCRIPTION: This component implements an unusual in-core value-semantic
 // class, 'ball::Attribute'.  Each instance of this type represents an
 // attribute that consists of a (literal) name (held but not owned), and an

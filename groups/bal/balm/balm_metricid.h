@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: balm_metricid.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 //
 //@SEE_ALSO: balm_metricregistry, balm_metricdescription, balm_category
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component implements an in-core value-semantic type used
 // to identify a metric.  A 'balm::MetricId' object's value is the *address* of
 // a (non-modifiable) 'balm::MetricDescription' object.  A 'balm::MetricId'

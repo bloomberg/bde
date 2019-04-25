@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Application Library Basis (balb)
 
-@AUTHOR: Stefano Pacifico (spacifico1)
-
 @SEE_ALSO: balm
 
 @DESCRIPTION: The 'balb' package provides support for an assortment of common

@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_enableif
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a meta-function, 'bsl::conditional',
 // that may be used to conditionally select one of its two (template parameter)
 // types based on a 'bool' (template parameter) value.

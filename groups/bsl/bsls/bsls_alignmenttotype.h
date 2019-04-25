@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsls_alignmentfromtype
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This component provides a meta-function,
 // 'bsls::AlignmentToType', parameterized on an integral 'ALIGNMENT', that
 // declares a 'typedef' ('Type'), which is an alias for a primitive type having

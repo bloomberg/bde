@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_deallocatorguard, bslma_autodeallocator
 //
-//@AUTHOR: Shao-wei Hung (shung1), Arthur Chiu (achiu21)
-//
 //@DESCRIPTION: This component provides a proctor class template,
 // 'bslma::DeallocatorProctor', to conditionally manage a block of
 // (otherwise-unmanaged) memory.  If not explicitly released, the managed

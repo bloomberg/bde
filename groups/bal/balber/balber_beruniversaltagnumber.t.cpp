@@ -90,8 +90,6 @@ void aSsErT(int c, const char *s, int i)
 //
 //@CLASSES: CustomizedString
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  todo: provide annotation
 
@@ -372,8 +370,6 @@ const char CustomizedString::CLASS_NAME[] = "CustomizedString";
 //  todo: provide purpose
 //
 //@CLASSES: MyChoice
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  todo: provide annotation
@@ -1071,8 +1067,6 @@ bsl::ostream& MyChoice::print(
 //
 //@CLASSES: MyEnumeration
 //
-//@AUTHOR: Author Unknown
-//
 //@DESCRIPTION:
 //  todo: provide annotation
 
@@ -1314,8 +1308,6 @@ int MyEnumeration::fromString(MyEnumeration::Value *result,
 //  todo: provide purpose
 //
 //@CLASSES: MySequence
-//
-//@AUTHOR: Author Unknown
 //
 //@DESCRIPTION:
 //  todo: provide annotation

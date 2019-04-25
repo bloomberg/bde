@@ -21,8 +21,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: balst::StackTraceResolverImpl_Elf
 //           balst::StackTraceResolverImpl_Xcoff
 //
-//@AUTHOR: Bill Chapman
-//
 //@DESCRIPTION: The one class in this component opens a file in readonly mode
 // and then owns the file descriptor, and provides 3 utility functions for
 // reading from the file: 'readBytes', which attempts to read a number of bytes

@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baltzo_zoneinfo, baltzo_localtimevalidity
 //
-//@AUTHOR: Stefano Pacifico (spacifico1)
-//
 //@DESCRIPTION: This component provides a suite of pure functions that operate
 // on objects of type 'baltzo::Zoneinfo'.  A 'baltzo::Zoneinfo' is a value
 // semantic-type providing information about a time zone, mirroring the

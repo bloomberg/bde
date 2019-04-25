@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_transmission, ball_observer, ball_record
 //
-//@AUTHOR: Hong Shi (hshi2)
-//
 //@DESCRIPTION: This component defines a container for aggregating a message's
 // publication cause, as well as the record (or message) index and sequence
 // length of messages delivered as part of a message sequence.  Note that

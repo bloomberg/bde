@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bslmt::Turnstile: mechanism to meter time
 //
-//@AUTHOR: David Rubin (drubin6@bloomberg.net)
-//
 //@DESCRIPTION: This component provides a mechanism, 'bslmt::Turnstile', to
 // meter time.  A turnstile is configured with a rate that specified how many
 // "events" per second the turnstile should allow.  After the rate is set (via

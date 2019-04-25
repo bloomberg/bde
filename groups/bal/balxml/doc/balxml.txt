@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Application Library XML (balxml)
 
-@AUTHOR: Rohan Bhindwale (rbhindwa)
-
 @SEE_ALSO: a_xercesc, a_xml2
 
 @DESCRIPTION: The 'balxml' package provides utilities for working with XML and

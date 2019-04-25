@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: balm_metricsmanager, balm_defaultmetricsmanager, balm_metric
 //
-//@AUTHOR: Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides a scoped guard class intended to
 // simplify the task of recording (to a metric) the elapsed time of a block of
 // code.  The 'balm::StopwatchScopedGuard' is supplied the identity of a metric

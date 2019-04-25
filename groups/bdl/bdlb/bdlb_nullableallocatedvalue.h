@@ -18,10 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlb::NullableAllocatedValue: template for nullable allocated objects
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@SEE_ALSO: bdlb_nullablevalue
 //
 //@DESCRIPTION: This component provides a template class,

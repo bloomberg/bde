@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bsl::nullptr_t: type for function parameter to match null pointer literals
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
-//
 //@DESCRIPTION: This component provides 'bsl::nullptr_t' as a limited emulation
 // of the C++11 type, 'std::nullptr_t', which can be used as a function
 // parameter type to create an overload set where null pointer literals are

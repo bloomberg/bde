@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: bslstl_stringbuf, bslstl_istringstream, bslstl_ostringstream,
 //           bslstl_stringstream
 //
-//@AUTHOR: Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This component is for internal use only.  Please include
 // '<bsl_iosfwd.h>' instead.
 

@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 // bsltf::StdAllocatorAdaptor: adaptor that propagates allocator state
 //
-//@AUTHOR: Alisdair Meredith (ameredit)
-//
 //@DESCRIPTION: This component provides an allocator adaptor class template,
 // 'bsltf::StdAllocatorAdaptor', that mostly delegates operations to an
 // allocator object of a (template parameter) allocator type, except that it

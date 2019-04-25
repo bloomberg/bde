@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_record
 //
-//@AUTHOR: Hong Shi (hshi2)
-//
 //@DESCRIPTION: This component defines a container for aggregating a fixed set
 // of fields intrinsically appropriate for logging.  Using
 // 'ball::RecordAttributes', a logger can transmit log message text together

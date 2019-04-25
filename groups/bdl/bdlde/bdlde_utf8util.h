@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlde::Utf8Util: namespace for utilities for UTF-8 encodings
 //
-//@AUTHOR: Bill Chapman (bchapman2)
-//
 //@DESCRIPTION: This component provides, within the 'bdlde::Utf8Util' 'struct',
 // a suite of static functions supporting UTF-8 encoded strings.  Two
 // interfaces are provided for each function, one where the length of the

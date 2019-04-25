@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::EpochUtil: non-primitive functions on epoch-related conversions
 //
-//@AUTHOR: Arthur Chiu (achiu21)
-//
 //@SEE_ALSO: bdlt_datetime, bdlt_datetimeinterval, bsls_timeinterval
 //
 //@DESCRIPTION: This component defines a namespace, 'bdlt::EpochUtil',

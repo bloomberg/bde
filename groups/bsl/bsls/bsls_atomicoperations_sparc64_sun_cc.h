@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::AtomicOperations_SPARC64_SUN_CC: atomics for Sparc64/Sun.
 //
-//@AUTHOR: Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This component provides classes necessary to implement atomics
 // on the Sun Sparc platform in 64bit mode with SunCC compiler.  The classes
 // are for private use only.  See 'bsls_atomicoperations' and 'bsls_atomic' for

@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::MonthOfYear: namespace for month-of-year 'enum'
 //
-//@AUTHOR: Tom Marshall (tmarshal)
-//
 //@DESCRIPTION: This component provides a namespace for the 'enum' type,
 // 'bdlt::MonthOfYear::Enum', that enumerates the set of month-of-year values.
 //

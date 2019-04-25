@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::AssertImpUtil: namespace for shared assert and review functions
 //
-//@AUTHOR: Joshua Berne (jberne4)
-//
 //@DESCRIPTION: This component defines a 'struct', 'bsls::AssertImpUtil', that
 // serves as a namespace for shared functions used by the various handlers
 // provided by 'bsls_assert' and 'bsls_review'.

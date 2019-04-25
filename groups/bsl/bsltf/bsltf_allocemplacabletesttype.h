@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsltf_allocargumenttype, bsltf_templatetestfacility
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component provides a (value-semantic) attribute class,
 // 'bsltf::AllocEmplacableTestType', that is used to ensure that arguments are
 // forwarded correctly to a type's constructor.  This component is similar to

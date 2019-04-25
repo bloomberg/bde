@@ -4,8 +4,6 @@
 
 @MNEMONIC: Basic Development Environment Stream Buffers (bdlsb)
 
-@AUTHOR Tom Marshall (tmarshal)
-
 @SEE_ALSO: bdlx
 
 @DESCRIPTION: The 'bdlsb' package provides concrete implementations of the

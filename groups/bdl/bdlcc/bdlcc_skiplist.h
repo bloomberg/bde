@@ -22,8 +22,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO:
 //
-//@AUTHOR: Vlad Kliatchko (vkliatch), David Schumann (dschumann1)
-//
 //@DESCRIPTION: This component provides a thread-safe value-semantic
 // associative Skip List container.  A Skip List stores objects of a
 // parameterized 'DATA' type, ordered by values of a parameterized 'KEY' type.

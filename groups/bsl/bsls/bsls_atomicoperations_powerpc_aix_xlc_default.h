@@ -11,8 +11,6 @@ BSLS_IDENT("$Id: $")
 //  bsls::AtomicOperations_POWERPC_AIX_XLC_Default32: default base for 32bit.
 //  bsls::AtomicOperations_POWERPC_AIX_XLC_Default64: default base for 64bit.
 //
-//@AUTHOR: Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This component provides default base classes necessary to
 // implement atomics on the AIX PowerPC platform with the xlC compiler.  The
 // classes are for private use only.  See 'bsls_atomicoperations' and

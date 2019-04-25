@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baljsn_decoder, baljsn_parserutil
 //
-//@AUTHOR: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: This component provides a class, 'baljsn::Tokenizer', that
 // traverses data stored in a 'bsl::streambuf' one node at a time and provides
 // clients access to the data associated with that node, including its type and

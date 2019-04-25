@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_treenodepool, bdema_pool
 //
-//@AUTHOR: Raymond Chiu (schiu49)
-//
 //@DESCRIPTION: This component implements a memory pool, 'bslstl::SimplePool',
 // that allocates and manages memory blocks of for a parameterized type.  A
 // 'bslstl::SimplePool' object maintains an internal linked list of

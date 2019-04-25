@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //: BSLMF_TAG_TO_INT(EXPR): map tag to integral value
 //: BSLMF_TAG_TO_BOOL(EXPR): map tag to boolean value
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component defines a simple template structure used to map
 // an integral constant to a C++ type.  'bslmf::Tag<unsigned>' defines a
 // different type for each distinct compile-time constant integral parameter.

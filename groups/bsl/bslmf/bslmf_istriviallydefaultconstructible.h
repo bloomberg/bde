@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_integerconstant, bslmf_nestedtraitdeclaration
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a meta-function,
 // 'bsl::is_trivially_default_constructible' and a template variable
 // 'bsl::is_trivially_default_constructible_v', that represents the result

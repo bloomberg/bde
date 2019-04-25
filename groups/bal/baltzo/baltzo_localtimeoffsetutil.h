@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bdlt::LocalTimeOffset
 //
-//@AUTHOR: Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component, 'baltzo::LocalTimeOffsetUtil', provides
 // 'baltzo::LocalTimeOffsetUtil::localTimeOffset', a high performance
 // 'bdlt::LocalTimeOffset' local time offset callback function, which accesses

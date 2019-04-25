@@ -20,8 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: ball_recordbuffer
 //
-//@AUTHOR: Ujjwal Bhoota (ubhoota)
-//
 //@DESCRIPTION: This component provides a concrete thread-safe implementation
 // of the 'ball::RecordBuffer' protocol, 'ball::FixedSizeRecordBuffer':
 //..

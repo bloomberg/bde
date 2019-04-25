@@ -15,8 +15,6 @@
 //@CLASSES:
 //   balb::ControlManager: mechanism that maps control messages
 //
-//@AUTHOR:  David Schumann (dschumann1@bloomberg.net)
-//
 //@DESCRIPTION: The 'balb::ControlManager' mechanism provided by this component
 // maps control messages to callback functions on the basis of message
 // prefixes.

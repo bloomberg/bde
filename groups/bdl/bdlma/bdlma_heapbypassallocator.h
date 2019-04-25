@@ -18,8 +18,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   bdlma::HeapBypassAllocator: memory allocator directly from virtual memory
 //
-//@AUTHOR: Oleg Semenov, Bill Chapman
-//
 //@SEE_ALSO: bsls_alignmentutil
 //
 //@DESCRIPTION: The 'bdlma::HeapBypassAllocator' class provided by this

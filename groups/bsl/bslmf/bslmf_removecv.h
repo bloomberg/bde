@@ -13,8 +13,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_addcv
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines a meta-function, 'bsl::remove_cv', and
 // declares a 'bsl::remove_cv_t' alias to the return type of the
 // 'bsl::remove_cv', that may be used to remove any top-level cv-qualifiers

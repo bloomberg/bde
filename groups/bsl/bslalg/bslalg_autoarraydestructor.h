@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_autodestructor
 //
-//@AUTHOR: Herve Bronnimann (hbronnim)
-//
 //@DESCRIPTION: This component provides a proctor object to manage a contiguous
 // (in-place) sequence of otherwise-unmanaged instances of a user-defined type.
 // If not explicitly released, all objects managed by the proctor object are

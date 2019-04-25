@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: baltzo_loader, baltzo_zoneinfo
 //
-//@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell)
-//
 //@DESCRIPTION: This component provides 'baltzo::TestLoader', a concrete test
 // implementation of the 'baltzo::Loader' protocol for loading a
 // 'baltzo::Zoneinfo' object.  The following inheritance hierarchy diagram

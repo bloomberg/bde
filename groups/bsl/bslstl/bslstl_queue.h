@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslstl_priorityqueue, bslstl_stack
 //
-//@AUTHOR: Shijin Kong (skong25), Steven Breitstein (sbreitstein)
-//
 //@DESCRIPTION: This component defines a class template, 'bsl::queue', holding
 // a container (of a parameterized type 'CONTAINER' containing elements of
 // another parameterized type 'VALUE'), and adapting it to provide a

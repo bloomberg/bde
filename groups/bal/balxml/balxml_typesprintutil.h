@@ -20,10 +20,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: http://www.w3.org/TR/xmlschema-2/
 //
-//@AUTHOR: Shezan Baig (sbaig)
-//
-//@CONTACT: Rohan Bhindwale (rbhindwa)
-//
 //@DESCRIPTION: The 'balxml::TypesPrintUtil' 'struct' provided by this
 // component contains the following functions:
 //

@@ -10,8 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsls::AtomicOperations: namespace for atomic operations
 //
-//@AUTHOR: Ilougino Rocha (irocha), Alexei Zakharov (azakhar1)
-//
 //@DESCRIPTION: This utility, 'bsls::AtomicOperations', provides a set of
 // platform-independent atomic operations for fundamental data types, such as
 // 32-bit integer, 64-bit integer, 32-bit unsigned integer, 64-bit unsigned

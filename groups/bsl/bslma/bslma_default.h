@@ -12,8 +12,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslma_allocator, bslma_newdeleteallocator
 //
-//@AUTHOR: Pablo Halpern (phalpern)
-//
 //@DESCRIPTION: This component provides a set of utility functions that manage
 // the addresses of two distinguished memory allocators: the *default*
 // allocator and the *global* allocator.  Each of these allocators are of type

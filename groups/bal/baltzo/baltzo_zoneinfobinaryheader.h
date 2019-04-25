@@ -10,9 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //   baltzo::ZoneinfoBinaryHeader: attribute class for Zoneinfo header data
 //
-//@AUTHOR: Stefano Pacifico (spacifico1), Henry Verschell (hverschell),
-//         Steven Breitstein (sbreitstein)
-//
 //@SEE_ALSO: baltzo_zoneinfobinaryreader
 //
 //@DESCRIPTION: This component provides a simply constrained attribute class,

@@ -14,8 +14,6 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bslmf_integralconstant
 //
-//@AUTHOR:
-//
 //@DESCRIPTION: This component defines two meta-functions, 'bsl::is_pointer'
 // and 'BloombergLP::bslmf::IsPointer' and a template variable
 // 'bsl::is_pointer_v', that represents the result value of the
