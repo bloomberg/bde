@@ -1215,7 +1215,7 @@ static void test6_signaler_disconnectAndWait()
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator   alloc;
-    bdlmt::FixedThreadPool threadPool(2, 0x01FFFFFF, &alloc);
+    bdlmt::FixedThreadPool threadPool(2, 0x0800000, &alloc);
 
     // 1. nothing to disconnect
     {
@@ -1257,6 +1257,7 @@ static void test6_signaler_disconnectAndWait()
             // 1. push starting timestamp
             // 2. sleep
             // 3. push completion timestamp
+
             bdlmt::SignalerConnection con5 = sig.connect(
                                                bdlf::BindUtil::bindR<void>(
                                                     u::SleepAndPushTimestamp(),
@@ -1434,7 +1435,7 @@ static void test8_signaler_disconnectAllSlotsAndWait()
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator   alloc;
-    bdlmt::FixedThreadPool threadPool(2, 0x01FFFFFF, &alloc);
+    bdlmt::FixedThreadPool threadPool(2, 0x0800000, &alloc);
 
     // 1. nothing to disconnect
     {
@@ -1601,6 +1602,7 @@ static void test10_connection_creators()
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator alloc;
+    const bdlmt::SignalerScopedConnection def;
 
     // 1. SignalerConnection default c-tor
     {
@@ -1649,7 +1651,7 @@ static void test10_connection_creators()
         bdlmt::SignalerScopedConnection con;
 
         // the connection is "empty"
-        ASSERT_EQ(con == bdlmt::SignalerScopedConnection(), true);
+        ASSERT(con == def);
     }
 
     // 5. SignalerScopedConnection move c-tor
@@ -1664,7 +1666,7 @@ static void test10_connection_creators()
                                        bslmf::MovableRefUtil::move(con1));
 
         // 'con1' is now "empty"
-        ASSERT_EQ(con1 == bdlmt::SignalerScopedConnection(), true);
+        ASSERT_EQ(con1 == def, true);
 
         // 'con3' reffers to the same slot as 'con1' used to
         ASSERT_EQ(con2.isConnected() &&
@@ -1699,7 +1701,7 @@ static void test10_connection_creators()
                                         bslmf::MovableRefUtil::move(con1));
 
         // 'con1' is now "empty"
-        ASSERT_EQ(con1 == bdlmt::SignalerConnection(), true);
+        ASSERT_EQ(con1 == def, true);
 
         // 'con3' reffers to the same slot as 'con1' used to
         ASSERT_EQ(con2.isConnected() &&
@@ -1757,6 +1759,7 @@ static void test11_connection_assignment()
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator alloc;
+    const bdlmt::SignalerScopedConnection def;
 
     // 1. SignalerConnection copy assignment
     {
@@ -1807,7 +1810,7 @@ static void test11_connection_assignment()
                                                                      con1);
 
         // 'con1' is now "empty"
-        ASSERT_EQ(con1 == bdlmt::SignalerScopedConnection(), true);
+        ASSERT_EQ(con1 == def, true);
 
         // 'con3' reffer to the same slot as 'con1' used to
         ASSERT_EQ(con2.isConnected() &&
@@ -1844,7 +1847,7 @@ static void test11_connection_assignment()
                                                                      con1);
 
         // 'con1' is now "empty"
-        ASSERT_EQ(con1 == bdlmt::SignalerConnection(), true);
+        ASSERT_EQ(con1 == def, true);
 
         // 'con3' reffer to the same slot as 'con1' used to
         ASSERT_EQ(con2.isConnected() &&
@@ -2077,7 +2080,7 @@ static void test13_connection_disconnectAndWait()
     // ------------------------------------------------------------------------
 {
     bslma::TestAllocator   alloc;
-    bdlmt::FixedThreadPool threadPool(2, 0x01FFFFFF, &alloc);
+    bdlmt::FixedThreadPool threadPool(2, 0x0800000, &alloc);
 
     // 1. disconnect "empty" connection
     {
@@ -2256,6 +2259,7 @@ static void test14_connection_release()
 {
     bslma::TestAllocator    alloc;
     bdlmt::Signaler<void()> sig(&alloc);
+    const bdlmt::SignalerScopedConnection def;
 
     // connect a slot
     bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
@@ -2263,13 +2267,13 @@ static void test14_connection_release()
     {
         // create a scoped connection
         bdlmt::SignalerScopedConnection con2(con1);
-        ASSERT_EQ(con2 == bdlmt::SignalerScopedConnection(), false);
+        ASSERT_EQ(con2 == def, false);
 
         // release it
         con2.release();
 
         // the connection is now "empty"
-        ASSERT_EQ(con2 == bdlmt::SignalerScopedConnection(), true);
+        ASSERT_EQ(con2 == def, true);
 
         // destroy the connection ...
     }
