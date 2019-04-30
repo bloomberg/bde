@@ -12,4 +12,7 @@ bdlcc_singleconsumerqueueimpl
 bdlcc_singleproducerqueue
 bdlcc_singleproducerqueueimpl
 bdlcc_skiplist
+bdlcc_stripedunorderedcontainerimpl
+bdlcc_stripedunorderedmap
+bdlcc_stripedunorderedmultimap
 bdlcc_timequeue
