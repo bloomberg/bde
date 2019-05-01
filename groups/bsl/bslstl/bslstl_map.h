@@ -2599,6 +2599,7 @@ inline
 void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
                                                     INPUT_ITERATOR last)
 {
+#if 0
     size_type numElements =
                 BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
 
@@ -2618,6 +2619,60 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
     }
 
     while (first != last) {
+        insert(*first);
+        ++first;
+    }
+#endif
+#if 0
+
+    const bool isInputItr =
+      bsl::is_same<typename iterator_traits<INPUT_ITERATOR>::iterator_category,
+                   bsl::input_iterator_tag>::value;
+
+    int reserveNodesCount = 0;
+
+    while (first != last) {
+        if (!isInputItr && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                              !nodeFactory().hasFreeNodes())) {
+            size_type  numElements =
+                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+            
+            BSLS_ASSERT_SAFE(0 < numElements);
+
+            if (0 < numElements) {
+                nodeFactory().reserveNodes(numElements);
+            }
+
+            ++reserveNodesCount;
+            BSLS_ASSERT_SAFE(1 == reserveNodesCount);
+        }
+        insert(*first);
+        ++first;
+    }
+#endif
+    ///Implementation Notes
+    ///--------------------
+    // First, consume currently held free nodes.  Then, if those nodes are
+    // insufficient *and* one can calculate the remaining number of elements
+    // reserve exactly that many free nodes.  This reservation assumes that
+    // each remaining element is unique.  If there are any duplicates, this
+    // object will have free nodes on return from this method.  Note that there
+    // is no more than one call to 'reserveNodes' per invocation of this
+    // method, hence the use of 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.
+    
+    const bool canCalculateInsertDistance =
+    ! bsl::is_same<typename iterator_traits<INPUT_ITERATOR>::iterator_category,
+                   bsl::input_iterator_tag>::value;
+
+    while (first != last) {
+        if (canCalculateInsertDistance
+        && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                              !nodeFactory().hasFreeNodes())) {
+            const size_type numElements =
+                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+            
+            nodeFactory().reserveNodes(numElements);
+        }
         insert(*first);
         ++first;
     }

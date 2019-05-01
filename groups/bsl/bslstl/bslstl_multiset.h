@@ -2338,6 +2338,7 @@ inline
 void multiset<KEY, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
                                                   INPUT_ITERATOR last)
 {
+#if 0
     size_type numElements =
                 BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
 
@@ -2360,6 +2361,32 @@ void multiset<KEY, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
         insert(*first);
         ++first;
     }
+#else
+    ///Implementation Notes
+    ///--------------------
+    // First, consume currently held free nodes.  Then, if those nodes are
+    // insufficient *and* one can calculate the remaining number of elements,
+    // reserve exactly that many free nodes.  There is no more than one call to
+    // 'reserveNodes' per invocation of this method, hence the use of
+    // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.
+    
+    const bool canCalculateInsertDistance =
+    ! bsl::is_same<typename iterator_traits<INPUT_ITERATOR>::iterator_category,
+                   bsl::input_iterator_tag>::value;
+
+    while (first != last) {
+        if (canCalculateInsertDistance
+        && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                              !nodeFactory().hasFreeNodes())) {
+            const size_type numElements =
+                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+            
+            nodeFactory().reserveNodes(numElements);
+        }
+        insert(*first);
+        ++first;
+    }
+#endif
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
