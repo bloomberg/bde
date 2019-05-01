@@ -9190,16 +9190,6 @@ static void testRangeCtorOptimization()
                             , DataType(37, 37)
                             , DataType(38, 38)
                             , DataType(39, 39)
-                         // , DataType(x0, x0)
-                         // , DataType(x1, x1)
-                         // , DataType(x2, x2)
-                         // , DataType(x3, x3)
-                         // , DataType(x4, x4)
-                         // , DataType(x5, x5)
-                         // , DataType(x6, x6)
-                         // , DataType(x7, x7)
-                         // , DataType(x8, x8)
-                         // , DataType(x9, x9)
                             };
     const std::size_t NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
 
@@ -9300,16 +9290,6 @@ static void testRangeInsertOptimization()
                             , DataType(37, 37)
                             , DataType(38, 38)
                             , DataType(39, 39)
-                         // , DataType(x0, x0)
-                         // , DataType(x1, x1)
-                         // , DataType(x2, x2)
-                         // , DataType(x3, x3)
-                         // , DataType(x4, x4)
-                         // , DataType(x5, x5)
-                         // , DataType(x6, x6)
-                         // , DataType(x7, x7)
-                         // , DataType(x8, x8)
-                         // , DataType(x9, x9)
                             };
     const std::size_t NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
 

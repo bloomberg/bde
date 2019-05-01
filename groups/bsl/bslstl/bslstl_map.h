@@ -2599,57 +2599,6 @@ inline
 void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
                                                     INPUT_ITERATOR last)
 {
-#if 0
-    size_type numElements =
-                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
-
-    if (0 < numElements) {
-
-        while (nodeFactory().hasFreeNodes() && first != last) {
-            insert(*first);
-            ++first;
-            --numElements;
-        }
-
-        if (0 == numElements) {
-            return;                                                   // RETURN
-        }
-
-        nodeFactory().reserveNodes(numElements);
-    }
-
-    while (first != last) {
-        insert(*first);
-        ++first;
-    }
-#endif
-#if 0
-
-    const bool isInputItr =
-      bsl::is_same<typename iterator_traits<INPUT_ITERATOR>::iterator_category,
-                   bsl::input_iterator_tag>::value;
-
-    int reserveNodesCount = 0;
-
-    while (first != last) {
-        if (!isInputItr && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                              !nodeFactory().hasFreeNodes())) {
-            size_type  numElements =
-                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
-            
-            BSLS_ASSERT_SAFE(0 < numElements);
-
-            if (0 < numElements) {
-                nodeFactory().reserveNodes(numElements);
-            }
-
-            ++reserveNodesCount;
-            BSLS_ASSERT_SAFE(1 == reserveNodesCount);
-        }
-        insert(*first);
-        ++first;
-    }
-#endif
     ///Implementation Notes
     ///--------------------
     // First, consume currently held free nodes.  Then, if those nodes are

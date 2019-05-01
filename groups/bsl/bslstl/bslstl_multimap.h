@@ -2238,30 +2238,6 @@ inline
 void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
                                                          INPUT_ITERATOR last)
 {
-#if 0
-    size_type numElements =
-                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
-
-    if (0 < numElements) {
-
-        while (nodeFactory().hasFreeNodes() && first != last) {
-            insert(*first);
-            ++first;
-            --numElements;
-        }
-
-        if (0 == numElements) {
-            return;                                                   // RETURN
-        }
-
-        nodeFactory().reserveNodes(numElements);
-    }
-
-    while (first != last) {
-        insert(*first);
-        ++first;
-    }
-#else
     ///Implementation Notes
     ///--------------------
     // First, consume currently held free nodes.  Then, if those nodes are
@@ -2286,7 +2262,6 @@ void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
         insert(*first);
         ++first;
     }
-#endif
 }
 
 #if defined (BSLS_PLATFORM_CMP_SUN)
