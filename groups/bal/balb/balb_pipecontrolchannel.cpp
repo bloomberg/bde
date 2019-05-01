@@ -378,7 +378,6 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
        bdls::FilesystemUtil::remove(pipeName.c_str());
     }
 
-    // TBD: USE BDEU_PATHUTIL
     bsl::string dirname;
     if (0 == bdls::PathUtil::getDirname(&dirname, pipeName)) {
         if (!bdls::FilesystemUtil::exists(dirname)) {
@@ -399,7 +398,12 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
         return -4;                                                    // RETURN
     }
 
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
+    d_impl.d_unix.d_readFd = open(rawPipeName,
+                                  O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+#else
     d_impl.d_unix.d_readFd = open(rawPipeName, O_RDONLY | O_NONBLOCK);
+#endif
 
     if (-1 == d_impl.d_unix.d_readFd) {
         int savedErrno = errno;
@@ -409,13 +413,41 @@ PipeControlChannel::createNamedPipe(const bsl::string& pipeName)
         return -5;                                                    // RETURN
     }
 
+#if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_SOLARIS)
+    d_impl.d_unix.d_writeFd = open(rawPipeName, O_WRONLY | O_CLOEXEC);
+#else
     d_impl.d_unix.d_writeFd = open(rawPipeName, O_WRONLY);
+#endif
+
     if (-1 == d_impl.d_unix.d_writeFd) {
         int savedErrno = errno;
         BSLS_LOG_ERROR("Unable to open pipe '%s' for writing. errno = %d (%s)",
                        rawPipeName, savedErrno, bsl::strerror(savedErrno));
         return -6;                                                    // RETURN
     }
+
+#if !defined(BSLS_PLATFORM_OS_LINUX) && !defined(BSLS_PLATFORM_OS_SOLARIS)
+    if (-1 == fcntl(d_impl.d_unix.d_readFd, F_SETFD, FD_CLOEXEC)) {
+        int savedErrno = errno;
+        BSLS_LOG_ERROR(
+             "Unable to set 'FD_CLOEXEC' on '%s' for reading. errno = %d (%s)",
+             rawPipeName,
+             savedErrno,
+             bsl::strerror(savedErrno));
+        return -8;                                                    // RETURN
+    }
+
+    if (-1 == fcntl(d_impl.d_unix.d_writeFd, F_SETFD, FD_CLOEXEC)) {
+        int savedErrno = errno;
+        BSLS_LOG_ERROR(
+             "Unable to set 'FD_CLOEXEC' on '%s' for writing. errno = %d (%s)",
+             rawPipeName,
+             savedErrno,
+             bsl::strerror(savedErrno));
+        return -9;                                                    // RETURN
+    }
+#endif
+
     BSLS_LOG_TRACE("Created named pipe '%s'", rawPipeName);
 
     return 0;
