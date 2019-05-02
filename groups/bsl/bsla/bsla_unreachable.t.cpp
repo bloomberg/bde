@@ -6,13 +6,14 @@
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>  // 'atoi'
 
 // Set this preprocessor macro to 1 to enable compile warnings being generated,
 // 0 to disable them.
 
-#define U_TRIGGER_WARNINGS 0
+#define U_TRIGGER_ERRORS 0
 
 // ============================================================================
 //                                 TEST PLAN
@@ -22,7 +23,7 @@
 // This test driver serves as a framework for manually checking the annotations
 // (macros) defined in this component.  The tester must repeatedly rebuild this
 // test driver using a compliant compiler, each time defining different values
-// of the boolean 'U_TRIGGER_WARNINGS' preprocessor macro.  In each case, the
+// of the boolean 'U_TRIGGER_ERRORS' preprocessor macro.  In each case, the
 // concerns are:
 //
 //: o Did the build succeed or not?
@@ -37,7 +38,7 @@
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
 // does nothing other than print out the values of the macros in verbose mode.
 //
-// The controlling preprocessor macro is 'U_TRIGGER_WARNINGS', which, if set to
+// The controlling preprocessor macro is 'U_TRIGGER_ERRORS', which, if set to
 // 1, provokes all the compiler warnings caused by the macros under test.  If
 // set to 0, prevents any warnings from happening.
 //
@@ -51,7 +52,7 @@
 //..
 //  Annotation                            Result
 //  ------------------------------------  --------
-//  BSLA_DEPRECATED                       Warning
+//  BSLA_UNREACHABLE                      Suppresses Error
 //..
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
@@ -117,43 +118,59 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Example 1: Indicating That a Statement is Intended to be Unreachable
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a function' 'killSelf', that dumps core.  The function is
-// intended never to return, and we indicate that by annotating the function
-// with 'BSLA_NORETURN'.  The function dumps core by calling 'BSLS_ASSERT_OPT'
-// on a 'false' value, which the compiler doesn't understand will never return:
+// First, we define a function 'directoriesInPath' that counts the number of
+// directories in the '$PATH' environment variable.  If '$PATH' is not set, it
+// dumps core by calling 'BSLS_ASSERT_OPT':
 //..
-#if U_TRIGGER_WARNINGS
-namespace triggerWarnings {
-    BSLA_NORETURN void killSelf()
+#if U_TRIGGER_ERRORS
+namespace triggerErrors {
+    int directoriesInPath()
     {
+        const char *path = ::getenv("PATH");
+        if (path) {
+            int ret = 1;
+            for (; *path; ++path) {
+                ret += ':' == *path;
+            }
+            return ret;                                               // RETURN
+        }
+
         BSLS_ASSERT_OPT(false && "dump core");
     }
-}  // close namespace triggerWarnings
+}  // close namespace triggerErrors
 #endif
 //..
-// Then, we observe the compiler warning because the compiler expects the
-// 'BSLA_ASSERT_OPT' to return and the function, marked 'BSLA_NORETURN', to
-// return:
+// Then, we observe the compile error because the compiler expects the
+// 'BSLA_ASSERT_OPT' to return and the function, which returns an 'int', to run
+// off the end without returning anything, causing the following error message
+// on Windows
 //..
-//  .../bsla_unreachable.t.cpp:128:5: warning: function declared 'noreturn'
-//  should not return [-Winvalid-noreturn]
-//  }
-//  ^
+//  .../bsla_unreachable.t.cpp(141) : error C4715: 'directoriesInPath': not all
+//  control paths return a value
 //..
 // Now, we put a 'BSLA_UNREACHABLE' statement after the 'BSLS_ASSERT_OPT',
 // which tells the compiler that that point in the code is unreachable:
 //..
 #if BSLA_UNREACHABLE_IS_ACTIVE
-    BSLA_NORETURN void killSelf()
+    int directoriesInPath()
     {
+        const char *path = ::getenv("PATH");
+        if (path) {
+            int ret = 1;
+            for (; *path; ++path) {
+                ret += ':' == *path;
+            }
+            return ret;                                               // RETURN
+        }
+
         BSLS_ASSERT_OPT(false && "dump core");
 
         BSLA_UNREACHABLE;
     }
 #endif
 //..
-// Finally, we observe that the compiler warning is silenced.
-
+// Finally, we observe that the compiler error is silenced and the build is
+// successful.
 
 // ============================================================================
 //                  DECLARATION/DEFINITION OF ANNOTATED FUNCTIONS
@@ -251,19 +268,18 @@ int main(int argc, char **argv)
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 This test driver builds with all expected compiler warning
-        //:   messages and no unexpected warnings when the 'U_TRIGGER_WARNINGS'
+        //: 1 This test driver fails to build with all expected compiler error
+        //:   messages and no unexpected warnings when the 'U_TRIGGER_ERRORS'
         //:   preprocessor variable is defined to 1.
         //:
-        //: 2 When 'U_TRIGGER_WARNINGS' is defined to 0, the compile is
+        //: 2 When 'U_TRIGGER_ERRORS' is defined to 0, the compile is
         //:   successful and with no warnings.
         //
         // Plan:
-        //: 1 Build with 'U_TRIGGER_WARNINGS' defined to and externally examine
-        //:   compiler output for expected warnings and the absence of warnings
-        //:   expected to be suppressed.  (C-1)
+        //: 1 Build with 'U_TRIGGER_ERRORS' defined to 1 and externally examine
+        //:   compiler output for expected error messages.
         //:
-        //: 2 Build with 'U_TRIGGER_WARNINGS' defined to 0 and observe that the
+        //: 2 Build with 'U_TRIGGER_ERRORS' defined to 0 and observe that the
         //:   compile is successful with no warnings.
         //:
         //: 3 Run with 'verbose' to get a listing of macro expansions.

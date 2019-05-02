@@ -39,41 +39,62 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Indicating That a Statement is Intended to be Unreachable
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a function' 'killSelf', that dumps core.  The function is
-// intended never to return, and we indicate that by annotating the function
-// with 'BSLA_NORETURN'.  The function dumps core by calling 'BSLS_ASSERT_OPT'
-// on a 'false' value, which the compiler doesn't understand will never return:
+// First, we define a function 'directoriesInPath' that counts the number of
+// directories in the '$PATH' environment variable.  If '$PATH' is not set, it
+// dumps core by calling 'BSLS_ASSERT_OPT':
 //..
-//  BSLA_NORETURN void killSelf()
+//  int directoriesInPath()
 //  {
+//      const char *path = ::getenv("PATH");
+//      if (path) {
+//          int ret = 1;
+//          for (; *path; ++path) {
+//              ret += ':' == *path;
+//          }
+//          return ret;                                               // RETURN
+//      }
+//
 //      BSLS_ASSERT_OPT(false && "dump core");
 //  }
 //..
-// Then, we observe the compiler warning because the compiler expects the
-// 'BSLA_ASSERT_OPT' to return and the function, marked 'BSLA_NORETURN', to
-// return:
+// Then, we observe the compile error because the compiler expects the
+// 'BSLA_ASSERT_OPT' to return and the function, which returns an 'int', to run
+// off the end without returning anything, causing the following error message
+// on Windows
 //..
-//  .../bsla_unreachable.t.cpp:128:5: warning: function declared 'noreturn'
-//  should not return [-Winvalid-noreturn]
-//  }
-//  ^
+//  .../bsla_unreachable.t.cpp(141) : error C4715: 'directoriesInPath': not all
+//  control paths return a value
 //..
 // Now, we put a 'BSLA_UNREACHABLE' statement after the 'BSLS_ASSERT_OPT',
 // which tells the compiler that that point in the code is unreachable:
 //..
-//  BSLA_NORETURN void killSelf()
+//  int directoriesInPath()
 //  {
+//      const char *path = ::getenv("PATH");
+//      if (path) {
+//          int ret = 1;
+//          for (; *path; ++path) {
+//              ret += ':' == *path;
+//          }
+//          return ret;                                               // RETURN
+//      }
+//
 //      BSLS_ASSERT_OPT(false && "dump core");
 //
 //      BSLA_UNREACHABLE;
 //  }
 //..
-// Finally, we observe that the compiler warning is silenced.
+// Finally, we observe that the compiler error is silenced and the build is
+// successful.
 
 #include <bsls_platform.h>
 
 #if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLA_UNREACHABLE __builtin_unreachable()
+
+    #define BSLA_UNREACHABLE_IS_ACTIVE 1
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+    #define BSLA_UNREACHABLE __assume(false)
 
     #define BSLA_UNREACHABLE_IS_ACTIVE 1
 #else

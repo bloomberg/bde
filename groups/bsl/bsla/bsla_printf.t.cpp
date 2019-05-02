@@ -3,6 +3,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <string>
 
@@ -305,6 +306,13 @@ int main(int argc, char **argv)
 
         if (verbose) printf("USAGE EXAMPLE\n"
                             "=============\n");
+
+#if BSLS_PLATFORM_OS_WINDOWS
+        // '::vsnprintf' doesn't behave the same on Windows as it does on other
+        // platforms, though MSDN says that it should.
+
+        break;
+#endif
 
 // Then, in 'main', we call the function correctly a couple of times:
 //..

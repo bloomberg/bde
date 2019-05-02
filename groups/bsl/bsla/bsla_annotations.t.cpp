@@ -149,16 +149,11 @@ int test_FALLTHROUGH_function(int i)
     switch (i)
     {
       case 0: {
-        if (true) {
 #if BSLA_FALLTHROUGH_IS_ACTIVE
-            BSLA_FALLTHROUGH;
+        BSLA_FALLTHROUGH;
 #else
-            return 3;                                                 // RETURN
+        return 3;                                                 // RETURN
 #endif
-        }
-        else {
-            return 7;                                                 // RETURN
-        }
       }
       case 1: {
         return 0;                                                     // RETURN
@@ -180,7 +175,8 @@ const char *test_FORMAT(const char *locale, const char *format)
     return "translateFormat: bad locale or format argument - no translation";
 }
 
-int test_NODISCARD() BSLA_NODISCARD;
+BSLA_NODISCARD
+int test_NODISCARD();
 int test_NODISCARD()
 {
     return 1;
@@ -738,6 +734,48 @@ static void printFlags()
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
     printf("%s\n",
                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n__cplusplus: ");
+#ifdef __cplusplus
+    printf("%s\n", STRINGIFY(__cplusplus) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\n_MSVC_LANG: ");
+#ifdef _MSVC_LANG
+    printf("%s\n", STRINGIFY(_MSVC_LANG) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\nBSLS_COMPILERFEATURES_CPP11: ");
+#ifdef BSLS_COMPILERFEATURES_CPP11
+    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_CPP11) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\nBSLS_COMPILERFEATURES_CPP14: ");
+#ifdef BSLS_COMPILERFEATURES_CPP14
+    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_CPP14) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\nBSLS_COMPILERFEATURES_CPP17: ");
+#ifdef BSLS_COMPILERFEATURES_CPP17
+    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_CPP17) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
+    printf("\nBSLS_PLATFORM_CMP_VERSION: ");
+#ifdef BSLS_PLATFORM_CMP_VERSION
+    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_VERSION) );
 #else
     printf("UNDEFINED\n");
 #endif

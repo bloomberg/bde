@@ -30,6 +30,12 @@ BSLS_IDENT("$Id: $")
 //:     The macro 'BSLA_NORETURN_IS_ACTIVE' is defined to 0 if 'BSLA_NORETURN'
 //:     expands to nothing and 1 otherwise.
 //
+// Note that on Windows, the only effect of 'BSLA_NORETURN' is to indicate that
+// the code after a call to a function annotated as such is not executed.  On
+// all other platforms where 'BSLA_NORETURN_IS_ACTIVE' is 1, warning messages
+// are also emitted any time code returns from a function annotated with
+// 'BSLA_NORETURN'.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -91,6 +97,10 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN)
     #define BSLA_NORETURN [[ noreturn ]]
+
+    #define BSLA_NORETURN_IS_ACTIVE 1
+#elif defined(BSLS_PLATFORM_CMP_MSVC)
+    #define BSLA_NORETURN __declspec(noreturn)
 
     #define BSLA_NORETURN_IS_ACTIVE 1
 #else
