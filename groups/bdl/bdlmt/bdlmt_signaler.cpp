@@ -36,11 +36,16 @@ bsls::Types::Uint64 Signaler_SlotBase::getId() BSLS_CPP11_NOEXCEPT
 }
 
 
-// CREATOR
+// CREATORS
 Signaler_SlotBase::Signaler_SlotBase(SlotMapKey slotMapKey)
 : d_callMutex()
 , d_slotMapKey(slotMapKey)
 , d_isConnected(true)
+{
+    // Nothing.
+}
+
+Signaler_SlotBase::~Signaler_SlotBase()
 {
     // Nothing.
 }

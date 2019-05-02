@@ -453,11 +453,15 @@ class Signaler_SlotBase {
         // 1.
 
   protected:
-    // CREATOR
+    // CREATORS
     explicit
     Signaler_SlotBase(SlotMapKey slotMapKey);
         // Create a 'Signaler_Slotbase' object based on the specified
         // 'slotMapKey'.
+
+    virtual ~Signaler_SlotBase();
+        // Virtual d'tor.  Does nothing, but the derived class's d'tor does
+        // some work.
 
   public:
     // MANIPULATORS
