@@ -1864,7 +1864,8 @@ void Signaler_Node<PROT>::notifyDisconnected(SlotMapKey slotMapKey)
     typename KeyToSlotMap::PairHandle slotHandle;
 
     if (d_slotMap.find(&slotHandle, slotMapKey) != 0) {
-        // Slot was already removed.  Do nothing.
+        // Slot was already removed, probably by some form of 'disconnect*'
+        // called on the 'Signaler'.  Do nothing.
 
         return;                                                       // RETURN
     }
