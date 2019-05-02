@@ -4,10 +4,9 @@
 #include <bsls_atomicoperations.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlmt_multiprioritythreadpool_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlmt_signaler_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
-
 namespace bdlmt {
 
                            // -----------------------
@@ -38,11 +37,13 @@ bsls::Types::Uint64 Signaler_SlotBase::getId() BSLS_CPP11_NOEXCEPT
 
 
 // CREATOR
-Signaler_SlotBase::Signaler_SlotBase(SlotKey slotKey)
+Signaler_SlotBase::Signaler_SlotBase(SlotMapKey slotMapKey)
 : d_callMutex()
-, d_slotKey(slotKey)
+, d_slotMapKey(slotMapKey)
 , d_isConnected(true)
-{}
+{
+    // Nothing.
+}
 
 // MANIPULATORS
 void Signaler_SlotBase::notifyDisconnected() BSLS_CPP11_NOEXCEPT
@@ -159,7 +160,7 @@ SignalerScopedConnection::SignalerScopedConnection(
     // NOTHING
 }
 
-SignalerScopedConnection::SignalerScopedConnection(                           \
+SignalerScopedConnection::SignalerScopedConnection(
                       const SignalerConnection& connection) BSLS_CPP11_NOEXCEPT
 : SignalerConnection(connection)
 {
@@ -236,7 +237,7 @@ void SignalerScopedConnection::swap(SignalerScopedConnection& other)
 
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright (C) Bloomberg L.P., 2018
+//      Copyright (C) Bloomberg L.P., 2019
 //      All Rights Reserved.
 //      Property of Bloomberg L.P. (BLP)
 //      This software is made available solely pursuant to the
