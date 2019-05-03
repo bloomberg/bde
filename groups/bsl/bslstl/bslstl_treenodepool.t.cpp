@@ -59,13 +59,14 @@ using namespace bslstl;
 // [13] template <class P> bslalg::RbTreeNode *emplaceIntoNewNode(P&&);
 // [ 5] void deleteNode(bslalg::RbTreeNode *node);
 // [  ] bslalg::RbTreeNode *moveIntoNewNode(bslalg::RbTreeNode *original);
-// [ 6] void reserveNodes(std::size_t numNodes);
+// [ 6] void reserveNodes(size_type numNodes);
 // [ 8] void swap(TreeNodePool& other);
 // [ 8] void swapExchangeAllocators(TreeNodePool& other);
 // [ 8] void swapRetainAllocators(TreeNodePool& other);
 //
 // ACCESSORS
 // [ 4] const AllocatorType& allocator() const;
+// [15] bool hasFreeNodes() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [14] USAGE EXAMPLE
@@ -350,6 +351,9 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase15();
+        // Test other accessors.
+
     // static void testCase14();
         // Reserved for BSLX.
 
@@ -378,7 +382,7 @@ class TestDriver {
         // Test 'release'.
 
     static void testCase6();
-        // Test 'reserve'.
+        // Test 'reserveNodes*'.
 
     static void testCase5();
         // Test 'deallocate'.
@@ -446,6 +450,149 @@ void TestDriver<VALUE>::createFreeBlocks(Obj   *result,
     for (int i = 0; i < numBlocks; ++i) {
         result->deleteNode(usedBlocks->back());
         usedBlocks->pop();
+    }
+}
+
+template<class VALUE>
+void TestDriver<VALUE>::testCase15()
+{
+    // ------------------------------------------------------------------------
+    // OTHER ACCESSOR
+    //
+    // Concerns:
+    //: 1 The accessor method returns a value that reflects the addition of
+    //:   and distribution of nodes from the free list.
+    //:
+    //: 2 The accessor is declared 'const'.
+    //:
+    //: 3 The accessor does not allocate memory from any allocator.
+    //:
+    //: 4 The implementation of this method returns the values obtained from
+    //:   their analogous method in 'bdlst::SimplePool'.
+    //
+    // Plan:
+    //: 1 For a series of objects, each censtructed using a different
+    //:   expression of the default constructor, for a range of node requests:
+    //:
+    //:   1 Call the 'reserveNodes' method for the current size node request.
+    //:   2 Confirm that the accessor shows the expected values before and
+    //:     after the call to the 'reserveNodes' method.
+    //:   3 Confirm that the pool invokes its allocator for memory when there
+    //:     are no free nodes and 'allocate' is called.
+    //:
+    //: 2 The accessor is always called via a 'const' alias to the pool.
+    //:
+    //: 3 A test allocator is used to confirm that no memory is allocated for
+    //:   the accessor call.
+    //
+    // Testing:
+    //   bool hasFreeNodes() const;
+    //-------------------------------------------------------------------------
+
+    if (verbose) printf("\nOTHER ALLOCATORS"
+                        "\n================\n");
+
+    for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+        const char CONFIG = cfg;
+
+        if (veryVerbose) { P(CONFIG) }
+
+        bslma::TestAllocator da ("default",   veryVeryVeryVerbose);
+        bslma::TestAllocator fa ("footprint", veryVeryVeryVerbose);
+        bslma::TestAllocator sa1("supplied1", veryVeryVeryVerbose);
+        bslma::TestAllocator sa2("supplied2", veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        Obj                  *objPtr;
+        bslma::TestAllocator *objAllocatorPtr;
+
+        switch (CONFIG) {
+          case 'a': {
+              objPtr = new (fa) Obj(0);
+              objAllocatorPtr = &da;
+          } break;
+          case 'b': {
+              objPtr = new (fa) Obj(&sa1);
+              objAllocatorPtr = &sa1;
+          } break;
+          case 'c': {
+              objPtr = new (fa) Obj(&sa2);
+              objAllocatorPtr = &sa2;
+          } break;
+          default: {
+              ASSERTV(CONFIG, !"Bad allocator config.");
+              return;                                                 // RETURN
+          } break;
+        }
+
+        Obj& mX = *objPtr;  const Obj& X = mX;
+        bslma::TestAllocator& oa = *objAllocatorPtr;
+
+        // --------------------------------------------------------
+
+        // Verify accessors
+
+        bslma::TestAllocatorMonitor oam(&oa);
+        const int                   numNodes = 32;
+
+        ASSERTV(CONFIG, false == X.hasFreeNodes());
+        ASSERT(oam.isTotalSame());
+
+        mX.reserveNodes(32);
+
+        oam.reset();
+
+        ASSERTV(CONFIG, true  == X.hasFreeNodes());
+
+        ASSERT(oam.isTotalSame());
+
+        RbNode *createdNodes[numNodes];
+        size_t  createdNodeIdx = 0;
+
+        for (size_t i = 0; i < numNodes; ++i) {  // Consume the nodes
+
+            if (veryVerbose) { T_ T_ P(i) }
+
+            ASSERTV(CONFIG, true == X.hasFreeNodes());
+
+            RbNode *ptr = mX.emplaceIntoNewNode();
+            ASSERT(ptr);
+
+            createdNodes[createdNodeIdx] = ptr;  ++createdNodeIdx;
+        }
+
+        ASSERTV(CONFIG, false == X.hasFreeNodes());
+
+        oam.reset();
+
+        RbNode *ptr = mX.emplaceIntoNewNode();
+        ASSERT(ptr);
+        ASSERT(oam.isTotalUp());
+
+        mX.deleteNode(ptr);
+
+        for (size_t idx = 0; idx < numNodes; ++idx) {
+
+            if (veryVeryVerbose) {
+                T_ T_ P_(idx) P((void *)createdNodes[idx])
+            }
+
+            mX.deleteNode(createdNodes[idx]);
+        }
+
+        // --------------------------------------------------------
+
+        // Reclaim dynamically allocated object under test.
+
+        fa.deleteObject(objPtr);
+
+        // Verify all memory is released on object destruction.
+
+        ASSERTV(CONFIG, da .numBlocksInUse(), 0 == da .numBlocksInUse());
+        ASSERTV(CONFIG, fa .numBlocksInUse(), 0 == fa .numBlocksInUse());
+        ASSERTV(CONFIG, sa1.numBlocksInUse(), 0 == sa1.numBlocksInUse());
+        ASSERTV(CONFIG, sa2.numBlocksInUse(), 0 == sa2.numBlocksInUse());
     }
 }
 
@@ -1020,7 +1167,7 @@ template<class VALUE>
 void TestDriver<VALUE>::testCase6()
 {
     // --------------------------------------------------------------------
-    // MANIPULATOR 'reserveNodes'
+    // MANIPULATOR 'reserveNodes*'
     //
     // Concerns:
     //: 1 'reserve' allocate exactly the specified number of blocks such that
@@ -1055,7 +1202,7 @@ void TestDriver<VALUE>::testCase6()
     //:   triggered (using the 'BSLS_ASSERTTEST_*' macros).  (C-5)
     //
     // Testing:
-    //   void reserveNodes(std::size_t numNodes);
+    //   void reserveNodes(size_type numNodes);
     // --------------------------------------------------------------------
 
     if (verbose) printf("\nMANIPULATOR 'reserve'"
@@ -1672,6 +1819,9 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 15: {
+        TestDriver<bsltf::AllocTestType>::testCase15();
+      } break;
       case 14: {
         if (verbose) printf("\nUSAGE EXAMPLE"
                             "\n=============\n");
@@ -1733,7 +1883,7 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-            Obj mX(&oa); const Obj& X = mX;
+            Obj mX(&oa); // const Obj& X = mX;
 
             {
 
@@ -1887,7 +2037,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

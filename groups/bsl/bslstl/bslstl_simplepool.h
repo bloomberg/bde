@@ -368,9 +368,10 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
 
     void reserve(size_type numBlocks);
         // Dynamically allocate a new chunk containing the specified
-        // 'numBlocks' number of blocks, and use the chunk to replenish the
-        // free memory list of this pool.  The behavior is undefined unless
-        // '0 < numBlocks'.
+        // 'numBlocks' number of blocks, and add the chunk to the free memory
+        // list of this pool.  The additional memory is added irrespective of
+        // the amount of free memory when called.  The behavior is undefined
+        // unless '0 < numBlocks'.
 
     void release();
         // Relinquish all memory currently allocated via this pool object.
@@ -398,7 +399,9 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
         // allocator traits for the node-type.  Note that this operation
         // returns a base-class ('AllocatorType') reference to this object.
 
-
+    bool hasFreeBlocks() const;
+        // Return 'true' if this object holds free (currently unused) blocks,
+        // and 'false' otherwise.
 };
 
 // ============================================================================
@@ -573,15 +576,6 @@ void SimplePool<VALUE, ALLOCATOR>::reserve(size_type numBlocks)
     d_freeList_p  = begin;
 }
 
-// ACCESSORS
-template <class VALUE, class ALLOCATOR>
-inline
-const typename SimplePool<VALUE, ALLOCATOR>::AllocatorType&
-SimplePool<VALUE, ALLOCATOR>::allocator() const
-{
-    return *this;
-}
-
 template <class VALUE, class ALLOCATOR>
 void SimplePool<VALUE, ALLOCATOR>::release()
 {
@@ -610,13 +604,29 @@ void SimplePool<VALUE, ALLOCATOR>::release()
 
 }
 
+// ACCESSORS
+template <class VALUE, class ALLOCATOR>
+inline
+const typename SimplePool<VALUE, ALLOCATOR>::AllocatorType&
+SimplePool<VALUE, ALLOCATOR>::allocator() const
+{
+    return *this;
+}
+
+template <class VALUE, class ALLOCATOR>
+inline
+bool SimplePool<VALUE, ALLOCATOR>::hasFreeBlocks() const
+{
+    return d_freeList_p;
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

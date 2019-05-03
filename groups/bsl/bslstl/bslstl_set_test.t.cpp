@@ -1,8 +1,10 @@
 // bslstl_set_test.t.cpp                                              -*-C++-*-
 #include <bslstl_set_test.h>
 
+#include <bslstl_forwarditerator.h>
 #include <bslstl_iterator.h>
 #include <bslstl_pair.h>
+#include <bslstl_randomaccessiterator.h>
 #include <bslstl_set.h>
 
 #include <bslalg_rangecompare.h>
@@ -6600,6 +6602,10 @@ void TestDriver<KEY, COMP, ALLOC>::testCase15()
     //:   user-supplied allocator whenever one is specified.
     //:
     //: 6 Insertion is exception neutral w.r.t. memory allocation.
+    //:
+    //: 7 QoI: Range insertion allocates a single block for nodes when the
+    //:   number of elements can be determined and no free nodes are available.
+    //:   (The contained elements may require additional allocations.)
     //
     // Plan:
     //: 1 For insertion we will create objects of varying sizes and capacities
@@ -6613,9 +6619,17 @@ void TestDriver<KEY, COMP, ALLOC>::testCase15()
     //:   3 Verify all allocations are from the object's allocator.  (C-5)
     //:
     //: 2 Repeat P-1 under the presence of exception  (C-6)
+    //:
+    //: 3 Invoke the 'testRangeInsertOptimization' function that creates a
+    //:   container for a non-allocating type that uses a test allocator to
+    //:   supply memory.  'insert' elements using both forward and random
+    //:   access iterators.  'clear' the elements and re-insert them.  Compare
+    //:   the state of the allocator to expected memory needs at each step of
+    //:   the scenario.  (C-7).
     //
     // Testing:
     //   bsl::pair<iterator, bool> insert(const value_type& value);
+    //   void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
     // -----------------------------------------------------------------------
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value ||
@@ -7106,6 +7120,10 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
     //:   allocates no memory.
     //:
     //:13 Any memory allocation is exception neutral.
+    //:
+    //:14 QoI: Range insertion allocates a single block for nodes when the
+    //:   number of elements can be determined and no free nodes are available.
+    //:   (The contained elements may require additional allocations.)
     //
     // Plan:
     //: 1 Using the table-driven technique:
@@ -7169,6 +7187,12 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
     //:   automatic variable in the presence of injected exceptions (using the
     //:   'BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*' macros); represent any string
     //:   arguments in terms of 'string' using a "scratch" allocator.
+    //:
+    //: 4 Invoke the 'testRangeCtorOptimization' function that creates a
+    //:   containers for a non-allocating type using both random access and
+    //:   forward iterators.  Each container is given a test allocator to
+    //:   supply memory.  The test allocator is state compared to the expected
+    //:   state in each step of the scenario.  (C-14)
     //
     // Testing:
     //   set(ITER first, ITER last);
@@ -7396,6 +7420,194 @@ void MetaTestDriver<KEY, COMP>::testCase27()
     TestDriver<KEY, COMP, A01>::testCase27_dispatch();
     TestDriver<KEY, COMP, A10>::testCase27_dispatch();
     TestDriver<KEY, COMP, A11>::testCase27_dispatch();
+}
+
+// ============================================================================
+//                      RANGE CTOR/INSERT OPTIMIZATION
+// ----------------------------------------------------------------------------
+
+typedef int           DataType;
+typedef bsl::set<int> ContainerType;
+
+static DataType  ARRAY[] = { DataType( 0)
+                           , DataType( 1)
+                           , DataType( 2)
+                           , DataType( 3)
+                           , DataType( 4)
+                           , DataType( 5)
+                           , DataType( 6)
+                           , DataType( 7)
+                           , DataType( 8)
+                           , DataType( 9)
+                           , DataType(10)
+                           , DataType(11)
+                           , DataType(12)
+                           , DataType(13)
+                           , DataType(14)
+                           , DataType(15)
+                           , DataType(16)
+                           , DataType(17)
+                           , DataType(18)
+                           , DataType(19)
+                           , DataType(20)
+                           , DataType(21)
+                           , DataType(22)
+                           , DataType(23)
+                           , DataType(24)
+                           , DataType(25)
+                           , DataType(26)
+                           , DataType(27)
+                           , DataType(28)
+                           , DataType(29)
+                           , DataType(30)
+                           , DataType(31)
+                           , DataType(32)
+                           , DataType(33)
+                           , DataType(34)
+                           , DataType(35)
+                           , DataType(36)
+                           , DataType(37)
+                           , DataType(38)
+                           , DataType(39)
+                           };
+const std::size_t NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
+
+typedef bslstl::ForwardIterator<     DataType, DataType *> FwdItr;
+typedef bslstl::RandomAccessIterator<DataType, DataType *> RndItr;
+
+static void testRangeCtorOptimization()
+{
+   if (verbose) printf("\nTest Range CTOR Optimization\n");
+
+    FwdItr beginFwd(ARRAY), endFwd(ARRAY + NUM_ELEMENTS);
+    RndItr beginRnd(ARRAY), endRnd(ARRAY + NUM_ELEMENTS);
+
+    bslma::TestAllocator        sa("scratch", veryVeryVeryVerbose);
+    bslma::TestAllocatorMonitor sam(&sa);
+
+    if (verbose) {
+        printf("\nAfore: Object-Allocator\n");
+        sa.print();
+    }
+
+    ContainerType mXF(beginFwd, endFwd, &sa); const ContainerType& XF = mXF;
+    ASSERT(1            == sam.numBlocksTotalChange());
+    ASSERT(NUM_ELEMENTS == XF.size());
+
+    ContainerType mXR(beginRnd, endRnd, &sa); const ContainerType& XR = mXR;
+    ASSERT(2            == sam.numBlocksTotalChange());
+    ASSERT(NUM_ELEMENTS == XR.size());
+
+    if (verbose) {
+         P(XF.size());
+        P_(XR.size());
+        printf("\nAfter: Object-Allocator\n");
+        sa.print();
+    }
+
+    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+
+    if (verbose) {
+        printf("\nAfore: Default-Allocator\n");
+        da.print();
+    }
+
+    ContainerType mYF(beginFwd, endFwd, &sa); const ContainerType& YF = mYF;
+    ASSERT(3            == sam.numBlocksTotalChange());
+    ASSERT(NUM_ELEMENTS == YF.size());
+
+    ContainerType mYR(beginRnd, endRnd, &sa); const ContainerType& YR = mYR;
+    ASSERT(4            == sam.numBlocksTotalChange());
+    ASSERT(NUM_ELEMENTS == YR.size());
+
+    if (verbose) {
+         P(YF.size());
+        P_(YR.size());
+        printf("\nAfter: Default-Allocator\n");
+        da.print();
+    }
+}
+
+static void testRangeInsertOptimization()
+{
+   if (verbose) printf("\nTest Range Insert Optimization\n");
+
+    FwdItr beginFwd(ARRAY);
+    FwdItr   midFwd(ARRAY + NUM_ELEMENTS/2);
+    FwdItr   endFwd(ARRAY + NUM_ELEMENTS);
+
+    RndItr beginRnd(ARRAY);
+    RndItr   midRnd(ARRAY + NUM_ELEMENTS/2);
+    RndItr   endRnd(ARRAY + NUM_ELEMENTS);
+
+    bslma::TestAllocator        sa("scratch", veryVeryVeryVerbose);
+    bslma::TestAllocatorMonitor sam(&sa);
+
+    if (verbose) {
+        printf("\nAfore: Object-Allocator\n");
+        sa.print();
+    }
+
+    ContainerType mX(&sa); const ContainerType& X = mX;
+    ASSERT(0            == X.size());
+    ASSERT(0            == sam.numBlocksTotalChange());
+
+    mX.insert(beginFwd, endFwd);        // Insert entire range.
+    ASSERT(NUM_ELEMENTS == X.size());   // Added elements.
+    ASSERT(1            == sam.numBlocksTotalChange());
+                                        // Had to allocate nodes.
+                                        // No free nodes left.
+
+    mX.insert(beginFwd, endFwd);       // Re-insert entire range.
+    ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
+    ASSERT(2            == sam.numBlocksTotalChange());
+                                       // No free nodes so allocated more;
+                                       // however, did not use them.
+                                      
+    mX.insert(beginFwd, endFwd);       // Re-re-insert entire range.
+    ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
+    ASSERT(2            == sam.numBlocksTotalChange());
+                                       // Have free nodes so no new allocation.
+                                       // The free nodes remain unused.
+    
+    mX.insert(beginFwd, endFwd);       // Re-re-re-insert entire range.
+    ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
+    ASSERT(2            == sam.numBlocksTotalChange());
+                                       // Have free nodes so no new allocation.
+                                       // The free nodes remain unused.
+    // ...
+
+    ContainerType mY(&sa); const ContainerType& Y = mY;
+
+    bslma::TestAllocatorMonitor sam2(&sa);
+
+    ASSERT(0              == sam2.numBlocksInUseChange());
+
+    mY.insert(beginFwd, midFwd);        // Insert first half of 'DATA'.
+    ASSERT(NUM_ELEMENTS/2 == Y.size());
+    ASSERT(1              == sam2.numBlocksInUseChange());
+
+    mY.clear();                         // Clear
+    ASSERT(0              == Y.size());
+    ASSERT(1              == sam2.numBlocksInUseChange());
+
+    mY.insert(beginFwd, midFwd);       // Re-insert previous elements
+    ASSERT(NUM_ELEMENTS/2 == Y.size());
+    ASSERT(1              == sam2.numBlocksInUseChange());
+                                      // Reused nodes.  No new allocation.
+                                      // No free nodes left.
+
+    mY.insert(midRnd, endRnd);        // Insert additional elements
+    ASSERT(NUM_ELEMENTS   == Y.size());
+    ASSERT(2              == sam2.numBlocksInUseChange());
+                                      // Allocated more nodes.
+        
+    if (verbose) {
+        P(X.size());
+        printf("\nAfter: Object-Allocator\n");
+        sa.print();
+    }
 }
 
 // ============================================================================
@@ -7770,6 +7982,8 @@ int main(int argc, char *argv[])
                       testCase15,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+
+        testRangeInsertOptimization();
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -7804,10 +8018,13 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase12,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase12,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+
+        testRangeCtorOptimization();
       } break;
       case 11: // falls through
       case 10: // falls through
@@ -7865,7 +8082,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

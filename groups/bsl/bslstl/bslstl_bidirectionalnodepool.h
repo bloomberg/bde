@@ -459,9 +459,10 @@ class BidirectionalNodePool {
         // maintained by this object.
 
     void reserveNodes(size_type numNodes);
-        // Reserve memory from this pool to satisfy memory requests for at
+        // Add to this pool sufficient memory to satisfy memory requests for at
         // least the specified 'numNodes' before the pool replenishes.  The
-        // behavior is undefined unless '0 < numNodes'.
+        // additional memory is added irrespective of the amount of free memory
+        // when called.  The behavior is undefined unless '0 < numNodes'.
 
     void swapRetainAllocators(BidirectionalNodePool& other);
         // Efficiently exchange the nodes of this object with those of the
@@ -1007,7 +1008,7 @@ void bslstl::swap(bslstl::BidirectionalNodePool<VALUE, ALLOCATOR>& a,
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

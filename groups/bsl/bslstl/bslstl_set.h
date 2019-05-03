@@ -515,6 +515,7 @@ BSL_OVERRIDES_STD mode"
 #endif
 #include <bslscm_version.h>
 
+#include <bslstl_iteratorutil.h>
 #include <bslstl_pair.h>
 #include <bslstl_setcomparator.h>
 #include <bslstl_stdexceptutil.h>
@@ -2063,6 +2064,14 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(INPUT_ITERATOR    first,
 , d_tree()
 {
     if (first != last) {
+
+        size_type numElements =
+                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+
+        if (0 < numElements) {
+            nodeFactory().reserveNodes(numElements);
+        }
+
         BloombergLP::bslalg::RbTreeUtilTreeProctor<NodeFactory> proctor(
                                                                &d_tree,
                                                                &nodeFactory());
@@ -2110,6 +2119,14 @@ set<KEY, COMPARATOR, ALLOCATOR>::set(INPUT_ITERATOR    first,
 , d_tree()
 {
     if (first != last) {
+
+        size_type numElements =
+                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+
+        if (0 < numElements) {
+            nodeFactory().reserveNodes(numElements);
+        }
+
         BloombergLP::bslalg::RbTreeUtilTreeProctor<NodeFactory> proctor(
                                                                &d_tree,
                                                                &nodeFactory());
@@ -2381,7 +2398,31 @@ inline
 void set<KEY, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
                                              INPUT_ITERATOR last)
 {
+    ///Implementation Notes
+    ///--------------------
+    // First, consume currently held free nodes.  If those nodes are
+    // insufficient *and* one can calculate the remaining number of elements,
+    // then reserve exactly that many free nodes.  There is no more than one
+    // call to 'reserveNodes' per invocation of this method, hence the use of
+    // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.  When reserving nodes, we
+    // assume the elements remaining to be inserted are unique and do not
+    // duplicate any elements already in the container.  If there are any
+    // duplicates, this container will have free nodes on return from this
+    // method.
+    
+    const bool canCalculateInsertDistance =
+    ! bsl::is_same<typename iterator_traits<INPUT_ITERATOR>::iterator_category,
+                   bsl::input_iterator_tag>::value;
+
     while (first != last) {
+        if (canCalculateInsertDistance
+        && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                              !nodeFactory().hasFreeNodes())) {
+            const size_type numElements =
+                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+            
+            nodeFactory().reserveNodes(numElements);
+        }
         insert(*first);
         ++first;
     }
@@ -3741,7 +3782,7 @@ struct UsesBslmaAllocator<bsl::set<KEY, COMPARATOR, ALLOCATOR> >
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -47,12 +47,13 @@ using namespace bslstl;
 // [ 4] AllocatorType& allocator();
 // [ 2] VALUE *allocate();
 // [ 5] void deallocate(void *address);
-// [ 6] void reserve(std::size_t numBlocks);
+// [ 6] void reserve(size_type numBlocks);
 // [ 7] void release();
 // [ 8] void swap(SimplePool<VALUE, ALLOCATOR>& other);
 //
 // ACCESSORS
 // [ 4] const AllocatorType& allocator() const;
+// [13] bool hasFreeBlocks() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [12] USAGE EXAMPLE
@@ -259,6 +260,9 @@ class TestDriver {
 
   public:
     // TEST CASES
+    static void testCase13();
+        // Test other accessors.
+
     static void testCase12();
         // Test usage example.
 
@@ -347,6 +351,138 @@ void TestDriver<VALUE>::createFreeBlocks(Obj *result, int numBlocks)
     for (int i = 0; i < numBlocks; ++i) {
         result->deallocate(blocks.top());
         blocks.pop();
+    }
+}
+
+template<class VALUE>
+void TestDriver<VALUE>::testCase13()
+{
+    // ------------------------------------------------------------------------
+    // OTHER ACCESSOR
+    //
+    // Concerns:
+    //: 1 The accessor method returns a value that reflects the addition of
+    //:   and distribution of blocks from the free list.
+    //:
+    //: 2 The accessor is declared 'const'.
+    //:
+    //: 3 The accessor allocates no memory from any allocator.
+    //
+    // Plan:
+    //: 1 For a series of objects, each constructed using a different
+    //:   expression of the default constructor, for a range of block requests:
+    //:
+    //:   1 Call the 'reserve' method for the current size block request.
+    //:   2 Confirm that the accessor shows the expected before and after the
+    //:     call to the 'reserve' method.
+    //:   3 Confirm that the pool invokes its allocator for memory when there
+    //:     are no free blocks and 'allocate' is called.
+    //:
+    //: 2 The accessor is always called via a 'const' alias to the pool.
+    //:
+    //: 3 A test allocator is used to confirm that no memory allocated for any
+    //:   accessor call.
+    //
+    // Testing:
+    //   bool hasFreeBlocks() const;
+    //-------------------------------------------------------------------------
+
+    if (verbose) printf("\nOTHER ALLOCATOR"
+                        "\n===============\n");
+
+    for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+        const char CONFIG = cfg;
+
+        if (veryVerbose) { P(CONFIG) }
+
+        bslma::TestAllocator da ("default",   veryVeryVeryVerbose);
+        bslma::TestAllocator fa ("footprint", veryVeryVeryVerbose);
+        bslma::TestAllocator sa1("supplied1", veryVeryVeryVerbose);
+        bslma::TestAllocator sa2("supplied2", veryVeryVeryVerbose);
+
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        Obj                  *objPtr;
+        bslma::TestAllocator *objAllocatorPtr;
+
+        switch (CONFIG) {
+          case 'a': {
+              objPtr = new (fa) Obj(0);
+              objAllocatorPtr = &da;
+          } break;
+          case 'b': {
+              objPtr = new (fa) Obj(&sa1);
+              objAllocatorPtr = &sa1;
+          } break;
+          case 'c': {
+              objPtr = new (fa) Obj(&sa2);
+              objAllocatorPtr = &sa2;
+          } break;
+          default: {
+              ASSERTV(CONFIG, !"Bad allocator config.");
+              return;                                                 // RETURN
+          } break;
+        }
+
+        Obj& mX = *objPtr;  const Obj& X = mX;
+        bslma::TestAllocator& oa = *objAllocatorPtr;
+
+        // --------------------------------------------------------
+
+        // Verify accessor
+
+        for (typename Obj::size_type numBlocks  =  1;
+                                     numBlocks <= 16;
+                                     ++numBlocks) {
+
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            if (veryVerbose) { T_ P(numBlocks) }
+
+            ASSERTV(CONFIG, false == X.hasFreeBlocks());
+            ASSERT(oam.isTotalSame());
+
+            mX.reserve(numBlocks);
+
+            oam.reset();
+
+            ASSERTV(CONFIG, true  == X.hasFreeBlocks());
+
+            ASSERT(oam.isTotalSame());
+
+            for (size_t i = 0; i <= numBlocks; ++i) {
+
+                if (veryVerbose) { T_ T_ P(i) }
+
+                if (veryVeryVerbose) {
+                    T_ T_ P(X.hasFreeBlocks())
+                }
+
+                bool isMoreMemoryNeeded = !X.hasFreeBlocks();
+
+                if (veryVeryVerbose) {
+                    T_ T_ P(isMoreMemoryNeeded)
+                }
+
+                oam.reset();
+
+                VALUE *ptr = mX.allocate();
+                ASSERT(ptr);
+
+                if (isMoreMemoryNeeded) {
+                    ASSERT(1 == oam.numBlocksTotalChange());
+                } else {
+                    ASSERT(oam.isTotalSame());
+                }
+            }
+            mX.release();
+        }
+
+        // --------------------------------------------------------
+
+        // Reclaim dynamically allocated object under test.
+
+        fa.deleteObject(objPtr);
     }
 }
 
@@ -1469,6 +1605,14 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
+      case 13: {
+        // --------------------------------------------------------------------
+        // OTHER ACCESSORS
+        // --------------------------------------------------------------------
+
+          RUN_EACH_TYPE(TestDriver, testCase13, TEST_TYPES);
+
+       } break;
       case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -1626,7 +1770,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

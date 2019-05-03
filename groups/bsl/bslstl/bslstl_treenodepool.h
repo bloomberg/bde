@@ -482,9 +482,10 @@ class TreeNodePool {
         // valid (initialized) value.
 
     void reserveNodes(size_type numNodes);
-        // Reserve memory from this pool to satisfy memory requests for at
-        // least the specified 'numNodes' before the pool replenishes.  The
-        // behavior is undefined unless '0 < numNodes'.
+        // Add to this pool sufficient memory to satisfy memory requests for at
+        // least the specified 'numNodes'.  The additional memory is added
+        // irrespective of the amount of free memory when called.  The behavior
+        // is undefined unless '0 < numNodes'.
 
     void swap(TreeNodePool& other);
         // Efficiently exchange the nodes of this object with those of the
@@ -509,6 +510,10 @@ class TreeNodePool {
         // Return a reference providing non-modifiable access to the rebound
         // allocator traits for the node-type.  Note that this operation
         // returns a base-class ('NodeAlloc') reference to this object.
+
+    bool hasFreeNodes() const;
+        // Return 'true' if this object holds free (currently unused) nodes,
+        // and 'false' otherwise.
 };
 
 // ============================================================================
@@ -999,13 +1004,20 @@ TreeNodePool<VALUE, ALLOCATOR>::allocator() const
     return d_pool.allocator();
 }
 
+template <class VALUE, class ALLOCATOR>
+inline
+bool TreeNodePool<VALUE, ALLOCATOR>::hasFreeNodes() const
+{
+    return d_pool.hasFreeBlocks();
+}
+
 }  // close package namespace
 }  // close enterprise namespace
 
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
