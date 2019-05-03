@@ -1843,8 +1843,10 @@ class map {
         //
         // Note: implemented inline due to Sun CC compilation error.
     {
-        return const_iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
-            d_tree, this->comparator(), key));
+        return const_iterator(
+                BloombergLP::bslalg::RbTreeUtil::lowerBound(d_tree,
+                                                            this->comparator(),
+                                                            key));
     }
 
     const_iterator upper_bound(const key_type& key) const
@@ -1926,7 +1928,7 @@ class map {
         // Note: implemented inline due to Sun CC compilation error.
     {
         const_iterator startIt = lower_bound(key);
-        const_iterator endIt   = startIt;
+        const_iterator   endIt = startIt;
         if (endIt != end() && !comparator()(key, *endIt.node())) {
             ++endIt;
         }
@@ -2601,13 +2603,15 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
 {
     ///Implementation Notes
     ///--------------------
-    // First, consume currently held free nodes.  Then, if those nodes are
-    // insufficient *and* one can calculate the remaining number of elements
-    // reserve exactly that many free nodes.  This reservation assumes that
-    // each remaining element is unique.  If there are any duplicates, this
-    // object will have free nodes on return from this method.  Note that there
-    // is no more than one call to 'reserveNodes' per invocation of this
-    // method, hence the use of 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.
+    // First, consume currently held free nodes.  If those nodes are
+    // insufficient *and* one can calculate the remaining number of elements,
+    // then reserve exactly that many free nodes.  There is no more than one
+    // call to 'reserveNodes' per invocation of this method, hence the use of
+    // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.  When reserving nodes, we
+    // assume the elements remaining to be inserted are unique and do not
+    // duplicate any elements already in the container.  If there are any
+    // duplicates, this container will have free nodes on return from this
+    // method.
     
     const bool canCalculateInsertDistance =
     ! bsl::is_same<typename iterator_traits<INPUT_ITERATOR>::iterator_category,

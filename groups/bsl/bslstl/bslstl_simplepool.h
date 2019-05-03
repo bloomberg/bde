@@ -371,9 +371,9 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
     void reserve(size_type numBlocks);
         // Dynamically allocate a new chunk containing the specified
         // 'numBlocks' number of blocks, and add the chunk to the free memory
-        // list of this pool.  The behavior is undefined unless
-        // '0 < numBlocks'.  Note that the additional memory is added
-        // irrespective of the amount of free memory when called.
+        // list of this pool.  The additional memory is added irrespective of
+        // the amount of free memory when called.  The behavior is undefined
+        // unless '0 < numBlocks'.
 
     void release();
         // Relinquish all memory currently allocated via this pool object.
@@ -402,13 +402,8 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
         // returns a base-class ('AllocatorType') reference to this object.
 
     bool hasFreeBlocks() const;
-        // Return 'true' if '0 < numFreeBlocks()', and 'false' otherwise.
-
-    size_type numFreeBlocks() const;
-        // Return the number of free blocks available in this pool.  This
-        // method has time complexity proporational to the number of free
-        // blocks.
-
+        // Return 'true' if this object holds free (currently unused) blocks,
+        // and 'false' otherwise.
 };
 
 // ============================================================================
@@ -625,21 +620,6 @@ inline
 bool SimplePool<VALUE, ALLOCATOR>::hasFreeBlocks() const
 {
     return d_freeList_p;
-}
-
-template <class VALUE, class ALLOCATOR>
-inline
-typename
-SimplePool<VALUE, ALLOCATOR>::size_type
-SimplePool<VALUE, ALLOCATOR>::numFreeBlocks() const
-{
-    size_type count = 0;
-
-    for (Block *cur = d_freeList_p; cur; cur = cur->d_next_p) {
-        ++count;
-    }
-
-    return count;
 }
 
 }  // close package namespace

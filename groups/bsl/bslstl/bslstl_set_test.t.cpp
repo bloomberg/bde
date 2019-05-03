@@ -1,8 +1,10 @@
 // bslstl_set_test.t.cpp                                              -*-C++-*-
 #include <bslstl_set_test.h>
 
+#include <bslstl_forwarditerator.h>
 #include <bslstl_iterator.h>
 #include <bslstl_pair.h>
+#include <bslstl_randomaccessiterator.h>
 #include <bslstl_set.h>
 
 #include <bslalg_rangecompare.h>
@@ -6602,8 +6604,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase15()
     //: 6 Insertion is exception neutral w.r.t. memory allocation.
     //:
     //: 7 QoI: Range insertion allocates a single block for nodes when the
-    //:   number of elements can be determined.  (The contained elements may
-    //:   require additional allocations.)
+    //:   number of elements can be determined and no free nodes are available.
+    //:   (The contained elements may require additional allocations.)
     //
     // Plan:
     //: 1 For insertion we will create objects of varying sizes and capacities
@@ -6619,12 +6621,15 @@ void TestDriver<KEY, COMP, ALLOC>::testCase15()
     //: 2 Repeat P-1 under the presence of exception  (C-6)
     //:
     //: 3 Invoke the 'testRangeInsertOptimization' function that creates a
-    //:   container for a non-allocating type by passing random iterators
-    //:   to the range insert method, and specifying a test allocator to supply
-    //:   memory.  (C-7)
+    //:   container for a non-allocating type that uses a test allocator to
+    //:   supply memory.  'insert' elements using both forward and random
+    //:   access iterators.  'clear' the elements and re-insert them.  Compare
+    //:   the state of the allocator to expected memory needs at each step of
+    //:   the scenario.  (C-7).
     //
     // Testing:
     //   bsl::pair<iterator, bool> insert(const value_type& value);
+    //   void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
     // -----------------------------------------------------------------------
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value ||
@@ -7116,9 +7121,9 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
     //:
     //:13 Any memory allocation is exception neutral.
     //:
-    //:14 QoI: Range constructors allocate a single block for nodes when the
-    //:   number of elements can be determined.  (The contained elements may
-    //:   require additional allocations.)
+    //:14 QoI: Range insertion allocates a single block for nodes when the
+    //:   number of elements can be determined and no free nodes are available.
+    //:   (The contained elements may require additional allocations.)
     //
     // Plan:
     //: 1 Using the table-driven technique:
@@ -7184,9 +7189,10 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
     //:   arguments in terms of 'string' using a "scratch" allocator.
     //:
     //: 4 Invoke the 'testRangeCtorOptimization' function that creates a
-    //:   container for a non-allocating type by passing random iterators to
-    //:   the range constructor, and specifying a test allocator to supply
-    //:   memory.
+    //:   containers for a non-allocating type using both random access and
+    //:   forward allocators.  Each container is given a test allocator to
+    //:   supply memory.  The test allocator is state compared to the expected
+    //:   state in each step of the scenario.  (C-14)
     //
     // Testing:
     //   set(ITER first, ITER last);
@@ -7416,80 +7422,88 @@ void MetaTestDriver<KEY, COMP>::testCase27()
     TestDriver<KEY, COMP, A11>::testCase27_dispatch();
 }
 
+// ============================================================================
+//                      RANGE CTOR/INSERT OPTIMIZATION
+// ----------------------------------------------------------------------------
+
+typedef int           DataType;
+typedef bsl::set<int> ContainerType;
+
+static DataType  ARRAY[] = { DataType( 0)
+                           , DataType( 1)
+                           , DataType( 2)
+                           , DataType( 3)
+                           , DataType( 4)
+                           , DataType( 5)
+                           , DataType( 6)
+                           , DataType( 7)
+                           , DataType( 8)
+                           , DataType( 9)
+                           , DataType(10)
+                           , DataType(11)
+                           , DataType(12)
+                           , DataType(13)
+                           , DataType(14)
+                           , DataType(15)
+                           , DataType(16)
+                           , DataType(17)
+                           , DataType(18)
+                           , DataType(19)
+                           , DataType(20)
+                           , DataType(21)
+                           , DataType(22)
+                           , DataType(23)
+                           , DataType(24)
+                           , DataType(25)
+                           , DataType(26)
+                           , DataType(27)
+                           , DataType(28)
+                           , DataType(29)
+                           , DataType(30)
+                           , DataType(31)
+                           , DataType(32)
+                           , DataType(33)
+                           , DataType(34)
+                           , DataType(35)
+                           , DataType(36)
+                           , DataType(37)
+                           , DataType(38)
+                           , DataType(39)
+                           };
+const std::size_t NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
+
+typedef bslstl::ForwardIterator<     DataType, DataType *> FwdItr;
+typedef bslstl::RandomAccessIterator<DataType, DataType *> RndItr;
+
 static void testRangeCtorOptimization()
 {
    if (verbose) printf("\nTest Range CTOR Optimization\n");
 
-   typedef int           DataType;
-   typedef bsl::set<int> ContainerType;
+    FwdItr beginFwd(ARRAY), endFwd(ARRAY + NUM_ELEMENTS);
+    RndItr beginRnd(ARRAY), endRnd(ARRAY + NUM_ELEMENTS);
 
-   const DataType ARRAY[] = { DataType( 0)
-                            , DataType( 1)
-                            , DataType( 2)
-                            , DataType( 3)
-                            , DataType( 4)
-                            , DataType( 5)
-                            , DataType( 6)
-                            , DataType( 7)
-                            , DataType( 8)
-                            , DataType( 9)
-                            , DataType(10)
-                            , DataType(11)
-                            , DataType(12)
-                            , DataType(13)
-                            , DataType(14)
-                            , DataType(15)
-                            , DataType(16)
-                            , DataType(17)
-                            , DataType(18)
-                            , DataType(19)
-                            , DataType(20)
-                            , DataType(21)
-                            , DataType(22)
-                            , DataType(23)
-                            , DataType(24)
-                            , DataType(25)
-                            , DataType(26)
-                            , DataType(27)
-                            , DataType(28)
-                            , DataType(29)
-                            , DataType(30)
-                            , DataType(31)
-                            , DataType(32)
-                            , DataType(33)
-                            , DataType(34)
-                            , DataType(35)
-                            , DataType(36)
-                            , DataType(37)
-                            , DataType(38)
-                            , DataType(39)
-                            };
-    const std::size_t NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
-
-    bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
+    bslma::TestAllocator        sa("scratch", veryVeryVeryVerbose);
+    bslma::TestAllocatorMonitor sam(&sa);
 
     if (verbose) {
         printf("\nAfore: Object-Allocator\n");
         sa.print();
     }
 
-    bsls::Types::Int64 numBlocksInUseAfore = sa.numBlocksInUse();
+    ContainerType mXF(beginFwd, endFwd, &sa); const ContainerType& XF = mXF;
+    ASSERT(1            == sam.numBlocksTotalChange());
+    ASSERT(NUM_ELEMENTS == XF.size());
 
-    // Pointers into an array are (protypical) random iterators.
-
-    ContainerType        mX(ARRAY, ARRAY + NUM_ELEMENTS, &sa);
-    const ContainerType& X = mX;
-
-    bsls::Types::Int64 numBlocksInUseAfter = sa.numBlocksInUse();
+    ContainerType mXR(beginRnd, endRnd, &sa); const ContainerType& XR = mXR;
+    ASSERT(2            == sam.numBlocksTotalChange());
+    ASSERT(NUM_ELEMENTS == XR.size());
 
     if (verbose) {
-        P(X.size());
+         P(XF.size());
+        P_(XR.size());
         printf("\nAfter: Object-Allocator\n");
         sa.print();
     }
-
-    ASSERT(NUM_ELEMENTS == X.size());
-    ASSERT(1            == numBlocksInUseAfter - numBlocksInUseAfore);
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard dag(&da);
@@ -7499,98 +7513,101 @@ static void testRangeCtorOptimization()
         da.print();
     }
 
-    numBlocksInUseAfore = da.numBlocksInUse();
+    ContainerType mYF(beginFwd, endFwd, &sa); const ContainerType& YF = mYF;
+    ASSERT(3            == sam.numBlocksTotalChange());
+    ASSERT(NUM_ELEMENTS == YF.size());
 
-    ContainerType        mY(ARRAY, ARRAY + NUM_ELEMENTS);
-    const ContainerType& Y = mY;
-
-    numBlocksInUseAfter = da.numBlocksInUse();
+    ContainerType mYR(beginRnd, endRnd, &sa); const ContainerType& YR = mYR;
+    ASSERT(4            == sam.numBlocksTotalChange());
+    ASSERT(NUM_ELEMENTS == YR.size());
 
     if (verbose) {
-        P(Y.size());
+         P(YF.size());
+        P_(YR.size());
         printf("\nAfter: Default-Allocator\n");
         da.print();
     }
-
-    ASSERT(NUM_ELEMENTS == Y.size());
-    ASSERT(1            == numBlocksInUseAfter - numBlocksInUseAfore);
 }
 
 static void testRangeInsertOptimization()
 {
    if (verbose) printf("\nTest Range Insert Optimization\n");
 
-   typedef int           DataType;
-   typedef bsl::set<int> ContainerType;
+    FwdItr beginFwd(ARRAY);
+    FwdItr   midFwd(ARRAY + NUM_ELEMENTS/2);
+    FwdItr   endFwd(ARRAY + NUM_ELEMENTS);
 
-   const DataType ARRAY[] = { DataType( 0)
-                            , DataType( 1)
-                            , DataType( 2)
-                            , DataType( 3)
-                            , DataType( 4)
-                            , DataType( 5)
-                            , DataType( 6)
-                            , DataType( 7)
-                            , DataType( 8)
-                            , DataType( 9)
-                            , DataType(10)
-                            , DataType(11)
-                            , DataType(12)
-                            , DataType(13)
-                            , DataType(14)
-                            , DataType(15)
-                            , DataType(16)
-                            , DataType(17)
-                            , DataType(18)
-                            , DataType(19)
-                            , DataType(20)
-                            , DataType(21)
-                            , DataType(22)
-                            , DataType(23)
-                            , DataType(24)
-                            , DataType(25)
-                            , DataType(26)
-                            , DataType(27)
-                            , DataType(28)
-                            , DataType(29)
-                            , DataType(30)
-                            , DataType(31)
-                            , DataType(32)
-                            , DataType(33)
-                            , DataType(34)
-                            , DataType(35)
-                            , DataType(36)
-                            , DataType(37)
-                            , DataType(38)
-                            , DataType(39)
-                            };
-    const std::size_t NUM_ELEMENTS = sizeof ARRAY / sizeof *ARRAY;
+    RndItr beginRnd(ARRAY);
+    RndItr   midRnd(ARRAY + NUM_ELEMENTS/2);
+    RndItr   endRnd(ARRAY + NUM_ELEMENTS);
 
-    bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
+    bslma::TestAllocator        sa("scratch", veryVeryVeryVerbose);
+    bslma::TestAllocatorMonitor sam(&sa);
 
     if (verbose) {
         printf("\nAfore: Object-Allocator\n");
         sa.print();
     }
 
-    bsls::Types::Int64 numBlocksInUseAfore = sa.numBlocksInUse();
-
     ContainerType mX(&sa); const ContainerType& X = mX;
+    ASSERT(0            == X.size());
+    ASSERT(0            == sam.numBlocksTotalChange());
 
-    // Pointers into an array are (protypical) random iterators.
+    mX.insert(beginFwd, endFwd);        // Insert entire range.
+    ASSERT(NUM_ELEMENTS == X.size());   // Added elements.
+    ASSERT(1            == sam.numBlocksTotalChange());
+                                        // Had to allocate nodes.
+                                        // No free nodes left.
 
-    mX.insert(ARRAY, ARRAY + NUM_ELEMENTS);
+    mX.insert(beginFwd, endFwd);       // Re-insert entire range.
+    ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
+    ASSERT(2            == sam.numBlocksTotalChange());
+                                       // No free nodes so allocated more;
+                                       // however, did not use them.
+                                      
+    mX.insert(beginFwd, endFwd);       // Re-re-insert entire range.
+    ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
+    ASSERT(2            == sam.numBlocksTotalChange());
+                                       // Have free nodes so no new allocation.
+                                       // The free nodes remain unused.
+    
+    mX.insert(beginFwd, endFwd);       // Re-re-re-insert entire range.
+    ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
+    ASSERT(2            == sam.numBlocksTotalChange());
+                                       // Have free nodes so no new allocation.
+                                       // The free nodes remain unused.
+    // ...
 
-    bsls::Types::Int64 numBlocksInUseAfter = sa.numBlocksInUse();
+    ContainerType mY(&sa); const ContainerType& Y = mY;
 
+    bslma::TestAllocatorMonitor sam2(&sa);
+
+    ASSERT(0              == sam2.numBlocksInUseChange());
+
+    mY.insert(beginFwd, midFwd);        // Insert first half of 'DATA'.
+    ASSERT(NUM_ELEMENTS/2 == Y.size());
+    ASSERT(1              == sam2.numBlocksInUseChange());
+
+    mY.clear();                         // Clear
+    ASSERT(0              == Y.size());
+    ASSERT(1              == sam2.numBlocksInUseChange());
+
+    mY.insert(beginFwd, midFwd);       // Re-insert previous elements
+    ASSERT(NUM_ELEMENTS/2 == Y.size());
+    ASSERT(1              == sam2.numBlocksInUseChange());
+                                      // Reused nodes.  No new allocation.
+                                      // No free nodes left.
+
+    mY.insert(midRnd, endRnd);        // Insert additional elements
+    ASSERT(NUM_ELEMENTS   == Y.size());
+    ASSERT(2              == sam2.numBlocksInUseChange());
+                                      // Allocated more nodes.
+        
     if (verbose) {
         P(X.size());
         printf("\nAfter: Object-Allocator\n");
         sa.print();
     }
-
-    ASSERT(NUM_ELEMENTS == X.size());
-    ASSERT(1            == numBlocksInUseAfter - numBlocksInUseAfore);
 }
 
 // ============================================================================

@@ -514,12 +514,8 @@ class TreeNodePool {
         // returns a base-class ('NodeAlloc') reference to this object.
 
     bool hasFreeNodes() const;
-        // Return 'true' if '0 < numFreeNodes()', and 'false' otherwise.
-
-    size_type numFreeNodes() const;
-        // Return the number of free nodes.  This method has time complexity
-        // proportional to the number of free nodes.
-
+        // Return 'true' if this object holds free (currently unused) nodes,
+        // and 'false' otherwise.
 };
 
 // ============================================================================
@@ -1015,15 +1011,6 @@ inline
 bool TreeNodePool<VALUE, ALLOCATOR>::hasFreeNodes() const
 {
     return d_pool.hasFreeBlocks();
-}
-
-template <class VALUE, class ALLOCATOR>
-inline
-typename
-TreeNodePool<VALUE, ALLOCATOR>::size_type
-TreeNodePool<VALUE, ALLOCATOR>::numFreeNodes() const
-{
-    return d_pool.numFreeBlocks();
 }
 
 }  // close package namespace

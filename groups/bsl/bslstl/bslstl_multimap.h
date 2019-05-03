@@ -2240,10 +2240,10 @@ void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
 {
     ///Implementation Notes
     ///--------------------
-    // First, consume currently held free nodes.  Then, if those nodes are
+    // First, consume currently held free nodes.  Tf those nodes are
     // insufficient *and* one can calculate the remaining number of elements,
-    // reserve exactly that many free nodes.  There is no more than one call to
-    // 'reserveNodes' per invocation of this method, hence the use of
+    // then reserve exactly that many free nodes.  There is no more than one
+    // call to 'reserveNodes' per invocation of this method, hence the use of
     // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.
     
     const bool canCalculateInsertDistance =

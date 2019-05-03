@@ -67,7 +67,6 @@ using namespace bslstl;
 // ACCESSORS
 // [ 4] const AllocatorType& allocator() const;
 // [15] bool hasFreeNodes() const;
-// [15] size_type numFreeNodes() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [14] USAGE EXAMPLE
@@ -458,37 +457,36 @@ template<class VALUE>
 void TestDriver<VALUE>::testCase15()
 {
     // ------------------------------------------------------------------------
-    // OTHER ACCESSORS
+    // OTHER ACCESSOR
     //
     // Concerns:
-    //: 1 Each accessor method returns a value that reflects the addition of
+    //: 1 The accessor method returns a value that reflects the addition of
     //:   and distribution of nodes from the free list.
     //:
-    //: 2 Each accessor is declared 'const'.
+    //: 2 The accessor is declared 'const'.
     //:
-    //: 3 No accessor allocates any memory from any allocator.
+    //: 3 The accessor does not allocate any memory from any allocator.
     //:
-    //: 4 The implementation of these methods return the values obtained from
-    //:   their analogous methods in 'bdlst::SimplePool'.
+    //: 4 The implementation of this method return the values obtained from
+    //:   their analogous method in 'bdlst::SimplePool'.
     //
     // Plan:
     //: 1 For a series of objects, each constructed using a different
     //:   expression of the default constructor, for a range of node requests:
     //:
     //:   1 Call the 'reserveNodes' method for the current size node request.
-    //:   2 Confirm that the accessors show the expected before and after the
+    //:   2 Confirm that the accessor shows the expected before and after the
     //:     call to the 'reserveNodes' method.
     //:   3 Confirm that the pool invokes its allocator for memory when there
     //:     are no free nodes and 'allocate' is called.
     //:
-    //: 2 Accessor are always called via a 'const' alias to the pool.
+    //: 2 The accessor is always called via a 'const' alias to the pool.
     //:
-    //: 3 A test allocator is used to confirm that no memory allocated for any
+    //: 3 A test allocator is used to confirm that no memory allocated for the
     //:   accessor call.
     //
     // Testing:
     //   bool hasFreeNodes() const;
-    //   size_type numFreeNodes() const;
     //-------------------------------------------------------------------------
 
     if (verbose) printf("\nOTHER ALLOCATORS"
@@ -538,7 +536,6 @@ void TestDriver<VALUE>::testCase15()
         bslma::TestAllocatorMonitor oam(&oa);
         const int                   numNodes = 32;
 
-        ASSERTV(CONFIG, 0     == X.numFreeNodes());
         ASSERTV(CONFIG, false == X.hasFreeNodes());
         ASSERT(oam.isTotalSame());
 
@@ -546,8 +543,7 @@ void TestDriver<VALUE>::testCase15()
 
         oam.reset();
 
-        ASSERTV(CONFIG, numNodes == X.numFreeNodes());
-        ASSERTV(CONFIG, true     == X.hasFreeNodes());
+        ASSERTV(CONFIG, true  == X.hasFreeNodes());
 
         ASSERT(oam.isTotalSame());
 
@@ -566,7 +562,6 @@ void TestDriver<VALUE>::testCase15()
             createdNodes[createdNodeIdx] = ptr;  ++createdNodeIdx;
         }
 
-        ASSERTV(CONFIG, 0     == X.numFreeNodes());
         ASSERTV(CONFIG, false == X.hasFreeNodes());
 
         oam.reset();

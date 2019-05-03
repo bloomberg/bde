@@ -54,7 +54,6 @@ using namespace bslstl;
 // ACCESSORS
 // [ 4] const AllocatorType& allocator() const;
 // [13] bool hasFreeBlocks() const;
-// [13] size_type numFreeBlocks() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [12] USAGE EXAMPLE
@@ -359,38 +358,37 @@ template<class VALUE>
 void TestDriver<VALUE>::testCase13()
 {
     // ------------------------------------------------------------------------
-    // OTHER ACCESSORS
+    // OTHER ACCESSOR
     //
     // Concerns:
-    //: 1 Each accessor method returns a value that reflects the addition of
+    //: 1 The accessor method returns a value that reflects the addition of
     //:   and distribution of blocks from the free list.
     //:
-    //: 2 Each accessor is declared 'const'.
+    //: 2 The accessor is declared 'const'.
     //:
-    //: 3 No accessor allocates any memory from any allocator.
+    //: 3 The accessor allocates any memory from any allocator.
     //
     // Plan:
     //: 1 For a series of objects, each constructed using a different
     //:   expression of the default constructor, for a range of block requests:
     //:
     //:   1 Call the 'reserve' method for the current size block request.
-    //:   2 Confirm that the accessors show the expected before and after the
+    //:   2 Confirm that the accessor shows the expected before and after the
     //:     call to the 'reserve' method.
     //:   3 Confirm that the pool invokes its allocator for memory when there
     //:     are no free blocks and 'allocate' is called.
     //:
-    //: 2 Accessor are always called via a 'const' alias to the pool.
+    //: 2 The accessor is always called via a 'const' alias to the pool.
     //:
     //: 3 A test allocator is used to confirm that no memory allocated for any
     //:   accessor call.
     //
     // Testing:
     //   bool hasFreeBlocks() const;
-    //   size_type numFreeBlocks() const;
     //-------------------------------------------------------------------------
 
-    if (verbose) printf("\nOTHER ALLOCATORS"
-                        "\n================\n");
+    if (verbose) printf("\nOTHER ALLOCATOR"
+                        "\n===============\n");
 
     for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
         const char CONFIG = cfg;
@@ -441,7 +439,6 @@ void TestDriver<VALUE>::testCase13()
 
             if (veryVerbose) { T_ P(numBlocks) }
 
-	        ASSERTV(CONFIG, 0     == X.numFreeBlocks());
             ASSERTV(CONFIG, false == X.hasFreeBlocks()); 
 	        ASSERT(oam.isTotalSame());
 
@@ -449,8 +446,7 @@ void TestDriver<VALUE>::testCase13()
 	
             oam.reset();
 
-	        ASSERTV(CONFIG, numBlocks == X.numFreeBlocks());
-            ASSERTV(CONFIG, true      == X.hasFreeBlocks()); 
+            ASSERTV(CONFIG, true  == X.hasFreeBlocks()); 
 
 	        ASSERT(oam.isTotalSame());
 	
@@ -459,16 +455,13 @@ void TestDriver<VALUE>::testCase13()
                 if (veryVerbose) { T_ T_ P(i) }
 
                 if (veryVeryVerbose) {
-                    T_ T_ P_(X.numFreeBlocks()) P(X.hasFreeBlocks()) 
+                    T_ T_ P(X.hasFreeBlocks()) 
                 }
-
-	            ASSERT(numBlocks - i     ==   X.numFreeBlocks());
-                ASSERT(X.hasFreeBlocks() == !!X.numFreeBlocks());
 	
-	            bool isMoreMemoryNeeded = 0 == X.numFreeBlocks();
+	            bool isMoreMemoryNeeded = !X.hasFreeBlocks();
 
                 if (veryVeryVerbose) {
-                    T_ T_ P_(X.numFreeBlocks()) P(isMoreMemoryNeeded) 
+                    T_ T_ P(isMoreMemoryNeeded) 
                 }
 
                 oam.reset();
@@ -490,13 +483,6 @@ void TestDriver<VALUE>::testCase13()
         // Reclaim dynamically allocated object under test.
 
         fa.deleteObject(objPtr);
-
-        // Verify all memory is released on object destruction.
-
-        ASSERTV(CONFIG, da .numBlocksInUse(), 0 == da .numBlocksInUse());
-        ASSERTV(CONFIG, fa .numBlocksInUse(), 0 == fa .numBlocksInUse());
-        ASSERTV(CONFIG, sa1.numBlocksInUse(), 0 == sa1.numBlocksInUse());
-        ASSERTV(CONFIG, sa2.numBlocksInUse(), 0 == sa2.numBlocksInUse());
     }
 }
 

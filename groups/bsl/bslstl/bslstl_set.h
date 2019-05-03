@@ -2402,13 +2402,14 @@ void set<KEY, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
 {
     ///Implementation Notes
     ///--------------------
-    // First, consume currently held free nodes.  Then, if those nodes are
+    // First, consume currently held free nodes.  If those nodes are
     // insufficient *and* one can calculate the remaining number of elements,
-    // reserve exactly that many free nodes.  There is no more than one call to
-    // 'reserveNodes' per invocation of this method, hence the use of
-    // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.  The number of nodes reserved
-    // assumes that each remaining element (to insert) is unique.  If there are
-    // any duplicates, this object will hold free nodes on return from this
+    // then reserve exactly that many free nodes.  There is no more than one
+    // call to 'reserveNodes' per invocation of this method, hence the use of
+    // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.  When reserving nodes, we
+    // assume the elements remaining to be inserted are unique and do not
+    // duplicate any elements already in the container.  If there are any
+    // duplicates, this container will have free nodes on return from this
     // method.
     
     const bool canCalculateInsertDistance =
