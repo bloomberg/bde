@@ -386,7 +386,7 @@ STREAM& BlobUtil::read(STREAM& stream, Blob *dest, int numBytes)
     dest->setLength(numBytes);
 
     for (int numBytesRemaining = numBytes, i = 0; 0 < numBytesRemaining; ++i) {
-        BSLS_REVIEW(i < dest->numBuffers());
+        BSLS_ASSERT(i < dest->numBuffers());
 
         BlobBuffer buffer = dest->buffer(i);
 
@@ -408,7 +408,7 @@ STREAM& BlobUtil::write(STREAM& stream, const Blob& source)
     int numBytes = source.length();
 
     for (int numBytesRemaining = numBytes, i = 0; 0 < numBytesRemaining; ++i) {
-        BSLS_REVIEW(i < source.numBuffers());
+        BSLS_ASSERT(i < source.numBuffers());
 
         BlobBuffer buffer = source.buffer(i);
 

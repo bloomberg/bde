@@ -260,7 +260,7 @@ FixedMemInput::FixedMemInput(const char *buffer, bsl::size_t length)
 , d_bufferSize(length)
 , d_pos(0)
 {
-    BSLS_REVIEW(buffer || 0 == length);
+    BSLS_ASSERT(buffer || 0 == length);
 }
 
 // MANIPULATORS
@@ -278,8 +278,8 @@ FixedMemInput *FixedMemInput::pubsetbuf(const char      *buffer,
                                         bsl::streamsize  length)
 
 {
-    BSLS_REVIEW(buffer || 0 == length);
-    BSLS_REVIEW(0 <= length);
+    BSLS_ASSERT(buffer || 0 == length);
+    BSLS_ASSERT(0 <= length);
 
     d_buffer_p   = buffer;
     d_bufferSize = static_cast<bsl::size_t>(length);
@@ -312,7 +312,7 @@ inline
 bsl::streamsize
 FixedMemInput::sgetn(char *destination, bsl::streamsize length)
 {
-    BSLS_REVIEW(0 <= length);
+    BSLS_ASSERT(0 <= length);
 
     const bsl::size_t current = d_pos;
     d_pos += static_cast<bsl::size_t>(length);

@@ -294,7 +294,7 @@ void FileCleanerConfiguration::setMaxFileAge(const bsls::TimeInterval& maxAge)
 inline
 void FileCleanerConfiguration::setMinNumFiles(int minNumber)
 {
-    BSLS_REVIEW(0 <= minNumber);
+    BSLS_ASSERT(0 <= minNumber);
     d_minNumFiles = minNumber;
 }
 

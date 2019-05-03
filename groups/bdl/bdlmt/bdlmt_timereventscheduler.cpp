@@ -42,7 +42,7 @@ const int NUM_INDEX_BITS_MIN = 8;
 
 int numBitsRequired(int value)
 {
-    BSLS_REVIEW(0 <= value);
+    BSLS_ASSERT(0 <= value);
 
     // Calculate the smallest number of bits required to represent the
     // specified 'value'.

@@ -326,7 +326,7 @@ TestObserver::TestObserver(bsl::ostream     *stream,
 , d_numRecords(0)
 , d_numReleases(0)
 {
-    BSLS_REVIEW(d_stream_p);
+    BSLS_ASSERT(d_stream_p);
 }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

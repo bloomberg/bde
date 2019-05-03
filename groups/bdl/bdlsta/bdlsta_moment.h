@@ -357,7 +357,7 @@ template<>
 inline
 double Moment<MomentLevel::e_M4>::kurtosis() const
 {
-    BSLS_REVIEW(4 <= d_data.d_count && 0.0 != d_data.d_M2);
+    BSLS_ASSERT(4 <= d_data.d_count && 0.0 != d_data.d_M2);
 
     const double n    = static_cast<double>(d_data.d_count);
     const double n1   = (n - 1.0);
@@ -381,7 +381,7 @@ template <MomentLevel::Enum ML>
 inline
 double Moment<ML>::mean() const
 {
-    BSLS_REVIEW(1 <= d_data.d_count);
+    BSLS_ASSERT(1 <= d_data.d_count);
 
     return d_data.d_sum / static_cast<double>(d_data.d_count);
 }
@@ -401,7 +401,7 @@ template <MomentLevel::Enum ML>
 inline
 double Moment<ML>::skew() const
 {
-    BSLS_REVIEW(3 <= d_data.d_count && 0.0 != d_data.d_M2);
+    BSLS_ASSERT(3 <= d_data.d_count && 0.0 != d_data.d_M2);
 
     const double n = static_cast<double>(d_data.d_count);
     return bsl::sqrt(n - 1.0) * n / (n- 2.0) * d_data.d_M3
@@ -422,7 +422,7 @@ template <MomentLevel::Enum ML>
 inline
 double Moment<ML>::variance() const
 {
-    BSLS_REVIEW(2 <= d_data.d_count);
+    BSLS_ASSERT(2 <= d_data.d_count);
 
     return d_data.d_M2 / (d_data.d_count - 1);
 }

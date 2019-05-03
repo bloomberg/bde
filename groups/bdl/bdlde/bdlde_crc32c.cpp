@@ -1302,7 +1302,7 @@ unsigned int Crc32c::calculate(const void   *data,
                                unsigned int  crc)
 {
     // PRECONDITIONS
-    BSLS_REVIEW(   (data || !length)
+    BSLS_ASSERT(   (data || !length)
                      && "If 'data' is 0, then 'length' also must be 0");
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length == 0)) {
@@ -1323,7 +1323,7 @@ unsigned int Crc32c_Impl::calculateSoftware(const void   *data,
                                             unsigned int  crc)
 {
     // PRECONDITIONS
-    BSLS_REVIEW(   (data || !length)
+    BSLS_ASSERT(   (data || !length)
                      && "If 'data' is 0, then 'length' also must be 0");
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length == 0)) {
@@ -1341,7 +1341,7 @@ unsigned int Crc32c_Impl::calculateHardwareSerial(const void   *data,
                                                   unsigned int  crc)
 {
     // PRECONDITIONS
-    BSLS_REVIEW(   (data || !length)
+    BSLS_ASSERT(   (data || !length)
                      && "If 'data' is 0, then 'length' also must be 0");
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(length  == 0)) {

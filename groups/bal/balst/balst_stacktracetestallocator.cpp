@@ -280,8 +280,8 @@ StackTraceTestAllocator::StackTraceTestAllocator(
 , d_allocator_p(basicAllocator ? basicAllocator
                                : &bslma::MallocFreeAllocator::singleton())
 {
-    BSLS_REVIEW(d_maxRecordedFrames >= k_DEFAULT_NUM_RECORDED_FRAMES);
-    BSLS_REVIEW(d_traceBufferLength >= d_maxRecordedFrames);
+    BSLS_ASSERT(d_maxRecordedFrames >= k_DEFAULT_NUM_RECORDED_FRAMES);
+    BSLS_ASSERT(d_traceBufferLength >= d_maxRecordedFrames);
 
     // This must be assigned in a statement in the body of the c'tor rather
     // than in the initializer list to work around a microsoft bug with
@@ -364,7 +364,7 @@ void *StackTraceTestAllocator::allocate(size_type size)
                         k_FIXED_ALIGN,
                         bsls::AlignmentUtil::calculateAlignmentFromSize(size));
     const int lowBits = align - 1;
-    BSLS_REVIEW(0 == (align & lowBits));   // verify 'align' is power of 2
+    BSLS_ASSERT(0 == (align & lowBits));   // verify 'align' is power of 2
     size = (size + lowBits) & ~lowBits;     // round 'size' up to multiple of
                                             // 'align'
 

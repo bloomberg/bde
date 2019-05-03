@@ -207,10 +207,10 @@ int CalendarDateRangeDayCountAdapter<CONVENTION>::daysDiff(
                                                const bdlt::Date& beginDate,
                                                const bdlt::Date& endDate) const
 {
-    BSLS_REVIEW(d_calendar.firstDate() <= beginDate);
-    BSLS_REVIEW(                          beginDate <= d_calendar.lastDate());
-    BSLS_REVIEW(d_calendar.firstDate() <= endDate);
-    BSLS_REVIEW(                          endDate   <= d_calendar.lastDate());
+    BSLS_ASSERT(d_calendar.firstDate() <= beginDate);
+    BSLS_ASSERT(                          beginDate <= d_calendar.lastDate());
+    BSLS_ASSERT(d_calendar.firstDate() <= endDate);
+    BSLS_ASSERT(                          endDate   <= d_calendar.lastDate());
 
     return CONVENTION::daysDiff(beginDate, endDate, d_calendar);
 }
@@ -237,10 +237,10 @@ double CalendarDateRangeDayCountAdapter<CONVENTION>::yearsDiff(
                                                const bdlt::Date& beginDate,
                                                const bdlt::Date& endDate) const
 {
-    BSLS_REVIEW(d_calendar.firstDate() <= beginDate);
-    BSLS_REVIEW(                          beginDate <= d_calendar.lastDate());
-    BSLS_REVIEW(d_calendar.firstDate() <= endDate);
-    BSLS_REVIEW(                          endDate   <= d_calendar.lastDate());
+    BSLS_ASSERT(d_calendar.firstDate() <= beginDate);
+    BSLS_ASSERT(                          beginDate <= d_calendar.lastDate());
+    BSLS_ASSERT(d_calendar.firstDate() <= endDate);
+    BSLS_ASSERT(                          endDate   <= d_calendar.lastDate());
 
     return CONVENTION::yearsDiff(beginDate, endDate, d_calendar);
 }

@@ -142,7 +142,7 @@ inline
 StreamObserver::StreamObserver(bsl::ostream *stream)
 : d_stream_p(stream)
 {
-    BSLS_REVIEW(d_stream_p);
+    BSLS_ASSERT(d_stream_p);
 }
 
 // MANIPULATORS

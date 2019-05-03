@@ -39,7 +39,7 @@ class Timetable_ResetProctor {
         // 'timetable'.
     : d_timetable_p(timetable)
     {
-        BSLS_REVIEW(timetable);
+        BSLS_ASSERT(timetable);
     }
 
     ~Timetable_ResetProctor()

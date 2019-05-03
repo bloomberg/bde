@@ -467,7 +467,7 @@ void Blob::appendDataBuffer(const BlobBuffer& buffer)
         // Fast path.  At the start, we had 0 or more buffers in the blob and
         // they were all full.
 
-        BSLS_REVIEW(d_dataIndex == (int)d_buffers.size() - 1 ||
+        BSLS_ASSERT(d_dataIndex == (int)d_buffers.size() - 1 ||
                          (0 == d_dataIndex && 0 == d_buffers.size()));
 
         d_buffers.push_back(buffer);
@@ -478,9 +478,9 @@ void Blob::appendDataBuffer(const BlobBuffer& buffer)
         // Another fast path.  At the start, there was no data, but empty
         // buffers were present.  Put the new buffer at the front.
 
-        BSLS_REVIEW(d_totalSize > d_dataLength);
-        BSLS_REVIEW(0 == d_dataIndex);
-        BSLS_REVIEW(0 == d_preDataIndexLength);
+        BSLS_ASSERT(d_totalSize > d_dataLength);
+        BSLS_ASSERT(0 == d_dataIndex);
+        BSLS_ASSERT(0 == d_preDataIndexLength);
 
         d_buffers.insert(d_buffers.begin(), buffer);
     }
@@ -490,16 +490,16 @@ void Blob::appendDataBuffer(const BlobBuffer& buffer)
         // present on the end, whole empty buffer(s) might or might not have
         // been present on the end.
 
-        BSLS_REVIEW(d_dataLength > bufferSize);
-        BSLS_REVIEW(d_dataLength < d_totalSize);
-        BSLS_REVIEW((unsigned)d_dataIndex < d_buffers.size());
-        BSLS_REVIEW(oldDataLength >= d_preDataIndexLength);
+        BSLS_ASSERT(d_dataLength > bufferSize);
+        BSLS_ASSERT(d_dataLength < d_totalSize);
+        BSLS_ASSERT((unsigned)d_dataIndex < d_buffers.size());
+        BSLS_ASSERT(oldDataLength >= d_preDataIndexLength);
 
         BlobBuffer&    prevBuf        = d_buffers[d_dataIndex];
         const unsigned newPrevBufSize = oldDataLength - d_preDataIndexLength;
         const unsigned trim           = prevBuf.size() - newPrevBufSize;
 
-        BSLS_REVIEW(trim <= (unsigned)prevBuf.size());
+        BSLS_ASSERT(trim <= (unsigned)prevBuf.size());
 
         prevBuf.setSize(newPrevBufSize);
 

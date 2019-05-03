@@ -308,7 +308,7 @@ int CalendarUtil::shiftFollowingIfValid(bdlt::Date            *result,
                                         const bdlt::Date&      original,
                                         const bdlt::Calendar&  calendar)
 {
-    BSLS_REVIEW(result);
+    BSLS_ASSERT(result);
 
     enum {
         e_SUCCESS      = 0,
@@ -339,7 +339,7 @@ int CalendarUtil::shiftPrecedingIfValid(bdlt::Date            *result,
                                         const bdlt::Date&      original,
                                         const bdlt::Calendar&  calendar)
 {
-    BSLS_REVIEW(result);
+    BSLS_ASSERT(result);
 
     enum {
         e_SUCCESS      = 0,

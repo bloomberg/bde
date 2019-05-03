@@ -346,8 +346,8 @@ StackTrace& StackTrace::operator=(const StackTrace& rhs)
 inline
 StackTraceFrame& StackTrace::operator[](int index)
 {
-    BSLS_REVIEW(index >= 0);
-    BSLS_REVIEW(index < length());
+    BSLS_ASSERT(index >= 0);
+    BSLS_ASSERT(index < length());
 
     return d_frames[index];
 }
@@ -367,7 +367,7 @@ void StackTrace::removeAll()
 inline
 void StackTrace::resize(int newLength)
 {
-    BSLS_REVIEW(newLength >= 0);
+    BSLS_ASSERT(newLength >= 0);
 
     d_frames.resize(newLength);
 }
@@ -377,7 +377,7 @@ void StackTrace::swap(StackTrace& other)
 {
     // 'swap' is undefined for objects with non-equal allocators.
 
-    BSLS_REVIEW(allocator() == other.allocator());
+    BSLS_ASSERT(allocator() == other.allocator());
 
     d_frames.swap(other.d_frames);
 }
@@ -386,8 +386,8 @@ void StackTrace::swap(StackTrace& other)
 inline
 const StackTraceFrame& StackTrace::operator[](int index) const
 {
-    BSLS_REVIEW(index >= 0);
-    BSLS_REVIEW(index < length());
+    BSLS_ASSERT(index >= 0);
+    BSLS_ASSERT(index < length());
 
     return d_frames[index];
 }

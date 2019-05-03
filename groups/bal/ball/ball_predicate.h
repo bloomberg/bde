@@ -236,7 +236,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Predicate& predicate);
 inline
 int Predicate::hash(const Predicate& predicate, int size)
 {
-    BSLS_REVIEW(0 < size);
+    BSLS_ASSERT(0 < size);
 
     return Attribute::hash(predicate.d_attribute, size);
 }

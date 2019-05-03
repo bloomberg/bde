@@ -409,7 +409,7 @@ struct Utf8 {
                 return false;                                         // RETURN
             }
             else {
-                BSLS_REVIEW(d_end == position);
+                BSLS_ASSERT(d_end == position);
                 return true;                                          // RETURN
             }
         }
@@ -423,7 +423,7 @@ struct Utf8 {
             // when it is known that there are fewer continuation octets after
             // 'octets' than were expected, at least before 'd_end'.
 
-            BSLS_REVIEW(d_end >= octets);
+            BSLS_ASSERT(d_end >= octets);
 
             while (octets < d_end &&
                                    (*octets & CONTINUE_MASK) == CONTINUE_TAG) {
@@ -440,8 +440,8 @@ struct Utf8 {
             // 'octets' is past the end.  The behavior is undefined unless
             // 'octets <= d_end'.
         {
-            BSLS_REVIEW(n >= 1);
-            BSLS_REVIEW(d_end >= octets);
+            BSLS_ASSERT(n >= 1);
+            BSLS_ASSERT(d_end >= octets);
 
             const OctetType *end = octets + n;
             if (end > d_end) {
@@ -496,7 +496,7 @@ struct Utf8 {
             // continuation bytes beginning at the specified 'octets', and
             // 'false' otherwise.  The behavior is undefined unless 'n >= 1'.
         {
-            BSLS_REVIEW(n >= 1);
+            BSLS_ASSERT(n >= 1);
 
             const OctetType *end = octets + n;
             do {
@@ -743,7 +743,7 @@ struct Utf16 {
                 return false;                                         // RETURN
             }
             else {
-                BSLS_REVIEW(d_end == utf16Buf);
+                BSLS_ASSERT(d_end == utf16Buf);
 
                 return true;                                          // RETURN
             }
@@ -945,7 +945,7 @@ struct Swapper {
         // 'UTF16_WORD' is a 32-bit quantity, and it is not called in the
         // critical path.
     {
-        BSLS_REVIEW(4 == sizeof(UTF16_WORD));
+        BSLS_ASSERT(4 == sizeof(UTF16_WORD));
 
         return BloombergLP::bsls::ByteOrderUtil::swapBytes(utf16Word);
     }
@@ -1632,7 +1632,7 @@ int localUtf16ToUtf8String(bsl::string      *dstString,
                               numCodePointsWritten,
                               &numBytesWritten,
                               errorByte);
-    BSLS_REVIEW(0 == (OUT_OF_SPACE_BIT & rc));
+    BSLS_ASSERT(0 == (OUT_OF_SPACE_BIT & rc));
     if (numBytesWritten != estLength) {
         BSLS_ASSERT(numBytesWritten < estLength);
         BSLS_ASSERT(INVALID_INPUT_BIT & rc);
@@ -1686,7 +1686,7 @@ int localUtf16ToUtf8Vector(bsl::vector<char> *dstVector,
                               numCodePointsWritten,
                               &numBytesWritten,
                               errorByte);
-    BSLS_REVIEW(0 == (OUT_OF_SPACE_BIT & rc));
+    BSLS_ASSERT(0 == (OUT_OF_SPACE_BIT & rc));
     if (numBytesWritten != estLength) {
         BSLS_ASSERT(numBytesWritten < estLength);
         BSLS_ASSERT(INVALID_INPUT_BIT & rc);
@@ -1770,7 +1770,7 @@ int CharConvertUtf16::utf8ToUtf16(
                               numCodePointsWritten,
                               &numWordsWritten,
                               errorWord);
-    BSLS_REVIEW(0 == (OUT_OF_SPACE_BIT & rc));
+    BSLS_ASSERT(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
         BSLS_ASSERT(INVALID_INPUT_BIT & rc);
@@ -1827,7 +1827,7 @@ int CharConvertUtf16::utf8ToUtf16(bsl::wstring       *dstWstring,
                               numCodePointsWritten,
                               &numWordsWritten,
                               errorWord);
-    BSLS_REVIEW(0 == (OUT_OF_SPACE_BIT & rc));
+    BSLS_ASSERT(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
         BSLS_ASSERT(INVALID_INPUT_BIT & rc);
@@ -1880,7 +1880,7 @@ int CharConvertUtf16::utf8ToUtf16(
                               numCodePointsWritten,
                               &numWordsWritten,
                               errorWord);
-    BSLS_REVIEW(0 == (OUT_OF_SPACE_BIT & rc));
+    BSLS_ASSERT(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
         BSLS_ASSERT(INVALID_INPUT_BIT & rc);
@@ -1932,7 +1932,7 @@ int CharConvertUtf16::utf8ToUtf16(
                               numCodePointsWritten,
                               &numWordsWritten,
                               errorWord);
-    BSLS_REVIEW(0 == (OUT_OF_SPACE_BIT & rc));
+    BSLS_ASSERT(0 == (OUT_OF_SPACE_BIT & rc));
     if (numWordsWritten != estLength) {
         BSLS_ASSERT(numWordsWritten < estLength);
         BSLS_ASSERT(INVALID_INPUT_BIT & rc);

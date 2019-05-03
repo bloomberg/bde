@@ -649,7 +649,7 @@ int EncoderOptions::manipulateAttribute(
 inline
 void EncoderOptions::setInitialIndentLevel(int value)
 {
-    BSLS_REVIEW(0 <= value);
+    BSLS_ASSERT(0 <= value);
 
     d_initialIndentLevel = value;
 }
@@ -657,7 +657,7 @@ void EncoderOptions::setInitialIndentLevel(int value)
 inline
 void EncoderOptions::setSpacesPerLevel(int value)
 {
-    BSLS_REVIEW(0 <= value);
+    BSLS_ASSERT(0 <= value);
 
     d_spacesPerLevel = value;
 }
@@ -696,8 +696,8 @@ void EncoderOptions::setEncodeInfAndNaNAsStrings(bool value)
 inline
 void EncoderOptions::setDatetimeFractionalSecondPrecision(int value)
 {
-    BSLS_REVIEW(0 <= value     );
-    BSLS_REVIEW(     value <= 6);
+    BSLS_ASSERT(0 <= value     );
+    BSLS_ASSERT(     value <= 6);
 
     d_datetimeFractionalSecondPrecision = value;
 }
@@ -705,8 +705,8 @@ void EncoderOptions::setDatetimeFractionalSecondPrecision(int value)
 inline
 void EncoderOptions::setMaxFloatPrecision(int value)
 {
-    BSLS_REVIEW(1 <= value     );
-    BSLS_REVIEW(     value <= 9);
+    BSLS_ASSERT(1 <= value     );
+    BSLS_ASSERT(     value <= 9);
 
     d_maxFloatPrecision = value;
 }
@@ -714,8 +714,8 @@ void EncoderOptions::setMaxFloatPrecision(int value)
 inline
 void EncoderOptions::setMaxDoublePrecision(int value)
 {
-    BSLS_REVIEW(1 <= value     );
-    BSLS_REVIEW(     value <= 17);
+    BSLS_ASSERT(1 <= value     );
+    BSLS_ASSERT(     value <= 17);
 
     d_maxDoublePrecision = value;
 }

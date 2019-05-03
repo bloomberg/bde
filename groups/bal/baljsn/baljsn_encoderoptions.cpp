@@ -210,8 +210,8 @@ EncoderOptions::EncoderOptions(const EncoderOptions& original)
 
 EncoderOptions::~EncoderOptions()
 {
-    BSLS_REVIEW(0 <= d_initialIndentLevel);
-    BSLS_REVIEW(0 <= d_spacesPerLevel);
+    BSLS_ASSERT(0 <= d_initialIndentLevel);
+    BSLS_ASSERT(0 <= d_spacesPerLevel);
 }
 
 // MANIPULATORS

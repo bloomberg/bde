@@ -466,25 +466,25 @@ ZoneinfoBinaryHeader::ZoneinfoBinaryHeader(char version,
 , d_numLocalTimeTypes(numLocalTimeTypes)
 , d_abbrevDataSize(abbrevDataSize)
 {
-    BSLS_REVIEW(isValidVersion(version));
-    BSLS_REVIEW(isValidNumIsGmt(numIsGmt));
-    BSLS_REVIEW(isValidNumIsStd(numIsStd));
-    BSLS_REVIEW(isValidNumLeaps(numLeaps));
-    BSLS_REVIEW(isValidNumTransitions(numTransitions));
-    BSLS_REVIEW(isValidNumLocalTimeTypes(numLocalTimeTypes));
-    BSLS_REVIEW(isValidAbbrevDataSize(abbrevDataSize));
+    BSLS_ASSERT(isValidVersion(version));
+    BSLS_ASSERT(isValidNumIsGmt(numIsGmt));
+    BSLS_ASSERT(isValidNumIsStd(numIsStd));
+    BSLS_ASSERT(isValidNumLeaps(numLeaps));
+    BSLS_ASSERT(isValidNumTransitions(numTransitions));
+    BSLS_ASSERT(isValidNumLocalTimeTypes(numLocalTimeTypes));
+    BSLS_ASSERT(isValidAbbrevDataSize(abbrevDataSize));
 }
 
 inline
 ZoneinfoBinaryHeader::~ZoneinfoBinaryHeader()
 {
-    BSLS_REVIEW(isValidVersion(d_version));
-    BSLS_REVIEW(isValidNumIsGmt(d_numIsGmt));
-    BSLS_REVIEW(isValidNumIsStd(d_numIsStd));
-    BSLS_REVIEW(isValidNumLeaps(d_numLeaps));
-    BSLS_REVIEW(isValidNumTransitions(d_numTransitions));
-    BSLS_REVIEW(isValidNumLocalTimeTypes(d_numLocalTimeTypes));
-    BSLS_REVIEW(isValidAbbrevDataSize(d_abbrevDataSize));
+    BSLS_ASSERT(isValidVersion(d_version));
+    BSLS_ASSERT(isValidNumIsGmt(d_numIsGmt));
+    BSLS_ASSERT(isValidNumIsStd(d_numIsStd));
+    BSLS_ASSERT(isValidNumLeaps(d_numLeaps));
+    BSLS_ASSERT(isValidNumTransitions(d_numTransitions));
+    BSLS_ASSERT(isValidNumLocalTimeTypes(d_numLocalTimeTypes));
+    BSLS_ASSERT(isValidAbbrevDataSize(d_abbrevDataSize));
 }
 
 // MANIPULATORS
@@ -504,7 +504,7 @@ ZoneinfoBinaryHeader& baltzo::ZoneinfoBinaryHeader::operator=(
 inline
 void ZoneinfoBinaryHeader::setVersion(char value)
 {
-    BSLS_REVIEW(isValidVersion(value));
+    BSLS_ASSERT(isValidVersion(value));
 
     d_version = value;
 }
@@ -512,7 +512,7 @@ void ZoneinfoBinaryHeader::setVersion(char value)
 inline
 void ZoneinfoBinaryHeader::setNumIsGmt(int value)
 {
-    BSLS_REVIEW(isValidNumIsGmt(value));
+    BSLS_ASSERT(isValidNumIsGmt(value));
 
     d_numIsGmt = value;
 }
@@ -520,7 +520,7 @@ void ZoneinfoBinaryHeader::setNumIsGmt(int value)
 inline
 void ZoneinfoBinaryHeader::setNumIsStd(int value)
 {
-    BSLS_REVIEW(isValidNumIsStd(value));
+    BSLS_ASSERT(isValidNumIsStd(value));
 
     d_numIsStd = value;
 }
@@ -528,7 +528,7 @@ void ZoneinfoBinaryHeader::setNumIsStd(int value)
 inline
 void ZoneinfoBinaryHeader::setNumLeaps(int value)
 {
-    BSLS_REVIEW(isValidNumLeaps(value));
+    BSLS_ASSERT(isValidNumLeaps(value));
 
     d_numLeaps = value;
 }
@@ -536,7 +536,7 @@ void ZoneinfoBinaryHeader::setNumLeaps(int value)
 inline
 void ZoneinfoBinaryHeader::setNumTransitions(int value)
 {
-    BSLS_REVIEW(isValidNumTransitions(value));
+    BSLS_ASSERT(isValidNumTransitions(value));
 
     d_numTransitions = value;
 }
@@ -544,7 +544,7 @@ void ZoneinfoBinaryHeader::setNumTransitions(int value)
 inline
 void ZoneinfoBinaryHeader::setNumLocalTimeTypes(int value)
 {
-    BSLS_REVIEW(isValidNumLocalTimeTypes(value));
+    BSLS_ASSERT(isValidNumLocalTimeTypes(value));
 
     d_numLocalTimeTypes = value;
 }
@@ -552,7 +552,7 @@ void ZoneinfoBinaryHeader::setNumLocalTimeTypes(int value)
 inline
 void ZoneinfoBinaryHeader::setAbbrevDataSize(int value)
 {
-    BSLS_REVIEW(isValidAbbrevDataSize(value));
+    BSLS_ASSERT(isValidAbbrevDataSize(value));
 
     d_abbrevDataSize = value;
 }

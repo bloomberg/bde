@@ -473,7 +473,7 @@ struct Utf8Util {
 inline
 bool Utf8Util::isValid(const char *string)
 {
-    BSLS_REVIEW(string);
+    BSLS_ASSERT(string);
 
     const char *dummy = 0;
 
@@ -483,7 +483,7 @@ bool Utf8Util::isValid(const char *string)
 inline
 bool Utf8Util::isValid(const char *string, bsl::size_t length)
 {
-    BSLS_REVIEW(string);
+    BSLS_ASSERT(string);
 
     const char *dummy = 0;
 

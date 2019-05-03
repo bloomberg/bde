@@ -397,7 +397,7 @@ void UserFieldValue::setCharArray(const bsl::vector<char>& value)
 inline
 void UserFieldValue::swap(UserFieldValue& other)
 {
-    BSLS_REVIEW(allocator() == other.allocator());
+    BSLS_ASSERT(allocator() == other.allocator());
 
     d_value.swap(other.d_value);
 }

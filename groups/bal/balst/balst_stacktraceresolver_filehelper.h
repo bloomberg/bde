@@ -218,8 +218,8 @@ int StackTraceResolver_FileHelper::readExact(void    *buf,
                                              UintPtr  numBytes,
                                              Offset   offset) const
 {
-    BSLS_REVIEW(buf);
-    BSLS_REVIEW(offset >= 0);
+    BSLS_ASSERT(buf);
+    BSLS_ASSERT(offset >= 0);
 
     UintPtr res = readBytes(buf, numBytes, offset);
     return res != numBytes ? -1 : 0;

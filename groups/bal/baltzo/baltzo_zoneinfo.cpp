@@ -207,7 +207,7 @@ void Zoneinfo::addTransition(bdlt::EpochUtil::TimeT64   utcTime,
         // from 'd_descriptors'.
 
         DescriptorSet::iterator descIt = d_descriptors.find(it->descriptor());
-        BSLS_REVIEW(descIt != d_descriptors.end());
+        BSLS_ASSERT(descIt != d_descriptors.end());
 
         *it = newTransition;
         if (!containsDescriptor(d_transitions, *descIt)) {
@@ -226,8 +226,8 @@ void Zoneinfo::addTransition(bdlt::EpochUtil::TimeT64   utcTime,
 Zoneinfo::TransitionConstIterator
 Zoneinfo::findTransitionForUtcTime(const bdlt::Datetime& utcTime) const
 {
-    BSLS_REVIEW(numTransitions() > 0);
-    BSLS_REVIEW(d_transitions.front().utcTime() <=
+    BSLS_ASSERT(numTransitions() > 0);
+    BSLS_ASSERT(d_transitions.front().utcTime() <=
                                    bdlt::EpochUtil::convertToTimeT64(utcTime));
 
     LocalTimeDescriptor dummyDescriptor;

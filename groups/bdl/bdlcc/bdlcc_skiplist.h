@@ -1587,7 +1587,7 @@ inline
 void SkipListPairHandle<KEY, DATA>::release()
 {
     if (d_node_p) {
-        BSLS_REVIEW(0 != d_list_p);
+        BSLS_ASSERT(0 != d_list_p);
 
         d_list_p->releaseReferenceRaw(d_node_p);
         d_node_p = 0;
@@ -1610,8 +1610,8 @@ void SkipListPairHandle<KEY, DATA>::releaseReferenceRaw(
                                                SkipList<KEY, DATA> **list,
                                                Pair                **reference)
 {
-    BSLS_REVIEW(list);
-    BSLS_REVIEW(reference);
+    BSLS_ASSERT(list);
+    BSLS_ASSERT(reference);
 
     *list      = d_list_p;
     *reference = d_node_p;
@@ -1735,7 +1735,7 @@ inline
 void SkipList_NodeCreationHelper<KEY, DATA>::construct(const KEY&  key,
                                                        const DATA& data)
 {
-    BSLS_REVIEW(d_node_p);
+    BSLS_ASSERT(d_node_p);
 
     bslalg::ScalarPrimitives::copyConstruct(&d_node_p->d_key,
                                             key,
@@ -1758,7 +1758,7 @@ template<class KEY, class DATA>
 inline
 const KEY& SkipList<KEY, DATA>::key(const Pair *reference)
 {
-    BSLS_REVIEW(reference);
+    BSLS_ASSERT(reference);
 
     const Node *node = (const Node *)(const void *)(reference);
     return node->d_key;
@@ -1768,7 +1768,7 @@ template<class KEY, class DATA>
 inline
 DATA& SkipList<KEY, DATA>::data(const Pair *reference)
 {
-    BSLS_REVIEW(reference);
+    BSLS_ASSERT(reference);
 
     Node *node = (Node *)(void *)const_cast<Pair *>(reference);
     return node->d_data;
@@ -2025,7 +2025,7 @@ template<class KEY, class DATA>
 inline
 void SkipList<KEY, DATA>::releaseNode(Node *node)
 {
-    BSLS_REVIEW(node);
+    BSLS_ASSERT(node);
 
     int refCnt = node->decrementRefCount();
 
@@ -2477,7 +2477,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::level(const Pair *reference)
 {
-    BSLS_REVIEW(reference);
+    BSLS_ASSERT(reference);
 
     Node *node = (Node *)(void *)const_cast<Pair *>(reference);
     return node->level();
@@ -2974,7 +2974,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::find(PairHandle *item, const KEY& key) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     Pair *itemPtr = reinterpret_cast<Pair *>(findNode(key));
     if (itemPtr) {
@@ -2988,7 +2988,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::findR(PairHandle *item, const KEY& key) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     Pair *itemPtr = reinterpret_cast<Pair *>(findNodeR(key));
     if (itemPtr) {
@@ -3002,7 +3002,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::findRaw(Pair **item, const KEY& key) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     *item = reinterpret_cast<Pair *>(findNode(key));
     return *item ? 0 : -1;
@@ -3012,7 +3012,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::findRRaw(Pair **item, const KEY& key) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     *item = reinterpret_cast<Pair *>(findNodeR(key));
     return *item ? 0 : -1;
@@ -3022,7 +3022,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::findLowerBound(PairHandle *item, const KEY& key) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     Pair *itemPtr = reinterpret_cast<Pair *>(findNodeLowerBound(key));
     if (itemPtr) {
@@ -3037,7 +3037,7 @@ inline
 int SkipList<KEY, DATA>::findLowerBoundR(PairHandle *item,
                                          const KEY&  key) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     Pair *itemPtr = reinterpret_cast<Pair *>(findNodeLowerBoundR(key));
     if (itemPtr) {
@@ -3051,7 +3051,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::findLowerBoundRaw(Pair **item, const KEY& key) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     *item = reinterpret_cast<Pair *>(findNodeLowerBound(key));
     return *item ? 0 : -1;
@@ -3061,7 +3061,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::findLowerBoundRRaw(Pair **item, const KEY& key) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     *item = reinterpret_cast<Pair *>(findNodeLowerBoundR(key));
     return *item ? 0 : -1;
@@ -3072,7 +3072,7 @@ inline
 int SkipList<KEY, DATA>::findUpperBound(PairHandle *item,
                                         const KEY&  key) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     Pair *itemPtr = reinterpret_cast<Pair *>(findNodeUpperBound(key));
     if (itemPtr) {
@@ -3087,7 +3087,7 @@ inline
 int SkipList<KEY, DATA>::findUpperBoundR(PairHandle *item,
                                          const KEY&  key) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     Pair *itemPtr = reinterpret_cast<Pair *>(findNodeUpperBoundR(key));
     if (itemPtr) {
@@ -3101,7 +3101,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::findUpperBoundRaw(Pair **item, const KEY& key) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     *item = reinterpret_cast<Pair *>(findNodeUpperBound(key));
     return *item ? 0 : -1;
@@ -3111,7 +3111,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::findUpperBoundRRaw(Pair **item, const KEY& key) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     *item = reinterpret_cast<Pair *>(findNodeUpperBoundR(key));
     return *item ? 0 : -1;
@@ -3121,7 +3121,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::front(PairHandle *front) const
 {
-    BSLS_REVIEW(front);
+    BSLS_ASSERT(front);
 
     Pair *frontPtr = reinterpret_cast<Pair *>(frontNode());
     if (frontPtr) {
@@ -3135,7 +3135,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::frontRaw(Pair **front) const
 {
-    BSLS_REVIEW(front);
+    BSLS_ASSERT(front);
 
     *front = reinterpret_cast<Pair *>(frontNode());
     return *front ? 0 : -1;
@@ -3180,8 +3180,8 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::nextRaw(Pair **next, const Pair *reference) const
 {
-    BSLS_REVIEW(next);
-    BSLS_REVIEW(reference);
+    BSLS_ASSERT(next);
+    BSLS_ASSERT(reference);
 
     Node *node = (Node *)(void *)const_cast<Pair *>(reference);
     *next = reinterpret_cast<Pair *>(nextNode(node));
@@ -3212,8 +3212,8 @@ inline
 int
 SkipList<KEY, DATA>::previousRaw(Pair **prevPair, const Pair *reference) const
 {
-    BSLS_REVIEW(prevPair);
-    BSLS_REVIEW(reference);
+    BSLS_ASSERT(prevPair);
+    BSLS_ASSERT(reference);
 
     Node *node = (Node *)(void *)const_cast<Pair *>(reference);
     *prevPair = prevNode(node);
@@ -3305,7 +3305,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::skipBackward(PairHandle *item) const
 {
-    BSLS_REVIEW(item->isValid());
+    BSLS_ASSERT(item->isValid());
 
     Node **node_p = reinterpret_cast<Node **>(&item->d_node_p);
     return skipBackward(node_p);
@@ -3315,7 +3315,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::skipBackwardRaw(Pair **item) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     Node **node_p = reinterpret_cast<Node **>(item);
     return skipBackward(node_p);
@@ -3325,7 +3325,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::skipForward(PairHandle *item) const
 {
-    BSLS_REVIEW(item->isValid());
+    BSLS_ASSERT(item->isValid());
 
     Node **node_p = reinterpret_cast<Node **>(&item->d_node_p);
     return skipForward(node_p);
@@ -3335,7 +3335,7 @@ template<class KEY, class DATA>
 inline
 int SkipList<KEY, DATA>::skipForwardRaw(Pair **item) const
 {
-    BSLS_REVIEW(item);
+    BSLS_ASSERT(item);
 
     Node **node_p = reinterpret_cast<Node **>(item);
     return skipForward(node_p);

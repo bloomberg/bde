@@ -134,7 +134,7 @@ int LocalTimeOffsetUtil::configure()
 
 int LocalTimeOffsetUtil::configure(const char *timezone)
 {
-    BSLS_REVIEW(timezone);
+    BSLS_ASSERT(timezone);
 
     bslmt::WriteLockGuard<bslmt::RWMutex> writeLockGuard(privateLock());
     return configureImp(timezone, bdlt::CurrentTime::utc());
@@ -143,7 +143,7 @@ int LocalTimeOffsetUtil::configure(const char *timezone)
 int LocalTimeOffsetUtil::configure(const char            *timezone,
                                    const bdlt::Datetime&  utcDatetime)
 {
-    BSLS_REVIEW(timezone);
+    BSLS_ASSERT(timezone);
 
     bslmt::WriteLockGuard<bslmt::RWMutex> writeLockGuard(privateLock());
     return configureImp(timezone, utcDatetime);

@@ -236,7 +236,7 @@ struct CStringHash {
 inline
 bsl::size_t bdlb::CStringHash::operator()(const char *argument) const
 {
-    BSLS_REVIEW(argument);
+    BSLS_ASSERT(argument);
 
     bslh::SpookyHashAlgorithm hash;
     hash(argument, bsl::strlen(argument));

@@ -739,7 +739,7 @@ inline
 AttributeContext::iterator
 AttributeContext::addAttributes(const AttributeContainer *attributes)
 {
-    BSLS_REVIEW(attributes);
+    BSLS_ASSERT(attributes);
 
     d_ruleCache_p.clear();
     return d_containerList.pushFront(attributes);

@@ -38,11 +38,11 @@ void copyFromPlace(char                *dstBuffer,
     // actual character position in 'srcBlob', 'srcBlob' has at least 'length'
     // bytes starting at 'place', and 'dstBuffer' has room for 'length' bytes.
 {
-    BSLS_REVIEW(place.first < srcBlob.numBuffers());
-    BSLS_REVIEW(place.second < srcBlob.buffer(place.first).size());
-    BSLS_REVIEW(0 < length);
-    BSLS_REVIEW(0 != dstBuffer);
-    BSLS_REVIEW(length <= srcBlob.totalSize());
+    BSLS_ASSERT(place.first < srcBlob.numBuffers());
+    BSLS_ASSERT(place.second < srcBlob.buffer(place.first).size());
+    BSLS_ASSERT(0 < length);
+    BSLS_ASSERT(0 != dstBuffer);
+    BSLS_ASSERT(length <= srcBlob.totalSize());
     // Verifying place + length is in bounds would be messy. Callers do it.
 
     int copied = 0;
@@ -297,7 +297,7 @@ bsl::pair<int, int> BlobUtil::findBufferIndexAndOffset(const Blob& blob,
     for (; buffer->size() <= result.second; ++buffer) {
         result.first++;
         result.second -= buffer->size();
-        BSLS_REVIEW(result.first < blob.numBuffers());
+        BSLS_ASSERT(result.first < blob.numBuffers());
     }
     return result;
 }

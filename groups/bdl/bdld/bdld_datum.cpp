@@ -296,10 +296,10 @@ Datum_ArrayProctor<ELEMENT>::Datum_ArrayProctor(
 , d_released(false)
 , d_allocator_p(basicAllocator)
 {
-    BSLS_REVIEW(base);
-    BSLS_REVIEW(begin);
-    BSLS_REVIEW(!end || begin <= end);
-    BSLS_REVIEW(basicAllocator);
+    BSLS_ASSERT(base);
+    BSLS_ASSERT(begin);
+    BSLS_ASSERT(!end || begin <= end);
+    BSLS_ASSERT(basicAllocator);
 }
 
 template <class ELEMENT>
@@ -1355,7 +1355,7 @@ Datum Datum::clone(bslma::Allocator *basicAllocator) const
 #ifdef BSLS_PLATFORM_CPU_32_BIT
 bdldfp::Decimal64 Datum::theDecimal64() const
 {
-    BSLS_REVIEW(isDecimal64());
+    BSLS_ASSERT(isDecimal64());
     using namespace bdldfp;
 
     switch (

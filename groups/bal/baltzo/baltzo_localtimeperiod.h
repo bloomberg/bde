@@ -351,7 +351,7 @@ LocalTimePeriod::LocalTimePeriod(const LocalTimeDescriptor&  descriptor,
 , d_utcStartTime(utcStartTime)
 , d_utcEndTime(utcEndTime)
 {
-    BSLS_REVIEW(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
+    BSLS_ASSERT(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
 }
 
 inline
@@ -361,13 +361,13 @@ LocalTimePeriod::LocalTimePeriod(const LocalTimePeriod&  original,
 , d_utcStartTime(original.d_utcStartTime)
 , d_utcEndTime(original.d_utcEndTime)
 {
-    BSLS_REVIEW(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
+    BSLS_ASSERT(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
 }
 
 inline
 LocalTimePeriod::~LocalTimePeriod()
 {
-    BSLS_REVIEW(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
+    BSLS_ASSERT(isValidUtcStartAndEndTime(d_utcStartTime, d_utcEndTime));
 }
 
 // MANIPULATORS
@@ -401,7 +401,7 @@ void LocalTimePeriod::swap(LocalTimePeriod& other)
 {
     // 'swap' is undefined for objects with non-equal allocators.
 
-    BSLS_REVIEW(allocator() == other.allocator());
+    BSLS_ASSERT(allocator() == other.allocator());
 
     bslalg::SwapUtil::swap(&d_descriptor,   &other.d_descriptor);
     bslalg::SwapUtil::swap(&d_utcStartTime, &other.d_utcStartTime);

@@ -300,7 +300,7 @@ inline
 FixUtilConfiguration::FixUtilConfiguration(int configurationMask)
 : d_configurationMask(configurationMask)
 {
-    BSLS_REVIEW(0 == (configurationMask
+    BSLS_ASSERT(0 == (configurationMask
                            & ~(k_FRACTIONAL_SECOND_PRECISION_MASK
                              | k_USE_Z_ABBREVIATION_FOR_UTC_BIT)));
 }
@@ -338,7 +338,7 @@ FixUtilConfiguration::FixUtilConfiguration(
 inline
 FixUtilConfiguration::~FixUtilConfiguration()
 {
-    BSLS_REVIEW(0 == (d_configurationMask
+    BSLS_ASSERT(0 == (d_configurationMask
                            & ~(k_FRACTIONAL_SECOND_PRECISION_MASK
                              | k_USE_Z_ABBREVIATION_FOR_UTC_BIT)));
 }

@@ -2237,7 +2237,7 @@ int PackedCalendar::addHolidayIfInRange(const Date& date)
 inline
 void PackedCalendar::reserveHolidayCapacity(int numHolidays)
 {
-    BSLS_REVIEW(0 <= numHolidays);
+    BSLS_ASSERT(0 <= numHolidays);
 
     d_holidayOffsets.reserveCapacity(numHolidays);
     d_holidayCodesIndex.reserveCapacity(numHolidays);
@@ -2246,7 +2246,7 @@ void PackedCalendar::reserveHolidayCapacity(int numHolidays)
 inline
 void PackedCalendar::reserveHolidayCodeCapacity(int numHolidayCodes)
 {
-    BSLS_REVIEW(0 <= numHolidayCodes);
+    BSLS_ASSERT(0 <= numHolidayCodes);
 
     d_holidayCodes.reserveCapacity(numHolidayCodes);
 }
@@ -2428,7 +2428,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
                 stream.invalidate();
                 return stream;                                        // RETURN
             }
-            BSLS_REVIEW(offsetsLength >= 0);
+            BSLS_ASSERT(offsetsLength >= 0);
 
             int codesLength;
             stream.getLength(codesLength);
@@ -2561,7 +2561,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
                 }
                 previousValue = tmp;
             }
-            BSLS_REVIEW(it == end);
+            BSLS_ASSERT(it == end);
 
             swap(inCal);  // This cannot throw.
           } break;
@@ -2602,7 +2602,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
                 stream.invalidate();
                 return stream;                                        // RETURN
             }
-            BSLS_REVIEW(offsetsLength >= 0);
+            BSLS_ASSERT(offsetsLength >= 0);
 
             int codesLength;
             stream.getLength(codesLength);
@@ -2712,7 +2712,7 @@ STREAM& PackedCalendar::bdexStreamIn(STREAM& stream, int version)
                 }
                 previousValue = tmp;
             }
-            BSLS_REVIEW(it == end);
+            BSLS_ASSERT(it == end);
 
             swap(inCal);  // This cannot throw.
           } break;

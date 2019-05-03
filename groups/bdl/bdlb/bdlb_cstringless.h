@@ -148,8 +148,8 @@ struct CStringLess {
 inline
 bool CStringLess::operator()(const char *lhs, const char *rhs) const
 {
-    BSLS_REVIEW(lhs);
-    BSLS_REVIEW(rhs);
+    BSLS_ASSERT(lhs);
+    BSLS_ASSERT(rhs);
 
     return bsl::strcmp(lhs, rhs) < 0;
 }

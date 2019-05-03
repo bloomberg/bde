@@ -543,8 +543,8 @@ inline
 void CategoryManagerImpUtil::linkCategoryHolder(Category       *category,
                                                 CategoryHolder *categoryHolder)
 {
-    BSLS_REVIEW(category);
-    BSLS_REVIEW(categoryHolder);
+    BSLS_ASSERT(category);
+    BSLS_ASSERT(categoryHolder);
 
     category->linkCategoryHolder(categoryHolder);
 }
@@ -552,7 +552,7 @@ void CategoryManagerImpUtil::linkCategoryHolder(Category       *category,
 inline
 void CategoryManagerImpUtil::resetCategoryHolders(Category *category)
 {
-    BSLS_REVIEW(category);
+    BSLS_ASSERT(category);
 
     category->resetCategoryHolders();
 }
@@ -560,7 +560,7 @@ void CategoryManagerImpUtil::resetCategoryHolders(Category *category)
 inline
 void CategoryManagerImpUtil::updateThresholdForHolders(Category *category)
 {
-    BSLS_REVIEW(category);
+    BSLS_ASSERT(category);
 
     category->updateThresholdForHolders();
 }

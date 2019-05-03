@@ -460,17 +460,17 @@ BufferManager::BufferManager(char                      *buffer,
                     ? bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT
                     : 1)
 {
-    BSLS_REVIEW(buffer);
-    BSLS_REVIEW(0 < bufferSize);
+    BSLS_ASSERT(buffer);
+    BSLS_ASSERT(0 < bufferSize);
 }
 
 inline
 BufferManager::~BufferManager()
 {
-    BSLS_REVIEW(0 <= d_cursor);
-    BSLS_REVIEW(static_cast<bsls::Types::size_type>(d_cursor)
+    BSLS_ASSERT(0 <= d_cursor);
+    BSLS_ASSERT(static_cast<bsls::Types::size_type>(d_cursor)
                                                               <= d_bufferSize);
-    BSLS_REVIEW(   (0 != d_buffer_p && 0 <  d_bufferSize)
+    BSLS_ASSERT(   (0 != d_buffer_p && 0 <  d_bufferSize)
                      || (0 == d_buffer_p && 0 == d_bufferSize));
 }
 
@@ -538,8 +538,8 @@ inline
 char *BufferManager::replaceBuffer(char                   *newBuffer,
                                    bsls::Types::size_type  newBufferSize)
 {
-    BSLS_REVIEW(newBuffer);
-    BSLS_REVIEW(0 < newBufferSize);
+    BSLS_ASSERT(newBuffer);
+    BSLS_ASSERT(0 < newBufferSize);
 
     char *oldBuffer = d_buffer_p;
     d_buffer_p      = newBuffer;
@@ -598,10 +598,10 @@ int BufferManager::calculateAlignmentOffsetFromSize(
 inline
 bool BufferManager::hasSufficientCapacity(bsls::Types::size_type size) const
 {
-    BSLS_REVIEW(0 < size);
-    BSLS_REVIEW(d_buffer_p);
-    BSLS_REVIEW(0 <= d_cursor);
-    BSLS_REVIEW(static_cast<bsls::Types::size_type>(d_cursor)
+    BSLS_ASSERT(0 < size);
+    BSLS_ASSERT(d_buffer_p);
+    BSLS_ASSERT(0 <= d_cursor);
+    BSLS_ASSERT(static_cast<bsls::Types::size_type>(d_cursor)
                                                               <= d_bufferSize);
 
     char *address = d_buffer_p + d_cursor;

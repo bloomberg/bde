@@ -323,7 +323,7 @@ UserFieldValue& UserFields::value(int index)
 inline
 void UserFields::swap(UserFields& other)
 {
-    BSLS_REVIEW(allocator() == other.allocator());
+    BSLS_ASSERT(allocator() == other.allocator());
 
     d_values.swap(other.d_values);
 }
