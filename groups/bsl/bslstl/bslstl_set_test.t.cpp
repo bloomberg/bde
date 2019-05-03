@@ -7190,7 +7190,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
     //:
     //: 4 Invoke the 'testRangeCtorOptimization' function that creates a
     //:   containers for a non-allocating type using both random access and
-    //:   forward allocators.  Each container is given a test allocator to
+    //:   forward iterators.  Each container is given a test allocator to
     //:   supply memory.  The test allocator is state compared to the expected
     //:   state in each step of the scenario.  (C-14)
     //
@@ -8082,7 +8082,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

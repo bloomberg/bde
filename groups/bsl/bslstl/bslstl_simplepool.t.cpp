@@ -366,7 +366,7 @@ void TestDriver<VALUE>::testCase13()
     //:
     //: 2 The accessor is declared 'const'.
     //:
-    //: 3 The accessor allocates any memory from any allocator.
+    //: 3 The accessor allocates no memory from any allocator.
     //
     // Plan:
     //: 1 For a series of objects, each constructed using a different
@@ -429,52 +429,52 @@ void TestDriver<VALUE>::testCase13()
 
         // --------------------------------------------------------
 
-        // Verify accessors
+        // Verify accessor
 
         for (typename Obj::size_type numBlocks  =  1;
                                      numBlocks <= 16;
                                      ++numBlocks) {
 
-	        bslma::TestAllocatorMonitor oam(&oa);
+            bslma::TestAllocatorMonitor oam(&oa);
 
             if (veryVerbose) { T_ P(numBlocks) }
 
-            ASSERTV(CONFIG, false == X.hasFreeBlocks()); 
-	        ASSERT(oam.isTotalSame());
+            ASSERTV(CONFIG, false == X.hasFreeBlocks());
+            ASSERT(oam.isTotalSame());
 
-	        mX.reserve(numBlocks);
-	
+            mX.reserve(numBlocks);
+
             oam.reset();
 
-            ASSERTV(CONFIG, true  == X.hasFreeBlocks()); 
+            ASSERTV(CONFIG, true  == X.hasFreeBlocks());
 
-	        ASSERT(oam.isTotalSame());
-	
-	        for (size_t i = 0; i <= numBlocks; ++i) {
+            ASSERT(oam.isTotalSame());
+
+            for (size_t i = 0; i <= numBlocks; ++i) {
 
                 if (veryVerbose) { T_ T_ P(i) }
 
                 if (veryVeryVerbose) {
-                    T_ T_ P(X.hasFreeBlocks()) 
+                    T_ T_ P(X.hasFreeBlocks())
                 }
-	
-	            bool isMoreMemoryNeeded = !X.hasFreeBlocks();
+
+                bool isMoreMemoryNeeded = !X.hasFreeBlocks();
 
                 if (veryVeryVerbose) {
-                    T_ T_ P(isMoreMemoryNeeded) 
+                    T_ T_ P(isMoreMemoryNeeded)
                 }
 
                 oam.reset();
 
-	            VALUE *ptr = mX.allocate();
+                VALUE *ptr = mX.allocate();
                 ASSERT(ptr);
 
-	            if (isMoreMemoryNeeded) {
-	                ASSERT(1 == oam.numBlocksTotalChange());
-	            } else {
-	                ASSERT(oam.isTotalSame());
-	            }
-	        }
+                if (isMoreMemoryNeeded) {
+                    ASSERT(1 == oam.numBlocksTotalChange());
+                } else {
+                    ASSERT(oam.isTotalSame());
+                }
+            }
             mX.release();
         }
 
@@ -1770,7 +1770,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

@@ -465,25 +465,25 @@ void TestDriver<VALUE>::testCase15()
     //:
     //: 2 The accessor is declared 'const'.
     //:
-    //: 3 The accessor does not allocate any memory from any allocator.
+    //: 3 The accessor does not allocate memory from any allocator.
     //:
-    //: 4 The implementation of this method return the values obtained from
+    //: 4 The implementation of this method returns the values obtained from
     //:   their analogous method in 'bdlst::SimplePool'.
     //
     // Plan:
-    //: 1 For a series of objects, each constructed using a different
+    //: 1 For a series of objects, each censtructed using a different
     //:   expression of the default constructor, for a range of node requests:
     //:
     //:   1 Call the 'reserveNodes' method for the current size node request.
-    //:   2 Confirm that the accessor shows the expected before and after the
-    //:     call to the 'reserveNodes' method.
+    //:   2 Confirm that the accessor shows the expected values before and
+    //:     after the call to the 'reserveNodes' method.
     //:   3 Confirm that the pool invokes its allocator for memory when there
     //:     are no free nodes and 'allocate' is called.
     //:
     //: 2 The accessor is always called via a 'const' alias to the pool.
     //:
-    //: 3 A test allocator is used to confirm that no memory allocated for the
-    //:   accessor call.
+    //: 3 A test allocator is used to confirm that no memory is allocated for
+    //:   the accessor call.
     //
     // Testing:
     //   bool hasFreeNodes() const;
@@ -2037,7 +2037,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2018 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

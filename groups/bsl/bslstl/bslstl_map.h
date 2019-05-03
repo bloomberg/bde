@@ -2608,8 +2608,8 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
     // then reserve exactly that many free nodes.  There is no more than one
     // call to 'reserveNodes' per invocation of this method, hence the use of
     // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.  When reserving nodes, we
-    // assume the elements remaining to be inserted are unique and do not
-    // duplicate any elements already in the container.  If there are any
+    // assume the elements remaining to be inserted have unique keys that do
+    // not duplicate any keys already in the container.  If there are any
     // duplicates, this container will have free nodes on return from this
     // method.
     
@@ -4103,7 +4103,7 @@ struct UsesBslmaAllocator<bsl::map<KEY, VALUE, COMPARATOR, ALLOCATOR> >
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2019 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
