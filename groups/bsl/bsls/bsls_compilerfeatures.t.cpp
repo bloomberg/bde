@@ -834,12 +834,7 @@ namespace test_case_24 {
 // check here.
     #if __has_cpp_attribute(nodiscard)
 
-    #if defined(BSLS_PLATFORM_CMP_CLANG) || defined(BSLS_PLATFORM_CMP_GNU)
-    // clang & g++ do not allow nodiscard where other compilers do, but they
-    // do support the feature through '__attribute__((warn_unused_result))'
-    #else
     #error [[nodiscard]] is available but feature macro is not defined.
-    #endif
 
     #endif
 

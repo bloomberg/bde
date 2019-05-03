@@ -619,8 +619,7 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 #endif
 
-#if !defined(BSLS_PLATFORM_CMP_GNU) && !defined(BSLS_PLATFORM_CMP_CLANG) && \
-    __has_cpp_attribute(nodiscard)
+#if  __has_cpp_attribute(nodiscard)
 #   define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
 #endif
 
@@ -630,7 +629,11 @@ BSLS_IDENT("$Id: $")
 
 #endif
 
-
+#if defined(__cplusplus)
+# define BSLS_COMPILERFEATURES_CPLUSPLUS __cplusplus
+#else
+# define BSLS_COMPILERFEATURES_CPLUSPLUS 199711L
+#endif
 
 // ============================================================================
 //      PLATFORM SPECIFIC FEATURE DETECTION AND MACRO DEFINITIONS
@@ -656,7 +659,10 @@ BSLS_IDENT("$Id: $")
 # endif
 // GCC -std=c++11 or -std=c++0x or -std=gnu++11 or -std=gnu++0x
 # if defined(__GXX_EXPERIMENTAL_CXX0X__)
-#  define BSLS_COMPILERFEATURES_CPP11 1
+#  if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
+#    undef  BSLS_COMPILERFEATURES_CPLUSPLUS
+#    define BSLS_COMPILERFEATURES_CPLUSPLUS 201103L
+#  endif
 #  if BSLS_PLATFORM_CMP_VERSION >= 40800
 #    define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 #    define BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
@@ -687,7 +693,6 @@ BSLS_IDENT("$Id: $")
 #  endif
 # endif
 # if __cplusplus >= 201402L
-#    define BSLS_COMPILERFEATURES_CPP14 1
 #    define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
 #    define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 # endif
@@ -695,7 +700,6 @@ BSLS_IDENT("$Id: $")
 // GCC defines the '__cplusplus' macro to the non-standard value of 201500 to
 // indicate experimental C++17 support.
 #  if BSLS_PLATFORM_CMP_VERSION >= 70000
-#    define BSLS_COMPILERFEATURES_CPP17 1
 #    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
 #    define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
 #    define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
@@ -787,20 +791,18 @@ BSLS_IDENT("$Id: $")
 #define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
 // Clang supports __attribute__((noreturn)) in earlier versions
 #endif
-#if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
-#define BSLS_COMPILERFEATURES_CPP11 1
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L &&                              \
+    defined(__GXX_EXPERIMENTAL_CXX0X__)
+# undef  BSLS_COMPILERFEATURES_CPLUSPLUS
+# define BSLS_COMPILERFEATURES_CPLUSPLUS 201103L
 #endif
 #if (__cplusplus >= 201103L ||                                               \
     (defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)))          \
     && __has_include(<type_traits>)
 #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #endif
-#if __cplusplus >= 201402L  // C++14
-#define BSLS_COMPILERFEATURES_CPP14 1
-#endif
 // work only with --std=c++1z
 #if __cplusplus >= 201703L  // C++17
-#define BSLS_COMPILERFEATURES_CPP17 1
 #define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
 #endif
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
@@ -823,8 +825,6 @@ BSLS_IDENT("$Id: $")
 //:   "supported" but behaves in a non-conforming manner.
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 
-# define BSLS_COMPILERFEATURES_CPP11 1
-
 // Not only does Microsoft not always report the language dialect properly in
 // '__cplusplus', many users depends upon it not reflecting the right version,
 // therefore we need to use the Microsoft specific predefined macro
@@ -834,12 +834,9 @@ BSLS_IDENT("$Id: $")
 // 2014.
 
 # if defined(_MSVC_LANG)
-#  if _MSVC_LANG >= 201402L  // C++14
-#   define BSLS_COMPILERFEATURES_CPP14 1
-#  endif
-#  if _MSVC_LANG >= 201703L  // C++17
-#   define BSLS_COMPILERFEATURES_CPP17 1
-#  endif
+#  define BSLS_COMPILERFEATURES_CPLUSPLUS _MSVC_LANG
+# else
+#  define BSLS_COMPILERFEATURES_CPLUSPLUS 201103L
 # endif
 
 # undef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
@@ -889,7 +886,7 @@ BSLS_IDENT("$Id: $")
 # if BSLS_PLATFORM_CMP_VERSION >= 1910  // Microsoft Visual Studio 2017
 #   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
 #   define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_RELAXED
-#   if defined(BSLS_COMPILERFEATURES_CPP17)
+#   if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
 #     define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
 #   endif
 # endif
@@ -903,7 +900,7 @@ BSLS_IDENT("$Id: $")
 # if BSLS_PLATFORM_CMP_VERSION >= 1911  // Microsoft Visual Studio 2017
                                         // version 15.3
 #   define BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-#   if defined(BSLS_COMPILERFEATURES_CPP17)
+#   if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
 #     define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
 #     define BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
 #   endif
@@ -911,8 +908,9 @@ BSLS_IDENT("$Id: $")
 
 # if BSLS_PLATFORM_CMP_VERSION >= 1912  // Microsoft Visual Studio 2017
                                         // version 15.5
-#  if defined(BSLS_COMPILERFEATURES_CPP17)
+#  if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
 #   define BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
+#   define BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
 #  endif
 # endif
 
@@ -994,8 +992,6 @@ BSLS_IDENT("$Id: $")
 
 // CC -std=c++11
 #if  __cplusplus >= 201103L
-# define BSLS_COMPILERFEATURES_CPP11 1
-
 # if BSLS_PLATFORM_CMP_VERSION >= 0x5130
 #   define BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 #   define BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
@@ -1075,7 +1071,6 @@ BSLS_IDENT("$Id: $")
 
 //CC -std=c++14
 #if  __cplusplus >= 201402L
-# define BSLS_COMPILERFEATURES_CPP14 1
 # if BSLS_PLATFORM_CMP_VERSION > 0x5150
 #   define BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 # endif
@@ -1092,8 +1087,7 @@ BSLS_IDENT("$Id: $")
 // Undefine macros defined for earlier dialacts (including C++98) that are
 // removed from later editions of the C++ Standard.
 
-
-#if defined(BSLS_COMPILERFEATURES_CPP17)
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
 # undef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
 #endif
 
