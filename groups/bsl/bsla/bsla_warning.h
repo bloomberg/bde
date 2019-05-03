@@ -39,7 +39,7 @@ BSLS_IDENT("$Id: $")
 // This section illustrates intended use of this component.
 //
 ///Example 1: Function Annotated with 'BSLA_WARNING'
-/// - - - - - - - - - - - - - - - - - - - - - - - -
+///- - - - - - - - - - - - - - - - - - - - - - - - -
 // First, we declare and define a function annotated with 'BSLA_WARNING'.  Note
 // that the argument to 'BSLA_WARNING' must be a quoted string:
 //..

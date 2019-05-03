@@ -89,11 +89,9 @@ BSLS_IDENT("$Id: $")
 // Now, we call 'printf' and 'scanf' passing arguments that won't match the
 // resulting format string:
 //..
-#if U_TRIGGER_WARNINGS
 //  ::printf(prefixName(buffer, e_ENGLISH, "%s\n"), 2.7);
 //  int x;
 //  ::scanf(prefixName(buffer, e_DUTCH, "%s"), &x);
-#endif
 //..
 // Finally, we observe the following warning messages with clang:
 //..

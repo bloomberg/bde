@@ -752,23 +752,9 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
-    printf("\nBSLS_COMPILERFEATURES_CPP11: ");
-#ifdef BSLS_COMPILERFEATURES_CPP11
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_CPP11) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\nBSLS_COMPILERFEATURES_CPP14: ");
-#ifdef BSLS_COMPILERFEATURES_CPP14
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_CPP14) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\nBSLS_COMPILERFEATURES_CPP17: ");
-#ifdef BSLS_COMPILERFEATURES_CPP17
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_CPP17) );
+    printf("\nBSLS_COMPILERFEATURES_CPLUSPLUS: ");
+#ifdef BSLS_COMPILERFEATURES_CPLUSPLUS
+    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_CPLUSPLUS) );
 #else
     printf("UNDEFINED\n");
 #endif

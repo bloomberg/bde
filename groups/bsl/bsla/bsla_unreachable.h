@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component provides a preprocessor macro that hints to the
 // compile that a statement in the code is intended to be unreachable.  Note
-// that the instance of 'BSLA_UNREACHABLE' must be followed by a ';' and is a
+// that an instance of 'BSLA_UNREACHABLE' must be followed by a ';' and is a
 // statement in its own right.
 //
 ///Macro Reference
@@ -26,8 +26,9 @@ BSLS_IDENT("$Id: $")
 //:     This macro will, when used and followed by a semicolon, create a
 //:     statement that emits no code, but that is indicated to be unreachable,
 //:     causing compilers, where supported, to issue warnings if there is
-//:     actually a way that the code can be reached.  Note that the behavior is
-//:     undefined if control actually reaches a 'BSLA_UNREACHABLE' statement.
+//:     actually a way that the statement can be reached.  Note that the
+//:     behavior is undefined if control actually reaches a 'BSLA_UNREACHABLE'
+//:     statement.
 //
 //: 'BSLA_UNREACHABLE_IS_ACTIVE'
 //:     The macro 'BSLA_UNREACHABLE_IS_ACTIVE' is defined to 0 if
@@ -39,9 +40,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Example 1: Indicating That a Statement is Intended to be Unreachable
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a function 'directoriesInPath' that counts the number of
-// directories in the '$PATH' environment variable.  If '$PATH' is not set, it
-// dumps core by calling 'BSLS_ASSERT_OPT':
+// First, we define a function, 'directoriesInPath', that counts the number of
+// directories in the 'PATH' environment variable.  If 'PATH' is not set, the
+// program dumps core by calling 'BSLS_ASSERT_OPT':
 //..
 //  int directoriesInPath()
 //  {
@@ -54,13 +55,12 @@ BSLS_IDENT("$Id: $")
 //          return ret;                                               // RETURN
 //      }
 //
-//      BSLS_ASSERT_OPT(false && "dump core");
+//      BSLS_ASSERT_OPT(false && "$PATH not set");
 //  }
 //..
-// Then, we observe the compile error because the compiler expects the
-// 'BSLA_ASSERT_OPT' to return and the function, which returns an 'int', to run
-// off the end without returning anything, causing the following error message
-// on Windows
+// Then, we observe a compile error because the compiler expects the
+// 'BSLA_ASSERT_OPT' to return and the function to run off the end and return
+// 'void', while the function is declated to return 'int'.
 //..
 //  .../bsla_unreachable.t.cpp(141) : error C4715: 'directoriesInPath': not all
 //  control paths return a value
@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 //          return ret;                                               // RETURN
 //      }
 //
-//      BSLS_ASSERT_OPT(false && "dump core");
+//      BSLS_ASSERT_OPT(false && "$PATH not set");
 //
 //      BSLA_UNREACHABLE;
 //  }

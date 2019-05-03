@@ -111,7 +111,7 @@ void aSsErT(bool condition, const char *message, int line)
 
 ///Usage
 ///-----
-// This section illustrates indended use of this component.
+// This section illustrates intended use of this component.
 //
 ///Example 1: Passing Null to Arguments Annotated as Non-Null
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

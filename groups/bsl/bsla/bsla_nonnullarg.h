@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide macros to hint at null arguments to functions.
 //
 //@MACROS:
-//  BSLA_NONNULLARGS: warn if any arguments are null
+//  BSLA_NONNULLARGS: warn if any pointer arguments are null
 //  BSLA_NONNULLARG(...): warn if indexed arguments are null
 //  BSLA_NONNULLARGS_IS_ACTIVE: 1 if 'BSLA_NONNULLARGS' is active, 0 otherwise
 //  BSLA_NONNULLARG_IS_ACTIVE:  1 if 'BSLA_NONNULLARG' is active, 0 otherwise
@@ -27,7 +27,7 @@ BSLS_IDENT("$Id: $")
 //: o 'NULL'
 //: o 0
 //: o 'static_cast<TYPE *>(0)'
-//: o 'nullptr' (on C++11)
+//: o 'nullptr' (with C++11)
 //: o a 'const' variable known to be 0 (clang only, no warning with g++)
 //
 ///Macro Reference
@@ -46,6 +46,7 @@ BSLS_IDENT("$Id: $")
 //: 'BSLS_NONNULLARGS_IS_ACTIVE'
 //:     In these two cases, 'X_IS_ACTIVE' is defined to 0 if 'X' expands to
 //:     nothing and 1 otherwise.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -103,7 +104,6 @@ BSLS_IDENT("$Id: $")
 // Now, we call both functions passing various forms of constant null pointer
 // expressions to the first argument:
 //..
-#if U_TRIGGER_WARNINGS
 //      usagePrint1(   0, -10);
 //      usagePrint2(   0, -10);
 //
@@ -121,7 +121,6 @@ BSLS_IDENT("$Id: $")
 //      char * const np2 = 0;   // 'np2', unlike 'np1' above, is 'const'.
 //      usagePrint1(np2, -50);    // Warning with clang, not g++
 //      usagePrint2(np2, -50);    // Warning with clang, not g++
-#endif
 //..
 // Finally, we observe that the above calls result in the following warnings
 // with clang w/C++11 support:

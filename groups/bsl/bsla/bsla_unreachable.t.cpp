@@ -1,8 +1,6 @@
 // bsla_unreachable.t.cpp                                             -*-C++-*-
 #include <bsla_unreachable.h>
 
-#include <bsla_noreturn.h>
-
 #include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 
@@ -118,9 +116,9 @@ void aSsErT(bool condition, const char *message, int line)
 //
 ///Example 1: Indicating That a Statement is Intended to be Unreachable
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// First, we define a function 'directoriesInPath' that counts the number of
-// directories in the '$PATH' environment variable.  If '$PATH' is not set, it
-// dumps core by calling 'BSLS_ASSERT_OPT':
+// First, we define a function, 'directoriesInPath', that counts the number of
+// directories in the 'PATH' environment variable.  If 'PATH' is not set, the
+// program dumps core by calling 'BSLS_ASSERT_OPT':
 //..
 #if U_TRIGGER_ERRORS
 namespace triggerErrors {
@@ -135,15 +133,14 @@ namespace triggerErrors {
             return ret;                                               // RETURN
         }
 
-        BSLS_ASSERT_OPT(false && "dump core");
+        BSLS_ASSERT_OPT(false && "$PATH not set");
     }
 }  // close namespace triggerErrors
 #endif
 //..
-// Then, we observe the compile error because the compiler expects the
-// 'BSLA_ASSERT_OPT' to return and the function, which returns an 'int', to run
-// off the end without returning anything, causing the following error message
-// on Windows
+// Then, we observe a compile error because the compiler expects the
+// 'BSLA_ASSERT_OPT' to return and the function to run off the end and return
+// 'void', while the function is declated to return 'int'.
 //..
 //  .../bsla_unreachable.t.cpp(141) : error C4715: 'directoriesInPath': not all
 //  control paths return a value
@@ -163,7 +160,7 @@ namespace triggerErrors {
             return ret;                                               // RETURN
         }
 
-        BSLS_ASSERT_OPT(false && "dump core");
+        BSLS_ASSERT_OPT(false && "$PATH not set");
 
         BSLA_UNREACHABLE;
     }

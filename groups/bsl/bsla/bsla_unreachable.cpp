@@ -4,8 +4,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id$ $CSID$")
 
-#include <bsla_noreturn.h>
-
 // ----------------------------------------------------------------------------
 // Copyright 2019 Bloomberg Finance L.P.
 //

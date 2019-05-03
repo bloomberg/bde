@@ -56,8 +56,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  usageFunc();
 //..
-// Finally, observe the following compile fails with the following error
-// message:
+// Finally, observe that the compile fails with the following error message:
 //..
 //  .../bsla_error.t.cpp:226:16: error: call to 'usageFunc' declared with
 //  attribute error: Don't call 'usageFunc'

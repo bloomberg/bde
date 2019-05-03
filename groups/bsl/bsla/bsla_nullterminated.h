@@ -20,8 +20,8 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides preprocessor macros to indicate that a
 // variadic function's arguments are terminated by 'NULL', or, in the case of
 // 'BSLA_NULLTERMINATEDAT', by 'NULL' at a certain index.  Note that the
-// terminating 'NULL' must actually be 'NULL' or, on C++11, 'nullptr'; passing
-// 0 in it's place will result in a warning.
+// terminating 'NULL' must actually be 'NULL' or, with C++11, 'nullptr';
+// passing 0 in its place will result in a warning.
 //
 ///Macro Reference
 ///---------------

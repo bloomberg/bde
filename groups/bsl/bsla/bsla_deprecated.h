@@ -60,18 +60,13 @@ BSLS_IDENT("$Id: $")
 //..
 // Then, as long as we don't use them, no warnings will be issued.
 //
-// Next, we conditionally decide whether to use those 3 entities:
-//..
-//  #if U_TRIGGER_WARNINGS
-//..
-// Then, we use 'UsageType':
+// Next, we use 'UsageType':
 //..
 //  UsageType ut;
 //  ut.d_int = 5;
 //  (void) ut.d_int;
 //..
-// which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
-// the following warnings:
+// which results in the following warnings:
 //..
 //  .../bsla_deprecated.t.cpp:287:5: warning: 'UsageType' is deprecated
 //  [-Wdeprecated-declarations]
@@ -86,8 +81,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  usageFunc();
 //..
-// which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
-// the following warnings:
+// which results in the following warnings:
 //..
 //  .../bsla_deprecated.t.cpp:309:5: warning: 'usageFunc' is deprecated
 //  [-Wdeprecated-declarations]
@@ -102,8 +96,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  printf("%d\n", usageVar);
 //..
-// which, if 'U_TRIGGER_WARNINGS' was defined to a non-zero value, results in
-// the following warnings:
+// which results in the following warnings:
 //..
 //  .../bsla_deprecated.t.cpp:329:20: warning: 'usageVar' is deprecated
 //  [-Wdeprecated-declarations]
@@ -113,7 +106,6 @@ BSLS_IDENT("$Id: $")
 //  marked deprecated here
 //      extern int usageVar BSLA_DEPRECATED;
 //                          ^
-//  #endif
 //..
 
 #include <bsls_platform.h>

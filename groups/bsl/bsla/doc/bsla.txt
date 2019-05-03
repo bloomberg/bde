@@ -31,7 +31,9 @@
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-   2. bsla_annotations
+   3. bsla_annotations
+
+   2. bsla_used
 
    1. bsla_deprecated
       bsla_error
@@ -45,7 +47,6 @@
       bsla_scanf
       bsla_unreachable
       bsla_unused
-      bsla_used
       bsla_warning
 ..
 
